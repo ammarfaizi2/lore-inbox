@@ -1,92 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266518AbUBLQzt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 11:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUBLQzt
+	id S266514AbUBLQvB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 11:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266524AbUBLQvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 11:55:49 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:43188 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S266518AbUBLQzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 11:55:45 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Nick Piggin <piggin@cyberone.com.au>, Giuliano Pochini <pochini@shiny.it>
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
-Date: Fri, 13 Feb 2004 01:05:20 +0800
-User-Agent: KMail/1.5.4
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-References: <XFMail.20040212104215.pochini@shiny.it> <402B5502.2010207@cyberone.com.au>
-In-Reply-To: <402B5502.2010207@cyberone.com.au>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402130105.22554.mhf@linuxmail.org>
+	Thu, 12 Feb 2004 11:51:00 -0500
+Received: from smtp1.clb.oleane.net ([213.56.31.17]:16022 "EHLO
+	smtp1.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S266514AbUBLQu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 11:50:58 -0500
+Subject: Re: JFS default behavior (was: UTF-8 in file systems?
+	xfs/extfs/etc.)
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yR/D1NOUeZ5dWdqC2CIm"
+Organization: Adresse personnelle
+Message-Id: <1076604650.31270.20.camel@ulysse.olympe.o2t>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Thu, 12 Feb 2004 17:50:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 February 2004 18:27, Nick Piggin wrote:
-> 
-> Giuliano Pochini wrote:
-> 
-> >On 12-Feb-2004 Andrea Arcangeli wrote:
-> >
-> >
-> >>the main difference is that 2.4 isn't in function of time, it's in
-> >>function of requests, no matter how long it takes to write a request,
-> >>so it's potentially optimizing slow devices when you don't care about
-> >>latency (deadline can be tuned for each dev via
-> >>/sys/block/*/queue/iosched/).
-> >>
-> >
-> >IMHO it's the opposite. Transfer speed * seek time of some
-> >slow devices is lower than fast devices. For example:
-> >
-> >Hard disk  raw speed= 40MB/s   seek time =  8ms
-> >MO/ZIP     raw speed=  3MB/s   seek time = 25ms
-> >
-> >
-> 
-> I like accounting by time better because its accurate
-> and fair for all types of devices, however I admit an
-> auto tuning feature would be nice.
-> 
-> Say you allow 16 128K requests before seeking:
-> The HD will run the requests for 50ms then seek (8ms).
-> So this gives you about 86% efficiency.
-> On your zip drive it takes 666ms, giving you 96%.
-> 
-> Now with AS, allowing 50ms of requests before a seek
-> gives you the same for an HD, but only 66% for the MO
-> drive. A CD-ROM will be much worse.
-> 
-> Auto tuning wouldn't be too hard. Just measure the time
-> it takes for your seeking requests to complete and you
-> can use the simple formula to allow users to specify a
-> efficiency vs latency %age.
-> 
 
-This triggers me to ask about "io niceness" which has been on 
-my mind for some time.
+--=-yR/D1NOUeZ5dWdqC2CIm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-A disk intensive example is updatedb, which since the earlier 
-days of linux on [34]86s, is usually reniced at 19. At that time a 
-CPU did 10-50 bogomips and disks transfered  5-20MB at seek times of 
-10ms or so.
+Not specifying the file name encoding (either per fs type, per partition
+or per filename) is plain dangerous. It is not a userspace problem -
+flash/hotplug disks move, users on the same system can have different
+locales and try to share files, a user can change his locale to another
+one (hear the screams of RH users forcibly converted to utf8 which had
+to fix years of storage which filenames were suddenly borked)=20
 
-Today, CPU's are 100 times as fast but disks are effectively only 
-2-5 times as fast.
+See also the sun zip encoding bug - everyone uses zip files in Java, zip
+authors thought a filename is "just a bunch of bytes" and didn't put
+filename encoding info in the zip format, and now java zip handling goes
+boom since numerous encodings are unicode-incompatible. It's slowly
+getting its way to the top-25 most reported java bugs.
 
-What I am getting at is being annoyed with updatedb ___saturating___ 
-the the disk so easily as the "ancient" method of renicing does not 
-consider the fact that the CPU pwrformance has increased 20-50 fold 
-over disk performace.
+(of course as usual US users/coders  are not hit and do not feel
+concerned)
 
-Bottom line: what about assigning "io niceness" to processes, which
-would also help with actively scheduling io toward processes 
-needing it.
+The only reason we got by with it so far is linux localisation was poor,
+and systems didn't scale high enough to permit high number of users per
+system (reducing locale collision risks)
 
-Michael
+The only reason we might get by in the future is everyone will be using
+utf8.
+
+But that's not a reason not to fix the core problem - I don't want to
+spent hours fixing filenames next time someone comes up with a new
+encoding. Please put valid encoding info somewhere or declare filenames
+are utf-8 od utf-16 only - changing user locale should not corrupt old
+data.
+
+Cheers,
+
+--=20
+Nicolas Mailhot
+
+--=-yR/D1NOUeZ5dWdqC2CIm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAK67oI2bVKDsp8g0RAk77AKDyxfaKuF01I/AueX4pyD4bDwuaxwCcCkoB
+7Btw4qS3MyPMRvxjmFrwMzs=
+=xkKo
+-----END PGP SIGNATURE-----
+
+--=-yR/D1NOUeZ5dWdqC2CIm--
 

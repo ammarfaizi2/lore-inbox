@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277918AbRKHUGx>; Thu, 8 Nov 2001 15:06:53 -0500
+	id <S277942AbRKHUJD>; Thu, 8 Nov 2001 15:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277942AbRKHUGn>; Thu, 8 Nov 2001 15:06:43 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:29714 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S277918AbRKHUGa>; Thu, 8 Nov 2001 15:06:30 -0500
-Message-Id: <200111082006.fA8K6BY63324@aslan.scsiguy.com>
-To: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@online.fr>
-cc: John Gluck <jgluckca@home.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Question: Adaptec AIC7xxx support 
-In-Reply-To: Your message of "Thu, 08 Nov 2001 20:37:18 +0100."
-             <20011108203718.B505@online.fr> 
-Date: Thu, 08 Nov 2001 13:06:11 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S278038AbRKHUIy>; Thu, 8 Nov 2001 15:08:54 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:54801 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S278046AbRKHUIn>; Thu, 8 Nov 2001 15:08:43 -0500
+Date: Thu, 8 Nov 2001 21:08:40 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jonas Diemer <diemer@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA 686 timer bugfix incomplete
+Message-ID: <20011108210840.A6266@suse.cz>
+In-Reply-To: <20011107211445.A2286@suse.cz> <Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au> <20011108090215.G3708@suse.cz> <20011108102124.31ca040f.diemer@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011108102124.31ca040f.diemer@gmx.de>; from diemer@gmx.de on Thu, Nov 08, 2001 at 10:21:24AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I also wonder why the reset delay is 15000 Msec. It used to be 5000
->> Msec. I've usually set it to that without nasty results. I just wonder
->> what the reasoning is behind such a long delay.
->
->This is a drawback of single driver for multiple cards. Good cards
->suffer to enable the driver to support bad ones.
+On Thu, Nov 08, 2001 at 10:21:24AM +0100, Jonas Diemer wrote:
 
-This has nothing to do with the card the aic7xxx driver is accessing.
+> Well, then maybe Vojtech's suggestion is best: use RTC for timing, not the
+> chipset...
+> as to my knowledge, every i38 system has a standard RTC, so why not use this? or
+> even better: make an option in the config to choose whether use RTC or the
+> chipset.
 
---
-Justin
+There is a little problem with RTC, though:
+
+While you can set it up to generate interrupts at say 1024 Hz, you can't
+read any value of how much time passed since last interrupt. You can do
+this on the PIT (i8253), and this is the part that is buggy.
+
+TSC is perfect, precise and accurate, but not reliable in long term.
+Some CPUs do thermal throttling, notebooks play with CPU speed, etc,
+etc. And it's not synchronized to any interrupt source.
+
+Ugly, ugly, ugly is the PC architecture.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

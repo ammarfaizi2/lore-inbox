@@ -1,126 +1,235 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLXAjz>; Sat, 23 Dec 2000 19:39:55 -0500
+	id <S129458AbQLXAsi>; Sat, 23 Dec 2000 19:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129737AbQLXAjp>; Sat, 23 Dec 2000 19:39:45 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:25842 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129458AbQLXAji>; Sat, 23 Dec 2000 19:39:38 -0500
-Date: Sat, 23 Dec 2000 20:18:35 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.2: cs89x0, fix more kmallocs unchecked
-Message-ID: <20001223201835.D6355@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Url: http://advogato.org/person/acme
+	id <S129595AbQLXAs3>; Sat, 23 Dec 2000 19:48:29 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:58305 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S129458AbQLXAsZ>;
+	Sat, 23 Dec 2000 19:48:25 -0500
+From: Andreas Franck <afranck@gmx.de>
+Date: Sun, 24 Dec 2000 01:21:44 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  charset="US-ASCII";
+  boundary="------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E"
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
+In-Reply-To: <Pine.Linu.4.10.10012231826350.645-100000@mikeg.weiden.de>
+Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
+Cc: Mike Galbraith <mikeg@wen-online.de>
+MIME-Version: 1.0
+Message-Id: <00122401214400.17931@dg1kfa.ampr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-	
-	I talked with Russell in private and this patch fixes some issues
-with the previous one, included in 2.2.19-pre3, and it also checks for
-another kmalloc result in init_module.
 
-	Another question, by what I saw the HAVE_DEVLIST thing is not used
-anymore (dunno if it ever was used), should we get rid of it in this and in
-some other old drivers?
+--------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E
+Content-Type: text/plain;
+  charset="US-ASCII"
+Content-Transfer-Encoding: 8bit
 
-- Arnaldo
+The story continues, citing myself:
 
---- linux-2.2.19-3/drivers/net/cs89x0.c	Sat Dec 23 18:13:25 2000
-+++ linux-2.2.19-3.acme/drivers/net/cs89x0.c	Sat Dec 23 20:08:24 2000
-@@ -28,11 +28,12 @@
-                     
-   Alan Cox          : Removed 1.2 support, added 2.1 extra counters.
- 
--  Arnaldo Melo	    : release resources on failure in cs89x0_probe1
-+  Arnaldo Melo	    : release resources on failure in cs89x0_probe1 and
-+  		      init_module
- */
- 
- static char *version =
--"cs89x0.c:v1.03 11/26/96 Russell Nelson <nelson@crynwr.com>\n";
-+"cs89x0.c:v1.04 11/26/96 Russell Nelson <nelson@crynwr.com>\n";
- 
- /* ======================= configure the driver here ======================= */
- 
-@@ -251,7 +252,6 @@
- 	struct net_local *lp;
- 	static unsigned version_printed = 0;
- 	int i;
--	char priv_alloced_here = 0;
- 	unsigned rev_type = 0;
- 	int eeprom_buff[CHKSUM_LEN];
- 
-@@ -261,7 +261,6 @@
- 		if (!dev->priv)
- 			return -ENOMEM;
-                 memset(dev->priv, 0, sizeof(struct net_local));
--		priv_alloced_here = 1;
-         }
- 	lp = (struct net_local *)dev->priv;
- 
-@@ -394,10 +393,8 @@
- 
- 	printk("\n");
- 	return 0;
--err:	if (priv_alloced_here) {
--		kfree(dev->priv);
--		dev->priv = NULL;
--	}
-+err:	kfree(dev->priv);
-+	dev->priv = NULL;
- 	return -ENODEV;
- }
- 
-@@ -1053,6 +1050,7 @@
- init_module(void)
- {
- 	struct net_local *lp;
-+	int ret;
- 
- 	net_debug = debug;
-         dev_cs89x0.name = namespace;
-@@ -1060,6 +1058,8 @@
- 	dev_cs89x0.base_addr = io;
-         dev_cs89x0.init = cs89x0_probe;
-         dev_cs89x0.priv = kmalloc(sizeof(struct net_local), GFP_KERNEL);
-+	if (!dev_cs89x0.priv)
-+		return -ENOMEM;
- 	memset(dev_cs89x0.priv, 0, sizeof(struct net_local));
- 	lp = (struct net_local *)dev_cs89x0.priv;
- 
-@@ -1076,16 +1076,21 @@
-         if (duplex==-1)
- 		lp->auto_neg_cnf = AUTO_NEG_ENABLE;
- 
-+	ret = -EPERM;
-         if (io == 0)  {
-                 printk(KERN_NOTICE "cs89x0.c: Module autoprobing not allowed.\n");
-                 printk(KERN_NOTICE "cs89x0.c: Append io=0xNNN\n");
--                return -EPERM;
-+		goto err;
-         }
-+	ret = -ENXIO;
-         if (register_netdev(&dev_cs89x0) != 0) {
-                 printk(KERN_WARNING "cs89x0.c: No card found at 0x%x\n", io);
--                return -ENXIO;
-+		goto err;
-         }
- 	return 0;
-+err:	kfree(dev_cs89x0.priv);
-+	dev_cs89x0.priv = NULL;
-+	return ret;
- }
- 
- void
+> Hmm, would have been nice, but it crashes here with 20001222, nevertheless. 
+> For which CPU do you have your kernel configured? It might be a CPU 
+> specific issue, I'll try to compile for Pentium I and 486, now, and report
+> my results.
+
+It does not seem CPU specific, breaks for both 486 and Pentium with the same 
+error.
+
+> It would also be nice to know if this is a gcc issue or a kernel issue - if 
+> I knew which precise file was responsible for the crash, I could compare 
+> the assembly output for stable and snapshot GCC. My suspect is
+> kernel/sched.c, but this might be wrong, as the story begins on the launch 
+> of kupdate in fs/buffer.c.
+
+And this is where everything seems to go wrong: When I compile buffer.c with 
+2.95.2, and link everything together, the kernel magically boots without any 
+complaints; later on something starts crashing badly, but this might be other 
+issues that can be investigated later on.
+
+> But now I have almost no clue what really goes wrong
+... and now I have a bit more, and the suspection that something broke the 
+way in which the kernel_thread function (arch/i386/kernel/process.c) wants to 
+start the kernel threads, here bdflush and kupdate. I don't understand all 
+issues completely, but something seems to have changed.
+
+Attached are the relevant (?) portions of the assembly output for buffer.c: 
+kupdate, bdflush and bdflush_init, compiled with 2.95.2 and 2.97, 
+respectively. Perhaps someone could look over it?
+
+Thanks and happy hacking,
+Andreas
+
+-- 
+->>>----------------------- Andreas Franck --------<<<-
+---<<<---- Andreas.Franck@post.rwth-aachen.de --->>>---
+->>>---- Keep smiling! ----------------------------<<<-
+
+--------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E
+Content-Type: application/x-troff;
+  name="buffer-2.95.2.S"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="buffer-2.95.2.S"
+
+LnNlY3Rpb24JLnJvZGF0YQouTEMzMjoKCS5zdHJpbmcJImJkZmx1c2giCi50ZXh0CgkuYWxpZ24g
+MTYKLmdsb2JsIGJkZmx1c2gKCS50eXBlCSBiZGZsdXNoLEBmdW5jdGlvbgpiZGZsdXNoOgoJcHVz
+aGwgJWVkaQoJcHVzaGwgJWVzaQoJcHVzaGwgJWVieAoJbW92bCAkLTgxOTIsJWVieAojQVBQCglh
+bmRsICVlc3AsJWVieDsgCiNOT19BUFAKCW1vdmwgJDEsMTIwKCVlYngpCgltb3ZsICQxLDExMigl
+ZWJ4KQoJbGVhbCA1NjIoJWVieCksJWVkaQoJbW92bCAkLkxDMzIsJWVzaQojQVBQCgkxOglsb2Rz
+YgoJc3Rvc2IKCXRlc3RiICVhbCwlYWwKCWpuZSAxYgojTk9fQVBQCgltb3ZsICVlYngsYmRmbHVz
+aF90c2sKI0FQUAoJY2xpCiNOT19BUFAKCXB1c2hsICVlYngKCWNhbGwgZmx1c2hfc2lnbmFscwoJ
+YWRkbCAkNCwlZXNwCgltb3ZsICQtMSwxMzY0KCVlYngpCgltb3ZsICQtMSwxMzYwKCVlYngpCglt
+b3ZsICQwLDgoJWVieCkKI0FQUAoJc3RpCiNOT19BUFAKCW1vdmwgMTYoJWVzcCksJWVjeAojQVBQ
+CgkjIGF0b21pYyB1cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNlY3Rpb24g
+LnRleHQubG9jaywiYXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlvdXMKCS5w
+MmFsaWduIDQsLDcKI05PX0FQUAouTDMzNDg6CgljbXBsICQwLGVtZXJnZW5jeV9zeW5jX3NjaGVk
+dWxlZAoJamUgLkwzMzUxCgljYWxsIGRvX2VtZXJnZW5jeV9zeW5jCi5MMzM1MToKCXB1c2hsICQw
+CgljYWxsIGZsdXNoX2RpcnR5X2J1ZmZlcnMKCW1vdmwgJWVheCwlZXNpCgljYWxsIGZyZWVfc2hv
+cnRhZ2UKCWFkZGwgJDQsJWVzcAoJdGVzdGwgJWVheCwlZWF4CglqZSAuTDMzNTIKCXB1c2hsICQw
+CglwdXNobCAkMwoJY2FsbCBwYWdlX2xhdW5kZXIKCWFkZGwgJWVheCwlZXNpCglhZGRsICQ4LCVl
+c3AKLkwzMzUyOgoJbW92bCAkMSwoJWVieCkKCXhvcmwgJWVjeCwlZWN4Cgltb3ZsICQzLCVlZHgK
+CW1vdmwgJGJkZmx1c2hfZG9uZSwlZWF4CgljYWxsIF9fd2FrZV91cAoJdGVzdGwgJWVzaSwlZXNp
+CglqZSAuTDMzNTkKCXB1c2hsICQwCgljYWxsIGJhbGFuY2VfZGlydHlfc3RhdGUKCWFkZGwgJDQs
+JWVzcAoJdGVzdGwgJWVheCwlZWF4CglqZ2UgLkwzMzU4CgkucDJhbGlnbiA0LCw3Ci5MMzM1OToK
+CWNtcGwgJHRxX2Rpc2ssdHFfZGlzawoJamUgLkwzMzYyCglwdXNobCAkdHFfZGlzawoJY2FsbCBf
+X3J1bl90YXNrX3F1ZXVlCglhZGRsICQ0LCVlc3AKLkwzMzYyOgoJY2FsbCBzY2hlZHVsZQouTDMz
+NTg6Cgltb3ZsICQwLCglZWJ4KQoJam1wIC5MMzM0OAouTGZlNzA6Cgkuc2l6ZQkgYmRmbHVzaCwu
+TGZlNzAtYmRmbHVzaAouc2VjdGlvbgkucm9kYXRhCi5MQzMzOgoJLnN0cmluZwkia3VwZGF0ZSIK
+LnRleHQKCS5hbGlnbiAxNgouZ2xvYmwga3VwZGF0ZQoJLnR5cGUJIGt1cGRhdGUsQGZ1bmN0aW9u
+Cmt1cGRhdGU6CglwdXNobCAlZWRpCglwdXNobCAlZXNpCglwdXNobCAlZWJ4Cgltb3ZsICQtODE5
+MiwlZWJ4CiNBUFAKCWFuZGwgJWVzcCwlZWJ4OyAKI05PX0FQUAoJbGVhbCA1NjIoJWVieCksJWVk
+aQoJbW92bCAkLkxDMzMsJWVzaQoJbW92bCAxNiglZXNwKSwlZWN4Cgltb3ZsICQxLDEyMCglZWJ4
+KQoJbW92bCAkMSwxMTIoJWVieCkKI0FQUAoJMToJbG9kc2IKCXN0b3NiCgl0ZXN0YiAlYWwsJWFs
+CglqbmUgMWIKCWNsaQojTk9fQVBQCgltb3ZsICQtMzkzMjE3LDEzNjAoJWVieCkKCW1vdmwgJC0x
+LDEzNjQoJWVieCkKCXRlc3RiICQ2LDEzNzgoJWVieCkKCXNldG5lICVhbAoJbW92bCAlZWF4LCVl
+ZHgKCWFuZGwgJDEsJWVkeAoJbW92bCAlZWR4LDgoJWVieCkKI0FQUAoJc3RpCgkjIGF0b21pYyB1
+cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNlY3Rpb24gLnRleHQubG9jaywi
+YXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlvdXMKCS5wMmFsaWduIDQsLDcK
+I05PX0FQUAouTDM0NTM6Cgltb3ZsIGJkZl9wcm0rMTYsJWVheAoJdGVzdGwgJWVheCwlZWF4Cglq
+ZSAuTDM0NTgKCW1vdmwgJDEsKCVlYngpCgljYWxsIHNjaGVkdWxlX3RpbWVvdXQKCWptcCAuTDM0
+NTcKCS5wMmFsaWduIDQsLDcKLkwzNDU4OgoJbW92bCAkOCwoJWVieCkKCWNhbGwgc2NoZWR1bGUK
+LkwzNDU3OgoJY21wbCAkMCw4KCVlYngpCglqZSAuTDM0NTkKCXhvcmwgJWVjeCwlZWN4CiNBUFAK
+CWNsaQojTk9fQVBQCgl0ZXN0YiAkNCwxMzc4KCVlYngpCglqZSAuTDM0NjUKI0FQUAoJYnRybCAk
+MTgsMTM3NiglZWJ4KQojTk9fQVBQCglpbmNsICVlY3gKCS5wMmFsaWduIDQsLDcKLkwzNDY1OgoJ
+bW92bCAxMzY0KCVlYngpLCVlYXgKCW5vdGwgJWVheAoJYW5kbCAxMzgwKCVlYngpLCVlYXgKCW1v
+dmwgMTM2MCglZWJ4KSwlZWR4Cglub3RsICVlZHgKCWFuZGwgMTM3NiglZWJ4KSwlZWR4Cglvcmwg
+JWVkeCwlZWF4CglzZXRuZSAlYWwKCW1vdmwgJWVheCwlZWR4CglhbmRsICQxLCVlZHgKCW1vdmwg
+JWVkeCw4KCVlYngpCiNBUFAKCXN0aQojTk9fQVBQCgl0ZXN0bCAlZWN4LCVlY3gKCWpuZSAuTDM0
+NTgKCS5wMmFsaWduIDQsLDcKLkwzNDU5OgoJY2FsbCBzeW5jX29sZF9idWZmZXJzCglqbXAgLkwz
+NDUzCi5MZmU3MToKCS5zaXplCSBrdXBkYXRlLC5MZmU3MS1rdXBkYXRlCi5zZWN0aW9uCS50ZXh0
+LmluaXQKCS5hbGlnbiAxNgoJLnR5cGUJIGJkZmx1c2hfaW5pdCxAZnVuY3Rpb24KYmRmbHVzaF9p
+bml0OgoJc3VibCAkNDAsJWVzcAoJcHVzaGwgJWVkaQoJcHVzaGwgJWVzaQoJcHVzaGwgJWVieAoJ
+bGVhbCAzMiglZXNwKSwlZWJ4Cgltb3ZsICVlYngsJWVkaQoJbGVhbCAxMiglZXNwKSwlZXNpCglt
+b3ZsICQwLDEyKCVlc3ApCgltb3ZsICQwLDE2KCVlc3ApCgltb3ZsICQwLDIwKCVlc3ApCglsZWFs
+IDQ0KCVlc3ApLCVlYXgKCW1vdmwgJWVheCwyNCglZXNwKQoJbW92bCAlZWF4LDI4KCVlc3ApCglj
+bGQKCW1vdmwgJDUsJWVjeAoJcmVwCgltb3ZzbAoJcHVzaGwgJDY5MTIwCglwdXNobCAlZWJ4Cglw
+dXNobCAkYmRmbHVzaAoJY2FsbCBrZXJuZWxfdGhyZWFkCglhZGRsICQxMiwlZXNwCgltb3ZsICVl
+YngsJWVjeAojQVBQCgkjIGF0b21pYyBkb3duIG9wZXJhdGlvbgoJZGVjbCAoJWVjeCkKCWpzIDJm
+CjE6Ci5zZWN0aW9uIC50ZXh0LmxvY2ssImF4IgoyOgljYWxsIF9fZG93bl9mYWlsZWQKCWptcCAx
+YgoucHJldmlvdXMKI05PX0FQUAoJcHVzaGwgJDY5MTIwCglwdXNobCAlZWJ4CglwdXNobCAka3Vw
+ZGF0ZQoJY2FsbCBrZXJuZWxfdGhyZWFkCglhZGRsICQxMiwlZXNwCgltb3ZsICVlYngsJWVjeAoj
+QVBQCgkjIGF0b21pYyBkb3duIG9wZXJhdGlvbgoJZGVjbCAoJWVjeCkKCWpzIDJmCjE6Ci5zZWN0
+aW9uIC50ZXh0LmxvY2ssImF4IgoyOgljYWxsIF9fZG93bl9mYWlsZWQKCWptcCAxYgoucHJldmlv
+dXMKI05PX0FQUAoJeG9ybCAlZWF4LCVlYXgKCXBvcGwgJWVieAoJcG9wbCAlZXNpCglwb3BsICVl
+ZGkKCWFkZGwgJDQwLCVlc3AKCXJldAouTGZlNzI6Cgkuc2l6ZQkgYmRmbHVzaF9pbml0LC5MZmU3
+Mi1iZGZsdXNoX2luaXQKLnNlY3Rpb24JLmluaXRjYWxsLmluaXQsImF3IixAcHJvZ2JpdHMKCS5h
+bGlnbiA0CgkudHlwZQkgX19pbml0Y2FsbF9iZGZsdXNoX2luaXQsQG9iamVjdAoJLnNpemUJIF9f
+aW5pdGNhbGxfYmRmbHVzaF9pbml0LDQKX19pbml0Y2FsbF9iZGZsdXNoX2luaXQ6CgkubG9uZyBi
+ZGZsdXNoX2luaXQKCS5sb2NhbAliaF9oYXNoX21hc2sKCS5jb21tCWJoX2hhc2hfbWFzayw0LDQK
+CS5sb2NhbAliaF9oYXNoX3NoaWZ0CgkuY29tbQliaF9oYXNoX3NoaWZ0LDQsNAoJLmxvY2FsCWhh
+c2hfdGFibGUKCS5jb21tCWhhc2hfdGFibGUsNCw0CgkubG9jYWwJbHJ1X2xpc3QKCS5jb21tCWxy
+dV9saXN0LDE2LDQKCS5sb2NhbAlucl9idWZmZXJzX3R5cGUKCS5jb21tCW5yX2J1ZmZlcnNfdHlw
+ZSwxNiw0CgkubG9jYWwJc2l6ZV9idWZmZXJzX3R5cGUKCS5jb21tCXNpemVfYnVmZmVyc190eXBl
+LDE2LDQKCS5sb2NhbAl1bnVzZWRfbGlzdAoJLmNvbW0JdW51c2VkX2xpc3QsNCw0CgkubG9jYWwJ
+bnJfdW51c2VkX2J1ZmZlcl9oZWFkcwoJLmNvbW0JbnJfdW51c2VkX2J1ZmZlcl9oZWFkcyw0LDQK
+CS5sb2NhbAlmcmVlX2xpc3QKCS5jb21tCWZyZWVfbGlzdCw1NiwzMgoJLmlkZW50CSJHQ0M6IChH
+TlUpIDIuOTUuMiAyMDAwMDIyMCAoRGViaWFuIEdOVS9MaW51eCkiCg==
+
+--------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E
+Content-Type: application/x-troff;
+  name="buffer-2.97.S"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="buffer-2.97.S"
+
+LkxDMjE6Cgkuc3RyaW5nCSJiZGZsdXNoIgoJLnRleHQKCS5hbGlnbiAxNgouZ2xvYmwgYmRmbHVz
+aAoJLnR5cGUJYmRmbHVzaCxAZnVuY3Rpb24KYmRmbHVzaDoKCXB1c2hsCSVlZGkKCXB1c2hsCSVl
+c2kKCXB1c2hsCSVlYngKCW1vdmwJJC04MTkyLCAlZWJ4CiNBUFAKCWFuZGwgJWVzcCwlZWJ4OyAK
+I05PX0FQUAoJc3VibAkkMTYsICVlc3AKCW1vdmwJJDEsIDEyMCglZWJ4KQoJbW92bAkkMSwgMTEy
+KCVlYngpCglsZWFsCTU2MiglZWJ4KSwgJWVkaQoJbW92bAkkLkxDMjEsICVlc2kKI0FQUAoJMToJ
+bG9kc2IKCXN0b3NiCgl0ZXN0YiAlYWwsJWFsCglqbmUgMWIKI05PX0FQUAoJbW92bAklZWJ4LCBi
+ZGZsdXNoX3RzawojQVBQCgljbGkKI05PX0FQUAoJcHVzaGwJJWVieAoJY2FsbAlmbHVzaF9zaWdu
+YWxzCglwb3BsCSVlc2kKCW1vdmwJJC0xLCAxMzY0KCVlYngpCgltb3ZsCSQtMSwgMTM2MCglZWJ4
+KQoJbW92bAkkMCwgOCglZWJ4KQojQVBQCglzdGkKI05PX0FQUAoJbW92bAkzMiglZXNwKSwgJWVj
+eAojQVBQCgkjIGF0b21pYyB1cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNl
+Y3Rpb24gLnRleHQubG9jaywiYXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlv
+dXMKCS5wMmFsaWduIDQKI05PX0FQUAouTDIyNjI6Cgltb3ZsCWVtZXJnZW5jeV9zeW5jX3NjaGVk
+dWxlZCwgJWVjeAoJdGVzdGwJJWVjeCwgJWVjeAoJamUJLkwyMjY1CgljYWxsCWRvX2VtZXJnZW5j
+eV9zeW5jCi5MMjI2NToKCXB1c2hsCSQwCgljYWxsCWZsdXNoX2RpcnR5X2J1ZmZlcnMKCW1vdmwJ
+JWVheCwgJWVzaQoJY2FsbAlmcmVlX3Nob3J0YWdlCgl0ZXN0bAklZWF4LCAlZWF4Cglwb3BsCSVl
+ZHgKCWplCS5MMjI2NgoJcHVzaGwJJDAKCXB1c2hsCSQzCgljYWxsCXBhZ2VfbGF1bmRlcgoJcG9w
+bAklZWRpCglhZGRsCSVlYXgsICVlc2kKCXBvcGwJJWVheAouTDIyNjY6Cgl4b3JsCSVlY3gsICVl
+Y3gKCW1vdmwJJDEsICglZWJ4KQoJbW92bAkkMywgJWVkeAoJbW92bAkkYmRmbHVzaF9kb25lLCAl
+ZWF4CgljYWxsCV9fd2FrZV91cAoJdGVzdGwJJWVzaSwgJWVzaQoJamUJLkwyMjcwCglwdXNobAkk
+MAoJY2FsbAliYWxhbmNlX2RpcnR5X3N0YXRlCgl0ZXN0bAklZWF4LCAlZWF4Cglwb3BsCSVlY3gK
+CWpzCS5MMjI3MAouTDIyNjk6Cgltb3ZsCSQwLCAoJWVieCkKCWptcAkuTDIyNjIKCS5wMmFsaWdu
+IDQKLkwyMjcwOgoJY21wbAkkdHFfZGlzaywgdHFfZGlzawoJam5lCS5MMjI3NQouTDIyNzI6Cglj
+YWxsCXNjaGVkdWxlCglqbXAJLkwyMjY5CgkucDJhbGlnbiA0Ci5MMjI3NToKCXB1c2hsCSR0cV9k
+aXNrCgljYWxsCV9fcnVuX3Rhc2tfcXVldWUKCXBvcGwJJWVkeAoJam1wCS5MMjI3MgouTGZlNzA6
+Cgkuc2l6ZQliZGZsdXNoLC5MZmU3MC1iZGZsdXNoCgkuc2VjdGlvbgkucm9kYXRhCi5MQzIyOgoJ
+LnN0cmluZwkia3VwZGF0ZSIKCS50ZXh0CgkuYWxpZ24gMTYKLmdsb2JsIGt1cGRhdGUKCS50eXBl
+CWt1cGRhdGUsQGZ1bmN0aW9uCmt1cGRhdGU6CglwdXNobAklZWJwCglwdXNobAklZWRpCglwdXNo
+bAklZXNpCglwdXNobAklZWJ4Cgltb3ZsCSQtODE5MiwgJWVieAojQVBQCglhbmRsICVlc3AsJWVi
+eDsgCiNOT19BUFAKCW1vdmwJMjAoJWVzcCksICVlY3gKCW1vdmwJJWVieCwgJWVicAoJbW92bAkk
+MSwgMTIwKCVlYngpCgltb3ZsCSQxLCAxMTIoJWVieCkKCWxlYWwJNTYyKCVlYngpLCAlZWRpCglt
+b3ZsCSQuTEMyMiwgJWVzaQojQVBQCgkxOglsb2RzYgoJc3Rvc2IKCXRlc3RiICVhbCwlYWwKCWpu
+ZSAxYgoJY2xpCiNOT19BUFAKCWxlYWwJMTM2MCglZWJ4KSwgJWVkeAoJbW92bAkkLTM5MzIxNywg
+MTM2MCglZWJ4KQoJbW92bAkkLTEsIDEzNjQoJWVieCkKCXhvcmwJJWVheCwgJWVheAoJdGVzdGwJ
+JDM5MzIxNiwgMTM3NiglZWJ4KQoJc2V0bmUJJWFsCgltb3ZsCSVlYXgsIDgoJWVieCkKI0FQUAoJ
+c3RpCgkjIGF0b21pYyB1cCBvcGVyYXRpb24KCWluY2wgKCVlY3gpCglqbGUgMmYKMToKLnNlY3Rp
+b24gLnRleHQubG9jaywiYXgiCjI6CWNhbGwgX191cF93YWtldXAKCWptcCAxYgoucHJldmlvdXMK
+I05PX0FQUAoJbW92bAklZWR4LCAlZWRpCgkucDJhbGlnbiA0Ci5MMjI5MDoKCW1vdmwJYmRmX3By
+bSsxNiwgJWVheAoJdGVzdGwJJWVheCwgJWVheAoJamUJLkwyMjk1Cgltb3ZsCSQxLCAoJWVieCkK
+CWNhbGwJc2NoZWR1bGVfdGltZW91dAouTDIyOTQ6Cgltb3ZsCTgoJWVieCksICVlYXgKCXRlc3Rs
+CSVlYXgsICVlYXgKCWplCS5MMjI5NgoJeG9ybAklZXNpLCAlZXNpCiNBUFAKCWNsaQojTk9fQVBQ
+Cgl0ZXN0YgkkNCwgMTM3OCglZWJ4KSAKCWplCS5MMjI5OQojQVBQCglidHJsICQxOCwxMzc2KCVl
+YnApCiNOT19BUFAKCW1vdmwJJDEsICVlc2kKLkwyMjk5OgoJbW92bAk0KCVlZGkpLCAlZWF4Cglt
+b3ZsCSglZWRpKSwgJWVkeAoJbm90bAklZWF4Cglub3RsCSVlZHgKCWFuZGwJMTM4MCglZWJwKSwg
+JWVheAoJYW5kbAkxMzc2KCVlYnApLCAlZWR4Cgl4b3JsCSVlY3gsICVlY3gKCW9ybAklZWR4LCAl
+ZWF4CglzZXRuZQklY2wKCW1vdmwJJWVjeCwgOCglZWJ4KQojQVBQCglzdGkKI05PX0FQUAoJdGVz
+dGwJJWVzaSwgJWVzaQoJamUJLkwyMjk2Ci5MMjI5NToKCW1vdmwJJDgsICglZWJ4KQoJY2FsbAlz
+Y2hlZHVsZQoJam1wCS5MMjI5NAoJLnAyYWxpZ24gNAouTDIyOTY6CgljYWxsCXN5bmNfb2xkX2J1
+ZmZlcnMKCWptcAkuTDIyOTAKLkxmZTcxOgoJLnNpemUJa3VwZGF0ZSwuTGZlNzEta3VwZGF0ZQoJ
+LnNlY3Rpb24JLnRleHQuaW5pdCwiYXgiLEBwcm9nYml0cwoJLmFsaWduIDE2CgkudHlwZQliZGZs
+dXNoX2luaXQsQGZ1bmN0aW9uCmJkZmx1c2hfaW5pdDoKCXB1c2hsCSVlZGkKCXB1c2hsCSVlc2kK
+CXB1c2hsCSVlYngKCXN1YmwJJDY0LCAlZXNwCglsZWFsCTMyKCVlc3ApLCAlZWJ4CglsZWFsCTEy
+KCVlYngpLCAlZWF4Cgltb3ZsCSQwLCAoJWVzcCkKCW1vdmwJJDAsIDQoJWVzcCkKCW1vdmwJJDAs
+IDgoJWVzcCkKCW1vdmwJJWVheCwgMTIoJWVzcCkKCW1vdmwJJWVheCwgMTYoJWVzcCkKCW1vdmwJ
+JWVzcCwgJWVzaQoJY2xkCgltb3ZsCSVlYngsICVlZGkKCW1vdmwJJDUsICVlY3gKCXJlcAoJbW92
+c2wKCXB1c2hsCSQ2OTEyMAoJcHVzaGwJJWVieAoJcHVzaGwJJGJkZmx1c2gKCWNhbGwJa2VybmVs
+X3RocmVhZAoJYWRkbAkkMTIsICVlc3AKCW1vdmwJJWVieCwgJWVjeAojQVBQCgkjIGF0b21pYyBk
+b3duIG9wZXJhdGlvbgoJZGVjbCAoJWVjeCkKCWpzIDJmCjE6Ci5zZWN0aW9uIC50ZXh0LmxvY2ss
+ImF4IgoyOgljYWxsIF9fZG93bl9mYWlsZWQKCWptcCAxYgoucHJldmlvdXMKI05PX0FQUAoJcHVz
+aGwJJDY5MTIwCglwdXNobAklZWJ4CglwdXNobAkka3VwZGF0ZQoJY2FsbAlrZXJuZWxfdGhyZWFk
+CglhZGRsCSQ3NiwgJWVzcAoJbW92bAklZWJ4LCAlZWN4CiNBUFAKCSMgYXRvbWljIGRvd24gb3Bl
+cmF0aW9uCglkZWNsICglZWN4KQoJanMgMmYKMToKLnNlY3Rpb24gLnRleHQubG9jaywiYXgiCjI6
+CWNhbGwgX19kb3duX2ZhaWxlZAoJam1wIDFiCi5wcmV2aW91cwojTk9fQVBQCglwb3BsCSVlYngK
+CXhvcmwJJWVheCwgJWVheAoJcG9wbAklZXNpCglwb3BsCSVlZGkKCXJldAouTGZlNzI6Cgkuc2l6
+ZQliZGZsdXNoX2luaXQsLkxmZTcyLWJkZmx1c2hfaW5pdAoJLnNlY3Rpb24JLmluaXRjYWxsLmlu
+aXQsImF3IixAcHJvZ2JpdHMKCS5hbGlnbiA0CgkudHlwZQlfX2luaXRjYWxsX2JkZmx1c2hfaW5p
+dCxAb2JqZWN0Cgkuc2l6ZQlfX2luaXRjYWxsX2JkZmx1c2hfaW5pdCw0Cl9faW5pdGNhbGxfYmRm
+bHVzaF9pbml0OgoJLmxvbmcJYmRmbHVzaF9pbml0CgkubG9jYWwJYmhfaGFzaF9tYXNrCgkuY29t
+bQliaF9oYXNoX21hc2ssNCw0CgkubG9jYWwJYmhfaGFzaF9zaGlmdAoJLmNvbW0JYmhfaGFzaF9z
+aGlmdCw0LDQKCS5sb2NhbAloYXNoX3RhYmxlCgkuY29tbQloYXNoX3RhYmxlLDQsNAoJLmxvY2Fs
+CWxydV9saXN0CgkuY29tbQlscnVfbGlzdCwxNiw0CgkubG9jYWwJbnJfYnVmZmVyc190eXBlCgku
+Y29tbQlucl9idWZmZXJzX3R5cGUsMTYsNAoJLmxvY2FsCXNpemVfYnVmZmVyc190eXBlCgkuY29t
+bQlzaXplX2J1ZmZlcnNfdHlwZSwxNiw0CgkubG9jYWwJdW51c2VkX2xpc3QKCS5jb21tCXVudXNl
+ZF9saXN0LDQsNAoJLmxvY2FsCW5yX3VudXNlZF9idWZmZXJfaGVhZHMKCS5jb21tCW5yX3VudXNl
+ZF9idWZmZXJfaGVhZHMsNCw0CgkubG9jYWwJZnJlZV9saXN0CgkuY29tbQlmcmVlX2xpc3QsNTYs
+MzIKCS5pZGVudAkiR0NDOiAoR05VKSAyLjk3IDIwMDAxMjIyIChleHBlcmltZW50YWwpIgo=
+
+--------------Boundary-00=_8CQ1CK7DDWXS6FVO1A1E--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

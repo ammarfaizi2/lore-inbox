@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131304AbRBWSkv>; Fri, 23 Feb 2001 13:40:51 -0500
+	id <S131217AbRBWSue>; Fri, 23 Feb 2001 13:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131688AbRBWSkl>; Fri, 23 Feb 2001 13:40:41 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:27912 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131304AbRBWSk3>;
-	Fri, 23 Feb 2001 13:40:29 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102231827.VAA21470@ms2.inr.ac.ru>
-Subject: Re: Very high bandwith packet based interface and performance problems
-To: raj@cup.hp.COM (Rick Jones)
-Date: Fri, 23 Feb 2001 21:27:21 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A9556A7.D052D8A6@cup.hp.com> from "Rick Jones" at Feb 22, 1 10:15:00 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131651AbRBWSuX>; Fri, 23 Feb 2001 13:50:23 -0500
+Received: from viper.haque.net ([64.0.249.226]:4234 "EHLO viper.haque.net")
+	by vger.kernel.org with ESMTP id <S131217AbRBWSuM>;
+	Fri, 23 Feb 2001 13:50:12 -0500
+Date: Fri, 23 Feb 2001 13:50:11 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: loop-6 patch and 2.4.2
+Message-ID: <Pine.LNX.4.32.0102231346350.32010-100000@viper.haque.net>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Is anyone else using 2.4.2 patched with loop-6? Does load goto about 1
+and stay there even though mounting things via loop seem to work fine?
 
-> > Yes its a SHOULD in RFC1122, but in any normal environment pretty much a
-> > must and I know of no stack significantly violating it.
-> 
-> I didn't know there was such a thing as a normal environment :)
+-- 
 
-Jokes apart, such "normal" environments are rare today.
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
 
->From tcpdumps it is clear, that win2000 does not ack each other mss.
-It can ack once per window at high load. I have seen the same behaviour
-of solaris. freebsd-4.x surely does not ack each second mss
-(it is from source code), which is probably bug (at least, it stops
-to ack at all as soon as MSG_WAITALL is used. 8))
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 
-Acking each second mss is required to do slow start more or less
-fastly. As soon as window is full, they are useless, so that win2000
-is fully right and, in fact, optimal.
-
-Alexey

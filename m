@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbULHSB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbULHSJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbULHSB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 13:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbULHR7k
+	id S261307AbULHSJz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 13:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbULHSFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 12:59:40 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38083 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261287AbULHR4H (ORCPT
+	Wed, 8 Dec 2004 13:05:52 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:32949 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261287AbULHSEi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 12:56:07 -0500
-Date: Wed, 8 Dec 2004 09:56:00 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-cc: nickpiggin@yahoo.com.au, Jeff Garzik <jgarzik@pobox.com>,
-       torvalds@osdl.org, hugh@veritas.com, benh@kernel.crashing.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Anticipatory prefaulting in the page fault handler V1
-In-Reply-To: <200412080933.13396.jbarnes@engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0412080952100.27324@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <20041202101029.7fe8b303.cliffw@osdl.org> <Pine.LNX.4.58.0412080920240.27156@schroedinger.engr.sgi.com>
- <200412080933.13396.jbarnes@engr.sgi.com>
+	Wed, 8 Dec 2004 13:04:38 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CA8F@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: Matt Domsch <Matt_Domsch@Dell.com>,
+       "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Wed, 8 Dec 2004 12:56:07 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Dec 2004, Jesse Barnes wrote:
+>
+>On Wed, 2004-12-08 at 01:16, Bagalkote, Sreenivas wrote:
+>> Adding a drive:- For application to use sysfs to scan newly added 
+>> drive, it needs to know the HCTL (SCSI address - Host, 
+>Channel, Target 
+>> & Lun) of the drive. Driver is the only one that knows the mapping 
+>> between a drive and the corresponding HCTL.
+>
+>The real way I'd like to handle this is via hotplug.  The 
+>hotplug event would transmit the HCTL in the environment.  
+>Whether the drive actually gets incorporated into the system 
+>and where is user policy, so it's appropriate that it should 
+>be in userland.
 
-> Nice results!  Any idea how many applications benefit from this sort of
-> anticipatory faulting?  It has implications for NUMA allocation.  Imagine an
-> app that allocates a large virtual address space and then tries to fault in
-> pages near each CPU in turn.  With this patch applied, CPU 2 would be
-> referencing pages near CPU 1, and CPU 3 would then fault in 4 pages, which
-> would then be used by CPUs 4-6.  Unless I'm missing something...
+James, it is the application that is adding the drive. So it is not a
+hotplug
+event for the driver.
 
-Faults are predicted for each thread executing on a different processor.
-So each processor does its own predictions which will not generate
-preallocations on a different processor (unless the thread is moved to
-another processor but that is a very special situation).
+>
+>This same infrastructure could be used by fibre channel login, 
+>scsi enclosure events etc.
+>
+>We have some of the hotplug infrastructure in SCSI, but not 
+>quite enough for this ... you'll need an additional API.
+>
+>> Removing a drive:- There is no sane way for the application 
+>to map out 
+>> drives to /dev/sd<x>. If application has a way of knowing 
+>the HCTL of 
+>> a deleted drive, then using that HCTL, it can match the 
+>corresponding 
+>> SCSI device name (/dev/sd<x>) and use sysfs to remove that drive.
+>
+>Since The sysfs device name contains H:C:T:L surely you can 
+>just do a find on /sys?
+>
+>James
+>
+>
 
-> And again, I'm not sure how important that is, maybe this approach will work
-> well in the majority of cases (obviously it's a big win in faults/sec for
-> your benchmark, but I wonder about subsequent references from other CPUs to
-> those pages).  You can look at /sys/devices/platform/nodeN/meminfo to see
-> where the pages are coming from.
-
-The origin of the pages has not changed and the existing locality
-constraints are observed.
-
-A patch like this is important for applications that allocate and preset
-large amounts of memory on startup. It will drastically reduce the startup
-times.
+Thank you,
+sreenivas

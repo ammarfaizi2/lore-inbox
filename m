@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbSIXVVw>; Tue, 24 Sep 2002 17:21:52 -0400
+	id <S261817AbSIXVHk>; Tue, 24 Sep 2002 17:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261797AbSIXVVw>; Tue, 24 Sep 2002 17:21:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40208 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261800AbSIXVVv>;
-	Tue, 24 Sep 2002 17:21:51 -0400
-Message-ID: <3D90D889.2040608@pobox.com>
-Date: Tue, 24 Sep 2002 17:26:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261818AbSIXVHj>; Tue, 24 Sep 2002 17:07:39 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:64964 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261817AbSIXVHh>;
+	Tue, 24 Sep 2002 17:07:37 -0400
+Message-ID: <3D90D503.8F4CDEB6@us.ibm.com>
+Date: Tue, 24 Sep 2002 14:11:31 -0700
+From: Larry Kessler <kessler@us.ibm.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Larry Kessler <kessler@us.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
 CC: Chris Friesen <cfriesen@nortelnetworks.com>,
        Rusty Russell <rusty@rustcorp.com.au>,
        linux-kernel mailing list <linux-kernel@vger.kernel.org>,
@@ -23,36 +22,35 @@ CC: Chris Friesen <cfriesen@nortelnetworks.com>,
        Hien Nguyen <hien@us.ibm.com>, James Keniston <kenistoj@us.ibm.com>,
        Mike Sullivan <sullivam@us.ibm.com>
 Subject: Re: [evlog-dev] Re: alternate event logging proposal
-References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C183.5020806@pobox.com> <3D90C3B0.8090507@nortelnetworks.com> <3D90C670.90508@pobox.com> <3D90CACE.595EA229@us.ibm.com> <3D90CC8F.4080706@pobox.com> <3D90D503.8F4CDEB6@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C183.5020806@pobox.com> <3D90C3B0.8090507@nortelnetworks.com> <3D90C670.90508@pobox.com> <3D90CACE.595EA229@us.ibm.com> <3D90CC8F.4080706@pobox.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry Kessler wrote:
-> Event logging uses real-time signaling to notify a process that's registered
-> for notification that an event matching the criteria defined during 
-> registration has been written to the event log.  When notified, the process
-> can read the entire event from the event log and then do whatever.
+Jeff Garzik wrote:
+> 
+> Larry Kessler wrote:
+> > Jeff Garzik wrote:
+> >>To address your more general point, a general way to notify interested,
+> >>credentialed (is that a word?) 3rd party processes of device events
+> >>would indeed be useful.  Since such events are essential out-of-band
+> >>info, netlink might indeed be applicable.
+> >
+> >
+> > Event Logging has both a command and an API for apps in user-space to
+> > register for specific events (kernel or userspace).   The user must have
+> > read access to the log file and the proper credentials in the allow/deny
+> > file scheme (that's modeled after crontab).
+> 
+> Ok.  And?  It sounds like event logging could possibly use netlink as
+> the event delivery mechanism.
 
-
-I've already seen the event logging userspace API, thanks.
-
-Are you saying that netlink is not useful for event delivery inside the 
-kernel?  It seems useful to me.  Are you saying that netlink is 
-incompatible with the POSIX event logging interface?  My initial 
-thinking is that it seems compatible, just the syscalls[interface] is a 
-bit different.
-
-Both your messages simply described and re-described POSIX event 
-logging, without actually responding to my suggestion.  Are you just 
-quoting specifications because you would rather not look into netlink 
-and explore new options?
-
-I would rather avoid the kernel bloat of two pieces of kernel code doing 
-the pretty much the same thing internally.
-
-	Jeff
-
-
-
+Event logging uses real-time signaling to notify a process that's registered
+for notification that an event matching the criteria defined during 
+registration has been written to the event log.  When notified, the process
+can read the entire event from the event log and then do whatever.
+.
+It's intended to satisfys the requirement for a "general way to notify...processes".
+To read more, go to...
+http://evlog.sourceforge.net/posix_evlog.html#_Toc525541312

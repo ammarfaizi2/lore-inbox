@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbTBXXJW>; Mon, 24 Feb 2003 18:09:22 -0500
+	id <S262796AbTBXXKC>; Mon, 24 Feb 2003 18:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbTBXXJW>; Mon, 24 Feb 2003 18:09:22 -0500
-Received: from holomorphy.com ([66.224.33.161]:17587 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261855AbTBXXJV>;
-	Mon, 24 Feb 2003 18:09:21 -0500
-Date: Mon, 24 Feb 2003 15:18:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@work.bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Larry McVoy <lm@bitmover.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224231825.GR10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, Mark Hahn <hahn@physics.mcmaster.ca>,
-	"David S. Miller" <davem@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmaster.ca> <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <20030224050650.GI27135@holomorphy.com> <1046099212.1246.12.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262838AbTBXXKB>; Mon, 24 Feb 2003 18:10:01 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:18048 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262796AbTBXXJ6>;
+	Mon, 24 Feb 2003 18:09:58 -0500
+To: linux-kernel@vger.kernel.org
+Subject: finger @zeuz.kernel.org modification?
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 25 Feb 2003 00:19:53 +0100
+Message-ID: <87n0kl5krq.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046099212.1246.12.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-24 at 05:06, William Lee Irwin III wrote:
->> Try 4 or 8 mkfs's in parallel on a 4x box running virgin 2.4.x.
+I've been using the above command as a quick reference to get a view
+of whats state of the art kernel-wise, and wondered who is the right
+person to pest^H^H^H^Hask about getting the 2.5-mm releases into the
+same list? :)
 
-On Mon, Feb 24, 2003 at 03:06:53PM +0000, Alan Cox wrote:
-> You have strange ideas of typical workloads. The mkfs paralle one is a good
-> one though because its also a lot better on one CPU in 2.5
-
-The results I saw were that this did not affect 2.5 in any interesting
-way and 2.4 behaved "very badly".
-
-It's a simple way to get lots of disk io going without a complex
-benchmark. There are good reasons and real workloads why things were
-done to fix this.
-
-
--- wli
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,36 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291533AbSBTBxs>; Tue, 19 Feb 2002 20:53:48 -0500
+	id <S291592AbSBTBzL>; Tue, 19 Feb 2002 20:55:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291470AbSBTBxn>; Tue, 19 Feb 2002 20:53:43 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34053 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291592AbSBTBwl>; Tue, 19 Feb 2002 20:52:41 -0500
-Subject: Re: compilation error: 2.4.18-rc2-ac1
-To: alastair@altruxsolutions.co.uk
-Date: Wed, 20 Feb 2002 02:06:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020219182354Z285720-889+3397@vger.kernel.org> from "Alastair Stevens" at Feb 19, 2002 06:23:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291504AbSBTBxr>; Tue, 19 Feb 2002 20:53:47 -0500
+Received: from defiant.secureone.com.au ([203.55.158.195]:48868 "EHLO
+	defiant.secureone.com.au") by vger.kernel.org with ESMTP
+	id <S291599AbSBTBxQ>; Tue, 19 Feb 2002 20:53:16 -0500
+Posted-Date: Wed, 20 Feb 2002 11:53:43 +1000
+X-URL: SecureONE SecureSentry - http://www.secureone.com.au/
+Message-ID: <010501c1b9b1$e43baa70$0f01000a@brisbane.hatfields.com.au>
+Reply-To: "Andrew Hatfield" <lkml@secureone.com.au>
+From: "Andrew Hatfield" <lkml@secureone.com.au>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <007b01c1b9a6$ab4351b0$0f01000a@brisbane.hatfields.com.au>
+Subject: Re: Dlink DSL PCI Card
+Date: Wed, 20 Feb 2002 11:57:02 +1000
+Organization: SecureONE
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16dM9O-0002EB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I received the following compilation error when building 2.4.18-rc2-ac1 under 
-> Red Hat 7.2 on a dead ordinary i686 system (during "make modules") - hope 
-> this is useful!
+Clarification,
 
-Strange.. it looks like something mangled your journal.ver file
+I can find drivers for this card at
+http://www.dlink.com.au/tech/drivers/files/modems/dsl100d.htm
+but the note is for PPPoE
 
-cp .config ..
-make distclean
-cp ../.config .config
-make oldconfig dep bzImage modules
+The service we use implements PPPoA.  Is all I need to do is enable PPPoA in
+the networking section?
 
-and let me know what occured
+  --
 
-Also before that take a look at journal.ver see what happened to it.
+  Andrew Hatfield
+  SecureONE - http://www.secureone.com.au/
+  President - South East Brisbane Linux Users Group  http://www.seblug.org/
+
+  Kernel work available at http://development.secureone.com.au/kernel/
+
+----- Original Message -----
+From: "Andrew Hatfield" <lkml@secureone.com.au>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Sent: Wednesday, February 20, 2002 10:36 AM
+Subject: Dlink DSL PCI Card
+
+
+> Does anyone know if the D-Link DSL-100D PCI card will work in linux?
+>
+> URL : http://www.dlink.com.au/products/broadband/dsl100/
+>
+> Regards
+>
+>   --
+>
+>   Andrew Hatfield
+>   SecureONE - http://www.secureone.com.au/
+>   President - South East Brisbane Linux Users Group
+http://www.seblug.org/
+>
+>   Kernel work available at http://development.secureone.com.au/kernel/
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265432AbSJaW3p>; Thu, 31 Oct 2002 17:29:45 -0500
+	id <S265425AbSJaW1k>; Thu, 31 Oct 2002 17:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265435AbSJaW3p>; Thu, 31 Oct 2002 17:29:45 -0500
-Received: from vsmtp4.tin.it ([212.216.176.224]:64762 "EHLO smtp4.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S265432AbSJaW3j>;
-	Thu, 31 Oct 2002 17:29:39 -0500
-Message-ID: <3DC1B03C.7FDB86E3@denise.shiny.it>
-Date: Thu, 31 Oct 2002 23:35:40 +0100
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.19 ppc)
-X-Accept-Language: en
+	id <S265427AbSJaW1k>; Thu, 31 Oct 2002 17:27:40 -0500
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:29156 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S265425AbSJaW1h>; Thu, 31 Oct 2002 17:27:37 -0500
+Subject: Re: [lkcd-general] Re: What's left over.
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net,
+       lkcd-general@lists.sourceforge.net,
+       lkcd-general-admin@lists.sourceforge.net,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF37FD46D1.94614CDB-ON80256C63.00789235@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Thu, 31 Oct 2002 21:58:20 +0000
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 31/10/2002 22:33:20
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: aic7xxx and error recovery
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have a magneto-optical drive. Recoverable error rate is quite high
-in this kind of devices (1 bit every 10^5, according to specs, but
-it's actually much lower IMHO). I was playing with the SCSI error
-recovery page and I noticed that when I enable the PER flag (which
-makes the drive to tell the initiator when a recoverable medium
-error occurs) strange things happen. I wrote a small prg that writes
-random patterns and then reads it back and compare it with the
-pattern. It happens that when a recoverable error occurs (as
-reported in the sys logs) read()(2) returns a value smaller then
-requested, and the loaded data is identical to the pattern, or
-read() completes, but the data is wrong. This two cases seem to
-be mutually exclusive, I've tried a lot of times. I don't know why
-this happens, but IMO if read(length)==length then the data I get
-shouldn't be corrupted. I believe there is a bug in the scsi
-driver, because if PER==0 I never get corrupted data, and PER==1
-doesn't affects data sent to the initiator, it only reports
-recovered errors. Comments ?
+> So, I think the stock kernel does need some form of disk dumping,
+> regardless of any presence/absence of netdump.  But LKCD isn't there
+yet...
 
-[Linux Jay 2.4.19 #3 mer ago 14 15:29:00 CEST 2002 ppc unknown]
+But if we get into 2.5 the minimal kernel piece we need, we can continue to
+enhance and expand dumping capability independently of the kernel via the
+dump module.  And in this respect we have been actively working on
+integrating the netdump concept with lkcd.
 
-Bye.
+
+Richard
+

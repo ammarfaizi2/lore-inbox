@@ -1,61 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315848AbSEGOv4>; Tue, 7 May 2002 10:51:56 -0400
+	id <S315847AbSEGOyY>; Tue, 7 May 2002 10:54:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315849AbSEGOvz>; Tue, 7 May 2002 10:51:55 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:43136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315847AbSEGOvy>; Tue, 7 May 2002 10:51:54 -0400
-Date: Tue, 7 May 2002 10:53:16 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Paul Jakma <paulj@alphyra.ie>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100: wait_for_cmd_done timeout (2.4.19-pre2/8)
-In-Reply-To: <Pine.LNX.4.44.0205071454270.16371-100000@dunlop.admin.ie.alphyra.com>
-Message-ID: <Pine.LNX.3.95.1020507104428.7036A-100000@chaos.analogic.com>
+	id <S315849AbSEGOyX>; Tue, 7 May 2002 10:54:23 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:53005 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315847AbSEGOyW>; Tue, 7 May 2002 10:54:22 -0400
+Message-ID: <3CD7DBC8.3050602@evision-ventures.com>
+Date: Tue, 07 May 2002 15:51:04 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Christoph Hellwig <hch@infradead.org>, Osamu Tomita <tomita@cinet.co.jp>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.14 IDE CD-ROM PIO mode
+In-Reply-To: <Pine.SOL.4.30.0205071624140.14960-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 May 2002, Paul Jakma wrote:
+Uz.ytkownik Bartlomiej Zolnierkiewicz napisa?:
+> while we are here, I think that drivers shouldn't take
+> requests < hardsect_size, it should be handled by block layer
 
-> hi,
-> 
-> i have a problem with a Dell poweredge with onboard Intel eepro NICs.
-> 
-> The network card basically doesnt work. The system logs are filled 
-> with:
-[SNIPPED...]
-
-
-
-> looking at the code concerned:
-> 
-> static inline void wait_for_cmd_done(long cmd_ioaddr)
-> {
->         int wait = 1000;
->         do  udelay(1) ;
->         while(inb(cmd_ioaddr) && --wait >= 0);
-> #ifndef final_version
->         if (wait < 0)
->                 printk(KERN_ALERT "eepro100: wait_for_cmd_done timeout!\n");
-> #endif
-> }
-> 
-
-This procedure is called from numerous places in the code.
-In line 1069 of eepro100.c, comment out the call to wait_for_cmd_done().
-See if this fixes it. If it does, look in the header and send a patch
-to the current maintainer. FYI, I use this driver with no problems
-on 2.4.18 -- but I have commented-out that call because there, in fact,
-might be no command to wait for and I got spurious messages.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+There could be clever beasts which do (over)buffering...
+like ide-cdrom indeed does.
 

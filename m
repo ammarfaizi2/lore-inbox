@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUHIPRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUHIOXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUHIPRl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUHIPPQ
+	id S266631AbUHIOXa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266617AbUHIOVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:15:16 -0400
-Received: from smtp.rol.ru ([194.67.21.9]:61608 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S264238AbUHIPMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:12:14 -0400
-Message-ID: <411794E8.6000806@vlnb.net>
-Date: Mon, 09 Aug 2004 19:14:48 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: ru, en-us
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
-References: <20040805200622.GA17324@logos.cnet> <411392E0.6080507@vlnb.net> <20040806143359.GC20911@logos.cnet> <4113A579.5060702@vlnb.net> <20040806155328.GA21546@logos.cnet> <4113B752.7050808@vlnb.net> <20040806170931.GA21683@logos.cnet>
-In-Reply-To: <20040806170931.GA21683@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 10:21:34 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:64961 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266584AbUHIOUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:20:53 -0400
+Date: Mon, 9 Aug 2004 16:20:11 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408091420.i79EKBEu010574@burner.fokus.fraunhofer.de>
+To: alan@lxorguk.ukuu.org.uk, schilling@fokus.fraunhofer.de
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, vonbrand@inf.utfsm.cl
+Subject: Re: Linux Kernel bug report (includes fix)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
->>>Yes correct. *mb() usually imply barrier(). 
->>>
->>>About the flush, each architecture defines its own instruction for doing 
->>>so,
->>>PowerPC has  "sync" and "isync" instructions (to flush the whole cache 
->>>and instruction cache respectively), MIPS has "sync" and so on..
->>
->>So, there is no platform independent way for doing that in the kernel?
-> 
-> 
-> Not really. x86 doesnt have such an instruction.
+>From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 
-But how then spin_lock() works? It guarantees memory sync between CPUs, 
-doesn't it? Otherwise how can it prevent possible races with concurrent 
-data modifications?
+>> As you don't know how kernel/user interfaces are handled, it would be wise for 
+>> you to keep quiet.....
 
-Vlad
+>Linux kernel include files are not meant to be used by user
+>applications. He's perfectly correct. Glibc has its own exported set.
+>This is intentional to seperate internals from user space.
+
+You should know that GLIBc is unrelated to the Linux kernel interfaces we are 
+talking about. Start using serious arguments please.
+
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

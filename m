@@ -1,50 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUCVNXM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 08:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbUCVNXM
+	id S261978AbUCVNX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 08:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUCVNX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 08:23:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:44683 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261976AbUCVNXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 08:23:10 -0500
-Date: Mon, 22 Mar 2004 14:23:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Heikki Tuuri <Heikki.Tuuri@innodb.com>
+	Mon, 22 Mar 2004 08:23:56 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:2688 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S261978AbUCVNXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 08:23:45 -0500
+Date: Mon, 22 Mar 2004 14:23:38 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: True  fsync() in Linux (on IDE)
-Message-ID: <20040322132307.GP1481@suse.de>
-References: <023001c4100e$c550cd10$155110ac@hebis>
+Subject: ata_piix doesn't work in combined mode if master is missing.
+Message-ID: <20040322132336.GA12460@cistron.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <023001c4100e$c550cd10$155110ac@hebis>
+X-NCC-RegID: nl.cistron
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22 2004, Heikki Tuuri wrote:
-> 2. An 'atomic' file write in the OS does not solve the problem of partially
-> written database pages in a power outage if the disk drive is not guaranteed
-> to stay operational long enough to be able to write the whole page
-> physically to disk. An InnoDB data page is 16 kB, and probably not
-> guaranteed to be any 'atomic' unit of physical disk writes. However, in
-> practice, half-written pages (either because of the OS or the disk) seem to
-> be very rare.
+Hello,
 
-There's no such thing as atomic writes bigger than a sector really, we
-just pretend there is. Timing usually makes this true.
+	I have a supermicro 1U server with 2 SATA swappable drives.
+The chipset is Intel ICH5, and I'm using the ata_piix.c libata
+driver. Works fine!
 
-For bigger atomic writes, 2.4 SUSE kernel had some nasty hack (called
-blk-atomic) to prevent reordering by the io scheduler to avoid partial
-blocks from databases. For 2.6 it's much easier since you can just send
-a 16kb write out as one unit. So you send out the db data page as 1
-hardware request, which is pretty much as atomic as you can do it from
-the OS point of view. As long as you avoid a big window between parts of
-this data page, you've narrowed the window of breakage from many seconds
-to miliseconds (maybe even 0, if drive platter inertia guarentees you
-that the write will ensure the data is on platter).
+Except that if I remove the first drive, the second drive isn't
+detected anymore. Now I have those drives set up with partitioned
+RAID5, and if the first drive is missing or dead the system is
+supposed to boot from the second disk - the BIOS does that, but
+libata doesn't see the second drive.
 
+A normal boot looks like this (dmesg output):
+
+libata version 1.01 loaded.
+ata_piix version 1.01
+ata_piix: combined mode detected
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata1: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 88:407f
+ata1: dev 0 ATA, max UDMA/133, 160086528 sectors
+ata1: dev 1 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 88:407f
+ata1: dev 1 ATA, max UDMA/133, 160086528 sectors
+ata1: dev 0 configured for UDMA/133
+ata1: dev 1 configured for UDMA/133
+scsi0 : ata_piix
+
+A boot with the first disk removed looks like this:
+
+ata_piix: combined mode detected
+ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata1: SATA port has no device. disabling.
+scsi0 : ata_piix
+
+(Note that this is serial console output, it apparently doesn't show
+ the "cfg" line on the serial console).
+
+If I patch ata_piix.c to just ifdef out the "disabled" code, then I
+can actually boot and run from the second disk, dmesg output:
+
+ata_piix version 1.01
+ata_piix: combined mode detected
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+ata1: dev 1 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 88:407f
+ata1: dev 1 ATA, max UDMA/133, 160086528 sectors
+ata1: dev 1 configured for UDMA/133
+scsi0 : ata_piix
+
+If I enable "enhanced mode" instead of "combined mode" in the BIOS,
+there is no problem - but as the system normally works in both modes,
+and only fails in combined mode with the first disk missing, this
+is risky - if you forget to put the BIOS in enhanced mode, you'll
+only find out when it's too late.
+
+The hack I used to reckognize the second disk is below. Is it
+possible to fix this properly (i.e. check for slave in combined mode) ?
+
+Thanks,
+
+Mike.
+
+--- linux-2.6.5-rc1.orig/drivers/scsi/ata_piix.c	2004-03-11 03:55:27.000000000 +0100
++++ linux-2.6.5-rc1/drivers/scsi/ata_piix.c	2004-03-22 13:14:59.000000000 +0100
+@@ -342,6 +342,7 @@
+ 		return;
+ 	}
+ 
++#if 0 /* XXX miquels */
+ 	/* if port enabled but no device, disable port and exit */
+ 	if (!have_dev) {
+ 		piix_sata_port_disable(ap);
+@@ -349,6 +350,7 @@
+ 		       ap->id);
+ 		return;
+ 	}
++#endif
+ 
+ 	ap->cbl = ATA_CBL_SATA;
+ 
+
+Mike.
 -- 
-Jens Axboe
-
+Netu, v qba'g yvxr gur cynvagrkg :)

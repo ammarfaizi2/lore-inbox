@@ -1,73 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265748AbUBBSJN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 13:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265751AbUBBSJN
+	id S265667AbUBBSM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 13:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUBBSM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 13:09:13 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:17554 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265748AbUBBSJL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 13:09:11 -0500
-Subject: Re: ACPI/battery status on Dell Inspiron 8200 broken, 2.6.2-rc3
-From: Len Brown <len.brown@intel.com>
-To: David Ford <david+powerix@blue-labs.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0023E8445@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E8445@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1075745336.2389.72.camel@dhcppc4>
+	Mon, 2 Feb 2004 13:12:29 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:14212 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265667AbUBBSM1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 13:12:27 -0500
+Message-Id: <200402021812.i12IC6eR006637@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ 
+In-Reply-To: Your message of "Mon, 02 Feb 2004 10:23:18 +0100."
+             <20040202092318.GD548@ucw.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040201100644.GA2201@ucw.cz> <20040201163136.GF11391@triplehelix.org> <200402020527.i125RvTx008088@turing-police.cc.vt.edu>
+            <20040202092318.GD548@ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 02 Feb 2004 13:08:56 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_826320722P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Feb 2004 13:12:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+--==_Exmh_826320722P
+Content-Type: text/plain; charset=us-ascii
 
-Please try this patch
-http://bugzilla.kernel.org/attachment.cgi?id=1965&action=view
+On Mon, 02 Feb 2004 10:23:18 +0100, Vojtech Pavlik said:
 
-and note in this bug report if it works for you.
-http://bugzilla.kernel.org/show_bug.cgi?id=1766
+> Are you sure you don't have the mouse configured twice in XFree86
+> config? It's a rather common error.
 
-thanks,
--Len
+Section "InputDevice"
+        Identifier  "Mouse0"
+        Driver      "mouse"
+        Option      "Device" "/dev/psaux"
+        Option      "Protocol" "ExplorerPS/2"
+        Option      "Buttons" "7"
+        Option      "Emulate3Buttons" "on"
+        Option      "ZAxisMapping" "6 7"
+EndSection
 
-On Mon, 2004-02-02 at 02:29, David Ford wrote:
-> Battery status got lost in either rc2 or rc3.  It worked in rc1.
-> 
-> powerix klaptopdaemon # cat /proc/acpi/battery/BAT0/info
-> present:                 yes
-> design capacity:         0 mWh
-> last full capacity:      0 mWh
-> battery technology:      non-rechargeable
-> design voltage:          0 mV
-> design capacity warning: 0 mWh
-> design capacity low:     0 mWh
-> capacity granularity 1:  0 mWh
-> capacity granularity 2:  0 mWh
-> model number:
-> serial number:
-> battery type:
-> OEM info:
-> 
-> powerix klaptopdaemon # cat /proc/acpi/battery/BAT0/state
-> present:                 yes
-> capacity state:          ok
-> charging state:          unknown
-> present rate:            0 mA
-> remaining capacity:      0 mAh
-> present voltage:         0 mV
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+And if I *had* gotten it in there twice, why would it only hit sporadically
+once or twice a day, as opposed to *all* mouse events (clicks, moves,
+etc) being doubled?
 
+--==_Exmh_826320722P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAHpL2cC3lWbTT17ARAo3dAJsGig6LUac9IPAqvCpH+IBSKuyveQCg5SlI
+UaSg7uMX7awdYEHAztgrsCU=
+=hhuD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_826320722P--

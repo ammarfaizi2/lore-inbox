@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSGCUVB>; Wed, 3 Jul 2002 16:21:01 -0400
+	id <S317141AbSGCUYi>; Wed, 3 Jul 2002 16:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317141AbSGCUVA>; Wed, 3 Jul 2002 16:21:00 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:4849 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317117AbSGCUU6>; Wed, 3 Jul 2002 16:20:58 -0400
-Date: Wed, 3 Jul 2002 14:21:07 -0600
-From: Andreas Dilger <adilger@turbolinux.com>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: sct@redhat.com, Andrew Morton <akpm@zip.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
-Subject: Re: EXT3-fs error on kernel 2.4.18-pre3
-Message-ID: <20020703202107.GA14654@clusterfs.com>
-Mail-Followup-To: Anton Altaparmakov <aia21@cantab.net>, sct@redhat.com,
-	Andrew Morton <akpm@zip.com.au>,
-	LKML <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
-References: <1025723138.3817.10.camel@storm.christs.cam.ac.uk>
-Mime-Version: 1.0
+	id <S317230AbSGCUYh>; Wed, 3 Jul 2002 16:24:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53514 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317141AbSGCUYg>;
+	Wed, 3 Jul 2002 16:24:36 -0400
+Message-ID: <3D235DA9.2B3D0E4@zip.com.au>
+Date: Wed, 03 Jul 2002 13:25:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: eth0: memory shortage
+References: <20020703190931.GA13103@linux.kappa.ro>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1025723138.3817.10.camel@storm.christs.cam.ac.uk>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 03, 2002  20:05 +0100, Anton Altaparmakov wrote:
-> I just noticed that my file server running 2.4.18-pre3 + IDE patches &
-> NTFS patches has this error message in the logs:
+Teodor Iacob wrote:
 > 
-> EXT3-fs error (device md(9,4)): ext3_free_blocks: Freeing blocks not in
-> datazone - block = 33554432, count = 1
+> Hello,
 > 
-> This is the only ext3 error I have seen and the uptime is currently over
-> 74 days. The error actually appeared two weeks ago. The timing coincides
-> well with when this device (/dev/md4, a MD RAID-1 array) ran out of
-> space, so it may well be related.
+> I keep getting these messages (like about twice a day) in the messages:
+> eth0: memory shortage
+> eth0: memory shortage
+> eth1: memory shortage
+> eth1: memory shortage
+> 
+> Any idea what could be the reason behind this?
+> 
 
-This was fixed in newer kernels.
+It means that the ethernet driver's Rx interrupt handler was not
+able to allocate a new receive buffer - there wasn't enough memory
+available.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+The `kswapd' kernel thread is supposed to make memory available
+for interrupt context but in this case it is obviously not keeping
+up.
 
+The driver recovers from the failed allocation, so things are OK.
+
+-

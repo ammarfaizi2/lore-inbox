@@ -1,87 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269665AbUINUdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269700AbUINUSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269665AbUINUdR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269494AbUINUaQ
+	id S269700AbUINUSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUINUOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:30:16 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:1031 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S269699AbUINUXf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:23:35 -0400
-Date: Tue, 14 Sep 2004 22:22:34 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: marcelo.tosatti@cyclades.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Update Documentation/i2c/writing-clients
-Message-Id: <20040914222234.4263afaf.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Sep 2004 16:14:52 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:38078 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269737AbUINUKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 16:10:51 -0400
+Subject: Re: I2O Updates + Questions
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41473F00.50109@shadowconnect.com>
+References: <1095174189.16988.10.camel@localhost.localdomain>
+	 <41473F00.50109@shadowconnect.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1095188880.17043.65.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 14 Sep 2004 20:08:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Maw, 2004-09-14 at 19:57, Markus Lidel wrote:
+> > - Add recieve_to_virt and send_to_virt to clean up remaining
+> >   virt_to_* usage. (I've tweaked them to reflect the i2o_dma
+> >   objects) so hopefully I got it right
+> > - Post an 8 byte startup message area. Some Promises scribble on the
+> >   wrong dword. Also catch this
+> > - Fix several cases where messages got written to I/O space without
+> >   i2o_raw_writel
+> > - Fix a case where we skipped dpt controllers on quiesce and didnt
+> >   skip them on enable
+> > - Add some bits to try and get promise behaving again
+> > - Cleaned up the probe loop
+> > - Removed the remainder of i2o_retry and used the trick I was using
+> >   in my test code from back whenever- on congestion report BUS_BUSY
+> >   and leave it to the scsi layer
+> 
+> Ohohhh... i2o_core.c shouldn't be there anymore... I've split up 
+> i2o_core.c in own files e. g. iop.c, pci.c, ...
 
-This is a quick update to the Documentation/i2c/writing-clients file. A
-similar change was accepted by Greg KH in 2.6 and was also applied to
-the i2c CVS repository.
+Ah probably someone didnt propogate the deletion. That happens. 
 
-The changes are about i2c client driver IDs. It used to say that chip
-driver writers should ask for a unique ID. It now explains that such an
-ID is not required and they can go without it. The patch additionally
-features CodingStyle updates.
+> > Looking at the code the event stuff seems totally broken in the new code
+> > both in core and the commented out i2o_block code (which now leaks
+> 
+> The I2O Block driver doesn't use the event notifaction anymore, instead 
+> it uses the probe and remove functions to add or remove disks...
 
-Fell free to apply it if you want,
-thanks.
+It sets the event pointer so seems to get called with an event which it
+fails to reply to (as required) and fails to kfree the kmalloc'd 
+message. It would also be nice to keep the 0x20 message watch for
+promise cards (at least when testing) since a promise firmware crash
+isnt otherwise visible except as 16Mb of I/O going missing
+> 
+> > memory). Also i2o_scsi error path does a readl on msg->body[3] which is
+> > wrong as msg->body[3] is in kernel space and its contents are an I2O
+> > side message value so should get fed to i2o_send_to_virt().
+> 
+> The msg points to the outbound queue of the controller, don't i need a 
+> readl there?
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Messages from the controller to the kernel are in kernel memory. They
+are the ones we allocated and posted. The data in body[3] is a message
+offset in I2O space if I remember rightly.
 
---- linux-2.4.28-pre3/Documentation/i2c/writing-clients.orig	2004-09-14 21:46:41.000000000 +0200
-+++ linux-2.4.28-pre3/Documentation/i2c/writing-clients	2004-09-14 22:15:14.000000000 +0200
-@@ -24,24 +24,25 @@
- routines, a client structure specific information like the actual I2C
- address.
- 
--  struct i2c_driver foo_driver
--  {  
--    /* name           */  "Foo version 2.3 and later driver",
--    /* id             */  I2C_DRIVERID_FOO,
--    /* flags          */  I2C_DF_NOTIFY,
--    /* attach_adapter */  &foo_attach_adapter,
--    /* detach_client  */  &foo_detach_client,
--    /* command        */  &foo_command,   /* May be NULL */
--    /* inc_use        */  &foo_inc_use,   /* May be NULL */
--    /* dec_use        */  &foo_dec_use    /* May be NULL */
--  }
-+static struct i2c_driver foo_driver = {
-+	.name		= "Foo version 2.3 driver",
-+	.id		= I2C_DRIVERID_FOO, /* from i2c-id.h, optional */
-+	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= &foo_attach_adapter,
-+	.detach_client	= &foo_detach_client,
-+	.command	= &foo_command, /* may be NULL */
-+	.inc_use	= &foo_inc_use, /* May be NULL */
-+	.dec_use	= &foo_dec_use, /* May be NULL */
-+}
-  
- The name can be chosen freely, and may be upto 40 characters long. Please
- use something descriptive here.
- 
--The id should be a unique ID. The range 0xf000 to 0xffff is reserved for
--local use, and you can use one of those until you start distributing the
--driver. Before you do that, contact the i2c authors to get your own ID(s).
-+If used, the id should be a unique ID. The range 0xf000 to 0xffff is
-+reserved for local use, and you can use one of those until you start
-+distributing the driver, at which time you should contact the i2c authors
-+to get your own ID(s). Note that most of the time you don't need an ID
-+at all so you can just omit it.
- 
- Don't worry about the flags field; just put I2C_DF_NOTIFY into it. This
- means that your driver will be notified when new adapters are found.
+> > Other question is message size - right now it uses the 2.4 message size
+> > which is twice what all the vendors recommend as working best (and
+> > doesn't work at all on AMI)
+> 
+> The message size from the outbound queue of the I2O controller?
+> 
+> Yep, the dpt_i2o driver even set it to 17 instead of 128 :-)
+> 
+> Sorry for the mistake with the i2o_core.c.
+> 
+> Thanks for taking time to look at the I2O driver!
 
+No problem. I'll take a look at the split version of the driver and see
+if the same fixes are needed. Since the bugs involved go back to my
+original code they may well do.
 
--- 
-Jean "Khali" Delvare
-http://khali.linux-fr.org/
+Alan
+

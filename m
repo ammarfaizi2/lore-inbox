@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264874AbRFYQoP>; Mon, 25 Jun 2001 12:44:15 -0400
+	id <S264875AbRFYQtP>; Mon, 25 Jun 2001 12:49:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbRFYQoF>; Mon, 25 Jun 2001 12:44:05 -0400
-Received: from hermes-3.bizonline.net ([212.95.128.7]:55813 "HELO
-	thefreeinternet.co.uk") by vger.kernel.org with SMTP
-	id <S264874AbRFYQnz>; Mon, 25 Jun 2001 12:43:55 -0400
-Message-ID: <3B376A53.422A824@qub.ac.uk>
-Date: Mon, 25 Jun 2001 17:44:03 +0100
-From: Sam Halliday <10226982@qub.ac.uk>
-X-Mailer: Mozilla 4.7 [en] (Win98; I)
-X-Accept-Language: en
+	id <S264877AbRFYQtF>; Mon, 25 Jun 2001 12:49:05 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:25227 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264875AbRFYQsz>;
+	Mon, 25 Jun 2001 12:48:55 -0400
+Importance: Normal
+Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        James Stevenson <mistral@stev.org>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF831FC2D7.C211A862-ON85256A76.005AEC98@pok.ibm.com>
+From: "Bulent Abali" <abali@us.ibm.com>
+Date: Mon, 25 Jun 2001 12:48:46 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
+ 06/25/2001 12:47:44 PM
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: supermount
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This email was delivered to you by The Free Internet,
-a Business Online Group company. http://www.thefreeinternet.net
----------------------------------------------------------------
-hello, i have only been using linux for about a year, i am a physicist
-and i need its fast number crunching for my programs, i have recently
-become interrested in the kernel (i believe everyone should have some
-understanding of their tools),
 
-i have noticed supermount is not a standard part of this project, is
-there a good reason why this is? i apologise if this is a very silly
-question as i am sure it is, but it really does seem to me to be an
-essential feature, are there any plans to include it as a standard
-feature or is this due to man-power? i know patches do exist out there
-(all beit, really hard to find for recent 2.4.5)
 
-anyways, keep up the good work, i wish i knew enough about the whole
-thing to help out in some way,
+>abali@us.ibm.com said:
+>> I am running in to a problem, seemingly a deadlock situation, where
+>> almost all the processes end up in the TASK_UNINTERRUPTIBLE state.
+>> All the process eventually stop responding, including login shell, no
+>> screen updates, keyboard etc.  Can ping and sysrq key works.   I
+>> traced the tasks through sysrq-t key.  The processors are in the idle
+>> state.  Tasks all seem to get stuck in the __wait_on_page or
+>> __lock_page.
+>
+>I've seen this under UML, Rik van Riel has seen it on a physical box, and
+we
+>suspect that they're the same problem (i.e. mine isn't a UML-specific
+bug).
 
-Sam, Ireland
+Can you give more details?  Was there an aic7xxx scsi driver on the box?
+run_task_queue(&tq_disk) should eventually unlock those pages
+but they remain locked.  I am trying to narrow it down to fs/buffer
+code or the SCSI driver aic7xxx in my case. Thanks. /bulent
+
+
 

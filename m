@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264453AbTCXRWx>; Mon, 24 Mar 2003 12:22:53 -0500
+	id <S264422AbTCXRUk>; Mon, 24 Mar 2003 12:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264452AbTCXRVZ>; Mon, 24 Mar 2003 12:21:25 -0500
-Received: from ns.suse.de ([213.95.15.193]:26642 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264451AbTCXRVM>;
-	Mon, 24 Mar 2003 12:21:12 -0500
-Subject: Re: [x86-64] Add missing tlb flush after change_page_attr
-From: Andi Kleen <ak@suse.de>
-To: davej@codemonkey.org.uk
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200303241641.h2OGfw35008208@deviant.impure.org.uk>
-References: <200303241641.h2OGfw35008208@deviant.impure.org.uk>
-Content-Type: text/plain
+	id <S264280AbTCXRU2>; Mon, 24 Mar 2003 12:20:28 -0500
+Received: from relay04.valueweb.net ([216.219.253.238]:39911 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S264318AbTCXRUQ>; Mon, 24 Mar 2003 12:20:16 -0500
+Message-ID: <3E7F40D0.6010202@coyotegulch.com>
+Date: Mon, 24 Mar 2003 12:30:56 -0500
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030319 Debian/1.3-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Testing: What do you want?
+References: <3E7F1A2D.4050306@coyotegulch.com> <20030324153933.GH30613@lug-owl.de>
+In-Reply-To: <20030324153933.GH30613@lug-owl.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 24 Mar 2003 18:32:16 +0100
-Message-Id: <1048527139.12339.109.camel@averell>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 17:41, davej@codemonkey.org.uk wrote:
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/arch/x86_64/kernel/pci-gart.c linux-2.5/arch/x86_64/kernel/pci-gart.c
-> --- bk-linus/arch/x86_64/kernel/pci-gart.c	2003-03-08 09:56:51.000000000 +0000
-> +++ linux-2.5/arch/x86_64/kernel/pci-gart.c	2003-03-18 21:19:53.000000000 +0000
-> @@ -419,6 +419,7 @@ static __init int init_k8_gatt(agp_kern_
->  		panic("Cannot allocate GATT table"); 
->  	memset(gatt, 0, gatt_size); 
->  	change_page_attr(virt_to_page(gatt), gatt_size/PAGE_SIZE, PAGE_KERNEL_NOCACHE);
-> +	global_flush_tlb();
->  	agp_gatt_table = gatt;
->  	
->  	for_all_nb(dev) { 
+Jan-Benedict Glaw wrote:
+> sparc32? If you get it to build or even to boot, please drop me a note
+> 
+> Last time I looked at it, sparc32 wasn't in any good state (esp. SMP) in
+> 2.5.x. This is because Dave S. Miller stopped spending a lot of hacking
+> time (he has to work for other things now and only merges patches he
+> gets sent, where he formerly did tons on active development for
+> sparc32).
 
-No it needs to be completely removed. the pci aperture is supposed to be
-cachable (unlike the AGP aperture) That's still a trace of an earlier
-design.
+I'll let you know about whether it works or not. What you tell me about 
+SPARC support, however, does not bode well. I was about to say "I'm 
+surprised that Sun isn't providing any support" -- then my senses 
+returned, and I realized I'm not surprised in the least.
 
--Andi
+..Scott
+
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
 
 

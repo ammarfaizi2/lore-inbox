@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbTKWUq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 15:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTKWUq0
+	id S263466AbTKWU5K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 15:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTKWU5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 15:46:26 -0500
-Received: from mail.uni-kl.de ([131.246.137.52]:59643 "EHLO mail.uni-kl.de")
-	by vger.kernel.org with ESMTP id S263448AbTKWUqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 15:46:24 -0500
-Date: Sun, 23 Nov 2003 21:45:33 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: not fixed in 2.4.23-rc3 (was: Re: 2.4.22 SMP kernel build for hyper threading P4)
-Message-ID: <20031123204532.GA6093@zombie.inka.de>
-References: <BF1FE1855350A0479097B3A0D2A80EE0CC886F@hdsmsx402.hd.intel.com>
+	Sun, 23 Nov 2003 15:57:10 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:37604 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263466AbTKWU5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 15:57:08 -0500
+Date: Sun, 23 Nov 2003 15:56:35 -0500
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>, Alan Cox <alan@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: modular IDE in 2.4.23
+Message-ID: <20031123205635.GA20672@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0311231502530.1292-100000@logos.cnet> <200311232123.06635.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC886F@hdsmsx402.hd.intel.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200311232123.06635.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
-* Brown, Len [Sun, Nov 23 2003, 03:16:11PM]:
-> > weird 1+2xHT mode.
-> 
-> Re: BIOS disables CPUSs.
-> It would be good to verify that 2.4.21 still works properly on this box
-> to verify the hardware isn't hosed.  Also, if your BIOS CMOS has error
+> Uh. Oh. 2.4.23 IDE changes are obscure...  Modular IDE breakage is caused by
+> Alan's hotplug changes and is not easy to fix properly.
 
-It does work fine with 2.4.21, the last part of the log on the mentioned
-URL is few hours old.  The hardware looks okay, the box was running for
-more than 14 months without any hardware trouble.
+The fixing is simply a matter of linkage ordering and function execution. 
 
-> logs, it might be good to read them to see what it is thinking.
+Simple thought experiment
 
-I could not find any error logs till now, the BIOS help only says that a
-CPU is turned off when a severe error occured.
+	Merge ide-probe into ide-core
+	Export a symbol for the second initializer function if used modular
+	Create a mini module that just invokes the exported function on init
 
-> Also, does the same 3-cpu configuration result when you boot 2.6?
+You now have the same execution sequence but with the link problem removed.
 
-I cannot promise when I have a chance to test 2.6 there, it's a
-production system.
+> I would like to have these changes removed:
+> (a) they break modular IDE
+> (b) such changes should be first added to 2.6 and then backported to 2.4
+>    (otherwise you are magically creating regression in 2.6)
 
-Mfg,
-Eduard.
--- 
-Eine Freude vertreibt hundert Sorgen.
+Its not my fault the 2.6 code is lagging badly, and I wrote the code
+because people using laptops, and people using ATA and SATA for business
+expect basic functionality like hotplug to work. For most of them 2.6 doesn't
+really matter and won't for another 6 months, but 2.4 matters right now.
+
+The cmd640 stuff is the only hard to fix bit, and its unrelated to the
+modular IDE stuff.
+

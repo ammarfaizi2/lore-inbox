@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbSJPRCL>; Wed, 16 Oct 2002 13:02:11 -0400
+	id <S265218AbSJPQtp>; Wed, 16 Oct 2002 12:49:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbSJPRCK>; Wed, 16 Oct 2002 13:02:10 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:6132 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S265246AbSJPRCJ>; Wed, 16 Oct 2002 13:02:09 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 16 Oct 2002 11:05:39 -0600
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Add extended attributes to ext2/3
-Message-ID: <20021016170539.GA1201@clusterfs.com>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	"Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel@vger.kernel.org
-References: <E181a3S-0006Nq-00@snap.thunk.org> <aojc1q$l37$1@forge.intermeta.de> <20021016161620.GC8210@think.thunk.org>
+	id <S265182AbSJPQr6>; Wed, 16 Oct 2002 12:47:58 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:24116 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265183AbSJPQqW>; Wed, 16 Oct 2002 12:46:22 -0400
+Date: Wed, 16 Oct 2002 18:51:55 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Srihari Vijayaraghavan <harisri@bigpond.com>
+Subject: 2.4.20pre11aa1
+Message-ID: <20021016165155.GE30254@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021016161620.GC8210@think.thunk.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 16, 2002  12:16 -0400, Theodore Ts'o wrote:
-> We do have one place where the 512 byte sector count is used, and
-> that's in inode->i_blocks, which is stored as 512 byte sectors,
-> regardless of the blocksize.  *That's* due to st_blocks in the stat
-> structure being returned in 512 byte sectors, and for no other good
-> reason.  As a result of this particular bit of history, ext2
-> filesystems are limited to 2TB, even when using a 4k blocksize.
-> Without this bit of "design history", we'd be able to support 16TB
-> filesystems with 2.6's CONFIG_LBD support, without needing to going to
-> a 64-bit block numbers.  Making this change is actually pretty easy,
-> and I may try to get that change to Linus before 2.6 closes.
+Srihari, I would like if you could try to reproduce with this new one
+with CONFIG_SOUND=n.  Thanks!
 
-Err, wouldn't that be a 2TB FILE limit, and not a FILESYSTEM limit?
+URL:
 
-Also, this limit only applies for allocated space within the file and
-not the total size of the file (for sparse files).  However, I don't
-thing we have any checking in the kernel to ensure we don't overflow
-2^32 allocated blocks for a single file (probably needs to be done in
-ext*_alloc_block() or similar to ensure we have less than or equal to
-"2^32 - (sb->blocksize >> 9)" blocks allocated to a file.  I don't
-know if we still have the old "limit total file size to 2TB" check
-in there still.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre11aa1.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre11aa1/
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Only in 2.4.20pre10aa1: 00_extraversion-10
+Only in 2.4.20pre11aa1: 00_extraversion-11
+Only in 2.4.20pre10aa1: 00_max_bytes-5
+Only in 2.4.20pre11aa1: 00_max_bytes-6
+Only in 2.4.20pre10aa1: 60_pagecache-atomic-6
+Only in 2.4.20pre11aa1: 60_pagecache-atomic-7
+Only in 2.4.20pre10aa1: 70_intermezzo-junk-1
+Only in 2.4.20pre11aa1: 70_intermezzo-junk-2
 
+	Rediffed.
+
+Only in 2.4.20pre11aa1: 00_fcntl_getfl-largefile-1
+
+	Clear the implicit O_LARGEPAGE with 64bit archs.
+
+Only in 2.4.20pre11aa1: 00_o_direct-read-overflow-write-locking-xfs-2
+
+	fix xfs compilation (from Christoph).
+
+Only in 2.4.20pre10aa1: 20_sched-o1-fixes-4
+Only in 2.4.20pre11aa1: 20_sched-o1-fixes-5
+
+	Take the expired queue into account in sched_yield, still
+	sched_yield is a cpu-local operation unlike in 2.4 mainline.
+
+	Fix idle rescheduling so we don't waste an 80% of the cpu power of some
+	big irons.
+
+	Fixed a race that could explain some instability (in my my tree only).
+
+Only in 2.4.20pre10aa1: 86_x86_64-tsc-hpet-pit-1
+
+	Dropped temporarily.
+
+Only in 2.4.20pre10aa1: 9900_aio-11.gz
+Only in 2.4.20pre11aa1: 9900_aio-12.gz
+
+	Unplug the queue properly in the next_chunk passes too. (from
+	Chris Mason)
+
+Andrea

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315762AbSGSGrj>; Fri, 19 Jul 2002 02:47:39 -0400
+	id <S315783AbSGSHDC>; Fri, 19 Jul 2002 03:03:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315783AbSGSGrj>; Fri, 19 Jul 2002 02:47:39 -0400
-Received: from divine.city.tvnet.hu ([195.38.100.154]:47386 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S315762AbSGSGri>; Fri, 19 Jul 2002 02:47:38 -0400
-Date: Fri, 19 Jul 2002 07:52:49 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: <stoffel@lucent.com>
-cc: Robert Love <rml@tech9.net>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-In-Reply-To: <15671.5657.312779.438143@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.30.0207190708260.30902-100000@divine.city.tvnet.hu>
+	id <S315988AbSGSHDC>; Fri, 19 Jul 2002 03:03:02 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:10512 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315783AbSGSHDB>; Fri, 19 Jul 2002 03:03:01 -0400
+Message-ID: <3D37B8FA.4030905@evision.ag>
+Date: Fri, 19 Jul 2002 09:00:10 +0200
+From: dalecki <dalecki@evision.ag>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rob Landley <landley@trommello.org>
+CC: CaT <cat@zip.com.au>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com> <20020719044518.GK5608@zip.com.au> <200207190532.g6J5Wia87042@pimout3-int.prodigy.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
+> On Friday 19 July 2002 12:45 am, CaT wrote:
+> 
+>>On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
+>>
+>>>On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
+>>>
+>>>>I've been sitting on this question for years, hoping I'd come
+>>>>across the answer, and I STILL don't know what the "i" is short for.
+>>>>Somebody here has got to know this. :)
+>>>
+>>>Incore node, I believe.  In the original Unix code there was dinode and
+>>>inode if I remember correctly, for disk node and incore node.
+>>
+>>That's a new one. I always thought it was 'information node' so in the
+>>above it'd be disk information node and just information node.
+>>
+>>Makes sense to me in any case. :)
 
-On Thu, 18 Jul 2002 stoffel@lucent.com wrote:
-> Szakacsits> About 99% of the people don't know about, don't understand
-> Szakacsits> or don't care about resource limits. But they do care
-> Szakacsits> about cleaning up when mess comes. Adding reserved root
-> Szakacsits> memory would be a couple of lines
->
-> So what does this buy you when root itself runs the box into the
-> ground?  Or if a dumb user decides to run his process as root, and it
-> takes down the system?
+No it doesn't not. Becouse that would rather describe a super block.
 
-You would be able to point out them running stuffs as root is the
-worst scenario from security and reliability point of view. You can
-argue about security now but not reliability because it doesn't matter
-who owns the "runaway" processes, the end result is either uncontrolled
-process killing (default kernel) or livelock (strict overcommit patch).
 
-You can't solve everybody's problems of course but you can educate
-them however at present the kernel misses the features to do so [and
-for a moment *please* ignore the resource control/accounting with all
-its benefits and deficients on Linux, there are lot's of way to do
-resource control and Linux is quite infant at present].
 
-> You're arguing for the wrong thing here.
-
-How about consulting with some Sun or ex-Dec engineers why they have
-this feature for (internet) decades? Because at default they use
-strict overcommit and that's shooting yourself in the foot without
-reserved root vm on a general purposes system.
-
-	Szaka
 

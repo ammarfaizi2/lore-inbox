@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261576AbSJQApW>; Wed, 16 Oct 2002 20:45:22 -0400
+	id <S261593AbSJQAwB>; Wed, 16 Oct 2002 20:52:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261578AbSJQApW>; Wed, 16 Oct 2002 20:45:22 -0400
-Received: from inet-mail1.oracle.com ([148.87.2.201]:26328 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S261576AbSJQApV>; Wed, 16 Oct 2002 20:45:21 -0400
-Date: Wed, 16 Oct 2002 17:51:10 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
-Message-ID: <20021017005109.GV22117@nic1-pc.us.oracle.com>
-References: <20021014135100.GD28283@suse.de>
+	id <S261590AbSJQAwB>; Wed, 16 Oct 2002 20:52:01 -0400
+Received: from mnh-1-14.mv.com ([207.22.10.46]:9733 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261593AbSJQAv6>;
+	Wed, 16 Oct 2002 20:51:58 -0400
+Message-Id: <200210170202.VAA05667@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: David Coulson <david@davidcoulson.net>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: wstearns@posbox.com, linux-kernel@vger.kernel.org,
+       UML devel <user-mode-linux-devel@lists.sourceforge.net>
+Subject: Re: [uml-devel] Re: swap_dup/swap_free errors with 2.4.20-pre10 
+In-Reply-To: Your message of "Wed, 16 Oct 2002 23:14:50 +0100."
+             <3DADE4DA.9080508@davidcoulson.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021014135100.GD28283@suse.de>
-User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
+Date: Wed, 16 Oct 2002 21:02:07 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 03:51:00PM +0200, Jens Axboe wrote:
-> @@ -943,7 +1015,6 @@
->  	 */
->  	bh = blk_queue_bounce(q, rw, bh);
+david@davidcoulson.net said:
+> I had weird lockups under 2.4.20-pre9, where the system would behave
+> oddly - Most commands would work, but 'ps' simply locked up and I
+> couldn't Ctrl-C out of it.
 
-	I don't know why this only slightly bothered me until I oopsed.
-This only bounces the superbh and certainly doesn't bounce all the
-attendant bhs in the list.
+I've seen this bug multiple times.  Basically, something is holding a
+mm_sem and not letting go.  Anything that walks the process list hangs.
+Ultimately, this hangs anything that's remotely useful, and you have to
+crash the box.
 
-Joel
+I've seen it on my laptop several times, and it hung a UML server that we
+have.  UML is frequently, but not always involved.
 
--- 
+We got a sysrq t from the UML server.  I posted to lkml about it, with no
+response.  You can see that at
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=103351640614665&w=2
 
-"In the room the women come and go
- Talking of Michaelangelo."
+One factoid that I forgot to mention there is that when it happens on my 
+laptop, the disk activity light is stuck on.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+				Jeff
+

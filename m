@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265467AbTFRUV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 16:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265481AbTFRUV1
+	id S265465AbTFRUTi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 16:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265461AbTFRUTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 16:21:27 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:65042 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S265467AbTFRUTq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 16:19:46 -0400
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Organization: K4 Labs
-To: James Simmons <jsimmons@infradead.org>
-Subject: Re: Linux 2.5.71 - random console corruption
-Date: Wed, 18 Jun 2003 21:08:00 +0100
-User-Agent: KMail/1.5.2
-Cc: Gerhard Mack <gmack@innerfire.net>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0306182127170.24449-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0306182127170.24449-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Wed, 18 Jun 2003 16:19:38 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:6410 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265458AbTFRUSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 16:18:54 -0400
+Date: Wed, 18 Jun 2003 22:32:47 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       roland@redhat.com
+Subject: Re: common name for the kernel DSO
+Message-ID: <20030618203247.GA14124@mars.ravnborg.org>
+Mail-Followup-To: davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org, roland@redhat.com
+References: <16112.47509.643668.116939@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306182108.05364@gjs>
+In-Reply-To: <16112.47509.643668.116939@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Jun 18, 2003 at 12:12:21PM -0700, David Mosberger wrote:
+> Not surprisingly, I like the name "linux-gate", since that is really
+> what this DSO is all about: it's a gateway between user and kernel
+> space.  However, if this name isn't appropriate for x86, perhaps we
+> can find another name which will be acceptable to everybody.
 
-On Wednesday 18 of June 2003 21:28, James Simmons wrote:
+Hi David.
 
-> > Config attached.
->
-> You have way to many fbdev drivers turned on. Also the console drivers are
-> messed up. Slect one Fbdev driver and framebuffer console or just use
-> vgacon.
-Shouldn't those drivers detect if they are or not the ones, and if none of 
-them is - leave vgacon , if one of them does the job it should set vgacon off 
-and use fb ?
-What if i will have to decide about configuration for distribution ? where 
-everyone nowdays want to boot with logo/fb and so on ?
- 
-- --
-Grzegorz Jaskiewicz
-K4 Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+I see no clean way to share the rules between the architectures,
+at least not without doing something very special for this.
+The second best alternative is to have the same implementation
+in all architectures supporting this, so my vote goes for the
+gate name.
 
-iD8DBQE+8Malqu082fCQYIgRAjMSAJ4uCzn4EH4pgXstsRSnVBlZiZObggCdEYI8
-vCupyDNBt9J9DvSYpE4pxoA=
-=vnmZ
------END PGP SIGNATURE-----
+PS. One day I hope to find a better solution for the gross ld_flags hack..
 
+	Sam

@@ -1,107 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263241AbTJaLqU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 06:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbTJaLqU
+	id S263258AbTJaMPI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 07:15:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTJaMPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 06:46:20 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:10761 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263241AbTJaLqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 06:46:18 -0500
-Date: Fri, 31 Oct 2003 11:46:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org, garloff@suse.de, matthias.andree@gmx.de,
-       gl@dsa-ac.de
-Subject: Re: [PATCH] Re: AMD 53c974 SCSI driver in 2.6
-Message-ID: <20031031114616.A16435@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org, garloff@suse.de,
-	matthias.andree@gmx.de, gl@dsa-ac.de
-References: <20031031094645.A14820@infradead.org> <24432.1067599508@www47.gmx.net>
-Mime-Version: 1.0
+	Fri, 31 Oct 2003 07:15:08 -0500
+Received: from ultra12.almamedia.fi ([193.209.83.38]:61378 "EHLO
+	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
+	id S263258AbTJaMPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 07:15:05 -0500
+Message-ID: <3FA25246.16257890@users.sourceforge.net>
+Date: Fri, 31 Oct 2003 14:15:02 +0200
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: sluskyb@paranoiacs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
+References: <20031030134137.GD12147@fukurou.paranoiacs.org>
+			<3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <24432.1067599508@www47.gmx.net>; from g.liakhovetski@gmx.de on Fri, Oct 31, 2003 at 12:25:08PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 31, 2003 at 12:25:08PM +0100, Guennadi Liakhovetski wrote:
-> (Replying fromo the web-interface, hope, the email will not be scrued up 
-> completely).
-
-Seems fine.
-
-> > Any reason you fix this driver?  The tmcsim one for the same hardware
-> > looks like much better structured (though a bit obsufacted :))?
+Andrew Morton wrote:
+> Jari Ruusu <jariruusu@users.sourceforge.net> wrote:
+> > Cryptoapi interface is quite broken. Your change extends that breakage to
+> > loop transfer interface. Please don't do that.
 > 
-> This is the easiest to asnwer: Kurt Garloff wrote to me, saying that he 
-> would fix the tmcsim driver, so, I didn't want to duplicate the work. Also, 
-> I was considering this mostly as a fun-excersice, not really hoping / aiming
+> Please describe this breakage.
 
-Ah, okay.
+It is broken because it includes kmaps. kmaps may be required evil thing
+that is currectly required, but in long term kmaps deserve fate of DOS EMS.
+Less interfaces that include that damage, the better. Please don't include
+that damage in loop transfer interface.
 
-> > > +#ifdef AM53C974_MULTIPLE_CARD
-> > > +#error "FIXME! Multiple card support is broken. Looks like it never
-> > really worked. Might have to be fixed."
-> > >  static struct Scsi_Host *first_host;	/* Head of list of AMD boards */
-> > > +#endif
-> > 
-> > Why do you need the undef?  It looks like you need to kill a #define for
-> > this symbol somewhere else :)
-> 
-> So that, when it is fixed, somebody can easily switch it on / off:-)
-
-Then just comment ou the #define.  Rule of the thumb:  #undef always means
-you screwed up elsewhere :)
-
-> 
-> > > -	save_flags(flags);
-> > > -	cli();
-> > > +	local_irq_save(flags);
-> > 
-> > That's not safe on SMP, you must mark the driver BROKEN_ON_SMP or better
-> > fix this.
-> 
-> Yes. Again - the fix was pretty much mechanical. I didn't understand why it
-> was considered SMP-safe to just disable local interrupts, so, just preferred
-> to go the "minimal modifications" path.
-
-cli() disabled all intereupts in 2.4 which was safe, you only disable local
-interrupts which is ok on UP but doesn't work on SMP.  The right fix would
-be to introduce spinlocks.  But given the driver design this might be
-everything but easy - that's why I think killing the driver in favour of tmcsim
-might be the better idea.
-
-> > Not sure whether you're interested in fixing this, but the proper way
-> > to fix that would be to call request_irq for each card, mark the irq's
-> > sharable.  The irq handler then can use the void * argument to find the
-> > right host and you can kill all this ugly host list walking.  That shold
-> > get multiple host support working again in theory  (ok, except that the
-> > driver has a totally broken single state machine..)
-> 
-> Sure - in irq-handler. But are these lists needed anywhere else, where a
-> function is called in an "abstract" context without a dev-pointer? Probably,
-> not.
-
-A poper driver shouldn't do that, but we already know this one isn't..
-
-> > >  	if (cmd->use_sg) {
-> > >  		cmd->SCp.buffer = (struct scatterlist *) cmd->buffer;
-> > >  		cmd->SCp.buffers_residual = cmd->use_sg - 1;
-> > > -		cmd->SCp.ptr = (char *) cmd->SCp.buffer->address;
-> > > +		cmd->SCp.ptr = (char *) page_address(cmd->SCp.buffer->page) +
-> > cmd->SCp.buffer->offset;
-> > 
-> > This means you need a dma_mask < highmem to work.  I don't think we
-> > want such crude hacks merged, could you please convert it to the proper
-> > dma API?
-> 
-> Found in a "working" driver (which has to be fixed too, then). Will try to 
-> find a proper fix (for the new driver).
-
-Oh.  What driver did you find this construct in?
-
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266222AbUBDAJw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 19:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266225AbUBDAJw
+	id S266235AbUBDAUo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 19:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbUBDAUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 19:09:52 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24971 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266222AbUBDAJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 19:09:30 -0500
-Date: Tue, 3 Feb 2004 16:10:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Alexander Y. Fomichev" <gluk@php4.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Call Trace: page allocation failure - is it normal behaviour?
-Message-Id: <20040203161055.47596de4.akpm@osdl.org>
-In-Reply-To: <200402031806.15439.gluk@php4.ru>
-References: <200402031806.15439.gluk@php4.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Feb 2004 19:20:44 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:22495 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266235AbUBDATg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 19:19:36 -0500
+Message-ID: <40203A93.8050600@cyberone.com.au>
+Date: Wed, 04 Feb 2004 11:19:31 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Stueckjuergen <christoph.stueckjuergen@siemens.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 Scheduler Latency Measurements (Preemption diabled/enabled)
+References: <200402031724.17994.christoph.stueckjuergen@siemens.com>
+In-Reply-To: <200402031724.17994.christoph.stueckjuergen@siemens.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Alexander Y. Fomichev" <gluk@php4.ru> wrote:
->
-> Hello,
-> 
-> I noticed some call trace when testing box under heavy load.
-> To create a load following jobs have been running simultaneously.
-> 
->  ab2 -c 200 -n 10000000 http://192.168.114.239/
->  fsx-linux -l 900000000 fsx-data3
->  dbench 100
-> 
-> adt root # w
->  19:24:32 up 14:58,  6 users,  load average: 90.92, 83.97, 84.28
-> 
-> Some times after dmesg has shown  multiple call traces of two types:
-> 
-> swapper: page allocation failure. order:2, mode:0x20
-> Call Trace:
->  [<c014059c>] __alloc_pages+0x30c/0x350
->  [<c0140605>] __get_free_pages+0x25/0x40
->  [<c01435a7>] cache_grow+0xc7/0x310
->  [<c01438fe>] cache_alloc_refill+0x10e/0x2c0
->  [<c0143e01>] __kmalloc+0x71/0x80
->  [<c0266697>] alloc_skb+0x47/0xe0
->  [<c0294e7e>] tcp_fragment+0x5e/0x340
->  [<c02975b8>] tcp_write_wakeup+0xe8/0x280
->  [<c0298870>] tcp_write_timer+0x0/0x130
->  [<c029776d>] tcp_send_probe0+0x1d/0x110
->  [<c0298933>] tcp_write_timer+0xc3/0x130
->  [<c01298f7>] run_timer_softirq+0xe7/0x1d0
->  [<c0124e2a>] do_softirq+0xca/0xd0
->
->  ...
-> bwt I've noticed no visible harm to system and question ruther is
-> whether this behaviour is normal under such circumstances?
 
-Yes, it is expected and the networking stack will recover.  We'll remove
-that debug code at some point.
+
+Christoph Stueckjuergen wrote:
+
+>Hi,
+>
+>I performed a series of measurements comparing scheduler latency of a 2.6.1 
+>kernel with preemption enabled and disabled on an AMD Elan (i486 compatible) 
+>with 133 Mhz clock frequency.
+>
+>The measurements were performed with a kernel module and a user mode process 
+>that communicate via a character device interface. The user mode process uses 
+>a blocking read() call to obtain data from the kernel. The kernel module 
+>reads the system time every 10 ms by calling do_gettimeofday(), wakes up the 
+>sleeping user mode process and passes the system time to it. After having 
+>received the system time from the kernel, the user mode process reads the 
+>system time by calling gettimeofday() and is thus able to determine the 
+>scheduler latency by subtracting the two times. The user mode process is run 
+>with the SCHED_FIFO scheduling policy.
+>
+>Measurements were carried out on a „loaded“ and an „unloaded“ system. The 
+>„load“ was created by a process that continuously writes data to the serial 
+>interface /dev/ttyS0.
+>
+>The results are:
+>"loaded" system, 10.000 samples
+>average scheduler latency (preemption enabled / disabled): 170 us / 232 us
+>minimum scheduler latency (preemption enabled / disabled): 49 us / 43 us
+>maximum scheduler latency (preemption enabled / disabled): 840 us / 1063 us
+>
+>"unloaded" system, 10.000 samples
+>average scheduler latency (preemption enabled / disabled): 50 us / 44 us
+>minimum scheduler latency (preemption enabled / disabled): 46 us / 41 us
+>maximum scheduler latency (preemption enabled / disabled): 233 us / 215 us
+>
+>Any help in interpreting the data would be highly appreciated. Especially:
+>- Why does preemption lead to a higher minimum scheduler latency in the loaded 
+>case?
+>- Why does preemption worsen scheduler latency on the unloaded system?
+>
+>
+
+Because it adds a small amount of overhead. What you are paying for
+is the improvement in worst case latencies. Looks like it is exactly
+what you would expect.
 

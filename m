@@ -1,54 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268555AbUGXMmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268574AbUGXNBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268555AbUGXMmj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 08:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268557AbUGXMmj
+	id S268574AbUGXNBy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 09:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268575AbUGXNBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 08:42:39 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:33415 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S268555AbUGXMmg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 08:42:36 -0400
-Message-ID: <410258FA.1010202@rtr.ca>
-Date: Sat, 24 Jul 2004 08:41:30 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-audio-dev@music.columbia.edu,
-       arjanv@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel	Preemption
- Patch
-References: <1089673014.10777.42.camel@mindpipe>	 <20040712163141.31ef1ad6.akpm@osdl.org>	 <1089677823.10777.64.camel@mindpipe>	 <20040712174639.38c7cf48.akpm@osdl.org>	 <1089687168.10777.126.camel@mindpipe>	 <20040712205917.47d1d58b.akpm@osdl.org>	 <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu>	 <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu>	 <20040720121905.GG1651@suse.de> <1090642050.2871.6.camel@mindpipe>
-In-Reply-To: <1090642050.2871.6.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jul 2004 09:01:54 -0400
+Received: from ozlabs.org ([203.10.76.45]:38088 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268574AbUGXNBv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 09:01:51 -0400
+Date: Sat, 24 Jul 2004 22:59:37 +1000
+From: Anton Blanchard <anton@samba.org>
+To: torvalds@osdl.org
+Cc: paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] Exception path optimisations
+Message-ID: <20040724125937.GH4556@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note that the method used by hdparm tends to underreport
-achievable throughput somewhat, because it generally only
-ever has one I/O "in flight".
 
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+- We were statically predicting syscalls would be 32bit which meant every
+  64bit syscall was guaranteed to be mispredicted. Just let the hardware
+  predict this one.
 
-Lee Revell wrote:
-> On Tue, 2004-07-20 at 08:19, Jens Axboe wrote:
-> 
->>On Tue, Jul 20 2004, Ingo Molnar wrote:
->>
->>>>How much I/O do you allow to be in flight at once?  It seems like by
->>>>decreasing the maximum size of I/O that you handle in one interrupt
->>>>you could improve this quite a bit.  Disk throughput is good enough,
->>>>anyone in the real world who would feel a 10% hit would just throw
->>>>hardware at the problem.
-...
-> According to hdparm, the throughput is still quite good (42MB/sec on a 
-> sub-$100 IDE drive).
+- We shouldnt use blrl for indirect function calls, it is unlikely to be
+  predicted correctly and corrupts the link prediction stack. We should
+  use bctrl instead.
 
+- Statically predict a branch in the system call path, favouring calls from
+  userspace.
+
+- Remove static prediction in pagefault path, hardware prediction should do
+  a better job here.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+===== arch/ppc64/kernel/entry.S 1.41 vs edited =====
+--- 1.41/arch/ppc64/kernel/entry.S	Thu Jun 17 15:48:02 2004
++++ edited/arch/ppc64/kernel/entry.S	Sat Jul 24 22:47:03 2004
+@@ -132,7 +132,7 @@
+  */
+ 	ld	r11,.SYS_CALL_TABLE@toc(2)
+ 	andi.	r10,r10,_TIF_32BIT
+-	beq-	15f
++	beq	15f
+ 	ld	r11,.SYS_CALL_TABLE32@toc(2)
+ 	clrldi	r3,r3,32
+ 	clrldi	r4,r4,32
+@@ -143,8 +143,8 @@
+ 15:
+ 	slwi	r0,r0,3
+ 	ldx	r10,r11,r0	/* Fetch system call handler [ptr] */
+-	mtlr	r10
+-	blrl			/* Call handler */
++	mtctr   r10
++	bctrl			/* Call handler */
+ 
+ syscall_exit:
+ #ifdef SHOW_SYSCALLS
+@@ -182,7 +182,7 @@
+ 	stdcx.	r0,0,r1			/* to clear the reservation */
+ 	andi.	r6,r8,MSR_PR
+ 	ld	r4,_LINK(r1)
+-	beq	1f			/* only restore r13 if */
++	beq-	1f			/* only restore r13 if */
+ 	ld	r13,GPR13(r1)		/* returning to usermode */
+ 1:	ld	r2,GPR2(r1)
+ 	ld	r1,GPR1(r1)
+===== arch/ppc64/kernel/head.S 1.67 vs edited =====
+--- 1.67/arch/ppc64/kernel/head.S	Mon Jul  5 20:27:11 2004
++++ edited/arch/ppc64/kernel/head.S	Sat Jul 24 22:47:03 2004
+@@ -1028,7 +1028,7 @@
+ 	bl	.local_irq_restore
+ 	b	11f
+ #else
+-	beq+	fast_exception_return   /* Return from exception on success */
++	beq	fast_exception_return   /* Return from exception on success */
+ 	/* fall through */
+ #endif
+ 
 

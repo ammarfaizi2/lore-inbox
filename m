@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266131AbRF2RpP>; Fri, 29 Jun 2001 13:45:15 -0400
+	id <S266136AbRF2RxQ>; Fri, 29 Jun 2001 13:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266132AbRF2RpG>; Fri, 29 Jun 2001 13:45:06 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9993 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266131AbRF2Roy>; Fri, 29 Jun 2001 13:44:54 -0400
-Subject: Re: core dump problem with a multi-threaded program
-To: yahui@gambitcomm.com (Yahui Lin)
-Date: Fri, 29 Jun 2001 18:44:20 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, support@gambitcomm.com, yahui@gambitcomm.com
-In-Reply-To: <3B3CBAD5.9129B6F3@gambitcomm.com> from "Yahui Lin" at Jun 29, 2001 01:28:53 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266135AbRF2RxF>; Fri, 29 Jun 2001 13:53:05 -0400
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:24526 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S266132AbRF2Rwo>; Fri, 29 Jun 2001 13:52:44 -0400
+Message-ID: <3B3CC111.5F53C7CD@kegel.com>
+Date: Fri, 29 Jun 2001 10:55:29 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: darx_kies@gmx.net,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: re: CLOSE_WAIT Problem
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15G2JY-0000h9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> multi-threaded program is not possible under RedHat Linux 7.1 (kernel
-> version 2.4.2-2), because loading the core into gdb 5.0 does not show
-> the correct crash location.
+Chriss wrote:
+> I wrote a simple server application and installed it on a linux machine
+> in Slovakia, running Mandrake 7.2 (2.2.18).
+> That machine loses tcp/ip packages, as it uses a Microwave connection.
+> So my server works all the time, and the tcp/ip connections are set to
+> TIME_WAIT, but after a couple of hours
+> my server application won't get any connections anymore and the netstat
+> shows a lot of CLOSE_WAITs that belong to the server.
+> I've installed the same server on two SuSE 7.1 (2.2.18) machines in
+> Austria, and the problem never occured.
+> So does anyone know how to avoid that CLOSE_WAITs, or at least how to
+> get rid of  them?
 
-2.4.2 doesn't support multithreaded core dumps. 
-The RH errata kernel will generate a dump for each thread as/if/when that thread
-crashes
+Dunno if this will help, but:
 
-You can then inspect the relevant core.pid file, I've no idea how well the
-gdb thread stuff works with it.
+They're supposed to go away by themselves after 2MSL (about 120 seconds).
+Other people (on many operating systems) have reported similar problems, btw:
 
+http://uwsg.iu.edu/hypermail/linux/net/9611.2/0043.html
+http://www.sunmanagers.org/pipermail/sunmanagers/2001-April/002894.html
+http://www2.real-time.com/tclug-list/1999/Jun/msg00254.html
+http://mail-index.netbsd.org/netbsd-bugs/1996/04/16/0004.html
+
+The last one has a fix for an old bug in netbsd that could cause this.
+- Dan

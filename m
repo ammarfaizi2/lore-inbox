@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268700AbUJPLgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUJPLuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268700AbUJPLgi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 07:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUJPLgi
+	id S268702AbUJPLuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 07:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268703AbUJPLuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 07:36:38 -0400
-Received: from 1-1-4-25a.lio.sth.bostream.se ([82.182.83.86]:22914 "EHLO
-	pefyra") by vger.kernel.org with ESMTP id S268700AbUJPLgf (ORCPT
+	Sat, 16 Oct 2004 07:50:18 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:52969 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S268702AbUJPLuO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 07:36:35 -0400
-Subject: Re: PROBLEM: 2.6.9-rc3, i8042.c: Can't read CTR while initializing
-	i8042
-From: =?ISO-8859-1?Q?H=E5kan?= Lindqvist <lindqvist@netstar.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1097079186.29255.53.camel@localhost.localdomain>
-References: <4161A2C1.8000901@hccnet.nl>
-	 <1097079186.29255.53.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sat, 16 Oct 2004 13:37:09 +0200
-Message-Id: <1097926629.2715.10.camel@pefyra>
+	Sat, 16 Oct 2004 07:50:14 -0400
+Date: Sat, 16 Oct 2004 13:50:14 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org, albert@users.sf.net
+Subject: Re: [PATCH, RFC] bring /proc/pid/stat and /proc/pid/task/tid/stat in line with getrusage
+Message-ID: <20041016115014.GA12141@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org, albert@users.sf.net
+References: <20041016102948.GA8958@outpost.ds9a.nl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041016102948.GA8958@outpost.ds9a.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ons, 2004-10-06 at 17:13 +0100, Alan Cox wrote:
-> For E7xxx systems you need to disable USB legacy support in the BIOS
-> because SMM only works on the boot processor. There is a patch to
-> automate it in 2.6.8.1-ac you can also borrow
+On Sat, Oct 16, 2004 at 12:29:48PM +0200, bert hubert wrote:
 
-For the record, having to disable USB legacy for i8042 initialization to
-work reliably also seems to apply to my i850 based motherboard (Asus
-P4T533-C).
+> I'm happy to hear comments, but I hope this patch will be considered as it
+> solves real world problems, even though it might confuse some theoretically
+> task-aware procps tools (which I did not find).
 
-(About four out of five boots the i8042 initialization fails with
-vanilla 2.6.9-rc3 when USB legacy is enabled.)
+To clarify - "ps -eLf" does traverse /proc/pid/task/tid/ , so yes, there are
+tools which are task-aware. But in this case, I meant that it does not
+matter as the output of /proc/pid/task/tid/stat is unchanged by my patch.
 
+I more exactly meant that to my knowledge, no procps tools add up all the
+tasks in /ptoc/pid/task/tid and present them as one process.
 
-Thanks,
-Håkan
+Sorry for the confusion.
 
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

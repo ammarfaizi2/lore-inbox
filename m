@@ -1,84 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbUJ0Kde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbUJ0KVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbUJ0Kde (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 06:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbUJ0Kau
+	id S262353AbUJ0KVv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 06:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUJ0KUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 06:30:50 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:59805 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262362AbUJ0K2W (ORCPT
+	Wed, 27 Oct 2004 06:20:34 -0400
+Received: from gprs214-182.eurotel.cz ([160.218.214.182]:44935 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262372AbUJ0KBH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 06:28:22 -0400
-Date: Wed, 27 Oct 2004 12:29:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041027102921.GA28764@elte.hu>
-References: <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027082831.GA15192@elte.hu> <20041027084401.GA15989@elte.hu> <20041027085221.GA16742@elte.hu> <20041027090620.GA17621@elte.hu> <20041027123329.14570992@mango.fruits.de>
+	Wed, 27 Oct 2004 06:01:07 -0400
+Date: Wed, 27 Oct 2004 12:00:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Cc: ncunningham@linuxmail.org, Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fixing MTRR smp breakage and suspending sysdevs.
+Message-ID: <20041027100046.GB26265@elf.ucw.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041027123329.14570992@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+> >One thing I have noticed is that by adding the sysdev suspend/resume
+> >calls, I've gained a few seconds delay. I'll see if I can track down
+> the
+> >cause.
+> Is the problem MTRR resume must be with IRQ enabled, right? Could we
+> implement a method sysdev resume with IRQ enabled? MTRR driver isn't
+> the
 
-> jackd runs with a period size of 128 frames (48000hz samplerate) and with
-> SCHED_FIFO with prios from 60 to 70 (ps output is somewhat broken):
-> 
-> mango:~# ps -cmL `pidof jackd`
->   PID   LWP CLS PRI TTY      STAT   TIME COMMAND
->  1286     - -     - ?        -      0:28 /usr/bin/jackd -R -P60 -t20000 -dalsa -
->     -  1286 TS   20 -        SLsl   0:00 -
->     -  1287 TS   23 -        SLsl   0:00 -
->     -  1288 FF  110 -        SLsl   0:00 -
->     -  1289 FF  100 -        SLsl   0:27 -
-> 
-> ~$ chrt -p 1286
-> pid 1286's current scheduling policy: SCHED_OTHER
-> pid 1286's current scheduling priority: 0
-> ~$ chrt -p 1287
-> pid 1287's current scheduling policy: SCHED_OTHER
-> pid 1287's current scheduling priority: 0
+MTRR does not deserve to be sysdev. It is not essential for the
+system, it only makes it slow.
 
-just curious, are these two important to the latency path of jackd, or
-are they lowprio things and are thus at SCHED_OTHER intentionally?
+> only case. The ACPI Link device is another case, it's a sysdev (it must
+> resume before any PCI device resumed), but its resume (it uses semaphore
+> and non-atomic kmalloc) can't invoked with IRQ enabled. I guess cpufreq
+> driver is another case when suspend/resume SMP is supported.
 
-> ~$ chrt -p 1288
-> pid 1288's current scheduling policy: SCHED_FIFO
-> pid 1288's current scheduling priority: 70
-> ~$ chrt -p 1289
-> pid 1289's current scheduling policy: SCHED_FIFO
-> pid 1289's current scheduling priority: 60
-> 
-> Anyways i get xruns like crazy under load (like 200 in 10 minutes). It
-> seems the scheduling class and high priority don't matter really as
-> wiggling windows around on the screen or doing a "find /" can easily
-> provoke xruns.
+I do not see how enabling interrupts before setting up IRQs is good
+idea.
 
-yeah, i'm hunting a quite similar bug: i can see 'realfeel' latencies
-generated by simple window scrolling. It is most likely a logic bug
-somewhere - a missing reschedule check, irqs left disabled accidentally,
-or something like that. Since some other workloads dont trigger it i
-dont think i broke RT scheduling by itself - it is most likely some
-non-core code somewhere missing a resched. Which doesnt make it less of
-a problem, but it makes it harder to find :-|
+What about this one, instead?
 
-	Ingo
+* ACPI Link device should allocate with GFP_ATOMIC
+
+* during suspend, locks can't be taken. (We stop userland, etc). So it
+should be okay to down_trylock() and panic if that does not work.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

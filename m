@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264239AbUEHWsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264225AbUEHWyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264239AbUEHWsi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 18:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264225AbUEHWsi
+	id S264225AbUEHWyH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 18:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbUEHWyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 18:48:38 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54197 "EHLO
+	Sat, 8 May 2004 18:54:07 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29110 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264242AbUEHWsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 18:48:36 -0400
-Date: Sun, 9 May 2004 00:48:35 +0200
+	id S264225AbUEHWyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 18:54:02 -0400
+Date: Sun, 9 May 2004 00:54:01 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040508224835.GE29255@atrey.karlin.mff.cuni.cz>
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
+Message-ID: <20040508225401.GF29255@atrey.karlin.mff.cuni.cz>
+References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <20040503123150.GA1188@openzaurus.ucw.cz> <200405042018.23043.rob@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040506131731.GA7930@wohnheim.fh-wedel.de>
+In-Reply-To: <200405042018.23043.rob@landley.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Couldn't sleep last night and finished a first complete version of
-> cowlinks, code-named MAD COW.  It is still based on the stupid old
-> design with a flag to distinguish between regular hard links and
-> cowlinks.  Please don't comment on that design, it's just a proof of
-> concept.
-
-> Patches are against 2.6.5 but most things should apply to other 2.6
-> kernel without too much trouble.
+> I'm one of the people for whom Patrick's suspend worked and yours didn't.  Now 
+> I've been busy with other things for a couple months (Penguicon 2.0 went 
+> quite well, by the way), and there's talk of yanking Patrick's suspend code 
+> from the kernel.  Right, so I've got to deal with this.  I can't say I'm 
+> thrilled, but I DO want to continue to be able to suspend my laptop.
 > 
-> 1 generic_sendpage	- allow sendfile with ext[23] files as target
-> 2 sendfile		- introduce vfs_sendfile for in-kernel use
-> 3 copyfile		- new copyfile() system call
+> What kind of debug info do I need to report to get your suspend code fixed, 
+> and who do I need to report it to?
+> 
+> I just tested 2.6.5, which went "boing" trying to suspend with some kind of 
+> debug message that gave me a hex number (not a panic, but I didn't have a pen 
+> handy, I can try again and write it down if you like.  Anything else I should 
+> do?)
 
-Well, up to "3" it seems usefull on its own. You might attempt to
-merge that.
+Try it with minimal drivers from signle user mode...
 
-namei.c: you realy don't want to #include in the middle of .c file.
+> I asked Nigel a few months ago, and he pointed me to an enormous flag day 
+> patch that will probably be integrated into the kernel when hell freezes 
+> over.  (I have no idea why it's so intrusive, by the way.  Isn't half the 
+> point of sysfs and the new 2.6 device infrastructure that finding all the 
+> devices that need to be shut up doesn't require the kind of insanity doing it 
+> under 2.4 did?
 
-vfs_unlink followed by BUG_ON(error)... that's definitely wrong. In
-case of disk error, you might get error on unlink; but you should not
-BUG() on that. Perhaps copyfile() should be specified as "may leave
-part of copy of target on disk in case of error"?
+Nigel's refrigerator is way more elaborate and very intrusive, but he
+seems to work *always*. Original refrigerator (shared by swsusp and
+pmdisk) only tries a bit and eventually gives up if stopping system is
+too hard. Hopefully Nigel's code can be simplified.
 
+> I read the docs and read through your code a bit, and every screenful or so it 
+> says "this code is guaranteed to eat your data if you look at it funny".  
+> I've been using Patrick's suspend code for something like eight months now, 
+> and it never ate any of my data.  Failed to resume a few times, but no worse 
+> than sync followed by yanking the power cord, fsck did its thing and life 
+> went on.  (Yes, I back up regularly.  But I've gotten the distinct impression 
+> that you have no faith whatsoever in your own work, and reinstalling and 
+> restoring from backups is a real pain, especially when you're on the
+> road.)
+
+It did not eat *my* data in last eight months.
+
+If patrick does not warn you, its his problem. If you suspend, mount
+your filesytems, do some work and then resume, you are probably going
+to do some pretty nasty corruption. Just don't do that.
+
+But this problem is shared by swsusp, swsusp2 *and* pmdisk.
+
+> Sigh.  I _really_ don't have time for this right now.  I wonder if it would be 
+> possible to just send Patrick some money?
+
+He's out of time, so money is not likely to help. Sending some money
+to Nigel might do the trick ;-).
 								Pavel
 -- 
 Horseback riding is like software...

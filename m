@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133067AbRDRKFK>; Wed, 18 Apr 2001 06:05:10 -0400
+	id <S133065AbRDRKFA>; Wed, 18 Apr 2001 06:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133068AbRDRKFB>; Wed, 18 Apr 2001 06:05:01 -0400
-Received: from cad2.me.ccu.edu.tw ([140.123.121.3]:2485 "EHLO
-	cad2.me.ccu.edu.tw") by vger.kernel.org with ESMTP
-	id <S133067AbRDRKEu>; Wed, 18 Apr 2001 06:04:50 -0400
-Message-ID: <3ADD68F1.69DC083E@cs.ccu.edu.tw>
-Date: Wed, 18 Apr 2001 18:14:09 +0800
-From: lmc83 <lmc83@cs.ccu.edu.tw>
-X-Mailer: Mozilla 4.5 [zh-TW] (WinNT; I)
-X-Accept-Language: zh-TW
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: some question about ramdisk
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 7bit
+	id <S133068AbRDRKEu>; Wed, 18 Apr 2001 06:04:50 -0400
+Received: from smtp1.xs4all.nl ([194.109.127.131]:26889 "EHLO smtp1.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S133065AbRDRKEk>;
+	Wed, 18 Apr 2001 06:04:40 -0400
+Date: Wed, 18 Apr 2001 10:04:23 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: Jason Thomas <jason@topic.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac9
+Message-ID: <20010418100423.A10006@grobbebol.xs4all.nl>
+In-Reply-To: <20010418120102.B29749@topic.com.au> <Pine.LNX.4.21.0104172224320.8771-100000@winds.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0104172224320.8771-100000@winds.org>; from gandalf@winds.org on Tue, Apr 17, 2001 at 10:26:26PM -0400
+X-OS: Linux grobbebol 2.4.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-    I have some question about initrd.
-    If I have a compressed ramdisk image: initrd.gz put at a memory location
-    for example: 0x00070000 (in fact, in my application, it is flash)
+On Tue, Apr 17, 2001 at 10:26:26PM -0400, Byron Stanoszek wrote:
+> I've seen this on my Dell P3 700 machine several times. Seems to happen at odd
+> intervals after I use my CD burner, but that just might be coincidental. But
 
-    1. what is the meaning of initrd_start in rd.c (linux-2.4.0)?
-       Is it means 0x00070000?
-       or is it means the initrd.gz will be decompressed to the
-       location initrd_start?
+I have seen this related to the cd burner as well. it's not a via board
+here, but is SMP.
 
-    2. I'm tracing the rd.c and found that initrd_load() will be
-       called only if initrd_start != 0, but for my testing
-       case, it seems always initrd_start==0.
-       Which kernel parameter can modify the initrd_start?
-
-
-    3. How to tell the kernel that I have a initrd who's image
-       is located 0x00070000?
-       I saw the Document/kernel-parameters.txt, is seems doesn't
-       have suitable parameter for me to use.
-       
-       Should I modify the kernel source code to fit my requirement?
-       I've saw the "How-To: make root/boot disk", it use floppy's
-       specific sector as ramdisk image, 
-       I think is's a little similar to my application,
-       I will try to just specify memory location instead of 
-       reading from floppy's specific sector.
-
-    Thanks in advance for you help
-
-    Liang Ming-Chung
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272531AbTGaQhx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272543AbTGaQhx
+	id S270189AbTGaQkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274819AbTGaQkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:37:53 -0400
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:45981 "EHLO
-	hypnos.var.cx") by vger.kernel.org with ESMTP id S272531AbTGaQhY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:37:24 -0400
-Date: Thu, 31 Jul 2003 18:37:18 +0200
-From: Frank v Waveren <fvw@var.cx>
-To: James Morris <jmorris@intercode.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
-Subject: Re: 2.6.0-test2+Util-linux/cryptoapi
-Message-ID: <1059669067FAU.fvw@tracks.var.cx>
-References: <1059627605AME.fvw@tracks.var.cx> <Mutt.LNX.4.44.0307311515260.21304-100000@excalibur.intercode.com.au>
+	Thu, 31 Jul 2003 12:40:12 -0400
+Received: from daffy.hulpsystems.net ([64.246.21.252]:3988 "EHLO
+	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S270189AbTGaQkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:40:05 -0400
+Subject: Re: 2.4 / 2.6 802.11g 54Mbs support ?
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20030731081222.00a7b5f8@pop.t-online.de>
+References: <5.1.0.14.2.20030731081222.00a7b5f8@pop.t-online.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bX2K6poII3fv2AIAF0lJ"
+Message-Id: <1059669592.30190.12.camel@loke>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0307311515260.21304-100000@excalibur.intercode.com.au>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 31 Jul 2003 18:39:52 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 03:20:48PM +1000, James Morris wrote:
-> > Owch. But I assume this didn't sneak in since the testing cryptoAPI
-> > patches? Or have the algorithms been redone?
-> I'm not sure what you mean.
-I'm currently using hvr's testing cryptoAPI patches for 2.4.x, and I
-have a block device encrypted with 256 bits serpent. This cannot be
-correctly decrypted with linux-2.6.0-test2. Has something in the use
-of serpent changed since then (or has block numbering changed again)?
-Or should I go bug-hunting?
 
--- 
-Frank v Waveren                                      Fingerprint: 21A7 C7F3
-fvw@[var.cx|stack.nl|chello.nl] ICQ#10074100            1FF3 47FF 545C CB53
-Public key: hkp://wwwkeys.pgp.net/fvw@var.cx            7BD9 09C0 3AC1 6DF2
+--=-bX2K6poII3fv2AIAF0lJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2003-07-31 at 08:14, Margit Schubert-While wrote:
+> Well, the PCI card has the Atheros chip and the
+> PCMCIA, the Intersil Prism GT chip.
+
+Atheros Drivers: http://sourceforge.net/projects/madwifi
+Intersil Prism GT: I'm not aware on the status of these. Eventually
+check http://www.linux-wlan.org
+
+
+Regards,=20
+Martin List-Petersen=20
+martin at list-petersen dot dk=20
+--=20
+You must realize that the computer has it in for you. The irrefutable
+proof of this is that the computer always does what you tell it to do.
+
+--=-bX2K6poII3fv2AIAF0lJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/KUZYzAGaxP8W1ugRAjROAKDT8/bPGkFwyCYmF3ggcC82ceFMPwCfbGaV
+OqGg6oGEkGkKyVcxy38R+yI=
+=vH1G
+-----END PGP SIGNATURE-----
+
+--=-bX2K6poII3fv2AIAF0lJ--
+

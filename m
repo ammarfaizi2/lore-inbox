@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264566AbUAOAOe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 19:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbUAOAOe
+	id S264874AbUAOAPk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 19:15:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbUAOAPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 19:14:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46277 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264566AbUAOAOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 19:14:33 -0500
-Date: Wed, 14 Jan 2004 16:13:24 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jt@hpl.hp.com, jt@bougret.hpl.hp.com, jgarzik@pobox.com,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.X] SIOCSIFNAME wilcard suppor & name validation
-Message-Id: <20040114161324.61b7198f.shemminger@osdl.org>
-In-Reply-To: <20040113162112.509edb71.davem@redhat.com>
-References: <20040112234332.GA1785@bougret.hpl.hp.com>
-	<20040113142204.0b41403b.shemminger@osdl.org>
-	<20040113162112.509edb71.davem@redhat.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Wed, 14 Jan 2004 19:15:40 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:22722 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264855AbUAOAPd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 19:15:33 -0500
+Subject: Re: [summary] state of scsi drivers
+From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+To: Xose Vazquez Perez <xose@wanadoo.es>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <4005D4B4.1000705@wanadoo.es>
+References: <4005D4B4.1000705@wanadoo.es>
+Content-Type: text/plain
+Message-Id: <1074125691.15771.10.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 14 Jan 2004 19:14:51 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bug: dev_alloc_name returns the number of the slot used, so comparison needs
-to be < 0.
+On Wed, 2004-01-14 at 18:45, Xose Vazquez Perez wrote:
+> o ips
+>    manufacturer: ADAPTEC
+>    kernel: 6.10.24
+>    latest: 6.10.24
+>    arch: i386 ia64 x86_64
+>    features: highmem_io
+>    maintainer: <david_jeffery*AT*adaptec.com> <jack_hammer*AT*adaptec.com>
+>                <ipslinux*AT*adaptec.com>
 
-diff -Nru a/net/core/dev.c b/net/core/dev.c
---- a/net/core/dev.c	Wed Jan 14 16:09:02 2004
-+++ b/net/core/dev.c	Wed Jan 14 16:09:02 2004
-@@ -718,7 +718,7 @@
- 
- 	if (strchr(newname, '%')) {
- 		int err = dev_alloc_name(dev, newname);
--		if (err)
-+		if (err < 0)
- 			return err;
- 		strcpy(newname, dev->name);
- 	}
+The latest version of ips is 6.11 and is available here:
+http://www-306.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-39729
+
+-- 
+Omkhar
+

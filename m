@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVBGW3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVBGWcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVBGW3l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 17:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVBGW3l
+	id S261287AbVBGWcP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 17:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVBGWcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 17:29:41 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:32235 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261254AbVBGW3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 17:29:38 -0500
-Message-ID: <4207EBD4.9090104@comcast.net>
-Date: Mon, 07 Feb 2005 17:29:40 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+	Mon, 7 Feb 2005 17:32:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21443 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261287AbVBGWbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 17:31:55 -0500
+Message-ID: <4207EC54.8010301@netwinder.org>
+Date: Mon, 07 Feb 2005 17:31:48 -0500
+From: Ralph Siemsen <ralphs@netwinder.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: =?ISO-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Filesystem linking protections
-References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <4207C4C7.8080704@comcast.net> <20050207120516.A24171@build.pdx.osdl.net>
-In-Reply-To: <20050207120516.A24171@build.pdx.osdl.net>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: [PATCH] out-of-tree builds: preserve ARCH and CROSS_COMPILE settings
+Content-Type: multipart/mixed;
+ boundary="------------080504060904080000020605"
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <ralphs@netwinder.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------080504060904080000020605
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
+[I am not subscribed, please CC: any replies]
 
+When you build the 2.6 kernel outside of its source directory, using the 
+O= option like so:
 
-Chris Wright wrote:
-> * John Richard Moser (nigelenki@comcast.net) wrote:
-> 
->>I've yet to see this break anything on Ubuntu or Gentoo; Brad Spengler
->>claims this breaks nothing on Debian.  On the other hand, this could
->>potentially squash the second most prevalent security bug.
-> 
-> 
-> Yes I know, I've worked on distro with it as well in the past.  And it
-> has broken atd and courier in the past.  This is something that also
-> can be done in userspace using sane subdirs in +t world writable dirs,
-> or O_EXCL so there's work to be done in userspace.
-> 
+	make -C linux-2.6.10 O=../builddir
 
-Yes, mkdtemp() and mkstemp().
+this conveniently produces a top-level Makefile in "builddir" which can 
+be used to update/clean/rebuild the tree with a simple "make".  It also 
+uses the ".config" file from "builddir", which makes it very convenient 
+for managing multiple builds for different target systems.
 
-Of course we can't always rely on programmers to get it right, so the
-idea here is to make sure we ask broken code to behave nicely, and stab
-it in the face if it doesn't.  Please try to examine this in that scope.
+However if you are cross-compiling, you must also set ARCH and 
+CROSS_COMPILE variables as appropriate.  Unfortunately these settings 
+are not recorded in the generated Makefile in "builddir", so one cannot 
+simply do "make" anymore.
 
-> thanks,
-> -chris
+The attached patch fixes the script that generates the Makefile, so as 
+to pass ARCH and CROSS_COMPILE settings, only when they are defined. 
+Otherwise behaviour is exactly as it was before.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Since the contents of "builddir" are specific to ARCH and CROSS_COMPILER 
+I see no reason why the values should not become fixed in "builddir".
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Ralph Siemsen <ralphs@netwinder.org>
 
-iD8DBQFCB+vThDd4aOud5P8RAssCAJ9L7Cf5pnvI8GdKs1P4cpM2lJvtYACZAXee
-a5kkPkxXm9YK0DFSfvDd6fQ=
-=00DK
------END PGP SIGNATURE-----
+--------------080504060904080000020605
+Content-Type: text/x-patch;
+ name="mkmakefile.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mkmakefile.patch"
+
+diff -u mkmakefile
+--- linux-2.6.10.orig/scripts/mkmakefile	27 Jan 2005 15:53:54 -0000
++++ linux-2.6.10/scripts/mkmakefile	7 Feb 2005 21:20:19 -0000
+@@ -9,6 +9,8 @@
+ # $3 - version
+ # $4 - patchlevel
+ 
++test "$ARCH" != "" && ARCH="ARCH=$ARCH"
++test "$CROSS_COMPILE" != "" && CROSS="CROSS_COMPILE=$CROSS_COMPILE"
+ 
+ cat << EOF
+ # Automatically generated by $0: don't edit
+@@ -22,10 +24,10 @@
+ MAKEFLAGS += --no-print-directory
+ 
+ all:
+-	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
++	\$(MAKE) $ARCH $CROSS -C \$(KERNELSRC) O=\$(KERNELOUTPUT)
+ 
+ %::
+-	\$(MAKE) -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
++	\$(MAKE) $ARCH $CROSS -C \$(KERNELSRC) O=\$(KERNELOUTPUT) \$@
+ 
+ EOF
+ 
+
+--------------080504060904080000020605--

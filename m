@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318890AbSIIUsb>; Mon, 9 Sep 2002 16:48:31 -0400
+	id <S318891AbSIIUtr>; Mon, 9 Sep 2002 16:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318891AbSIIUsb>; Mon, 9 Sep 2002 16:48:31 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:30741 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S318890AbSIIUs3>; Mon, 9 Sep 2002 16:48:29 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200209092051.g89KpVg05996@devserv.devel.redhat.com>
-Subject: Re: 2.4-pre5[{-}xyz]: 4 machines, feedback only
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Mon, 9 Sep 2002 16:51:31 -0400 (EDT)
-Cc: vanonim@bluewin.ch (Mario Vanoni), alan@redhat.com (Alan Cox),
-       andre@linux-ide.org (Andre Hedrick),
-       linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <Pine.NEB.4.44.0209092234120.11139-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at Sep 09, 2002 10:41:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S318892AbSIIUtr>; Mon, 9 Sep 2002 16:49:47 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:19873 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318891AbSIIUtp>;
+	Mon, 9 Sep 2002 16:49:45 -0400
+Date: Mon, 9 Sep 2002 22:58:15 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: do_syslog/__down_trylock lockup in current BK
+In-Reply-To: <20020909204026.GA8719@nevyn.them.org>
+Message-ID: <Pine.LNX.4.44.0209092258050.26702-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ide-proc.c is compiled into idedriver.o even if no IDE support is compiled
-> into the kernel. That isn't new. The problem that causes these undefined
 
-Thts fine
+some more info about the state it was in:
 
-> references is that in -ac4 some functions that use functions from other
-> ide files (which aren't compiled when building a kernel without IDE
-> support) are no longer static (because they are now exported to modules).
+p (ld-linux.so.2, 4364/4357), father: (ld-linux.so.2, 4363/4357)
+kernel BUG at exit.c:470!
 
-idedriver.o  shouldnt be getting into a kernel without IDE. Thats the
-real problem
+	Ingo
+

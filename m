@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314215AbSDVPJB>; Mon, 22 Apr 2002 11:09:01 -0400
+	id <S314220AbSDVPK1>; Mon, 22 Apr 2002 11:10:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314216AbSDVPJA>; Mon, 22 Apr 2002 11:09:00 -0400
-Received: from lucy.ulatina.ac.cr ([163.178.60.3]:3334 "EHLO
-	lucy.ulatina.ac.cr") by vger.kernel.org with ESMTP
-	id <S314215AbSDVPI7>; Mon, 22 Apr 2002 11:08:59 -0400
-Subject: Re: Adding snapshot capability to Linux
-From: Alvaro Figueroa <fede2@fuerzag.ulatina.ac.cr>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020422124244.GA18252@spaans.ds9a.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 22 Apr 2002 09:02:35 -0600
-Message-Id: <1019487755.31790.4.camel@lucy>
-Mime-Version: 1.0
+	id <S314221AbSDVPK1>; Mon, 22 Apr 2002 11:10:27 -0400
+Received: from [193.120.151.1] ([193.120.151.1]:52473 "EHLO mail.asitatech.com")
+	by vger.kernel.org with ESMTP id <S314220AbSDVPKZ>;
+	Mon, 22 Apr 2002 11:10:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: DJ Barrow <dj.barrow@asitatech.com>
+Organization: Asita Technologies
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: novice coding in /linux/net/ipv4/util.c From: DJ Barrow <dj.barrow@asitatech.com>
+Date: Mon, 22 Apr 2002 16:12:16 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020422151025Z314220-22651+13849@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm sorry to have to say this, but making snapshots of remote filesystems is
-> kinda silly and impossible - if you implement it at the FS level.
+Hi ,
+While debugging last night with Brian O'Sullivan I found this beauty.
 
-FWIW, this kinda sounds like mirroring an EVMS object that is on a
-remote machine[1], or the cache in CODA.
+char *in_ntoa(__u32 in)
+{
+        static char buff[18];
+        char *p;
 
-[1] Plugins for working on objetcs in a SAN or network attatched disks.
+        p = (char *) &in;
+        sprintf(buff, "%d.%d.%d.%d",
+                (p[0] & 255), (p[1] & 255), (p[2] & 255), (p[3] & 255));
+        return(buff);
+}
 
--- 
-Alvaro Figueroa
-
+This textbook peice of novice coding which has existed since 2.2.14.
+For those who can't spot the error, please note that this function is 
+returning a static string, excellent stuff if you are hoping to reuse the 
+same function like the following
+printk("%s %s\n",in_ntoa(addr1),in_ntoa(addr2));

@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262825AbRE0RTu>; Sun, 27 May 2001 13:19:50 -0400
+	id <S262828AbRE0RVj>; Sun, 27 May 2001 13:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262827AbRE0RTj>; Sun, 27 May 2001 13:19:39 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48908 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262825AbRE0RTd>; Sun, 27 May 2001 13:19:33 -0400
-Subject: Re: 2.4.5-ac1 hard disk corruption... acpi responsible?
-To: codygould@yahoo.com.au
-Date: Sun, 27 May 2001 18:17:16 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010527143912.23667.qmail@web12801.mail.yahoo.com> from "=?iso-8859-1?q?Cody=20Gould?=" at May 28, 2001 12:39:12 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262831AbRE0RVb>; Sun, 27 May 2001 13:21:31 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:6201 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S262828AbRE0RVZ>; Sun, 27 May 2001 13:21:25 -0400
+Date: Sun, 27 May 2001 20:21:19 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: cesar.da.silva@cyberdude.com, kernellist <linux-kernel@vger.kernel.org>
+Subject: Re: Please help me fill in the blanks.
+Message-ID: <20010527202119.I11981@niksula.cs.hut.fi>
+In-Reply-To: <20010527021808.80979.qmail@web13407.mail.yahoo.com> <3B1065FD.3F8D7EDF@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1544AG-00026i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B1065FD.3F8D7EDF@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, May 26, 2001 at 10:27:09PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Today I moved to 2.4.5-ac1, the only different thing
-> than normal was I enabled ACPI instead of APM.  
+> > * Dynamic Memory Resilience
+> 
+> RAM fault tolerance?  There was a patch a long time ago which detected
+> bad ram, and would mark those memory clusters as unuseable at boot. 
+> However that is clearly not dynamic.
 
-Bad idea. The kernel ACPI is not the most debugged, the ACPI in many BIOSes
-is complete garbage and there isnt a lot you can do to debug them either.
+If you are referring to Badram patch by Rick van Rein
+(http://rick.vanrein.org/linux/badram/), it doesn't detect the bad ram,
+memtest86 does that part (and does it well) -- you enter then enter the
+badram clusters as boot param. But I have to say badram patch works
+marvellously (thanks, Rick.) Shame it didn't find its way to standard
+kernel.
 
-APM is a definite better choice, at least in the shorter term
+ 
+-- v --
 
+v@iki.fi

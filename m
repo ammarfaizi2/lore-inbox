@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSJ1X25>; Mon, 28 Oct 2002 18:28:57 -0500
+	id <S261845AbSJ1XaM>; Mon, 28 Oct 2002 18:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261860AbSJ1X25>; Mon, 28 Oct 2002 18:28:57 -0500
-Received: from dp.samba.org ([66.70.73.150]:3043 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261855AbSJ1X24>;
-	Mon, 28 Oct 2002 18:28:56 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Hugh Dickins <hugh@veritas.com>, mingming cao <cmm@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]updated ipc lock patch 
-In-reply-to: Your message of "Mon, 28 Oct 2002 09:08:55 -0800."
-             <Pine.LNX.4.44.0210280906150.966-100000@blue1.dev.mcafeelabs.com> 
-Date: Tue, 29 Oct 2002 09:39:26 +1100
-Message-Id: <20021028233518.0F5FF2C0FE@lists.samba.org>
+	id <S261839AbSJ1XaL>; Mon, 28 Oct 2002 18:30:11 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:16142 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S261934AbSJ1X3z>; Mon, 28 Oct 2002 18:29:55 -0500
+Date: Mon, 28 Oct 2002 23:36:13 +0000 (GMT)
+From: <chris@scary.beasts.org>
+X-X-Sender: <cevans@sphinx.mythic-beasts.com>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
+In-Reply-To: <87smyqnpf3.fsf@goat.bogus.local>
+Message-ID: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0210280906150.966-100000@blue1.dev.mcafeelabs.com> yo
-u write:
-> On Mon, 28 Oct 2002, Rusty Russell wrote:
-> 
-> > I think it's clearer *why* it's being done than:
-> >
-> > 	struct ipc_rcu_kmalloc
-> > 	{
-> > 		struct rcu_head rcu;
-> > 	} __attribute__((aligned(__alignof__(void *))));
-> 
-> Well, not really Rusty. The above syntax uses documented gcc features
-> already used inside the kernel, while the fact that void *data[0];
-> enforces alignment it is not ( to my knowledge ) documented anywhere.
-> You can also avoid the comment using the aligned syntax ...
 
-A comment is definitely required: you must say *why* you are aligning
-the structure (a clearer comment would be better, of course):
+On Mon, 28 Oct 2002, Olaf Dietsche wrote:
 
-	/* We return a pointer after the structure to the unwitting
-	   caller: ensure safe alignment. */
+> Solving the last issue (checking access to the capabilities database)
+> involves filesystem support, I guess. So, this will be the next step
+> to address.
+>
+> If you're careful with giving away capabilities however, this patch
+> can make your system more secure as it is. But this isn't fully
+> explored, so you might achieve the opposite and open new security
+> holes.
 
-The alignment of a structure member of type X is the alignment of type
-X: this seems obvious to me.  And "type X data[0];" is the standard
-way of representing a variable struct.
+Have you checked how glibc handles an executable with filesystem
+capabilities? e.g. can an LD_PRELOAD hack subvert the privileged
+executable?
+I'm not sure what the current glibc security check is, but it used to be
+simple *uid() vs. *euid() checks. This would not catch an executable with
+filesystem capabilities.
+Have a look at
+http://security-archive.merton.ox.ac.uk/security-audit-199907/0192.html
 
-Have we picked all the nits yet? 8)
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I think the eventual plan was that we pass the kernel's current->dumpable
+as an ELF note. Not sure if it got done. Alternatively glibc could use
+prctl(PR_GET_DUMPABLE).
+
+Cheers
+Chris
+

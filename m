@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268034AbTBRV67>; Tue, 18 Feb 2003 16:58:59 -0500
+	id <S268055AbTBRWEV>; Tue, 18 Feb 2003 17:04:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268039AbTBRV67>; Tue, 18 Feb 2003 16:58:59 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:21135 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S268034AbTBRV64>;
-	Tue, 18 Feb 2003 16:58:56 -0500
-Date: Tue, 18 Feb 2003 14:08:58 -0800
-From: Chris Wedgwood <cw@f00f.org>
+	id <S268042AbTBRWEV>; Tue, 18 Feb 2003 17:04:21 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:20441 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268055AbTBRWEU>;
+	Tue, 18 Feb 2003 17:04:20 -0500
+Date: Tue, 18 Feb 2003 16:00:27 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
 To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, davej@suse.de, linux@brodo.de
-Subject: Re: Select voltage manually in cpufreq
-Message-ID: <20030218220858.GA15273@f00f.org>
-References: <20030218214220.GA1058@elf.ucw.cz> <20030218214726.GB15007@f00f.org> <20030218215819.GC21974@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030218215819.GC21974@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+cc: <torvalds@transmeta.com>, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: Fixes to suspend-to-RAM
+In-Reply-To: <20030218220740.GD21974@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0302181556480.1035-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 10:58:19PM +0100, Pavel Machek wrote:
 
-> Well, and does slow-low-power mean 300MHz, 1.4V as bios said, or
-> 300MHz, 1.2V which is probably also safe?
+> Bootmem needs to be reserved pretty soon in the boot process, that
+> might be a problem.
 
-I have no idea... that's the point... the user almost never knows what
-*exact* magic values are required, they just want fast-on-power or
-slow-on-battery sort of thing.
-
-> What about
-> "as-fast-as-possible-but-not-exceed-140MHz-because-batteries-are-
-> running-low-and-can-not-give-enough-current"? That's different from
-> "fast-high-power", but it is *also* different from
-> "slow-low-power". [This actually matters on beasts like
-> zaurus]. What about
-> "as-low-power-as-possible-but-make-sure-you-can-keep-display-up"?
-> [On some machines cpu must be > some HMz for display to still work].
-
-this just shows how silly these complex schemes are
-
-you pick two options, a slow and fast option; both should work
+That's not the issue. The call to the arch code would only check if the 
+bootmem had been reserved, and as far the arch code knew, it was OK to 
+enable S3. 
 
 
-  --cw
+> Based on recent talk... Will you act as S3 maintainer so that I can
+> submit patches to you and you'll take care of forwarding to Linus?
+
+Yes, but please don't flood me with patches yet. I'm getting reacquainted 
+with some of the more esoteric details of suspend states, and verifying 
+that we have a working PM model for 2.6.
+
+	-pat
+

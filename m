@@ -1,54 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155492AbPGCCLD>; Fri, 2 Jul 1999 22:11:03 -0400
-Received: by vger.rutgers.edu id <S155431AbPGCCKw>; Fri, 2 Jul 1999 22:10:52 -0400
-Received: from jupiter.cs.uml.edu ([129.63.1.6]:3395 "EHLO jupiter.cs.uml.edu") by vger.rutgers.edu with ESMTP id <S155455AbPGCCKm>; Fri, 2 Jul 1999 22:10:42 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <199907030210.WAA26696@jupiter.cs.uml.edu>
-Subject: Re: Mailbox
-To: linux-kernel@vger.rutgers.edu
-Date: Fri, 2 Jul 1999 22:10:41 -0400 (EDT)
-X-Mailer: ELM [version 2.4 PL25]
-Content-Type: text
+Received: by vger.rutgers.edu via listexpand id <S155603AbPGGHKZ>; Wed, 7 Jul 1999 03:10:25 -0400
+Received: by vger.rutgers.edu id <S155551AbPGGHKE>; Wed, 7 Jul 1999 03:10:04 -0400
+Received: from BC.Mountain.Net ([198.77.1.35]:2772 "EHLO bc.mountain.net") by vger.rutgers.edu with ESMTP id <S155515AbPGGHJs>; Wed, 7 Jul 1999 03:09:48 -0400
+Message-ID: <3782FC2D.4161835@access.mountain.net>
+Date: Wed, 07 Jul 1999 07:05:17 +0000
+From: Tom Leete <tleete@access.mountain.net>
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.10 i486)
+X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>, "linux-kernel@vger.rutgers.edu" <linux-kernel@vger.rutgers.edu>
+Subject: [PATCH] include/linux/*/*.h
+Content-Type: multipart/mixed; boundary="------------26B6762349CFF2C645EB413B"
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Keith Owens writes:
-                                      
-> Does any implementation exist for VMS mailbox ?
+This is a multi-part message in MIME format.
+--------------26B6762349CFF2C645EB413B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Nope.
+Oops, looks like it got rubbed off on the doorframe, here it is.
 
-> If not, wouldn't it be a good thing to patch kernel with such IPC ?
+Tom
+--------------26B6762349CFF2C645EB413B
+Content-Type: application/x-gzip;
+ name="linux_subdir-inline.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="linux_subdir-inline.patch.gz"
 
-Maybe. It ought to be fun at least. It might help with NT compatibility.
-If you need a file type, I've been collecting a list:
-
-hex  name     ls octal  description
-0000             000000 BSD unknown type (not used for inode)
-1000 S_IFIFO  p| 010000 fifo (named pipe)
-2000 S_IFCHR  c  020000 character special
-3000 S_IFMPC     030000 multiplexed character device (Coherent)
-4000 S_IFDIR  d/ 040000 directory
-5000 S_IFNAM     050000 XENIX special named file
-6000 S_IFBLK  b  060000 block special
-7000 S_IFMPB     070000 multiplexed block device (Coherent)
-8000 S_IFREG  -  110000 regular
-9000 S_IFCMP     110000 VxFS compressed (file?)
-a000 S_IFLNK  l@ 120000 symbolic link
-b000 S_IFSHAD    130000 Solaris shadow inode for ACL
-c000 S_IFSOCK s= 140000 socket (also "S_IFSOC" on VxFS)
-d000 S_IFDOOR D  150000 Solaris door
-e000 S_IFWHT   % 160000 BSD whiteout (not used for inode)
-f000 S_IFMT      170000 mask (not used for inode)
-
-I think you can steal S_IFMPC and S_IFMPB, along with either S_IFCMP
-or S_IFSHAD. (since S_IFCMP and S_IFSHAD seem to be internal and do
-not exist on the same filesystem, one can be mapped to the other)
-
-I'd be interested in knowing more about S_IFNAM, the "available"
-type codes, and anything missing from the table above. People with
-S/390 Open Edition, NT, and OpenVMS might have interesting files.
-
-Perhaps these values ought to go into kernel developer documentation.
+H4sICNfHgjcAA2xpbnV4X3N1YmRpci1pbmxpbmUucGF0Y2gArVbfj9o4EH4mf8Wc7qEkwEKg
+UMiq1VbtndQT7Z16W+neLG/sEN8GBzkOB1q1f3vHdqCBhbCr60v8a2b82fPN5zCRJNArIROy
+3FzlSiz6QsZZyXjfTvXvtprninHVX3DJlYivUmd82c7r9XrPCty6LTn8zVcAIYSjaDyIQuzM
+ZlOv0+k8dVcb5I8yA5jAcBi9nEaDVybIzLu5gd447L6Cjv3e3HgAAYgEdEr1iwK0KnkXB1wC
+45rH2vSXXaCSgab3HJacFqXixZV1fCu3/9GtdditgCgi9E2E5JDLbAuEEKnzNANaAIUljVUO
+QhaaU9a1QUxsIXGt4CuqqOaQiAxRpHTNvR4alLIQC8kZZLlcoGlmYtuY7Y3/oLguldxvg1PX
+X73OIzdCnCMhF1wRkoV1i2cq6BLR5AriHBFTqYGqRbnkUhfGpkXIbqGKQEg5GsLG9/40R8dT
+NWYsgn3KvnnsEg1lUjDzSdIz/KsbNBOvbtm6TUski4QQOTKNRqNoMHBkOce4Q+8Dqo3H0WhS
+o9q4Oxwi12xjyNZ3d/sul2uuCpFLR4jCXrJhkUl9iozITJdnzBGt7/X4RnPMVZV9d8/3jK+J
+Jjo3o7YbIffWvtepzGtZv+QCDx60Kka4PPpm4doD5MTx/pUjGplQblQlvzwH4KLPAQK37tul
+0xicq5D5j/PYgZlquIFzDqfOjwun93Z+1VHsYHeSc5tf8DjY3S77dsVub6gUjsZGtlxTo9I8
+j+9ROwxvwBEH2ZozXtEGi1OLeAd7nQvmdaq5Gjg7D0lKMozWLlAFUfmKdUySFIIkXVX4qgWG
+9a+2rcC18BodV7036O0mrh3eicM7OcL7RWY/FXEpmzGjtrd/2QPEqhNYV8x3GKdTi9E2BuOv
+aD3AptJv9FiVum2CodT9GHURye8f5r8RYnrzD5+w5xuSPAf7PuBj6F2IU6qwa98BgbJrPJuS
+cN0ouEawIqgU6wlKW5RSreK+QV6c0dpDk2a1PbQ91tswGr9s1ttj/0PFnUXDsKa4s244QsW1
+jUkpZpNnBX9cwiYL9tJXKo+RRoovBL7Kqm2ftCoDKx8evh57VhmwfkwoYjMQ7EPtA9USa7BD
+UJxUhmcAOeH9f8DURefTl/n8nNZpqMWjrO0g0R1Ng7su5EmC8hY7tjLXBEhee7ggOSOJPyNw
+/RADe4KmUnBciqAi09OLYcNUcylYgycVgrVsfcTH/z2PYTiFQRiZShg0/+geeD8qAnxJ9kUw
+sbI2mR4q71v2b4l8Evkad9U5KJ5k5g+X4/9nngDGfYE/i4xqCu3Pf72DOBNIJvjn/Wf/pDRj
+Jk6pm5k2wQi1+xG7345+bvMAm655Cw2vDxKIC703+CEZ/oG/hna7nELgwwp6UHX3Fne04H6z
+7u2Sba/sm/cdO8kv8ukMAAA=
+--------------26B6762349CFF2C645EB413B--
 
 
 -

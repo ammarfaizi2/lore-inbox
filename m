@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129054AbQJ0OZy>; Fri, 27 Oct 2000 10:25:54 -0400
+	id <S129071AbQJ0O1Y>; Fri, 27 Oct 2000 10:27:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129071AbQJ0OZf>; Fri, 27 Oct 2000 10:25:35 -0400
-Received: from mailhost.digitalselect.net ([209.136.236.13]:39431 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S129054AbQJ0OZc>; Fri, 27 Oct 2000 10:25:32 -0400
-Date: Fri, 27 Oct 2000 10:25:49 -0400
-From: James Lewis Nance <jlnance@intrex.net>
+	id <S129209AbQJ0O1O>; Fri, 27 Oct 2000 10:27:14 -0400
+Received: from proxy.jakinternet.co.uk ([212.41.43.4]:17171 "HELO
+	proxy.jakinternet.co.uk") by vger.kernel.org with SMTP
+	id <S129071AbQJ0O1I>; Fri, 27 Oct 2000 10:27:08 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: New VM problem
-Message-ID: <20001027102549.A4272@bessie.dyndns.org>
-In-Reply-To: <20001027070329.A884@bessie.dyndns.org>
+From: Jonathan Hudson <jonathan@daria.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001027070329.A884@bessie.dyndns.org>; from jlnance@intrex.net on Fri, Oct 27, 2000 at 07:03:29AM -0400
+X-Newsreader: knews 1.0b.1
+x-no-productlinks: yes
+Subject: pcmcia in test10pre6
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-1
+NNTP-Posting-Host: 192.168.1.1
+Message-ID: <648.39f967c2.1f52d@trespassersw.daria.co.uk>
+Date: Fri, 27 Oct 2000 11:32:18 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2000 at 07:03:29AM -0400, James Lewis Nance wrote:
 
->     I left a single large job running when I left yesterday afternoon
-> (size=1651M, RSS=1.5G).  When I got in this morning I wanted to see if
-> it was still running so I typed "top" in an Xterm.  When I hit return I
-> thought the machine had crashed.  I could not move the cursor with the
-> mouse, or cause any other activity.
+Previously working in test10pre*, now gives many unresolved symbols:
 
-I got a little more info.  Even though the machine has 2G of ram and this
-process'es RSS is only 1.5G, the rest of the memory is being used somewhere.
-Top reports only about 1M as "free" memory.  It also looks like kswapd is
-running with a high CPU usage when this is going on.  Its a little hard to
-be sure since top freezes, but when it comes back to life kswapd shows up
-near the top of the process list.
 
-Thanks,
-
-Jim
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_free
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_disable
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_read_memory
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_config
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_close_memory
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_register_mtd
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol read_tuple
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_check_erase_queue
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_release_cis_mem
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol find_io_region
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol write_cis_mem
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_write_memory
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol undo_irq
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_request_irq
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_parse_tuple
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_release
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol release_resource_db
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_alloc
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_first_region/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol release_cis_mem
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol try_irq
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_adjust_resource_info
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_next_region
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_enable
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_copy_memory
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_tuple_data
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol verify_cis_cache
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_deregister_erase_queue
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_register_erase_queue
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_first_tuple
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol MTDHelperEntry
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol read_cis_mem
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_next_tuple
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_replace_cis
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_open_memory
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_validate_cis
+/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol find_mem_region
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

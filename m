@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTJTOMo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 10:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTJTOMo
+	id S262580AbTJTOI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 10:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJTOI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 10:12:44 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:19068 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262406AbTJTOMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 10:12:41 -0400
-Date: Mon, 20 Oct 2003 15:12:40 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] filemap ffffffffull bogosity
-Message-ID: <Pine.LNX.4.44.0310201508190.12575-100000@localhost.localdomain>
+	Mon, 20 Oct 2003 10:08:26 -0400
+Received: from mcomail04.maxtor.com ([134.6.76.13]:33291 "EHLO
+	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
+	id S262580AbTJTOIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 10:08:24 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB307@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Rogier Wolff'" <R.E.Wolff@BitWizard.nl>
+Cc: "''Norman Diamond ' '" <ndiamond@wta.att.ne.jp>,
+       "''Hans Reiser ' '" <reiser@namesys.com>,
+       "''Wes Janzen ' '" <superchkn@sbcglobal.net>,
+       "''John Bradford ' '" <john@grabjohn.com>,
+       "''linux-kernel@vger.kernel.org ' '" <linux-kernel@vger.kernel.org>,
+       "''nikita@namesys.com ' '" <nikita@namesys.com>,
+       "''Pavel Machek ' '" <pavel@ucw.cz>,
+       "''Justin Cormack ' '" <justin@street-vision.com>,
+       "''Russell King ' '" <rmk+lkml@arm.linux.org.uk>,
+       "''Vitaly Fertman ' '" <vitaly@namesys.com>,
+       "''Krzysztof Halasa ' '" <khc@pm.waw.pl>
+Subject: RE: Blockbusting news, results are in
+Date: Mon, 20 Oct 2003 08:08:22 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
 
-Here's the 2.4.23-pre7 version of a fix we made in 2.5.67 at beginning
-of April, following discussion with Alan on LKML.  Last week I verified
-that current code indeed behaves very wrongly with "ulimit -f 5000000"
-on ia64 (writes write more than the specified count).
 
-When handling rlimit != RLIM_INFINITY, precheck_file_write tests file
-position against 0xFFFFFFFFULL, and casts it to a u32.  This code is
-carried forward from 2.4.4, and 2.4-ac tree used to have an apparently
-obvious fix to one part of it (should set count to 0 not to a negative).
-But when you think it through, it all turns out to be bogus.
+> -----Original Message-----
+>
+> We're getting annoyed at WD because they are selling WD800 drives 
+> (80G) with 2, 4, 6 and 8 heads(*). So when we order a replacement
+> WD800 for spare parts for a broken one, we might end up with a
+> different generation drive which is useless for the "part exchange"
+> project....
+> 
+> (*) they probably don't sell the full complement... yet.
 
-On a 32-bit architecture: limit is a 32-bit unsigned long, we've
-already handled *pos < 0 and *pos >= limit, so *pos here has no way
-of being > 0xFFFFFFFFULL, and thus casting it to u32 won't truncate it.
-And on a 64-bit architecture: limit is a 64-bit unsigned long, but this
-code is disallowing file position beyond the 32 bits; or if there's some
-userspace compatibility issue, with limit having to fit into 32 bits,
-the 32-bit architecture argument applies and they're still irrelevant.
+With "today's generation" of ATA drives, WD and Maxtor stop at 3 platters,
+and Seagate stops at a 2-platter design.
 
-So just remove the 0xFFFFFFFFULL test; and in place of the u32, cast to
-typeof(limit) so it's right even if rlimits get wider.  And there's no
-way we'd want to send SIGXFSZ below the limit: remove send_sig comment.
+Everyone wants to make a 4-platter drive, but for their rather small
+volumes, most people find it isn't cost effective.
 
-There's a similarly suspicious u32 cast a little further down, when
-checking MAX_NON_LFS.  Given its definition, that does no harm on any
-arch: but it's better changed to unsigned long, the type of MAX_NON_LFS.
+> You're assuming that a head-switch is faster than a 
+> track-to-track seek. Apparently that is no longer true.
+> We've seen drives that "scan" a whole platter before
+> switching heads. We've seen drives that do this on a 
+> per-region basis. 
 
-Hugh
+Track-to-track seeks are faster than headswitches because you don't have to
+worry about radial comb imbalance (head A is only guaranteed to be within
+some tolerance of head B, this creates your 'skew').
 
---- 2.4.23-pre7/mm/filemap.c	2003-10-10 21:32:07.000000000 +0100
-+++ linux/mm/filemap.c	2003-10-10 21:33:37.000000000 +0100
-@@ -3031,9 +3031,8 @@
- 			send_sig(SIGXFSZ, current, 0);
- 			goto out;
- 		}
--		if (pos > 0xFFFFFFFFULL || *count > limit - (u32)pos) {
--			/* send_sig(SIGXFSZ, current, 0); */
--			*count = limit - (u32)pos;
-+		if (*count > limit - (typeof(limit))pos) {
-+			*count = limit - (typeof(limit))pos;
- 		}
- 	}
- 
-@@ -3045,9 +3044,8 @@
- 			send_sig(SIGXFSZ, current, 0);
- 			goto out;
- 		}
--		if (*count > MAX_NON_LFS - (u32)pos) {
--			/* send_sig(SIGXFSZ, current, 0); */
--			*count = MAX_NON_LFS - (u32)pos;
-+		if (*count > MAX_NON_LFS - (unsigned long)pos) {
-+			*count = MAX_NON_LFS - (unsigned long)pos;
- 		}
- 	}
- 
+Most vendors these days have a "modified horizontal format" which does some
+small number of cylinders (16?) then a headswitch, so that they slowly walk
+inward.
 
+Drives that walk the entire platter then headswitch haven't existed for
+years I'm quite sure, at least not in modern ATA drives.  Headswitches after
+each zone would possibly make sense, but it can make it noticably more
+complicated to estimate the time for a seek, which is the key to good
+performance.  (e.g. your "local area" IO becomes IO across potentially
+thousands of cylinders)
+
+> How about: "Opening it up and having a peek?" :-) That certainly
+> works. But most vendors don't let me do that before I buy.  :-)
+
+Before you buy? um, no =P
+
+--eric

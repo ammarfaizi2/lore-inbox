@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270642AbTGNMyO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 08:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270657AbTGNMyI
+	id S270080AbTGNNXV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 09:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270273AbTGNNWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 08:54:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27834 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270623AbTGNMvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 08:51:05 -0400
-Date: Mon, 14 Jul 2003 10:03:23 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>, marcelo@conectiva.com,
-       Christoph Hellwig <hch@infradead.org>, Jan Kara <jack@suse.cz>
-Subject: Re: -- END OF BLOCK --
-In-Reply-To: <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55L.0307141000150.18257@freak.distro.conectiva>
-References: <200307141239.h6ECdqXP002766@hraefn.swansea.linux.org.uk> 
- <Pine.LNX.4.55L.0307140947210.18257@freak.distro.conectiva>
- <1058187405.606.65.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 14 Jul 2003 09:22:10 -0400
+Received: from mail.siemenscom.com ([12.146.131.10]:14977 "EHLO
+	mail.siemenscom.com") by vger.kernel.org with ESMTP id S270591AbTGNMeW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 08:34:22 -0400
+Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0179B6D2@stca204a.bus.sc.rolm.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: linux-kernel@vger.kernel.org
+Subject: mmap method implementation question
+Date: Mon, 14 Jul 2003 05:49:07 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I jave a device driver which was originaly created for a Kernel 2.4.18-3. It
+has an mmap method which uses a call to remap_page_range. In this call, I
+pass the in the logical start address, the physical address, the size and
+protection mappings. I have upgraded the Kernel to a 2.4.20-8 and now my
+remap_page_range call does not compile. It requires me to pass the vma
+structure as a first parameter. What changed? Whys is this necessary?
 
+Please CC me directly on any responses.
 
-On Mon, 14 Jul 2003, Alan Cox wrote:
+Thanks in advance, 
 
-> On Llu, 2003-07-14 at 13:50, Marcelo Tosatti wrote:
-> > > I've resynched -ac to the quota code in pre5 and added the automatic
-> > > quota loader on top again.
-> >
-> > And the deadlock avoidance patches too right?
-> >
-> > Would you mind sending me the automatic quota loader diff and the deadlock
-> > avoidance diff ?
->
-> The merge is non trivial. I'll let Christoph sort the mess out since I don't
-> have time to waste on it, and the old -ac quota code works perfectly well for
-> me.
-
-Okay.
-
-The quota code you have in -ac is new Jan Kara's stuff (which supports
-both formats, etc) plus the ext3 deadlock avoidance and the compat stuff ?
-
-Christoph, for what reason have you removed the ext3 deadlock avoidance
-patches? And also, what else have you changed wrt originals Jan code ?
-
-Lets have -pre6 soon to fix up this mess (which is causing DEADLOCKS), ok?
+Jack Bloch 
+Siemens ICN
+phone                (561) 923-6550
+e-mail                jack.bloch@icn.siemens.com
 

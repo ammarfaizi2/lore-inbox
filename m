@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267838AbUHXNuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUHXNwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267838AbUHXNuo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 09:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUHXNuo
+	id S267840AbUHXNwz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 09:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUHXNwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 09:50:44 -0400
-Received: from out009pub.verizon.net ([206.46.170.131]:20179 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S267838AbUHXNua
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 09:50:30 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Amiga partition reading patch
-Date: Tue, 24 Aug 2004 09:50:27 -0400
-User-Agent: KMail/1.6.82
-Cc: Thomas Richter <thor@math.tu-berlin.de>, jdow <jdow@earthlink.net>
-References: <200408241218.OAA09873@cleopatra.math.tu-berlin.de>
-In-Reply-To: <200408241218.OAA09873@cleopatra.math.tu-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408240950.27709.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.62.54] at Tue, 24 Aug 2004 08:50:29 -0500
+	Tue, 24 Aug 2004 09:52:55 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:7817 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S267840AbUHXNwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 09:52:47 -0400
+Message-Id: <200408241352.i7ODqf73026463@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: ralf@linux-mips.org
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.9-rc1 - #ifdef cleanip for MIPS
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 24 Aug 2004 09:52:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 August 2004 08:18, Thomas Richter wrote:
->Hi Joanne,
+Cleaning up some #if to use #ifdef instead, to make life safer for compiling
+with -Wundef.
 
-Hi Joanne, Thomas.  Good to hear from you both.
+Signed-off-by: valdis.kletnieks@vt.edu
 
->> This is a patch known good against Mandrake 2.6.3-7mdk. I suspect
->> it will apply to later versions equally well since the file
->> affected appears to be unchanged as late as 2.6.9-rc1.
->
->Sorry, I don't have a patch attached here. Forgot to include?
+--- linux-2.6.9-rc1/include/asm-mips/mach-atlas/mc146818rtc.h.ifdef	2004-08-14 01:38:04.000000000 -0400
++++ linux-2.6.9-rc1/include/asm-mips/mach-atlas/mc146818rtc.h	2004-08-24 09:45:45.325693506 -0400
+@@ -29,7 +29,7 @@
+ #define RTC_EXTENT	16
+ #define RTC_IRQ		ATLASINT_RTC
+ 
+-#if CONFIG_CPU_LITTLE_ENDIAN
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
+ #define ATLAS_RTC_PORT(x) (RTC_PORT(x) + 0)
+ #else
+ #define ATLAS_RTC_PORT(x) (RTC_PORT(x) + 3)
+--- linux-2.6.9-rc1/arch/mips/kernel/syscall.c.ifdef	2004-08-14 01:37:38.000000000 -0400
++++ linux-2.6.9-rc1/arch/mips/kernel/syscall.c	2004-08-24 09:47:24.971655401 -0400
+@@ -65,7 +65,7 @@ unsigned long arch_get_unmapped_area(str
+ 	int do_color_align;
+ 	unsigned long task_size;
+ 
+-#if CONFIG_MIPS32
++#ifdef CONFIG_MIPS32
+ 	task_size = TASK_SIZE;
+ #else
+ 	task_size = (current->thread.mflags & MF_32BIT_ADDR) ? TASK_SIZE32 : TASK_SIZE;
+--- linux-2.6.9-rc1/arch/mips/mips-boards/generic/memory.c.ifdef	2004-08-14 01:36:17.000000000 -0400
++++ linux-2.6.9-rc1/arch/mips/mips-boards/generic/memory.c	2004-08-24 09:49:52.517869822 -0400
+@@ -77,7 +77,7 @@ struct prom_pmemblock * __init prom_getm
+ 	mdesc[1].base = 0x00001000;
+ 	mdesc[1].size = 0x000ef000;
+ 
+-#if (CONFIG_MIPS_MALTA)
++#ifdef CONFIG_MIPS_MALTA
+ 	/*
+ 	 * The area 0x000f0000-0x000fffff is allocated for BIOS memory by the
+ 	 * south bridge and PCI access always forwarded to the ISA Bus and
+--- linux-2.6.9-rc1/arch/mips/mm/c-r4k.c.ifdef	2004-08-14 01:38:04.000000000 -0400
++++ linux-2.6.9-rc1/arch/mips/mm/c-r4k.c	2004-08-24 09:46:56.957601992 -0400
+@@ -587,10 +587,10 @@ static void r4k_flush_cache_sigtramp(uns
+ 			".set push\n\t"
+ 			".set noat\n\t"
+ 			".set mips3\n\t"
+-#if CONFIG_MIPS32
++#ifdef CONFIG_MIPS32
+ 			"la	$at,1f\n\t"
+ #endif
+-#if CONFIG_MIPS64
++#ifdef CONFIG_MIPS64
+ 			"dla	$at,1f\n\t"
+ #endif
+ 			"cache	%0,($at)\n\t"
+--- linux-2.6.9-rc1/arch/mips/pci/fixup-atlas.c.ifdef	2004-08-24 08:43:33.000000000 -0400
++++ linux-2.6.9-rc1/arch/mips/pci/fixup-atlas.c	2004-08-24 09:48:26.805944425 -0400
+@@ -44,7 +44,7 @@ void __init pcibios_fixup_irqs(void)
+ {
+ }
+ 
+-#if CONFIG_KGDB
++#ifdef CONFIG_KGDB
+ /*
+  * The PCI scan may have moved the saa9730 I/O address, so reread
+  * the address here.
 
-Apparently, it wasn't attached here either.
 
->> This partitioning information is known correct. I wrote the low
->> level portion of the hard disk partitioning code for AmigaDOS 3.5
->> and 3.9. I am also responsible for one of the more frequently used
->> partitioning tools, RDPrepX, before that.
->
->I can confirm this (as "just another guy" who wrote on AmigaOs 3.9).
-
-And an extremely talented "just another guy",  thanks again for all 
-you did for amigaos back then Thomas.
-
->So long,
->	Thomas
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

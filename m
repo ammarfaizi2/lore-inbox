@@ -1,41 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUJVVw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268042AbUJVVw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267921AbUJVVw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 17:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUJVVvu
+	id S268042AbUJVVw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 17:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUJVVv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 17:51:50 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:60545 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267921AbUJVVqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:46:33 -0400
-Message-ID: <41797FB2.4000300@nortelnetworks.com>
-Date: Fri, 22 Oct 2004 15:46:26 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 22 Oct 2004 17:51:57 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:47310 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S268054AbUJVVo7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 17:44:59 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10
+Date: Fri, 22 Oct 2004 17:44:57 -0400
+User-Agent: KMail/1.7
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+References: <20041014143131.GA20258@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
+In-Reply-To: <20041022155048.GA16240@elte.hu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-Subject: Re: How is user space notified of CPU speed changes?
-References: <1098399709.4131.23.camel@krustophenia.net>	 <1098444170.19459.7.camel@localhost.localdomain>	 <1098468316.5580.18.camel@krustophenia.net>	 <4179623C.9050807@nortelnetworks.com> <1098476905.19435.43.camel@localhost.localdomain>
-In-Reply-To: <1098476905.19435.43.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410221744.57370.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.58.180] at Fri, 22 Oct 2004 16:44:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2004-10-22 at 20:40, Chris Friesen wrote:
-> 
->>x86 really could use an on-die register that increments at 1GHz independent of 
->>clock speed and is synchronized across all CPUs in an SMP box.
+On Friday 22 October 2004 11:50, Ingo Molnar wrote:
+>i have released the -U10 Real-Time Preemption patch, which can be
+>downloaded from:
+>
+>  http://redhat.com/~mingo/realtime-preempt/
+>
+>this is purely a rebasing of -U9.3 to 2.6.9-mm1.
+>
+>to create a -U10 tree from scratch, the patching order is:
+>
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+> +
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.
+>6.9-mm1/2.6.9-mm1.bz2 +
+> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-mm
+>1-U10
+>
+> Ingo
 
-> HPET sort of is this but at chipset level
+I teased 2 gallons of latex primer out of the cans, making it jump up 
+onto some outbuildings, so I'm a bit late with the report, which is 
+that it spit out a whole flurry of scheduleing while atomic messages 
+when I tried it just now, and finally hung, requiring I exersize the 
+reset button long before it got to rc.sysinit.  The best I could do 
+might be a screen snapshot, but I haven't figured out howto shut the 
+flippin flash off and use the available light, or try and scribble it 
+all down.  And that would lead to violent deaths if I was a doctor 
+trying to write prescriptions. :-( 
 
-Right.  So you still have to go across the cpu bus to get it.
+As an experiment to see if I could lay bleeding edge, I bled. :)
 
-Chris
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUHOAXq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUHOAln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265521AbUHOAXq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 20:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUHOAXq
+	id S265792AbUHOAln (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 20:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUHOAln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 20:23:46 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:7069 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S265521AbUHOAXn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 20:23:43 -0400
-Date: Sat, 14 Aug 2004 18:23:40 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Otto Wyss <otto.wyss@orpatec.ch>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: New concept of ext3 disk checks
-Message-ID: <20040815002340.GA19889@schnapps.adilger.int>
-Mail-Followup-To: Otto Wyss <otto.wyss@orpatec.ch>,
-	Theodore Ts'o <tytso@mit.edu>,
-	'linux-kernel' <linux-kernel@vger.kernel.org>
-References: <411BAFCA.92217D16@orpatec.ch> <20040812223907.GA7720@thunk.org> <20040813003403.GK18216@schnapps.adilger.int> <411DBC0C.7FE46F9C@orpatec.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <411DBC0C.7FE46F9C@orpatec.ch>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Sat, 14 Aug 2004 20:41:43 -0400
+Received: from adsl-68-127-39-129.dsl.irvnca.pacbell.net ([68.127.39.129]:57101
+	"EHLO abn-tepuk8gy00w") by vger.kernel.org with ESMTP
+	id S266138AbUHOAlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 20:41:40 -0400
+From: bizsale@37.com
+Subject: For Assistance -- China Typhoon Damages 4.24 homes
+To: linux-kernel@vger.kernel.org
+Date: Sat, 14 Aug 2004 17:41:46 -0700
+X-Priority: 3
+X-Mailer: CSM2.8
+Message-Id: <S266138AbUHOAlk/20040815004141Z+831@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 14, 2004  09:15 +0200, Otto Wyss wrote:
-> Instead of a daily cron job I envision a solution where writes to the
-> disk are checked for correctness within a short time lag after they have
-> been done. Assume this time lag is set to a few minutes, on a high
-> performance system not each write of a certain node gets checked while
-> on a desktop system most probably each single write is. Choosing the
-> right time lag gives a balance of discovering problems fast against
-> additional disk access.
-> 
-> Okay, such tests could be done by a constantly running background task
-> in user space. But since journalling just should guarantee that any disk
-> access is done correct, even in case of problems, it should be
-> considered if such test can be integrated there. This has the advantage
-> that if journalling is able to guarantee correctness by other means
-> these test aren't needed at all and may be completely remove.
-> 
-> What I want to achieve with this new concept is that the file system
-> itself not only tries to prevent any data corruption but also tries to
-> detect and report it if corruption still has happened anyway. 
+World Hongming Foundation: China Typhoon Damages 4.24 homes, US$1.85 Billion Loses
+        Full report with photo: http://www.abnews.us/en/2004-119/17.htm
 
-The ext3 (and ext2) kernel code already does consistency checking of a
-lot of data structures in the kernel, and if any errors are found the
-superblock is marked with an "error" flag and the next time the system
-is booted a full fsck is done.  The administrator has the option (via
-the "errors=" mount option) to either panic the kernel, remount read-only,
-or continue using the filesystem if an error is found.
+On August 12 and 13, one of the worst typhoons to hit China in several years killed 115 people and injured more 
+than 1,800 when it battered southeastern Zhejiang province with torrential rain and gale-force winds, officials said 
+on Friday. Direct economic losses were estimated at $1.85 billion and 677,500 acres of crops had been damaged, 
+the Civil Affairs Ministry said. 
 
-The problem with re-reading blocks and checking for validity after a write
-is that there is a good chance the block is still in cache (either kernel
-buffer/page cache or disk cache) so this doesn't really add much robustness.
-The other problem with this is that checking individual block validity
-doesn't take the "big picture" into account since if we just wrote a block
-to disk we assume that what we wrote is the correct thing so re-checking
-this same data doesn't help much.
+More than 8.6 million people had been affected by the storm, officials said.
 
-The periodic fsck of a filesystem snapshot, on the other hand, is as good 
-as you can get for validity checking.  The only additional feature needed
-is online repair, but that is a .00001% requirement vs. actually detecting
-the error in the first place.
+The death toll was likely to rise as the typhoon swept inland into eastern Jiangxi province, officials said.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+"This is the strongest typhoon since 1997," said an official of the Provincial Civil Affairs Bureau, China. In 1997, 
+nearly 250 people died when typhoon Winnie struck the coast, causing $2.4 billion in economic losses.
 
+"Lots of trees and electricity pylons were toppled." Rananim brought torrential rains and winds exceeding 100 mph. 
+The eye of the storm made landfall at about 8 p.m. on Thursday near the town of Wenling.
+
+"Shop signboards were flying out and hit people's arms and legs like knives," said a doctor at the No.1 People's 
+Hospital in Wenling City. "The wind was really very, very strong and we have rarely seen this." Some of those in 
+hospital were in critical condition, he said.
+
+Mud flows, landslides and storm tides along the coast were all dangers, Xinhua quoted Gao Shuanzhu, Chief 
+Forecaster at the Central Meteorological Station, as saying.
+
+Typhoon Rananim hit the coast late on Thursday, leaving 16 people missing, causing widespread damage in the 
+rice-growing province and knocking down more than 40,000 buildings, said an official of the provincial meteorological 
+bureau.
+
+In order to relieve the people in disasters, as a 501(c)(3) charitable and educational foundation in USA, the World 
+Hongming Foundation would like to invite public donations to help the victims of the calamity. Any generous 
+assistance is needed and will be deeply appreciated. Donations please be made payable to:
+
+        World Hongming Foundation
+        P. O. Box 4820
+        El Monte, CA 91734-0820
+        USA
+
+Website: http://www.hongming.us/foundation/en.htm
+Email: donation@hongming.us
+Fax: +1-561-431-7612
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: This is a useful message; please do not reply directly. Any inquiry regarding the information in this email 
+should be sent to the mentioned institution. If you do not wish to receive additional message from us, please click 
+optout@37.com?subject=Remove. This request may take two business days to complete. Alternatuvely, your 
+may send a mail to PO Box 1022, Resemead, CA 91770 to drop out.

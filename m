@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266933AbSKOXW6>; Fri, 15 Nov 2002 18:22:58 -0500
+	id <S266936AbSKOXSo>; Fri, 15 Nov 2002 18:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266940AbSKOXW6>; Fri, 15 Nov 2002 18:22:58 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:52144 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266933AbSKOXWz>;
-	Fri, 15 Nov 2002 18:22:55 -0500
-Subject: [ANNOUNCE] linux-2.5.47-dcl2
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Nov 2002 15:29:51 -0800
-Message-Id: <1037402991.23978.221.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S266940AbSKOXSo>; Fri, 15 Nov 2002 18:18:44 -0500
+Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:5766 "EHLO
+	d06lmsgate-6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S266936AbSKOXSn>; Fri, 15 Nov 2002 18:18:43 -0500
+Subject: Re: [lkcd-general] Re: [lkcd-devel] Re: What's left over.
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andy Pfiffer <andyp@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Mike Galbraith <efault@gmx.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-devel@lists.sourceforge.net, lkcd-general@lists.sourceforge.net,
+       lkcd-general-admin@lists.sourceforge.net, mjbligh@us.ibm.com,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, suparna@linux.ibm.com,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Werner Almesberger <wa@almesberger.net>,
+       "Matt D. Robinson" <yakker@aparity.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFCD0F9521.AC085965-ON80256C72.00805798@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Fri, 15 Nov 2002 23:25:10 +0000
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 15/11/2002 23:24:53
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest release is available patches on 
-        http://sourceforge.net/projects/osdldcl
-More info on DCL is at http://osdl.org/projects/dcl
 
-The kernel compiles and runs on SMP and UP systems; it passes the basic
-tests but has not been extensively stress tested yet.  The LTT and LKCD
-features have been tried. NUMA testing is ongoing.
+> I'd rather have a set of clearly defined notifiers so that I don't have
+> to know about priority, just when I want to act
+You mean an additional notifier solely for kexec's use that would be called
+after the existing reboot notifier?
 
 
-linux-2.5.47-dcl2
-o Fix Device Mapper			(Joe Thornber)
-
-linux-2.5.47-osdl2
-o More fixes to the megaraid driver	(Matt Domsch, Mark Haverkamp)
-o Fix to LKCD block device setup	(me)
-o Default ACPI to off for SMP systems	(me)
-o Fix I/O errors on loop driver		(Hugh Dickins)
-
-linux-2.5.47-dcl1
-o NUMA scheduler enhancements         (Erich Focht, Michael Hohnbaum)
-
-linux-2.5.47-osdl1
-o Linux Trace Toolkit (LTT)          (Karim Yaghmour)
-o Linux Kernel Crash Dumps           (Matt Robinson, LKCD team)
-o   Network crash dumps              (Mohammed Abbas)
-o Kprobes			     (Rusty Russell)
-o Kernel Config storage              (Khalid Aziz, Randy Dunlap)
-o DAC960 driver fixes                (Dave Olien)
-
-
+Richard
 

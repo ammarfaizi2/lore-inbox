@@ -1,62 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288006AbSAQAId>; Wed, 16 Jan 2002 19:08:33 -0500
+	id <S288008AbSAQAPN>; Wed, 16 Jan 2002 19:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288007AbSAQAIX>; Wed, 16 Jan 2002 19:08:23 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:57099 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S288006AbSAQAIK>; Wed, 16 Jan 2002 19:08:10 -0500
-Date: Thu, 17 Jan 2002 01:07:58 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Rik spreading bullshit about VM
-Message-ID: <20020117000758.GL10175@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20020116200459.E835@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020116200459.E835@athlon.random>
-User-Agent: Mutt/1.3.25i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S288012AbSAQAPD>; Wed, 16 Jan 2002 19:15:03 -0500
+Received: from arm.t19.ds.pwr.wroc.pl ([156.17.236.105]:20996 "EHLO
+	arm.t19.ds.pwr.wroc.pl") by vger.kernel.org with ESMTP
+	id <S288008AbSAQAOw>; Wed, 16 Jan 2002 19:14:52 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Andre IDE patches + Promise, UDMA detection
+X-Attribution: arekm
+X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
+Organization: PLD Linux Distribution Team
+From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
+Date: 17 Jan 2002 01:14:30 +0100
+Message-ID: <87n0zd25qx.fsf@arm.t19.ds.pwr.wroc.pl>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 08:04:59PM +0100, Andrea Arcangeli wrote:
-> I read here:
-> 
-> 	http://linux.html.it/articoli/rik_van_riel_ita1.htm
 
-  [...]
+Hi,
 
-> This is total bullshit. If there's something where the -aa VM is good
-> are the DBMS, that was designed for it basically, very lightweight,
-> basically no VM overhead also under very heavy I/O.
+I'm using 2.4.17 with ide.2.4.16.12102001.patch.bz2 + other
+patches (listed here: http://cvs.pld.org.pl/SPECS/kernel.spec?rev=1.70.2.390)
+on FIC LX based (quite old) mainboard + external PCI controller:
 
-Sorry, but in my opinion Rik's rmap VM still beats your VM under IO
-load. My benchmark is very simple: import a kernel tree into a CVS tree
-that already contains about 470 other kernel trees. Both the import
-directory and the CVS root are on the same disk. With 2.4.17 the mp3
-player stutters, I can't even read email or edit a couple of files with
-XEmacs at the same time. With 2.4.17-rmap-11a the mp3 player runs
-smoothly and email and XEmacs are usable again.
+00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00:08.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 01)
 
-Some time ago Linus made the important observation that we shouldn't
-tune the scheduler for SMP systems simply because 99.9% of the systems
-in the world running linux have a single CPU. IMHO an equally well
-observation would be that we shouldn't tune the VM for the 0.1% of the
-systems in this world that run large DMBSes. The 99.9% majority is much
-more important.
+My IDE setup is fully modular (well, whole kernel is):
+xfs                   479200   4  (autoclean)
+xfs_support             6216   0  (autoclean) [xfs]
+pagebuf                22112   4  (autoclean) [xfs xfs_support]
+nls_iso8859-1           2880   1  (autoclean)
+nls_cp437               4384   1  (autoclean)
+vfat                    9788   1  (autoclean)
+fat                    30680   0  (autoclean) [vfat]
+sr_mod                 13656   0  (autoclean) (unused)
+scsi_mod               86776   1  (autoclean) [sr_mod]
+ide-cd                 27552   0 
+cdrom                  28320   0  [sr_mod ide-cd]
+ext3                   58772   1  (autoclean)
+ide-disk                9712   8  (autoclean)
+ide-mod               153756   8  (autoclean) [ide-cd ide-disk]
+jbd                    34424   1  (autoclean) [ext3]
 
-Just my 0.02.
+Kernel boots fine:
+Linux version 2.4.17 (builder@kenny) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Tue Jan 15 13:19:47 UTC 2002
+...
+Freeing initrd memory: 174k freed
+VFS: Mounted root (romfs filesystem) readonly.
+Journalled Block Device driver loaded
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+PDC20268: IDE controller on PCI bus 00 dev 40
+PCI: Found IRQ 11 for device 00:08.0
+PDC20268: chipset revision 1
+PDC20268: not 100% native mode: will probe irqs later
+PDC20268: ROM enabled at 0xea000000
+    ide2: BM-DMA at 0xe400-0xe407, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0xe408-0xe40f, BIOS settings: hdg:pio, hdh:pio
+hda: ASUS CD-S500/A, ATAPI CD/DVD-ROM drive
+hde: IBM-DTLA-307030, ATA DISK drive
+hdf: IBM-DTLA-305040, ATA DISK drive
+hdh: ST360021A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide2 at 0xd400-0xd407,0xd802 on irq 11
+ide3 at 0xdc00-0xdc07,0xe002 on irq 11
+hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63, UDMA(33)
+hdf: 80418240 sectors (41174 MB) w/380KiB Cache, CHS=79780/16/63, UDMA(33)
+hdh: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
+Partition check:
+ /dev/ide/host2/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 >
+ /dev/ide/host2/bus0/target1/lun0: p1 p2
+ /dev/ide/host2/bus1/target1/lun0: p1
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
 
+Unfortunately it thinks that all my harddrives (connected to promise
+via 80wire cable) are UDMA33! Now _sometimes_ after boot it detects
+these (properly) as UDMA100 and sometimes (seems more frequently)
+as UDMA33.
 
-Erik
+Now when ide module detect my disk as UDMA33 and I have in my
+initscripts hdparm (4.6) -X69 -c1 -d1 -m16 then some my processes
+hang in D-state accessing hardrive (hdh for example).
+Removing -X69 fixes that even if my kernel thinks that my drivers
+are UDMA33 only... 
 
+So now it will be great to get ide module properly detecting UDMA.
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Arkadiusz Mi¶kiewicz   IPv6 ready PLD Linux at http://www.pld.org.pl
+misiek(at)pld.org.pl   AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PWr
+

@@ -1,110 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318859AbSHEUMJ>; Mon, 5 Aug 2002 16:12:09 -0400
+	id <S318862AbSHEUNq>; Mon, 5 Aug 2002 16:13:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318861AbSHEUMI>; Mon, 5 Aug 2002 16:12:08 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:7082 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S318859AbSHEUMH>;
-	Mon, 5 Aug 2002 16:12:07 -0400
-Date: Mon, 5 Aug 2002 13:17:34 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: driverfs API Updates
-In-Reply-To: <Pine.LNX.4.44.0208051438430.2694-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0208051252540.1241-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318864AbSHEUNo>; Mon, 5 Aug 2002 16:13:44 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:20468 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318862AbSHEUNj>; Mon, 5 Aug 2002 16:13:39 -0400
+Subject: Re: Linux 2.4.19-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jt@hpl.hp.com
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020805200418.GA10287@bougret.hpl.hp.com>
+References: <20020805174646.GH10011@bougret.hpl.hp.com>
+	<1028579501.18478.74.camel@irongate.swansea.linux.org.uk> 
+	<20020805200418.GA10287@bougret.hpl.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 22:35:57 +0100
+Message-Id: <1028583357.18156.78.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 5 Aug 2002, Kai Germaschewski wrote:
-
-> On Mon, 5 Aug 2002, Patrick Mochel wrote:
+On Mon, 2002-08-05 at 21:04, Jean Tourrilhes wrote:
+st tell me which way around you want to do it
 > 
-> > [1]: The reason for the macro is because the driverfs internals
-> > have changed enough to be able to support attributes of any type. In
-> > order to do this in a type-safe manner, we have a generic object type
-> > (struct attribute) that we use. We pass this to an intermediate layer
-> > that does a container_of() on that object to obtain the specific
-> > attribute type. 
-> 
-> Of course that means that it's not really type-safe, since it has no way 
-> to check whether the object is embedded in the right type of struct, right 
-> ;) (But I think that's okay, C doesn't have provisions for real 
-> inheritance)
+> 	Well, I was mostly talking of 2.5.X, and as far a I know
+> Marcelo is still not doing it.
 
-Well sure, if you want to get technical. ;) I almost said 'mostly'
-type-safe, but I decided I would fib a little to make myself sound
-stronger. Basically, I think it's as safe as we can get, and it was 
-type-safe enough for Linus..
+I've not been able to boot 2.5.30 so I've been working on 2.4 
 
-> > This means the specific attribute types have an embedded struct
-> > attribute in them, making the initializers kinda ugly. I played with
-> > anonymous structs and unions to have something that could
-> > theoretically work, but they apparently don't like named
-> > initializers. 
-> 
-> Have you considered just putting in the embedded part via some macro - 
-> I think that's what NTFS does for compilers which don't support unnamed 
-> structs.
-> 
-> Basically
-> 
-> #define EMB_ATTRIBUTE \
-> 	int emb1;
-> 	int emb2
-> 
-> struct my_attribute {
-> 	EMB_ATTRIBUTE
-> 	int my1;
-> 	int my2;
-> };
+> 	I was planning to send my IrDA fixes today (or tommorow), they
+> are already on my web pages but I need to test them again, so if you
+> want to do it yourself maybe you can wait pre2. But that depend on
+> what Marcelo is doing with my patches.
 
-It's not that it's unnamed, it's that we want both object types to exist, 
-and have something to do container_of() on. Yet, have something easy to 
-declare. 
-
-I wanted something like:
-
-struct attribute {
-	char	* name;
-	mode_t	mode;
-};
-
-struct device_attribute {
-	union {
-		struct attribute attr;
-		struct {
-			char	* name;
-			mode_t	mode;
-	};
-	device_show	show;
-	device_store	store;
-};
-
-You can access struct device_attribute::name fine, except when using named 
-initializers. At least with gcc 2.96. 
-
-> That'll work with named initializers just fine, so the users don't have to 
-> deal with ugly DEVICE_ATTR macros, where one forgets if parameter #3 was 
-> show or store ;) - It follows the common way of hiding away unavoidable 
-> ugliness in some header.
-
-Bah, tradeoffs. It's not that hard to get the parameters right; and it 
-won't take long for them to notice ;)
-
-> > [2]: I wanted to consolidate the first two parameters, but I couldn't
-> > find a way to stringify ##name (or un-stringify "strname"). Is that
-> > even possible? 
-> 
-> Why would stringify (include/linux/stringify.h) not work? However, Al Viro 
-> may get mad at you for generating ungreppable symbols either way ;-)
-
-Uhm, because I'm retarded, and I didn't actually try. 
-
-
-	-pat
+I can merge the __FUNCTION__ stuff once you sync with Marcelo, won't be
+a  problem
 

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUISRnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUISRqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUISRnr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 13:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUISRnr
+	id S261451AbUISRqB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 13:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUISRqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 13:43:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:33256 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261426AbUISRnm (ORCPT
+	Sun, 19 Sep 2004 13:46:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7815 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261451AbUISRpp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 13:43:42 -0400
-Date: Sun, 19 Sep 2004 10:32:21 -0700
-From: Greg KH <greg@kroah.com>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-Message-ID: <20040919173221.GB2345@kroah.com>
-References: <414C9003.9070707@softhome.net> <1095568704.6545.17.camel@gaston> <414D42F6.5010609@softhome.net> <cijrui$g9s$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cijrui$g9s$1@sea.gmane.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 19 Sep 2004 13:45:45 -0400
+Date: Sun, 19 Sep 2004 13:45:29 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Dominik Brodowski <linux@dominikbrodowski.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: boot_cpu_data vs current_cpu_data in voluntary-preempt-2.6.9-rc2-mm1-S1
+In-Reply-To: <20040919140738.GA8327@dominikbrodowski.de>
+Message-ID: <Pine.LNX.4.58.0409191344150.16584@devserv.devel.redhat.com>
+References: <20040919140738.GA8327@dominikbrodowski.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 19, 2004 at 05:53:05PM +0600, Alexander E. Patrakov wrote:
+
+On Sun, 19 Sep 2004, Dominik Brodowski wrote:
+
+> Your voluntary-preempt-2.6.9-rc2-mm1-S1 patch contains this change
 > 
-> What we currently see is that distros either ignore the race or (like 
-> LFS) say something like:
+> @@ -34,7 +34,7 @@ inline void __const_udelay(unsigned long
+>  	xloops *= 4;
+>  	__asm__("mull %0"
+>  		:"=d" (xloops), "=&a" (d0)
+> -		:"1" (xloops),"0" (current_cpu_data.loops_per_jiffy *
+> (HZ/4)));
+> +		:"1" (xloops),"0" (boot_cpu_data.loops_per_jiffy * (HZ/4)));
 
-I don't see distros ignoring the race issues.  Look at Gentoo's init
-scripts, it handles this properly (if not, please let me know.)
+this comes from the BKL patch - this is done to avoid false positives in
+the smp_processor_id() debugger.
 
-> "Because of all those compilcations with Hotplug, Udev and modules, we 
-> strongly recommend you to start with a completely non-modular kernel 
-> configuration, especially if this is the first time you use Udev."
-
-Heh, no, you'll have the same "issues" with a static kernel and no
-modules.  Your devices will not get found any faster :)
-
-thanks,
-
-greg k-h
+	Ingo

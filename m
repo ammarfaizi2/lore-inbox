@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSFPTYo>; Sun, 16 Jun 2002 15:24:44 -0400
+	id <S316541AbSFPTlN>; Sun, 16 Jun 2002 15:41:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316533AbSFPTYn>; Sun, 16 Jun 2002 15:24:43 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:49420 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316532AbSFPTYm>;
-	Sun, 16 Jun 2002 15:24:42 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206161924.g5GJOYN515160@saturn.cs.uml.edu>
+	id <S316535AbSFPTlM>; Sun, 16 Jun 2002 15:41:12 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:55145 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S316533AbSFPTlL>; Sun, 16 Jun 2002 15:41:11 -0400
+Date: Sun, 16 Jun 2002 21:41:12 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
 Subject: Re: /proc/scsi/map
-To: garloff@suse.de (Kurt Garloff)
-Date: Sun, 16 Jun 2002 15:24:33 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org (Linux kernel list),
-       linux-scsi@vger.kernel.org (Linux SCSI list)
-In-Reply-To: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> from "Kurt Garloff" at Jun 15, 2002 03:36:06 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020616194111.GA21461@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>
+References: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> <200206151552.g5FFqCT14714@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <200206151552.g5FFqCT14714@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff writes:
-> garloff@pckurt:/raid5/Kernel/src $ cat /proc/scsi/map
-> # C,B,T,U       Type    onl     sg_nm   sg_dev  nm      dev(hex)
-> 0,0,00,00       0x05    1       sg0     c:15:00 sr0     b:0b:00
-> 1,0,01,00       0x05    1       sg1     c:15:01 sr1     b:0b:01
-> 1,0,02,00       0x01    1       sg2     c:15:02 osst0   c:ce:00
-> 1,0,03,00       0x05    1       sg3     c:15:03 sr2     b:0b:02
-> 1,0,05,00       0x00    1       sg4     c:15:04 sda     b:08:00
-> 1,0,09,00       0x00    1       sg5     c:15:05 sdb     b:08:10
-> 2,0,01,00       0x05    1       sg6     c:15:06 sr3     b:0b:03
-> 2,0,02,00       0x01    1       sg7     c:15:07 osst1   c:ce:01
-> 2,0,03,00       0x05    1       sg8     c:15:08 sr4     b:0b:04
-> 2,0,05,00       0x00    1       sg9     c:15:09 sdc     b:08:20
-> 2,0,09,00       0x00    1       sg10    c:15:0a sdd     b:08:30
-> 3,0,10,00       0x00    1       sg11    c:15:0b sde     b:08:40
-> 3,0,12,00       0x00    1       sg12    c:15:0c sdf     b:08:50
->
-> This allows a simple script to parse the map and create device
-> nodes as needed.
-...
-> Obviously, it can only report the assignment of high-level drivers,
-> if they are loaded, otherwise the last two columns will stay empty.
-> (sg is handled especially, as we know it supports all devices.)
-> If we attach a third high-level device driver, two more columns
-> would show up. (Is this variable column number format a problem?)
 
-The variable column format is of course annoying, but use
-it if you must. The also-annoying alternative is to pick
-a fill character that would be easy for a beginner to
-handle in a script. Maybe one of:  @ - . / ?
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The header line is far worse. It's too terse to be very helpful.
-It gets in the way of every person writing a parser. Even in
-your example script, you had to hack your way around it:
+Hi Richard,
 
-> +while read cbtu tp onl sgnm sgdev othnm othdev oothnm oothdev rest; do
-> +  # Skip comment line(s)
-> +  if test "${cbtu:0:1}" = "#"; then continue; fi
-> +  # If we're just dealing with one device, do skip the others
-> +  if test ! -z "$CMPAGAINST" -a "$CMPAGAINST" != "$cbtu"; then continue;
->  fi
+I was in no way intending to trigger a discussion about devfs.
+Some of the things addressed by the scsi/map patch indeed are no issue if
+you use devfs; that's why I mentioned devfs at all.
+I don't want to bash devfs and I think it's nice that it's in the kernel,=
+=20
+so users have the choice to use it and the motivation to improve it.
+
+But the problem that I wanted to address IMHO should also be solved
+for those people that for one or another reason decided not to use
+devfs.=20
+
+And face it: I do not think that all major Linux distributions will
+start to use devfs within short future. The example you mentioned
+(Mandrake) is certainly not a good one: Look at their update kernel.
+
+Best regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9DOnXxmLh6hyYd04RAmMWAJ9yIpyrrb1Mi9iB2ZVuITQ1gqOjiQCfQYY4
+vdrXOtB3kDgr4FmRQU/SuUE=
+=3uq0
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

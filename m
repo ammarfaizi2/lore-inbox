@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279623AbRKATp0>; Thu, 1 Nov 2001 14:45:26 -0500
+	id <S279630AbRKATq4>; Thu, 1 Nov 2001 14:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279630AbRKATpR>; Thu, 1 Nov 2001 14:45:17 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:58247 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S279623AbRKATpL>;
-	Thu, 1 Nov 2001 14:45:11 -0500
-Date: Thu, 1 Nov 2001 20:14:04 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre6
-In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.30.0111012011450.29583-100000@balu>
+	id <S279631AbRKATqo>; Thu, 1 Nov 2001 14:46:44 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:56720 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S279630AbRKATpu>;
+	Thu, 1 Nov 2001 14:45:50 -0500
+Message-ID: <3BE1A6BF.2010002@softhome.net>
+Date: Thu, 01 Nov 2001 19:47:11 +0000
+From: Ricardo Martins <thecrown@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en, pt
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
+In-Reply-To: <3BE1777F.30705@softhome.net> <3BE1A042.7030806@softhome.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pierre, thanks for the advice.
 
-On Wed, 31 Oct 2001, Linus Torvalds wrote:
+If the problem is with xterm, it sure kicks "Linux Stability" in the 
+face. Maybe (and I hope) the problem is in devfs.
 
-> Incredibly, I didn't get a _single_ bugreport about the fact that I had
-> forgotten to change the version number in pre5. Usually that's everybody's
-> favourite bug.. Is everybody asleep on the lists?
-
-You should read lkml :))
-Dave Airlie posted a mail with the subject "FYI: 2.4.14-pre5 issues.."
-that noticed this bug on okt 30.
-
--- 
-Balazs Pozsar.
+Ricardo Martins
 

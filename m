@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129295AbQKYPgt>; Sat, 25 Nov 2000 10:36:49 -0500
+        id <S131117AbQKYPkT>; Sat, 25 Nov 2000 10:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129434AbQKYPgj>; Sat, 25 Nov 2000 10:36:39 -0500
-Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:28327 "EHLO
-        d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP
-        id <S129295AbQKYPga>; Sat, 25 Nov 2000 10:36:30 -0500
-From: richardj_moore@uk.ibm.com
-X-Lotus-FromDomain: IBMGB
-To: dprobes@oss.lotus.com, linux-kernel@vger.kernel.org
-Message-ID: <802569A2.0052F47D.00@d06mta06.portsmouth.uk.ibm.com>
-Date: Sat, 25 Nov 2000 15:05:17 +0000
-Subject: anounce: Universal dynamic trace for Linux
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+        id <S131092AbQKYPkJ>; Sat, 25 Nov 2000 10:40:09 -0500
+Received: from mailc.telia.com ([194.22.190.4]:8908 "EHLO mailc.telia.com")
+        by vger.kernel.org with ESMTP id <S129434AbQKYPkB>;
+        Sat, 25 Nov 2000 10:40:01 -0500
+From: Roger Larsson <roger.larsson@norran.net>
+Date: Sat, 25 Nov 2000 16:07:25 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Nigel Gamble <nigel@nrg.org>
+Subject: *_trylock return on success?
+MIME-Version: 1.0
+Message-Id: <00112516072500.01122@dox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+Background information:
+ compiled and tested a test11 with the Montavista preemptive patch.
+ After pressing Magic-SysRq-M all processes that tried to do IO hung in 'D'
+ Last message "Buffer memory ..."
+ Pressing Magic-SysRq-M again, all hung processes continued...
 
-You can now use IBM's DProbes with Opersys' Linux Trace Toolkit to provide
-a universal (dynamic) tracing capability for Linux.
+Checking the patch it looks like this
 
-It is universal because it provides a common tracing mechanism for all
-executables whether in user or kernel space. It is dynamic because
-tracepoints are defined and applied dynamically to object modules as
-probepoints using DProbes - no source code modification is required.
+ 	printk("Buffer memory:   %6dkB\n",
+ 			atomic_read(&buffermem_pages) << (PAGE_SHIFT-10));
 
-To use dyamic trace you will require version 1.2 of DProbes, or later from
-http://oss.software.ibm.com/
-and LTT version 0.9.4pre4 or later from http://www.opersys.com/
+-#ifdef CONFIG_SMP /* trylock does nothing on UP and so we could deadlock */
+-	if (!spin_trylock(&lru_list_lock))
++#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
++	if (!mutex_trylock(&lru_list_mtx))
+ 		return;
+ 	for(nlist = 0; nlist < NR_LIST; nlist++) {
 
-The DProbes kernel patch will need to be compiled with correct
-configuration options to enable it to work with LTT. See the respective
-installation instructions in each package for more details.
+Ok, so I run some more code now than before (UP system with PREEMPT).
+mutex_trylock is defined as:
 
++#define mutex_trylock(x) down_trylock(x)
 
-Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
+Noticed that if the spin_trylock returns 0 on success, I will get the 
+behavior I see.
+  Not printing buffer info first time.
+  Holding the lock - stopping other fs processes.
+  Failing the mutex_trylock next attempt, interprete as success
+  - continuing and printing the buffer info.
+  - finally release the mutex
 
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
+I removed the not (!) and now it works as expected.
 
+Questions:
+  What are _trylocks supposed to return?
+  Does spin_trylock and down_trylock behave differently?
+  Why isn't the expected return value documented?
+  
+/RogerL
 
+-- 
+--
+Home page:
+  http://www.norran.net/nra02596/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

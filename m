@@ -1,106 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUJNSaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266837AbUJNS3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266867AbUJNSaI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUJNS37
+	id S266837AbUJNS3a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUJNS3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:29:59 -0400
-Received: from hs-grafik.net ([80.237.205.72]:33968 "EHLO
-	ds80-237-205-72.dedicated.hosteurope.de") by vger.kernel.org
-	with ESMTP id S266867AbUJNRiy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 13:38:54 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: pppoe broken in 2.6.9-rc2-mm1, working in 2.6.7-mm1 and 2.6.7-rc3
-Date: Thu, 14 Oct 2004 19:38:47 +0200
-User-Agent: KMail/1.7
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <200410081736.05976@zodiac.zodiac.dnsalias.org> <20041008121713.12f888c5.akpm@osdl.org>
-In-Reply-To: <20041008121713.12f888c5.akpm@osdl.org>
-X-Need-Girlfriend: always
-X-Ignorant-User: yes
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 14:29:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8579 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266837AbUJNRgj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 13:36:39 -0400
+Date: Thu, 14 Oct 2004 18:36:37 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: "Martin K. Petersen" <mkp@wildopensource.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
+       tony.luck@intel.com
+Subject: Re: [PATCH] General purpose zeroed page slab
+Message-ID: <20041014173637.GQ16153@parcelfarce.linux.theplanet.co.uk>
+References: <yq1oej5s0po.fsf@wilson.mkp.net> <416EB7AD.4040302@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410141938.47666@zodiac.zodiac.dnsalias.org>
+In-Reply-To: <416EB7AD.4040302@didntduck.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 8. Oktober 2004 21:17 schrieb Andrew Morton:
-> Alexander Gran <alex@zodiac.dnsalias.org> wrote:
-> > Hi,
-> >
-> > pppoe doesnot work for me on 2.6.9-rc2-mm1. It works with  2.6.7-mm1 and
-> > 2.6.7-rc3.
->
-> I think I saw one similar report.  Networking was a bit wobbly around
-> 2.6.9-rc3.  Could you try 2.6.9-rc3-mm3?
+On Thu, Oct 14, 2004 at 01:30:21PM -0400, Brian Gerst wrote:
+> This doesn't work as you expect it does.  The constructor is only called 
+> when a new slab is created, for each new object on the slab.  It is 
+> _not_ run again when an object is freed.  So if a page is freed then 
+> immediately reallocated it will contain garbage.
 
-
-2.6.9-rc4-mm1 works like a charm. Thanks..
-
-Alex
-
-> > The problem seems to be that one package is missing:
-> > 2.6.7 does this:
-> > 17:31:09.042999 PPPoE PADI
-> > 17:31:09.358382 PPPoE PADO [AC-Name "AACX11-erx"] [Service-Name]
-> > [AC-Cookie 0xC18B5C6E2ECF4E0C6CFBB17EE5777E82]
-> > 17:31:09.358466 PPPoE PADR [Service-Name] [AC-Cookie
-> > 0xC18B5C6E2ECF4E0C6CFBB17EE5777E82]
-> > 17:31:09.651898 PPPoE PADS [ses 0x107d] [Service-Name] [AC-Name
-> > "AACX11-erx"] [AC-Cookie 0xC18B5C6E2ECF4E0C6CFBB17EE5777E82]
-> > 17:31:10.037167 PPPoE  [ses 0x107d] LCP, Conf-Request (0x01), id 1,
-> > Magic-Num 0x0024067c, PFC , length 12
-> >         0x0000:  c021 0101 000c 0506 0024 067c 0702
-> > 17:31:10.145315 PPPoE  [ses 0x107d] LCP, Conf-Request (0x01), id 96, MRU
-> > 1492, Auth-Prot  PAP, Magic-Num  0x718234ae, length 18
-> >         0x0000:  c021 0160 0012 0104 05d4 0304 c023 0506
-> >         0x0010:  7182 34ae
-> > 17:31:10.145766 PPPoE  [ses 0x107d] LCP, Conf-Ack (0x02), id 96, MRU 
-> > 1492, Auth-Prot  PAP, Magic-Num  0x718234ae, length 18
-> >         0x0000:  c021 0260 0012 0104 05d4 0304 c023 0506
-> >         0x0010:  7182 34ae
-> > 17:31:10.147435 PPPoE  [ses 0x107d] LCP, Conf-Ack (0x02), id 1, Magic-Num
-> > 0x0024067c, PFC , length 12
-> >         0x0000:  c021 0201 000c 0506 0024 067c 0702
-> > 17:31:10.148875 PPPoE  [ses 0x107d] LCP, Echo-Request (0x09), id 0,
-> > Magic-Num 0x0024067c, length 8
-> >         0x0000:  c021 0900 0008 0024 067c
-> > 17:31:10.148878 PPPoE  [ses 0x107d] Auth-Req(1), Peer
-> > 0002567923935200490773370001@t-online.de, Name 09856472
-> > 17:31:10.260645 PPPoE  [ses 0x107d] LCP, Echo-Reply (0x0a), id 0,
-> > Magic-Num 0x718234ae, length 8
-> >         0x0000:  c021 0a00 0008 7182 34ae
-> > 17:31:10.535034 PPPoE  [ses 0x107d] Auth-Ack(1), Msg
-> > 17:31:10.535561 PPPoE  [ses 0x107d] unknown, Conf-Request (0x01), id 1,
-> > Deflate, MVRCA, BSD-Comp, length 15
-> >         0x0000:  80fd 0101 000f 1a04 7800 1804 7800 1503
-> >         0x0010:  2f
-> >
-> > 2.6.9 does not send
-> > 17:31:10.037167 PPPoE  [ses 0x107d] LCP, Conf-Request (0x01), id 1,
-> > Magic-Num 0x0024067c, PFC , length 12
-> >         0x0000:  c021 0101 000c 0506 0024 067c 0702
-> > and than the AC does not respond to the follwoing packages.
-> >
-> > regards
-> > Alex
-> >
-> > --
-> > Encrypted Mails welcome.
-> > PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID:
-> > 0x6D7DD291
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+The user is responsible for zeroing the page before handing it back to
+the slab allocator.
 
 -- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

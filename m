@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312696AbSDSSEN>; Fri, 19 Apr 2002 14:04:13 -0400
+	id <S312681AbSDSSHF>; Fri, 19 Apr 2002 14:07:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312772AbSDSSEM>; Fri, 19 Apr 2002 14:04:12 -0400
-Received: from a59178.upc-a.chello.nl ([62.163.59.178]:35077 "EHLO
-	www.unternet.org") by vger.kernel.org with ESMTP id <S312696AbSDSSEL>;
-	Fri, 19 Apr 2002 14:04:11 -0400
-Date: Fri, 19 Apr 2002 20:04:33 +0200
-From: Frank de Lange <lkml-frank@unternet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: severe slowdown with 2.4 series w/heavy disk access (revisited)
-Message-ID: <20020419200433.C17439@unternet.org>
+	id <S312772AbSDSSHE>; Fri, 19 Apr 2002 14:07:04 -0400
+Received: from www.microgate.com ([216.30.46.105]:17 "EHLO sol.microgate.com")
+	by vger.kernel.org with ESMTP id <S312681AbSDSSHE>;
+	Fri, 19 Apr 2002 14:07:04 -0400
+Subject: [PATCH] 2.4.19-pre7 New Driver synclink_cs.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3.99 
+Date: 19 Apr 2002 13:04:39 -0500
+Message-Id: <1019239480.1139.1.camel@diemos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To clear up some potential confusion, the problems I'm talking about are NOT
-related to the (erroneous) memory-related questions in the thread I pointed at.
-It is the slowdowns which bother me, not the fact that the system 'uses up all
-memory' (which is a good thing (tm)). Read a bit further into the thread and
-you'll end up here:
+A patch that adds a new driver for the SyncLink PC Card
+(PCMCIA) multiprotocol serial adapter is located at
 
-http://hypermail.spyroid.com/linux-kernel/archived/2001/week52/0309.html
+ftp://ftp.microgate.com/linux/patch-synclink_cs-2.4.19-pre7.gz
 
-quote Alan Cox: "The free behaviour is correct (free memory is wasted memory).
-The delays are obviously not"
+This patch is against 2.4.19-pre7
 
-That's why I'm asking these questions. The delays should not be there, but they
-are, reproducible, over many different kernels and with several filesystems.
+Please apply.
 
-Cheers//Frank
- [ Moving to Sweden, looking for a project/job in Västra Götaland... ] 
--- 
-  WWWWW      ________________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  \ `--| _/     <Hacker for Hire>      \
-   `---'  \      +31-320-252965        /
-           \    frank@unternet.org    /
-            `------------------------'
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+The patch is located on our FTP site instead of inline
+as specified by SubmittingPatches documentation for
+large patches.
+
+

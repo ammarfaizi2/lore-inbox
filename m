@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262948AbTIFWNG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 18:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTIFWNF
+	id S262461AbTIFWZC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 18:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTIFWZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 18:13:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10725 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262948AbTIFWNC (ORCPT
+	Sat, 6 Sep 2003 18:25:02 -0400
+Received: from dp.samba.org ([66.70.73.150]:32223 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262461AbTIFWZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 18:13:02 -0400
-Message-ID: <33266.4.4.25.4.1062886377.squirrel@www.osdl.org>
-Date: Sat, 6 Sep 2003 15:12:57 -0700 (PDT)
-Subject: Re: [-mm patch] fix IDE pdc4030.c compile
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: <bunk@fs.tum.de>
-In-Reply-To: <20030906194404.GG14436@fs.tum.de>
-References: <20030906194404.GG14436@fs.tum.de>
-X-Priority: 3
-Importance: Normal
-Cc: <akpm@osdl.org>, <rddunlap@osdl.org>, <domen@coderock.org>,
-       <linux-kernel@vger.kernel.org>, <B.Zolnierkiewicz@elka.pw.edu.pl>
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 6 Sep 2003 18:25:00 -0400
+Date: Sun, 7 Sep 2003 08:24:36 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       "Bryan O'Sullivan" <bos@serpentine.com>
+Subject: Re: 2.6.0-test4-mm6: locking imbalance with rtnl_lock/unlock?
+Message-ID: <20030906222436.GB15327@krispykreme>
+References: <1062885603.24475.7.camel@ixodes.goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062885603.24475.7.camel@ixodes.goop.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> init-exit-cleanups.patch in 2.6.0-test4-mm6 made ide_probe_for_pdc4030  in
-> drivers/ide/legacy/pdc4030.c static although it's referenced from
-> drivers/ide/ide.c resulting in a link error.
->
-> The following patch fixes it:
 
-Thanks, I'll test better in the future, and expect submitters
-to do so also.
+> which is SIOCGIFADDR.  It seems to me the down() is actually the
+> rtnl_lock() called at net/ipv4/devinet.c:536 in devinet_ioctl.  This
+> happens even when netplugd is no longer running.  It looks like someone
+> isn't releasing the lock.
+> 
+> I'm going over all the uses of rtnl_lock() to see if I can find a
+> problem, but no sign yet.  I wonder if someone might have broken this
+> recently: I'm running 2.6.0-test4-mm6, but I think Bryan is running an
+> older kernel (2.6.0-test4?), and hasn't seen any problems.
 
-~Randy
+Yep I saw this too when updating from test2 to BK from a few days ago.
+>From memory the cpu that had the rtnl_lock was stuck in dev_close,
+probably netif_poll_disable. I got side tracked and wasnt able to look
+into it.
 
-
-
+Anton

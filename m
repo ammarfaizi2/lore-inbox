@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280289AbRKXVyb>; Sat, 24 Nov 2001 16:54:31 -0500
+	id <S280323AbRKXV6w>; Sat, 24 Nov 2001 16:58:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280293AbRKXVyV>; Sat, 24 Nov 2001 16:54:21 -0500
-Received: from netsrvr.ami.com.au ([203.55.31.38]:14348 "EHLO
-	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
-	id <S280289AbRKXVyO>; Sat, 24 Nov 2001 16:54:14 -0500
-Message-Id: <200111242130.fAOLUsk01923@numbat.os2.ami.com.au>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Russell King <rmk@arm.linux.org.uk>
-cc: ISP Client <summer@os2.ami.com.au>, linux-kernel@vger.kernel.org,
-        summer@numbat.os2.ami.com.au
-Subject: Re: EXTRAVERSION =-greased-turkey 
-In-Reply-To: Message from Russell King <rmk@arm.linux.org.uk> 
-   of "Sat, 24 Nov 2001 01:07:05 GMT." <20011124010705.G3141@flint.arm.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 25 Nov 2001 05:30:53 +0800
-From: summer@os2.ami.com.au
+	id <S280320AbRKXV6c>; Sat, 24 Nov 2001 16:58:32 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:20840 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S280323AbRKXV62>; Sat, 24 Nov 2001 16:58:28 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Frederick Thomssen <Thomssen@FreddyAT.net>
+To: linux-kernel@vger.kernel.org
+Subject: BUG IN KERNEL b2.5.0
+Date: Sat, 24 Nov 2001 23:02:25 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E167kod-000697-00@mrvdom01.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+there's a small bug in Kernel b2.5.0:
+The Kernel tries to load the nls-iso8859-1 module before mounting the root 
+fs...
 
-rmk@arm.linux.org.uk said:
->  2.4.15 has the potential to corrupt your filesystems slightly on
-> reboot. 
-
-Thanks to those who wrote suggesting this greased turkey doesn't fly. 
-It's back to .13 for me.
-
-Fortunately I hadn't actually rebooted.
+hope I could help,
+Thomssen
 -- 
-Cheers
-John Summerfield
-
-Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
-
-Note: mail delivered to me is deemed to be intended for me, for my 
-disposition.
-
-
-
+Frederick Thomssen
+Bondenwald 49
+22453 Hamburg
+GERMANY
+Tel: +49-40-58976290
+Fax: +49-40-58976291
+Thomssen@FreddyAT.net

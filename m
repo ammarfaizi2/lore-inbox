@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136615AbRASBUM>; Thu, 18 Jan 2001 20:20:12 -0500
+	id <S136517AbRASBXX>; Thu, 18 Jan 2001 20:23:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136599AbRASBUD>; Thu, 18 Jan 2001 20:20:03 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:49650 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S136597AbRASBT4>; Thu, 18 Jan 2001 20:19:56 -0500
-Date: Fri, 19 Jan 2001 11:19:08 +1100 (EST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@localhost.localdomain>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Vlad Bolkhovitine <vladb@sw.com.sg>, <linux-kernel@vger.kernel.org>
-Subject: Re: mmap()/VM problem in 2.4.0
-In-Reply-To: <Pine.LNX.4.21.0101181525150.4333-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.31.0101191117460.3368-100000@localhost.localdomain>
+	id <S136531AbRASBXM>; Thu, 18 Jan 2001 20:23:12 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:21001 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S136517AbRASBXF>;
+	Thu, 18 Jan 2001 20:23:05 -0500
+Date: Thu, 18 Jan 2001 17:23:11 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: console spin_lock
+In-Reply-To: <3A66E4D3.B2BEFCBB@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0101181719070.264-100000@euclid.oak.suse.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Marcelo Tosatti wrote:
-> On Thu, 18 Jan 2001, Rik van Riel wrote:
-> > On Fri, 12 Jan 2001, Vlad Bolkhovitine wrote:
-> >
-> > > You can see, mmap() read performance dropped significantly as
-> > > well as read() one raised. Plus, "interactivity" of 2.4.0 system
-> > > was much worse during mmap'ed test, than using read()
-> > > (everything was quite smooth here). 2.4.0-test7 was badly
-> > > interactive in both cases.
-> >
-> > Could have to do with page_launder() ... I'm working on
-> > streaming mmap() performance here and have been working
-> > on this for a week now (amongst other things).
->
-> Also remember that drop_behind() is not working for mmap(), yet...
 
-filemap_sync(..., MS_INVALIDATE) needs a 2-line change to have
-drop-behind. I have this running (more or less) on my laptop here.
+> This statement of mine was grade-A bollocks.  printk cannot of
+> course call down().  It needs to use __down_trylock and buffer
+> it up if it fails. (faster, too!)
 
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Okay. I'm going to start working on this tomorrow. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268474AbUIBT4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268762AbUIBT5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268474AbUIBT4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268762AbUIBTwW
+	id S268762AbUIBT5I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268928AbUIBT5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:52:22 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:25987 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268767AbUIBTuk
+	Thu, 2 Sep 2004 15:57:07 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.71]:13699 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268767AbUIBTwc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:50:40 -0400
-Date: Thu, 2 Sep 2004 21:50:31 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1591214030.20040902215031@tnonline.net>
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-In-Reply-To: <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain>
- <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain>
- <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
+	Thu, 2 Sep 2004 15:52:32 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Paolo Ornati <ornati@fastwebnet.it>, adaplas@pol.net
+Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
+Date: Fri, 3 Sep 2004 03:52:19 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200408312133.40039.ornati@fastwebnet.it> <200409022020.19062.adaplas@hotpop.com> <200409021910.58511.ornati@fastwebnet.it>
+In-Reply-To: <200409021910.58511.ornati@fastwebnet.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409030352.19973.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 03 September 2004 01:10, Paolo Ornati wrote:
+> On Thursday 02 September 2004 14:20, Antonino A. Daplas wrote:
+> > Just to finalize everything, 2 more things:
+> >
+> > 1. Does changing the resolution affect the vyres upper limit?
+>
+> I have tried with 640x480, 800x600 and 1024x768 and the upper limit seems
+> the same (I've also tried some combinations of resolution / BPP)
+>
+> > 2. What happens if you comment out banshee_wait_idle in tdfxfb_fillrect,
+> > tdfxfb_copyarea and tdfxfb_imageblit?  Scrolling should go faster but
+> > will removing it cause additional screen corruption?
+>
+> scrolling is a bit faster and I don't notice any additional screen
+> corruption
+>
+> time cat MAINTAINERS (2.6.9-rc1 + your patch / 800x600 8bpp / YRES 3200)
+>
+> normal: ~0.19
+> without banshee_wait_idle in the three functions: ~0.12
 
-  
+Thanks for all the help.  I'll finalize a patch soon.
 
+Tony
 
-
-> On Thu, 2 Sep 2004, Alan Cox wrote:
->>
->> On Mer, 2004-09-01 at 21:50, Linus Torvalds wrote:
->> > and quite frankly, I think you can do the above pretty much totally in
->> > user space with a small library and a daemon (in fact, ignoring security
->> > issues you probably don't even need the daemon). And if you can prototype
->> > it like that, and people actually find it useful, I suspect kernel support
->> > for better performance might be possible.
->> 
->> Gnome already supports this in the gnome-vfs2 layer. "MC" has supported
->> it since the late 1990's.
-
-> And nobody has asked for kernel support that I know of.
-
-  Actually. Doesn't matter if it is in kernel or not for the users as
-  long as it works.
-
-  The problem is that I do not see either Gnome or KDE to ever get
-  along to form one standard that everyone will use. Their libraries
-  are huge and memory hogging which so many Linux users just do not
-  like. What if a user doesn't want KDE or Gnome? Would all files
-  created with either be broken?
-
-  I doubt that something like file streams and meta-data can
-  successfully be implemented purely in user-space and get the same
-  support (ie be used by many programs) if this change doesn't come
-  from the kernel. I just do not see it happen.
-
-> So either "it just works" in user space, or people haven't figured out the
-> kernel could help them. Or decided it's not worth it, exactly because
-> they'd still have to support systems/filesystems that can't be converted.
-
-> 		Linus
 

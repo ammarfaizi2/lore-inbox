@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUCaXdn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 18:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUCaXdn
+	id S262119AbUCaXfv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 18:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUCaXfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 18:33:43 -0500
-Received: from mail.kroah.org ([65.200.24.183]:51078 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262079AbUCaXdl (ORCPT
+	Wed, 31 Mar 2004 18:35:50 -0500
+Received: from mail.kroah.org ([65.200.24.183]:34183 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262791AbUCaXfN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 18:33:41 -0500
-Date: Wed, 31 Mar 2004 15:22:10 -0800
+	Wed, 31 Mar 2004 18:35:13 -0500
+Date: Wed, 31 Mar 2004 14:49:48 -0800
 From: Greg KH <greg@kroah.com>
-To: Linda Xie <lxiep@ltcfwd.linux.ibm.com.kroah.org>
-Cc: Linda Xie <lxiep@linux.ibm.com.kroah.org>,
-       John Rose <johnrose@austin.ibm.com>, gregkh@us.ibm.com,
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: jgarzik@pobox.com, akpm@osdl.org, scott.feldman@intel.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Re: PATCH -- kobject_set_name() doesn't allocate enough space]
-Message-ID: <20040331232207.GA4525@kroah.com>
-References: <40649B96.7010503@ltcfwd.linux.ibm.com> <20040326223204.GA30729@kroah.com> <4064F242.10501@ltcfwd.linux.ibm.com>
+Subject: Re: [PATCH] add PCI_DMA_{64,32}BIT constants
+Message-ID: <20040331224948.GB5490@kroah.com>
+References: <20040323052305.GA2287@havoc.gtf.org> <20040329223604.63d981d0.rddunlap@osdl.org> <20040331012615.GA12444@kroah.com> <20040330195804.40b6c7d4.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4064F242.10501@ltcfwd.linux.ibm.com>
+In-Reply-To: <20040330195804.40b6c7d4.rddunlap@osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 09:17:22PM -0600, Linda Xie wrote:
-> Greg KH wrote:
+On Tue, Mar 30, 2004 at 07:58:04PM -0800, Randy.Dunlap wrote:
 > 
-> >On Fri, Mar 26, 2004 at 03:07:34PM -0600, Linda Xie wrote:
-> > 
-> >
-> >>Hi Linus,
-> >>
-> >>
-> >>Please see attached patch at the end of FW mail and apply it to your tree.
-> >>   
-> >>
-> >
-> >Your patch is munged again and will not apply :(
-> >
-> >Can you send me a new version?  I'll apply it to my tree and let it get
-> >tested in the -mm tree before sending it on to Linus.
+> Yes, let's move the defines like Jeff suggested.
+> Additional (relative) patch is below.
 
-> Sounds good.  See below for the patch. If it doesn't work, try the 
-> attachement.
-
-The attachment worked, I've applied it to my trees and will forward it
-on.
-
-thanks,
+Applied, thanks.
 
 greg k-h

@@ -1,111 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbTFCDQD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 23:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTFCDQD
+	id S264918AbTFCDeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 23:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbTFCDeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 23:16:03 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:35341 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S264912AbTFCDQB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 23:16:01 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Steven Cole" <elenstev@mesatop.com>, "Larry McVoy" <lm@bitmover.com>
-Cc: "Willy Tarreau" <willy@w.ods.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Question about style when converting from K&R to ANSI C.
-Date: Mon, 2 Jun 2003 20:29:25 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGAEBMCOAA.rwhite@casabyte.com>
+	Mon, 2 Jun 2003 23:34:25 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:20610
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264918AbTFCDeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 23:34:24 -0400
+Date: Mon, 2 Jun 2003 23:36:13 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Con Kolivas <kernel@kolivas.org>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 100Hz v 1000Hz with contest
+In-Reply-To: <200306031322.01389.kernel@kolivas.org>
+Message-ID: <Pine.LNX.4.50.0306022333250.14455-100000@montezuma.mastecende.com>
+References: <200306031322.01389.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1054479734.19552.51.camel@spc>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um... ich!  (ignoring the return type debate)
+On Tue, 3 Jun 2003, Con Kolivas wrote:
 
-static unsigned long
-insert_bba(unsigned long insn,
-           long value,
-           const char **errmsg)
-{
-   return insn | (((insn >> 16) & 0x1f) << 11);
-}
+> I've attempted to answer the question does 1000Hz hurt responsiveness in 2.5
+> as much as I've found in 2.4; since subjectively the difference wasn't there
+> in 2.5. Using the same config with preempt enabled here are results from
+> 2.5.70-mm3 set at default 1000Hz and at 100Hz (mm31):
 
+Thanks for carrying out these =)
 
-...OR...
+> ctar_load:
+> Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+> 2.5.70-mm3          3   114     70.2    1.0     5.3     1.44
+> 2.5.70-mm31         3   105     73.3    0.7     3.8     1.36
 
-static unsigned long insert_bba(unsigned long insn,
-                                long value,
-                                const char **errmsg)
-{
-   return insn | (((insn >> 16) & 0x1f) << 11);
-}
+> dbench_load:
+> Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+> 2.5.70-mm3          4   313     24.3    5.0     56.9    3.96
+> 2.5.70-mm31         4   297     24.9    4.5     52.5    3.86
+>
+> At first glance everything looks faster at 100Hz. However it is well known
+> that it will take slightly longer even with no load at 1000Hz. Taking that
+> into consideration and looking more at the final ratios than the absolute
+> numbers it is apparent that the difference is statistically insignificant,
+> except on ctar_load.
 
+What about dbench_load?
+ 
+> Previously I had benchmark results on 1000Hz which showed preempt improved the
+> results in a few of the loads. For my next experiment I will compare 100Hz
+> with preempt to 100Hz without.
 
-NEVER line up the return type and the argument type like the text below.  It
-is mind-clobbering after a couple hundred pages.
-
-Also, though it didn't come up, once you decide to put the arguments on
-separate lines for readability never mix the styles in one function call.
-
-int X(int A, int B,
-      char **errormsg)
-{
-}
-
-is "very bad".  the above "looks ok" in that one instance but it isn't.
-Either I have to count the arguments, or there is one per line, but never
-seven arguments on five lines (if you please) as that is evil!  (It is good
-for driving instructors crazy too... 8-)
-
-
-Also, in your automatics, it is never ok to write
-
-   int A, *b;
-or even
-   int A, B;
-
-One variable per line please.
-
-  int A;
-  int *b;
-
-  (Especially if you are programming, or ever hope to program, tiny little
-embedded systems where you really have to visualize your stack requirements.
-8-)  The real reason is to facilitate and encourage automatic
-initializations.  Particularly of classes in C++, but profoundly so in basic
-C none the less.  Uninitialized variables should look bare and lonely, and
-perhaps even a tad wrong.  (Not to mention having more than one alphabetic
-character as a name, but I was being minimalist... 8-)
-
-Rob.
-
-
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Steven Cole
-
-/*ARGSUSED*/
--static unsigned long
--insert_bba (insn, value, errmsg)
--     unsigned long insn;
--     long value;
--     const char **errmsg;
-+static unsigned long insert_bba(
-+       unsigned long insn,
-+       long value,
-+       const char **errmsg
-+)
-{
-   return insn | (((insn >> 16) & 0x1f) << 11);
-}
-
-
+Cheers,
+	Zwane
+-- 
+function.linuxpower.ca

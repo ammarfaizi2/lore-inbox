@@ -1,125 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbSIZCmm>; Wed, 25 Sep 2002 22:42:42 -0400
+	id <S262150AbSIZCwE>; Wed, 25 Sep 2002 22:52:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262149AbSIZCmm>; Wed, 25 Sep 2002 22:42:42 -0400
-Received: from m-net.arbornet.org ([209.142.209.161]:56076 "EHLO arbornet.org")
-	by vger.kernel.org with ESMTP id <S262148AbSIZCmk>;
-	Wed, 25 Sep 2002 22:42:40 -0400
-Date: Wed, 25 Sep 2002 22:49:08 -0400 (EDT)
-From: Eric Blade <eblade@m-net.arbornet.org>
-Message-Id: <200209260249.g8Q2n8nO006813@m-net.arbornet.org>
+	id <S262151AbSIZCwE>; Wed, 25 Sep 2002 22:52:04 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:55222 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S262150AbSIZCwD>;
+	Wed, 25 Sep 2002 22:52:03 -0400
+Message-ID: <1033009036.3d92778cee9b9@kolivas.net>
+Date: Thu, 26 Sep 2002 12:57:16 +1000
+From: Con Kolivas <conman@kolivas.net>
 To: linux-kernel@vger.kernel.org
-Subject: small patch for power.c
+Cc: Ingo Molnar <mingo@elte.hu>, Rik van Riel <riel@conectiva.com.br>
+Subject: Useful fork info? WAS Re: [BENCHMARK] fork_load module tested for contest
+References: <1032964936.3d91cb48b1cca@kolivas.net>
+In-Reply-To: <1032964936.3d91cb48b1cca@kolivas.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings!
- 
- Just a small patch to FIX the FIXME at the top of linux/drivers/base/power.c
- 
- Sending this from here, as apparently Evolution does not operate properly under
-2.5.38!  ( i am eblade@blackmagik.dynup.net )
- 
---- linux/drivers/base/power.orig	Wed Sep 25 07:17:29 2002
-+++ linux/drivers/base/power.c	Wed Sep 25 22:36:23 2002
-@@ -6,9 +6,6 @@
-  * 
-  *  Kai Germaschewski contributed to the list walking routines.
-  *
-- * FIXME: The suspend and shutdown walks are identical. The resume walk
-- * is simply walking the list backward. Anyway we can combine these (cleanly)?
-- *
-  */
- 
- #include <linux/device.h>
-@@ -18,13 +15,15 @@
- #define to_dev(node) container_of(node,struct device,g_list)
- 
- /**
-- * device_suspend - suspend all devices on the device tree
-+ * device_suspend - suspend/remove all devices on the device ree
-  * @state:	state we're entering
-- * @level:	what stage of the suspend process we're at 
-- * 
-- * The entries in the global device list are inserted such that they're in a 
-- * depth-first ordering. So, simply iterate over the list, and call the driver's
-- * suspend callback for each device.
-+ * @level:	what stage of the suspend process we're at
-+ *    (emb: it seems that these two arguments are described backwards of what
-+ *          they actually mean .. is this correct?)
-+ *
-+ * The entries in the global device list are inserted such that they're in a
-+ * depth-first ordering.  So, simply interate over the list, and call the 
-+ * driver's suspend or remove callback for each device.
-  */
- int device_suspend(u32 state, u32 level)
- {
-@@ -32,15 +31,23 @@
- 	struct device * prev = NULL;
- 	int error = 0;
- 
--	printk(KERN_EMERG "Suspending Devices\n");
-+	if(level == SUSPEND_SHUT_DOWN)
-+		printk(KERN_EMERG "Shutting down devices\n");
-+	else
-+		printk(KERN_EMERG "Suspending devices\n");
- 
- 	spin_lock(&device_lock);
- 	list_for_each(node,&global_device_list) {
- 		struct device * dev = get_device_locked(to_dev(node));
- 		if (dev) {
- 			spin_unlock(&device_lock);
--			if (dev->driver && dev->driver->suspend)
--				error = dev->driver->suspend(dev,state,level);
-+			if(dev->driver) {
-+				if(level == SUSPEND_SHUT_DOWN) {
-+				       	if(dev->driver->remove)
-+						dev->driver->remove(dev);
-+				} else if(dev->driver->suspend) 
-+					error = dev->driver->suspend(dev,state,level);
-+			}
- 			if (prev)
- 				put_device(prev);
- 			prev = dev;
-@@ -84,36 +91,12 @@
- }
- 
- /**
-- * device_shutdown - queisce all the devices before reboot/shutdown
-- *
-- * Do depth first iteration over device tree, calling ->remove() for each
-- * device. This should ensure the devices are put into a sane state before
-- * we reboot the system.
-- *
-+ * device_shutdown - call device_suspend with status set to shutdown, to 
-+ * cause all devices to remove themselves cleanly 
-  */
- void device_shutdown(void)
- {
--	struct list_head * node, * next;
--	struct device * prev = NULL;
--
--	printk(KERN_EMERG "Shutting down devices\n");
--
--	spin_lock(&device_lock);
--	list_for_each_safe(node,next,&global_device_list) {
--		struct device * dev = get_device_locked(to_dev(node));
--		if (dev) {
--			spin_unlock(&device_lock);
--			if (dev->driver && dev->driver->remove)
--				dev->driver->remove(dev);
--			if (prev)
--				put_device(prev);
--			prev = dev;
--			spin_lock(&device_lock);
--		}
--	}
--	spin_unlock(&device_lock);
--	if (prev)
--		put_device(prev);
-+	device_suspend(4, SUSPEND_SHUT_DOWN);
- }
- 
- EXPORT_SYMBOL(device_suspend);
+Quoting Con Kolivas <conman@kolivas.net>:
 
+> I've been trialling a new load module for the contest benchmark
+> (http://contest.kolivas.net) which simply forks a process that just exits
+> waits for it to die, then repeats. Here are the results I have obtained so
+> far:
+> 
+
+[...fresh results below...]
+
+> ck7 uses O1, preempt, low latency
+> Preempt=N for all other kernels
+> 
+> Clearly you can see the 2.5 kernels have a substantial lead over the
+> current
+> stable kernel.
+> 
+> This load module is not part of the contest package yet. I could certainly
+> change it to fork n processes but I'm not really sure just how many n should
+> be.
+
+
+I have extra information from the trial of this module:
+
+noload:
+Kernel                  Time            CPU             Ratio
+2.4.19                  72.90           99%             1.00
+2.4.19-ck7              71.55           100%            0.98
+2.5.38                  73.86           99%             1.01
+2.5.38-mm2              73.93           99%             1.01
+
+fork_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  97.11           67%             1.33
+2.4.19-ck7              72.34           92%             0.99
+2.5.38                  75.32           92%             1.03
+2.5.38-mm2              74.99           92%             1.03
+
+2.4.19: Children forked: 32750
+2.4.19-ck7: Children forked: 6477
+2.5.38: Children forked: 5545
+2.5.38-mm2: Children forked: 5351
+
+You can see clearly repeatedly forking a new process significantly slows down
+compile time for 2.4.19 but not the O(1) based kernels. However, the number of
+processes that are forked is significantly reduced.
+
+Is this information useful? 
+
+Con

@@ -1,119 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266316AbSL2CEH>; Sat, 28 Dec 2002 21:04:07 -0500
+	id <S266353AbSL2CaF>; Sat, 28 Dec 2002 21:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266323AbSL2CEH>; Sat, 28 Dec 2002 21:04:07 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.223]:20975 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S266316AbSL2CEF>; Sat, 28 Dec 2002 21:04:05 -0500
-Date: Sat, 28 Dec 2002 21:04:52 -0500 (EST)
+	id <S266356AbSL2CaF>; Sat, 28 Dec 2002 21:30:05 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.222]:7618 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S266353AbSL2CaC>; Sat, 28 Dec 2002 21:30:02 -0500
+Date: Sat, 28 Dec 2002 21:30:49 -0500 (EST)
 From: Frank Davis <fdavis@si.rr.com>
 X-X-Sender: fdavis@linux-dev
 To: linux-kernel@vger.kernel.org
 cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.53 : drivers/char/ftape/lowlevel/ftape-calibr.c
-Message-ID: <Pine.LNX.4.44.0212282102110.999-100000@linux-dev>
+Subject: [PATCH] 2.5.53 : drivers/char/ftape/lowlevel/fdc-io.c
+Message-ID: <Pine.LNX.4.44.0212282129230.1014-100000@linux-dev>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
-  The following patch swaps the save_flags/cli/restore_flags combo with a 
+  The following patch swaps a save_flags/cli/restore_flags combo with a 
 spinlock. Please review.
 
 Regards,
 Frank
 
---- linux/drivers/char/ftape/lowlevel/ftape-calibr.c.old	Sat Oct 19 12:04:19 2002
-+++ linux/drivers/char/ftape/lowlevel/ftape-calibr.c	Sat Dec 28 21:01:01 2002
-@@ -35,9 +35,10 @@
- # include <linux/timex.h>
- #endif
+--- linux/drivers/char/ftape/lowlevel/fdc-io.c.old	Sat Oct 19 12:04:19 2002
++++ linux/drivers/char/ftape/lowlevel/fdc-io.c	Sat Dec 28 21:28:17 2002
+@@ -39,14 +39,14 @@
+ 
  #include <linux/ftape.h>
+ #include <linux/qic117.h>
 -#include "../lowlevel/ftape-tracing.h"
--#include "../lowlevel/ftape-calibr.h"
 -#include "../lowlevel/fdc-io.h"
+-#include "../lowlevel/fdc-isr.h"
+-#include "../lowlevel/ftape-io.h"
+-#include "../lowlevel/ftape-rw.h"
+-#include "../lowlevel/ftape-ctl.h"
+-#include "../lowlevel/ftape-calibr.h"
+-#include "../lowlevel/fc-10.h"
 +#include "ftape-tracing.h"
-+#include "ftape-calibr.h"
 +#include "fdc-io.h"
-+#include <linux/spinlock.h>
++#include "fdc-isr.h"
++#include "ftape-io.h"
++#include "ftape-rw.h"
++#include "ftape-ctl.h"
++#include "ftape-calibr.h"
++#include "fc-10.h"
  
- #undef DEBUG
- 
-@@ -62,6 +63,7 @@
-  * it will overflow only once per 30 seconds (on a 200MHz machine),
-  * which is plenty.
+ /*      Global vars.
   */
-+static spinlock_t ftape_calibar_lock = SPIN_LOCK_UNLOCKED;
+@@ -84,19 +84,19 @@
+ static __u8 fdc_prec_code;	/* fdc precomp. select code */
  
- unsigned int ftape_timestamp(void)
+ static char ftape_id[] = "ftape";  /* used by request irq and free irq */
++static fdc_io_lock = SPIN_LOCK_UNLOCKED;
+ 
+ void fdc_catch_stray_interrupts(int count)
  {
-@@ -75,13 +77,12 @@
- 	__u16 lo;
- 	__u16 hi;
+ 	unsigned long flags;
  
 -	save_flags(flags);
 -	cli();
-+	spin_lock_irqsave(&ftape_calibar_lock, flags);
- 	outb_p(0x00, 0x43);	/* latch the count ASAP */
- 	lo = inb_p(0x40);	/* read the latched count */
- 	lo |= inb(0x40) << 8;
- 	hi = jiffies;
++	spin_lock_irqsave(&fdc_io_lock, flags);
+ 	if (count == 0) {
+ 		ft_expected_stray_interrupts = 0;
+ 	} else {
+ 		ft_expected_stray_interrupts += count;
+ 	}
 -	restore_flags(flags);
-+	spin_lock_irqrestore(&ftape_calibar_lock, flags);
- 	return ((hi + 1) * (unsigned int) LATCH) - lo;  /* downcounter ! */
- #endif
++	spin_unlock_irqrestore(&fdc_io_lock, flags);
  }
-@@ -94,12 +95,11 @@
- 	unsigned int count;
-  	unsigned long flags;
-  
-- 	save_flags(flags);
-- 	cli();
-+ 	spin_lock_irqsave(&ftape_calibar_lock, flags);
-  	outb_p(0x00, 0x43);	/* latch the count ASAP */
- 	count = inb_p(0x40);	/* read the latched count */
- 	count |= inb(0x40) << 8;
-- 	restore_flags(flags);
-+ 	spin_unlock_irqrestore(&ftape_calibar_lock, flags);
- 	return (LATCH - count);	/* normal: downcounter */
+ 
+ /*  Wait during a timeout period for a given FDC status.
+@@ -194,8 +194,7 @@
+ 	TRACE_FUN(ft_t_any);
+ 
+ 	fdc_usec_wait(FT_RQM_DELAY);	/* wait for valid RQM status */
+-	save_flags(flags);
+-	cli();
++	spin_lock_irqsave(&fdc_io_lock, flags);
+ #if LINUX_VERSION_CODE >= KERNEL_VER(2,1,30)
+ 	if (!in_interrupt())
+ #else
+@@ -223,7 +222,7 @@
+ 		 * "fdc_read timeout" errors, I HOPE :-)
+ 		 */
+ 		if (ft_hide_interrupt) {
+-			restore_flags(flags);
++			spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 			TRACE(ft_t_info,
+ 			      "Waiting for the isr() completing fdc_seek()");
+ 			if (fdc_interrupt_wait(2 * FT_SECOND) < 0) {
+@@ -246,12 +245,11 @@
+ 
+ 			}
+ 			fdc_usec_wait(FT_RQM_DELAY);	/* wait for valid RQM status */
+-			save_flags(flags);
+-			cli();
++			spin_lock_irqsave(&fdc_io_lock, flags);
+ 		}
+ 	fdc_status = inb(fdc.msr);
+ 	if ((fdc_status & FDC_DATA_READY_MASK) != FDC_DATA_IN_READY) {
+-		restore_flags(flags);
++		spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 		TRACE_ABORT(-EBUSY, ft_t_err, "fdc not ready");
+ 	} 
+ 	fdc_mode = *cmd_data;	/* used by isr */
+@@ -301,7 +299,7 @@
+ 		last_time = ftape_timestamp();
+ 	}
  #endif
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 	TRACE_EXIT result;
  }
-@@ -150,14 +150,13 @@
- 	int status;
+ 
+@@ -317,15 +315,14 @@
+ 	int retry = 0;
  	TRACE_FUN(ft_t_any);
  
 -	save_flags(flags);
 -	cli();
-+	spin_lock_irqsave(&ftape_calibar_lock, flags);
- 	t0 = short_ftape_timestamp();
- 	for (i = 0; i < 1000; ++i) {
- 		status = inb(fdc.msr);
++	spin_lock_irqsave(&fdc_lock, flags);
+ 	fdc_status = inb(fdc.msr);
+ 	if ((fdc_status & FDC_DATA_READY_MASK) != FDC_DATA_OUT_READY) {
+ 		TRACE(ft_t_err, "fdc not ready");
+ 		result = -EBUSY;
+ 	} else while (count) {
+ 		if (!(fdc_status & FDC_BUSY)) {
+-			restore_flags(flags);
++			spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 			TRACE_ABORT(-EIO, ft_t_err, "premature end of result phase");
+ 		}
+ 		result = fdc_read(res_data);
+@@ -348,7 +345,7 @@
+ 			++res_data;
+ 		}
  	}
- 	t1 = short_ftape_timestamp();
 -	restore_flags(flags);
-+	spin_unlock_irqrestore(&ftape_calibar_lock, flags);
- 	TRACE(ft_t_info, "inb() duration: %d nsec", ftape_timediff(t0, t1));
- 	TRACE_EXIT;
++	spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 	fdc_usec_wait(FT_RQM_DELAY);	/* allow FDC to negate BSY */
+ 	TRACE_EXIT result;
  }
-@@ -241,8 +240,7 @@
+@@ -627,8 +624,7 @@
+ 	unsigned long flags;
+ 	TRACE_FUN(ft_t_any);
  
- 		*calibr_count =
- 		*calibr_time = count;	/* set TC to 1 */
--		save_flags(flags);
--		cli();
-+		spin_lock_irqsave(&ftape_calibar_lock, flags);
- 		fun(0);		/* dummy, get code into cache */
- 		t0 = short_ftape_timestamp();
- 		fun(0);		/* overhead + one test */
-@@ -252,7 +250,7 @@
- 		fun(count);		/* overhead + count tests */
- 		t1 = short_ftape_timestamp();
- 		multiple = diff(t0, t1);
--		restore_flags(flags);
-+		spin_unlock_irqrestore(&ftape_calibar_lock, flags);
- 		time = ftape_timediff(0, multiple - once);
- 		tc = (1000 * time) / (count - 1);
- 		TRACE(ft_t_any, "once:%3d us,%6d times:%6d us, TC:%5d ns",
+-	save_flags(flags);
+-	cli();
++	spin_lock_irqsave(&fdc_io_lock, flags);
+ 
+ 	fdc_dor_reset(1); /* keep unit selected */
+ 
+@@ -647,7 +643,7 @@
+ 	 */
+ 	fdc_update_dsr();               /* restore data rate and precomp */
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 
+         /*
+          *	Wait for first polling cycle to complete
+@@ -946,16 +942,15 @@
+ 	 */
+         TRACE(ft_t_fdc_dma,
+ 	      "phys. addr. = %lx", virt_to_bus((void*) buff->ptr));
+-	save_flags(flags);
+-	cli();			/* could be called from ISR ! */
++	spin_lock_irqsave(&fdc_lock, flags);
+ 	fdc_setup_dma(DMA_MODE_WRITE, buff->ptr, FT_SECTORS_PER_SEGMENT * 4);
+ 	/* Issue FDC command to start reading/writing.
+ 	 */
+ 	out[1] = ft_drive_sel;
+ 	out[4] = buff->gap3;
+ 	TRACE_CATCH(fdc_setup_error = fdc_command(out, sizeof(out)),
+-		    restore_flags(flags); fdc_mode = fdc_idle);
+-	restore_flags(flags);
++		    spin_unlock_irqrestore(&fdc_io_lock, flags); fdc_mode = fdc_idle);
++	spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 	TRACE_EXIT 0;
+ }
+ 
+@@ -998,8 +993,7 @@
+ 			    ft_t_bug, "bug: illegal operation parameter");
+ 	}
+ 	TRACE(ft_t_fdc_dma, "phys. addr. = %lx",virt_to_bus((void*)buff->ptr));
+-	save_flags(flags);
+-	cli();			/* could be called from ISR ! */
++	spin_lock_irqsave(&fdc_io_lock, flags);
+ 	if (operation != FDC_VERIFY) {
+ 		fdc_setup_dma(dma_mode, buff->ptr,
+ 			      FT_SECTOR_SIZE * buff->sector_count);
+@@ -1017,7 +1011,7 @@
+ 	out[8] = 0xff;		/* No limit to transfer size. */
+ 	TRACE(ft_t_fdc_dma, "C: 0x%02x, H: 0x%02x, R: 0x%02x, cnt: 0x%02x",
+ 		out[2], out[3], out[4], out[6] - out[4] + 1);
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&fdc_io_lock, flags);
+ 	TRACE_CATCH(fdc_setup_error = fdc_command(out, 9),fdc_mode = fdc_idle);
+ 	TRACE_EXIT 0;
+ }
 

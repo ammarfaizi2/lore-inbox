@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVB1XjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVB1XmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVB1XjK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 18:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVB1XjK
+	id S261829AbVB1XmC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 18:42:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVB1XmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 18:39:10 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:14766 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261819AbVB1Xi7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 18:38:59 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Adam Belay <abelay@novell.com>
+	Mon, 28 Feb 2005 18:42:01 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:21200 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261825AbVB1XlD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 18:41:03 -0500
 Subject: Re: [RFC] PCI bridge driver rewrite
-Date: Mon, 28 Feb 2005 15:38:18 -0800
-User-Agent: KMail/1.7.2
-Cc: Jon Smirl <jonsmirl@gmail.com>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-References: <1109226122.28403.44.camel@localhost.localdomain> <200502241502.15163.jbarnes@sgi.com> <1109633268.28403.77.camel@localhost.localdomain>
-In-Reply-To: <1109633268.28403.77.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+From: Adam Belay <abelay@novell.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       Jesse Barnes <jbarnes@sgi.com>, len.brown@intel.com
+In-Reply-To: <9e4733910502232325118c9ff3@mail.gmail.com>
+References: <1109226122.28403.44.camel@localhost.localdomain>
+	 <9e473391050223224532239c9d@mail.gmail.com>
+	 <1109228638.28403.71.camel@localhost.localdomain>
+	 <9e4733910502232325118c9ff3@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 28 Feb 2005 18:39:46 -0500
+Message-Id: <1109633986.28403.89.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502281538.18881.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, February 28, 2005 3:27 pm, Adam Belay wrote:
-> How can we specify which bus to target?
+On Thu, 2005-02-24 at 02:25 -0500, Jon Smirl wrote: 
+> When you start writing the PCI root bridge driver you'll run into the
+> AGP drivers that are already attached to the bridge. I was surprised
+> by this since I expected AGP to be attached to the AGP bridge but now
+> I learned that it is a root bridge function.
 
-Maybe we could have a list of legacy (ISA?) devices for drivers like vgacon to 
-attach to?  The bus info could be stuffed into the legacy device structure 
-itself so that the platform code would know what to do.
+I'm going to have the PCI root bridge driver bind to a device on the
+primary side of the bridge.  The device could be enumerated by ACPI or
+created manually when the bridge is detected.  It will not, however, be
+a PCI device.
 
-> Also is the legacy IO space mapped to IO Memory on the other side of the
-> bridge?
+> 
+> An ISA LPC bridge driver would be nice too. It would let you turn off
+> serial ports, etc and let other systems know how many ports there are.
+> No real need for this, just a nice toy.
 
-How do you mean?  Legacy I/O port accesses just become strongly ordered memory 
-transactions, afaik, and legacy memory accesses are dealt with the same way.
+I think this would make a lot of sense.  ACPI could be used to enumerate
+child devices for this bridge.  I'd like to begin work on a generic ISA
+bus driver soon.
 
-Jesse
+> 
+> Does this work to cause a probe based on PCI class?
+> static struct pci_device_id p2p_id_tbl[] = {
+>        { PCI_DEVICE_CLASS(PCI_CLASS_BRIDGE_PCI << 8, 0xffff00) },
+>        { 0 },
+> };
+
+Yes, the macro is used when matching against only a class of device.
+
+> 
+> I would like to install a driver that gets called whenever new
+> CLASS_VGA hardware shows up via hotplug. It won't attach to the
+> device, it will just add some sysfs attributes. The framebuffer
+> drivers need to attach the device. If I add attributes this way how
+> can I remove them?
+
+It would be possible, but probably not a clean solution.  Ideally we
+want one driver to bind to the graphics controller and remain bound.  It
+will then create class devices for each graphics subsystem, such as
+framebuffer.  Much work remains to be done before this can happen.
+
+Thanks,
+Adam
+
+

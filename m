@@ -1,233 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVBHAag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVBHAfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVBHAag (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 19:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVBHAag
+	id S261361AbVBHAfc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 19:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBHAfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 19:30:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52133 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261357AbVBHA35 (ORCPT
+	Mon, 7 Feb 2005 19:35:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49091 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261361AbVBHAf2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 19:29:57 -0500
-Date: Mon, 7 Feb 2005 16:30:05 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] convert /proc/driver/rtc to seq_file.
-Message-ID: <20050207163005.1e7dab14@dxpl.pdx.osdl.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.0 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Mon, 7 Feb 2005 19:35:28 -0500
+Date: Mon, 7 Feb 2005 16:34:19 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: colpatch@us.ibm.com, mbligh@aracnet.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
+       sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20050207163419.5eceb474.pj@sgi.com>
+In-Reply-To: <20050207162024.23380cd6.akpm@osdl.org>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<1097014749.4065.48.camel@arrakis>
+	<420800F5.9070504@us.ibm.com>
+	<20050207162024.23380cd6.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The /proc/driver/rtc interface didn't have any module owner hook.
-The simplest fix is to just convert this to the single version of seq_file.
-Also, fix initialization of rtc_dev to use C99 form.
+Andrew wrote:
+> OK, I'll add cpusets to the 2.6.12 queue.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+I'd like that ;).
 
+Thank-you, Matthew, for the work you put into making sense of this.
 
-diff -Nru a/drivers/char/rtc.c b/drivers/char/rtc.c
---- a/drivers/char/rtc.c	2005-02-07 16:08:10 -08:00
-+++ b/drivers/char/rtc.c	2005-02-07 16:08:10 -08:00
-@@ -73,6 +73,7 @@
- #include <linux/init.h>
- #include <linux/poll.h>
- #include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
- #include <linux/spinlock.h>
- #include <linux/sysctl.h>
- #include <linux/wait.h>
-@@ -151,8 +152,7 @@
- static void mask_rtc_irq_bit(unsigned char bit);
- #endif
- 
--static int rtc_read_proc(char *page, char **start, off_t off,
--                         int count, int *eof, void *data);
-+static int rtc_proc_open(struct inode *inode, struct file *file);
- 
- /*
-  *	Bits in rtc_status. (6 bits of room for future expansion)
-@@ -871,11 +871,18 @@
- 	.fasync		= rtc_fasync,
- };
- 
--static struct miscdevice rtc_dev=
--{
--	RTC_MINOR,
--	"rtc",
--	&rtc_fops
-+static struct miscdevice rtc_dev = {
-+	.minor		= RTC_MINOR,
-+	.name		= "rtc",
-+	.fops		= &rtc_fops,
-+};
-+
-+static struct file_operations rtc_proc_fops = {
-+	.owner = THIS_MODULE,
-+	.open = rtc_proc_open,
-+	.read  = seq_read,
-+	.llseek = seq_lseek,
-+	.release = single_release,
- };
- 
- #if defined(RTC_IRQ) && !defined(__sparc__)
-@@ -884,6 +891,7 @@
- 
- static int __init rtc_init(void)
- {
-+	struct proc_dir_entry *ent;
- #if defined(__alpha__) || defined(__mips__)
- 	unsigned int year, ctrl;
- 	unsigned long uip_watchdog;
-@@ -974,7 +982,9 @@
- 		release_region(RTC_PORT(0), RTC_IO_EXTENT);
- 		return -ENODEV;
- 	}
--	if (!create_proc_read_entry ("driver/rtc", 0, NULL, rtc_read_proc, NULL)) {
-+
-+	ent = create_proc_entry("driver/rtc", 0, NULL);
-+	if (!ent) {
- #ifdef RTC_IRQ
- 		free_irq(RTC_IRQ, NULL);
- #endif
-@@ -982,6 +992,7 @@
- 		misc_deregister(&rtc_dev);
- 		return -ENOMEM;
- 	}
-+	ent->proc_fops = &rtc_proc_fops;
- 
- #if defined(__alpha__) || defined(__mips__)
- 	rtc_freq = HZ;
-@@ -1119,11 +1130,10 @@
-  *	Info exported via "/proc/driver/rtc".
-  */
- 
--static int rtc_proc_output (char *buf)
-+static int rtc_proc_show(struct seq_file *seq, void *v)
- {
- #define YN(bit) ((ctrl & bit) ? "yes" : "no")
- #define NY(bit) ((ctrl & bit) ? "no" : "yes")
--	char *p;
- 	struct rtc_time tm;
- 	unsigned char batt, ctrl;
- 	unsigned long freq;
-@@ -1134,7 +1144,6 @@
- 	freq = rtc_freq;
- 	spin_unlock_irq(&rtc_lock);
- 
--	p = buf;
- 
- 	rtc_get_rtc_time(&tm);
- 
-@@ -1142,12 +1151,12 @@
- 	 * There is no way to tell if the luser has the RTC set for local
- 	 * time or for Universal Standard Time (GMT). Probably local though.
- 	 */
--	p += sprintf(p,
--		     "rtc_time\t: %02d:%02d:%02d\n"
--		     "rtc_date\t: %04d-%02d-%02d\n"
--	 	     "rtc_epoch\t: %04lu\n",
--		     tm.tm_hour, tm.tm_min, tm.tm_sec,
--		     tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, epoch);
-+	seq_printf(seq, 
-+		   "rtc_time\t: %02d:%02d:%02d\n"
-+		   "rtc_date\t: %04d-%02d-%02d\n"
-+		   "rtc_epoch\t: %04lu\n",
-+		   tm.tm_hour, tm.tm_min, tm.tm_sec,
-+		   tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, epoch);
- 
- 	get_rtc_alm_time(&tm);
- 
-@@ -1156,57 +1165,50 @@
- 	 * match any value for that particular field. Values that are
- 	 * greater than a valid time, but less than 0xc0 shouldn't appear.
- 	 */
--	p += sprintf(p, "alarm\t\t: ");
-+	seq_puts(seq, "alarm\t\t: ");
- 	if (tm.tm_hour <= 24)
--		p += sprintf(p, "%02d:", tm.tm_hour);
-+		seq_printf(seq, "%02d:", tm.tm_hour);
- 	else
--		p += sprintf(p, "**:");
-+		seq_puts(seq, "**:");
- 
- 	if (tm.tm_min <= 59)
--		p += sprintf(p, "%02d:", tm.tm_min);
-+		seq_printf(seq, "%02d:", tm.tm_min);
- 	else
--		p += sprintf(p, "**:");
-+		seq_puts(seq, "**:");
- 
- 	if (tm.tm_sec <= 59)
--		p += sprintf(p, "%02d\n", tm.tm_sec);
-+		seq_printf(seq, "%02d\n", tm.tm_sec);
- 	else
--		p += sprintf(p, "**\n");
-+		seq_puts(seq, "**\n");
- 
--	p += sprintf(p,
--		     "DST_enable\t: %s\n"
--		     "BCD\t\t: %s\n"
--		     "24hr\t\t: %s\n"
--		     "square_wave\t: %s\n"
--		     "alarm_IRQ\t: %s\n"
--		     "update_IRQ\t: %s\n"
--		     "periodic_IRQ\t: %s\n"
--		     "periodic_freq\t: %ld\n"
--		     "batt_status\t: %s\n",
--		     YN(RTC_DST_EN),
--		     NY(RTC_DM_BINARY),
--		     YN(RTC_24H),
--		     YN(RTC_SQWE),
--		     YN(RTC_AIE),
--		     YN(RTC_UIE),
--		     YN(RTC_PIE),
--		     freq,
--		     batt ? "okay" : "dead");
-+	seq_printf(seq,
-+		   "DST_enable\t: %s\n"
-+		   "BCD\t\t: %s\n"
-+		   "24hr\t\t: %s\n"
-+		   "square_wave\t: %s\n"
-+		   "alarm_IRQ\t: %s\n"
-+		   "update_IRQ\t: %s\n"
-+		   "periodic_IRQ\t: %s\n"
-+		   "periodic_freq\t: %ld\n"
-+		   "batt_status\t: %s\n",
-+		   YN(RTC_DST_EN),
-+		   NY(RTC_DM_BINARY),
-+		   YN(RTC_24H),
-+		   YN(RTC_SQWE),
-+		   YN(RTC_AIE),
-+		   YN(RTC_UIE),
-+		   YN(RTC_PIE),
-+		   freq,
-+		   batt ? "okay" : "dead");
- 
--	return  p - buf;
-+	return  0;
- #undef YN
- #undef NY
- }
- 
--static int rtc_read_proc(char *page, char **start, off_t off,
--                         int count, int *eof, void *data)
-+static int rtc_proc_open(struct inode *inode, struct file *file)
- {
--        int len = rtc_proc_output (page);
--        if (len <= off+count) *eof = 1;
--        *start = page + off;
--        len -= off;
--        if (len>count) len = count;
--        if (len<0) len = 0;
--        return len;
-+	return single_open(file, rtc_proc_show, NULL);
- }
- 
- void rtc_get_rtc_time(struct rtc_time *rtc_tm)
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

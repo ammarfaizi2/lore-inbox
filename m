@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273977AbRI0WeV>; Thu, 27 Sep 2001 18:34:21 -0400
+	id <S273996AbRI0WdV>; Thu, 27 Sep 2001 18:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274001AbRI0WeM>; Thu, 27 Sep 2001 18:34:12 -0400
-Received: from ausxc08.us.dell.com ([143.166.99.216]:53745 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S273999AbRI0WeA>; Thu, 27 Sep 2001 18:34:00 -0400
-Message-ID: <8F120FA493CAD743B30EEB8F356985B501A7819D@AUSXMBT102VS1.amer.dell.com>
-From: Robert_Macaulay@Dell.com
-To: andrea@suse.de
-Cc: riel@conectiva.com.br, ckulesa@as.arizona.edu,
-        linux-kernel@vger.kernel.org, bmatthews@redhat.com,
-        marcelo@conectiva.com.br, torvalds@transmeta.com
-Subject: RE: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9
-	-ac14/15(+stuff)]
-Date: Thu, 27 Sep 2001 17:34:17 -0500
+	id <S273999AbRI0WdM>; Thu, 27 Sep 2001 18:33:12 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:25096 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S273996AbRI0Wcy>; Thu, 27 Sep 2001 18:32:54 -0400
+Date: Thu, 27 Sep 2001 19:27:45 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Reg modutils-2.4
+Message-ID: <Pine.LNX.4.10.10109271920060.28586-100000@blrmail>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I have to have two kernel images 2.2.14 and 2.4.9 to boot from. I
+applied the kdb patch for 2.4.9 kernel but could find that make
+bzImage failed because the modutils I have is 2.3.10. I thought of
+upgrading my modutils and downloaded modutils-2.4.9-1.i386.rpm. It failed
+saying   
+
+  only packages with major numbers <= 3 are supported by this version of
+RPM
+error: modutils-2.4.9-1.i386.rpm cannot be installed
+  
+Then I tried with modutils-2.4.0-1.i386.rpm which failed giving so many
+messages like the following:
 
 
-> -----Original Message-----
-> From: Andrea Arcangeli [mailto:andrea@suse.de]
-> Sent: Thursday, September 27, 2001 5:13 PM
-> To: Macaulay, Robert
-> Cc: Rik van Riel; Craig Kulesa; linux-kernel@vger.kernel.org; Bob
-> Matthews; Marcelo Tosatti; Linus Torvalds
-> Subject: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs.
-> 2.4.9-ac14/15(+stuff)]
-> 
-> @@ -2519,7 +2521,9 @@
->  	int tryagain = 1;
->  
->  	do {
-> -		if (buffer_dirty(p) || buffer_locked(p)) {
-> +		if (unlikely(buffer_pending_IO(p)))
-> +			tryagain = 0;
-> +		else if (buffer_dirty(p) || buffer_locked(p)) {
->  			if (test_and_set_bit(BH_Wait_IO, &p->b_state)) {
->  				if (buffer_dirty(p)) {
->  					ll_rw_block(WRITE, 1, &p);
-> 
 
-Im getting an undefined reference to the unlikely function in this patch.
+file /sbin/depmod from install of modutils-2.4.0-1 conflicts with file
+from package modutils-2.3.9-6
+file /sbin/genksyms from install of modutils-2.4.0-1 conflicts with file
+from package modutils-2.3.9-6
+file /sbin/insmod from install of modutils-2.4.0-1 conflicts with file
+from package modutils-2.3.9-6
+file /sbin/insmod.static from install of modutils-2.4.0-1 conflicts with
+file from package modutils-2.3.9-6
+file /sbin/modinfo from install of modutils-2.4.0-1 conflicts with file
+from package modutils-2.3.9-6
+.
+.
+.
+
+Please help me arriving at a solution.
+
+Thanks in advance,
+Warm regards,
+sathish.j
+
+

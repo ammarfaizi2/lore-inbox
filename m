@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263726AbTE0PRr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 11:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTE0PRq
+	id S263807AbTE0PQd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 11:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTE0PQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 11:17:46 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.46]:49815 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S263847AbTE0PQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 11:16:36 -0400
-From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: Linux 2.5.70 compile error
-Date: Tue, 27 May 2003 17:29:48 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com>
-In-Reply-To: <20030527130515.GH8978@holomorphy.com>
+	Tue, 27 May 2003 11:16:32 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:15798 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S263807AbTE0PQ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 11:16:28 -0400
+Date: Tue, 27 May 2003 11:29:53 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: devfs@oss.sgi.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Graceful failure in devfs_remove() in 2.5.x
+Message-ID: <Pine.LNX.4.55.0305271105110.1412@marabou.research.att.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305271729.49047.devilkin-lkml@blindguardian.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 15:05, William Lee Irwin III wrote:
-> I suspect you're attempting to shoot yourself in the foot. .config?
+Hello!
 
-Ah, quite. I saw NUMA was activated, and disabling it fixed my problem. Odd 
-though, that it should become active just by doing a 'make oldconfig' with my 
-2.7.69 config file...
+It's already the second time that I encounter a kernel panic in the same
+place.  When devfs_remove() is called on a non-existent file entry, the
+kernel panics and I have to reboot the system.
 
-Anywayz, it works, this kernel solves all my outstanding issues sofar (being 
-mostly with the irda) so I'm happy :P
+First time it was unregistering of pseudoterminals.  This time it's
+ide-floppy module that doesn't register devfs entries if the media is
+absent but still tries to unregister them.  The bug in ide-floppy will be
+reported separately.
 
-Jan
+The point of this message is that the failure in devfs_remove() is
+possible, especially with rarely used drivers.  Secondly, is not fatal
+enough to justify an immediate panic and reboot.  Thirdly, devfs misses a
+chance to tell the user what's going wrong.
+
+This patch makes devfs_remove() print an error to the kernel log and
+continue.  PRINTK is defined in fs/devfs/base.c to report errors in the
+cases like this one:
+
+#define PRINTK(format, args...) \
+   {printk (KERN_ERR "%s" format, __FUNCTION__ , ## args);}
+
+The patch:
+
+==============================================
+--- linux.orig/fs/devfs/base.c
++++ linux/fs/devfs/base.c
+@@ -1710,6 +1710,11 @@ void devfs_remove(const char *fmt, ...)
+ 	if (n < 64 && buf[0]) {
+ 		devfs_handle_t de = _devfs_find_entry(NULL, buf, 0);
+
++		if (!de) {
++			PRINTK ("(%s): not found, cannot remove\n", buf);
++			return;
++		}
++
+ 		write_lock(&de->parent->u.dir.lock);
+ 		_devfs_unregister(de->parent, de);
+ 		devfs_put(de);
+==============================================
+
+The patch is against Linux 2.5.70.
+
+Linux 2.4.21-rc4 already has protection against panic although it doesn't
+print the error message - see devfs_unlink() in fs/devfs/base.c
+
 -- 
-You look like a million dollars.  All green and wrinkled.
-
+Regards,
+Pavel Roskin

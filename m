@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135596AbREEXxH>; Sat, 5 May 2001 19:53:07 -0400
+	id <S130768AbREFAIL>; Sat, 5 May 2001 20:08:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135598AbREEXw5>; Sat, 5 May 2001 19:52:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51095 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135596AbREEXwp>;
-	Sat, 5 May 2001 19:52:45 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S135532AbREFAIA>; Sat, 5 May 2001 20:08:00 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:1806 "HELO
+	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S130768AbREFAHo>; Sat, 5 May 2001 20:07:44 -0400
+Message-ID: <3AF4961B.F23C9948@zk3.dec.com>
+Date: Sat, 05 May 2001 20:08:59 -0400
+From: Peter Rival <frival@zk3.dec.com>
+X-Mailer: Mozilla 4.6 [en] (Win98; I)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
+In-Reply-To: <20010505063726.A32232@va.samba.org> <3AF4118F.330C3E86@zk3.dec.com> <20010506033746.A30690@metastasis.f00f.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15092.37426.648280.631914@pizda.ninka.net>
-Date: Sat, 5 May 2001 16:52:18 -0700 (PDT)
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
-In-Reply-To: <3AF49617.1B3C48AF@candelatech.com>
-In-Reply-To: <3AF4720F.35574FDD@candelatech.com>
-	<15092.32371.139915.110859@pizda.ninka.net>
-	<3AF49617.1B3C48AF@candelatech.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wedgwood wrote:
 
-Ben Greear writes:
- > No idea, haven't tried to use netfilter.  With this patch, though,
- > it's as easy as:
+> On Sat, May 05, 2001 at 10:43:27AM -0400, Peter Rival wrote:
+>
+>     Has anyone looked into memory hot swap/hot add support?
+>
+> Adding memory probably isn't going to be too hard... but taking
+> existing memory off line is tricky. You have to find some way of
+> finding all the pages that are in use and then dealing with them
+> appropriately, and when some are locked or contain kernel data this
+> would be extremely difficult I should think.
+>
 
-I know, the problem is if some existing facility can be made
-to do it, I'd rather it be done that way.
+Hrmm...  I agree this is a hard problem.  I know people smarter than I have
+been thinking about this type of problem at Compaq.  While I haven't talked to
+them directly, my only guess would be that we'd have to hand-rewrite some page
+tables after copying the page contents to a new area.  It's late Saturday and
+I really haven't thought this through fully, so I'm not even sure that would
+work, but it's something like how we support replicated text segments on our
+GS series...don't know why it wouldn't work here.  *shrug*
 
- > I have a setup that should be able to test some netfilter rules
- > if have some you want me to try....
+>     Especially with systems with Chipkill coming out, this would be
+>     great to support...
+>
+> Chipkill?
+>
 
-I'd be interested in seeing netfilter rules or a new netfilter
-kernel module which would do arpfilter as well.
+It's the IBM technology that works around bad memory by detecting single-bit
+errors and removing the chip that caused it from use.  I'd think of this as a
+big hammer version of that in software.  Besides, eventually you'll want to
+replace the DIMM that has the bad chip, and what better way then while the
+system is still running (as long as it's stable, of course ;)  I'm just
+thinking out loud, so someone can correct me if I'm being loopy...
 
-Later,
-David S. Miller
-davem@redhat.com
+ - Pete
+

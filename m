@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUC1QTe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 11:19:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUC1QTe
+	id S261935AbUC1QTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 11:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUC1QTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 11:19:34 -0500
-Received: from mxsf02.cluster1.charter.net ([209.225.28.202]:46095 "EHLO
-	mxsf02.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261942AbUC1QTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 11:19:30 -0500
-Subject: Re: 2.6.5-rc2-mm[34] causes drop in DRI FPS
-From: Glenn Johnson <glennpj@charter.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040328090637.GA11056@elte.hu>
-References: <1080435375.8280.1.camel@gforce.johnson.home>
-	 <20040327180932.10e4bae7.akpm@osdl.org>
-	 <1080443802.7085.2.camel@gforce.johnson.home>
-	 <20040328090637.GA11056@elte.hu>
-Content-Type: text/plain
-Message-Id: <1080490657.9667.7.camel@gforce.johnson.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 28 Mar 2004 10:17:43 -0600
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Mar 2004 11:19:16 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:50922 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S261935AbUC1QTM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 11:19:12 -0500
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+References: <yw1xsmftnons.fsf@ford.guide>
+	<20040328201719.A14868@jurassic.park.msu.ru>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Sun, 28 Mar 2004 18:19:10 +0200
+In-Reply-To: <20040328201719.A14868@jurassic.park.msu.ru> (Ivan Kokshaysky's
+ message of "Sun, 28 Mar 2004 20:17:19 +0400")
+Message-ID: <yw1xoeqhndvl.fsf@ford.guide>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-03-28 at 03:06, Ingo Molnar wrote:
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
 
-> * Glenn Johnson <glennpj@charter.net> wrote:
-> 
-> > > It could be the AGP changes.  Please do a `patch -p1 -R' of
-> > > bk-agpgart.patch and retest?
-> > 
-> > I reverted that patch and retested but it did not solve the problem. I
-> > am still only seeing about 180 fps with glxgears.
-> 
-> what does 'glxinfo | grep rendering' show?
+> On Sun, Mar 28, 2004 at 02:26:15PM +0200, Måns Rullgård wrote:
+>> There was a thread a while ago about some odd problems with 2.6.4 on
+>> Alpha.  Were those problems ever resolved?
+>
+> No idea. I wasn't able to reproduce them. Perhaps it has something
+> to do with particular drivers (raid, XFS or something else).
 
-It shows:
+Well, I'm using both raid and xfs...
 
-        direct rendering: Yes
-        
-I had checked that first thing. I also verified that the AGPgart
-detected the chipset, etc. Everything seems okay in the XFree86 log file
-as well.
+>> Is anything past 2.6.3 stable on Alpha?
+>
+> There was nothing special about 2.6.4. Those problems must be present
+> in 2.6.3 and earlier kernels as well.
 
---
-Glenn Johnson
-glennpj@charter.net
+So you're saying that if 2.6.3 is stable, 2.6.4 and later should be
+fine too?
 
+-- 
+Måns Rullgård
+mru@kth.se

@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315463AbSE2UiG>; Wed, 29 May 2002 16:38:06 -0400
+	id <S314082AbSE2Uif>; Wed, 29 May 2002 16:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315468AbSE2UiE>; Wed, 29 May 2002 16:38:04 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58266
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S315463AbSE2UiB>; Wed, 29 May 2002 16:38:01 -0400
-Date: Wed, 29 May 2002 13:37:58 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Missing include in drivers/base/bus.c and drivers/pci/pci-driver.c
-Message-ID: <20020529203758.GT5997@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315468AbSE2Uie>; Wed, 29 May 2002 16:38:34 -0400
+Received: from zeke.inet.com ([199.171.211.198]:19630 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S314082AbSE2Uib>;
+	Wed, 29 May 2002 16:38:31 -0400
+Message-ID: <3CF53C45.3000606@inet.com>
+Date: Wed, 29 May 2002 15:38:29 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.19
+In-Reply-To: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com> <20020529211702.E30585@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/base/bus.c and drivers/pci/pci-driver.c both have functions
-which are marked with __init, but didn't include <linux/init.h> directly.
-The following fixes that (and allows 2.5.19 to compile on PPC32).
+Russell King wrote:
+> The following change appeared in 2.5.19:
+> 
+> xx- a/drivers/video/cyber2000fb.c       Wed May 29 11:43:02 2002
+> xx+ b/drivers/video/cyber2000fb.c       Wed May 29 11:43:02 2002
+> @@ -1729,9 +1729,8 @@
+>  }
+> 
+>  static struct pci_device_id cyberpro_pci_table[] __devinitdata = {
+> -// Not yet
+> -//     { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
+> -//             PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
+> +       { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
+> +               PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
+>         { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2000,
+>                 PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_CYBERPRO_2000 },
+>         { PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2010,
+> 
+> This is completely wrong - the driver has been tested NOT to work on
+> the Integraphics 1682.  As such, please do uncomment these lines.
+> 
+> In addition, I'm disappointed that no one forwarded the patch for
+> maintainer approval PRIOR to submitting it to Linus.
+> 
+> Linus, I request that you apply the following patch.  Thanks.
+> 
+> --- orig/drivers/video/cyber2000fb.c	Mon May  6 16:54:10 2002
+> +++ linux/drivers/video/cyber2000fb.c	Mon May 13 10:48:13 2002
+> @@ -1729,8 +1729,9 @@
+>  }
+>  
+>  static struct pci_device_id cyberpro_pci_table[] __devinitdata = {
+> -	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
+> -		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
+> +// Not yet
+> +//	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_1682,
+> +//		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_IGA_1682 },
+>  	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2000,
+>  		PCI_ANY_ID, PCI_ANY_ID, 0, 0, ID_CYBERPRO_2000 },
+>  	{ PCI_VENDOR_ID_INTERG, PCI_DEVICE_ID_INTERG_2010,
+> 
+> 
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+How about s/Not yet/This driver has been tested NOT to work on the 
+Integraphics 1682.  Do not enable with out contacting the maintainer./
+instead?  That might avoid the problem recurring...
 
-===== drivers/base/bus.c 1.4 vs edited =====
---- 1.4/drivers/base/bus.c	Tue May 28 11:35:01 2002
-+++ edited/drivers/base/bus.c	Wed May 29 13:30:05 2002
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/errno.h>
- #include <linux/stat.h>
-+#include <linux/init.h>
- #include "base.h"
- 
- static LIST_HEAD(bus_driver_list);
-===== drivers/pci/pci-driver.c 1.5 vs edited =====
---- 1.5/drivers/pci/pci-driver.c	Tue May 28 18:02:33 2002
-+++ edited/drivers/pci/pci-driver.c	Wed May 29 13:32:06 2002
-@@ -5,6 +5,7 @@
- 
- #include <linux/pci.h>
- #include <linux/module.h>
-+#include <linux/init.h>
- 
- /*
-  *  Registration of PCI drivers and handling of hot-pluggable devices.
+Just a thought, ignore if you wish.
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+

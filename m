@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264054AbTFYMfo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 08:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFYMfo
+	id S264124AbTFYMhD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 08:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTFYMhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 08:35:44 -0400
-Received: from komoseva.globalnet.hr ([213.149.32.250]:25611 "EHLO
-	komoseva.globalnet.hr") by vger.kernel.org with ESMTP
-	id S264054AbTFYMfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 08:35:43 -0400
-Date: Wed, 25 Jun 2003 13:50:13 +0200
-From: Vid Strpic <vms@bofhlet.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: contents of a cd-rom disappearing and re-appearing! 2.4.21
-Message-ID: <20030625115013.GE20998@home.bofhlet.net>
-Mail-Followup-To: Vid Strpic <vms@bofhlet.net>,
-	linux-kernel@vger.kernel.org
+	Wed, 25 Jun 2003 08:37:03 -0400
+Received: from [198.149.18.6] ([198.149.18.6]:54471 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S264124AbTFYMg5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 08:36:57 -0400
+Subject: Re: [2.5.73-mm1 XFS] restrict_chown and quotas
+From: Steve Lord <lord@sgi.com>
+To: grendel@debian.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030625095126.GD1745@thanes.org>
+References: <20030625095126.GD1745@thanes.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Jun 2003 07:51:43 -0500
+Message-Id: <1056545505.1170.19.camel@laptop.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.4.21
-X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled May  3 2002 20:49:56)
-X-I-came-from: scary devil monastery
-X-Politics: UNIX fundamentalist
-X-Face: -|!t[0Pql@=P`A=@?]]hx(Oh!2jK='NQO#A$ir7jYOC*/4DA~eH7XpA/:vM>M@GLqAYUg9$ n|mt)QK1=LZBL3sp?mL=lFuw3V./Q&XotFmCH<Rr(ugDuDx,mM*If&mJvqtb3BF7~~Guczc0!G0C`2 _A.v7)%SGk:.dgpOc1Ra^A$1wgMrW=66X|Lyk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-06-25 at 04:51, Marek Habersack wrote:
+> Hello,
+> 
+>   I've discovered yesterday, by sheer accident (building a deb package which
+> process uses fakeroot) that the XFS in 2.5.73-mm1 (and probably in vanilla
+> 2.5.73 as well) implements the restrict_chown policy and syscall while
+> defaulting to the relaxed chown behavior. That way a user can give away
+> their files/directories while retaining full control in the sense that the
+> owner of the containing directory can remove the chowned entries. Removing
+> the entries not owned/chowned by you but living in a directory owned by you is also
+> possible (both with restricted_chown in effect and when it's not effective)
+> on XFS filesystems.
+>   It also seems (although I haven't tested it, just looked at the source code)
+> that when one chowns a file/directory to another uid:gid when restrict_chown
+> is in effect, the quota is changed as well - it gets transferred to the
+> target uid:gid.
+>   For me both of the described situations seem to be a bug, but I might be
+> unaware of the rationale behind the functionality. If this is supposed to be
+> that way, maybe at least it would be better to default restrict_chown to
+> enabled initially? The behavior with restrict_chown is totally different to
+> what users/administrators are used to and, as shown in the debian package
+> build case, it might cause problems in usual situations. Also the quota
+> issue is likely to be an excellent tool for local DoS.
+>   So, am I wrong in thinking that it's a bug (or at least the quota part of
+> it) or not?
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry about this, the defaults for the systunes have been messed up
+recently. This is supposed to be on by default, irix_sgid_inherit
+is on, but should be off by default. 
 
-On Tue, Jun 24, 2003 at 10:46:31PM +0200, Folkert van Heusden wrote:
-> I had this really strange experience with a cd-rom.
-> I was in it's mountpoint, did ls, all fine.
-> Did nothing for a while, then did ls again: everything gone!
-> I then cd'd to home and back to the mountpoint and ls: everything's
-> back.
-> I never had this while running 2.4.20.
+You can switch the behavior with /proc/sys/fs/xfs/restrict_chown
+and irix_sgid_inherit.
 
-Hm.  Looks like some automounter, or more precisely, autounmounter :)
-Which distribution?  I had no such problems with .21, yet...
+You can also edit xfs_globals.c to switch the default at boot time.
+We will switch it back in the next update to Linus.
 
---=20
-           vms@bofhlet.net, IRC:*@Martin, /bin/zsh. C|N>K
-Linux lorien 2.4.21 #1 Sat Jun 14 01:23:07 CEST 2003 i586
- 13:48:52 up 11 days, 10:30,  8 users,  load average: 0.47, 0.23, 0.26
-Every cat deserves a house, but not every house deserves a cat
+As for the quota operation, the normal chown situation is going
+from root to another id, and in that case, you want the quota to
+go to the end user. In the non restricted chown case, if the
+quota remained with the original user, how do you decide which
+user's quota to remove the file space from when it is deleted,
+once a file is chowned, there is no record of who it was created
+as. The quota has to stick with the uid of the file.
 
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Steve
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE++Yx1q1AzG0/iPGMRAhZUAKCA7GXAENpoVby/MghxlWOO3T+a/QCg1j5p
-YnjUVVJEXpf/njh+85LB8UQ=
-=QOZl
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--

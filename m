@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbTDXWj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDXWj7
+	id S264439AbTDXWgw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 18:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTDXWgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:39:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32760 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264459AbTDXWj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 18:39:57 -0400
-Date: Fri, 25 Apr 2003 00:51:58 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
+	Thu, 24 Apr 2003 18:36:52 -0400
+Received: from almesberger.net ([63.105.73.239]:50442 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S264439AbTDXWgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 18:36:51 -0400
+Date: Thu, 24 Apr 2003 19:48:45 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Timothy Miller <miller@techsource.com>
+Cc: "Downing, Thomas" <Thomas.Downing@ipc.com>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424225158.GD15833@fs.tum.de>
-References: <20030424051510.GK8931@holomorphy.com> <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com>
+Message-ID: <20030424194845.F1425@almesberger.net>
+References: <170EBA504C3AD511A3FE00508BB89A9201FD8E40@exnanycmbx4.ipc.com> <3EA7F0C6.8010907@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3EA7F0C6.8010907@techsource.com>; from miller@techsource.com on Thu, Apr 24, 2003 at 10:12:22AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 10:43:37PM -0700, Linus Torvalds wrote:
->...
-> And hey, the fact is (at least as far as I'm concerned), that as long as
-> you make the hardware, you can control what it runs.
->...
+Timothy Miller wrote:
+> One of the things that we could do to accelerate the adoption of Linux 
+> is to support DRM.
 
-Linux is currently widely used and through this there comes some power. 
-Let me try to make examples where this might be important:
+As long as adoption of Linux is the only thing you care about in
+the world, that logic certainly works.
 
-Fact is:
-Cryptographic hardware isn't science fiction. It's not an unsolvable 
-technical problem to build a computer and to ensure that only 
-$signed_kernel with $binary_only_module loaded and no other modules 
-loaded runs on this computer.
+> Yes, we know it's evil, but if we are the ones 
+> developing it, at least we know what it is and is not doing and how it 
+> works.  
 
-Two examples that might make it very important whether the licence of 
-Linux allows things like:
-1. all the companies participating in TCPA agree that only selected 
-   signed kernels run on future hardware
-2. [less likely] a big country like the USA makes a law that every OS 
-   must include a backdoor that allows unnoticed access for the NSA (it 
-   sounds strange but considering the DMCA and current legislative 
-   proposals in the USA I wouldn't say this is completely impossible)
+You forgot
 
-That's the point where the fact that Linux is used in many companies 
-including big ones becomes important:
+  "Yes, we know it's evil, but if we are the ones developing it, we
+   can at least be sure that it will be done properly."
 
-For companies it wouldn't be a big problem to use only signed kernels in 
-a scenario like the first one above (because of support rules of 
-companies like Oracle or SAP they are already often tied to some 
-specific kernels) if the licence of Linux allows it.
+as in
 
-If the licence of Linux doesn't allow this it would make many of the big 
-companies using Linux to opposers of such a proposal.
+  "Yes, officer, I know that I shouldn't drive after drinking that
+   bottle of whisky, but I had to get home, and I'm a good driver
+   who can handle this."
 
-> 			Linus
+and
 
-cu
-Adrian
+  "Yes, we know it's evil, but if we don't develop it, somebody else
+   will."
+
+as in
+
+  "Yes, officer, I know that I shouldn't have parked here, but if
+   I hadn't, somebody else would have."
+
+(In the end, I don't think it helps to think of your actions in terms
+of "good" or "evil". I find it much more important to consider the
+possible consequences, direct and indirect.)
+
+- Werner
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

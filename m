@@ -1,75 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265406AbUAZXrG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 18:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbUAZXqr
+	id S265693AbUA0ATD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 19:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265713AbUA0ATC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 18:46:47 -0500
-Received: from smtp02.ya.com ([62.151.11.161]:12198 "EHLO smtp.ya.com")
-	by vger.kernel.org with ESMTP id S265406AbUAZXpx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 18:45:53 -0500
-From: David =?iso-8859-1?q?Mart=EDnez=20Moreno?= <ender@debian.org>
-Organization: Debian
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: kernel BUG at include/linux/list.h:148!
-Date: Tue, 27 Jan 2004 00:42:02 +0100
-User-Agent: KMail/1.5.4
-Cc: ender@debian.org
+	Mon, 26 Jan 2004 19:19:02 -0500
+Received: from auemail2.lucent.com ([192.11.223.163]:43760 "EHLO
+	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265693AbUA0AS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 19:18:57 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401270042.02840.ender@debian.org>
+Message-ID: <16405.44635.564011.414832@gargle.gargle.HOWL>
+Date: Mon, 26 Jan 2004 19:18:35 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "John Stoffel" <stoffel@lucent.com>, ak@muc.de, Valdis.Kletnieks@vt.edu,
+       bunk@fs.tum.de, cova@ferrara.linux.it, eric@cisu.net,
+       linux-kernel@vger.kernel.org
+Subject: 2.6.2-rc2 Hangs on boot (was: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED)
+In-Reply-To: <20040125220027.30e8cdf3.akpm@osdl.org>
+References: <200401232253.08552.eric@cisu.net>
+	<200401251639.56799.cova@ferrara.linux.it>
+	<20040125162122.GJ513@fs.tum.de>
+	<200401251811.27890.cova@ferrara.linux.it>
+	<20040125173048.GL513@fs.tum.de>
+	<20040125174837.GB16962@colin2.muc.de>
+	<200401251800.i0PI0SmV001246@turing-police.cc.vt.edu>
+	<20040125191232.GC16962@colin2.muc.de>
+	<16404.9520.764788.21497@gargle.gargle.HOWL>
+	<20040125202557.GD16962@colin2.muc.de>
+	<16404.10496.50601.268391@gargle.gargle.HOWL>
+	<20040125220027.30e8cdf3.akpm@osdl.org>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, I'm using -mm branch since 2.6.0-pre kernels, and now I'm finding
-problems (well, *another* type of problems) since 2.6.1-rc1-mm2. Last kernel
-without this error was 2.6.1-rc2-mm1.
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
-	The error is always the same (at least to me, poor non kernel-hacker):
+Andrew> "John Stoffel" <stoffel@lucent.com> wrote:
+>> 
+>> Sure, the darn thing wouldn't boot, it kept Oopsing with the
+>> test_wp_bit oops (that I just posted more details about).
 
-------------[ cut here ]------------
-kernel BUG at include/linux/list.h:148!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c012ee1d>]    Not tainted VLI
-EFLAGS: 00010203
-EIP is at __remove_from_page_cache+0x71/0x7b
-eax: c13e22b8   ebx: dd2058bc   ecx: c13e22c0   edx: c1122c90
-esi: c13e22b8   edi: dfdb5e60   ebp: dd2058bc   esp: dfdb5d88
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 8, threadinfo=dfdb4000 task=dfdbace0)
-Stack: dd2058c0 000145cd 00000001 c13e22b8 c0137e0b c13e22b8 c02fce0a d6df1480
-       00000001 000000b1 00000000 dfdb5db4 dfdb5db4 dfdb5dc0 00000003 c04ade88
-       00000001 c10502f8 c03d58b4 00000003 c04b0560 00000001 00000001 c13a7c80
-Call Trace:
- [<c0137e0b>] shrink_list+0x2c0/0x476
- [<c02fce0a>] __kfree_skb+0x68/0xd9
- [<c013813f>] shrink_cache+0x17e/0x2df
- [<c015b74b>] shrink_dcache_memory+0x23/0x25
- [<c0137a76>] shrink_slab+0x11b/0x15e
- [<c0138b4a>] balance_pgdat+0x18e/0x21e
- [<c0138cec>] kswapd+0x112/0x122
- [<c011add5>] autoremove_wake_function+0x0/0x4f
- [<c011add5>] autoremove_wake_function+0x0/0x4f
- [<c0138bda>] kswapd+0x0/0x122
- [<c0108d45>] kernel_thread_helper+0x5/0xb
+Andrew> Does this fix the test_wp_bit oops?
 
-Code: 01 10 00 c7 46 10 00 00 00 00 83 6b 30 01 83 05 80 04 4b c0 ff 8b 74 24 0c 8b 5c 24 08 83 c4 10 c3 0f 0b 95 00 f6 e8 38 c0 eb c5 <0f> 0b 94 00 f6 e8 38 c0 eb b3 8b 54 24 04 8b 02 f7 d0 a8 01 75
+Andrew> --- 25/init/main.c~test_wp_bit-oops-fix	2004-01-25 15:29:53.000000000 -0800
+Andrew> +++ 25-akpm/init/main.c	2004-01-25 15:30:03.000000000 -0800
+Andrew> @@ -434,9 +434,9 @@ asmlinkage void __init start_kernel(void
+Andrew>  	}
+Andrew>  #endif
+Andrew>  	page_address_init();
+Andrew> +	sort_main_extable();
+Andrew>  	mem_init();
+Andrew>  	kmem_cache_init();
+Andrew> -	sort_main_extable();
+Andrew>  	if (late_time_init)
+Andrew>  		late_time_init();
+Andrew>  	calibrate_delay();
 
-	This error, for example, is printed with the server's current kernel,
-2.6.2-rc1-mm1.
+No, nor does this fix my booting problem(s) with 2.6.2-rc2.  I'm now
+back and running 2.6.1-mm5 without any problems.  Is there any further
+info I can give, or patches I can apply?  I've applied the early
+printk patch, the above patch, and I'm at a loss where the problem is.
 
-	The machine is P4 with XFS over RAID0 by software, Apache2 in thread mode,
-and root filesystem on ext3.
+It hangs at the following spot:
 
-	Please don't hesitate to request further info.
+   Linux version 2.6.2-rc2 (john@jfsnew) (gcc version 3.3.3 20040110
+   (prerelease) (Debian)) #2 SMP Mon Jan 26 09:17:00 EST 2004
+   BIOS-provided physical RAM map:
+    BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+    BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+    BIOS-e820: 0000000000100000 - 000000002fffe000 (usable)
+    BIOS-e820: 000000002fffe000 - 0000000030000000 (reserved)
+    BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
+    BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
+    BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
+   767MB LOWMEM available.
+   found SMP MP-table at 000fe710
+   hm, page 000fe000 reserved twice.
+   hm, page 000ff000 reserved twice.
+   hm, page 000f0000 reserved twice.
+   On node 0 totalpages: 196606
+     DMA zone: 4096 pages, LIFO batch:1
+     Normal zone: 192510 pages, LIFO batch:16
+     HighMem zone: 0 pages, LIFO batch:1
 
-	Kind regards,
 
+Should I start adding in printks, or would it make sense to go back
+through the various 2.6.2-bk# snapshots looking for where the problem
+hit?
 
-		Ender.
+Here's my PCI info, just in case this info helps:
 
+    > lspci
+    00:00.0 Host bridge: Intel Corp. 440GX - 82443GX Host bridge
+    00:01.0 PCI bridge: Intel Corp. 440GX - 82443GX AGP bridge
+    00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+    00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+    00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+    00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+    00:0d.0 RAID bus controller: Triones Technologies, Inc. HPT302 (rev
+    01)
+    00:10.0 PCI bridge: Hint Corp HB6 Universal PCI-PCI bridge
+    (non-transparent mode) (rev 13)
+    00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX
+    [Cyclone] (rev 24)
+    00:13.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev
+    03)
+    01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
+    (rev 82)
+    02:08.0 USB Controller: NEC Corporation USB (rev 41)
+    02:08.1 USB Controller: NEC Corporation USB (rev 41)
+    02:08.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
+    02:0b.0 FireWire (IEEE 1394): Texas Instruments TSB12LV26 IEEE-1394
+    Controller (Link)
+    03:06.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev
+    06)
+    03:0a.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891
+    03:0e.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)

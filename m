@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbSJVDcc>; Mon, 21 Oct 2002 23:32:32 -0400
+	id <S262079AbSJVDty>; Mon, 21 Oct 2002 23:49:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSJVDcc>; Mon, 21 Oct 2002 23:32:32 -0400
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:38331 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S262036AbSJVDcb>; Mon, 21 Oct 2002 23:32:31 -0400
-Date: Mon, 21 Oct 2002 23:38:34 -0400
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021022033834.GA24991@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210201648510.13602-100000@nakedeye.aparity.com> <E183pTR-0000Ps-00@fencepost.gnu.org>
-Mime-Version: 1.0
+	id <S262080AbSJVDty>; Mon, 21 Oct 2002 23:49:54 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:33189 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262079AbSJVDtx>; Mon, 21 Oct 2002 23:49:53 -0400
+Date: Mon, 21 Oct 2002 20:53:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>
+Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
+Message-ID: <2622146086.1035233637@[10.10.2.3]>
+In-Reply-To: <3DB4C87E.7CF128F3@digeo.com>
+References: <3DB4C87E.7CF128F3@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E183pTR-0000Ps-00@fencepost.gnu.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 11:12:53PM -0400, Richard Stallman wrote:
->     Nobody's evil or stupid or naive just because they make a certain
->     licensing choice.
-> 
-> It is a stretch to conclude anything about the general attitude or
-> character of a person from one action, so I would not say the people
-> who distribute non-free software are "evil people" in a general sense.
-> I will say they have done one thing that is evil: distributing a
-> non-free program.
-> 
-> Non-free software licenses are designed to divide and dominate the
-> users, denying them the basic freedoms for software users.  That's
-> what makes them non-free, and that is what makes it wrong.  Non-free
-> software is a social problem, one that we need to solve if computer
-> users are to have freedom.
-> 
-> There are many different ways people make money; some are ethical
-> while others involve mistreating others.  If we accept "making a
-> living" as a valid excuse to mistreat people, we will be mistreated
-> constantly.  There comes a time when we have to say that we are not
-> impressed by the argument that "We need to do this to people in order
-> to make a living."
+> I cannot make it happen here, either.  2.5.43-mm2 or current devel
+> stuff.  Heisenbug; maybe something broke dcache-rcu?  Or the math
+> overflow (unlikely).
 
-It's a simple concept. I produced it, it's mine until I say otherwise.
-You grant other laborers the right to profit from their labors, do you 
-not? Setting standards the way you have is arbitrary and high-handed.
-Calling people (or their actions) "evil" because they prefer to code 
-for a living rather than dig ditches or answer telephones is rather 
-arrogant and self-righteous. My charging for software *I* write is not
-immoral or unethical - it is what I do and it is perfectly legitimate.
-It is NOT the same as claiming a criminal/immoral/unethical act - you
-still want me to produce software - you just want me to do it for free.
-And no, I am not doing anything to people - they are free to not use my
-software. The majority of the world gets along just fine without it.
+Dipankar is going to give me some debug code once he's slept for
+a while ... that should help see if dcache-rcu went wacko.
+ 
+>> So it looks as though it's actually ext2_inode cache that's first against the wall.
+> 
+> Well that's to be expected.  Each ext2 directory inode has highmem
+> pagecache attached to it, which pins the inode.  There's no highmem
+> eviction pressure so your normal zone gets stuffed full of inodes.
+> 
+> There's a fix for this in Andrea's tree, although that's perhaps a
+> bit heavy on inode_lock for 2.5 purposes.  It's a matter of running
+> invalidate_inode_pages() against the inodes as they come off the
+> unused_list.  I haven't got around to it yet.
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
+Thanks; no urgent problem (though we did seem to have a customer hitting
+a very similar situation very easily in 2.4 ... we'll see if Andrea's
+fixes that, then I'll try to reproduce their problem on current 2.5).
+ 
+>> larry:~# egrep '(dentry|inode)' /proc/slabinfo
+>> isofs_inode_cache      0      0    320    0    0    1 :  120   60
+>> ext2_inode_cache  667345 809181    416 89909 89909    1 :  120   60
+>> shmem_inode_cache      3      9    416    1    1    1 :  120   60
+>> sock_inode_cache      16     22    352    2    2    1 :  120   60
+>> proc_inode_cache      12     12    320    1    1    1 :  120   60
+>> inode_cache          385    396    320   33   33    1 :  120   60
+>> dentry_cache      1068289 1131096    160 47129 47129    1 :  248  124
+> 
+> OK, so there's reasonable dentry shrinkage there, and the inodes
+> for regular files whch have no attached pagecache were reaped.
+> But all the directory inodes are sitting there pinned.
 
+OK, this all makes a lot of sense ... apart from one thing:
+from looking at meminfo:
+
+HighTotal:    15335424 kB
+HighFree:     15066160 kB
+
+Even if every highmem page is pagecache, that's only 67316 pages by
+my reckoning (is pagecache broken out seperately in meminfo? both
+Buffers and Cached seem to large). If I only have 67316 page of 
+pagecache, how can I have 667345 inodes with attatched pagecache pages?
+Or am I just missing something obvious and fundamental? 

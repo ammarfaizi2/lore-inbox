@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262843AbRFCLSr>; Sun, 3 Jun 2001 07:18:47 -0400
+	id <S262901AbRFCMka>; Sun, 3 Jun 2001 08:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262873AbRFCLSh>; Sun, 3 Jun 2001 07:18:37 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:44490 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S262843AbRFCLOF>;
-	Sun, 3 Jun 2001 07:14:05 -0400
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: XMM: monitor Linux MM inactive/active lists graphically
-In-Reply-To: <01060222320301.23925@oscar>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 03 Jun 2001 13:13:51 +0200
-In-Reply-To: <01060222320301.23925@oscar> (Ed Tomlinson's message of "Sat, 2 Jun 2001 22:32:03 -0400")
-Message-ID: <87d78lolxs.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Copyleft)
+	id <S262923AbRFCMes>; Sun, 3 Jun 2001 08:34:48 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:13751 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262903AbRFCMLv>;
+	Sun, 3 Jun 2001 08:11:51 -0400
+Message-ID: <3B1A2982.C53B159C@mandrakesoft.com>
+Date: Sun, 03 Jun 2001 08:11:46 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Frazer <mark@somanetworks.com>,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: Re: MII access (was [PATCH] support for Cobalt Networks (x86 only)
+In-Reply-To: <Pine.LNX.4.33.0106031343530.31050-100000@kenzo.iwr.uni-heidelberg.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> writes:
+Bogdan Costescu wrote:
+> With clearer mind, I have to make some a correction to one of the previous
+> messages: the problem of not checking arguments range does not apply to
+> 3c59x which has in the ioctl function '& 0x1f' for both transceiver number
+> and register number. However, eepro100 and tulip don't do that. (I'm
+> checking now with 2.4.3 from Mandrake 8, but I don't think that there were
+> recent changes in these areas).
 
-> Zlatko,
-> 
-> Do you have your modified xmem available somewhere.  Think it might be of
-> interest to a few of us.
-> 
-> TIA
-> Ed Tomlinson <tomlins@cam.org>
-> 
-
-For some time I've been trying to make a simple, yet functional web
-page to put some stuff there. But, HTML hacking and kernel hacking are
-such a different beasts... :)
-
-XMM is heavily modified XMEM utility that shows graphically size of
-different Linux page lists: active, inactive_dirty, inactive_clean,
-code, free and swap usage. It is better suited for the monitoring of
-Linux 2.4 MM implementation than original (XMEM) utility.
-
-Find it here:  <URL:http://linux.inet.hr/>
+half right -- tulip does this for the phy id but not the MII register
+number.  I'll fix that up.  Please bug Andrey about fixing up
+eepro100...
 
 -- 
-Zlatko
-
-P.S. I'm gladly accepting suggestion for a simple tool that would help
-in static web site creation/development. I checked genpage, htmlmake
-and some other utilities but in every of them I found something that I
-didn't like. Tough job, that HTML authoring.
+Jeff Garzik      | Echelon words of the day, from The Register:
+Building 1024    | FRU Lebed HALO Spetznaz Al Amn al-Askari Glock 26 
+MandrakeSoft     | Steak Knife Kill the President anarchy echelon
+                 | nuclear assassinate Roswell Waco World Trade Center

@@ -1,131 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbUCRANj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 19:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUCRANj
+	id S262226AbUCRARM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 19:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUCRARM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 19:13:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61411 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262224AbUCRANf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 19:13:35 -0500
-Date: Wed, 17 Mar 2004 16:13:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Mason <mason@suse.com>
-Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: 2.6.4-mm2
-Message-Id: <20040317161338.28b21c35.akpm@osdl.org>
-In-Reply-To: <1079568387.4186.1964.camel@watt.suse.com>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	<1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	<1079474312.4186.927.camel@watt.suse.com>
-	<20040316152106.22053934.akpm@osdl.org>
-	<20040316152843.667a623d.akpm@osdl.org>
-	<20040316153900.1e845ba2.akpm@osdl.org>
-	<1079485055.4181.1115.camel@watt.suse.com>
-	<1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
-	<20040316180043.441e8150.akpm@osdl.org>
-	<1079554288.4183.1938.camel@watt.suse.com>
-	<20040317123324.46411197.akpm@osdl.org>
-	<1079563568.4185.1947.camel@watt.suse.com>
-	<20040317150909.7fd121bd.akpm@osdl.org>
-	<1079566076.4186.1959.camel@watt.suse.com>
-	<20040317155111.49d09a87.akpm@osdl.org>
-	<1079568387.4186.1964.camel@watt.suse.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 17 Mar 2004 19:17:12 -0500
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:14283 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262226AbUCRARH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 19:17:07 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: linux-kernel@vger.kernel.org
+Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
+Date: Thu, 18 Mar 2004 10:19:02 +1000
+User-Agent: KMail/1.5.1
+Cc: thomas.schlichter_at_web.de@albatron,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       len.brown_at_intel.com@albatron
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403181019.02636.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> wrote:
->
-> On Wed, 2004-03-17 at 18:51, Andrew Morton wrote:
-> > Chris Mason <mason@suse.com> wrote:
-> > >
-> > > Looks good, but I'm still having problems convincing pagevec_lookup_tag
-> > > to return anything other than 0 when called from
-> > > wait_on_page_writeback_range (ext2, ext3, reiserfs).  Any ideas?
+>"Maciej W. Rozycki" <macro@ds2.pg.gda.pl> wrote: 
+> > On Wed, 3 Mar 2004, Thomas Schlichter wrote: 
 > > 
-> > This might help.  I'm testing this path now, so there may be more changes..
+> > > a few days ago I noticed that my Athlon 3000+ was relatively hot (49C) 
+> > > although it was completely idle. At that time I was running 2.6.3-mm3 with 
+> > > ACPI and IOAPIC-support enabled. 
+> > > 
+> > > As I tried 2.6.3, the idle temperature was at normal 39C. So I did do some 
+> > > binary search with the -bk patches and found the patch that causes the high 
+> > > idle temperature. It is ChangeSet@1.1626 aka 8259-timer-ack-fix.patch. 
 > > 
-> 
-> Well, that's certainly a lot slower ;-)
+> > Interesting -- the patch removes a pair of unnecessary for your 
+> > configuration PIC accesses when using an I/O APIC NMI watchdog. You have 
+> > the NMI watchdog enabled, don't you? 
+ 
+> No, I don't use the NMI watchdog... 
+>  So the optimization of removing these I/O accesses is bogus for my configuration. Btw. I don't know if I already mentioned it, but I use the VIA KT400 chipset. Maybe this is of interest... 
+ 
+> The only way to cool down my CPU was to enable timer_ack. 
+>  I don't know how to help you, but of course I am willing to test patches... ;-) 
+>   Thomas 
+ 
+I agree with Len Brown's comments to try to examine which power saving state but
+if you want to try to brute force C1 state ( only works if chipset supported )
+you could try this patch for process.c, 
+(ignore the io-apic patch as it is nforce2 specific).
 
-For once, that's good.
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-02/6520.html
+The KERNEL ARG to invoke it is "idle=C1halt". 
+ 
+It has an extra function pointer to prevent the power management idle routine
+hikjacking things after the command line arg has requested an idle routine.
 
-> I've got a direct_read_under
-> round going.  While you're at it, there's one more bug.
-> 
-> The wbc struct used by filemap_fdatawrite doesn't initialize
-> wbc.nonblocking to zero.  stack magic might give us a 1 there, leading
-> to an early exit from mpage_writepages even when doing a WB_SYNC_ALL.
+These idle mods appear to assist more than just nforce2 Athlon boards.
+Thomas Herrmann has had success with an SIS740
 
-I hope not.
+> Hi Ross,
+> I just want to let you know that your nforce2_idle patch does work with the
+> SiS740 chipset too. While the current ACPI patch already routes the timer of
+> the SiS740 to IO-APIC-edge with out the C1halt option of your nforce2_idle
+> patch the system locked up when STPGNT was enabled. But after I applied your
+> nforce2_idle patch to kernel 2.4.24 together with the C1halt kernel boot
+> option, the system runs stable for hours.
+> Great work, thanks!
+> Best regards,   Thomas
 
-static int __filemap_fdatawrite(struct address_space *mapping, int sync_mode)
-{
-	int ret;
-	struct writeback_control wbc = {
-		.sync_mode = sync_mode,
-		.nr_to_write = mapping->nrpages * 2,
-	};
+Craig Bradney has put it into the gentoo dev sources also.
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/1746.html
 
-When you initialise some of the structure in this way the compiler will
-zero out all the other fields.
-
-(gets worried)
-
-yup.
-
-
-struct thing {
-	int a;
-	int b[1000];
-};
-
-foo()
-{
-	int a[1000];
-
-	memset(a, 1, sizeof(a));
-}
-
-bar()
-{
-	struct thing t = {
-		.a = 1
-	};
-	int i;
-
-	for (i = 0; i < 1000; i++) {
-		if (t.b[i]) {
-			printf("bad\n");
-			return;
-		}
-	}
-}
-
-zot()
-{
-	struct thing t;
-	int i;
-
-	for (i = 0; i < 1000; i++) {
-		if (t.b[i]) {
-			printf("good\n");
-			return;
-		}
-	}
-}
-
-main()
-{
-	foo();
-	bar();
-	foo();
-	zot();
-}
+Hope this helps,
+Ross.
 
 

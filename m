@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269391AbRGaSNz>; Tue, 31 Jul 2001 14:13:55 -0400
+	id <S269395AbRGaSUP>; Tue, 31 Jul 2001 14:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269393AbRGaSNq>; Tue, 31 Jul 2001 14:13:46 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:26127 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269391AbRGaSNf>;
-	Tue, 31 Jul 2001 14:13:35 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107311813.WAA09018@ms2.inr.ac.ru>
-Subject: Re: [PATCH] netif_rx from non interrupt context
-To: maxk@qualcomm.com (Maksim Krasnyanskiy)
-Date: Tue, 31 Jul 2001 22:13:27 +0400 (MSK DST)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, andrea@suse.de,
-        torvalds@transmeta.com
-In-Reply-To: <4.3.1.0.20010731100209.05fce100@mail1> from "Maksim Krasnyanskiy" at Jul 31, 1 10:11:49 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S269394AbRGaSUF>; Tue, 31 Jul 2001 14:20:05 -0400
+Received: from srvr3.telecom.lt ([212.59.0.2]:1083 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S269395AbRGaST4>;
+	Tue, 31 Jul 2001 14:19:56 -0400
+Message-Id: <200107311820.UAA1793604@mail.takas.lt>
+Date: Tue, 31 Jul 2001 20:13:08 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: Transparent proxies and binding to foreign addresses
+To: Julio Sanchez Fernandez <j_sanchez@stl.es>
+cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <m2lmlcakrq.fsf@j-sanchez-p.stl.es>
+	<m2lmlcakrq.fsf@j-sanchez-p.stl.es>
+	<200107270215.EAA1376016@mail.takas.lt>
+ <m2hevyaljp.fsf@j-sanchez-p.stl.es>
+In-Reply-To: <m2hevyaljp.fsf@j-sanchez-p.stl.es>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
+On 27 Jul 2001 09:16:58 +0200 Julio Sanchez Fernandez <j_sanchez@stl.es> wrote:
 
-> a critical path. Also it makes sense (to me) to hide softirq implementation details from the net drivers.
+JSF> > I don't know if it is useful for you, but http://www.mcknight.de/jftpgw
+JSF> > supports transparent proxy for Linux 2.4.x kernel.
+JSF> 
+JSF> Only impersonating the server.  What does not work is impersonating
+JSF> the client and that cannot be fixed from user space.
+JSF> 
+JSF> > BTW, do you know of any port forwarder which works with 2.4 kernel in
+JSF> > transparent mode? I tried mmtcpfwd and portfwd, but both do not work.
+JSF> 
+JSF> Anyone that used TCP and worked before should be easy to adapt by just
+JSF> finding where it got the destination address with getsockname and
+JSF> using the getsockopt with SOL_ORIGINAL_DST thing.  Apparently, UDP is
+JSF> out as well, though I don't care about that currently.
+JSF> 
+JSF> Add to your list more forwarders like transproxy and those (plug-gw in
+JSF> particular) in the TIS (NAI) FWTK with the transparency patches
+JSF> described at http://www.fwtk.org
+JSF> 
+JSF> While none of them has been adapted to 2.4, they should be easy as I
+JSF> said above.
+JSF> 
+JSF> And as long as you don't care what origin address the server sees,
+JSF> that's alright.  But all connections now seem to come from the proxy.
+JSF> And that does not let you do things like differentiated services,
+JSF> access control or audit.  Even user support becomes a mess.
 
-He tells right thing... The fact that netif_rx() is invalid in this context
-and, especially, way to make it valid is not evident. It was not evident
-for me three days ago, at least. :-)
+Do you mean that even if I adapt them as you say, the receiving end will see
+connection orriginating from the proxy instead of the real address?
+I'm asking as these 2 port forwarders I tried work with 2.4 kernel in non-transparent
+mode, i.e. connections seem to come from the proxy, what I need is connection
+to be seen to come from real originating IP.
 
-Seems, it is better to hide this yet.
+Regards,
+Nerijus
 
-Alexey
+

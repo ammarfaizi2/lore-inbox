@@ -1,107 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132611AbRDBH2N>; Mon, 2 Apr 2001 03:28:13 -0400
+	id <S132623AbRDBIE0>; Mon, 2 Apr 2001 04:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132618AbRDBH2C>; Mon, 2 Apr 2001 03:28:02 -0400
-Received: from dns.uni-trier.de ([136.199.8.101]:21727 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S132611AbRDBH1w> convert rfc822-to-8bit; Mon, 2 Apr 2001 03:27:52 -0400
-Date: Mon, 2 Apr 2001 09:27:10 +0200 (CEST)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+	id <S132640AbRDBIEP>; Mon, 2 Apr 2001 04:04:15 -0400
+Received: from quechua.inka.de ([212.227.14.2]:39290 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S132623AbRDBIEC>;
+	Mon, 2 Apr 2001 04:04:02 -0400
 To: linux-kernel@vger.kernel.org
-Subject: epic100 aka smc etherpower II (fwd)
-Message-ID: <Pine.LNX.4.21.0104020925540.18171-100000@infcip10.uni-trier.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <4.3.2.7.2.20010401153355.00b5d630@mail.fluent-access.com>
+Organization: private Linux site, southern Germany
+Date: Mon, 02 Apr 2001 10:00:21 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14jzGJ-0002wR-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(i am not shure, whether this message was send to the mailinglist, so i
-repost it)
+> 1)  The idea of letting a bug "expire" is a good one.  One way to do this
+> is to incorporate some form of user-base moderation into the bug
+> database.  Unlike some of the forum systems, there's no reason why we can't
+> have tiers of moderators:  "maintainers" are the clearinghouse people for
+> certain portions of the Linux kernel source tree and should have a larger
+> voice as to whether a bug is important, redundant, or completely off
 
-hi!
+As everyone thinking about this perhaps should know, this moderation
+system is already used by Bugzilla: A bug report starts out as
+"unconfirmed", and people who volunteer to triage bugs and are given
+appropriate permission may elevate them to "new" status or resolve
+them as invalid. The actual maintainers query the database only for
+"new" bugs.
 
-i can`t get my smc etherpower ii working with the 2.4.3 kernel.
-now i have downgraded to 2.4.2 and it works again ...
-does anyone have a suggestion, what the problem is ?
+Experience in the Mozilla development community has shown, however,
+that this is not as simple as it sounds. There are bug reports which
+remain unconfirmed for weeks. People submitting reports have that
+nasty feeling that they are being ignored. Really, I don't think it is
+a good idea to stamp any bug report as "not to be taken seriously" by
+default. It puts off people who know better.
 
-daniel
+With automatic expiry of unconfirmed reports that would be absolutely
+devastating. Hopefully it is clear why. (Any pre-triaging process,
+even without expiry, must be done quickly and have enough people who
+do this unrewarding work, or it will introduce delays which make the
+submissions increasingly worthless.)
 
-this are the interesting lines from /var/log/messages:
-during the bootup:
-(debugging enabled in the driver)
-Mar 31 18:52:17 hyperion kernel: epic100.c:v1.11 1/7/2001 Written by
-Donald Becker <becker@scyld.com>
-Mar 31 18:52:17 hyperion
-kernel:   http://www.scyld.com/network/epic100.html
-Mar 31 18:52:17 hyperion kernel:  (unofficial 2.4.x kernel port, version
-1.1.6, January 11, 2001)
-Mar 31 18:52:17 hyperion kernel:  e000 0c29 a15a f000 001d 1c08 10b8 a011
-0000 0000 0000 0000 0000 0000 0000 0000
-Mar 31 18:52:17 hyperion kernel:  0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-Mar 31 18:52:17 hyperion kernel:  0010 0000 1980 2100 0000 0000 0003 0000
-0701 0000 0000 0000 4d53 3943 3334 5432
-Mar 31 18:52:17 hyperion kernel:  2058 2020 0000 0000 0280 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-Mar 31 18:52:17 hyperion kernel: epic100(00:09.0): MII transceiver #3
-control 3000 status 7809.
-Mar 31 18:52:17 hyperion kernel: epic100(00:09.0): Autonegotiation
-advertising 01e1 link partner 0001.
-Mar 31 18:52:17 hyperion kernel: eth0: SMSC EPIC/100 83c170 at 0x6500, IRQ
-11, 00:e0:29:0c:5a:a1.
+I think that some sort of expiry is in order, but perhaps better the
+other way around: any report with no progress in a certain amount of
+time gets _higher_ priority, so that someone (perhaps a triager) is
+"forced" to do _something_ about it (and if it's only to close an
+issue which has long been fixed or is invalid from the start).
 
-later, short after end of bootup:
+Bugzilla also does address some of the other issues presented here.
+(No, I don't think it's perfect :-)
 
-Mar 31 19:23:29 hyperion kernel: eth0: Setting half-duplex based on MII
-xcvr 3 register read of 0001.
-Mar 31 19:23:29 hyperion kernel: Real Time Clock Driver v1.10d
-Mar 31 19:23:29 hyperion kernel: eth0: Setting full-duplex based on MII #3
-link partner capability of 45e1.
-Mar 31 19:24:31 hyperion kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Mar 31 19:24:31 hyperion kernel: eth0: Transmit timeout using MII device,
-Tx status 4003.
-Mar 31 19:24:33 hyperion kernel: eth0: Setting half-duplex based on MII #3
-link partner capability of 0001.
-Mar 31 19:24:35 hyperion kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Mar 31 19:24:35 hyperion kernel: eth0: Transmit timeout using MII device,
-Tx status 0003.
-
-aditional there was the error message : to much work at interrupt ...
-
-lspci output:
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C595/97 [Apollo VP2/97]
-(rev 03)
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo
-VP] (rev 31)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-06)
-00:07.3 Bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 01)
-00:08.0 Multimedia video controller: 3Dfx Interactive, Inc. Voodoo 2 (rev
-02)
-00:09.0 Ethernet controller: Standard Microsystems Corp [SMC] 83C170QF
-(rev 06)
-00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev
-08)
-00:0a.1 Input device controller: Creative Labs SB Live! (rev 08)
-00:0b.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W
-[Millennium II]
-
-network hardware:
-smc etherpower ii connected to an 10/100 mbit nway autoneg. switch
-
-
-
-
-***************************************************
-Daniel Nofftz
-Sysadmin CIP Pool der Informatik 
-Universität Trier, V 103
-Mail: daniel@nofftz.de
-***************************************************
-
-"One World, One Web, One Program" - Microsoft Promotional Ad 
-"Ein Volk, Ein Reich, Ein Fuhrer" - Third Reich Promotional Ad
-
-
+Olaf

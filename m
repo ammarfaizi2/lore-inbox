@@ -1,26 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292539AbSCOOTv>; Fri, 15 Mar 2002 09:19:51 -0500
+	id <S292593AbSCOOZc>; Fri, 15 Mar 2002 09:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292554AbSCOOTl>; Fri, 15 Mar 2002 09:19:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39179 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292539AbSCOOTW>; Fri, 15 Mar 2002 09:19:22 -0500
-Subject: Re: unwanted disk access by the kernel?
-To: dmaas@dcine.com (Dan Maas)
-Date: Fri, 15 Mar 2002 14:35:14 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020315013644.A26891@morpheus> from "Dan Maas" at Mar 15, 2002 01:36:44 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292555AbSCOOZX>; Fri, 15 Mar 2002 09:25:23 -0500
+Received: from zero.tech9.net ([209.61.188.187]:49425 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292574AbSCOOZL>;
+	Fri, 15 Mar 2002 09:25:11 -0500
+Subject: Re: 2.4.18 Preempt Freezeups
+From: Robert Love <rml@tech9.net>
+To: Ian Duggan <ian@ianduggan.net>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C91B2A1.48C74B82@ianduggan.net>
+In-Reply-To: <3C9153A7.292C320@ianduggan.net>
+	<1016157250.4599.62.camel@phantasy>  <3C91B2A1.48C74B82@ianduggan.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16lsnb-0003mn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 15 Mar 2002 09:25:09 -0500
+Message-Id: <1016202310.908.1.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (I'm running a stock Linus 2.4.18 kernel, with APM enabled. The system
-> is Debian woody. All filesystems are ext2.)
+On Fri, 2002-03-15 at 03:36, Ian Duggan wrote:
 
-Mounted with or without noatime ?
+> I'm not asking for help fixing it, because of the binary module issue.
+> I'm just looking for ways to narrow down where the problem might be,
+> given that the machine completely locks up.
+
+Chances are the binary win4lin module just needs to be recompiled
+against a preemptive kernel.
+
+Of course, it could need some specific preempt-safe work but more than
+likely it just needs to be recompiled.  Binary modules most be
+specifically preempt-kernel aware, like they need be SMP-kernel aware.
+
+	Robert Love
+

@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268452AbUILFHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268447AbUILFIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268452AbUILFHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 01:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268453AbUILFHU
+	id S268447AbUILFIo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 01:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268448AbUILFIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 01:07:20 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:42639 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268452AbUILFGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 01:06:08 -0400
-Date: Sat, 11 Sep 2004 22:06:02 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH] Kill CONFIG_4KSTACKS
-Message-ID: <20040912050602.GA30451@taniwha.stupidest.org>
-References: <20040911204125.GA26179@taniwha.stupidest.org> <20040912050030.GD2660@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040912050030.GD2660@holomorphy.com>
+	Sun, 12 Sep 2004 01:08:44 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:24023 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268447AbUILFIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 01:08:34 -0400
+Date: Sun, 12 Sep 2004 01:13:07 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org,
+       anton@samba.org, jun.nakajima@intel.com, ak@suse.de, mingo@elte.hu
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+In-Reply-To: <20040911220003.0e9061ad.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0409120108310.2297@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
+ <16703.60725.153052.169532@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org>
+ <Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org>
+ <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com>
+ <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
+ <20040911220003.0e9061ad.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 10:00:30PM -0700, William Lee Irwin III wrote:
+On Sat, 11 Sep 2004, Andrew Morton wrote:
 
-> Another, distinct patch to add warnings or errors for all versions
-> of gcc prior to the stack fix commit might be helpful.
+> Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+> >
+> > The following patch introduces cpu_lock_yield which allows architectures 
+> >  to possibly yield processor resources during lock contention.
+> 
+> err.. Haven't you just invented a really sucky semaphore?
 
-It's only for comments right now, but sure yes.  And if we are going
-to do that we should drop support for ancient gcc versions[1] and fix
-up some 'sections' presently used (I thought we had some hacks in
-there now for gcc-2.95, I should recheck).
+Wait up.. didn't _you_ create that __preempt_spin_lock thing!? ;)
 
+> > The original 
+> >  requirement stems from Paul's requirement on PPC64 LPAR systems to yield 
+> >  the processor to the hypervisor instead of spinning.
+> 
+> Maybe Paul needs to use a semaphore.
+> 
+> 
+> Now, maybe Paul has tied himself into sufficiently tangly locking knots
+> that in some circumstances he needs to spin on the lock and cannot schedule
+> away.  But he can still use a semaphore and spin on down_trylock.
+> 
+> Confused by all of this.
 
- --cw
+Well currently it just enables preempt and spins like a mad man until the 
+lock is free. The idea is to allow preempt to get some scheduling done 
+during the spin.. But! if you accept this patch today, you get the 
+i386 version which will allow your processor to halt until a write to the 
+lock occurs whilst allowing interrupts to also trigger the preempt 
+scheduling, much easier on the caches.
 
-[1] it used to be sparc64 was a problem when this was discussed
-    before, is that still the case?
+	Zwane

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319179AbSHGSsv>; Wed, 7 Aug 2002 14:48:51 -0400
+	id <S318769AbSHGSkw>; Wed, 7 Aug 2002 14:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319180AbSHGSsv>; Wed, 7 Aug 2002 14:48:51 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:898 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S319179AbSHGSss>;
-	Wed, 7 Aug 2002 14:48:48 -0400
-Date: Wed, 7 Aug 2002 20:51:05 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: davidsen@tmr.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Why 'mrproper'?
-Message-ID: <20020807185105.GA268@win.tue.nl>
-References: <20020807170041.GA259@win.tue.nl> <Pine.LNX.4.44.0208071111110.10270-100000@hawkeye.luckynet.adm>
+	id <S318785AbSHGSkw>; Wed, 7 Aug 2002 14:40:52 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:63200 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S318769AbSHGSkv>;
+	Wed, 7 Aug 2002 14:40:51 -0400
+Date: Thu, 8 Aug 2002 04:43:43 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, julliard@winehq.com,
+       ldb@ldb.ods.org
+Subject: Re: [patch] tls-2.5.30-A1
+Message-Id: <20020808044343.4e48268c.sfr@canb.auug.org.au>
+In-Reply-To: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208072001490.22133-200000@localhost.localdomain>
+	<Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208071111110.10270-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 11:13:47AM -0600, Thunder from the hill wrote:
+On Wed, 7 Aug 2002 11:33:23 -0700 (PDT) Linus Torvalds <torvalds@transmeta.com> wrote:
+>
+>  - keep the TLS entries contiguous, and make sure that segment 0040 (ie
+>    GDT entry #8) is available to a TLS entry, since if I remember
+>    correctly, that one is also magical for old Windows binaries for all
+>    the wrong reasons (ie it was some system data area in DOS and in 
+>    Windows 3.1)
 
-> On Wed, 7 Aug 2002, Andries Brouwer wrote:
-> > Funny that you ask this question first now.
-> > mrproper came in 0.99p7
-> > distclean came in 0.99p14 as a synonym for mrproper.
-> 
-> "Mr. President, this is not exactly true."
-> 
-> The 'distclean' target also removes ...
-
-Read my letter again. Then check your sources.
-Then see that what I wrote is exactly true.
+segment 0040 is used by the APM driver to work around bugs in some BIOS
+implementations where some (brain-dead) BIOS writer has assume that the
+BIOS data area is still available in protected mode ...
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

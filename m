@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263726AbTDNWtY (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTDNWtY (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:49:24 -0400
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:20104 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id S263726AbTDNWtX (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:49:23 -0400
-Date: Mon, 14 Apr 2003 19:01:05 -0400
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Help with SiS 648 chipset and agpgart
-Message-ID: <20030414230105.GD1249@Master.Bellsouth.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200304140439.08812.tlee5794@rushmore.com>
+	id S263981AbTDNWxx (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263988AbTDNWxx (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:53:53 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10172
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263981AbTDNWxv (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:53:51 -0400
+Subject: Re: [RFC][2.5 patch] K6-II/K6-II: enable X86_USE_3DNOW
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030414222723.GA26161@suse.de>
+References: <20030414222110.GK9640@fs.tum.de>
+	 <20030414222723.GA26161@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050357987.26525.24.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304140439.08812.tlee5794@rushmore.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Apr 2003 23:06:28 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 04:39:08AM -0600, Tim Lee wrote:
-> Hi,
+On Llu, 2003-04-14 at 23:27, Dave Jones wrote:
+> On Tue, Apr 15, 2003 at 12:21:10AM +0200, Adrian Bunk wrote:
+>  > If my patch is wrong and this is a RTFM please give me a hint where to 
+>  > find the "M".
+>  > 
+>  > The AMD K6-II and K6-III do support 3DNow!
 > 
-> I need to get agpgart to work with a SiS 648 chipset and I
-> haven't seen any implementation of such yet.  I'm currently
-> using a 2.4.19 kernel.  Without a working implementation I
-> can't use accelerated OpenGL with an ATI Radeon 9500 pro
-> because the ATI drivers require working agp support.  I've
-> tried just using the generic-sis but that causes the driver
-> to mess up big time.
-> 
-> Any ideas?
-> 
+> The 3dnow memory copies aren't a win on anything
+> earlier than an Athlon iirc.
 
-the SiS648 isn't in the main 2.4.x tree. It works in the -ac tree, though.
-
--- 
-Murray J. Root
+Under 1% on a K6. The processor is so horribly memory bound the
+actual copy function is borderline irrelevant. If its not in the
+K6-III cache its not arriving in a hurry
 

@@ -1,43 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUHBOzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265301AbUHBPIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264585AbUHBOzG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUHBOzG
+	id S265301AbUHBPIY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 11:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUHBPIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:55:06 -0400
-Received: from main.gmane.org ([80.91.224.249]:22703 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264585AbUHBOyu (ORCPT
+	Mon, 2 Aug 2004 11:08:24 -0400
+Received: from mail.aei.ca ([206.123.6.14]:8157 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S265301AbUHBPIW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:54:50 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: OLS and console rearchitecture
-Date: Mon, 02 Aug 2004 20:54:34 +0600
-Message-ID: <410E55AA.8030709@ums.usu.ru>
-References: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
+	Mon, 2 Aug 2004 11:08:22 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
+From: Shane Shrybman <shrybman@aei.ca>
+To: mingo@redhat.com, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1091459297.2573.10.camel@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 02 Aug 2004 11:08:18 -0400
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-In-Reply-To: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> 15) Over time user space console will be moved to a model where VT's
-> are implemented in user space. This allows user space console access to
-> fully accelerated drawing libraries. This might allow removal of all of
-> the tty/vc layer code avoiding the need to fix it for SMP.
+I was unable to boot -O2. It seemed to hang up when it got to the
+aic7xxx(29160) scsi controller.
 
-One more minor problem. We need to ensure somehow that the "killall5" 
-program from the sysvinit package will not kill our userspace console 
-daemon at shutdown (got this when I tried to put fbiterm into 
-initramfs). What is the best way to achieve that?
+Boot messages copied by hand:
 
--- 
-Alexander E. Patrakov
+IRQ #16 thread started up.
+delay 5 -10 secs
+IRQ #19 thread started up.
+delay 5 -10 secs
+ahc_intr: HOST_MSG_LOOP bad phase 0x0
+(repeats every 10-20 secs)
+Waited a few minutes here before giving up and hitting reset.
+
+Here is /proc/interrupts in 2.6.7-mm7
+           CPU0       
+  0:     740456    IO-APIC-edge  timer
+  1:       1417    IO-APIC-edge  i8042
+  8:          4    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 14:         14    IO-APIC-edge  ide0
+ 15:         14    IO-APIC-edge  ide1
+ 16:        178   IO-APIC-level  ide3, EMU10K1
+ 17:       2491   IO-APIC-level  eth0
+ 19:      10335   IO-APIC-level  aic7xxx, bttv0, Bt87x audio
+ 21:      29074   IO-APIC-level  uhci_hcd, uhci_hcd, uhci_hcd, uhci_hcd
+ 22:          0   IO-APIC-level  VIA8233
+NMI:          0 
+LOC:     740415 
+ERR:          0
+MIS:          0
+
+Also, had to turn of parport in the config to get it to compile.
+
+drivers/parport/share.c:77: unknown field `generic_enable_irq' specified
+in initializer
+drivers/parport/share.c:78: unknown field `generic_disable_irq'
+specified in initializer
+
+Regards,
+
+Shane
 

@@ -1,80 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbUKETh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUKETkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbUKETh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 14:37:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUKEThZ
+	id S261184AbUKETkx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 14:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbUKETiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 14:37:25 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:9101 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261184AbUKETew (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 14:34:52 -0500
-Subject: [PATCH] Oops in aio_free_ring on 2.6.9
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-To: linux-aio@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1099683260.12365.348.camel@bluebox>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 05 Nov 2004 11:34:20 -0800
+	Fri, 5 Nov 2004 14:38:04 -0500
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:38294 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261163AbUKETga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 14:36:30 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: Synchronization primitives in UML (was: Re: [uml-devel] Re: [patch 09/20] uml: use SIG_IGN for empty sighandler)
+Date: Fri, 5 Nov 2004 20:36:55 +0100
+User-Agent: KMail/1.7.1
+Cc: user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org, cw@f00f.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411052036.55541.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 05 November 2004 06:48, Jeff Dike wrote:
+> blaisorblade_spam@yahoo.it said:
+> > I had a doubt on this, but I was not getting much feedback from you...
 
-In pounding on various i386 machines with a random syscall generator, I
-uncovered a situation in which the kernel oopses:
+> Yeah, sorry.
+Jeff, please read this one - I have a number of important things in it. Also, 
+I'd like comments from everyone else interested.
 
-1. Use mmap() to map out as much of the process address
-   space as possible.  This is about 2047M on i386.
-2. Call io_setup with the first argument set to a
-   large (~65000) value.
+I can understand you, so I'll try to reduce my mails to you to increase the 
+signal/noise ratio.
 
-(These notes reference the mainline 2.6.9 source.)
+I'll still send what needed to the list, but CC you just when requesting your 
+attention (not for trivial fixlet, yes for things as this one, which smelt 
+like being an hack done on purpose).
 
-What happens is that the number of pages required to service the
-io_setup request is larger than the block of internally allocated page
-pointers (fs/aio.c:126), so aio_setup_ring kmalloc's a blob of struct
-page pointers, and initializes these pointers to NULL. (fs/aio.c:130)
+> > Also, if you reject this, I'd require a comment-only patch for it: "as
+> > soon as I remember why" makes me think back to my yesterday's class,
+> > when  the teacher said "put comments in your code or you'll soon
+> > forget what it  does!" 8-O (yes, 1st year University student :-( ).
 
-Next, the aio_setup_ring function tries to mmap a bunch of pages and
-fails, because in step 1 we used up all the address space. 
-aio_setup_ring then calls aio_free_ring to tear all of this down.
-(fs/aio.c:143)
+> The thing is, you often don't realize what's going to be mysterious until
+> it actually is, and then it's too late for the comment :-)
 
-aio_free_ring sees the block of struct page pointers and calls free_page
-(fs/aio.c:88) on the pointers without checking that they're not NULL. 
-Unfortunately, they _are_ NULL and *oops*!  My patch amends the function
-to include a null pointer check.
+> In this case, it wants to be bounced out
+You mean it failing with EINTR, right?
+> of sigprocmask when a SIGWINCH 
+> arrives.
+Also, why shouldn't sigprocmask be restartable with the -ERESTART* mechanism? 
+Wouldn't your kludge break?
 
-I have a simple testcase that causes this oops; see
-http://submarine.dyndns.org/~djwong/docs/iosetup_crash.c.  Run
-"./iosetup_crash 100 100000 1000000" to reproduce the oops.
+Also, a nicer way to code this could be to have an explicit sighandler setting 
+a flag (to get the syscall interrupted if the signal arrives before being 
+blocked) and to call sigpending() (to test if the signal arrived just after 
+setting it). After the syscall, that could become SIG_IGN.
 
-This flaw shows up on mainline 2.6.9, Debian 2.6.8 and SLES9 2.6.5 on
-four different machines.  The patch is against 2.6.9 mainline and the
-problem isn't fixed in 2.6.10-rc1.
+Also, (optional answer), why is this needed? A comment about such issues would 
+be better than an answer email.
 
-Please send replies directly to me, as I'm not subscribed to
-linux-kernel or linux-aio.
+> In order to do so, it must have a handler registered, even if 
+> it does nothing.
 
---Darrick
+Ok. However, I have a general question about all this whole code: why do you 
+use pipes as synchronization primitives? Did you avoid semaphores for 
+portability issues, or for persistency ones? Both can be solved (with the os_ 
+layer and the IPC_PRIVATE key).
 
-Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+This would especially help during context switching, I think. I have just a 
+rough idea of what switch_pipe is for, but calling the network layer (what 
+you call os_pipe() is actually socketpair(), which is very confusing) to rely 
+on the semaphores / wait queues it uses seems suboptimal and ugly.
 
-diff -uprN linux-2.6.9-orig/fs/aio.c linux-2.6.9/fs/aio.c
---- linux-2.6.9-orig/fs/aio.c	2004-10-18 14:54:07.000000000 -0700
-+++ linux-2.6.9/fs/aio.c	2004-11-03 08:47:51.000000000 -0800
-@@ -85,7 +85,8 @@ static void aio_free_ring(struct kioctx 
- 	long i;
- 
- 	for (i=0; i<info->nr_pages; i++)
--		put_page(info->ring_pages[i]);
-+		if (info->ring_pages[i])
-+			put_page(info->ring_pages[i]);
- 
- 	if (info->mmap_size) {
- 		down_write(&ctx->mm->mmap_sem);
+What are your ideas about this?
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
 

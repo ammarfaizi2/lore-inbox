@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268056AbUHFOOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268058AbUHFOQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268056AbUHFOOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUHFOOg
+	id S268058AbUHFOQh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUHFOQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:14:36 -0400
-Received: from smtp.rol.ru ([194.67.21.9]:35707 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S268056AbUHFOOd (ORCPT
+	Fri, 6 Aug 2004 10:16:37 -0400
+Received: from users.linvision.com ([62.58.92.114]:55953 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S268058AbUHFOQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:14:33 -0400
-Message-ID: <411392E0.6080507@vlnb.net>
-Date: Fri, 06 Aug 2004 18:17:04 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040512
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
-References: <20040805200622.GA17324@logos.cnet>
-In-Reply-To: <20040805200622.GA17324@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Aug 2004 10:16:16 -0400
+Date: Fri, 6 Aug 2004 16:16:15 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040806141615.GC21660@harddisk-recovery.com>
+References: <200408061345.i76DjkT5005999@burner.fokus.fraunhofer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408061345.i76DjkT5005999@burner.fokus.fraunhofer.de>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So, is there any way to workaround this problem, i.e. prevent bit 
-operations reordering on non-x86 architectures? Some kinds of memory 
-barriers?
+On Fri, Aug 06, 2004 at 03:45:46PM +0200, Joerg Schilling wrote:
+> >Testing if at least CCS_SENSE_LEN (18) is supported...
+> >Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 03
+> 
+> Wonderful, so you just found another bug in the Linux kernel include files.
+> 
+> To fix: edit sg.h in the Linux kernel source tree and fix the value for
+> SG_MAX_QUEUE or if you believe you cannot change it, create a new #define
+> and document it......
 
-Vlad
+Uhm, it *is* documented:
 
-Marcelo Tosatti wrote:
-> Hi, 
-> 
-> Back when we were discussing the need for a memory barrier in sync_page(), 
-> it came to me (thanks Andrea!) that the bit operations can be perfectly 
-> reordered on architectures other than x86. 
-> 
-> I think the commentary on i386 bitops.h is misleading, its worth 
-> to note that that these operations are not guaranteed not to be 
-> reordered on different architectures. 
-> 
-> clear_bit() already does that:
-> 
->  * clear_bit() is atomic and may not be reordered.  However, it does
->  * not contain a memory barrier, so if it is used for locking purposes,
->  * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
->  * in order to ensure changes are visible on other processors.
-> 
-> What you think of the following
+In include/scsi/sg.h, line 255:
+
+/* maximum outstanding requests, write() yields EDOM if exceeded */
+#define SG_MAX_QUEUE 16
+
+SG_MAX_QUEUE has nothing to do with inquiry length but with the maximum
+number of queued commands (hence the name SG_MAX_QUEUE).
+
+I'm sorry, but I think Jens found a genuine bug in your program. IMHO
+it would increase your credits on this list if you admit it and fix the
+bug. If you don't, we'll keep this kind of linux-vs-cdrecord threads on
+lkml. That can't be the idea, cause we all just agreed that we wanted
+to keep the amount noise on this list low.
+
+
+BTW, you are right for the old SG implementations. Line 267 of
+include/scsi/sg.h:
+
+/* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+/*   The older SG interface based on the 'sg_header' structure follows.   */
+/* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+
+#define SG_MAX_SENSE 16   /* this only applies to the sg_header interface */
+
+You're free to use old and deprecated implementations but don't file
+bugs against them cause they are old and deprecated for a reason.
+
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

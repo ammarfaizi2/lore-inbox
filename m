@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270709AbTHSOhU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 10:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270695AbTHSOhL
+	id S270691AbTHSOzN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 10:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270700AbTHSOzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 10:37:11 -0400
-Received: from granite.aspectgroup.co.uk ([212.187.249.254]:12527 "EHLO
-	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
-	id S270709AbTHSOgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 10:36:40 -0400
-Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-From: Richard Underwood <richard@aspectgroup.co.uk>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "'David S. Miller'" <davem@redhat.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
-Date: Tue, 19 Aug 2003 15:34:43 +0100
+	Tue, 19 Aug 2003 10:55:13 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:2970 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S270691AbTHSOzJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 10:55:09 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: linux-kernel@vger.kernel.org
+Subject: Surges of repeated input events in 2.6.0-test3-bk1?
+Date: Tue, 19 Aug 2003 06:09:44 -0400
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308190609.44691.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> You increase it and you shortcut on shared lans. Thats really a seperate
-> issue to the question of which source is used. If you loopback someone
-> elses address on your own lo device I'm not suprised weird 
-> shit happens, put the alias on eth0 where it belongs.
-> 
-	Woah! I'm not talking about JUST load-balanced networks. This is a
-far more generic problem.
+Every once in a while, I'll get a surge of repeated input events, repeating 
+really fast for about half a second.  Just now it was the m key repeating 
+really fast for about half a second when I only hit it once, and before that 
+I was scrolling a window down using the down arrow under the scrollbar with 
+the rat, and it surged down for about half a second when I only clicked it 
+once.  (Each time the result was equal to a half-dozen clicks/keypresses when 
+I only did one...)
 
-	As an example, I have a router/firewall for the office that has two
-interface cards, both with perfectly valid internal addresses - these
-addresses aren't used anywhere else on the network.
+Judging by the loadmeter thing in kde, this seems to coincide with a spike of 
+red (system) CPU usage.  Not a clue what causes that, KDE is up and it's got 
+background processes out the wazoo...
 
-	Two of the interfaces are: 172.20.240.2/24 and 172.24.0.1/16. My
-default gateway is 172.20.240.1 and there aren't any other non-interface
-routes. If I do:
+Just thought I'd yell.  Vanilla test3-bk1, no patches applied at the moment.  
+Running on an otherwise stock Red Hat 9 system.  (Everything compiled 
+monolithic, so I didn't even have to change modutils.)  I'll upgrade to a 
+newer kernel in a bit and let you know if it happens more.  (It's not exactly 
+a common thing, I've seen it twice in the past hour.  It's annoying when it 
+happens, though...)
 
-# arp -d 172.24.0.80
-# ping -I 172.20.240.2 172.24.0.80
+(It's like the release event is getting delayed by some kind of latency spike, 
+but some kind of ultra-fast repeat mechanism's triggering immediately...)
 
-	I see:
+Rob
 
-16:18:40.856328 arp who-has 172.24.0.80 tell 172.20.240.2
-16:18:40.856431 arp reply 172.24.0.80 is-at 0:50:da:44:f:37
 
-	Now, since 172.24.0.80 is a Linux box, it's happily adding
-172.20.240.2 into its ARP table and reply to it, hence the reply.
-
-	But if I was to do this in the other direction (arp -d 172.20.240.1;
-ping -I 172.24.0.1 172.20.240.1) then I'd lose connectivity over my default
-route because 172.20.240.1 won't accept ARP packets from IP numbers not on
-the connected subnet. The <incomplete> ARP entry will block any further ARP
-requests from valid IP numbers.
-
-	This, in my opinion, isn't on. There must be thousands of Linux
-installations out there that (1) have more than one interfaces and (2) are
-connected to routers or firewalls that drop ARP requests in the same way. 
-
-	Actually, it's not that bad in this case as the next hop will
-probably send an ARP request at some point which will override it - but
-that's really not the point.
-
-	If the routeing was asymetric, or the next hop had a static ARP
-entry for me, all communication would quite simply be lost. It'd just take
-the first packet after an ARP entry times out to be from the wrong IP
-address, and the host would be off the net.
-
-	I personally don't think "shared LANs" should be favoured over best
-practice. Even in the case of shared LANs, nothing "breaks" as David Miller
-suggests would happen if the ARPs were fixed.
-
-	Thanks,
-
-		Richard

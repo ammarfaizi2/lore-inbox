@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262176AbRENGdL>; Mon, 14 May 2001 02:33:11 -0400
+	id <S262249AbRENGfv>; Mon, 14 May 2001 02:35:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbRENGdB>; Mon, 14 May 2001 02:33:01 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:40462 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S262176AbRENGcs>;
-	Mon, 14 May 2001 02:32:48 -0400
-Date: Mon, 14 May 2001 00:11:50 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "C.Praveen" <cpraveen@cs.iastate.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Crash
-In-Reply-To: <E14wmVW-0003af-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0105131602370.1146-100000@presario>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262235AbRENGfb>; Mon, 14 May 2001 02:35:31 -0400
+Received: from mail3.noris.net ([62.128.1.28]:34715 "EHLO mail3.noris.net")
+	by vger.kernel.org with ESMTP id <S262196AbRENGf2>;
+	Mon, 14 May 2001 02:35:28 -0400
+From: "Matthias Urlichs" <smurf@noris.de>
+Date: Mon, 14 May 2001 08:35:23 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Re: Getting FS access events
+Message-ID: <20010514083523.C801@noris.de>
+In-Reply-To: <1ete23o.p2cfoe1jnm0e0M%smurf@noris.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1ete23o.p2cfoe1jnm0e0M%smurf@noris.de>; from smurf@noris.de on Mon, May 14, 2001 at 08:26:30AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 7 May 2001, Alan Cox wrote:
-
-> > Is it possible to screw up the hardware entirely from software? I made
+Richard Gooch <rgooch@ras.ucalgary.ca>:
+> > 
+> OK, provided the prefetch will queue up a large number of requests
+> before starting the I/O. If there was a way of controlling when the
+> I/O actually starts (say by having a START flag), that would be ideal,
+> I think.
 > 
-> In an abstract theoretical sense yes. Accidentally almost impossible.
+The START flag is equivalent to the first actual read, whereupon the
+elevator code will do the Right Thing.
 
-There _were_ some viruses (in M$ world) that added "expensive" operations
-to every disk access, such as reading from the extreme ends of the disk,
-so that the head of the hard disk might eventually fail.
+> That opens up a nasty race: if the dentry is released before the
+> pointer is harvested, you get a bogus pointer.
+> 
+You simply increase the reference count of every dentry you visit, and
+free it when the log is read.
 
-Also, I have heard a hum coming out of a slightly old monitor (optiplex)
-when set to run X with high resolutions (well above horizontal/vertical
-frequency limits). This monior eventually failed when operating in the
-_safe_ regime. However, I suspect that this was a problem with the monitor
-rather than software.
+> How's that? It won't matter if read(2) synchronises, because I'll be
+> issuing the requests in device bnum order.
+> 
+Of course it does, because the kernel needs to wait for the next read()
+system call from your application, which it can only do after the first
+one completes, which adds another delay which will slow you down,
+especially with high-latency I/O protocols.
 
-Regards,
-
-Anuradha
-
-
-
+-- 
+Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/

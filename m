@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262387AbSK0MKx>; Wed, 27 Nov 2002 07:10:53 -0500
+	id <S262395AbSK0MLu>; Wed, 27 Nov 2002 07:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262395AbSK0MKx>; Wed, 27 Nov 2002 07:10:53 -0500
-Received: from p0097.as-l043.contactel.cz ([194.108.242.97]:49139 "EHLO
-	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
-	id <S262387AbSK0MKw> convert rfc822-to-8bit; Wed, 27 Nov 2002 07:10:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: PCI serial card with PCI 9052?
-References: <m3smxx1aaf.fsf@Janik.cz> <20021120095618.GB319@pazke.ipt>
-	<m3fztrcinh.fsf@Janik.cz>
-	<20021124114307.A25408@flint.arm.linux.org.uk>
-	<m3vg2naupr.fsf@Janik.cz> <20021125094828.GA6016@pazke.ipt>
-	<m3hee55qc6.fsf@Janik.cz> <m33cpn5jqm.fsf@Janik.cz>
-	<20021127120647.GA401@pazke.ipt>
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Wed, 27 Nov 2002 13:21:21 +0100
-In-Reply-To: <20021127120647.GA401@pazke.ipt> (Andrey Panin's message of
- "Wed, 27 Nov 2002 15:06:47 +0300")
-Message-ID: <m3fztn430e.fsf@Janik.cz>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i386-suse-linux-gnu)
+	id <S262415AbSK0MLu>; Wed, 27 Nov 2002 07:11:50 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:55097
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262395AbSK0MLr>; Wed, 27 Nov 2002 07:11:47 -0500
+Date: Wed, 27 Nov 2002 07:18:54 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Andika Triwidada <andika@research.indocisc.com>,
+       Kernel Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "" <linux-net@vger.kernel.org>
+Subject: Re: [PATCH] drivers/net/Makefile
+In-Reply-To: <20021126212532.GC21307@fs.tum.de>
+Message-ID: <Pine.LNX.4.50.0211270716580.1462-100000@montezuma.mastecende.com>
+References: <20021103053017.GB29448@research.indocisc.com>
+ <20021126212532.GC21307@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrey Panin <pazke@orbita1.ru>
-   Date: Wed, 27 Nov 2002 15:06:47 +0300
+On Tue, 26 Nov 2002, Adrian Bunk wrote:
 
-Hi,
+> It has definitely nothing to do with CONFIG_PCMCIA_PCNET.
+>
+> The following (untested) patch should be correct:
+>
+> --- linux-2.5.49/drivers/net/Makefile.old	2002-11-26 22:20:27.000000000 +0100
+> +++ linux-2.5.49/drivers/net/Makefile	2002-11-26 22:21:34.000000000 +0100
+> @@ -79,6 +79,7 @@
+>  obj-$(CONFIG_MAC8390) += mac8390.o 8390.o
+>  obj-$(CONFIG_APNE) += apne.o 8390.o
+>  obj-$(CONFIG_PCMCIA_PCNET) += 8390.o
+> +obj-$(CONFIG_PCMCIA_SMC91C92) += mii.o
+>  obj-$(CONFIG_SHAPER) += shaper.o
+>  obj-$(CONFIG_SK_G16) += sk_g16.o
+>  obj-$(CONFIG_HP100) += hp100.o
 
-   > > I find more info about that card - it is MP9050 by
-   > > http://www.megapower-int.com.tw/.
-   > 
-   > Does it support baudrates more than 115200 per manufacturer description ?
+That looks correct, i probably broke that when i added stuff from mii.c
+without modifying the Makefile
 
-they do not tell anything about their products :-(
+Thanks,
+	Zwane
 -- 
-Pavel Janík
-
-Were you born rude, or did you have to practice it?
-                  -- Richard Gooch in LKML
+function.linuxpower.ca

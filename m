@@ -1,72 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVBVXE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVBVXGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVBVXE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 18:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVBVXE1
+	id S261328AbVBVXGw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 18:06:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVBVXGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 18:04:27 -0500
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:29057 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261327AbVBVXEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 18:04:22 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] ALPS: do not activate on unsupported models
-Date: Tue, 22 Feb 2005 18:04:18 -0500
-User-Agent: KMail/1.7.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Peter Osterlund <petero2@telia.com>,
-       Vojtech Pavlik <vojtech@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 18:06:52 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:34193 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261328AbVBVXGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 18:06:48 -0500
+Date: Tue, 22 Feb 2005 15:06:34 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Malcolm Rowe <malcolm-linux@farside.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block
+Message-ID: <20050222230634.GB16383@taniwha.stupidest.org>
+References: <courier.4217CBC9.000027C1@mail.farside.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502221804.19149.dtor_core@ameritech.net>
+In-Reply-To: <courier.4217CBC9.000027C1@mail.farside.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Feb 19, 2005 at 11:29:13PM +0000, Malcolm Rowe wrote:
 
-It feels like 2.6.11 is right around the corner. I would like to disable
-ALPS suport for some devices we don't know how to handle properly yet
-to cut down on number of complaints that we broke mouse support.
+> Following the discussion in [1], the attached patch creates
+> /sys/class/block as a symlink to /sys/block. The patch applies to
+> 2.6.11-rc4-bk7.
 
-Please consider applying the patch below.
-
--- 
-Dmitry
-
-===================================================================
-
-Input: ALPS - do not activate native mode for devices whose data
-       we can not handle yet.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
- alps.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-Index: dtor/drivers/input/mouse/alps.c
-===================================================================
---- dtor.orig/drivers/input/mouse/alps.c
-+++ dtor/drivers/input/mouse/alps.c
-@@ -34,7 +34,7 @@ static struct alps_model_info {
- 	unsigned char signature[3];
- 	unsigned char model;
- } alps_model_data[] = {
--	{ { 0x33, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
-+/*	{ { 0x33, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },	*/
- 	{ { 0x53, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
- 	{ { 0x53, 0x02, 0x14 },	ALPS_MODEL_GLIDEPOINT },
- 	{ { 0x63, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
-@@ -42,8 +42,8 @@ static struct alps_model_info {
- 	{ { 0x73, 0x02, 0x0a },	ALPS_MODEL_GLIDEPOINT },
- 	{ { 0x73, 0x02, 0x14 },	ALPS_MODEL_GLIDEPOINT },
- 	{ { 0x63, 0x02, 0x28 },	ALPS_MODEL_GLIDEPOINT },
--	{ { 0x63, 0x02, 0x3c },	ALPS_MODEL_GLIDEPOINT },
--	{ { 0x63, 0x02, 0x50 },	ALPS_MODEL_GLIDEPOINT },
-+/*	{ { 0x63, 0x02, 0x3c },	ALPS_MODEL_GLIDEPOINT },	*/
-+/*	{ { 0x63, 0x02, 0x50 },	ALPS_MODEL_GLIDEPOINT },	*/
- 	{ { 0x63, 0x02, 0x64 },	ALPS_MODEL_GLIDEPOINT },
- 	{ { 0x20, 0x02, 0x0e },	ALPS_MODEL_DUALPOINT },
- 	{ { 0x22, 0x02, 0x0a },	ALPS_MODEL_DUALPOINT },
+Shouldn't we really move /sys/block to /sys/class/block and put the
+symlink from there to /sys/block with the hope of removing it one day?

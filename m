@@ -1,84 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312805AbSDFVSr>; Sat, 6 Apr 2002 16:18:47 -0500
+	id <S312842AbSDFVgi>; Sat, 6 Apr 2002 16:36:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312813AbSDFVSq>; Sat, 6 Apr 2002 16:18:46 -0500
-Received: from gw.wmich.edu ([141.218.1.100]:23944 "EHLO gw.wmich.edu")
-	by vger.kernel.org with ESMTP id <S312805AbSDFVSp>;
-	Sat, 6 Apr 2002 16:18:45 -0500
-Subject: Re: more on 2.4.19pre... & swsusp
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: brian@worldcontrol.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020406200918.GA1535@top.worldcontrol.com>
-Content-Type: text/plain
+	id <S312843AbSDFVgh>; Sat, 6 Apr 2002 16:36:37 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:38320 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S312842AbSDFVgg>; Sat, 6 Apr 2002 16:36:36 -0500
+Date: Sat, 06 Apr 2002 13:37:17 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Byron Stanoszek <gandalf@winds.org>, Jeremy Jackson <jerj@coplanar.net>
+cc: linux-kernel@vger.kernel.org, ebiederm@xmission.com
+Subject: Re: Faster reboots - calling _start?
+Message-ID: <1745393533.1018100235@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.44.0204061201281.7190-100000@winds.org>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 06 Apr 2002 16:18:38 -0500
-Message-Id: <1018127923.4270.60.camel@psuedomode>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-06 at 15:09, brian@worldcontrol.com wrote:
-> I found a .config difference between my 2.4.19-pre5-ac3 setup
-> and my 2.4.19-pre6 (swsusp v0.8 patched) setup.
-> 
-> After making both the same, both generally oops in the same place
-> as previously reported (oops via ksymoops previously posted).
-> 
-> Findings thus far:
-> 
->    swsusp says it doesn't need APM. But it does. at least so far
->    as menuconfig is concerned.
-This is an error in the AC branch.   WOLK 3.2 configs fine.
+> Wouldn't it be easier to just ljmp to the start address of the kernel in
+> memory (the address after the bootloader has done its thing), effectively
+> restarting the kernel from line 1? Or is tehre an issue with some
+> hardware being in an invalid state when doing this?
 
+Two issues with that:
 
->    With apm loaded (or built) in the kernel swsusp says it can't
->    terminate/kill kapmd and gives up.
-> 
->    With apm *not* loaded in the kernel swsusp oopses as previously
->    reported.
-> 
-> Nice repeatable behavior.
-> 
-> Documentation/swsusp.txt which is repeatedly refered to does not
-> exist, either in the ac version or the v0.8 patch.
+1. I want to be able to boot a different kernel on reboot - this
+is a development machine.
 
-Does not exist in the WOLK 3.2 release either. all documentation on
-swsusp is horribly outdated.  I believe the website posts 2.4.9 as the
-latest kernel it's been patched against. 
+2. I believe we free all the __init stuff around the end of
+start_kernel, so the initial functions and data just aren't 
+there any more ... of course that could be changed, but it's
+both a more major change than I really want to do, and it still
+doesn't solve (1) ;-)
 
-> I have not been able to find the swsusp program which is also
-> refered to.
-
-all programs are simply scripts people have written to fascilitate
-suspending or resuming.  (turning off dma before suspending and such).  
-
-
-swsusp does not need apm or acpi.  IT does need magic sysrq or acpi
-however.  Which is something that's not quite documented.  Ie. You can't
-do sysrq d (c in WOLK) if you dont have magic sysrq compiled in.  And
-you can't echo "4" > /proc/acpi/sleep if you dont have acpi.  So one or
-the other is required.  This could be an example of why they're putting
-in a new build system for 2.5.  
-
-
-swsusp works for me in wolk3.2 but it doesn't use rmap. Seems like the
-swsusp patch was just hacked into ac so it would compile with little to
-no changes from wolk3.2.   
-
-Wolk 3.2 also uses the memeat patch which the list describes as being
-necessary for many people to not oops on suspend.   This is not in the
-ac branch.  
-
-
-On a different note.  Why doesn't the ac branch have ftpfs yet?  Besides
-the fact that it sometimes has problems with ls'ing a directory because
-of a . handle error,  using mc to navigate works perfectly.  It deserves
-a wider test audiance. Mounting ftp sites is a so amazingly convenient
-it's hard to overestimate the coolness of ftpfs.  It patches cleanly
-against the current ac as is.  
-
-http://ftpfs.sourceforge.net/ 
+M.
 

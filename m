@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266411AbTADHxI>; Sat, 4 Jan 2003 02:53:08 -0500
+	id <S266408AbTADHwc>; Sat, 4 Jan 2003 02:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266431AbTADHxI>; Sat, 4 Jan 2003 02:53:08 -0500
-Received: from sullivan.realtime.net ([205.238.132.76]:34310 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id <S266411AbTADHxG>; Sat, 4 Jan 2003 02:53:06 -0500
-Date: Sat, 4 Jan 2003 02:01:38 -0600 (CST)
-Message-Id: <200301040801.h0481cf00212@sullivan.realtime.net>
-To: linux-kernel@vger.kernel.org
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@digeo.com>
-Subject: [PATCH] fix CONFIG_DEVFS=y root=<number>
-From: Milton Miller <miltonm@bga.com>
+	id <S266411AbTADHwc>; Sat, 4 Jan 2003 02:52:32 -0500
+Received: from canela.sanfelipe.com.mx ([200.33.143.226]:60944 "EHLO
+	canela.sanfelipe.com.mx") by vger.kernel.org with ESMTP
+	id <S266408AbTADHwb>; Sat, 4 Jan 2003 02:52:31 -0500
+Message-Id: <200301040655.WAA08576@ann.qtpi.lakewood.ca.us>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: rms@gnu.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed 
+ source drivers?
+In-Reply-To: Message from Richard Stallman <rms@gnu.org> 
+   of "Fri, 03 Jan 2003 15:30:56 EST." <E18UYT2-0004xV-00@fencepost.gnu.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 Jan 2003 22:55:23 -0800
+From: Bob Taylor <brtaylor@canela.sanfelipe.com.mx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based on a patch by Adam J. Richter <adam@yggdrasil.com> [1], this fixes
-the problem since 2.5.47 with mounting a devfs=y system with root=<number>
+In message <E18UYT2-0004xV-00@fencepost.gnu.org>, Richard 
+Stallman writes:
 
-sys_get_dents64 returns -EINVAL if there is not space for an entry, so
-we need to activate the loop code to expand the buffer.  
+[snip]
 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103762980207529&w=2
-Tested with 2.5.53-um2
+> The free software movement has always existed within Capitalism, and
+> fits within the Capitalist system.  Our views have little in common
+> with Communism--we encourage business as long as it respects other
+> people's freedom to cooperate.  Nothing could be more different from
+> the command economy that failed than the decentralized free software
+> community.
+> 
+> Inaccurate though it is, our enemies sometimes call us Communists.
+> Perhaps because Communism is easier to attack than our real views.
+
+The former Soviet Union *was not* a communist system. Look up 
+their *full* name. Your views are Socialist pure and simple. 
+Didn't work for them.  Sadly for you neither can you.
+
+[snip]
+
+-- 
++---------------------------------------------------------------+
+| Bob Taylor             Email: brtaylor@sanfelipe.com.mx       |
+|---------------------------------------------------------------|
+| Like the ad says, at 300 dpi you can tell she's wearing a     |
+| swimsuit. At 600 dpi you can tell it's wet. At 1200 dpi you   |
+| can tell it's painted on. I suppose at 2400 dpi you can tell  |
+| if the paint is giving her a rash. (So says Joshua R. Poulson)|
++---------------------------------------------------------------+
 
 
-diff -Nru a/init/do_mounts.c b/init/do_mounts.c
---- a/init/do_mounts.c	Sat Jan  4 00:14:34 2003
-+++ b/init/do_mounts.c	Sat Jan  4 00:14:34 2003
-@@ -333,7 +333,7 @@
- 	for (bytes = 0, p = buf; bytes < len; bytes += n, p+=n) {
- 		n = sys_getdents64(fd, p, len - bytes);
- 		if (n < 0)
--			return -1;
-+			return n;
- 		if (n == 0)
- 			return bytes;
- 	}
-@@ -361,7 +361,7 @@
- 			return p;
- 		}
- 		kfree(p);
--		if (n < 0)
-+		if (n < 0 && n != -EINVAL)
- 			break;
- 	}
- 	close(fd);

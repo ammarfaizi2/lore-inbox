@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264720AbSJUDx1>; Sun, 20 Oct 2002 23:53:27 -0400
+	id <S264722AbSJUD5b>; Sun, 20 Oct 2002 23:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264722AbSJUDx1>; Sun, 20 Oct 2002 23:53:27 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:38215 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S264720AbSJUDx0>; Sun, 20 Oct 2002 23:53:26 -0400
-Date: Sun, 20 Oct 2002 21:07:40 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Roman Zippel <zippel@linux-m68k.org>, <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>, <akpm@zip.com.au>, <davej@suse.de>,
-       <davem@redhat.com>, Guillaume Boissiere <boissiere@adiglobal.com>,
-       <mingo@redhat.com>
-Subject: Re: 2.6: Shortlist of Missing Features
-In-Reply-To: <20021021135137.2801edd2.rusty@rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0210202105570.13602-100000@nakedeye.aparity.com>
+	id <S264723AbSJUD5b>; Sun, 20 Oct 2002 23:57:31 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:56528 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S264722AbSJUD5a> convert rfc822-to-8bit; Sun, 20 Oct 2002 23:57:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: Bill Davidsen <davidsen@tmr.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: kexec for 2.5.44 (Who do I send this to?)
+Date: Sun, 20 Oct 2002 18:02:54 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+References: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210201802.54991.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, Rusty Russell wrote:
-|>On Sun, 20 Oct 2002 14:59:58 +0200 (CEST)
-|>Roman Zippel <zippel@linux-m68k.org> wrote:
-|>> But now would be a good time to recapitulate things which Linus might have
-|>> forgotten in the patching frenzy.
-|>
-|>Yes.  If we only consider new arch-independent features which are actively
-|>being pushed at the moment and are feature complete, I get the following
-|>(much stolen from Guilluame: thanks!):
-|>
-|>- Build option for Linux Trace Toolkit (LTT)  (Karim Yaghmour)  
-|>- Kernel Probes  (Vamsi Krishna S)
-|>- High resolution timers  (George Anzinger, etc.)  
-|>- EVMS (Enterprise Volume Management System)  (EVMS team)  
-|>- Device Mapper (lvm2)	(Alasdair Kergon, Patrick Caulfield, Joe Thornber)
-|>- New config system (Roman Zippel)
-|>- In-kernel module loader (Rusty Russell)
-|>- Unified boot/parameter support (Rusty Russell)
-|>- Hotplug CPU removal (Rusty Russell)
-|>- ext2/ext3 extended attribute & ACLs support (Ted Ts'o)
-|>
-|>The rest (eg. hyperthread-aware scheduler, connection tracking optimizations)
-|>don't really qualify as major new features as far as I can tell.
+On Saturday 19 October 2002 14:23, Bill Davidsen wrote:
+> On 19 Oct 2002, Eric W. Biederman wrote:
+> > The kexec code has gone through a fairly decent review, and all known
+> > bugs are resolved.  There are still BIOS's that don't work after you have
+> > run a kernel but that is an entirely different problem.
+> >
+> > My real question: With Linus off on vacation my real question is who
+> > should I send this to?
+>
+> I believe Linus explicitly said he wasn't going to tell anyone, which
+> means we're back to the days of "through it on the list over and over
+> until someone admits to seeing it." Or send it to everyone who might be
+> willing to push it to Linus when he gets back.
+>
+> By not accepting stuff at this point I would guess that the defacto freeze
+> is here. Hope I'm wrong, there is some good stuff which would be ready by
+> Oct 31.
 
-I would think that LKCD fits in here.  It's a feature, and important
-to include as far as my team (and a number of distribution and OEMs)
-believe.
+Linus implied there would be one more last minute surge of merges.  (Why else 
+have people patch hoovering for anything other than bugs in the meantime?)
 
-|>To ensure none of these get simply missed (rather than an actual decision
-|>not to include them), it'd be nice to actually get "NAK"s once Linus gets
-|>back.  And at least if we have a finite "possible" list, we can judge how
-|>frozen we really are.
-|>
-|>It's a relatively short list: how many am I missing?  (Dave?)
-|>Rusty.
+Probably the best thing to do is assemble a list of candidates, well-tested 
+patches that have been up on the list and with as many endorsements from 
+testers going "AOL!" as possible.  The last go-through when lkinus gets back 
+is probably going to be simple thumbs-up thumbs down on each entry in the 
+pending feature list, and then into the 3.0-pre series...
 
-Please put LKCD in the list.
+The current "pending feature list" would probably be here:
 
---Matt
+http://kernelnewbies.org/status/
 
+Specifically:
+
+o in -ac PCMCIA Zoom video support (Alan Cox) 
+o in -ac Device mapper for Logical Volume Manager (LVM2)  (LVM2 team) 
+o in -mm VM large page support  (Many people) 
+o in -mm  Page table sharing  (Daniel Phillips, Dave McCracken) 
+
+o Ready  Build option for Linux Trace Toolkit (LTT) (Karim Yaghmour) 
+o Ready Dynamic Probes (dprobes team) 
+o Ready Zerocopy NFS (Hirokazu Takahashi) 
+o Ready High resolution timers (George Anzinger, etc.) 
+o Ready EVMS (Enterprise Volume Management System) (EVMS team) 
+o Ready Linux Kernel Crash Dumps (Matt Robinson, LKCD team) 
+o Ready Rewrite of the console layer (James Simmons) 
+
+If you're not on this list, contact Guillaume, or start your own list of 
+"final merge candidates"...
+
+Rob

@@ -1,116 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUEKJwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUEKJxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUEKJwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 05:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUEKJwK
+	id S262730AbUEKJxU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 05:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUEKJxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 05:52:10 -0400
-Received: from maximus.kcore.de ([213.133.102.235]:23352 "EHLO
-	maximus.kcore.de") by vger.kernel.org with ESMTP id S262476AbUEKJwC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 05:52:02 -0400
-From: Oliver Feiler <kiza@gmx.net>
-To: Andrew Morton <akpm@osdl.org>, John McGowan <jmcgowan@inch.com>
-Subject: Re: Kernel 2.6.6: Removing the last large file does not reset filesystem properties
-Date: Tue, 11 May 2004 11:53:32 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-References: <20040511002008.GA2672@localhost.localdomain> <20040511004956.70f7e17d.akpm@osdl.org>
-In-Reply-To: <20040511004956.70f7e17d.akpm@osdl.org>
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey
-X-Species: Snow Leopard
-X-Operating-System: Linux
+	Tue, 11 May 2004 05:53:20 -0400
+Received: from se1.ruf.uni-freiburg.de ([132.230.2.221]:23771 "EHLO
+	se1.ruf.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S262730AbUEKJxD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 05:53:03 -0400
+X-Scanned: Tue, 11 May 2004 11:51:58 +0200 Nokia Message Protector V1.3.30 2004040916 - RELEASE
+To: Bart Samwel <bart@samwel.tk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch: doc. bug: Linux 2.6.6 laptop-mode 
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 11 May 2004 11:51:56 +0200
+Message-ID: <xb7pt9bqojn.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_jKKoAmdnj1obRn0";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405111153.39614.kiza@gmx.net>
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_jKKoAmdnj1obRn0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+The script  /etc/acpi/actions/battery.sh in the  document doesn't run,
+because of a wrong name.
 
-On Tuesday 11 May 2004 09:49, Andrew Morton wrote:
 
-> >   3: Was using Gimp 2.0 and used a tool. Got a 6 Gig swap file in
-> > /tmp/gimp2 (there must be a problem with that tool). Closed gimp, got r=
-id
-> > of the swap file. Upon the next boot I got:
-> >        FAILED!!
-> >        Dropping to root command line for system maintenance
-> >      (such fun ... entering the root password got more error messages
-> > about missing programmes such as "id" and "test" - well, I have "/usr" =
-on
-> > another partition and it was not mounted).
->
-> I think this is really an e2fsck/initscript problem.
->
-> fsck saw that there were no large files on the fs, then fixed up the
-> superblock to say that then returned an exit code which says "I modified
-> the fs".
->
-> The initscripts see that exit code and have a heart attack.
->
-> What should happen is that fsck returns an exit code which says "I modifi=
-ed
-> the fs, but everythig is OK".  And the initscripts should say "oh, cool"
-> and keep booting.
->
-> I don't know whether the problem lies with fsck or initscripts.
+--- linux-2.6.6/Documentation/laptop-mode.txt	2004/05/11 09:46:04	1.1
++++ linux-2.6.6-laptopmode-docfix/Documentation/laptop-mode.txt	2004/05/11 09:48:17	1.2
+@@ -466,29 +466,29 @@
+ ACAD_HD=244
+ BATT_HD=4
+ 
+ # ac/battery event handler
+ 
+ status=`awk '/^state: / { print $2 }' /proc/acpi/ac_adapter/AC/state`
+ 
+ case $status in
+         "on-line")
+                 echo "Setting HD spindown to 2 hours"
+-                /sbin/laptop-mode stop
++                /sbin/laptop_mode stop
+                 /sbin/hdparm -S $ACAD_HD /dev/hda > /dev/null 2>&1
+                 /sbin/hdparm -B 255 /dev/hda > /dev/null 2>&1
+                 #echo -n $ACAD_CPU:$ACAD_THR > /proc/acpi/processor/CPU0/limit
+                 exit 0
+         ;;
+         "off-line")
+                 echo "Setting HD spindown to 20 seconds"
+-                /sbin/laptop-mode start
++                /sbin/laptop_mode start
+                 /sbin/hdparm -S $BATT_HD /dev/hda > /dev/null 2>&1
+                 /sbin/hdparm -B 1 /dev/hda > /dev/null 2>&1
+                 #echo -n $BATT_CPU:$BATT_THR > /proc/acpi/processor/CPU0/limit
+                 exit 0
+         ;;
+ esac
+ ---------------------------/etc/acpi/actions/battery.sh END-------------------------------------------
+ 
+ Monitoring tool
+ ---------------
 
-Yes, it's an issue with the initscripts (I'd say). I stumbled over this=20
-problem as well when upgrading e2fsprogs on a fairly old Slackware install.=
-=20
-=46rom the manpage of fsck:
 
-The exit code returned by fsck is the sum of the following
-       conditions:
-            0    - No errors
-            1    - File system errors corrected
-            2    - System should be rebooted
-[...]
 
-The old Slackware init scripts (from 7.0 days I think) checked
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
 
- if [ $EXITCODE -gt 1 ] ; then
-panic!
-
-Newer fscks however also seem to return exit code 2 for "some errors=20
-corrected, please reboot". In Slack 9's initscripts this was changed to aut=
-o=20
-reboot in this case. I think this behaviour was changed in some version of=
-=20
-fsck, but I'm note sure.
-
-But admittedly I also got a slight heart attack when our server stopped=20
-booting with an error from fsck. ;)
-
-	Oliver
-
-=2D-=20
-Oliver Feiler  -  http://kiza.kcore.de/
-
---Boundary-02=_jKKoAmdnj1obRn0
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBAoKKjOpifZVYdT9IRAsVrAKDWK21S8riaNxYxkS5TODYKBBAQ9ACg0pI5
-aBJqxguh/MK13XVhdRA8UEc=
-=bfBj
------END PGP SIGNATURE-----
-
---Boundary-02=_jKKoAmdnj1obRn0--
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
 

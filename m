@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAORjL>; Mon, 15 Jan 2001 12:39:11 -0500
+	id <S129729AbRAORnB>; Mon, 15 Jan 2001 12:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130075AbRAORjB>; Mon, 15 Jan 2001 12:39:01 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:4620 "EHLO mx5.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S129401AbRAORix>;
-	Mon, 15 Jan 2001 12:38:53 -0500
-To: Wayne.Brown@altec.com
-Cc: Jeff Chua <jchua@fedex.com>, Alan Shutko <ats@acm.org>,
-        linux-kernel@silk.corp.fedex.com
-Subject: Re: linmodem????
-In-Reply-To: <862569D5.005B7D66.00@smtpnotes.altec.com>
-From: Gary Lawrence Murphy <garym@canada.com>
-X-Home-Page: http://www.teledyn.com
-Organization: T(c)Inc Business Innovation through Open Source Computing
-Date: 15 Jan 2001 12:37:22 -0500
-Message-ID: <m3lmscn2ct.fsf@maya.dyndns.org>
-Reply-To: Gary Lawrence Murphy <garym@canada.com>
-X-Url: http://www.teledyn.com/
-MIME-Version: 1.0
+	id <S129977AbRAORmw>; Mon, 15 Jan 2001 12:42:52 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:17912 "EHLO
+	lappi.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S129729AbRAORml>; Mon, 15 Jan 2001 12:42:41 -0500
+Date: Mon, 15 Jan 2001 15:41:24 -0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Anton Blanchard <anton@linuxcare.com.au>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+        linux-mm@frodo.biederman.org
+Subject: Re: Caches, page coloring, virtual indexed caches, and more
+Message-ID: <20010115154124.A17336@bacchus.dhis.org>
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org> <20010115095432.A14351@bacchus.dhis.org> <20010115235340.B31461@linuxcare.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010115235340.B31461@linuxcare.com>; from anton@linuxcare.com.au on Mon, Jan 15, 2001 at 11:53:40PM +1100
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 15, 2001 at 11:53:40PM +1100, Anton Blanchard wrote:
 
-And it works for me under Mandrake 7.1 on an acer330T; I haven't tried
-the 2.4 trick yet, and there was a simple patch to one include file to
-use ppp under 2.2.16, but beyond that, it works flawlessly.
+> > At least for sparc it's already supported.  Right now I don't feel like
+> > looking into the 2.4 solution but checkout srmmu_vac_update_mmu_cache in
+> > the 2.2 kernel.
+> 
+> I killed that hack now that we align all shared mmaps to the same virtual
+> colour:)
 
-for those who haven't found it, I have a help-page for Acer laptop
-users at http://www.teledyn.com/help/acer330T.html
+Did you find any software that breaks due to the additional restriction
+on the virtual addresses of mappings?
 
--- 
-Gary Lawrence Murphy <garym@teledyn.com> TeleDynamics Communications Inc
-Business Innovations Through Open Source Systems: http://www.teledyn.com
-"Computers are useless.  They can only give you answers."(Pablo Picasso)
-
+  Ralf
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

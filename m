@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286374AbSAAXhL>; Tue, 1 Jan 2002 18:37:11 -0500
+	id <S286372AbSAAXkL>; Tue, 1 Jan 2002 18:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286372AbSAAXhC>; Tue, 1 Jan 2002 18:37:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14097 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286395AbSAAXg4>;
-	Tue, 1 Jan 2002 18:36:56 -0500
-Message-ID: <3C324816.488F2AA5@mandrakesoft.com>
-Date: Tue, 01 Jan 2002 18:36:54 -0500
+	id <S286382AbSAAXkD>; Tue, 1 Jan 2002 18:40:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18449 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286372AbSAAXjt>;
+	Tue, 1 Jan 2002 18:39:49 -0500
+Message-ID: <3C3248C2.A3707471@mandrakesoft.com>
+Date: Tue, 01 Jan 2002 18:39:46 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
@@ -15,66 +15,92 @@ X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>,
         Linux-Kernel list <linux-kernel@vger.kernel.org>
-CC: viro@math.psu.edu
-Subject: PATCH 2.5.2.6: fix up serial, sysrq
+CC: "David S. Miller" <davem@redhat.com>
+Subject: PATCH 2.5.2.6: fix netlink
 Content-Type: multipart/mixed;
- boundary="------------347F065D0CF87611B8021295"
+ boundary="------------46AD2C6D2A3DFE1A43BDBB69"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------347F065D0CF87611B8021295
+--------------46AD2C6D2A3DFE1A43BDBB69
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-The kdev_none change might not be correct, please check.  It's the place
-in sysrq where the code immediately above syncs local disks, and then
-syncs non-local disks.  The better change might be to simply remove the
-second check altogether, instead of changing it as I have done.
+Now my kernel builds.  On to "make modules"... :)
+
+netlink uses minor number as an index into an array, and correctly
+checks to make sure array-OOB does not occur.  So, this is patch is an
+obvious one...
+ 
 -- 
 Jeff Garzik      | Only so many songs can be sung
 Building 1024    | with two lips, two lungs, and one tongue.
 MandrakeSoft     |         - nomeansno
---------------347F065D0CF87611B8021295
+--------------46AD2C6D2A3DFE1A43BDBB69
 Content-Type: text/plain; charset=us-ascii;
- name="char.patch"
+ name="netlink.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="char.patch"
+ filename="netlink.patch"
 
-diff -u -r1.4 serial.c
---- drivers/char/serial.c	2002/01/01 22:41:09	1.4
-+++ drivers/char/serial.c	2002/01/01 23:19:45
-@@ -5827,7 +5827,7 @@
- 
- static kdev_t serial_console_device(struct console *c)
+diff -u -r1.1.1.1 netlink_dev.c
+--- net/netlink/netlink_dev.c	2001/11/09 22:12:55	1.1.1.1
++++ net/netlink/netlink_dev.c	2002/01/01 23:20:06
+@@ -41,7 +41,7 @@
+  
+ static unsigned int netlink_poll(struct file *file, poll_table * wait)
  {
--	return MKDEV(TTY_MAJOR, 64 + c->index);
-+	return mk_kdev(TTY_MAJOR, 64 + c->index);
- }
+-	struct socket *sock = netlink_user[MINOR(file->f_dentry->d_inode->i_rdev)];
++	struct socket *sock = netlink_user[minor(file->f_dentry->d_inode->i_rdev)];
  
- /*
-diff -u -r1.2 sysrq.c
---- drivers/char/sysrq.c	2001/12/11 04:04:49	1.2
-+++ drivers/char/sysrq.c	2002/01/01 23:19:45
+ 	if (sock->ops->poll==NULL)
+ 		return 0;
+@@ -56,7 +56,7 @@
+ 			     size_t count, loff_t *pos)
+ {
+ 	struct inode *inode = file->f_dentry->d_inode;
+-	struct socket *sock = netlink_user[MINOR(inode->i_rdev)];
++	struct socket *sock = netlink_user[minor(inode->i_rdev)];
+ 	struct msghdr msg;
+ 	struct iovec iov;
+ 
+@@ -80,7 +80,7 @@
+ 			    size_t count, loff_t *pos)
+ {
+ 	struct inode *inode = file->f_dentry->d_inode;
+-	struct socket *sock = netlink_user[MINOR(inode->i_rdev)];
++	struct socket *sock = netlink_user[minor(inode->i_rdev)];
+ 	struct msghdr msg;
+ 	struct iovec iov;
+ 
 @@ -105,7 +105,7 @@
- /* Guesses if the device is a local hard drive */
- static int is_local_disk(kdev_t dev) {
- 	unsigned int major;
--	major = MAJOR(dev);
-+	major = major(dev);
  
- 	switch (major) {
- 	case IDE0_MAJOR:
-@@ -206,7 +206,7 @@
- 	for (sb = sb_entry(super_blocks.next);
- 	     sb != sb_entry(&super_blocks); 
- 	     sb = sb_entry(sb->s_list.next))
--		if (!is_local_disk(sb->s_dev) && MAJOR(sb->s_dev))
-+		if (!is_local_disk(sb->s_dev) && !kdev_none(sb->s_dev))
- 			go_sync(sb, remount_flag);
+ static int netlink_open(struct inode * inode, struct file * file)
+ {
+-	unsigned int minor = MINOR(inode->i_rdev);
++	unsigned int minor = minor(inode->i_rdev);
+ 	struct socket *sock;
+ 	struct sockaddr_nl nladdr;
+ 	int err;
+@@ -137,7 +137,7 @@
  
- 	unlock_kernel();
+ static int netlink_release(struct inode * inode, struct file * file)
+ {
+-	unsigned int minor = MINOR(inode->i_rdev);
++	unsigned int minor = minor(inode->i_rdev);
+ 	struct socket *sock;
+ 
+ 	sock = netlink_user[minor];
+@@ -151,7 +151,7 @@
+ static int netlink_ioctl(struct inode *inode, struct file *file,
+ 		    unsigned int cmd, unsigned long arg)
+ {
+-	unsigned int minor = MINOR(inode->i_rdev);
++	unsigned int minor = minor(inode->i_rdev);
+ 	int retval = 0;
+ 
+ 	if (minor >= MAX_LINKS)
 
---------------347F065D0CF87611B8021295--
+--------------46AD2C6D2A3DFE1A43BDBB69--
 

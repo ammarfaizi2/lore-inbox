@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263031AbTC2Bxm>; Fri, 28 Mar 2003 20:53:42 -0500
+	id <S263374AbTC2CCm>; Fri, 28 Mar 2003 21:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263079AbTC2Bxm>; Fri, 28 Mar 2003 20:53:42 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:13816 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S263031AbTC2Bxl>; Fri, 28 Mar 2003 20:53:41 -0500
-Date: Fri, 28 Mar 2003 18:03:03 -0800
-From: Chris Wright <chris@wirex.com>
-To: Shaya Potter <spotter@yucs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: process creation/deletions hooks
-Message-ID: <20030328180303.A26128@figure1.int.wirex.com>
-Mail-Followup-To: Shaya Potter <spotter@yucs.org>,
-	linux-kernel@vger.kernel.org
-References: <1048799290.31010.62.camel@zaphod>
+	id <S263377AbTC2CCm>; Fri, 28 Mar 2003 21:02:42 -0500
+Received: from ip64-75-165-104.hsia.aloha.net ([64.75.165.104]:384 "EHLO
+	backup.mbcloans.com") by vger.kernel.org with ESMTP
+	id <S263374AbTC2CCl>; Fri, 28 Mar 2003 21:02:41 -0500
+Date: Fri, 28 Mar 2003 18:13:51 -0800
+From: Lee Howard <faxguy@howardsilvan.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at buffer.c:509!
+Message-ID: <20030329021351.GC26881@bilbo.x101.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1048799290.31010.62.camel@zaphod>; from spotter@yucs.org on Thu, Mar 27, 2003 at 04:08:10PM -0500
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Shaya Potter (spotter@yucs.org) wrote:
-> 
-> Would people be for/against an interface that allows for modules to
-> register functions that can be called on process creation/deletion.  It
-> would help us avoid the hacks, such as I described, and I imagine could
-> have benefit others.
+Hello all.
 
-LSM provides hooks here already.  Take a look at lsm.immunix.org for
-more info.
+I'm assuming that this was a freak occurrence as it's the first time 
+it's ever happened, but...
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Running kernel 2.4.20 on an AMD Athlon XP.  This morning it crashed 
+just after some ftp-ing backup routines started.  Here's the log...
+
+Mar 28 02:10:22 backup ctl_cyrusdb[5015]: checkpointing cyrus databases
+Mar 28 02:10:22 backup ctl_cyrusdb[5015]: done checkpointing cyrus 
+databases
+Mar 28 02:14:39 backup ftpd[5017]: FTP LOGIN FROM 10.10.10.246 
+[10.10.10.246], backup
+Mar 28 02:14:49 backup kernel: kernel BUG at buffer.c:509!
+Mar 28 02:14:49 backup kernel: invalid operand: Mar 28 16:05:05 backup 
+syslogd 1.4-0: restart.
+Mar 28 16:05:05 backup syslog: syslogd startup succeeded
+Mar 28 16:05:05 backup kernel: klogd 1.4-0, log source = /proc/kmsg 
+started.
+Mar 28 16:05:05 backup kernel: Inspecting /boot/System.map
+
+Hope it serves some purpose for someone.
+
+Thanks.
+
+Lee.

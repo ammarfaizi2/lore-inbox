@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSIYXk2>; Wed, 25 Sep 2002 19:40:28 -0400
+	id <S261487AbSIYXuS>; Wed, 25 Sep 2002 19:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbSIYXk1>; Wed, 25 Sep 2002 19:40:27 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:5760 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S261205AbSIYXk1>;
-	Wed, 25 Sep 2002 19:40:27 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Date: Wed, 25 Sep 2002 16:45:34 -0700
-User-Agent: KMail/1.4.7-cool
-References: <E17uINs-0003bG-00@think.thunk.org> <3D923E88.30104@pobox.com> <20020925232949.GA15765@think.thunk.org>
-In-Reply-To: <20020925232949.GA15765@think.thunk.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S261584AbSIYXuS>; Wed, 25 Sep 2002 19:50:18 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:42116 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261487AbSIYXuR>;
+	Wed, 25 Sep 2002 19:50:17 -0400
+Message-ID: <3D924D70.5060403@snapgear.com>
+Date: Thu, 26 Sep 2002 09:57:36 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209251645.40575.ryan@completely.kicks-ass.org>
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
+References: <3D913223.6060801@snapgear.com> <20020925154511.GG30339@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Greg,
 
-On September 25, 2002 16:29, Theodore Ts'o wrote:
-> There is also a 2.4.19 patch available as well:
->
-> 	http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.4.19-2
->
+Greg KH wrote:
+> The driver patches look good, and I didn't see anything wrong with the
+> exception of what Matthew already said.
+> 
+> But I did have a small question about the font:
+> 
+> 
+>>. Motorola 68328 framebuffer
+>>http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-fb.patch.gz
+> 
+> 
+> The % and & characters are the same.  Is this intentional?
 
-I got some pretty nasty results with that patch. After enabling the dir_index 
-superblock flag and running e2fsck -fD, the filesystem would spontaneously 
-remount itself read-only (I have errors=remount-ro set) after a few minutes 
-of use. Once I disabled dir_index, e2fsck picked up many duplicate blocks. 
-There doesn't appear to be any severe filesystem damage, however.
+No :-)
+Yank bug. Fixed now.
 
-- -Ryan 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Regards
+Greg
 
-iD8DBQE9kkqkLGMzRzbJfbQRAiiSAJwLFZSyHkG9WSGw6HY23g6i+N+z0QCggQEF
-ixJJJJLCe56O5lL51sTDgaE=
-=sywJ
------END PGP SIGNATURE-----
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

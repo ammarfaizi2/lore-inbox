@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317359AbSGTERG>; Sat, 20 Jul 2002 00:17:06 -0400
+	id <S317351AbSGTEcR>; Sat, 20 Jul 2002 00:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317361AbSGTERG>; Sat, 20 Jul 2002 00:17:06 -0400
-Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:32640 "EHLO
-	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
-	id <S317359AbSGTERF> convert rfc822-to-8bit; Sat, 20 Jul 2002 00:17:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/9] 2.5.6 lm_sensors
-Date: Sat, 20 Jul 2002 13:11:16 +0900
-User-Agent: KMail/1.4.2
-References: <Pine.LNX.4.44.0207192224280.1120-100000@waste.org> <200207192308.54936.kelledin+LKML@skarpsey.dyndns.org>
-In-Reply-To: <200207192308.54936.kelledin+LKML@skarpsey.dyndns.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207201311.16996.wom@tateyama.hu>
+	id <S317355AbSGTEcQ>; Sat, 20 Jul 2002 00:32:16 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:12163 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317351AbSGTEcQ>;
+	Sat, 20 Jul 2002 00:32:16 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] check shm mount succeeded in shmem_file_setup 
+In-reply-to: Your message of "Fri, 19 Jul 2002 10:02:21 EST."
+             <200207191502.KAA02022@ccure.karaya.com> 
+Date: Sat, 20 Jul 2002 14:19:39 +1000
+Message-Id: <20020720043607.090A241AC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 July 2002 13:08, Kelledin wrote:
-> > Anything short of "Destroy my precious Thinkpad? [y/N]"
-> > probably is insufficient. Frankly, I don't think even that's
-> > enough. Once this is mainlined, someone will want to build a
-> > kitchen sink distro kernel with sensor support and if the code
-> > itself isn't autodetecting whether it's on a problematic
-> > platform, it won't be long before someone boots their Thinkpad
-> > off a friend's CDR and toasts it.
->
-> I agree, the lm_sensors driver should maintain a blacklist for
-> ThinkPads, and make it possible to disable the blacklist only by
-> going in and hacking the kernel source manually.  Whenever the
-> lm_sensors drivers detect a blacklisted ThinkPad, they should
-> vehemently refuse to function.
+In message <200207191502.KAA02022@ccure.karaya.com> you write:
+> rusty@rustcorp.com.au said:
+> > And if the initialization fails at boot, we're screwed anyway. 
+> 
+> Why?  If it fails, it still boots fine until something tries using shared
+> memory.  With UML and my Debian fs, that's Apache, which is the last thing
+> before the gettys run.
 
-The blacklist thing is a good idea. Think for those who have been
-just started learning linux. They don't know what an EXPERIMANTAL
-status is. At my company there are only IBM ThinkPads and I hope
-some of the users will try running Linux (my suggestion) and they
-would be very upset if something went wrong.
+Same argument applies to lots of subsystems, but I'd suggest a policy:
+we should be failing the boot rather than coming partially up and
+trying to deal with failures that shouldn't happen.
 
-Who is so crazy that he wants to try it he can still modify the
-source.
+Unfortunately, we don't check init returns at boot, because we
+*expect* device driver initialization to fail for builtin device
+drivers who have found no device.  It'd be nice to standardize on
+-ENODEV for these failures, so we *could* handle these failures
+easily, and discourage the current sloppiness.
 
-Gabor
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

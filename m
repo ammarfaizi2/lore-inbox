@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135760AbRAGFKf>; Sun, 7 Jan 2001 00:10:35 -0500
+	id <S135754AbRAGFMZ>; Sun, 7 Jan 2001 00:12:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135778AbRAGFKZ>; Sun, 7 Jan 2001 00:10:25 -0500
-Received: from smtp.mountain.net ([198.77.1.35]:60425 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S135760AbRAGFKL>;
-	Sun, 7 Jan 2001 00:10:11 -0500
-Message-ID: <3A57FA27.348780BC@mountain.net>
-Date: Sun, 07 Jan 2001 00:09:59 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-prerelease i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S135768AbRAGFMP>; Sun, 7 Jan 2001 00:12:15 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:12296 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S135754AbRAGFMD>;
+	Sun, 7 Jan 2001 00:12:03 -0500
+Message-ID: <3A58097C.5BB52B5@candelatech.com>
+Date: Sat, 06 Jan 2001 23:15:24 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Johan Groth <jgroth@xpress.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel compile trouble
-In-Reply-To: <3A57D935.52C7F2C9@xpress.se>
+To: Chris Wedgwood <cw@f00f.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission 
+ policy!)
+In-Reply-To: <3A578F27.D2A9DF52@candelatech.com> <20010107162905.B1804@metastasis.f00f.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johan Groth wrote:
+Chris Wedgwood wrote:
 > 
-> Hi,
-> I wonder if anyone can help me with compilation of kernel 2.4.0. I've
-> run make mrproper; make menuconfig; make dep and then I try to build the
-> kernel with make bzImage but that fails utterly. I get the following
-> message:
-[...]
-> /usr/src/linux/include/asm/string.h: In function `__constant_memcpy3d':
-> /usr/src/linux/include/asm/string.h:305: `current' undeclared (first use
-> in this function)
-> /usr/src/linux/include/asm/string.h: In function `__memcpy3d':
-> /usr/src/linux/include/asm/string.h:312: `current' undeclared (first use
-> in this function)
-> make: *** [init/main.o] Error 1
+> On Sat, Jan 06, 2001 at 02:33:27PM -0700, Ben Greear wrote:
 > 
+>     I'm hoping that I can get a few comments on this code.  It was
+>     added to (significantly) speed up things like 'ifconfig -a' when
+>     running with 4000 or so VLAN devices.  It should also help other
+>     instances with lots of (virtual) devices, like FrameRelay, ATM,
+>     and possibly virtual IP interfaces.  It probably won't help
+>     'normal' users much, and in it's final form, should probably be a
+>     selectable option in the config process.
+> 
+> Virtual IP interfaces in the form of ifname:<number> (e.g. eth:1) IMO
+> should be deprecated and removed completely in 2.5.x. It's an ugly
+> external wart that should be removed.
 
-Hello,
+I don't know enough to have any serious opinion about virtual IP
+interfaces, but I am very certain that VLANs should appear as
+an interface to external code/user-land, just as eth0 does.
 
-You don't show your .config, but I'll make a wild guess you're compiling for
-SMP+3DNow (probably by selecting Athlon processor). If so pick one of:
-	a) Deselect SMP, make clean make dep, etc.
-	b) Downgrade processor selection to i686 or k6
-	c) See the patch I posted here Tuesday.
+This hashing helps with VLANs, and since I aim to get VLANs into
+the kernel proper sooner or later, having this piece in there
+makes my patch a little smaller :)
 
-Petr Vandrovec also posted a patch which takes a quite different approach.
+However, if folks look at the patch and hate it, then it can
+be left out, or changed appropriately.
 
-Cheers,
-Tom
+Ben
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

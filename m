@@ -1,159 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268126AbUICAMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269451AbUICC3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268126AbUICAMS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 20:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269388AbUICAEt
+	id S269451AbUICC3N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 22:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269417AbUICC1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:04:49 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:25588 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269406AbUIBX6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:58:14 -0400
-Date: Thu, 2 Sep 2004 20:02:30 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH][2/8] Arch agnostic completely out of line locks / other
-Message-ID: <Pine.LNX.4.58.0409021212220.4481@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 22:27:45 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:44010 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269451AbUICAMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 20:12:12 -0400
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
+	 <1094164096.14662.345.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
+	 <1094166858.14662.367.camel@cog.beaverton.ibm.com>
+	 <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com>
+Content-Type: text/plain
+Message-Id: <1094170054.14662.391.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 02 Sep 2004 17:07:35 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch covers basic support for the other architectures (without lock profile).
+On Thu, 2004-09-02 at 16:39, Christoph Lameter wrote:
+> On Thu, 2 Sep 2004, john stultz wrote:
+> 
+> > Then you implement a fastcall for fastcall_readcyclonecounter(), which
+> > in crazy ia64 asm would do something like:
+> >
+> > ENTRY(fastcall_readcyclonecounter)
+> > blip	// magic privledge escalation
+> > blop	// load cyclone counter into memory
+> > bloop	// copy cyclone counter back into return register
+> > ;;
+> > END(fastcall_readcyclonecounter)
+> >
+> >
+> > This avoids 150+ lines of asm needed to re-implement the gettimeofday
+> > math.
+> >
+> > However, I could be mistaken. Is something like this possible?
+> 
+> Of course but its not a generic way of timer acccess and
+> requires a fastcall for each timer. You still have the problem of
+> exporting the frequency and the time offsets to user space (those also
+> need to be kept current in order for one to be able to calculate a timer
+> value!). The syscall/fastcall API then needs to be extended to allow for a
+> system call to access each of the individual timers supported.
 
- arch/alpha/kernel/vmlinux.lds.S  |    1 +
- arch/ia64/kernel/vmlinux.lds.S   |    1 +
- arch/mips/kernel/vmlinux.lds.S   |    1 +
- arch/parisc/kernel/vmlinux.lds.S |    1 +
- arch/s390/kernel/vmlinux.lds.S   |    1 +
- arch/sh/kernel/vmlinux.lds.S     |    1 +
- arch/sh64/kernel/vmlinux.lds.S   |    1 +
- arch/sparc/kernel/vmlinux.lds.S  |    1 +
- 8 files changed, 8 insertions(+)
+Indeed, it would require a fastcall accessor for each timesource, but
+maybe fastcall is the wrong way to describe it. Could it just be a
+function that uses the epc to escalate its privileges? As for freq and
+offsets, those would already be user-visible (see below for more
+details)
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+> And how would this be supported from user space? We link in special
+> libraries to support for cyclone and any other supported timers into
+> each program? I thought a kernel would provide hardware abstraction?
 
-Index: linux-2.6.9-rc1-mm1-stage/arch/alpha/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/alpha/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/alpha/kernel/vmlinux.lds.S	26 Aug 2004 13:13:04 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/alpha/kernel/vmlinux.lds.S	2 Sep 2004 13:08:12 -0000
-@@ -18,6 +18,7 @@ SECTIONS
-   .text : {
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
-   } :kernel
-Index: linux-2.6.9-rc1-mm1-stage/arch/ia64/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/ia64/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/ia64/kernel/vmlinux.lds.S	26 Aug 2004 13:13:03 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/ia64/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -42,6 +42,7 @@ SECTIONS
- 	*(.text.ivt)
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.gnu.linkonce.t*)
-     }
-   .text2 : AT(ADDR(.text2) - LOAD_OFFSET)
-Index: linux-2.6.9-rc1-mm1-stage/arch/mips/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/mips/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/mips/kernel/vmlinux.lds.S	26 Aug 2004 13:12:59 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/mips/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -29,6 +29,7 @@ SECTIONS
-   .text : {
-     *(.text)
-     SCHED_TEXT
-+    LOCK_TEXT
-     *(.fixup)
-     *(.gnu.warning)
-   } =0
-Index: linux-2.6.9-rc1-mm1-stage/arch/parisc/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/parisc/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/parisc/kernel/vmlinux.lds.S	26 Aug 2004 13:13:05 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/parisc/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -52,6 +52,7 @@ SECTIONS
-   .text ALIGN(16) : {
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.text.do_softirq)
- 	*(.text.sys_exit)
- 	*(.text.do_sigaltstack)
-Index: linux-2.6.9-rc1-mm1-stage/arch/s390/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/s390/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/s390/kernel/vmlinux.lds.S	26 Aug 2004 13:13:06 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/s390/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -24,6 +24,7 @@ SECTIONS
-   .text : {
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- 	} = 0x0700
-Index: linux-2.6.9-rc1-mm1-stage/arch/sh/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/sh/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/sh/kernel/vmlinux.lds.S	26 Aug 2004 13:13:02 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/sh/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -23,6 +23,7 @@ SECTIONS
-   .text : {
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- 	} = 0x0009
-Index: linux-2.6.9-rc1-mm1-stage/arch/sh64/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/sh64/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/sh64/kernel/vmlinux.lds.S	26 Aug 2004 13:13:07 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/sh64/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -59,6 +59,7 @@ SECTIONS
- 	*(.text64)
-         *(.text..SHmedia32)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- #ifdef CONFIG_LITTLE_ENDIAN
-Index: linux-2.6.9-rc1-mm1-stage/arch/sparc/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-mm1/arch/sparc/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-mm1-stage/arch/sparc/kernel/vmlinux.lds.S	26 Aug 2004 13:12:47 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-mm1-stage/arch/sparc/kernel/vmlinux.lds.S	2 Sep 2004 13:08:15 -0000
-@@ -13,6 +13,7 @@ SECTIONS
-   {
-     *(.text)
-     SCHED_TEXT
-+    LOCK_TEXT
-     *(.gnu.warning)
-   } =0
-   _etext = .;
+The plan at the moment is that the timeofday core gettimeofday code path
+as well as any timesource that supports it adds a _vsyscall linker
+attribute. Then the linker will place all the code on a special page or
+set of pages. Those pages would then be mapped in as user-readable. Then
+just like the x86-64's vsyscall gettimeofday, glibc would re-direct
+gettimeofday calls to the user-mapped kernel pages, where it would
+execute in user mode (with maybe the epc privilege escalation for ia64
+time sources that required it).
+
+I had to do most of this for the i386 vsyscall-gettimeofday port, but I
+was unhappy with the duplication of code (and bugs), as well as the fact
+that I was then being pushed to re-do it for each architecture. While
+its not currently implemented (I was hoping to keep the discussion
+focused on the correctness of what's been implemented), I feel the plan
+for user-mode access won't be too complex. I'm still open for further
+discussion if you'd like, obviously performance is quite important, and
+I want to calm any fears you have, but I'm sure the new ntp code plenty
+of performance issues to look at before we start digging into usermode
+access, so maybe we can come back to this discussion later?
+
+> The current IA64 fastcall timer interface is generic and is bound into the
+> clock_gettime interface of glibc.
+
+Yes, but x86-64 has one way, and ia64 does it another, and i know ppc
+folks have talked about their own user mode time access. Chasing down a
+time bug across arches gets to be fairly hairy, so I'm trying to
+simplify that.
+
+Again, I really appreciate your thoughts and feedback. Let me see if in
+the next release I can have more code to illustrate the user-mode access
+plan.
+
+thanks!
+-john
 

@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287895AbSABSpa>; Wed, 2 Jan 2002 13:45:30 -0500
+	id <S287880AbSABSru>; Wed, 2 Jan 2002 13:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287896AbSABSpV>; Wed, 2 Jan 2002 13:45:21 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:55535 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S287895AbSABSpB>; Wed, 2 Jan 2002 13:45:01 -0500
-Date: Wed, 02 Jan 2002 10:43:33 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: highmem and usb [was:"sr: unalignedtransfer"
- in 2.5.2-pre1]
-To: Oliver.Neukum@lrz.uni-muenchen.de
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>
-Message-id: <07db01c193bd$62191ec0$6800000a@brownell.org>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <Pine.SOL.4.33.0201021018550.4555-100000@sun2.lrz-muenchen.de>
+	id <S287896AbSABSrl>; Wed, 2 Jan 2002 13:47:41 -0500
+Received: from [216.219.239.237] ([216.219.239.237]:24071 "EHLO
+	www.sensoria.com") by vger.kernel.org with ESMTP id <S287880AbSABSra>;
+	Wed, 2 Jan 2002 13:47:30 -0500
+From: "Bao C. Ha" <baoha@sensoria.com>
+To: <mlord@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Ide.c and Flash drives
+Date: Wed, 2 Jan 2002 10:47:18 -0800
+Message-ID: <011501c193bd$e7f3a150$456c020a@SENSORIA>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I'd rather eliminate as much overhead as possible -- I already get
-> > > complaints from performance fanatics about the inability of usb-storage to
-> > > get past 92% bus saturation (sustained), and the problem will only get
-> > > worse on USB 2.0
-> >
-> > Well then you'll  be glad to see a patch from me, soonish, that teaches
-> > the usb-storage "transport" code to use bulk queueing.  That'll get the
-> > bandwidth utilization up as high as it can get.  It won't address any of
-> > these highmem issues though.
-> 
-> And there's the overhead of sleeping and waking a kernel thread. Larger io
-> requests might help, but I am not sure.
 
-Yes, it's that sleep/wake between scatterlist segments that's creating
-that 92% (at 12 Mbit/sec) or about 20% (at 480 Mbit/sec :) bottleneck ...
-Convert those calls to use bulk queuing, and those delays vanish.
+Hi Mark,
 
-- Dave
+In the kernel 2.4.17, ide.c makes an assumption that
+CompactFlash cards and their brethern don't have a
+slave unit.  Unfortunately, I have two that can do
+master/slave and get caught since they are side by
+side: (1) CompactFlash on an IDE/ATA adapter (as
+master)and (2) Simple Tech Flash disk (as slave).
 
+I patched the following to get it to work:
+
+--- ide.c.orig  Wed Jan  2 10:35:38 2002
++++ ide.c       Wed Jan  2 10:39:44 2002
+@@ -324,13 +324,14 @@
+        struct hd_driveid *id = drive->id;
+
+        if (drive->removable && id != NULL) {
+-               if (id->config == 0x848a) return 1;     /* CompactFlash */
++               /* if (id->config == 0x848a) return 1;  */ /* CompactFlash
+*/
+                if (!strncmp(id->model, "KODAK ATA_FLASH", 15)  /* Kodak */
+                 || !strncmp(id->model, "Hitachi CV", 10)       /* Hitachi
+*/
+                 || !strncmp(id->model, "SunDisk SDCFB", 13)    /* SunDisk
+*/
+                 || !strncmp(id->model, "HAGIWARA HPC", 12)     /* Hagiwara
+*/
+                 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)  /* Lexar */
+-                || !strncmp(id->model, "ATA_FLASH", 9))        /* Simple
+Tech */
++                /* || !strncmp(id->model, "ATA_FLASH", 9)) */  /* Simple
+Tech */
++                )
+                {
+                        return 1;       /* yes, it is a flash memory card */
+                }
+
+Could the assumption be re-evaluated?  Am I going to
+get into trouble doing this?
+
+Regards.
+Bao
 

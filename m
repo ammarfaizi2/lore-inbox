@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132619AbRDCGnV>; Tue, 3 Apr 2001 02:43:21 -0400
+	id <S132657AbRDCGsv>; Tue, 3 Apr 2001 02:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132624AbRDCGnL>; Tue, 3 Apr 2001 02:43:11 -0400
-Received: from cr65188-a.crdva1.bc.wave.home.com ([24.153.54.85]:3847 "HELO
-	brewt.org") by vger.kernel.org with SMTP id <S132619AbRDCGm4>;
-	Tue, 3 Apr 2001 02:42:56 -0400
-Date: Mon, 2 Apr 2001 23:42:08 -0700 (PDT)
-From: xcp <xcp@brewt.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: what is pci=biosirq
-In-Reply-To: <3AC93F7B.9E46D40E@vc.cvut.cz>
-Message-ID: <Pine.LNX.4.30.0104022339450.20793-100000@stinky.brewt.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132654AbRDCGsl>; Tue, 3 Apr 2001 02:48:41 -0400
+Received: from Campbell.cwx.net ([216.17.176.12]:15 "EHLO campbell.cwx.net")
+	by vger.kernel.org with ESMTP id <S132624AbRDCGs2>;
+	Tue, 3 Apr 2001 02:48:28 -0400
+Date: Tue, 3 Apr 2001 00:47:01 -0600
+From: Allen Campbell <lkml@campbell.cwx.net>
+To: Simon Garner <sgarner@expio.co.nz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot
+Message-ID: <20010403004701.A9943@const.>
+In-Reply-To: <E14kCnK-0006pa-00@the-village.bc.nu> <011f01c0bbc5$ffc92e60$1400a8c0@expio.net.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <011f01c0bbc5$ffc92e60$1400a8c0@expio.net.nz>; from sgarner@expio.co.nz on Tue, Apr 03, 2001 at 10:40:36AM +1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 03, 2001 at 10:40:36AM +1200, Simon Garner wrote:
+> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+> 
+> > > I've seen the exact same behavior with my CUV4X-D (2x1GHz) under
+> > > 2.4.2 (debian woody).  In addition, the kernel would sometimes hang
+> > > around NMI watchdog enable.  At least, I think it's trying to
+> >
+> > Known problem. Thats one reason why -ac trees had nmi watchdog turned off.
+> 
+> It still crashes with nmi_watchdog turned off.
+> 
+> Running with noapic fixes it but then the system crashes if you access the
+> RTC with hwclock (and probably creates a hundred other problems...).
+> 
+> How can I get this chipset/motherboard supported properly under Linux? I'm
+> happy to test patches etc. on the box. *pleading*
 
+Patience is likely to be effective.  The chipset isn't exactly rare
+being on SMP boards from Gigabyte, MSI, Tyan and Asus, and likely
+others.  I'm betting it will be fixed soon enough.  UP and 2.2.x
+kernels worked fine here if you're really desperate.  OTOH, the
+board is stable once you get past the boot problems... What sort
+of production system needs frequent unattended boots?
 
-On Mon, 2 Apr 2001, Petr Vandrovec wrote:
+Sorry about this, I just don't remember signing any paychecks for
+what I know is likely to be a non-issue probably before the next
+time I actually have to do something drastic, like reboot.
 
-> It looks more like that Acer misimplemented PCI_IRQPIN register - if it
-> is legacy IDE interface using ports 1F0-1F7/170-177, with IRQs 14 & 15,
-> it should report zero as IRQ pin. What 'lspci -vx -s 0:f.0' says?
-> Last four bytes it prints should read 'YY 00 XX XX' - where YY is IRQ
-> number assigned by BIOS - either hardwired to zero in chip, or just left
-> alone by BIOS (00 or FF) and next 00 is IRQ pin number - 0 = none, 1 =
-> A,
-> 2 = B ... Intel IDE interfaces returns 00 00 here, VIA returns FF 00,
-> and
-> I have no hardware with an additional IDE around.
->
-> 					Petr Vandrovec
-> 					vandrove@vc.cvut.cz
->
-Here is the output of lspci -vx -s 0:f.0
-
-00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
-(prog-if 8a [Master SecP PriP])
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at b000 [size=16]
-00: b9 10 29 52 05 00 80 02 c1 8a 01 01 00 20 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: 01 b0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 02 04
-
-I'm not sure what to make of it.  At this time I am unable to
-append="pci=biosirq" as I don't use lilo.  Is there a way to put this
-arguement directly into the kernel image?
-
+-- 
+  Allen Campbell       |  Lurking at the bottom of the
+  allenc@verinet.com   |   gravity well, getting old.

@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265074AbTAEU3v>; Sun, 5 Jan 2003 15:29:51 -0500
+	id <S265108AbTAEUcA>; Sun, 5 Jan 2003 15:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265085AbTAEU3v>; Sun, 5 Jan 2003 15:29:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:38285 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265074AbTAEU3v>;
-	Sun, 5 Jan 2003 15:29:51 -0500
-Message-ID: <3E1897B8.7688566B@digeo.com>
-Date: Sun, 05 Jan 2003 12:38:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.54 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: uaca@alumni.uv.es
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.54-mm3
-References: <3E16A2B6.A741AE17@digeo.com> <20030105180446.GA20388@pusa.informat.uv.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jan 2003 20:38:19.0903 (UTC) FILETIME=[6203B8F0:01C2B4FA]
+	id <S265114AbTAEUb7>; Sun, 5 Jan 2003 15:31:59 -0500
+Received: from mail.hometree.net ([212.34.181.120]:27284 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265108AbTAEUb5>; Sun, 5 Jan 2003 15:31:57 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Date: Sun, 5 Jan 2003 20:40:32 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ava580$g2a$1@forge.intermeta.de>
+References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <20030105101413.GC14362@louise.pinerecords.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1041799232 22430 212.34.181.4 (5 Jan 2003 20:40:32 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 5 Jan 2003 20:40:32 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-uaca@alumni.uv.es wrote:
-> 
-> On Sat, Jan 04, 2003 at 01:00:38AM -0800, Andrew Morton wrote:
-> >
-> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.54/2.5.54-mm3/
-> 
-> It seems to me that the patch you pointed here doesn't include the latency
-> instrumentation.
+Tomas Szepe <szepe@pinerecords.com> writes:
 
-No, it doesn't.  You can monitor the latency using realfeel or realfeel2
-from http://www.zip.com.au/~akpm/linux/amlat.tar.gz
+>Even if I overlook that you're effectively comparing the incomparable,
+>Microsoft making 370 times more than RedHat says _nothing_ about their
+>actual achievement in terms of software development.  Should you insist
 
-But that won't tell you _why_ large latencies are occurring.   For that,
-you'll need to apply
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.54/2.5.54-mm3/experimental/rtc-debug.patch
-and run `amlat'.  This combination will spit out stack backtraces whenever
-there is a 2 millisecond scheduling overrun.
+You might simply open your eyes and look around you before you utter
+such ridicioulous statements.
 
-> Where it is the needed instrumentation to meassure it?
-> 
-> In http://www.zip.com.au/~akpm/linux/ the are no timepeg/intlat patches for
-> 2.5...
+% cd /home/mirror/RFC
+% for i in rfc*.txt; do head -20 $i | grep -iq microsoft; if [ "x$?" = "x0" ]; then    echo $i; fi; done | wc -l
+    102     102    1224 /tmp/rfc-log
+% for i in rfc*.txt; do head -20 $i | grep -iq 'red hat'; if [ "x$?" = "x0" ]; then    echo $i; fi; done | wc -l
+% for i in rfc*.txt; do head -20 $i | grep -iq 'redhat'; if [ "x$?" = "x0" ]; then    echo $i; fi; done | wc -l
 
-That's not suitable for this work.  intlat is OK for locating and
-measuring interrupts-off code paths.   But it's a bit hard to drive.
+
+So in terms of "RFC contributions" which are the established and
+accepted base on which to build the internet and "open software", the
+score is
+
+Microsoft Corporation vs. Red Hat Inc.
+    102                :    0
+
+Some examples: 
+
+rfc1877:	PPP Internet Protocol Control Protocol Extensions for Name Server Addresses
+rfc2069/2617:	An Extension to HTTP : Digest Access Authentication
+rfc2193:	IMAP4 Mailbox Referrals
+rfc2237:	Japanese Character Encoding for Internet Messages
+rfc2338:	Virtual Router Redundancy Protocol
+rfc2342:	IMAP4 Namespace
+rfc2445:	Internet Calendaring and Scheduling Core Object Specification (iCalendar)
+rfc2518/3253:	HTTP Extensions for Distributed Authoring -- WEBDAV
+rfc2565:	Internet Printing Protocol/1.0: Encoding and Transport
+rfc2616:	Hypertext Transfer Protocol -- HTTP/1.1 	(Yup. Microsoft)
+rfc2661:	Layer Two Tunneling Protocol "L2TP"
+rfc2782:	A DNS RR for specifying the location of services (DNS SRV)
+rfc2989:	Criteria for Evaluating AAA Protocols for Network Access (Microsoft. Sun. Cisco. Nokia.)
+
+
+	Regards
+		Henning
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

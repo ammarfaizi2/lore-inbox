@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272942AbRINEPh>; Fri, 14 Sep 2001 00:15:37 -0400
+	id <S273282AbRINE0O>; Fri, 14 Sep 2001 00:26:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273277AbRINEP3>; Fri, 14 Sep 2001 00:15:29 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:29077 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S272942AbRINEPR>; Fri, 14 Sep 2001 00:15:17 -0400
-Date: Thu, 13 Sep 2001 21:14:31 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: shreenivasa H V <shreenihv@usa.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: scheduler policy
-Message-ID: <20010913211431.A1021@w-mikek2.sequent.com>
-In-Reply-To: <20010914022756.9487.qmail@nwcst280.netaddress.usa.net>
+	id <S273281AbRINE0D>; Fri, 14 Sep 2001 00:26:03 -0400
+Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:23302 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S273280AbRINEZz>;
+	Fri, 14 Sep 2001 00:25:55 -0400
+Date: Thu, 13 Sep 2001 21:26:17 -0700
+From: andrew may <acmay@acmay.homeip.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Ani Joshi <ajoshi@shell.unixbox.com>
+Subject: missing break? linux/drivers/video/riva/fbdev.c
+Message-ID: <20010913212617.A3946@ecam.san.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010914022756.9487.qmail@nwcst280.netaddress.usa.net>; from shreenihv@usa.net on Thu, Sep 13, 2001 at 09:27:56PM -0500
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 13, 2001 at 09:27:56PM -0500, shreenivasa H V wrote:
-> Hi,
-> 
-> In process scheduling, when an epoch ends because of the current process
-> completing its time quantum (and all the runnable ones having finished their
-> respective quantums), at the start of the new epoch, will the current running
-> process retain the cpu (assuming all the runnable ones are of the same
-> priority)?
+I have noticed this in the 2.4.10-pre patches.
 
-Short answer, for UP kernels yes.
+It looks like an obvious missing break on after rc =15;
 
-If all the tasks on the runqueue have the same priority (nice value),
-then they will all (almost) have the same goodness value at the start
-of the new epoch.  However, tasks with the same memory map as the
-currently running task will get their goodness value boosted by 1.
-The next task to run will be the first one found that has the same
-memory map as the currently running task.  The check for 'still_running'
-ensures that the the currently running task will be found first.
+diff -u --recursive --new-file v2.4.9/linux/drivers/video/riva/fbdev.c linux/drivers/video/riva/fbdev.c
+--- v2.4.9/linux/drivers/video/riva/fbdev.c	Wed Jul 25 17:10:24 2001
++++ linux/drivers/video/riva/fbdev.c	Fri Sep  7 09:28:38 2001
+@@ -260,7 +260,7 @@
+ #endif
+ 
+ #ifndef MODULE
+-static const char *mode_option __initdata = NULL;
++static char *mode_option __initdata = NULL;
+ #else
+ static char *font = NULL;
+ #endif
+@@ -1109,6 +1109,8 @@
+ 		break;
+ #endif
+ #ifdef FBCON_HAS_CFB16
++	case 15:
++		rc = 15;	/* fix for 15 bpp depths on Riva 128 based cards */
+ 	case 16:
+ 		rc = 16;	/* directcolor... 16 entries SW palette */
+ 		break;		/* Mystique: truecolor, 16 entries SW palette, HW palette hardwired into 1:1 mapping */
+@@ -1119,7 +1121,6 @@
 
-Not sure if this is by design, but this is what the code does.
-
-Also, note that this is only true for UP kernels.  In SMP, there
-are other factors to consider and a level of unpredictability
-due to racing with other CPUs as a result of dropping the runqueue
-lock during the 'recalculate' operation.
-
--- 
-Mike Kravetz                                  kravetz@us.ibm.com
-IBM Linux Technology Center       (we're not at Sequent anymore)

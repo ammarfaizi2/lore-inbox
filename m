@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293599AbSBZVL6>; Tue, 26 Feb 2002 16:11:58 -0500
+	id <S293600AbSBZVQI>; Tue, 26 Feb 2002 16:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293600AbSBZVLs>; Tue, 26 Feb 2002 16:11:48 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:35979 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293599AbSBZVL3>; Tue, 26 Feb 2002 16:11:29 -0500
-Date: Tue, 26 Feb 2002 16:14:40 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: schedule()
-In-Reply-To: <Pine.LNX.4.44.0202261218080.1544-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.3.95.1020226161330.7314A-100000@chaos.analogic.com>
+	id <S293601AbSBZVP6>; Tue, 26 Feb 2002 16:15:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29963 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293600AbSBZVPm>;
+	Tue, 26 Feb 2002 16:15:42 -0500
+Message-ID: <3C7BFAFA.D8923CFF@mandrakesoft.com>
+Date: Tue, 26 Feb 2002 16:15:38 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Dilger <adilger@turbolabs.com>
+CC: "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: crypto (was Re: Congrats Marcelo,)
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <20020226140644.U12832@lynx.adilger.int>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Davide Libenzi wrote:
+Andreas Dilger wrote:
+> On Feb 26, 2002  12:38 -0800, Dennis, Jim wrote:
+> >  Now I need to know about the status of several unofficial patches:
+
+> >       i2c
+> >       Crypto
+> >       FreeS/WAN KLIPS
+> >       LIDS
 > 
-> In 2.5 yield() maps to sys_sched_yield(). You can handle it in the same
-> way in your includes if version <= 2.4.
+> No idea.
 
-It's not exported as well as not defined in a header! It results in
-an undefined symbol in the module.
+I would -love- to see crypto in the mainstream kernel.  Distribution of
+crypto software on kernel.org has been OK for a while now.
 
-Cheers,
-Dick Johnson
+Who knows what the kerneli guys, freeswan, etc. guys think.
 
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+IMO it's time to get a good IPsec implementation in the kernel...
 
-        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+	Jeff
 
+
+
+
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

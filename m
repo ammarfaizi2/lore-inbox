@@ -1,68 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbUDCQup (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 11:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUDCQup
+	id S261606AbUDCRGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 12:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUDCRGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 11:50:45 -0500
-Received: from 65-248-111-151.cn.tx.cebridge.net ([65.248.111.151]:5016 "EHLO
-	ns1.brianandsara.net") by vger.kernel.org with ESMTP
-	id S261425AbUDCQun convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 11:50:43 -0500
-From: Brian Jackson <brian@brianandsara.net>
-Organization: brianandsara.net
-To: Hans-Georg Esser <h.g.esser@gmx.de>
-Subject: Re: 2.4.20 and 2.4.21, Firewire, 160 GB Harddisk, 134 GB barrier
-Date: Sat, 3 Apr 2004 10:53:40 -0600
-User-Agent: KMail/1.6.51
-Cc: linux-kernel@vger.kernel.org
-References: <406EC833.4080909@gmx.de>
-In-Reply-To: <406EC833.4080909@gmx.de>
+	Sat, 3 Apr 2004 12:06:54 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:23129 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261606AbUDCRGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 12:06:50 -0500
+Date: Sat, 3 Apr 2004 18:06:49 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: anon-vma (and now filebacked-mappings too) mprotect vma merging
+    [Re:    2.6.5-rc2-aa vma merging]
+In-Reply-To: <20040403012612.GY21341@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0404031727320.10197-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404031053.41975.brian@brianandsara.net>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 3 Apr 2004, Andrea Arcangeli wrote:
+> On Fri, Apr 02, 2004 at 12:34:29PM +0100, Hugh Dickins wrote:
+> > Sorry to be boring, Andrea, but 2.6.5-rc3-aa2 is now out, and you
+> > have still not fixed the vma merging issue: I don't believe you can.
+> 
+> here we go with the mprotect merging, try this on top of 2.6.5-rc3-aa2.
 
-On Saturday 03 April 2004 08:20, Hans-Georg Esser wrote:
-> Hello list,
->
-> I found an earlier thread ("KERNEL 2.6.3 and MAXTOR 160 GB", March 2004)
-> dealing with a 137 GB barrier (that I guess meant: 137xxx MB) for a Maxtor
-> 160 GB drive in Kernel 2.6.x. I'd like to add my personal observation to
-> that (for Kernel 2.4.20/21):
->
-> My drive (Western Digital WD1600BB-32DWA0) works well when directly
-> connected to the IDE controller, but doesn't like using an external
-> firewire connection ("Pyro 1394 Drive Kit" of Adstech.com). The firewire
-> stuff worked well with an 80 GB disk, but with the 160 GB disk I'm only
-> getting 134 GB (or 137439 MB).
+Thank you!  It works.  You've surprised me again.  Forgive me.
 
-The more likely scenario is that the bridge chip in said box doesn't support 
-the larger drive and is the limiting factor.
+It's a bit erratic, test program below you'd expect to end up with one
+vma of 4 pages at 0x80000000, whereas it ends up with one of 1 and one
+of 3 (where mainline ends up with two of 2); but that's just an
+implementation detail which obviously can be smoothed away later.
+Presumably it should be looking to merge, or propagating anon_vma
+to/from adjacent vma, somewhere else too.
 
-- --Brian Jackson
+It does look more complicated than I'd hoped, a lot of that coming from
+the file-backed merging: which I like, but, we could have done it at
+any point over the last couple of years if someone had a need for it.
+Fair enough, you've discovered a need, at the same time that you have
+to attend to vm_pgoff for anons, so it makes sense to do them together.
 
->
-> This may be related to the other post I mentioned, cause of the same
-> "barrier" number. I haven't tried a newer kernel yet, this was with the
-> standard kernel that came with the distro:
->
-<snip>
+Do you realize that you could allocate just a single anon_vma to
+the mm at fork time, for all the pure anon vmas created in it later?
+And then no need for propagating anon_vma from adjacent vma, they'd
+all have the right one already and be mergeable anyway.  But I think
+you'll reject that on two grounds: you want to merge the file-backed
+vmas as much as is reasonable, so you need the code anyway for them;
+and you'd prefer your anon_vma lists to be as short as possible, to
+minimize searching at page_referenced/try_to_unmap time.
 
-- -- 
-http://www.brianandsara.net
-For Sale : http://www.brianandsara.net/temp/forsale.php
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Clearly there's a tension between keeping the anon_vma lists short,
+and leaving the vmas mergable: it's natural that we should differ on
+where to strike that balance, having come to it from opposite ends.
 
-iD8DBQFAbuwU+cPN+Z7qK9cRAhLGAKCBgz1xf3MdypI4lPZBl3N/PRPg6QCgqCfR
-su8H1F2RwQVXKYPGXIhsiXk=
-=0g7r
------END PGP SIGNATURE-----
+I still prefer my simpler anonmm solution (will post the prio tree
+patch on top of it later this evening), but I don't see any good
+reason now to oppose your anon_vma solution.  Let others decide.
+
+Hugh
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/mman.h>
+
+#define PAGE_SIZE	4096
+#define MAP_AREA	((void *) 0x80000000)
+
+int main(int argc, char *argv[])
+{
+	unsigned long pageno = 0;
+	unsigned long *ptr;
+	char buf[40];
+
+	ptr = mmap(MAP_AREA, 2*PAGE_SIZE, PROT_READ,
+			MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, -1, 0);
+	if (ptr == MAP_FAILED)
+		exit(1);
+	ptr = mmap(MAP_AREA + 2*PAGE_SIZE, 2*PAGE_SIZE, PROT_READ|PROT_WRITE,
+			MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, -1, 0);
+	if (ptr == MAP_FAILED)
+		exit(1);
+	ptr = MAP_AREA;
+	while (pageno < 4) {
+		if (mprotect(ptr, PAGE_SIZE, PROT_READ|PROT_WRITE) == -1)
+			exit(1);
+		*ptr = pageno++;
+		if (mprotect(ptr, PAGE_SIZE, PROT_READ) == -1)
+			exit(1);
+		ptr += PAGE_SIZE / sizeof(unsigned long);
+	}
+	sprintf(buf, "cat /proc/%d/maps", getpid());
+	system(buf);
+	exit(0);
+}
+

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268560AbUHLNPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268552AbUHLNTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268560AbUHLNPp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 09:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268559AbUHLNPp
+	id S268552AbUHLNTd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 09:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268556AbUHLNTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 09:15:45 -0400
-Received: from gprs214-235.eurotel.cz ([160.218.214.235]:35205 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268560AbUHLNPZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 09:15:25 -0400
-Date: Thu, 12 Aug 2004 15:14:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nathan Bryant <nbryant@optonline.net>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] SCSI midlayer power management
-Message-ID: <20040812131457.GB1086@elf.ucw.cz>
-References: <4119611D.60401@optonline.net> <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net> <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston> <1092314892.1755.5.camel@mulgrave>
+	Thu, 12 Aug 2004 09:19:33 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:1237 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268552AbUHLNTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 09:19:32 -0400
+Subject: SG_IO and security
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092313030.21978.34.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092314892.1755.5.camel@mulgrave>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 12 Aug 2004 13:17:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Since the entire thread seems to have died again unresolved I'd suggest
+the following patch should get into 2.6.8 so that anyone with read
+access to any block device cannot issue arbitary scsi commands to it
+(like writes or firmware erase)
 
-> > Some hosts will continuously DMA to memory iirc.. I remember having a
-> > problem with 53c8xx on some macs when transitionning from MacOS to Linux
-> > because of that.
-> 
-> I think you're thinking of the scripts engine?  on pre 53c875 chips,
-> yes, this is true.  The on-board processor is executing instructions
-> from host memory.  However, this is read only in quiescent (waiting for
-> host connect or target reconnect) mode, so shouldn't be a problem for
-> suspend.  On the 875 and later, we host the scripts in on-chip memory so
-> they shouldn't be troubling main memory when idling.
+--- drivers/block/scsi_ioctl.c~	2004-08-12 14:14:38.078821640 +0100
++++ drivers/block/scsi_ioctl.c	2004-08-12 14:14:38.079821488 +0100
+@@ -115,6 +115,8 @@
+ 	char sense[SCSI_SENSE_BUFFERSIZE];
+ 	unsigned char cmd[BLK_MAX_CDB];
+ 
++	if (!capable(CAP_SYS_RAWIO))
++		return -EPERM;
+ 	if (hdr->interface_id != 'S')
+ 		return -EINVAL;
+ 	if (hdr->cmd_len > BLK_MAX_CDB)
 
-Even read-only access could hurt.... That DMA engine is going to get
-very unhappy if we change data from under it, right?
-
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

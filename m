@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317935AbSGWM7S>; Tue, 23 Jul 2002 08:59:18 -0400
+	id <S318057AbSGWNDD>; Tue, 23 Jul 2002 09:03:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318049AbSGWM7S>; Tue, 23 Jul 2002 08:59:18 -0400
-Received: from bru-cse-369.cisco.com ([144.254.12.31]:33256 "EHLO
-	bru-cse-369.cisco.com") by vger.kernel.org with ESMTP
-	id <S317935AbSGWM7R>; Tue, 23 Jul 2002 08:59:17 -0400
-Date: Tue, 23 Jul 2002 15:02:21 +0200
-From: Marc Duponcheel <mduponch@cisco.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19rc2 -> 2.4.19rc3 : no more eth
-Message-ID: <20020723130221.GF29367@cisco.com>
-Reply-To: Marc Duponcheel <mduponch@cisco.com>
+	id <S318058AbSGWNDD>; Tue, 23 Jul 2002 09:03:03 -0400
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:41223 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S318057AbSGWNDC>; Tue, 23 Jul 2002 09:03:02 -0400
+Subject: [PATCH] 2.4.18-rc3  Minor LDM fix
+From: Richard Russon <rich@flatcap.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 23 Jul 2002 14:06:11 +0100
+Message-Id: <1027429572.4258.1383.camel@whiskey.something.uk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: Cisco Systems
-X-uname: SunOS 5.8 sun4u
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear kernel crew.
+Hi Marcelo,
 
-I follow the stable kernel and run 2.4.18 just fine on 3 machines.
+Please can you apply this minor patch to fs/partitions/ldm.c
+(support for Windows Dynamic Disks)
 
-Recently I thought about trying 2.4.19rc kernels.  That went fine as
-well with one exception.
+Cheers,
+  FlatCap (Rich)
+  ldm@flatcap.org
 
-One machine (with 2 ethernet controllers)
- Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 0c)
- 3Com Corporation 3c900B-TPO [Etherlink XL TPO] (rev 04)
-will no longer recognise -any- of those.
 
-Note that this 'artifact' only happens with 2.4.19rc3.  The .config
-between 2.4.19rc2 did not change 2.4.19rc3
+Some people have problems reading the end of the LDM database
+which is at the end of the physical disk.  This patch reduces
+a couple of minor checks, to just debug output.
 
-During boot I see OOPses (which for some reason, my syslog does not
-see).
 
-Because this is a rather severe change [:-)] I wonder if I this rings
-a bell.
+diff -urN linux-2.4.18-rc3/fs/partitions/ldm.c linux-2.4.18-rc3-ldm/fs/partitions/ldm.c
+--- linux-2.4.18-rc3/fs/partitions/ldm.c	Tue Jul 23 13:19:23 2002
++++ linux-2.4.18-rc3-ldm/fs/partitions/ldm.c	Tue Jul 23 13:29:28 2002
+@@ -796,7 +796,7 @@
+ 	err = parse_privhead(data, ph3);
+ 	put_dev_sector(sect);
+ 	if (err != 1)
+-		goto out;
++		printk(LDM_DEBUG "Couldn't read the third PRIVHEAD.\n");
+ 	err = compare_privheads(ph1, ph2);
+ 	if (err != 1) {
+ 		printk(LDM_CRIT "First and second PRIVHEADs don't match.\n");
+@@ -804,7 +804,7 @@
+ 	}
+ 	err = compare_privheads(ph1, ph3);
+ 	if (err != 1)
+-		printk(LDM_CRIT "First and third PRIVHEADs don't match.\n");
++		printk(LDM_DEBUG "First and third PRIVHEADs don't match.\n");
+ 	else
+ 		/* We _could_ have checked more. */
+ 		ldm_debug("Validated PRIVHEADs successfully.\n");
 
-Thanks for your valuable time
 
---
- Greetings,
 
-Marc Duponcheel     Multicast Development Engineer      Cisco Systems
-email: mduponch@cisco.com tel: +32 2 704 52 40 cell: +32 478 68 10 91

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSJUPCd>; Mon, 21 Oct 2002 11:02:33 -0400
+	id <S261432AbSJUOyP>; Mon, 21 Oct 2002 10:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261568AbSJUPCc>; Mon, 21 Oct 2002 11:02:32 -0400
-Received: from bitmover.com ([192.132.92.2]:9950 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261433AbSJUPCb>;
-	Mon, 21 Oct 2002 11:02:31 -0400
-Date: Mon, 21 Oct 2002 08:08:34 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: jbradford@dial.pipex.com
-Cc: Larry McVoy <lm@bitmover.com>, rms@gnu.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021021080834.B17489@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	jbradford@dial.pipex.com, Larry McVoy <lm@bitmover.com>,
-	rms@gnu.org, hch@infradead.org, linux-kernel@vger.kernel.org
-References: <20021019161201.A26017@work.bitmover.com> <200210210939.g9L9d93T001397@darkstar.example.net>
+	id <S261462AbSJUOyP>; Mon, 21 Oct 2002 10:54:15 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:34484 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261432AbSJUOyN>; Mon, 21 Oct 2002 10:54:13 -0400
+Subject: Re: 2.5.43 -- media/video/stradis.c in function `saa_open':1949:
+	structure has no member named `busy'
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miles Lane <miles.lane@attbi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1034760289.3983.15.camel@turbulence.megapathdsl.net>
+References: <1034760289.3983.15.camel@turbulence.megapathdsl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 16:16:04 +0100
+Message-Id: <1035213364.28189.156.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210210939.g9L9d93T001397@darkstar.example.net>; from jbradford@dial.pipex.com on Mon, Oct 21, 2002 at 10:39:09AM +0100
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The license I was presented with was the BitKeeper License version
-> 1.37, 02/18/02.  This does not include the clause about the license
-> being unavailable to people who are developing a competing product to
-> Bitkeeper.
-> 
-> I pointed this out to you in a private E-Mail, but I didn't receive a
-> response - I think it is very confusing for people to believe that
-> they are licensed to use the product, only to later be told that they
-> are not.
+On Wed, 2002-10-16 at 10:24, Miles Lane wrote:
+>   gcc -Wp,-MD,drivers/media/video/.stradis.o.d -D__KERNEL__ -Iinclude
+> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=athlon  -Iarch/i386/mach-generic -nostdinc -iwithprefix
+> include    -DKBUILD_BASENAME=stradis   -c -o
+> drivers/media/video/stradis.o drivers/media/video/stradis.c
+> drivers/media/video/stradis.c: In function `saa_open':
+> drivers/media/video/stradis.c:1949: structure has no member named `busy'
+> drivers/media/video/stradis.c: In function `saa_close':
+> drivers/media/video/stradis.c:1961: structure has no member named `busy'
 
-We've been working with IBM to try and come up with a revision of the license
-which addresses some of the problems.  When we get done we'll update the
-website.
+Not updated to 2.5. Nobody with a card is currently interested in that
+so if you have one its your turn to fix stuff ;)
 
-By the way, the non-compete clause was put in because I figured the standard
-"no reverse engineering" clause would cause even more fuss.    Little did 
-I know.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

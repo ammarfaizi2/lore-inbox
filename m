@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbTKKDK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 22:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264237AbTKKDK7
+	id S264228AbTKKDQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 22:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264234AbTKKDQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 22:10:59 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:17054 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264235AbTKKDK6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 22:10:58 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 10 Nov 2003 19:10:09 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-In-Reply-To: <3FAFEA34.7090005@zytor.com>
-Message-ID: <Pine.LNX.4.44.0311101908540.2097-100000@bigblue.dev.mdolabs.com>
+	Mon, 10 Nov 2003 22:16:45 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:63715
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S264228AbTKKDQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 22:16:44 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: davidsen@tmr.com (bill davidsen), linux-kernel@vger.kernel.org
+Subject: Re: Post-halloween doc updates.
+Date: Mon, 10 Nov 2003 19:09:09 -0600
+User-Agent: KMail/1.5
+References: <20031030141519.GA10700@redhat.com> <9cfn0bhjswn.fsf@rogue.ncsl.nist.gov> <bop7rf$7rd$1@gatekeeper.tmr.com>
+In-Reply-To: <bop7rf$7rd$1@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311101909.09337.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Nov 2003, H. Peter Anvin wrote:
+On Monday 10 November 2003 17:43, bill davidsen wrote:
+> In article <9cfn0bhjswn.fsf@rogue.ncsl.nist.gov>,
+>
+> Ian Soboroff  <ian.soboroff@nist.gov> wrote:
+> | Well, ok, but the alternatives are ACPI, which has always been spotty,
+> | and two competing power management schemes from Patrick and Pavel,
+> | neither of which seem to actually work yet.  Wouldn't it be nice to
+> | have at least one working method of putting a laptop to sleep?
+>
+> I have no problem putting the laptop to sleep. On the other hand, waking
+> it up...
 
-> I guess the "best" solution is to use LVM atomic snapshots, and only
-> allow rsync off the atomic snapshot.  That way any particular rsync
-> session would always be consistent.  That's a *HUGE* amount of work,
-> though, and still doesn't solve the mirrors issue -- I don't control
-> what the mirrors run.  On the other hand, I don't know how many mirror
-> sites actually mirror /pub/scm since it's not a requirement.
+Which suspend version are you using?  echo -n "4">/proc/acpi/something or echo 
+-n "disk" > sys/power/state?
 
-BTW, is rsync.kernel.org::pub/scm/linux/kernel/bkcvs currently being fed 
-with new data? I don't get any updates.
+The second works for me (for a slightly malleable value of "works": resume has 
+never failed on me, suspend works maybe 9 times out of 10, and either 
+immediately resumes without power down (apparently with no harm done, it just 
+didn't work) or panics the rest of the time).
 
+The first has never come close to working (for me).
 
-
-- Davide
-
-
+Rob

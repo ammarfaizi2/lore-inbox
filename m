@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbULFTIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbULFTLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbULFTIg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 14:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbULFTIf
+	id S261579AbULFTLR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 14:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbULFTLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 14:08:35 -0500
-Received: from sarvega.com ([161.58.151.164]:42769 "EHLO sarvega.com")
-	by vger.kernel.org with ESMTP id S261611AbULFTII (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 14:08:08 -0500
-Date: Mon, 6 Dec 2004 13:07:43 -0600
-From: John Lash <jkl@sarvega.com>
-To: "Niel Lambrechts" <antispam@telkomsa.net>
-Cc: "'Burton Windle'" <bwindle@fint.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: kernel panic after changing processor arch
-Message-ID: <20041206130743.6c5f0fd3@homer.sarvega.com>
-In-Reply-To: <000101c4dbc5$96844e70$0a00000a@MERCKX>
-References: <20041206123705.5fbac5b4@homer.sarvega.com>
-	<000101c4dbc5$96844e70$0a00000a@MERCKX>
-X-Mailer: Sylpheed-Claws 0.9.12cvs102 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 6 Dec 2004 14:11:17 -0500
+Received: from 213-0-210-244.dialup.nuria.telefonica-data.net ([213.0.210.244]:18315
+	"EHLO dardhal.24x7linux.com") by vger.kernel.org with ESMTP
+	id S261579AbULFTLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 14:11:07 -0500
+Date: Mon, 6 Dec 2004 20:11:07 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ip contrack problem, not strictly followed RFC, DoS very much possible
+Message-ID: <20041206191107.GA7192@localhost>
+Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
+References: <41B464B3.8020807@pointblue.com.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Content-Disposition: inline
+In-Reply-To: <41B464B3.8020807@pointblue.com.pl>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Dec 2004 20:58:33 +0200
-"Niel Lambrechts" <antispam@telkomsa.net> wrote:
 
-> > 
-> > my first guess would be that the reiserfs module on your 
-> > initrd needs to be recompiled using the PENTIUMM arch.....
-> > 
-> > --john
-> 
-> No.
-> 
-> I did:
-> make menuconfig - change from i686 to pentiumm - save settings.
-> make 
-> make install
-> mkinitrd -s 1024x768 -k "bzImage.2.6.8-24.5-default" -I "initrd" -m
-> "reiserfs"
-> lilo
-> 
-> If I "mount -o loop" the new initrd, modinfo shows the type of
-> reiserfs.ko to be "PENTIUMM" as I would expect...
-> 
-> I have also tried compiling reiserfs support directly into the kernel
-> and dropping reiserfs from the -m option, to no avail.
-> 
-> -Niel
-> 
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-so much for the first guess. try modifying the initrd to pop open an interactive
-shell that you can use before it actually fails. You can poke around and see
-what's going on. Depending on how it's set up, you might be able to get away
-with something this simple in the linuxrc:
+On Monday, 06 December 2004, at 14:54:59 +0100,
+Grzegorz Piotr Jaskiewicz wrote:
 
-	/bin/sh </dev/console >/dev/console 2>/dev/console
+> If someone has argumentation for 5 days timeout, please speak out. In=20
+> everyday life, router, desktop, server usage 100s is enough there, and=20
+> makes my life easier, as many other linux admins.
+>=20
+Maybe five days is a bit high, but there are definitely many (maybe badly
+designed) applications that expect a TCP connection to remain open (and
+traffic not dropped) for much longer than your proposed 100 seconds.
 
-If you ramdisk has strace and some other use utilities, it might help you track
-down the bad apple.
+It is not unusual the need to tweak the settings for several commercial
+firewalls I work with in several customers to raise the default timeouts
+for TCP connection tracking, because some application breaks if the
+connection gets put out of the firewalls' connection tables and the
+traffic dropped.
 
---john
+Many times is just "my users are too lazy to double click the 'start
+connection' icon again when they come from their breakfast, and want to be
+able to enter commands on the remote host again". But at least, the
+parameter is tunable in recent kernel versions, and not hardcoded in the
+kernel sources like it was some time ago.
+
+Greetings.
+
+--=20
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.10-rc3)
+
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBtK7Lao1/w/yPYI0RAl2mAJwPU5ZJzPS5lJSjczd0DFIRzCzmsACfQqOl
+sxJ72f5uw9qUlGYWmpbXwrY=
+=qC9W
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

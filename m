@@ -1,222 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUFTRbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265891AbUFTRf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUFTRbu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 13:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUFTRbp
+	id S265891AbUFTRf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 13:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUFTReD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 13:31:45 -0400
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com.243.46.213.in-addr.arpa ([213.46.243.17]:13119 "EHLO amsfep12-int.chello.nl")
-	by vger.kernel.org with ESMTP id S265805AbUFTRZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 13:25:56 -0400
-Date: Sun, 20 Jun 2004 19:25:56 +0200
-Message-Id: <200406201725.i5KHPuYc001500@anakin.of.borg>
+	Sun, 20 Jun 2004 13:34:03 -0400
+Received: from nl-ams-slo-l4-01-pip-6.chellonetwork.com ([213.46.243.23]:6976
+	"EHLO amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S265891AbUFTR1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 13:27:05 -0400
+Date: Sun, 20 Jun 2004 19:27:04 +0200
+Message-Id: <200406201727.i5KHR4ap001564@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 454] affs remount
+Subject: [PATCH 459] M68k I/O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AFFS: Fix oops on write after remount (from Roman Zippel):
-  - Allocate/free bitmap as necessary
-  - Remove last uses of SF_READONLY
+M68k I/O abstraction updates:
+  - Make I/O ports and addresses `unsigned long'
+  - Add casts to make operations warning-compatible with other archs
+  - Add {in,out}[wl]_p() and {in,out}l(), which are needed for some drivers
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.7/fs/affs/amigaffs.c	2004-04-27 20:27:43.000000000 +0200
-+++ linux-m68k-2.6.7/fs/affs/amigaffs.c	2004-06-18 11:17:49.000000000 +0200
-@@ -458,7 +458,6 @@
- 	if (!(sb->s_flags & MS_RDONLY))
- 		printk(KERN_WARNING "AFFS: Remounting filesystem read-only\n");
- 	sb->s_flags |= MS_RDONLY;
--	AFFS_SB(sb)->s_flags |= SF_READONLY;	/* Don't allow to remount rw */
- }
+--- linux-2.6.7/include/asm-m68k/io.h	2004-05-24 11:13:53.000000000 +0200
++++ linux-m68k-2.6.7/include/asm-m68k/io.h	2004-04-12 13:56:00.000000000 +0200
+@@ -120,7 +120,7 @@ extern int isa_sex;
+  * be compiled in so the case statement will be optimised away
+  */
  
- void
---- linux-2.6.7/fs/affs/bitmap.c	2004-04-27 20:41:22.000000000 +0200
-+++ linux-m68k-2.6.7/fs/affs/bitmap.c	2004-06-18 11:17:49.000000000 +0200
-@@ -272,8 +272,7 @@
- 	return 0;
- }
- 
--int
--affs_init_bitmap(struct super_block *sb)
-+int affs_init_bitmap(struct super_block *sb, int *flags)
+-static inline u8 *isa_itb(long addr)
++static inline u8 *isa_itb(unsigned long addr)
  {
- 	struct affs_bm_info *bm;
- 	struct buffer_head *bmap_bh = NULL, *bh = NULL;
-@@ -282,13 +281,13 @@
- 	int i, res = 0;
- 	struct affs_sb_info *sbi = AFFS_SB(sb);
- 
--	if (sb->s_flags & MS_RDONLY)
-+	if (*flags & MS_RDONLY)
- 		return 0;
- 
- 	if (!AFFS_ROOT_TAIL(sb, sbi->s_root_bh)->bm_flag) {
- 		printk(KERN_NOTICE "AFFS: Bitmap invalid - mounting %s read only\n",
- 			sb->s_id);
--		sb->s_flags |= MS_RDONLY;
-+		*flags |= MS_RDONLY;
- 		return 0;
- 	}
- 
-@@ -301,7 +300,7 @@
- 	bm = sbi->s_bitmap = kmalloc(size, GFP_KERNEL);
- 	if (!sbi->s_bitmap) {
- 		printk(KERN_ERR "AFFS: Bitmap allocation failed\n");
--		return 1;
-+		return -ENOMEM;
- 	}
- 	memset(sbi->s_bitmap, 0, size);
- 
-@@ -316,13 +315,13 @@
- 		bh = affs_bread(sb, bm->bm_key);
- 		if (!bh) {
- 			printk(KERN_ERR "AFFS: Cannot read bitmap\n");
--			res = 1;
-+			res = -EIO;
- 			goto out;
- 		}
- 		if (affs_checksum_block(sb, bh)) {
- 			printk(KERN_WARNING "AFFS: Bitmap %u invalid - mounting %s read only.\n",
- 			       bm->bm_key, sb->s_id);
--			sb->s_flags |= MS_RDONLY;
-+			*flags |= MS_RDONLY;
- 			goto out;
- 		}
- 		pr_debug("AFFS: read bitmap block %d: %d\n", blk, bm->bm_key);
-@@ -338,7 +337,7 @@
- 		bmap_bh = affs_bread(sb, be32_to_cpu(bmap_blk[blk]));
- 		if (!bmap_bh) {
- 			printk(KERN_ERR "AFFS: Cannot read bitmap extension\n");
--			res = 1;
-+			res = -EIO;
- 			goto out;
- 		}
- 		bmap_blk = (u32 *)bmap_bh->b_data;
-@@ -383,3 +382,17 @@
- 	affs_brelse(bmap_bh);
- 	return res;
+   switch(ISA_TYPE)
+     {
+@@ -136,7 +136,7 @@ static inline u8 *isa_itb(long addr)
+     default: return 0; /* avoid warnings, just in case */
+     }
  }
-+
-+void affs_free_bitmap(struct super_block *sb)
-+{
-+	struct affs_sb_info *sbi = AFFS_SB(sb);
-+
-+	if (!sbi->s_bitmap)
-+		return;
-+
-+	affs_brelse(sbi->s_bmap_bh);
-+	sbi->s_bmap_bh = NULL;
-+	sbi->s_last_bmap = ~0;
-+	kfree(sbi->s_bitmap);
-+	sbi->s_bitmap = NULL;
-+}
---- linux-2.6.7/fs/affs/super.c	2004-05-03 20:04:58.000000000 +0200
-+++ linux-m68k-2.6.7/fs/affs/super.c	2004-06-18 11:17:49.000000000 +0200
-@@ -51,10 +51,9 @@
- 		mark_buffer_dirty(sbi->s_root_bh);
- 	}
- 
--	affs_brelse(sbi->s_bmap_bh);
- 	if (sbi->s_prefix)
- 		kfree(sbi->s_prefix);
--	kfree(sbi->s_bitmap);
-+	affs_free_bitmap(sb);
- 	affs_brelse(sbi->s_root_bh);
- 	kfree(sbi);
- 	sb->s_fs_info = NULL;
-@@ -288,6 +287,7 @@
- 	gid_t			 gid;
- 	int			 reserved;
- 	unsigned long		 mount_flags;
-+	int			 tmp_flags;	/* fix remount prototype... */
- 
- 	pr_debug("AFFS: read_super(%s)\n",data ? (const char *)data : "no options");
- 
-@@ -399,7 +399,6 @@
- 		printk(KERN_NOTICE "AFFS: Dircache FS - mounting %s read only\n",
- 			sb->s_id);
- 		sb->s_flags |= MS_RDONLY;
--		sbi->s_flags |= SF_READONLY;
- 	}
- 	switch (chksum) {
- 		case MUFS_FS:
-@@ -455,8 +454,10 @@
- 	sbi->s_root_bh = root_bh;
- 	/* N.B. after this point s_root_bh must be released */
- 
--	if (affs_init_bitmap(sb))
-+	tmp_flags = sb->s_flags;
-+	if (affs_init_bitmap(sb, &tmp_flags))
- 		goto out_error;
-+	sb->s_flags = tmp_flags;
- 
- 	/* set up enough so that it can read an inode */
- 
-@@ -498,7 +499,7 @@
- 	int			 reserved;
- 	int			 root_block;
- 	unsigned long		 mount_flags;
--	unsigned long		 read_only = sbi->s_flags & SF_READONLY;
-+	int			 res = 0;
- 
- 	pr_debug("AFFS: remount(flags=0x%x,opts=\"%s\")\n",*flags,data);
- 
-@@ -507,7 +508,7 @@
- 	if (!parse_options(data,&uid,&gid,&mode,&reserved,&root_block,
- 	    &blocksize,&sbi->s_prefix,sbi->s_volume,&mount_flags))
- 		return -EINVAL;
--	sbi->s_flags = mount_flags | read_only;
-+	sbi->s_flags = mount_flags;
- 	sbi->s_mode  = mode;
- 	sbi->s_uid   = uid;
- 	sbi->s_gid   = gid;
-@@ -518,14 +519,11 @@
- 		sb->s_dirt = 1;
- 		while (sb->s_dirt)
- 			affs_write_super(sb);
--		sb->s_flags |= MS_RDONLY;
--	} else if (!(sbi->s_flags & SF_READONLY)) {
--		sb->s_flags &= ~MS_RDONLY;
--	} else {
--		affs_warning(sb,"remount","Cannot remount fs read/write because of errors");
--		return -EINVAL;
--	}
--	return 0;
-+		affs_free_bitmap(sb);
-+	} else
-+		res = affs_init_bitmap(sb, flags);
-+
-+	return res;
+-static inline u16 *isa_itw(long addr)
++static inline u16 *isa_itw(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+@@ -152,7 +152,7 @@ static inline u16 *isa_itw(long addr)
+     default: return 0; /* avoid warnings, just in case */
+     }
  }
+-static inline u8 *isa_mtb(long addr)
++static inline u8 *isa_mtb(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+@@ -168,7 +168,7 @@ static inline u8 *isa_mtb(long addr)
+     default: return 0; /* avoid warnings, just in case */
+     }
+ }
+-static inline u16 *isa_mtw(long addr)
++static inline u16 *isa_mtw(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+@@ -191,10 +191,14 @@ static inline u16 *isa_mtw(long addr)
+ #define isa_outb(val,port) out_8(isa_itb(port),(val))
+ #define isa_outw(val,port) (ISA_SEX ? out_be16(isa_itw(port),(val)) : out_le16(isa_itw(port),(val)))
  
- static int
---- linux-2.6.7/include/linux/affs_fs.h	2004-04-27 20:50:48.000000000 +0200
-+++ linux-m68k-2.6.7/include/linux/affs_fs.h	2004-06-18 11:18:33.000000000 +0200
-@@ -36,7 +36,8 @@
- extern u32	affs_count_free_blocks(struct super_block *s);
- extern void	affs_free_block(struct super_block *sb, u32 block);
- extern u32	affs_alloc_block(struct inode *inode, u32 goal);
--extern int	affs_init_bitmap(struct super_block *sb);
-+extern int	affs_init_bitmap(struct super_block *sb, int *flags);
-+extern void	affs_free_bitmap(struct super_block *sb);
+-#define isa_readb(p)       in_8(isa_mtb(p))
+-#define isa_readw(p)       (ISA_SEX ? in_be16(isa_mtw(p)) : in_le16(isa_mtw(p)))
+-#define isa_writeb(val,p)  out_8(isa_mtb(p),(val))
+-#define isa_writew(val,p)  (ISA_SEX ? out_be16(isa_mtw(p),(val)) : out_le16(isa_mtw(p),(val)))
++#define isa_readb(p)       in_8(isa_mtb((unsigned long)(p)))
++#define isa_readw(p)       \
++	(ISA_SEX ? in_be16(isa_mtw((unsigned long)(p)))	\
++		 : in_le16(isa_mtw((unsigned long)(p))))
++#define isa_writeb(val,p)  out_8(isa_mtb((unsigned long)(p)),(val))
++#define isa_writew(val,p)  \
++	(ISA_SEX ? out_be16(isa_mtw((unsigned long)(p)),(val))	\
++		 : out_le16(isa_mtw((unsigned long)(p)),(val)))
  
- /* namei.c */
+ static inline void isa_delay(void)
+ {
+@@ -215,17 +219,21 @@ static inline void isa_delay(void)
  
---- linux-2.6.7/include/linux/affs_fs_sb.h	2004-04-27 20:24:33.000000000 +0200
-+++ linux-m68k-2.6.7/include/linux/affs_fs_sb.h	2004-06-18 11:18:33.000000000 +0200
-@@ -47,7 +47,6 @@
- #define SF_OFS		0x0200		/* Old filesystem */
- #define SF_PREFIX	0x0400		/* Buffer for prefix is allocated */
- #define SF_VERBOSE	0x0800		/* Talk about fs when mounting */
--#define SF_READONLY	0x1000		/* Don't allow to remount rw */
+ #define isa_inb_p(p)      ({u8 v=isa_inb(p);isa_delay();v;})
+ #define isa_outb_p(v,p)   ({isa_outb((v),(p));isa_delay();})
++#define isa_inw_p(p)      ({u16 v=isa_inw(p);isa_delay();v;})
++#define isa_outw_p(v,p)   ({isa_outw((v),(p));isa_delay();})
++#define isa_inl_p(p)      ({u32 v=isa_inl(p);isa_delay();v;})
++#define isa_outl_p(v,p)   ({isa_outl((v),(p));isa_delay();})
  
- /* short cut to get to the affs specific sb data */
- static inline struct affs_sb_info *AFFS_SB(struct super_block *sb)
+-#define isa_insb(port, buf, nr) raw_insb(isa_itb(port), (buf), (nr))
+-#define isa_outsb(port, buf, nr) raw_outsb(isa_itb(port), (buf), (nr))
++#define isa_insb(port, buf, nr) raw_insb(isa_itb(port), (u8 *)(buf), (nr))
++#define isa_outsb(port, buf, nr) raw_outsb(isa_itb(port), (u8 *)(buf), (nr))
+ 
+ #define isa_insw(port, buf, nr)     \
+-       (ISA_SEX ? raw_insw(isa_itw(port), (buf), (nr)) :    \
+-                  raw_insw_swapw(isa_itw(port), (buf), (nr)))
++       (ISA_SEX ? raw_insw(isa_itw(port), (u16 *)(buf), (nr)) :    \
++                  raw_insw_swapw(isa_itw(port), (u16 *)(buf), (nr)))
+ 
+ #define isa_outsw(port, buf, nr)    \
+-       (ISA_SEX ? raw_outsw(isa_itw(port), (buf), (nr)) :  \
+-                  raw_outsw_swapw(isa_itw(port), (buf), (nr)))
++       (ISA_SEX ? raw_outsw(isa_itw(port), (u16 *)(buf), (nr)) :  \
++                  raw_outsw_swapw(isa_itw(port), (u16 *)(buf), (nr)))
+ #endif  /* CONFIG_ISA */
+ 
+ 
+@@ -235,9 +243,13 @@ static inline void isa_delay(void)
+ #define outb    isa_outb
+ #define outb_p  isa_outb_p
+ #define inw     isa_inw
++#define inw_p   isa_inw_p
+ #define outw    isa_outw
++#define outw_p  isa_outw_p
+ #define inl     isa_inw
++#define inl_p   isa_inw_p
+ #define outl    isa_outw
++#define outl_p  isa_outw_p
+ #define insb    isa_insb
+ #define insw    isa_insw
+ #define outsb   isa_outsb
+@@ -281,10 +293,16 @@ static inline void isa_delay(void)
+ #define inb(port) ((port)<1024 ? isa_inb(port) : in_8(port))
+ #define inb_p(port) ((port)<1024 ? isa_inb_p(port) : in_8(port))
+ #define inw(port) ((port)<1024 ? isa_inw(port) : in_le16(port))
++#define inw_p(port) ((port)<1024 ? isa_inw_p(port) : in_le16(port))
++#define inl(port) ((port)<1024 ? isa_inl(port) : in_le32(port))
++#define inl_p(port) ((port)<1024 ? isa_inl_p(port) : in_le32(port))
+ 
+ #define outb(val,port) ((port)<1024 ? isa_outb((val),(port)) : out_8((port),(val)))
+ #define outb_p(val,port) ((port)<1024 ? isa_outb_p((val),(port)) : out_8((port),(val)))
+ #define outw(val,port) ((port)<1024 ? isa_outw((val),(port)) : out_le16((port),(val)))
++#define outw_p(val,port) ((port)<1024 ? isa_outw_p((val),(port)) : out_le16((port),(val)))
++#define outl(val,port) ((port)<1024 ? isa_outl((val),(port)) : out_le32((port),(val)))
++#define outl_p(val,port) ((port)<1024 ? isa_outl_p((val),(port)) : out_le32((port),(val)))
+ #endif
+ #endif /* CONFIG_PCI */
+ 
 
 Gr{oetje,eeting}s,
 

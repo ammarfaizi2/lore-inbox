@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270712AbRHSTYh>; Sun, 19 Aug 2001 15:24:37 -0400
+	id <S270721AbRHSThi>; Sun, 19 Aug 2001 15:37:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270717AbRHSTY1>; Sun, 19 Aug 2001 15:24:27 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:44295 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S270712AbRHSTYN>; Sun, 19 Aug 2001 15:24:13 -0400
-To: Peter Fales <psfales@lucent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UMSDOS problems in 2.4.9?
-In-Reply-To: <20010818212401.A1814@lucent.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: 20 Aug 2001 04:24:08 +0900
-In-Reply-To: <20010818212401.A1814@lucent.com>
-Message-ID: <874rr3rgyv.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
+	id <S270727AbRHSTh2>; Sun, 19 Aug 2001 15:37:28 -0400
+Received: from dorthy.state.net ([204.75.238.244]:24787 "EHLO state.net")
+	by vger.kernel.org with ESMTP id <S270721AbRHSThM>;
+	Sun, 19 Aug 2001 15:37:12 -0400
+Date: Sun, 19 Aug 2001 14:38:58 -0500 (CDT)
+From: Chris Oxenreider <oxenreid@state.net>
+Reply-To: oxenreid@state.net
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install
+ 'isdn')
+Message-ID: <Pine.SV4.4.10.10108191436230.4651-100000@dorthy>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Peter Fales <psfales@lucent.com> writes:
 
-> My UMSDOS file system stopped working when I switch from 2.4.8 to 
-> 2.4.9.  I can mount the partition as "msdos" or even "vfat" but if
-> I use "umsdos" there are no files visible.  Has anyone else seen this?
+Help.
+On a freshly installed system using a version of Mandrake 8.0 from the 
+free 'iso' images on the linux-mandrake sight this is what happens:
 
-Probably I think it related to change of filldir_t.
-This problem fixed with the following patch?
---
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-diff -urN linux-2.4.9/fs/umsdos/dir.c umsdos_off_t-2.4.9/fs/umsdos/dir.c
---- linux-2.4.9/fs/umsdos/dir.c	Sat Feb 10 04:29:44 2001
-+++ umsdos_off_t-2.4.9/fs/umsdos/dir.c	Sun Aug 19 16:13:25 2001
-@@ -67,7 +67,7 @@
- static int umsdos_dir_once (	void *buf,
- 				const char *name,
- 				int len,
--				off_t offset,
-+				loff_t offset,
- 				ino_t ino,
- 				unsigned type)
- {
-diff -urN linux-2.4.9/fs/umsdos/ioctl.c umsdos_off_t-2.4.9/fs/umsdos/ioctl.c
---- linux-2.4.9/fs/umsdos/ioctl.c	Thu Apr 19 03:49:13 2001
-+++ umsdos_off_t-2.4.9/fs/umsdos/ioctl.c	Sun Aug 19 16:16:36 2001
-@@ -28,7 +28,7 @@
- 				     void *buf,
- 				     const char *name,
- 				     int name_len,
--				     off_t offset,
-+				     loff_t offset,
- 				     ino_t ino,
- 				     unsigned type)
- {
-diff -urN linux-2.4.9/fs/umsdos/rdir.c umsdos_off_t-2.4.9/fs/umsdos/rdir.c
---- linux-2.4.9/fs/umsdos/rdir.c	Sat Feb 10 04:29:44 2001
-+++ umsdos_off_t-2.4.9/fs/umsdos/rdir.c	Sun Aug 19 16:16:34 2001
-@@ -32,7 +32,7 @@
- static int rdir_filldir (	void *buf,
- 				const char *name,
- 				int name_len,
--				off_t offset,
-+				loff_t offset,
- 				ino_t ino,
- 				unsigned int d_type)
- {
+cd /usr/src
+# remove the link in /usr/src
+rm linux
+bzip2 -dc /tmp/linux-2.4.9.tar.bz2|tar xvf - 
+chown -R root.root linux
+mv linux linux-2.4.9
+ln -s linux-2.4.9 linux
+cd linux-2.4.9
+cp /boot/config-2.4.3-20mdk .config
+echo Take default answers to all:
+make oldconfig 
+make dep ; echo made Dependancies && \
+make clean ; echo made clean && \
+make bzImage ; echo made bzImage && \
+make modules 
+make modules_install
+
+when installing modules this error is generated:
+
+---Lots of other compiler messages---
+make[1]: Leaving directory `/usr/src/linux-2.4.9/arch/i386/lib'
+cd /lib/modules/2.4.9; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.9; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.9/kernel/drivers/isdn/eicon/divas.o
+depmod: 	vsnprintf
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.9/kernel/drivers/isdn/eicon/eicon.o
+depmod: 	vsnprintf
+[root@odin linux-2.4.9]#
+
+
 

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTJNQ4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 12:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJNQ4e
+	id S262304AbTJNRB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 13:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTJNRB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 12:56:34 -0400
-Received: from ns.exp-math.uni-essen.de ([132.252.150.1]:10121 "EHLO
-	pilz.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id S262609AbTJNQ4c convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 12:56:32 -0400
-From: Andreas Jungmaier <ajung@exp-math.uni-essen.de>
-Organization: University Duisburg-Essen
-To: linux-kernel@vger.kernel.org
-Subject: Compile warning for smbfs
-Date: Tue, 14 Oct 2003 18:59:13 +0200
-User-Agent: KMail/1.5.2
+	Tue, 14 Oct 2003 13:01:29 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:20742 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262304AbTJNRB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 13:01:28 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: "Grover, Andrew" <andrew.grover@intel.com>, <earny@net4u.de>
+Subject: Re: ACPI in -pre7 builds with -Os
+Date: Tue, 14 Oct 2003 18:57:07 +0200
+User-Agent: KMail/1.5.3
+References: <F760B14C9561B941B89469F59BA3A84702C93046@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84702C93046@orsmsx401.jf.intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200310141859.24529.ajung@exp-math.uni-essen.de>
+Message-Id: <200310141857.07774.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tuesday 14 October 2003 18:50, Grover, Andrew wrote:
 
-Hi,
+Hi Andrew,
 
-I am compiling linux-2.4.6-test7 and got the following warning:
+> > Looks like a bug. And a missing feature.
+> > - ACPI_CFLAGS := -Os
+> > + ACPI_CFLAGS := -Os --bzip2
 
-CC [M]  fs/smbfs/inode.o
-  fs/smbfs/inode.c: In function `smb_fill_super':
-  fs/smbfs/inode.c:554: warning: comparison is always false due to limited range of data type
-  fs/smbfs/inode.c:555: warning: comparison is always false due to limited range of data type
-CC [M]  fs/smbfs/file.o
+> What does that do, excatly? (Obviously compression-related...) I
+> couldn't find it in the gcc 3.2.2 documentation, is it new?
 
-*Maybe* that needs to be fixed. Just to let you know.
-Please CC any answers also to my email address.
+rotfl. I think it was meant as a joke ;)
 
-Apart from that, this kernel runs great on my Toshiba Tecra 8200.
+ciao, Marc
 
-Best regards,
-Andreas 
-- -- 
-Dipl.-Ing. Andreas Jungmaier              
-Computer Networking Technology Group     
-University of Duisburg-Essen                       
-http://www.exp-math.uni-essen.de/~ajung   
-PGP Key-ID: D382 4AC0             
-
-PGP Key-Fingerprint: 228C 7C2C 3381 2DD4  9998 2812 5C0B 0B04  D382 4AC0
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/jCtmXAsLBNOCSsARAoCcAKCv/fRePMZ94llFv67qxhnmY6mHmACcDtxo
-UXBr0jcXuBKjwk3rCVixCpk=
-=stDT
------END PGP SIGNATURE-----
 

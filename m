@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279903AbRKRRMA>; Sun, 18 Nov 2001 12:12:00 -0500
+	id <S279904AbRKRReO>; Sun, 18 Nov 2001 12:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279904AbRKRRLu>; Sun, 18 Nov 2001 12:11:50 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:46341 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S279903AbRKRRLm>;
-	Sun, 18 Nov 2001 12:11:42 -0500
-Message-Id: <200111181710.fAIHAlCF011794@sleipnir.valparaiso.cl>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrea Arcangeli <andrea@suse.de>, ehrhardt@mathematik.uni-ulm.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM-related Oops: 2.4.15pre1 
-In-Reply-To: Your message of "Sat, 17 Nov 2001 22:24:44 -0800."
-             <Pine.LNX.4.33.0111172220300.1290-100000@penguin.transmeta.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 18 Nov 2001 14:10:47 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S279927AbRKRReE>; Sun, 18 Nov 2001 12:34:04 -0500
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:18181 "EHLO
+	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S279904AbRKRRdz>;
+	Sun, 18 Nov 2001 12:33:55 -0500
+From: "Tony Hoyle" <tmh@nothing-on.tv>
+Subject: Re: [PATCH] devfs v196 available
+Date: Sun, 18 Nov 2001 17:33:47 +0000
+Organization: cvsnt.org news server
+Message-ID: <pan.2001.11.18.17.33.47.49.903@nothing-on.tv>
+In-Reply-To: <Pine.LNX.4.33.0111162035180.29140-100000@serv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: sisko.my.home 1006104826 6138 192.168.100.2 (18 Nov 2001 17:33:46 GMT)
+X-Complaints-To: abuse@cvsnt.org
+User-Agent: Pan/0.10.0.93 (Unix)
+X-Comment-To: "Roman Zippel" <zippel@linux-m68k.org>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> said:
+On Fri, 16 Nov 2001 22:59:05 +0000, Roman Zippel wrote:
 
-[...]
+> Hi,
+> 
+> On Sat, 3 Nov 2001, Richard Gooch wrote:
+> 
+>>   Hi, all. Version 196 of my devfs patch is now available from:
+> 
+I noticed with the 2.4.15pre kernels it doesn't support my LS-120 floppy
+- there are no devfs calls in ide-floppy.c.  How hard would it be to add
+these, or is it a 2.5 issue?
 
-> And nope, not really. It does use plain stores to page->flags, and I agree
-> that it is ugly, but if the page was locked before calling it, all the
-> stores will be with the PG_lock bit set - and even plain stores _are_
-> documented to be atomic on x86 (and on all other reasonable architectures
-> too).
-
-Even unaligned stores?
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+Tony

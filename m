@@ -1,65 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269729AbUJWBp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269752AbUJWBp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269729AbUJWBp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269586AbUJWBnW
+	id S269752AbUJWBp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269683AbUJWBn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:43:22 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40197 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S269759AbUJWBkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:40:36 -0400
-Date: Sat, 23 Oct 2004 03:40:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: espenfjo@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041023014004.GG22558@stusta.de>
-References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <20041022225703.GJ19761@alpha.home.local>
+	Fri, 22 Oct 2004 21:43:29 -0400
+Received: from waste.org ([209.173.204.2]:46249 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S269673AbUJWBix (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 21:38:53 -0400
+Date: Fri, 22 Oct 2004 20:38:47 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+Message-ID: <20041023013847.GJ31237@waste.org>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022225703.GJ19761@alpha.home.local>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 12:57:03AM +0200, Willy Tarreau wrote:
-> On Fri, Oct 22, 2004 at 11:52:50PM +0200, Espen Fjellv?r Olsen wrote:
->...
-> > A 2.7 should be created where all new experimental stuff is merged
-> > into it, and where people could begin to think new again.
+On Fri, Oct 22, 2004 at 06:25:30PM -0700, Linus Torvalds wrote:
 > 
-> This could be true if the release cycle was shorter. But once 2.7 comes
-> out, many developpers will only focus on their development and not on
-> stabilizing 2.6 as much as today.
+> However, for some reason four numbers just looks visually too obnoxious to
+> me, so as I don't care that much, I'll just use "-rc", and we can all
+> agree that it stands for "Ridiculous Count" rather than "Release
+> Candidate".
 
-2.6.9 -> 2.6.10-rc1:
-- 4 days
-- > 15 MB patches
-
-It's a bit optimistic to call this amount of change "stabilizing".
-
-2.6 is corrently more a development kernel than a stable kernel.
-
-The last bug I observed personally was the problem with suspending when 
-using CONFIG_REGPARM=y together with Roland's waitid patch which was 
-added in 2.6.9-rc2. If I'd used 2.6.9 with the same .config as 2.6.8.1, 
-this was simple one more bug...
-
-IMHO Andrew+Linus should open a short-living 2.7 tree soon and Andrew 
-(or someone else) should maintain a 2.6 tree with less changes (like 
-Marcelo did and does with 2.4).
-
-> Willy
-
-cu
-Adrian
+I can probably live with that if you promise not to break the
+automated tools for a while.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Mathematics is the supreme nostalgia of our time.

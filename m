@@ -1,36 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUH1H50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUH1IPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbUH1H50 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 03:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUH1H50
+	id S265928AbUH1IPh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 04:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266580AbUH1IPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 03:57:26 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:23201 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263001AbUH1H5Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 03:57:25 -0400
-Message-ID: <2ff2162804082800576f79e28@mail.gmail.com>
-Date: Sat, 28 Aug 2004 13:27:25 +0530
-From: BAIN <bainonline@gmail.com>
-Reply-To: BAIN <bainonline@gmail.com>
+	Sat, 28 Aug 2004 04:15:34 -0400
+Received: from mail.mplayerhq.hu ([192.190.173.45]:9649 "EHLO
+	mail.mplayerhq.hu") by vger.kernel.org with ESMTP id S265928AbUH1IPd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 04:15:33 -0400
+Date: Sat, 28 Aug 2004 10:15:34 +0200
+From: Gabucino <gabucino@mplayerhq.hu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Compression filter for Loopback device
-In-Reply-To: <412F3210.3030506@nec-labs.com>
+Subject: Re: pwc+pwcx is not illegal
+Message-ID: <20040828081534.GA30353@mail.banki.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <951A499AA688EF47A898B45F25BD8EE80126D4DB@mailer.nec-labs.com> <2ff2162804082703342bca4594@mail.gmail.com> <2ff21628040827033840b1576e@mail.gmail.com> <412F3210.3030506@nec-labs.com>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.4.25-grsec i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004 09:07:28 -0400, Lei Yang <leiyang@nec-labs.com> wrote:
-> First of all, link is invalid:)
+Guess GPL maniacs would have been happy, should avifile/MPlayer/xine never
+supported loading Win32 video+audio codecs. These players are probably
+considered non-GPL by Linus. Fine. Way to go, kernel developers.
 
-> > i do know about linuxcc project
-> > http://linuxcc.sf.net
+Maybe you people should instead test release kernels at least with NFS before
+releasing. It's kinda basic feature, ya know.
 
-oops this shud have been 
-http://linuxcompressed.sf.net
-sorry,
+Anyway, GPL only forbids _distribution_ of GPL+binary stuff, not the
+_possibility_ to use it. Time for Linus and Greg to come to their
+senses.
 
-BAIN
+-- 
+Gabucino

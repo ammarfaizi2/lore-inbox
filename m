@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbTE3WpY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbTE3WpY
+	id S264142AbTE3Wqp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTE3Wqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:45:24 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:45484 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264015AbTE3WpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:45:23 -0400
-Date: Sat, 31 May 2003 00:58:39 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Message-ID: <20030530225839.GI3308@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.55.0305301535100.4421@bigblue.dev.mcafeelabs.com> <Pine.LNX.4.44.0305301546580.3089-100000@home.transmeta.com> <20030530225504.GK9502@parcelfarce.linux.theplanet.co.uk>
+	Fri, 30 May 2003 18:46:44 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10486 "EHLO
+	orion.mvista.com") by vger.kernel.org with ESMTP id S264142AbTE3Wqm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:46:42 -0400
+Date: Fri, 30 May 2003 16:00:02 -0700
+From: Jun Sun <jsun@mvista.com>
+To: linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>
+Cc: jsun@mvista.com
+Subject: Re: Properly implement flush_dcache_page in 2.4?  (Or is it possible?)
+Message-ID: <20030530160002.D1669@mvista.com>
+References: <20030530103254.B1669@mvista.com> <20030530190929.E9419@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030530225504.GK9502@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030530190929.E9419@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, May 30, 2003 at 07:09:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 23:55:04 +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Fri, May 30, 2003 at 07:09:29PM +0100, Russell King wrote:
+> On Fri, May 30, 2003 at 10:32:54AM -0700, Jun Sun wrote:
+> > So my question is: how other CPU arches with the same problem
+> > implement flush_dcache_page()?  Flushing the whole cache? Or
+> > have a broken implementation and pretend it is OK?  :)
 > 
-> FWIW, I'd ran Lindent maybe 10 times or so - only in truly appalling cases
-> when it hurts just looking at the code (drivers/block/paride, mostly - just
-> take a look at it in 2.4).  Usually it's more of "I change that function;
-> might as well reindent it" and it's done manually.
+> See __flush_dcache_page() in arch/arm/mm/fault-armv.c in 2.5.70.
+>
 
-A policy that I like.  Ugly code is a big red flag that noone with
-taste looked at this function in a while.  Handle with care and watch
-your back.
+Is this routine tested to be working?  At least passing a page
+index as a full virtual address to flush_cache_page() looks suspicious.
 
-Jörn
+In addition, I am not sure if the vma struct will show up in the
+"shared" list _if_ the page is only mapped in one user process and
+in kernel (for example, those pages you obtain through get_user_pages()
+call).
 
--- 
-Fancy algorithms are buggier than simple ones, and they're much harder
-to implement. Use simple algorithms as well as simple data structures.
--- Rob Pike
+I am not familiar with 2.5 kernel.  I was under impression that reverse
+page mapping might provide an easy solution to this problem.
+
+Jun

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264458AbRFTApc>; Tue, 19 Jun 2001 20:45:32 -0400
+	id <S264461AbRFTBAI>; Tue, 19 Jun 2001 21:00:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264461AbRFTApW>; Tue, 19 Jun 2001 20:45:22 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:55206 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S264458AbRFTApJ>; Tue, 19 Jun 2001 20:45:09 -0400
-Date: Tue, 19 Jun 2001 18:45:01 -0600
-Message-Id: <200106200045.f5K0j1B18267@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Bind oddity/trap
+	id <S264465AbRFTA77>; Tue, 19 Jun 2001 20:59:59 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:60221 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S264461AbRFTA7m>; Tue, 19 Jun 2001 20:59:42 -0400
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+From: Robert Love <rml@ufl.edu>
+To: Chris Ricker <kaboom@gatech.edu>
+Cc: David "S." Miller <davem@redhat.com>,
+        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106191801240.7174-100000@verdande.oobleck.net>
+In-Reply-To: <Pine.LNX.4.33.0106191801240.7174-100000@verdande.oobleck.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 19 Jun 2001 20:59:43 -0400
+Message-Id: <992998787.730.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, Al. Here's an oddity I just ran across with VFS bindings:
+On 19 Jun 2001 18:04:21 -0600, Chris Ricker wrote:
+> It's a very impressive difference:
+><snip>
+> Process fork+exit: 563.7778 microseconds
+><snip>
+> Process fork+exit: 4249.5000 microseconds
 
-# mkfifo /dev/modem   (BTW: it would be nice not to have to make the node)
-# mount --bind /dev/tts/0 /dev/modem
-# kermit
-kermit> set line /dev/modem
-kermit> set speed 4800
-?Sorry, you must SET LINE first
+_WOW_ -- i think you just ended that discussion... wow.
 
-The reason this is happening is because Kermit will do a readdir(2),
-scanning /dev for a node with the same inum as it gets from fstat(2).
-In this case, fstat(2) is giving the inum of /dev/tts/0, which is of
-course the correct behaviour. However, the d_ino field from readdir(2)
-is giving the inum of the "mount point" (the FIFO I created). So there
-is an inconsistency, and kermit gets confused.
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
 
-Perhaps readdir(2) should return the same inum as fstat(2) does? I
-realise that could be quite nasty to implement. However, it is an
-inconsistency, and a potential trap. But there probably isn't a good
-solution to this one.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAFBmM>; Fri, 5 Jan 2001 20:42:12 -0500
+	id <S129324AbRAFBuX>; Fri, 5 Jan 2001 20:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129881AbRAFBmC>; Fri, 5 Jan 2001 20:42:02 -0500
-Received: from jelerak.scrye.com ([207.174.18.194]:4369 "HELO scrye.com")
-	by vger.kernel.org with SMTP id <S129324AbRAFBl6>;
-	Fri, 5 Jan 2001 20:41:58 -0500
-Message-ID: <20010106014150.1324.qmail@scrye.com>
-Date: Fri, 5 Jan 2001 18:41:50 -0700 (MST)
-From: Kevin Fenzi <kevin@scrye.com>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: X and 2.4.0 problem (video bios probing?) (more info)
-In-Reply-To: <E14Ee3z-0008R6-00@the-village.bc.nu>
-In-Reply-To: <20010105210016.1778.qmail@scrye.com>
-	<E14Ee3z-0008R6-00@the-village.bc.nu>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+	id <S129881AbRAFBuE>; Fri, 5 Jan 2001 20:50:04 -0500
+Received: from smtp3.libero.it ([193.70.192.53]:42389 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S129324AbRAFBt4>;
+	Fri, 5 Jan 2001 20:49:56 -0500
+Date: Sat, 6 Jan 2001 04:50:50 +0100
+From: antirez <antirez@invece.org>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+Cc: "'antirez@invece.org'" <antirez@invece.org>, Greg KH <greg@wirex.com>,
+        Heitzso <xxh1@cdc.gov>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Johannes Erdfelt'" <johannes@erdfelt.com>
+Subject: Re: USB broken in 2.4.0
+Message-ID: <20010106045050.C1748@prosa.it>
+Reply-To: antirez@invece.org
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEBE@orsmsx31.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEBE@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Fri, Jan 05, 2001 at 04:48:00PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Fri, Jan 05, 2001 at 04:48:00PM -0800, Dunlap, Randy wrote:
+> This rings a small bell with me.
+> There was a change by Dan Streetman IIRC to limit
+> usbdevfs bulk transfers to PAGE_SIZE (4 KB for x86,
+> or 0x1000).  Anything larger than that returns
+> an error (-EINVAL).
 
->> (II) Loading /usr/X11R6/lib/modules/linux/libint10.a (II) Module
->> int10: vendor="The XFree86 Project" compiled for 4.0.1a, module
->> version = 1.0.0 ABI class: XFree86 Video Driver, version 0.2 (EE)
->> ATI(0): Unable to initialise int10 interface.
+Yes, devio.c, proc_bulk():
 
-Alan> Thats the critical bit but it isnt directly a kernel thing. Im
-Alan> not sure why it should have failed. Do you have different
-Alan> .config options (eg ATI fb options ?)
+        if (len1 > PAGE_SIZE)
+                return -EINVAL;
 
-By the process of elimination, I have determined that my problem
-appears in the 2.4.0-test13-pre3 patch. 
+Actually it is the max transfer size I can reach.
+I guess that to limit the page size can be an impementation
+advantage but it may slow-down a bit some userspace driver.
+I feel that even if the linux way is to implement the USB
+drivers in kernel space a full-featured USB user space access
+should be allowed.
 
-2.4.0-test13-pre2 X works fine, in pre3 and beyond it fails. 
+antirez
+(please cc me)
 
-Anyone able to spot anything in the pre3 patch that might be causing
-this? 
-
-thanks, 
-
-kevin
+-- 
+Salvatore Sanfilippo              |                      <antirez@invece.org>
+http://www.kyuzz.org/antirez      |      PGP: finger antirez@tella.alicom.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

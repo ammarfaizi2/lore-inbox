@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285148AbRLRU5O>; Tue, 18 Dec 2001 15:57:14 -0500
+	id <S285097AbRLRUxN>; Tue, 18 Dec 2001 15:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285151AbRLRU46>; Tue, 18 Dec 2001 15:56:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19978 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285148AbRLRU4n>; Tue, 18 Dec 2001 15:56:43 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Mounting a in-ROM filesystem efficiently
-Date: 18 Dec 2001 12:56:26 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9voahq$j6i$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.3.95.1011218085823.10303A-100000@chaos.analogic.com> <200112181409.fBIE9cV15431@pinkpanther.swansea.linux.org.uk>
+	id <S285133AbRLRUxE>; Tue, 18 Dec 2001 15:53:04 -0500
+Received: from cs182072.pp.htv.fi ([213.243.182.72]:16000 "EHLO
+	cs182072.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S285097AbRLRUxA>; Tue, 18 Dec 2001 15:53:00 -0500
+Message-ID: <3C1FAC8F.699E1287@welho.com>
+Date: Tue, 18 Dec 2001 22:52:31 +0200
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: kuznet@ms2.inr.ac.ru
+CC: Mika.Liljeberg@nokia.com, davem@redhat.com, linux-kernel@vger.kernel.org,
+        sarolaht@cs.helsinki.fi, rmk@arm.linux.ORG.UK
+Subject: Re: ARM: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+In-Reply-To: <200112182029.XAA11287@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200112181409.fBIE9cV15431@pinkpanther.swansea.linux.org.uk>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> >    There is no way that you can teach your Hewlett-Packard
-> >    printer to become a network rogue and break into the
-> >    Pentagon --regardless of what you send it.
-> 
-> Really. Tell that to the people who already have a full Linux system running
-> on HP laser printers
-> 
+kuznet@ms2.inr.ac.ru wrote:
 
-My home HP laser printer has a web server running on it -- to save the
-couple of $$ it would cost to put an alphanumeric display on it.
+> > It's ARM in little endian mode.
+> 
+> I think it is answer to the question.
+> 
+> No doubts it still has broken misaligned access.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Oops, I think there was a misunderstanding. The linux machine is Intel.
+The other one is a non-Linux ARM.
+
+> > Now that you mention it, tcp_parse_options() in input.c seems to expect
+> > that the timestamps are word aligned,
+> 
+> Nope. It does not expect any alignment, but it is really supposed
+> to penalise misbehaving cases.
+
+Ahh, I see. There's a kernel exception handler that is supposed to fix
+misaligned access? Hacky.
+
+Cheers,
+
+	MikaL

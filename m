@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131326AbQLVLZ3>; Fri, 22 Dec 2000 06:25:29 -0500
+	id <S131495AbQLVLfF>; Fri, 22 Dec 2000 06:35:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131726AbQLVLZU>; Fri, 22 Dec 2000 06:25:20 -0500
-Received: from 13dyn213.delft.casema.net ([212.64.76.213]:6661 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131326AbQLVLZM>; Fri, 22 Dec 2000 06:25:12 -0500
-Message-Id: <200012221054.LAA18095@cave.bitwizard.nl>
-Subject: Re: recommended gcc compiler version
-In-Reply-To: <E149NvR-0004Kz-00@the-village.bc.nu> from Alan Cox at "Dec 22,
- 2000 08:51:39 am"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Fri, 22 Dec 2000 11:54:35 +0100 (MET)
-CC: "Robert B. Easter" <reaster@comptechnews.com>,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S131531AbQLVLeq>; Fri, 22 Dec 2000 06:34:46 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:55563 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S131495AbQLVLeh>;
+	Fri, 22 Dec 2000 06:34:37 -0500
+Date: Fri, 22 Dec 2000 12:03:21 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200012221103.MAA08412@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: usb id for scanner epson 1640SU Photo
+Cc: khk@khk.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-[ compiler for 2.4 kernels]
-> 	Red Hat's 2.96 seems to generate valid kernels but don't expect
-> 		sympathy if you report a bug in one built that way
 
-No sympathy? More like "lots of sympathy": "Ahhhh. Poor soul...."
+Hi!
 
-:-)
-		Roger. 
+Here are the patches for scanner.h (kernels 2.2) and scanner.c (kernels 2.4) to
+add the IDs (Vendor, Model) for an usb scanner Epson Perfection 1640SU Photo (or
+vanilla 1640SU as the "Photo" is an extension).
+This was done with the advice of Karl Heinz Kremer <khk@khk.net>
+I think they can be applied withut adverse problems
 
+--- kernel-sources-2.2.19-pre3/drivers/usb/scanner.h	Fri Dec 22 09:03:23 2000
++++ f5ibh-kernel-2.2.19pre/drivers/usb/scanner.h	Fri Dec 22 09:02:56 2000
+@@ -151,6 +151,7 @@
+ 		{ 0x04b8, 0x0101 },	/* Perfection 636U and 636Photo */
+ 		{ 0x04b8, 0x0103 },	/* Perfection 610 */
+ 		{ 0x04b8, 0x0104 },	/* Perfection 1200U and 1200Photo */
++		{ 0x04b8, 0x010a },	/* Perfection 1640SU Photo */
+ 	/* Umax */
+ 		{ 0x1606, 0x0010 },	/* Astra 1220U */
+ 		{ 0x1606, 0x0002 },	/* Astra 1236U */
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+		
+--- kernel-sources-2.4.0-test13-pre4/drivers/usb/scanner.c	Fri Dec 22 08:58:32 2000
++++ f5ibh-kernel-2.4.0/drivers/usb/scanner.c	Fri Dec 22 08:56:58 2000
+@@ -303,6 +303,7 @@
+     { idVendor: 0x04b8, idProduct: 0x0104 },/* Perfection 1200U and 1200Photo*/
+     { idVendor: 0x04b8, idProduct: 0x0106 },/* Stylus Scan 2500 */
+     { idVendor: 0x04b8, idProduct: 0x0107 },/* Expression 1600 */
++    { idVendor: 0x04b8, idProduct: 0x010a },/* Perfection 1640SU Photo */
+ 	/* Umax */
+     { idVendor: 0x1606, idProduct: 0x0010 },	/* Astra 1220U */
+     { idVendor: 0x1606, idProduct: 0x0030 },	/* Astra 2000U */
+
+-------------
+Regards
+
+		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

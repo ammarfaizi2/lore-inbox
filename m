@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265886AbTF3Udv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 16:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbTF3Udt
+	id S265879AbTF3UhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 16:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbTF3UhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 16:33:49 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45067
+	Mon, 30 Jun 2003 16:37:23 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45323
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265884AbTF3Udh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 16:33:37 -0400
-Date: Mon, 30 Jun 2003 13:44:29 -0700 (PDT)
+	id S265879AbTF3UhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 16:37:18 -0400
+Date: Mon, 30 Jun 2003 13:48:14 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Valdis.Kletnieks@vt.edu
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dell vs. GPL 
-In-Reply-To: <200306302043.h5UKhqjn003817@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell vs. GPL
+In-Reply-To: <E19X5VI-0002q3-00@calista.inka.de>
+Message-ID: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Now you are being silly, and I have to stop because your lack of
-seriousness.  
+The best solution is to forget what you see and know, is how the game is
+played.  When things are sent to me outside of the scope of NDA's and they
+effect my contributions is where I can free move.
 
-You can not talk about what you see or hear.
-
-What is not clear?
+Anything under NDA stays there regardless.
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Mon, 30 Jun 2003 Valdis.Kletnieks@vt.edu wrote:
+On Mon, 30 Jun 2003, Bernd Eckenfels wrote:
 
-> On Mon, 30 Jun 2003 11:28:15 PDT, Andre Hedrick said:
-> > Try leaving the ivory towers of academics for the real world.
-> > I did and it was a rude slap in the face.  Most academics don't get the
-> > real world of business, they can teach it but generally can not do it.
-> > If they could do it, they would not be in academics.  Except for the few
-> > cases of people who just get off on teaching and that is wonderful.
+> In article <Pine.LNX.4.10.10306301124180.5840-100000@master.linux-ide.org> you wrote:
 > > Maybe you are different, and do not fit under the brush.  However your
 > > comments about NDA's leaves me little faith in your knowledge base.
 > 
-> Well.. I prefer to think of it as working at a large corporate data center with
-> a 10,000 square foot server room that provides central computing services for a
-> $400M/year organization that just happens to be in the business sector of
-> "higher education".
+> most likely you never needed to violate a NDA in favor of the legal truth,
+> but be assured: nobody can force you to obey a contract which will make you
+> lie or keep illegal methods secret. Actually most often, you can be held
+> liable for knowning about it.
 > 
-> And does your NDA *REALLY* say "Thou shalt not go to the cops if
-> you find out about illegal activity"?
+> And this is totally unrlated to NDAs in academics vs. NDAs in commercial
+> business.
 > 
-> 
-> 
+> Greetings
+> Bernd
+> -- 
+> eckes privat - http://www.eckes.org/
+> Project Freefire - http://www.freefire.org/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 

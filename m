@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261730AbTCGTKn>; Fri, 7 Mar 2003 14:10:43 -0500
+	id <S261726AbTCGTV3>; Fri, 7 Mar 2003 14:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbTCGTKm>; Fri, 7 Mar 2003 14:10:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9168 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261730AbTCGTKk>;
-	Fri, 7 Mar 2003 14:10:40 -0500
-Date: Fri, 7 Mar 2003 19:21:15 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-Message-ID: <20030307192115.H3865@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S261732AbTCGTV3>; Fri, 7 Mar 2003 14:21:29 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:52980 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261726AbTCGTV2>;
+	Fri, 7 Mar 2003 14:21:28 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 7 Mar 2003 20:32:01 +0100 (MET)
+Message-Id: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, hch@infradead.org
+Subject: Re: [PATCH] register_blkdev
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> IMHO that's a bad change, (un)register_blkdev should just go away
+> completly.
 
-> As such, and since Peter is the main author, I don't see your argument,
-> Roman.
+Yes, it would be best if the kernel became perfect at once.
+But the patch is rather large. Better go in small steps.
 
-klibc is losing at least some potential developers by virtue of its
-licence.  I'm not willing to release code under the BSD licence and would
-prefer full GPL.  I'm willing to compromise on LGPL, but Peter isn't.
-He came out with some nonsense about wanting proprietary apps in early
-userspace (which seems like a ludicrous thing to _favour_, but...) which
-LGPL doesn't prevent you from doing, even with a non-shared library.
+Did you read the patch?
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
++/* Can be merged with blk_probe or deleted altogether. Later. */
++static struct blk_major_name {
+
+Andries
+
+
+[You often do general cleanup. My purpose is not to do
+general cleanup, although this is a cleanup. My purpose
+is to give us a 32-bit dev_t. After this patch the last
+occurrence of MAX_BLKDEV is in raw.c. If Linus takes it,
+the next patch will eliminate MAX_BLKDEV.]

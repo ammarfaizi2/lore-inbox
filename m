@@ -1,51 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbUKBJwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbUKBJwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUKBJwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 04:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbUKBJwy
+	id S261161AbUKBJwn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 04:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUKBJwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 04:52:54 -0500
-Received: from 4s.enrico.unife.it ([192.167.219.82]:62668 "EHLO
-	quatresse.ferrara.linux.it") by vger.kernel.org with ESMTP
-	id S261166AbUKBJjM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 04:39:12 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Test patch for ub and double registration
-Date: Tue, 2 Nov 2004 10:39:09 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, cs@tequila.co.jp
-References: <20041101164432.3fa72b81@lembas.zaitcev.lan>
-In-Reply-To: <20041101164432.3fa72b81@lembas.zaitcev.lan>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 2 Nov 2004 04:52:43 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:47366 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266192AbUKBJet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 04:34:49 -0500
+Date: Tue, 2 Nov 2004 09:34:40 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: dhowells@redhat.com
+Cc: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: [PATCH 7/14] FRV: GDB stub dependent additional BUG()'s
+Message-ID: <20041102093440.GA5841@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	dhowells@redhat.com, torvalds@osdl.org, akpm@osdl.org,
+	davidm@snapgear.com, linux-kernel@vger.kernel.org,
+	uclinux-dev@uclinux.org
+References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> <200411011930.iA1JULar023202@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411021039.10128.cova@ferrara.linux.it>
+In-Reply-To: <200411011930.iA1JULar023202@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 01:44, martedì 2 novembre 2004, Pete Zaitcev ha scritto:
-> Hello,
->
-> here's a patch to fix the double kobject registration problem with the ub.
-> One little problem here is that I do not have a device which fails this
-> way, so I would like owners of such devices to give it a try.
->
-> The latest victim of this is Fabio Coatti. It should be noted that this
-> fix only (supposed to) prevents oopses on deregistration. If the device
-> doesn't work generally (for example, requires START STOP UNIT), it won't
-> help that.
+On Mon, Nov 01, 2004 at 07:30:21PM +0000, dhowells@redhat.com wrote:
+> The attached patch adds a couple of extra BUG() calls if a GDB stub is
+> configured in the kernel. These allow the GDB stub to catch bad_page() and
+> panic().
+> 
+> Signed-Off-By: dhowells@redhat.com
+> ---
+> diffstat frv-gdbstub-2610rc1bk10.diff
+>  kernel/panic.c  |    3 +++
+>  mm/page_alloc.c |    3 +++
+>  2 files changed, 6 insertions(+)
+> 
+> diff -uNr /warthog/kernels/linux-2.6.10-rc1-bk10/kernel/panic.c linux-2.6.10-rc1-bk10-frv/kernel/panic.c
+> --- /warthog/kernels/linux-2.6.10-rc1-bk10/kernel/panic.c	2004-10-27 17:32:38.000000000 +0100
+> +++ linux-2.6.10-rc1-bk10-frv/kernel/panic.c	2004-11-01 11:47:05.162632657 +0000
+> @@ -59,6 +59,9 @@
+>  	vsnprintf(buf, sizeof(buf), fmt, args);
+>  	va_end(args);
+>  	printk(KERN_EMERG "Kernel panic - not syncing: %s\n",buf);
+> +#ifdef CONFIG_GDBSTUB
+> +	BUG();
+> +#endif
+>  	bust_spinlocks(0);
+>  
+>  #ifdef CONFIG_SMP
 
-Ill'try this patch in a few hours, report will follow ASAP; 
+please avoid the ifdef mess and add some invoke_debugger or whatever macro
+burried in some header.
 
-thanks.
+> diff -uNr /warthog/kernels/linux-2.6.10-rc1-bk10/mm/page_alloc.c linux-2.6.10-rc1-bk10-frv/mm/page_alloc.c
+> --- /warthog/kernels/linux-2.6.10-rc1-bk10/mm/page_alloc.c	2004-11-01 11:45:35.000000000 +0000
+> +++ linux-2.6.10-rc1-bk10-frv/mm/page_alloc.c	2004-11-01 11:47:05.230626996 +0000
+> @@ -83,6 +83,9 @@
+>  		page->mapping, page_mapcount(page), page_count(page));
+>  	printk(KERN_EMERG "Backtrace:\n");
+>  	dump_stack();
+> +#ifdef CONFIG_GDBSTUB
+> +	BUG();
+> +#endif
 
--- 
-Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+besides the ifdef mess this changes behaviour as it didn't BUG without,
+please skip this hunk completely.
+

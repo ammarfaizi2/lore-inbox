@@ -1,67 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264569AbRFOXm3>; Fri, 15 Jun 2001 19:42:29 -0400
+	id <S264570AbRFOXqT>; Fri, 15 Jun 2001 19:46:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264570AbRFOXmT>; Fri, 15 Jun 2001 19:42:19 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:4613 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264569AbRFOXmI>; Fri, 15 Jun 2001 19:42:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        phillips@bonn-fries.net (Daniel Phillips)
-Subject: Re: [patch] nonblinking VGA block cursor
-Date: Sat, 16 Jun 2001 01:44:40 +0200
-X-Mailer: KMail [version 1.2]
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), ljb@devco.net (Leon Breedt),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200106151938.f5FJcIJ288693@saturn.cs.uml.edu>
-In-Reply-To: <200106151938.f5FJcIJ288693@saturn.cs.uml.edu>
-MIME-Version: 1.0
-Message-Id: <0106160144400D.00879@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S264571AbRFOXqJ>; Fri, 15 Jun 2001 19:46:09 -0400
+Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:18950
+	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S264570AbRFOXqB>; Fri, 15 Jun 2001 19:46:01 -0400
+Date: Fri, 15 Jun 2001 16:45:56 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Tobias Ringstrom <tori@unhappy.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Snowhite and the Seven Dwarfs - The REAL story!
+Message-ID: <20010615164556.A31511@one-eyed-alien.net>
+Mail-Followup-To: Tobias Ringstrom <tori@unhappy.mine.nu>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <0GEZ00E36SUCK1@iris.services.ou.edu> <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se>; from tori@unhappy.mine.nu on Sat, Jun 16, 2001 at 01:34:59AM +0200
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 June 2001 21:38, Albert D. Cahalan wrote:
-> Daniel Phillips writes:
-> > On Friday 15 June 2001 21:21, Albert D. Cahalan wrote:
-> >> Non-blinking cursors are just wrong. You need to patch your brain.
-> >> You really fucked up, because now apps can't restore your cursor
-> >> to proper behavior as defined by IBM.
-> >
-> > Just one question Albert: why doesn't my mouse cursor blink? ;-)
->
-> 1. confusion with the text cursor, which should blink
-> 2. need for continuous pixel-to-pixel accuracy with the mouse
-> 3. you can wiggle your mouse as needed to find the mouse cursor
 
-4. It would be bloody annoying.
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Some people find the blinking text cursor equally annoying, you appear to be 
-trying to dictate what their options should be.
+No kidding... getting this once was funny enough on this mailing list...
+but twice in the same day?  I am just rolling in the asiles here...
 
-> Apps do funny things when you try to wiggle the text cursor
-> with the arrow keys, and movement tends to be harshly constrained.
-> So the blinking is important.
+Matt
 
-Ask the original poster if he's willing to take the risk of going with an xor 
-cursor.  We are talking text mode, right?  No way to get rid of that blinking 
-text cursor, ever.  Tell me, do you like having the colon blink on your alarm 
-clock too?  Personally, I opened the thing up and put a piece of tape over it.
+On Sat, Jun 16, 2001 at 01:34:59AM +0200, Tobias Ringstrom wrote:
+> On Fri, 15 Jun 2001, Hahaha wrote:
+>=20
+> > Today, Snowhite was turning 18. The 7 Dwarfs always where very educated=
+ and
+> > polite with Snowhite. When they go out work at mornign, they promissed a
+> > *huge* surprise. Snowhite was anxious. Suddlently, the door open, and t=
+he Seven
+> > Dwarfs enter...
+>=20
+> Ah... the joy of reading mail using non-MS software, on a non-MS OS...
+>=20
+> Hahaha, indeed!
+>=20
+> /Tobias
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-As I recall, one of the popular projects when the IBM PC first came out was 
-trying to get the cursor to stop blinking.  No luck, IBM had hardwired in a
-special trace to make sure you couldn't.  You could or two blink patterns 
-together, but never get it to stop.  Since we are now in a position to 
-dictate, why don't we continue that grand tradition.
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-IBM had lots of ideas about how computers should work.  Remember the keyboard 
-keys that when CLACK CLACK CLACK.  Thank god they turned out to be too 
-expensive to clone - nobody misses them now.
+S:  Another stupid question?
+G:  There's no such thing as a stupid question, only stupid people.
+					-- Stef and Greg
+User Friendly, 7/15/1998
 
-When people ask for such options it's not because they want to make *your* 
-cursor stop blinking, it's because they want *theirs* to stop.
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---
-Daniel
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Kp40z64nssGU+ykRAsh7AKCVhSlGvXv1BcxXb7YAcy/U6HdIFwCggDgt
+YNJoYwMvOMWQIklVeSYpaUo=
+=BSMd
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--

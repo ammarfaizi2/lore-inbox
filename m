@@ -1,44 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267285AbTABVgB>; Thu, 2 Jan 2003 16:36:01 -0500
+	id <S267149AbTABVdd>; Thu, 2 Jan 2003 16:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267266AbTABVfK>; Thu, 2 Jan 2003 16:35:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40097 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267254AbTABVeL>;
-	Thu, 2 Jan 2003 16:34:11 -0500
-Date: Thu, 2 Jan 2003 22:42:15 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Byron Albert <balbert@jupitermedia.com>, linux-kernel@vger.kernel.org
-Subject: Re: cciss driver
-Message-ID: <20030102214215.GJ13332@suse.de>
-References: <3E147CAD.5050901@jupitermedia.com>
-Mime-Version: 1.0
+	id <S267119AbTABVcy>; Thu, 2 Jan 2003 16:32:54 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:14533 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267149AbTABVbD>; Thu, 2 Jan 2003 16:31:03 -0500
+From: Tomas Szepe <kala@pinerecords.com>
+Date: Thu, 02 Jan 2003 22:39:29 +0100
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [unify netdev config 22/22] Bring the "Networking support" menu 
+ to life
+Message-ID: <3E14B191.mailM0C11O9D4@louise.pinerecords.com>
+User-Agent: nail 10.3 11/29/02
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E147CAD.5050901@jupitermedia.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02 2003, Byron Albert wrote:
-> Hello all,
-> 
->  I have noticed that there have been alot of changes to the cciss 
-> driver in the last few revs of the 2.4 kernel a diff of 2.4.18 and 
-> 2.4.20 show  this (2500 lines in a patch). But the driver version has 
-> not changed.  I am trying to figure out how the version in the kernel 
-> relates to the version on hp's web site.  On there website they have a 
-> 2.4.34 version that has patches witch will patch the kernel that comes 
-> with redhat 8.0 witch doesn't help me much because that kernel is an rc 
-> kernel with about 100 other patches 3 of witch touch this driver.
-> 
-> Can any one be of some help. I am going to be deploying alot of 
-> machines with this card in the next few months and would like some of 
-> the fetures the newer driver gets me.
-
-You probably just want to grab either 2.4.21-pre2 or extract the cciss
-changes from that patch - that'll bring the driver up to 2.4.42, which,
-as far as I'm told, is the latest and (hopefully) greatest.
-
--- 
-Jens Axboe
-
+diff -urN a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig	2002-12-16 07:02:05.000000000 +0100
++++ b/init/Kconfig	2003-01-02 22:06:46.000000000 +0100
+@@ -37,22 +37,6 @@
+ 
+ menu "General setup"
+ 
+-config NET
+-	bool "Networking support"
+-	---help---
+-	  Unless you really know what you are doing, you should say Y here.
+-	  The reason is that some programs need kernel networking support even
+-	  when running on a stand-alone machine that isn't connected to any
+-	  other computer. If you are upgrading from an older kernel, you
+-	  should consider updating your networking tools too because changes
+-	  in the kernel and the tools often go hand in hand. The tools are
+-	  contained in the package net-tools, the location and version number
+-	  of which are given in <file:Documentation/Changes>.
+-
+-	  For a general introduction to Linux networking, it is highly
+-	  recommended to read the NET-HOWTO, available from
+-	  <http://www.linuxdoc.org/docs.html#howto>.
+-
+ config SYSVIPC
+ 	bool "System V IPC"
+ 	---help---
+diff -urN a/net/Kconfig b/net/Kconfig
+--- a/net/Kconfig	2002-12-08 20:06:41.000000000 +0100
++++ b/net/Kconfig	2003-01-02 22:06:46.000000000 +0100
+@@ -2,6 +2,24 @@
+ # Network configuration
+ #
+ 
++menu "Networking support"
++
++config NET
++	bool "Networking support"
++	---help---
++	  Unless you really know what you are doing, you should say Y here.
++	  The reason is that some programs need kernel networking support even
++	  when running on a stand-alone machine that isn't connected to any
++	  other computer. If you are upgrading from an older kernel, you
++	  should consider updating your networking tools too because changes
++	  in the kernel and the tools often go hand in hand. The tools are
++	  contained in the package net-tools, the location and version number
++	  of which are given in <file:Documentation/Changes>.
++
++	  For a general introduction to Linux networking, it is highly
++	  recommended to read the NET-HOWTO, available from
++	  <http://www.linuxdoc.org/docs.html#howto>.
++
+ menu "Networking options"
+ 	depends on NET
+ 
+@@ -652,3 +670,6 @@
+ 
+ endmenu
+ 
++source "drivers/net/Kconfig"
++
++endmenu

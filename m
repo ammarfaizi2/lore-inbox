@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287139AbSAGV1m>; Mon, 7 Jan 2002 16:27:42 -0500
+	id <S287148AbSAGV1m>; Mon, 7 Jan 2002 16:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287155AbSAGV1c>; Mon, 7 Jan 2002 16:27:32 -0500
-Received: from petasus.iil.intel.com ([192.198.152.69]:55283 "EHLO
-	petasus.iil.intel.com") by vger.kernel.org with ESMTP
-	id <S287139AbSAGV1S>; Mon, 7 Jan 2002 16:27:18 -0500
-Message-ID: <3C3A12A8.3010000@intel.com>
-Date: Mon, 07 Jan 2002 23:27:04 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Organization: Intel
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: (v)sscanf handles %i improperly (+patch)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S287139AbSAGV1d>; Mon, 7 Jan 2002 16:27:33 -0500
+Received: from ns.caldera.de ([212.34.180.1]:6867 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S287148AbSAGV1U>;
+	Mon, 7 Jan 2002 16:27:20 -0500
+Date: Mon, 7 Jan 2002 22:25:42 +0100
+Message-Id: <200201072125.g07LPgE02318@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: abramo@alsa-project.org (Abramo Bagnara)
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jaroslav Kysela <perex@suse.cz>,
+        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3C39E6A0.34A88990@alsa-project.org>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for 2-nd posting, but I'm afraid 1-st one was lost. Or is the 
-issue itself not relevant? Anyway,
+In article <3C39E6A0.34A88990@alsa-project.org> you wrote:
+> If you want to keep top level cleaner and avoid proliferation of entries
+> we might have:
+>
+> subsys/sound
+> subsys/sound/drivers
+> subsys/net
+> subsys/net/drivers
 
-I found (v)sscanf included in last kernels handles %i format improperly.
-Currently, up to 2.4.17, %i is handled identical to %d. However,
-accordingly to man for sscanf,
+And what part of the kernel is no subsystem?
+Your subsystem directory is superflous.
 
-        i      Matches an  optionally  signed  integer;  the  next
-               pointer  must  be a pointer to int.  The integer is
-               read in base 16 if it begins with `0x' or `0X',  in
-               base 8 if it begins with `0', and in base 10 other­
-               wise.  Only characters that correspond to the  base
-               are used.
+If, for some reason, we want to move all code in the kernel around
+we should do it once and in a planned mannor.
 
+Randomly introducing new and shiny naming schemes sucks.  badly.
 
-Please, when replying, CC me: mailto:vladimir.kondratiev@intel.com
+	Christoph
 
-Patch is quite small (against 2.4.17):
-
---- vsprintf.c.orig    Thu Oct 11 20:17:22 2001
-+++ vsprintf.c    Tue Dec 25 23:29:31 2001
-@@ -616,8 +616,9 @@
-          case 'X':
-              base = 16;
-              break;
--        case 'd':
-          case 'i':
-+            base = 0; /* autodetect */
-+        case 'd':
-              is_sign = 1;
-          case 'u':
-              break;
-
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

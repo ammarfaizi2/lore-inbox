@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUJIX2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUJIXgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267553AbUJIX2R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 19:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUJIX2R
+	id S267554AbUJIXgb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 19:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUJIXgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 19:28:17 -0400
-Received: from gw.anda.ru ([212.57.164.72]:53508 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S267553AbUJIX2Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 19:28:16 -0400
-Date: Sun, 10 Oct 2004 05:28:09 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
-Message-ID: <20041010052809.C1639@natasha.ward.six>
-Mail-Followup-To: Rene Herman <rene.herman@keyaccess.nl>,
-	linux-kernel@vger.kernel.org
-References: <20041010015206.A30047@natasha.ward.six> <4168479C.5080306@keyaccess.nl> <20041010033820.B30047@natasha.ward.six> <41685E04.3070103@keyaccess.nl> <20041010043443.A1639@natasha.ward.six> <41686A40.3060305@keyaccess.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41686A40.3060305@keyaccess.nl>; from rene.herman@keyaccess.nl on Sun, Oct 10, 2004 at 12:46:24AM +0200
+	Sat, 9 Oct 2004 19:36:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52965 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267554AbUJIXg3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 19:36:29 -0400
+Message-ID: <416875ED.6090503@pobox.com>
+Date: Sat, 09 Oct 2004 19:36:13 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
+References: <20041009204425.49483.qmail@web13725.mail.yahoo.com>	 <200410092337.36488.bzolnier@elka.pw.edu.pl>	 <41686121.7060607@pobox.com> <58cb370e0410091622423bded0@mail.gmail.com>
+In-Reply-To: <58cb370e0410091622423bded0@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 10, 2004 at 12:46:24AM +0200, Rene Herman wrote:
-> Denis Zaitsev wrote:
+Bartlomiej Zolnierkiewicz wrote:
+> On Sat, 09 Oct 2004 18:07:29 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
-> > /proc/tty/driver/serial shows the correct info for now.  Does the fact
-> > that it used to do not means that something wrong with sysfs PnP
-> > activation mechanics?
+>>Bartlomiej Zolnierkiewicz wrote:
+>>
+>>>I may sound like an ignorant but...
+>>>
+>>>Why can't device mapper be merged into 2.4 instead?
+>>>Is there something wrong with 2.4 device mapper patch?
+>>>
+>>>It would more convenient (same driver for 2.4 and 2.6)
+>>>and would benefit users of other software RAIDs
+>>>(easier transition to 2.6).
+>>
+>>OTOH, that would be introducing a brand new RAID/LVM subsystem in the
+>>middle of a stable series...
 > 
-> That would appear to be the case yes. Adam Belay <ambx1@neo.rr.com> is 
-> the person to talk to concerning PnP issues, if you care to.
+> 
+> Quoting Marcelo:
+> 
+> 
+>>New drivers are OK, as long as they dont break existing setups,
+>>and if substantial amount of users will benefit from it.
+> 
+> 
+> IMHO both conditions are fulfilled.
 
-Thanks.
+
+Note I said "subsystem", Marcelo said "driver".  I don't object to 
+adding DM to 2.4.x, but I think it's a rather large addition with 
+consequences WRT LVM1 versus LVM2, and perhaps other issues as well.
+
+	Jeff
+
+

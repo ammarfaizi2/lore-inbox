@@ -1,113 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUI2BjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268147AbUI2Bta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268142AbUI2BjX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 21:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268145AbUI2BjI
+	id S268147AbUI2Bta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 21:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUI2Bta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 21:39:08 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:8606 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S268142AbUI2Biz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 21:38:55 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C969@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Cc: bunk@fs.tum.de, "Mukker, Atul" <Atulm@lsil.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, James.Bottomley@SteelEye.com,
-       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>
-Subject: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-Date: Tue, 28 Sep 2004 21:31:02 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 28 Sep 2004 21:49:30 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:63711 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S268147AbUI2Bt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 21:49:28 -0400
+Date: Wed, 29 Sep 2004 03:48:10 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Stefan Seyfried <seife@suse.de>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Chris Wright <chrisw@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: mlock(1)
+Message-ID: <20040929014810.GI4084@dualathlon.random>
+References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net> <1096071873.3591.54.camel@desktop.cunninghams> <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de> <20040927141652.GF28865@dualathlon.random> <1096291898.9911.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096291898.9911.25.camel@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+On Mon, Sep 27, 2004 at 02:31:39PM +0100, Alan Cox wrote:
+> On Llu, 2004-09-27 at 15:16, Andrea Arcangeli wrote:
+> > because I never use suspend/resume on my desktop, I never shutdown my
+> > desktop. I don't see why should I spend time typing a password when
+> > there's no need to. Every single guy out there will complain at linux
+> > hanging during boot asking for password before reaching kdm.
+> 
+> So attempt a decrypt with a null password before asking. 
 
-Change Log:
-
-Fixes a data corruption issue. Because of a typo in the driver, IO packets
-were wrongly shared by the IOCTL path. This caused the whole IO command
-to be replaced by an incoming IOCTL command.
-
-This patch (generated against 2.6.9-rc2) is inlined below.
-
-Sreenivas
-
----
-diff -Naur linux-2.6.9-rc2-mrbug/Documentation/scsi/ChangeLog.megaraid
-linux-2.6.9-rc2-fixed/Documentation/scsi/ChangeLog.megaraid
---- linux-2.6.9-rc2-mrbug/Documentation/scsi/ChangeLog.megaraid	2004-09-28
-17:31:10.000000000 -0400
-+++ linux-2.6.9-rc2-fixed/Documentation/scsi/ChangeLog.megaraid	2004-09-28
-17:43:50.000000000 -0400
-@@ -1,3 +1,11 @@
-+Release Date	: Mon Sep 27 22:15:07 EDT 2004 - Atul Mukker
-<atulm@lsil.com>
-+Current Version	: 2.20.4.0 (scsi module), 2.20.2.0 (cmm module)
-+Older Version	: 2.20.3.1 (scsi module), 2.20.2.0 (cmm module)
-+
-+i.	Fix data corruption. Because of a typo in the driver, the IO packets
-+	were wrongly shared by the ioctl path. This causes a whole IO
-command
-+	to be replaced by an incoming ioctl command.
-+
- Release Date	: Tue Aug 24 09:43:35 EDT 2004 - Atul Mukker
-<atulm@lsil.com>
- Current Version	: 2.20.3.1 (scsi module), 2.20.2.0 (cmm module)
- Older Version	: 2.20.3.0 (scsi module), 2.20.2.0 (cmm module)
-diff -Naur linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.c
-linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.c
---- linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.c	2004-09-28
-17:31:33.000000000 -0400
-+++ linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.c	2004-09-28
-17:43:50.000000000 -0400
-@@ -10,7 +10,7 @@
-  *	   2 of the License, or (at your option) any later version.
-  *
-  * FILE		: megaraid_mbox.c
-- * Version	: v2.20.3.1 (August 24 2004)
-+ * Version	: v2.20.4 (September 27 2004)
-  *
-  * Authors:
-  * 	Atul Mukker		<Atul.Mukker@lsil.com>
-@@ -197,7 +197,7 @@
-  * ### global data ###
-  */
- static uint8_t megaraid_mbox_version[8] =
--	{ 0x02, 0x20, 0x02, 0x00, 7, 22, 20, 4 };
-+	{ 0x02, 0x20, 0x04, 0x00, 9, 27, 20, 4 };
- 
- 
- /*
-@@ -3562,7 +3562,7 @@
- 	for (i = 0; i < MBOX_MAX_USER_CMDS; i++) {
- 
- 		scb			= adapter->uscb_list + i;
--		ccb			= raid_dev->ccb_list + i;
-+		ccb			= raid_dev->uccb_list + i;
- 
- 		scb->ccb		= (caddr_t)ccb;
- 		ccb->mbox64		= raid_dev->umbox64 + i;
-diff -Naur linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.h
-linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.h
---- linux-2.6.9-rc2-mrbug/drivers/scsi/megaraid/megaraid_mbox.h	2004-09-28
-17:31:33.000000000 -0400
-+++ linux-2.6.9-rc2-fixed/drivers/scsi/megaraid/megaraid_mbox.h	2004-09-28
-17:43:50.000000000 -0400
-@@ -21,8 +21,8 @@
- #include "megaraid_ioctl.h"
- 
- 
--#define MEGARAID_VERSION	"2.20.3.1"
--#define MEGARAID_EXT_VERSION	"(Release Date: Tue Aug 24 09:43:35 EDT
-2004)"
-+#define MEGARAID_VERSION	"2.20.4.0"
-+#define MEGARAID_EXT_VERSION	"(Release Date: Mon Sep 27 22:15:07 EDT
-2004)"
- 
- 
- /*
----
+Not sure to understand, sorry. I was talking about the cryptoswap above.
+there's no reason to type a password from userspace as far as cryptoswap
+is concerned, nor to attempt a decrypt. A long random key choosen by the
+kernel is more secure, that will be a single key used for both encrypt
+and decrypt, and it'll always work.

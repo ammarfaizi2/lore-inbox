@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264675AbUEOI6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUEOJJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264675AbUEOI6X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 04:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUEOI6X
+	id S261347AbUEOJJP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 05:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUEOJJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 04:58:23 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52898 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264675AbUEOI6V (ORCPT
+	Sat, 15 May 2004 05:09:15 -0400
+Received: from colin2.muc.de ([193.149.48.15]:18952 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261347AbUEOJJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 04:58:21 -0400
-Date: Sat, 15 May 2004 10:58:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: RPC request reserved 0 but used 96
-Message-ID: <20040515085819.GS17326@suse.de>
-References: <20040515083831.GR17326@suse.de>
+	Sat, 15 May 2004 05:09:13 -0400
+Date: 15 May 2004 11:09:11 +0200
+Date: Sat, 15 May 2004 11:09:11 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Andi Kleen <ak@muc.de>, Mikael Pettersson <mikpe@csd.uu.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
+Message-ID: <20040515090911.GA21406@colin2.muc.de>
+References: <1VLRr-38z-19@gated-at.bofh.it> <m3oeorvy58.fsf@averell.firstfloor.org> <1084599456.4895.103.camel@obsidian.pathscale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040515083831.GR17326@suse.de>
+In-Reply-To: <1084599456.4895.103.camel@obsidian.pathscale.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15 2004, Jens Axboe wrote:
-> Hi,
+On Fri, May 14, 2004 at 10:37:36PM -0700, Bryan O'Sullivan wrote:
+> On Fri, 2004-05-14 at 08:14, Andi Kleen wrote:
 > 
-> Seeing lots of these on a small server that hosts nfs shares (root and
-> "normal").
+> > Before merging all that I would definitely recommend some generic
+> > module to allocate performance counters. IBM had a patch for this
+> > long ago, and it is even more needed now.
 > 
-> router:~ # dmesg | tail -n5
-> RPC request reserved 0 but used 96
-> RPC request reserved 0 but used 96
-> RPC request reserved 0 but used 140
-> RPC request reserved 0 but used 140
-> RPC request reserved 0 but used 96
+> That's currently handled in user space, by PAPI (which sits on top of
+> perfctr).  One reason *not* to do it in the kernel is the bloat it would
+
+That's clearly the wrong place to do it.
+
+> entail; just look at the horrendous mess that is the P4 performance
+> counter event selector.
+
+There is no way around that - there are kernel users (like the
+nmi watchdog or oprofile) and kernel users cannot be made dependent 
+on user space modules. Also I think managing of hardware resources is the 
+primary task of a kernel, nothing that should be delegated to user 
+space.
+
+The netburst mess can be probably abstracted just into more counters.
+The kernel doesn't need to know everything about them, just roughly
+how many independent counters there are.
+
 > 
-> I see nfs stalls on the client, doesn't seem to be directly related to
-> when the above messages happen.
+> > Why do you check for K8 C stepping? I don't see any code that
+> > does anything special with that.
+> 
+> The reason it's interesting at all is that it's the first K8 stepping
+> that introduces new performance counter unit masks.  The kernel driver
+> already passes its notion of what the CPU type is up to userspace. 
+> (Clearly, userspace could figure this out, since it's just parsing the
+> cpuid instruction.)
+> 
+> It also checks the CPU type in a few places internally; it just doesn't
+> happen to care internally about K8 stepping C.  Thoroughness?
 
-This went out a little early, lots of pieces missing.
+Why does the library caring about that not just read /proc/cpuinfo
+to find out?
 
-The server is running 2.6.6-mm2, NFS options are as follows:
+I sense pointless duplication of mechanism.
 
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V4 is not set
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V4 is not set
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-
-The shares are exported async.
-
-Client is running 2.4.26, mount options are nfsvers=3,tcp.
-
-I'll be trying 2.6.6-BK on the server now.
-
--- 
-Jens Axboe
-
+-Andi

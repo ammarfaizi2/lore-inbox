@@ -1,108 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265608AbSLSP1W>; Thu, 19 Dec 2002 10:27:22 -0500
+	id <S265637AbSLSPlt>; Thu, 19 Dec 2002 10:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbSLSP1W>; Thu, 19 Dec 2002 10:27:22 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:4775 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S265608AbSLSP1V>;
-	Thu, 19 Dec 2002 10:27:21 -0500
-Date: Thu, 19 Dec 2002 17:35:16 +0200
-From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalidate: busy buffer + MD RAID 1
-Message-ID: <20021219153516.GA10968@linux.kappa.ro>
-References: <Pine.LNX.4.44.0212181905500.4421-100000@jdi.jdimedia.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212181905500.4421-100000@jdi.jdimedia.nl>
-User-Agent: Mutt/1.3.25i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
+	id <S265727AbSLSPlt>; Thu, 19 Dec 2002 10:41:49 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:3039
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265637AbSLSPls>; Thu, 19 Dec 2002 10:41:48 -0500
+Date: Thu, 19 Dec 2002 10:52:06 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: parport_serial link order bug, NetMos support
+In-Reply-To: <E18OxWK-0004w8-00@alf.amelek.gda.pl>
+Message-ID: <Pine.LNX.4.50.0212191049020.2159-100000@montezuma.mastecende.com>
+References: <E18OxWK-0004w8-00@alf.amelek.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the same behaviour on several machines .. but I sleep well at night :P
+On Thu, 19 Dec 2002, Marek Michalkiewicz wrote:
 
-On Wed, Dec 18, 2002 at 07:45:00PM +0100, Igmar Palsenberg wrote:
-> 
-> Hi,
-> 
-> I get a 'invalidate: busy buffer' about 20 times at reboot. Only at 
-> reboot however.
-> 
-> Setup :
-> 
-> linux-2.4.19 + grsecurity-1.9.7d + acl+xattr 0.8.53 + freeswan (inc. aes 
-> and that kind of stuff)
-> 
-> The machine (Compaq ML350) has 2 scsi devices (sda, sdb) and a RAID 1 
-> setup :
-> 
-> md0 : sda1 + sdb1
-> md1 : sda3 + sdb3
-> swap is done on sda2 + sdb2, using default prio's.
-> 
-> Triggering the 'invalidate: busy buffer' is easiest done by letting squid 
-> create it's cache dirs and then rebooting.
-> 
-> No data corruption is occuring (at last not any that a force fsck can 
-> detect), but I removed the RAID1 setup to make sure I sleep well tonight 
-> :)
-> 
-> Looking at the md.c code, line 1708 :
-> 
->     ITERATE_RDEV(mddev,rdev,tmp) {
->         if (rdev->faulty)
->             continue;
->         invalidate_device(rdev->dev, 1);
->         if (get_hardsect_size(rdev->dev)
->             > md_hardsect_sizes[mdidx(mddev)])
->             md_hardsect_sizes[mdidx(mddev)] =
->                 get_hardsect_size(rdev->dev);
->     }
-> 
-> Looks like it is invalidating the underlying devices (sda[13], sdb[13] in 
-> my case.
-> 
-> Since my RAID array doesn't get screwed I suspect that the md code does 
-> the above again on a do_md_stop(), but I can't find it.
-> 
-> Anyone got any comments on this ?? 
-> 
-> 
-> 
-> 	Regards,
-> 
-> 
-> 		Igmar
-> 
-> 
-> Please CC all responses.
-> 
-> 
-> 
-> -- 
-> 
-> Igmar Palsenberg
-> JDI Media Solutions
-> 
-> Helhoek 30
-> 6923PE Groessen
-> Tel: +31 (0)316 - 596695
-> Fax: +31 (0)316 - 596699
-> The Netherlands
-> 
-> mailto: i.palsenberg@jdimedia.nl
-> PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Hello,
+>
+> I've been trying (for quite a long time now, starting around the
+> time when 2.4.19 was released) to submit the following patches into
+> the 2.4.x kernel:
+>
+> http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/00_parport_serial
+> http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/01_netmos
+>
+> (generated for 2.4.20-pre9, but apply cleanly to 2.4.20-final too,
+> 00_parport_serial needs to be applied before 01_netmos).
 
+I have local patches which do the same and have been using them for about
+a year too (also at 115k). Regarding the parallel port aspect of the card,
+i have tested using shared IRQs by running an epat cdrom via said port and
+generating a high amount of serial i/o
+
+00:10.0 Communication controller: NetMos Technology 222N-2 I/O Card (2S+1P) (rev 01)
+
+Last time i posted regarding this, Tim Waugh says that the cards brought
+about a number of issues, of which i am unable to recollect.
+
+	Zwane
 -- 
-      Teodor Iacob,
-Network Administrator
-Astral TELECOM Internet
+function.linuxpower.ca

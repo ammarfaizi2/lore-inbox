@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbUCWQPo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 11:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUCWQPo
+	id S262650AbUCWQTN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 11:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUCWQTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 11:15:44 -0500
-Received: from news.cistron.nl ([62.216.30.38]:40629 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262751AbUCWQPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 11:15:34 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Hidden PIDs in /proc
-Date: Tue, 23 Mar 2004 16:15:33 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c3pnr5$29f$1@news.cistron.nl>
-References: <200403231708.15812.AlberT@agilemovement.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1080058533 2351 62.216.29.200 (23 Mar 2004 16:15:33 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Tue, 23 Mar 2004 11:19:13 -0500
+Received: from mail04a.baweb.com ([209.130.123.57]:59106 "HELO
+	mail06.baweb.com") by vger.kernel.org with SMTP id S262650AbUCWQQl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 11:16:41 -0500
+From: "Patrick Burke" <pb@navistaff.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: To all
+Date: Tue, 23 Mar 2004 11:16:30 -0500
+Message-ID: <OJEILMPNJCFNEJFKONPJKEDNDDAA.pb@navistaff.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200403231708.15812.AlberT@agilemovement.it>,
-Emiliano 'AlberT' Gabrielli <AlberT@agilemovement.it> wrote:
->
->Hi all,
->
->   I discovered some "hidden" pid dirs in /proc :
->
->root@emc2:# ls -lha /proc/ | grep 4673
->root@emc2:# ls -lha /proc/4673/
->totale 0
->dr-xr-xr-x    3 albert   albert          0 2004-03-23 17:02 .
->dr-xr-xr-x  108 root     root            0 2004-03-23 16:10 ..
+Patrick Burke with Navistaff.  I am currently looking for hardcore Unix
+networking developers for a top NYC area ibank.  Know anyone who might be
+interested?
 
-It's just a thread. For a threaded process, only the thread group
-leader is listed in /proc directly. The other threads are visible
-under /proc/<tgid>/task  (try it).
+A top financial firm in the NYC area is currently looking to for elite unix
+network programmers to join their equities trading group.
 
->After 2 days of headhake searching for possible rootkits, reinstalling all the 
->basic system, libs and so on (from a clean live-CD boot) ...
->I noticed that these process seem all to use pthreads ... so, the question is:
->
->is my problem related/solved by the initramfs-search-for-init-zombie-fix.patch
->in the -mm1 tree ??
+Requirements:
+*Guru-level unix programming--must be able to get through the toughest of
+technical examinations
+*Must have outstanding network programming skills, NFS, multicast, socket
+options, RFCs
+*Must be comfortable with emacs/vi, the GNU toolchain, CVS, make
+*Must possess a low-level understanding of IPC and multi-threading
+*Must possess outstanding distributed computing experience, financial
+protocol development (CMS, FIX), database development, and kernal
+development.
 
-No, by upgrading to a more recent procps.
+Please send resumes to pb@navistaff.com, or call Patrick Burke at Navistaff
+for further details. 908.273.6960 ext. 102
 
-# ps ax | grep mozilla
-16252 ?        S     10:21 /usr/lib/mozilla-firefox/firefox-bin
-$ ps ax -T | grep moz
-16252 16252 ?        S     10:21 /usr/lib/mozilla-firefox/firefox-bin
-16252 16264 ?        S      0:01 /usr/lib/mozilla-firefox/firefox-bin
-16252 16266 ?        S      0:03 /usr/lib/mozilla-firefox/firefox-bin
-16252 21530 ?        S      0:00 /usr/lib/mozilla-firefox/firefox-bin
-
-Also note:
-
-# ls /proc/16252/task
-16252/  16264/  16266/  21530/
-
-Mike.
--- 
-Netu, v qba'g yvxr gur cynvagrkg :)
+For our complete job listing, go to www.BullMarketIT.com
 

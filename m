@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbUKCTFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbUKCTFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUKCTFN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUKCTFN
+	id S261812AbUKCTFA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbUKCTE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:05:13 -0500
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:60331 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S261807AbUKCTDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:03:47 -0500
-Date: Wed, 3 Nov 2004 12:03:45 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       urban@teststation.com
-Subject: [PATCH 2.6.10-rc1] Fix building of samba userland
-Message-ID: <20041103190345.GI381@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 3 Nov 2004 14:04:59 -0500
+Received: from 200.80-202-166.nextgentel.com ([80.202.166.200]:60875 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261816AbUKCTD0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 14:03:26 -0500
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org, DervishD <lkml@dervishd.net>
+Subject: Re: is killing zombies possible w/o a reboot?
+References: <200411030751.39578.gene.heskett@verizon.net>
+	<200411031147.14179.gene.heskett@verizon.net>
+	<20041103174459.GA23015@DervishD>
+	<200411031353.39468.gene.heskett@verizon.net>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Wed, 03 Nov 2004 20:03:01 +0100
+In-Reply-To: <200411031353.39468.gene.heskett@verizon.net> (Gene Heskett's
+ message of "Wed, 3 Nov 2004 13:53:39 -0500")
+Message-ID: <yw1x7jp2hi1m.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  After 2.6.8.1, samba userland would no longer build with current
-kernel headers, as it needs some of the samba kernel headers to work,
-yet they included <linux/fs.h> outside of __KERNEL__, and after 2.6.9
-this was no longer safe, and caused compilation to fail like this:
-Compiling client/smbmount.c
-In file included from /fdb041101/montavista/foundation/devkit/ppc/74xx/bin/../ta
-rget/usr/include/linux/fs.h:19,
-                 from /fdb041101/montavista/foundation/devkit/ppc/74xx/bin/../ta
-rget/usr/include/linux/smb_fs.h:15,
-                 from ../source/client/smbmount.c:27:
-/fdb041101/montavista/foundation/devkit/ppc/74xx/bin/../target/usr/include/linux
-/prio_tree.h:22: error: parse error before "pgoff_t"
-/fdb041101/montavista/foundation/devkit/ppc/74xx/bin/../target/usr/include/linux
-/prio_tree.h:27: error: parse error before "pgoff_t"
-The simple fix is to move <linux/fs.h> down below the __KERNEL__ test.
+Gene Heskett <gene.heskett@verizon.net> writes:
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> On Wednesday 03 November 2004 12:44, DervishD wrote:
+>>    Hi Gene :)
+>>
+>> * Gene Heskett <gene.heskett@verizon.net> dixit:
+>>> >    Or write a little program that just 'wait()'s for the
+>>> > specified PID's. That is perfectly portable IMHO. But I must
+>>> > admit that the preferred way should be killing the parent.
+>>> > 'init' will reap the children after that.
+>>>
+>>> But what if there is no parent, since the system has already
+>>> disposed of it?
+>>
+>>    Then the children are reparented to 'init' and 'init' gets rid
+>> of them. That's the way UNIX behaves.
+>
+> Unforch, I've *never* had it work that way.  Any dead process I've 
+> ever had while running linux has only been disposable by a reboot.
 
---- 1.14/include/linux/smb_fs.h	2003-06-25 16:30:54 -07:00
-+++ edited/include/linux/smb_fs.h	2004-11-03 12:00:07 -07:00
-@@ -12,7 +12,6 @@
- #include <linux/smb.h>
- #include <linux/smb_fs_i.h>
- #include <linux/smb_fs_sb.h>
--#include <linux/fs.h>
- 
- /*
-  * ioctl commands
-@@ -26,6 +25,7 @@
- 
- #ifdef __KERNEL__
- 
-+#include <linux/fs.h>
- #include <linux/pagemap.h>
- #include <linux/vmalloc.h>
- #include <linux/smb_mount.h>
+That's because its parent was still sitting around refusing to wait()
+for them.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Måns Rullgård
+mru@inprovide.com

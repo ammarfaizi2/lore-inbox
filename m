@@ -1,51 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbUJ0VYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262756AbUJ0WoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbUJ0VYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 17:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUJ0VWl
+	id S262756AbUJ0WoY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUJ0WnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:22:41 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:57018 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262728AbUJ0VSx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:18:53 -0400
-Date: Wed, 27 Oct 2004 23:19:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041027211957.GA28571@elte.hu>
-References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu>
+	Wed, 27 Oct 2004 18:43:23 -0400
+Received: from fms.tor.istop.com ([66.11.182.43]:6277 "EHLO
+	maximus.fullmotions.com") by vger.kernel.org with ESMTP
+	id S262920AbUJ0WPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 18:15:40 -0400
+Subject: Re: SSH and 2.6.9
+From: Danny Brow <fms@istop.com>
+To: Kernel-List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1098912301.4535.1.camel@hanzo.fullmotions.com>
+References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
+	 <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
+	 <1098912301.4535.1.camel@hanzo.fullmotions.com>
+Content-Type: text/plain
+Date: Wed, 27 Oct 2004 18:27:25 -0400
+Message-Id: <1098916045.3741.5.camel@hanzo.fullmotions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027205126.GA25091@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-10-27 at 17:25 -0400, Danny Brow wrote:
+> I'm recompiling right now. 
+> 
+> On Wed, 2004-10-27 at 22:54 +0200, Jesper Juhl wrote:
+> > On Wed, 27 Oct 2004, Danny Brow wrote:
+> > 
+> > > I have this odd issue with the 2.6.9 & greater kernels, that I can't ssh
+> > > or use scp any more, this is what happens when I try:
+> > > 
+> > > SSH Error with-in X:
+> > > ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
+> > > Host key verification failed.
+> > > 
+> > > SCP Error with-in X:
+> > > ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
+> > > Host key verification failed.
+> > > lost connection
+> > > 
+> > > I just get Host key verification failed in the terminal with either
+> > > command.
+> > > 
+> > > ssh-askpass does not exsisit but it never has & ssh/scp works fine with
+> > > 2.6.8.1 and below. When upgrading to the new kernel I just copied my
+> > > old .config and did a make oldconfig, make, etc.
+> > > 
+> > > Any ideas?
+> > > 
+> > 
+> > As it happens, I had a chat with a few people on IRC a few days ago who 
+> > had very similar trouble and I had no such trouble. After talking about 
+> > our kernel configs a bit we came to the conclusion that the main 
+> > difference between our .config's (except for some hardware specific 
+> > drivers and a few other bits that seemed unrelated) was that they had 
+> > CONFIG_LEGACY_PTYS=y while I had it unset. One guy recompiled his kernel 
+> > on the spot and disabled CONFIG_LEGACY_PTYS and then reported that his 
+> > trouble went away. He may have made other changes as well, I don't know, 
+> > and it may have been some of the seemingly unrelated bits that did the 
+> > trick, again I don't know.
+> > 
+> > I have not attempted to verify this myself, but I'd say it's worth a try 
+> > for you to disable CONFIG_LEGACY_PTYS (if you have it enabled) and then 
+> > test that (and report your findings back).
+> > 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
 
-> ok, i've uploaded RT-V0.4.2 which has more of the same: it fixes other
-> missed preemption checks. Does it make any difference to the xruns on
-> your UP box?
 
-uploaded RT-V0.4.3 - there was a thinko in the latency tracer that
-caused early boot failures.
+This was the problem.
 
-	Ingo
+Thanks,
+Dan.
+
+
+
+
+> > --
+> > Jesper Juhl
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVCIMe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVCIMjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVCIMe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 07:34:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVCIMe6
+	id S262326AbVCIMjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 07:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVCIMjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 07:34:58 -0500
-Received: from web52909.mail.yahoo.com ([206.190.39.186]:26493 "HELO
-	web52909.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261340AbVCIMe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 07:34:56 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=gcB6IdDSrOkI90EJpJA9saStsRHOY4pUZvVEgjMTD0qTpQcnHdk3tyx1YitjzXET0hhVvHErCY4dRVtWBKOs0CbRk73+iJllkOgRVg6jZOe9KBqpyhy/EIXxYSUo38uqG2gRmSKv1bfC3t5mDV089QfqKm2sZaE2LK9fFiGq5FA=  ;
-Message-ID: <20050309123456.52730.qmail@web52909.mail.yahoo.com>
-Date: Wed, 9 Mar 2005 13:34:56 +0100 (CET)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: Re: RFD: Kernel release numbering
-To: Jeff Garzik <jgarzik@pobox.com>,
-       "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, torvalds@osdl.org,
-       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <42278194.7020409@pobox.com>
+	Wed, 9 Mar 2005 07:39:25 -0500
+Received: from alog0100.analogic.com ([208.224.220.115]:36224 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262326AbVCIMjR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 07:39:17 -0500
+Date: Wed, 9 Mar 2005 07:36:14 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+cc: linux-kernel@vger.kernel.org, arjan@infradead.org,
+       alan@lxorguk.ukuu.org.uk, martin.frey@scs.ch
+Subject: Re: "remap_page_range" compile ERROR
+In-Reply-To: <4EE0CBA31942E547B99B3D4BFAB348113A4897@mail.esn.co.in>
+Message-ID: <Pine.LNX.4.61.0503090734200.18193@chaos.analogic.com>
+References: <4EE0CBA31942E547B99B3D4BFAB348113A4897@mail.esn.co.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Jeff Garzik <jgarzik@pobox.com> a écrit : 
-> 
-> Tangent:  I would like to see requests-for-testing for FC
-> kernels on LKML.
-> 
-> If people announce -ac/-as/-aa/-ck/etc. kernels on LKML, why
-> not distro 
-> kernels?
-> 
-> 
+On Wed, 9 Mar 2005, Mukund JB. wrote:
 
-Because some people switched to other distribution also 
-because of the distribution kernel ;-).
+>
+> Hi all,
+>
+> I am running Redhat 9 Linux.
+> I have problem with compiling the i810fb driver downloaded from
+> Sourceforge site. I have D/W the i810fb patch
+> "linux-i810fb-0.0.35.tar.bz2".
+>
+> When I run the make modules I get the following ERROR
+>
+> i810_main.c: 643: warning: passing arg 1 of 'remap_page_range_R2baf18f2'
+> makes pointer from integer without a cast
+> i810_main.c: 643: incompatible type for argument 4 of
+> 'remap_page_range_R2baf18f2'
+> i810_main.c: 643: too few arguments to function
+> 'remap_page_range_R2baf18f2'
+> Make[3]: *** [I810_main.c] Error 1
+> ........
+> ......
+>
+> The call to "remap_page_range()" is as follows:-
+>
+> return (io_remap_page_range(vma->vm_start, off, vma->vm_end -
+> vma->vm_start, vma->vm_page_prot)) ? -EAGAIN : 0;
+>
+>
+> Please suggest me what could be the problem.
+>
+> Regards,
+> Mukund jampala
+>
+>
 
-When i was using redhat (6.x) the only compilable kernel 
-was from kernel.org. I couldn't get the kernel shipped by
- redhat to compile on my machine.
 
---
-A mouse is a device used to point at 
-the xterm you want to type in.
-Kim Alm on a.s.r.
+It now gets vma as the first argment as well as the others.
 
 
-	
-
-	
-		
-Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
-Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

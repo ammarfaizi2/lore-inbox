@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbUKYH5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263017AbUKYIK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbUKYH5V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Nov 2004 02:57:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUKYH5V
+	id S263017AbUKYIK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Nov 2004 03:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUKYIK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Nov 2004 02:57:21 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47788 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263014AbUKYH5R (ORCPT
+	Thu, 25 Nov 2004 03:10:28 -0500
+Received: from pop.gmx.de ([213.165.64.20]:64396 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263020AbUKYIJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Nov 2004 02:57:17 -0500
-Date: Thu, 25 Nov 2004 08:56:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Thomas Fritzsche <tf@noto.de>
-Cc: linux-kernel@vger.kernel.org, david@2gen.com
-Subject: Re: Re: Is controlling DVD speeds via SET_STREAMING supported?
-Message-ID: <20041125075646.GD10233@suse.de>
-References: <33356.192.168.0.2.1101334593.squirrel@192.168.0.10>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33356.192.168.0.2.1101334593.squirrel@192.168.0.10>
+	Thu, 25 Nov 2004 03:09:57 -0500
+Date: Thu, 25 Nov 2004 09:09:56 +0100 (MET)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: clock@twibright.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <20041123234910.GA3488@pclin040.win.tue.nl>
+Subject: Re: bug in man netdevice?
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <17929.1101370196@www12.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24 2004, Thomas Fritzsche wrote:
-> Hi David,
+> On Tue, Nov 23, 2004 at 09:43:20PM +0000, Karel Kulhavy wrote:
 > 
-> I had the same problem with my DVD+-RW NEC-ND 3500 (NEC-support told me
-> that they didn't support linux :-( ). After googling I couldn't find an
-> answer. Because I didn't know anything about ide-cd (yesterday ;-))  I
-> read in this spec about the SET STREAMING command:
-> ftp://ftp.avc-pioneer.com/Mtfuji_4/Spec/Fuji4r10.pdf
-> If you also read the newer Specs (Mtfuji_5) then you'll find out that the
-> "SET CD SPEED" command is "only applicable to CD-R/RW logical units".
-> It looks like older DVD-Drives also support this command, but newer do not
-> support this for DVD+-R. But there is also the SET STREAMING command as
-> Jens Axboe described on this list. Not all devices support this feature
-> but my NEC-CD 3500 does (as I found out ;-) / my Teac-CD-RW does not)
+> > struct ifreq {
+> >            char    ifr_name[IFNAMSIZ];/* Interface name */
+> >            union {
+> >                    struct sockaddrifr_addr;
+> >                    struct sockaddrifr_dstaddr;
+> >                    struct sockaddrifr_broadaddr;
+> >                    struct sockaddrifr_netmask;
+> >                    struct sockaddrifr_hwaddr;
+> > 
+> > This looks like spaces forgotten between "sockaddr" and ifr_something.
+> > Is it a bug? Or is it some elaborate language construct?
 > 
-> I wrote a little programm to test this SET STREAMING command (quick &
-> dirty). In my opinion it would make sence to also enhance the kernel
-> function cdrom_select_speed (linux/drivers/ide/ide-cd.c), so that this
-> function works also for "newer" DVD-drives.
-> (!first check for the Realtime-Streaming-Feature and then use the right
-> command to set the speed). Because DVD+-RW Drives will be faster (AND
-> LOUDER!!) very soon it would be nice to have this in the kernel.
+> This is not for l-k but for mtk-manpages@gmx.net .
+> 
+> And to answer your question, there is a tabs line in the source
+> that puts the tabs at the wrong positions. Do a
+>   1,$s/sockaddr<tab>/sockaddr /
 
-I agree, I'll do a patch for this right now. Your example code looks
-fine. My only worry is that some drives might complain if your end_lba
-is larger than the capacity, I'll have to double check the spec.
+Thanks.  Now fixed in the netdevice.7 page.
+
+Cheers,
+
+Michael
 
 -- 
-Jens Axboe
-
+Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
+++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++

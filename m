@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268460AbTGIRzz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268451AbTGIRzz
+	id S266036AbTGIRyY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 13:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbTGIRyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:55:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36067 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S268460AbTGIRzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:55:03 -0400
-Date: Wed, 9 Jul 2003 14:46:06 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Andrea Arcangeli <andrea@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, marcelo@connectiva.com.br,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ->direct_IO API change in current 2.4 BK
-In-Reply-To: <200307091943.13680.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.55L.0307091445470.27004@freak.distro.conectiva>
-References: <20030709133109.A23587@infradead.org> <20030709100336.H4482@schatzie.adilger.int>
- <Pine.LNX.4.55L.0307091421070.26373@freak.distro.conectiva>
- <200307091943.13680.m.c.p@wolk-project.de>
+	Wed, 9 Jul 2003 13:54:24 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:38620 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S266036AbTGIRyX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 13:54:23 -0400
+Message-ID: <3F0C5A3D.9010800@hawton.org>
+Date: Wed, 09 Jul 2003 11:09:01 -0700
+From: Daniel <daniel@hawton.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: ACPI status in 2.5.x/2.6.0
+References: <3F0BD5D1.2010801@hawton.org> <87k7ardfdg.fsf@lapper.ihatent.com>
+In-Reply-To: <87k7ardfdg.fsf@lapper.ihatent.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Hoogerhuis wrote:
 
+> Daniel <daniel@hawton.org> writes:
+> 
+> 
+>>I have a Compaq Laptop (*shiver*) and present distro versions
+>>featuring the 2.4.x kernel seem to panic or lock on bootup on my
+>>laptop.  I was wondering if ACPI was better supported in the 2.5.x
+>>kernel branch/2.6.0 pre-kernel.  Any advice would be greatly
+>>appreciated.
+>>
+> 
+> 
+> What model is the laptop?
+> 
 
-On Wed, 9 Jul 2003, Marc-Christian Petersen wrote:
+Compaq Presario 900
 
-> On Wednesday 09 July 2003 19:24, Marcelo Tosatti wrote:
->
-> Hi,
->
-> > > > I just got a nice XFS oops due to the direct_IO API change in
-> > > > 2.4.  Guys, this is a STABLE series and APIs are supposed to be exactly
-> > > > that, _STABLE_.  If you really think O_DIRECT on NFS is soo important
-> > > > please add a ->direct_IO2 for NFS like the reiserfs read_inode2 hack.
-> I wonder why -aa and -wolk don't have these problems with O_DIRECT vs. XFS.
+I would install and try a different kernel, but I can't get any distros' 
+to boot to install, let alone install a different kernel. :(
 
-Do they have the NFS DIRECT IO patch?
+> 
+>>-Daniel
+> 
+> 
+> mvh,
+> A
+
+-Daniel
+

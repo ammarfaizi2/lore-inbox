@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263004AbSJBI7P>; Wed, 2 Oct 2002 04:59:15 -0400
+	id <S263003AbSJBI6f>; Wed, 2 Oct 2002 04:58:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263005AbSJBI7P>; Wed, 2 Oct 2002 04:59:15 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:55775 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S263004AbSJBI7M>;
-	Wed, 2 Oct 2002 04:59:12 -0400
-Date: Wed, 2 Oct 2002 11:04:39 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.40 unresolved symbol (i2c-elektor.o and xfs.o)
-Message-ID: <20021002090439.GQ7428@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	id <S263004AbSJBI6f>; Wed, 2 Oct 2002 04:58:35 -0400
+Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:34313 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S263003AbSJBI6f>;
+	Wed, 2 Oct 2002 04:58:35 -0400
+Message-ID: <3D9AB638.60209@corvil.com>
+Date: Wed, 02 Oct 2002 10:02:48 +0100
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+CC: Miroslav Rudisin <miero@atrey.karlin.mff.cuni.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] default file permission for vfat
+References: <20021001173908.GA15838@atrey.karlin.mff.cuni.cz> <20021001185526.GA704@alpha.home.local>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Willy Tarreau wrote:
+> On Tue, Oct 01, 2002 at 07:39:08PM +0200, Miroslav Rudisin wrote:
+> 
+>>Hi,
+>>
+>>The attached patch change default permission of files on [v]fatfs.
+>>Default RWX have no utilization. This patch remove exec flag.
+> 
+> Hi !
+> 
+> This is sometimes very useful to put init scripts on a floppy disk.
 
-Browsing google I didn't find those, but I may haven't loooked carefully
-enough and google isn't up to date...
+Not the common case and you can use different format floppies for this anyway.
 
-When running make modules_install:
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.40; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.40/kernel/drivers/i2c/i2c-elektor.o
-depmod: 	cli
-depmod: 	sti
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.40/kernel/fs/xfs/xfs.o
-depmod: 	run_task_queue
-depmod: 	TQ_ACTIVE
-depmod: 	queue_task
+ > I'd prefer to keep exec flags. If you don't want files to be executable, you
+> still can mount the FS with the 'noexec' option.
 
-Have a great day,
+Not since: http://www.uwsg.iu.edu/hypermail/linux/kernel/0109.3/0363.html
+Ideal would be to have a umask and dmask option (that applied to everything
+not just vfat)
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+See also: http://kt.zork.net/kernel-traffic/kt20020415_162.html#1
+
+Pádraig.
+

@@ -1,97 +1,202 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVCaIjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVCaImP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVCaIjd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 03:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVCaIjd
+	id S261174AbVCaImP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 03:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVCaImP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 03:39:33 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38062 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261192AbVCaIjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 03:39:25 -0500
-Date: Thu, 31 Mar 2005 10:39:10 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Isaacson <adi@hexapodia.org>
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Message-ID: <20050331083909.GA1387@elf.ucw.cz>
-References: <20050329181831.GB8125@elf.ucw.cz> <1112135477.29392.16.camel@desktop.cunningham.myip.net.au> <20050329223519.GI8125@elf.ucw.cz> <200503310226.03495.dtor_core@ameritech.net>
+	Thu, 31 Mar 2005 03:42:15 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:58811 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261174AbVCaImD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 03:42:03 -0500
+Date: Thu, 31 Mar 2005 14:13:13 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: SystemTAP <systemtap@sources.redhat.com>, akpm@osdl.org,
+       Andi Kleen <ak@muc.de>, davem@davemloft.net, ananth@in.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kprobes: Allow/deny probes on int3/breakpoint instruction?
+Message-ID: <20050331084313.GB32299@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20050331080714.GB31660@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503310226.03495.dtor_core@ameritech.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050331080714.GB31660@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Sorry typo error. Please use this patch.
 
-> > > > We currently freeze processes for suspend-to-ram, too. I guess that
-> > > > disable_usermodehelper is probably better and that in_suspend() should
-> > > > only be used for sanity checks... go with disable_usermodehelper and
-> > > > sorry for the noise.
-> > > 
-> > > Here's another possibility: Freeze the workqueue that
-> > > call_usermodehelper uses (remember that code I didn't push hard enough
-> > > to Andrew?), and let invocations of call_usermodehelper block in
-> > > TASK_UNINTERRUPTIBLE. In refrigerating processes, don't choke on
-> > 
-> > There may be many devices in the system, and you are going to need
-> > quite a lot of RAM for all that... That's why they do not queue it
-> > during boot, IIRC. Disabling usermode helper seems right.
-> 
-> Ok, what do you think about this one?
-> 
-> ===================================================================
-> 
-> swsusp: disable usermodehelper after generating memory snapshot and
->         before resuming devices, so when device fails to resume we
->         won't try to call hotplug - userspace stopped anyway.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> 
-> 
->  include/linux/kmod.h  |    3 +++
->  kernel/kmod.c         |   14 +++++++++++++-
->  kernel/power/disk.c   |    2 ++
->  kernel/power/swsusp.c |    1 -
->  4 files changed, 18 insertions(+), 2 deletions(-)
-> 
-> Index: dtor/kernel/power/disk.c
-> ===================================================================
-> --- dtor.orig/kernel/power/disk.c
-> +++ dtor/kernel/power/disk.c
-> @@ -205,6 +205,8 @@ int pm_suspend_disk(void)
->  
->  	if (in_suspend) {
->  		pr_debug("PM: writing image.\n");
-> +		usermodehelper_disable();
-> +		device_resume();
->  		error = swsusp_write();
->  		if (!error)
->  			power_down(pm_disk_mode);
-> Index: dtor/kernel/power/swsusp.c
-> ===================================================================
-> --- dtor.orig/kernel/power/swsusp.c
-> +++ dtor/kernel/power/swsusp.c
-> @@ -853,7 +853,6 @@ static int suspend_prepare_image(void)
->  int swsusp_write(void)
->  {
->  	int error;
-> -	device_resume();
->  	lock_swapdevices();
->  	error = write_suspend_image();
->  	/* This will unlock ignored swap devices since writing is
+Thanks
+Prasanna
 
-Looks good, except... why move code around? Could you just call
-usermodehelper_disable from swsusp_write?
-							Pavel
 
+Kprobes did an improper exit when a probe is inserted on an int3 instruction.
+In case of normal execution of int3/breakpoint instruction, it oops!.
+Probe on an int3 instruction was not handled properly by the kprobes, it 
+generated faults after oops! doing an improper exit with holding the lock. This
+fix employes a bit different method to handle probe on an int3/breakpoint 
+instruction.
+
+On execution of an int3/breakpoint instruction (placed by kprobe),
+kprobes_handler() is called which sets it for single stepping in-line(it does
+not matter whether we single step out-of-line/inline since the single stepping
+instruction is same). Now it single steps on int3/breakpoint instruction here,
+entering kprobes_handler() once again. Kprobes now check's the status that it
+is single stepping and avoids the recursion. It runs down through the trap
+handler and oops messages is seen on the console since it executed
+int3/breakpoint instruction. Here the kprobes single stepping handler never
+gets called.
+
+Is this behaviour acceptable ? Or should we avoid putting probes on an int3
+/breakpoint instruction ? How should it handle such situations?
+Below is the patch to allow probes on an int3/breakpoint instruction.
+
+This patch fixes the above problem by doing a proper exit while avoiding
+recursion.
+Any pointers/suggestions on the above issues will be helpful.
+
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+
+
+---
+
+ linux-2.6.12-rc1-prasanna/arch/i386/kernel/kprobes.c    |   12 +++++++++++-
+ linux-2.6.12-rc1-prasanna/arch/ppc64/kernel/kprobes.c   |   12 +++++++++++-
+ linux-2.6.12-rc1-prasanna/arch/sparc64/kernel/kprobes.c |   16 ++++++++++++++--
+ linux-2.6.12-rc1-prasanna/arch/x86_64/kernel/kprobes.c  |   13 +++++++++++--
+ 4 files changed, 47 insertions(+), 6 deletions(-)
+
+diff -puN arch/i386/kernel/kprobes.c~kprobes-allow-probes-on-int3 arch/i386/kernel/kprobes.c
+--- linux-2.6.12-rc1/arch/i386/kernel/kprobes.c~kprobes-allow-probes-on-int3	2005-03-30 16:47:42.000000000 +0530
++++ linux-2.6.12-rc1-prasanna/arch/i386/kernel/kprobes.c	2005-03-30 16:51:43.000000000 +0530
+@@ -84,7 +84,11 @@ static inline void prepare_singlestep(st
+ {
+ 	regs->eflags |= TF_MASK;
+ 	regs->eflags &= ~IF_MASK;
+-	regs->eip = (unsigned long)&p->ainsn.insn;
++	/*single step inline if the instruction is an int3*/
++	if (p->opcode == BREAKPOINT_INSTRUCTION)
++		regs->eip = (unsigned long)p->addr;
++	else
++		regs->eip = (unsigned long)&p->ainsn.insn;
+ }
+ 
+ /*
+@@ -117,6 +121,12 @@ static int kprobe_handler(struct pt_regs
+ 		   Disarm the probe we just hit, and ignore it. */
+ 		p = get_kprobe(addr);
+ 		if (p) {
++			if (kprobe_status == KPROBE_HIT_SS) {
++				regs->eflags &= ~TF_MASK;
++				regs->eflags |= kprobe_saved_eflags;
++				unlock_kprobes();
++				goto no_kprobe;
++			}
+ 			disarm_kprobe(p, regs);
+ 			ret = 1;
+ 		} else {
+diff -puN arch/x86_64/kernel/kprobes.c~kprobes-allow-probes-on-int3 arch/x86_64/kernel/kprobes.c
+--- linux-2.6.12-rc1/arch/x86_64/kernel/kprobes.c~kprobes-allow-probes-on-int3	2005-03-30 20:55:23.000000000 +0530
++++ linux-2.6.12-rc1-prasanna/arch/x86_64/kernel/kprobes.c	2005-03-31 12:19:53.000000000 +0530
+@@ -108,8 +108,11 @@ static void prepare_singlestep(struct kp
+ {
+ 	regs->eflags |= TF_MASK;
+ 	regs->eflags &= ~IF_MASK;
+-
+-	regs->rip = (unsigned long)p->ainsn.insn;
++	/*single step inline if the instruction is an int3*/
++	if (p->opcode == BREAKPOINT_INSTRUCTION)
++		regs->rip = (unsigned long)p->addr;
++	else
++		regs->rip = (unsigned long)p->ainsn.insn;
+ }
+ 
+ /*
+@@ -131,6 +134,12 @@ int kprobe_handler(struct pt_regs *regs)
+ 		   Disarm the probe we just hit, and ignore it. */
+ 		p = get_kprobe(addr);
+ 		if (p) {
++			if (kprobe_status == KPROBE_HIT_SS) {
++				regs->eflags &= ~TF_MASK;
++				regs->eflags |= kprobe_saved_rflags;
++				unlock_kprobes();
++				goto no_kprobe;
++			}
+ 			disarm_kprobe(p, regs);
+ 			ret = 1;
+ 		} else {
+diff -puN arch/ppc64/kernel/kprobes.c~kprobes-allow-probes-on-int3 arch/ppc64/kernel/kprobes.c
+--- linux-2.6.12-rc1/arch/ppc64/kernel/kprobes.c~kprobes-allow-probes-on-int3	2005-03-30 21:03:14.000000000 +0530
++++ linux-2.6.12-rc1-prasanna/arch/ppc64/kernel/kprobes.c	2005-03-31 10:46:16.000000000 +0530
+@@ -71,7 +71,11 @@ static inline void disarm_kprobe(struct 
+ static inline void prepare_singlestep(struct kprobe *p, struct pt_regs *regs)
+ {
+ 	regs->msr |= MSR_SE;
+-	regs->nip = (unsigned long)&p->ainsn.insn;
++	/*single step inline if it a breakpoint instruction*/
++	if (p->opcode == BREAKPOINT_INSTRUCTION)
++		regs->nip = (unsigned long)p->addr;
++	else
++		regs->nip = (unsigned long)&p->ainsn.insn;
+ }
+ 
+ static inline int kprobe_handler(struct pt_regs *regs)
+@@ -89,6 +93,12 @@ static inline int kprobe_handler(struct 
+ 		   Disarm the probe we just hit, and ignore it. */
+ 		p = get_kprobe(addr);
+ 		if (p) {
++			if (kprobe_status == KPROBE_HIT_SS) {
++				regs->msr &= ~MSR_SE;
++				regs->msr |= kprobe_saved_msr;
++				unlock_kprobes();
++				goto no_kprobe;
++			}
+ 			disarm_kprobe(p, regs);
+ 			ret = 1;
+ 		} else {
+diff -puN arch/sparc64/kernel/kprobes.c~kprobes-allow-probes-on-int3 arch/sparc64/kernel/kprobes.c
+--- linux-2.6.12-rc1/arch/sparc64/kernel/kprobes.c~kprobes-allow-probes-on-int3	2005-03-31 10:34:50.000000000 +0530
++++ linux-2.6.12-rc1-prasanna/arch/sparc64/kernel/kprobes.c	2005-03-31 10:44:19.000000000 +0530
+@@ -68,8 +68,14 @@ static inline void prepare_singlestep(st
+ 	current_kprobe_orig_tstate_pil = (regs->tstate & TSTATE_PIL);
+ 	regs->tstate |= TSTATE_PIL;
+ 
+-	regs->tpc = (unsigned long) &p->ainsn.insn[0];
+-	regs->tnpc = (unsigned long) &p->ainsn.insn[1];
++	/*single step inline, if it a breakpoint instruction*/
++	if (p->opcode == BREAKPOINT_INSTRUCTION) {
++		regs->tpc = (unsigned long) p->addr;
++		regs->tnpc = current_kprobe_orig_tnpc;
++	} else {
++		regs->tpc = (unsigned long) &p->ainsn.insn[0];
++		regs->tnpc = (unsigned long) &p->ainsn.insn[1];
++	}
+ }
+ 
+ static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
+@@ -97,6 +103,12 @@ static int kprobe_handler(struct pt_regs
+ 		 */
+ 		p = get_kprobe(addr);
+ 		if (p) {
++			if (kprobe_status == KPROBE_HIT_SS) {
++				regs->tstate = ((regs->tstate & ~TSTATE_PIL) |
++					current_kprobe_orig_tstate_pil);
++				unlock_kprobes();
++				goto no_kprobe;
++			}
+ 			disarm_kprobe(p, regs);
+ 			ret = 1;
+ 		} else {
+
+_
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Have a Nice Day!
+
+Thanks & Regards
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

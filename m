@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbTLLPot (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:44:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbTLLPos
+	id S265269AbTLLPq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbTLLPq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:44:48 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:56221 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S265264AbTLLPop
+	Fri, 12 Dec 2003 10:46:58 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36881 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265269AbTLLPql
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:44:45 -0500
-Date: Fri, 12 Dec 2003 08:44:43 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] -tiny tree for small systems (2.6.0-test11)
-Message-ID: <20031212154443.GN23731@stop.crashing.org>
-References: <20031212033734.GG23787@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031212033734.GG23787@waste.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Dec 2003 10:46:41 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: 12 Dec 2003 15:35:17 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <brcn7l$9oo$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44L0.0312081127080.1043-100000@ida.rowland.org> <200312081859.03773.baldrick@free.fr> <3FD92632.50200@pacbell.net>
+X-Trace: gatekeeper.tmr.com 1071243317 10008 192.168.12.62 (12 Dec 2003 15:35:17 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 09:37:34PM -0600, Matt Mackall wrote:
+In article <3FD92632.50200@pacbell.net>,
+David Brownell  <david-b@pacbell.net> wrote:
 
-> This is the first release of a new kernel tree dubbed '-tiny' (someone
-> already took -mm). The aim of this tree is to collect patches that
-> reduce kernel disk and memory footprint as well as tools for working
-> on small systems, an area Linux mainstream has been moving away from
-> since Linus got a real job. Target users are things like embedded
-> systems, small or legacy desktop folks, and handhelds.
-> 
-> To get the ball rolling, I've thrown in about 50 patches that trim
-> various bits of the kernel, almost all configurable, and a fair number
-> may eventually be appropriate for mainline. All the config options are
-> currently thrown under CONFIG_EMBEDDED and many of the minor tweaks
-> are covered under a set of config options called CONFIG_CORE_SMALL,
-> CONFIG_NET_SMALL, and CONFIG_CONSOLE_SMALL.
-> 
-> Nifty things I've included:
->  - building with -Os
->  - 4k process stacks (via -wli)
->  - configurable removal of printk, BUG, and panic() strings
->  - configurable HZ
->  - configurable support for vm86, core dumps, kcore, sysfs, aio, etc.
->  - a very nice kmalloc auditing system via /proc/kmalloc
->  - auditing of bootmem usage
->  - a system for counting inline instantiations
->  - my netpoll/netconsole patches
->  - my drivers/char/random fixups
+| The more I think about it, the more I like your idea of
+| changing device->serialize to be an rwsem.  Changing config,
+| or resetting the device, would get the writelock.  All other
+| uses should share, with readlocks -- that's the right model.
+| 
+| Likely not before 2.6.1 though ... ;)
 
-I'd like to suggest you check out the "tweaks" idea I tossed out here:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0211.0/2229.html
-If this sounds interesting, I've got a version of the patch (albeit old
-and not applying directly right now I bet) that moved things into header
-files and got all of the dependancy stuff correct except for the initial
-run (so I think I was forcing an update with any make invocation, but
-there were no spurious recompiles).
+It's not clear one way or the other, since there is an oops involved it
+seems a bugfix is in order. It chould be fixed, perhaps the change
+described above could be accepted, since it's clearly a bugfix for a
+serious problem.
 
+Not our choice, but arguable...
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

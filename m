@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274601AbRITSig>; Thu, 20 Sep 2001 14:38:36 -0400
+	id <S274602AbRITSk4>; Thu, 20 Sep 2001 14:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274604AbRITSi0>; Thu, 20 Sep 2001 14:38:26 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:24829 "EHLO
+	id <S274604AbRITSkq>; Thu, 20 Sep 2001 14:40:46 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25341 "EHLO
 	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S274601AbRITSiQ>; Thu, 20 Sep 2001 14:38:16 -0400
+	id <S274602AbRITSkf>; Thu, 20 Sep 2001 14:40:35 -0400
 From: Andreas Dilger <adilger@turbolabs.com>
-Date: Thu, 20 Sep 2001 12:38:18 -0600
-To: Eric Weigle <ehw@lanl.gov>
-Cc: nalabi@formail.org, linux-kernel@vger.kernel.org
-Subject: Re: qlogic driver , 1Tbyte hard error
-Message-ID: <20010920123818.C14526@turbolinux.com>
-Mail-Followup-To: Eric Weigle <ehw@lanl.gov>, nalabi@formail.org,
+Date: Thu, 20 Sep 2001 12:40:20 -0600
+To: David Hajek <david@atrey.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: high cpu load with sw raid1
+Message-ID: <20010920124020.D14526@turbolinux.com>
+Mail-Followup-To: David Hajek <david@atrey.karlin.mff.cuni.cz>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <E15k3FD-0005E1-00@the-village.bc.nu> <20010920095056.A21993@lanl.gov>
+In-Reply-To: <20010920102616.A2753@pida.ulita.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010920095056.A21993@lanl.gov>
+In-Reply-To: <20010920102616.A2753@pida.ulita.cz>
 User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 20, 2001  09:50 -0600, Eric Weigle wrote:
-> > The maximum supported file system size under Linux 2.4 is just under 1Tb.
-> > The scsi layer gets slightly confused a bit earlier with its printk messages
->
-> Is there any particular (that is, technical) reason for this?  A few months
-> ago I hit this problem while building a RAID system for our group.  We wanted
-> to do software RAID-0 over three hardware RAID-5 arrays (2 by 375G and one
-> 525G) and the kernel (2.4.6) had a hissy fit.
+On Sep 20, 2001  10:26 +0200, David Hajek wrote:
+> I have linux box with 70GB SW Raid1. This box runs for half
+> a year without problems but now I meet the high cpu load 
+> problems. I suspect that it can be caused by not enough 
+> free disk space on this md device. I see following:
 > 
-> Given the relatively low cost of disk space ($5000/terabyte and on up, see
-> http://staff.sdsc.edu/its/terafile/), is this something that will be supported
-> in the future?
-> 
-> If you point me in the right direction I'd be willing to look at this issue.
+> 1 GB free  - load > 5
+> 5 GB free  - load < 1
 
-There is a patch to allow 64-bit block devices - Ben LaHaise or Jens Axbow
-put it out about 2 months ago.  I believe it fixes the SCSI midlayer,
-and a limited number of drivers.  This is probably a good starting point
-(you may need to update the particular SCSI driver you are using).
+What filesystem are you using?  If it is reiserfs, and you have < 10%
+of the disk free, it is very unhappy.  A patch to fix this is available.
 
 Cheers, Andreas
 --

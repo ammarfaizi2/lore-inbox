@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269752AbRHQGKh>; Fri, 17 Aug 2001 02:10:37 -0400
+	id <S269763AbRHQGZu>; Fri, 17 Aug 2001 02:25:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269731AbRHQGK2>; Fri, 17 Aug 2001 02:10:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:7810 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269712AbRHQGKL>;
-	Fri, 17 Aug 2001 02:10:11 -0400
-Date: Thu, 16 Aug 2001 23:07:12 -0700 (PDT)
-Message-Id: <20010816.230712.68039149.davem@redhat.com>
-To: bcrl@redhat.com
-Cc: zippel@linux-m68k.org, aia21@cam.ac.uk, tpepper@vato.org,
-        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0108170027070.28617-100000@toomuch.toronto.redhat.com>
-In-Reply-To: <20010816.195906.38712979.davem@redhat.com>
-	<Pine.LNX.4.33.0108170027070.28617-100000@toomuch.toronto.redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269731AbRHQGZk>; Fri, 17 Aug 2001 02:25:40 -0400
+Received: from c-df8a70d5.032-6-73746f3.cust.bredbandsbolaget.se ([213.112.138.223]:11392
+	"EHLO marvin.linux-dude.com") by vger.kernel.org with ESMTP
+	id <S268129AbRHQGZ1>; Fri, 17 Aug 2001 02:25:27 -0400
+Message-Id: <200108170625.f7H6PdV00943@marvin.linux-dude.com>
+From: Jarek Luberek <jarek@swipnet.se>
+To: linux-kernel@vger.kernel.org
+Subject: Oops in 2.4.9
+Date: Fri, 17 Aug 2001 08:25:39 +0200
+X-Mailer: KMail [version 1.3]
+Cc: jarek@swipnet.se
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_RI877BXTNFUOMP2HO98N"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben LaHaise <bcrl@redhat.com>
-   Date: Fri, 17 Aug 2001 00:29:58 -0400 (EDT)
 
-   On Thu, 16 Aug 2001, David S. Miller wrote:
-   
-   > Wrong.  This is legal:
-   >
-   > int test(unsigned long a, int b)
-   > {
-   > 	return min(a, b);
-   > }
-   
-   I would hope that it would warn: what if a is the maximum size that an
-   array can be and b is a value passed in from userland?  Most definately
-   not an expected result.
+--------------Boundary-00=_RI877BXTNFUOMP2HO98N
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-My example was poor, consider if 'b' was something like '100'
-or for some other reason you already know perfectly well
-the legal range of 'b' or 'a'.
+I saw this oops in my dmesg log:
 
-Later,
-David S. Miller
-davem@redhat.com
+The systems is a dual PIII 450, ide disks, reiserfs root file system. Suse 
+7.1.  GeForce256 but X was not working at the time (maybe this was
+the reason)
+
+Greetings,
+Jarek
+
+--------------Boundary-00=_RI877BXTNFUOMP2HO98N
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="oops.log"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="oops.log"
+
+aW52YWxpZCBvcGVyYW5kOiAwMDAwCkNQVTogICAgMQpFSVA6ICAgIDAwMTA6WzxjMDEyYjk2OD5d
+ClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQgZWxmMzItaTM4NiAtYSBpMzg2CkVGTEFH
+UzogMDAwMTAyODYKZWF4OiAwMDAwMDAxZiAgIGVieDogYzEyZDhhMTQgICBlY3g6IDAwMDAwMDQ2
+ICAgZWR4OiAwMTAwMDAwMAplc2k6IGM0NGYxY2M0ICAgZWRpOiAwMDAwMDAwMCAgIGVicDogMDAw
+MDAwMDAgICBlc3A6IGMzODAzZWQwCmRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOApQcm9j
+ZXNzIGtkbSAocGlkOiAxMTMwLCBzdGFja3BhZ2U9YzM4MDMwMDApClN0YWNrOiBjMDIyNzQ4NiBj
+MDIyNzU1YSAwMDAwMDA1MSBjMTJkOGExNCBjNDRmMWNjNCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAw
+MDAwMCAKICAgICAgIGMxMmQ4YTE0IGMxMmQ4YTE0IGMwMTIzNWUzIGMxMmQ4YTE0IGMwMTJjMWMz
+IGMwMTIzODQxIGMxMmQ4YTE0IGMzODAzZjQ0IAogICAgICAgMDAwMDAwMDAgMDAwMDAwMDEgYzQ0
+ZjFjYzQgMDAwMDAwMDAgYzEyZDhhMTQgYzM4MDNmNDQgYzAxMjM5MmQgYzQ0ZjFjMjAgCkNhbGwg
+VHJhY2U6IFs8YzAxMjM1ZTM+XSBbPGMwMTJjMWMzPl0gWzxjMDEyMzg0MT5dIFs8YzAxMjM5MmQ+
+XSBbPGMwMTQ2Y2U2Pl0gCiAgIFs8YzAxNDUxMjY+XSBbPGMwMTNlNDMwPl0gWzxjMDEzZTUwOD5d
+IFs8YzAxMDZkMjM+XSAKQ29kZTogMGYgMGIgODMgYzQgMGMgOGQgNzYgMDAgOGIgNDMgMTggYTgg
+MjAgNzQgMTkgNmEgNTMgNjggNWEgNzUgCgo+PkVJUDsgYzAxMmI5NjggPF9fZnJlZV9wYWdlc19v
+aythOC8zMGM+ICAgPD09PT09ClRyYWNlOyBjMDEyMzVlMyA8cmVtb3ZlX2lub2RlX3BhZ2UrM2Iv
+NDg+ClRyYWNlOyBjMDEyYzFjMyA8X19mcmVlX3BhZ2VzKzFiLzFjPgpUcmFjZTsgYzAxMjM4NDEg
+PHRydW5jYXRlX2xpc3RfcGFnZXMrMTQ1LzFjOD4KVHJhY2U7IGMwMTIzOTJkIDx0cnVuY2F0ZV9p
+bm9kZV9wYWdlcys2OS9hYz4KVHJhY2U7IGMwMTQ2Y2U2IDxpcHV0K2EyLzE5ND4KVHJhY2U7IGMw
+MTQ1MTI2IDxkX2RlbGV0ZSs2Mi9hMD4KVHJhY2U7IGMwMTNlNDMwIDx2ZnNfdW5saW5rKzE2OC8x
+OTg+ClRyYWNlOyBjMDEzZTUwOCA8c3lzX3VubGluaythOC8xMjA+ClRyYWNlOyBjMDEwNmQyMyA8
+c3lzdGVtX2NhbGwrMzMvMzg+CkNvZGU7ICBjMDEyYjk2OCA8X19mcmVlX3BhZ2VzX29rK2E4LzMw
+Yz4KMDAwMDAwMDAgPF9FSVA+OgpDb2RlOyAgYzAxMmI5NjggPF9fZnJlZV9wYWdlc19vaythOC8z
+MGM+ICAgPD09PT09CiAgIDA6ICAgMGYgMGIgICAgICAgICAgICAgICAgICAgICB1ZDJhICAgICAg
+PD09PT09CkNvZGU7ICBjMDEyYjk2YSA8X19mcmVlX3BhZ2VzX29rK2FhLzMwYz4KICAgMjogICA4
+MyBjNCAwYyAgICAgICAgICAgICAgICAgIGFkZCAgICAkMHhjLCVlc3AKQ29kZTsgIGMwMTJiOTZk
+IDxfX2ZyZWVfcGFnZXNfb2srYWQvMzBjPgogICA1OiAgIDhkIDc2IDAwICAgICAgICAgICAgICAg
+ICAgbGVhICAgIDB4MCglZXNpKSwlZXNpCkNvZGU7ICBjMDEyYjk3MCA8X19mcmVlX3BhZ2VzX29r
+K2IwLzMwYz4KICAgODogICA4YiA0MyAxOCAgICAgICAgICAgICAgICAgIG1vdiAgICAweDE4KCVl
+YngpLCVlYXgKQ29kZTsgIGMwMTJiOTczIDxfX2ZyZWVfcGFnZXNfb2srYjMvMzBjPgogICBiOiAg
+IGE4IDIwICAgICAgICAgICAgICAgICAgICAgdGVzdCAgICQweDIwLCVhbApDb2RlOyAgYzAxMmI5
+NzUgPF9fZnJlZV9wYWdlc19vaytiNS8zMGM+CiAgIGQ6ICAgNzQgMTkgICAgICAgICAgICAgICAg
+ICAgICBqZSAgICAgMjggPF9FSVArMHgyOD4gYzAxMmI5OTAgPF9fZnJlZV9wYWdlc19vaytkMC8z
+MGM+CkNvZGU7ICBjMDEyYjk3NyA8X19mcmVlX3BhZ2VzX29rK2I3LzMwYz4KICAgZjogICA2YSA1
+MyAgICAgICAgICAgICAgICAgICAgIHB1c2ggICAkMHg1MwpDb2RlOyAgYzAxMmI5NzkgPF9fZnJl
+ZV9wYWdlc19vaytiOS8zMGM+CiAgMTE6ICAgNjggNWEgNzUgMDAgMDAgICAgICAgICAgICBwdXNo
+ICAgJDB4NzU1YQoKCjEzIHdhcm5pbmdzIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxp
+YWJsZS4K
+
+--------------Boundary-00=_RI877BXTNFUOMP2HO98N--

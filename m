@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265442AbTIDSbu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265444AbTIDSbu
+	id S265227AbTIDSTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:19:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265436AbTIDSTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:31:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2528 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265442AbTIDSbs (ORCPT
+	Thu, 4 Sep 2003 14:19:53 -0400
+Received: from 67.106.152.115.ptr.us.xo.net ([67.106.152.115]:35376 "EHLO
+	amperion01.amperion.com") by vger.kernel.org with ESMTP
+	id S265227AbTIDSSQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:31:48 -0400
-Date: Thu, 4 Sep 2003 11:31:33 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ikconfig - resolve rebuild permissions
-Message-Id: <20030904113133.3f950a51.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 14:18:16 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: SLAB_LEVEL_MASK question
+Date: Thu, 4 Sep 2003 14:18:15 -0400
+Message-ID: <C6D44AA99ECEB540A5498F15F92DA07DCF0DB0@amperion01>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SLAB_LEVEL_MASK question
+Thread-Index: AcNzDtZt/ET/PUCXSlilosdXOFhmgAAADjXA
+From: "Henry Qian" <henry@amperion.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If ikconfig is enabled then the following annoying permission
-problem happens.
- $ make 
- $ su
- #  make install
- $ make
+I had a kernel panic at:
 
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/asm-i386/asm_offsets.h
-  CHK     include/linux/compile.h
-  CC      kernel/configs.o
-mv: overwrite `kernel/configs.o', overriding mode 0644? 
+static int kmem_cache_grow (kmem_cache_t * cachep, int flags)
+{
+        .....
 
-This patch fixes it by removing the configs.o file when
-needed.
+        /*
+         * The test for missing atomic flag is performed here, rather
+than
+         * the more obvious place, simply to reduce the critical path
+length
+         * in kmem_cache_alloc(). If a caller is seriously mis-behaving
+they
+         * will eventually be caught here (where it matters).
+         */
+        if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
+                BUG();
+        ...
+}
 
-It applies against 2.6.0-test4 but is also needed even with the
-ikconfig patch already in -mm5
+The kernel panics because in the flags variable, I have other flags
+(0x1f0) besides SLAB_ATOMIC.
 
-diff -Nru a/kernel/Makefile b/kernel/Makefile
---- a/kernel/Makefile	Thu Sep  4 10:33:49 2003
-+++ b/kernel/Makefile	Thu Sep  4 10:33:49 2003
-@@ -36,5 +36,6 @@
- 
- $(obj)/ikconfig.h: scripts/mkconfigs .config Makefile FORCE
- 	$(call if_changed,ikconfig)
-+	@rm -f $(obj)/configs.o
- 
- $(obj)/configs.o: $(obj)/ikconfig.h
+I modified it to:
 
+        if (in_interrupt() && (flags & SLAB_ATOMIC) != SLAB_ATOMIC)
+                BUG();
+
+It seems working fine.
+
+Is this good?
+
+Henry Qian

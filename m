@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266780AbRGLVxR>; Thu, 12 Jul 2001 17:53:17 -0400
+	id <S266830AbRGLVy2>; Thu, 12 Jul 2001 17:54:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbRGLVw4>; Thu, 12 Jul 2001 17:52:56 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:30226
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S266780AbRGLVws>; Thu, 12 Jul 2001 17:52:48 -0400
-Date: Thu, 12 Jul 2001 17:51:17 -0400
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>, Lance Larsh <llarsh@oracle.com>
-cc: Brian Strand <bstrand@switchmanagement.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-Message-ID: <384750000.994974677@tiny>
-In-Reply-To: <3B4E173E.74144A96@namesys.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S266797AbRGLVyH>; Thu, 12 Jul 2001 17:54:07 -0400
+Received: from 213.237.80.78.adsl.kd.worldonline.dk ([213.237.80.78]:14642
+	"HELO binary.dyndns.dk") by vger.kernel.org with SMTP
+	id <S266795AbRGLVx7>; Thu, 12 Jul 2001 17:53:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kenneth Vestergaard Schmidt <charon@debian.org>
+Organization: Debian
+To: linux-kernel@vger.kernel.org
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+Date: Thu, 12 Jul 2001 23:53:57 +0200
+X-Mailer: KMail [version 1.2.9]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010712215357.91B6DB6357@binary.dyndns.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Foerster wrote:
+> Seems to be the problem with the AMD optimazion in the kernel.
 
+Funny, I have only had one minor problem with my setup. It's the same 
+processor, only with one 512 meg PC133 block, and the ASUS A7V133 
+motherboard (which is equipped with the same chipset). My videocard is also 
+the same (ASUS V-7700), but my PSU is only 300Mhz.
 
-On Friday, July 13, 2001 01:31:42 AM +0400 Hans Reiser <reiser@namesys.com> wrote:
+The only instability I've experienced is when I was running KDM on both vt7 
+and vt8, and then logging out from X. Sometimes (entirely random) it would 
+freeze solid (something like once a week). I've had this setup since 2.4.1, 
+and the kernel has always been compiled with Athlon optimizations, and with 
+VIA 82CXXX chipset support.
 
-> Lance, I would appreciate it if you would be more careful to identify that you are using O_SYNC,
-> which is a special case we are not optimized for, and which I am frankly skeptical should be used at
-> all by an application instead of using fsync judiciously.  It is rare that an application is
-> inherently completely incapable of ever having two I/Os not be serialized, and using O_SYNC to force
-> every IO to be serialized rather than picking and choosing when to use fsync, well, I have my doubts
-> frankly.  If a user really needs every operation to be synchronous, they should buy a system with an
-> SSD for the journal from applianceware.com (they sell them tuned to run ReiserFS), or else they are
-> just going to go real slow, no matter what the FS does.
-> 
+As a sidenote, Linux runs blazingly fast! I was a little worried about the 
+recent mucking about VIA-chipsets when I ordered my hardware, but those 
+worries has been put to shame... Or maybe I'm just lucky ;-)
 
-There is no reason for reiserfs to be 5 times slower than ext2 at anything ;-)  
-Regardless of if O_SYNC is a good idea or not.  I should have optimized the
-original code for this case, as oracle is reason enough to do it.
+Oh, yeah, my computer is turned on and using cycles some 5-10 hours per 
+day, right now running 2.4.6.
 
--chris
+If there's anything I can help with regarding this VIA-problem, please let 
+me know. I'm probably not worth anything as a kernel hacker, but I'm 
+willing to test kernel-patches to see if they cause/cure instability.
 
+Best Regards
+
+Kenneth Vestergaard Schmidt

@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbUKRSgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUKRSaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbUKRSgA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUKRSfZ
+	id S262837AbUKRSaq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbUKRSaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:35:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59831 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262845AbUKRSbg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:31:36 -0500
-Date: Thu, 18 Nov 2004 10:31:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-cc: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
-Message-ID: <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
- <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
- <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu>
+	Thu, 18 Nov 2004 13:30:09 -0500
+Received: from dsl-213-023-011-165.arcor-ip.net ([213.23.11.165]:13322 "EHLO
+	be3.lrz.7eggert.dyndns.org") by vger.kernel.org with ESMTP
+	id S262837AbUKRS15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:27:57 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [PATCH] WTF is VLI?
+To: Avi Kivity <avi@argo.co.il>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@nurfuerspam.de
+Date: Thu, 18 Nov 2004 19:28:21 +0100
+References: <fa.inbtt12.195ed02@ifi.uio.no> <fa.cg6f09j.ji89hv@ifi.uio.no>
+User-Agent: KNode/0.7.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1CUr14-0000oQ-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Avi Kivity wrote:
+
+> for (offset = 0; offset < max_instr_len; ++offset) {
+>     create_object_file(code + offset, len - offset);
+>     disassemble();
+>     if (disassembly_includes_eip())
 
 
-On Thu, 18 Nov 2004, Miklos Szeredi wrote:
-> 
-> Well, killing the fuse process _will_ make the system come back to
-> life, since then all the dirty pages belonging to the filesystem will
-> be discarded. 
+Will fail for
 
-They will? Why? They're still mapped into other processes, still dirty. 
-How do they go away?
+movl eax,cc000000 ;or something similar, you get the point
+*EIP here*
 
-> > I really do believe that user-space filesystems have problems. There's a 
-> > reason we tend to do them in kernel space. 
-> 
-> Well, NFS with a network failure has the same problem.  It's not the
-> userspace that's the problem, it's the non-reliability.
+and result in
 
-No, it _is_ the userspace.
-
-Yes, NFS is unreliable too, but it doesn't have the behaviour that when 
-the client locks up, the server locks up too. The two aren't "linked", and 
-they are protected from each other using up too much memory.
-
-In contrast, a fuse process that needs to do IO is _not_ protected from 
-the clients having eaten up all the memory it needs to do the IO.
-
-Btw, this is not a new issue. This is the _exact_ same issue that "run the 
-NFS server on the same machine as the client" has. And yes, it did have 
-problems. People still did it, because it allowed for user-space 
-filesystem demos.
-
-> Currently shared writable mappings aren't allowed for non-root by
-> default in FUSE.
-
-Yes, that's a valid approach.
-
-			Linus
+INT3
+-- 
+Keep your hands off strong drink. It can make you shoot at the tax collector
+and miss.
+        -- R.A. Heinlein
+Friﬂ, Spammer: snapdragon4709@qytayz.com fBzlGY9EVuwDME1@disrxcount.com

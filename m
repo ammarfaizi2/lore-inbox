@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130847AbRBFBC0>; Mon, 5 Feb 2001 20:02:26 -0500
+	id <S131532AbRBFBKQ>; Mon, 5 Feb 2001 20:10:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131532AbRBFBCR>; Mon, 5 Feb 2001 20:02:17 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2576 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130847AbRBFBCF>; Mon, 5 Feb 2001 20:02:05 -0500
-Date: Mon, 5 Feb 2001 17:01:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@fh-brandenburg.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
+	id <S131977AbRBFBJ5>; Mon, 5 Feb 2001 20:09:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:40577 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131532AbRBFBJt>;
+	Mon, 5 Feb 2001 20:09:49 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14975.20110.299641.486211@pizda.ninka.net>
+Date: Mon, 5 Feb 2001 17:08:30 -0800 (PST)
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roman Zippel <zippel@fh-brandenburg.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
         Manfred Spraul <manfred@colorfullife.com>,
         Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
         linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.10.10102051658530.31998-100000@penguin.transmeta.com>
 In-Reply-To: <Pine.GSO.4.10.10102060052330.20184-100000@zeus.fh-brandenburg.de>
-Message-ID: <Pine.LNX.4.10.10102051658530.31998-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.10.10102051658530.31998-100000@penguin.transmeta.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Linus Torvalds writes:
+ > But talk to Davem and ank about why they wanted vectors.
 
-On Tue, 6 Feb 2001, Roman Zippel wrote:
-> > 
-> > 	int nr_buffers:
-> > 	struct buffer *array;
-> > 
-> > should be the low-level abstraction. 
-> 
-> Does it has to be vectors? What about lists?
+SKB setup and free needs to be as light as possible.
+Using vectors leads to code like:
 
-I'd prefer to avoid lists unless there is some overriding concern, like a
-real implementation issue. But I don't care much one way or the other -
-what I care about is that the setup and usage time is as low as possible.
-I suspect arrays are better for that.
+skb_data_free(...)
+{
+...
+	for (i = 0; i < MAX_SKB_FRAGS; i++)
+		put_page(skb_shinfo(skb)->frags[i].page);
+}
 
-I have this strong suspicion that networking is going to be the most
-latency-critical and complex part of this, and the fact that the
-networking code wanted arrays is what makes me think that arrays are the
-right way to go. But talk to Davem and ank about why they wanted vectors.
+Currently, the ZC patches have a fixed frag vector size
+(MAX_SKB_FRAGS).  But a part of me wants this to be
+made dynamic (to handle HIPPI etc. properly) whereas
+another part of me doesn't want to do it that way because
+it would increase the complexity of paged SKB handling
+and add yet another member to the SKB structure.
 
-		Linus
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbRF1XdD>; Thu, 28 Jun 2001 19:33:03 -0400
+	id <S265051AbRF1Xen>; Thu, 28 Jun 2001 19:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbRF1Xcy>; Thu, 28 Jun 2001 19:32:54 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:1553 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S264945AbRF1Xcs>;
-	Thu, 28 Jun 2001 19:32:48 -0400
-Date: Fri, 29 Jun 2001 01:32:21 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: james rich <james.rich@m.cc.utah.edu>
+	id <S265097AbRF1Xed>; Thu, 28 Jun 2001 19:34:33 -0400
+Received: from spiral.extreme.ro ([212.93.159.205]:640 "HELO spiral.extreme.ro")
+	by vger.kernel.org with SMTP id <S265051AbRF1XeV> convert rfc822-to-8bit;
+	Thu, 28 Jun 2001 19:34:21 -0400
+Date: Fri, 29 Jun 2001 02:36:04 +0300 (EEST)
+From: Dan Podeanu <pdan@spiral.extreme.ro>
+To: f5ibh <f5ibh@db0bm.ampr.org>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available
-In-Reply-To: <Pine.GSO.4.05.10106281717430.10211-100000@pipt.oz.cc.utah.edu>
-Message-ID: <Pine.LNX.4.33.0106290128020.27056-100000@Expansa.sns.it>
+Subject: Re: 2.4.5-ac20, make menuconfig problem
+In-Reply-To: <200106282022.WAA10248@db0bm.ampr.org>
+Message-ID: <Pine.LNX.4.33L2.0106290235440.23538-100000@spiral.extreme.ro>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Jun 2001, f5ibh wrote:
 
+> make[4]: Entre dans le répertoire
+> `/usr/src/kernel-sources-2.4.5-ac20/drivers/pnp'
+> gcc -D__KERNEL__ -I/usr/src/kernel-sources-2.4.5-ac20/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+> -DEXPORT_SYMTAB -c pnp_bios.c
+> pnp_bios.c:252: warning: static declaration for `pnp_bios_dock_station_info'
+> follows non-static
+> pnp_bios.c:432: warning: no semicolon at end of struct or union
 
-On Thu, 28 Jun 2001, james rich wrote:
-
-> On Fri, 29 Jun 2001, Luigi Genoni wrote:
->
-> > On Fri, 29 Jun 2001, Yaacov Akiba Slama wrote:
-> >
-> > > So it seems that even if JFS is less complete than XFS (no ACL, quotas
-> > > for instance), and even if it is less robust (I don't know if it is, I
-> > It is not less complete nor less robust, it's a different technology and a
-> > totally different approach.
-> > Remember XFS was designed thinking to a kind of HW totally different from
-> > PC, and so was for jfs. But somehow JFS is a better choice if you
-> > do not have the last fastest CPU, and the last fastest scsi disk.
->
-> This is simply not true.  I run xfs on three systems - none of which have
-> anything close to the latest cpu.  Each system runs faster after
-> installing xfs.  Since linux-kernel is not the place for advocacy I
-> suggest a comparison be for your particular setup to determine which is
-> best for you.
-Please,
-I was not making any advocacy. I was saying that there are two different
-approach, and incidentally refered my own experience. Then, telling
-about jfs to be light, I was not
-saying XFS is slow! probably my english was not good enought
-to express my thought.
-
-Luigi
+gcc -v?
 
 

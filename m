@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSJUMA6>; Mon, 21 Oct 2002 08:00:58 -0400
+	id <S261338AbSJUMK6>; Mon, 21 Oct 2002 08:10:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261345AbSJUMA6>; Mon, 21 Oct 2002 08:00:58 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:59315 "EHLO
+	id <S261339AbSJUMK6>; Mon, 21 Oct 2002 08:10:58 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:61875 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261342AbSJUMA5>; Mon, 21 Oct 2002 08:00:57 -0400
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+	id <S261338AbSJUMK5>; Mon, 21 Oct 2002 08:10:57 -0400
+Subject: Re: kexec for 2.5.44 (Who do I send this to?)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Christian Borntraeger <linux@borntraeger.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DB1DD67.5020203@domdv.de>
-References: <Pine.LNX.4.10.10210191451530.24031-100000@master.linux-ide.org> 
-	<3DB1DD67.5020203@domdv.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+In-Reply-To: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1021019151759.29078I-100000@gatekeeper.tmr.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 13:22:38 +0100
-Message-Id: <1035202958.27259.67.camel@irongate.swansea.linux.org.uk>
+Date: 21 Oct 2002 13:31:31 +0100
+Message-Id: <1035203491.27259.71.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-19 at 23:32, Andreas Steinmetz wrote:
-> Looking at the originators address and name he's from germany. FYI: 
-> There's no provision in the law here that denies you personal copies of 
-> copy protected contents assuming you own the original.
+I will start picking stuff up now I'm back and catching up on email
+(I've been away for a week). I'm not however interested in kexec or ltt
+or a lot of the other large stuff so don't bother resending me that kind
+of thing.
 
-Germany is obliged by the european union to pass such a law very soon.
-The German government may not be full of corrupt corporate lobbyists but
-the lobbyists own their masters and since they sold their souls to
-europe on this matter they have no option any more
+I really want to collect up bug fixes/compile fixes/driver updates and
+small but ready to merge stuff like the console updates if James Simmons
+is paying attention.
 

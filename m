@@ -1,48 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVBLA7C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVBLBD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbVBLA7C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 19:59:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVBLA7C
+	id S261161AbVBLBD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 20:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVBLBD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 19:59:02 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:9434 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id S262379AbVBLA67 convert rfc822-to-8bit (ORCPT
+	Fri, 11 Feb 2005 20:03:57 -0500
+Received: from smtp08.auna.com ([62.81.186.18]:36534 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S261161AbVBLBDj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 19:58:59 -0500
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 11 Feb 2005 20:03:39 -0500
+Date: Sat, 12 Feb 2005 01:03:32 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: udev::cdsymlinks does not consider a 'cdrw' as a 'cdrom'
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Greg KH <gregkh@suse.de>
+X-Mailer: Balsa 2.3.0
+Message-Id: <1108170212l.5587l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Using O_DIRECT for file writing in a kernel module
-Date: Fri, 11 Feb 2005 17:58:57 -0700
-Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C20639287E@azsmsx406>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Using O_DIRECT for file writing in a kernel module
-Thread-Index: AcUQnBs1Z359DxBOTymFjwmp+gYZ5A==
-From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Feb 2005 00:58:58.0254 (UTC) FILETIME=[0872B6E0:01C5109E]
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="=-4N8gOV1npYlCu6UbNzVH"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I'm trying to write to a file with the O_DIRECT flag from a
-kernel module in a 2.4 series of kernel on x86 hardware. I've learned
-that the O_DIRECT flag requires that the amount of data written and the
-file offset pointer must be multiples of the underlying "block size."
-	To try things out I've been successful is writing to a file with
-O_DIRECT in user space using multiples of PAGE_SIZE.
-	However, when I try to do the same from my kernel module I'm
-always greeted with an -EINVAL as the return code from the write call
-when trying multiples of PAGE_SIZE. Then I realized that the kernel uses
-four megabyte pages and not four kilobyte pages so I tried passing four
-megabytes of data to the write call but also got -EINVAL in return.
-	Is it possible to use O_DIRECT to write a file from a kernel
-module? If so, what size of data do I need to pass so that it will work?
-I've been through Google and the kernel source code but didn't see an
-answer as to the size required to get it to work.
-	Thanks in advance for any assistance offered.
+--=-4N8gOV1npYlCu6UbNzVH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi...
+
+I have a little problem with udev. I have udev-051, but have tried
+cdsymlinks.c from 053 and is the same.
+
+It does not give 'cdrom' or 'dvd' for DVD writers.
+In one box, hdb is a DVD, and hdc is a DVDRW:
+
+werewolf:/proc/sys/dev/cdrom> cat info
+CD-ROM information, Id: cdrom.c 3.20 2003/12/17
+
+drive name:             hdc     hdb
+drive speed:            40      48
+drive # of slots:       1       1
+Can close tray:         1       1
+Can open tray:          1       1
+Can lock tray:          1       1
+Can change speed:       1       1
+Can select disk:        0       0
+Can read multisession:  1       1
+Can read MCN:           1       1
+Reports media changed:  1       1
+Can play audio:         1       1
+Can write CD-R:         1       0
+Can write CD-RW:        1       0
+Can read DVD:           1       1
+Can write DVD-R:        1       0
+Can write DVD-RAM:      1       0
+Can read MRW:           1       1
+Can write MRW:          1       1
+Can write RAM:          1       1
+
+werewolf:/proc/sys/dev/cdrom> cdsymlinks hdb
+ cdrom dvd
+werewolf:/proc/sys/dev/cdrom> cdsymlinks hdc
+ cdrw dvdrw dvdram
+werewolf:/proc/sys/dev/cdrom> cdsymlinks hdc -d
+Devices: hdb hdc
+DVDRAM : 0 1 hdc
+DVDRW  : 0 1 hdc
+DVD    : 1 1 hdb hdc
+CDRW   : 0 1 hdc
+CDR    : 0 1 hdc
+CDWMRW :
+CDMRW  :
+CDROM  : (all) hdb hdc
+ cdrw dvdrw dvdram
+
+(btw, I did not know my DVD _reader_ can write anything like MRW or RAM)
+
+In other box that just has also a combo drive (DVD + DVDRW 4.7):
+
+nada:/proc/sys/dev/cdrom# cat info
+CD-ROM information, Id: cdrom.c 3.20 2003/12/17
+
+drive name:             hdh
+drive speed:            32
+drive # of slots:       1
+Can close tray:         1
+Can open tray:          1
+Can lock tray:          1
+Can change speed:       1
+Can select disk:        0
+Can read multisession:  1
+Can read MCN:           1
+Reports media changed:  1
+Can play audio:         1
+Can write CD-R:         1
+Can write CD-RW:        1
+Can read DVD:           1
+Can write DVD-R:        1
+Can write DVD-RAM:      1
+Can read MRW:           1
+Can write MRW:          1
+Can write RAM:          1
+
+nada:~> cdsymlinks hdh  =20
+
+nada:~> cdsymlinks hdh -d
+Devices: hdh
+
+DVDRAM : 1
+ hdh
+
+DVDRW  : 1
+ hdh
+
+DVD    : 1
+ hdh
+
+CDRW   : 1
+ hdh
+
+CDR    : 1
+ hdh
+
+CDWMRW :
+CDMRW  :
+CDROM  : (all) hdh
+
+And now that I realize it, why the different debug output ???
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-jam9 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
+
+
+--=-4N8gOV1npYlCu6UbNzVH
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCDVXkRlIHNEGnKMMRAkIdAJ98slagGI3HqbsV+undgpu4xq6DcACgm8qL
+rpXL7ANBNIUHRJyEMt5L+8g=
+=jqF+
+-----END PGP SIGNATURE-----
+
+--=-4N8gOV1npYlCu6UbNzVH--
 

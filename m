@@ -1,450 +1,505 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273783AbRJNCoT>; Sat, 13 Oct 2001 22:44:19 -0400
+	id <S273881AbRJNDTy>; Sat, 13 Oct 2001 23:19:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273831AbRJNCoL>; Sat, 13 Oct 2001 22:44:11 -0400
-Received: from satan.intac.net ([199.173.52.34]:58894 "EHLO source.intac.net")
-	by vger.kernel.org with ESMTP id <S273783AbRJNCnx>;
-	Sat, 13 Oct 2001 22:43:53 -0400
-Date: Sat, 13 Oct 2001 22:37:41 -0400 (EDT)
-From: kernellist@source.intac.net
-To: linux-kernel@vger.kernel.org
-Subject: Linux locks up (100+ node network; Have tried different kernels,
- etc.)
-Message-ID: <Pine.LNX.4.21.0110132154160.5530-100000@source.intac.net>
+	id <S273888AbRJNDTq>; Sat, 13 Oct 2001 23:19:46 -0400
+Received: from ausxc07.us.dell.com ([143.166.99.215]:26658 "EHLO
+	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
+	id <S273881AbRJNDTc>; Sat, 13 Oct 2001 23:19:32 -0400
+Message-ID: <71714C04806CD51193520090272892178BD710@ausxmrr502.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
+Subject: RE: crc32 cleanups
+Date: Sat, 13 Oct 2001 22:19:56 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all. I have various Linux installations at work, and have never
-run into any major problems. But in my new installation I have over 100
-IBM X 330 Series servers. The Linux build on the servers are standard VA
-6.2 Distribution(based on the RedHat 6.2 distro) w/ some in-house
-packages, and with kernels recommended from IBM(for support of their ipo
-raid module) and others that I have built.
+> I don't think this does what was intended. Should that perhaps be
+> 
+> > 		for (i = 0; i < 1; i++)
+> 
 
-Now, my problem is that many(most..) of these servers have experienced lock-ups
-that result in me having them rebooted, and then going through fsck. Below
-is a list of kernels I have tried and also my dmesg and a listing of my
-pci table, and I am also listing what I have tried and what I believe
-might be the problem:
+Good catch.  linux@horizon.com sent me a cleaned up version.
 
-I have not been able to find any type of error message logged to either
-the console or to any file. I at first thought it was that IBM's QA was
-incompetent, since we found a bunch of servers that lacked CPU fans!(Those
-have been since replaced and all servers have all needed
-hardware..). Thought maybe some problem that existed in the 2.2.19 pre
-kernels(nfs + high load = crash), but I could not replicate the hangs that
-way. I've tried kernels recommended from IBM and others that I have
-built(and I have a 2.2.14 kernel on 400 servers in another installation 
-without any issues for well over a year). I have applied any patches
-available for each kernel I have tried(tcp patches, etc.). I have even
-also tried IBM's supplied distribution without me modifying a single item
-of the distribution(I pop in their CD and install, and still run into the
-lock-ups). I also though the problem might be with this funky IBM KVM
-setup, which I still haven't totally ruled out, as it hardly works at all.
+-- 
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions
+www.dell.com/linux
+#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
+#3 Unix provider with 18% in the US (Dataquest)!
 
-So, for about 2 months, I have been in hell, have tried many things that I
-haven't listed, but did run into this link 2 days ago, which seems to be
-what might be my problem(I will post full article below after my
-dmesg/pcitable, as the link didnt work for me right now..). So, the
-article explains some issues if the BIOS is set to APIC mode. Now, I hope
-I have given enough information to see if I can get a consensus from the
-list what my problem might be. I doubt it's an issue with any software on
-the systems, as we have tried kernels that have been running on hundreds
-of other servers for well over a year w/o any issues. I've tried IBM's
-recommended setup and had strictly adhered to it on 5 servers, and all 5
-of those servers crashed/locked-up(meaning, I had 5 IBM X 330 w/ IBM
-supplied Linux distro CD installed and used everything recommended by
-them. I even went so far to space these servers about 6 inches from each
-other in case it was an issue of air or heat). Basically, I have tried
-everything, except for disabling APIC mode in the BIOS(since I just
-recently ran into that article). So, I want to know what my next action
-should be from all from the list.
+That'll teach me to clean up code by hand and not test it afterwards.
+That's supposed to be "i < 8" in that for() loop, but there are a couple
+of other glitches, too.  In particular, I got bits of the
+table-initialization
+code transposed when I generalized it for less than 8 bits.
 
-I thank you all for any and all help. I also hope all of this had made
-sense to the list.
+Here's a *tested* version, with test harness (if compiled with -DUNITTEST).
 
-Also, here is a message that at times is in the dmesg(2.2.19-6.2.7smp):
+#include <stddef.h>	/* For size_t */
+typedef unsigned _u32;
 
-WARNING: MP table in the EBDA can be UNSAFE,
-contact linux-smp@vger.kernel.org if you experience SMP problems!
+#if __GNUC__ >= 3	/* 2.x has "attribute", but only 3.0 has "pure */
+#define attribute(x) __attribute__(x)
+#else
+#define attribute(x)
+#endif
 
-kernels in use:
+/*
+ * This code is in the public domain; copyright abandoned.
+ * Liability for non-performance of this code is limited to the amount
+ * you paid for it.  Since it is distributed for free, your refund will
+ * be very very small.  If it breaks, you get to keep both pieces.
+ */
 
-2.2.14-5.0smp 
-2.2.19-6.2.7smp
-2.2.19smp
+/*
+ * There are multiple 16-bit CRC polynomials in common use, but this is
+ * *the* standard CRC-32 polynomial, first popularized by Ethernet.
+ * x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x^1+x^0
+ */
+#define CRCPOLY_LE 0xedb88320
+#define CRCPOLY_BE 0x04c11db7
 
+/* How many bits at a time to use.  Requires a table of 4<<CRC_xx_BITS
+bytes. */
+#define CRC_LE_BITS 8
+#define CRC_BE_BITS 4	/* Less performance-sensitive */
 
-dmesg:
+/*
+ * Little-endian CRC computation.  Used with serial bit streams sent
+ * lsbit-first.  Be sure to use cpu_to_le32() to append the computed CRC.
+ */
+#if CRC_LE_BITS > 8 || CRC_LE_BITS < 1 || CRC_LE_BITS & CRC_LE_BITS-1
+# error CRC_LE_BITS must be a power of 2 between 1 and 8
+#endif
 
-0E000000
-.......    : physical APIC id: 0E
-.... register #01: 000F0011
-.......     : max redirection entries: 000F
-.......     : IO APIC version: 0011
-.... register #02: 01000000
-.......     : arbitration: 01
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  0    0    0   0   0    1    1    59
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 000 00  0    0    0   0   0    1    1    61
- 05 0FF 0F  1    1    0   1   0    1    1    69
- 06 000 00  0    0    0   0   0    1    1    71
- 07 0FF 0F  1    1    0   1   0    1    1    79
- 08 000 00  0    0    0   0   0    1    1    81
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 000 00  1    0    0   0   0    0    0    00
- 0c 000 00  0    0    0   0   0    1    1    89
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  0    0    0   0   0    1    1    91
- 0f 000 00  0    0    0   0   0    1    1    99
+#if CRC_LE_BITS == 1
+/*
+ * In fact, the table-based code will work in this case, but it can be
+ * simplified by inlining the table in ?: form.
+ */
+void
+crc32init_le(void)
+{/* no-op */;}
 
-IO APIC #13......
-.... register #00: 0D000000
-.......    : physical APIC id: 0D
-.... register #01: 000F0011
-.......     : max redirection entries: 000F
-.......     : IO APIC version: 0011
-.... register #02: 0F000000
-.......     : arbitration: 0F
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
- 00 000 00  1    0    0   0   0    0    0    00
- 01 000 00  1    0    0   0   0    0    0    00
- 02 000 00  1    0    0   0   0    0    0    00
- 03 000 00  1    0    0   0   0    0    0    00
- 04 0FF 0F  1    1    0   1   0    1    1    A1
- 05 000 00  1    0    0   0   0    0    0    00
- 06 000 00  1    0    0   0   0    0    0    00
- 07 000 00  1    0    0   0   0    0    0    00
- 08 000 00  1    0    0   0   0    0    0    00
- 09 0FF 0F  1    1    0   1   0    1    1    A9
- 0a 000 00  1    0    0   0   0    0    0    00
- 0b 0FF 0F  1    1    0   1   0    1    1    B1
- 0c 0FF 0F  1    1    0   1   0    1    1    B9
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 000 00  1    0    0   0   0    0    0    00
- 0f 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 2
-IRQ1 -> 1
-IRQ4 -> 4
-IRQ5 -> 5
-IRQ6 -> 6
-IRQ7 -> 7
-IRQ8 -> 8
-IRQ12 -> 12
-IRQ13 -> 13
-IRQ14 -> 14
-IRQ15 -> 15
-IRQ20 -> 4
-IRQ25 -> 9
-IRQ27 -> 11
-IRQ28 -> 12
-.................................... done.
-checking TSC synchronization across CPUs: passed.
-PCI: PCI BIOS revision 2.10 entry at 0xfd61c
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: 00:00 [1166/0009]: Scanning peer host bridges
-PCI: Scanning ServerWorks HE/LE Peer Bus Bridge 00/00
-PCI: 00:01 [1166/0009]: Scanning peer host bridges
-PCI: Scanning ServerWorks HE/LE Peer Bus Bridge 00/01
-PCI->APIC IRQ transform: (B0,I2,P0) -> 27
-PCI->APIC IRQ transform: (B0,I10,P0) -> 25
-PCI->APIC IRQ transform: (B0,I15,P0) -> 7
-PCI->APIC IRQ transform: (B1,I3,P0) -> 28
-PCI->APIC IRQ transform: (B1,I5,P0) -> 20
-Linux NET4.0 for Linux 2.2
-Based upon Swansea University Computer Society NET3.039
-NET4: Unix domain sockets 1.0 for Linux NET4.0.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-TCP: Hash tables configured (ehash 524288 bhash 65536)
-IPVS: Connection hash table configured (size=4096, memory=32Kbytes)
-Linux IP multicast router 0.06 plus PIM-SM
-Initializing RT netlink socket
-Starting kswapd v 1.5
-Detected PS/2 Mouse Port.
-Serial driver version 4.27 with MANY_PORTS MULTIPORT SHARE_IRQ enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-pty: 256 Unix98 ptys configured
-Real Time Clock Driver v1.09
-RAM disk driver initialized:  16 RAM disks of 4096K size
-PCI_IDE: unknown IDE controller on PCI bus 00 device 79, VID=1166,
-DID=0211
-PCI_IDE: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x0700-0x0707, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0x0708-0x070f, BIOS settings: hdc:DMA, hdd:DMA
-hda: CRN-8241B, ATAPI CDROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a National Semiconductor PC87306
-md driver 0.90.0 MAX_MD_DEVS=256, MAX_REAL=12
-raid5: measuring checksumming speed
-raid5: MMX detected, trying high-speed MMX checksum routines
-   pII_mmx   :  2051.304 MB/sec
-   p5_mmx    :  2157.222 MB/sec
-   8regs     :  1599.819 MB/sec
-   32regs    :   976.884 MB/sec
-using fastest function: p5_mmx (2157.222 MB/sec)
-scsi : 0 hosts.
-scsi : detected total.
-md.c: sizeof(mdp_super_t) = 4096
-Partition check:
-RAMDISK: Compressed image found at block 0
-autodetecting RAID arrays
-autorun ...
-... autorun DONE.
-apm: BIOS not found.
-VFS: Mounted root (ext2 filesystem).
-(scsi0) <Adaptec AIC-7892 Ultra 160/m SCSI host adapter> found at PCI
-1/3/0
-(scsi0) Wide Channel, SCSI ID=7, 32/255 SCBs
-(scsi0) Downloading sequencer code... 396 instructions downloaded
-scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.33/3.2.4
-       <Adaptec AIC-7892 Ultra 160/m SCSI host adapter>
-scsi : 1 host.
-scsi1 : IBM PCI ServeRAID 4.20.20
-scsi : 2 hosts.
-  Vendor:  IBM      Model:  SERVERAID        Rev:  1.0
-  Type:   Direct-Access                      ANSI SCSI revision: 01
-Detected scsi disk sda at scsi1, channel 0, id 0, lun 0
-  Vendor:  IBM      Model:  SERVERAID        Rev:  1.0
-  Type:   Processor                          ANSI SCSI revision: 01
-  Vendor: IBM       Model: FTlV1 S2          Rev: 0
-  Type:   Processor                          ANSI SCSI revision: 02
-SCSI device sda: hdwr sector= 512 bytes. Sectors= 71096320 [34715 MB]
-[34.7 GB]
- sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 >
-autodetecting RAID arrays
-autorun ...
-... autorun DONE.
-VFS: Mounted root (ext2 filesystem) readonly.
-change_root: old root has d_count=1
-Trying to unmount old root ... okay
-Freeing unused kernel memory: 84k freed
-Adding Swap: 528024k swap-space (priority -1)
-eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/driv
-ers/eepro100.html
-eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by Andrey
-V. Savochkin <s
-aw@saw.sw.com.sg> and others
-eepro100.c: VA Linux custom, Dragan Stancevic <visitor@valinux.com>
-2000/11/15
-eth0: Intel PCI EtherExpress Pro100 82557, 00:02:55:54:9C:72, I/O at
-0x2200, IRQ
- 27.
-  Board assembly 754338-001, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x04f4518b).
-eth1: Intel PCI EtherExpress Pro100 82557, 00:02:55:54:9C:73, I/O at
-0x2240, IRQ
- 25.
-  Board assembly 754338-001, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x04f4518b).
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de)
-Detected scsi generic sg1 at scsi1, channel 0, id 15, lun 0
-Detected scsi generic sg2 at scsi1, channel 1, id 8, lun 0
-Detected scsi generic sg1 at scsi1, channel 0, id 15, lun 0
-Detected scsi generic sg2 at scsi1, channel 1, id 8, lun 0
-hda: ATAPI 24X CD-ROM drive, 128kB Cache
-Uniform CD-ROM driver Revision: 3.11
+_u32 attribute((pure))
+crc32_le(_u32 crc, unsigned char const *p, size_t len)
+{
+	int i;
+	while (len--) {
+		crc ^= *p++;
+		for (i = 0; i < 8; i++)
+			crc = (crc >> 1) ^ ((crc & 1) ? CRCPOLY_LE : 0);
+	}
+	return crc;
+}
+#else	/* Table-based approach */
 
-lspci -v:
+_u32 crc32table_le[1<<CRC_LE_BITS];
 
-00:00.0 Host bridge: Relience Computer CNB20HE (rev 06)
-        Flags: bus master, medium devsel, latency 96
+/*
+ * crc is the crc of the byte i; other entries are filled in based on the
+ * fact that crctable[i^j] = crctable[i] ^ crctable[j].
+ *
+ * Note that the _init functions never write anything but the final correct
+ * value to each table entry, so they're safe to call repeatedly, even if
+ * someone else is currently using the table.
+ */
+void
+crc32init_le(void)
+{
+	unsigned i, j;
+	_u32 crc = 1;
 
-00:00.1 Host bridge: Relience Computer CNB20HE (rev 06)
-        Flags: bus master, medium devsel, latency 96
+	crc32table_le[0] = 0;
 
-00:01.0 VGA compatible controller: S3 Inc. Savage 4 (rev 04) (prog-if 00
-[VGA])
-        Subsystem: IBM: Unknown device 7000
-        Flags: bus master, medium devsel, latency 248
-        Memory at feb80000 (32-bit, non-prefetchable)
-        Memory at f0000000 (32-bit, prefetchable)
-        Capabilities: [dc] Power Management version 1
+	for (i = 1<<(CRC_LE_BITS-1); i; i >>= 1) {
+		crc = (crc >> 1) ^ ((crc & 1) ? CRCPOLY_LE : 0);
+		for (j = 0; j < 1<<CRC_LE_BITS; j += 2*i)
+			crc32table_le[i+j] = crc ^ crc32table_le[j];
+	}
+}
 
-00:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-(rev 08)
-        Subsystem: IBM Netfinity 10/100
-        Flags: bus master, medium devsel, latency 100, IRQ 27
-        Memory at feb7f000 (32-bit, non-prefetchable)
-        I/O ports at 2200
-        Memory at fea00000 (32-bit, non-prefetchable)
-        Capabilities: [dc] Power Management version 2
+_u32 attribute((pure))
+crc32_le(_u32 crc, unsigned char const *p, size_t len)
+{
+	while (len--) {
+# if CRC_LE_BITS == 8
+		crc = (crc >> 8) ^ crc32table_le[(crc ^ *p++) & 255];
+# elif CRC_LE_BITS == 4
+		crc ^= *p++;
+		crc = (crc >> 4) ^ crc32table_le[crc & 15];
+		crc = (crc >> 4) ^ crc32table_le[crc & 15];
+# elif CRC_LE_BITS == 2
+		crc ^= *p++;
+		crc = (crc >> 2) ^ crc32table_le[crc & 3];
+		crc = (crc >> 2) ^ crc32table_le[crc & 3];
+		crc = (crc >> 2) ^ crc32table_le[crc & 3];
+		crc = (crc >> 2) ^ crc32table_le[crc & 3];
+# endif
+	}
+	return crc;
+}
+#endif
 
-00:0a.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-(rev 08)
-        Subsystem: IBM Netfinity 10/100
-        Flags: bus master, medium devsel, latency 100, IRQ 25
-        Memory at feb7e000 (32-bit, non-prefetchable)
-        I/O ports at 2240
-        Memory at fe900000 (32-bit, non-prefetchable)
-        Capabilities: [dc] Power Management version 2
+/*
+ * Big-endian CRC computation.  Used with serial bit streams sent
+ * msbit-first.  Be sure to use cpu_to_be32() to append the computed CRC.
+ */
+#if CRC_BE_BITS > 8 || CRC_BE_BITS < 1 || CRC_BE_BITS & CRC_BE_BITS-1
+# error CRC_BE_BITS must be a power of 2 between 1 and 8
+#endif
 
-00:0f.0 ISA bridge: Relience Computer: Unknown device 0200 (rev 50)
-        Subsystem: Relience Computer: Unknown device 0200
-        Flags: bus master, medium devsel, latency 0
+#if CRC_BE_BITS == 1
+/*
+ * In fact, the table-based code will work in this case, but it can be
+ * simplified by inlining the table in ?: form.
+ */
+void
+crc32init_be(void)
+{/*no-op*/;}
 
-00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a
-[Maste
-r SecP PriP])
-        Flags: bus master, medium devsel, latency 100
-        I/O ports at 0700
+_u32 attribute((pure))
+crc32_be(_u32 crc, unsigned char const *p, size_t len)
+{
+	int i;
+	while (len--) {
+		crc ^= *p++ << 24;
+		for (i = 0; i < 8; i++)
+			crc = (crc << 1) ^ ((crc & 0x80000000) ? CRCPOLY_BE
+: 0);
+	}
+	return crc;
+}
 
-00:0f.2 USB Controller: Relience Computer: Unknown device 0220 (rev
-04) (prog-if
- 10 [OHCI])
-        Subsystem: Relience Computer: Unknown device 0220
-        Flags: bus master, medium devsel, latency 96, IRQ 7
-        Memory at feb7d000 (32-bit, non-prefetchable)
-01:03.0 SCSI storage controller: Adaptec 7892P (rev 02)
-        Subsystem: Adaptec: Unknown device 008f
-        Flags: bus master, 66Mhz, medium devsel, latency 100, IRQ 28
-        BIST result: 00
-        I/O ports at 2300
-        Memory at effff000 (64-bit, non-prefetchable)
-        Capabilities: [dc] Power Management version 2
+#else	/* Table-based approach */
+_u32 crc32table_be[256];
 
-01:05.0 RAID bus controller: IBM: Unknown device 01bd
-        Subsystem: IBM: Unknown device 020e
-        Flags: bus master, 66Mhz, slow devsel, latency 96, IRQ 20
-        Memory at edffe000 (32-bit, prefetchable)
-        Capabilities: [80] Power Management version 2
+void
+crc32init_be(void)
+{
+	unsigned i, j;
+	_u32 crc = 0x80000000;
 
-/etc/modules.conf:
-alias eth0 eepro100
-alias eth1 eepro100
-alias scsi_hostadapter ips
-alias parport_lowlevel parport_pc
+	crc32table_be[0] = 0;
 
-uname -a:
-Linux host.lan.domain.tld 2.2.19-6.2.7smp #1 SMP Thu Jun 14 07:42:45 EDT
-2001 i686 unknown
+	for (i = 1 ; i < 1<<CRC_BE_BITS; i <<= 1) {
+		crc = (crc << 1) ^ ((crc & 0x80000000) ? CRCPOLY_BE : 0);
+		for (j = 0; j < i; j++)
+			crc32table_be[i+j] = crc ^ crc32table_be[j];
+	}
+}
 
+_u32 attribute((pure))
+crc32_be(_u32 crc, unsigned char const *p, size_t len)
+{
+	while (len--) {
+# if CRC_BE_BITS == 8
+		crc = (crc << 8) ^ crc32table_be[(crc >> 24) ^ *p++];
+# elif CRC_BE_BITS == 4
+		crc ^= *p++ << 24;
+		crc = (crc << 4) ^ crc32table_be[crc >> 28];
+		crc = (crc << 4) ^ crc32table_be[crc >> 28];
+# elif CRC_BE_BITS == 2
+		crc ^= *p++ << 24;
+		crc = (crc << 2) ^ crc32table_be[crc >> 30];
+		crc = (crc << 2) ^ crc32table_be[crc >> 30];
+		crc = (crc << 2) ^ crc32table_be[crc >> 30];
+		crc = (crc << 2) ^ crc32table_be[crc >> 30];
+# endif
+	}
+	return crc;
+}
+#endif
 
+/*
+ * A brief CRC tutorial.
+ *
+ * A CRC is a long-division remainder.  You add the CRC to the message,
+ * and the whole thing (message+CRC) is a multiple of the given
+ * CRC polynomial.  To check the CRC, you can either check that the
+ * CRC matches the recomputed value, *or* you can check that the
+ * remainder computed on the message+CRC is 0.  This latter approach
+ * is used by a lot of hardware implementations, and is why so many
+ * protocols put the end-of-frame flag after the CRC.
+ *
+ * It's actually the same long division you learned in school, except that
+ * - We're working in binary, so the digits are only 0 and 1, and
+ * - When dividing polynomials, there are no carries.  Rather than add and
+ *   subtract, we just xor.  Thus, we tend to get a bit sloppy about
+ *   the difference between adding and subtracting.
+ *
+ * A 32-bit CRC polynomial is actually 33 bits long.  But since it's
+ * 33 bits long, bit 32 is always going to be set, so usually the CRC
+ * is written in hex with the most significant bit omitted.  (If you're
+ * familiar with the IEEE 754 floating-point format, it's the same idea.)
+ *
+ * Note that a CRC is computed over a string of *bits*, so you have
+ * to decide on the endianness of the bits within each byte.  To get
+ * the best error-detecting properties, this should correspond to the
+ * order they're actually sent.  For example, standard RS-232 serial is
+ * little-endian; the most significant bit (sometimes used for parity)
+ * is sent last.  And when appending a CRC word to a message, you should
+ * do it in the right order, matching the endianness.
+ *
+ * Just like with ordinary division, the remainder is always smaller than
+ * the divisor (the CRC polynomial) you're dividing by.  Each step of the
+ * division, you take one more digit (bit) of the dividend and append it
+ * to the current remainder.  Then you figure out the appropriate multiple
+ * of the divisor to subtract to being the remainder back into range.
+ * In binary, it's easy - it has to be either 0 or 1, and to make the
+ * XOR cancel, it's just a copy of bit 32 of the remainder.
+ *
+ * When computing a CRC, we don't care about the quotient, so we can
+ * throw the quotient bit away, but subtract the appropriate multiple of
+ * the polynomial from the remainder and we're back to where we started,
+ * ready to process the next bit.
+ *
+ * A big-endian CRC written this way would be coded like:
+ * for (i = 0; i < input_bits; i++) {
+ * 	multiple = remainder & 0x80000000 ? CRCPOLY : 0;
+ * 	remainder = (remainder << 1 | next_input_bit()) ^ multiple;
+ * }
+ * Notice how, to get at bit 32 of the shifted remainder, we look
+ * at bit 31 of the remainder *before* shifting it.
+ *
+ * But also notice how the next_input_bit() bits we're shifting into
+ * the remainder don't actually affect any decision-making until
+ * 32 bits later.  Thus, the first 32 cycles of this are pretty boring.
+ * Also, to add the CRC to a message, we need a 32-bit-long hole for it at
+ * the end, so we have to add 32 extra cycles shifting in zeros at the
+ * end of every message,
+ *
+ * So the standard trick is to rearrage merging in the next_input_bit()
+ * until the moment it's needed.  Then the first 32 cycles can be
+precomputed,
+ * and merging in the final 32 zero bits to make room for the CRC can be
+ * skipped entirely.
+ * This changes the code to:
+ * for (i = 0; i < input_bits; i++) {
+ *      remainder ^= next_input_bit() << 31;
+ * 	multiple = (remainder & 0x80000000) ? CRCPOLY : 0;
+ * 	remainder = (remainder << 1) ^ multiple;
+ * }
+ * With this optimization, the little-endian code is simpler:
+ * for (i = 0; i < input_bits; i++) {
+ *      remainder ^= next_input_bit();
+ * 	multiple = (remainder & 1) ? CRCPOLY : 0;
+ * 	remainder = (remainder >> 1) ^ multiple;
+ * }
+ *
+ * Note that the other details of endianness have been hidden in CRCPOLY
+ * (which must be bit-reversed) and next_input_bit().
+ *
+ * However, as long as next_input_bit is returning the bits in a sensible
+ * order, we can actually do the merging 8 or more bits at a time rather
+ * than one bit at a time:
+ * for (i = 0; i < input_bytes; i++) {
+ * 	remainder ^= next_input_byte() << 24;
+ * 	for (j = 0; j < 8; j++) {
+ * 		multiple = (remainder & 0x80000000) ? CRCPOLY : 0;
+ * 		remainder = (remainder << 1) ^ multiple;
+ * 	}
+ * }
+ * Or in little-endian:
+ * for (i = 0; i < input_bytes; i++) {
+ * 	remainder ^= next_input_byte();
+ * 	for (j = 0; j < 8; j++) {
+ * 		multiple = (remainder & 1) ? CRCPOLY : 0;
+ * 		remainder = (remainder << 1) ^ multiple;
+ * 	}
+ * }
+ * If the input is a multiple of 32 bits, you can even XOR in a 32-bit
+ * word at a time and increase the inner loop count to 32.
+ *
+ * You can also mix and match the two loop styles, for example doing the
+ * bulk of a message byte-at-a-time and adding bit-at-a-time processing
+ * for any fractional bytes at the end.
+ *
+ * The only remaining optimization is to the byte-at-a-time table method.
+ * Here, rather than just shifting one bit of the remainder to decide
+ * in the correct multiple to subtract, we can shift a byte at a time.
+ * This produces a 40-bit (rather than a 33-bit) intermediate remainder,
+ * but again the multiple of the polynomial to subtract depends only on
+ * the high bits, the high 8 bits in this case.  
+ *
+ * The multile we need in that case is the low 32 bits of a 40-bit
+ * value whose high 8 bits are given, and which is a multiple of the
+ * generator polynomial.  This is simply the CRC-32 of the given
+ * one-byte message.
+ *
+ * Two more details: normally, appending zero bits to a message which
+ * is already a multiple of a polynomial produces a larger multiple of that
+ * polynomial.  To enable a CRC to detect this condition, it's common to
+ * invert the CRC before appending it.  This makes the remainder of the
+ * message+crc come out not as zero, but some fixed non-zero value.
+ *
+ * The same problem applies to zero bits prepended to the message, and
+ * a similar solution is used.  Instead of starting with a remainder of
+ * 0, an initial remainder of all ones is used.  As long as you start
+ * the same way on decoding, it doesn't make a difference.
+ */
 
->From http://www2.linuxjournal.com/articles/style/0013.html
+#if UNITTEST
 
-The Inevitable Horror Story
+#include <stdlib.h>
+#include <stdio.h>
 
-Sadly, life got much less pleasant for quite a while after that. We
-started seeing mysterious hangs: the machine would lock up hard and
-random intervals, usually during disk I/O operations. This is almost
-the worst kind of problem to troubleshoot, as it leaves no clues
-other than the bare fact of the machine's catatonia. You get no oops
-message, and all the state you might have used to post-mortem
-disappears when the machine is reset. The only kind of problem
-that's worse is one that adds irreproducibility to the
-catatonia. But fortunately, we found that doing make clean or make
-world on an X source tree produced the hang pretty reliably.
+#if 0 /*Not used at present */
+static void
+buf_dump(char const *prefix, unsigned char const *buf, size_t len)
+{
+	fputs(prefix, stdout);
+	while (len--)
+		printf(" %02x", *buf++);
+	putchar('\n');
 
-Approximately thirty hours of troubleshooting (interrupted by far
-too little sleep) ensued as Gary and I tried to track down the
-problem. We formed and discarded lots of theories based on where we
-had not yet seen the hang. For a while we thought the problem only
-occurred in console mode, not in X mode. For another while we
-thought it happened only under SMP kernels. For a third while we
-thought we could avoid it by compiling kernels for the Pentium II
-rather than the Athlon. All these beliefs were eventually falsified
-amidst much wailing and gnashing of teeth.
+}
+#endif
 
-Once it became clear that there was a problem at or near the
-hardware level, we still had a lot of hypotheses to choose from,
-with all of them having pretty unpleasant ramifications for our
-chances of qualifying this box before I was supposed to fly
-home. Quite possibly the motherboard was bad. Or we might have been
-seeing thermal flakeouts due to insufficient cooling of the
-motherboard chips or memory.
+static _u32 attribute((const))
+bitreverse(_u32 x)
+{
+	x = (x >> 16) | (x << 16);
+	x = (x >> 8 & 0x00ff00ff) | (x << 8 & 0xff00ff00);
+	x = (x >> 4 & 0x0f0f0f0f) | (x << 4 & 0xf0f0f0f0);
+	x = (x >> 2 & 0x33333333) | (x << 2 & 0xcccccccc);
+	x = (x >> 1 & 0x55555555) | (x << 1 & 0xaaaaaaaa);
+	return x;
+}
 
-About eighteen hours in, just before we both crashed in exhaustion,
-we posted the problem to the linux-kernel mailing list. We got a
-rather larger number of responses than we expected (nearly twenty)
-within a few hours. Several were quite helpful. And the breakthrough
-came when a couple of linux-kernel people confirmed that the SB
-Live! is a frequent source of hangs and lockups on other fast PCI
-machines. With a few more hours of testing, (during which our X
-source tree probably got cleaned and rebuilt more times than is
-allowed by law), we satisfied ourselves that the lockups stop
-happening when the SB Live! has been summarily yanked from the
-machine.
+static void
+bytereverse(unsigned char *buf, size_t len)
+{
+	while (len--) {
+		unsigned char x = *buf;
+		x = (x >> 4) | (x << 4);
+		x = (x >> 2 & 0x33) | (x << 2 & 0xcc);
+		x = (x >> 1 & 0x55) | (x << 1 & 0xaa);
+		*buf++ = x;
+	}
+}
 
-The most helpful advice we got came from one Daniel T. Chen, who
-reported that he had nailed some similar lockups to the SB Live!
-running over a Via chipset. They stopped when he upgraded to 2.4.8
-and the newest version of the emu10k1 driver. So while Gary took a
-much-needed break (and his wife and kids to a David Byrne concert),
-I built 2.4.8 (with emu10k1.o hard-compiled in) and ran our torture
-test, first with the SB Live! omitted, and then with it in the
-machine. No hang. Several more tests seemed to confirm that the
-problem had cleared up. Victory!
+static void
+random_garbage(unsigned char *buf, size_t len)
+{
+	while (len--)
+		*buf++ = (unsigned char)random();
+}
 
-But as it turned out, the story didn't end there. The 2.4.8+ driver
-doesn't completely banish the hangs; early in the morning of the
-third day, while I was asleep, Gary tripped over a way to re-induce
-them by logging into the machine via ssh while an X build is
-running. I didn't yet know this when I next read my mail and saw a
-report from Jeffrey Ingber of the linux-kernel list that he had
-continued to see emu10k1 lockups after installing 2.4.8, but that
-they were banished by the ALSA drivers.
+#if 0 /* Not used at present */
+static void
+store_le(_u32 x, unsigned char *buf)
+{
+	buf[0] = (unsigned char)x;
+	buf[1] = (unsigned char)(x >> 8);
+	buf[2] = (unsigned char)(x >> 16);
+	buf[3] = (unsigned char)(x >> 24);
+}
+#endif
 
-Further testing proved, in fact, that the presence of the SB Live!
-in the machine can make it vulnerable to lockups triggered by
-network activity even when the emul10k1 support is not configured in
-at all! This takes the operating system out of the picture and
-suggests a hardware- or BIOS-level problem. Our suspicions were
-immediately directed to PCI IRQ sharing, a well-known source of
-loss.
+static void
+store_be(_u32 x, unsigned char *buf)
+{
+	buf[0] = (unsigned char)(x >> 24);
+	buf[1] = (unsigned char)(x >> 16);
+	buf[2] = (unsigned char)(x >> 8);
+	buf[3] = (unsigned char)x;
+}
 
-Upon investigation, via /proc/pci, we discovered that the IRQ
-assignments looked distinctly dubious. IRQs shared between on-board
-devices didn't bother us; we presumed the board designers had been
-smart enough to avoid conflicts. But IRQs shared between on-board
-and daughtercard devices looked like they might be part of the
-problem.
+/*
+ * This checks that CRC(buf + CRC(buf)) = 0, and that
+ * CRC commutes with bit-reversal.  This has the side effect
+ * of bytewise bit-reversing the input buffer, and returns
+ * the CRC of the reversed buffer.
+ */
+static _u32
+test_step(_u32 init, unsigned char *buf, size_t len)
+{
+	_u32 crc1, crc2;
+	size_t i;
 
-The standard way to attack IRQ conflict problems on a PCI machine is
-to move the card with the problem to a different slot. We had put
-the sound card in slot 4 (second from the bottom) to avoid some
-cables. We moved it to slot 5. This changed the board's IRQ but
-didn't seem to solve the hang problem.
+	crc1 = crc32_be(init, buf, len);
+	store_be(crc1, buf+len);
+	crc2 = crc32_be(init, buf, len+4);
+	if (crc2)
+		printf("\nCRC cancellation fail: 0x%08x should be 0\n",
+crc2);
 
-Unlike some other PCI BIOSes, the S2464's doesn't give you the
-capability to wire IRQs to specific card slots. While looking for
-this, however, we found a BIOS setting that seemed relevant, "Use
-PCI Interrupt Entries In MP Table".  When we switched it to Yes,
-rebooted and looked at /proc/pci, the IRQ assignments looked a lot
-saner, and when we tested, the ssh hang was gone!
+	for (i = 0; i <= len+4; i++) {
+		crc2 = crc32_be(init, buf, i);
+		crc2 = crc32_be(crc2, buf+i, len+4-i);
+		if (crc2)
+			printf("\nCRC split fail: 0x%08x\n", crc2);
+	}
 
-Alan Cox warns that the AMD766 north-bridge chip on this board has a
-bug (which I've seen confirmed in AMD's product errata) that could
-potentially cause hangs in APIC mode. The workaround for this is to
-run the kernel with the noapic command-line option and accept
-something of a performance hit, but we won't do that unless we see
-further hangs.
+	/* Now swap it around for the other test */
 
-Perhaps it's belaboring the obvious, but the way this problem got
-resolved was yet another testimony to the power of open-source
-development and the community that has evolved around it. Once
-again, our technology and our social machine complemented each other
-and delivered the goods.
+	bytereverse(buf, len+4);
+	init = bitreverse(init);
+	crc2 = bitreverse(crc1);
+	if (crc1 != bitreverse(crc2))
+		printf("\nBit reversal fail: 0x%08x -> %0x08x -> 0x%08x\n",
+				crc1, crc2, bitreverse(crc2));
+	crc1 = crc32_le(init, buf, len);
+	if (crc1 != crc2)
+		printf("\nCRC endianness fail: 0x%08x != 0x%08x\n", crc1,
+crc2);
+	crc2 = crc32_le(init, buf, len+4);
+	if (crc2)
+		printf("\nCRC cancellation fail: 0x%08x should be 0\n",
+crc2);
 
+	for (i = 0; i <= len+4; i++) {
+		crc2 = crc32_le(init, buf, i);
+		crc2 = crc32_le(crc2, buf+i, len+4-i);
+		if (crc2)
+			printf("\nCRC split fail: 0x%08x\n", crc2);
+	}
 
+	return crc1;
+}
+
+#define SIZE 64
+#define INIT1 0
+#define INIT2 0
+
+int
+main(void)
+{
+	unsigned char buf1[SIZE+4];
+	unsigned char buf2[SIZE+4];
+	unsigned char buf3[SIZE+4];
+	int i, j;
+	_u32 crc1, crc2, crc3;
+
+	crc32init_le();
+	crc32init_be();
+
+	for (i = 0; i <= SIZE; i++) {
+		printf("\rTesting length %d...", i);
+		fflush(stdout);
+		random_garbage(buf1, i);
+		random_garbage(buf2, i);
+		for (j = 0; j < i; j++)
+			buf3[j] = buf1[j] ^ buf2[j];
+
+		crc1 = test_step(INIT1, buf1, i);
+		crc2 = test_step(INIT2, buf2, i);
+		/* Now check that CRC(buf1 ^ buf2) = CRC(buf1) ^ CRC(buf2)
+*/
+		crc3 = test_step(INIT1^INIT2, buf3, i);
+		if (crc3 != (crc1 ^ crc2))
+			printf("CRC XOR fail: 0x%08x != 0x%08x ^ 0x%08x\n",
+					crc3, crc1, crc2);
+	}
+	printf("\nAll test complete.  No failures expected.\n");
+	return 0;
+}
+
+#endif /* UNITTEST */

@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUGDLcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265521AbUGDLfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265517AbUGDLcD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 07:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUGDLcD
+	id S265521AbUGDLfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 07:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUGDLfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 07:32:03 -0400
-Received: from smtp07.web.de ([217.72.192.225]:20636 "EHLO smtp07.web.de")
-	by vger.kernel.org with ESMTP id S265517AbUGDLcA (ORCPT
+	Sun, 4 Jul 2004 07:35:43 -0400
+Received: from ozlabs.org ([203.10.76.45]:63628 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265521AbUGDLfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 07:32:00 -0400
-Subject: [BUG] FAT broken in 2.6.7-bk15
-From: Ali Akcaagac <aliakc@web.de>
-To: linux-kernel@vger.kernel.org, linux-msdos@vger.kernel.org
-Content-Type: text/plain
-Date: Sun, 04 Jul 2004 13:28:28 +0200
-Message-Id: <1088940508.655.6.camel@localhost>
+	Sun, 4 Jul 2004 07:35:42 -0400
+Date: Sun, 4 Jul 2004 21:33:47 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: paulus@samba.org, linas@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix power3 boot
+Message-ID: <20040704113346.GK4923@krispykreme>
+References: <20040704100407.GE4923@krispykreme> <20040704031218.163f4b8b.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040704031218.163f4b8b.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-The recent changes in 2.6.7-bk15 broke FAT support. I am doing some
-rescue backup systems here using tools like syslinux and mtools to
-format a normal msdos disk (for el-torito). I figured out that after
-creating and formating of these disks that it is impossible to mount
-them with 'msdos' or 'vfat'. Even recompiling mtools with current
-changes show the same issues. Please someone check up and fix the issues
-(maybe reverting the changes).
+> That line was already deleted by paulus's "EEH fixes for POWER5 machines
+> (1/2)" patch, so we end up with the below.1
 
-PS: I am not subscribed to this list so in case you need to CC: me.
+Oh sorry, I missed that patch. Looks like that patch already added the
+required call to init_pci_config_tokens:
 
+ void __init eeh_init(void)
+ {
+-       struct device_node *phb;
++       struct device_node *phb, *np;
+        struct eeh_early_enable_info info;
+        char *eeh_force_off = strstr(saved_command_line, "eeh-force-off");
+
++       init_pci_config_tokens();
++
++       np = of_find_node_by_path("/rtas");
++       if (np == NULL) {
++               printk(KERN_WARNING "EEH: RTAS not found !\n");
++               return;
++       }
++
 

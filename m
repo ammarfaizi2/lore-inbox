@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbRA3LQX>; Tue, 30 Jan 2001 06:16:23 -0500
+	id <S129172AbRA3LPX>; Tue, 30 Jan 2001 06:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129704AbRA3LQN>; Tue, 30 Jan 2001 06:16:13 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:58629 "HELO
+	id <S129759AbRA3LPN>; Tue, 30 Jan 2001 06:15:13 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:58373 "HELO
 	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129101AbRA3LQH>; Tue, 30 Jan 2001 06:16:07 -0500
-Date: Wed, 31 Jan 2001 00:16:05 +1300
+	id <S129172AbRA3LO4>; Tue, 30 Jan 2001 06:14:56 -0500
+Date: Wed, 31 Jan 2001 00:14:52 +1300
 From: Chris Wedgwood <cw@f00f.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [UPDATE] Fresh zerocopy patch on kernel.org
-Message-ID: <20010131001605.B6620@metastasis.f00f.org>
-In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: *massive* slowdowns on 2.4.1-pre1[1|2]
+Message-ID: <20010131001452.A6620@metastasis.f00f.org>
+In-Reply-To: <3A761FEC.1C564FAE@the-rileys.net> <Pine.LNX.4.10.10101292102030.28124-100000@coffee.psychology.mcmaster.ca> <955pr6$afk$1@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 30, 2001 at 01:33:34AM -0800
+In-Reply-To: <955pr6$afk$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 29, 2001 at 11:17:58PM -0800
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 01:33:34AM -0800, David S. Miller wrote:
+On Mon, Jan 29, 2001 at 11:17:58PM -0800, Linus Torvalds wrote:
 
-    2) Accept TCP flags (ACK, URG, RST, etc.) for out of window packets
-       if truncating the data to the window would make that packet valid.
-       (Alexey)
+    You have to realize that stability takes precedence over
+    EVERYTHING.
 
-    3) Add SO_ACCEPTCONN, Unix standard wants it. (me)
-
-these have been feed back for 2.4.x Linus anyhow right?
+Are you sure his desciption describes only disk-slow down? Seems to
+me something else is going on... why would speaker beeps take longer?
+Maybe some kind of PM weirdo?
 
 
   --cw

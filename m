@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280937AbRKOQmU>; Thu, 15 Nov 2001 11:42:20 -0500
+	id <S280934AbRKOQqK>; Thu, 15 Nov 2001 11:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280935AbRKOQmK>; Thu, 15 Nov 2001 11:42:10 -0500
-Received: from unthought.net ([212.97.129.24]:11731 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S280932AbRKOQlv>;
-	Thu, 15 Nov 2001 11:41:51 -0500
-Date: Thu, 15 Nov 2001 17:41:50 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux i/o tweaking
-Message-ID: <20011115174150.B23020@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011115172246.Z27010@suse.de> <Pine.LNX.4.30.0111151731280.13922-100000@mustard.heime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.30.0111151731280.13922-100000@mustard.heime.net>; from roy@karlsbakk.net on Thu, Nov 15, 2001 at 05:32:29PM +0100
+	id <S280940AbRKOQqA>; Thu, 15 Nov 2001 11:46:00 -0500
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:30986
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S280934AbRKOQpv>; Thu, 15 Nov 2001 11:45:51 -0500
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200111151623.fAFGN0o03243@www.hockin.org>
+Subject: Re: 32 Groups Maximum in 2.4
+To: reynolds@redhat.com (Tommy Reynolds)
+Date: Thu, 15 Nov 2001 08:22:59 -0800 (PST)
+Cc: jackie.m@vt.edu (Jackie Meese), linux-kernel@vger.kernel.org
+In-Reply-To: <20011115094116.290282cc.reynolds@redhat.com> from "Tommy Reynolds" at Nov 15, 2001 09:41:16 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15, 2001 at 05:32:29PM +0100, Roy Sigurd Karlsbakk wrote:
-> > Could you please try and profile where the time is spent? Boot with
-> > profile=2, and then do
-> >
-> > # readprofile -r
-> > # do I/O testing
-> > # readprofile | sort -nr
+> > I've been looking for some time on how to raise the maximum number of 
+> > groups for the 2.4 kernel.  I've discovered how to do this kernel, with 
+> > a discussion a few months ago on this 
+> > list.http://www.cs.helsinki.fi/linux/linux-kernel/2001-13/0807.html
 > 
-> I will.
-> 
-> However ... Is it normal for a server to max out 2xPIII 1266MHz CPUs by
-> reading from software RAID-5???
+> Look at the file "include/asm-<proc>/param.h to find the symbol "NGROUPS".
+> Change that to whatever value you like.
 
-Certainly not.
 
-Well, if you down-scale the experiment it's not.  Reading 10.7 MB/sec
-will not consume 10% of your two processors.
 
-But queue systems are evil   ;)   I look forward to seeing the profile.
+We have a patch that we haven't submitted yet (out of mostlyt cowardice)
+that makes this fully dynamic.  task->groups is dynamically allocated and
+handled, and can grow up to a sysctl() defined maximum.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+It has been working wonderfully for 10,000+ groups.  Does this patch have a
+chance in hell of going standard?? (don't have the patch on hand, or I'd post
+it).

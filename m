@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262347AbREUU0Q>; Mon, 21 May 2001 16:26:16 -0400
+	id <S262348AbREUUb4>; Mon, 21 May 2001 16:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262345AbREUU0H>; Mon, 21 May 2001 16:26:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5640 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262269AbREUUZy>; Mon, 21 May 2001 16:25:54 -0400
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-To: pavel@suse.cz (Pavel Machek)
-Date: Mon, 21 May 2001 21:20:35 +0100 (BST)
-Cc: rgooch@ras.ucalgary.ca (Richard Gooch), viro@math.psu.edu (Alexander Viro),
-        matthew@wil.cx (Matthew Wilcox), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        clausen@gnu.org (Andrew Clausen), bcrl@redhat.com (Ben LaHaise),
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <20010520231330.E2647@bug.ucw.cz> from "Pavel Machek" at May 20, 2001 11:13:30 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262345AbREUUbq>; Mon, 21 May 2001 16:31:46 -0400
+Received: from erasmus.off.net ([64.39.30.25]:2571 "HELO erasmus.off.net")
+	by vger.kernel.org with SMTP id <S262348AbREUUbm>;
+	Mon, 21 May 2001 16:31:42 -0400
+Date: Mon, 21 May 2001 16:31:44 -0400
+From: Zach Brown <zab@zabbo.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcus Meissner <Marcus.Meissner@caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: maestro ported to 2.4 PCI API
+Message-ID: <20010521163144.A9581@erasmus.off.net>
+In-Reply-To: <20010521144554.C7003@erasmus.off.net> <E151uhF-0000hs-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E151wAN-0000pE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E151uhF-0000hs-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 21, 2001 at 07:46:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I don't need to read it. Don't be insulting. Sure, you *can* use a
-> > write(2)/read(2) cycle. But that's two syscalls compared to one with
-> > ioctl(2) or transaction(2). That can matter to some applications.
-> 
-> I just don't think so. Where did you see performance-critical use of
-> ioctl()?
+> Its useful to have version ids. So it would be better people used them more
 
-AGP, video4linux,...
+I wasn't sure, so am happy leaving them in as well :)
 
-Alan
+I suppose they're an easier way to sync dmesg with code version than
+knowing what is in which kernel version.
 
+-- 
+ zach

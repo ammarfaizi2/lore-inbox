@@ -1,48 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266569AbUBMRv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 12:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267004AbUBMRv2
+	id S267034AbUBMR5X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:57:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267079AbUBMR5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 12:51:28 -0500
-Received: from [12.177.129.25] ([12.177.129.25]:52163 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S266569AbUBMRv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 12:51:27 -0500
-Message-Id: <200402131818.i1DIIRsq002831@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.6.3-rc2-1
+	Fri, 13 Feb 2004 12:57:23 -0500
+Received: from nan-smtp-13.noos.net ([212.198.2.121]:15415 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id S267034AbUBMR5U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 12:57:20 -0500
+Subject: Re: JFS default behavior (was: UTF-8 in file systems?
+	xfs/extfs/etc.)
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: chris.siebenmann@utoronto.ca
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <04Feb13.024659est.41760@gpu.utcc.utoronto.ca>
+References: <04Feb13.024659est.41760@gpu.utcc.utoronto.ca>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Yrmvq+8dfRWQNA/FE5g0"
+Organization: Adresse personelle
+Message-Id: <1076695037.23795.13.camel@m222.net81-64-248.noos.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 13 Feb 2004 13:18:27 -0500
-From: Jeff Dike <jdike@addtoit.com>
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Fri, 13 Feb 2004 18:57:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates UML to 2.6.3-rc2.  This breaks with my usual practice of
-ignoring test patches.  However, when I updated my UML tree, I had forgotten
-that my stock Linus tree was up to 2.6.3-rc2.  I took this as a sign from a
-higher power that this was Meant To Be.
 
-As well as catching up, there are some bug fixes and cleanups -
-	modules should now work
-	worked around a process start time bug
-	fixed a bug which caused ps to divide by zero
+--=-Yrmvq+8dfRWQNA/FE5g0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-The 2.6.3-rc2-1 UML patch is available at
-	http://www.user-mode-linux.org/mirror/uml-patch-2.6.3-rc2-1.bz2
+Le ven, 13/02/2004 =E0 02:46 -0500, Chris Siebenmann a =E9crit :
+> You write:
+> | Please put valid encoding info somewhere  [...]
+>=20
+>  There is no place for encoding information in the Unix API;
 
-BK users can pull my 2.5 repository from
-	http://www.user-mode-linux.org:5000/uml-2.5
+Big surprise;)
 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
+>  you would
+> have to implement a new one. Even if the kernel is informed of process
+> locale when a process creates files, a new API that returns filename
+> encoding alongside the file name itself is necessary. And relying on
+> process locale on creation leads to undesirable results in some cases.
+>=20
+> | [...] or declare filenames are utf-8 od utf-16 only - changing user
+> | locale should not corrupt old data.
+>=20
+>  Since not all byte sequences are valid UTF-8, this immediately means
+> that some old files are inaccessible since their filenames are now
+> illegal[*]. This also screws everyone who has no desire to work in
+> UTF-8, and it screws everyone completely if ever UTF-8 is decided to not
+> be the solution to the world's problems.
 
-				Jeff
+So what ?
+Do you think an app that expects utf-8 filenames won't crash today when
+served a byte sequence that's invalid UTF-8 ? (or an app that expects
+ascii when served utf-8 oddities)
+
+The problem exists now - putting encoding info somewhere of agreeing on
+a common convention won't solve the legacy mess. What it will do is
+avoid we get stuck the same way in a decade.
+
+As long as an FS is shared by multiple apps/users agreeing on what the
+filenames mean exactly should not be revolutionary. And btw I don't care
+if it's UTF-8, UCS or something else. I just want a common ground so
+peple and apps can communicate sanely.
+
+Cheers,
+
+--=20
+Nicolas Mailhot
+
+--=-Yrmvq+8dfRWQNA/FE5g0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBALQ/8I2bVKDsp8g0RAopPAJ9uCEqjK2xyMZH6OklruGx3ZIlIjQCcCRI5
+O3CX+9TS6fJuuzYQEldWqS8=
+=Nq2j
+-----END PGP SIGNATURE-----
+
+--=-Yrmvq+8dfRWQNA/FE5g0--
 

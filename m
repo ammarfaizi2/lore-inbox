@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284305AbSABVT5>; Wed, 2 Jan 2002 16:19:57 -0500
+	id <S284280AbSABVX4>; Wed, 2 Jan 2002 16:23:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284258AbSABVSR>; Wed, 2 Jan 2002 16:18:17 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:39043
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284282AbSABVSL>; Wed, 2 Jan 2002 16:18:11 -0500
-Date: Wed, 2 Jan 2002 16:04:49 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S284866AbSABVW5>; Wed, 2 Jan 2002 16:22:57 -0500
+Received: from ns.suse.de ([213.95.15.193]:62215 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284763AbSABVWS>;
+	Wed, 2 Jan 2002 16:22:18 -0500
+Date: Wed, 2 Jan 2002 22:22:17 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Bill Nottingham <notting@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102160449.A16019@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020102154633.A15671@thyrsus.com> <E16Lsn2-0005XV-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16Lsn2-0005XV-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 02, 2002 at 09:19:12PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+In-Reply-To: <20020102162349.A957@apone.devel.redhat.com>
+Message-ID: <Pine.LNX.4.33.0201022219270.427-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > the machine and set ISA_CARDS based on the probe.  What's a DMI table and
-> > how can I query it for the presence of ISA slots?
-> 
-> RTFG ;)
+On Wed, 2 Jan 2002, Bill Nottingham wrote:
 
-Umm...RTF*G*?  Sorry...can't parse. :-)
+> > And newer ones. I've seen 'Full length ISA slot' reported on a laptop
+> > for eg.
+> I have an ia64 here that, according to dmidecode, has a
+> 32bit NUBUS slot in it. AFAIK, that's not the case. ;)
 
-> > What I want to do with this is make ISA-card questions invisible on modern
-> > PCI-only motherboards.
-> 
-> For the smart config I assume not in general ?
+*grin*, for some things, DMI is reliable, others its down to whether
+individual bios vendors decide to add the relevant strings.
 
-Right.  I'm well along on an autoconfigurator that can use the CML2 rulebase
-to do things like freezing to N all the symbols for PCI devices not explicitly 
-found by autoprobe.
- 
-> ftp://ftp.linux.org.uk/pub/linux/alan has a GPL DMI scanning app and library
-
-Which directory is it?  Nothing has "dmi" in the name.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-Everything that is really great and inspiring is created by the
-individual who can labor in freedom.
-	-- Albert Einstein, in H. Eves Return to Mathematical Circles, 
-		Boston: Prindle, Weber and Schmidt, 1988.

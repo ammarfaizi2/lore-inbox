@@ -1,106 +1,223 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUHRCtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267212AbUHRDfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267185AbUHRCtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 22:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268583AbUHRCtm
+	id S267212AbUHRDfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 23:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267230AbUHRDfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 22:49:42 -0400
-Received: from web81604.mail.yahoo.com ([206.190.37.121]:48056 "HELO
-	web81604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267185AbUHRCti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 22:49:38 -0400
-Message-ID: <20040818024937.92152.qmail@web81604.mail.yahoo.com>
-X-RocketYMMF: mhcptg@sbcglobal.net
-Date: Tue, 17 Aug 2004 19:49:37 -0700 (PDT)
-From: Matt R Hall <mhall@mhcomputing.net>
-Reply-To: mhall@mhcomputing.net
-Subject: PROBLEM: IPv6 Dependencies Incorrect (2.6.8-rc4)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 17 Aug 2004 23:35:09 -0400
+Received: from ms0.nttdata.co.jp ([163.135.193.231]:23479 "EHLO
+	ms0.nttdata.co.jp") by vger.kernel.org with ESMTP id S267212AbUHRDex
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 23:34:53 -0400
+To: davem@redhat.com, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Cc: dev_null@anet.ne.jp
+Reply-To: dev_null@anet.ne.jp
+Subject: Re: TG3 doesn't work in kernel 2.4.27 (Resolved!)
+From: Tetsuo Handa <bs-handa@bs.rd.nttdata.co.jp>
+References: <20040817110002.32088.38168.Mailman@linux.us.dell.com>
+	<200408172129.AJH50391.692B5188@anet.ne.jp>
+	<20040817110248.4c2f7cd8.davem@redhat.com>
+In-Reply-To: <20040817110248.4c2f7cd8.davem@redhat.com>
+Message-Id: <200408181233.FDJ97547.BOBCTItE@bs.rd.nttdata.co.jp>
+X-Mailer: Winbiff [Version 2.43]
+X-Accept-Language: ja,en
+Date: Wed, 18 Aug 2004 12:34:36 +0900
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem: IPv6 Dependencies Incorrect
+Hello, David.
 
-[2.] Full description of the problem/report: When compiling 2.6.8-rc4
-on a sparc32 system to avoid some errors in 2.6.7 assembly code
-routines, I found that hard-compiling CONFIG_IPV6 into the kernel while
-leaving CONFIG_IPV6_TUNNEL as a module caused the kernel to fail to
-link.
+In message <20040817110248.4c2f7cd8.davem@redhat.com>
+   "Re: TG3 doesn't work in kernel 2.4.27"
+   ""David S. Miller" <davem@redhat.com>" wrote:
 
-[3.] Keywords (i.e., modules, networking, kernel): networking, ipv6
-[4.] Kernel version (from /proc/version): 2.6.8-rc4
+> On Tue, 17 Aug 2004 21:30:06 +0900
+> Tetsuo Handa <a5497108@anet.ne.jp> wrote:
+> 
+> > I compiled as a UP kernel but it wasn't the cause.
+> > Also, I patched the above fix on 2.4.27-rc4 and
+> > compiled as a UP kernel, but didn't work.
+> 
+> Just add this patch, it will fix the problem but it
+> is not the nicest fix.  I'll work on a better one.
+> 
+> It just disables the new Sun code, and uses the old
+> fiber handling for 5704.
+> 
+It resolved the problem. It works on SMP kernel, too.
+The line position was different for tg3.c in 2.4.27 .
 
-[5.] Output of Oops.. message (if applicable) with symbolic information
-resolved (see Documentation/oops-tracing.txt): N/A
+-----START-----
+--- tg3.c.org	2004-08-08 08:26:05.000000000 +0900
++++ tg3.c	2004-08-18 09:27:58.000000000 +0900
+@@ -5264,7 +5264,7 @@
+ 	 * is enabled.
+ 	 */
+ 	tw32_f(MAC_LOW_WMARK_MAX_RX_FRAME, 2);
+-
++#if 0
+ 	if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5704 &&
+ 	    tp->phy_id == PHY_ID_SERDES) {
+ 		/* Enable hardware link auto-negotiation */
+@@ -5284,7 +5284,7 @@
+ 
+ 		tp->tg3_flags2 |= TG3_FLG2_HW_AUTONEG;
+ 	}
+-
++#endif
+ 	err = tg3_setup_phy(tp, 1);
+ 	if (err)
+ 		return err;
+-----END-----
 
-[6.] A small shell script or example program which triggers the problem
-(if possible): Compile with CONFIG_IPV6 as hard-link with
-CONFIG_IPV6_TUNNEL as a module. Witness linking failure.
+Also, as you have mentioned that this bug can only affect 5704 chips with fiber interfaces,
+I found that the box has BCM5704S. The following is the result of 'lspci -vv'.
 
-[7.] Environment: Sun SparcStation 5 (110mHz)
+-----START-----
+00:00.0 Host bridge: ServerWorks CNB20-HE Host Bridge (rev 33)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
 
-[7.1.] Software (add the output of the ver_linux script here):
-sparcy:/usr/src/linux# sh scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+00:00.1 Host bridge: ServerWorks CNB20-HE Host Bridge
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
 
-Linux sparcy 2.4.26-sparc32 #1 Sun Jun 20 02:18:47 PDT 2004 sparc
-GNU/Linux
+00:00.2 Host bridge: ServerWorks CNB20-HE Host Bridge
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
 
-Gnu C                  3.3.4
-Gnu make               3.80
-binutils               2.15
-util-linux             2.12
-mount                  2.12
-module-init-tools      2.4.26
-e2fsprogs              1.35
-PPP                    2.4.2
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.2.2
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.2.1
-Modules Loaded         sr_mod cdrom
-sparcy:/usr/src/linux#
+00:01.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) (prog-if 00 [VGA])
+	Subsystem: IBM: Unknown device 0240
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 20
+	Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+	Region 1: I/O ports at 2200 [size=256]
+	Region 2: Memory at febff000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [5c] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-[7.2.] Processor information (from /proc/cpuinfo):
-sparcy:/usr/src/linux# cat /proc/cpuinfo
-cpu             : Fujitsu  MB86904
-fpu             : Lsi Logic/Meiko L64804 or compatible
-promlib         : Version 3 Revision 2
-prom            : 2.24
-type            : sun4m
-ncpus probed    : 1
-ncpus active    : 1
-BogoMips        : 109.77
-MMU type        : Fujitsu Swift
-contexts        : 256
-nocache total   : 2097152
-nocache used    : 215808
-sparcy:/usr/src/linux#
+00:0f.0 Host bridge: ServerWorks CSB6 South Bridge (rev b0)
+	Subsystem: ServerWorks: Unknown device 0201
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
 
-[7.3.] Module information (from /proc/modules): N/A, from old kernel
-used to compile 2.6.8-rc4.
-[7.4.] Loaded driver and hardware information (/proc/ioports,
-/proc/iomem): N/A, from old kernel used to compile 2.6.8-rc4.
-[7.5.] PCI information ('lspci -vvv' as root): N/A, uses SBus, not PCI.
-[7.6.] SCSI information (from /proc/scsi/scsi):
-sparcy:/usr/src/linux# cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: IBM      Model: DDRS34560SUN4.2G Rev: S98E
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: TOSHIBA  Model: XM-4101TASUNSLCD Rev: 1084
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-sparcy:/usr/src/linux#
-[7.7.] Other information that might be relevant to the problem (please
-look in /proc and include all information that you think to be
-relevant): N/A
-[X.] Other notes, patches, fixes, workarounds: Compile with CONFIG_IPV6
-and CONFIG_IPV6_TUNNEL both as modules, or not as modules. Fix
-menuconfig to do this automatically when one is changed. Rearrange IPV6
-support so core support does not depend on tunneling.
+00:0f.1 IDE interface: ServerWorks CSB6 RAID/IDE Controller (rev b0) (prog-if 8a [Master SecP PriP])
+	Subsystem: ServerWorks: Unknown device 0212
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Region 0: I/O ports at <ignored>
+	Region 1: I/O ports at <ignored>
+	Region 2: I/O ports at <ignored>
+	Region 3: I/O ports at <ignored>
+	Region 4: I/O ports at 0700 [size=16]
+
+00:0f.2 USB Controller: ServerWorks CSB6 OHCI USB Controller (rev 05) (prog-if 10 [OHCI])
+	Subsystem: ServerWorks: Unknown device 0220
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (20000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 7
+	Region 0: Memory at febfe000 (32-bit, non-prefetchable) [size=4K]
+
+00:0f.3 ISA bridge: ServerWorks GCLE-2 Host Bridge
+	Subsystem: ServerWorks: Unknown device 0230
+	Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:10.0 Host bridge: ServerWorks: Unknown device 0110 (rev 12)
+	Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Capabilities: [60] PCI-X non-bridge device.
+		Command: DPERE- ERO- RBC=0 OST=4
+		Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
+00:10.2 Host bridge: ServerWorks: Unknown device 0110 (rev 12)
+	Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Capabilities: [60] PCI-X non-bridge device.
+		Command: DPERE- ERO- RBC=0 OST=4
+		Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
+01:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704S Gigabit Ethernet (rev 02)
+	Subsystem: IBM: Unknown device 029c
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (16000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 16
+	Region 0: Memory at fbff0000 (64-bit, non-prefetchable) [size=64K]
+	Region 2: Memory at fbfe0000 (64-bit, non-prefetchable) [size=64K]
+	Capabilities: [40] PCI-X non-bridge device.
+		Command: DPERE- ERO- RBC=2 OST=0
+		Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-	Capabilities: [48] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+		Status: D0 PME-Enable+ DSel=0 DScale=1 PME-
+	Capabilities: [50] Vital Product Data
+	Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+		Address: 0000000100000000  Data: c065
+
+01:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704S Gigabit Ethernet (rev 02)
+	Subsystem: IBM: Unknown device 029c
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (16000ns min), cache line size 08
+	Interrupt: pin B routed to IRQ 17
+	Region 0: Memory at fbfd0000 (64-bit, non-prefetchable) [size=64K]
+	Region 2: Memory at fbfc0000 (64-bit, non-prefetchable) [size=64K]
+	Capabilities: [40] PCI-X non-bridge device.
+		Command: DPERE- ERO- RBC=2 OST=0
+		Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-	Capabilities: [48] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+		Status: D0 PME-Enable+ DSel=0 DScale=1 PME-
+	Capabilities: [50] Vital Product Data
+	Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+		Address: 0000000100000000  Data: bef5
+
+02:02.0 Fibre Channel: QLogic Corp. QLA2312 Fibre Channel Adapter (rev 02)
+	Subsystem: IBM: Unknown device 027d
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (16000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 18
+	Region 0: I/O ports at 2400 [size=256]
+	Region 1: Memory at f9ffe000 (64-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [44] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [4c] PCI-X non-bridge device.
+		Command: DPERE- ERO+ RBC=0 OST=2
+		Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-	Capabilities: [54] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+		Address: 0000000000000000  Data: 0000
+	Capabilities: [64] #06 [0080]
+
+02:02.1 Fibre Channel: QLogic Corp. QLA2312 Fibre Channel Adapter (rev 02)
+	Subsystem: IBM: Unknown device 027d
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (16000ns min), cache line size 08
+	Interrupt: pin B routed to IRQ 19
+	Region 0: I/O ports at 2600 [size=256]
+	Region 1: Memory at f9ffc000 (64-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [44] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [4c] PCI-X non-bridge device.
+		Command: DPERE- ERO+ RBC=0 OST=2
+		Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-	Capabilities: [54] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+		Address: 0000000000000000  Data: 0000
+	Capabilities: [64] #06 [0080]
+
+-----END-----
+
+Thank you very much.
+-----
+Tetsuo Handa

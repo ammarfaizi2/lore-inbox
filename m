@@ -1,77 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264001AbSK0RKO>; Wed, 27 Nov 2002 12:10:14 -0500
+	id <S264625AbSK0RTY>; Wed, 27 Nov 2002 12:19:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbSK0RKO>; Wed, 27 Nov 2002 12:10:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47624 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264001AbSK0RKN>; Wed, 27 Nov 2002 12:10:13 -0500
-Date: Wed, 27 Nov 2002 09:18:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] Start of compat32.h (again)
-In-Reply-To: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0211270913480.7657-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264628AbSK0RTY>; Wed, 27 Nov 2002 12:19:24 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:58129
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S264625AbSK0RTV>; Wed, 27 Nov 2002 12:19:21 -0500
+Subject: Re: htree+NFS (NFS client bug?)
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-kGddoeD8Dh55mIsF+khW"
+Organization: 
+Message-Id: <1038417998.533.2.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 27 Nov 2002 09:26:38 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 27 Nov 2002, Stephen Rothwell wrote:
+--=-kGddoeD8Dh55mIsF+khW
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Wed, 2002-11-27 at 05:33, Theodore Ts'o wrote: 
+> Well, even if the NFS server is generating bad cookies (and that may
+> be possible), the NFS client should be more robust and not spin in a
+> loop forever.
 > 
-> How's this one :-)
+> Can you send me a directory list (from the server) of the directory in
+> question?  Also, can you send me the output of dumpe2fs -h on the
+> filesystem.  I'll need the later to get the seed for the htree hash,
+> so I can try replicating this on my end.
 
-Better.
+The hash seed is 80f11989-89cc-4046-80d8-4aef72a7f80f (extracted with
+tune2fs -l).  The listing is attached.
 
-> This patch does:
-> 	introduces CONFIG_COMPAT32
-> 	introduces linux/compat32.h - which contains only struct timespec32
-> 		for now
-> 	creates an architecture independent version of sys32_nanosleep
-> 		in kernel/timer.c
+> Also, have you tried running e2fsck on filesystem on the server?  It
+> would be very interesting to confirm whether or not the filesystem is
+> consistent.
 
-May I just suggest doing a
+This happens very regularly.  Each time it does I create a new directory
+and move everything over, which presumably works because it rehashes
+everything and/or changes the alignment of particular direntries with
+respect to the NFS reply packets.  What I'm saying is that if the
+filesystem is getting into an inconsistent state, it is doing so at a
+very high rate.  I'll check it anyway... all OK.
 
-	kernel/compat32.c
+	J
 
-and doing most everything there? I think we're better off that way, even 
-if it means that "do_nanosleep()" etc cannot be static.
+--=-kGddoeD8Dh55mIsF+khW
+Content-Description: 
+Content-Disposition: inline; filename=dirlist
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> I make the follwing assumptions:
-> 	returning s32 from a 32 bit compatibility system call is the same
-> 		as returning long or int.
+.
+..
+vg_symtypes.h~
+vg_include.h
+.deps
+vg_to_ucode.c~47-chained-bb
+vg_from_ucode.c~47-chained-bb
+vg_memory.c
+vg_symtypes.c~
+vg_constants.h~48-chained-indirect
+valgrind
+vg_needs.c
+vg_from_ucode.i
+vg_symtypes.h~44-symbolic-addr
+vg_libpthread.c~11-timedwait-rel
+vg_libpthread_unimp.c
+vg_constants.h~47-chained-bb
+vg_libpthread.c~03-accept-nonblock
+vg_transtab.c~47-chained-bb
+vg_include.h~48-chained-indirect
+vg_symtypes.c~44-symbolic-addr
+vg_main.c~14-hg-mmap-magic-virgin
+vg_symtab2-test.c
+vg_startup.S
+vg_main.c~51-kill-inceip
+vg_default.c
+vg_translate.c~01-partial-mul
+vg_dispatch.S~48-chained-indirect
+vg_scheduler.c~47-chained-bb
+vg_clientfuncs.c
+Makefile.in
+gmon.out
+vg_main.c~47-chained-bb
+vg_procselfmaps.c
+vg_symtab2.h
+vg_main.c~48-chained-indirect
+vg_translate.c~51-kill-inceip
+vg_symtypes.h
+vg_symtab_stabs.c
+dosyms
+vg_constants.h
+vg_demangle.c
+vg_messages.c
+vg_include.h~50-fast-cond
+vg_to_ucode.c
+Makefile~
+vg_symtab2.c~44-symbolic-addr
+vg_dispatch.S~47-chained-bb
+vg_libpthread.c
+vg_kerneliface.h
+vg_from_ucode.c~48-chained-indirect
+vg_from_ucode.c
+vg_from_ucode.c~49-no-inceip
+vg_malloc2.c
+vg_instrument.c
+vg_signals.c~28-sigtrap
+vg_main.c.rej
+vg_symtab2-test
+vg_errcontext.c
+vg_translate.c
+vg_symtypes.c
+out.pid11357
+vg_execontext.c
+Makefile
+vg_main.c
+vg_errcontext.c~47-chained-bb
+vg_signals.c
+vg_symtab2.c~offset-dehack
+vg_from_ucode.c~01-partial-mul
+Makefile.am~44-symbolic-addr
+vg_main.c.orig
+vg_symtab2.c
+vg_kerneliface.h~28-sigtrap
+vg_ldt.c
+vg_from_ucode.c~00-lazy-fp
+vg_transtab.c
+vg_mylibc.c~12-vgprof
+vg_from_ucode.c~50-fast-cond
+vg_symtab2.h~44-symbolic-addr
+vg_symtab_dwarf.c~44-symbolic-addr
+vg_unsafe.h
+vg_include.h~51-kill-inceip
+vg_symtab_stabs.c~44-symbolic-addr
+vg_mylibc.c
+vg_dummy_profile.c
+vg_main.c~50-fast-cond
+vg_mylibc.c~09-rdtsc-calibration
+vg_include.h~47-chained-bb
+vg_translate.c~47-chained-bb
+vg_libpthread.c~46-fix-writeable_or_erring-proto
+vg_syscall.S
+vg_from_ucode.c~51-kill-inceip
+vg_mylibc.c~28-sigtrap
+vg_dispatch.S
+vg_symtab_dwarf.c
+vg_intercept.c
+vg_symtab_stabs.c~
+vg_clientmalloc.c
+vg_valgrinq_dummy.c
+vg_scheduler.c
+vg_to_ucode.c~01-partial-mul
+Makefile.am
+vg_helpers.S
+out.pid11334
+vg_syscalls.c
+valgrind.in
+vg_libpthread.vs
 
-You should make system call returns always be of type "long". Some
-architectures may well require that (I know that the alpha calling
-conventions do require it, even when using the 32-bit user land. I don't
-think Linux has ever really supported the 32-bit stuff on alpha, but the
-theory is the same).
-
-And it means that the upper bits are well-defined.
-
-In other words, instead of doing
-
-	s32 sys_xxx(..)
-	{
-		return xxxx
-	}
-
-you should make them be
-
-	long sys_xxx(...)
-	{
-		s32 retval;
-		...
-		return retval;
-	}
-
-> Should the new do_nanosleep function be inlined?
-
-Well, since I want it used in another file, it can't be.
-
-		Linus
+--=-kGddoeD8Dh55mIsF+khW--
 

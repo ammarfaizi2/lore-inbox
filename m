@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292287AbSBBOnt>; Sat, 2 Feb 2002 09:43:49 -0500
+	id <S292289AbSBBOou>; Sat, 2 Feb 2002 09:44:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292288AbSBBOnj>; Sat, 2 Feb 2002 09:43:39 -0500
-Received: from mustard.heime.net ([194.234.65.222]:5292 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S292287AbSBBOnZ>; Sat, 2 Feb 2002 09:43:25 -0500
-Date: Sat, 2 Feb 2002 15:43:03 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Roger Larsson <roger.larsson@norran.net>
-cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Errors in the VM - detailed
-In-Reply-To: <200202011847.g11Ilwa14845@maila.telia.com>
-Message-ID: <Pine.LNX.4.30.0202021540190.10436-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292290AbSBBOor>; Sat, 2 Feb 2002 09:44:47 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:20887 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S292289AbSBBOo2>;
+	Sat, 2 Feb 2002 09:44:28 -0500
+Date: Sat, 2 Feb 2002 15:44:24 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: SIOCDEVICE ?
+Message-ID: <20020202154424.A5845@fafner.intra.cogenit.fr>
+In-Reply-To: <200201311304.FAA00344@adam.yggdrasil.com> <20020131181241.A3524@fafner.intra.cogenit.fr> <m3665iqhqn.fsf@defiant.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3665iqhqn.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Thu, Jan 31, 2002 at 11:26:56PM +0100
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmm.. suppose this is the problem anyway and that Jens patch was not enough.
-> How do the disk drive sound during the test?
+Krzysztof Halasa <khc@pm.waw.pl> :
+> Francois Romieu <romieu@cogenit.fr> writes:
+> 
+> > Bug the official HDLC maintainer if you want him to push his work. :o)
+> > 
+> > PS: I read l-k
+> 
+> BTW: I do too :-)
 
-The disk is SILENT! I can hardly hear anything.
+Nice. Let's write then.
+Your patch doesn't apply against 2.5.3. I did a quick update and noticed the
+patch is the sole user of SIOCDEVICE (with dscc4) and SIOCDEVPRIVATE.
 
-> Does it start to sound more when performance goes down?
+Is there some announce/changelog/heads up I missed ?
+Is something supposed to replace both ?
 
-I don't beleive it's a seek problem, as the readahead (RAID chunk size) is
-1MB
-
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+-- 
+Ueimor

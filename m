@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263272AbTDGF7J (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTDGF7J (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:59:09 -0400
-Received: from dp.samba.org ([66.70.73.150]:37071 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263272AbTDGF7H (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 01:59:07 -0400
-From: Paul Mackerras <paulus@au1.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263269AbTDGGJy (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTDGGJy (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:09:54 -0400
+Received: from halo.ispgateway.de ([62.67.200.127]:19886 "HELO
+	halo.ispgateway.de") by vger.kernel.org with SMTP id S263269AbTDGGJx (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 02:09:53 -0400
+Subject: Re: USB devices in 2.5.xx do not show in /dev
+From: Jens Ansorg <jens@ja-web.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030406201638.GC18279@kroah.com>
+References: <1049632582.3405.0.camel@lisaserver>
+	 <20030406201638.GC18279@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049696485.3321.16.camel@lisaserver>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 07 Apr 2003 08:21:26 +0200
 Content-Transfer-Encoding: 7bit
-Message-ID: <16017.2065.635724.992168@argo.ozlabs.ibm.com>
-Date: Mon, 7 Apr 2003 15:09:37 +1000
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Qemu support for PPC
-In-Reply-To: <20030407065813.A27933@infradead.org>
-References: <20030407024858.C32422C014@lists.samba.org>
-	<20030407065813.A27933@infradead.org>
-X-Mailer: VM 7.14 under Emacs 21.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
-
-> On Mon, Apr 07, 2003 at 12:40:38PM +1000, Rusty Russell wrote:
-> > Paul, is this OK?
-> > 
-> > I'd like it in 2.4.21 if possible.
+On Sun, 2003-04-06 at 22:16, Greg KH wrote:
+> You have to have an actual device for the /dev node to show up.  Do you
+> have any USB devices plugged in?  What does:
+> 	tree /sys/bus/usb/
+> show?
 > 
-> Please use sys_personality from userland. 
 
-sys_personality will fail if there isn't an exec_domain registered for
-the personality you want.  The *whole* *point* of Rusty's patch is to
-add an execution domain for x86 emulation so we *can* do sys_personality.
+yes, I have both, a scanner and a printer plugged into the computer
 
-Did you actually look at the patch, or was your mail just a knee-jerk?
+but there is nothing under /proc/bus/usb, it's empty
 
-> And not, I don't think it should
-> go into 2.4.21.  Get it into 2.5 first.
+(there is no /sys/ on my PC?)
 
-Why?  It's a well-contained patch that affects very little outside its
-own area, and is quite similar to other things that have been there
-for ages.  Anyway, it's not your call.
 
-Paul.
+the usbview application also complains that there is no usbfs although
+it gets registered by the core usb driver
+
+drivers/usb/core/usb.c: registered new driver usbfs
+
+
+everything works with 2.4.20 - so the hardware is ok
+
+
+thanks
+Jens
+
+-- 
+Jens Ansorg <jens@ja-web.de>
+

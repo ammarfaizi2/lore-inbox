@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263680AbTJVN1V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 09:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTJVN1U
+	id S263688AbTJVOIF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 10:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263689AbTJVOIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 09:27:20 -0400
-Received: from data.iemw.tuwien.ac.at ([128.131.70.3]:57474 "EHLO
-	data.iemw.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S263680AbTJVN1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 09:27:19 -0400
-Message-ID: <3F9685BE.3000406@tuwien.ac.at>
-Date: Wed, 22 Oct 2003 15:27:26 +0200
-From: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
-Organization: IEMW TU-Wien
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, de-at, cs
-MIME-Version: 1.0
-To: Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: nforce2 random lockups - still no solution ?
-References: <3F95748E.8020202@tuwien.ac.at> <200310211113.00326.lkml@lpbproductions.com> <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu>
-In-Reply-To: <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Oct 2003 10:08:05 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:64528 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263688AbTJVOIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 10:08:02 -0400
+Date: Wed, 22 Oct 2003 15:07:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Altix console driver
+Message-ID: <20031022150759.A21653@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Patrick Gefre <pfg@sgi.com>,
+	linux-kernel@vger.kernel.org
+References: <3F95A46B.19D3AD91@sgi.com> <20031021150027.48ddcd1e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031021150027.48ddcd1e.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 21, 2003 at 03:00:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabor,
+On Tue, Oct 21, 2003 at 03:00:27PM -0700, Andrew Morton wrote:
+> Patrick Gefre <pfg@sgi.com> wrote:
+> >
+> > 2.6 Altix serial console driver add
+> 
+> Were all the points which Christoph raised considered?
 
-I'm booting the kernel with acpi=off, noapic and nolapic options and 
-according to syslog it is really disabled. Lockups are very rare (they 
-come either during
-30mins after boot or never) but I cat get them very quickly when using 
-the framegrabber with ivtv driver. The ivtv driver itself works rock 
-solid on older PIII system
-(btw, that PIII runs SMP kernel !). So I think there are definitely DMA 
-problems with nforce2 boards under linux.
-
-Sam
-
-Vitez Gabor wrote:
-
->If turning off APIC doesn't solve the problem, try a kernel with 
->LOCAL APIC support turned off. 
->
->
->	Gabor
->  
->
+No.
 

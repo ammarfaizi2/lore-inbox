@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267030AbSKLXoO>; Tue, 12 Nov 2002 18:44:14 -0500
+	id <S267036AbSKLXsT>; Tue, 12 Nov 2002 18:48:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267031AbSKLXoO>; Tue, 12 Nov 2002 18:44:14 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:2268 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267030AbSKLXoM>;
-	Tue, 12 Nov 2002 18:44:12 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200211122349.gACNneB27936@eng2.beaverton.ibm.com>
-Subject: OOPS on module unload 2.5.47-mm1
-To: linux-kernel@vger.kernel.org (lkml)
-Date: Tue, 12 Nov 2002 15:49:40 -0800 (PST)
-Cc: pbadari@us.ibm.com (Badari Pulavarty)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S267034AbSKLXsT>; Tue, 12 Nov 2002 18:48:19 -0500
+Received: from polomer.sinet.sk ([62.169.169.8]:30739 "EHLO polomer.sinet.sk")
+	by vger.kernel.org with ESMTP id <S267031AbSKLXsS>;
+	Tue, 12 Nov 2002 18:48:18 -0500
+From: Peter Kundrat <kundrat@kundrat.sk>
+Date: Wed, 13 Nov 2002 00:52:56 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio
+Message-ID: <20021112235255.GA7015@napri.sk>
+Mail-Followup-To: kundrat,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0211121802540.27793-100000@graze.net> <1037144284.10029.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1037144284.10029.0.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Nov 12, 2002 at 11:38:04PM +0000, Alan Cox wrote:
+> On Tue, 2002-11-12 at 23:06, Brian C. Huffman wrote:
+> > Alan / All,
+> > 
+> > 	I assume this is the patch that's been in your -ac kernels for a 
+> > while?  I have an Intel 845GBV board which uses the ICH4 architecture.  
+> > I'm happy to report that this patch does allow me to use the integrated 
+> > sound on this motherboard, but one thing that I've noticed is that it 
+> > seems as though to adjust volume you need to adjust the actual channel 
+> > (PCM, CD, etc), rather than main volume.  Any ideas why this might be so?
+> 
+> It could be the mixer on your board doesnt support main volume control.
+> The i8xx audio is half of a whole, it deals with transferring streams of
+> audio data and mixer requests down an AC'97 audio bus to a codec which
+> does the D/A parts. That codec varies by board.
 
-I get following panic while rmmod qla driver.  (2.5.47-mm1).
+My board (i815) has also i810 onboard audio and the main control doesnt
+work too (i had problmes getting it working with oss driver, but didnt
+have much time trying different kernels). 
 
-Is this a known problem ? Any ideas ?
+What works as a main control, though, is control labelled Headphones 
+(in alsamixer). 
 
-Thanks,
-Badari
+pkx
 
-
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Synchronizing SCSI cache: 
-Unable to handle kernel paging request at virtual address 5a5a5a5e
- printing eip:
-c025ea85
-*pde = 00000000
-Oops: 0002
-qla2200  
-CPU:    0
-EIP:    0060:[<c025ea85>]    Not tainted
-EFLAGS: 00010287
-EIP is at __blk_cleanup_queue+0x25/0x70
-eax: 5a5a5a5a   ebx: d31c8c94   ecx: d23ab5ac   edx: d31c8c94
-esi: 000001ab   edi: d31c8c90   ebp: d302f000   esp: d2eebf28
-ds: 0068   es: 0068   ss: 0068
-Process rmmod (pid: 2708, threadinfo=d2eea000 task=d2e48180)
-Stack: 00000800 d2f60000 d31c8c2c c025eae7 d31c8c90 d31c8c00 f89424c0 c02960d9 
-       d31c8c2c d2f60000 00000006 c0295f22 d2f60000 d2a44000 c0295f10 c0295e2d 
-       d2f60000 00000006 d2eea000 00000000 c029694e f89424c0 c0295f10 f8915000 
-Call Trace:
- [<c025eae7>] blk_cleanup_queue+0x17/0x60
- [<f89424c0>] driver_template+0x0/0x68 [qla2200]
- [<c02960d9>] scsi_remove_host+0x179/0x1b0
- [<c0295f22>] scsi_remove_legacy_host+0x12/0x50
- [<c0295f10>] scsi_remove_legacy_host+0x0/0x50
- [<c0295e2d>] scsi_tp_for_each_host+0x7d/0x110
- [<c029694e>] scsi_unregister_host+0x6e/0xf0
- [<f89424c0>] driver_template+0x0/0x68 [qla2200]
- [<c0295f10>] scsi_remove_legacy_host+0x0/0x50
- [<f8929aba>] exit_this_scsi_driver+0xa/0x10 [qla2200]
- [<f89424c0>] driver_template+0x0/0x68 [qla2200]
- [<c012081e>] free_module+0x1e/0x130
- [<c011faa4>] sys_delete_module+0x1b4/0x410
- [<c0109173>] syscall_call+0x7/0xb
-
-Code: 89 50 04 89 02 89 09 89 49 04 51 8b 0d 0c 43 5c c0 46 51 e8 
-
+-- 
+Peter Kundrat
+peter@kundrat.sk

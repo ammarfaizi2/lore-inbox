@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264835AbUEQCUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUEQC2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264835AbUEQCUW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 22:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUEQCUW
+	id S264881AbUEQC2o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 22:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUEQC2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 22:20:22 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:50612 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264835AbUEQCUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 22:20:16 -0400
-To: fc scsi <scsi_fc_group@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: _PAGE_PCD bit in DMAable memory
-References: <20040517011257.86012.qmail@web50003.mail.yahoo.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 16 May 2004 19:20:14 -0700
-In-Reply-To: <20040517011257.86012.qmail@web50003.mail.yahoo.com>
-Message-ID: <52r7tjx09t.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Sun, 16 May 2004 22:28:44 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:11684 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S264881AbUEQC22
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 22:28:28 -0400
+Date: Sun, 16 May 2004 19:28:16 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Andrew Morton <akpm@osdl.org>, adi@bitmover.com, scole@lanl.gov,
+       support@bitmover.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Message-ID: <20040517022816.GA14939@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Steven Cole <elenstev@mesatop.com>, Andrew Morton <akpm@osdl.org>,
+	adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14> <20040514204153.0d747933.akpm@osdl.org> <200405151923.41353.elenstev@mesatop.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 17 May 2004 02:20:15.0129 (UTC) FILETIME=[7D588890:01C43BB5]
+Content-Disposition: inline
+In-Reply-To: <200405151923.41353.elenstev@mesatop.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    fc> Hi, I am trying to get DMAable memory on i386
-    fc> (kmalloc(GFP_DMA,)) but seems _PAGE_PCD is not set on the
-    fc> pages that i get back the memory from. Am I getting the
-    fc> correct results? If yes, then is it not that GFP_DMA should
-    fc> give me non-cacheable memory (equivalent to setting _PAGE_PCD
-    fc> along with _PAGE_PWT on i386). Can anyone confirm for me that
-    fc> GFP_DMA will *always* give me non-cacheable and contiguous
-    fc> memory.
+> renumber: can't read SCCS info in "SCCS/s.ChangeSet".
 
-On i386, the GFP_DMA flag controls _where_ the memory will be
-allocated, namely in the low 16 MB.  This is really a relic of the
-days of 24-bit ISA DMA.
+Be aware that how BK does I/O is with write() on the way out but with 
+mmap on the way in.  The process which forked renumber has just written
+the file and the renumber process is reading it with mmap.
 
-On i386, the memory does not have to be non-cacheable, since in the PC
-architecture the bus controller will maintain consistency by snooping
-the CPU.  However, to be portable, your code should use
-pci_alloc_consistent() to get memory for DMAing.  This will do the
-right thing on all platforms, including making sure that the memory is
-non-cacheable on architectures where the bus controller does not snoop.
+If there are still any problems with mixing read/write and mmap then that
+may be a prolem but I would have expected to see things start going 
+wrong on a page boundary and the one core dump I saw was page aligned 
+at the tail but not at the head, it started in the middle of the page.
 
-(By the way, kmalloc() will always return contiguous memory, but you
-should still use pci_alloc_consistent for DMA memory)
-
- - Roland
+I've told my team to drop this unless someone can show that it happens
+on other kernels, this smells like a kernel bug to me, if it were a BK
+bug we should have been getting hundreds of complaints by now.  We can
+jump back on it if need be, let us know if you think it is a BK problem
+after all.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

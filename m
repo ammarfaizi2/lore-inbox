@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278609AbRJSTFZ>; Fri, 19 Oct 2001 15:05:25 -0400
+	id <S278615AbRJSTVH>; Fri, 19 Oct 2001 15:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278610AbRJSTFQ>; Fri, 19 Oct 2001 15:05:16 -0400
-Received: from helen.CS.Berkeley.EDU ([128.32.131.251]:48257 "EHLO
-	helen.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id <S278609AbRJSTFL>; Fri, 19 Oct 2001 15:05:11 -0400
-Date: Fri, 19 Oct 2001 12:05:44 -0700
-From: Josh MacDonald <jmacd@CS.Berkeley.EDU>
+	id <S278616AbRJSTU6>; Fri, 19 Oct 2001 15:20:58 -0400
+Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:18181 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S278615AbRJSTUt>;
+	Fri, 19 Oct 2001 15:20:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Alan Chandler <alan@chandlerfamily.org.uk>
 To: linux-kernel@vger.kernel.org
-Cc: reiserfs-dev@namesys.com
-Subject: Why is writepage() return value not used?
-Message-ID: <20011019120544.G27824@helen.CS.Berkeley.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Unresolved symbol hotplug_path in usbcore.o as a module (2.4.12)
+Date: Fri, 19 Oct 2001 20:21:17 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15ufCs-0007pL-00@roo.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reading through 2.4.12 sources, I observe that the two calls to
-the address_space writepage() method, found in these functions:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	filemap_fdatasync
-	shrink_cache
+I am not subscribed to the list please cc me on any reply
 
-both ignore the return value.  For that matter, filemap_fdatasync
-itself has no return value.  This seems to indicate that various
-internal errors during fsync() will not result in an error to the
-application.  Looking at some of the possible call graphs, such 
-errors might occur in any of the write_full_page implementations,
-including calls to:
+I have built the the 2.4.12 kernel with CONFIG_HOTPLUG set and the usb stuff 
+all compiled as modules.
 
-	get_block()  (e.g., block_write_full_page, block_prepare_write)
+depmod -e  shows that usbcore.o has an unresolved symbol (which of course 
+fails when the module tries to load) of hot_plug path. 
 
-	various EIO conditions, mostly sanity checks 
-	(e.g., block_prepare_write, nfs_writepage, reiserfs, smbfs)
+Looking through the code I can see that this gets defined in kmod.c - and 
+there is an entry in System.map (I don't know each line means but 
+hotplug_path is there).  I can also see the kmod.h (included by usb.c which 
+eventually gets built into usbcore) defines it as an external reference.
 
-	calls to file_operations write() method though 
-	nfs_writepage_sync
+What I have been unable to figure out is why depmod doesn't link usbcore.o to 
+it.
+- -- 
 
-	ENOMEM condition (e.g., shmem_writepage)
+  Alan - alan@chandlerfamily.org.uk
+http://www.chandlerfamily.org.uk
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-My guess is that the file system's get_block() method usually 
-cannot be called from within the block_write_full_page method 
-during writepage, which is called directly by most file systems,
-because the full page would have all its buffers mapped prior to
-writepage().  Is this true?
-
-However, NFS, ReiserFS, SMBFS, and shmem do not simply call
-block_write_full_page() and each performs error checking in this code 
-path.  It looks as if these errors will not reach the application
-to which they belong when writepage() is called via fsync().  This
-is definetly the case for ReiserFS, but I do not understand the
-other systems well enough to evaluate their writepage() code path.
-
-It looks less significant that shrink_cache() does not use the
-return value, but if writepage() truly should have its return value
-ignored then the declaration should not have it returning an int.
-
-That would at least notify the file system authors that returning
-an error condition does no good.
-
--josh
+iD8DBQE70H0x1mf3M5ZDr2kRAkXtAKC2t3yxEGhFya9baq3JHo54K+sLVgCgrToe
+/PRFjU0H6h04DS4cCxfSA00=
+=AiTR
+-----END PGP SIGNATURE-----

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271743AbTG2Nfl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271740AbTG2Nfk
+	id S271694AbTG2OCP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271712AbTG2OCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:35:40 -0400
-Received: from firewall.mdc-dayton.com ([12.161.103.180]:6115 "EHLO
-	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
-	id S271734AbTG2Ndy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:33:54 -0400
-From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
-To: "Terje Kvernes" <terjekv@math.uio.no>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: DMA not supported with Intel ICH4 I/O controller?
-Date: Tue, 29 Jul 2003 09:45:16 -0500
-Message-ID: <PMEMILJKPKGMMELCJCIGEELECDAA.kfrazier@mdc-dayton.com>
+	Tue, 29 Jul 2003 10:02:15 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:21185 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S271694AbTG2OBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:01:09 -0400
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<christian@borntraeger.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.0-test2
+Date: Tue, 29 Jul 2003 16:01:01 +0200
+User-Agent: KMail/1.5.2
+Cc: herbert@gondor.apana.org.au
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
-In-Reply-To: <wxx1xwas5xu.fsf@nommo.uio.no>
+Content-Disposition: inline
+Message-Id: <200307291601.01730.christian@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje,
+Linus Torvalds wrote:
+> Herbert Xu:
+>   o [IPSEC]: Make reqids 32-bits
 
->  as far as I can tell, 2.4.21 doesn't support it, but 2.4.22-pre8
->  mentions the chipset in drivers/ide/pci/piix.h.  try downloading
->  2.4.21 and patch it up to 2.4.22-pre8 and see if it works.  :-)
+Is this the reason why I can connect
+2.6.0-test1 with 2.6.0-test1
+2.6.0-test2 with 2.6.0-test2
 
-Thanks.  But, from what I'm hearing, this problem with the ICH4 is only
-concerned with UDMA of IDE devices, so it doesn't sound like an O/S upgrade
-will help my DMA bus master device (it's NOT an IDE device).
+but 2.6.0-test1 cannot connect to 2.6.0-test2 with ipsec?
 
->> Management is chomping at the bit here.
 
->  you have my sympathy, for what it's worth.
+cheers
 
-lol.  Ahhh, some humor!  Thanks!
-
-Regards,
-Kathy
+Christian
 

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267242AbUF0ClJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUF0DAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267242AbUF0ClJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 22:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267248AbUF0ClJ
+	id S266531AbUF0DAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 23:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUF0DAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 22:41:09 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:4986 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267242AbUF0ClH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 22:41:07 -0400
-Message-ID: <40DE32C9.1040507@yahoo.com.au>
-Date: Sun, 27 Jun 2004 12:36:57 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-np1
-References: <40DD4928.9090108@yahoo.com.au> <40DD6B61.1080003@gmx.de>
-In-Reply-To: <40DD6B61.1080003@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Jun 2004 23:00:09 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:21443 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S266531AbUF0DAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 23:00:06 -0400
+Date: Sat, 26 Jun 2004 23:53:11 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       BlaisorBlade <blaisorblade_spam@yahoo.it>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Inclusion of UML in 2.6.8
+Message-ID: <20040627035311.GA8842@ccure.user-mode-linux.org>
+References: <200406261905.22710.blaisorblade_spam@yahoo.it> <20040626181048.GA16323@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040626181048.GA16323@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
-> Hi,
-> 
-> Nick Piggin wrote:
-> 
->> http://www.kerneltrap.org/~npiggin/2.6.7-np1.gz
->>
->> This applies against 2.6.7-mm2 and 2.6.7-bk8 with some offsets.
-> 
-> 
-> 
-> it breaks a bit hfs(+) and reiser4: Somehow PageActive() seems to be 
-> gone...so I cannot compile.
-> 
+On Sat, Jun 26, 2004 at 07:10:48PM +0100, Christoph Hellwig wrote:
+> Please send split patches.  E.g. linux/ghash.h should not ne reintroduced,
+> it's completely fuly.  
 
-Hmm thanks, I obviously can't use grep. I'll fix hfs.
+That requires a little interface work inside UML, and that was the main reason
+Andrew hasn't seen UML recently.
 
-PageActive is replaced with PageActiveMapped and PageActiveUnmapped.
+> Also your above arch_free_page needs some more
+> discussion.
+
+I think that can disappear.  In some cases, it might be handy for the arch
+to see pages being freed, but right now, I believe that UML has no need for
+it.
+
+				Jeff

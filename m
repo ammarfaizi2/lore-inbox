@@ -1,103 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVAZJBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVAZJER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbVAZJBe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 04:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVAZJBd
+	id S262403AbVAZJER (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 04:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVAZJER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 04:01:33 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:24081 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262400AbVAZJBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 04:01:18 -0500
-Subject: Re: make flock_lock_file_wait static
-From: Arjan van de Ven <arjanv@infradead.org>
-To: paulmck@us.ibm.com
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, viro@zenII.uk.linux.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050125185812.GA1499@us.ibm.com>
-References: <20050109194209.GA7588@infradead.org>
-	 <1105310650.11315.19.camel@lade.trondhjem.org>
-	 <1105345168.4171.11.camel@laptopd505.fenrus.org>
-	 <1105346324.4171.16.camel@laptopd505.fenrus.org>
-	 <1105367014.11462.13.camel@lade.trondhjem.org>
-	 <1105432299.3917.11.camel@laptopd505.fenrus.org>
-	 <1105471004.12005.46.camel@lade.trondhjem.org>
-	 <1105472182.3917.49.camel@laptopd505.fenrus.org>
-	 <20050125185812.GA1499@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 26 Jan 2005 10:01:00 +0100
-Message-Id: <1106730061.6307.62.camel@laptopd505.fenrus.org>
+	Wed, 26 Jan 2005 04:04:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59537 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262404AbVAZJDv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 04:03:51 -0500
+Date: Wed, 26 Jan 2005 10:03:38 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
+       linux-kernel@vger.kernel.org, lennert.vanalboom@ugent.be
+Subject: Re: Memory leak in 2.6.11-rc1?
+Message-ID: <20050126090338.GF2751@suse.de>
+References: <1106528219.867.22.camel@boxen> <20050124204659.GB19242@suse.de> <20050124125649.35f3dafd.akpm@osdl.org> <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org> <20050126080152.GA2751@suse.de> <20050126001113.30933eef.akpm@osdl.org> <20050126084005.GB2751@suse.de> <20050126004419.26aab4a5.akpm@osdl.org> <20050126084743.GD2751@suse.de> <20050126005844.6880d195.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050126005844.6880d195.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 10:58 -0800, Paul E. McKenney wrote:
-> On Tue, Jan 11, 2005 at 08:36:22PM +0100, Arjan van de Ven wrote:
-> > On Tue, 2005-01-11 at 14:16 -0500, Trond Myklebust wrote:
-> > > > (you may think "it's only 100 bytes", well, there are 700+ other such
-> > > > functions, total that makes over at least 70Kb of unswappable, wasted
-> > > > memory if not more.)
-> > > 
-> > > A list of these 700+ unused exported APIs would be very useful so that
-> > > we can deprecate and/or get rid of them.
-> > 
-> > http://people.redhat.com/arjanv/unused
+On Wed, Jan 26 2005, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
 > >
-> > has the list of symbols that are unused on an i386 allmodconfig based on
-> > the -bk tree 2 days ago.
+> > This is my current situtation:
+> > 
+> > ...
+> >  axboe@wiggum:/home/axboe $ cat /proc/meminfo 
+> >  MemTotal:      1024992 kB
+> >  MemFree:          9768 kB
+> >  Buffers:         76664 kB
+> >  Cached:         328024 kB
+> >  SwapCached:          0 kB
+> >  Active:         534956 kB
+> >  Inactive:       224060 kB
+> >  HighTotal:           0 kB
+> >  HighFree:            0 kB
+> >  LowTotal:      1024992 kB
+> >  LowFree:          9768 kB
+> >  SwapTotal:           0 kB
+> >  SwapFree:            0 kB
+> >  Dirty:            1400 kB
+> >  Writeback:           0 kB
+> >  Mapped:         464232 kB
+> >  Slab:           225864 kB
+> >  CommitLimit:    512496 kB
+> >  Committed_AS:   773844 kB
+> >  PageTables:       8004 kB
+> >  VmallocTotal: 34359738367 kB
+> >  VmallocUsed:       644 kB
+> >  VmallocChunk: 34359737167 kB
+> >  HugePages_Total:     0
+> >  HugePages_Free:      0
+> >  Hugepagesize:     2048 kB
 > 
-> <donning asbestos suit with the tungsten pinstripes...>
-> 
-> SAN Filesystem is an out-of-tree GPL module that uses the following:
+> OK.  There's rather a lot of anonymous memory there - 700M on the LRU, 300M
+> pageache, 400M anon, 200M of slab.  You need some swapspace ;)
 
-any plans to submit this for inclusion?
+Just forget to swapon again after the recent fillmem cleanup, I do have
+1G of swap usually on as well!
 
-> 
-> o	blk_get_queue(): used to submit I/O requests using the
-> 	make_request_fn().
+> What are the symptoms?  Slow to load applications?  Lots of paging?  Poor
+> I/O speeds?
 
-sounds really like the wrong level, any reason to not use submit_bio /
-submit_bh instead? Every piece of code outside the core block layer that
-I've seen that tries to do this has been wrong/broken to date.
+No paging, it basically never hits swap. Buffered io by itself seems to
+run at full speed. But application startup seems sluggish. Hard to
+explain really, but there's a noticable difference to the feel of usage
+when it has just been force-pruned with fillmem and before.
 
-> 
-> o	sock_setsockopt(): used to control communication with other
-> 	nodes in the SAN Filesystem.
-> 
-
-again this very much looks like a misuse; sock_setsocketopt() gets a
-*userspace* pointer as argument. Bad API to use (and if you look at
-CIFS, they would also like a real nice internal api instead, but don't
-use sock_setsockopt() since it's the wrong api)
-
-
-> SDD is a binary module that has committed to get itself to GPL on its
-> first release after December 31, 2005.  It uses:
-> 
-> o	__read_lock_failed() and __write_lock_failed(): due to SDD's use
-> 	of read_lock() and write_lock().  So, if the plan is to change
-> 	read_lock() and write_lock() to do something different, never mind!
-
-those two exports are "internal" following from copying the
-implementation of read_lock() into the code before compiling it (by the
-preprocessor) and currently of course won't go away unless readlocks
-change/go away.
-
-Another question: is the SDD module even available for mainline kernels,
-or is it only available for distribution kernels ?
+-- 
+Jens Axboe
 

@@ -1,42 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281191AbRKHAso>; Wed, 7 Nov 2001 19:48:44 -0500
+	id <S280807AbRKHA7O>; Wed, 7 Nov 2001 19:59:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281220AbRKHAsY>; Wed, 7 Nov 2001 19:48:24 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:42247 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S281210AbRKHAsU>;
-	Wed, 7 Nov 2001 19:48:20 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111080047.fA80lxk105204@saturn.cs.uml.edu>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-To: linux-kernel@alex.org.uk
-Date: Wed, 7 Nov 2001 19:47:58 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        viro@math.psu.edu (Alexander Viro), jfbeam@bluetopia.net (Ricky Beam),
-        roy@karlsbakk.net (Roy Sigurd Karlsbakk),
-        linux-kernel@vger.kernel.org (Linux Kernel Mail List)
-In-Reply-To: <1832004393.1005153898@[10.132.113.67]> from "Alex Bligh - linux-kernel" at Nov 07, 2001 05:24:58 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S280907AbRKHA7E>; Wed, 7 Nov 2001 19:59:04 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:38920 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S280807AbRKHA64>; Wed, 7 Nov 2001 19:58:56 -0500
+Date: Thu, 8 Nov 2001 01:58:45 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: "David S. Miller" <davem@redhat.com>
+cc: <adilger@turbolabs.com>, <jgarzik@mandrakesoft.com>, <andrewm@uow.edu.au>,
+        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
+        <netdev@oss.sgi.com>, <ak@muc.de>, <kuznet@ms2.inr.ac.ru>
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+In-Reply-To: <20011107.164426.35502643.davem@redhat.com>
+Message-ID: <Pine.LNX.4.30.0111080157180.29908-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux writes:
+> Why do they these cases that are actually in the code need to cast to
+> a signed value to get a correct answer?  They are not like your
+> example.
+>
+> Almost all of these cases are:
+>
+> 	(jiffies - SOME_VALUE_KNOWN_TO_BE_IN_THE_PAST) > 5 * HZ
+>
+> So you say if we don't cast to signed, this won't get it right on
+> wrap-around?  I disagree, let's say "long" is 32-bits and jiffies
+> wrapped around to "0x2" and SOME_VALUE... is 0xfffffff8.  The
+> subtraction above yields 10, and that is what we want.
+>
+> Please show me a bad case where casting to signed is necessary.
+>
+> I actually ran through the tree the other night myself starting to
+> convert these things, then I noticed that I couldn't even convince
+> myself that the code was incorrect.
+>
 
->    sure it's easier to strip out a spurious 'kb' that
->    gets added after a number, than to deal with (say)
->    an extra inserted DWORD with no version traching.
 
-Design the kernel to make doing this difficult.
-Define some offsets as follows:
+Please consider to change the appended ones.
 
-#define FOO_PID 0
-#define FOO_PPID 1
+Tim
 
-Now, how is anyone going to create "an extra inserted DWORD"
-between those? They'd need to renumber FOO_PPID and any other
-values that come after it.
 
-The "DWORD" idea is messed up too BTW. Use __u64 everywhere.
+--- linux-2.4.14/net/ipv4/route.c	Wed Oct 31 00:08:12 2001
++++ linux-2.4.14-jiffies64/net/ipv4/route.c	Wed Nov  7 22:51:23 2001
+@@ -395,7 +395,7 @@
+ 		write_unlock(&rt_hash_table[i].lock);
+
+ 		/* Fallback loop breaker. */
+-		if ((jiffies - now) > 0)
++		if ((long)(jiffies - now) > 0)
+ 			break;
+ 	}
+ 	rover = i;
+--- linux-2.4.14/net/ipv4/ipconfig.c	Wed Oct 31 00:08:12 2001
++++ linux-2.4.14-jiffies64/net/ipv4/ipconfig.c	Wed Nov  7 23:28:47 2001
+@@ -1000,7 +1000,7 @@
+ #endif
+
+ 		jiff = jiffies + (d->next ? CONF_INTER_TIMEOUT : timeout);
+-		while (jiffies < jiff && !ic_got_reply)
++		while ((long)(jiffies - jiff) < 0 && !ic_got_reply)
+ 			barrier();
+ #ifdef IPCONFIG_DHCP
+ 		/* DHCP isn't done until we get a DHCPACK. */
+@@ -1113,7 +1113,7 @@
+  try_try_again:
+ 	/* Give hardware a chance to settle */
+ 	jiff = jiffies + CONF_PRE_OPEN;
+-	while (jiffies < jiff)
++	while ((long)(jiffies - jiff) < 0)
+ 		;
+
+ 	/* Setup all network devices */
+@@ -1122,7 +1122,7 @@
+
+ 	/* Give drivers a chance to settle */
+ 	jiff = jiffies + CONF_POST_OPEN;
+-	while (jiffies < jiff)
++	while ((long)(jiffies - jiff) < 0)
+ 			;
+
+ 	/*
+

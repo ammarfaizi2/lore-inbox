@@ -1,122 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUCLJce (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 04:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCLJce
+	id S262052AbUCLJiT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 04:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUCLJiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 04:32:34 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:36112 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262050AbUCLJbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 04:31:49 -0500
-Date: Fri, 12 Mar 2004 09:31:46 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lockfs patch for 2.6
-Message-ID: <20040312093146.A13678@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-References: <1078867885.25075.1458.camel@watt.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1078867885.25075.1458.camel@watt.suse.com>; from mason@suse.com on Tue, Mar 09, 2004 at 04:31:25PM -0500
+	Fri, 12 Mar 2004 04:38:18 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:20359 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262052AbUCLJiN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 04:38:13 -0500
+Message-ID: <405184F7.1050100@cyberone.com.au>
+Date: Fri, 12 Mar 2004 20:37:59 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: m.c.p@wolk-project.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       mfedyk@matchmail.com, plate@gmx.tm
+Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
+References: <404FACF4.3030601@cyberone.com.au>	<200403111825.22674@WOLK>	<40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org>
+In-Reply-To: <20040312012703.69f2bb9b.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 04:31:25PM -0500, Chris Mason wrote:
->  /*
-> + * triggered by the device mapper code to lock a filesystem and force
-> + * it into a consistent state.
-> + *
-> + * This takes the block device bd_mount_sem to make sure no new mounts
-> + * happen on bdev until unlockfs is called.  If a super is found on this
-> + * block device, we hould a read lock on the s->s_umount sem to make sure
-> + * nobody unmounts until the snapshot creation is done
-> + */
-> +void sync_super_lockfs(struct block_device *bdev) 
-> +{
-> +	struct super_block *sb;
-> +	down(&bdev->bd_mount_sem);
-> +	sb = get_super(bdev);
-> +	if (sb) {
-> +		lock_super(sb);
-> +		if (sb->s_dirt && sb->s_op->write_super)
-> +			sb->s_op->write_super(sb);
-> +		if (sb->s_op->write_super_lockfs)
-> +			sb->s_op->write_super_lockfs(sb);
 
-Can we please rename write_super_lockfs to a sane name?
 
-freeze_fs/thaw_fs sounds like a good name.
+Andrew Morton wrote:
 
-> +void unlockfs(struct block_device *bdev)
-> +{
-> +	struct list_head *p;
-> +	/*
-> +	 * copied from get_super, but we need to
-> +	 * do special things since lockfs left the
-> +	 * s_umount sem held
-> +	 */
-> +	spin_lock(&sb_lock);
-> +	list_for_each(p, &super_blocks) {
-> +		struct super_block *s = sb_entry(p);
-> +		/*
-> +		 * if there is a super for this block device
-> +		 * in the list, get_super must have found it
-> +		 * during sync_super_lockfs, so our drop_super
-> +		 * will drop the reference created there.
-> +		 */
-> +		if (s->s_bdev == bdev && s->s_root) {
-> +			spin_unlock(&sb_lock);
-> +			if (s->s_op->unlockfs)
-> +				s->s_op->unlockfs(s);
-> +			drop_super(s);
-> +			goto unlock;
-> +		}
-> +	}
-> +	spin_unlock(&sb_lock);
-> +unlock:
-> +	up(&bdev->bd_mount_sem);
-> +}
-> +EXPORT_SYMBOL(unlockfs);
+>Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+>>Hmm... I guess it is still smooth because it is swapping out only
+>> inactive pages. If the standard VM isn't being pushed very hard it
+>> doesn't scan mapped pages at all which is why it isn't swapping.
+>>
+>> I have a preference for allowing it to scan some mapped pages though.
+>>
+>
+>I haven't looked at the code but if, as I assume, it is always scanning
+>mapped pages, although at a reduced rate then the effect will be the same
+>as setting swappiness to 100, except it will take longer.
+>
+>
 
-This looks ugly.  What about returning the superblock from the freeze
-routine so you can simply pass it into the thaw routine?
+Yep
 
-> ===================================================================
-> --- linux.dm.orig/fs/buffer.c	2004-02-27 15:47:36.139106189 -0500
-> +++ linux.dm/fs/buffer.c	2004-02-27 15:48:41.516739161 -0500
-> @@ -260,6 +260,17 @@
->  	return sync_blockdev(bdev);
->  }
->  
-> +int fsync_bdev_lockfs(struct block_device *bdev)
-> +{
-> +	int res;
-> +	res = fsync_bdev(bdev);
-> +	if (res)
-> +		return res;
-> +	sync_super_lockfs(bdev);
-> +	return sync_blockdev(bdev);
-> +}
-> +EXPORT_SYMBOL(fsync_bdev_lockfs);
+>That effect is to cause the whole world to be swapped out when people
+>return to their machines in the morning.  Once they're swapped back in the
+>first thing they do it send bitchy emails to you know who.
+>
+>>From a performance perspective it's the right thing to do, but nobody likes
+>it.
+>
+>
 
-This looks grossly misnamed again.  And why do you need to have
-sync_super_locks splitted out?  Calling it on it's own doesn't make much
-sense.
-
-> --- linux.dm.orig/include/linux/buffer_head.h	2004-02-05 16:56:30.000000000 -0500
-> +++ linux.dm/include/linux/buffer_head.h	2004-02-27 15:48:41.530734995 -0500
-> @@ -164,6 +164,8 @@
->  wait_queue_head_t *bh_waitq_head(struct buffer_head *bh);
->  void wake_up_buffer(struct buffer_head *bh);
->  int fsync_bdev(struct block_device *);
-> +int fsync_bdev_lockfs(struct block_device *);
-> +void unlockfs(struct block_device *);
-
-Again rather misplaced.  Even a fs not using bufferheads at all would
-benefit from the interface.
+Yeah. I wonder if there is a way to be smarter about dropping these
+used once pages without putting pressure on more permanent pages...
+I guess all heuristics will fall down somewhere or other.
 

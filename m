@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289752AbSBESqF>; Tue, 5 Feb 2002 13:46:05 -0500
+	id <S289754AbSBESv0>; Tue, 5 Feb 2002 13:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289766AbSBESpz>; Tue, 5 Feb 2002 13:45:55 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:2052 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S289752AbSBESpk>; Tue, 5 Feb 2002 13:45:40 -0500
-Date: Tue, 5 Feb 2002 16:45:11 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, <arjan@fenrus.demon.nl>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <20020205142154.D37@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.33L.0202051644340.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289761AbSBESvP>; Tue, 5 Feb 2002 13:51:15 -0500
+Received: from [199.203.178.211] ([199.203.178.211]:38674 "EHLO
+	exchange.store-age.com") by vger.kernel.org with ESMTP
+	id <S289754AbSBESvD>; Tue, 5 Feb 2002 13:51:03 -0500
+Message-ID: <BDE817654148D51189AC00306E063AAE054627@exchange.store-age.com>
+From: Alexander Sandler <ASandler@store-age.com>
+To: "'Philippe Troin'" <phil@fifi.org>
+Cc: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: How to crash a system and take a dump?
+Date: Tue, 5 Feb 2002 20:50:31 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="x-user-defined"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Feb 2002, Pavel Machek wrote:
+This one is too genious to be found right away ;)
 
-> > > > the biggest reason for this is that we *suck* at readahead for mmap....
-> > >
-> > > Is there not also fault overhead and similar issues related to mmap(2)
-> > > in general, that are not present with read(2)/write(2)?
-> >
-> > If a fault is more expensive than a system call, we're doing
-> > something wrong in the page fault path ;)
->
-> You can read 128K at a time, but you can't fault 128K...
+> Simplier: insmod this module:
+> 
+> #include <linux/module.h>
+> 
+> int init_module()
+> {
+>    panic("Forcing panic");
+> }
+> 
+> int cleanup_module()
+> {
+> }
 
-Why not ?
-
-If the pages are present (read-ahead) and the page table
-is present, I see no reason why we couldn't fill in 32
-page table entries at once.
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Sasha.

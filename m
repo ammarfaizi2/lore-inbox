@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130831AbRCWOYt>; Fri, 23 Mar 2001 09:24:49 -0500
+	id <S130902AbRCWOX7>; Fri, 23 Mar 2001 09:23:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130940AbRCWOYj>; Fri, 23 Mar 2001 09:24:39 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9230 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130831AbRCWOYU>; Fri, 23 Mar 2001 09:24:20 -0500
-Subject: Re: Linux 2.4.2-ac23
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Fri, 23 Mar 2001 14:13:18 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.33.0103231456500.26499-200000@pluto.fachschaften.tu-muenchen.de> from "Adrian Bunk" at Mar 23, 2001 03:06:14 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14gSJc-0004lf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130831AbRCWOXt>; Fri, 23 Mar 2001 09:23:49 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:48908 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S130902AbRCWOXn>;
+	Fri, 23 Mar 2001 09:23:43 -0500
+Date: Fri, 23 Mar 2001 15:22:53 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: VIA vt82c686b  and UDMA(100)
+To: dushaw@munk.apl.washington.edu, linux-kernel@vger.kernel.org
+Message-id: <3ABB5C3D.2C29962A@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duh yes.. it would for some people
+Brian Dushaw (dushaw@munk.apl.washington.edu) wrote :
 
---- arch/i386/kernel/setup.c~	Thu Mar 22 23:18:21 2001
-+++ arch/i386/kernel/setup.c	Fri Mar 23 13:26:08 2001
-@@ -2276,7 +2276,7 @@
- 	 */
- 
- 	/* TSC disabled? */
--#ifdef CONFIG_X86_TSC
-+#ifndef CONFIG_X86_TSC
- 	if ( tsc_disable )
- 		clear_bit(X86_FEATURE_TSC, &c->x86_capability);
- #endif
+> Dear Linux Kernel Wisemen, 
+>    I have been following the discussion of the VIA vt82c686b chipset 
+> and the troubles people have had in getting UDMA(100) to work. This 
+> is to report that I have now tried the 2.4.2-ac20 kernel and the 
+> 2.2.18 kernel with Andre's patch (dated March 20) and neither of 
+> them get the disk speed up to where it ought to be. hdparm -t reports 
+> back 11 MB/s or so for either kernel. 
+>    VIA82CXXX enabled, and I also tried the ide0=ata66 flag, in desparation. 
+>    At boot up both kernels report the disk as UDMA(100) - everything 
+> seems to be peachy keen, but for the sluggish disk performance. 
+> 
+> Merely a report from the front lines, 
+> 
+> B.D. 
 
+Do you also have IDE_AUTO_WHATEVER option enabled , 
+as suggested ( no, commanded ) in the VIA_IDE_OPTION help text ?
+( press '?' when selecting the VIA IDE driver option )
+
+cat /proc/ide/via ?
+
+What do you think is the "correct" transfer rate of the disk ?
+
+For the record , I have a MSI K7T Pro2A board ( VIA KT133 with a
+vt82c686b south bridge ) and a IBM DTLA 307045 hard drive on a 80
+wire IDE cable ( set to CABLE-SELECT , connected to the end connector;
+you must always first use both connectors on the end of the cable !
+never left one end unused )
+
+Without doing any settings with hdparm, I get the full transfer rate
+of the disk, measured with hdparm : ~35MB/s
+
+
+kernel is 2.4.recent or redhat recent 2.4.x versions.
+
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

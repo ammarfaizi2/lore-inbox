@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbVALF7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263030AbVALGLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbVALF7k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 00:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbVALF7k
+	id S263030AbVALGLF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 01:11:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbVALGLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 00:59:40 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:29303 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263019AbVALF7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 00:59:35 -0500
-Message-ID: <41E4BCBE.2010001@yahoo.com.au>
-Date: Wed, 12 Jan 2005 16:59:26 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: torvalds@osdl.org, Andi Kleen <ak@muc.de>, Hugh Dickins <hugh@veritas.com>,
-       akpm@osdl.org, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: page table lock patch V15 [0/7]: overview
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain> <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org> <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org> <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de> <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 01:11:05 -0500
+Received: from orb.pobox.com ([207.8.226.5]:60036 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S263030AbVALGKy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 01:10:54 -0500
+Date: Tue, 11 Jan 2005 22:10:43 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: "Barry K. Nathan" <barryn@pobox.com>,
+       David Lang <dlang@digitalinsight.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
+Message-ID: <20050112061043.GG4325@ip68-4-98-123.oc.oc.cox.net>
+References: <20050111235907.GG2760@pclin040.win.tue.nl> <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost> <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com> <20050111223641.GA27100@logos.cnet> <20050112023218.GF4325@ip68-4-98-123.oc.oc.cox.net> <20050112005647.GB27653@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050112005647.GB27653@logos.cnet>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> Changes from V14->V15 of this patch:
+On Tue, Jan 11, 2005 at 10:56:47PM -0200, Marcelo Tosatti wrote:
+> Out of curiosity do you have a list of such syscalls?
 
-Hi,
+Not yet. I wasn't expecting to need the list quite this soon.
 
-I wonder what everyone thinks about moving forward with these patches?
-Has it been decided that they'll be merged soon? Christoph has been
-working fairly hard on them, but there hasn't been a lot of feedback.
+> "usually" is the problem - you cannot be sure what syscalls unknown
+> applications are using. 
+[snip]
+> > And if you have programs that need it, you (or your vendor) can set the
+> > config option accordingly.
+> 
+> The possibility is that there might be unknown applications which use
+> these "obsolete" system calls. 
 
+True, but I would expect to see a strong correlation between the use of
+"obsolete" syscalls and the use of "obsolete" libraries (libc4, libc5).
+Until there's a list of obsolete syscalls, we can't say for sure,
+though.
 
-And for those few people who have looked at my patches for page table
-lock removal, is there is any preference to one implementation or the
-other?
+> Vendors who want to support older applications (most distributions) will
+> have to enable all these option(s), while users who do not need one or
+> a few of them can disable accordingly ("specialized" applications).
 
-It is probably fair to say that my patches are more comprehensive
-(in terms of ptl removal, ie. the complete removal**), and can allow
-architectures to be more flexible in their page table synchronisation
-methods.
+There are at least one or two distributions (I'm thinking of vendors
+named after headwear, although there are probably others) that have not
+shipped libc5 compat libraries for a long while. IIRC they're also
+shipping their kernels with CONFIG_BINFMT_AOUT completely disabled
+(not even modular).
 
-However, Christoph's are simpler and probably more widely tested and
-reviewed at this stage, and more polished. Christoph's implementation
-probably also covers the most pressing performance cases.
+So, these vendors at least are (to the best of my knowledge) only
+supporting older applications *up to a point*.
 
-On the other hand, my patches *do* allow for the use of a spin-locked
-synchronisation implementation, which is probably closer to the
-current code than Christoph's spin-locked pte_cmpxchg fallback in
-terms of changes to locking semantics.
+> I personally dont like the idea of disabling "obsolete" system calls
+> with config options, but it is useful for specialized applications to
+> save memory. 
+> 
+> Are many users going to benefit from it?
 
+It's going to be hard to tell without full-blown code to examine and
+test, but my hope is that it will be able to disable something
+substantial for people who have completely abandoned libc4/libc5. And
+that's many users.
 
-[** Aside, I didn't see a very significant improvement in mm/rmap.c
-functions from ptl removal. Mostly I think due to contention on
-mapping->i_mmap_lock (I didn't test anonymous pages, they may have
-a better yield)]
+Even if the final patch is unable to benefit many users, perhaps the
+process of creating that patch will still be worth it if it gives us a
+better idea of which syscalls are being used and which ones aren't.
+
+-Barry K. Nathan <barryn@pobox.com>
 

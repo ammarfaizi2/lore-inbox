@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264193AbTEGSzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 14:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264196AbTEGSzU
+	id S264197AbTEGSuC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 14:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264199AbTEGSuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 14:55:20 -0400
-Received: from siaag1ac.compuserve.com ([149.174.40.5]:33236 "EHLO
-	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
-	id S264193AbTEGSzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 14:55:19 -0400
-Date: Wed, 7 May 2003 15:04:57 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: "arjanv@redhat.com" <arjanv@redhat.com>
-Cc: Steffen Persvold <sp@scali.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305071507_MC3-1-37CF-FE32@compuserve.com>
+	Wed, 7 May 2003 14:50:02 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:11489 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264197AbTEGSuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 14:50:01 -0400
+Message-ID: <3EB957FA.4080900@us.ibm.com>
+Date: Wed, 07 May 2003 12:01:14 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jonathan Lundell <linux@lundell-bros.com>
+CC: root@chaos.analogic.com,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305071008080.11871@chaos> <p05210601badeeb31916c@[207.213.214.37]>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Preloading libraries, ptracing init, patching g/libc, etc. are
->> obviously not the way to go.
->
-> those obviously need to be implemented via the security subsystem (eg
-> LSM). Hooks are obviously the wrong level to do things and I could even
-> tell you that you cannot implement this right from a module actually.
+Jonathan Lundell wrote:
+> One thing that would help (aside from separate interrupt stacks) 
+> would be a guard page below the stack. That wouldn't require any 
+> physical memory to be reserved, and would provide positive indication 
+> of stack overflow without significant runtime overhead.
 
-  What is really needed is some kind of proper generic hooking setup
-that could be used both by LSM and other things.  People doing this
-may need to intercept syscalls both on their way to the kernel and 
-on the way back to userland (so they can see return codes.)  They may
-also need to say whether they want to be first or last if there are
-multiple users of this facility.
+x86 doesn't really have big physical shortages right now.  But, the
+_virtual_ shortages are significant.  The guard page just increases the
+virtual cost by 50%.
 
-  But the real question is why the export of sys_call_table was so
-gratuitously removed without any kind of replacement being offered.
-And the attitude of the developers about it is truly awful. ("Oh, so
-we broke the drivers you depend on for your livelihood?  You can just
-go get a new job -- pounding sand down a rathole.")
+The stack overflow checking in -mjb uses gcc's mcount mechanism to
+detect overflows.  It should get called on every single function call.
 
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

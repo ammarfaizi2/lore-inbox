@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269769AbUJMX7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269930AbUJNAJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269769AbUJMX7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 19:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269770AbUJMX7r
+	id S269930AbUJNAJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 20:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269926AbUJNAJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 19:59:47 -0400
-Received: from siaag1aa.compuserve.com ([149.174.40.3]:59602 "EHLO
-	siaag1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S269769AbUJMX7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 19:59:41 -0400
-Date: Wed, 13 Oct 2004 19:55:39 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] softdog.c (was: Kernel panic after rmmod softdog
-  (2.6.8.1))
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Michael Schierl <schierlm@gmx.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Message-ID: <200410131959_MC3-1-8C24-188B@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Wed, 13 Oct 2004 20:09:53 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:7098 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269789AbUJNAJq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 20:09:46 -0400
+Date: Thu, 14 Oct 2004 02:08:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: mikem@beardog.cca.cpqcorp.net
+Cc: Joe Perches <joe@perches.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: cciss update [1/2] updates our SCSI support to not use deprecated headers pass 3
+Message-ID: <20041014000804.GA1454@suse.de>
+References: <20041013211302.GA9866@beardog.cca.cpqcorp.net> <20041013212105.GA4438@havoc.gtf.org> <20041013213626.GA10273@beardog.cca.cpqcorp.net> <1097704228.3062.1.camel@localhost.localdomain> <20041013223344.GB6019@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041013223344.GB6019@beardog.cca.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
+On Wed, Oct 13 2004, mike.miller@hp.com wrote:
+> @@ -552,11 +547,16 @@ cciss_scsi_setup(int cntl_num)
+>  static void
+>  complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
+>  {
+> -	Scsi_Cmnd *cmd;
+> +	struct scsi_cmnd *cmd;
+>  	ctlr_info_t *ctlr;
+>  	u64bit addr64;
+>  	ErrorInfo_struct *ei;
+>  
+> +	cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC);
+> +	if(cmd == NULL) {
+> +		printk(KERN_WARNING "out of memory\n");
+> +		return;
+> +	}
+>  	ei = cp->err_info;
+>  
+>  	/* First, see if it was a message rather than a command */
+> @@ -565,7 +565,7 @@ complete_scsi_command( CommandList_struc
+>  		return;
+>  	}
+>  
+> -	cmd = (Scsi_Cmnd *) cp->scsi_cmd;	
+> +	cmd = (struct scsi_cmnd *) cp->scsi_cmd;	
+>  	ctlr = hba[cp->ctlr];
 
-> Now if you do open(), close(), open(), write("V"), close(), the module
-> becomes unremovable, even without nowayout=1. Isn't is possible to
-> simply add a softdog_stop() call to watchdog_exit()?
+This makes zero sense. First of all, you can't just quit out of
+completing a command based on a weird allocation failure. Secondly, why
+are you allocation cmd at completion time (??) and then overwriting it a
+few lines later.
 
-  Oh well, at least it can't possibly oops since you can't even remove it.  :)
+-- 
+Jens Axboe
 
-  How about this instead?
-
-  (Assuming a re-open of the softdog device is allowable; I don't see why not.)
-
---- linux-2.6.8.1/drivers/char/watchdog/softdog.c.orig  Sun Oct 10 23:08:24 2004
-+++ linux-2.6.8.1/drivers/char/watchdog/softdog.c       Wed Oct 13 14:48:20 2004
-@@ -82,9 +82,12 @@
- 
- static struct timer_list watchdog_ticktock =
-                TIMER_INITIALIZER(watchdog_fire, 0, 0);
--static unsigned long timer_alive;
- static char expect_close;
- 
-+static unsigned long driver_status;
-+/* Driver status bits  */
-+#define SOFTDOG_TIMER_RUNNING  0
-+#define SOFTDOG_DEVICE_OPEN    1
- 
- /*
-  *     If the timer expires..
-@@ -133,9 +136,10 @@
- 
- static int softdog_open(struct inode *inode, struct file *file)
- {
--       if(test_and_set_bit(0, &timer_alive))
-+       if (test_and_set_bit(SOFTDOG_DEVICE_OPEN, &driver_status))
-                return -EBUSY;
--       if (nowayout)
-+
-+       if ( !test_and_set_bit(SOFTDOG_TIMER_RUNNING, &driver_status))
-                __module_get(THIS_MODULE);
-        /*
-         *      Activate timer
-@@ -152,11 +156,13 @@
-         */
-        if (expect_close == 42) {
-                softdog_stop();
-+               clear_bit(SOFTDOG_TIMER_RUNNING, &driver_status);
-+               module_put(THIS_MODULE);
-        } else {
-                printk(KERN_CRIT PFX "Unexpected close, not stopping watchdog!\n");
-                softdog_keepalive();
-        }
--       clear_bit(0, &timer_alive);
-+       clear_bit(SOFTDOG_DEVICE_OPEN, &driver_status);
-        expect_close = 0;
-        return 0;
- }
-
---Chuck Ebbert  13-Oct-04  19:55:30

@@ -1,29 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAKA2B>; Wed, 10 Jan 2001 19:28:01 -0500
+	id <S129584AbRAKAaL>; Wed, 10 Jan 2001 19:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbRAKA1m>; Wed, 10 Jan 2001 19:27:42 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18695 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129431AbRAKA1e>; Wed, 10 Jan 2001 19:27:34 -0500
-Subject: Re: Problem with module versioning in 2.4.0
-To: jeremyhu@uclink4.berkeley.edu (Jeremy Huddleston)
-Date: Thu, 11 Jan 2001 00:29:20 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3A5CFE41.D6064638@uclink4.berkeley.edu> from "Jeremy Huddleston" at Jan 10, 2001 04:28:49 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130431AbRAKAaB>; Wed, 10 Jan 2001 19:30:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40466 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129584AbRAKA3w>; Wed, 10 Jan 2001 19:29:52 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: * 4 converted to << 2 for networking code
+Date: 10 Jan 2001 16:29:27 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <93iup7$6s4$1@cesium.transmeta.com>
+In-Reply-To: <20010110174859.R7498@prosa.it> <3A5C778C.CFB363F3@didntduck.org> <20010110180322.T7498@prosa.it> <20010110161146.A3252@unthought.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14GVcK-0001Km-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ummm 
+Followup to:  <20010110161146.A3252@unthought.net>
+By author:    =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+In newsgroup: linux.dev.kernel
+> 
+> On most processors <<2 is slower than *4.
+> 
 
-.sigs shouldnt be that long
+That's a funny statement.  Which processors do you include in "most"?
+That has not been my experience.
 
+> It's outright stupid to write <<2 when we mean *4 in order to optimize for one out of a
+> gazillion supported architectures - even more so when the compiler
+> for the one CPU where <<2 is faster, will actually generate a shift
+> instead of a multiply as a part of the standard optimization.
+> 
+> One question for the GCC people:  Will gcc change <<2 to *4 on other 
+> architectures ?    If so, then my case is not quite as strong of course.
+> 
+
+gcc should consider the statements equivalent, and generate whichever
+pattern is preferred.  On an i386 that may mean take a pattern such as
+
+	foo = (bar << 2) + quux;
+
+... and generate ...
+
+	lea ecx,[esi*4+ebx]
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271205AbTG2AWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 20:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271206AbTG2AWo
+	id S271197AbTG2Aib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 20:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271199AbTG2Aib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 20:22:44 -0400
-Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:18577
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S271205AbTG2AWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 20:22:43 -0400
-Date: Mon, 28 Jul 2003 20:22:21 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6-test2: gcc-3.3.1 warning.
-Message-ID: <20030729002221.GD263@kurtwerks.com>
-References: <1059396053.442.2.camel@lorien> <20030728225017.GJ32673@louise.pinerecords.com>
+	Mon, 28 Jul 2003 20:38:31 -0400
+Received: from smtp.terra.es ([213.4.129.129]:47858 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id S271197AbTG2Aia convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 20:38:30 -0400
+Date: Tue, 29 Jul 2003 02:38:44 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, kernel@kolivas.org
+Subject: Re: 2.6.0-test2-mm1
+Message-Id: <20030729023844.2df2fef5.diegocg@teleline.es>
+In-Reply-To: <20030727233716.56fb68d2.akpm@osdl.org>
+References: <20030727233716.56fb68d2.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728225017.GJ32673@louise.pinerecords.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Tomas Szepe:
-> > [lcapitulino@prefeitura.sp.gov.br]
-> > 
-> > Subject: Re: 2.6-test2: gcc-3.3.1 warning.
+El Sun, 27 Jul 2003 23:37:16 -0700 Andrew Morton <akpm@osdl.org> escribió:
+
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test2/2.6.0-test2-mm1/
 > 
-> There's no such release as gcc-3.3.1.
+> - More CPU scheduler tweaks.
 
-A snapshot known as 3.3.1 was released on July 20.
+O10 feels great here; behaviour under heavy load (make -jbignumber) is great;
+gcc doesn't starves the rest of the processes; it still allows X/xchat/xmms/etc
+do some work and the system remains usable; mp3 doesn't skip too much (only
+when it tries to swapin some big process like galeon but i find that normal; before
+this the same load in the past starved anything not classified as "compiler").
 
-Kurt
--- 
-"It's kind of fun to do the impossible."
-		-- Walt Disney
+
+
+

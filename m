@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291963AbSBNWjk>; Thu, 14 Feb 2002 17:39:40 -0500
+	id <S291966AbSBNXFT>; Thu, 14 Feb 2002 18:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291965AbSBNWjb>; Thu, 14 Feb 2002 17:39:31 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34253 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291963AbSBNWjT>; Thu, 14 Feb 2002 17:39:19 -0500
-Date: Thu, 14 Feb 2002 14:39:50 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: viro@math.psu.edu, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.4.17] Your suggestions for fast path walk
-Message-ID: <10970000.1013726390@w-hlinder.des>
-In-Reply-To: <Pine.LNX.4.33.0202141153300.24637-100000@serv>
-In-Reply-To: <Pine.LNX.4.33.0202141153300.24637-100000@serv>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S291970AbSBNXFI>; Thu, 14 Feb 2002 18:05:08 -0500
+Received: from portal.mwk.co.nz ([202.27.222.130]:34187 "EHLO
+	fileserver.mwk.co.nz") by vger.kernel.org with ESMTP
+	id <S291969AbSBNXE6>; Thu, 14 Feb 2002 18:04:58 -0500
+Subject: Need to force IDE geometry
+From: John Huttley <john@mwk.co.nz>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: Hugo Rabson <hugo@firstlinux.net>, Andre Hedrick <andre@linux-ide.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Evolution/1.0.2 
+Date: 15 Feb 2002 12:04:44 +1300
+Message-Id: <1013727888.13272.51.camel@fileserver.mwk.co.nz>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Thursday, February 14, 2002 12:13:38 +0100 Roman Zippel <zippel@linux-m68k.org> wrote:
+Hello,
 
-> Could you please configure your editor to use tabs instead of spaces?
-> It would make the patch smaller and easier to read.
+I have a problem with the way the kernel handles geometry.
 
-	That happens when I cut and paste. I will make sure to fix it 
-	when I submit the patch.
+AFAIK, if a disk has partitions which were created in LBA mode,
+the kernel automagically puts the disk into LBA mode. (good)
 
-> IMO it would be better to use a count, which limits to number of lookups
-> done with the spinlock held. 
+If the disk has no partitions.. then
+	If its the first disk it will be in LBA mode (good)
+Else it will be in CHS mode. (ungood)
 
-	Thanks for taking a look at the patch and giving me your
-	input. I will need to think about your suggestions.
+There seems to be no way to tell the kernel to put the second disk into
+LBA mode. Sure, you can force the geometry as a boot option, but that is
+not the same as putting it in LBA mode.
 
-Take Care,
+Any bios settings to put the disk into LBA are ignored by the kernel.
 
-Hanna
+
+This causes problems when installing a RAID enabled linux onto a
+dual IDE system. RedHat 7X suffers this and so does the Mondo Rescue
+restore system. It makes it very difficult to setup 2 disks so they are
+of identical geometry. Trust me, its a PINA.
+
+Are there any ioctl's controlling this?
+Can we create a boot option? Or simply read the bios setting? Or just
+default to LBA rather than CHS?
+
+Any help gratefully received.
+As I'm not on this list, would you please CC me.
+
+Regards
+
+John
+
+
 

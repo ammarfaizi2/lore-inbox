@@ -1,49 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbVAKQHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbVAKQJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262815AbVAKQHb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 11:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVAKQHb
+	id S262814AbVAKQJm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 11:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVAKQJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 11:07:31 -0500
-Received: from users.linvision.com ([62.58.92.114]:49077 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262815AbVAKQHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 11:07:24 -0500
-Date: Tue, 11 Jan 2005 17:07:22 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: "Bhupesh Kumar Pandey, Noida" <bhupeshp@noida.hcltech.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: help
-Message-ID: <20050111160722.GA16067@harddisk-recovery.com>
-References: <267988DEACEC5A4D86D5FCD780313FBB0360FCDA@exch-03.noida.hcltech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jan 2005 11:09:42 -0500
+Received: from penguin.cohaesio.net ([212.97.129.34]:55739 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S262816AbVAKQJO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 11:09:14 -0500
+From: Anders Saaby <as@cohaesio.com>
+Organization: Cohaesio A/S
+To: linux-kernel@vger.kernel.org
+Subject: Re: panic - Attempting to free lock with active block list
+Date: Tue, 11 Jan 2005 17:09:42 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <267988DEACEC5A4D86D5FCD780313FBB0360FCDA@exch-03.noida.hcltech.com>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+Message-Id: <200501111709.42934.as@cohaesio.com>
+X-OriginalArrivalTime: 11 Jan 2005 16:09:11.0596 (UTC) FILETIME=[E3515EC0:01C4F7F7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 09:06:08PM +0530, Bhupesh Kumar Pandey, Noida wrote:
-> Actually My problem is to report the current problems in hotplugging of
-> FC-HBA on PCI Express for kernel 2.6.8 and don't have the hardware, I have
-> studied the code, searched and studied the documents available in the
-> internet, but I am not able to conclude. That is why I thought of taking
-> help from you experienced people.
-> I think now the problem is clear to you.
-> Please help me.
+Hi Myklebust(s) :)
 
-"It should work" means "there are currently no known problems".
+I have seen the exact same error on one of my webservers which is serving
+from an NFS export and under heavy load. ~2 hours uptime before panic'ing.
+I then tried Trond's patch which seems to work. 14 hours of uptime now. :)
 
-You could ask the same question every single day, but it's much less
-annoying for the lkml subscribers if you just follow the relevant
-mailing lists.
+Anyways, I have a couple of issues you might be able to clear up for me:
+
+First issue:
+New strange message in the kernel log:
+
+"nlmclnt_lock: VFS is out of sync with lock manager!"
+
+- What does this mean? - Is it bad?, What can i do?
 
 
-Erik
+Second issue:
+my fs/nfs/file.c doesn't look like yours (Vanilla 2.6.10):
+
+<fs/nfs/file.c SNIP>
+        status = NFS_PROTO(inode)->lock(filp, cmd, fl);
+        /* If we were signalled we still need to ensure that
+         * we clean up any state on the server. We therefore
+         * record the lock call as having succeeded in order to
+         * ensure that locks_remove_posix() cleans it out when
+         * the process exits.
+         */
+        if (status == -EINTR || status == -ERESTARTSYS)
+                posix_lock_file_wait(filp, fl);
+        unlock_kernel();
+        if (status < 0)
+                return status;
+        /*
+         * Make sure we clear the cache whenever we try to get the lock.
+         * This makes locking act as a cache coherency point.
+         */
+        filemap_fdatawrite(filp->f_mapping);
+        down(&inode->i_sem);
+        nfs_wb_all(inode);      /* we may have slept */
+        up(&inode->i_sem);
+        filemap_fdatawait(filp->f_mapping);
+        nfs_zap_caches(inode);
+        return 0;
+</SNIP>
+
+So... Am I missing another patch or something else?
+
+Jan-Frode Myklebust wrote:
+
+> On Wed, Jan 05, 2005 at 10:54:03PM +0100, Trond Myklebust wrote:
+>> 
+>> Looking at the NFS code, I can attempt a wild guess about what may be
+>> happening: there may be a race when pressing ^C in the middle of a
+>> blocking NFS lock RPC call, and if so, the following patch will fix it.
+> 
+> 
+> A whopping 9 hours of uptime now :) So the one-liner patch seems to have
+> fixed it.
+> 
+> Thanks!
+> 
+>> -   posix_lock_file(filp, fl);
+>> +   posix_lock_file_wait(filp, fl);
+> 
+> 
+>   -jf
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| A: Because people read from top to bottom.
-| Q: Why is top posting bad?
+Med venlig hilsen - Best regards - Meilleures salutations
+
+Anders Saaby
+Systems Engineer
+------------------------------------------------
+Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
+Phone: +45 45 880 888 - Fax: +45 45 880 777
+Mail: as@cohaesio.com - http://www.cohaesio.com
+------------------------------------------------

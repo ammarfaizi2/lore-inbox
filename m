@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbTAHLRN>; Wed, 8 Jan 2003 06:17:13 -0500
+	id <S266200AbTAHLPA>; Wed, 8 Jan 2003 06:15:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbTAHLRN>; Wed, 8 Jan 2003 06:17:13 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:2311 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S266203AbTAHLRM>;
-	Wed, 8 Jan 2003 06:17:12 -0500
-To: Sven Luther <luther@dpt-info.u-strasbg.fr>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: rotation.
-References: <Pine.LNX.4.44.0301072240530.17129-100000@phoenix.infradead.org>
-	<Pine.GSO.4.21.0301081120540.21171-100000@vervain.sonytel.be>
-	<20030108104817.GA10165@iliana>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 08 Jan 2003 12:25:18 +0100
-In-Reply-To: Sven Luther's message of "Wed, 8 Jan 2003 11:48:17 +0100"
-Message-ID: <yw1xu1gj51ep.fsf@tiptop.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S266203AbTAHLPA>; Wed, 8 Jan 2003 06:15:00 -0500
+Received: from hacksaw.org ([216.41.5.170]:36801 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S266200AbTAHLO7>; Wed, 8 Jan 2003 06:14:59 -0500
+Message-Id: <200301081123.h08BNQiO000383@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
+To: Nils Petter Vaskinn <nils.petter.vaskinn@itsopen.net>
+cc: rms@gnu.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: OT Naming. was: Re: Why is Nvidia given GPL'd code to use in 
+ closed source drivers?
+In-reply-to: Your message of "08 Jan 2003 10:04:39 +0100."
+             <1042016680.1714.16.camel@station3> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 08 Jan 2003 06:23:26 -0500
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Luther <luther@dpt-info.u-strasbg.fr> writes:
+>The "GNU/Linux" vs "Linux" argument is a political one, not a practical
+>one, don't try to disguise it.
 
-> > > I'm about to implement rotation which is needed for devices like the ipaq. 
-> > > The question is do we flip the xres and yres values depending on the 
-> > > rotation or do we just alter the data that will be drawn to make the 
-> > > screen appear to rotate. How does hardware rotate view the x and y axis?
-> > > Are they rotated or does just the data get rotated? 
-> > 
-> > Where are you going to implement the rotation? At the fbcon or fbdev level?
-> > 
-> > Fbcon has the advantage that it'll work for all frame buffer devices.
-> 
-> But you could also provide driver hooks for the chips which have such a
-> rotation feature included (don't know if such exist, but i suppose they
-> do, or may in the future).
+I used to agree with this, and as far as politics, I do. However, a practical 
+reason to call it GNU/Linux just occurred to me: the ABI.
 
-I heard of someone have problems with the display getting rotated in
-Windows.  I don't know what chip it was.
+Linux is a kernel. It runs on a variety of platforms. You certainly must 
+differentiate between a program for Linux on StrongARM and one for Linux on 
+x86. To use a kernel one makes calls into it via a system call mechanism. In 
+the case of the vast majority of Linux installations, that is done via glibc. 
+Not for kicks is that 'g' there.
+
+A system with a linux kernel using a different API will likely have a 
+different ABI for it's programs.
+
+This will need to be accounted for at some point. Forget all the tools for the 
+moment, and just think about what makes the program ABI.
+
+Is there any vendor out there now who's shipping something other than glibc 
+with their Linux distribution? I bet there is someone, probably in the 
+embedded market.
+
+Of course, I bow to human nature. People will continue to make references to 
+Linux meaning the OS, and never mention the qualifiers, until it becomes an 
+issue.
+
+Here's to looking forward to the day when it does. :-)
+
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+We begin again, constantly.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

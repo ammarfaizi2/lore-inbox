@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVCNEO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVCNEk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbVCNEO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 23:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVCNEOZ
+	id S261248AbVCNEk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 23:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCNEk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 23:14:25 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:65463 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262003AbVCNEOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 23:14:00 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Mar 2005 23:40:27 -0500
+Received: from smtp110.mail.sc5.yahoo.com ([66.163.170.8]:21343 "HELO
+	smtp110.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261248AbVCNEkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 23:40:19 -0500
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Christian Schmid <webmaster@rapidforum.com>
+Cc: Ben Greear <greearb@candelatech.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4231F112.60403@rapidforum.com>
+References: <4229E805.3050105@rapidforum.com>
+	 <422BAAC6.6040705@candelatech.com>	<422BB548.1020906@rapidforum.com>
+	 <422BC303.9060907@candelatech.com>	<422BE33D.5080904@yahoo.com.au>
+	 <422C1D57.9040708@candelatech.com>	<422C1EC0.8050106@yahoo.com.au>
+	 <422D468C.7060900@candelatech.com>	<422DD5A3.7060202@rapidforum.com>
+	 <422F8A8A.8010606@candelatech.com>	<422F8C58.4000809@rapidforum.com>
+	 <422F9259.2010003@candelatech.com>	<422F93CE.3060403@rapidforum.com>
+	 <20050309211730.24b4fc93.akpm@osdl.org> <4231B95B.6020209@rapidforum.com>
+	 <4231ED18.2050804@candelatech.com>  <4231F112.60403@rapidforum.com>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 15:40:15 +1100
+Message-Id: <1110775215.5131.17.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16949.4010.174143.391599@wombat.chubb.wattle.id.au>
-Date: Mon, 14 Mar 2005 15:14:34 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: inode_lock heavily contended in 2.6.11
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-03-11 at 20:27 +0100, Christian Schmid wrote:
+> Ben Greear wrote:
+> > 
+> > For what it's worth, I was running dual-xeon systems with HT turned on.
+> > 
+> > But, I have a single process, single-threaded application, so there is 
+> > not much
+> > scheduling to be done.  If you have a large number of threads or processes,
+> > then it would make more sense for turning off HT to have an affect.
+> 
+> This effect appeared on 1 task and on 200 tasks. I dont know what it is, but with HT off it doesnt 
+> appear anymore. The slow-down still appears when lower_zone_protection is set to 0 but the peak at 
+> 80 MB disappeared when set to 1024. I am now running at 95 MB/Sec smoothly.
+> 
 
-When running reaim7 on a 12-way IA64 on an ext2 filesystem on a ram
-disc, I see very heavy contention on inode_lock.
+OK well that is a good result for you. Thanks for sticking with it.
+Unfortunately you'll probably not want to test any patches on your
+production system, so the cause of the problem will be difficult to
+fix.
 
-lockstat output shows:
+I am working on patches which improve HT performance in some
+situations though, so with luck they will cure your problems too.
+Basically I think SMP "balancing" is too aggressive - and this may
+explain why 2.6.10 was worse for you, it had patches to *increase*
+the aggressiveness of balancing.
 
-SPINLOCKS         HOLD            WAIT
-  UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
- 46.8% 52.4%  1.9us( 130us)   20us(8073us)(21.5%)   5072151 47.6% 52.4%    0%  inode_lock
- 15.9% 59.5%  3.8us(  61us)   18us(7067us)( 3.9%)    852983 40.5% 59.5%    0%    __sync_single_inode+0xf0
-  9.2% 59.0%  1.2us(  25us)   20us(8073us)( 7.8%)   1596487 41.0% 59.0%    0%    generic_osync_inode+0xe0
+The other thing that worries me is your need for lower_zone_protection.
+I think this may be due to unbalanced highmem vs lowmem reclaim. It
+would be interesting to know if those patches I sent you improve this.
+They certainly improve reclaim balancing for me... but again I guess
+you'll be reluctant to do much experimentation :\
 
- (etc).
+Thanks,
+Nick
 
-Is anyone else seeing this on more realistic workloads?
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+

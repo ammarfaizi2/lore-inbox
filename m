@@ -1,28 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261676AbSI2SZx>; Sun, 29 Sep 2002 14:25:53 -0400
+	id <S261727AbSI2S3G>; Sun, 29 Sep 2002 14:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261713AbSI2SZx>; Sun, 29 Sep 2002 14:25:53 -0400
-Received: from gate.perex.cz ([194.212.165.105]:5904 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S261676AbSI2SZh>;
-	Sun, 29 Sep 2002 14:25:37 -0400
-Date: Sun, 29 Sep 2002 20:30:14 +0200 (CEST)
+	id <S261729AbSI2S3F>; Sun, 29 Sep 2002 14:29:05 -0400
+Received: from gate.perex.cz ([194.212.165.105]:8720 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S261727AbSI2S2d>;
+	Sun, 29 Sep 2002 14:28:33 -0400
+Date: Sun, 29 Sep 2002 20:33:24 +0200 (CEST)
 From: Jaroslav Kysela <perex@suse.cz>
 X-X-Sender: <perex@pnote.perex-int.cz>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ALSA update [1/10] - 2002/06/24
-Message-ID: <Pine.LNX.4.33.0209292026550.591-100000@pnote.perex-int.cz>
+Subject: [PATCH] ALSA update [4/10] - 2002/07/14
+Message-ID: <Pine.LNX.4.33.0209292032350.591-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-Hi,
-
-	1-st patch from first set of ALSA update patches.
-
-						Jaroslav
 
 You can import this changeset into BK by piping this whole message to:
 '| bk receive [path to repository]' or apply the patch as usual.
@@ -30,1180 +24,598 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.605.4.1, 2002-09-25 10:00:04+02:00, perex@pnote.perex-int.cz
-  ALSA update 2002/06/24:
-    - ioctl32 emulation update
-    - intel8x0 driver
-      - fixed PCI ID of AMD8111
-    - compilation fixes for HDSP
-    - fixes for PCI memory allocation
+ChangeSet@1.605.2.15, 2002-09-25 16:23:23+02:00, perex@pnote.perex-int.cz
+  ALSA update 2002/07/14:
+    - seq_virmidi - exported snd_virmidi_receive() for processing the incoming events from the event handler of a remote virmidi port.
+    - pcm_lib.c - fixed wrong spinlock
+    - AC'97 code
+      - added VIA codecs, fixed order
+      - added S/PDIF support for Conexant CX20468
+    - ALI5451 - fixed wrong spinlock
+    - ES1968 - fixed wrong mutex
+    - ICE1712 - fixed SMP dead-lock
+    - HDSP driver update
+    - RME9652 - fixed wrong spinlock
 
 
+ include/sound/info.h                     |    4 -
+ include/sound/seq_virmidi.h              |    8 +-
+ include/sound/version.h                  |    2 
+ sound/core/pcm_lib.c                     |    2 
+ sound/core/seq/seq_virmidi.c             |   34 ++++++++---
+ sound/pci/ac97/ac97_codec.c              |   13 ++--
+ sound/pci/ali5451/ali5451.c              |    4 +
+ sound/pci/es1968.c                       |    4 +
+ sound/pci/ice1712.c                      |   10 ++-
+ sound/pci/rme9652/digiface_firmware.dat  |    2 
+ sound/pci/rme9652/hdsp.c                 |   91 ++++++++++++++++++++-----------
+ sound/pci/rme9652/multiface_firmware.dat |    2 
+ sound/pci/rme9652/rme9652.c              |    1 
+ 13 files changed, 117 insertions(+), 60 deletions(-)
 
 
-diff -Nru a/include/sound/asequencer.h b/include/sound/asequencer.h
---- a/include/sound/asequencer.h	Sun Sep 29 20:18:57 2002
-+++ b/include/sound/asequencer.h	Sun Sep 29 20:18:57 2002
-@@ -257,7 +257,7 @@
- struct sndrv_seq_ev_ext {
- 	unsigned int len;	/* length of data */
- 	void *ptr;		/* pointer to data (note: maybe 64-bit) */
--};
-+} __attribute__((packed));
+diff -Nru a/include/sound/info.h b/include/sound/info.h
+--- a/include/sound/info.h	Sun Sep 29 20:20:47 2002
++++ b/include/sound/info.h	Sun Sep 29 20:20:47 2002
+@@ -151,8 +151,8 @@
  
- /* Instrument cluster type */
- typedef unsigned int sndrv_seq_instr_cluster_t;
-@@ -373,7 +373,7 @@
- 	struct sndrv_seq_addr origin;		/* original sender */
- 	unsigned short value;		/* optional data */
- 	struct sndrv_seq_event *event;		/* quoted event */
--};
-+} __attribute__((packed));
+ static inline int snd_info_get_line(snd_info_buffer_t * buffer, char *line, int len) { return 0; }
+ static inline char *snd_info_get_str(char *dest, char *src, int len) { return NULL; }
+-static inline snd_info_entry_t *snd_info_create_module_entry(struct module * module, const char *name, snd_info_entry_t *parent) { return NULL; }
+-static inline snd_info_entry_t *snd_info_create_card_entry(snd_card_t * card, const char *name, snd_info_entry_t *parent) { return NULL; }
++static inline snd_info_entry_t *snd_info_create_module_entry(struct module * module, const char *name, snd_info_entry_t * parent) { return NULL; }
++static inline snd_info_entry_t *snd_info_create_card_entry(snd_card_t * card, const char *name, snd_info_entry_t * parent) { return NULL; }
+ static inline void snd_info_free_entry(snd_info_entry_t * entry) { ; }
+ static inline snd_info_entry_t *snd_info_create_device(const char *name,
+ 						       unsigned int number,
+diff -Nru a/include/sound/seq_virmidi.h b/include/sound/seq_virmidi.h
+--- a/include/sound/seq_virmidi.h	Sun Sep 29 20:20:47 2002
++++ b/include/sound/seq_virmidi.h	Sun Sep 29 20:20:47 2002
+@@ -45,7 +45,7 @@
+ 	snd_rawmidi_substream_t *substream;
+ } snd_virmidi_t;
  
+-#define SNDRV_VIRMIDI_SUBSCRIBE	(1<<0)
++#define SNDRV_VIRMIDI_SUBSCRIBE		(1<<0)
+ #define SNDRV_VIRMIDI_USE		(1<<1)
  
- 	/* sequencer event */
-@@ -486,6 +486,16 @@
- };
- 
- 
-+	/* system running information */
-+struct sndrv_seq_running_info {
-+	unsigned char client;		/* client id */
-+	unsigned char big_endian;	/* 1 = big-endian */
-+	unsigned char cpu_mode;		/* 4 = 32bit, 8 = 64bit */
-+	unsigned char pad;		/* reserved */
-+	unsigned char reserved[12];
-+};
-+
-+
- 	/* known client numbers */
- #define SNDRV_SEQ_CLIENT_SYSTEM		0
- #define SNDRV_SEQ_CLIENT_DUMMY		62	/* dummy ports */
-@@ -609,7 +619,6 @@
- 	int write_use;			/* R/O: subscribers for input (to this port) */
- 
- 	void *kernel;			/* reserved for kernel use (must be NULL) */
--
- 	unsigned int flags;		/* misc. conditioning */
- 	char reserved[60];		/* for future use */
- };
-@@ -853,6 +862,7 @@
- #define SNDRV_SEQ_IOCTL_PVERSION	_IOR ('S', 0x00, int)
- #define SNDRV_SEQ_IOCTL_CLIENT_ID	_IOR ('S', 0x01, int)
- #define SNDRV_SEQ_IOCTL_SYSTEM_INFO	_IOWR('S', 0x02, struct sndrv_seq_system_info)
-+#define SNDRV_SEQ_IOCTL_RUNNING_MODE	_IOWR('S', 0x03, struct sndrv_seq_running_info)
- 
- #define SNDRV_SEQ_IOCTL_GET_CLIENT_INFO	_IOWR('S', 0x10, struct sndrv_seq_client_info)
- #define SNDRV_SEQ_IOCTL_SET_CLIENT_INFO	_IOW ('S', 0x11, struct sndrv_seq_client_info)
-diff -Nru a/include/sound/driver.h b/include/sound/driver.h
---- a/include/sound/driver.h	Sun Sep 29 20:18:57 2002
-+++ b/include/sound/driver.h	Sun Sep 29 20:18:57 2002
-@@ -50,7 +50,7 @@
-  */
- 
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
--#if defined(__i386__) || defined(__ppc__)
-+#if defined(__i386__) || defined(__ppc__) || defined(__x86_64__)
  /*
-  * Here a dirty hack for 2.4 kernels.. See sound/core/memory.c.
+@@ -69,14 +69,16 @@
+  * ATTACH = input/output events from midi device are routed to the
+  *          attached sequencer port.  sequencer port is not created
+  *          by virmidi itself.
++ *          the input to rawmidi must be processed by passing the
++ *          incoming events via snd_virmidi_receive()
+  * DISPATCH = input/output events are routed to subscribers.
+  *            sequencer port is created in virmidi.
   */
+ #define SNDRV_VIRMIDI_SEQ_NONE		0
+-#define SNDRV_VIRMIDI_SEQ_ATTACH		1
++#define SNDRV_VIRMIDI_SEQ_ATTACH	1
+ #define SNDRV_VIRMIDI_SEQ_DISPATCH	2
+ 
+ int snd_virmidi_new(snd_card_t *card, int device, snd_rawmidi_t **rrmidi);
++int snd_virmidi_receive(snd_rawmidi_t *rmidi, snd_seq_event_t *ev);
+ 
+ #endif /* __SOUND_SEQ_VIRMIDI */
+-
 diff -Nru a/include/sound/version.h b/include/sound/version.h
---- a/include/sound/version.h	Sun Sep 29 20:18:57 2002
-+++ b/include/sound/version.h	Sun Sep 29 20:18:57 2002
+--- a/include/sound/version.h	Sun Sep 29 20:20:47 2002
++++ b/include/sound/version.h	Sun Sep 29 20:20:47 2002
 @@ -1,3 +1,3 @@
  /* include/version.h.  Generated automatically by configure.  */
  #define CONFIG_SND_VERSION "0.9.0rc2"
--#define CONFIG_SND_DATE " (Wed Jun 19 08:56:25 2002 UTC)"
-+#define CONFIG_SND_DATE " (Fri Jun 21 12:21:17 2002 UTC)"
-diff -Nru a/sound/core/ioctl32/Makefile b/sound/core/ioctl32/Makefile
---- a/sound/core/ioctl32/Makefile	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/Makefile	Sun Sep 29 20:18:57 2002
-@@ -4,7 +4,7 @@
- #
- 
- snd-ioctl32-objs := ioctl32.o pcm32.o rawmidi32.o timer32.o hwdep32.o
--ifeq ($(CONFIG_SND_SEQUENCER),y)
-+ifneq ($(CONFIG_SND_SEQUENCER),n)
-   snd-ioctl32-objs += seq32.o
- endif
- 
-diff -Nru a/sound/core/ioctl32/ioctl32.c b/sound/core/ioctl32/ioctl32.c
---- a/sound/core/ioctl32/ioctl32.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/ioctl32.c	Sun Sep 29 20:18:57 2002
-@@ -21,6 +21,7 @@
- #define __NO_VERSION__
- #include <sound/driver.h>
- #include <linux/smp_lock.h>
-+#include <linux/init.h>
- #include <linux/time.h>
- #include <sound/core.h>
- #include <sound/control.h>
-@@ -32,6 +33,10 @@
-  * exported for other modules
-  */
- 
-+MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
-+MODULE_DESCRIPTION("ioctl32 wrapper for ALSA");
-+MODULE_LICENSE("GPL");
-+
- int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *));
- int unregister_ioctl32_conversion(unsigned int cmd);
- 
-@@ -79,7 +84,7 @@
- 	u32 count;
- 	u32 pids;
- 	unsigned char reserved[50];
--};
-+} /* don't set packed attribute here */;
- 
- #define CVT_sndrv_ctl_elem_list()\
- {\
-@@ -90,8 +95,43 @@
- 	CPTR(pids);\
- }
- 
--DEFINE_ALSA_IOCTL(ctl_elem_list);
-+static int _snd_ioctl32_ctl_elem_list(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file, unsigned int native_ctl)
-+{
-+	struct sndrv_ctl_elem_list32 data32;
-+	struct sndrv_ctl_elem_list data;
-+	mm_segment_t oldseg = get_fs();
-+	int err;
-+
-+	set_fs(KERNEL_DS);
-+	if (copy_from_user(&data32, (void*)arg, sizeof(data32))) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
-+	memset(&data, 0, sizeof(data));
-+	data.offset = data32.offset;
-+	data.space = data32.space;
-+	data.used = data32.used;
-+	data.count = data32.count;
-+	data.pids = A(data32.pids);
-+	err = file->f_op->ioctl(file->f_dentry->d_inode, file, native_ctl, (unsigned long)&data);
-+	if (err < 0)
-+		goto __err;
-+	/* copy the result */
-+	data32.offset = data.offset;
-+	data32.space = data.space;
-+	data32.used = data.used;
-+	data32.count = data.count;
-+	//data.pids = data.pids;
-+	if (copy_to_user((void*)arg, &data32, sizeof(data32))) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
-+ __err:
-+	set_fs(oldseg);
-+	return err;
-+}
- 
-+DEFINE_ALSA_IOCTL_ENTRY(ctl_elem_list, ctl_elem_list, SNDRV_CTL_IOCTL_ELEM_LIST);
- 
- /*
-  * control element info
-@@ -123,22 +163,31 @@
- 		unsigned char reserved[128];
- 	} value;
- 	unsigned char reserved[64];
--};
-+} __attribute__((packed));
- 
--static int snd_ioctl32_ctl_elem_info(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file)
-+static int _snd_ioctl32_ctl_elem_info(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file, unsigned int native_ctl)
- {
- 	struct sndrv_ctl_elem_info data;
- 	struct sndrv_ctl_elem_info32 data32;
- 	int err;
-+	mm_segment_t oldseg = get_fs();
- 
--	if (copy_from_user(&data32, (void*)arg, sizeof(data32)))
--		return -EFAULT;
-+	set_fs(KERNEL_DS);
-+	if (copy_from_user(&data32, (void*)arg, sizeof(data32))) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
- 	memset(&data, 0, sizeof(data));
- 	data.id = data32.id;
--	err = file->f_op->ioctl(file->f_dentry->d_inode, file, cmd, (unsigned long)&data);
-+	/* we need to copy the item index.
-+	 * hope this doesn't break anything..
-+	 */
-+	data.value.enumerated.item = data32.value.enumerated.item;
-+	err = file->f_op->ioctl(file->f_dentry->d_inode, file, native_ctl, (unsigned long)&data);
- 	if (err < 0)
--		return err;
-+		goto __err;
- 	/* restore info to 32bit */
-+	data32.id = data.id;
- 	data32.type = data.type;
- 	data32.access = data.access;
- 	data32.count = data.count;
-@@ -147,12 +196,12 @@
- 	case SNDRV_CTL_ELEM_TYPE_BOOLEAN:
- 	case SNDRV_CTL_ELEM_TYPE_INTEGER:
- 		data32.value.integer.min = data.value.integer.min;
--		data32.value.integer.max = data.value.integer.min;
-+		data32.value.integer.max = data.value.integer.max;
- 		data32.value.integer.step = data.value.integer.step;
- 		break;
- 	case SNDRV_CTL_ELEM_TYPE_INTEGER64:
- 		data32.value.integer64.min = data.value.integer64.min;
--		data32.value.integer64.max = data.value.integer64.min;
-+		data32.value.integer64.max = data.value.integer64.max;
- 		data32.value.integer64.step = data.value.integer64.step;
- 		break;
- 	case SNDRV_CTL_ELEM_TYPE_ENUMERATED:
-@@ -165,14 +214,17 @@
- 		break;
- 	}
- 	if (copy_to_user((void*)arg, &data32, sizeof(data32)))
--		return -EFAULT;
-+		err = -EFAULT;
-+ __err:
-+	set_fs(oldseg);
- 	return err;
- }
- 
-+DEFINE_ALSA_IOCTL_ENTRY(ctl_elem_info, ctl_elem_info, SNDRV_CTL_IOCTL_ELEM_INFO);
- 
- struct sndrv_ctl_elem_value32 {
- 	struct sndrv_ctl_elem_id id;
--	unsigned int indirect: 1;
-+	unsigned int indirect;	/* bit-field causes misalignment */
-         union {
- 		union {
- 			s32 value[128];
-@@ -193,7 +245,7 @@
- 		struct sndrv_aes_iec958 iec958;
-         } value;
-         unsigned char reserved[128];
--};
-+} __attribute__((packed));
- 
- 
- /* hmm, it's so hard to retrieve the value type from the control id.. */
-@@ -221,25 +273,33 @@
- }
- 
- 
--static int snd_ioctl32_ctl_elem_value(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file)
-+static int _snd_ioctl32_ctl_elem_value(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file, unsigned int native_ctl)
- {
- 	// too big?
- 	struct sndrv_ctl_elem_value data;
- 	struct sndrv_ctl_elem_value32 data32;
- 	int err, i;
- 	int type;
-+	mm_segment_t oldseg = get_fs();
-+
-+	set_fs(KERNEL_DS);
-+
- 	/* FIXME: check the sane ioctl.. */
- 
--	if (copy_from_user(&data32, (void*)arg, sizeof(data32)))
--		return -EFAULT;
-+	if (copy_from_user(&data32, (void*)arg, sizeof(data32))) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
- 	memset(&data, 0, sizeof(data));
- 	data.id = data32.id;
- 	data.indirect = data32.indirect;
- 	if (data.indirect) /* FIXME: this is not correct for long arrays */
- 		data.value.integer.value_ptr = (void*)TO_PTR(data32.value.integer.value_ptr);
- 	type = get_ctl_type(file, &data.id);
--	if (type < 0)
--		return type;
-+	if (type < 0) {
-+		err = type;
-+		goto __err;
-+	}
- 	if (! data.indirect) {
- 		switch (type) {
- 		case SNDRV_CTL_ELEM_TYPE_BOOLEAN:
-@@ -263,45 +323,50 @@
- 			data.value.iec958 = data32.value.iec958;
- 			break;
- 		default:
-+			printk("unknown type %d\n", type);
- 			break;
+-#define CONFIG_SND_DATE " (Wed Jul 03 16:51:35 2002 UTC)"
++#define CONFIG_SND_DATE " (Sun Jul 14 21:30:57 2002 UTC)"
+diff -Nru a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+--- a/sound/core/pcm_lib.c	Sun Sep 29 20:20:47 2002
++++ b/sound/core/pcm_lib.c	Sun Sep 29 20:20:47 2002
+@@ -1899,7 +1899,7 @@
+ 			frames = cont;
+ 		if (frames == 0 && runtime->status->state == SNDRV_PCM_STATE_PAUSED) {
+ 			err = -EPIPE;
+-			goto _end;
++			goto _end_unlock;
  		}
- 	}
+ 		snd_assert(frames != 0,
+ 			   spin_unlock_irq(&runtime->lock);
+diff -Nru a/sound/core/seq/seq_virmidi.c b/sound/core/seq/seq_virmidi.c
+--- a/sound/core/seq/seq_virmidi.c	Sun Sep 29 20:20:47 2002
++++ b/sound/core/seq/seq_virmidi.c	Sun Sep 29 20:20:47 2002
+@@ -89,11 +89,6 @@
+ 	unsigned char msg[4];
+ 	int len;
  
--	err = file->f_op->ioctl(file->f_dentry->d_inode, file, cmd, (unsigned long)&data);
-+	err = file->f_op->ioctl(file->f_dentry->d_inode, file, native_ctl, (unsigned long)&data);
- 	if (err < 0)
--		return err;
-+		goto __err;
- 	/* restore info to 32bit */
- 	if (! data.indirect) {
- 		switch (type) {
- 		case SNDRV_CTL_ELEM_TYPE_BOOLEAN:
- 		case SNDRV_CTL_ELEM_TYPE_INTEGER:
- 			for (i = 0; i < 128; i++)
--				data.value.integer.value[i] = data32.value.integer.value[i];
-+				data32.value.integer.value[i] = data.value.integer.value[i];
- 			break;
- 		case SNDRV_CTL_ELEM_TYPE_INTEGER64:
- 			for (i = 0; i < 64; i++)
--				data.value.integer64.value[i] = data32.value.integer64.value[i];
-+				data32.value.integer64.value[i] = data.value.integer64.value[i];
- 			break;
- 		case SNDRV_CTL_ELEM_TYPE_ENUMERATED:
- 			for (i = 0; i < 128; i++)
--				data.value.enumerated.item[i] = data32.value.enumerated.item[i];
-+				data32.value.enumerated.item[i] = data.value.enumerated.item[i];
- 			break;
- 		case SNDRV_CTL_ELEM_TYPE_BYTES:
--			memcpy(data.value.bytes.data, data32.value.bytes.data,
-+			memcpy(data32.value.bytes.data, data.value.bytes.data,
- 			       sizeof(data.value.bytes.data));
- 			break;
- 		case SNDRV_CTL_ELEM_TYPE_IEC958:
--			data.value.iec958 = data32.value.iec958;
-+			data32.value.iec958 = data.value.iec958;
- 			break;
- 		default:
- 			break;
- 		}
- 	}
- 	if (copy_to_user((void*)arg, &data32, sizeof(data32)))
--		return -EFAULT;
-+		err = -EFAULT;
-+ __err:
-+	set_fs(oldseg);
- 	return err;
+-	snd_assert(rdev != NULL, return -EINVAL);
+-
+-	if (!(rdev->flags & SNDRV_VIRMIDI_USE))
+-		return 0; /* ignored */
+-
+ 	read_lock(&rdev->filelist_lock);
+ 	list_for_each(list, &rdev->filelist) {
+ 		vmidi = list_entry(list, snd_virmidi_t, list);
+@@ -115,14 +110,32 @@
  }
- 
-+DEFINE_ALSA_IOCTL_ENTRY(ctl_elem_read, ctl_elem_value, SNDRV_CTL_IOCTL_ELEM_READ);
-+DEFINE_ALSA_IOCTL_ENTRY(ctl_elem_write, ctl_elem_value, SNDRV_CTL_IOCTL_ELEM_WRITE);
  
  /*
-  */
-@@ -321,8 +386,8 @@
- 	{ SNDRV_CTL_IOCTL_CARD_INFO , NULL },
- 	{ SNDRV_CTL_IOCTL_ELEM_LIST32, AP(ctl_elem_list) },
- 	{ SNDRV_CTL_IOCTL_ELEM_INFO32, AP(ctl_elem_info) },
--	{ SNDRV_CTL_IOCTL_ELEM_READ32, AP(ctl_elem_value) },
--	{ SNDRV_CTL_IOCTL_ELEM_WRITE32, AP(ctl_elem_value) },
-+	{ SNDRV_CTL_IOCTL_ELEM_READ32, AP(ctl_elem_read) },
-+	{ SNDRV_CTL_IOCTL_ELEM_WRITE32, AP(ctl_elem_write) },
- 	{ SNDRV_CTL_IOCTL_ELEM_LOCK, NULL },
- 	{ SNDRV_CTL_IOCTL_ELEM_UNLOCK, NULL },
- 	{ SNDRV_CTL_IOCTL_SUBSCRIBE_EVENTS, NULL },
-@@ -393,6 +458,7 @@
- 		return err;
- 	}
- #endif
-+	return 0;
- }
- 
- module_init(snd_ioctl32_init)
-diff -Nru a/sound/core/ioctl32/ioctl32.h b/sound/core/ioctl32/ioctl32.h
---- a/sound/core/ioctl32/ioctl32.h	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/ioctl32.h	Sun Sep 29 20:18:57 2002
-@@ -26,6 +26,15 @@
- #ifndef __ALSA_IOCTL32_H
- #define __ALSA_IOCTL32_H
- 
-+#ifndef A
-+#ifdef CONFIG_PPC64
-+#include <asm/ppc32.h>
-+#else
-+/* x86-64, sparc64 */
-+#define A(__x) ((void *)(unsigned long)(__x))
-+#endif
-+#endif
-+
- #define TO_PTR(x)  A(x)
- 
- #define COPY(x)  (dst->x = src->x)
-@@ -47,25 +56,38 @@
- 
- 
- #define DEFINE_ALSA_IOCTL(type) \
--static int snd_ioctl32_##type(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file)\
-+static int _snd_ioctl32_##type(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file, unsigned int native_ctl)\
- {\
- 	struct sndrv_##type##32 data32;\
- 	struct sndrv_##type data;\
-+	mm_segment_t oldseg = get_fs();\
- 	int err;\
--	if (copy_from_user(&data32, (void*)arg, sizeof(data32)))\
--		return -EFAULT;\
-+	set_fs(KERNEL_DS);\
-+	if (copy_from_user(&data32, (void*)arg, sizeof(data32))) {\
-+		err = -EFAULT;\
-+		goto __err;\
-+	}\
- 	memset(&data, 0, sizeof(data));\
- 	convert_from_32(type, &data, &data32);\
--	err = file->f_op->ioctl(file->f_dentry->d_inode, file, cmd, (unsigned long)&data);\
--	if (err < 0)\
--		return err;\
--	if (cmd & (_IOC_READ << _IOC_DIRSHIFT)) {\
-+	err = file->f_op->ioctl(file->f_dentry->d_inode, file, native_ctl, (unsigned long)&data);\
-+	if (err < 0) \
-+		goto __err;\
-+	if (native_ctl & (_IOC_READ << _IOC_DIRSHIFT)) {\
- 		convert_to_32(type, &data32, &data);\
--		if (copy_to_user((void*)arg, &data32, sizeof(data32)))\
--			return -EFAULT;\
-+		if (copy_to_user((void*)arg, &data32, sizeof(data32))) {\
-+			err = -EFAULT;\
-+			goto __err;\
-+		}\
- 	}\
-+ __err: set_fs(oldseg);\
- 	return err;\
- }
-+
-+#define DEFINE_ALSA_IOCTL_ENTRY(name,type,native_ctl) \
-+static int snd_ioctl32_##name(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file) {\
-+	return _snd_ioctl32_##type(fd, cmd, arg, file, native_ctl);\
-+}
-+
- 
- struct ioctl32_mapper {
- 	unsigned int cmd;
-diff -Nru a/sound/core/ioctl32/pcm32.c b/sound/core/ioctl32/pcm32.c
---- a/sound/core/ioctl32/pcm32.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/pcm32.c	Sun Sep 29 20:18:57 2002
-@@ -54,7 +54,7 @@
- 
- struct sndrv_pcm_hw_params32 {
- 	u32 flags;
--	u32 masks[SNDRV_PCM_HW_PARAM_LAST_MASK - SNDRV_PCM_HW_PARAM_FIRST_MASK + 1];
-+	struct sndrv_mask masks[SNDRV_PCM_HW_PARAM_LAST_MASK - SNDRV_PCM_HW_PARAM_FIRST_MASK + 1]; /* this must be identical */
- 	struct sndrv_interval32 intervals[SNDRV_PCM_HW_PARAM_LAST_INTERVAL - SNDRV_PCM_HW_PARAM_FIRST_INTERVAL + 1];
- 	u32 rmask;
- 	u32 cmask;
-@@ -64,7 +64,7 @@
- 	u32 rate_den;
- 	u32 fifo_size;
- 	unsigned char reserved[64];
--};
-+} __attribute__((packed));
- 
- #define numberof(array)  (sizeof(array)/sizeof(array[0]))
- 
-@@ -103,7 +103,7 @@
- 	u32 silence_size;
- 	u32 boundary;
- 	unsigned char reserved[64];
--};
-+} __attribute__((packed));
- 
- #define CVT_sndrv_pcm_sw_params()\
- {\
-@@ -124,7 +124,7 @@
- 	u32 offset;
- 	u32 first;
- 	u32 step;
--};
-+} __attribute__((packed));
- 
- #define CVT_sndrv_pcm_channel_info()\
- {\
-@@ -137,7 +137,7 @@
- struct timeval32 {
- 	s32 tv_sec;
- 	s32 tv_usec;
--};
-+} __attribute__((packed));
- 
- struct sndrv_pcm_status32 {
- 	s32 state;
-@@ -151,7 +151,7 @@
- 	u32 overrange;
- 	s32 suspended_state;
- 	unsigned char reserved[60];
--};
-+} __attribute__((packed));
- 
- #define CVT_sndrv_pcm_status()\
- {\
-@@ -169,33 +169,58 @@
- 	COPY(suspended_state);\
- }
- 
-+DEFINE_ALSA_IOCTL(pcm_uframes_str);
-+DEFINE_ALSA_IOCTL(pcm_sframes_str);
-+DEFINE_ALSA_IOCTL(pcm_hw_params);
-+DEFINE_ALSA_IOCTL(pcm_sw_params);
-+DEFINE_ALSA_IOCTL(pcm_channel_info);
-+DEFINE_ALSA_IOCTL(pcm_status);
-+
-+/*
+- * event_input callback from sequencer
++ * receive an event from the remote virmidi port
++ *
++ * for rawmidi inputs, you can call this function from the event
++ * handler of a remote port which is attached to the virmidi via
++ * SNDRV_VIRMIDI_SEQ_ATTACH.
 + */
- struct sndrv_xferi32 {
- 	s32 result;
- 	u32 buf;
- 	u32 frames;
--};
-+} __attribute__((packed));
- 
--#define CVT_sndrv_xferi()\
--{\
--	COPY(result);\
--	CPTR(buf);\
--	COPY(frames);\
-+static int _snd_ioctl32_xferi(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file, unsigned int native_ctl)
++/* exported */
++int snd_virmidi_receive(snd_rawmidi_t *rmidi, snd_seq_event_t *ev)
 +{
-+	struct sndrv_xferi32 data32;
-+	struct sndrv_xferi data;
-+	mm_segment_t oldseg = get_fs();
-+	int err;
++	snd_virmidi_dev_t *rdev;
 +
-+	set_fs(KERNEL_DS);
-+	if (copy_from_user(&data32, (void*)arg, sizeof(data32))) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
-+	memset(&data, 0, sizeof(data));
-+	data.result = data32.result;
-+	data.buf = A(data32.buf);
-+	data.frames = data32.frames;
-+	err = file->f_op->ioctl(file->f_dentry->d_inode, file, native_ctl, (unsigned long)&data);
-+	if (err < 0)
-+		goto __err;
-+	/* copy the result */
-+	data32.result = data.result;
-+	if (copy_to_user((void*)arg, &data32, sizeof(data32))) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
-+ __err:
-+	set_fs(oldseg);
-+	return err;
- }
- 
--DEFINE_ALSA_IOCTL(pcm_uframes_str);
--DEFINE_ALSA_IOCTL(pcm_sframes_str);
--DEFINE_ALSA_IOCTL(pcm_hw_params);
--DEFINE_ALSA_IOCTL(pcm_sw_params);
--DEFINE_ALSA_IOCTL(pcm_channel_info);
--DEFINE_ALSA_IOCTL(pcm_status);
--DEFINE_ALSA_IOCTL(xferi);
- 
- /* snd_xfern needs remapping of bufs */
- struct sndrv_xfern32 {
- 	s32 result;
- 	u32 bufs;  /* this is void **; */
- 	u32 frames;
--};
-+} __attribute__((packed));
- 
- /*
-  * xfern ioctl nees to copy (up to) 128 pointers on stack.
-@@ -203,7 +228,7 @@
-  * handler there expands again the same 128 pointers on stack, so it is better
-  * to handle the function (calling pcm_readv/writev) directly in this handler.
-  */
--static int snd_ioctl32_xfern(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file)
-+static int _snd_ioctl32_xfern(unsigned int fd, unsigned int cmd, unsigned long arg, struct file *file, unsigned int native_ctl)
- {
- 	snd_pcm_file_t *pcm_file;
- 	snd_pcm_substream_t *substream;
-@@ -211,6 +236,9 @@
- 	void *bufs[128];
- 	int err = 0, ch, i;
- 	u32 *bufptr;
-+	mm_segment_t oldseg = get_fs();
-+
-+	set_fs(KERNEL_DS);
- 
- 	/* FIXME: need to check whether fop->ioctl is sane */
- 
-@@ -219,31 +247,44 @@
- 	snd_assert(substream != NULL && substream->runtime, return -ENXIO);
- 
- 	/* check validty of the command */
--	switch (cmd) {
-+	switch (native_ctl) {
- 	case SNDRV_PCM_IOCTL_WRITEN_FRAMES:
--		if (substream->stream  != SNDRV_PCM_STREAM_PLAYBACK)
--			return -EINVAL;
--		if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN)
--			return -EBADFD;
-+		if (substream->stream  != SNDRV_PCM_STREAM_PLAYBACK) {
-+			err = -EINVAL;
-+			goto __err;
-+		}
-+		if (substream->runtime->status->state == SNDRV_PCM_STATE_OPEN) {
-+			err = -EBADFD;
-+			goto __err;
-+		}
-+		break;
- 	case SNDRV_PCM_IOCTL_READN_FRAMES:
--		if (substream->stream  != SNDRV_PCM_STREAM_CAPTURE)
--			return -EINVAL;
-+		if (substream->stream  != SNDRV_PCM_STREAM_CAPTURE) {
-+			err = -EINVAL;
-+			goto __err;
-+		}
- 		break;
- 	}
--	if ((ch = substream->runtime->channels) > 128)
--		return -EINVAL;
--	if (get_user(data32.frames, &srcptr->frames))
--		return -EFAULT;
-+	if ((ch = substream->runtime->channels) > 128) {
-+		err = -EINVAL;
-+		goto __err;
-+	}
-+	if (get_user(data32.frames, &srcptr->frames)) {
-+		err = -EFAULT;
-+		goto __err;
-+	}
- 	__get_user(data32.bufs, &srcptr->bufs);
- 	bufptr = (u32*)TO_PTR(data32.bufs);
- 	for (i = 0; i < ch; i++) {
- 		u32 ptr;
--		if (get_user(ptr, bufptr))
--			return -EFAULT;
-+		if (get_user(ptr, bufptr)) {
-+			err = -EFAULT;
-+			goto __err;
-+		}
- 		bufs[ch] = (void*)TO_PTR(ptr);
- 		bufptr++;
- 	}
--	switch (cmd) {
-+	switch (native_ctl) {
- 	case SNDRV_PCM_IOCTL_WRITEN_FRAMES:
- 		err = snd_pcm_lib_writev(substream, bufs, data32.frames);
- 		break;
-@@ -253,13 +294,33 @@
- 	}
- 	
- 	if (err < 0)
--		return err;
-+		goto __err;
- 	if (put_user(err, &srcptr->result))
--		return -EFAULT;
-+		err = -EFAULT;
-+ __err:
-+	set_fs(oldseg);
- 	return err < 0 ? err : 0;
- }
- 
- 
-+/*
-+ */
-+
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_hw_refine, pcm_hw_params, SNDRV_PCM_IOCTL_HW_REFINE);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_sw_params, pcm_sw_params, SNDRV_PCM_IOCTL_SW_PARAMS);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_hw_params, pcm_hw_params, SNDRV_PCM_IOCTL_HW_PARAMS);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_status, pcm_status, SNDRV_PCM_IOCTL_STATUS);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_delay, pcm_sframes_str, SNDRV_PCM_IOCTL_DELAY);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_channel_info, pcm_channel_info, SNDRV_PCM_IOCTL_CHANNEL_INFO);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_rewind, pcm_uframes_str, SNDRV_PCM_IOCTL_REWIND);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_readi, xferi, SNDRV_PCM_IOCTL_READI_FRAMES);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_writei, xferi, SNDRV_PCM_IOCTL_WRITEI_FRAMES);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_readn, xfern, SNDRV_PCM_IOCTL_READN_FRAMES);
-+DEFINE_ALSA_IOCTL_ENTRY(pcm_writen, xfern, SNDRV_PCM_IOCTL_WRITEN_FRAMES);
-+
-+
-+/*
-+ */
- #define AP(x) snd_ioctl32_##x
- 
- enum {
-@@ -279,12 +340,12 @@
- struct ioctl32_mapper pcm_mappers[] = {
- 	{ SNDRV_PCM_IOCTL_PVERSION, NULL },
- 	{ SNDRV_PCM_IOCTL_INFO, NULL },
--	{ SNDRV_PCM_IOCTL_HW_REFINE32, AP(pcm_hw_params) },
-+	{ SNDRV_PCM_IOCTL_HW_REFINE32, AP(pcm_hw_refine) },
- 	{ SNDRV_PCM_IOCTL_HW_PARAMS32, AP(pcm_hw_params) },
- 	{ SNDRV_PCM_IOCTL_HW_FREE, NULL },
- 	{ SNDRV_PCM_IOCTL_SW_PARAMS32, AP(pcm_sw_params) },
- 	{ SNDRV_PCM_IOCTL_STATUS32, AP(pcm_status) },
--	{ SNDRV_PCM_IOCTL_DELAY32, AP(pcm_sframes_str) },
-+	{ SNDRV_PCM_IOCTL_DELAY32, AP(pcm_delay) },
- 	{ SNDRV_PCM_IOCTL_CHANNEL_INFO32, AP(pcm_channel_info) },
- 	{ SNDRV_PCM_IOCTL_PREPARE, NULL },
- 	{ SNDRV_PCM_IOCTL_RESET, NULL },
-@@ -292,13 +353,13 @@
- 	{ SNDRV_PCM_IOCTL_DROP, NULL },
- 	{ SNDRV_PCM_IOCTL_DRAIN, NULL },
- 	{ SNDRV_PCM_IOCTL_PAUSE, NULL },
--	{ SNDRV_PCM_IOCTL_REWIND32, AP(pcm_uframes_str) },
-+	{ SNDRV_PCM_IOCTL_REWIND32, AP(pcm_rewind) },
- 	{ SNDRV_PCM_IOCTL_RESUME, NULL },
- 	{ SNDRV_PCM_IOCTL_XRUN, NULL },
--	{ SNDRV_PCM_IOCTL_WRITEI_FRAMES32, AP(xferi) },
--	{ SNDRV_PCM_IOCTL_READI_FRAMES32, AP(xferi) },
--	{ SNDRV_PCM_IOCTL_WRITEN_FRAMES32, AP(xfern) },
--	{ SNDRV_PCM_IOCTL_READN_FRAMES32, AP(xfern) },
-+	{ SNDRV_PCM_IOCTL_WRITEI_FRAMES32, AP(pcm_writei) },
-+	{ SNDRV_PCM_IOCTL_READI_FRAMES32, AP(pcm_readi) },
-+	{ SNDRV_PCM_IOCTL_WRITEN_FRAMES32, AP(pcm_writen) },
-+	{ SNDRV_PCM_IOCTL_READN_FRAMES32, AP(pcm_readn) },
- 	{ SNDRV_PCM_IOCTL_LINK, NULL },
- 	{ SNDRV_PCM_IOCTL_UNLINK, NULL },
- 
-diff -Nru a/sound/core/ioctl32/rawmidi32.c b/sound/core/ioctl32/rawmidi32.c
---- a/sound/core/ioctl32/rawmidi32.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/rawmidi32.c	Sun Sep 29 20:18:57 2002
-@@ -30,9 +30,9 @@
- 	s32 stream;
- 	u32 buffer_size;
- 	u32 avail_min;
--	unsigned int no_active_sensing: 1;
-+	unsigned int no_active_sensing; /* avoid bit-field */
- 	unsigned char reserved[16];
--};
-+} __attribute__((packed));
- 
- #define CVT_sndrv_rawmidi_params()\
- {\
-@@ -45,7 +45,7 @@
- struct timeval32 {
- 	s32 tv_sec;
- 	s32 tv_usec;
--};
-+} __attribute__((packed));
- 
- struct sndrv_rawmidi_status32 {
- 	s32 stream;
-@@ -53,7 +53,7 @@
- 	u32 avail;
- 	u32 xruns;
- 	unsigned char reserved[16];
--};
-+} __attribute__((packed));
- 
- #define CVT_sndrv_rawmidi_status()\
- {\
-@@ -67,6 +67,8 @@
- DEFINE_ALSA_IOCTL(rawmidi_params);
- DEFINE_ALSA_IOCTL(rawmidi_status);
- 
-+DEFINE_ALSA_IOCTL_ENTRY(rawmidi_params, rawmidi_params, SNDRV_RAWMIDI_IOCTL_PARAMS);
-+DEFINE_ALSA_IOCTL_ENTRY(rawmidi_status, rawmidi_status, SNDRV_RAWMIDI_IOCTL_STATUS);
- 
- #define AP(x) snd_ioctl32_##x
- 
-diff -Nru a/sound/core/ioctl32/seq32.c b/sound/core/ioctl32/seq32.c
---- a/sound/core/ioctl32/seq32.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/seq32.c	Sun Sep 29 20:18:57 2002
-@@ -27,16 +27,67 @@
- #include <sound/asequencer.h>
- #include "ioctl32.h"
- 
-+struct sndrv_seq_port_info32 {
-+	struct sndrv_seq_addr addr;	/* client/port numbers */
-+	char name[64];			/* port name */
-+
-+	u32 capability;	/* port capability bits */
-+	u32 type;		/* port type bits */
-+	s32 midi_channels;		/* channels per MIDI port */
-+	s32 midi_voices;		/* voices per MIDI port */
-+	s32 synth_voices;		/* voices per SYNTH port */
-+
-+	s32 read_use;			/* R/O: subscribers for output (from this port) */
-+	s32 write_use;			/* R/O: subscribers for input (to this port) */
-+
-+	u32 kernel;			/* reserved for kernel use (must be NULL) */
-+	u32 flags;		/* misc. conditioning */
-+	char reserved[60];		/* for future use */
-+};
-+
-+#define CVT_sndrv_seq_port_info()\
-+{\
-+	COPY(addr);\
-+	memcpy(dst->name, src->name, sizeof(dst->name));\
-+	COPY(capability);\
-+	COPY(type);\
-+	COPY(midi_channels);\
-+	COPY(midi_voices);\
-+	COPY(synth_voices);\
-+	COPY(read_use);\
-+	COPY(write_use);\
-+	COPY(flags);\
++	rdev = snd_magic_cast(snd_virmidi_dev_t, rmidi->private_data, return -EINVAL);
++	return snd_virmidi_dev_receive_event(rdev, ev);
 +}
 +
-+DEFINE_ALSA_IOCTL(seq_port_info);
-+DEFINE_ALSA_IOCTL_ENTRY(create_port, seq_port_info, SNDRV_SEQ_IOCTL_CREATE_PORT);
-+DEFINE_ALSA_IOCTL_ENTRY(delete_port, seq_port_info, SNDRV_SEQ_IOCTL_DELETE_PORT);
-+DEFINE_ALSA_IOCTL_ENTRY(get_port_info, seq_port_info, SNDRV_SEQ_IOCTL_GET_PORT_INFO);
-+DEFINE_ALSA_IOCTL_ENTRY(set_port_info, seq_port_info, SNDRV_SEQ_IOCTL_SET_PORT_INFO);
-+DEFINE_ALSA_IOCTL_ENTRY(query_next_port, seq_port_info, SNDRV_SEQ_IOCTL_QUERY_NEXT_PORT);
-+
 +/*
-+ */
-+#define AP(x) snd_ioctl32_##x
-+
-+enum {
-+  SNDRV_SEQ_IOCTL_CREATE_PORT32 = _IOWR('S', 0x20, struct sndrv_seq_port_info32),
-+  SNDRV_SEQ_IOCTL_DELETE_PORT32 = _IOW ('S', 0x21, struct sndrv_seq_port_info32),
-+  SNDRV_SEQ_IOCTL_GET_PORT_INFO32 = _IOWR('S', 0x22, struct sndrv_seq_port_info32),
-+  SNDRV_SEQ_IOCTL_SET_PORT_INFO32 = _IOW ('S', 0x23, struct sndrv_seq_port_info32),
-+  SNDRV_SEQ_IOCTL_QUERY_NEXT_PORT32 = _IOWR('S', 0x52, struct sndrv_seq_port_info32),
-+};
-+
- struct ioctl32_mapper seq_mappers[] = {
- 	{ SNDRV_SEQ_IOCTL_PVERSION, NULL },
- 	{ SNDRV_SEQ_IOCTL_CLIENT_ID, NULL },
- 	{ SNDRV_SEQ_IOCTL_SYSTEM_INFO, NULL },
- 	{ SNDRV_SEQ_IOCTL_GET_CLIENT_INFO, NULL },
- 	{ SNDRV_SEQ_IOCTL_SET_CLIENT_INFO, NULL },
--	{ SNDRV_SEQ_IOCTL_CREATE_PORT, NULL },
--	{ SNDRV_SEQ_IOCTL_DELETE_PORT, NULL },
--	{ SNDRV_SEQ_IOCTL_GET_PORT_INFO, NULL },
--	{ SNDRV_SEQ_IOCTL_SET_PORT_INFO, NULL },
-+	{ SNDRV_SEQ_IOCTL_CREATE_PORT32, AP(create_port) },
-+	{ SNDRV_SEQ_IOCTL_DELETE_PORT32, AP(delete_port) },
-+	{ SNDRV_SEQ_IOCTL_GET_PORT_INFO32, AP(get_port_info) },
-+	{ SNDRV_SEQ_IOCTL_SET_PORT_INFO32, AP(set_port_info) },
- 	{ SNDRV_SEQ_IOCTL_SUBSCRIBE_PORT, NULL },
- 	{ SNDRV_SEQ_IOCTL_UNSUBSCRIBE_PORT, NULL },
- 	{ SNDRV_SEQ_IOCTL_CREATE_QUEUE, NULL },
-@@ -47,8 +98,6 @@
- 	{ SNDRV_SEQ_IOCTL_GET_QUEUE_STATUS, NULL },
- 	{ SNDRV_SEQ_IOCTL_GET_QUEUE_TEMPO, NULL },
- 	{ SNDRV_SEQ_IOCTL_SET_QUEUE_TEMPO, NULL },
--	{ SNDRV_SEQ_IOCTL_GET_QUEUE_OWNER, NULL },
--	{ SNDRV_SEQ_IOCTL_SET_QUEUE_OWNER, NULL },
- 	{ SNDRV_SEQ_IOCTL_GET_QUEUE_TIMER, NULL },
- 	{ SNDRV_SEQ_IOCTL_SET_QUEUE_TIMER, NULL },
- 	{ SNDRV_SEQ_IOCTL_GET_QUEUE_CLIENT, NULL },
-@@ -59,6 +108,7 @@
- 	{ SNDRV_SEQ_IOCTL_QUERY_SUBS, NULL },
- 	{ SNDRV_SEQ_IOCTL_GET_SUBSCRIPTION, NULL },
- 	{ SNDRV_SEQ_IOCTL_QUERY_NEXT_CLIENT, NULL },
--	{ SNDRV_SEQ_IOCTL_QUERY_NEXT_PORT, NULL },
-+	{ SNDRV_SEQ_IOCTL_QUERY_NEXT_PORT32, AP(query_next_port) },
-+	{ SNDRV_SEQ_IOCTL_RUNNING_MODE, NULL },
- 	{ 0 },
++ * event handler of virmidi port
+  */
+-int snd_virmidi_receive(snd_seq_event_t *ev, int direct,
+-			void *private_data, int atomic, int hop)
++static int snd_virmidi_event_input(snd_seq_event_t *ev, int direct,
++				   void *private_data, int atomic, int hop)
+ {
+ 	snd_virmidi_dev_t *rdev;
+ 
+ 	rdev = snd_magic_cast(snd_virmidi_dev_t, private_data, return -EINVAL);
++	if (!(rdev->flags & SNDRV_VIRMIDI_USE))
++		return 0; /* ignored */
+ 	return snd_virmidi_dev_receive_event(rdev, ev);
+ }
+ 
+@@ -387,7 +400,7 @@
+ 	pcallbacks.unsubscribe = snd_virmidi_unsubscribe;
+ 	pcallbacks.use = snd_virmidi_use;
+ 	pcallbacks.unuse = snd_virmidi_unuse;
+-	pcallbacks.event_input = snd_virmidi_receive;
++	pcallbacks.event_input = snd_virmidi_event_input;
+ 	pinfo.kernel = &pcallbacks;
+ 	err = snd_seq_kernel_client_ctl(client, SNDRV_SEQ_IOCTL_CREATE_PORT, &pinfo);
+ 	if (err < 0) {
+@@ -470,7 +483,9 @@
+ 
+ /*
+  * create a new device
++ *
+  */
++/* exported */
+ int snd_virmidi_new(snd_card_t *card, int device, snd_rawmidi_t **rrmidi)
+ {
+ 	snd_rawmidi_t *rmidi;
+@@ -525,3 +540,4 @@
+ module_exit(alsa_virmidi_exit)
+ 
+ EXPORT_SYMBOL(snd_virmidi_new);
++EXPORT_SYMBOL(snd_virmidi_receive);
+diff -Nru a/sound/pci/ac97/ac97_codec.c b/sound/pci/ac97/ac97_codec.c
+--- a/sound/pci/ac97/ac97_codec.c	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/ac97/ac97_codec.c	Sun Sep 29 20:20:47 2002
+@@ -79,17 +79,19 @@
+ { 0x414c4300, 0xffffff00, "Realtek",		NULL },
+ { 0x414c4700, 0xffffff00, "Avance Logic",	NULL },
+ { 0x43525900, 0xffffff00, "Cirrus Logic",	NULL },
++{ 0x43585400, 0xffffff00, "Conexant",           NULL },
++{ 0x45838300, 0xffffff00, "ESS Technology",	NULL },
+ { 0x48525300, 0xffffff00, "Intersil",		NULL },
+ { 0x49434500, 0xffffff00, "ICEnsemble",		NULL },
+ { 0x4e534300, 0xffffff00, "National Semiconductor", NULL },
+ { 0x53494c00, 0xffffff00, "Silicon Laboratory",	NULL },
+ { 0x54524100, 0xffffff00, "TriTech",		NULL },
+ { 0x54584e00, 0xffffff00, "Texas Instruments",	NULL },
++{ 0x56494100, 0xffffff00, "VIA Technologies",   NULL },
+ { 0x57454300, 0xffffff00, "Winbond",		NULL },
+ { 0x574d4c00, 0xffffff00, "Wolfson",		NULL },
+ { 0x594d4800, 0xffffff00, "Yamaha",		NULL },
+ { 0x83847600, 0xffffff00, "SigmaTel",		NULL },
+-{ 0x45838300, 0xffffff00, "ESS Technology",	NULL },
+ { 0,	      0, 	  NULL,			NULL }
  };
-diff -Nru a/sound/core/ioctl32/timer32.c b/sound/core/ioctl32/timer32.c
---- a/sound/core/ioctl32/timer32.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/ioctl32/timer32.c	Sun Sep 29 20:18:57 2002
-@@ -73,6 +73,8 @@
- DEFINE_ALSA_IOCTL(timer_info);
- DEFINE_ALSA_IOCTL(timer_status);
  
-+DEFINE_ALSA_IOCTL_ENTRY(timer_info, timer_info, SNDRV_TIMER_IOCTL_INFO);
-+DEFINE_ALSA_IOCTL_ENTRY(timer_status, timer_status, SNDRV_TIMER_IOCTL_STATUS);
+@@ -115,12 +117,14 @@
+ { 0x414c4750, 0xfffffff0, "ALC250",		NULL },
+ { 0x43525900, 0xfffffff8, "CS4297",		NULL },
+ { 0x43525910, 0xfffffff8, "CS4297A",		patch_cirrus_spdif },
+-{ 0x42525920, 0xfffffff8, "CS4294/4298",	NULL },
+-{ 0x42525928, 0xfffffff8, "CS4294",		NULL },
++{ 0x43525920, 0xfffffff8, "CS4294/4298",	NULL },
++{ 0x43525928, 0xfffffff8, "CS4294",		NULL },
+ { 0x43525930, 0xfffffff8, "CS4299",		patch_cirrus_cs4299 },
+ { 0x43525948, 0xfffffff8, "CS4201",		NULL },
+ { 0x43525958, 0xfffffff8, "CS4205",		patch_cirrus_spdif },
+ { 0x43525960, 0xfffffff8, "CS4291",		NULL },
++{ 0x43585429, 0xffffffff, "Cx20468",		patch_conexant },
++{ 0x45838308, 0xffffffff, "ESS1988",		NULL },
+ { 0x48525300, 0xffffff00, "HMP9701",		NULL },
+ { 0x49434501, 0xffffffff, "ICE1230",		NULL },
+ { 0x49434511, 0xffffffff, "ICE1232",		NULL }, // alias VIA VT1611A?
+@@ -131,6 +135,7 @@
+ { 0x54524108, 0xffffffff, "TR28028",		patch_tritech_tr28028 }, // added by xin jin [07/09/99]
+ { 0x54524123, 0xffffffff, "TR28602",		NULL }, // only guess --jk [TR28023 = eMicro EM28023 (new CT1297)]
+ { 0x54584e20, 0xffffffff, "TLC320AD9xC",	NULL },
++{ 0x56494161, 0xffffffff, "VIA1612A",		NULL }, // modified ICE1232 with S/PDIF
+ { 0x57454301, 0xffffffff, "W83971D",		NULL },
+ { 0x574d4c00, 0xffffffff, "WM9701A",		patch_wolfson00 },
+ { 0x574d4c03, 0xffffffff, "WM9703/9707",	patch_wolfson03 },
+@@ -143,8 +148,6 @@
+ { 0x83847609, 0xffffffff, "STAC9721/23",	patch_sigmatel_stac9721 },
+ { 0x83847644, 0xffffffff, "STAC9744",		patch_sigmatel_stac9744 },
+ { 0x83847656, 0xffffffff, "STAC9756/57",	patch_sigmatel_stac9756 },
+-{ 0x45838308, 0xffffffff, "ESS1988",		NULL },
+-{ 0x43585429, 0xffffffff, "Cx20468",		patch_conexant },
+ { 0, 	      0,	  NULL,			NULL }
+ };
  
- /*
-  */
-diff -Nru a/sound/core/memory.c b/sound/core/memory.c
---- a/sound/core/memory.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/memory.c	Sun Sep 29 20:18:57 2002
-@@ -439,7 +439,7 @@
- 		size_t c = count;
- 		if (c > sizeof(buf))
- 			c = sizeof(buf);
--		memcpy_fromio(buf, src, c);
-+		memcpy_fromio(buf, (void*)src, c);
- 		if (copy_to_user(dst, buf, c))
- 			return -EFAULT;
- 		count -= c;
-@@ -462,7 +462,7 @@
- 			c = sizeof(buf);
- 		if (copy_from_user(buf, src, c))
- 			return -EFAULT;
--		memcpy_toio(dst, buf, c);
-+		memcpy_toio((void*)dst, buf, c);
- 		count -= c;
- 		dst += c;
- 		src += c;
-@@ -484,7 +484,7 @@
-  */
- #ifdef __i386__
- #define get_phys_addr(x) virt_to_phys(x)
--#else /* ppc */
-+#else /* ppc and x86-64 */
- #define get_phys_addr(x) virt_to_bus(x)
- #endif
- void *snd_pci_hack_alloc_consistent(struct pci_dev *hwdev, size_t size,
-diff -Nru a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
---- a/sound/core/seq/seq_clientmgr.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/seq/seq_clientmgr.c	Sun Sep 29 20:18:57 2002
-@@ -37,6 +37,9 @@
- #include "seq_info.h"
- #include "seq_system.h"
- #include <sound/seq_device.h>
-+#if defined(CONFIG_SND_BIT32_EMUL) || defined(CONFIG_SND_BIT32_EMUL_MODULE)
-+#include "../ioctl32/ioctl32.h"
-+#endif
+diff -Nru a/sound/pci/ali5451/ali5451.c b/sound/pci/ali5451/ali5451.c
+--- a/sound/pci/ali5451/ali5451.c	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/ali5451/ali5451.c	Sun Sep 29 20:20:47 2002
+@@ -1440,8 +1440,10 @@
  
- /* Client Manager
- 
-@@ -1018,6 +1021,13 @@
- 			event.data.ext.len = extlen | SNDRV_SEQ_EXT_USRPTR;
- 			event.data.ext.ptr = (char*)buf + sizeof(snd_seq_event_t);
- 			len += extlen; /* increment data length */
+ 		unsigned int rate;
+ 		
+-		if (codec->revision != ALI_5451_V02)
++		if (codec->revision != ALI_5451_V02) {
++			spin_unlock_irqrestore(&codec->reg_lock, flags);			
+ 			return -1;
++		}
+ 		rate = snd_ali_get_spdif_in_rate(codec);
+ 		if (rate == 0) {
+ 			snd_printk("ali_capture_preapre: spdif rate detect err!\n");
+diff -Nru a/sound/pci/es1968.c b/sound/pci/es1968.c
+--- a/sound/pci/es1968.c	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/es1968.c	Sun Sep 29 20:20:47 2002
+@@ -1446,8 +1446,10 @@
+ __found:
+ 	if (buf->size > size) {
+ 		esm_memory_t *chunk = kmalloc(sizeof(*chunk), GFP_KERNEL);
+-		if (chunk == NULL)
++		if (chunk == NULL) {
++			up(&chip->memory_mutex);
+ 			return NULL;
++		}
+ 		chunk->size = buf->size - size;
+ 		chunk->buf = buf->buf + size;
+ 		chunk->addr = buf->addr + size;
+diff -Nru a/sound/pci/ice1712.c b/sound/pci/ice1712.c
+--- a/sound/pci/ice1712.c	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/ice1712.c	Sun Sep 29 20:20:47 2002
+@@ -1142,6 +1142,8 @@
+ {
+ 	unsigned char reg[2] = { 0x80 | 4, 0 };   /* CS8427 auto increment | register number 4 + data */
+ 	unsigned char val, nval;
++	int res = 0;
++	
+ 	snd_i2c_lock(ice->i2c);
+ 	if (snd_i2c_sendbytes(ice->cs8427, reg, 1) != 1) {
+ 		snd_i2c_unlock(ice->i2c);
+@@ -1159,13 +1161,13 @@
+ 	if (val != nval) {
+ 		reg[1] = nval;
+ 		if (snd_i2c_sendbytes(ice->cs8427, reg, 2) != 2) {
+-			snd_i2c_unlock(ice->i2c);
+-			return -EREMOTE;
++			res = -EREMOTE;
 +		} else {
-+#if defined(CONFIG_SND_BIT32_EMUL) || defined(CONFIG_SND_BIT32_EMUL_MODULE)
-+			if (client->convert32 && snd_seq_ev_is_varusr(&event)) {
-+				void *ptr = (void*)A(event.data.raw32.d[1]);
-+				event.data.ext.ptr = ptr;
-+			}
-+#endif
++			res++;
  		}
- 
- 		/* ok, enqueue it */
-@@ -1092,6 +1102,43 @@
+-		return 1;
+ 	}
+ 	snd_i2c_unlock(ice->i2c);
+-	return 0;
++	return res;
  }
  
- 
-+/* RUNNING_MODE ioctl() */
-+static int snd_seq_ioctl_running_mode(client_t *client, unsigned long arg)
-+{
-+	struct sndrv_seq_running_info info;
-+	client_t *cptr;
-+	int err = 0;
-+
-+	if (copy_from_user(&info, (void*)arg, sizeof(info)))
-+		return -EFAULT;
-+
-+	/* requested client number */
-+	cptr = snd_seq_client_use_ptr(info.client);
-+	if (cptr == NULL)
-+		return -ENOENT;		/* don't change !!! */
-+
-+#ifdef SNDRV_BIG_ENDIAN
-+	if (! info.big_endian) {
-+		err = -EINVAL;
-+		goto __err;
-+	}
-+#else
-+	if (info.big_endian) {
-+		err = -EINVAL;
-+		goto __err;
-+	}
-+
-+#endif
-+	if (info.cpu_mode > sizeof(long)) {
-+		err = -EINVAL;
-+		goto __err;
-+	}
-+	cptr->convert32 = (info.cpu_mode < sizeof(long));
-+ __err:
-+	snd_seq_client_unlock(cptr);
-+	return err;
-+}
-+
- /* CLIENT_INFO ioctl() */
- static void get_client_info(client_t *cptr, snd_seq_client_info_t *info)
- {
-@@ -2042,6 +2089,7 @@
- 	int (*func)(client_t *client, unsigned long arg);
- } ioctl_tables[] = {
- 	{ SNDRV_SEQ_IOCTL_SYSTEM_INFO, snd_seq_ioctl_system_info },
-+	{ SNDRV_SEQ_IOCTL_RUNNING_MODE, snd_seq_ioctl_running_mode },
- 	{ SNDRV_SEQ_IOCTL_GET_CLIENT_INFO, snd_seq_ioctl_get_client_info },
- 	{ SNDRV_SEQ_IOCTL_SET_CLIENT_INFO, snd_seq_ioctl_set_client_info },
- 	{ SNDRV_SEQ_IOCTL_CREATE_PORT, snd_seq_ioctl_create_port },
-diff -Nru a/sound/core/seq/seq_clientmgr.h b/sound/core/seq/seq_clientmgr.h
---- a/sound/core/seq/seq_clientmgr.h	Sun Sep 29 20:18:57 2002
-+++ b/sound/core/seq/seq_clientmgr.h	Sun Sep 29 20:18:57 2002
-@@ -61,6 +61,7 @@
- 	struct list_head ports_list_head;
- 	rwlock_t ports_lock;
- 	struct semaphore ports_mutex;
-+	int convert32;		/* convert 32->64bit */
- 
- 	/* output pool */
- 	pool_t *pool;		/* memory pool for this client */
-diff -Nru a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
---- a/sound/pci/intel8x0.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/pci/intel8x0.c	Sun Sep 29 20:18:57 2002
-@@ -293,7 +293,7 @@
- 	{ 0x8086, 0x7195, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* 440MX */
- 	{ 0x1039, 0x7012, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_SIS },	/* SI7012 */
- 	{ 0x10de, 0x01b1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* NFORCE */
--	{ 0x1022, 0x764d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* AMD8111 */
-+	{ 0x1022, 0x746d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* AMD8111 */
- 	{ 0x1022, 0x7445, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DEVICE_INTEL },	/* AMD768 */
- 	{ 0, }
- };
-@@ -1233,7 +1233,10 @@
- 	chip->playback.substream = NULL; /* don't process interrupts */
- 
- 	/* set rate */
--	snd_ac97_set_rate(chip->ac97, AC97_PCM_FRONT_DAC_RATE, 48000);
-+	if (snd_ac97_set_rate(chip->ac97, AC97_PCM_FRONT_DAC_RATE, 48000) < 0) {
-+		snd_printk(KERN_ERR "cannot set ac97 rate: clock = %d\n", chip->ac97->clock);
-+		return;
-+	}
- 	snd_intel8x0_setup_periods(chip, &chip->playback);
- 	port = chip->bmport + chip->playback.reg_offset;
- 	spin_lock_irqsave(&chip->reg_lock, flags);
-@@ -1412,7 +1415,7 @@
- 	{ PCI_DEVICE_ID_INTEL_ICH4, "Intel 82801DB-ICH4" },
- 	{ PCI_DEVICE_ID_SI_7012, "SiS SI7012" },
- 	{ PCI_DEVICE_ID_NVIDIA_MCP_AUDIO, "NVidia NForce" },
--	{ 0x764d, "AMD AMD8111" },
-+	{ 0x746d, "AMD AMD8111" },
- 	{ 0x7445, "AMD AMD768" },
- 	{ 0, 0 },
- };
+ /*
+diff -Nru a/sound/pci/rme9652/digiface_firmware.dat b/sound/pci/rme9652/digiface_firmware.dat
+--- a/sound/pci/rme9652/digiface_firmware.dat	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/rme9652/digiface_firmware.dat	Sun Sep 29 20:20:47 2002
+@@ -1,5 +1,5 @@
+ /* stored in little-endian */
+-static u32 digiface_firmware[97652] __devinitdata = {
++static u32 digiface_firmware[24413] __devinitdata = {
+ 0xffffffff, 0x66aa9955, 0x8001000c, 0xe0000000, 0x8006800c, 0xb0000000,
+ 0x8004800c, 0xb4fc0100, 0x8003000c, 0x00000000, 0x8001000c, 0x90000000,
+ 0x8004000c, 0x00000000, 0x8001000c, 0x80000000, 0x0002000c, 0x581a000a,
 diff -Nru a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
---- a/sound/pci/rme9652/hdsp.c	Sun Sep 29 20:18:57 2002
-+++ b/sound/pci/rme9652/hdsp.c	Sun Sep 29 20:18:57 2002
-@@ -25,6 +25,7 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/pci.h>
- #include <sound/core.h>
- #include <sound/control.h>
- #include <sound/pcm.h>
+--- a/sound/pci/rme9652/hdsp.c	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/rme9652/hdsp.c	Sun Sep 29 20:20:47 2002
+@@ -42,6 +42,8 @@
+ static char *snd_id[SNDRV_CARDS] = SNDRV_DEFAULT_STR;	/* ID for this card */
+ static int snd_enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;	/* Enable this card */
+ static int snd_precise_ptr[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = 0 }; /* Enable precise pointer */
++static int snd_line_outs_monitor[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = 0}; /* Send all inputs/playback to line outs */
++static int snd_force_firmware[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = 0}; /* Force firmware reload */
+ 
+ MODULE_PARM(snd_index, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
+ MODULE_PARM_DESC(snd_index, "Index value for RME Hammerfall DSP interface.");
+@@ -55,8 +57,14 @@
+ MODULE_PARM(snd_precise_ptr, "1-" __MODULE_STRING(SNDRV_CARDS) "i");
+ MODULE_PARM_DESC(snd_precise_ptr, "Enable precise pointer (doesn't work reliably).");
+ MODULE_PARM_SYNTAX(snd_precise_ptr, SNDRV_ENABLED "," SNDRV_BOOLEAN_FALSE_DESC);
++MODULE_PARM(snd_line_outs_monitor,"1-" __MODULE_STRING(SNDRV_CARDS) "i");
++MODULE_PARM_DESC(snd_line_outs_monitor, "Send all input and playback streams to line outs by default.");
++MODULE_PARM_SYNTAX(snd_line_outs_monitor, SNDRV_ENABLED "," SNDRV_BOOLEAN_FALSE_DESC);
++MODULE_PARM(snd_force_firmware,"1-" __MODULE_STRING(SNDRV_CARDS) "i");
++MODULE_PARM_DESC(snd_force_firmware, "Force a reload of the I/O box firmware");
++MODULE_PARM_SYNTAX(snd_force_firmware, SNDRV_ENABLED "," SNDRV_BOOLEAN_FALSE_DESC);
+ MODULE_AUTHOR("Paul Davis <pbd@op.net>");
+-MODULE_DESCRIPTION("RME Hammerfall DDSP");
++MODULE_DESCRIPTION("RME Hammerfall DSP");
+ MODULE_LICENSE("GPL");
+ MODULE_CLASSES("{sound}");
+ MODULE_DEVICES("{{RME,Hammerfall-DSP},");
+@@ -2190,6 +2198,25 @@
+ 	for (i = 0; i < 2048; i++)
+ 		hdsp_write_gain (hdsp, i, MINUS_INFINITY_GAIN);
+ 
++	if (snd_line_outs_monitor[hdsp->dev]) {
++		
++		snd_printk ("sending all inputs and playback streams to line outs.\n");
++
++		/* route all inputs to the line outs for easy monitoring. send
++		   odd numbered channels to right, even to left.
++		*/
++		
++		for (i = 0; i < HDSP_MAX_CHANNELS; i++) {
++			if (i & 1) { 
++				hdsp_write_gain (hdsp, INPUT_TO_OUTPUT_KEY (i, 26), UNITY_GAIN);
++				hdsp_write_gain (hdsp, PLAYBACK_TO_OUTPUT_KEY (i, 26), UNITY_GAIN);
++			} else {
++				hdsp_write_gain (hdsp, INPUT_TO_OUTPUT_KEY (i, 27), UNITY_GAIN);
++				hdsp_write_gain (hdsp, PLAYBACK_TO_OUTPUT_KEY (i, 27), UNITY_GAIN);
++			}
++		}
++	}
++
+ 	hdsp->passthru = 0;
+ 
+ 	/* set a default rate so that the channel map is set up.
+@@ -2812,7 +2839,6 @@
+ static int __devinit snd_hdsp_initialize_firmware (hdsp_t *hdsp)
+ {
+ 	int i;
+-	int status_reg;
+ 	u32 *firmware_ptr;
+ 
+ 	if (hdsp_check_for_iobox (hdsp)) {
+@@ -2830,52 +2856,33 @@
+ 		hdsp_write (hdsp, HDSP_outputEnable + (4 * i), 1);
+ 	}
+ 
+-	status_reg = hdsp_read (hdsp, HDSP_statusRegister);
++	if (snd_force_firmware[hdsp->dev] || (hdsp_read (hdsp, HDSP_statusRegister) & HDSP_DllError) != 0) {
+ 
+-	if ((status_reg & HDSP_DllError) == 0) {
+-
+-		/* i/o box is connected, firmware already loaded */
+-
+-		if (hdsp_read (hdsp, HDSP_status2Register) & HDSP_version1) {
+-			hdsp->type = Multiface;
+-			hdsp->card_name = "RME Hammerfall DSP (Multiface)";
+-			hdsp->ss_channels = MULTIFACE_SS_CHANNELS;
+-			hdsp->ds_channels = MULTIFACE_DS_CHANNELS;
+-		} else {
+-			hdsp->type = Digiface;
+-			hdsp->card_name = "RME Hammerfall DSP (Digiface)";
+-			hdsp->ss_channels = DIGIFACE_SS_CHANNELS;
+-			hdsp->ds_channels = DIGIFACE_DS_CHANNELS;
+-		}
+-
+-	} else {
++		snd_printk ("loading firmware\n");
+ 
+-		/* firmware not loaded, but i/o box is connected */
+-		
+ 		hdsp_write (hdsp, HDSP_jtagReg, HDSP_PROGRAM);
+ 		hdsp_write (hdsp, HDSP_fifoData, 0);
+-		hdsp_fifo_wait (hdsp, 0, HDSP_SHORT_WAIT);
++		if (hdsp_fifo_wait (hdsp, 0, HDSP_SHORT_WAIT) < 0) {
++			snd_printk ("timeout waiting for firmware setup\n");
++			return -EIO;
++		}
+ 
+ 		hdsp_write (hdsp, HDSP_jtagReg, HDSP_S_LOAD);
+ 		hdsp_write (hdsp, HDSP_fifoData, 0);
+ 
+-		if (hdsp_fifo_wait (hdsp, 0, HDSP_SHORT_WAIT) < 0) {
+-			printk ("looks like a multiface\n");
++		if (hdsp_fifo_wait (hdsp, 0, HDSP_SHORT_WAIT)) {
+ 			hdsp->type = Multiface;
+-			hdsp->card_name = "RME Hammerfall DSP (Multiface)";
+ 			hdsp_write (hdsp, HDSP_jtagReg, HDSP_VERSION_BIT);
+ 			hdsp_write (hdsp, HDSP_jtagReg, HDSP_S_LOAD);
+ 			hdsp_fifo_wait (hdsp, 0, HDSP_SHORT_WAIT);
+ 		} else {
+-			printk ("looks like a digiface\n");
+ 			hdsp->type = Digiface;
+-			hdsp->card_name = "RME Hammerfall DSP (Digiface)";
+ 		} 
+ 
+ 		hdsp_write (hdsp, HDSP_jtagReg, HDSP_S_PROGRAM);
+ 		hdsp_write (hdsp, HDSP_fifoData, 0);
+ 		
+-		if (hdsp_fifo_wait (hdsp, 0, HDSP_LONG_WAIT) < 0) {
++		if (hdsp_fifo_wait (hdsp, 0, HDSP_LONG_WAIT)) {
+ 			snd_printk ("timeout waiting for download preparation\n");
+ 			return -EIO;
+ 		}
+@@ -2883,9 +2890,9 @@
+ 		hdsp_write (hdsp, HDSP_jtagReg, HDSP_S_LOAD);
+ 		
+ 		if (hdsp->type == Digiface) {
+-			firmware_ptr = digiface_firmware;
++			firmware_ptr = (u32 *) digiface_firmware;
+ 		} else {
+-			firmware_ptr = multiface_firmware;
++			firmware_ptr = (u32 *) multiface_firmware;
+ 		}
+ 		
+ 		for (i = 0; i < 24413; ++i) {
+@@ -2901,8 +2908,30 @@
+ 			return -EIO;
+ 		}
+ 
++	} else {
++
++		/* firmware already loaded, but we need to know what type
++		   of I/O box is connected.
++		*/
++
++		if (hdsp_read(hdsp, HDSP_status2Register) & HDSP_version1) {
++			hdsp->type = Multiface;
++		} else {
++			hdsp->type = Digiface;
++		}
+ 	}
+ 
++	if (hdsp->type == Digiface) {
++		snd_printk ("I/O Box is a Digiface\n");
++		hdsp->card_name = "RME Hammerfall DSP (Digiface)";
++		hdsp->ss_channels = DIGIFACE_SS_CHANNELS;
++		hdsp->ds_channels = DIGIFACE_DS_CHANNELS;
++	} else {
++		snd_printk ("I/O Box is a Multiface\n");
++		hdsp->card_name = "RME Hammerfall DSP (Multiface)";
++		hdsp->ss_channels = MULTIFACE_SS_CHANNELS;
++		hdsp->ds_channels = MULTIFACE_DS_CHANNELS;
++	}
+ 	
+ 	snd_hdsp_flush_midi_input (hdsp, 0);
+ 	snd_hdsp_flush_midi_input (hdsp, 1);
+diff -Nru a/sound/pci/rme9652/multiface_firmware.dat b/sound/pci/rme9652/multiface_firmware.dat
+--- a/sound/pci/rme9652/multiface_firmware.dat	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/rme9652/multiface_firmware.dat	Sun Sep 29 20:20:47 2002
+@@ -1,5 +1,5 @@
+ /* stored in little-endian */
+-static u32 multiface_firmware[97652] __devinitdata = {
++static u32 multiface_firmware[24413] __devinitdata = {
+ 0xffffffff, 0x66aa9955, 0x8001000c, 0xe0000000, 0x8006800c, 0xb0000000,
+ 0x8004800c, 0xb4fc0100, 0x8003000c, 0x00000000, 0x8001000c, 0x90000000,
+ 0x8004000c, 0x00000000, 0x8001000c, 0x80000000, 0x0002000c, 0x581a000a,
+diff -Nru a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
+--- a/sound/pci/rme9652/rme9652.c	Sun Sep 29 20:20:47 2002
++++ b/sound/pci/rme9652/rme9652.c	Sun Sep 29 20:20:47 2002
+@@ -523,6 +523,7 @@
+ 		rate = RME9652_DS | RME9652_freq;
+ 		break;
+ 	default:
++		spin_unlock_irq(&rme9652->lock);
+ 		return -EINVAL;
+ 	}
+ 
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.605.4.1
+1.605.2.15
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch2254
-M'XL(`!%$EST``^P\:W/;MK*?K5^!./>V4FK))/BV&T]52VETZ\@^LMU.I\YP
-M*!*R.)9('9**XU/EOY]=@)1(B7I8DS2=V^8AD`2P6"SV#9`OR6W,HI.#"8O8
-MQ\I+\C:,DY.#>!JSAOL?N.^%(=P?#\,Q.^9MCOL/QR,_F'ZLQ^$T\/+7%6A_
-MY23ND'Q@47QR(#>4^9/D:<).#GKMGVXOFKU*Y?5K<CYT@GMVS1+R^G4E":,/
-MSLB+?W"2X2@,&DGD!/&8)4[##<>S>=,9E20*?S794"1-G\FZI!HS5_9DV5%E
-MYDE4-76UXCQ,QC]X_CT+R[I;5*&*1E5]IIJJ:E5:1&[HDM90&S*1Z+%D'5.-
-MR-*)!/_4[R0*%X1/_8=)$":LP:_K?I``A<AWLD;J4N5'\GEG<%YQ2?/BNDFF
-M$\])&,%>QY)^3-43J"&D3OS0348*)6P\'3F)'P9ITZPZ2-C(_"@1+_)A-?A3
-M?#[P/S*/7)UW2*=%P@%IOFN9LBRGO0#5B9^"PY8Q&801>=NZODH;+!XBB#$;
-MA]$3<4:CT.6=*C\379(DJW*U6-Y*_9E_*A7)D2IG&<WQ%R@]$^PV<?WC;&X-
-M-Z6FK,B6`N6,JI*FSES%4MR!H?8'0%:]3]>NW@:8%M4D755D;:;I)C56T?$#
-M=S3UV+$`(:C<&!81DF>2*2O*S%,\$Q98,ZEN.GV=K4=H$]04)<F8:;*L6W.4
-M4F%-)^.&$3M.F>/XG?/`!OZ("0#0538E$QA?LB35FAFZX6E]Q],5R1PXNK>-
-M3AM`"]RHILVH`M!VP2UR'L>^YRLT(WD./4G5I5F?JAXU^]11=-4P!O*ST%N!
-MGF%HS&3-TN4U&"(K1&-FZ1H]'GKQ).NMH\Q*BFS.J&E:@)NEJ)I%9<H<238L
-M91<6*X.;L9DUDU28_"YTB]F_<S233=G4-&K-%*J9RLRU=%?W!@,F`S5=9[WB
-MV@HY1R^%6L8NF"7^F$6EZZE(EC9CDDLU2KV^JS+=T\UGX;8$>X&=9!G26FW!
-M00@MM:PLY!G5)9/.]'[?T`Q+8XKA*:HSV`FK(L@,&75&95-5=B%56JZ22I<-
-M79TQ7:>RZV@F\)QEZKLAM09VAAW`EF1=V4@JX`#\;[LCGP7)^#Y:5;&RI,M@
-M.5VI[_0UR5`EJGGJ!HVV"_0,1>!B$Y31,U$<KJ`HRZ8U\R1=DYBKZ8I!#<7:
-M3;NMA;Y`459E2WO.&@]7Q$&3+'.F#QQ%[NN:Q0R)NOWG:=\EV(LUUH`*^C9K
-MY<`4IRQP2RV6JEOR3!VXCBE;E'F.:DB;]-LVR)G5`E>'*NI6U-!S!$=B%2\J
-MP2+.',E1&.OWJ>O(`UEQ=L5K"6R*%%4!*1ADE]6<N.-2>54,4YX9EBS)GN>9
-MKNGU^\[S5%L!\F(EJ0JN(/>4UY,87>?/O-*5(B6V@5.I)<E454`E**:D<&=:
-M6;C1DGFB*B>2OMV-5DA=^2)N](WSX,1#GW0>'9]\G_A0B-EY[.QHX5C+1*8G
-MLGFBF"1SL1W/`U]YXK@/4#A)$OG]*?CB24AB"(<(>-L.CVN$0^R&0>S'":@-
-M7I-ZW+'_'Z@'=[H?)D,"JZVKI.\G<:,P1N^VV^UT?[+?7;;:PK/'4=PA<Q](
-M,F0DF@:!']R3,";CT&.DR@$!G%H#7&XA6)>D'CWR?^!"7VU@FCT<\A;82B)7
-M.J+X1&Q[3@[;KE8%B6JUTTI+,71L*(H-#3NJ:4*053DX?D7B)R#;>#Y)/P!R
-MCD40\NJX$B?1U$U(''C1!QMU<]K.QG;DC\K!%.A^'P`5W:$#R\`U]^D!`A;7
-MQ/<0SE*[OG]OL\#SG>`4F\KD-3ZJBT<E[=W)U$;:"\@J-%<H+,`1,>&2KT5)
-MIXGCB?81@RC[`RM#)*OZ7:;O3RN?3BMW\+>ERQ3I"+X=%"\]<+4#1JZ[K=XO
-M]G7[7W;G\OSFPLZSS0$\^[57_?;ZVR,B?924([*1<+42S9*%&UNURO.BG8T:
-MI0@JITTL"-"Y-E%7M(FQ79N0NOSUE8EV`A="F0@Q_VCJ=9!_$&V(!VP>-MLY
-MM3$$Z4!Y%N'=1GG.R+:/+&L*<A;_?>D/B.`MKVK;/GA?METCLUGNX63BKCR#
-M>=BZ"H]+F&AN:;=RT3--_48V6H*U"-?`OE.)\Y&US$=TA^3.E^*C6YZK\=!2
-M,![;D$$4CKFNYVF?\U^N21(QQK4[>B@;N6$^^WW8@7.#DM,RYY?=-YV?;%`V
-M=JMYTR:'I/HF\LG_30,B&)O*)[+!F9W<WIS7#CD7E$1')1RP=UA66>N@%>'D
-M5MZR#(.OO"P5EYZ>:-N7_J_AC^@G0.3=58@M5`@VGTP3XCIQ@DV!1.[DR486
-M.TY"VP_QH?,A!,,H,GZ,/#H1VH88]8^(8I<XKH3B^W";JG*[)HJ#@QQF?ECM
-M3P='I(IXO:K%D7M$7'0I5%WC77@Q[Y*$T"%MZ\5@AWEGT<$T>`=>O&2CF!$P
-MP:#(B!/,*0B&>(EM2\+3S1R\=[2\2'=C7GV)IW89`+E<UC2PD[*B*1KG<G.%
-MR:VM3*Z:7RIY_1PNIQ+8R@*7;_*'%5H_$TXTNMR9ZN.=Q7TB/#,R"3&I&Q&P
-M<0%S61P[T1,H3G2(N#OT&/D)J]9$UVHR]&,0F`"H1/K@W(>@":&Q`/48.1.@
-M7`V$0V0HU@M'R9KM(2<=Q2)*P3SGM/*/G1N%VNUWMQ<%NUS:`DEX>]&N`2QA
-M,LAAH[&:1C@$.0'/=U#IR+"^Q``Y^T2XY/SQ6;$X.#@`:%5!G/I9NF`*)=]\
-M,U\7]L'V8_N#$TWCJ/H-^P`M:S5T].$/UUFO)DD$3G<J_,TJ;]+`H*L1.8\P
-M'?"EWX,BP`ZY.O8Q:8B>\,MK/^5F;:E$,2J@)U9YKUH3<0B$)"YNK,PQY;5S
-MMQJC@W1F-@0#XNJ(S+U]$*Q[XD3WM0K,97-4@S^`80Z80!D'9Q%.0<(X0=`R
-M3!6H#>(%!,.^<RT*PQWQ&#0<5+G;7\,UB%@RC0)2;[]IWE[<<$@\1H$0,4:O
-M)(V;@NFX#_*#(8LK")=-/$4,!K2A@D-NB&=(=HX5[_":=&\O+@I#=B_;W1L1
-M%(&,?9M@$`3:A;QX\0)'ND-V`UY*8YT?@97:W5:GV15@7W#2-!;!FV`,09-Z
-MN]/]I7F!2WL?@KZP;7@.=Y^$$1`0]NI_ES'*`D06#Y*SC+ZXOK7=X'%ZYMG_
-M]3+4[XM03RNB]PEPSM(:!.`"/'!Z(^U3.O.!$.\.!%4JVLT_-D:/1QMXFGPZ
-MVFXJR]S]SY&U7>_WK069<P%EV9+*@LB=C*/\CVU\IFT4J?'GV,9](I:.CM$*
-MUX5S`4KS/?,Y(AG2E,R"=8O[O&L9=I\MYHHS<H(?_`B$%2*Z1OP(/,*<!C\<
-MT0BC^\;T80-T@VJR1@W-G*FF1;72H$4!/MC*LOI?)&C1I)1EQ7$#F#,FX1;'
-M#5*67.0WA=8"I*<,FR$;.JYE`"\F=N0(5OR9B*WX4OXJDG6O%*?%,Y>B`'4I
-M?017B&(RS5!U[P@//-C-[F]VIU6\EOB_5ON7SGG;[G1OVA>@,)$;T[DB#[9D
-MJG#HO%2%&5F=I#OT)_4S?'9$FN=0<W7^SG[3N^S>0"1^;O<@&C\BJBE)4@T,
-MA"1L#8*91##WA^K/[5[7;O=ZY#`55H!,$!Q!\"=@U\%4@*WY7^\N.(1@:3X<
-MF"*LXCZ36`MNIEH@T#SV2DM.%4&-0YA=-L/#$@NQ?$Q@(6V?[;A"Y0&8,)G(
-MC6@ZC.K3P*_W0W<X'0-/;@>N495"G`O!&06Q%H>`M!4CL5WBOG:F40*E>Z*J
-M)QHM2%QV.BA5SMENPS3&!/O*C@9N7_`M#>&5QFA0[H%U4#2!AA%#3Q7<D0Q,
-M/!DM%#\93`.7)^NA5_(8DI'S!(:'IRB<."8."<!Q_L!26^6.O4;N,)%'LG7A
-MF0=^>&2]`5E>RWWDG.<&\,<?!.S?I/H_^9`%O*/;=O>\W:L=!;5U/#W?8-^)
-MJ9^YU?]L@+FC*3JEQAIW9_L.'`1`=6I^95XV3A#-S.$9P[3%D;,&W$`9D4D4
-MWD?..":/8?1`@O"Q\7>5%7&:8[NLS-EE'U>+BEV"-'7P/?=GP,[Z26-X5NDH
-M*M@R$=K;S=N;MY>]ZN&FM3@$`Y,V;[6OSWN=JYO.9;=ZN+0"G,:8!L^UOP#K
-MVKUN5P]_NKK`QW>5EBEVR"C?:)R'DVCR5A9M")P.=OBTTK)XNAM^%2T?T=MH
-M15,T;`R`V(B-[9$?)]5Y_([M!EXNH.<>Z-@K"?'GFV_<]+W"WZ5^8IUQJ-5T
-M0&%\(`MF+\#%W=2*MX$6XS%X$_=CD34(08C9/=A[X$][$%=KBPP"C_EC\1B]
-MAO:%W;J>Q^Y+&04Q?FE.0535EL+>-*VP&O:.V1@&%1"YVY0#@T'N`4_4A(,!
-MKN+K=.+I?58;P^JR126_S>H`7V]1A7=9C0N"D0/);[.ZB>_%4-5,9\/O$1DQ
-M'5R\^MG`#L%7$NF@[(D'9(Z>ZF?`.0'$R4=$K/-B:8%D!=:H\8EG9$;PZ,4M
-MTXD',I.GU#&.IR.QLUP@1CJ3(FDR:F25>=*DY,BJ<J3)J)%59:0Y/LX39WZ=
-MYY$D%!R29XPYM^S%(8LLA^!-P<*KB8V.A4F-5OM-IPNJ!U1%FM-H=V]ZOU4+
-MH@%^;O%6Y$&P==KGHOT.],OU#>X=R#3UT[><7X"&IFB(Q59-@LF=/T&3=&2%
-M[ZML4P,M&50WQ>8:T;Z"(H#Q!?6@T#C'/S(2,)@1IC(RYO?Q5(@?>!"<5P[(
-M*S(,)XSP7(07LAB5?3]BS@-Q@B=X&MPW>+-45!H\F&RP8#IF&/UX#0YNK@%*
-MJ[^HT$,T)8E@2N(;67F:8(2%#U/D_+F@^AYVU$1'370LS`"#WGOP6L;.QZS/
-M2@4'(0(Y35L+0E?7`A%5"$87ZP:%LKK.:Z6W(QOR+O(J<M=+MZ7RVNF^N>0T
-M-<2\>'%0$`S@'!_=,7Z^I^\G]8'/1AYQ'6#F&-S)V!E!8Q02$:*+^%\4FR2?
-M4I4G"GBQ5?(Y'?\,T:>*A)F%;:)?;O?!G8+8"U4"Y4[=%Q9_"MR.8ZDT&PO/
-MT2UR&@(`/BOIW:'I3O!!FO8XG`8/$`D$O$.6W,!KOEJ&.+G&BR\IW=2@8B"Z
-M(MU09XDZ2R!>+L+\[G?_?;D<9[4(SN1>K"C6@0.9W0@P5\]!&@*D409R24VN
-M@%RM1Y"6H+PEM%:Z<5\M`.X_)1#<"7<P!R_W&.$(>>/%RF29:VGFT@3Y,SR,
-M*,G\<`L4S])6BH36<:NV`N/CY;05'WR-NNJUFRUDDFT@>=Y]1YB_]CHW;7[F
-MDG)CKD"T3Q<;/248H/`VKXH3J&'R;ETG/L1R+XXC[]91+"Z)J6\FG6[+F`R?
-ME3'9\>#\W@"-F61H:>Z/[I$Q4612M[YZNIU*)XJ52VB(T\B3B:NK_+P+1`$1
-M7/]M\R3BC8C=\R1[;4E!%&#ASG6`6]?-;`\[32Q>79W#NBZR*$X\/H;UP;'.
-MTJUI\%#$N:2C;+W0)\E.Y#7QS&6-B#B+O*HMF2!>6\NVJ-,"++KP&OGO.C?E
-MY4NTDU_>/;E+#YQN<T\0:]1B'4TO#TS6''K8S36Y6S$"=T5+#;>?$`4+W)*.
-MSIV3+^8QW!6S`&05%:Q>P"'?D"KJ9J[)R???$W[3ZO2NWW;>W(CIM71N"<`_
-M`LSWCM,1DQ(Z+6&'E.KHZ"RGAI0LV5&L-HF.AR=2/EYG_@)GS(Z0$8]R+`,$
-M63IRLV!:[/"YF%9,.#5A9<*!H#DTWG]Y>7&>>-!BC>5+7^[9R>X]ZQ6CYX(3
-M+XHJ$K[/;,EE[^GL9/-D22-U5?UGR^NS;7GQU[RVFZ=T-?<Z\,]=>_Y;3"&/
-MG?B!X$_\NW#_<+_Y[:_V5;/7?&=?-*]O['?-ZY\![Y+J-Z!YTOKOB/S^%%/P
-M/#DSGL;\F(B/JM%WG1$/KW6.!/_=F%:31!0N;<^_&2+_MA5B/NNRL:&FBA2)
-MNN75)4QF6*N^?!66R)X.(M!-L1WSXUCE;>(=V@P?;?`#G'&\'LK6%GBR+F`C
-M\;[/6C"@8Z<Q3P$<OZJ(3(AXATO>]@X7-,3T74<V*:'F6A_CXX!%_E?81N'C
-MKMT^X;7_K[9-TKV">893W&>U_>D@O\<!M_..@AT7'<7]7W4#I##-Q22_^J9$
-M"^PK,3"/*%*DO-B81Q2J3A2;A"?X4]*'LH))DOW2ARU*1?*+%P?QHX_?_*GF
-MO;D_1.)4Q48&J$_AGL;3/F#)G'']3)2$O'B=LS;7-^#MOK.O+IJ__=@\_SD]
-M!KYRO+:X8B@RR]"C:8"O6>$PJ.]$B:>2"H,U;]KVY56[NS3.C\W6F]::<?@6
-M!*>`)=*GTMSWWG%RY\VKF]M>>^>Y\4PMTE'1B2D8OPK4!O>S9+JI#8AKY(S(
-MU-SQ>#+"Q#7G@E30"B!+<21.+XL'^Z5\BR,`./[^#IYA7B+#'%X)&50A/[Q8
-MRW.::,2+Y:RL9HJZ9VYF4(@,93,SEW=KLWJI'8]X\'-$"F;]*,<'H@\X5CT.
-M:$.>L&#W!<1X/<3KU%6[W@)Q6(2X&<>=(`HA2Q%,KU>P`VF[W0;(8^!:IW`6
-M7M,JL%8;-,066'EW2(`L/EF&>?ZVV44-EVTU;0`=L4<_\`30Z28\>^U?.]U-
-MF6`!S?'\(\(]E#(0S5;'?@.KT-Y&/9ZI70^)9W=W!(4X!0)24(Y3]QDXK8?$
-M<<J!NLOYI52<^!'%/&5=(D%IQKH@?SQAO;3-L0J"\U&N.^>_M"O/=7=$4=)5
-M+&VNKV"*K+.)*AMW(M2RSH6ER,$0*UC,T9>S0F%@X)]U?0H$7AXIV#1222?.
-M%;4-QW]SG^':*07R[(^"[0-RD0JQ9-E8DPK9_I$!G=3_R8-\MCR(^"K;]CQ(
-M;CGW>MM=O.ZNK)P6"$+;<;GK$+,`:<43&N(EZ<7A`51#"M<#_'>3>Z^:XB7D
-M+<V$?Z)M^UR*;FW8D4QI,C?;R_="FGO-7]]U0%^(GEOM>`8DL]_+]V5`YS9]
-MC3I(OS"WDRIXUG?N]@,'*D"73,5<LP.X705H!JD;7W\'D'^/X:3PFE?V(M<D
-MC!+Q3BGFLAM$I.C2K2B4T/1-L"/<*^004/)1X@F>L_*!Q!&^0;OQ!;2_[=ZB
-M^#3B=J65,M]>.XL6T>35CR#-UQ6(5O8Z,2Q5A.L5G2X^A'2,G=*W>F/Q6B]^
-M@`@W4W[7U?>G!_PE.M$(GHG@YF`*([C.Q.G[0,2GTWF3Q3/^02OQ92-HRT_M
-M+"#Q,SGS!C$TX%HDBTO3%_?2.Q0U@OI$]"WT`$WLLK2]N%[3.GX*DN&ZYM>_
-M=6_>SMO?B1[HQF`DFE*@=WQYPH-I%_@-287\%DX3_*1&-?U."P@'`JG-1^7^
-MTS8@?L!A(.,5(*1D?@"7F(U2`/-/1F%'40/RP$@URZ_S5ZOG9!^,G/MTNF,_
-M=ANH"3P?^1Q%:+[8\Z]-Z=)[T1K!#Z;)-&(</+3DWZ":?PWFEQN[A.VJM;L*
-M[IN=7U[]5OUO=]?STR`,A>_^%1Q=,A/H!LM,]*+$>%`GL$1/Q"SLIHEC2S#Q
-MC_?UE?ZBA4(O&B\+=+R/KJ^%][6OWV@_PP5-GN)3'R^N<5$OJ`\[<=C.O?$O
-M9VB"`+(OR3*6P,7/M$[3*6;NE85J!Y"EW,FR1+A,%F$K\B4]<\)<:X*A?!ZX
-M&4#32^%WJT9S8QOV#<3615INGK)B`!&(2#46$4A,ZD:DLR\*B`/S+BT0T,6&
-MZTFH^4C4SU-U^"H_JN8XK@6>MVGV6CZF+P5O!<$B14[%YKR9=9:5&[B,IK+!
-M$S48\A-NV-?TUDAHT5M3GM&SN051\9-`#`1BY(&H><E22^*!F5LQ93UM2G,N
-MS(Y_S)K&[IKB4^H6M]-2M92E3>)`\QG+8I,C4^>Z/6Y!(V7P]1EU6A[-M!'6
-M9YA;#&O#D.;R0/R?X`0(?!(;E-&J"-89.WWUT-4@Z+ME@-8+->91D?Q$7>CI
-M@#*:)PE9>A-Z\LN"#_\K-D9=;G=H+'SI$QROX@%6C,CM"T(]9CV_N'](L_9Z
-MQ]N'&7/>JY^98!8.;*J_]XT;7_UY+[#U=TBBQ,I^%Y?1GQ=(B=9TO`#YC76)
-M/`A_:Z8CRT@N[8PHKM\K'*$WDA=+6UGVR0(TS?`4_X&">A?UZ?TJ7.S?=OLP
-+.OL!"3V\?7YE````
+begin 664 bkpatch2374
+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
+6U+F+IN-7G/<9,[E;_']TVH^'GT0`````
 `
 end
 

@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130661AbRCTTXx>; Tue, 20 Mar 2001 14:23:53 -0500
+	id <S130065AbRCTTbD>; Tue, 20 Mar 2001 14:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130617AbRCTTXn>; Tue, 20 Mar 2001 14:23:43 -0500
-Received: from ns.arraycomm.com ([199.74.167.5]:30435 "HELO
-	bastion.arraycomm.com") by vger.kernel.org with SMTP
-	id <S130616AbRCTTXf>; Tue, 20 Mar 2001 14:23:35 -0500
-Message-Id: <5.0.2.1.2.20010320110527.022dfe28@pop.arraycomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Tue, 20 Mar 2001 11:15:31 -0800
-To: linux-kernel@vger.kernel.org (Linux Kernel)
-From: Jasmeet Sidhu <jsidhu@arraycomm.com>
-Subject: Rebooting a system with a bad filesystem (2.4.2 + ReiserFS)
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130660AbRCTTax>; Tue, 20 Mar 2001 14:30:53 -0500
+Received: from aeon.tvd.be ([195.162.196.20]:13216 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S130065AbRCTTai>;
+	Tue, 20 Mar 2001 14:30:38 -0500
+Date: Tue, 20 Mar 2001 20:29:37 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: st corruption with 2.4.3-pre4
+In-Reply-To: <Pine.GSO.4.10.10103200858110.4932-100000@escobaria.sonytel.be>
+Message-ID: <Pine.LNX.4.05.10103202024310.4053-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
+> On Mon, 19 Mar 2001, Jeff Garzik wrote:
+> > Is the corruption reproducible?  If so, does the corruption go away if
+> 
+> Yes, it is reproducible. In all my tests, I tarred 16 files of 16 MB each to
+> tape (I used a new one).
+>   - test 1: 4 files with failed md5sum (no further investigation on type of
+> 	    corruption)
+>   - test 2: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
+> 	    corrupted, all starting at an offset of the form 32*x+1.
+>   - test 3: 7 files with failed md5sum, 7 blocks of 32 consecutive bytes were
+> 	    corrupted, all starting at an offset of the form 32*x+1.
+> 
+> The files seem to be corrupted during writing only, as reading always gives the
+> exact same (corrupted) data back.
+> 
+> Copying files from the disk on the MESH to a disk on the Sym53c875 (which also
+> has the tape drive) shows no corruption.
 
-I have a system here with the following setup:
+I did some more tests:
+  - The problem also occurs when tarring up files from a disk on the Sym53c875.
+  - The corrupted data always occurs at offset 32*x (the `+1' above was caused
+    by hexdump, starting counting at 1).
+  - The 32 bytes of corrupted data at offset 32*x are always a copy of the data
+    at offset 32*x-10240.
+  - Since 10240 is the default blocksize of tar (bug in tar?), I made a tarball
+    on disk instead of on tape, but no corruption.
+  - 32 is the size of a cacheline on PPC. Is there a missing cacheflush
+    somewhere in the Sym53c875 driver? But then it should happen on disk as
+    well?
 
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/hda3             19072868   6260156  11843848  35% /
-/dev/hda1               198313     18161    169898  10% /boot
-/dev/md0             525461076  89626136 435834940  18% /raid
+Gr{oetje,eeting}s,
 
-/raid is the reiserfs volume.  / is ext2.
+						Geert
 
-  The only thing on /raid is some pcbackup stuff. The system entirely runs 
-from the root drive (ext2 filesystem).
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Lately, reiserfs has been giving me problems. If I try to do anything on 
-/raid - like vi a text file, the kernel will oops.  But the system will 
-stay up.  All the services are there, and I can login.
-
-However, I cannot unmount the partition, or do anythinh else.  Even if I 
-call sync, it never returns.  I can't even reboot the system, or shutdown 
-my nfs services.  Since all of the stuff is on the root drive, shouldn't 
-linux be able to cope with such a situation?  I know that filesystems do 
-get corrupted every now and then, especially if they are in the beta 
-stage.  But such a malfunction should not keep the whole system from being 
-shutdown.
-
-The only way now is to hit the magic reset button.  With this, I loose a 
-lot of data.  I dont know when sync was called last, but when I tried to 
-call it manually, it never returned.
-
-All the processes that are dealing with the /raid partition, are in STATE 
-D,  uninterruptible sleep, and cannot be killed.
-
-root       828 46.7 11.0 29628 28172 ?       D    02:00 258:15 
-/opt/legato/usr/sbin/save -s lester.arraycomm.com -g Linux Servers -LL -f - 
--m bertha.arraycomm.com -l full -q -W 78 -N /raid /raid
-root      1599  0.0  0.2  1452  548 pts/4    D    10:40   0:00 umount /dev/md0
-root      1634  0.0  0.2  1452  548 pts/6    D    10:45   0:00 umount /dev/md0
-
-I'd appreciate any help.  Thank you.
-
-Jasmeet.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271034AbTGPSNx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271031AbTGPSL4
+	id S270977AbTGPSQA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTGPSPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:11:56 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:22406 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S271034AbTGPSKT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:10:19 -0400
-Date: Wed, 16 Jul 2003 14:27:52 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1 - CRC errors on floppy block the whole system
-In-Reply-To: <200307162159.16021.arvidjaar@mail.ru>
-Message-ID: <Pine.LNX.4.53.0307161415210.29886@chaos>
-References: <200307162159.16021.arvidjaar@mail.ru>
+	Wed, 16 Jul 2003 14:15:54 -0400
+Received: from gate.crashing.org ([63.228.1.57]:52682 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S270977AbTGPSPj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:15:39 -0400
+Date: Wed, 16 Jul 2003 13:28:04 -0500 (CDT)
+From: <ajoshi@kernel.crashing.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb 0.1.9 against 2.4.21pre2 (fwd)
+In-Reply-To: <Pine.LNX.4.55L.0307161514050.12905@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10307161326280.22306-100000@gate.crashing.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jul 2003, Andrey Borzenkov wrote:
-
-> Under KDE I went into floppy and made rm *. After this keyboard was lost -
-> even CAPS LED did not respond to keypress. I stil could use mouse to start
-> new windows and even execute some commands by copy'n'paste from available
-> text :)
->
-> Attempt to exit KDE ended in black screen. I had to press reset; after that
-> the following text was found in syslog (slightly abridged, it had much more
-> those "floppy driver state"s).
->
-> Floppies are not that robust, everyone knows it. It is rather unfriendly to
-> handle media errors in such manner :)
-[SNIPPED...]
-
-Yes. You should see how it handles a SCSI disk error!
-
-A media error when running `badblocks` on Linux Version 2.6.0 results
-in the same misbehavior with a BusLogic controller.
-
-I tried to boot, it came up but encountered some kind of disk
-error. I tried to run `badblocks` on an unmounted partition
-that reported zillions of errors during the normal e2fsck check
-upon startup.
-
-I booted several times with `init=/bin/bash`. Most times it would
-panic with 'trying to kill init' errors. One time I was able to
-get it up and I attempted to run badblocks. --Impossible... It
-thinks everything is bad and badblocks doesn't help by re-reading
-bad blocks. The SCSI system takes 1 minute to reset after a bad
-block. I gave up around noon after trying since 8:00 in the AM.
-Because of the re-read by badblocks, it's possible that there
-may be only one bad block that it never gets past!
-
-With 2.4.20, badblocks reports no errors and e2fsck was able to
-rebuild all partitions trashed by version 2.6.0.
-
-If anybody has a Buslogic driver fix, I'll be happy to try it.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.3% of all statistics are fiction.
+Haha, ok this is geting ridiculous, it seems the childish games are still
+being played.  I don't have time for this, Ben you can find a maintainer
+for the driver or do it yourself.
+
+
+On Wed, 16 Jul 2003, Marcelo Tosatti wrote:
+
+> 
+> On Wed, 16 Jul 2003 ajoshi@kernel.crashing.org wrote:
+> 
+> >
+> >
+> > Many of these have already been addressed in 0.1.9,
+> 
+> He is talking about 0.1.9. The issues he complained about are present in
+> 0.1.9. I havent read one line of code, but I know him enough to know he's
+> has no reason to lie or come up with non-existant bugs.
+> 
+> Please resend me a patch when you really have addressed the issues
+> Benjamin pointed out (0.1.10 or whatever).
+> 
+> For now I'll stick to 0.1.8 + his fixes.
+> 
+> > though I added the usage of the native clock, assertion for it, the dvi
+> > blanking, and the nolcd passthrough.  For things like the updated PM
+> > code, a patch would be helpful.
+> 
 

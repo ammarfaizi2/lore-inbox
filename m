@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262592AbSJBUKp>; Wed, 2 Oct 2002 16:10:45 -0400
+	id <S262589AbSJBUGR>; Wed, 2 Oct 2002 16:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262596AbSJBUKp>; Wed, 2 Oct 2002 16:10:45 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:17939 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262592AbSJBUKn>; Wed, 2 Oct 2002 16:10:43 -0400
-Message-Id: <200210022011.g92KBIp31857@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: lk maintainers
-Date: Wed, 2 Oct 2002 23:05:12 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10210011021160.3976-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10210011021160.3976-100000@master.linux-ide.org>
+	id <S262590AbSJBUGR>; Wed, 2 Oct 2002 16:06:17 -0400
+Received: from 62-190-217-232.pdu.pipex.net ([62.190.217.232]:38156 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262589AbSJBUGP>; Wed, 2 Oct 2002 16:06:15 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210022019.g92KJSNr001989@darkstar.example.net>
+Subject: Re: your mail
+To: peloquin@us.ibm.com (Mark Peloquin)
+Date: Wed, 2 Oct 2002 21:19:28 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <OF527144DA.FA032B8F-ON85256C46.0065456B@pok.ibm.com> from "Mark Peloquin" at Oct 02, 2002 02:58:25 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 October 2002 15:23, Andre Hedrick wrote:
-> On Tue, 1 Oct 2002, Denis Vlasenko wrote:
-> > Andre Hedrick <andre@linux-ide.org> [09 apr 2002]
->
-> -> 	ATA/ATAPI Storage Architect [2.0,2.2,2.4]
-> +>	ATA/ATAPI Storage Architect [2.0,2.2,2.4,2.5]
->
-> > 	HBA interface developer
-> > 	Serial ATA Architect [future release]
-> > 	Voting NCITS member AT-Attachment Committee
->
-> -> Martin Dalecki <martin@dalecki.de> [11 mar 2002]
-> -> 	IDE subsystem maintainer for 2.5
-> -> 	(mail Vojtech Pavlik <vojtech@suse.cz> too)
->
-> Denis, I asked you offline to make the correction.  Can you do it now?
+> On Wed, 2002-10-02 at 17:09, Alan Cox wrote:
+> > Look at history - if such a mess got in, it would never get sorted.
+> 
+> Instead of throwing around vague statements with little
+> context like "compost heap" and "such a mess", why don't
+> you spell out the specific design points of EVMS that you
+> disagree with. The advantages and disadvantages of
+> each point can then be discussed.
 
-Noted. Your new entry:
+Yeah, but he is right in any case - look how the IDE mess of 2.5.x, which, frankly, I don't believe was ever as bad as people seem to be saying it was, has put people off testing 2.5.x.  Instead they are waiting for Linus to type
 
-Andre Hedrick <andre@linux-ide.org> [02 oct 2002]
-	ATA/ATAPI Storage Architect [2.0,2.2,2.4,2.5]
-	HBA interface developer
-	Serial ATA Architect [future release]
-	Voting NCITS member AT-Attachment Committee
+mv linux-2.5.x linux-2.6.0
 
-As to Martin's one, I prefer updating entries based on entry owner's comments.
---
-vda
+at which point they think that all remaining bugs will auto-magically correct themselves and the tree is one again safe to use.  WRONG answer!
+
+Simply from the point of view of not wanting to 'scare off' people from a whole tree, (which is so rediculous, I think I'll go and patent it), and as a result get less testing, we're better off trying to stop weirdness from getting in.
+
+John.
+

@@ -1,110 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbTKCVxx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:53:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTKCVxu
+	id S263434AbTKCVz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 16:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263454AbTKCVz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:53:50 -0500
-Received: from mail02.agrinet.ch ([81.221.250.51]:49417 "EHLO
-	mail02.agrinet.ch") by vger.kernel.org with ESMTP id S263427AbTKCVxn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:53:43 -0500
-From: Erwin Telser <erwin.telser@pop.agri.ch>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Responsiveness of 2.6.0-Test9
-Date: Mon, 3 Nov 2003 23:53:16 +0000
-User-Agent: KMail/1.5.4
-References: <200311022345.08192.erwin.telser@pop.agri.ch> <3FA5DD01.1070109@cyberone.com.au>
-In-Reply-To: <3FA5DD01.1070109@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 3 Nov 2003 16:55:28 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:45211 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263434AbTKCVzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 16:55:20 -0500
+Subject: Re: Re:No backlight control on PowerBook G4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Daniel Egger <degger@fhm.edu>
+Cc: Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1067878624.7695.15.camel@sonja>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
+	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
+Content-Type: text/plain
+Message-Id: <1067896476.692.36.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 04 Nov 2003 08:54:36 +1100
 Content-Transfer-Encoding: 7bit
-Message-Id: <200311032353.16570.erwin.telser@pop.agri.ch>
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Erwin Telser wrote:
-> >Are there things to observe when switching from 2.4 to 2.6, if I want the
-> > same responsiveness? I'm asking because I' ve made the following
-> > observation. (I always had the feeling, 2.4 seems to faster, but this is
-> > the first time it' s very obvious)
-> >
-> >I' ve connected two monitors on a Matrox G550. One runs with DRI the other
-> > one doesn't (not possible with the current driver). The Monitor with DRI
-> > I'm using as a TV Set, watching movies with xawtv. (With a bttv 878 tuner
-> > card).
-> >
-> >Now with the 2.4.22 kernel (preemptible patch aplied) I can play the
-> > little game kbounce on the other monitor, without to notice any slowdown,
-> > no matter, whether xawtv is running or not.
-> >
-> >But with the 2.6 Kernel (compiled with preemptible option) the bouncing
-> > balls slow down considerably, as soon as I move the mouse.
-> >
-> >I know the whole thing is a little foolish. But anyway, are there some
-> > tricks to get the same responsiveness?
->
-> Hi,
-> Your report is not foolish at all ;)
-> Please make sure your X process is at default static priority, 0.
-> Report back if you are still having problems. What sort of processor
-> do you have? Is your 2.6 video driver running with the same sort of
-> acceleration as your 2.4 one (do you get the same frame rate in glxgears)?
+> Interesting, will try. I've a whole bunch of more pressing problems with
+> my new baby, though. X is completely broken, no matter which X modelines
+> I configure I get nothing but sizzle on the screen, it seems that the
+> mode setup for the LVDS with the 9600 Mobility is bork.
 
-I installed X from scratch and didn't edit any start script. so I assume, that 
-it runs with priority 0. The processor is an Intel P4 2000MHz in an ASUS 
-P4B266 Board. If I compare the frames per second with glxgears there is a 
-slight advantage for 2.4
+It works with up to date stuffs. That is my latest 2.6 tree with
+radeonfb and XFree from CVS. Part of the problem is that the firmware
+sets up a tiled display. I updated my radeonfb to "clear" the
+various SURFACE_* translation registers (among other fixes).
 
-2.4: 
-with DRI 358 - 364
-without DRI 181 - 198
+> The clock scaling of the CPU also doesn't work; interestingly at 867 MHz
+> it's not much faster the my old Ti PB 500 in dnetc RC-5 though the
+> overall system has a lot faster design.
 
-2.6
-with DRI 350 - 362
-without DRI 180 - 187
+Yup. I need to figure that out. It's possible that it does like a G5,
+that is boot full speed when you auto-boot and low speed when you boot
+via OF user interface. There may be need for some thermal control as
+well.
 
-An even better way to show the differenze between 2.4 and 2.6 is to change the 
-size of the xawtv window. If I do that, the slowdown is quite significant. 
-But it happens only with xawtv. If I do the same with konqueror or MPlayer, 
-nothing happens. A very strange thing are the values I get from ksysguard
+> Also I cannot boot it automatically from network because holding down N
+> at bootup will not pick up a DHCP address, so I have to type quite a bit
+> in OF. :(
 
-Kernel 2.4, glxgears
-user load: 3% - 4%
-system load: 95%
-IRQ per second: ~100
+The "N" thing is normal. Apple hacked so that only DHCP servers which
+know about some special Apple extensions can be used when doing that.
 
-Kernel 2.6, glxgears
-user load: 15%
-system load: 85%
-IRQ per second: ~1100 
+The easy work around is to use the syntax:
 
-Kernel 2.4, xawtv
-user load: 2%
-system load: 0%
-IRQ per second: ~100
+enet:x.x.x.x,file
 
-Kernel 2.6, xawtv
-user load: 9%
-system load: 0%
-IRQ per second: ~1060 
+where x.x.x.x is the IP address of the TFTP server and file is the
+filename. With that in boot-device (or typing boot enet: etc....),
+the machine will obtain it's local IP from any DHCP or BOOTP server and
+will then TFTP from the specified host.
 
-Kernel 2.4, MPlayer
-user load: 35%
-system load: 2%
-IRQ per second: ~1170
+Ben.
 
-Kernel 2.6, MPlayer
-user load: 42%
-system load: 2%
-IRQ per second: ~2130
-
-Something is causing a high IRQ load with kernel 2.6. Probably an APIC 
-problem?
-
-Erwin
 

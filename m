@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTGOK65 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 06:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbTGOK65
+	id S267140AbTGOK5C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 06:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267166AbTGOK5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 06:58:57 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:11921 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262123AbTGOK64 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 06:58:56 -0400
-Date: Tue, 15 Jul 2003 13:13:40 +0200 (MEST)
-Message-Id: <200307151113.h6FBDelt011162@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: marcelo@conectiva.com.br
-Subject: [PATCH][2.4.22-pre6] clean crc temp files in lib/
-Cc: linux-kernel@vger.kernel.org
+	Tue, 15 Jul 2003 06:57:02 -0400
+Received: from dynast.gaugusch.at ([195.202.144.152]:27532 "EHLO
+	dynast.gaugusch.at") by vger.kernel.org with ESMTP id S267140AbTGOK5A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 06:57:00 -0400
+Date: Tue, 15 Jul 2003 13:11:09 +0200 (CEST)
+From: Markus Gaugusch <markus@gaugusch.at>
+To: Pavel Machek <pavel@suse.cz>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
+ enhancements
+In-Reply-To: <20030715100842.GB3279@zaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.53.0307151305270.30306@dynast.gaugusch.at>
+References: <20030713133517.GD19132@mail.jlokier.co.uk> <20030713193114.GD570@elf.ucw.cz>
+ <1058130071.1829.2.camel@laptop-linux> <20030713210934.GK570@elf.ucw.cz>
+ <1058147684.2400.9.camel@laptop-linux> <20030714201245.GC24964@ucw.cz>
+ <20030714201804.GF902@elf.ucw.cz> <20030714204143.GA25731@ucw.cz>
+ <20030714230219.GB11283@elf.ucw.cz> <20030715063612.GB27368@ucw.cz>
+ <20030715100842.GB3279@zaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A 2.4.22-pre kernel build leaves two temp files in lib/,
-crc32table.h and gen_crc32table, that mrproper doesn't remove.
-This is ugly. Fixed in the patch below.
+On Jul 15, Pavel Machek <pavel@suse.cz> wrote:
+> ... and so I believe right thing is to make magic sysrq combination for
+> aborting suspend...
+Pavel,
+SWSusp is mainly useful for desktop users. Although there may be cases
+where it is enabled on production machines, it should be aimed at desktop
+users as much as possible. The features to toggle reboot and abort suspend
+are really, really cool. And combining them with sysrq would just make
+them very very ugly. Someone mentioned the Gnome2 disaster, and I can only
+second that. Configurability IS important. And it should be easy as well
+(/proc is easy enough, good people or distributors can write a script and
+provide it to end users, etc.).
+To make the abort of swsusp configurable is the best compromise you can
+have, IMHO. I don't know why you are so stubborn and don't try to see the
+'normal' people (I'm not one of those, but I'm trying to understand!!).
 
-/Mikael
+Markus
 
---- linux-2.4.22-pre6/Makefile.~1~	2003-07-15 12:10:10.000000000 +0200
-+++ linux-2.4.22-pre6/Makefile	2003-07-15 12:32:09.000000000 +0200
-@@ -230,6 +230,7 @@
- # files removed with 'make mrproper'
- MRPROPER_FILES = \
- 	include/linux/autoconf.h include/linux/version.h \
-+	lib/crc32table.h lib/gen_crc32table \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk1200,afsk2666,fsk9600}.h \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{hapn4800,psk4800}.h \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk2400_7,afsk2400_8}.h \
+-- 
+__________________    /"\
+Markus Gaugusch       \ /    ASCII Ribbon Campaign
+markus@gaugusch.at     X     Against HTML Mail
+                      / \

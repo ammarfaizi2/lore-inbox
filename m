@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315293AbSEHVre>; Wed, 8 May 2002 17:47:34 -0400
+	id <S315332AbSEHVyt>; Wed, 8 May 2002 17:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315296AbSEHVrd>; Wed, 8 May 2002 17:47:33 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:65266 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315293AbSEHVrd>; Wed, 8 May 2002 17:47:33 -0400
-Date: Wed, 8 May 2002 23:42:37 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: linux-dev@micro-solutions.com, <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] remove an unused variable from bpck6.c
-Message-ID: <Pine.NEB.4.44.0205082338100.19321-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S315357AbSEHVys>; Wed, 8 May 2002 17:54:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6148 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315332AbSEHVyr>; Wed, 8 May 2002 17:54:47 -0400
+Subject: Re: [PATCH] 2.5.14 IDE 56
+To: andersen@codepoet.org
+Date: Wed, 8 May 2002 23:14:17 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20020508211633.GA24938@codepoet.org> from "Erik Andersen" at May 08, 2002 03:16:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E175ZhR-0002Uu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> That suggests to me that IDE floppy needs to be fixed to open
+> even when no media is present when provided with the  O_NONBLOCK
+> flag, which would be consistant with how CDROMs, and everything
+> SCSI works.
+> 
+> As for ide-scsi, I thought that was going to go away?  
 
-compiling bpck6.c gives the following warning:
-
-<--  snip  -->
-
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-full/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.4/i
-nclude -DKBUILD_BASENAME=bpck6  -c -o bpck6.o bpck6.c
-bpck6.c: In function `bpck6_init_proto':
-bpck6.c:228: warning: unused variable `i'
-...
-
-<--  snip  -->
-
-And the compiler is right, this variable isn't used anywhere. The
-following patch (made against 2.4.19-pre8-ac1 but it applies to all 2.4
-and 2.5 kernels) removes this variable:
-
---- drivers/block/paride/bpck6.c.old	Wed May  8 23:40:18 2002
-+++ drivers/block/paride/bpck6.c	Wed May  8 23:41:21 2002
-@@ -225,8 +225,6 @@
-
- static void bpck6_init_proto(PIA *pi)
- {
--	int i;
--
- 	/* allocate a state structure for this item */
- 	pi->privptr=kmalloc(sizeof(PPC_STORAGE),GFP_KERNEL);
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+If we move to a more general device tree and you can set the mode you wish
+to use when accessing the device it can do. Right now the "mode" so to
+speak is implied by the file you open rather than by how you send it
+commands and what you ask it to do

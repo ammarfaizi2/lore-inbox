@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbUC3Lkn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 06:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbUC3Lkm
+	id S263822AbUC3Lke (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 06:40:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUC3Lke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 06:40:42 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:465 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263823AbUC3Lkk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 06:40:40 -0500
-Date: Tue, 30 Mar 2004 13:40:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kurt Garloff <garloff@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] speed up SATA
-Message-ID: <20040330114038.GT24370@suse.de>
-References: <20040328175436.GL24370@suse.de> <20040328180809.GB1087@mail.shareable.org> <20040328181502.GO24370@suse.de> <40671FAF.6080501@pobox.com> <20040329080943.GR24370@suse.de> <20040329124147.GC4984@mail.shareable.org> <20040329124421.GB24370@suse.de> <1080565536.3570.4.camel@laptop.fenrus.com> <20040329130850.GD24370@suse.de> <20040330081301.GA3820@tpkurt.garloff.de>
+	Tue, 30 Mar 2004 06:40:34 -0500
+Received: from lmfilto02.st1.spray.net ([212.78.202.66]:37071 "EHLO
+	lmfilto02.st1.spray.net") by vger.kernel.org with ESMTP
+	id S263822AbUC3Lk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 06:40:26 -0500
+From: "AHMED JAMAL BENNIS " <morriso1@caramail.com>
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <1080646823005953@lycos-europe.com>
+X-Mailer: LycosMail 
+X-Originating-IP: [193.190.125.10]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040330081301.GA3820@tpkurt.garloff.de>
+Subject: Re: Re : - ---- - - - - -
+Date: Tue, 30 Mar 2004 11:40:23 GMT 
+Content-Type: multipart/mixed; boundary="=_NextPart_Lycos_0059531080646823_ID"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30 2004, Kurt Garloff wrote:
-> On Mon, Mar 29, 2004 at 03:08:50PM +0200, Jens Axboe wrote:
-> > Indeed, it would be best to keep the read-ahead window at least a
-> > multiple of the max read size. So you don't get the nasty effects of
-> > having a 128k read-ahead window, but device with 255 sector limit
-> > resulting in 124KB + 4KB read.
-> 
-> Any work underway to implement this?
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-It would be a few lines of code to implement this - see the other patch
-I just sent. You just need to adjust backing_dev_info.ra_pages based on
-->max_sectors, if you use the current kernels.
+--=_NextPart_Lycos_0059531080646823_ID
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
--- 
-Jens Axboe
+ La prochaine fois tu m'envoie un mail pareil je te bute.
+connard
+
+------- Message original ------- 
+De: Bertrand Ranoulieu <linux-kernel@vger.kernel.org> 
+Date: Wed, 24 Mar 2004 15:05:05 +0100 
+Sujet: Re : - ---- - - - - - 
+
+C'est bien ce que je pensais pour les élections, les 
+gens se sont retournés vers la gauche après les avoir
+foutu dehors y'a 2 ans à coup de pied au Q...
+
+Mais bon que veux tu, d'un côté ils ont la mémoire
+courte et semblent oublier toutes les magouilles et
+scandales du PS, et de l'autre ils ont mis au pouvoir
+y'a 2 ans les pires voleurs que la France ait connu.
+J'irai même jusqu'à te dire que Jacouille CHICHI est
+un dictateur !
+
+Je n'arrive pas comprendre comment les gens peuvent
+encore voter pour ceux qui ont mis la France en quasi
+dernière position économique en Europe.
+
+On est devenu la lanterne rouge en tant
+qu'implantation de l'islam en Europe. Maintenant faut
+pas s'étonner qu'ils construisent des mosquées à tout
+bout de champ pour ces gens qui ne sont là que pour
+profiter de la sécu.
+Bref a+
+Bertrand
+ - ---- - - - - -
+
+C est le moment de dynamiser votre boîte mail en découvrant les offres CaraMail Premium - http://www.caramailmax.com
+
+
+--=_NextPart_Lycos_0059531080646823_ID--
 

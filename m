@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbTCGIEX>; Fri, 7 Mar 2003 03:04:23 -0500
+	id <S261447AbTCGIFQ>; Fri, 7 Mar 2003 03:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261441AbTCGIEX>; Fri, 7 Mar 2003 03:04:23 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:49423 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S261426AbTCGIEW>; Fri, 7 Mar 2003 03:04:22 -0500
-To: alan@redhat.com
-Cc: rth@twiddle.net, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix vmlinux.lds.S on alpha
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 07 Mar 2003 09:13:36 +0100
-Message-ID: <wrpr89j61cf.fsf@hina.wild-wind.fr.eu.org>
+	id <S261443AbTCGIFO>; Fri, 7 Mar 2003 03:05:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:42134 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261441AbTCGIFC>;
+	Fri, 7 Mar 2003 03:05:02 -0500
+Date: Fri, 7 Mar 2003 09:15:18 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <5.2.0.9.2.20030307085949.00ce8008@pop.gmx.net>
+Message-ID: <Pine.LNX.4.44.0303070913370.5173-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[A previous mail was sent without subject and wrong address... sorry
-about that]
 
-Alan, Richard,
+On Fri, 7 Mar 2003, Mike Galbraith wrote:
 
-The console initcall patch that went in contains a typo that prevents
-alpha from building. The included patch fixes it.
+> I can (could with your earlier patches anyway) eliminate the X stalls by
+> setting X junk to SCHED_FIFO.  I don't have ram to plug in, but I'm as
+> certain as I can be without actually doing so that it's not ram
+> shortage.
 
-Thanks,
+okay. Can you eliminate the X stalls with setting X priority to -10 or so
+(or SCHED_FIFO - although SCHED_FIFO is much more dangerous). And how does
+interactivity under the same load look like with vanilla .64, as compared
+to .64+combo? First step is to ensure that the new changes did not
+actually hurt interactivity.
 
-        M.
+	Ingo
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1045  -> 1.1046 
-#	arch/alpha/vmlinux.lds.S	1.19    -> 1.20   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/03/07	maz@hina.wild-wind.fr.eu.org	1.1046
-# Fix arch/alpha/vmlinux.lds.S typos.
-# --------------------------------------------
-#
-diff -Nru a/arch/alpha/vmlinux.lds.S b/arch/alpha/vmlinux.lds.S
---- a/arch/alpha/vmlinux.lds.S	Fri Mar  7 08:58:06 2003
-+++ b/arch/alpha/vmlinux.lds.S	Fri Mar  7 08:58:06 2003
-@@ -63,8 +63,8 @@
-   .init.ramfs : { *(.init.ramfs) }
-   __initramfs_end = .;
- 
--  . = ALIGN(8)
--  .con_initcall.init: {
-+  . = ALIGN(8);
-+  .con_initcall.init : {
- 	__con_initcall_start = .;
- 	*(.con_initcall.init)
- 	__con_initcall_end = .;
-
--- 
-Places change, faces change. Life is so very strange.

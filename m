@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVBSAbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVBSAlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVBSAbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 19:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVBSAaV
+	id S261596AbVBSAlj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 19:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVBSAlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 19:30:21 -0500
-Received: from neapel230.server4you.de ([217.172.187.230]:38319 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S261599AbVBSA3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 19:29:07 -0500
-Date: Sat, 19 Feb 2005 01:29:03 +0100
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [PATCH] add umask parameter to procfs
-Message-ID: <20050219002903.GA5380@lsrfire.ath.cx>
-References: <fa.h7bdq0l.im6ej1@ifi.uio.no> <fa.fep4kfp.gmci2d@ifi.uio.no> <E1D1yjD-00035Y-5u@be1.7eggert.dyndns.org> <20050218035601.GA21343@mail.13thfloor.at>
+	Fri, 18 Feb 2005 19:41:39 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:51765 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261596AbVBSAlU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 19:41:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=mKvvaqB2aZwTJuvQdHWomZyWZ3MhMW7mOpxfI67wPgqVdGzZpKF9nSsNOagShxR/wkeOrOqrZAzkj5erjvM7XLj9oEubPcGmKz2afmMmSAYzkiJkO0l8cLkoDK5chB+wwZGgqgebmx8lSiJzJZ2V2ntH9r3hpsrHc3ggVx0quJk=
+Message-ID: <d14685de050218164127828b06@mail.gmail.com>
+Date: Sat, 19 Feb 2005 01:41:19 +0100
+From: sylvanino b <sylvanino@gmail.com>
+Reply-To: sylvanino b <sylvanino@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: I wrote a kernel tool for monitoring / web page
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050218035601.GA21343@mail.13thfloor.at>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 04:56:01AM +0100, Herbert Poetzl wrote:
-> hmm, so what about debugger and similar not able to find the
-> parent process or something like that?
+Hi,
 
-You can walk the parentage chain up until you reach your login shell.
-So you can look up info about the parent of every one of your processes
-except for your login shell and any zombies.
+I wrote a kernel tool for my personnal usage which goal is to keep a
+record of recent task preemptions and interruptions that appears under
+linux. Although the record is short (a few minutes only), It can help
+to analyse scheduling algorithm efficiency and also driver timing
+issues. The user can access data from user-space, through proc
+filesystem and analyze it with a graphics tool.  Then, since it's also
+availlable within KDB, it can give clues and help for debugging.
 
-> I'd say this needs some more investigation what tools and
-> applications will break once it is enabled ...
+So far, the tool is not a big deal, but not trivial either. When It is
+running, the tool doesn't overload the system. And when it is not
+running, it's just transparent.
 
-Sure, that can't be bad.  I didn't really do anything so far that
-warrants being called testing (compiles, runs, doesn't crash on boot --
-send patch! ;).
+I did a webpage for it, you can check it out at:
+http://membres.lycos.fr/kernelanalyzer/
 
-But I also didn't invent this feature: it has been in OpenWall and
-grsecurity for a long time now, so a form of restricted /proc has
-received at least *some* testing.
+If you have any comment/critics, don't hesitate to share it
+Thanks,
 
-Rene
+Sylvain

@@ -1,106 +1,208 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbTKBSzm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 13:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTKBSzm
+	id S261773AbTKBSyU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 13:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTKBSyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 13:55:42 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:29191 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S261777AbTKBSzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 13:55:39 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: DervishD <raul@pleyades.net>
-Subject: Re: /dev/input/mice doesn't work in test9?
-Date: Sun, 2 Nov 2003 20:45:41 +0300
-User-Agent: KMail/1.5.3
-Cc: Shawn Willden <shawn-lkml@willden.org>, linux-kernel@vger.kernel.org
-References: <E1AFUFz-0008jt-00.arvidjaar-mail-ru@f20.mail.ru> <200311021312.15902.arvidjaar@mail.ru> <20031102120820.GC206@DervishD>
-In-Reply-To: <20031102120820.GC206@DervishD>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 13:54:20 -0500
+Received: from adsl-ull-75-87.42-151.net24.it ([151.42.87.75]:34052 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S261773AbTKBSyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 13:54:15 -0500
+Date: Sun, 2 Nov 2003 19:28:52 +0100
+From: Daniele Venzano <webvenza@libero.it>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sorceforge.net
+Subject: [PATCH] Add PM support to sis900 network driver
+Message-ID: <20031102182852.GC18017@picchio.gall.it>
+Mail-Followup-To: Patrick Mochel <mochel@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	acpi-devel@lists.sorceforge.net
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-Message-Id: <200311022045.41928.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 02 November 2003 15:08, DervishD wrote:
-[...]
->
-> > You have input built-in which means there is no reason for kernel
-> > to try autoload driver for char-13 as it is already available.
->
->     But not char-major-13-32, for example.
->
 
-for kernel device == major. It is assumed that complete major is handled by 
-single driver. In exception cases when there are different drivers either you 
-have one acting like dispatcher (input case) or one that simply requests more 
-specific driver (misc case). But again, mousedev is using range of minors and 
-there is currently no established way to construct aliases for that. Short of 
-defining
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-alias char-major-13-32 mousedev
-alias char-major-13-33 mousedev
-...
-alias char-major-13-63 mousedev
+The attached patch adds support for suspend/resume to the sis900 driver.
+With this patch on resume the NIC is fully configured and operational,
+before a module reload was needed because of the complete lack of
+suspend/resume callbacks.
 
-looks rather weird.
+I added two functions, sis900_suspend and sis900_resume, with their
+pointers in struct pci_driver. A vector of 16 u32 was then needed to the
+to keep PCI data during suspend. I added it in struct sis900_private.
+I updated the revision number to reflect my changes. 
+Looking at the code I also killed three typos.
 
-> > You may add explicit per-minor autoloading to input.c, see
-> > drivers/input/input.c:input_open_file()
->
->     But that code works with the 'input_table', and the
-> input_handlers. The handlers are registered by the modules when they
-> are already loaded. Do you mean that I should modify input_open_file
-> in order to autoload the appropriate module in the case of the
-> handler not being present? 
+The patch doesn't touch any other code.
 
-yes with the caveats above.
+Since I don't know anything on ethernet drivers the rule 'works for me'
+is fully valid.
 
-[...]
->
-> > If you are using hotplug, both should be loaded by hotplug. IMHO it is
-> > also the right way to go.
->
->     The problem is that hotplug doesn't work for me in this case. I
-> mean, with hotplug in *this particular case*, since the mouse is
-> always connected, the modules will be loaded on bootup and unloaded
-> on shutdown, not when the mouse device is opened and closed,
-> respectively.
->
+Please consider this patch for inclusion when the freeze is over, the
+sis900 driver is not updated since 2002 (looking at the changelog) and
+the email address listed in the MAINTAINERS file bounces.
 
-that is what coldplug is for. Hotplug comes with initscript that (if enabled) 
-looks for devices already connected and emulates "connect" event for them. I 
-use it between other things to load mousedev for PS/2 mouse that is always 
-connected ... but I am running 2.6 in the first place (it won't work on 2.4) 
-and modified hotplug package that supports input handlers. So when it finds 
-any driver for input devices it automatically loads input handler for events 
-generated by those devices.
+I'll try to keep the patch updated on new kernel releases at:
+http://teg.homeunix.org/kernel_patches.html
 
->     I've tested with hotplug (well, I don't have hotplug utilities
-> installed, just a shell script that tells me if someone is calling
-> /sbin/hotplug and logs the parameters), and /sbin/hotplug is not
-> called when I try to open /dev/mouse (c 13 32).
->
+Bye.
 
-of course not. It works differently. When you plug in USB mouse (or when 
-hotplug initscript emulates plugging in USB mouse) hotplug calls USB agent. 
-USB agent checks USB device ID and finds which modules to load. It is 
-possible that it finds several modules. One of them is hardcoded - it is 
-mousedev. Another one is hid that declares itself as driver for USB mouse. 
-That simple.
+-- 
+------------------------------
+Daniele Venzano
+Web: http://teg.homeunix.org
 
-[...]
->
->     Yes, I'm going to build in hid, but, should I do the same with
-> mousedev (or event, joystick, etc...) or will it work with hid loaded
-> when doing 'cat /dev/mouse'?
->
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sis900.diff"
 
-yes you should build it in. Or ensure it is loaded together with hid. 
+diff -Naur -X /home/venza/dontdiff linux-2.6.0-test9/drivers/net/sis900.c linux-2.6.0-test9-dv/drivers/net/sis900.c
+--- linux-2.6.0-test9/drivers/net/sis900.c	2003-09-28 15:26:42.000000000 +0200
++++ linux-2.6.0-test9-dv/drivers/net/sis900.c	2003-11-02 18:33:39.000000000 +0100
+@@ -18,10 +18,11 @@
+    preliminary Rev. 1.0 Jan. 18, 1998
+    http://www.sis.com.tw/support/databook.htm
+ 
++   Rev 1.08.07 Nov.  2 2003 Daniele Venzano <webvenza@libero.it> add suspend/resume support
+    Rev 1.08.06 Sep. 24 2002 Mufasa Yang bug fix for Tx timeout & add SiS963 support
+-   Rev 1.08.05 Jun. 6 2002 Mufasa Yang bug fix for read_eeprom & Tx descriptor over-boundary 
++   Rev 1.08.05 Jun.  6 2002 Mufasa Yang bug fix for read_eeprom & Tx descriptor over-boundary 
+    Rev 1.08.04 Apr. 25 2002 Mufasa Yang <mufasa@sis.com.tw> added SiS962 support
+-   Rev 1.08.03 Feb. 1 2002 Matt Domsch <Matt_Domsch@dell.com> update to use library crc32 function
++   Rev 1.08.03 Feb.  1 2002 Matt Domsch <Matt_Domsch@dell.com> update to use library crc32 function
+    Rev 1.08.02 Nov. 30 2001 Hui-Fen Hsu workaround for EDB & bug fix for dhcp problem
+    Rev 1.08.01 Aug. 25 2001 Hui-Fen Hsu update for 630ET & workaround for ICS1893 PHY
+    Rev 1.08.00 Jun. 11 2001 Hui-Fen Hsu workaround for RTL8201 PHY and some bug fix
+@@ -72,7 +73,7 @@
+ #include "sis900.h"
+ 
+ #define SIS900_MODULE_NAME "sis900"
+-#define SIS900_DRV_VERSION "v1.08.06 9/24/2002"
++#define SIS900_DRV_VERSION "v1.08.07 11/02/2003"
+ 
+ static char version[] __devinitdata =
+ KERN_INFO "sis900.c: " SIS900_DRV_VERSION "\n";
+@@ -169,6 +170,7 @@
+ 
+ 	unsigned int tx_full;			/* The Tx queue is full.    */
+ 	u8 host_bridge_rev;
++	u32 pci_state[16];
+ };
+ 
+ MODULE_AUTHOR("Jim Huang <cmhuang@sis.com.tw>, Ollie Lho <ollie@sis.com.tw>");
+@@ -305,7 +307,7 @@
+ 		*( ((u16 *)net_dev->dev_addr) + i) = inw(ioaddr + rfdr);
+ 	}
+ 
+-	/* enable packet filitering */
++	/* enable packet filtering */
+ 	outl(rfcrSave | RFEN, rfcr + ioaddr);
+ 
+ 	return 1;
+@@ -994,7 +996,7 @@
+ 		}
+ 	}
+ 
+-	/* enable packet filitering */
++	/* enable packet filtering */
+ 	outl(rfcrSave | RFEN, rfcr + ioaddr);
+ }
+ 
+@@ -1466,7 +1468,7 @@
+  *	@net_dev: the net device to transmit with
+  *
+  *	Set the transmit buffer descriptor, 
+- *	and write TxENA to enable transimt state machine.
++ *	and write TxENA to enable transmit state machine.
+  *	tell upper layer if the buffer is full
+  */
+ 
+@@ -2184,11 +2186,78 @@
+ 	pci_set_drvdata(pci_dev, NULL);
+ }
+ 
++#ifdef CONFIG_PM
++
++static int sis900_suspend(struct pci_dev *pci_dev, u32 state)
++{
++	struct net_device *net_dev = pci_get_drvdata(pci_dev);
++	struct sis900_private *sis_priv = net_dev->priv;
++	long ioaddr = net_dev->base_addr;
++	unsigned long flags;
++
++	if(!netif_running(net_dev))
++		return 0;
++	netif_stop_queue(net_dev);
++	
++	netif_device_detach(net_dev);
++	spin_lock_irqsave(&sis_priv->lock, flags);
++
++	/* Stop the chip's Tx and Rx Status Machine */
++	outl(RxDIS | TxDIS | inl(ioaddr + cr), ioaddr + cr);
++	
++	pci_set_power_state(pci_dev, 3);
++	pci_save_state(pci_dev, sis_priv->pci_state);
++
++	spin_unlock_irqrestore(&sis_priv->lock, flags);
++	return 0;
++}
++
++static int sis900_resume(struct pci_dev *pci_dev)
++{
++	struct net_device *net_dev = pci_get_drvdata(pci_dev);
++	struct sis900_private *sis_priv = net_dev->priv;
++	long ioaddr = net_dev->base_addr;
++
++	if(!netif_running(net_dev))
++		return 0;
++	pci_restore_state(pci_dev, sis_priv->pci_state);
++	pci_set_power_state(pci_dev, 0);
++
++//	/* Soft reset the chip */
++//	sis900_reset(net_dev);
++	sis900_init_rxfilter(net_dev);
++
++	sis900_init_tx_ring(net_dev);
++	sis900_init_rx_ring(net_dev);
++
++	set_rx_mode(net_dev);
++
++	netif_device_attach(net_dev);
++	netif_start_queue(net_dev);
++
++	/* Workaround for EDB */
++	sis900_set_mode(ioaddr, HW_SPEED_10_MBPS, FDX_CAPABLE_HALF_SELECTED);
++
++	/* Enable all known interrupts by setting the interrupt mask. */
++	outl((RxSOVR|RxORN|RxERR|RxOK|TxURN|TxERR|TxIDLE), ioaddr + imr);
++	outl(RxENA | inl(ioaddr + cr), ioaddr + cr);
++	outl(IE, ioaddr + ier);
++
++	sis900_check_mode(net_dev, sis_priv->mii);
++
++	return 0;
++}
++#endif /* CONFIG_PM */
++
+ static struct pci_driver sis900_pci_driver = {
+ 	.name		= SIS900_MODULE_NAME,
+ 	.id_table	= sis900_pci_tbl,
+ 	.probe		= sis900_probe,
+ 	.remove		= __devexit_p(sis900_remove),
++#ifdef CONFIG_PM
++	.suspend	= sis900_suspend,
++	.resume		= sis900_resume,
++#endif /* CONFIG_PM */
+ };
+ 
+ static int __init sis900_init_module(void)
 
--andrey
-
+--AqsLC8rIMeq19msA--

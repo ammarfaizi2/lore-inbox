@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbRFSVFa>; Tue, 19 Jun 2001 17:05:30 -0400
+	id <S264786AbRFSVJa>; Tue, 19 Jun 2001 17:09:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264786AbRFSVFK>; Tue, 19 Jun 2001 17:05:10 -0400
-Received: from ohiper1-219.apex.net ([209.250.47.234]:11533 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S264785AbRFSVFF>; Tue, 19 Jun 2001 17:05:05 -0400
-Date: Tue, 19 Jun 2001 16:04:56 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Tom Diehl <tdiehl@pil.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another?
-Message-ID: <20010619160456.A28721@hapablap.dyn.dhs.org>
-In-Reply-To: <E15CSDK-0006ee-00@the-village.bc.nu> <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S264789AbRFSVJU>; Tue, 19 Jun 2001 17:09:20 -0400
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:11019 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S264786AbRFSVJC>;
+	Tue, 19 Jun 2001 17:09:02 -0400
+Message-ID: <3B2FBF76.40993998@bigfoot.com>
+Date: Tue, 19 Jun 2001 15:09:10 -0600
+From: Dylan Griffiths <Dylan_G@bigfoot.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Still some problems with UHCI driver in 2.4.5 on VIA chipsets
+In-Reply-To: <3B2D446A.5C2AEEAC@bigfoot.com> <20010617200855.R9465@sventech.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain>; from tdiehl@pil.net on Tue, Jun 19, 2001 at 04:55:10PM -0400
-X-Uptime: 4:03pm  up 2 days, 22:29,  0 users,  load average: 1.19, 1.23, 1.26
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 04:55:10PM -0400, Tom Diehl wrote:
-> What is the best way to install the modules? Is there a directory _all_ of
-> the modules exist in b4 you do "make modules_install". I usually end up
-> setting EXTRAVERSION to something unique and doing a make modules_install.
-> That way it does not hose up the modules for the build machine.
-> Is there a better way?
+Johannes Erdfelt wrote:
+> Could you load uhci with the debug=1 option?
 
-Not anymore there isn't.  You'll just have to run make modules_install
-as 'INSTALL_MOD_DIR="/path/to/module" make modules_install'
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+I did an 'insmod uhci.o debug=1' but the dmesg output did not alter.
+
+My easy steps to reproduce it is to 'delete selected images' in gphoto such
+that there will be no images in the camera left when the operation is done. 
+At loast it doesn't lock up the camera like it used to :-/
+
+I think this may be a problem in the dc2xx.o then, since uhci didn't reveal
+any new messages.
+
+--
+    www.kuro5hin.org -- technology and culture, from the trenches.

@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278587AbRKHVcJ>; Thu, 8 Nov 2001 16:32:09 -0500
+	id <S278625AbRKHVh3>; Thu, 8 Nov 2001 16:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278579AbRKHVcB>; Thu, 8 Nov 2001 16:32:01 -0500
-Received: from mail02.zonnet.nl ([62.58.50.112]:65456 "HELO mail02.zonnet.nl")
-	by vger.kernel.org with SMTP id <S278591AbRKHVbs>;
-	Thu, 8 Nov 2001 16:31:48 -0500
-Message-ID: <002001c1689c$3e7dc020$3975a63e@berg>
-Reply-To: "Gorny" <gorny0@zonnet.nl>
-From: "Gorny" <gorny0@zonnet.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: little TCP checksum bug?
-Date: Thu, 8 Nov 2001 22:25:38 +0100
-Organization: -
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S278604AbRKHVhT>; Thu, 8 Nov 2001 16:37:19 -0500
+Received: from a59178.upc-a.chello.nl ([62.163.59.178]:24334 "EHLO
+	www.unternet.org") by vger.kernel.org with ESMTP id <S278579AbRKHVhI>;
+	Thu, 8 Nov 2001 16:37:08 -0500
+Date: Thu, 8 Nov 2001 22:35:30 +0100
+From: Frank de Lange <lkml-frank@unternet.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
+Message-ID: <20011108223530.C11523@unternet.org>
+In-Reply-To: <89FED3F0389@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <89FED3F0389@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Nov 08, 2001 at 10:24:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 08, 2001 at 10:24:05PM +0000, Petr Vandrovec wrote:
+> Journaling will not do anything good in such case, as damaged kernel
+> could write damaged data to your harddisk. You should run full fsck
+> after every such lockup even if you are using journaled filesystem -
+> - unless you are 100% sure that kernel really stoped doing anything
+> instead of that it started doing strange things.
 
-After playing with malicious TCP-packet I found out
-that in certain cases the kernel will reply with a wrong
-TCP-checksum set. This has only been tested against 2.2.19
-and 2.4.5!
+Hmmm, with ext3 that would not help you very much I think, given that the
+journal is replayed before the fsck is performed (fsck can replay a journal
+file). So if there's garbage in the journal, it might make its way into the
+filesystem. Or it might confuse fsck...
 
-root@krondor:/home/gorny/btk# tcpdump -vXi lo >> dump
-root@krondor:/home/gorny/btk# cat dump
-18:56:29.316097 128.0.0.1.4000 > localhost.8012: S [tcp sum ok]
-1732610923:1732610928(5) win 65535 (ttl 40, id 29204, len 45)
-0x0000   4500 002d 7214 0000 2806 21b5 8000 0001        E..-r...(.!.....
-0x0010   7f00 0001 0fa0 1f4c 6745 8b6b 0000 0000        .......LgE.k....
-0x0020   5002 ffff 3466 0000 7768 6f6f 74               P...4f..whoot
-18:56:29.316169 localhost.8012 > localhost.4000: R [bad tcp cksum 1!] 0:0(0)
-ack 1732610924 win 0 (ttl 255, id 72, len 40)
-0x0000   4500 0028 0048 0000 ff06 bd85 7f00 0001        E..(.H..........
-0x0010   7f00 0001 1f4c 0fa0 0000 0000 6745 8b6c        .....L......gE.l
-0x0020   5014 0000 8f30 0000                            P....0..
-[...]
+I use reiserfs on another disk in the same box, which does not suffer from the
+long fsck times, but does put a quite heavy load on the CPU during intense file
+operations. Simple tests with ext3 seem to indicate that it suffers less from
+this problem.
 
-I don't think this will become a big problem, while most
-people are running ipchains/iptables and/or some sort of
-IDS's so those packets won't come through.
-(Note that this has been tested on a standalone pc, while (of course)
-128.0.0.1 didn't exist and no firewall)
+> Probably it is time for me to try Linus's kernel, but I have so perfect 
+> exprience with Alan ones that I'm a bit reluctant to do that.
 
-If one want to test this behaviour you can download a little
-c-file (4 kB) from here: http://gorny.ath.cx/archive/strange/strange.c
+Yeah, same here. I decided to try a Linus kernel 'cause of some unexplained and
+unwarranted slowdowns - especially in interactive applications.
 
-Gorny
+With mixed results, the slowdowns seem to be gone but other problems appear
+(like the vmware hangs). I'm back to -ac for the moment (running 2.4.13-ac5,
+waiting for others to bend or break the IDE patches :-)
 
-"When I was a little kid, I had this dream where a snake would rule and
-dominate the entire world (actually, I guess that a penguin was also part of
-the dream... but never mind)" -- Python Develper's Handbook, Andre Lessa
-http://gorny.ath.cx
-
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]

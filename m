@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVC3RLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVC3RO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262346AbVC3RLh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 12:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVC3RLe
+	id S262349AbVC3RO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 12:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVC3RO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 12:11:34 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:56237 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262346AbVC3RLP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 12:11:15 -0500
-Message-Id: <200503301709.j2UH9WsA008556@laptop11.inf.utfsm.cl>
-To: "Jean Delvare" <khali@linux-fr.org>
-cc: vonbrand@inf.utfsm.cl, "Andrew Morton" <akpm@osdl.org>,
-       "Adrian Bunk" <bunk@stusta.de>, "LKML" <linux-kernel@vger.kernel.org>
-Subject: Re: Do not misuse Coverity please 
-In-Reply-To: Message from "Jean Delvare" <khali@linux-fr.org> 
-   of "Wed, 30 Mar 2005 09:53:03 +0200." <OofSaT76.1112169183.7124470.khali@localhost> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 30 Mar 2005 13:09:32 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 30 Mar 2005 13:09:35 -0400 (CLT)
+	Wed, 30 Mar 2005 12:14:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2467 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262349AbVC3ROu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 12:14:50 -0500
+Date: Wed, 30 Mar 2005 09:15:01 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.30-rc4
+Message-ID: <20050330121500.GA7390@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jean Delvare" <khali@linux-fr.org> said:
-> > > > No, there is a third case: the pointer can be NULL, but the compiler
-> > > > happened to move the dereference down to after the check.
+Hi,
 
-> > > Wow. Great point. I completely missed that possibility. In fact I didn't
-> > > know that the compiler could possibly alter the order of the
-> > > instructions. For one thing, I thought it was simply not allowed to. For
-> > > another, I didn't know that it had been made so aware that it could
-> > > actually figure out how to do this kind of things. What a mess. Let's
-> > > just hope that the gcc folks know their business :)
+Here goes -rc4 to fix a couple of regressions have been confirmed: 
 
-> > The compiler is most definitely /not/ allowed to change the results the
-> > code gives.
+- ext3 IO EH changes need more work
+- Netfilter bogus mc_list deletion
 
-> I think that Andrew's point was that the compiler could change the order
-> of the instructions *when this doesn't change the result*, not just in
-> the general case, of course. In our example, The instructions:
-> 
->     v = p->field;
->     if (!p) return;
-> 
-> can be seen as equivalent to
-> 
->     if (!p) return;
->     v = p->field;
+Hopefully this will become final in a day or two.
 
-They are not. If p == NULL, the first gives an exception (SIGSEGV), the
-second one doesn't. Just as you can't "optimize" by switching:
 
-    x = b / a;   
-    if (a == 0) return;
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Summary of changes from v2.4.30-rc3 to v2.4.30-rc4
+============================================
+
+Herbert Xu:
+  o [NETLINK] Fix bogus mc_list deletion
+
+Marcelo Tosatti:
+  o Cset exclude: hifumi.hisashi@lab.ntt.co.jp|ChangeSet|20050226095914|25750
+  o Change VERSION to 2.4.30-rc4
+
+Willy Tarreau:
+  o Keith Owens: modutils >= 2.4.14 is required for MODVERSIONS+EXPORT_SYMBOL_GPL() combination
+
+

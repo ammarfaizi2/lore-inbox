@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277228AbRJDU6d>; Thu, 4 Oct 2001 16:58:33 -0400
+	id <S277231AbRJDVEW>; Thu, 4 Oct 2001 17:04:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277226AbRJDU6N>; Thu, 4 Oct 2001 16:58:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54543 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277224AbRJDU5z>; Thu, 4 Oct 2001 16:57:55 -0400
-Subject: Re: Whining about 2.5 (was Re: [PATCH] Re: bug? in using generic read/write functions to read/write block devices in 2.4.11-pre2)
-To: landley@trommello.org
-Date: Thu, 4 Oct 2001 22:02:38 +0100 (BST)
-Cc: viro@math.psu.edu (Alexander Viro), hch@ns.caldera.de (Christoph Hellwig),
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <01100315551100.00728@localhost.localdomain> from "Rob Landley" at Oct 03, 2001 03:55:11 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S277229AbRJDVEN>; Thu, 4 Oct 2001 17:04:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:15052 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S277224AbRJDVD4>;
+	Thu, 4 Oct 2001 17:03:56 -0400
+Date: Thu, 4 Oct 2001 14:04:17 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Context switch times
+Message-ID: <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pFde-0004A3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> question, I know), which VM will it use?  I'm guessing Alan will still 
-> inherit the "stable" codebase, but the -ac and -linus trees are breaking new 
-> ground on divergence here.  Which tree becomes 2.4 once Alan inherits it?  
-> (Is this part of what's holding up 2.5?)
+I've been working on a rewrite of our Multi-Queue scheduler
+and am using the lat_ctx program of LMbench as a benchmark.
+I'm lucky enough to have access to an 8-CPU system for use
+during development.  One time, I 'accidently' booted the
+kernel that came with the distribution installed on this
+machine.  That kernel level is '2.2.16-22'.  The results of
+running lat-ctx on this kernel when compared to 2.4.10 really
+surprised me.  Here is an example:
 
-For the moment I plan to maintain the 2.4.*-ac tree. I don't know what will
-happen about 2.4 longer term - that is a Linus question. Looking at
-historical VM history I don't think we will eliminate enough "2.4.10+ oops
-on my box" and "on this load the VM sucks" cases from 2.4.10 to fairly 
-review Andrea's VM until Linus has done another 5 or 6 releases and the VM
-has been tuned, bugs removed and other oops cases proven not to be vm
-triggered.
+2.4.10 on 8 CPUs:  lat_ctx -s 0 -r 2 results
+"size=0k ovr=2.27
+2 3.86
 
-Alan
+2.2.16-22 on 8 CPUS:  lat_ctx -s 0 -r 2 results
+"size=0k ovr=1.99
+2 1.44
+
+As you can see, the context switch times for 2.4.10 are more
+than double what they were for 2.2.16-22 in this example.  
+
+Comments?
+
+One observation I did make is that this may be related to CPU
+affinity/cache warmth.  If you increase the number of 'TRIPS'
+to a very large number, you can run 'top' and observe per-CPU
+utilization.  On 2.2.16-22, the '2 task' benchmark seemed to
+stay on 3 of the 8 CPUs.  On 2.4.10, these 2 tasks were run
+on all 8 CPUs and utilization was about the same for each CPU.
+
+-- 
+Mike Kravetz                                  kravetz@us.ibm.com
+IBM Peace, Love and Linux Technology Center

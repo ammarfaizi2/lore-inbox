@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265602AbTFNGV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 02:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbTFNGV4
+	id S265628AbTFNHBM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 03:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265630AbTFNHBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 02:21:56 -0400
-Received: from ossipee.unh.edu ([132.177.137.39]:192 "EHLO ossipee.unh.edu")
-	by vger.kernel.org with ESMTP id S265602AbTFNGVz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 02:21:55 -0400
-Date: Sat, 14 Jun 2003 02:35:39 -0400
-From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [patch][2.5] speedstep_detect_speed might not reenable interrupts
-Message-ID: <20030614063539.GA508@bouh.unh.edu>
-Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
-Mail-Followup-To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i-nntp
-X-MailScanner-Information: http://pubpages.unh.edu/notes/mailfiltering.html
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8.7, required 5,
-	BAYES_01, PATCH_UNIFIED_DIFF, USER_AGENT_MUTT)
+	Sat, 14 Jun 2003 03:01:12 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:15887 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265628AbTFNHBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 03:01:11 -0400
+Date: Sat, 14 Jun 2003 03:03:44 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Subject: [PATCH][2.5] Add cachep->name to kmem_cache_destroy debug printk
+Message-ID: <Pine.LNX.4.50.0306140303080.31716-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+kmem_cache_destroy: Can't free all objects cbc7af30 (dcookie_cache)
 
-local_irq_save() is called at the beginning of speedstep_detect_speeds,
-but local_irq_restore() is not called on I/O errors.
+        I've been getting a number of these, perhaps it might be
+worthwhile adding the name too.
 
---- linux-2.5.70-bk12/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-05-26 21:00:20.000000000 -0400
-+++ linux-2.5.70-bk12-perso/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-06-14 02:23:34.000000000 -0400
-@@ -538,8 +538,10 @@
- 	for (i=0; i<2; i++) {
- 		/* read the current state */
- 		result = speedstep_get_state(&state);
--		if (result)
-+		if (result) {
-+			local_irq_restore(flags);
- 			return result;
-+		}
+Index: linux-2.5/mm/slab.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/mm/slab.c,v
+retrieving revision 1.88
+diff -u -p -B -r1.88 slab.c
+--- linux-2.5/mm/slab.c	11 Jun 2003 07:09:28 -0000	1.88
++++ linux-2.5/mm/slab.c	14 Jun 2003 05:35:25 -0000
+@@ -1319,8 +1319,8 @@ int kmem_cache_destroy (kmem_cache_t * c
+ 	up(&cache_chain_sem);
  
- 		/* save the correct value, and switch to other */
- 		if (state == SPEEDSTEP_LOW) {
+ 	if (__cache_shrink(cachep)) {
+-		printk(KERN_ERR "kmem_cache_destroy: Can't free all objects %p\n",
+-		       cachep);
++		printk(KERN_ERR "kmem_cache_destroy: Can't free all objects %p (%s)\n",
++		       cachep, cachep->name);
+ 		down(&cache_chain_sem);
+ 		list_add(&cachep->next,&cache_chain);
+ 		up(&cache_chain_sem);

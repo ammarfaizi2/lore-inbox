@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261746AbSJIBBV>; Tue, 8 Oct 2002 21:01:21 -0400
+	id <S261673AbSJIA7G>; Tue, 8 Oct 2002 20:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261740AbSJIBAO>; Tue, 8 Oct 2002 21:00:14 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:681 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261676AbSJIA7M>;
-	Tue, 8 Oct 2002 20:59:12 -0400
-Date: Tue, 8 Oct 2002 21:04:52 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Patrick Mochel <mochel@osdl.org>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] driver model update: device_unregister()
-In-Reply-To: <Pine.LNX.4.44.0210081757340.16276-100000@cherise.pdx.osdl.net>
-Message-ID: <Pine.GSO.4.21.0210082102440.5897-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261676AbSJIA5s>; Tue, 8 Oct 2002 20:57:48 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:57852 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261673AbSJIA5I>; Tue, 8 Oct 2002 20:57:08 -0400
+Date: Tue, 8 Oct 2002 21:02:49 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: neilb@cse.unsw.edu.au, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] silence an unnescessary raid5 debugging message
+Message-ID: <20021008210249.I15858@redhat.com>
+References: <20021008180350.A15858@redhat.com> <15779.27330.284336.914423@notabene.cse.unsw.edu.au> <20021008193612.H15858@redhat.com> <20021008.175116.22950725.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021008.175116.22950725.davem@redhat.com>; from davem@redhat.com on Tue, Oct 08, 2002 at 05:51:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 8 Oct 2002, Patrick Mochel wrote:
-
+On Tue, Oct 08, 2002 at 05:51:16PM -0700, David S. Miller wrote:
+>    From: Benjamin LaHaise <bcrl@redhat.com>
+>    Date: Tue, 8 Oct 2002 19:36:12 -0400
+>    
+>    As it stands, the syslogging from the printk does more damage to
+>    performance than the underlying problem.  Besides, LVM snapshots
+>    are slow, but they're useful for a class of problems anyways.
 > 
-> ChangeSet@1.600, 2002-10-08 17:32:17-07:00, mochel@osdl.org
->   IDE: call device_unregister() instead of put_device() in ide-disk->cleanup().
-> 
-> diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
-> --- a/drivers/ide/ide-disk.c	Tue Oct  8 17:55:17 2002
-> +++ b/drivers/ide/ide-disk.c	Tue Oct  8 17:55:17 2002
-> @@ -1692,7 +1692,7 @@
->  {
->  	struct gendisk *g = drive->disk;
->  
-> -	put_device(&drive->disk->disk_dev);
-> +	device_unregister(&drive->disk->disk_dev);
+> He's just saying kill the real problem first, that's all.
 
+I'm just saying that the message is the only real problem I have with 
+the state of 2.4.  Sure, 2.5 deserves it fixed correctly, but I doubt 
+the correct fix will make it into 2.4 anytime soon (it's far more 
+dangerous than we should consider shipping in a "stable" series).
 
-While you are at it, _please_, take it into ide_drive.  ->disk_dev is
-handled by parititions/check.c; please don't overload it.
-
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

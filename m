@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313162AbSEEQIY>; Sun, 5 May 2002 12:08:24 -0400
+	id <S313163AbSEEQLS>; Sun, 5 May 2002 12:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313163AbSEEQIX>; Sun, 5 May 2002 12:08:23 -0400
-Received: from ool-182c923d.dyn.optonline.net ([24.44.146.61]:7309 "EHLO
-	www.milanese.cc") by vger.kernel.org with ESMTP id <S313162AbSEEQIW>;
-	Sun, 5 May 2002 12:08:22 -0400
-Message-ID: <1020614971.3cd5593b0f908@www.milanese.cc>
-Date: Sun,  5 May 2002 12:09:31 -0400
-From: "Peter J. Milanese" <peterm@milanese.cc>
-To: Urban Widmark <urban@teststation.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMBfs / Unicode problem perhaps?
-In-Reply-To: <Pine.LNX.4.33.0205051720470.4444-100000@cola.enlightnet.local>
+	id <S313165AbSEEQLR>; Sun, 5 May 2002 12:11:17 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:3086 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S313163AbSEEQLQ>;
+	Sun, 5 May 2002 12:11:16 -0400
+Message-ID: <3CD549FC.4040406@evision-ventures.com>
+Date: Sun, 05 May 2002 17:04:28 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Neil Conway <nconway_kernel@yahoo.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH, IDE corruption, 2.4.18
+In-Reply-To: <Pine.SOL.4.30.0205051741140.23671-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bah...
-
-I did find some old libs on the box...
-
-I've cleaned that all up, and I'm currently compiling 2.2.4 to see how it goes.
-I will back it to 2.2.3a again (clean) if there's a problem with that, but the 
-notes don't say anything negative. I will go with the patch below IF it comes 
-to that, but I'd imagine the old libs were suspect.
-
-Thanks for openning my mind.... :)
-
-P
-
-
-Quoting Urban Widmark <urban@teststation.com>:
-
-> On Sun, 5 May 2002, Peter J. Milanese wrote:
-> 
-> > :\ - I am running 2.2.3a... I'll look at those messages and see if there is
-> a
-> > corelation. Thanks for the tip-
-> 
-> Are you sure your smbmount is 2.2.3a and that you don't have a mix of an
-> old 2.2.1a install? smbmount from 2.2.3a should not negotiate unicode
-> unless you told it to ...
-> 
-> You could also try the untested patch below that only enables it if you
-> also specify "codepage=unicode" as a mount option.
-> 
-> /Urban
+Uz.ytkownik Bartlomiej Zolnierkiewicz napisa?:
+>>Explanation: some code now differs in the code path concerned, and
+>>ide_register_subdriver now only calls ide_dma_check for UDMA drives
+>>(previously all DMA drives), but ultimately ide_dma_check still ends up
+>>in ide_config_drive_speed, and that's still fuctionally the same as
+>>2.4.
 > 
 > 
-> diff -urN -X exclude linux-2.5.13-kbuild-orig/fs/smbfs/proc.c
-> linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c
-> --- linux-2.5.13-kbuild-orig/fs/smbfs/proc.c	Fri May  3 02:22:42 2002
-> +++ linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c	Sun May  5 14:53:08 2002
-> @@ -979,7 +979,9 @@
->  		SB_of(server)->s_maxbytes = ~0ULL >> 1;
->  		VERBOSE("LFS enabled\n");
->  	}
-> -	if (server->opt.capabilities & SMB_CAP_UNICODE) {
-> +	if (server->opt.capabilities & SMB_CAP_UNICODE &&
-> +	    server->remote_nls == &unicode_table) {
-> +		/* Only enable unicode if the remote nls is also unicode */
->  		server->mnt->flags |= SMB_MOUNT_UNICODE;
->  		VERBOSE("Unicode enabled\n");
->  	} else {
+> You've got been mistaken by unfortunate name (Martin changed
+> name dmaproc() to udma() in 2.5.12).
+> Code calls ide_dma_check for chipsets which registerered udma()
+> handler (formerly dmaproc()), I think the same 2.4 does.
 > 
-> 
+> btw. udma() name is really misleading,
+>      it should be read (u)dma() not udma() :)
 
 
+It's just an intermediate step before this whole crap get's
+trown over ;-).
 

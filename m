@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266233AbTADGEI>; Sat, 4 Jan 2003 01:04:08 -0500
+	id <S266210AbTADGLz>; Sat, 4 Jan 2003 01:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266210AbTADGEI>; Sat, 4 Jan 2003 01:04:08 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:56311 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S266233AbTADGEH>;
-	Sat, 4 Jan 2003 01:04:07 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15894.31574.165631.578519@napali.hpl.hp.com>
-Date: Fri, 3 Jan 2003 22:12:38 -0800
-To: "Andrey Panin" <pazke@orbita1.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] irq handling code consolidation (common part)
-In-Reply-To: <20030104050356.GA10477@pazke>
-References: <20021224060331.GA1090@pazke>
-	<15892.34096.565694.402521@napali.hpl.hp.com>
-	<20030104050356.GA10477@pazke>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	id <S266271AbTADGLz>; Sat, 4 Jan 2003 01:11:55 -0500
+Received: from dp.samba.org ([66.70.73.150]:35284 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266210AbTADGLy>;
+	Sat, 4 Jan 2003 01:11:54 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org,
+       "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>
+Subject: Re: [RFC] Migrating net/sched to new module interface 
+In-reply-to: Your message of "03 Jan 2003 00:37:04 -0800."
+             <1041583024.8648.11.camel@rth.ninka.net> 
+Date: Sat, 04 Jan 2003 17:09:41 +1100
+Message-Id: <20030104062027.90D922C37B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sat, 4 Jan 2003 08:03:56 +0300, "Andrey Panin" <pazke@orbita1.ru> said:
+In message <1041583024.8648.11.camel@rth.ninka.net> you write:
+> On Thu, 2003-01-02 at 21:10, Rusty Russell wrote:
+> > Hmm, I thought the sched stuff all runs under the network brlock?  If
+> > so, it doesn't need to be held in, since it's not preemptible.
+> 
+> The packet schedulers transmit, not receive.
+> They have their own queue locking, along with the device
+> xmit lock.
 
-  Andrey> BTW: what is the state of ia64 port in stock 2.5 ?  It looks
-  Andrey> horribly borken :(
+Then the patch to mark the "owner" should be straightforward.  I
+haven't looked at kronos's patch in detail, though.
 
-You need the matching patch from
-ftp://ftp.kernel.org/pub/linux/kernel/ports/ia64/v2.5/
-
-	--david
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

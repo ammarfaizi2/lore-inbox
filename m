@@ -1,93 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVBOUVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVBOUYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVBOUVd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 15:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVBOUVd
+	id S261877AbVBOUYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 15:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVBOUVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 15:21:33 -0500
-Received: from mail.murom.net ([213.177.124.17]:26307 "EHLO ns1.murom.ru")
-	by vger.kernel.org with ESMTP id S261870AbVBOUNZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 15:13:25 -0500
-Date: Tue, 15 Feb 2005 23:13:18 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Pty is losing bytes
-Message-ID: <20050215201318.GA13756@sirius.home>
-References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org> <20050215225802.6321e9a8.vsu@altlinux.ru>
+	Tue, 15 Feb 2005 15:21:49 -0500
+Received: from host.atlantavirtual.com ([209.239.35.47]:61927 "EHLO
+	host.atlantavirtual.com") by vger.kernel.org with ESMTP
+	id S261879AbVBOUOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 15:14:06 -0500
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+From: kernel <kernel@crazytrain.com>
+Reply-To: kernel@crazytrain.com
+To: Stefan Seyfried <seife@suse.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Prakash Punnoor <prakashp@arcor.de>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <4212121B.807@suse.de>
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
+	 <20050211011609.GA27176@suse.de>
+	 <1108354011.25912.43.camel@krustophenia.net>
+	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
+	 <1108422240.28902.11.camel@krustophenia.net>
+	 <20050214231605.GA13969@suse.de>
+	 <1108423715.32293.2.camel@krustophenia.net>  <4212121B.807@suse.de>
+Content-Type: text/plain
+Message-Id: <1108498326.3866.57.camel@crazytrain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
-Content-Disposition: inline
-In-Reply-To: <20050215225802.6321e9a8.vsu@altlinux.ru>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 15 Feb 2005 15:12:07 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-02-15 at 10:15, Stefan Seyfried wrote:
+> You can boot a SUSE 9.2 with parallel init scripts (default AFAIR),
+> sequential init scripts and with a Makefile based solution. "Normal"
+> (not Makefile based) parallel booting is possible much longer on SUSE,
+> at least since 9.0 IIRC.
+> And guess what? "Parallel booting" alone, regardless of the mechanism
+> does not make much of a difference for the boot time.
+> 
 
---lrZ03NoBR/3+SXJZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My experience has been that hardware detection is what slows boot
+process.  I've tested on various distros, Red Hat Linux, Slackware
+Linux, SUSE, and Debian.
 
-On Tue, Feb 15, 2005 at 10:58:02PM +0300, Sergey Vlasov wrote:
-> On Tue, 15 Feb 2005 11:08:07 -0800 (PST) Linus Torvalds wrote:
->=20
-> > On Tue, 15 Feb 2005, Andreas Schwab wrote:
-> > >
-> > > Recent kernel are losing bytes on a pty.=20
-> >=20
-> > Great catch.
-> >=20
-> > I think it may be a n_tty line discipline bug, brought on by the fact t=
-hat
-> > the PTY buffering is now 4kB rather than 2kB. 4kB is also the
-> > N_TTY_BUF_SIZE, and if n_tty has some off-by-one error, that would expl=
-ain=20
-> > it.
-> >=20
-> > Does the problem go away if you change the default value of "chunk" (in=
-=20
-> > drivers/char/tty_io.c:do_tty_write) from 4096 to 2048? If so, that mean=
-s=20
-> > that the pty code has _claimed_ to have written 4kB, and only ever wrot=
-e=20
-> > 4kB-1 bytes. That in turn implies that "ldisc.receive_room()" disagrees=
-=20
-> > with "ldisc.receive_buf()".
->=20
-> The problem also goes away after unsetting ECHO on the slave terminal.
-> This seems to point to this code in n_tty_receive_char():
->=20
-> 	if (L_ECHO(tty)) {
-> 		if (tty->read_cnt >=3D N_TTY_BUF_SIZE-1) {
-> 			put_char('\a', tty); /* beep if no space */
-> 			return;
-> 		}
-> 	.......
-> 	}
->=20
-> This code sets the maximum number of buffered characters to
-> N_TTY_BUF_SIZE-1, however, put_tty_queue() considers the maximum to be
-> N_TTY_BUF_SIZE, and n_tty_receive_room() also returns N_TTY_BUF_SIZE for
-> canonical mode if the canon_data buffer is empty - therefore after
-> unsetting ECHO bytes are no longer lost.
+Starting services never seems to take any time (noticeable time).  But
+when it lands on detecting hardware, that's where the time is chewed. 
+Typically with hotplug (all using 2.4 kernels) it's about 30 seconds,
+which is the same as the rest of the boot process in my testing lab. 
+1394, USB, and PCMCIA seem to be the slowest (because when I remove
+these devices or turn off detection of these types boot time is *much*
+faster).
 
-But all this really is not important, because n_tty_receive_char() can
-put more than one char into buffer for a single input char in lots of
-cases.  Therefore n_tty_receive_room() can overestimate the available
-space at least by 2 times.
 
---lrZ03NoBR/3+SXJZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Two things that I believe should be addressed;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+1) Speeding up boot time (even if that means moving some hardware
+detection and recognition to after login)
 
-iD8DBQFCElfeW82GfkQfsqIRAqtyAJ4+YITDxm/+2WIMw2/2kSu/au3seQCdE3kc
-Pp3TASCkv5S3MHucqiXYgcU=
-=zJab
------END PGP SIGNATURE-----
+-and-
 
---lrZ03NoBR/3+SXJZ--
+2) Proper identification of filesystem types.  Would love to have an
+agreed upon by majority change that would change the mounting of
+filesystems (identifying FS TYPE) to be more accurate.  
+
+
+regards,
+
+-fd
+

@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVBYFDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVBYFHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVBYFDn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 00:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVBYFDn
+	id S262532AbVBYFHT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 00:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVBYFHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 00:03:43 -0500
-Received: from ozlabs.org ([203.10.76.45]:10660 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262520AbVBYFDU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 00:03:20 -0500
-Date: Fri, 25 Feb 2005 16:03:10 +1100
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Pavel Roskin <proski@gnu.org>,
-       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [Orinoco-devel] Re: [8/14] Orinoco driver updates - PCMCIA initialization cleanups
-Message-ID: <20050225050310.GF10725@localhost.localdomain>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Pavel Roskin <proski@gnu.org>,
-	Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20050224035445.GB32001@localhost.localdomain> <20050224035524.GC32001@localhost.localdomain> <20050224035650.GD32001@localhost.localdomain> <20050224035718.GE32001@localhost.localdomain> <20050224035804.GF32001@localhost.localdomain> <20050224035957.GH32001@localhost.localdomain> <20050224040024.GI32001@localhost.localdomain> <20050224040052.GJ32001@localhost.localdomain> <20050224065527.GA8931@isilmar.linta.de> <421D8241.9020608@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421D8241.9020608@pobox.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 25 Feb 2005 00:07:19 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:41439 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262532AbVBYFG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 00:06:57 -0500
+Message-ID: <421EB299.4010906@ak.jp.nec.com>
+Date: Fri, 25 Feb 2005 14:07:37 +0900
+From: Kaigai Kohei <kaigai@ak.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Jay Lan <jlan@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
+       tim@physik3.uni-rostock.de, erikj@subway.americas.sgi.com,
+       limin@dbear.engr.sgi.com, Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+References: <42168D9E.1010900@sgi.com> <20050218171610.757ba9c9.akpm@osdl.org> <421993A2.4020308@ak.jp.nec.com> <421B955A.9060000@sgi.com> <421C2B99.2040600@ak.jp.nec.com> <421CEC38.7010008@sgi.com>
+In-Reply-To: <421CEC38.7010008@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 02:29:05AM -0500, Jeff Garzik wrote:
-> Dominik Brodowski wrote:
-> >>@@ -184,6 +186,7 @@
-> >>	dev_list = link;
-> >>
-> >>	client_reg.dev_info = &dev_info;
-> >>+	client_reg.Attributes = INFO_IO_CLIENT | INFO_CARD_SHARE;
-> >
-> >
-> >That's not needed any longer for 2.6.
-> 
-> So who wants to send the incremental update patch?  :)
+Sorry for this late reply.
 
-Guess I will.  See below.
+ >> [1] Is it necessary 'fork/exec/exit' event handling framework ?
+    ...<ommited>...
+ >> Some process-aggregation model have own philosophy and implemantation,
+ >> so it's hard to integrate. Thus, I think that common 'fork/exec/exit'
+ >> event handling
+ >> framework to implement any kinds of process-aggregation.
+ >
+ >
+ > BSD needs an exit hook and ELSA needs a fork hook. I am still
+ > evaluating whether CSA can use the ELSA module. If CSA can use the
+ > ELSA module, CSA maybe would be fine with the fork hook.
 
-Any particular reason the field and associated constants haven't been
-exunged from the tree, since they're no longer used?
+If CSA can use an ELSA module, then we must modify the kernel-tree
+for ELSA's fork-connecter. This means it's hard to implement the fork/exec/exit
+event notification to userspace (,or any kernel module) without kernel-support.
+How CSA shoule be implemented is interesting and important, but should it be
+main subject in this discussion that such a kinds of kernel hook is necessary
+to implement process-accounting per process-aggregation reasonable ?
 
-The client_reg.Attributes field is no longer used.  Don't bother
-setting it.
+In my understanding, what Andrew Morton said is "If target functionality can
+implement in user space only, then we should not modify the kernel-tree".
+But, any kind of kernel support was required to handle process lifecycle events
+for the accounting per process-aggregation and so on, from our discussion.
 
-Signed-off-by: David Gibson <hermes@gibson.dropbear.id.au>
+I'm also opposed to an adhoc approach, like CSA depending on ELSA.
+We should walk hight road.
 
-Index: working-2.6/drivers/net/wireless/orinoco_cs.c
-===================================================================
---- working-2.6.orig/drivers/net/wireless/orinoco_cs.c	2005-02-25 15:47:53.098405968 +1100
-+++ working-2.6/drivers/net/wireless/orinoco_cs.c	2005-02-25 15:52:56.000000000 +1100
-@@ -186,7 +186,6 @@
- 	dev_list = link;
- 
- 	client_reg.dev_info = &dev_info;
--	client_reg.Attributes = INFO_IO_CLIENT | INFO_CARD_SHARE;
- 	client_reg.EventMask =
- 		CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
- 		CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
-
-
+Thanks,
 -- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
-				| _around_!
-http://www.ozlabs.org/people/dgibson
+Linux Promotion Center, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>

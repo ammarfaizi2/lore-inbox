@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130031AbQKNCf1>; Mon, 13 Nov 2000 21:35:27 -0500
+	id <S129412AbQKNClQ>; Mon, 13 Nov 2000 21:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129412AbQKNCfQ>; Mon, 13 Nov 2000 21:35:16 -0500
-Received: from f272.law3.hotmail.com ([209.185.240.50]:14098 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129543AbQKNCfE>;
-	Mon, 13 Nov 2000 21:35:04 -0500
-X-Originating-IP: [204.68.140.34]
-From: "jim M." <msg124@hotmail.com>
-To: redhat-install-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Xconfiguration problem
-Date: Tue, 14 Nov 2000 02:04:58 GMT
+	id <S129543AbQKNClG>; Mon, 13 Nov 2000 21:41:06 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:37135 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129412AbQKNCku>; Mon, 13 Nov 2000 21:40:50 -0500
+Date: Mon, 13 Nov 2000 18:10:43 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: initcalls in pre4?
+Message-ID: <20001113181043.C1820@twiddle.net>
+In-Reply-To: <3A0F815C.1EEDBFFA@mandrakesoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F272WtIIZS2TRqf69aZ00000293@hotmail.com>
-X-OriginalArrivalTime: 14 Nov 2000 02:04:58.0940 (UTC) FILETIME=[4A812FC0:01C04DDF]
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A0F815C.1EEDBFFA@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Nov 13, 2000 at 12:51:24AM -0500, Jeff Garzik wrote:
+> Alas...
+> 
+> --- include/linux/init.h        2000/10/30 19:37:38     1.1.1.5
+> +++ include/linux/init.h        2000/11/13 04:30:02     1.1.1.6
+> @@ -73,7 +73,7 @@
+> -#define __init         __attribute__ ((__section__ (".text.init")))
+> +#define __init         /* __attribute__ ((__section__ (".text.init")))
 
-I am trying to install the redhat 7.0 and I cam getting Xconfiguration 
-error. I have a ATI video card ,.... i am not sure what to do?.
+Arg!  This is my fault... -g does not give sensible line numbers on
+Alpha in mdebug format when code is outside of .text.  I thought I
+cropped it out of the patch I sent to Linus, but obviously not in
+the final version.
 
-J
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 
-Share information about yourself, create your own public profile at 
-http://profiles.msn.com.
-
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

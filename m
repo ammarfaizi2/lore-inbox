@@ -1,245 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265798AbUFXWEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUFXWCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265798AbUFXWEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 18:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUFXWEn
+	id S265776AbUFXWCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265793AbUFXVrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 18:04:43 -0400
-Received: from holomorphy.com ([207.189.100.168]:61580 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265808AbUFXV5Q (ORCPT
+	Thu, 24 Jun 2004 17:47:48 -0400
+Received: from cdc868fe.powerlandcomputers.com ([205.200.104.254]:13030 "EHLO
+	pl6w2kex.lan.powerlandcomputers.com") by vger.kernel.org with ESMTP
+	id S265772AbUFXVos convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:57:16 -0400
-Date: Thu, 24 Jun 2004 14:56:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andi Kleen <ak@muc.de>, Yusuf Goolamabbas <yusufg@outblaze.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: finish_task_switch high in profiles in 2.6.7
-Message-ID: <20040624215645.GN21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andi Kleen <ak@muc.de>, Yusuf Goolamabbas <yusufg@outblaze.com>,
-	linux-kernel@vger.kernel.org
-References: <2ayz2-1Um-15@gated-at.bofh.it> <m3n02tz203.fsf@averell.firstfloor.org> <20040624104416.GB8798@outblaze.com> <20040624113608.GA31080@colin2.muc.de> <20040624140539.GT1552@holomorphy.com> <20040624212248.GM21066@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-In-Reply-To: <20040624212248.GM21066@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 24 Jun 2004 17:44:48 -0400
+content-class: urn:content-classes:message
+Subject: RE: alienware hardware
+Date: Thu, 24 Jun 2004 16:42:33 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <18DFD6B776308241A200853F3F83D5072817@pl6w2kex.lan.powerlandcomputers.com>
+X-MS-Has-Attach: 
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+X-MS-TNEF-Correlator: 
+Thread-Topic: alienware hardware
+Thread-Index: AcRaMGsoDIcwraznR62p33NdcpPGowAAPMDA
+From: "Chad Kitching" <CKitching@powerlandcomputers.com>
+To: "Yaroslav Halchenko" <yoh@psychology.rutgers.edu>,
+       "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Have you tried booting with noapic, nolapic, noioapic and/or acpi=off? 
+Unfortunately since you compiled all your drivers into the kernel, 
+asking you to try without loading any of them won't work without a 
+recompile.
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Jun 24, 2004 at 02:22:48PM -0700, William Lee Irwin III wrote:
-> Brute-force port of schedprof to 2.6.7-final. Compiletested on sparc64
-> only. No runtime testing.
-> Given that the context switch rate is actually *reduced* in 2.6.7 vs.
-> 2.6.5, I expect that this will not, in fact, reveal anything useful.
-
-While I'm spraying out untested code, I might as well do these, which
-I've not even compiled. =)
-
-
--- wli
-
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Description: schedprof_mmap-2.6.7
-Content-Disposition: attachment; filename="schedprof_mmap-2.6.7"
-
-Index: schedprof-2.6.7/kernel/sched.c
-===================================================================
---- schedprof-2.6.7.orig/kernel/sched.c	2004-06-24 14:02:48.292038264 -0700
-+++ schedprof-2.6.7/kernel/sched.c	2004-06-24 14:39:50.035281952 -0700
-@@ -4063,7 +4063,7 @@
- 	if (schedprof_buf) {
- 		unsigned long pc = (unsigned long)__pc;
- 		pc -= min(pc, (unsigned long)_stext);
--		atomic_inc(&schedprof_buf[min(pc, schedprof_len)]);
-+		atomic_inc(&schedprof_buf[min(pc + 1, schedprof_len - 1)]);
- 	}
- }
- 
-@@ -4081,8 +4081,9 @@
- 	if (!sched_profiling)
- 		return;
- 	schedprof_len = (unsigned long)(_etext - _stext) + 1;
--	schedprof_buf = alloc_bootmem(schedprof_len*sizeof(atomic_t));
-+	schedprof_buf = alloc_bootmem(sizeof(atomic_t)*schedprof_len);
- 	printk(KERN_INFO "Scheduler call profiling enabled\n");
-+	schedprof_buf[0] = 1;
- }
- 
- #ifdef CONFIG_PROC_FS
-@@ -4092,38 +4093,59 @@
- read_sched_profile(struct file *file, char __user *buf, size_t count, loff_t *ppos)
- {
- 	unsigned long p = *ppos;
--	ssize_t read;
--	char * pnt;
- 	unsigned int sample_step = 1;
- 
--	if (p >= (schedprof_len+1)*sizeof(atomic_t))
-+	if (p >= sizeof(atomic_t)*schedprof_len)
- 		return 0;
--	if (count > (schedprof_len+1)*sizeof(atomic_t) - p)
--		count = (schedprof_len+1)*sizeof(atomic_t) - p;
--	read = 0;
--
--	while (p < sizeof(atomic_t) && count > 0) {
--		put_user(*((char *)(&sample_step)+p),buf);
--		buf++; p++; count--; read++;
--	}
--	pnt = (char *)schedprof_buf + p - sizeof(atomic_t);
--	if (copy_to_user(buf,(void *)pnt,count))
-+	count = min(schedprof_len*sizeof(atomic_t) - p, count);
-+	if (copy_to_user(buf, (char *)schedprof_buf + p, count))
- 		return -EFAULT;
--	read += count;
--	*ppos += read;
--	return read;
-+	*ppos += count;
-+	return count;
- }
- 
- static ssize_t write_sched_profile(struct file *file, const char __user *buf,
- 			     size_t count, loff_t *ppos)
- {
--	memset(schedprof_buf, 0, sizeof(atomic_t)*schedprof_len);
-+	memset(&schedprof_buf[1], 0, (schedprof_len-1)*sizeof(atomic_t));
- 	return count;
- }
- 
-+static int mmap_sched_profile(struct file *file, struct vm_area_struct *vma)
-+{
-+	unsigned long pfn, vaddr, base_pfn = __pa(schedprof_buf)/PAGE_SIZE;
-+	if (vma->vm_pgoff + vma_pages(vma) > schedprof_pages)
-+		return -ENODEV;
-+	vma->vm_flags |= VM_RESERVED|VM_IO;
-+	for (vaddr = vma->vm_start; vaddr < vma->vm_end; vaddr += PAGE_SIZE) {
-+		pgd_t *pgd = pgd_offset(vma->vm_mm, vaddr);
-+		pmd_t *pmd;
-+		pte_t *pte, pte_val;
-+
-+		spin_lock(&vma->vm_mm->page_table_lock);
-+		pmd = pmd_alloc(vma->vm_mm, pgd, vaddr);
-+		if (!pmd)
-+			goto enomem;
-+		pte = pte_alloc_map(vma->vm_mm, pmd, vaddr);
-+		if (!pte)
-+			goto enomem;
-+		pfn = base_pfn + linear_page_index(vma, vaddr);
-+		pte_val = pfn_pte(pfn, vma->vm_page_prot);
-+		set_pte(pte, pte_val);
-+		update_mmu_cache(vma, vaddr, pte_val);
-+		pte_unmap(pte);
-+		spin_unlock(&vma->vm_mm->page_table_lock);
-+	}
-+	return 0;
-+enomem:
-+	spin_unlock(&vma->vm_mm->page_table_lock);
-+	return -ENOMEM;
-+}
-+
- static struct file_operations sched_profile_operations = {
- 	.read		= read_sched_profile,
- 	.write		= write_sched_profile,
-+	.mmap		= mmap_sched_profile,
- };
- 
- static int proc_schedprof_init(void)
-@@ -4134,7 +4156,7 @@
- 	entry = create_proc_entry("schedprof", S_IWUSR | S_IRUGO, NULL);
- 	if (entry) {
- 		entry->proc_fops = &sched_profile_operations;
--		entry->size = sizeof(atomic_t)*(schedprof_len + 1);
-+		entry->size = sizeof(atomic_t)*schedprof_len;
- 	}
- 	return !!entry;
- }
-
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Description: schedprof_proc_init-2.6.7
-Content-Disposition: attachment; filename="schedprof_proc_init-2.6.7"
-
-Index: schedprof-2.6.7/kernel/sched.c
-===================================================================
---- schedprof-2.6.7.orig/kernel/sched.c	2004-06-24 14:39:50.035281952 -0700
-+++ schedprof-2.6.7/kernel/sched.c	2004-06-24 14:40:04.347106224 -0700
-@@ -4152,13 +4152,13 @@
- {
- 	struct proc_dir_entry *entry;
- 	if (!sched_profiling)
--		return 1;
-+		return 0;
- 	entry = create_proc_entry("schedprof", S_IWUSR | S_IRUGO, NULL);
- 	if (entry) {
- 		entry->proc_fops = &sched_profile_operations;
- 		entry->size = sizeof(atomic_t)*schedprof_len;
- 	}
--	return !!entry;
-+	return !entry;
- }
- module_init(proc_schedprof_init);
- #endif
-
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Description: schedprof_shift-2.6.7
-Content-Disposition: attachment; filename="schedprof_shift-2.6.7"
-
-Index: schedprof-2.6.7/kernel/sched.c
-===================================================================
---- schedprof-2.6.7.orig/kernel/sched.c	2004-06-24 14:40:04.347106224 -0700
-+++ schedprof-2.6.7/kernel/sched.c	2004-06-24 14:51:35.285067688 -0700
-@@ -4052,7 +4052,7 @@
- #endif /* defined(CONFIG_SMP) && defined(CONFIG_PREEMPT) */
- 
- static atomic_t *schedprof_buf;
--static int sched_profiling;
-+static int sched_profiling, schedprof_shift;
- static unsigned long schedprof_len;
- 
- #include <linux/bootmem.h>
-@@ -4062,11 +4062,22 @@
- {
- 	if (schedprof_buf) {
- 		unsigned long pc = (unsigned long)__pc;
--		pc -= min(pc, (unsigned long)_stext);
-+		pc = (pc - min(pc, (unsigned long)_stext)) >> schedprof_shift;
- 		atomic_inc(&schedprof_buf[min(pc + 1, schedprof_len - 1)]);
- 	}
- }
- 
-+static int __init schedprof_shift_setup(char *s)
-+{
-+	int n;
-+	if (get_option(&s, &n)) {
-+		scheprof_shift = n;
-+		sched_profiling = 1;
-+	}
-+	return 1;
-+}
-+__setup("schedprof_shift=", schedprof_shift_setup);
-+
- static int __init schedprof_setup(char *s)
- {
- 	int n;
-@@ -4080,10 +4091,10 @@
- {
- 	if (!sched_profiling)
- 		return;
--	schedprof_len = (unsigned long)(_etext - _stext) + 1;
-+	schedprof_len = ((unsigned long)(_etext - _stext) >> schedprof_shift) + 1;
- 	schedprof_buf = alloc_bootmem(sizeof(atomic_t)*schedprof_len);
- 	printk(KERN_INFO "Scheduler call profiling enabled\n");
--	schedprof_buf[0] = 1;
-+	schedprof_buf[0] = 1 << schedprof_shift;
- }
- 
- #ifdef CONFIG_PROC_FS
-
---LZvS9be/3tNcYl/X--
+> -----Original Message-----
+> From: Yaroslav Halchenko [mailto:yoh@psychology.rutgers.edu]
+> Sent: June 24, 2004 4:10 PM
+> Subject: Re: alienware hardware
+> 
+> 
+> it is seems to be more general problem, because it slows down not only
+> dpkg process - booting on 2.4.26 kernel takes about 5 minutes to
+> complete and of cause no dpkg is involved in that process.
+> 
+> I took dpkg as just single example, I don't what to try else on...
+> bogomips reports about 50% of what is in /proc/cpuinfo, so it looks
+> normal... I'm suspecting IDE, so it looks like when app has 
+> to work with
+> HDD then it slows down although HDD bulb doesn't report an 
+> activity....
+> but I might be wrong. btw - I will put hdparm as well on the
+> webpage
+> 
+> We are about to setup X on that beast and I will try may be some other
+> programs... suggestions?
+> 

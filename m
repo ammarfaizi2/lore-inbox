@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSILUGK>; Thu, 12 Sep 2002 16:06:10 -0400
+	id <S317182AbSILUNH>; Thu, 12 Sep 2002 16:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317182AbSILUGK>; Thu, 12 Sep 2002 16:06:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39172 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317181AbSILUGJ>; Thu, 12 Sep 2002 16:06:09 -0400
-Date: Thu, 12 Sep 2002 21:10:56 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [OFFTOPIC] Spamcop
-Message-ID: <20020912211056.J4739@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317215AbSILUNH>; Thu, 12 Sep 2002 16:13:07 -0400
+Received: from pD9E23F87.dip.t-dialin.net ([217.226.63.135]:58598 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317182AbSILUNG>; Thu, 12 Sep 2002 16:13:06 -0400
+Date: Thu, 12 Sep 2002 14:16:49 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Bob_Tracy <rct@gherkin.frus.com>
+cc: dag@brattli.net, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.34: IR __FUNCTION__ breakage
+In-Reply-To: <m17pa2L-0005khC@gherkin.frus.com>
+Message-ID: <Pine.LNX.4.44.0209121414570.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I'd like to bring to peoples attention the idiotic situation going on
-with the RBL list known as spamcop.
+On Thu, 12 Sep 2002, Bob_Tracy wrote:
+> define DERROR(dbg, args...) \
+> 	{if(DEBUG_##dbg){\
+> 		printk(KERN_INFO "irnet: %s(): ", __FUNCTION__);\
+> 		printk(KERN_INFO args);}}
+> 
+> which strikes me as not quite what the author intended, although it
+> should work.
 
-spamcop have entered into their database the IP address for
-www.linux.org.uk, which is a machine containing many mailing lists
-and other facilities.  www.linux.org.uk is NOT, repeat NOT an open
-relay, and as far as I'm aware has never performed any open relaying.
+Why not
 
-However, the basis under which it has been listed is that spamcop
-received a mailman reponse to a message their tester sent to a valid
-mailing list address.  The mailman response was:
+#define DERROR(dbg, fmt, args...) \
+	do { if (DEBUG_##dbg) \
+		printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION, args); \
+	} while(0)
 
-"Subject: Your message to Linux-arm awaits moderator approval"
+?
 
-Obviously, it didn't relay the spam, nor the test message.
-
-
-If spamcop is accepting hosts with mailing lists that send responses
-back to the person sending the original mail, any mailing list is open
-to being listed in the spamcop database.
-
-My advice is: stay FAR away from spamcop.  If you're using spamcop
-on your mail server, remove it now before they cut you off from all
-your mailing lists.
-
-Here's the URL explaining why www.linux.org.uk has been listed:
-
-   http://spamcop.net/w3m?action=checkblock&ip=195.92.249.252
-
-(Note: this does mean that some kernel people may not be able to
-post messages for a while.  Hence the vague relevance of this
-message to lkml.)
-
+			Thunder
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

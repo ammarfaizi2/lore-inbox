@@ -1,106 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQKUQyE>; Tue, 21 Nov 2000 11:54:04 -0500
+	id <S129426AbQKUQ6E>; Tue, 21 Nov 2000 11:58:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129426AbQKUQxz>; Tue, 21 Nov 2000 11:53:55 -0500
-Received: from cannet.com ([206.156.188.2]:11018 "HELO mail.cannet.com")
-	by vger.kernel.org with SMTP id <S129325AbQKUQxm>;
-	Tue, 21 Nov 2000 11:53:42 -0500
-Message-ID: <001301c053d7$347c2880$7930000a@hcd.net>
-From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Large filesystem?
-Date: Tue, 21 Nov 2000 11:22:06 -0500
+	id <S129942AbQKUQ5y>; Tue, 21 Nov 2000 11:57:54 -0500
+Received: from ext.lri.fr ([129.175.15.4]:58504 "EHLO ext.lri.fr")
+	by vger.kernel.org with ESMTP id <S129426AbQKUQ5k>;
+	Tue, 21 Nov 2000 11:57:40 -0500
+From: "Benjamin Monate <Benjamin Monate" <Benjamin.Monate@lri.fr>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-	protocol="application/x-pkcs7-signature";
-	micalg=SHA1;
-	boundary="----=_NextPart_000_000F_01C053AD.49423FE0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-ID: <14874.41589.359267.717984@sun-demons>
+Date: Tue, 21 Nov 2000 17:27:33 +0100 (MET)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Strange lockup of the timer with 2.4.0-test10 SMP (and older)
+In-Reply-To: <Pine.GSO.3.96.1001121151759.19886A-100000@delta.ds2.pg.gda.pl>
+In-Reply-To: <E13xvRr-0003u9-00@the-village.bc.nu>
+	<Pine.GSO.3.96.1001121151759.19886A-100000@delta.ds2.pg.gda.pl>
+X-Mailer: VM 6.62 under Emacs 20.7.1
+Reply-To: Benjamin.Monate@lri.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+>  I guess not -- the timer interrupt and the NMI use different I/O APIC
+> inputs.  If both are stuck, it's probably 8254 that gets reprogrammed.  I
+> suppose XFree86 might be at fault -- does it happen with the NMI watchdog
+> disabled, either? 
+Yes. I just enabled the nmi watchdog to try to debug the problem. It did 
+not change anything.
 
-------=_NextPart_000_000F_01C053AD.49423FE0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+About the 8254, the kernel log contains :
 
-Hello kernel hackers,
+Nov 20 17:15:15 pc8-118 kernel: MP-BIOS bug: 8254 timer 
+				not connected to IO-AP
+IC
+Nov 20 17:15:15 pc8-118 kernel: ...trying to set up timer (IRQ0)
+						 through the 8259A ...  
+Nov 20 17:15:15 pc8-118 kernel: ..... (found pin 0) ...works.
 
-    Can anyonw point me to doc on how to setup large filesytem support on
-2.2?
-We are using linux to do network backups with Microlite and some of our
-backups are growing above 2 Gb.  Thanks is advance!
+But this does not seem to annoy the kernel.
 
---
-Kind Regards,
-Timothy A. DeWees
+Is there anyway to restore the 8254 to a valid state without rebooting ?
 
-------=_NextPart_000_000F_01C053AD.49423FE0
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII7jCCAqEw
-ggIKoAMCAQICAwMkHDANBgkqhkiG9w0BAQQFADCBlDELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
-c3Rlcm4gQ2FwZTEUMBIGA1UEBxMLRHVyYmFudmlsbGUxDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
-CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAx
-OTk5LjkuMTYwHhcNMDAwODI1MTQyNDE2WhcNMDEwODI1MTQyNDE2WjBEMR8wHQYDVQQDExZUaGF3
-dGUgRnJlZW1haWwgTWVtYmVyMSEwHwYJKoZIhvcNAQkBFhJ3aHRkcmduQGNhbm5ldC5jb20wgZ8w
-DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALJ5dJTLACq2XOImvdzV+9+ljLAiKyoPWnDKTx8wPW+P
-ImV8VRO+DZMG62LqIkwZRwUcwDkPVC1l2NTsiPeTs+V2Wq88MDod6ykAvmGq7b33fuMzrzhGkT1i
-gRzVnvAjfOObtS6rXJBo/O4QHh7M9Mgghqw+G+Iaj/KmW6HZ+CgrAgMBAAGjUDBOMB0GA1UdEQQW
-MBSBEndodGRyZ25AY2FubmV0LmNvbTAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFIir8WCDZlX0
-5FjHRh3AYb0j18OMMA0GCSqGSIb3DQEBBAUAA4GBAK7NQGi7lypyRqBIJqNsb3ttb9uqk/svWipd
-X6rFV3GYgajI0G2APE+2auJaySEzLP/awRURG4PzCP6Lj4gYGwOaOMgCa43H/OyMnlv07G2KcaZk
-9uFMUZf4lnDVFYlG7U/Ugvkoqcyd9Euomjs81SibcmQUqq3RCw6/+zKOXTzvMIIDFDCCAn2gAwIB
-AgIBCzANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2Fw
-ZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
-CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNv
-bmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
-Y29tMB4XDTk5MDkxNjE0MDE0MFoXDTAxMDkxNTE0MDE0MFowgZQxCzAJBgNVBAYTAlpBMRUwEwYD
-VQQIEwxXZXN0ZXJuIENhcGUxFDASBgNVBAcTC0R1cmJhbnZpbGxlMQ8wDQYDVQQKEwZUaGF3dGUx
-HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFp
-bCBSU0EgMTk5OS45LjE2MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzaVqX1NAWC3q1xV3p
-IZwjcs0STEv3fs/H+8pyJPRCUqxXleN7YXoXhOf9cjk4lLTq7WWnkgZeveBl9hm7lHl2TD65aHB1
-hBz0EXQAvAUsTwkDFzHM9EHUcsamXeKIRLCLLsRN8fDWhT5s85WUeJF+QOmc0Y0VV47Cc+Uw3kb1
-TwIDAQABozcwNTASBgNVHRMBAf8ECDAGAQH/AgEAMB8GA1UdIwQYMBaAFHJJwnM0xlX0C3ZygX53
-9IfnxrIOMA0GCSqGSIb3DQEBBAUAA4GBAGvGWekx+um27LED2N9ycv6RYEjqxlXde/BnjsZhcOdt
-wqU32J23FyhWBYvdXHVvxpGQxmxmcRPQEHxrkW+G4CE2LcHX6rIJrc8tbcaDUpv7u/6ch538t+l0
-kuRcl678fqzKDW9yemcsa3P1hvmd9QBu9B0Hzp2egmMp75MJflXeMIIDLTCCApagAwIBAgIBADAN
-BgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAG
-A1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
-dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZy
-ZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4X
-DTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
-ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRp
-bmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1Ro
-YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
-aWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG2
-6nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDim
-AKOHePb5lIZererAXnbr2RSjXW56fAylS1V/Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkC
-AwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk
-8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JCI4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBH
-H7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AUG95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRznei
-gTGCAgAwggH8AgEBMIGcMIGUMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRQw
-EgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
-ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDE5OTkuOS4xNgIDAyQc
-MAkGBSsOAwIaBQCggbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
-MDAxMTIxMTEyMjA3WjAjBgkqhkiG9w0BCQQxFgQUwKCqqHzMyp1v3h48j8lIp3mLljswWwYJKoZI
-hvcNAQkPMU4wTDAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYF
-Kw4DAgcwDQYIKoZIhvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYB42vP4TuL1JGQv
-fkiV7Ni3wWaC980A4522JZ5mzS2aJ5t4b9NyKuL2wbGS3EuB2rMReJ0n70LhIhr9UPsXkBIMPR9+
-LJpv7UVSUogyiMqG6SHL1V58RfNAmseDgE7fep/6aops5PEb25J1kWdVRBr3JdiplQwsBkKZFp5c
-0y2VdgAAAAAAAA==
-
-------=_NextPart_000_000F_01C053AD.49423FE0--
+-- 
+| Benjamin Monate         | mailto:Benjamin.Monate@lri.fr |
+| LRI - Bât. 490
+| Université de Paris-Sud
+| F-91405 ORSAY Cedex    
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

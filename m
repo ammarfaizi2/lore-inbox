@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293303AbSCBRzK>; Sat, 2 Mar 2002 12:55:10 -0500
+	id <S310406AbSCBSQv>; Sat, 2 Mar 2002 13:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293479AbSCBRzB>; Sat, 2 Mar 2002 12:55:01 -0500
-Received: from geminib.tcd.ie ([134.226.16.162]:10799 "HELO mail.tcd.ie")
-	by vger.kernel.org with SMTP id <S293303AbSCBRys>;
-	Sat, 2 Mar 2002 12:54:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Nick Murtagh <murtaghn@tcd.ie>
-To: Ville Herva <vherva@niksula.hut.fi>
-Subject: Re: strange su behaviour
-Date: Sat, 2 Mar 2002 17:54:46 +0000
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20020302001706.9CCCBC7B@mail.tcd.ie> <20020302090832.GT1105@niksula.cs.hut.fi>
-In-Reply-To: <20020302090832.GT1105@niksula.cs.hut.fi>
-Cc: linux-kernel@vger.kernel.org
+	id <S310409AbSCBSQl>; Sat, 2 Mar 2002 13:16:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49426 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310406AbSCBSQ2>; Sat, 2 Mar 2002 13:16:28 -0500
+Subject: Re: Linux 2.4.19pre2-ac1
+To: skidley@crrstv.net (skidley)
+Date: Sat, 2 Mar 2002 18:30:17 +0000 (GMT)
+Cc: mfedyk@matchmail.com (Mike Fedyk), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0203012351360.1612-100000@localhost.localdomain> from "skidley" at Mar 01, 2002 11:56:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020302175446.EAB87C08@mail.tcd.ie>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16hEGv-0007y2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 02 March 2002 09:08, Ville Herva wrote:
-> Well, you could try to strace it to see where it lurks when it hangs.
+> I was wondering about the new Machine Check Exception Option added with
+> this patch. where can I get info(if there is any) on using it, re the boot option to use the Mb's it supports and any userland stuff if any.
 
-The -r did the trick. Basically there was a bug in pam_xauth where it
-was calling ftruncate with an un-initialised off_t length. Hence it
-was trying to ftruncate a 34 byte file to > 100 megabytes. 
-
-The ftruncate manpage says that the behaviour in this circumstance is
-undefined. I will investigate further to see why different kernel
-versions are acting differently here.
-
-Thanks for your help.
-
-Nick
+Just say yes, its a stupid idea making it an option and there is basically
+no reason to ever say no.

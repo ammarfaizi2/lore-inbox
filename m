@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130949AbRA2PWA>; Mon, 29 Jan 2001 10:22:00 -0500
+	id <S131421AbRA2PZv>; Mon, 29 Jan 2001 10:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131421AbRA2PVv>; Mon, 29 Jan 2001 10:21:51 -0500
-Received: from mail.rd.ilan.net ([216.27.80.130]:38416 "EHLO mail.rd.ilan.net")
-	by vger.kernel.org with ESMTP id <S130949AbRA2PVi>;
-	Mon, 29 Jan 2001 10:21:38 -0500
-Message-ID: <3A758A57.CB019330@holly-springs.nc.us>
-Date: Mon, 29 Jan 2001 10:20:55 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S132432AbRA2PZl>; Mon, 29 Jan 2001 10:25:41 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:49163 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S131421AbRA2PZc>; Mon, 29 Jan 2001 10:25:32 -0500
+Date: Mon, 29 Jan 2001 17:39:50 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: Chris Evans <chris@scary.beasts.org>
+cc: <Tony.Young@ir.com>, <slug@slug.org.au>, <csa@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Disk Performance/File IO per process
+In-Reply-To: <Pine.LNX.4.30.0101290200220.21841-100000@ferret.lmh.ox.ac.uk>
+Message-ID: <Pine.LNX.4.30.0101291723290.27571-100000@fs131-224.f-secure.com>
 MIME-Version: 1.0
-To: Mo McKinlay <mmckinlay@gnu.org>
-CC: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <Pine.LNX.4.30.0101191633200.2331-100000@nvws005.nv.london>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mo McKinlay wrote:
-> I would too, but POSIX won't let us unless we start enforcing side-effect
-> rules for all filesystems. Hence why I came up with openstream() :)
 
-So, openstream() is probably the most painless way to get named streams
-support into Linux in the immediate future. Openstream() will have to
-fail on filesystems that do not support streams, ideally without
-changing those filesystems. And as long as we're adding a system call to
-deal with streams, we should consider adding the functions for extended
-attributes at the same time.
+On Mon, 29 Jan 2001, Chris Evans wrote:
 
->From http://www.flyingbuttmonkeys.com/streams-on-posix.txt ...
+> Stephen Tweedie has a rather funky i/o stats enhancement patch which
+> should provide what you need. It comes with RedHat7.0 and gives decent
+> disk statistics in /proc/partitions.
 
-Minimum VFS Support
-vop_eattr_get - read an EA
-vop_eattr_set - set an EA
-vop_eattr_remove - remove an EA
-vop_eattr_list - list the EAs like vop_readdir would a directory.
+Monitoring via /proc [not just IO but close to anything] has the
+features:
+ - slow, not atomic, not scalable
+ - if kernel decides explicitely or due to a "bug" to refuse doing
+   IO, you get something like this [even using a mlocked, RT monitor],
+   procs                    memory    swap          io     system         cpu
+ r  b  w   swpd  free  buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  1  27116  1048   736 152832 128 1972 2544   869   44  1812   2  43  55
+ 5  0  2  27768  1048   744 153372  52 1308 2668   777   43  1772   2  61  37
+ 0  2  1  28360  1048   752 153900 332 564  2311   955   49  2081   1  68  31
+<frozen>
+ 1  7  2  28356  1048   752 153708 3936  0  2175 29091  494 27348   0   1  99
+ 1  0  2  28356  1048   792 153656 172   0  7166     0  144   838   4  17  80
 
-Optional Support
-vop_eattr_create - Create an EA or error if it exists.
-vop_eattr_multi - perform a sequence of EA vops atomically.
-vop_eattr_rename - change the name of an EA
-vop_eattr_serialize - export all the EAs as a stream of entries.
+In short, monitoring via /proc is unreliable.
 
-Thoughts? You mught want to refer back to the paper to get the whole EAs
-proposal...
+	Szaka
 
--M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

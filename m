@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVBJPDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVBJPNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262132AbVBJPDT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 10:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVBJPDT
+	id S262134AbVBJPNU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 10:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVBJPNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 10:03:19 -0500
-Received: from mail.baslerweb.com ([145.253.187.130]:55315 "EHLO
-	mail.baslerweb.com") by vger.kernel.org with ESMTP id S262135AbVBJPDG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 10:03:06 -0500
-From: Thomas Koeller <thomas.koeller@baslerweb.com>
-Organization: Basler AG
-To: mochel@osdl.org
-Subject: platform_get_resource()
-Date: Thu, 10 Feb 2005 16:02:29 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <200502101602.29771.thomas.koeller@baslerweb.com>
+	Thu, 10 Feb 2005 10:13:20 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:29590 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262134AbVBJPNR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 10:13:17 -0500
+Date: Thu, 10 Feb 2005 16:14:58 +0100
+From: Stelian Pop <stelian@popies.net>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
+       Nicolas Pitre <nico@cam.org>, Jon Smirl <jonsmirl@gmail.com>,
+       tytso@mit.edu, Francois Romieu <romieu@fr.zoreil.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050210151457.GD3493@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
+	Nicolas Pitre <nico@cam.org>, Jon Smirl <jonsmirl@gmail.com>,
+	tytso@mit.edu, Francois Romieu <romieu@fr.zoreil.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20050209184629.GR22893@bitmover.com> <Pine.LNX.4.61.0502091513060.7836@localhost.localdomain> <20050209235312.GA25351@bitmover.com> <Pine.LNX.4.61.0502100109050.6118@scrub.home> <420AFA54.9000204@andrew.cmu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <420AFA54.9000204@andrew.cmu.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick,
+On Thu, Feb 10, 2005 at 01:08:20AM -0500, James Bruce wrote:
 
-I am writing a driver for a platform device, and I want
-the platform to communicate to the driver the resources
-allocted for the device. My platform has resources that
-are not of the standard kind IORESOURCE_[IO|MEM|IRQ|DMA],
-and while I can pass them into a call to
-platform_device_register(), I cannot retrieve them in
-the driver, because platform_get_resource_byname()
-explicitly looks only for the standard resource types.
+> Roman, please give up on importing 100% of the history.  There's no 
+> point arguing something if you already know what the other person's 
+> answer will be.  Larry will not change his mind under any currently 
+> foreseeable circumstances.  Yes, there is "meta-data lockin" whether 
+> anyone at BitMover will admit it or not, but no that will not change.
+> 
+> Linux survived in the past without much history, and if a replacement 
+> arrives, people can make the switch even with a degraded history.  In 
+> very little time that switchover would seem as remote as the pre-BK 
+> times are now.
 
-Is this intentional? To me it seems to make a lot more
-sense to return any resource with a matching name regardless
-of its type.
+Nice conclusion to this thread.
 
-thanks,
-Thomas
-
+Stelian.
 -- 
---------------------------------------------------
-
-Thomas Koeller, Software Development
-Basler Vision Technologies
-
-thomas dot koeller at baslerweb dot com
-http://www.baslerweb.com
-
-==============================
-
+Stelian Pop <stelian@popies.net>

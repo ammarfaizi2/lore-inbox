@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314610AbSDTM6K>; Sat, 20 Apr 2002 08:58:10 -0400
+	id <S314611AbSDTM7F>; Sat, 20 Apr 2002 08:59:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314611AbSDTM6J>; Sat, 20 Apr 2002 08:58:09 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:21711 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S314610AbSDTM6I>; Sat, 20 Apr 2002 08:58:08 -0400
+	id <S314613AbSDTM7E>; Sat, 20 Apr 2002 08:59:04 -0400
+Received: from rwcrmhc54.attbi.com ([216.148.227.87]:55524 "EHLO
+	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
+	id <S314611AbSDTM7D>; Sat, 20 Apr 2002 08:59:03 -0400
 From: jordan.breeding@attbi.com
 To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Trouble rebooting Tyan Thunder K7 (S2462UNG)
-Date: Sat, 20 Apr 2002 12:58:02 +0000
+Date: Sat, 20 Apr 2002 12:58:55 +0000
 X-Mailer: AT&T Message Center Version 1 (Nov 29 2001)
-Message-Id: <20020420125803.FBRS1143.rwcrmhc51.attbi.com@rwcrwbc58>
+Message-Id: <20020420125857.RTSP1102.rwcrmhc54.attbi.com@rwcrwbc55>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

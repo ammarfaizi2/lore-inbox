@@ -1,280 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129619AbRB0IxB>; Tue, 27 Feb 2001 03:53:01 -0500
+	id <S129616AbRB0IxV>; Tue, 27 Feb 2001 03:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129618AbRB0Iww>; Tue, 27 Feb 2001 03:52:52 -0500
-Received: from janus.hosting4u.net ([209.15.2.37]:26375 "HELO
-	janus.hosting4u.net") by vger.kernel.org with SMTP
-	id <S129616AbRB0Iwk>; Tue, 27 Feb 2001 03:52:40 -0500
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-From: Dag Brattli <dag@brattli.net>
-Reply-To: dag@brattli.net
-Subject: [patch] patch-2.4.2-irda3 (misc fixes)
-X-Mailer: Pygmy (v0.5.0)
-Message-ID: <98326395801@pisces.hosting4u.net>
-Date: Tue, 27 Feb 2001 03:52:40 -0500
+	id <S129618AbRB0IxM>; Tue, 27 Feb 2001 03:53:12 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:5009 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S129616AbRB0Iw7>;
+	Tue, 27 Feb 2001 03:52:59 -0500
+Date: Tue, 27 Feb 2001 09:48:03 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Weinehall <tao@acc.umu.se>
+cc: Wakko Warner <wakko@animx.eu.org>, Jonathan Morton <chromi@cyberspace.org>,
+        "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+        Augustin Vidovic <vido@ldh.org>, Dennis <dennis@etinc.com>,
+        jesse@cats-chateau.net, A.J.Scott@casdn.neu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <20010223133113.D5465@khan.acc.umu.se>
+Message-ID: <Pine.GSO.4.10.10102270941300.2095-100000@escobaria.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Fri, 23 Feb 2001, David Weinehall wrote:
+> On Fri, Feb 23, 2001 at 07:14:48AM -0500, Wakko Warner wrote:
+> > > - Some architectures' ports of the Linux kernel, at least in their current
+> > > state (has anyone actually tried to *compile* the PPC kernel since
+> > > 2.4.<whatever> besides me?)
+> > 
+> > Have you tried comiling 2.2.x where x > 13 on an m68k mac or 2.4.x on an
+> > m68k mac?  doesn't happen.  The patches I found for 2.2 didn't work, kernel
+> > oopsed on loading the network driver.
+> 
+> Have you submitted patches to Alan (for v2.2.x) or Linus (for v2.4.x)
+> to fix this?!
 
-These are various irda patches to fix various bit of the stack. Please
-apply to your latest Linux-2.4.2 code. Changes:
+Linux/m68k 2.4.x runs on some platforms. Also note that Linux/m68k is not 100%
+merged with Linus/Alan yet. The mac-specific patches in the m68k tree that
+weren't merged are on hold until all issues are sorted out[*], cfr. the
+linux-m68k list.
 
-o Fix Ultra sockets on SMP kernel
-o Remove OBEX mask and minor cleanups
-o IrNET update
+Note to Wakko: feel free to join the project! As usual, we can use the
+manpower!!
 
-All thanks to Jean Tourrilhes
+Gr{oetje,eeting}s,
 
--- Dag
+						Geert
 
-diff -u -p linux/net/irda/af_irda.j1.c linux/net/irda/af_irda.c
---- linux/net/irda/af_irda.j1.c	Mon Jan  8 18:02:18 2001
-+++ linux/net/irda/af_irda.c	Tue Jan  9 14:18:51 2001
-@@ -2311,6 +2311,9 @@ static struct proto_ops SOCKOPS_WRAPPED(
- SOCKOPS_WRAP(irda_stream, PF_IRDA);
- SOCKOPS_WRAP(irda_seqpacket, PF_IRDA);
- SOCKOPS_WRAP(irda_dgram, PF_IRDA);
-+#ifdef CONFIG_IRDA_ULTRA
-+SOCKOPS_WRAP(irda_ultra, PF_IRDA);
-+#endif /* CONFIG_IRDA_ULTRA */
- 
- /*
-  * Function irda_device_event (this, event, ptr)
+[*] This includes, but is not limited to:
+      - reports that they work
+      - reports that they work after applying patch foo
+      - drivers shared with the PPC folks must be sorted out with them first
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-diff -u -p linux/net/irda/irias_object.d6.c linux/net/irda/irias_object.c
---- linux/net/irda/irias_object.d6.c	Fri Jan  5 10:47:54 2001
-+++ linux/net/irda/irias_object.c	Fri Jan  5 10:51:28 2001
-@@ -34,7 +34,7 @@ hashbin_t *objects = NULL;
- /*
-  *  Used when a missing value needs to be returned
-  */
--struct ias_value missing = { IAS_MISSING, 0, 0, 0};
-+struct ias_value missing = { IAS_MISSING, 0, 0, 0, {0}};
- 
- /*
-  * Function strdup (str)
-diff -u -p linux/net/irda/af_irda.d6.c linux/net/irda/af_irda.c
---- linux/net/irda/af_irda.d6.c	Fri Jan  5 10:47:25 2001
-+++ linux/net/irda/af_irda.c	Fri Jan  5 10:50:34 2001
-@@ -776,7 +776,6 @@ static int irda_bind(struct socket *sock
- 	struct sock *sk = sock->sk;
- 	struct sockaddr_irda *addr = (struct sockaddr_irda *) uaddr;
- 	struct irda_sock *self;
--	__u16 hints = 0;
- 	int err;
- 
- 	IRDA_DEBUG(2, __FUNCTION__ "()\n");
-@@ -821,15 +820,6 @@ static int irda_bind(struct socket *sock
- 				 self->stsap_sel, IAS_KERNEL_ATTR);
- 	irias_insert_object(self->ias_obj);
- 	
--#if 1 /* Will be removed in near future */
--
--	/* Fill in some default hint bits values */
--	if (strncmp(addr->sir_name, "OBEX", 4) == 0)
--		hints = irlmp_service_to_hint(S_OBEX);
--	
--	if (hints)
--		self->skey = irlmp_register_service(hints);
--#endif
- 	return 0;
- }
- 
-diff -urpN linux-2.4.1-pre8/drivers/net/irda/toshoboe.c linux-2.4.1-pre8-irda-patch/drivers/net/irda/toshoboe.c
---- linux-2.4.1-pre8/drivers/net/irda/toshoboe.c	Thu Jan  4 21:50:12 2001
-+++ linux-2.4.1-pre8-irda-patch/drivers/net/irda/toshoboe.c	Mon Jan 22 00:54:52 2001
-@@ -896,7 +898,7 @@ toshoboe_gotosleep (struct toshoboe_cb *
- /*FIXME: can't sleep here wait one second */
- 
-   while ((i--) && (self->txpending))
--    mdelay (100);
-+    udelay (100);
- 
-   toshoboe_stopchip (self);
-   toshoboe_disablebm (self);
-diff -urpN linux-2.4.1-pre8/net/irda/af_irda.c linux-2.4.1-pre8-irda-patch/net/irda/af_irda.c
---- linux-2.4.1-pre8/net/irda/af_irda.c	Sun Nov 12 03:11:23 2000
-+++ linux-2.4.1-pre8-irda-patch/net/irda/af_irda.c	Mon Jan 22 00:54:42 2001
-@@ -439,7 +439,7 @@ static void irda_selective_discovery_ind
-  * We were waiting for a node to be discovered, but nothing has come up
-  * so far. Wake up the user and tell him that we failed...
-  */
--static void irda_discovery_timeout(u_long	priv)
-+static void irda_discovery_timeout(u_long priv)
- {
- 	struct irda_sock *self;
- 	
-diff -urpN linux-2.4.1-pre8/net/irda/irlap.c linux-2.4.1-pre8-irda-patch/net/irda/irlap.c
---- linux-2.4.1-pre8/net/irda/irlap.c	Sun Nov 12 03:11:23 2000
-+++ linux-2.4.1-pre8-irda-patch/net/irda/irlap.c	Mon Jan 22 00:54:45 2001
-@@ -859,13 +868,6 @@ void irlap_flush_all_queues(struct irlap
- 	/* Free sliding window buffered packets */
- 	while ((skb = skb_dequeue(&self->wx_list)) != NULL)
- 		dev_kfree_skb(skb);
--
--#ifdef CONFIG_IRDA_RECYCLE_RR
--	if (self->recycle_rr_skb) { 
-- 		dev_kfree_skb(self->recycle_rr_skb);
-- 		self->recycle_rr_skb = NULL;
-- 	}
--#endif
- }
- 
- /*
-
-diff -u -p linux/Documentation/Configure.j1.help linux/Documentation/Configure.help
---- linux/Documentation/Configure.j1.help	Fri Feb 23 17:00:21 2001
-+++ linux/Documentation/Configure.help	Fri Feb 23 17:13:23 2001
-@@ -16811,6 +16811,17 @@ CONFIG_IRLAN
-   to another Linux machine running the IrLAN protocol for ad-hoc 
-   networking!
- 
-+IrNET Protocol 
-+CONFIG_IRNET
-+  Say Y here if you want to build support for the IrNET protocol. If
-+  you want to compile it as a module (irnet.o), say M here and read
-+  Documentation/modules.txt. IrNET is a PPP driver, so you will also
-+  need a working PPP subsystem (driver, daemon and config)...
-+
-+  IrNET is an alternate way to tranfer TCP/IP traffic over IrDA. It
-+  uses synchronous PPP over a set of point to point IrDA sockets. You
-+  can use it between Linux machine or with W2k.
-+
- IrCOMM Protocol
- CONFIG_IRCOMM
-   Say Y here if you want to build support for the IrCOMM protocol. If
-diff -u -p linux/net/irda/irnet/irnet.j1.h linux/net/irda/irnet/irnet.h
---- linux/net/irda/irnet/irnet.j1.h	Thu Jan 11 17:58:15 2001
-+++ linux/net/irda/irnet/irnet.h	Thu Jan 11 18:41:40 2001
-@@ -5,7 +5,7 @@
-  *
-  * This file contains definitions and declarations global to the IrNET module,
-  * all grouped in one place...
-- * This file is a private header, so other modules don't want to know
-+ * This file is a *private* header, so other modules don't want to know
-  * what's in there...
-  *
-  * Note : as most part of the Linux kernel, this module is available
-@@ -59,8 +59,6 @@
-  *	o Connection retries (may be too hard to do)
-  *	o Check pppd persist mode
-  *	o User space deamon (to automatically handle incomming requests)
-- *	o A registered device number (comming, waiting from an answer) 
-- *	o Final integration in Linux-IrDA (up to Dag) 
-  *
-  * The setup is not currently the most easy, but this should get much
-  * better when everything will get integrated...
-@@ -159,6 +157,17 @@
-  *	o Add IRNET_NOANSWER_FROM event (mostly to help support)
-  *	o Release flow control in disconnect_indication
-  *	o Block packets while connecting (speed up connections)
-+ *
-+ * v5 - 11/01/01 - Jean II
-+ *	o Init self->max_header_size, just in case...
-+ *	o Set up ap->chan.hdrlen, to get zero copy on tx side working.
-+ *	o avoid tx->ttp->flow->ppp->tx->... loop, by checking flow state
-+ *		Thanks to Christian Gennerat for finding this bug !
-+ *	---
-+ *	o Declare the proper MTU/MRU that we can support
-+ *		(but PPP doesn't read the MTU value :-()
-+ *	o Declare hashbin HB_NOLOCK instead of HB_LOCAL to avoid
-+ *		disabling and enabling irq twice
-  */
- 
- /***************************** INCLUDES *****************************/
-@@ -173,6 +182,7 @@
- #include <linux/netdevice.h>
- #include <linux/poll.h>
- #include <asm/uaccess.h>
-+#include <linux/config.h>
- 
- #include <linux/ppp_defs.h>
- #include <linux/if_ppp.h>
-diff -u -p linux/net/irda/irnet/irnet_irda.j1.h linux/net/irda/irnet/irnet_irda.h
---- linux/net/irda/irnet/irnet_irda.j1.h	Thu Jan 11 17:58:29 2001
-+++ linux/net/irda/irnet/irnet_irda.h	Thu Jan 11 17:58:51 2001
-@@ -13,8 +13,8 @@
- #define IRNET_IRDA_H
- 
- /***************************** INCLUDES *****************************/
-+/* Please add other headers in irnet.h */
- 
--#include <linux/config.h>
- #include "irnet.h"		/* Module global include */
- 
- /************************ CONSTANTS & MACROS ************************/
-diff -u -p linux/net/irda/irnet/irnet_irda.j1.c linux/net/irda/irnet/irnet_irda.c
---- linux/net/irda/irnet/irnet_irda.j1.c	Thu Jan 11 17:57:44 2001
-+++ linux/net/irda/irnet/irnet_irda.c	Thu Jan 11 17:58:51 2001
-@@ -1039,6 +1039,7 @@ irnet_flow_indication(void *	instance,
- 		      LOCAL_FLOW flow) 
- {
-   irnet_socket *	self = (irnet_socket *) instance;
-+  LOCAL_FLOW		oldflow = self->tx_flow;
- 
-   DENTER(IRDA_TCB_TRACE, "(self=0x%X, flow=%d)\n", (unsigned int) self, flow);
- 
-@@ -1050,7 +1051,11 @@ irnet_flow_indication(void *	instance,
-     {
-     case FLOW_START:
-       DEBUG(IRDA_CB_INFO, "IrTTP wants us to start again\n");
--      ppp_output_wakeup(&self->chan);
-+      /* Check if we really need to wake up PPP */
-+      if(oldflow == FLOW_STOP)
-+	ppp_output_wakeup(&self->chan);
-+      else
-+	DEBUG(IRDA_CB_INFO, "But we were already transmitting !!!\n");
-       break;
-     case FLOW_STOP:
-       DEBUG(IRDA_CB_INFO, "IrTTP wants us to slow down\n");
-@@ -1426,7 +1431,7 @@ irda_irnet_init(void)
-   memset(&irnet_server, 0, sizeof(struct irnet_root));
- 
-   /* Setup start of irnet instance list */
--  irnet_server.list = hashbin_new(HB_LOCAL); 
-+  irnet_server.list = hashbin_new(HB_NOLOCK); 
-   DABORT(irnet_server.list == NULL, -ENOMEM,
- 	 MODULE_ERROR, "Can't allocate hashbin!\n");
-   /* Init spinlock for instance list */
-diff -u -p linux/net/irda/irnet/irnet_ppp.j1.c linux/net/irda/irnet/irnet_ppp.c
---- linux/net/irda/irnet/irnet_ppp.j1.c	Thu Jan 11 17:58:39 2001
-+++ linux/net/irda/irnet/irnet_ppp.c	Thu Jan 11 18:30:02 2001
-@@ -394,8 +394,11 @@ dev_irnet_open(struct inode *	inode,
-   /* PPP channel setup */
-   ap->ppp_open = 0;
-   ap->chan.private = ap;
-+  ap->chan.ops = &irnet_ppp_ops;
-+  ap->chan.mtu = (2048 - TTP_MAX_HEADER - 2 - PPP_HDRLEN);
-+  ap->chan.hdrlen = 2 + TTP_MAX_HEADER;		/* for A/C + Max IrDA hdr */
-   /* PPP parameters */
--  ap->mru = PPP_MRU;
-+  ap->mru = (2048 - TTP_MAX_HEADER - 2 - PPP_HDRLEN);
-   ap->xaccm[0] = ~0U;
-   ap->xaccm[3] = 0x60000000U;
-   ap->raccm = ~0U;
-@@ -568,10 +571,7 @@ dev_irnet_ioctl(struct inode *	inode,
-       if((val == N_SYNC_PPP) || (val == N_PPP))
- 	{
- 	  DEBUG(FS_INFO, "Entering PPP discipline.\n");
--	  /* PPP channel setup */
--	  ap->chan.private = ap;
--	  ap->chan.ops = &irnet_ppp_ops;
--	  ap->chan.mtu = PPP_MRU;
-+	  /* PPP channel setup (ap->chan in configued in dev_irnet_open())*/
- 	  err = ppp_register_channel(&ap->chan);
- 	  if(err == 0)
- 	    {
-@@ -769,7 +769,7 @@ irnet_prepare_skb(irnet_socket *	ap,
-   /* prepend address/control fields if necessary */
-   if(needaddr)
-     {
--      skb_push(skb,2);
-+      skb_push(skb, 2);
-       skb->data[0] = PPP_ALLSTATIONS;
-       skb->data[1] = PPP_UI;
-     }
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

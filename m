@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270797AbRH1L7U>; Tue, 28 Aug 2001 07:59:20 -0400
+	id <S270800AbRH1MQp>; Tue, 28 Aug 2001 08:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270800AbRH1L7K>; Tue, 28 Aug 2001 07:59:10 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29198 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270797AbRH1L65>; Tue, 28 Aug 2001 07:58:57 -0400
-Subject: Re: oops in 3c59x driver
-To: paubert@iram.es (Gabriel Paubert)
-Date: Tue, 28 Aug 2001 12:19:20 +0100 (BST)
-Cc: wichert@wiggy.net (Wichert Akkerman), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0108271832320.580-100000@ltgp.iram.es> from "Gabriel Paubert" at Aug 27, 2001 06:52:00 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S270814AbRH1MQf>; Tue, 28 Aug 2001 08:16:35 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:64386 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S270800AbRH1MQb>; Tue, 28 Aug 2001 08:16:31 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] zero-bounce block highmem I/O, #13
+In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local>
+	<20010828125520.L642@suse.de> <20010828134141.M642@suse.de>
+Organisation: SAP LinuxLab
+Date: 28 Aug 2001 14:16:11 +0200
+In-Reply-To: <20010828134141.M642@suse.de>
+Message-ID: <m3ae0k5qic.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15bgtt-0005qS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > esi: c1e12812   edi: c5fd4870   ebp: c5fd4940   esp: c125be70
-> > ds:  0018  es: 0078   ss: 0018
->              ^^^^^^^^
-> You are another victim of the dubious segment reload optimizations...
+Hi Jens,
 
-Which are now fixed btw
+On Tue, 28 Aug 2001, Jens Axboe wrote:
+> Ok found the bug -- SCSI was accidentally using blk_seg_merge_ok
+> when it just wanted to test if we were crossing a 4GB physical
+> address boundary or not. Doh! Attached incremental patch should fix
+> the SCSI performance issue. I'm testing right now...
+
+Yup, performance is back to 2.4.9 level. But I do not see an
+improvement.
+
+I will now do a database import.
+
+Greetings
+		Christoph
+
+

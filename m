@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVAJU4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVAJUfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbVAJU4r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:56:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAJUxa
+	id S262518AbVAJUfx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVAJUca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:53:30 -0500
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:6740 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262471AbVAJUwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:52:33 -0500
-Message-ID: <41E2EB09.5000603@sbcglobal.net>
-Date: Mon, 10 Jan 2005 15:52:25 -0500
-From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: address space reservation functionality?
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 10 Jan 2005 15:32:30 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:25549 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262518AbVAJUaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 15:30:02 -0500
+Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050110184307.GB2903@stusta.de>
+References: <20050110184307.GB2903@stusta.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1105382033.12054.90.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 10 Jan 2005 19:23:48 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Llu, 2005-01-10 at 18:43, Adrian Bunk wrote:
+> IMHO lists rejecting emails based on some non-standard extension don't 
+> belong into MAINTAINERS.
 
-I was wondering if some functionality existed in Linux.  Specifically, 
-in Solaris, you can mmap the null device in order to reserve part of the 
-address space without otherwise consuming resources.  This is detailed 
-in the Solaris manpage null(7D).  The same functionality is also 
-available under Windows NT/XP/2K by calling the VirtualAlloc function 
-with the MEM_RESERVE flag omitting the MEM_COMMIT flag.  Does Linux have 
-a similar mechanism buried somewhere whereby I can reserve a part of the 
-address space and not increase the "virtual size" of the process or the 
-system's idea of the amount of memory in use?  I could not find one by 
-using the source.
-
-Regards,
-
-Rob
+Find out why someone is publishing records saying your mail isnt valid
+instead of moaning here. If they are using SPF and you are not using any
+strange extensions its fine. You or your provider appears to be
+advertising that stusta.de doesn't use the mail relay you are using.
 

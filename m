@@ -1,84 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267821AbTBROfB>; Tue, 18 Feb 2003 09:35:01 -0500
+	id <S267822AbTBROqw>; Tue, 18 Feb 2003 09:46:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267833AbTBROfB>; Tue, 18 Feb 2003 09:35:01 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:744 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S267821AbTBROe6>; Tue, 18 Feb 2003 09:34:58 -0500
-Message-ID: <3E5246C3.4090008@nortelnetworks.com>
-Date: Tue, 18 Feb 2003 09:44:19 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: fcntl and flock wakeups not FIFO?
-References: <20030218010054.J28902@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267833AbTBROqw>; Tue, 18 Feb 2003 09:46:52 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:61921 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S267822AbTBROqv>; Tue, 18 Feb 2003 09:46:51 -0500
+Date: Tue, 18 Feb 2003 15:55:03 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: stuff-up in pcmcia/cardbus stuff
+Message-ID: <20030218145502.GA1233@brodo.de>
+References: <15953.37244.263505.214325@argo.ozlabs.ibm.com> <20030218081529.GA2334@brodo.de> <3E51FBA1.7020208@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E51FBA1.7020208@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-  >>I've been doing some experimenting with locking on 2.4.18 and have
-  >>noticed that if I have a number of writers waiting on a lock, they are
-  >>not woken up in the order in which they requested the lock.
-  >>
-  >>Is this expected? If so, what was the reasoning for this and are there
-  >>any patches to give FIFO wakeups?
-  >
-  > That certainly isn't what's supposed to happen.  They should get woken
-  > up in-order.  The code in 2.4.18 seems to be doing that.  Are you
-  > doing anything clever with scheduling?
+On Tue, Feb 18, 2003 at 04:23:45AM -0500, Jeff Garzik wrote:
+> Dominik Brodowski wrote:
+> >Indeed. socket->pcmcia_socket (old) == socket->cls_d.s_info[0] (new)
+> 
+> If this is true...
+> 
+> >@@ -230,14 +230,16 @@
+> > static int cardbus_suspend (struct pci_dev *dev, u32 state)
+> > {
+> > 	pci_socket_t *socket = pci_get_drvdata(dev);
+> >-	pcmcia_suspend_socket (socket->pcmcia_socket);
+> >+	if (socket && socket->cls_d.s_info[0])
+> >+		pcmcia_suspend_socket (socket->cls_d.s_info[0]);
+> > 	return 0;
+> > }
+> > 
+> > static int cardbus_resume (struct pci_dev *dev)
+> > {
+> > 	pci_socket_t *socket = pci_get_drvdata(dev);
+> >-	pcmcia_resume_socket (socket->pcmcia_socket);
+> >+	if (socket && socket->cls_d.s_info[0])
+> >+		pcmcia_resume_socket (socket->cls_d.s_info[0]);
+> > 	return 0;
+> > }
+> 
+> 
+> 1) ...why do you bother checking for NULL?  Isn't NULL indicative of a 
+> BUG(), instead?
 
+Well, it's only a safeguard against suspending / resuming combined with 
+probing or removing the device. Else it's a BUG indeed...
 
-I have a potential cause here, but I'm not sure if it makes sense.  The
-following code (slightly reformatted) is taken from locks.c in the
-Mandrake 2.4.19-16mdk kernel.
+> 2) why are multiple s_info records allocated, when you hardcode use of 
+> record #0 ?
+Only one s_info is actually allocated (in cs.c::pcmcia_register_socket) as
+only one pcmcia/cardbus socket is attached to one pci_dev for yenta-style
+devices. There are up to four pcmcia sockets to one pci_dev for i82092
+devices, though. And so s_info[3] might be perfectly valid within the
+i82092 driver.
 
-
-static void locks_wake_up_blocks(struct file_lock *blocker,
-unsigned int wait)
-{
-     while (!list_empty(&blocker->fl_block)) {
-       struct file_lock *waiter = list_entry(blocker->fl_block.next,
-                                            struct file_lock, fl_block);
-       if (wait) {
-         locks_notify_blocked(waiter);
-
-         /* Let the blocked process remove waiter from the
-          * block list when it gets scheduled.
-          */
-         current->policy |= SCHED_YIELD;
-         schedule();
-       } else {
-         /* Remove waiter from the block list, because by the
-          * time it wakes up blocker won't exist any more.
-          */
-         locks_delete_block(waiter);
-         locks_notify_blocked(waiter);
-       }
-     }
-}
-
-
-It appears that if this function is called with a wait value of zero,
-all of the waiting processes will be woken up before the scheduler gets
-called.  This means that the scheduler ends up picking which process
-runs rather than the locking code.
-
-Looking through the file, there is no call chain on an unlock or on
-closing the last locked fd which can give a nonzero wait value, meaning
-that we will always end up with the scheduler making the decision in
-these cases.
-
-Am I missing something?
-
-Chris
-
-
-
+	Dominik
 

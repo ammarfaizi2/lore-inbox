@@ -1,132 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSGQSXC>; Wed, 17 Jul 2002 14:23:02 -0400
+	id <S316217AbSGQSQG>; Wed, 17 Jul 2002 14:16:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSGQSW6>; Wed, 17 Jul 2002 14:22:58 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:25363 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316430AbSGQSWD>;
-	Wed, 17 Jul 2002 14:22:03 -0400
-Date: Wed, 17 Jul 2002 11:23:51 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [BK PATCH] LSM setup changes for 2.5.26
-Message-ID: <20020717182351.GD9550@kroah.com>
-References: <20020717182305.GB9550@kroah.com> <20020717182332.GC9550@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020717182332.GC9550@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 19 Jun 2002 17:18:18 -0700
+	id <S316223AbSGQSQG>; Wed, 17 Jul 2002 14:16:06 -0400
+Received: from server1.mvpsoft.com ([64.105.236.213]:36324 "HELO
+	server1.mvpsoft.com") by vger.kernel.org with SMTP
+	id <S316217AbSGQSQF>; Wed, 17 Jul 2002 14:16:05 -0400
+Message-ID: <3D35B66E.20604@mvpsoft.com>
+Date: Wed, 17 Jul 2002 14:24:46 -0400
+From: Chris Snyder <csnyder@mvpsoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020713
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel panics on bootup
+References: <3D345AD7.1010509@mvpsoft.com>	<1026858432.1687.85.camel@irongate.swansea.linux.org.uk> 	<3D34956A.7030200@mvpsoft.com> <1026860686.1688.97.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.639.1.1 -> 1.639.1.2
-#	           ipc/sem.c	1.9     -> 1.10   
-#	           ipc/shm.c	1.11    -> 1.12   
-#	 include/linux/shm.h	1.2     -> 1.3    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/15	greg@kroah.com	1.639.1.2
-# LSM: move struct shmid_kernel out of ipc/shm.c to include/linux/shm.h
-# 
-# Also move where we set sma->sem_perm.mode and .key to before ipc_addid() gets called.
-# --------------------------------------------
-#
-diff -Nru a/include/linux/shm.h b/include/linux/shm.h
---- a/include/linux/shm.h	Wed Jul 17 11:08:09 2002
-+++ b/include/linux/shm.h	Wed Jul 17 11:08:09 2002
-@@ -71,6 +71,19 @@
- };
- 
- #ifdef __KERNEL__
-+struct shmid_kernel /* private to the kernel */
-+{	
-+	struct kern_ipc_perm	shm_perm;
-+	struct file *		shm_file;
-+	int			id;
-+	unsigned long		shm_nattch;
-+	unsigned long		shm_segsz;
-+	time_t			shm_atim;
-+	time_t			shm_dtim;
-+	time_t			shm_ctim;
-+	pid_t			shm_cprid;
-+	pid_t			shm_lprid;
-+};
- 
- /* shm_mode upper byte flags */
- #define	SHM_DEST	01000	/* segment will be destroyed on last detach */
-diff -Nru a/ipc/sem.c b/ipc/sem.c
---- a/ipc/sem.c	Wed Jul 17 11:08:09 2002
-+++ b/ipc/sem.c	Wed Jul 17 11:08:09 2002
-@@ -129,15 +129,16 @@
- 		return -ENOMEM;
- 	}
- 	memset (sma, 0, size);
-+
-+	sma->sem_perm.mode = (semflg & S_IRWXUGO);
-+	sma->sem_perm.key = key;
-+
- 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
- 	if(id == -1) {
- 		ipc_free(sma, size);
- 		return -ENOSPC;
- 	}
- 	used_sems += nsems;
--
--	sma->sem_perm.mode = (semflg & S_IRWXUGO);
--	sma->sem_perm.key = key;
- 
- 	sma->sem_base = (struct sem *) &sma[1];
- 	/* sma->sem_pending = NULL; */
-diff -Nru a/ipc/shm.c b/ipc/shm.c
---- a/ipc/shm.c	Wed Jul 17 11:08:09 2002
-+++ b/ipc/shm.c	Wed Jul 17 11:08:09 2002
-@@ -28,20 +28,6 @@
- 
- #include "util.h"
- 
--struct shmid_kernel /* private to the kernel */
--{	
--	struct kern_ipc_perm	shm_perm;
--	struct file *		shm_file;
--	int			id;
--	unsigned long		shm_nattch;
--	unsigned long		shm_segsz;
--	time_t			shm_atim;
--	time_t			shm_dtim;
--	time_t			shm_ctim;
--	pid_t			shm_cprid;
--	pid_t			shm_lprid;
--};
--
- #define shm_flags	shm_perm.mode
- 
- static struct file_operations shm_file_operations;
-@@ -193,6 +179,10 @@
- 	shp = (struct shmid_kernel *) kmalloc (sizeof (*shp), GFP_USER);
- 	if (!shp)
- 		return -ENOMEM;
-+
-+	shp->shm_perm.key = key;
-+	shp->shm_flags = (shmflg & S_IRWXUGO);
-+
- 	sprintf (name, "SYSV%08x", key);
- 	file = shmem_file_setup(name, size);
- 	error = PTR_ERR(file);
-@@ -203,8 +193,7 @@
- 	id = shm_addid(shp);
- 	if(id == -1) 
- 		goto no_id;
--	shp->shm_perm.key = key;
--	shp->shm_flags = (shmflg & S_IRWXUGO);
-+
- 	shp->shm_cprid = current->pid;
- 	shp->shm_lprid = 0;
- 	shp->shm_atim = shp->shm_dtim = 0;
+Alan Cox wrote:
+> On Tue, 2002-07-16 at 22:51, Chris Snyder wrote:
+> 
+>>Thanks for the quick reply.  Would it be possible for me to get this 
+>>working with only one processor, then?  The nosmp option doesn't let it 
+>>boot.
+> 
+> 
+> Firstly check if the BIOS has any kind of "OS" or "Intel MP" options. If
+> it has an OS option try setting it to something Unixlike. 
+> 
+> Next build a completely non SMP kernel and see if that boots. Let me
+> know what that one does because the SMP failure should not have been a
+> crash regardless of what it found
+> 
+
+I poked around in the bios for any APIC settings or OS settings, and 
+found none.  I also couldn't find any configuration utilities that would 
+let me change any of those settings.  While playing around in the 
+diagnostics that are included with the server, I did find that it failed 
+an MP test.  That would explain rather nicely why it isn't working. 
+I'll have to convince the boss to let me spend more money now, since 
+even if I can get it booting, I don't want to be running a server with 
+buggy hardware.  Unless you're interested in getting the kernel to boot 
+on this thing, I'm not going to pursue this any further.  Thanks for 
+your help.
+

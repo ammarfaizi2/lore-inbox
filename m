@@ -1,76 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTLEFNT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 00:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTLEFNT
+	id S263871AbTLEF2g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 00:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbTLEF2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 00:13:19 -0500
-Received: from h80ad251e.async.vt.edu ([128.173.37.30]:61065 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262328AbTLEFNR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 00:13:17 -0500
-Message-Id: <200312050513.hB55D1ps030713@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause? 
-In-Reply-To: Your message of "Fri, 05 Dec 2003 15:23:10 +1100."
-             <16336.2094.950232.375620@wombat.chubb.wattle.id.au> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com> <3FCFCC3E.8050008@cyberone.com.au>
-            <16336.2094.950232.375620@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-707884216P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 5 Dec 2003 00:28:36 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:14340 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S263871AbTLEF2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 00:28:32 -0500
+Message-ID: <3FD01BE0.5030807@nishanet.com>
+Date: Fri, 05 Dec 2003 00:47:12 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11) - IRQ
+ flood related ?
+References: <3FCF25F2.6060008@netzentry.com>	 <1070551149.4063.8.camel@athlonxp.bradney.info>	 <20031204163243.GA10471@forming>	 <frodoid.frodo.87vfow33zm.fsf@usenet.frodoid.org>	 <20031204175548.GB10471@forming> <20031204200208.GA4167@localnet>	 <20031204230528.GA189@tesore.local>  <3FCFBFC3.5070403@gmx.de> <1070580108.4100.8.camel@athlonxp.bradney.info>
+In-Reply-To: <1070580108.4100.8.camel@athlonxp.bradney.info>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 05 Dec 2003 00:13:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-707884216P
-Content-Type: text/plain; charset=us-ascii
+Do you have onboard ethernet enabled with nforce2
+mboard? I am fine with pre-emptive kernel but have
+to disable onboard ethernet in cmos setup or I see
+"Disabling IRQ7" and problems develop.
 
-On Fri, 05 Dec 2003 15:23:10 +1100, Peter Chubb said:
+-Bob
 
-> As far as I know, interfacing to a published API doesn't infringe
-> copyright.
+Craig Bradney wrote:
 
-Well, if the only thing in the .h files was #defines and structure definitions,
-it would probably be a slam dunk to decide that, yes.
+>Prakash,
+>
+>try it without preempt.. just to see. As soon as I removed it today the
+>crashes went away (for 5 hours).. PC is now up for 2.5 hours and I'm
+>waiting to see if it will be 5 hrs or 5 days this time around :)
+>
+>Craig
+>
+>On Fri, 2003-12-05 at 00:14, Prakash K. Cheemplavam wrote:
+>  
+>
+>>Jesse Allen wrote:
+>>    
+>>
+>>>On Thu, Dec 04, 2003 at 09:02:08PM +0100, cheuche+lkml@free.fr wrote:
+>>>
+>>>      
+>>>
+>>>>Hello,
+>>>>
+>>>>Along with the lockups already described here, I've noticed an
+>>>>unidentified source of interrupts on IRQ7.
+>>>>        
+>>>>
+>>>...
+>>>
+>>>      
+>>>
+>>>>I wonder if people experiencing lockup problems also have these
+>>>>noise interrupts,
+>>>>        
+>>>>
+>>>I just took a look at this, by setting up parport_pc, and yes I get noise.
+>>>
+>>>This was my first sample with a kernel with APIC:
+>>>  7:      29230    IO-APIC-edge  parport0
+>>>      
+>>>
+>>I just did an experminent with a very light kernel, nearly nothing 
+>>compiled inside, except apic acpi, preempt and needed stuff plus 
+>>scsi+libata and no ide. IRQ 7 was not present and every device had its 
+>>own irq. Nevertheless system locked up at second hdparm run...
+>>
+>>Prakash
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-Here's the part where people's eyes glaze over:
 
-% cd /usr/src/linux-2.6.0-test10-mm1
-% find include -name '*.h' | xargs egrep 'static.*inline' | wc -l
-   6288
-
-That's 6,288 chances for you to #include GPL code and end up
-with executable derived from it in *your* .o file, not the kernel's.
-
-More to the point, look at include/linux/rwsem.h, and ask yourself
-how to call down_read(), down_write(), up_read(), and up_write()
-without getting little snippets of GPL all over your .o.  
-
-And even if your module doesn't get screwed by that, there's a
-few other equally dangerous inlines waiting to bite you on the posterior.
-
-I seem to recall one of the little buggers was particularly nasty, because it
-simply Would Not Work if not inlined, so compiling with -fno-inline wasn't an
-option.  Unfortunately, I can't remember which it was - it was mentioned on
-here a while ago when somebody's kernel failed to boot because a gcc 3.mumble
-had broken inlining.....
-
-
---==_Exmh_-707884216P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/0BPdcC3lWbTT17ARAu+ZAKCxW4XDbalbvfe3ZSvnmQPf5ZK2WQCeMaL2
-+qqGvumSfiA361ccZ+X48jQ=
-=Rofe
------END PGP SIGNATURE-----
-
---==_Exmh_-707884216P--

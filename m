@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbSJaTgt>; Thu, 31 Oct 2002 14:36:49 -0500
+	id <S265340AbSJaTSY>; Thu, 31 Oct 2002 14:18:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbSJaTgt>; Thu, 31 Oct 2002 14:36:49 -0500
-Received: from herald.cc.purdue.edu ([128.210.11.29]:18846 "EHLO
-	herald.cc.purdue.edu") by vger.kernel.org with ESMTP
-	id <S265423AbSJaTgs>; Thu, 31 Oct 2002 14:36:48 -0500
-Date: Thu, 31 Oct 2002 14:42:12 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-Message-ID: <20021031194212.GC22597@snerble.cc.purdue.edu>
-Reply-To: shuey@purdue.edu
-References: <Pine.LNX.4.44.0210302224180.20210-100000@nakedeye.aparity.com> <Pine.LNX.4.44.0210310737170.2035-100000@home.transmeta.com> <20021031171334.GA22597@snerble.cc.purdue.edu> <1036091071.8575.101.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1036091071.8575.101.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-From: Michael Shuey <shuey@purdue.edu>
+	id <S265342AbSJaTSX>; Thu, 31 Oct 2002 14:18:23 -0500
+Received: from mail.gmx.net ([213.165.64.20]:53238 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265340AbSJaTSS>;
+	Thu, 31 Oct 2002 14:18:18 -0500
+Message-ID: <3DC18308.1040808@gmx.net>
+Date: Thu, 31 Oct 2002 20:22:48 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Xiafs inclusion in 2.5?
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 07:04:31PM +0000, Alan Cox wrote:
-> On Thu, 2002-10-31 at 17:13, Michael Shuey wrote:
-> > I'm a user, and I request that LKCD get merged into the kernel. :-)
-> > Do you feel like donating a 700-port console server?  Right, so it's LKCD
-> > for me then.
-> 
-> Wouldn't you rather they neatly tftp'd dumps to a nominated central
-> server which noticed the arrival, did the initial processing with a perl
-> script and mailed you a summary ?
+Hello Linus,
 
-Generally speaking, no.
+somewhere back in 2000, you wrote:
+ > Who still remembers xiafs? We have 33 different filesystems in the kernel
+ > tree - something that is quite impressive, and something that I don't
+ > think anybody else has ever tried to support. But we could have had 34..
 
-A tftp server doesn't provide enough security (specifically authentication).
-It would need to be accessible from clusters in multiple buildings and on
-multiple networks (some of which must be public).
+Out of curiosity, would you reaccept xiafs in 2.5, if it was cleaned up and 
+forward ported to use the new interfaces?
+And if you accept it, what's the latest date I could submit it? Technically, 
+it is a regression, ;-) so the feature freeze date might not apply.
 
-I've seen more network adapter issues than drive controller issues.  In
-particular, some vendors (Compaq, listen up) can't implement an eepro100 to
-save their asses, especially on older hardware.
+Regards,
+Carl-Daniel
 
->From time to time bandwidth issues and/or network splits can prevent dumps
-from being reliably delivered.
+P.S. I do not want to start a flamewar, it's just that I understood your 
+mail from back then as a call for a xiafs maintainer.
 
-Right now we use the presence of a local dump to indicate that a machine
-should not join the PBS pool (and begin to run more jobs) on a reboot.  I'd
-rather not have the nodes check a central server to see if it's okay to run
-jobs.  And no, I don't want machines to stay down after a crash - many nodes
-are in distant corners of campus and it's cold outside. :-)  If I can fix the
-problem through software I'd prefer that the problematic host be up, rather
-than having to walk over to it just to hit reset and load a new kernel.
-
-That said, it would be really nice if LKCD would log dumps to both the swap
-device and to a remote server.  That way if the machine crashed because of
-disk failure I'd still have an uncorrupted dump image (and could then notice
-all the little errors coming back out of the swap device).  A tool to
-automatically analyze a dump and email back summaries would be much more
-useful, though.  If someone were to write such a widget, that'd be swell. :-)
-
-Right now I'm less concerned with getting dumps to exactly the right place
-and a bit more concerned with getting dumps in the main kernel at all.
-
--- 
-Mike Shuey

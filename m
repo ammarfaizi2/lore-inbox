@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266271AbTAINPX>; Thu, 9 Jan 2003 08:15:23 -0500
+	id <S266411AbTAINSi>; Thu, 9 Jan 2003 08:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266411AbTAINPX>; Thu, 9 Jan 2003 08:15:23 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:7339 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S266271AbTAINPW>;
-	Thu, 9 Jan 2003 08:15:22 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Tupshin Harper <tupshin@tupshin.com>
-Date: Thu, 9 Jan 2003 14:23:52 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: oops while vmware-config.pl with kernel 2.4.21-pre2
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <CBD40FC6247@vcnet.vc.cvut.cz>
+	id <S266456AbTAINSi>; Thu, 9 Jan 2003 08:18:38 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5577 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266411AbTAINSh>; Thu, 9 Jan 2003 08:18:37 -0500
+Date: Thu, 9 Jan 2003 14:27:15 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21pre3-ac2
+Message-ID: <20030109132715.GT6626@fs.tum.de>
+References: <200301090139.h091d9G26412@devserv.devel.redhat.com> <20030109121431.GQ6626@fs.tum.de> <20030109131510.A25566@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030109131510.A25566@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 Jan 03 at 22:04, Tupshin Harper wrote:
-> I'm going to forward this to the vmware folks, but there's a decent 
-> chance they are not totally to blame:
+On Thu, Jan 09, 2003 at 01:15:10PM +0000, Arjan van de Ven wrote:
+> 
+> this ought to fix it:
+>...
 
-> Jan  8 21:40:41 fussbudget kernel: EIP:    0010:[skb_clone+407/448] 
-> Trace; e4f287e3 <[vmnet]VNetHubReceive+57/a7>
+Yes, thanks, I can confirm that this patch fixes the compilation 
+problem.
 
-Can you try to update your vmware with 
-ftp://platan.vc.cvut.cz/pub/vmware/vmware-any-any-update24.tar.gz ?
+cu
+Adrian
 
-But I do not think that it will fix your problem. I'm not able to
-find how it could happen, except if skb with NULL skb->end (and though
-NULL skb_shinfo()) was passed to the callback registered by dev_add_pack()...
-But it should not happen...
-                                            Thanks,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVAFOtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVAFOuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVAFOtv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 09:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVAFOtv
+	id S262848AbVAFOuX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 09:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVAFOuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 09:49:51 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:45758 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262846AbVAFOt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 09:49:27 -0500
-Date: Thu, 6 Jan 2005 16:51:03 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Takashi Iwai <tiwai@suse.de>, ak@suse.de, mingo@elte.hu,
-       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com,
-       alsa-devel@lists.sourceforge.net, greg@kroah.com
-Subject: [PATCH] fget_light/fput_light for ioctls
-Message-ID: <20050106145103.GB25898@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 6 Jan 2005 09:50:22 -0500
+Received: from tartu.cyber.ee ([193.40.6.68]:21257 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id S262848AbVAFOuK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 09:50:10 -0500
+From: "Ville Hallik" <ville@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9+ keyboard LED problem
+In-Reply-To: <200501060143.13428.dtor_core@ameritech.net>
+User-Agent: tin/1.5.12-20020311 ("Toxicity") (UNIX) (Linux/2.4.18-1-686-smp (i686))
+Message-Id: <20050106145008.E3F6E14C47@ondatra.tartu-labor>
+Date: Thu,  6 Jan 2005 16:50:08 +0200 (EET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-With new unlocked_ioctl and ioctl_compat, ioctls can now
-be as fast as read/write.
-So lets use fget_light/fput_light there, to get some speedup
-in common case on SMP.
+In article <200501060143.13428.dtor_core@ameritech.net> you wrote:
 
-mst
+> Actually it is ACK processing hardening that is very useful at setup stage
+> but is getting in our way once keyboard is initialized and commands are
+> intermixed with good data.
 
-Signed-off-by: Michael s. Tsirkin <mst@mellanox.co.il>
+> Could you please try the patch below? It is just a quick hack, just to prove
+> the idea. If it works for you I will prepare the proper fix later.
 
-diff -rup linux-2.6.10/fs/compat.c linux-2.6.10-ioctls/fs/compat.c
---- linux-2.6.10/fs/compat.c	2005-01-06 17:54:13.000000000 +0200
-+++ linux-2.6.10-ioctls/fs/compat.c	2005-01-06 20:15:44.407259408 +0200
-@@ -431,8 +431,9 @@ asmlinkage long compat_sys_ioctl(unsigne
- 	struct file *filp;
- 	int error = -EBADF;
- 	struct ioctl_trans *t;
-+	int fput_needed;
- 
--	filp = fget(fd);
-+	filp = fget_light(fd, &fput_needed);
- 	if (!filp)
- 		goto out;
- 
-@@ -476,7 +479,7 @@ asmlinkage long compat_sys_ioctl(unsigne
-  do_ioctl:
- 	error = sys_ioctl(fd, cmd, arg);
-  out_fput:
--	fput(filp);
-+	fput_light(file, fput_needed);
-  out:
- 	return error;
- }
-diff -rup linux-2.6.10/fs/ioctl.c linux-2.6.10-ioctls/fs/ioctl.c
---- linux-2.6.10/fs/ioctl.c	2005-01-06 17:54:13.000000000 +0200
-+++ linux-2.6.10-ioctls/fs/ioctl.c	2005-01-06 20:34:09.329285728 +0200
-@@ -80,8 +83,9 @@ asmlinkage long sys_ioctl(unsigned int f
- 	struct file * filp;
- 	unsigned int flag;
- 	int on, error = -EBADF;
-+	int fput_needed;
- 
--	filp = fget(fd);
-+	filp = fget_light(fd, &fput_needed);
- 	if (!filp)
- 		goto out;
- 
-@@ -154,7 +158,7 @@ asmlinkage long sys_ioctl(unsigned int f
- 			break;
- 	}
-  out_fput:
--	fput(filp);
-+	fput_light(filp, fput_needed);
-  out:
- 	return error;
- }
+> -- 
+> Dmitry
+
+> ===== drivers/input/serio/libps2.c 1.2 vs edited =====
+> --- 1.2/drivers/input/serio/libps2.c    2004-10-20 03:13:08 -05:00
+> +++ edited/drivers/input/serio/libps2.c 2005-01-06 01:20:11 -05:00
+> @@ -250,7 +250,7 @@
+>                        }
+>                        /* Fall through */
+>                default:
+> -                       return 1;
+> +                       return 0;
+>        }
+> 
+>        if (!ps2dev->nak && ps2dev->cmdcnt)
+
+This quick hack works for me too. Thanks!
+
+However, it is still easy to make PS/2 keyboard and mouse completely
+unusable with the following "sleepless" shell script (but it probably does
+not qualify as DoS because access to PS/2 keyboard is limited to local user
+only):
+
+while : ; do xset led 3 ; xset -led 3 ; done
+
+Even after killing this over network login, both keyboard and mouse are
+still unresponsive for about 10..20 seconds. It was not that fatal with 2.6.8.
+
+-- 
+
+Ville Hallik

@@ -1,22 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUCOUgw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 15:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbUCOUgw
+	id S262745AbUCOUkG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 15:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbUCOUkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 15:36:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:65188 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262634AbUCOUgv (ORCPT
+	Mon, 15 Mar 2004 15:40:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62374 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262745AbUCOUkB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 15:36:51 -0500
-Date: Mon, 15 Mar 2004 12:36:47 -0800
+	Mon, 15 Mar 2004 15:40:01 -0500
+Date: Mon, 15 Mar 2004 12:39:53 -0800
 From: "David S. Miller" <davem@redhat.com>
-To: Olaf Hering <olh@suse.de>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: consistent_sync_for_cpu() and friends on ppc32
-Message-Id: <20040315123647.4ce943b7.davem@redhat.com>
-In-Reply-To: <20040315201616.GA31268@suse.de>
-References: <20040315201616.GA31268@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: cieciwa@alpha.zarz.agh.edu.pl, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [SPARC64][PPC] strange error ..
+Message-Id: <20040315123953.3b6b863f.davem@redhat.com>
+In-Reply-To: <20040315190026.GG4342@smtp.west.cox.net>
+References: <Pine.LNX.4.58L.0403151437360.16193@alpha.zarz.agh.edu.pl>
+	<Pine.LNX.4.58L.0403151939460.17732@alpha.zarz.agh.edu.pl>
+	<20040315190026.GG4342@smtp.west.cox.net>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
@@ -25,19 +28,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Mar 2004 21:16:16 +0100
-Olaf Hering <olh@suse.de> wrote:
+On Mon, 15 Mar 2004 12:00:26 -0700
+Tom Rini <trini@kernel.crashing.org> wrote:
 
-> what is the fix for ppc32? This patch went into Linus tree:
-> people/akpm/patches/2.6/2.6.4/2.6.4-mm1/broken-out/dma_sync_for_device-cpu.patch
- ...
-> include/asm/pci.h: In function `pci_dma_sync_single_for_cpu':
+> That leaves the more general problem of <asm/unistd.h> uses 'asmlinkage'
+> on platforms where either (or both) of the following can be true:
+> - 'asmlinkage' is a meaningless term, and shouldn't be used.
+> - <asm/unistd.h> doesn't include <linux/linkage.h> so it's possible
+>   another file down the line breaks.
 
-Ben, can you work this out?  I can make it compile by just making the
-_for_cpu and _for_device routines behave identically to what the
-consisten_sync{,_page}() stuff does now.  But I'd much rather a ppc32
-person implement it correctly and optimally.
-
-In short, the _for_device routines should make sure cacheable data in
-the cpu is fully visible to the DMA device, and _for_cpu should make
-sure all device DMA is visible to the processor.
+I think the best fix is to include linux/linkage.h in asm/unistd.h as
+you seem to be suggesting, and therefore that is the change I will
+push off to Linus to fix this on sparc32 and sparc64.

@@ -1,360 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbUD1T4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbUD1VNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbUD1T4c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 15:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbUD1TyY
+	id S261969AbUD1VNI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 17:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUD1VKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:54:24 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:28654 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S264958AbUD1Qva
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 12:51:30 -0400
-Date: Wed, 28 Apr 2004 18:51:19 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (6/6): oprofile for s390.
-Message-ID: <20040428165119.GG2777@mschwid3.boeblingen.de.ibm.com>
+	Wed, 28 Apr 2004 17:10:44 -0400
+Received: from fed1rmmtao07.cox.net ([68.230.241.32]:46046 "EHLO
+	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S262176AbUD1U7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 16:59:41 -0400
+Date: Wed, 28 Apr 2004 13:59:38 -0700
+From: Jesse Allen <the3dfxdude@hotmail.com>
+To: Ross Dickson <ross@datscreative.com.au>
+Cc: Len Brown <len.brown@intel.com>, a.verweij@student.tudelft.nl,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
+       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
+Message-ID: <20040428205938.GA1995@tesore.local>
+Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
+	Ross Dickson <ross@datscreative.com.au>,
+	Len Brown <len.brown@intel.com>, a.verweij@student.tudelft.nl,
+	"Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+	Craig Bradney <cbradney@zip.com.au>,
+	christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
+	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+	Jamie Lokier <jamie@shareable.org>,
+	Daniel Drake <dan@reactivated.net>, Ian Kumlien <pomac@vapor.com>,
+	Allen Martin <AMartin@nvidia.com>
+References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl> <1083088854.2322.38.camel@dhcppc4> <200404282133.34887.ross@datscreative.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200404282133.34887.ross@datscreative.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: oprofile.
+On Wed, Apr 28, 2004 at 09:33:34PM +1000, Ross Dickson wrote:
+> > 
+> > It may be this board never hangs no matter what,
+> > or perhaps C1 disconnect was simply disabled in that BIOS
+> > b/c there was no option for it in Advanced Chipset Features
+> > like there is for the most recent BIOS.
+> 
+> Maybe other MOBO manufacturers skimp on filter caps and regulator damping
+> ability and a resonance occurs in the on-board supply rails? Do Shuttle make
+> any claims to using an improved on board regulator? Or Shuttle may have 
+> always programmed more time in C1 cycle handshakes if such is 
+> configurable? 
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Do you really think so?  I think there may be a resonance occuring, even with 
+this new BIOS.  I plugged in new headphones into my nforce2 onboard sound, and 
+get a high pitched noise.  Now here is where it gets weird:  This noise does 
+not occur on boot until sometime after the IDE driver is loaded.  I also 
+believe it varies under a high load.  If you disable C1 disconnect, it's gone.  
+Also I've heard a high pitched noise at certain times coming right from the 
+copmuter (very faint, but I do have very good hearing, I can even hear a hush 
+sounding from my router.  my brother was quite astonished when I pointed that 
+out)  I try to distinguish whats doing it.  It could be the hard drive.  But 
+when I found the other sound in the head phones, I found that the sound varies 
+almost in unison with the sound coming from the computer.  Maybe the IDE or 
+hard drive is related, but it is too much related to C1 disconnect.
 
-Add oprofile support for s/390.
+Whether it is really possible that my board can really generate this sound, I 
+don't know.  Though, I have once determined that resonance was occuring in an 
+old system, causing unstable CPU operation.  It wasn't that I heard a sound 
+coming from it =).  But what I thought was the case was causing it, and pulled 
+it out of the case.  I ran it on the table and found it to be stable.  That 
+was the only thing wrong.  I've also studied resonance before a bit.  I know 
+resonance can break systems.  But to think that my board is doing emmitting 
+noise like that is pretty bizarre. 
 
-diffstat:
- arch/s390/Kconfig                 |    1 
- arch/s390/Makefile                |    3 ++
- arch/s390/defconfig               |    5 +++
- arch/s390/kernel/Makefile         |    2 -
- arch/s390/kernel/compat_wrapper.S |    8 +++++
- arch/s390/kernel/profile.c        |   56 ++++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/syscalls.S       |    2 -
- arch/s390/kernel/time.c           |   50 +++++++++++++++++++++++++++++++++
- arch/s390/oprofile/Kconfig        |   23 +++++++++++++++
- arch/s390/oprofile/Makefile       |    9 ++++++
- arch/s390/oprofile/init.c         |   26 +++++++++++++++++
- drivers/s390/cio/cio.c            |    9 ------
- include/asm-s390/unistd.h         |    1 
- 13 files changed, 184 insertions(+), 11 deletions(-)
+It may be true that this Shuttle board may have resonance problems.  So that 
+would indicate that they did something much like you describe by changing the 
+C1 handshake time?  Isn't that much like what your patch does?
 
-diff -urN linux-2.6/arch/s390/Kconfig linux-2.6-s390/arch/s390/Kconfig
---- linux-2.6/arch/s390/Kconfig	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/Kconfig	Wed Apr 28 17:51:41 2004
-@@ -368,6 +368,7 @@
- 
- source "fs/Kconfig"
- 
-+source "arch/s390/oprofile/Kconfig"
- 
- menu "Kernel hacking"
- 
-diff -urN linux-2.6/arch/s390/Makefile linux-2.6-s390/arch/s390/Makefile
---- linux-2.6/arch/s390/Makefile	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/Makefile	Wed Apr 28 17:51:41 2004
-@@ -50,6 +50,9 @@
- drivers-y	+= drivers/s390/
- drivers-$(CONFIG_MATHEMU) += arch/$(ARCH)/math-emu/
- 
-+# must be linked after kernel
-+drivers-$(CONFIG_OPROFILE)	+= arch/s390/oprofile/
-+
- boot		:= arch/$(ARCH)/boot
- 
- all: image
-diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/defconfig	Wed Apr 28 17:51:41 2004
-@@ -464,6 +464,11 @@
- # CONFIG_NLS is not set
- 
- #
-+# Profiling support
-+#
-+# CONFIG_PROFILING is not set
-+
-+#
- # Kernel hacking
- #
- CONFIG_DEBUG_KERNEL=y
-diff -urN linux-2.6/arch/s390/kernel/Makefile linux-2.6-s390/arch/s390/kernel/Makefile
---- linux-2.6/arch/s390/kernel/Makefile	Sun Apr  4 05:38:20 2004
-+++ linux-2.6-s390/arch/s390/kernel/Makefile	Wed Apr 28 17:51:41 2004
-@@ -6,7 +6,7 @@
- 
- obj-y	:=  bitmap.o traps.o time.o process.o \
-             setup.o sys_s390.o ptrace.o signal.o cpcmd.o ebcdic.o \
--            semaphore.o s390_ext.o debug.o
-+            semaphore.o s390_ext.o debug.o profile.o
- 
- extra-$(CONFIG_ARCH_S390_31)	+= head.o 
- extra-$(CONFIG_ARCH_S390X)	+= head64.o 
-diff -urN linux-2.6/arch/s390/kernel/compat_wrapper.S linux-2.6-s390/arch/s390/kernel/compat_wrapper.S
---- linux-2.6/arch/s390/kernel/compat_wrapper.S	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/kernel/compat_wrapper.S	Wed Apr 28 17:51:41 2004
-@@ -1234,6 +1234,14 @@
- 	lgfr	%r5,%r5			# int
- 	jg	sys_epoll_wait		# branch to system call
- 
-+	.globl	sys32_lookup_dcookie_wrapper
-+sys32_lookup_dcookie_wrapper:
-+	sllg	%r2,%r2,32		# get high word of 64bit dcookie
-+	or	%r2,%r3			# get low word of 64bit dcookie
-+	llgtr	%r3,%r4			# char *
-+	llgfr	%r4,%r5			# size_t
-+	jg	sys_lookup_dcookie
-+
- 	.globl	sys32_fadvise64_wrapper
- sys32_fadvise64_wrapper:
- 	lgfr	%r2,%r2			# int
-diff -urN linux-2.6/arch/s390/kernel/profile.c linux-2.6-s390/arch/s390/kernel/profile.c
---- linux-2.6/arch/s390/kernel/profile.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/kernel/profile.c	Wed Apr 28 17:51:41 2004
-@@ -0,0 +1,56 @@
-+/*
-+ * arch/s390/kernel/profile.c
-+ *
-+ * Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ * Author(s): Thomas Spatzier (tspat@de.ibm.com)
-+ *
-+ */
-+#include <linux/proc_fs.h>
-+
-+static struct proc_dir_entry * root_irq_dir;
-+
-+static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
-+					int count, int *eof, void *data)
-+{
-+	int len = cpumask_scnprintf(page, count, *(cpumask_t *)data);
-+	if (count - len < 2)
-+		return -EINVAL;
-+	len += sprintf(page + len, "\n");
-+	return len;
-+}
-+
-+static int prof_cpu_mask_write_proc (struct file *file, const char *buffer,
-+					unsigned long count, void *data)
-+{
-+	cpumask_t *mask = (cpumask_t *)data;
-+	unsigned long full_count = count, err;
-+	cpumask_t new_value;
-+
-+	err = cpumask_parse(buffer, count, new_value);
-+	if (err)
-+		return err;
-+
-+	*mask = new_value;
-+	return full_count;
-+}
-+
-+cpumask_t prof_cpu_mask = CPU_MASK_ALL;
-+
-+void init_irq_proc(void)
-+{
-+	struct proc_dir_entry *entry;
-+
-+	/* create /proc/irq */
-+	root_irq_dir = proc_mkdir("irq", 0);
-+
-+	/* create /proc/irq/prof_cpu_mask */
-+	entry = create_proc_entry("prof_cpu_mask", 0600, root_irq_dir);
-+
-+	if (!entry)
-+		return;
-+
-+	entry->nlink = 1;
-+	entry->data = (void *)&prof_cpu_mask;
-+	entry->read_proc = prof_cpu_mask_read_proc;
-+	entry->write_proc = prof_cpu_mask_write_proc;
-+}
-diff -urN linux-2.6/arch/s390/kernel/syscalls.S linux-2.6-s390/arch/s390/kernel/syscalls.S
---- linux-2.6/arch/s390/kernel/syscalls.S	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/kernel/syscalls.S	Wed Apr 28 17:51:41 2004
-@@ -118,7 +118,7 @@
- SYSCALL(sys_newlstat,sys_newlstat,compat_sys_newlstat_wrapper)
- SYSCALL(sys_newfstat,sys_newfstat,compat_sys_newfstat_wrapper)
- NI_SYSCALL							/* old uname syscall */
--NI_SYSCALL							/* reserved for sys_lookup_dcache */
-+SYSCALL(sys_lookup_dcookie,sys_lookup_dcookie,sys32_lookup_dcookie_wrapper)	/* 110 */
- SYSCALL(sys_vhangup,sys_vhangup,sys_vhangup)
- NI_SYSCALL							/* old "idle" system call */
- NI_SYSCALL							/* vm86old for i386 */
-diff -urN linux-2.6/arch/s390/kernel/time.c linux-2.6-s390/arch/s390/kernel/time.c
---- linux-2.6/arch/s390/kernel/time.c	Wed Apr 28 17:51:14 2004
-+++ linux-2.6-s390/arch/s390/kernel/time.c	Wed Apr 28 17:51:41 2004
-@@ -24,6 +24,7 @@
- #include <linux/init.h>
- #include <linux/smp.h>
- #include <linux/types.h>
-+#include <linux/profile.h>
- #include <linux/timex.h>
- #include <linux/config.h>
- 
-@@ -177,6 +178,54 @@
- 
- #endif /* CONFIG_ARCH_S390X */
- 
-+
-+#if defined(CONFIG_OPROFILE) || defined(CONFIG_OPROFILE_MODULE)
-+extern char _stext, _etext;
-+
-+/*
-+ * The profiling function is SMP safe. (nothing can mess
-+ * around with "current", and the profiling counters are
-+ * updated with atomic operations). This is especially
-+ * useful with a profiling multiplier != 1
-+ */
-+static inline void s390_do_profile(struct pt_regs * regs)
-+{
-+	unsigned long eip;
-+	extern cpumask_t prof_cpu_mask;
-+
-+	profile_hook(regs);
-+
-+	if (user_mode(regs))
-+		return;
-+
-+	if (!prof_buffer)
-+		return;
-+
-+	eip = instruction_pointer(regs);
-+
-+	/*
-+	 * Only measure the CPUs specified by /proc/irq/prof_cpu_mask.
-+	 * (default is all CPUs.)
-+	 */
-+	if (!cpu_isset(smp_processor_id(), prof_cpu_mask))
-+		return;
-+
-+	eip -= (unsigned long) &_stext;
-+	eip >>= prof_shift;
-+	/*
-+	 * Don't ignore out-of-bounds EIP values silently,
-+	 * put them into the last histogram slot, so if
-+	 * present, they will show up as a sharp peak.
-+	 */
-+	if (eip > prof_len-1)
-+		eip = prof_len-1;
-+	atomic_inc((atomic_t *)&prof_buffer[eip]);
-+}
-+#else
-+#define s390_do_profile(regs)  do { ; } while(0)
-+#endif /* CONFIG_OPROFILE */
-+
-+
- /*
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-@@ -231,6 +280,7 @@
- 	while (ticks--)
- 		do_timer(regs);
- #endif
-+	s390_do_profile(regs);
- }
- 
- #ifdef CONFIG_VIRT_TIMER
-diff -urN linux-2.6/arch/s390/oprofile/Kconfig linux-2.6-s390/arch/s390/oprofile/Kconfig
---- linux-2.6/arch/s390/oprofile/Kconfig	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/oprofile/Kconfig	Wed Apr 28 17:51:41 2004
-@@ -0,0 +1,23 @@
-+
-+menu "Profiling support"
-+	depends on EXPERIMENTAL
-+
-+config PROFILING
-+	bool "Profiling support (EXPERIMENTAL)"
-+	help
-+	  Say Y here to enable the extended profiling support mechanisms used
-+	  by profilers such as OProfile.
-+
-+
-+config OPROFILE
-+	tristate "OProfile system profiling (EXPERIMENTAL)"
-+	depends on PROFILING
-+	help
-+	  OProfile is a profiling system capable of profiling the
-+	  whole system, include the kernel, kernel modules, libraries,
-+	  and applications.
-+
-+	  If unsure, say N.
-+
-+endmenu
-+
-diff -urN linux-2.6/arch/s390/oprofile/Makefile linux-2.6-s390/arch/s390/oprofile/Makefile
---- linux-2.6/arch/s390/oprofile/Makefile	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/oprofile/Makefile	Wed Apr 28 17:51:41 2004
-@@ -0,0 +1,9 @@
-+obj-$(CONFIG_OPROFILE) += oprofile.o
-+
-+DRIVER_OBJS = $(addprefix ../../../drivers/oprofile/, \
-+		oprof.o cpu_buffer.o buffer_sync.o \
-+		event_buffer.o oprofile_files.o \
-+		oprofilefs.o oprofile_stats.o  \
-+		timer_int.o )
-+
-+oprofile-y				:= $(DRIVER_OBJS) init.o
-diff -urN linux-2.6/arch/s390/oprofile/init.c linux-2.6-s390/arch/s390/oprofile/init.c
---- linux-2.6/arch/s390/oprofile/init.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.6-s390/arch/s390/oprofile/init.c	Wed Apr 28 17:51:41 2004
-@@ -0,0 +1,26 @@
-+/**
-+ * arch/s390/oprofile/init.c
-+ *
-+ * S390 Version
-+ *   Copyright (C) 2003 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *   Author(s): Thomas Spatzier (tspat@de.ibm.com)
-+ *
-+ * @remark Copyright 2002 OProfile authors
-+ */
-+
-+#include <linux/oprofile.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+
-+//extern int irq_init(struct oprofile_operations** ops);
-+extern void timer_init(struct oprofile_operations** ops);
-+
-+int __init oprofile_arch_init(struct oprofile_operations** ops)
-+{
-+	timer_init(ops);
-+	return 0;
-+}
-+
-+void oprofile_arch_exit(void)
-+{
-+}
-diff -urN linux-2.6/drivers/s390/cio/cio.c linux-2.6-s390/drivers/s390/cio/cio.c
---- linux-2.6/drivers/s390/cio/cio.c	Wed Apr 28 17:51:15 2004
-+++ linux-2.6-s390/drivers/s390/cio/cio.c	Wed Apr 28 17:51:41 2004
-@@ -52,15 +52,6 @@
- 
- __setup ("cio_msg=", cio_setup);
- 
--
--#ifdef CONFIG_PROC_FS
--void
--init_irq_proc(void)
--{
--	/* For now, nothing... */
--}
--#endif
--
- /*
-  * Function: cio_debug_init
-  * Initializes three debug logs (under /proc/s390dbf) for common I/O:
-diff -urN linux-2.6/include/asm-s390/unistd.h linux-2.6-s390/include/asm-s390/unistd.h
---- linux-2.6/include/asm-s390/unistd.h	Wed Apr 28 17:51:17 2004
-+++ linux-2.6-s390/include/asm-s390/unistd.h	Wed Apr 28 17:51:41 2004
-@@ -105,6 +105,7 @@
- #define __NR_stat               106
- #define __NR_lstat              107
- #define __NR_fstat              108
-+#define __NR_lookup_dcookie     110
- #define __NR_vhangup            111
- #define __NR_idle               112
- #define __NR_wait4              114
+
+> 
+> > hang issue is completely explained and solved.
+> 
+> I have had good (100%) success in reproducing the fault with the Albatron 
+> KM18G pro MOBO. I needed m-atx form factor and distributor was local to me.
+> Makes very nice - cheap and stable system but only with the lockup workaround.
+> 
+> I also recollect that Windows had lockups with nforce2 for a while depending 
+> whether you ran the Nvidia or Microsoft driver.
+> http://lkml.org/lkml/2003/12/13/5
+> Anybody got the inside running on that one and what was different between the 
+> two drivers?
+> 
+
+Yeah, unfortunately, I didn't save a link to the message board that I found 
+that on.  But the issue is pretty common.  I'm sure more info can be found on i
+the windows side.
+
+Jesse
+

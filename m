@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271230AbRHOP2P>; Wed, 15 Aug 2001 11:28:15 -0400
+	id <S271237AbRHOPj5>; Wed, 15 Aug 2001 11:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271228AbRHOP2F>; Wed, 15 Aug 2001 11:28:05 -0400
-Received: from finch-post-10.mail.demon.net ([194.217.242.38]:33552 "EHLO
-	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S271227AbRHOP2A>; Wed, 15 Aug 2001 11:28:00 -0400
-Date: Wed, 15 Aug 2001 16:27:04 +0100 (BST)
-From: Steve Hill <steve@navaho.co.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <Pine.LNX.3.95.1010815111856.28263A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.21.0108151622570.2107-100000@sorbus.navaho>
+	id <S271236AbRHOPjr>; Wed, 15 Aug 2001 11:39:47 -0400
+Received: from dsl254-089-216.nyc1.dsl.speakeasy.net ([216.254.89.216]:16382
+	"EHLO dragon") by vger.kernel.org with ESMTP id <S271233AbRHOPjh>;
+	Wed, 15 Aug 2001 11:39:37 -0400
+Message-ID: <3B7A97C5.9090207@infiniconsys.com>
+Date: Wed, 15 Aug 2001 11:39:49 -0400
+From: Michael Heinz <mheinz@infiniconsys.com>
+Organization: InfiniCon Systems
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ics i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Implications of PG_locked and reference count in page structures....
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Aug 2001, Richard B. Johnson wrote:
+I'm in the process of porting a driver to Linux. The author of the 
+driver conveniently broke it into os-dependent and independent sections.
 
-> Same problem on 2.4.1. The first 512 bytes comes right away if
-> /dev/random hasn't been accessed since boot, then the rest trickles
-> a few words per second.
+One of the things in the "OS" dependent section is a routine to lock a 
+section of memory presumably to be used for DMA.
 
-Hmm...  Well, ATM I've kludged a fix by using /dev/urandom instead, but
-it's not ideal because it's being used to generate cryptographic keys, and
-urandom isn't cryptographically secure.
+So, what I want to do is this: given a pointer to a previously 
+kmalloc'ed block, and the length of that block, I want to (a) identify 
+each page associated with the block and (b) lock each page. It appears 
+that I can lock the page either by incrementing it's reference count, or 
+by setting the PG_locked flag for the page.
 
-Are you seeing the problem on a normal machine? (I assumed I was seeing it
-because I'm using Cobalt hardware that's not going to get much entropy
-data due to the lack of keyboard, etc)...  although when I'm generating
-this data I'm using a root NFS filesystem, so there should be plenty of
-network interrupts happening,which should generate some entropy...
-
-I might have a look into increasing the size of the entropy pool so
-there's more data to access at once...
-
--- 
-
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
-
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
+Which method is preferred? Is there another method I should be using 
+instead?
 
 

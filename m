@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUITMOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUITMOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266345AbUITMOG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 08:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUITMOG
+	id S266457AbUITMOV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 08:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUITMOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 08:14:06 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:17832 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S266345AbUITMOB (ORCPT
+	Mon, 20 Sep 2004 08:14:21 -0400
+Received: from cantor.suse.de ([195.135.220.2]:1510 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266459AbUITMOM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 08:14:01 -0400
-Date: Mon, 20 Sep 2004 14:14:00 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Olaf Hering <olh@suse.de>
-cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+	Mon, 20 Sep 2004 08:14:12 -0400
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Olaf Hering <olh@suse.de>, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
 Subject: Re: OOM & [OT] util-linux-2.12e
-In-Reply-To: <20040920120752.GA23315@suse.de>
-Message-ID: <Pine.LNX.4.61.0409201413030.877@scrub.home>
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de>
- <Pine.LNX.4.61.0409201220200.3460@scrub.home> <20040920105618.GB24928@suse.de>
- <Pine.LNX.4.61.0409201311050.3460@scrub.home> <20040920112607.GA19073@suse.de>
- <Pine.LNX.4.61.0409201331320.3460@scrub.home> <20040920115032.GA21631@suse.de>
- <Pine.LNX.4.61.0409201357540.877@scrub.home> <20040920120752.GA23315@suse.de>
+References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
+	<20040920094602.GA24466@suse.de> <jeoek1xn9p.fsf@sykes.suse.de>
+	<20040920105409.GH5482@DervishD> <jek6upxj1a.fsf@sykes.suse.de>
+	<414EC43B.8040507@grupopie.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: YOW!!
+Date: Mon, 20 Sep 2004 14:14:09 +0200
+In-Reply-To: <414EC43B.8040507@grupopie.com> (Paulo Marques's message of
+ "Mon, 20 Sep 2004 12:51:23 +0100")
+Message-ID: <jeekkxxhm6.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Paulo Marques <pmarques@grupopie.com> writes:
 
-On Mon, 20 Sep 2004, Olaf Hering wrote:
+> Andreas Schwab wrote:
+>> DervishD <lkml@dervishd.net> writes:
+>> 
+>>>    Hi Andreas :)
+>>>
+>>> * Andreas Schwab <schwab@suse.de> dixit:
+>>>
+>>>>>- fix all broken apps that still rely on mtab. like GNU df(1)
+>>>>
+>>>>df does not rely on /etc/mtab.  It relies on getmntent.
+>>>
+>>>    Then my GNU df has any problem :???
+>> No, if any then getmntent.
+>
+> I don't get this. From "man getmntent" it seems that getmntent is just a
+> parser for /etc/mtab, and that you must call "setmntent" with the filename
+> you want to parse.
+>
+> So if you do "setmntent("/etc/mtab",...)" you're explicitly saying that
+> you want getmntent to use /etc/mtab. This is just a open/read in disguise.
+>
+> Am I missing something?
 
-> > > > $ mount -oloop image /mnt
-> > > > 
-> > > > vs
-> > > > 
-> > > > $ losetup image /dev/loop0
-> > > > $ mount /dev/loop0 /mnt
-> > > > 
-> > > > What should umount do, when called with /mnt?
-> > > 
-> > > I have /dev/loop0 in /proc/mounts, umount does nothing wrong here.
-> > 
-> > What exactly is that "nothing wrong"?
-> 
-> It umounts /mnt for me.
+No.  You are of course right, but the df sources don't reference /etc/mtab
+directly, but use _PATH_MOUNTED from <paths.h>.
 
-What happens to /dev/loop0?
+Andreas.
 
-bye, Roman
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

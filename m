@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136145AbRD0RnM>; Fri, 27 Apr 2001 13:43:12 -0400
+	id <S136146AbRD0Rsm>; Fri, 27 Apr 2001 13:48:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136139AbRD0RnC>; Fri, 27 Apr 2001 13:43:02 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:34558 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S136145AbRD0Rmz>; Fri, 27 Apr 2001 13:42:55 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200104271742.TAA17691@sunrise.pg.gda.pl>
-Subject: Re: 2.4.4-pre7 build failure w/ IP NAT and ipchains
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Fri, 27 Apr 2001 19:42:42 +0200 (MET DST)
-Cc: linux-kernel@vger.kernel.org (Linux-Kernel mailing list)
-In-Reply-To: <20010427115548.A16249@emma1.emma.line.org> from "Matthias Andree" at Apr 27, 2001 11:55:48 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
+	id <S136144AbRD0Rsd>; Fri, 27 Apr 2001 13:48:33 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61106 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S136139AbRD0RsY>;
+	Fri, 27 Apr 2001 13:48:24 -0400
+Message-ID: <3AE9B0E2.ECEBAD76@mandrakesoft.com>
+Date: Fri, 27 Apr 2001 13:48:18 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: montge@mianetworks.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cardbus conflicts...
+In-Reply-To: <20010427113657.73542.qmail@web11105.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Matthias Andree wrote:"
-> On Fri, 27 Apr 2001, David S. Miller wrote:
-> > Your configuration seems impossible, somehow the config system allowed
-> > you to set CONFIG_IP_NF_COMPAT_IPCHAINS without setting
-> > CONFIG_IP_NF_CONNTRACK.
+Evan Montgomery-Recht wrote:
+> 
+> About 2 years ago, I bought a IBM 600E laptop with one
+> of the IBM branded Xircom CardBUS cards.  It took me
+> about a month (with the help of a lot of people with
+> simular machines) to figure out why the card would be
+> recognized, and even connect to the network, but could
+> never get a IP address from DHCP.  It turned out that
+> the sound card which is a one of the CS based chips.
+> The fix that I found was that if I added the following
+> line to the /etc/pcmcia/config.opts The card would be
+> detected, and recognized, and get a IP address.
+> 
+> exclude ports 0x2f8-0x2ff
 
-Just quick look at net/ipv4/netfilter/Config.in explains everything:
+What kernel are you running?  You may need to go to
+http://pcmcia-cs.sourceforge.net/ for support, not there.
 
-: if [ "$CONFIG_IP_NF_CONNTRACK" != "y" ]; then
-:   if [ "$CONFIG_IP_NF_IPTABLES" != "y" ]; then
-:     tristate 'ipchains (2.2-style) support' CONFIG_IP_NF_COMPAT_IPCHAINS
+For kernel 2.4, make sure you have the following options set, exactly as
+I present them, in your kernel .config file.
 
-CONFIG_IP_NF_COMPAT_IPCHAINS depends on CONFIG_IP_NF_CONNTRACK being
-disabled. And it seems to be intentional...
-
-> Now, if I set "connection tracking" to "y", the ipchains option
-> disappears (make menuconfig). Are things supposed to behave this way?
-> I'd like to stick to ipchains for a while, rather than switch to
-> iptables. (Administrator laziness, of course.)
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+# CONFIG_I82365 is not set
 
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

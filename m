@@ -1,49 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUBKOxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 09:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUBKOxW
+	id S265352AbUBKPLv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 10:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUBKPLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 09:53:22 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:19654 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S263088AbUBKOxS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 09:53:18 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Andi Kleen <ak@suse.de>
-Subject: Re: kgdb support in vanilla 2.6.2
-Date: Wed, 11 Feb 2004 20:22:38 +0530
-User-Agent: KMail/1.5
-Cc: akpm@osdl.org, pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       piggy@timesys.com, trini@kernel.crashing.org, george@mvista.com
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <200402061835.16960.amitkale@emsyssoft.com> <20040206142441.23def5f3.ak@suse.de>
-In-Reply-To: <20040206142441.23def5f3.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Feb 2004 10:11:51 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:2982 "EHLO
+	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S265352AbUBKPLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 10:11:48 -0500
+Date: Wed, 11 Feb 2004 10:11:28 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: util-linux@math.uio.no
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix /etc/mtab updating with mount --move [was Re: devfs vs udev, thoughts from a devfs user]
+Message-ID: <20040211151128.GB32657@ti19.telemetry-investments.com>
+Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	util-linux@math.uio.no, viro@parcelfarce.linux.theplanet.co.uk,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com> <20040210192456.GB4814@tinyvaio.nome.ca> <40293508.1040803@nortelnetworks.com> <40293AF8.1080603@backtobasicsmgmt.com> <20040210203900.GA18263@ti19.telemetry-investments.com> <20040211011559.GA2153@kroah.com> <20040211075049.GJ21151@parcelfarce.linux.theplanet.co.uk> <20040211123352.GA32657@ti19.telemetry-investments.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
 Content-Disposition: inline
-Message-Id: <200402112022.38037.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+In-Reply-To: <20040211123352.GA32657@ti19.telemetry-investments.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 Feb 2004 6:54 pm, Andi Kleen wrote:
-> > > > > > > What I found always extremly ugly in the i386 stub was that it
-> > > > > > > uses magic globals to talk to the page fault handler. For the
-> > > > > > > x86-64 version I replaced that by just using __get/__put_user
-> > > > > > > in the memory accesses, which is much cleaner. I would suggest
-> > > > > > > doing that for i386 too.
 
-Done in this version of kgdb.
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+On Wed, Feb 11, 2004 at 07:33:52AM -0500, Bill Rugolsky Jr. wrote:
+> Anyway, with traditional /etc/mtab, mount --move produces:
+> 
+>    none on /tmp/a type ramfs (rw)
+>    /tmp/a on /tmp/b type none (rw)
 
+Andries, 
+
+The attached patch against util-linux-2.12pre fixes /etc/mtab updating
+when using mount --move.
+
+Regards,
+
+	Bill Rugolsky
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="util-linux-2.12pre-mountmove.patch"
+
+--- util-linux-2.12pre/mount/fstab.c.move	2003-07-05 16:16:05.000000000 -0400
++++ util-linux-2.12pre/mount/fstab.c	2004-02-11 09:56:12.644436000 -0500
+@@ -541,8 +541,12 @@
+ 				mc->nxt->prev = mc->prev;
+ 			}
+ 		} else {
+-			/* A remount */
++			/* A remount or move */
+ 			mc->m.mnt_opts = instead->mnt_opts;
++			if (!streq(mc->m.mnt_dir, instead->mnt_dir)) {
++				free(mc->m.mnt_dir);
++				mc->m.mnt_dir = xstrdup(instead->mnt_dir);
++			}
+ 		}
+ 	} else if (instead) {
+ 		/* not found, add a new entry */
+--- util-linux-2.12pre/mount/mount.c.move	2003-07-13 17:26:13.000000000 -0400
++++ util-linux-2.12pre/mount/mount.c	2004-02-11 10:03:25.754436000 -0500
+@@ -635,7 +635,9 @@
+ 	    print_one (&mnt);
+ 
+     if (!nomtab && mtab_is_writable()) {
+-	if (flags & MS_REMOUNT)
++	if (flags & MS_MOVE)
++	    update_mtab (mnt.mnt_fsname, &mnt);
++	else if (flags & MS_REMOUNT)
+ 	    update_mtab (mnt.mnt_dir, &mnt);
+ 	else {
+ 	    mntFILE *mfp;
+
+--lrZ03NoBR/3+SXJZ--

@@ -1,92 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131026AbQLGT7O>; Thu, 7 Dec 2000 14:59:14 -0500
+	id <S129423AbQLGUMD>; Thu, 7 Dec 2000 15:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131066AbQLGT7C>; Thu, 7 Dec 2000 14:59:02 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:9520 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S131033AbQLGT6w>;
-	Thu, 7 Dec 2000 14:58:52 -0500
-Date: Thu, 7 Dec 2000 19:28:05 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] setup.c notsc Re: Microsecond accuracy
-In-Reply-To: <Pine.GSO.3.96.1001207165626.21086F-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.21.0012071856280.1138-100000@localhost.localdomain>
+	id <S129458AbQLGULx>; Thu, 7 Dec 2000 15:11:53 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:23526 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129423AbQLGULi>; Thu, 7 Dec 2000 15:11:38 -0500
+Date: Thu, 7 Dec 2000 20:38:23 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: "Richard B. Johnson" <root@chaos.analogic.com>, richardj_moore@uk.ibm.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Why is double_fault serviced by a trap gate?
+In-Reply-To: <F02E6C85A2D@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.3.96.1001207202311.8897A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Maciej W. Rozycki wrote:
+On Thu, 7 Dec 2000, Petr Vandrovec wrote:
 
-> On 7 Dec 2000, H. Peter Anvin wrote:
-> 
-> > Unfortunately the most important instance of the in-kernel flag -- the
-> > global one in the somewhat misnamed boot_cpu_data.x86_features --
-> > isn't actually readable in the /proc/cpuinfo file.  It is perfectly
-> > possible (e.g. the "notsc" option) for ALL the CPUs to report this
-> > capability, but the global capability to still be off.
-> 
->  Hmm, I recall I implemented and explicitly verified switching the
-> /proc/cpuinfo "tsc" flag (as well as the userland access to the TSC) off
-> when I wrote the code to handle the "notsc" option.  Has it changed since
-> then?  I recall you modified the code a bit -- I looked at the changes
-> then but I was pretty confident the semantics was preserved.
+> It is architectural problem. Each CPU must have its own IDT or GDT table.
+> If (for real example) you'll use task gate for NMI, both NMIs are currently
+> (AFAIK) delivered to both CPUs at same time. Both CPUs find in IDT that
+> they should switch to task 0x1230. So one of them finds TSS 0x1230 (in GDT
+> entry 0x1230 / 8) as not busy (busy is field in TSS GDT descriptor), marks 
+> it busy and starts executing in new context. But other one finds 0x1230 as 
+> busy. And fault during doublefault is triplefault. Which is hardwired to 
+> reset and we are where we were before...
 
-The present situation is inconsistent: "notsc" removes cpuinfo's
-"tsc" flag in the UP case (when cpu_data[0] is boot_cpu_data), but
-not in the SMP case.  I don't believe HPA's recent mods affected that
-behaviour, but it is made consistent (cleared in SMP case too) by the
-patch I sent him a couple of days ago, below updated for test12-pre7...
+ This is not a problem itself -- each CPU may have a separate GDT and/or
+IDT.  We should not use task gates for NMIs but this still applies for
+double faults. 
 
-I didn't test userland access to the TSC, but my reading of the code
-was that prior to this patch, it would be disallowed on the boot cpu,
-but still allowed on auxiliaries - because disable_tsc set X86_CR4_TSD
-if cpu_has_tsc, but initing boot cpu forces cpu_has_tsc to !cpu_has_tsc.
+> Well, Intel recommends 'Invalid TSS' exception to be handled through TSS
+> too, for obvious reason that CPU state may be half-old and half-new...
 
-My patch description was:
-identify_cpu() re-evaluates x86_capability, which left cpu_has_tsc true
-(and cpu MHz shown as 0.000) in non-SMP "notsc" case: #ifdef CONFIG_TSC
-was bogus.  And set X86_CR4_TSD here when testing this cpu's capability,
-not where cpu_init() tests cpu_has_tsc (boot_cpu's adjusted capability).
+ We could set up a handler similar to the one for the double fault.
 
-I have removed the "FIX-HPA" comment line: of course, that's none of my
-business, but if you approve the patch I imagine you'd want that to go too
-(I agree it's a bit ugly there, but safest to disable cpu_has_tsc soonest).
+> But I'm not sure that all vendors handle TSS fault during doublefault
+> correctly and I do not want to rely on that. 
 
-Hugh
+ That would probably lead to a triple fault, but is it a real problem for
+us?  It is possible to set up a reliable double fault handler so the
+'Invalid TSS' handler would likely get never ever invoked. 
 
---- test12-pre7/arch/i386/kernel/setup.c	Thu Dec  7 17:25:55 2000
-+++ linux/arch/i386/kernel/setup.c	Thu Dec  7 17:56:35 2000
-@@ -1999,10 +1999,14 @@
- 	 * we do "generic changes."
- 	 */
- 
-+#ifndef CONFIG_X86_TSC
- 	/* TSC disabled? */
--#ifdef CONFIG_TSC
--	if ( tsc_disable )
--		clear_bit(X86_FEATURE_TSC, &c->x86_capability);
-+	if ( test_bit(X86_FEATURE_TSC, &c->x86_capability) ) {
-+		if (tsc_disable || !cpu_has_tsc) {
-+			clear_bit(X86_FEATURE_TSC, &c->x86_capability);
-+			set_in_cr4(X86_CR4_TSD);
-+		}
-+	}
- #endif
- 
- 	/* Disable the PN if appropriate */
-@@ -2218,9 +2222,7 @@
- #ifndef CONFIG_X86_TSC
- 	if (tsc_disable && cpu_has_tsc) {
- 		printk("Disabling TSC...\n");
--		/**** FIX-HPA: DOES THIS REALLY BELONG HERE? ****/
- 		clear_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability);
--		set_in_cr4(X86_CR4_TSD);
- 	}
- #endif
- 
+> So either each CPU must have its own IDT, pointing to different slots
+> in GDT, or each CPU must have its own GDT... I preffer IDT, as having
+> per-CPU GDT could create some really nasty problems (f.e. synchronizing
+> LDT entries between CPUs) (*) (**).
+
+ Just as I wrote earlier...
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

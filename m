@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbTIOOTi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbTIOOTi
+	id S261426AbTIOOcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbTIOOcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:19:38 -0400
-Received: from luli.rootdir.de ([213.133.108.222]:4482 "HELO luli.rootdir.de")
-	by vger.kernel.org with SMTP id S261403AbTIOOTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:19:37 -0400
-Date: Mon, 15 Sep 2003 16:19:33 +0200
-From: Claas Langbehn <claas@rootdir.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test5-mm2
-Message-ID: <20030915141933.GA1246@rootdir.de>
-References: <20030914234843.20cea5b3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030914234843.20cea5b3.akpm@osdl.org>
-Reply-By: Thu Sep 18 16:18:38 CEST 2003
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.0-test5-mm2 i686
-X-No-archive: yes
-X-Uptime: 16:18:38 up 10 min,  1 user,  load average: 0.09, 0.51, 0.35
-User-Agent: Mutt/1.5.4i
+	Mon, 15 Sep 2003 10:32:02 -0400
+Received: from uni03mr.unity.ncsu.edu ([152.1.1.166]:51685 "EHLO
+	uni03mr.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S261426AbTIOOb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:31:59 -0400
+Message-ID: <00ff01c37b96$9ddb4650$8c330e98@nanegrc>
+From: "Lisong Xu" <lxu2@unity.ncsu.edu>
+To: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: Intel PRO/1000 NIC
+Date: Mon, 15 Sep 2003 10:35:31 -0400
+Organization: NC State University
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-there is an error, after make modules_install
-/lib/modules/2.6.0-test5-mm2/build points to ".",
-but it should point to /usr/src/linux-2.6.0-test5-mm5/
+I am sending UDP data from one PC to another PC directly through a cross
+cable. The NIC of sender is Intel® PRO/1000 MT Server Adapter, and the NIC
+of receiver is on-board Intel PRO/1000 (Dell PowerEdge 1600SC).
 
-bye, claas
+After tuning the kernel and driver parameters, the sender can send data at
+1Gbps. But the receiver can only receive data at 620Mbps. (see the following
+ifconfig messages, 30 seconds test)
+
+*********** Sender *******************
+eth1      Link encap:Ethernet  HWaddr 00:07:E9:17:84:36
+          inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
+          RX packets:111 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:418072 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:30000
+          RX bytes:26193 (25.5 Kb)  TX bytes:3759596626 (3585.4 Mb)
+          Interrupt:24 Base address:0xccc0 Memory:fcd00000-fcd20000
+**************Receiver***********************
+eth0      Link encap:Ethernet  HWaddr 00:C0:9F:1E:3A:46
+          inet addr:192.168.1.101  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
+          RX packets:261355 errors:156688 dropped:156688 overruns:156688
+frame:0   <---- Look here!!!!!
+          TX packets:97 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:30000
+          RX bytes:2350019728 (2241.1 Mb)  TX bytes:22821 (22.2 Kb)
+          Interrupt:11 Base address:0xecc0 Memory:fe100000-fe120000
+***************************************************
+
+My questions is why so many packets are "errors, dropped, overruns". I have
+adjusted the "TxDescriptors, RxDescriptors, RxIntDelay,
+RxAbsIntDelay, TxIntDelay, TxAbsIntDelay" for different values, but always
+got similar result.
+
+Maybe here is not the right email list to send, but I am really frustrated
+with this problems, and hope to get some suggestions from the experts
+here.Any suggestion is really appreciated!
+
+Lisong
+
+
+
+
+

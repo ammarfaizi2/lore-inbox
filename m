@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261542AbSJQQVH>; Thu, 17 Oct 2002 12:21:07 -0400
+	id <S261665AbSJQQ13>; Thu, 17 Oct 2002 12:27:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSJQQVG>; Thu, 17 Oct 2002 12:21:06 -0400
-Received: from tml.hut.fi ([130.233.44.1]:5129 "EHLO tml-gw.tml.hut.fi")
-	by vger.kernel.org with ESMTP id <S261542AbSJQQVF>;
-	Thu, 17 Oct 2002 12:21:05 -0400
-Date: Thu, 17 Oct 2002 19:26:25 +0300
-From: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
-To: davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Cc: yoshfuji@wide.ad.jp, pekkas@netcore.fi, torvalds@transmeta.com,
-       jagana@us.ibm.com
-Subject: [PATCHSET] Mobile IPv6 for 2.5.43
-Message-ID: <20021017162624.GC16370@morphine.tml.hut.fi>
+	id <S261677AbSJQQ12>; Thu, 17 Oct 2002 12:27:28 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:1034 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S261665AbSJQQ11>;
+	Thu, 17 Oct 2002 12:27:27 -0400
+Date: Fri, 18 Oct 2002 01:26:18 +0900 (JST)
+Message-Id: <20021018.012618.74755132.taka@valinux.co.jp>
+To: habanero@us.ibm.com
+Cc: neilb@cse.unsw.edu.au, davem@redhat.com, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <001301c275e6$f31d5970$2a060e09@beavis>
+References: <003301c275e1$0bf76810$2a060e09@beavis>
+	<20021017.222602.48536782.taka@valinux.co.jp>
+	<001301c275e6$f31d5970$2a060e09@beavis>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alexey, Dave, everyone,
+Hi,
 
-We are resending our code for kernel inclusion consideration.  I hope
-with this submission we have addressed all the concerns raised on the
-list (i.e. draft revision) as well as offline (splitting the patch to
-smaller chunks).
+> > How about IP datagrams?  You can see the IP fields in /proc/net/snmp
+> > IP layer may also discard them.
+> 
+> Server:
+> 
+> Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams
+> InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes
+> ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates
+> Ip: 1 64 4088714 0 0 720 0 0 4086393 12233109 2 0 0 0 0 0 0 0 6000000
+> 
+> A Client:
+> 
+> Ip: Forwarding DefaultTTL InReceives InHdrErrors InAddrErrors ForwDatagrams
+> InUnknownProtos InDiscards InDelivers OutRequests OutDiscards OutNoRoutes
+> ReasmTimeout ReasmReqds ReasmOKs ReasmFails FragOKs FragFails FragCreates
+> Ip: 2 64 2115252 0 0 0 0 0 1115244 646510 0 0 0 1200000 200008 0 0 0 0
 
-To Pekka and Hideaki,
+It looks fine.  
+Hmmm....  What version of linux do you use?
 
-Intermediate revision of the specification "Draft 18++" appeared a few
-days ago, which addressed most of the issues with earlier drafts (16,
-17, 18).  This made it possible to update our code to something usable
-(later than 15).  This patch set has support for most of it.
-
-To Alexey, (and everyone else)
-
-The patch has been split for easier reading as follows:
-
-ipv6_tunnel.patch	6over6 tunneling
-network_mods.patch	Modifications to network code and hooks
-mipv6_cn_support.patch	Correspondent node support (+common code)
-mipv6_mn_support.patch	Mobile node support (+common code with HA)
-mipv6_ha_support.patch	Home agent support
-
-The patches are incremental, so they must be applied in this order.
-Patches are not included in this mail, but you can find them at:
-
-http://www.mipl.mediapoli.com/patches/ipv6_tunnel.patch
-http://www.mipl.mediapoli.com/patches/network_mods.patch
-http://www.mipl.mediapoli.com/patches/mipv6_cn_support.patch
-http://www.mipl.mediapoli.com/patches/mipv6_mn_support.patch
-http://www.mipl.mediapoli.com/patches/mipv6_ha_support.patch
-
-Userspace tools are available at:
-http://www.mipl.mediapoli.com/download/mipv6-tools/
-
-Regards,
-
-Antti
-
--- 
-Antti J. Tuominen, Gyldenintie 8A 11, 00200 Helsinki, Finland.
-Research assistant, Institute of Digital Communications at HUT
-work: ajtuomin@tml.hut.fi; home: tuominen@iki.fi
-
+Congestion avoidance mechanism of NFS clients might cause this situation.
+I think the congestion window size is not enough for high end machines.
+You can make the window be larger as a test.

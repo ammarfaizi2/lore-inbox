@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312401AbSDJI4C>; Wed, 10 Apr 2002 04:56:02 -0400
+	id <S312409AbSDJJG5>; Wed, 10 Apr 2002 05:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312532AbSDJI4B>; Wed, 10 Apr 2002 04:56:01 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:36364 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S312401AbSDJI4B>; Wed, 10 Apr 2002 04:56:01 -0400
-Date: Wed, 10 Apr 2002 09:55:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Aviv Shavit <avivshavit@yahoo.com>, Ken Brownfield <brownfld@irridia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: vm-33, strongly recommended [Re: [2.4.17/18pre] VM and swap - it's really unusable]
-Message-ID: <20020410095555.A9568@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Aviv Shavit <avivshavit@yahoo.com>,
-	Ken Brownfield <brownfld@irridia.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020225224050.D26077@asooo.flowerfire.com> <20020409204545.11251.qmail@web13205.mail.yahoo.com> <20020410013609.A6875@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312532AbSDJJG4>; Wed, 10 Apr 2002 05:06:56 -0400
+Received: from mailhost.mipsys.com ([62.161.177.33]:30418 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S312409AbSDJJGz>; Wed, 10 Apr 2002 05:06:55 -0400
+From: <benh@kernel.crashing.org>
+To: Peter Horton <pdh@berserk.demon.co.uk>, <linux-kernel@vger.kernel.org>
+Cc: <phorton@bitbox.co.uk>, <ajoshi@unixbox.com>
+Subject: Re: [PATCH] Radeon frame buffer driver
+Date: Wed, 10 Apr 2002 11:06:38 +0200
+Message-Id: <20020410090638.1550@mailhost.mipsys.com>
+In-Reply-To: <20020410001249.GA2010@berserk.demon.co.uk>
+X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 01:36:09AM +0200, Andrea Arcangeli wrote:
-> I recommend everybody to never use a 2.4 kernel without first applying
-> this vm patch:
-> 
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre5/vm-33.gz
-> 
-> It applies cleanly to both 2.4.19pre5 and 2.4.19pre6. Andrew splitted it
-> into orthogonal pieces for easy merging from Marcelo's side (modulo
-> -rest that is important too but that it's still quite monolithic, but
-> it's pointless to invest further effort at this time until we are
-> certain Marcelo will do its job and eventually merge it in mainline):
+>Another installment of the Radeon frame buffer driver patch (still
+>against 2.4.19-pre2).
+>
+>* All colour modes > 8bpp are now DIRECTCOLOR (Geert inspired).
+>
+>* Driver now uses 'ypan' to speed up scrolling even further.
+>
+>* Fix CRTC pitch to match accelerator pitch (800x600x256 works again).
+>
+>Driver seems okay now, plays nicely with X etc. etc. Please test if you
+>can
+>
+>P.
 
-Maybe you could start by explaining the questions asked by akpm ontop of
-many of the split pages that you even merged into -aa?  Or by explaining why
-you reverse all functional changes akpm did in the -rest patch?
+I really don't like all the hacks related to the palette in 15/16/32bpp 
+mode. You shouldn't affect whatever palette gets passed from userland or
+apps that rely on full access to the gamma table will fail. Also, iirc,
+the chip's palette in 16 bits mode is 64 entries and 32 in 15 bpp, you
+can verify this by seeing how much entries get passed by xfbdev when
+it configures the 1:1 color ramp. The old code worked except for the
+cursor in console mode which tends to have crazy colors, I think due to
+fbdev code brokenness but I'm too sure about that last one.
+
+Ben.
+
+
+
 

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129994AbQKORQN>; Wed, 15 Nov 2000 12:16:13 -0500
+	id <S129187AbQKORQN>; Wed, 15 Nov 2000 12:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130364AbQKORQD>; Wed, 15 Nov 2000 12:16:03 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129994AbQKORP5>; Wed, 15 Nov 2000 12:15:57 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Memory management bug
-Date: 15 Nov 2000 08:45:47 -0800
-Organization: Transmeta Corporation
-Message-ID: <8uuejr$hbq$1@penguin.transmeta.com>
-In-Reply-To: <C1256998.004585F4.00@d12mta07.de.ibm.com>
+	id <S129994AbQKORQD>; Wed, 15 Nov 2000 12:16:03 -0500
+Received: from modemcable248.137-200-24.mtl.mc.videotron.ca ([24.200.137.248]:12530
+	"EHLO xanadu.gn.com") by vger.kernel.org with ESMTP
+	id <S129187AbQKORP4>; Wed, 15 Nov 2000 12:15:56 -0500
+Date: Wed, 15 Nov 2000 11:58:17 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Andreas Osterburg <alanos@first.gmd.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Swapping over NFS in Linux 2.4?
+In-Reply-To: <Pine.LNX.4.21.0011151421580.5584-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0011151156300.22936-100000@xanadu.gn.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <C1256998.004585F4.00@d12mta07.de.ibm.com>,
->	 After some trickery with some special hardware feature (storage
->keys) I found out that empty_bad_pmd_table and empty_bad_pte_table have
->been put to the page table quicklists multiple(!) times.
 
-This is definitely bad, and means that something else really bad is
-going on.
 
-In fact, I have this fairly strong suspicion that we should just get rid
-of the "bad" page tables altogether, and make the stuff that now uses
-them BUG() instead. 
+On Wed, 15 Nov 2000, Rik van Riel wrote:
 
-The whole concept of "bad" page tables comes from very early on in
-Linux, when the way the page fault handler worked was that if it ran out
-of memory or something else really bad happened, it would insert a dummy
-page table entry that was guaranteed to let the CPU continue.  That way
-the page fault handler was always "successful" from a hardware
-standpoint, even if it ended up trying to kill the process. 
+> On Wed, 15 Nov 2000, Andreas Osterburg wrote:
+>
+> > Because I set up a diskless Linux-workstation, I want to swap
+> > over NFS. For this purpose I found only patches for "older"
+> > Linux-versions (2.0, 2.1, 2.2?).
+>
+> > Does anyone know wheter there are patches for 2.4 or does anyone
+> > know another solution for this problem?
+>
+> 1. you can swap over NBD
+> 2. if you point me to the swap-over-nfs patches you
+>    have found, I can try to make them work on 2.4 ;)
 
-This used to be required simply because a page fault in kernel space
-originally needed to let the process unwind sanely and cleanly.
+Swap on the loop block device attached to a file over NFS seemed to work
+too.
 
-These days, the requirement that page faults always "succeed" is long
-long gone. The exception handling mechanism handles the cases where we
-validly can take a page fault, and in other cases we will just kill the
-process outright. As such, the bad page tables should no longer be
-needed, and are apparently just hiding some nasty bugs.
 
-What happens if you just replace all places that would use a bad page
-table with a BUG()? (Ie do _not_ add the bug to the place where you
-added the test: by that time it's too late.  I'm talking about the
-places where the bad page tables are used, like in the error cases of
-"get_pte_kernel_slow()" etc.
+Nicolas
 
-		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

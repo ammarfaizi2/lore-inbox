@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTFEHWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 03:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTFEHWg
+	id S264494AbTFEHmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 03:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTFEHmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 03:22:36 -0400
-Received: from angband.namesys.com ([212.16.7.85]:44934 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S264489AbTFEHWf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 03:22:35 -0400
-Date: Thu, 5 Jun 2003 11:36:04 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Daniel Sobe <daniel.sobe@epost.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 Oops (semms in reiserfs)
-Message-ID: <20030605073604.GA8646@namesys.com>
-References: <1054759139.1100.58.camel@localhost>
+	Thu, 5 Jun 2003 03:42:18 -0400
+Received: from pan.togami.com ([66.139.75.105]:39836 "EHLO pan.mplug.org")
+	by vger.kernel.org with ESMTP id S264494AbTFEHmR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 03:42:17 -0400
+Subject: 2.4.21-rc7 AMD64 dpt_i2o fails compile
+From: Warren Togami <warren@togami.com>
+To: amd64-list@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030605010841.A29837@devserv.devel.redhat.com>
+References: <1054789161.3699.67.camel@laptop>
+	 <20030605010841.A29837@devserv.devel.redhat.com>
+Content-Type: text/plain
+Message-Id: <1054799692.3699.77.camel@laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054759139.1100.58.camel@localhost>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
+Date: 04 Jun 2003 21:54:53 -1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 2003-06-04 at 19:08, Bill Nottingham wrote:
+> Warren Togami (warren@togami.com) said: 
+> > My two Tyan S2880GNR dual Opteron servers came in today.  Sweet!
+> > 
+> > Unfortunately the Adaptec 2110S SCSI RAID controllers within both
+> > servers are unable to work with any of the drivers in GinGin64's
+> > Anaconda.  Searching the net it seems that this controller needs the
+> > dpt_i2o module which exists in Shrike, but not in GinGin64's kernel. 
+> > Were there problems with that module in AMD64?
+> > 
+> > http://www.togami.com/~warren/archive/2003/tyan_opteron.txt
+> > lspci, lspci -n, lspci -vvv
+> > 
+> > I'm installing onto an IDE hard drive now and plan on building custom
+> > kernels from there.
+> > 
+> > Any recommendations of things to try?
+> 
+> Rebuild the kernel with the driver, see what happens. I don't think
+> we've tested that driver here to confirm whether it does or doesn't
+> have problems.
+> 
 
-On Wed, Jun 04, 2003 at 10:38:56PM +0200, Daniel Sobe wrote:
-> working a while in X i got these errors (second error repeating for some
-> time, i was able to use SysRq to sync, mount ro and reboot). seems to be
-> related to reiserfs.
+http://www.togami.com/~warren/archive/2003/dpt_failure.txt
+2.4.20-9.2 (GinGin64)
+Build failure when dpt is enabled as a module.  This is probably why
+this and many other kernel modules were not included in the GinGin64
+preview release.
 
-This looks like as if you have some memory corruption that is not reiserfs related,
-it is just reiserfs was unfortunate to call the kmem_cache_alloc() that stepped on
-the corrupted pointer. (and how the pointer got corrupted is not clear).
-And you can see, there was another non-reiserfs related caller that stepped on that
-same bad pointer in kmem_cache_alloc() too (only a bit later).
-Perhaps you want to run memtest86 for some time to see if your memory is ok.
-And to run without binary modules loaded to see if they are the reason for
-the problem.
- 
-> Jun  4 15:14:14 localhost kernel:  <1>Unable to handle kernel paging
-> request at virtual address c4449020 
-> Jun  4 15:14:14 localhost kernel:  printing eip: 
-> Jun  4 15:14:14 localhost kernel: c012a9b3 
-> Jun  4 15:14:14 localhost kernel: Oops: 0000 
-> Jun  4 15:14:14 localhost kernel: CPU:    0 
-> Jun  4 15:14:14 localhost kernel: EIP:   
-> 0010:[kmem_cache_alloc+131/224]    Tainted: PF 
-> Jun  4 15:14:14 localhost kernel: EFLAGS: 00010803 
-> Jun  4 15:14:14 localhost kernel: eax: 00400002   ebx: 43449440   ecx:
-> c3449000   edx: c02f38a0 
-> Jun  4 15:14:14 localhost kernel: esi: c10b7130   edi: 00000246   ebp:
-> 000001f0   esp: c1949f1c 
-> Jun  4 15:14:14 localhost kernel: ds: 0018   es: 0018   ss: 0018 
-> Jun  4 15:14:14 localhost kernel: Process wmxmms (pid: 625,
-> stackpage=c1949000) 
-> Jun  4 15:14:14 localhost kernel: Stack: 00000001 00000004 c02f38a0
-> 00000001 c01448a9 c10b7130 000001f0 00000001 
-> Jun  4 15:14:14 localhost kernel:        c01e7f06 00000001 c01e883d
-> 00000001 08097eb0 0805b248 bffffb8c 00000c69 
-> Jun  4 15:14:14 localhost kernel:        c012ca1b c012ca3a c013f1aa
-> 00000000 080980f0 080980e0 c013fdc4 c01e88ad 
-> Jun  4 15:14:14 localhost kernel: Call Trace:   
-> [get_empty_inode+25/160] [sock_alloc+6/192] [sock_create+173/256]
-> [__free_pages+27/32] [free_pages+26/32] 
-> Jun  4 15:14:14 localhost kernel:   [poll_freewait+58/80]
-> [sys_poll+724/752] [sys_socket+29/96] [sys_socketcall+99/512]
-> [system_call+51/56] 
-> Jun  4 15:14:14 localhost kernel: 
-> Jun  4 15:14:14 localhost kernel: Code: 8b 44 81 18 89 41 14 83 f8 ff 75
-> 23 8b 41 04 8b 11 89 42 04 
+Unfortunately it fails compilation in the same place for 2.4.21-rc7. 
+I'm testing 2.5.70-bk* next.
 
-Bye,
-    Oleg
+LKML, any existing patches for this dpt_i2o module AMD64 compilation
+issue?  Please CC me because not currently subscribed to lkml.
+
+Thanks,
+Warren Togami
+warren@togami.com
+

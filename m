@@ -1,109 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbUCUWvH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 17:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUCUWvH
+	id S261440AbUCUWvm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 17:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUCUWvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 17:51:07 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63464 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261437AbUCUWuw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 17:50:52 -0500
-Subject: [PATCH] pmac_zilog: sleep fix
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1079908594.911.150.camel@gaston>
+	Sun, 21 Mar 2004 17:51:42 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57105 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261440AbUCUWv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 17:51:27 -0500
+Date: Sun, 21 Mar 2004 22:51:17 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040321225117.F26708@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20040320121345.2a80e6a0.akpm@osdl.org> <20040320205053.GJ2045@holomorphy.com> <20040320222639.K6726@flint.arm.linux.org.uk> <20040320224500.GP2045@holomorphy.com> <1079901914.17681.317.camel@imladris.demon.co.uk> <20040321204931.A11519@infradead.org> <1079902670.17681.324.camel@imladris.demon.co.uk> <Pine.LNX.4.58.0403211349340.1106@ppc970.osdl.org> <20040321222327.D26708@flint.arm.linux.org.uk> <405E1859.5030906@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Mar 2004 09:36:35 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <405E1859.5030906@pobox.com>; from jgarzik@pobox.com on Sun, Mar 21, 2004 at 05:34:01PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sun, Mar 21, 2004 at 05:34:01PM -0500, Jeff Garzik wrote:
+> Russell King wrote:
+> > What about the case where the buffer is scatter-gather in nature,
+> > just like we're so fond of telling driver writers who want to grab
+> > (eg) 1MB of contiguous kernel memory for video buffers and the like?
+> > Do we really want to tell driver writers to walk over 1MB of pages,
+> > page by page, inserting them into the processes page tables via
+> > remap_area_pages()?
+> 
+> Tell driver writers to call a standard platform function with a 
+> {dma|mmio|pio|vmalloc} handle+size+len for {dma|mmio|pio|vmalloc} mmap 
+> setup, and {fault|nopage} handler.  ;-)  IMO they shouldn't have to care 
+> about the details.
 
-This patch fix a problem with semaphore usage on wakeup from
-sleep in pmac_zilog (crashing some laptops on wakeup).
-Please apply,
+I don't think this addresses the scatter-gather case I mentioned above.
+Or if we are, we've rewritten ALSA before hand to use Linux scatterlists
+along side several dma_alloc_coherent mappings and have the ability to
+mmap these as well.
 
-Ben.
+Remember that we're fond of telling driver writers to use scatter gather
+lists rather than grabbing one large contiguous memory chunk...  So
+they did exactly as we told them.  Using pci_alloc_consistent and/or
+dma_alloc_coherent and built their own scatter lists.
 
-===== drivers/serial/pmac_zilog.c 1.6 vs edited =====
---- 1.6/drivers/serial/pmac_zilog.c	Wed Mar 10 21:18:32 2004
-+++ edited/drivers/serial/pmac_zilog.c	Mon Mar 22 09:35:13 2004
-@@ -1563,15 +1563,21 @@
- static int pmz_suspend(struct macio_dev *mdev, u32 pm_state)
- {
- 	struct uart_pmac_port *uap = dev_get_drvdata(&mdev->ofdev.dev);
--	struct uart_state *state = pmz_uart_reg.state + uap->port.line;
-+	struct uart_state *state;
- 	unsigned long flags;
- 
--	if (uap == NULL)
-+	if (uap == NULL) {
-+		printk("HRM... pmz_suspend with NULL uap\n");
- 		return 0;
-+	}
- 
- 	if (pm_state == mdev->ofdev.dev.power_state || pm_state < 2)
- 		return 0;
- 
-+	pmz_debug("suspend, switching to state %d\n", pm_state);
-+
-+	state = pmz_uart_reg.state + uap->port.line;
-+
- 	down(&pmz_irq_sem);
- 	down(&state->sem);
- 
-@@ -1607,6 +1613,8 @@
- 	up(&state->sem);
- 	up(&pmz_irq_sem);
- 
-+	pmz_debug("suspend, switching complete\n");
-+
- 	mdev->ofdev.dev.power_state = pm_state;
- 
- 	return 0;
-@@ -1616,7 +1624,7 @@
- static int pmz_resume(struct macio_dev *mdev)
- {
- 	struct uart_pmac_port *uap = dev_get_drvdata(&mdev->ofdev.dev);
--	struct uart_state *state = pmz_uart_reg.state + uap->port.line;
-+	struct uart_state *state;
- 	unsigned long flags;
- 	int pwr_delay;
- 
-@@ -1626,6 +1634,10 @@
- 	if (mdev->ofdev.dev.power_state == 0)
- 		return 0;
- 	
-+	pmz_debug("resume, switching to state 0\n");
-+
-+	state = pmz_uart_reg.state + uap->port.line;
-+
- 	down(&pmz_irq_sem);
- 	down(&state->sem);
- 
-@@ -1658,6 +1670,7 @@
- 		enable_irq(uap->port.irq);
- 	}
- 
-+ bail:
- 	up(&state->sem);
- 	up(&pmz_irq_sem);
- 
-@@ -1670,7 +1683,8 @@
- 		schedule_timeout((pwr_delay * HZ)/1000);
- 	}
- 
-- bail:
-+	pmz_debug("resume, switching complete\n");
-+
- 	mdev->ofdev.dev.power_state = 0;
- 
- 	return 0;
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

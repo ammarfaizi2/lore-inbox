@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262171AbREQCJS>; Wed, 16 May 2001 22:09:18 -0400
+	id <S262174AbREQCUV>; Wed, 16 May 2001 22:20:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262172AbREQCJI>; Wed, 16 May 2001 22:09:08 -0400
-Received: from www.stolica.ru ([62.118.250.25]:18836 "HELO stolica.ru")
-	by vger.kernel.org with SMTP id <S262171AbREQCIx>;
-	Wed, 16 May 2001 22:08:53 -0400
-Date: Thu, 17 May 2001 06:05:52 +0400
-From: Dmitry Volkoff <vdb@mail.ru>
+	id <S262175AbREQCUK>; Wed, 16 May 2001 22:20:10 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4874 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262174AbREQCUC>; Wed, 16 May 2001 22:20:02 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: cmpci sound chip lockup
-Message-ID: <20010517060552.A3731@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: vfat large file support
+Date: 16 May 2001 19:19:38 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9dvcfq$o3g$1@cesium.transmeta.com>
+In-Reply-To: <20010517040000.A22911@convergence.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Followup to:  <20010517040000.A22911@convergence.de>
+By author:    Felix von Leitner <leitner@convergence.de>
+In newsgroup: linux.dev.kernel
+>
+> I can't copy a file larger than 2 gigs to my vfat partition.
+> What gives?  2.4.4-ac5 kernel.  My cp copies 2 gigs and then aborts.
+> 
+>   $ echo foo >> file_on_vfat_partition
+> 
+> causes the shell to become unresponsive and consume lots of CPU time.
+> 
 
-This is known issue. cmpci driver included in the kernel is way too old.
-I'm using newer driver (revision 4.14) and it works just fine. It was 
-announced on lkml long time ago. Last time I checked there was even newer
-driver - 5.64. The one in the kernel has version 2.41. Is it possible to 
-include the new driver? 
+VFAT doesn't support files larger than 2 GB.
 
-This is the homepage: http://members.home.net/puresoft/cmedia.html
-
+	-hpa
 -- 
-
-    DV
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

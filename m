@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129292AbRCZVy3>; Mon, 26 Mar 2001 16:54:29 -0500
+	id <S129393AbRCZWAU>; Mon, 26 Mar 2001 17:00:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129393AbRCZVyU>; Mon, 26 Mar 2001 16:54:20 -0500
-Received: from colorfullife.com ([216.156.138.34]:63241 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129292AbRCZVyD>;
-	Mon, 26 Mar 2001 16:54:03 -0500
-Message-ID: <00c701c0b63f$2d4fe720$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "LA Walsh" <law@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <009201c0b61e$c83f7550$5517fea9@local> <3ABF9B40.6B93ECA2@sgi.com>
-Subject: Re: 64-bit block sizes on 32-bit systems
-Date: Mon, 26 Mar 2001 23:53:05 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129443AbRCZWAJ>; Mon, 26 Mar 2001 17:00:09 -0500
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:11138 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S129393AbRCZV77>; Mon, 26 Mar 2001 16:59:59 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        trini@kernel.crashing.org, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML1 cleanup patch, take 3 
+In-Reply-To: Message from "Eric S. Raymond" <esr@snark.thyrsus.com> 
+   of "Mon, 26 Mar 2001 14:24:58 CDT." <200103261924.f2QJOwL19694@snark.thyrsus.com> 
+In-Reply-To: <200103261924.f2QJOwL19694@snark.thyrsus.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Mar 2001 22:58:57 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14hf0s-0001Cg-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "LA Walsh" <law@sgi.com>
-> Manfred Spraul wrote:
-> >
-> > >4k page size * 2GB = 8TB.
-> >
-> > Try it.
-> > If your drive (array) is larger than 512byte*4G (4TB) linux will eat
-> > your data.
-> ---
-> I have a block device that doesn't use 'sectors'.  It
-> only uses the logical block size (which is currently set for
-> 1K).  Seems I could up that to the max blocksize (4k?) and
-> get 8TB...No?
->
-> I don't use the generic block make request (have my
-> own).
->
-Which field do you access? bh->b_blocknr instead of bh->r_sector?
+>    if [ "$CONFIG_PRINTER" != "n" ]; then
+>-      bool '    Support IEEE1284 status readback' CONFIG_PRINTER_READBACK
+>+      bool '    Support IEEE1284 status readback' CONFIG_PARPORT_1284
+>    fi
 
-There were plans to split the buffer_head into 2 structures: buffer
-cache data and the block io data.
-b_blocknr is buffer cache only, no driver should access them.
+This isn't really right.  Although it's true that CONFIG_PARPORT_1284 enables 
+the stuff that used to be controlled by CONFIG_PRINTER_READBACK, the two 
+aren't synonymous.  The m68k port ought to just use drivers/parport/Config.in 
+like everybody else.
 
-http://groups.google.com/groups?q=NeilBrown+io_head&hl=en&lr=&safe=off&r
-num=1&seld=928643305&ic=1
+p.
 
---
-    Manfred
 

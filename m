@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVB0Awq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVB0AzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVB0Awq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVB0Awq
+	id S261324AbVB0AzA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 19:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVB0Ay7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:52:46 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:1030 "HELO
+	Sat, 26 Feb 2005 19:54:59 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3334 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261323AbVB0Awh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:52:37 -0500
-Date: Sun, 27 Feb 2005 01:52:34 +0100
+	id S261324AbVB0AyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 19:54:22 -0500
+Date: Sun, 27 Feb 2005 01:54:17 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: ambx1@neo.rr.com
-Cc: perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/pnp/: possible cleanups
-Message-ID: <20050227005234.GS3311@stusta.de>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/aacraid/: cleanups
+Message-ID: <20050227005417.GT3311@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,181 +22,137 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global function:
-  - core.c: pnp_remove_device
-- remove the following unneeded EXPORT_SYMBOL's:
-  - card.c: pnp_add_card
-  - card.c: pnp_remove_card
-  - card.c: pnp_add_card_device
-  - card.c: pnp_remove_card_device
-  - card.c: pnp_add_card_id
-  - core.c: pnp_register_protocol
-  - core.c: pnp_unregister_protocol
-  - core.c: pnp_add_device
-  - core.c: pnp_remove_device
-  - pnpacpi/core.c: pnpacpi_protocol
-  - driver.c: pnp_add_id
-  - isapnp/core.c: isapnp_read_byte
-  - manager.c: pnp_auto_config_dev
-  - resource.c: pnp_register_dependent_option
-  - resource.c: pnp_register_independent_option
-  - resource.c: pnp_register_irq_resource
-  - resource.c: pnp_register_dma_resource
-  - resource.c: pnp_register_port_resource
-  - resource.c: pnp_register_mem_resource
+This patch contains the following cleanups:
+- make needlessly global functions static
+- commsup.c: remove the unused global function aac_consumer_avail
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/pnp/card.c         |    7 +------
- drivers/pnp/core.c         |    7 ++-----
- drivers/pnp/driver.c       |    1 -
- drivers/pnp/isapnp/core.c  |    1 -
- drivers/pnp/manager.c      |    1 -
- drivers/pnp/pnpacpi/core.c |    5 ++---
- drivers/pnp/resource.c     |    8 --------
- include/linux/pnp.h        |    2 --
- 8 files changed, 5 insertions(+), 27 deletions(-)
+ drivers/scsi/aacraid/aachba.c   |   10 +++++-----
+ drivers/scsi/aacraid/aacraid.h  |    2 --
+ drivers/scsi/aacraid/commctrl.c |    4 ++--
+ drivers/scsi/aacraid/comminit.c |    2 +-
+ drivers/scsi/aacraid/commsup.c  |    7 +------
+ drivers/scsi/aacraid/linit.c    |    2 +-
+ drivers/scsi/aacraid/sa.c       |    2 +-
+ 7 files changed, 11 insertions(+), 18 deletions(-)
 
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c.old	2005-02-26 15:54:16.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c	2005-02-26 16:16:07.000000000 +0100
-@@ -19,7 +19,7 @@
- #include "base.h"
- 
- LIST_HEAD(pnp_cards);
--LIST_HEAD(pnp_card_drivers);
-+static LIST_HEAD(pnp_card_drivers);
- 
- 
- static const struct pnp_card_device_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
-@@ -380,11 +380,6 @@
- 	pnp_unregister_driver(&drv->link);
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/aachba.c.old	2005-02-27 01:05:38.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/aachba.c	2005-02-27 01:06:18.000000000 +0100
+@@ -560,10 +560,10 @@
+ 	inqstrcpy ("V1.0", str->prl);
  }
  
--EXPORT_SYMBOL(pnp_add_card);
--EXPORT_SYMBOL(pnp_remove_card);
--EXPORT_SYMBOL(pnp_add_card_device);
--EXPORT_SYMBOL(pnp_remove_card_device);
--EXPORT_SYMBOL(pnp_add_card_id);
- EXPORT_SYMBOL(pnp_request_card_device);
- EXPORT_SYMBOL(pnp_release_card_device);
- EXPORT_SYMBOL(pnp_register_card_driver);
---- linux-2.6.11-rc4-mm1-full/include/linux/pnp.h.old	2005-02-26 15:54:39.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/linux/pnp.h	2005-02-26 15:54:59.000000000 +0100
-@@ -353,7 +353,6 @@
- int pnp_register_protocol(struct pnp_protocol *protocol);
- void pnp_unregister_protocol(struct pnp_protocol *protocol);
- int pnp_add_device(struct pnp_dev *dev);
--void pnp_remove_device(struct pnp_dev *dev);
- int pnp_device_attach(struct pnp_dev *pnp_dev);
- void pnp_device_detach(struct pnp_dev *pnp_dev);
- extern struct list_head pnp_global;
-@@ -399,7 +398,6 @@
- static inline void pnp_unregister_protocol(struct pnp_protocol *protocol) { }
- static inline int pnp_init_device(struct pnp_dev *dev) { return -ENODEV; }
- static inline int pnp_add_device(struct pnp_dev *dev) { return -ENODEV; }
--static inline void pnp_remove_device(struct pnp_dev *dev) { }
- static inline int pnp_device_attach(struct pnp_dev *pnp_dev) { return -ENODEV; }
- static inline void pnp_device_detach(struct pnp_dev *pnp_dev) { ; }
+-void set_sense(u8 *sense_buf, u8 sense_key, u8 sense_code,
+-		    u8 a_sense_code, u8 incorrect_length,
+-		    u8 bit_pointer, u16 field_pointer,
+-		    u32 residue)
++static void set_sense(u8 *sense_buf, u8 sense_key, u8 sense_code,
++		      u8 a_sense_code, u8 incorrect_length,
++		      u8 bit_pointer, u16 field_pointer,
++		      u32 residue)
+ {
+ 	sense_buf[0] = 0xF0;	/* Sense data valid, err code 70h (current error) */
+ 	sense_buf[1] = 0;	/* Segment number, always zero */
+@@ -807,7 +807,7 @@
+ 	aac_io_done(scsicmd);
+ }
  
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c.old	2005-02-26 15:55:56.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c	2005-02-26 16:48:31.000000000 +0100
-@@ -158,13 +158,14 @@
+-int aac_read(struct scsi_cmnd * scsicmd, int cid)
++static int aac_read(struct scsi_cmnd * scsicmd, int cid)
+ {
+ 	u32 lba;
+ 	u32 count;
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/commctrl.c.old	2005-02-27 01:06:31.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/commctrl.c	2005-02-27 01:07:03.000000000 +0100
+@@ -403,7 +403,7 @@
   *
-  * this function will free all mem used by dev
   */
--
-+#if 0
- void pnp_remove_device(struct pnp_dev *dev)
+ 
+-int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
++static int aac_send_raw_srb(struct aac_dev* dev, void __user * arg)
  {
- 	if (!dev || dev->card)
- 		return;
- 	__pnp_remove_device(dev);
- }
-+#endif  /*  0  */
+ 	struct fib* srbfib;
+ 	int status;
+@@ -621,7 +621,7 @@
+ };
  
- static int __init pnp_init(void)
+ 
+-int aac_get_pci_info(struct aac_dev* dev, void __user *arg)
++static int aac_get_pci_info(struct aac_dev* dev, void __user *arg)
  {
-@@ -174,7 +175,3 @@
+         struct aac_pci_info pci_info;
  
- subsys_initcall(pnp_init);
- 
--EXPORT_SYMBOL(pnp_register_protocol);
--EXPORT_SYMBOL(pnp_unregister_protocol);
--EXPORT_SYMBOL(pnp_add_device);
--EXPORT_SYMBOL(pnp_remove_device);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c.old	2005-02-26 15:57:01.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c	2005-02-26 15:57:26.000000000 +0100
-@@ -124,7 +124,7 @@
- 	return ACPI_FAILURE(status) ? -ENODEV : 0;
- }
- 
--struct pnp_protocol pnpacpi_protocol = {
-+static struct pnp_protocol pnpacpi_protocol = {
- 	.name	= "Plug and Play ACPI",
- 	.get	= pnpacpi_get_resources,
- 	.set	= pnpacpi_set_resources,
-@@ -242,7 +242,7 @@
- }
- 
- int pnpacpi_disabled __initdata;
--int __init pnpacpi_init(void)
-+static int __init pnpacpi_init(void)
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/comminit.c.old	2005-02-27 01:07:25.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/comminit.c	2005-02-27 01:07:34.000000000 +0100
+@@ -204,7 +204,7 @@
+  *		0 - If there were errors initing. This is a fatal error.
+  */
+  
+-int aac_comm_init(struct aac_dev * dev)
++static int aac_comm_init(struct aac_dev * dev)
  {
- 	if (acpi_disabled || pnpacpi_disabled) {
- 		pnp_info("PnP ACPI: disabled");
-@@ -266,4 +266,3 @@
- }
- __setup("pnpacpi=", pnpacpi_setup);
- 
--EXPORT_SYMBOL(pnpacpi_protocol);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c.old	2005-02-26 16:09:23.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c	2005-02-26 16:09:52.000000000 +0100
-@@ -217,6 +217,5 @@
- 
- EXPORT_SYMBOL(pnp_register_driver);
- EXPORT_SYMBOL(pnp_unregister_driver);
--EXPORT_SYMBOL(pnp_add_id);
- EXPORT_SYMBOL(pnp_device_attach);
- EXPORT_SYMBOL(pnp_device_detach);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c.old	2005-02-26 16:11:16.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c	2005-02-26 16:11:39.000000000 +0100
-@@ -952,7 +952,6 @@
- EXPORT_SYMBOL(isapnp_present);
- EXPORT_SYMBOL(isapnp_cfg_begin);
- EXPORT_SYMBOL(isapnp_cfg_end);
--EXPORT_SYMBOL(isapnp_read_byte);
- EXPORT_SYMBOL(isapnp_write_byte);
- 
- static int isapnp_read_resources(struct pnp_dev *dev, struct pnp_resource_table *res)
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c.old	2005-02-26 16:11:47.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c	2005-02-26 16:12:11.000000000 +0100
-@@ -563,7 +563,6 @@
- 
- 
- EXPORT_SYMBOL(pnp_manual_config_dev);
--EXPORT_SYMBOL(pnp_auto_config_dev);
- EXPORT_SYMBOL(pnp_activate_dev);
- EXPORT_SYMBOL(pnp_disable_dev);
- EXPORT_SYMBOL(pnp_resource_change);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c.old	2005-02-26 16:12:19.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c	2005-02-26 16:13:37.000000000 +0100
-@@ -478,14 +478,6 @@
+ 	unsigned long hdrsize = (sizeof(u32) * NUMBER_OF_COMM_QUEUES) * 2;
+ 	unsigned long queuesize = sizeof(struct aac_entry) * TOTAL_QUEUE_ENTRIES;
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/aacraid.h.old	2005-02-27 01:04:59.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/aacraid.h	2005-02-27 01:09:03.000000000 +0100
+@@ -1595,11 +1595,9 @@
+ void fib_map_free(struct aac_dev *dev);
+ void fib_free(struct fib * context);
+ void fib_init(struct fib * context);
+-void fib_dealloc(struct fib * context);
+ void aac_printf(struct aac_dev *dev, u32 val);
+ int fib_send(u16 command, struct fib * context, unsigned long size, int priority, int wait, int reply, fib_callback callback, void *ctxt);
+ int aac_consumer_get(struct aac_dev * dev, struct aac_queue * q, struct aac_entry **entry);
+-int aac_consumer_avail(struct aac_dev * dev, struct aac_queue * q);
+ void aac_consumer_free(struct aac_dev * dev, struct aac_queue * q, u32 qnum);
+ int fib_complete(struct fib * context);
+ #define fib_data(fibctx) ((void *)(fibctx)->hw_fib->data)
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/commsup.c.old	2005-02-27 01:08:23.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/commsup.c	2005-02-27 01:09:11.000000000 +0100
+@@ -210,7 +210,7 @@
+  *	caller.
+  */
+  
+-void fib_dealloc(struct fib * fibptr)
++static void fib_dealloc(struct fib * fibptr)
+ {
+ 	struct hw_fib *hw_fib = fibptr->hw_fib;
+ 	if(hw_fib->header.StructType != FIB_MAGIC) 
+@@ -566,11 +566,6 @@
+ 	return(status);
  }
  
- 
--EXPORT_SYMBOL(pnp_register_dependent_option);
--EXPORT_SYMBOL(pnp_register_independent_option);
--EXPORT_SYMBOL(pnp_register_irq_resource);
--EXPORT_SYMBOL(pnp_register_dma_resource);
--EXPORT_SYMBOL(pnp_register_port_resource);
--EXPORT_SYMBOL(pnp_register_mem_resource);
+-int aac_consumer_avail(struct aac_dev *dev, struct aac_queue * q)
+-{
+-	return (le32_to_cpu(*q->headers.producer) != le32_to_cpu(*q->headers.consumer));
+-}
 -
--
- /* format is: pnp_reserve_irq=irq1[,irq2] .... */
  
- static int __init pnp_setup_reserve_irq(char *str)
+ /**
+  *	aac_consumer_free	-	free consumer entry
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/linit.c.old	2005-02-27 01:09:30.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/linit.c	2005-02-27 01:09:38.000000000 +0100
+@@ -215,7 +215,7 @@
+  *	Returns a static string describing the device in question
+  */
+ 
+-const char *aac_info(struct Scsi_Host *shost)
++static const char *aac_info(struct Scsi_Host *shost)
+ {
+ 	struct aac_dev *dev = (struct aac_dev *)shost->hostdata;
+ 	return aac_drivers[dev->cardtype].name;
+--- linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/sa.c.old	2005-02-27 01:09:56.000000000 +0100
++++ linux-2.6.11-rc4-mm1-full/drivers/scsi/aacraid/sa.c	2005-02-27 01:10:05.000000000 +0100
+@@ -89,7 +89,7 @@
+  *	Notify the adapter of an event
+  */
+  
+-void aac_sa_notify_adapter(struct aac_dev *dev, u32 event)
++static void aac_sa_notify_adapter(struct aac_dev *dev, u32 event)
+ {
+ 	switch (event) {
+ 
 

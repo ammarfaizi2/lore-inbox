@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269144AbRHFXLo>; Mon, 6 Aug 2001 19:11:44 -0400
+	id <S269145AbRHFXMO>; Mon, 6 Aug 2001 19:12:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269145AbRHFXLe>; Mon, 6 Aug 2001 19:11:34 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:64272 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S269144AbRHFXL3>;
-	Mon, 6 Aug 2001 19:11:29 -0400
-Date: Tue, 7 Aug 2001 00:11:18 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S269148AbRHFXMF>; Mon, 6 Aug 2001 19:12:05 -0400
+Received: from femail26.sdc1.sfba.home.com ([24.254.60.16]:38617 "EHLO
+	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S269145AbRHFXMB>; Mon, 6 Aug 2001 19:12:01 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: 3c509: broken(verified)
+Date: Mon, 6 Aug 2001 16:15:00 -0700
+X-Mailer: KMail [version 1.2]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 In-Reply-To: <20010806230051Z269127-28344+2074@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33.0108070003540.4091-100000@infradead.org>
+In-Reply-To: <20010806230051Z269127-28344+2074@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01080616150000.03359@c779218-a>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dieter.
+On Monday 06 August 2001 04:00 pm, Dieter Nützel wrote:
+> On Monday 06 August 2001 22:30:12, Nicholas Knight wrote:
+> > You mention the problem is being unable to change the media, I was
+> > unaware this was even possible with the current 3c509 driver, and
+> > most people do it on 3c509's and other PNP cards of this sort (such
+> > as NE2000 clones)  by using a DOS boot diskette and the DOS utilities
+> > provided by the manufacturer.
+>
+> That's what I did. I've set it to "auto mode" and it works with RJ45
+> cable. But I can't verify if "full duplex" worked right. So I changed
+> it under Win to "10baseT" for which the 3Com utilities say "full
+> duplex" enabled.
 
- >> You mention the problem is being unable to change the media, I
- >> was unaware this was even possible with the current 3c509
- >> driver, and most people do it on 3c509's and other PNP cards of
- >> this sort (such as NE2000 clones)  by using a DOS boot diskette
- >> and the DOS utilities provided by the manufacturer.
+Why do you want full duplex on a DSL connection? I tend to set any NIC's 
+I use for a consumer connection to the lower end of their settings to 
+avoid possible problems in any OS.
 
- > That's what I did. I've set it to "auto mode" and it works with
- > RJ45 cable. But I can't verify if "full duplex" worked right.
+>
+> Now I get this for my ADSL NIC.
+> My first NIC (Ethernet Pro 100+) is for the LAN.
+>
+> eth1: 3c5x9 at 0x220, 10baseT port, address  00 a0 24 87 4a a6, IRQ 5.
+> 3c509.c:1.18 12Mar2001 becker@scyld.com
+> http://www.scyld.com/network/3c509.html
+> eth1: Setting Rx mode to 1 addresses.
+> eth1: Setting Rx mode to 2 addresses.
+> eth1: Setting Rx mode to 3 addresses.
 
-What transfer speed do you get doing an FTP transfer across the link?
-10base is theoretically capable of one meg per second, and experience
-indicates that a 10baseT link normally shows just under 500k per
-second flat out, presumably due to the half duplex nature of the
-10baseT protocol. I'd expect 10base2 half duplex to be similar, and
-10base2 full duplex to be somewhat faster.
+sorry, did forget to mention that
+this popped up when I compiled the driver in instead of using a module, 
+but it doesn't appear to be a problem, I have no idea what's going on 
+with it though.
 
- > So I changed it under Win to "10baseT" for which the 3Com
- > utilities say "full duplex" enabled.
+>
+> But I am not smarter 'cause there is no full duplex mode mentioned in
+> the logs.
 
-One slight problem - 10baseT uses CoAxial cable, not RJ45 - and, as
-far as I'm aware, 10baseT is strictly half duplex whereas 10base2
-(which uses RJ45 twisted pair cable) is capable of either half or full
-duplex.
+does it get mentioned in the logs for your other NIC?
 
- > Now I get this for my ADSL NIC.
- > My first NIC (Ethernet Pro 100+) is for the LAN.
+>
+> Thanks,
+> 	Dieter
+>
+> BTW Is DMA (channel 6 for example) possible with this hardware/driver?
 
- > eth1: 3c5x9 at 0x220, 10baseT port, address  00 a0 24 87 4a a6, IRQ 5.
- > 3c509.c:1.18 12Mar2001 becker@scyld.com
- > http://www.scyld.com/network/3c509.html
- > eth1: Setting Rx mode to 1 addresses.
- > eth1: Setting Rx mode to 2 addresses.
- > eth1: Setting Rx mode to 3 addresses.
-
- > But I am not smarter 'cause there is no full duplex mode
- > mentioned in the logs.
-
-I have to admit that doesn't surprise me.
-
- > BTW Is DMA (channel 6 for example) possible with this hardware/driver?
-
-I can't help there, sorry.
-
-Best wishes from Riley.
-
+the hardware is capable of it I belive, I do not know about the driver.

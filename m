@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUJHTB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUJHTBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbUJHTB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 15:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264648AbUJHTBV
+	id S261375AbUJHTBB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 15:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUJHS5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 15:01:21 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:45489 "EHLO
-	mailfe04.swip.net") by vger.kernel.org with ESMTP id S263769AbUJHS7z
+	Fri, 8 Oct 2004 14:57:06 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:55945 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264648AbUJHSz7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 14:59:55 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Fri, 8 Oct 2004 20:59:50 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, sebastien.hinderer@libertysurf.fr
-Subject: Re: [Patch] new serial flow control
-Message-ID: <20041008185949.GA2275@bouh.is-a-geek.org>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Russell King <rmk@arm.linux.org.uk>,
-	sebastien.hinderer@libertysurf.fr
-References: <200410051249_MC3-1-8B8B-5504@compuserve.com> <20041005172522.GA2264@bouh.is-a-geek.org> <1097176130.31557.117.camel@localhost.localdomain>
+	Fri, 8 Oct 2004 14:55:59 -0400
+Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Erich Focht <efocht@hpce.nec.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
+       simon.derr@bull.net, frankeh@watson.ibm.com
+In-Reply-To: <41666E90.2000208@yahoo.com.au>
+References: <1097110266.4907.187.camel@arrakis>
+	 <200410081214.20907.efocht@hpce.nec.com>  <41666E90.2000208@yahoo.com.au>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1097261691.5650.23.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1097176130.31557.117.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i-nntp
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 08 Oct 2004 11:54:52 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 07 oct 2004 à 20:08:56 +0100, Alan Cox wrote:
-> On Maw, 2004-10-05 at 18:25, Samuel Thibault wrote:
-> > No: data actually pass _after_ CTS and RTS are lowered back: the flow control
-> > only indicate the beginning of one frame.
+On Fri, 2004-10-08 at 03:40, Nick Piggin wrote:
+> And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
+> for some crazy reason, the new domains would look like this:
 > 
-> Ok I've pondered this somewhat. I don't think the hack proposed is the
-> right answer for this. I believe you should implement a simple line
-> discipline for this device so that it stays out of the general code.
+> 0 1  2  4 5    3  6 7
+> ---  -  ---    -  ---  <- 0
+>   |   |   |     |   |
+>   -----   -     -   -   <- 1
+>     |     |     |   |
+>     -------     -----   <- 2 (global, partitioned)
 > 
-> Right now that poses a challenge but if drivers were to implement
-> ldisc->modem_change() or a similar callback for such events an ldisc
-> could then handle many of the grungy suprises and handle them once and
-> in one place.
+> Agreed? You don't need to get fancier than that, do you?
+> 
+> Then how to input the partitions... you could have a sysfs entry that
+> takes the complete partition info in the form:
+> 
+> 0,1,2,3 4,5,6 7,8 ...
+> 
+> Pretty dumb and simple.
 
-Serial drivers should then at least (when seeing ldisc->modem_change
-!= NULL) do no RTS/CTS/DTR/etc handling at all (to avoid interfering),
-and activate "MSI" for calling modem_change in the interrupt handler.
+How do we describe the levels other than the first?  We'd either need
+to:
+1) come up with a language to describe the full tree.  For your example
+I quoted above:
+   echo "0,1,2,4,5 3,6 7,8;0,1,2 4,5 3 6,7;0,1 2 4,5 3 6,7" > partitions
 
-Being able to call port->ops->start/stop_tx by some way will also be
-necessary, by grouping 
-{
-  struct uart_state *state = tty->driver_data;
-  struct uart_port *port = state->port;
-  tty->hw_stopped = 0;
-  port->ops->start_tx(port, 0);
-  uart_write_wakeup(port);
-}
-and its dual in some function for instance.
+2) have multiple files:
+   echo "0,1,2,4,5 3,6,7" > level2
+   echo "0,1,2 4,5 3 6,7" > level1
+   echo "0,1 2 4,5 3 6,7" > level0
 
-Regards,
-Samuel Thibault
+3) Or do it hierarchically as Paul implemented in cpusets, and as I
+described in an earlier mail:
+   mkdir level2
+   echo "0,1,2,4,5 3,6,7" > level2/partitions
+   mkdir level1
+   echo "0,1,2 4,5 3 6,7" > level1/partitions
+   mkdir level0
+   echo "0,1 2 4,5 3 6,7" > level0/partitions
+
+I personally like the hierarchical idea.  Machine topologies tend to
+look tree-like, and every useful sched_domain layout I've ever seen has
+been tree-like.  I think our interface should match that.
+
+-Matt
+

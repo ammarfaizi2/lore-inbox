@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbUCKCqe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 21:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbUCKCq1
+	id S261202AbUCKCvI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 21:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbUCKCvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 21:46:27 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:26105 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S262969AbUCKCqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 21:46:21 -0500
-Message-ID: <404FD24D.1070200@pacbell.net>
-Date: Wed, 10 Mar 2004 18:43:25 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Grant Grundler <iod00d@hp.com>, Greg KH <greg@kroah.com>, vojtech@suse.cz,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, pochini@shiny.it
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-References: <20031028013013.GA3991@kroah.com>	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>	<3FA12A2E.4090308@pacbell.net>	<16289.29015.81760.774530@napali.hpl.hp.com>	<16289.55171.278494.17172@napali.hpl.hp.com>	<3FA28C9A.5010608@pacbell.net>	<16457.12968.365287.561596@napali.hpl.hp.com>	<404959A5.6040809@pacbell.net>	<16457.26208.980359.82768@napali.hpl.hp.com>	<4049FE57.2060809@pacbell.net>	<20040308061802.GA25960@cup.hp.com>	<16460.49761.482020.911821@napali.hpl.hp.com>	<404CEA36.2000903@pacbell.net>	<16461.35657.188807.501072@napali.hpl.hp.com>	<404E00B5.5060603@pacbell.net>	<16462.1463.686711.622754@napali.hpl.hp.com>	<404E2B98.6080901@pacbell.net>	<16462.48341.393442.583311@napali.hpl.hp.com>	<404F40C2.3080003@pacbell.net> <16463.22710.230252.777998@napali.hpl.hp.com>
-In-Reply-To: <16463.22710.230252.777998@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 21:51:08 -0500
+Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:6784 "EHLO
+	jm.kir.nu") by vger.kernel.org with ESMTP id S261202AbUCKCvE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 21:51:04 -0500
+Date: Wed, 10 Mar 2004 18:48:16 -0800
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: jt@hpl.hp.com, Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
+Message-ID: <20040311024816.GC3738@jm.kir.nu>
+References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5097.4040406@pobox.com> <20040310175200.GA9531@bougret.hpl.hp.com> <404F5744.1040201@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404F5744.1040201@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
+On Wed, Mar 10, 2004 at 12:58:28PM -0500, Jeff Garzik wrote:
 
->   >> The current OHCI relies on the internals of the dma_pool()
->   >> implementation.  ...
->   David.B> It'd be good if you said _how_ you think it relies on such
->   David.B> internals.
-> 
-> I thought I did.  Suppose somebody changed the dma_pool code such that
-> it would overwrite freed memory with an 0xf00000000000000 pattern. 
+> So here is my suggested plan:
+> * I merge prism54 upstream
+> * I create wireless-2.6 queue
+> * somebody (you, Jouni(sp?)) submits HostAP to me
+> * I merge HostAP
 
-Erm, _anything_ the dma_pool code does with freed memory is legal.
-Even the old "monkeys flying out of the back of the server" trick!  :)
+Sounds good to me. I have the Kconfig/Makefile(etc.) patches ready and
+the current CVS snapshot of Host AP driver supports 2.6.x kernel
+versions, so in theory it is ready to be submitted.
 
+When this topic came up some time ago, I got one concrete comment about
+needed changes before the merge (I think it was from you) and that was
+to replace the internal encryption algorithms with crypto API ones. I'm
+currently in the process of doing this and submitting needed changes for
+crypto API. WEP and TKIP have the needed parts as crypto API components
+(RC4 is already in kernel tree, Michael MIC patch is pending). CCMP
+requires some work (new encryption mode, counter with CBC-MAC, but AES
+is already in crypto API).
 
-Anyway, please (a) see if 2.6.4 works for you, and (b) direct any
-future followups on this thread _only_ to linux-usb-devel.
+What would be the preferred order for the HostAP submission? I'm
+currently doing the crypto changes in the Host AP CVS repository, but I
+can do this also in another repository since you mentioned a new
+non-mainline queue for wireless-2.6. I have also some other cleanup
+things in my to do list (like getting rid of 2.4 and old wireless
+extensions compatibility code, because this would not be needed in the
+kernel tree anymore). Again, this is currently proceeding in my CVS
+repository, but it can also be done elsewhere, if that is desired.
 
-- Dave
+I'm going to be at the IEEE 802.11 meeting for the next week which is
+probably going to take more or less all of my time, but I should be able
+to allocate more time after that. If people are interested in reviewing
+the current Host AP code from the viewpoint of what would need to happen
+before it can be merged into the kernel tree, the latest version is
+available as a snapshot from my CVS tree (pserver or tarball) at
+http://hostap.epitest.fi/. The current version is almost 20k lines, so
+there is certainly quite a bit of code to review. I hope to get this to
+about 15k lines, though, with the crypto API and backwards
+compatibility cleanup.
 
-
+-- 
+Jouni Malinen                                            PGP id EFC895FA

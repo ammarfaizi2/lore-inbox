@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319294AbSH2TGB>; Thu, 29 Aug 2002 15:06:01 -0400
+	id <S319295AbSH2THL>; Thu, 29 Aug 2002 15:07:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319295AbSH2TGA>; Thu, 29 Aug 2002 15:06:00 -0400
-Received: from [63.122.107.34] ([63.122.107.34]:64274 "EHLO
-	alderaan.coastal-credit.com") by vger.kernel.org with ESMTP
-	id <S319294AbSH2TF7>; Thu, 29 Aug 2002 15:05:59 -0400
-Message-Id: <5.1.0.14.0.20020829150955.02adf008@imap.coastalcreditllc.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 29 Aug 2002 15:10:22 -0400
-To: linux-kernel@vger.kernel.org
-From: James Di Toro <jditoro3@coastalcreditllc.com>
-Subject: Passing kernel parameters
+	id <S319296AbSH2THL>; Thu, 29 Aug 2002 15:07:11 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:55825
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S319295AbSH2THK>; Thu, 29 Aug 2002 15:07:10 -0400
+Subject: Re: [PATCH] misc. kernel preemption bits
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3D6E66D5.A97E5CF3@zip.com.au>
+References: <1030635181.978.2559.camel@phantasy> 
+	<3D6E66D5.A97E5CF3@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 29 Aug 2002 15:11:26 -0400
+Message-Id: <1030648286.979.2597.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I went ahead on a new server and decided to set up a 2.4 kernel.  Since 
-this was going to be a cdimage server I needed what ever HD power I could 
-get out of it, and more than the standard 8 loop devices.  Looking around I 
-found that I should just be able to pass the 'idebus' and 'max_loop' 
-parameters to the kernel instead of having to rebuild a kernel.
+On Thu, 2002-08-29 at 14:24, Andrew Morton wrote:
 
-Unfortunately this is not working.  dmesg for ide still shows the following:
+> Robert Love wrote:
+> > 
+> > ...
+> >         - we have a debug check in preempt_schedule that, even
+> >           on detecting a schedule with irqs disabled, still goes
+> >           ahead and reschedules.  We should return. (me)
+> > 
+> 
+> OK, but that warning will still come out of the mess in mm/slab.c.
 
-         ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
+Yah I saw your previous post.  There is also a report or two re oops on
+poisoned memory with SLAB_DEBUG and preempt enabled - which should be
+fixed by the above return but one report says it does not.
 
-despite the fact that I've specified 'idebus=66' and the following lines note:
+Anyhow, your new methods are fine... if they work, they work.
 
-         VP_IDE: VIA vt82c596b (rev 12) IDE UDMA66 controller on pci00:07.1
+I am starting to get concerned over the number of routines we are having
+to define.  It is getting complicated (i.e. the
+inc_preempt_non_preempt() stuff).
 
-and unless I actually pass 'max_loop=255' on an insmod line mounting the 
-first loop device gives me:
+Maybe keep these local to mm/slab.c ?
 
-         loop: loaded (max 8 devices)
-
-I've tried this w/ the parameters as an append line both globaly and in the 
-specific kernel stanza I'm loading.  I've tried just the idebus parameter 
-alone since the max_loop parameter isn't as critical on boot (I have other 
-scripts mounting the 'cds').
-
-Am I doing something wrong here?  I just don't see where I've not done what 
-the docs say.
-
--- 
-Till Later,
-Jake
+	Robert Love
 

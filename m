@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284329AbRLCIvo>; Mon, 3 Dec 2001 03:51:44 -0500
+	id <S284368AbRLCIvt>; Mon, 3 Dec 2001 03:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284418AbRLCIuN>; Mon, 3 Dec 2001 03:50:13 -0500
-Received: from cx410871-a.roanoke1.va.home.com ([65.1.189.12]:41663 "EHLO
-	quark.net.home") by vger.kernel.org with ESMTP id <S284568AbRLCBOL>;
-	Sun, 2 Dec 2001 20:14:11 -0500
-Message-ID: <3C0AD691.2090606@linuxjedi.org>
-Date: Sun, 02 Dec 2001 20:34:09 -0500
-From: "David L. Parsley" <parsley@linuxjedi.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <20011130200239.A28131@hq2> <200112012318.fB1NI6sW020423@sleipnir.valparaiso.cl> <20011202122526.A2622@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S284364AbRLCIte>; Mon, 3 Dec 2001 03:49:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58519 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S284398AbRLBXWM>;
+	Sun, 2 Dec 2001 18:22:12 -0500
+Date: Sun, 02 Dec 2001 15:21:57 -0800 (PST)
+Message-Id: <20011202.152157.123925377.davem@redhat.com>
+To: kaos@ocs.com.au
+Cc: hps@intermeta.de, jgarzik@mandrakesoft.com, lm@bitmover.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <10605.1007169423@ocs3.intra.ocs.com.au>
+In-Reply-To: <1007140529.6655.37.camel@forge>
+	<10605.1007169423@ocs3.intra.ocs.com.au>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+   From: Keith Owens <kaos@ocs.com.au>
+   Date: Sat, 01 Dec 2001 12:17:03 +1100
+   
+   What is ugly in aic7xxx is :-
 
+You missed:
 
-> Which is exactly Victor's point.  That evaluation is the design.  If the 
-> mutation argument held water then Linus would apply *ALL* patches and then
-> remove the bad ones.  But he doesn't.  Which just goes to show that on this
-> mutation nonsense, he's just spouting off.
-
-
-Eh, come on Larry.  You're too smart for this crap (as are others, your 
-straw just broke the camel's back).  Linus was just using an analogy to 
-illustrate some very valid points.  All analogies break down when 
-applied to the nth degree.  Insulting Linus because you've found a spot 
-where the analogy breaks is just ludicrous.
-
-regards,
-	David
-
-
-
-
+* #undef's "current"

@@ -1,72 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTKNLiv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 06:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKNLiv
+	id S262422AbTKNL5R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 06:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTKNL5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 06:38:51 -0500
-Received: from D7146.d.pppool.de ([80.184.113.70]:45199 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S262352AbTKNLit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 06:38:49 -0500
-Subject: Re: kernel.bkbits.net off the air
-From: Daniel Egger <degger@fhm.edu>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FB4A6B7.5040306@cyberone.com.au>
-References: <fa.eto0cvm.1v20528@ifi.uio.no>
-	 <200311112021.34631.andrew@walrond.org>
-	 <20031111235215.GA22314@work.bitmover.com>
-	 <200311131010.27315.andrew@walrond.org>
-	 <20031113162712.GA2462@work.bitmover.com>
-	 <1068766365.15965.228.camel@sonja>  <3FB4A6B7.5040306@cyberone.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4g/ftrUq0H2P7YNe2qfB"
-Message-Id: <1068809923.15965.240.camel@sonja>
+	Fri, 14 Nov 2003 06:57:16 -0500
+Received: from smtp-2.hut.fi ([130.233.228.92]:27844 "EHLO smtp-2.hut.fi")
+	by vger.kernel.org with ESMTP id S262422AbTKNL5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 06:57:14 -0500
+Date: Fri, 14 Nov 2003 13:56:58 +0200
+From: Pasi Savolainen <pasi.savolainen@hut.fi>
+To: Tony Lindgren <tony@atomide.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       clepple@ghz.cc
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+Message-ID: <20031114115658.GD479040@kosh.hut.fi>
+References: <20031104002243.GC1281@atomide.com> <1067971295.11436.66.camel@cog.beaverton.ibm.com> <20031104191504.GB1042@atomide.com> <20031104202104.GA408936@kosh.hut.fi> <20031104205547.GE1042@atomide.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 14 Nov 2003 12:38:44 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031104205547.GE1042@atomide.com>
+User-Agent: Mutt/1.4i
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (smtp-2.hut.fi)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Tony Lindgren <tony@atomide.com> [031104 23:00]:
+> * Pasi Savolainen <pasi.savolainen@hut.fi> [031104 12:21]:
+> > * Tony Lindgren <tony@atomide.com> [031104 21:24]:
+> > > * john stultz <johnstul@us.ibm.com> [031104 10:43]:
+> > > > On Mon, 2003-11-03 at 16:22, Tony Lindgren wrote:
+> > > > I've received some reports that this patch causes time problems.
+> > > > 
+> > > > Have those issues been looked into further, or addressed? 
+> > > 
+> > > I've heard of timing problems if it's compiled in, but supposedly they don't
+> > > happen when loaded as module.
+> > 
+> > Not happening since 2.6.0-test9. Don't know what really fixed it, but
+> > they're just not there anymore.
+> 
+> Weird, John, is this true on your S2460 also?
 
---=-4g/ftrUq0H2P7YNe2qfB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well I'll be damned. It took 18 days to show up. Though I've been
+riding this baby heavy for about a week.
+So I've gettimeofday() jumping backwards again.
 
-Am Fre, den 14.11.2003 schrieb Nick Piggin um 10:56:
+# uname -a
+Linux tienel 2.6.0-test9 #2 SMP Sun Oct 26 14:35:02 EET 2003 i686 GNU/Linux
 
-> Actually, at http://www.kernel.org/ there is a link to daily snapshots.
-> There are also changesets generated every couple of hours at the "C" link
-> at the right of the page.
 
-> Even if Linus doesn't release as often (doesn't he? I don't know), this
-> is surely much better than pre BK. Maybe I didn't understand you right?
+It's this test I'm running (snipped from previous TSC desych
+-conversation):
 
-Seems so. I assume you missed the "bandwidth constraint" part. Fetching
-a whole snapshot every day is not even close to workable. The snapshots
-in patch form are nice however patching forth and back is not really an
-option. If svn doesn't get back up I'd be tempted to use rsync and use
-vendor branches in my own SVN repository but this also seems far from
-optimal to me. rsync alone doesn't cut it because there's no version
-management and I've lost quite a few patches due to an not thoroughly
-considered rsync use.
+- -
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/time.h>
 
---=20
-Servus,
-       Daniel
+int main( void )
+{
+        int                     i = 0;
 
---=-4g/ftrUq0H2P7YNe2qfB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+        while( 1 )
+        {
+                struct timeval          start;
+                struct timeval          stop;
+                struct timeval          diff;
+                int                     rc1;
+                int                     rc2;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+                if( i++ % 1000000 == 0 )
+                        printf( "% 12d: Iterations so far\n", i );
 
-iD8DBQA/tL7Cchlzsq9KoIYRAtNKAKCiOxMlSDfUhUYKXTtytyO9PNTG3QCfaoc2
-jPPe97csCrWSZ0fP3oXhWuU=
-=JDk/
------END PGP SIGNATURE-----
+                rc1 = gettimeofday( &start, 0 );
+                rc2 = gettimeofday( &stop, 0 );
+                timersub( &stop, &start, &diff );
 
---=-4g/ftrUq0H2P7YNe2qfB--
+                if( rc1 < 0 || rc2 < 0 )
+                        printf( " %12d: rc1=%d rc2=%d.   Failure!\n",
+                                i,
+                                rc1,
+                                rc2
+                        );
 
+                if( diff.tv_sec >= 0 && diff.tv_usec >= 0 )
+                        continue;
+
+                printf( "% 12d: Time went backwards: %d:%06d\n",
+                        i,
+                        diff.tv_sec,
+                        diff.tv_usec
+                );
+
+        }
+}
+- -
+
+-- 
+Psi -- <http://www.iki.fi/pasi.savolainen>

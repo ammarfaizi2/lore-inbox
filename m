@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129873AbQKXRGO>; Fri, 24 Nov 2000 12:06:14 -0500
+        id <S129325AbQKXRRI>; Fri, 24 Nov 2000 12:17:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129716AbQKXRGE>; Fri, 24 Nov 2000 12:06:04 -0500
-Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:22552 "EHLO
-        porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
-        id <S129325AbQKXRFx>; Fri, 24 Nov 2000 12:05:53 -0500
-Date: Fri, 24 Nov 2000 18:35:39 +0200 (EET)
-From: Samuli Kaski <samkaski@cs.Helsinki.FI>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test10 FAT oops
-Message-ID: <Pine.LNX.4.21.0011241831560.15790-100000@melkki.cs.Helsinki.FI>
+        id <S129428AbQKXRQ6>; Fri, 24 Nov 2000 12:16:58 -0500
+Received: from cm698210-a.denton1.tx.home.com ([24.17.129.59]:58123 "HELO
+        cm698210-a.denton1.tx.home.com") by vger.kernel.org with SMTP
+        id <S129325AbQKXRQw>; Fri, 24 Nov 2000 12:16:52 -0500
+Message-ID: <3A1E9B74.A0FDE03E@home.com>
+Date: Fri, 24 Nov 2000 10:46:44 -0600
+From: Matthew Vanecek <linux4us@home.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: gcc-2.95.2-51 is buggy
+In-Reply-To: <UTC200011241248.NAA138093.aeb@aak.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have had at least 2 similar (maybe even identic) oopses with 2.3/2.4
-kernels in the past. Either there is still something wrong with FAT or
-it's my hardware. Nevertheless, here it is.
+Andries.Brouwer@cwi.nl wrote:
+> 
+> > so the reason why it did not show up in the gcc you picked up from
+> > ftp.gnu.org is that you have compiled it so that it defaults to -mcpu=i686
+> 
+> Yes, you are right.
+> 
+> So 2.95.2 fails for i386, i486, i586 and does not fail for i686.
+> 
 
-	Samuli
+RedHat 7.0's gcc 2.96 and kgcc do not seem to exhibit this problem:
 
-Nov 24 18:30:37 vortex kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010 
-Nov 24 18:30:37 vortex kernel:  printing eip: 
-Nov 24 18:30:37 vortex kernel: c01599b0 
-Nov 24 18:30:37 vortex kernel: *pde = 00000000 
-Nov 24 18:30:37 vortex kernel: Oops: 0002 
-Nov 24 18:30:37 vortex kernel: CPU:    1 
-Nov 24 18:30:37 vortex kernel: EIP:    0010:[fat_cache_add+148/176] 
-Nov 24 18:30:37 vortex kernel: EFLAGS: 00010246 
-Nov 24 18:30:37 vortex kernel: eax: 00000000   ebx: 00021fdb   ecx: 00000000   edx: c02ac878 
-Nov 24 18:30:37 vortex kernel: esi: 00021da4   edi: c3eba080   ebp: 00000235   esp: c1a67e04 
-Nov 24 18:30:37 vortex kernel: ds: 0018   es: 0018   ss: 0018 
-Nov 24 18:30:37 vortex kernel: Process ncftp (pid: 10416, stackpage=c1a67000) 
-Nov 24 18:30:37 vortex kernel: Stack: 00000235 c3eba080 c7af2a00 00021fdb 034b0235 c015dcf6 c3eba080 00000235  
-Nov 24 18:30:37 vortex kernel:        00021fdb 00000000 000011a8 c3eba080 c0d36300 0017bb36 00000008 00021fda  
-Nov 24 18:30:37 vortex kernel:        ffffffff c015b6e5 c3eba080 c015b654 00000200 00000235 c1a67ea8 00000008  
-Nov 24 18:30:37 vortex kernel: Call Trace: [fat_add_cluster+438/484] [fat_get_block+145/232] [fat_get_block+0/232] [__block_prepare_write+245/576] [cont_prepare_write+371/524] [fat_get_block+0/232] [fat_prepare_write+38/44]  
-Nov 24 18:30:37 vortex kernel:        [fat_get_block+0/232] [generic_file_write+749/1060] [default_fat_file_write+34/88] [fat_file_write+45/52] [sys_write+142/196] [system_call+51/56] [startup_32+43/204]  
-Nov 24 18:30:37 vortex kernel: Code: c7 41 10 00 00 00 00 a1 e0 c7 2a c0 89 42 10 89 15 e0 c7 2a  
-Nov 24 18:30:37 vortex kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010 
-Nov 24 18:30:37 vortex kernel:  printing eip: 
-Nov 24 18:30:37 vortex kernel: c01599b0 
-Nov 24 18:30:37 vortex kernel: *pde = 00000000 
-Nov 24 18:30:37 vortex kernel: Oops: 0002 
-Nov 24 18:30:37 vortex kernel: CPU:    0 
-Nov 24 18:30:37 vortex kernel: EIP:    0010:[fat_cache_add+148/176] 
-Nov 24 18:30:37 vortex kernel: EFLAGS: 00010246 
-Nov 24 18:30:37 vortex kernel: eax: 00000000   ebx: 000d1b98   ecx: 00000000   edx: c02ac878 
-Nov 24 18:30:37 vortex kernel: esi: 000d1900   edi: c4d66b40   ebp: 00000297   esp: c4963dd8 
-Nov 24 18:30:37 vortex kernel: ds: 0018   es: 0018   ss: 0018 
-Nov 24 18:30:37 vortex kernel: Process mxaudio (pid: 10379, stackpage=c4963000) 
-Nov 24 18:30:37 vortex kernel: Stack: 00000297 c4d66b40 00000297 c0369ba0 034b0297 c0159ab0 c4d66b40 00000297  
-Nov 24 18:30:37 vortex kernel:        000d1b98 c7af2a9c 00000001 00000297 000d1b98 c0159b4b c4d66b40 00000297  
-Nov 24 18:30:37 vortex kernel:        c4d66b40 000014b9 c4d66b40 00000008 c015948b c4d66b40 000014b9 c015b66e  
-Nov 24 18:30:37 vortex kernel: Call Trace: [fat_get_cluster+140/164] [default_fat_bmap+131/164] [fat_bmap+27/32] [fat_get_block+26/232] [fat_get_block+0/232] [block_read_full_page+308/616] [__alloc_pages_limit+124/176]  
-Nov 24 18:30:37 vortex kernel:        [add_to_page_cache_unique+291/308] [fat_readpage+15/20] [fat_get_block+0/232] [generic_file_readahead+598/832] [do_generic_file_read+568/1344] [generic_file_read+99/128] [file_read_actor+0/84] [fat_file_read+45/52]  
-Nov 24 18:30:37 vortex kernel:        [sys_read+146/200] [system_call+51/56]  
-Nov 24 18:30:37 vortex kernel: Code: c7 41 10 00 00 00 00 a1 e0 c7 2a c0 89 42 10 89 15 e0 c7 2a
+me2v@reliant tmp $ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.0)
+me2v@reliant tmp $ kgcc -v
+Reading specs from
+/usr/lib/gcc-lib/i386-glibc21-linux/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+me2v@reliant tmp $ gcc -O2 -o bug bug.c ; ./bug
+0x0
+me2v@reliant tmp $ gcc -o bug bug.c ; ./bug
+0x0
+me2v@reliant tmp $ kgcc -O2 -o bug bug.c ; ./bug
+0x0
+me2v@reliant tmp $ kgcc -o bug bug.c ; ./bug
+0x0
 
+-- 
+Matthew Vanecek
+perl -e 'print
+$i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+********************************************************************************
+For 93 million miles, there is nothing between the sun and my shadow
+except me.
+I'm always getting in the way of something...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

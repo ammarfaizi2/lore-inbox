@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261794AbSJHMSg>; Tue, 8 Oct 2002 08:18:36 -0400
+	id <S262174AbSJHMaC>; Tue, 8 Oct 2002 08:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261830AbSJHMSg>; Tue, 8 Oct 2002 08:18:36 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37329 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261794AbSJHMSf>;
-	Tue, 8 Oct 2002 08:18:35 -0400
-Date: Tue, 8 Oct 2002 08:24:15 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IDE driver model update
-In-Reply-To: <1034079668.26550.54.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0210080813030.2894-100000@weyl.math.psu.edu>
+	id <S262284AbSJHMaC>; Tue, 8 Oct 2002 08:30:02 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:8463 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262174AbSJHMaB>; Tue, 8 Oct 2002 08:30:01 -0400
+Message-ID: <3DA2D130.962EA165@aitel.hist.no>
+Date: Tue, 08 Oct 2002 14:36:00 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.40mm1 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.41 Vesa framebuffer hang on fontchange without 8x16 font
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tried running the vesa framebuffer with the 4x6 font only,
+for fun.  It booted and was hard to look at as expected,
+but hung as soon as the boot scripts tried to change font.
 
+I tried again with 4x6 _and_ 8x8, that hung at the same place.
+finally, removing 4x6, 8x8 and enabling 8x16-font allowed
+a normal boot.
 
-On 8 Oct 2002, Alan Cox wrote:
+This is using the debian unstable distribution,
+2.5.41 UP, preempt, some debugging options,
+and a
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP
+1X/2X (rev 5c)
 
-> On Tue, 2002-10-08 at 03:17, Alexander Viro wrote:
-> > _ALL_ buses that have driverfs support (IDE, SCSI, USB, PCI) have their
-> > own rules for lifetimes of their structures.  And that's not likely to
-> > change - these objects belong to drivers and in some cases (IDE) are
-> > not even allocated dynamically - they are reused if nothing is holding
-> > them.
-> 
-> IDE objects can also outlast the hardware - consider an active mount on
-> an ejected pcmcia card. Right now we don't do the right stuff to
-> reconnect that on re-insert but one day we may need to. As it is we keep
-> the instance around to avoid crashes
-
-Ouch.  That (reconnects) may require interesting things from queue-related
-code.  What behaviour do you want while card is disconnected?  All requests
-getting errors / all requests getting blocked / reads failing, writes blocking?
-
+Helge Hafting

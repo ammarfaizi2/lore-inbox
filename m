@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286454AbSAEXlw>; Sat, 5 Jan 2002 18:41:52 -0500
+	id <S286468AbSAFAAi>; Sat, 5 Jan 2002 19:00:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286422AbSAEXld>; Sat, 5 Jan 2002 18:41:33 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:520 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286454AbSAEXl2>; Sat, 5 Jan 2002 18:41:28 -0500
-Date: Sat, 5 Jan 2002 15:46:14 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <E16N0RW-0001We-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201051540010.1607-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286478AbSAFAA2>; Sat, 5 Jan 2002 19:00:28 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:39576
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S286468AbSAFAAS>; Sat, 5 Jan 2002 19:00:18 -0500
+Date: Sat, 5 Jan 2002 18:46:34 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: CML2-2.0.1 -- brown-paper-bag-bug fix
+Message-ID: <20020105184634.A27380@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Jan 2002, Alan Cox wrote:
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-> > > In fact it's the cr3 switch (movl %0, %%cr3) that accounts for about 30%
-> > > of the context switch cost. On x86. On other architectures it's often
-> > > much, much cheaper.
-> >
-> > TLB flushes are expensive everywhere, and you know exactly this and if you
->
-> Not every processor is dumb enough to have TLB flush on a context switch.
-> If you have tags on your tlb/caches it's not a problem.
+Release 2.0.1: Sat Jan  5 18:41:47 EST 2002
+	* The now-traditional fix for the now-traditional brown-paper-bag
+	  major release.
+	* Rulebase and help sync with 2.4.18-pre1/2.5.2-pre8.
 
-Yep true, 20% of CPUs are dumb but this 20% of CPUs run 95% of the Linux world.
+Sigh...I don't know how my tests failed to catch that elementary
+type-composition error.  But at least I can console myself with the thought
+that I am following in the footsteps of greatness.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-
-
-> > Again, the history of our UP scheduler thought us that noone has been able
-> > to makes it suffer with realistic/high not-stupid-benchamrks loads.
->
-> Apache under load, DB2, Postgresql, Lotus domino all show bad behaviour.
-> (Whether apache, db2, and postgresql want fixing differently is a seperate
->  argument)
-
-Alan, near to my box i've a dual cpu appliance that is running an mta that
-uses pthread and that is routing ( under test ) about 600000 messages / hour
-Its rq load is about 9-10 and the cs is about 8000-9000.
-You know what is the scheduler weight, barely 8-10% with the the 2.4.17
-scheduler. It drops to nothing using BMQS w/out any O(1) mirage.
-
-
-
-
-- Davide
-
-
-
+  "...quemadmodum gladius neminem occidit, occidentis telum est."
+[...a sword never kills anybody; it's a tool in the killer's hand.]
+        -- (Lucius Annaeus) Seneca "the Younger" (ca. 4 BC-65 AD),

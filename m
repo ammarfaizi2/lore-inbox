@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUFVO7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264182AbUFVPHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264584AbUFVO7P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 10:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUFVO63
+	id S264182AbUFVPHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 11:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUFVPA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 10:58:29 -0400
-Received: from [203.199.60.6] ([203.199.60.6]:21011 "EHLO Mailout.ltindia.com")
-	by vger.kernel.org with ESMTP id S264444AbUFVOuj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 10:50:39 -0400
-Message-Id: <s0d894d5.036@EMAIL>
-X-Mailer: Novell GroupWise Internet Agent 6.0.3
-Date: Tue, 22 Jun 2004 20:21:24 +0530
-From: "Kishore A K" <kishoreak@myw.ltindia.com>
-To: <shemminger@osdl.org>
-Cc: <bridge@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [Patch] [2.6.7] Bridge - Fix BPDU message_age
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on Mailout/ltindia(Release 6.5|September 26, 2003) at
- 06/22/2004 08:21:24 PM,
-	Serialize by Router on Mailout/ltindia(Release 6.5|September 26, 2003) at
- 06/22/2004 08:21:48 PM,
-	Serialize complete at 06/22/2004 08:21:48 PM
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
+	Tue, 22 Jun 2004 11:00:29 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:58296 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264530AbUFVOyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 10:54:31 -0400
+Message-ID: <40D847E3.2080109@nortelnetworks.com>
+Date: Tue, 22 Jun 2004 10:53:23 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Herbert Xu <herbert@gondor.apana.org.au>, kernel@nn7.de,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+       netdev@oss.sgi.com, jgarzik@pobox.com
+Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
+References: <20040621141144.119be627.davem@redhat.com>
+In-Reply-To: <20040621141144.119be627.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes message_age field update in config BPDUs. Also checks whether the BPDU 
-message age has exceeded bridge max age before transmitting config BPDUs.
+David S. Miller wrote:
+> On Mon, 21 Jun 2004 23:03:16 +1000
+> Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> 
+>  > On Mon, Jun 21, 2004 at 10:33:50PM +1000, Herbert Xu wrote:
+>  > >
+>  > > Does this patch fix your problems?
+>  >
+>  > Oops, I had a thinko about min vs. max.  I've also decided to make the
+>  > bigger MTU useful by adjusting the arguments to skb_put() as well.
+>  > Please try this one instead.
+> 
+> Applied, thanks Herbert.
 
-Signed-off-by: Kishore A K <KishoreAK@myw.ltindia.com>
+Just a quick question.  Does the sungem chip support jumbo frames?  I'd like to 
+use MTU of 9000 to make large local transfers more efficient, but it didn't seem 
+to work last time I checked.
 
-Index: linux-2.6.7/net/bridge/br_stp.c
-=============================================================
+Thanks,
 
---- linux-2.6.7/net/bridge/br_stp.c.orig	2004-06-17 20:17:27.000000000 +0530
-+++ linux-2.6.7/net/bridge/br_stp.c	2004-06-22 19:32:49.015908632 +0530
-@@ -161,20 +161,19 @@ void br_transmit_config(struct net_bridg
- 	if (!br_is_root_bridge(br)) {
- 		struct net_bridge_port *root
- 			= br_get_port(br, br->root_port);
--		bpdu.max_age = root->message_age_timer.expires - jiffies;
--
--		if (bpdu.max_age <= 0) bpdu.max_age = 1;
-+		bpdu.message_age = br->max_age - 
-+			(root->message_age_timer.expires - jiffies) + 1;
- 	}
- 	bpdu.max_age = br->max_age;
- 	bpdu.hello_time = br->hello_time;
- 	bpdu.forward_delay = br->forward_delay;
- 
--	br_send_config_bpdu(p, &bpdu);
--
--	p->topology_change_ack = 0;
--	p->config_pending = 0;
--	
--	mod_timer(&p->hold_timer, jiffies + BR_HOLD_TIME);
-+	if (bpdu.message_age < br->max_age) {
-+		br_send_config_bpdu(p, &bpdu);
-+		p->topology_change_ack = 0;
-+		p->config_pending = 0;
-+		mod_timer(&p->hold_timer, jiffies + BR_HOLD_TIME);
-+	}
- }
- 
- /* called under bridge lock */
-
-
+Chris

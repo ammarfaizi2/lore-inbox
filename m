@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbTAVPWo>; Wed, 22 Jan 2003 10:22:44 -0500
+	id <S261600AbTAVP2W>; Wed, 22 Jan 2003 10:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbTAVPWo>; Wed, 22 Jan 2003 10:22:44 -0500
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:24660 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S261529AbTAVPWn>; Wed, 22 Jan 2003 10:22:43 -0500
-Message-ID: <3E2EB962.9020503@users.sf.net>
-Date: Wed, 22 Jan 2003 16:31:46 +0100
-From: Thomas Tonino <ttonino@users.sf.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030116
-X-Accept-Language: en-us, en
+	id <S261640AbTAVP2W>; Wed, 22 Jan 2003 10:28:22 -0500
+Received: from exzh001.alcatel.ch ([212.243.156.171]:14603 "HELO
+	exzh001.alcatel.ch") by vger.kernel.org with SMTP
+	id <S261600AbTAVP2V> convert rfc822-to-8bit; Wed, 22 Jan 2003 10:28:21 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5] OSS mpu401 exit fix
+Date: Wed, 22 Jan 2003 16:37:22 +0100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with Qlogic 2200 and 2.4.20
-References: <20030122094015$6b19@gated-at.bofh.it>
-In-Reply-To: <20030122094015$6b19@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301221637.22120.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Przemys³aw Maciuszko wrote:
-> Hello.
-> I have a strange problem with 2.4.20 (also 2.4.19) and Qlogic FC 2200.
-> 
-> The machine runs test news-server, so disk load is high.
-> After few minutes of running I get the following errors on console:
-> 
-> qlogifc0 : no handle slots, this should not happen
-> hostdata->queued is 19, in_ptr: 63
-> qlogifc0 : no handle slots, this should not happen
-> hostdata->queued is 19, in_ptr: 6a
-> qlogifc0 : no handle slots, this should not happen
-> hostdata->queued is 19, in_ptr: 70
-> 
-> and so on.
+hello
 
-This is a long standing problem. Andrew Patterson gave a patch on the list:
+who is 2.5 OSS maintainer?
 
-http://groups.google.com/groups?selm=linux.scsi.1019759258.2413.1.camel%40lvadp.fc.hp.com
+if it's not removed then it should be at least stable. patch to fix module
+unload bug in mu401. io and irq can't be __initdata since they're used for
+the exit function as well...
 
-Without this patch, 2.4.18 would lock up in a few minutes syncing a software 
-raid. With the patch, it has been running multiple megabytes I/O a second for 
-months. And yes it can sync software RAIDs too.
-
-The driver seems to be working for some people without the patch, but the 
-problem appears so quickly on some systems that it is strange the fix has not 
-been incorporated yet. In my case, I tested with ISP2200 cards and a JBOD with 
-Cheetah 10k4 and 10k5 drives.
+rgds,
+-daniel
 
 
-Thomas
+===== sound/oss/mpu401.c 1.9 vs edited =====
+--- 1.9/sound/oss/mpu401.c	Mon Dec 30 04:18:41 2002
++++ edited/sound/oss/mpu401.c	Wed Jan 22 16:29:39 2003
+@@ -1762,13 +1762,13 @@
+ 
+ static struct address_info cfg;
+ 
+-static int __initdata io = -1;
+-static int __initdata irq = -1;
++static int io = -1;
++static int irq = -1;
+ 
+ MODULE_PARM(irq, "i");
+ MODULE_PARM(io, "i");
+ 
+-int __init init_mpu401(void)
++static int __init init_mpu401(void)
+ {
+ 	int ret;
+ 	/* Can be loaded either for module use or to provide functions
+@@ -1785,7 +1785,7 @@
+ 	return 0;
+ }
+ 
+-void __exit cleanup_mpu401(void)
++static void __exit cleanup_mpu401(void)
+ {
+ 	if (io != -1 && irq != -1) {
+ 		/* Check for use by, for example, sscape driver */
 

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314811AbSGQN5d>; Wed, 17 Jul 2002 09:57:33 -0400
+	id <S314680AbSGQOMV>; Wed, 17 Jul 2002 10:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314584AbSGQN5d>; Wed, 17 Jul 2002 09:57:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:34231 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314811AbSGQN5c>;
-	Wed, 17 Jul 2002 09:57:32 -0400
-Date: Wed, 17 Jul 2002 10:00:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Joerg Schilling <schilling@fokus.gmd.de>
-cc: riel@conectiva.com.br, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207171346.g6HDkb1l028358@burner.fokus.gmd.de>
-Message-ID: <Pine.GSO.4.21.0207170953370.27768-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314829AbSGQOMV>; Wed, 17 Jul 2002 10:12:21 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:27094 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S314680AbSGQOMU>;
+	Wed, 17 Jul 2002 10:12:20 -0400
+From: irfan_hamid@softhome.net
+To: linux-kernel@vger.kernel.org
+Cc: Jack.Bloch@icn.siemens.com
+Subject: Re: None
+Date: Wed, 17 Jul 2002 08:15:16 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [202.52.197.1]
+Message-ID: <courier.3D357BF4.0000115C@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 17 July 2002 13:35, Bloch, Jack wrote:
+> I load my own device driver into a 2.4.18-3 Kernel and get the following
+> message. 
+>
+> "Warning Loading Icdeva0s.o will taint the Kernel : No Licence" 
+>
+> How do you stop this
 
+Plz read FAQ #18, Section 1 of linux-kernel archives:
+www.tux.org/lkml 
 
-On Wed, 17 Jul 2002, Joerg Schilling wrote:
- 
-> Is there any problem with using a ioctl() from upper layer kernel to the low 
-> level drivers (living under the SW raid) to reduce the number of retries to a 
-> reasonable value in this case?
-> 
-> The main design goal for UNIX as to keep it simple. There is no need for a 
-> complex cross layer error control.
-
-... and ioctl(2) is a gross violation of that design goal.  Ask the authors
-of UNIX how they feel about that kludge, let alone propagation of said kludge
-beyond the TTY layer where it had originated (or about the entire v7 TTY layer,
-for that matter - v8 and later had thrown that crap away).
-
-If you care about design philosophy of UNIX - at the very least take a hard
-look at APIs you are using.  Sheesh...
-
+Irfan Hamid

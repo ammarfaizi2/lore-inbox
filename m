@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269228AbUIIAHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269226AbUIIAL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269228AbUIIAHG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 20:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269243AbUIIAHF
+	id S269226AbUIIAL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 20:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269251AbUIIAIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 20:07:05 -0400
-Received: from holomorphy.com ([207.189.100.168]:3244 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269228AbUIIAGH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 20:06:07 -0400
-Date: Wed, 8 Sep 2004 17:06:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 8 Sep 2004 20:08:05 -0400
+Received: from out010pub.verizon.net ([206.46.170.133]:43748 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S269216AbUIIAEh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 20:04:37 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
 Subject: Re: New 200Gb disk
-Message-ID: <20040909000603.GH3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200409080747.15573.gene.heskett@verizon.net> <20040908115746.GY3106@holomorphy.com> <200409082003.39135.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 8 Sep 2004 20:04:36 -0400
+User-Agent: KMail/1.7
+Cc: Bill Davidsen <davidsen@tmr.com>
+References: <200409080747.15573.gene.heskett@verizon.net> <20040908115746.GY3106@holomorphy.com> <chnjrr$u3k$1@gatekeeper.tmr.com>
+In-Reply-To: <chnjrr$u3k$1@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200409082003.39135.gene.heskett@verizon.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200409082004.36215.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.49.110] at Wed, 8 Sep 2004 19:04:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 September 2004 07:57, William Lee Irwin III wrote:
+On Wednesday 08 September 2004 14:50, Bill Davidsen wrote:
+>William Lee Irwin III wrote:
+>> On Wed, Sep 08, 2004 at 07:47:15AM -0400, Gene Heskett wrote:
+>>>I intend to use this disk with amanda as a FILE repository to
+>>> replace a failed tape changer.  Are there any gotcha's I should
+>>> be aware of. Running a 2.6.9-rc1-mm2 kernel ATM.  Ext3
+>>> filesystems only.
+>>
 >> 25GB disks have been supported for a very long time. =)
+>
+>I assume from the smiley that this is some kind of in-joke, since
+> it's not obviously related to the question in the subject... Could
+> you share it? Is this the joke about "three disks walk into a bar,
+> a PATA, a SATA, and a SCSI..." or what?
+>
+>I assumed the OP had a legitimate question.
 
-On Wed, Sep 08, 2004 at 08:03:39PM -0400, Gene Heskett wrote:
-> Humm, I've heard of think-o's so this must be a see-o.  I wrote 200Gb, 
-> not 20Gb :-)
+Yes, the disk size is in the subject line, 200Gb. :)
 
-200Gb is 25GB. 'b' is for bits, 'B' is for bytes.
-
-
--- wli
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.25% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

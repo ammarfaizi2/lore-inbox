@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282978AbSALCxX>; Fri, 11 Jan 2002 21:53:23 -0500
+	id <S284138AbSALD00>; Fri, 11 Jan 2002 22:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283012AbSALCxM>; Fri, 11 Jan 2002 21:53:12 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:29963 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S282978AbSALCxF>;
-	Fri, 11 Jan 2002 21:53:05 -0500
-Date: Fri, 11 Jan 2002 19:50:18 -0700
-From: yodaiken@fsmlabs.com
-To: Robert Love <rml@tech9.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
-        Rob Landley <landley@trommello.org>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020111195018.A2008@hq.fsmlabs.com>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy>
+	id <S284180AbSALD0P>; Fri, 11 Jan 2002 22:26:15 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16648 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S284138AbSALD0E>;
+	Fri, 11 Jan 2002 22:26:04 -0500
+Date: Sat, 12 Jan 2002 01:26:01 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Brian Litzinger <brian@top.worldcontrol.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: CIPE vs. GPLONLY_
+Message-ID: <20020112032601.GA13389@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Brian Litzinger <brian@top.worldcontrol.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020112010317.GA1765@top.worldcontrol.com> <E16PD12-0000wY-00@the-village.bc.nu> <20020112014830.GA6031@top.worldcontrol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1010781207.819.27.camel@phantasy>; from rml@tech9.net on Fri, Jan 11, 2002 at 03:33:22PM -0500
+In-Reply-To: <20020112014830.GA6031@top.worldcontrol.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 03:33:22PM -0500, Robert Love wrote:
-> On Fri, 2002-01-11 at 07:37, Alan Cox wrote:
-> The preemptible kernel plus the spinlock cleanup could really take us
-> far.  Having locked at a lot of the long-held locks in the kernel, I am
-> confident at least reasonable progress could be made.
+Em Fri, Jan 11, 2002 at 05:48:30PM -0800, brian@worldcontrol.com escreveu:
+> On Sat, Jan 12, 2002 at 01:31:24AM +0000, Alan Cox wrote:
+> > > running CIPE 1.5.2 I get the error above.  Should I be bother the
+> > > CIPE people with this?  Or is this some kernel thingy that needs
+> > > to be dealt with?
+> > Add
+> > 	MODULE_LICENSE("GPL");
+> > to the cipe code and all will be well
 > 
-> Beyond that, yah, we need a better locking construct.  Priority
-> inversion could be solved with a priority-inheriting mutex, which we can
-> tackle if and when we want to go that route.  Not now.
+> Thanks. I added that and now I'm just left with sk_run_filter
+> undef'ed without the GPLONLY_ warning.
+> 
+> I've deleted my kernel sources and am starting everything over
+> from scratch.  I checked that 'CONFIG_FILTER' was defined
+> and all seemed in order, but still got the error.
+> 
+> I read through the last few months of the CIPE archives and there
+> is no mention of such a problem.  Others mention running with
+> 2.4.17, hence my start over.
 
-Backing the car up to the edge of the cliff really gives us
-good results. Beyond that, we could jump off the cliff
-if we want to go that route.
-Preempt leads to inheritance and inheritance leads to disaster.
+probably because they use an old modutils package...
 
-
-All the numbers I've seen show Morton's low latency just works better. Are
-there other numbers I should look at.
-
-
+- Arnaldo

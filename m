@@ -1,110 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262984AbSJBGz0>; Wed, 2 Oct 2002 02:55:26 -0400
+	id <S262985AbSJBHeJ>; Wed, 2 Oct 2002 03:34:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262985AbSJBGz0>; Wed, 2 Oct 2002 02:55:26 -0400
-Received: from smtp02.web.de ([217.72.192.151]:32796 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S262984AbSJBGzY>;
-	Wed, 2 Oct 2002 02:55:24 -0400
-Message-ID: <3D9A9994.3090400@web.de>
-Date: Wed, 02 Oct 2002 09:00:36 +0200
-From: Roy <roy_me@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.1) Gecko/20020826
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.40 (2.5.39 too) Problems compiling radionfb ...
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S262986AbSJBHeJ>; Wed, 2 Oct 2002 03:34:09 -0400
+Received: from laibach.mweb.co.za ([196.2.53.177]:3216 "EHLO
+	laibach.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S262985AbSJBHeI>; Wed, 2 Oct 2002 03:34:08 -0400
+To: Corporal_Pisang@Counter-Strike.com.my, linux-kernel@vger.kernel.org
+From: bonganilinux@mweb.co.za
+Subject: Re: 2.5.40 compile error (missing imm.o)
+Date: Wed, 2 Oct 2002 07:39:18 GMT
+X-Posting-IP: 196.34.86.10 via 172.24.158.16
+X-Mailer: Endymion MailMan  
+Message-Id: <E17wdvf-0005YV-00@laibach.mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am I the only one who got problems with radeonfb?
+> 
+> Hi,
+> 
+> 2.5.40 gives me a compile error doesnt exists before.
+> 
+> gcc -Wp,-MD,./.imm.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> -march=athlon  -I/usr/src/linux/arch/i386/mach-generic -nostdinc
+> -iwithprefix include    -DKBUILD_BASENAME=imm   -c -o imm.o imm.c
+> drivers/scsi/imm.c: In function `imm_interrupt':
+> drivers/scsi/imm.c:901: warning: implicit declaration of function
+> `queue_task'
+> drivers/scsi/imm.c:901: `tq_timer' undeclared (first use in this function)
+> drivers/scsi/imm.c:901: (Each undeclared identifier is reported only once
+> drivers/scsi/imm.c:901: for each function it appears in.)
+> drivers/scsi/imm.c: In function `imm_queuecommand':
+> drivers/scsi/imm.c:1108: `tq_immediate' undeclared (first use in this
+> function)
+> drivers/scsi/imm.c:1109: warning: implicit declaration of function `mark_bh'
+> drivers/scsi/imm.c:1109: `IMMEDIATE_BH' undeclared (first use in this
+> function)
 
-   gcc -Wp,-MD,./.radeonfb.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=radeonfb   -c -o radeonfb.o radeonfb.c
-drivers/video/radeonfb.c:605: unknown field `fb_get_fix' specified in 
-initializer
-drivers/video/radeonfb.c:605: warning: initialization from incompatible 
-pointer type
-drivers/video/radeonfb.c:606: unknown field `fb_get_var' specified in 
-initializer
-drivers/video/radeonfb.c:606: warning: initialization from incompatible 
-pointer type
-drivers/video/radeonfb.c: In function `radeon_set_dispsw':
-drivers/video/radeonfb.c:1385: structure has no member named `type'
-drivers/video/radeonfb.c:1386: structure has no member named `type_aux'
-drivers/video/radeonfb.c:1387: structure has no member named `ypanstep'
-drivers/video/radeonfb.c:1388: structure has no member named `ywrapstep'
-drivers/video/radeonfb.c:1397: structure has no member named `visual'
-drivers/video/radeonfb.c:1398: structure has no member named `line_length'
-drivers/video/radeonfb.c:1405: structure has no member named `visual'
-drivers/video/radeonfb.c:1406: structure has no member named `line_length'
-drivers/video/radeonfb.c:1413: structure has no member named `visual'
-drivers/video/radeonfb.c:1414: structure has no member named `line_length'
-drivers/video/radeonfb.c:1421: structure has no member named `visual'
-drivers/video/radeonfb.c:1422: structure has no member named `line_length'
-drivers/video/radeonfb.c: In function `radeonfb_get_fix':
-drivers/video/radeonfb.c:1514: structure has no member named `type'
-drivers/video/radeonfb.c:1515: structure has no member named `type_aux'
-drivers/video/radeonfb.c:1516: structure has no member named `visual'
-drivers/video/radeonfb.c:1522: structure has no member named `line_length'
-drivers/video/radeonfb.c: In function `radeonfb_set_var':
-drivers/video/radeonfb.c:1578: structure has no member named `line_length'
-drivers/video/radeonfb.c:1579: structure has no member named `visual'
-drivers/video/radeonfb.c:1590: structure has no member named `line_length'
-drivers/video/radeonfb.c:1591: structure has no member named `visual'
-drivers/video/radeonfb.c:1606: structure has no member named `line_length'
-drivers/video/radeonfb.c:1607: structure has no member named `visual'
-drivers/video/radeonfb.c:1619: structure has no member named `line_length'
-drivers/video/radeonfb.c:1620: structure has no member named `visual'
-drivers/video/radeonfb.c: At top level:
-drivers/video/radeonfb.c:2487: warning: `fbcon_radeon8' defined but not used
-drivers/video/radeonfb.c:598: warning: `radeon_read_OF' declared 
-`static' but never defined
-drivers/video/radeonfb.c:1710: warning: `radeonfb_set_cmap' defined but 
-not used
-   gcc -Wp,-MD,./.fbcon-cfb8.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=fbcon_cfb8 -DEXPORT_SYMTAB  -c -o 
-fbcon-cfb8.o fbcon-cfb8.c
-   gcc -Wp,-MD,./.fbcon-cfb16.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=fbcon_cfb16 -DEXPORT_SYMTAB  -c -o 
-fbcon-cfb16.o fbcon-cfb16.c
-   gcc -Wp,-MD,./.fbcon-cfb24.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=fbcon_cfb24 -DEXPORT_SYMTAB  -c -o 
-fbcon-cfb24.o fbcon-cfb24.c
-   gcc -Wp,-MD,./.fbcon-cfb32.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=fbcon_cfb32 -DEXPORT_SYMTAB  -c -o 
-fbcon-cfb32.o fbcon-cfb32.c
-    ld -m elf_i386  -r -o built-in.o dummycon.o vgacon.o font_8x8.o 
-font_8x16.o fbmem.o fbcmap.o modedb.o fbcon.o fonts.o fbgen.o radeonfb.o 
-fbcon-cfb8.o fbcon-cfb16.o fbcon-cfb24.o fbcon-cfb32.o
-ld: cannot open radeonfb.o: No such file or directory
-make[2]: *** [built-in.o] Fehler 1
-make[2]: Verlassen des Verzeichnisses Verzeichnis 
-»/usr/src/linux-2.5.40/drivers/video«
-make[1]: *** [video] Fehler 2
-make[1]: Verlassen des Verzeichnisses Verzeichnis 
-»/usr/src/linux-2.5.40/drivers«
-make: *** [drivers] Fehler 2
+<snip>
+
+Try this patch I think it should fix it (not tested though)
+
+
+diff -uNr linux-2.5/drivers/scsi/imm.c.old linux-2.5/drivers/scsi/imm.c    
+--- linux-2.5/drivers/scsi/imm.c.old	2002-10-02 09:30:41.000000000 +0200
++++ linux-2.5/drivers/scsi/imm.c	2002-10-02 09:31:53.000000000 +0200
+@@ -898,7 +898,7 @@
+     if (imm_engine(tmp, cmd)) {
+ 	tmp->imm_tq.data = (void *) tmp;
+ 	tmp->imm_tq.sync = 0;
+-	queue_task(&tmp->imm_tq, &tq_timer);
++	schedule_task(&tmp->imm_tq);
+ 	return;
+     }
+     /* Command must of completed hence it is safe to let go... */
+@@ -1105,8 +1105,7 @@
+ 
+     imm_hosts[host_no].imm_tq.data = imm_hosts + host_no;
+     imm_hosts[host_no].imm_tq.sync = 0;
+-    queue_task(&imm_hosts[host_no].imm_tq, &tq_immediate);
+-    mark_bh(IMMEDIATE_BH);
++    schedule_task(&imm_hosts[host_no].imm_tq);
+ 
+     return 0;
+ }
+
+Cheers
+
+> 
+> Regards
+> 
+> -Ubaida-
+
+
+---------------------------------------------
+This message was sent using M-Web Airmail.
+JUST LIKE THAT
+Are you ready for 10-digit dialling?
+To find out how this will affect your Internet connection go to www.mweb.co.za/ten
+http://airmail.mweb.co.za/
+
 

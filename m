@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282232AbRKWU2n>; Fri, 23 Nov 2001 15:28:43 -0500
+	id <S282233AbRKWUfX>; Fri, 23 Nov 2001 15:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282231AbRKWU2d>; Fri, 23 Nov 2001 15:28:33 -0500
-Received: from ktk.bidmc.harvard.edu ([134.174.237.112]:13841 "EHLO
-	ktk.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S282226AbRKWU20>; Fri, 23 Nov 2001 15:28:26 -0500
-Message-ID: <3BFEB169.3E4952A8@bigfoot.com>
-Date: Fri, 23 Nov 2001 15:28:25 -0500
-From: "Kristofer T. Karas" <ktk@bigfoot.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en-GB, en
-MIME-Version: 1.0
-To: rpjday <rpjday@mindspring.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: is 2.4.15 really available at www.kernel.org?
-In-Reply-To: <Pine.LNX.4.33.0111230437180.7283-100000@localhost.localdomain>
+	id <S282235AbRKWUfO>; Fri, 23 Nov 2001 15:35:14 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:21765 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282233AbRKWUe6>; Fri, 23 Nov 2001 15:34:58 -0500
+Date: Fri, 23 Nov 2001 20:34:52 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.15: FS corruption on EXT2
+Message-ID: <20011123203452.A3141@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rpjday wrote:
+Hi,
 
-> [...]www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.15.tar.bz2, and it
-> completed after downloading *exactly* 155312 bytes, just as before.
->
-> getting it via ftp works fine -- it's http that's giving me this
-> weird problem.   is it just me?
+I've just been testing 2.4.15 on my NetWinder (which was running 2.4.15-pre5
+quite happily - its built several kernels and been through a fair number of
+reboot cycles with that version).
 
-You probably have a proxy server in your path that doesn't re-request partially-sent
-files.  I have your problem too, using squid-cache as the proxy.  Here's what
-happens:
+With 2.4.15, I can now 100% reproduce every time filesystem corruption of
+an ext2 filesystem, specifically in /var/lock/subsys/.
 
-The http server (kernel.org) sends the file to the proxy, which sends it to you.  But
-because the net connection from kernel.org to the proxy is faster than it is from
-proxy to you, the tcp window between proxy and kernel.org goes to zero.  When it
-opens up again, kernel.org closes the connection even though the file is only
-partially received.  The proxy, failing to detect that the file is smaller than the
-Content-Length header said it would be, simply sends the truncated contents  your
-way.
+/var/lock/subsys contains a load of 0 byte files, one for each daemon that
+is started by the redhat-like boot scripts.  On shutdown they're removed.
 
-I "fixed" this bug by using 'wget' to retrieve the files for me.  It has the same
-problem, obtaining a truncated file; but it is smart enough to re-request missing
-byte-ranges of the file, ultimately obtaining the entire thing.
+After a second boot with 2.4.15, all the names are still present in the
+directory, rm complains with:
 
-Kris
+	rm: cannot remove `/var/lock/subsys/xyz': Input/output error
+
+stracing rm reveals that lstat of a file in /var/lock/subsys/ returns -EIO.
+Trying to get a directory listing results in every single file giving an
+input/output error.
+
+This is just a heads up - several people are already looking into it.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

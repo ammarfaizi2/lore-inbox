@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263215AbUCYQRd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 11:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbUCYQRd
+	id S263229AbUCYQVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 11:21:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbUCYQVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 11:17:33 -0500
-Received: from dsl-64-30-195-78.lcinet.net ([64.30.195.78]:35471 "EHLO
-	jg555.com") by vger.kernel.org with ESMTP id S263215AbUCYQRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 11:17:31 -0500
-Message-ID: <03ec01c41284$a99cb8e0$d100a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Kernel" <linux-kernel@vger.kernel.org>
-Subject: 2.6.4 Hard lockup
-Date: Thu, 25 Mar 2004 08:17:25 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 25 Mar 2004 11:21:16 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:52912 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S263229AbUCYQVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 11:21:10 -0500
+Date: Thu, 25 Mar 2004 11:20:08 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH] export complete_all
+In-reply-to: <1080200277.5225.2.camel@laptop.fenrus.com>
+To: arjanv@redhat.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Message-id: <406306B8.90303@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <406210A4.4030609@sun.com>
+ <1080200277.5225.2.camel@laptop.fenrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System just froze. Magic Keys didn't work. Shift-Print didn't work to print
-the screen nothing at all. But, I did have a digital camera handy, so I have
-some information to give. I did check the syslog log files and nothing was
-recorded.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-[<c0000000b>] NMI Watchdog detected LOCKUP on CPU1, eip c013c769, registers:
-CPU:    1
-EIP:        0060:[<c013c769>]    Not tainted
-EFLAGS:    00000086
-EIP is at .text.lock.module+0x145/0x14c
-eax:   f77a2000    ebx:    c013c4cf    ecx:    c0138f03    edx:    c825ca30
-esi:    0000000    edi:    00000096    ebp:    c013c4c1    esp:    f77a33374
-ds:    007b    cs:    007b    ss: 0068
-Process syslog-ng (pid: 748, threadin=f77a2000 task=f7435820)
-Stack:   00000004    c02ca580    00000001    c013c4cf    00000000
-c011ad20    f7435820    c0135368
-            c013c4cf    c025d300    c013c4cf    f77a3468    c011b773
-c013c4cf    00000000    c011ae3f
-            f77a3468    f88e9400    0000000    00000000    00861ce7
-0000000    c02ca580    00000001
-Call Trace:
-[<00000004>]
+Arjan van de Ven wrote:
+| On Wed, 2004-03-24 at 23:50, Mike Waychison wrote:
+|
+|>-----BEGIN PGP SIGNED MESSAGE-----
+|>Hash: SHA1
+|>
+|>No idea why it hasn't been done already, but complete_all wasn't
+|>exported while complete was.
+|
+|
+| which module is using this ?
 
-Here is a link to the photos, I did my best to get accurate information
-copied from them
-http://ftp.jg555.com/crash/
+None at the moment, so getting this applied isn't neccesarily a high
+priority.  Actually, the only in-tree caller is fs/exec.c:do_coredump.
 
-----
-Jim Gifford
-maillist@jg555.com
+I'm currently working on writing a new autofs stack and will eventually
+~ need this call exported.  It seems strange to me that we'd only export
+portions of an api like this.
 
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+mailto: Michael.Waychison@Sun.COM
+http://www.sun.com
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAYwa3dQs4kOxk3/MRAo5vAJ423HBBuES9xxzWOUW5Ms+jWUtfGwCgkoIf
+V3yDiSgsetl5A4pOUdRvkXQ=
+=/zUy
+-----END PGP SIGNATURE-----

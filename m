@@ -1,39 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270343AbRHHFp7>; Wed, 8 Aug 2001 01:45:59 -0400
+	id <S270344AbRHHFwA>; Wed, 8 Aug 2001 01:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270344AbRHHFpk>; Wed, 8 Aug 2001 01:45:40 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:2320 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S270343AbRHHFpT>;
-	Wed, 8 Aug 2001 01:45:19 -0400
-Date: Tue, 7 Aug 2001 22:45:00 -0700
-From: Greg KH <greg@kroah.com>
-To: Stuart Lynne <sl@fireplug.net>, linux-kernel@vger.kernel.org
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-Message-ID: <20010807224500.A12601@kroah.com>
-In-Reply-To: <20010807135135.J17723@fireplug.net> <20010807223625.A8330@nostromo.devel.redhat.com>
-Mime-Version: 1.0
+	id <S270347AbRHHFvu>; Wed, 8 Aug 2001 01:51:50 -0400
+Received: from atlrel7.hp.com ([192.151.27.9]:54024 "HELO atlrel7.hp.com")
+	by vger.kernel.org with SMTP id <S270344AbRHHFvd>;
+	Wed, 8 Aug 2001 01:51:33 -0400
+Message-ID: <3B70D2A6.F0C0ACC4@india.hp.com>
+Date: Wed, 08 Aug 2001 11:18:23 +0530
+From: Milind <dmilind@india.hp.com>
+Organization: HP
+X-Mailer: Mozilla 4.7 [en] (X11; I; HP-UX B.10.20 9000/712)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mark@winksmith.com
+Cc: linux-kernel@vger.kernel.org, blore-linux@yahoogroups.com
+Subject: Re: FW: [ma-linux] Info about top command required
+In-Reply-To: <001f01c11fca$3bfd5ec0$94604c0f@india.hp.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010807223625.A8330@nostromo.devel.redhat.com>; from notting@redhat.com on Tue, Aug 07, 2001 at 10:36:25PM -0400
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 07, 2001 at 10:36:25PM -0400, Bill Nottingham wrote:
-> Stuart Lynne (sl@fireplug.net) said: 
-> > So not being able to reliable map ethernet devices to names is a feature
-> > not a bug .... 
-> 
-> With reasonable scriptage and 'nameif', it's doable. Only for
-> ethernet at the moment, however (and I haven't actually implementing
-> something that does this.)  But it *is* doable.
+Hi mark ,
 
-With only adding one line to the current linux-hotplug scripts, a
-co-worker of mine enabled reliable mapping that isn't dependent on pci
-scanning, or hotplugging of pci cards.  He used nameif and a table of
-MAC addresses that map to the name he wanted.
+Thanks for the info.
+
+But the question really is , whether SIZE corrosponds to
+
+  real memory( real text + real data + real stack)
+                              OR
+  virtual  memory(virtual text + virtual data + virtual stack)
+                              OR
+   both????
+
+Thanks
+Milind
 
 
-greg k-h
+> -----Original Message-----
+> From: mark@winksmith.com [mailto:mark@winksmith.com]
+> Sent: Tuesday, August 07, 2001 6:13 PM
+> To: Ananth P
+> Cc: TUXMA (E-mail)
+> Subject: Re: [ma-linux] Info about top command required
+>
+> On Tue, Aug 07, 2001 at 12:55:28PM +0530, Ananth P wrote:
+> >  I wanted to know how the 'SIZE' field in the output of 'top' command is
+> > calculated in linux.
+>
+> well, if i remember correctly the size field in ps results in process
+> size in clicks.  one click is 4096 bytes.  it's pretty good for relative
+> measurement (e.g. this one is 50 clicks, the other one is 5000 clicks).
+>
+> let's see about 'top'.  reading man page
+>
+>         SIZE    The size of the task's code plus data plus stack
+>                 space, in kilobytes, is shown here.
+>
+> so, it sounds like kb.  in addition, you might find these fields helpful
+> too (from the man page).
+>
+>         TSIZE   The code size of the task. This gives strange
+>                 values for kernel processes  and is broken
+>                 for ELF processes.
+>
+>         DSIZE   Data + Stack size. This is broken for ELF
+>                 processes.
+>
+> --
+> Mark Smith
+> mark@winksmith.com
+

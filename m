@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264208AbTFPTzB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 15:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFPTzB
+	id S264219AbTFPT7x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 15:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264221AbTFPT7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 15:55:01 -0400
-Received: from wmail.atlantic.net ([209.208.0.84]:42369 "HELO
-	wmail.atlantic.net") by vger.kernel.org with SMTP id S264208AbTFPTy6
+	Mon, 16 Jun 2003 15:59:53 -0400
+Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:52051 "EHLO
+	mars.elipse.com.br") by vger.kernel.org with ESMTP id S264219AbTFPT7w
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 15:54:58 -0400
-Message-ID: <3EEE272A.2040208@techsource.com>
-Date: Mon, 16 Jun 2003 16:23:06 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Mon, 16 Jun 2003 15:59:52 -0400
+Message-ID: <3EEE25C1.5000905@elipse.com.br>
+Date: Mon, 16 Jun 2003 17:17:05 -0300
+From: Felipe W Damasio <felipewd@elipse.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-To: Aschwin Marsman <a.marsman@aYniK.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Coding technique question
-References: <Pine.LNX.4.44.0306162202480.1924-100000@localhost.localdomain>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Felipe Wilhelms Damasio <felipe@elipse.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rodrigo Gressler <rodrigo@elipse.com.br>
+Subject: Re: Geode MediaGX CD-ROM detection problem
+References: <D818C01D3A571F49AAB829274DAF9E0402D225@mars.elipse.com.br> <1055545654.6592.6.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1055545654.6592.6.camel@dhcp22.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jun 2003 20:17:06.0250 (UTC) FILETIME=[41C732A0:01C33444]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for pointing this out to me.  It's very interesting reading.
+	Hi Alan,
 
-
-Aschwin Marsman wrote:
-> On Mon, 16 Jun 2003, Timothy Miller wrote:
-> 
-> 
->>I believe I've seen this sort of thing done in the kernel:
->>
->>do {
->>     ....
->>     code
->>     ....
->>} while (0);
->>
->>
->>What I was wondering is how this is any different from:
->>
->>{
->>     ....
->>     code
->>     ....
->>}
-> 
-> 
-> See the Kernel Newbies FAQ at http://kernelnewbies.org/faq/
-> Q: "Why do a lot of #defines in the kernel use do { ... } while(0)? "
->  
-> Best regards,
->  
-> Aschwin Marsman
->  
-> --
-> aYniK Software Solutions         all You need is Knowledge
-> Bedrijvenpark Twente 305         NL-7602 KL Almelo - the Netherlands
-> P.O. box 134                     NL-7600 AC Almelo - the Netherlands
-> a.marsman@aYniK.com              http://www.aYniK.com
-> 
-> 
+Alan Cox wrote:
+> Try booting with the option ide=nodma first of all
 > 
 
+	Just tried it. It didn't work.
+
+	I still get "not a valid block device".
+
+	dmesg doesn't tell me anything, either. Just the usual:
+
+CS5530: IDE controller on PCI bus 00 dev 92
+.
+.
+hda: GCR-8521B, ATAPI CD/DVD-ROM drive
+
+	Is there any more info I can provide? Or is there anything else I can 
+try?
+
+	Cheers,
+
+Felipe
 

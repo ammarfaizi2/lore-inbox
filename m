@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262852AbVA2EvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVA2EvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262852AbVA2EvB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 23:51:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262854AbVA2EvA
+	id S262853AbVA2EvH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 23:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbVA2EvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 23:51:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1223 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262852AbVA2Eu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 23:51:06 -0500
+Received: from web60605.mail.yahoo.com ([216.109.118.243]:32920 "HELO
+	web60605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262853AbVA2Eu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 28 Jan 2005 23:50:56 -0500
-Date: Sat, 29 Jan 2005 04:50:55 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andries Brouwer <aebr@win.tue.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible bug in keyboard.c (2.6.10)
-Message-ID: <20050129045055.GS8859@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050127125637.GA6010@pclin040.win.tue.nl> <Pine.LNX.4.61.0501272248380.6118@scrub.home> <20050128105937.GA5963@ucw.cz>
-Mime-Version: 1.0
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=2vlAscb7tma35r5lXrWJ1Kor/Dwr7ycc9YJ4s8aEmL6tVuX4NJyDP2c9n4d+HPKegkHYJoD56ewr5ZRBIlJrarKk7he2O6sYLzwn7vIFt7AaORsEeQYLB+E+UZC2IJYLKb451cxsT2x4WcSEHMHcaeGOC31ZSQzcLv5QotWncYo=  ;
+Message-ID: <20050129045056.80741.qmail@web60605.mail.yahoo.com>
+Date: Fri, 28 Jan 2005 20:50:56 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Kernel oops on integrating a module with obj-y option
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050128105937.GA5963@ucw.cz>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 11:59:37AM +0100, Vojtech Pavlik wrote:
-> I'm very sorry about the locking, but the thing grew up in times of
-> kernel 2.0, which didn't require any locking. There are a few possible
+Hello everyone,
 
-Incorrect.  You have blocking allocations in critical areas and they
-required locking all way back.
+                 I am using Fedora core 1. I am doing
+my project in the linux kernel 2.4.28. In my project,
+I am intercepting system calls. I am doing all these
+things from a module. Now, I installed this module
+with the main kernel and I found it working nice when
+I used 'modprobe' to load it.
+                 Then I changed obj-m of my module to
+obj-y and then I compiled my module object file with
+the core kernel files like fs.o net.o kernel.o. So, my
+target kernel binary code contains my module. Then I
+booted my system. Now, the kernel oops sometimes and
+sometimes it prompts for checking the disk and opens
+the file system as a read only device.
+                  To integrate my module, I created a
+new subdirectory under the kernel source directory
+named 'rsched' and I icreated my own make file for
+that. The makefile contains the following lines
+  obj-y := rsched.o ( previously obj-m := rsched.o)
+  include $(TOPDIR)/Rules.make
 
-> races with device registration/unregistration, and it's on my list to
-> fix that, however under normal operation there shouldn't be any need for
-> locks, as there are no complex structures built that'd become
-> inconsistent. 
+   then I changed the following lines in the top level
+make file.
+  SUBDIRS := fs net kernel.... rsched
+  CORE_FILES := kernel/kernel.o fs/fs.o ....
+rsched/rsched.o
 
-Um-hm...  Vojtech, meet USB mouse; USB mouse, meet Vojtech.  Now watch
-a disconnect and reconnect happening when luser suddenly gets overexcited
-and jerks the wrong hand a bit too hard while browsing the most profitable
-sort of website...
+         How can I rectify this error so that I can
+integrate my module with the main kernel image?
 
-> If you find scenarios which will lead to trouble in the event delivery
-> system, please tell me, and I'll try to fix that as soon as possible.
+Thanks in advance and regards,
+selva
 
-See above.  Devices appearing and disappearing *are* normal.  
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Helps protect you from nasty viruses. 
+http://promotions.yahoo.com/new_mail

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbTATUWB>; Mon, 20 Jan 2003 15:22:01 -0500
+	id <S266978AbTATU2M>; Mon, 20 Jan 2003 15:28:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266286AbTATUWB>; Mon, 20 Jan 2003 15:22:01 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:55125 "EHLO
-	mail.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S266535AbTATUWB>; Mon, 20 Jan 2003 15:22:01 -0500
-Message-ID: <3E2C5C6A.8050207@blue-labs.org>
-Date: Mon, 20 Jan 2003 15:30:34 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030119
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S266979AbTATU2M>; Mon, 20 Jan 2003 15:28:12 -0500
+Received: from quechua.inka.de ([193.197.184.2]:3480 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S266978AbTATU2K>;
+	Mon, 20 Jan 2003 15:28:10 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Confirmation for subscribe linux-kernel
-References: <20030120152928Z266064-22911+25889@vger.kernel.org>
-In-Reply-To: <20030120152928Z266064-22911+25889@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <1042930522.15782.12.camel@laptop.fenrus.com>
+Organization: private Linux site, southern Germany
+Date: Mon, 20 Jan 2003 21:03:04 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E18ai8O-00032u-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about including the Sender's info so we can publically ridicule them? :)
-
-David
-
-Majordomo@vger.kernel.org wrote:
-
->--
+> > Whoever invented this /lib/modules/... scheme should have known that
+> > it provokes this sort of misunderstandings, not to mention is broken
+> > in other ways too.
 >
->Someone (possibly you) has requested that your email address be added
->to or deleted from the mailing list "linux-kernel@vger.kernel.org".
->  
->
+> it was Linus who decreed this to be the standard;)
+
+no matter who decreed it. Even Linus may be wrong sometimes.
+
+> yes, and most of the time you want to compile against the currently
+> running kernel, at which point `uname -r` comes in handy; for other
+> kernels you just change the path a bit.
+> make install and make modules_install make the symlink right already....
+> it's a 99% solution, sure, but it's ok for all but a few cases.
+
+And what's exactly wrong with the other 99% solution of putting it in
+/usr/src/linux-`uname -r` ? This has exactly the same advantages but
+doesn't mix up between development and runtime environment; /usr/src
+is clearly where source belongs and /lib/modules is an install target.
+
+Even Linus has finally accepted that the root of the source tree is
+best called linux-$VERSION rather than just linux, so this is not an
+obstacle either.
+
+Olaf
 

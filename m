@@ -1,100 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTFZVV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 17:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTFZVV3
+	id S262763AbTFZVZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 17:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTFZVZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 17:21:29 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:17552 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S262714AbTFZVVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 17:21:21 -0400
-Date: Thu, 26 Jun 2003 14:35:08 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Larry McVoy <lm@work.bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-In-Reply-To: <20030626231752.E5633@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306261428400.25030-100000@twin.uoregon.edu>
+	Thu, 26 Jun 2003 17:25:05 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:11538 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S262763AbTFZVY4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 17:24:56 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Larry McVoy" <lm@bitmover.com>
+Cc: "Stephan von Krawczynski" <skraw@ithnet.com>, <wa@almesberger.net>,
+       <miquels@cistron-office.nl>, <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Thu, 26 Jun 2003 14:39:01 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGMEGHDBAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030626205221.GC14299@work.bitmover.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jun 2003, Vojtech Pavlik wrote:
+How *exactly* does that (your below) jibe with your dismissal of the
+arguments of people like myself who do, in literal fact, have twenty years
+of experience in the field of software design and innovation and the
+*business* of selling that design and innovation to others?
 
-> On Tue, Jun 24, 2003 at 06:33:02PM -0700, Larry McVoy wrote:
+You talk this great game about how you are just trying to weight the
+comments you receive based on the experience backing them up.  But then, on
+the backside you "refine" your allowable definition of experience so as to
+comfortably dismiss, without consideration, any comments you don't like.
 
-> > Anyway, we put 2.5.70 on bkbits.net which is a Tyan dual PII motherboard
-> > w/ serverworks IDE and we started getting data corruption.  So I just
-> > installed 2.4.21 and we'll see if that works better.  
-> 
-> Eek. Serverworks IDE. I don't think they ever got that bit of their
-> chipset right.
+Further, if you *are* this great paragon of business wisdom, why didn't you
+apply this acumen and address a single element of any of the arguments from
+my two seminal posts?
 
-I've had sane behavior for most of the later 2.4 series...
+Where is your response to my citation of rise and fall of Peachtree or the
+passing of the innovate-then-get-bought model exemplified by the product
+(and companies behind) things like Quattro Pro and Excel?
 
-Linux pith.uoregon.edu 2.4.21-rc1-ac4 #2 SMP Tue May 6 14:27:52 PDT 2003 i686 unknown
+How am I wrong in my presentation of my position that the ongoing support
+costs of software, particularly in a market that will not let you produce a
+product and then move on to another, undermine the financial position needed
+to bring successive new products to bear?
 
-2:39pm  up 36 days,  1:26,  2 users,  load average: 0.02, 0.12, 0.13
+With your boundless store of superior software business knowledge, why
+haven't you trotted out some model that explains how Microsoft's "superior
+innovation" is demonstrated by their ability to buy their out-performing
+competitors (Excel, Power Point, Word etc were all "bought" not innovated at
+MS) and throw huge amounts of Monopoly money at the tasks of "stealing"
+concepts from others (Explorer from Mosaic and/o Netscape, "Windowing" from
+X11 and DesqView, DOS from CPM, which stole from Unix, etc)?
 
-[root@pith root]# cat /proc/ide/svwks 
+See, it is nice and comfortable for you to make statements about innovation
+and how the OSS movement is just a bunch of copycats, but you have yet to
+turn this sea of insight into something as simple as a single instance of a
+company founded and maintained on "innovation" completely without the aid of
+the common mimicry you like to repackage as hyperbole-friendly "theft".
 
-                             ServerWorks OSB4/CSB5/CSB6
+There is a fundamental flaw in your entire position.  You fail to recognize
+or admit one simple, irrefutable fact:  All software is derivative work.
+Even the great seminal works (e.g. "VisiCalc") were produced by applying an
+overwhelming body of existing thought to a novel paradigm.
 
-                            ServerWorks OSB4 Chipset (rev 00)
-------------------------------- General Status ---------------------------------
---------------- Primary Channel ---------------- Secondary Channel -------------
-                 enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              no              yes               yes
-UDMA enabled:   yes              no              yes               yes
-UDMA enabled:   2                0               2                 2
-DMA enabled:    2                ?               2                 2
-PIO  enabled:   4                0               4                 4
+Until your vast (and somehow more important than everybody else's) specific
+"I run a business so I know things" experience can debunk that single point,
+you have no moral high ground on which to base your as yet unfounded "people
+shouldn't mimic my product, its immoral" stance nor any of its in-defensible
+follow ons about how "only businesses innovate."
 
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: ROM enabled at 0xfea70000
-PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide4: BM-DMA at 0xde80-0xde87, BIOS settings: hdi:DMA, hdj:pio
-    ide5: BM-DMA at 0xde88-0xde8f, BIOS settings: hdk:pio, hdl:pio
-PDC20267: IDE controller at PCI slot 00:02.0
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: ROM enabled at 0xfea60000
-PDC20267: (U)DMA Burst Bit DISABLED Primary PCI Mode Secondary PCI Mode.
-PDC20267: FORCING BURST BIT 0x00->0x01 ACTIVE
-    ide6: BM-DMA at 0xdd80-0xdd87, BIOS settings: hdm:DMA, hdn:pio
-    ide7: BM-DMA at 0xdd88-0xdd8f, BIOS settings: hdo:DMA, hdp:DMA
-SvrWks OSB4: IDE controller at PCI slot 00:0f.1
-SvrWks OSB4: chipset revision 0
-SvrWks OSB4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
-hda: IBM-DTLA-307015, ATA DISK drive
-blk: queue c0361940, I/O limit 4095Mb (mask 0xffffffff)
-hdc: IBM-DTLA-307015, ATA DISK drive
-hdd: CD-540E, ATAPI CD/DVD-ROM drive
-blk: queue c0361dbc, I/O limit 4095Mb (mask 0xffffffff)
-hde: IBM-DTLA-307075, ATA DISK drive
-blk: queue c0362238, I/O limit 4095Mb (mask 0xffffffff)
-hdg: IBM-DTLA-307075, ATA DISK drive
-blk: queue c03626b4, I/O limit 4095Mb (mask 0xffffffff)
-hdi: IBM-DTLA-307075, ATA DISK drive
-blk: queue c0362b30, I/O limit 4095Mb (mask 0xffffffff)
-hdm: IBM-DTLA-307015, ATA DISK drive
-blk: queue c0363428, I/O limit 4095Mb (mask 0xffffffff)
-hdo: IBM-DTLA-307075, ATA DISK drive
-blk: queue c03638a4, I/O limit 4095Mb (mask 0xffffffff)
+Rob.
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-  In Dr. Johnson's famous dictionary patriotism is defined as the last
-  resort of the scoundrel.  With all due respect to an enlightened but
-  inferior lexicographer I beg to submit that it is the first.
-	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
+-----Original Message-----
+From: Larry McVoy [mailto:lm@bitmover.com]
+Sent: Thursday, June 26, 2003 1:52 PM
+To: Robert White
+Cc: Stephan von Krawczynski; Larry McVoy; wa@almesberger.net;
+miquels@cistron-office.nl; linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+
+
+On Thu, Jun 26, 2003 at 01:41:49PM -0700, Robert White wrote:
+> The idea that you "don't learn anything from (playing a less skilled
+> opponent)" and by extension you also can not learn anything from a
+> non-player is so flawed as to be laughable.
+
+In theory, you can learn anything from anyone.
+In practice, the highest concentration of useful information comes from
+someone with more experience and skill than yourself.
+
+Who do you want to have as your doctor?  Someone who has done it for 20
+years or someone who is observing other doctors?  Repeat for any other
+profession, sport, discipline, whatever.  Maybe you want to have your
+heart surgery done by someone who thinks he can do it, me, I'd pick
+someone who has done it successfully a few hundred times.
+
+That's my point of view, it's clear it isn't your point of view.  That's
+fine, how about we agree to have different points of views and let this
+thread die?
+--
+---
+Larry McVoy              lm at bitmover.com
+http://www.bitmover.com/lm
 

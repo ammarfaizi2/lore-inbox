@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265625AbSJSQpE>; Sat, 19 Oct 2002 12:45:04 -0400
+	id <S265628AbSJSQxu>; Sat, 19 Oct 2002 12:53:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265628AbSJSQpE>; Sat, 19 Oct 2002 12:45:04 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:32976 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S265625AbSJSQpD>; Sat, 19 Oct 2002 12:45:03 -0400
-Date: Sat, 19 Oct 2002 09:52:49 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: Zaurus support for usbnet.c
-To: Nicolas Pitre <nico@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3DB18DE1.3060003@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S265629AbSJSQxu>; Sat, 19 Oct 2002 12:53:50 -0400
+Received: from mta05bw.bigpond.com ([139.134.6.95]:24543 "EHLO
+	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265628AbSJSQxt>; Sat, 19 Oct 2002 12:53:49 -0400
+Message-ID: <3DB16901.7070905@snapgear.com>
+Date: Sun, 20 Oct 2002 00:15:29 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.44uc0 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The linux-usb-devel list has a slightly cleaned up version of Pavel's
-Zaurus patch, which I've asked him to retest before this support
-gets integrated.
+Hi All,
 
-These patches will apply to recent 2.4.20pre kernels too, if anyone
-is sufficiently impatient to try... :)
+An updated uClinux patch is available at:
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0.patch.gz
+
+Changelog:
+
+1. patched against 2.5.44
 
 
-> If both clients i.e. the iPAQ and the Zaurus are actually a SA1110, and if 
-> the iPAQ is already supported on both sides, then the Zaurus should work out 
-> of the box.
+Smaller specific patches:
 
-Yes, but out of the www.handhelds.org box, not Sharp's box.
+. FEC ColdFire 5272 ethernet driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-fec.patch.gz
 
-Zaurus doesn't have a stock www.handhelds.org kernel; there's a
-different usb slave/target device driver, which uses different
-framing for the Ethernet packets.  Pavel's patch teaches "usbnet"
-about one of those protocols.  (The other is MSFT-friendly.)
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-serial.patch.gz
 
-It's worth mentioning the Yopy here too:  Zaurus isn't the only
-SA-1110 based Linux PDA, and its distro is evidently closer to
-the iPAQ distros (but you won't need a WinCE-ectomy).  Current
-versions of "usbnet" have support for a recent YOPY version; they
-use different USB vendor and product IDs "out of the box".
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-fb.patch.gz
 
-- Dave
+. binfmt_flat loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-binflat.patch.gz
+
+. m68knommu architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-m68knommu.patch.gz
+
+. v850 architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-v850.patch.gz
+
+. mm (MMU-less) only patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44uc0-mm.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
 
 
 

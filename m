@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282630AbRKZXM6>; Mon, 26 Nov 2001 18:12:58 -0500
+	id <S282640AbRKZXPq>; Mon, 26 Nov 2001 18:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282632AbRKZXMq>; Mon, 26 Nov 2001 18:12:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3590 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282630AbRKZXMd>; Mon, 26 Nov 2001 18:12:33 -0500
-Date: Mon, 26 Nov 2001 15:06:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <3C02C6F2.71A581AB@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0111261505330.10731-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282643AbRKZXPg>; Mon, 26 Nov 2001 18:15:36 -0500
+Received: from jalon.able.es ([212.97.163.2]:43231 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S282640AbRKZXP3>;
+	Mon, 26 Nov 2001 18:15:29 -0500
+Date: Tue, 27 Nov 2001 00:15:18 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Bjoern A. Zeeb" <bzeeb+linuxkernel@zabbadoz.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Message-ID: <20011127001518.A1546@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.BSF.4.30.0111261836000.77704-100000@noc.zabbadoz.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.BSF.4.30.0111261836000.77704-100000@noc.zabbadoz.net>; from bzeeb+linuxkernel@zabbadoz.net on Mon, Nov 26, 2001 at 19:48:12 +0100
+X-Mailer: Balsa 1.2.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 26 Nov 2001, Jeff Garzik wrote:
+On 20011126 Bjoern A. Zeeb wrote:
 >
-> FWIW Al Viro pointed out to me yesterday that block_xxx are really
-> nothing but helpers...  Depending on them doing or not doing certain
-> things is IMHO ok...
+>The problem is that you kernel hackers out there fetch the pre stuff
+>and test it that others run test cycles on them ... .  But the
+>lot of people out there will never fetch anything else than
+>a "release" ; no -pre no -rc no -ac no whatever prefix or suffix.
+>You will not get them just because somebody 's changing the name
+>to something else.
+>
 
-They _are_ helpers, but I was actually _this_ close to removing the
-kmap/kunmap from them a few weeks ago when we fixed the NFS uses of the
-same. People should NOT depend on those kinds of subtle internal things.
+The problem is the fear of people about -ac or -pre series. What should
+be done is to teach people that what they think is kernel 2.4.8 from
+RedHat or Mandrake is really 2.4.8-ac7 or the like. They are shipping
+-ac versions (beacuse of preferences and driver update, usually are
+-ac series and not -pre series). So your 'distro rock solid kernel'
+is an -ac kernel (and I do not say that an -ac kernel is not rock
+solid, I have run -ac's until 13-ac7).
 
-		Linus
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.16-pre1 #1 SMP Sun Nov 25 02:06:34 CET 2001 i686

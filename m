@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281175AbRKYWbu>; Sun, 25 Nov 2001 17:31:50 -0500
+	id <S281170AbRKYWcA>; Sun, 25 Nov 2001 17:32:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281174AbRKYWbl>; Sun, 25 Nov 2001 17:31:41 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3594 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281170AbRKYWb1>;
-	Sun, 25 Nov 2001 17:31:27 -0500
-Date: Sun, 25 Nov 2001 20:31:24 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-Message-ID: <20011125203124.G1706@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011125151543.57a1159c.skraw@ithnet.com> <Pine.LNX.4.33.0111251007140.9377-100000@penguin.transmeta.com> <20011125170701.H238@localhost> <20011125201349.E1706@conectiva.com.br> <20011125171818.I238@localhost> <20011125202609.F1706@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011125202609.F1706@conectiva.com.br>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S281174AbRKYWbu>; Sun, 25 Nov 2001 17:31:50 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5295 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281170AbRKYWbm>; Sun, 25 Nov 2001 17:31:42 -0500
+Date: Sun, 25 Nov 2001 15:31:42 -0700
+Message-Id: <200111252231.fAPMVgb05670@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Paul Bristow <paul@paulbristow.net>
+Cc: Jack Howarth <howarth@nitro.med.uc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: ide-floppy.c vs devfs
+In-Reply-To: <3C016B85.7040207@paulbristow.net>
+In-Reply-To: <200111110439.XAA53352@nitro.msbb.uc.edu>
+	<3C016B85.7040207@paulbristow.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Nov 25, 2001 at 08:26:10PM -0200, Arnaldo Carvalho de Melo escreveu:
-> Em Sun, Nov 25, 2001 at 05:18:18PM -0500, Patrick McFarland escreveu:
+Paul Bristow writes:
+> Hi Jack,
 > 
-> > To clarify, I was talking about the 2.5 tree. Linus is technically still
-> > (a) maintainer for it.
+> Try the devfs test version that I just uploaded to
 > 
-> We all know that and thats what he does best: to develop kernels, not
-> maintain, or do you use a development kernel on your mission critical
-> servers?
+> http://paulbristow.net/linux/idefloppy.html
 > 
-> 2.4 is not supposed to be bugfixes and new drivers/whatever that don't
+> This is early days, and I'm not sure what the best approach is...
+> 
+> Feedback is greatly appreaciated.
 
-Aplogies, above it should be "2.4 is supposed to", of course :)
+I haven't had time to look at this closely, but I question why you're
+trying to prevent grok_partitions() from doing it's thing. There's
+supposed to be a flag set for removable media which ensures media
+revalidation on scanning the parent directory or looking up an entry.
+I'd rather see that mechanism fixed.
 
-> touch common stable code, isn't? Thats maintainance. 2.5 is about
-> development.
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

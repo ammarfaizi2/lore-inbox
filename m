@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287387AbSACQTj>; Thu, 3 Jan 2002 11:19:39 -0500
+	id <S287379AbSACQ2i>; Thu, 3 Jan 2002 11:28:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287386AbSACQTd>; Thu, 3 Jan 2002 11:19:33 -0500
-Received: from vsat-148-63-243-254.c3.sb4.mrt.starband.net ([148.63.243.254]:260
-	"HELO ns1.ltc.com") by vger.kernel.org with SMTP id <S287379AbSACQTF>;
-	Thu, 3 Jan 2002 11:19:05 -0500
-Message-ID: <00ae01c19472$60ce25f0$5601010a@prefect>
-From: "Bradley D. LaRonde" <brad@ltc.com>
-To: <serge.manigault@ask.fr>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C347F73.1F6FD8A0@ask.fr>
-Subject: Re: romable kernel (XIP)
-Date: Thu, 3 Jan 2002 11:19:11 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S287386AbSACQ22>; Thu, 3 Jan 2002 11:28:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:36364 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287379AbSACQ2O>;
+	Thu, 3 Jan 2002 11:28:14 -0500
+Date: Thu, 3 Jan 2002 17:26:41 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bob_Tracy <rct@gherkin.frus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: weird application breakage in 2.5.2-pre5
+Message-ID: <20020103172641.D6267@suse.de>
+In-Reply-To: <m16M9Bl-0005kjC@gherkin.frus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m16M9Bl-0005kjC@gherkin.frus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is support in http://www.linux-vr.org for XIP kernel.  grep for
-CONFIG_XIP_ROM and look in arch/mips/vr41xx for the linker script.
+On Thu, Jan 03 2002, Bob_Tracy wrote:
+> The application is elm2.4.ME+.82 with PGP 6.5.8.  Works fine under
+> kernel version 2.4.17.  Under 2.5.2-pre5, when I try to encrypt+sign
+> a message to a particular recipient for which I have two matching keys
+> on my pgp keyring, no matching pgp key is found.  The *only* difference
+> between "works" and "doesn't" is the kernel version.
+> 
+> Cranked up the debug level on elm in an attempt to see what's happening,
+> and at level 41, I notice that the parent (elm) isn't reading anything
+> from the child (pgp -kv recipient_address).  No error indication of any
+> kind, so fork(), pipe(), execl(), fdopen(), and fgets() all seem to be
+> happy.
+> 
+> libc version is 2.2.3.
+> 
+> Possible side-effect of bio changes?
 
-Note: linux-vr.org repository is old and being phased out and code moved to
-linux-mips.sourceforge.net.
+very unlikely I would say, maybe it's an odd scheduler interaction?
 
-Regards,
-Brad
-
------ Original Message -----
-From: "Serge Manigault" <asksmanig@ask.fr>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, January 03, 2002 10:57 AM
-Subject: romable kernel (XIP)
-
-
-> Hello,
-> I am looking for information about Linux XIP for eXecute In Place
-> I need a romable image to minimize RAM usage.
-> Thanks for any information, link, or anything else about this subject.
-> regards,
->
-> Serge
+-- 
+Jens Axboe
 

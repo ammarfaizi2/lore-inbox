@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264506AbRFSRl4>; Tue, 19 Jun 2001 13:41:56 -0400
+	id <S264487AbRFSRp4>; Tue, 19 Jun 2001 13:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264502AbRFSRlq>; Tue, 19 Jun 2001 13:41:46 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:7975
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264487AbRFSRld>; Tue, 19 Jun 2001 13:41:33 -0400
-Date: Tue, 19 Jun 2001 10:41:32 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S264540AbRFSRpq>; Tue, 19 Jun 2001 13:45:46 -0400
+Received: from marine.sonic.net ([208.201.224.37]:1361 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S264487AbRFSRpf>;
+	Tue, 19 Jun 2001 13:45:35 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Tue, 19 Jun 2001 10:45:23 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010619104132.X3089@work.bitmover.com>
-Mail-Followup-To: Jonathan Lundell <jlundell@pobox.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca> <3B2F769C.DCDB790E@kegel.com> <20010619090956.R3089@work.bitmover.com> <p05100302b7553d481172@[10.128.7.49]>
+Message-ID: <20010619104523.B6778@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <p05100302b7553d481172@[10.128.7.49]>; from jlundell@pobox.com on Tue, Jun 19, 2001 at 10:36:00AM -0700
+Content-Disposition: inline
+In-Reply-To: <20010619103712.W3089@work.bitmover.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 10:36:00AM -0700, Jonathan Lundell wrote:
-> At 9:09 AM -0700 2001-06-19, Larry McVoy wrote:
-> >Don't you think it is funny that Sun doesn't publish numbers comparing
-> >their thread performance to process performance?  Sure, you can find
-> >context switch benchmarks where they have user level switching going on
-> >but those are a red herring.  The real numbers you want are the kernel
-> >level context switches and those are just as expensive as the process
-> >context switch numbers.
+On Tue, Jun 19, 2001 at 10:37:12AM -0700, Larry McVoy wrote:
+> On Tue, Jun 19, 2001 at 10:20:37AM -0700, Mike Castle wrote:
+> > Also, I could never actually find the "too fat" quote anywhere.  
 > 
-> Sun (or at least SPARC) is a bit of a special case, though. SPARC's 
-> register-window architecture makes thread-switching (not to mention 
-> recursion) significantly more expensive than on most other 
-> architectures.
+> I can personally vouch for the too fat comment, I've heard him say it in
+> person.
 
-Yes, but that misses the point.  The point is that you have to do the same
-work, almost, to switch a kernel thread as a process.  You don't have to
-switch the VM context but that isn't the dominating term.  So the fact that
-Sun has slow[er] context switching and slow[er] thread switching isn't the
-issue.  The issue is that people perceive threads to be cheap but they are
-not cheap at all.  It's the relative cheapness, or lack thereof, when 
-comparing them to processes.
+What about the "UNIX is starting to smell bad" comment?  :->
+
+mrc
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

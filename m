@@ -1,84 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUD3QAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUD3QGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUD3QAE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 12:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265096AbUD3QAD
+	id S265097AbUD3QGG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 12:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265096AbUD3QGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 12:00:03 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:11992 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S264746AbUD3P7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 11:59:41 -0400
-Message-ID: <40927769.3020100@grupopie.com>
-Date: Fri, 30 Apr 2004 16:57:29 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Fri, 30 Apr 2004 12:06:06 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:59663 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S265097AbUD3QGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 12:06:02 -0400
+Message-ID: <40927A86.30207@techsource.com>
+Date: Fri, 30 Apr 2004 12:10:46 -0400
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-To: Marc Boucher <marc@linuxant.com>
-Cc: Rik van Riel <riel@redhat.com>, Timothy Miller <miller@techsource.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Peter Williams <peterw@aurema.com>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Marc Boucher <marc@linuxant.com>, Sean Estabrooks <seanlkml@rogers.com>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Wagland <paul@wagland.net>,
+       Rik van Riel <riel@redhat.com>, koke@sindominio.net,
        Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
        David Gibson <david@gibson.dropbear.id.au>
 Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <4150E18A-9985-11D8-85DF-000A95BCAC26@linuxant.com>
+References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com>	<20040429195553.4fba0da7.seanlkml@rogers.com>	<3A39091E-9A4C-11D8-B83D-000A95BCAC26@linuxant.com> <200404300618.37718.bzolnier@elka.pw.edu.pl> <4091D6D4.8070507@aurema.com>
+In-Reply-To: <4091D6D4.8070507@aurema.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.3; VDF: 6.25.0.40; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Boucher wrote:
 
+
+Peter Williams wrote:
+
+>> "DriverLoader technology is the ideal Linux solution to support 
+>> devices for
+>>  which no adequate native open-source drivers are available. It also 
+>> allows
+>>  vendors to drastically reduce time to market or eliminate the need to 
+>> support
+>>  multiple drivers for Windows and Linux. By using the same driver on both
+>>  platforms, significant resources can be saved."
+>>
+>> Rusty was right.
 > 
-> Hi Rik,
 > 
-> Your new proposed message sounds much clearer to the ordinary mortal and 
-> would imho be a significant improvement. Perhaps printing repetitive 
-> warnings for identical $MODULE_VENDOR strings could also be avoided, 
-> taking care of the redundancy/volume problem as well..
+> Why did you omit the next paragraph (which completes the story):
+> 
+> "We have attempted to reduce the inconvenience of binary-only drivers by 
+> separating the proprietary code from the operating-system specific code. 
+> The latter is provided in source form, allowing users to install the 
+> drivers under any supported version (2.4 or later) of the Linux kernel."
 
-I'm one of the first persons who posted to this thread, and I'm starting to 
-regret that I did.
 
-I believe Marc did the GPL\0 trick just to avoid the warnings. It was wrong to 
-do it and he already apologised.
+While it does allow for Linux to get certain kinds of drivers quicker, 
+it turns hardware developers into slackers who don't want to REALLY 
+support Linux and eats away at the spirit of Linux as an open system.
 
-IMHO writing a more descriptive message and not issuing the tainting warning 
-more than once *at all*, seems pretty harmless and would solve problems for 
-everyone and we could just move on with our lifes (this thread has almost 150 
-posts now!)
-
-The only problem with reporting only once would be to have remove one module at 
-a time and rebooting until untainting. In my opinion, if your system is so out 
-of control that you don't know what modules are tainting it, you deserve to have 
-make 3 reboots to remove 3 modules :)
-
-Some people feel that Linuxant isn't helping the comunnity because hardware 
-manufacturers won't feel obligated to release open source drivers if thay have a 
-closed source alternative.
-
-IMHO what makes manufacturers care about Linux is market share. Until we have a 
-fair market share, manufacturers won't bother developing for Linux, because 
-their return on this effort will be minimal.
-
-Linuxant is in fact helping Linux geting a bigger market share.
-
-Anyway, as everyone on this list I strongly prefer open-source drivers. Users 
-prefer open-source drivers, specially if they already come with their 
-distribution and just work out-of-the-box.
-
-So if the hardware manufacturers start caring about linux (because of the 
-increased market share), they will release open source drivers. Just look at the 
-manufacturers that produce hardware for high-end servers (where the Linux market 
-share is already very high). Network cards, RAID controllers, etc., already have 
-open source drivers, because of this.
-
-Linux is taking over, it is just a matter of time now :)
-
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+What you're doing may short-term enhance hardware support for Linux, but 
+in the long term, it is a set-back for Linux because it does not 
+encourage hardware vendors to support Linux directly and even pushes 
+true Linux support further into the future.
 

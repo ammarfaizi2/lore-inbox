@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269807AbRHMFNT>; Mon, 13 Aug 2001 01:13:19 -0400
+	id <S269810AbRHMFUu>; Mon, 13 Aug 2001 01:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269810AbRHMFNJ>; Mon, 13 Aug 2001 01:13:09 -0400
-Received: from [24.159.204.122] ([24.159.204.122]:54030 "EHLO
-	tweedle.cabbey.net") by vger.kernel.org with ESMTP
-	id <S269807AbRHMFM5>; Mon, 13 Aug 2001 01:12:57 -0400
-Date: Mon, 13 Aug 2001 00:12:43 -0500 (CDT)
-From: Christopher Abbey <cabbey@cabbey.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
-In-Reply-To: <3B77302C.96C79272@randomlogic.com>
-Message-ID: <Pine.LNX.4.33.0108130003050.17112-100000@tweedle.cabbey.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269815AbRHMFUk>; Mon, 13 Aug 2001 01:20:40 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:31969 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S269811AbRHMFUf>;
+	Mon, 13 Aug 2001 01:20:35 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Reg System.map file 
+In-Reply-To: Your message of "Mon, 13 Aug 2001 10:52:42 +0530."
+             <Pine.LNX.4.10.10108131048560.31544-100000@blrmail> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 13 Aug 2001 15:16:35 +1000
+Message-ID: <10876.997679795@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday, Paul G. Allen wrote:
-> > 2. When you see a box hang that's clearly related to a daughtercard, *run*
-> >    (do not walk) to your local /proc directory, cat /proc/pci and check out
-> >    the IRQ assignments.
+On Mon, 13 Aug 2001 10:52:42 +0530 (IST), 
+"SATHISH.J" <sathish.j@tatainfotech.com> wrote:
+>Does the System.map file contain only the addresses of kernel functions
+>present at the boot time. What I mean is, suppose I insert a new driver
+>into the kernel, Is there any way to show its addresses in the System.map
+>file? Please help me out with this.
 
-lspci -vvv is also usefull.
+System.map contains addresses of all the external symbols in vmlinux.
+It does not contain the address of module symbols because they vary.
+If you want a combined map that contains both kernel and module
+symbols, use ksymoops -s.  That works best when you save the module
+data after each module load and unload.
 
-> Problem is, when it does hang, I can't get there as the system is
-> completely locked, including ssh and telnet.
-
-But the point is to go look at the pci interrupt assignments *before*
-the hang occurs. I've seen the same situation, where two devices are
-sharing an interupt, one on the mobo, the other in a PCI slot... it's
-never been a good thing in my experience. As Eric pointed out if they're
-both on the mobo you have to hope the designers built the hardware to
-handle that, or if they're both in pci slots you can usually expect
-the cards will play well with others. It's the third case that's
-trouble, and then it's time to do as Eric did - get into the bios and
-change the assignements (or in this case something that would cuase a
-change to happen).
-
--- 
-now the forces of openness have a powerful and
-  unexpected new ally - http://ibm.com/linux
+  man ksymoops
+  man insmod, section KSYMOOPS SUPPORT IN MODUTILS.
 

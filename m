@@ -1,78 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRDGTpu>; Sat, 7 Apr 2001 15:45:50 -0400
+	id <S131191AbRDGTwb>; Sat, 7 Apr 2001 15:52:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131191AbRDGTpl>; Sat, 7 Apr 2001 15:45:41 -0400
-Received: from tomts14.bellnexxia.net ([209.226.175.35]:53720 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130820AbRDGTpc>; Sat, 7 Apr 2001 15:45:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-Subject: [PATCH][RFC] appling pressure to icache and dcache - simplified
-Date: Sat, 7 Apr 2001 15:45:28 -0400
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01040507463401.00699@oscar>
-Content-Transfer-Encoding: 7BIT
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
+	id <S131219AbRDGTwV>; Sat, 7 Apr 2001 15:52:21 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:48434 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131191AbRDGTwM>; Sat, 7 Apr 2001 15:52:12 -0400
+Date: Sat, 7 Apr 2001 20:52:04 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>,
+        Michael Reinelt <reinelt@eunet.at>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Multi-function PCI devices
+Message-ID: <20010407205204.H3280@redhat.com>
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local> <20010407200053.B3280@redhat.com> <3ACF6D1D.63A2A2FE@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="2xzXx3ruJf7hsAzo"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ACF6D1D.63A2A2FE@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Apr 07, 2001 at 03:40:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Rik asked, "Can it be made simpler?"
+--2xzXx3ruJf7hsAzo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-So I went back to the basics, inserted a printk in kswapd and watched
-the dentry_stat and inodes_stat numbers for a while.   I observed
-the following pattern.  The dentry cache grows as does the number of 
-unused entries in it.  Unless we shrink this cache objects do not seem
-to be reused.  At the same time the inode cache usually kept about 15% 
-free.
+On Sat, Apr 07, 2001 at 03:40:13PM -0400, Jeff Garzik wrote:
 
-At this point I starting to shrink the dcache.  The goal being to keep 
-the size of the cache as observed in /proc/slabinfo reasonable without 
-much overhead.  From experimenting, it turns out that if the shrink
-call is made when there is over 50% free space the cache stays small.
-Using 66% is not quite as aggressive but achieves its effect with about
-half the shrink calls.
+> Who said you have to have a separate driver for every single multi-IO
+> card?  A single driver could support all serial+parallel multi-IO cards,
+> for example.
 
-With the pressure on the dcache, I looked at the icache numbers.  With  
-the dcache shrinking the amount of free space in the icache was much 
-higher.  It turns out that using the same logic as above with, 80% as 
-the amount of free space, it works well.
+Okay, I misunderstood.	I'll take a look at doing this for 2.4.
 
-Here are the results against 2.4.3-ac3
+First of all, parport_pc will need to export the equivalent of
+register_serial (its equivalent is probably parport_pc_probe_port).
+[It actually already does this (conditionally on parport_cs).]
 
-Thoughs?
+drivers/parport/parport_serial.c sound okay, or is a different place
+better?
 
------
---- linux.ac3.orig/mm/vmscan.c	Sat Apr  7 15:20:49 2001
-+++ linux/mm/vmscan.c	Sat Apr  7 12:37:27 2001
-@@ -997,6 +997,21 @@
- 		 */
- 		refill_inactive_scan(DEF_PRIORITY, 0);
- 
-+		/* 
-+		 * Here we apply pressure to the dcache and icache.
-+		 * The nr_inodes and nr_dentry track the used part of
-+		 * the slab caches.  When there is more than X% objs free
-+		 * in these lists, as reported by the nr_unused fields,
-+		 * there is a very good chance that shrinking will free
-+		 * pages from the slab caches.  For the dcache 66% works,
-+		 * and 80% seems optimal for the icache.
-+		 */
-+
-+		if ((dentry_stat.nr_unused+(dentry_stat.nr_unused>>1)) > dentry_stat.nr_dentry)
-+			shrink_dcache_memory(DEF_PRIORITY, GFP_KSWAPD);
-+		if ((inodes_stat.nr_unused+(inodes_stat.nr_unused>>2)) > inodes_stat.nr_inodes)
-+			shrink_icache_memory(DEF_PRIORITY, GFP_KSWAPD);
-+
- 		/* Once a second, recalculate some VM stats. */
- 		if (time_after(jiffies, recalc + HZ)) {
- 			recalc = jiffies;
------
+Tim.
+*/
 
-Ed Tomlinson <tomlins@cam.org>
+--2xzXx3ruJf7hsAzo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6z2/kONXnILZ4yVIRAuMLAJ9aZUwumYWMW+4eErQRA2prXGq1+QCdFYtv
+hv6wrBt0+JW/HvWPk92qhNk=
+=XR3y
+-----END PGP SIGNATURE-----
+
+--2xzXx3ruJf7hsAzo--

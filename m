@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVCOPyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCOPyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVCOPyP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 10:54:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVCOPyO
+	id S261359AbVCOPyy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 10:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVCOPyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 10:54:14 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:41638 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261343AbVCOPxt (ORCPT
+	Tue, 15 Mar 2005 10:54:45 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:7875 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261344AbVCOPyc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 10:53:49 -0500
-Date: Wed, 16 Mar 2005 02:53:39 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Hollis Blanchard <hollis@penguinppc.org>
-Cc: akpm@osdl.org, linuxppc64-dev@ozlabs.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64 iSeries: cleanup viopath
-Message-Id: <20050316025339.318fc246.sfr@canb.auug.org.au>
-In-Reply-To: <0961a209ce72bb9f2a01b163aa6e6fbd@penguinppc.org>
-References: <20050315143412.0c60690a.sfr@canb.auug.org.au>
-	<0961a209ce72bb9f2a01b163aa6e6fbd@penguinppc.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__16_Mar_2005_02_53_39_+1100_ehdPPm1B4zl97c0V"
+	Tue, 15 Mar 2005 10:54:32 -0500
+Message-ID: <4237051E.6080107@ca.ibm.com>
+Date: Tue, 15 Mar 2005 09:54:06 -0600
+From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
+       antonb@au1.ibm.com
+Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
+References: <422FA817.4060400@ca.ibm.com>	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>	 <422FC042.40303@ca.ibm.com>	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>	 <1110434383.32525.184.camel@gaston>	 <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>	 <1110467868.5379.15.camel@mulgrave>  <42307E4D.6080505@ca.ibm.com> <1110492159.32524.261.camel@gaston>
+In-Reply-To: <1110492159.32524.261.camel@gaston>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__16_Mar_2005_02_53_39_+1100_ehdPPm1B4zl97c0V
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Benjamin Herrenschmidt wrote:
 
-On Tue, 15 Mar 2005 08:32:27 -0600 Hollis Blanchard <hollis@penguinppc.org> wrote:
+>On Thu, 2005-03-10 at 11:05 -0600, Omkhar Arasaratnam wrote:
 >
-> On Mar 14, 2005, at 9:34 PM, Stephen Rothwell wrote:
-> >
-> > Since you brought this file to my attention, I figured I might as well 
-> > do
-> > some simple cleanups.  This patch does:
-> > 	- single bit int bitfields are a bit suspect and Anndrew pointed
-> > 	  out recently that they are probably slower to access than ints
-> 
-> > --- linus/arch/ppc64/kernel/viopath.c	2005-03-13 04:07:42.000000000 
-> > +1100
-> > +++ linus-cleanup.1/arch/ppc64/kernel/viopath.c	2005-03-15 
-> > 14:02:48.000000000 +1100
-> > @@ -56,8 +57,8 @@
-> >   * But this allows for other support in the future.
-> >   */
-> >  static struct viopathStatus {
-> > -	int isOpen:1;		/* Did we open the path?            */
-> > -	int isActive:1;		/* Do we have a mon msg outstanding */
-> > +	int isOpen;		/* Did we open the path?            */
-> > +	int isActive;		/* Do we have a mon msg outstanding */
-> >  	int users[VIO_MAX_SUBTYPES];
-> >  	HvLpInstanceId mSourceInst;
-> >  	HvLpInstanceId mTargetInst;
-> 
-> Why not use a byte instead of a full int (reordering the members for 
-> alignment)?
+>  
+>
+>>2.6.10 seems to have a different kernel panic which I'm investigating 
+>>(could be a problem with my ramdisk as it happens in my linuxrc). So 
+>>long story short the 2.6.10 sym driver looks ok.
+>>    
+>>
+>
+>Can you try 2.6.11 with the 2.6.10 sym driver ?
+>
+>Ben.
+>
+>
+>
+>  
+>
+The 2.6.11.3 kernel with the 2.6.10 driver seems to fail with the same 
+sym2 driver error - so I suppose it goes deeper than the driver itself.
 
-Because "classical" boleans are ints.
 
-Because I don't know the relative speed of accessing single byte variables.
+O.
 
-Because it was easy.
-
-Because we only allocate 32 of these structures.  Changing them really
-only adds four bytes per structure.  I guess using bytes and rearranging
-the structure could actually save 4 bytes per structure.
-
-I originally changed them to unsigned int single bit bitfields, but
-changed my mind - would that be better?
-
-It really makes little difference, I was just trying to get rid of the
-silly signed single bit bitfields ...
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Wed__16_Mar_2005_02_53_39_+1100_ehdPPm1B4zl97c0V
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCNwUK4CJfqux9a+8RAqcGAJ9umONgGQ8JcHNuYtXagju38ycVKACgjlpE
-Z9DqTPxZ0geAJJznNQgNliQ=
-=wpfU
------END PGP SIGNATURE-----
-
---Signature=_Wed__16_Mar_2005_02_53_39_+1100_ehdPPm1B4zl97c0V--

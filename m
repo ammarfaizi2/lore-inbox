@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVBXBTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVBXB1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVBXBTl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 20:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVBXBTl
+	id S261701AbVBXB1U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 20:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVBXB1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 20:19:41 -0500
-Received: from hyperion.affordablehost.com ([12.164.25.86]:5358 "EHLO
-	hyperion.affordablehost.com") by vger.kernel.org with ESMTP
-	id S261696AbVBXBTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 20:19:38 -0500
-Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
-From: Alan Kilian <kilian@bobodyne.com>
-To: Roland Dreier <roland@topspin.com>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <52sm3malg1.fsf@topspin.com>
-References: <1109190273.9116.307.camel@desk>
-	 <Pine.LNX.4.61.0502231538230.5623@chaos.analogic.com>
-	 <1109197066.9116.319.camel@desk>
-	 <16925.2739.232237.418632@wombat.chubb.wattle.id.au>
-	 <1109201098.9116.330.camel@desk>  <52sm3malg1.fsf@topspin.com>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 19:23:41 -0600
-Message-Id: <1109208221.9116.337.camel@desk>
+	Wed, 23 Feb 2005 20:27:20 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30186 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261701AbVBXB1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 20:27:18 -0500
+Date: Wed, 23 Feb 2005 17:25:51 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: jlan@sgi.com, akpm@osdl.org, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
+       tim@physik3.uni-rostock.de, erikj@subway.americas.sgi.com,
+       limin@dbear.engr.sgi.com, jbarnes@sgi.com
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-Id: <20050223172551.6771ce7a.pj@sgi.com>
+In-Reply-To: <421C2B99.2040600@ak.jp.nec.com>
+References: <42168D9E.1010900@sgi.com>
+	<20050218171610.757ba9c9.akpm@osdl.org>
+	<421993A2.4020308@ak.jp.nec.com>
+	<421B955A.9060000@sgi.com>
+	<421C2B99.2040600@ak.jp.nec.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hyperion.affordablehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - bobodyne.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-23 at 15:46 -0800, Roland Dreier wrote:
->     Alan> 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &softp->interrupt_line);
->     Alan> 	request_irq(softp->interrupt_line, sseintr, SA_INTERRUPT, "sse", softp);
-> 
-> Don't do that.  The kernel may need you to use a different interrupt
-> number than you read from the PCI config header.  Use dev->irq, as in
-> 
-> 	request_irq(dev->irq, sseintr, SA_SHIRQ | SA_INTERRUPT, "sse", softp);
+> So, I think such a fork/execve/exit hooks is harmless now.
 
-    Roland, 
-
-	You are the best. Thank you so much for this information.
-
-    	That was the ticket.
-
-    	request_irq(dev->irq, sseintr, SA_SHIRQ | SA_INTERRUPT, 
-	            "sse", softp);
-
-    	It works on all machines now without adding "pci=noapci"
-
-    	I'm running again!!!
-
-                                     -Alan
+I don't recall seeing any microbenchmarking of the impact on fork/exit
+of such hooks.  You might find such a benchmark in lmbench, or at
+http://bulk.fefe.de/scalability/.
 
 -- 
-- Alan Kilian <kilian(at)bobodyne.com>
-
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

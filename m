@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317408AbSFCQED>; Mon, 3 Jun 2002 12:04:03 -0400
+	id <S317409AbSFCQID>; Mon, 3 Jun 2002 12:08:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317409AbSFCQEC>; Mon, 3 Jun 2002 12:04:02 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52653 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317408AbSFCQEA>; Mon, 3 Jun 2002 12:04:00 -0400
-Date: Mon, 3 Jun 2002 09:03:28 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, icollinson@imerge.co.uk, andrea@suse.de
-Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
-Message-ID: <20020603090328.A1581@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04> <20020531112847.B1529@w-mikek2.des.beaverton.ibm.com> <m37kljkjys.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S317410AbSFCQIC>; Mon, 3 Jun 2002 12:08:02 -0400
+Received: from pc132.utati.net ([216.143.22.132]:11173 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S317409AbSFCQIB>; Mon, 3 Jun 2002 12:08:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Dana Lacoste <dana.lacoste@peregrine.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: A reply on the RTLinux discussion.
+Date: Mon, 3 Jun 2002 06:09:38 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022685475.4124.229.camel@irongate.swansea.linux.org.uk> <1022682030.9044.8.camel@dlacoste.ottawa.loran.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020603163829.1762E4FA@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 01, 2002 at 07:05:47PM +0200, Andi Kleen wrote:
-> Mike Kravetz <kravetz@us.ibm.com> writes:
-> 
-> > This works fine for me on 2.4.17 with a SERIAL console.  Could this
-> > be related to some differences (new features) in the VGA console?
-> > I am totally ignorant of how the consoles work.
-> 
-> One possibility is that something relies on schedule_task() - keventd
-> doesn't run with realtime priority and can be starved.
-> 
-> Seems to be the case indeed: 
-> 
-> /usr/src/linux/drivers/char% grep schedule_task *.c
-> console.c:      schedule_task(&console_callback_tq);
-> ...
-> 
-> the console switch does.
+On Wednesday 29 May 2002 10:20 am, Dana Lacoste wrote:
+> On Wed, 2002-05-29 at 11:17, Alan Cox wrote:
+> > On Wed, 2002-05-29 at 14:54, Dana Lacoste wrote:
+> > > This would be retarded.  I mean, seriously, making the linux kernel
+> > > require anybody who's doing any commercial real-time stuff pay Victor
+> >
+> > proprietary, not commercial.
+>
+> Which brings us back to Larry's comments on business models.
+>
+> It's becoming increasingly difficult to operate a non-proprietary
+> commercial software business these days.
 
-Thanks Andi!
+It has become increasingly difficult to operate a proprietary commercial 
+software business too.  (It's called a recession... 8)
 
-Part of the 'problem' is the following in the 'sched_setscheduler'
-man page.
-
-"      As  a  non-blocking  end-less  loop in a process scheduled
-       under SCHED_FIFO or SCHED_RR will block all processes with
-       lower priority forever, a software developer should always
-       keep available on the console a shell  scheduled  under  a
-       higher  static  priority than the tested application. This
-       will allow an emergency kill of tested real-time  applica­
-       tions  that  do  not  block  or  terminate as expected. As
-       SCHED_FIFO and SCHED_RR processes can preempt  other  pro­
-       cesses  forever,  only root processes are allowed to acti­
-       vate these policies under Linux.
-"
-
-Seems that this tells people to leave a high priority real-
-time shell running on the console.  However, if one can not
-get to the console, then there is no point in leaving a high
-priority shell running there.  Part of the problem may be
-in the definition of 'console'.  Different console implementations
-behave differently.
-
-Is this something we should 'fix'?  I would envision a 'solution'
-for each console implementation.  OR we could remove the above
-from the man page. :)
-
-Comments?
--- 
-Mike
+Rob

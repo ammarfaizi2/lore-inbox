@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132513AbRDWWoM>; Mon, 23 Apr 2001 18:44:12 -0400
+	id <S132512AbRDWWoM>; Mon, 23 Apr 2001 18:44:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132500AbRDWWn7>; Mon, 23 Apr 2001 18:43:59 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:48656 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132512AbRDWWnk>; Mon, 23 Apr 2001 18:43:40 -0400
-Date: Mon, 23 Apr 2001 16:37:25 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: NWFS broken on 2.4.3 -- someone removed WRITERAW
-Message-ID: <20010423163725.C1131@vger.timpanogas.org>
-Mime-Version: 1.0
+	id <S132513AbRDWWnz>; Mon, 23 Apr 2001 18:43:55 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:63243 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132500AbRDWWnc>;
+	Mon, 23 Apr 2001 18:43:32 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104232242.f3NMgej516228@saturn.cs.uml.edu>
+Subject: Re: hundreds of mount --bind mountpoints?
+To: rgooch@ras.ucalgary.ca (Richard Gooch)
+Date: Mon, 23 Apr 2001 18:42:40 -0400 (EDT)
+Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        viro@math.psu.edu (Alexander Viro), cr@sap.com (Christoph Rohland),
+        parsley@linuxjedi.org (David L. Parsley), linux-kernel@vger.kernel.org
+In-Reply-To: <200104232119.f3NLJZT24922@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Apr 23, 2001 03:19:35 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard Gooch writes:
 
+> We want to take out that union because it sucks for virtual
+> filesystems. Besides, it's ugly.
 
-Hey guys,
+I hope you won't mind if people trash this with benchmarks.
 
-Whomever removed WRITERAW has broken NWFS.  WRITE requests call
-_refile_buffer() after the I/O request and take my locally created 
-buffer heads and munge them back into the linux buffer cache, causing
-massive memory corruption in the system.  These buffers don't belong 
-in Linus' buffer cache, they are owned by my LRU and ll_rw_block 
-should not be blindly filing them back into the buffer cache.
-
-Please put something back in to allow me to write without the buffer
-heads always getting filed into Linus' buffer cache.  This has 
-broken NWFS on 2.4.3 and above.
-
-As for using Linus' buffer cache, until you put in the ability to 
-create logical block mapping instead of physical, I will not be 
-able to use it.  Hopefully, this will make it in 2.5.  I have some 
-folks trying to use this with 2.4.3 and they are dead in the water
-until this gets addressed.
-
-Thanks
-
-Jeff

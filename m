@@ -1,225 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280622AbRKJL4k>; Sat, 10 Nov 2001 06:56:40 -0500
+	id <S280619AbRKJL4A>; Sat, 10 Nov 2001 06:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280623AbRKJL4d>; Sat, 10 Nov 2001 06:56:33 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:61009 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S280622AbRKJL4R>; Sat, 10 Nov 2001 06:56:17 -0500
-Date: Sat, 10 Nov 2001 12:56:15 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] clgenfb
-Message-ID: <20011110125615.F16015@garloff.casa-etp.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DNUSDXU7R7AVVM8C"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.13 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S280620AbRKJLzv>; Sat, 10 Nov 2001 06:55:51 -0500
+Received: from elin.scali.no ([62.70.89.10]:63496 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S280619AbRKJLzm>;
+	Sat, 10 Nov 2001 06:55:42 -0500
+Date: Sat, 10 Nov 2001 12:55:36 +0100 (CET)
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Terje Eggestad <terje.eggestad@scali.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: confused about raw-io blocksizes
+In-Reply-To: <20011109171311.J1778@lynx.no>
+Message-ID: <Pine.LNX.4.30.0111101231350.24890-100000@elin.scali.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Nov 2001, Andreas Dilger wrote:
 
---DNUSDXU7R7AVVM8C
-Content-Type: multipart/mixed; boundary="DEueqSqTbz/jWVG1"
-Content-Disposition: inline
+> On Nov 10, 2001  00:52 +0100, Terje Eggestad wrote:
+> > I'm curious as to what sets the smallest legal blocksize for raw-io, I
+> > get different values for different partitions on the same disk drive.
+> >
+> > In all my tests I've used
+> > raw /dev/raw/raw2 <block speclial file>
+> > and to test block size:
+> > dd if=/dev/raw/raw2 of=/dev/null bs=N count=1
+> > where N is either 512, 1024, or 4096.
+> > (I've a RH7.1 with a dd that do propper buffer alignment)
+> > Failure is always "invalid argument" which singify either misaligned
+> > buffer or illegal read length.
+> >
+> > What confuses me is that when raw2 is bound to /dev/hda bs=512 is ok.
+> > However when binding raw2 to the different partitions on /dev/hda, some
+> > are ok with 512, some will only accept 1024, and one required 4096.
+>
+> It may be getting confused with the filesystem blocksize.  Check tune2fs -l
+> for those devices.
+>
+> > When creating an lvm vg on one partition (/dev/hda6), and I've created
+> > two logical volumes on it, one was ok with 1024 and the other required
+> > 4096. When binding a raw to /dev/hda6 dd with bs=512 was ok.
+>
+> LVM is broken in this regard, unless you have a recent patch (Linus'
+> kernel does not).  I sent him a patch to fix that, but it did not get in.
+
+I'm been trying with RH 2.4.2-2, stock 2.4.10, stock 2.4.13, and a RH
+2.4.3 with some additional patches. All of them  has lvm 0.9.1_beta2
+(isn't that getting old??)
+
+That patch of ours may fix my problem, could you forward it to me please?
+Is it included in later lvm versin from sistna?
+I really want to be using lvm for the oracle partitions.
+
+>
+> What kernel version/LVM do you have?  Are you using LVM on all of these
+> partitions, or only some?  Did you have filesystems on them?
+>
+
+The two disk I've used for exploration is:
+/dev/hda1   *         1       500   4016218+  83  Linux
+/dev/hda2           501       935   3494137+   5  Extended
+/dev/hda5           501       564    514048+  82  Linux swap
+/dev/hda6           565       935   2980026   8e  Linux LVM
+
+hda bs=512, hda1 bs=4096, hda2 bs=512, hda5 bs=512, hda6 bs=512
 
 
---DEueqSqTbz/jWVG1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+/dev/hda1             1       102     51376+  83  Linux
+/dev/hda2           103     20928  10496304    5  Extended
+/dev/hda5           103     12293   6144232+  83  Linux
+/dev/hda6         12294     12903    307408+  82  Linux swap
+/dev/hda7         12904     20928   4044568+  83  Linux
 
-Hi Jeff,
+hda bs=512, hda1 bs=1024, hda2 bs=512, hda5 bs=1024, hda6 bs=512,
+hda7 bs=1024
 
-thanks for clgenfb, the fb driver for cirrus logic chips!
-It made the PowerStorm in my Digital PWS more useable.
-I can run XF86 fbdev on top of it; I will replace the VGA ASAP though.
+Looks like your absolutly right about the fs, they're the only one
+causing trouble.
 
-Some hints for people:
-I had to use -accel false -vyres -1 to get it sort of stable.
+The lvm volumes was zero out by dd if=/dev/zero of=loc.block.spec.file
+the only reason I started with disk partitions was to try to figure out
+what was going on.
 
-Still, in text-mode apps that scroll windows like jed, it occasionally
-crashes the machine :-(=20
-XFree86 fbdev (4.1.0) runs perfeclty though, XFree86 cirrus (4.1.0) produces
-distorted output.
 
-I have a patch for you:
-* Memory detection was wrong here. I just have 512k, which clgenfb does not
-  seem to be prepared for. I had another look at XFree86 sources to fix it.=
-=20
-  Now it works correctly.
-* I added a 800x600 mode and tweaked the timings to more reasonable values:
-  You always want to have short right/bottom shoulder, medium length sync a=
-nd
-  relatively long left/top shoulder to help monitors with syncing.
+Thx
+	TJ
 
-Please apply,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
- (See mail header or public key servers for PGP2 and GPG public keys.)
+> Cheers, Andreas
+> --
+> Andreas Dilger
+> http://sourceforge.net/projects/ext2resize/
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
---DEueqSqTbz/jWVG1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="cirrus-fixes-2414p7aa2SuSE.diff"
-Content-Transfer-Encoding: quoted-printable
+-- 
+_________________________________________________________________________
 
---- linux-2.4.14-pre7-aa2-SuSE/drivers/video/clgenfb.c	Fri Nov  9 11:47:04 =
-2001
-+++ linux-2.4.14p7aa2SuSE.compile.AXP/drivers/video/clgenfb.c	Sat Nov 10 01=
-:25:48 2001
-@@ -31,7 +31,7 @@
-  *
-  */
-=20
--#define CLGEN_VERSION "1.9.9"
-+#define CLGEN_VERSION "1.9.9.1"
-=20
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -86,7 +86,6 @@
- /* disable runtime assertions? */
- /* #define CLGEN_NDEBUG */
-=20
--
- /* debug output */
- #ifdef CLGEN_DEBUG
- #define DPRINTK(fmt, args...) printk(KERN_DEBUG "%s: " fmt, __FUNCTION__ ,=
- ## args)
-@@ -115,6 +114,7 @@
- #define FALSE 0
-=20
- #define MB_ (1024*1024)
-+#define KB_ (1024)
-=20
- #define MAX_NUM_BOARDS 7
-=20
-@@ -439,11 +439,23 @@
- 		 {0, 8, 0},
- 		 {0, 8, 0},
- 		 {0, 0, 0},
--	       0, 0, -1, -1, FB_ACCEL_NONE, 40000, 32, 32, 33, 10, 96, 2,
-+	       0, 0, -1, -1, FB_ACCEL_NONE, 40000, 48, 16, 32, 8, 96, 4,
-      FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED
- 	 }
- 	},
-=20
-+	{"800x600",		/* 800x600, 48 kHz, 76 Hz, 50 MHz PixClock */
-+	 {
-+		 800, 600, 800, 600, 0, 0, 8, 0,
-+		 {0, 8, 0},
-+		 {0, 8, 0},
-+		 {0, 8, 0},
-+		 {0, 0, 0},
-+	       0, 0, -1, -1, FB_ACCEL_NONE, 20000, 128, 16, 24, 2, 96, 6,
-+     0, FB_VMODE_NONINTERLACED
-+	 }
-+	},
-+
- 	/*
- 	   Modeline from XF86Config:
- 	   Mode "1024x768" 80  1024 1136 1340 1432  768 770 774 805
-@@ -455,8 +467,8 @@
- 			{0, 8, 0},
- 			{0, 8, 0},
- 			{0, 0, 0},
--	      0, 0, -1, -1, FB_ACCEL_NONE, 12500, 92, 112, 31, 2, 204, 4,
--     FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT, FB_VMODE_NONINTERLACED
-+	      0, 0, -1, -1, FB_ACCEL_NONE, 12500, 144, 32, 30, 2, 192, 6,
-+     0, FB_VMODE_NONINTERLACED
- 		}
- 	}
- };
-@@ -2404,22 +2416,27 @@
-  * seem to have. */
- static unsigned int __init clgen_get_memsize (caddr_t regbase)
- {
--	unsigned long mem =3D 1 * MB_;
-+	unsigned long mem;
- 	unsigned char SRF;
-=20
- 	DPRINTK ("ENTER\n");
-=20
- 	SRF =3D vga_rseq (regbase, CL_SEQRF);
--	if ((SRF & 0x18) =3D=3D 0x18) {
-+	switch ((SRF & 0x18)) {
-+	    case 0x08: mem =3D 512 * 1024; break;
-+	    case 0x10: mem =3D 1024 * 1024; break;
- 		/* 64-bit DRAM data bus width; assume 2MB. Also indicates 2MB memory
- 		   * on the 5430. */
--		mem *=3D 2;
-+	    case 0x18: mem =3D 2048 * 1024; break;
-+	    default: printk ("CLgenfb: Unknown memory size!\n");
-+		mem =3D 1024 * 1024;
- 	}
- 	if (SRF & 0x80) {
- 		/* If DRAM bank switching is enabled, there must be twice as much
- 		   * memory installed. (4MB on the 5434) */
- 		mem *=3D 2;
- 	}
-+	/* TODO: Handling of GD5446/5480 (see XF86 sources ...) */
- 	return mem;
-=20
- 	DPRINTK ("EXIT\n");
-@@ -2562,9 +2579,9 @@
- 	info->fbmem_phys =3D board_addr;
- 	info->size =3D board_size;
-=20
--	printk (" RAM (%lu MB) at 0x%lx, ", info->size / MB_, board_addr);
-+	printk (" RAM (%lu kB) at 0x%lx, ", info->size / KB_, board_addr);
-=20
--	printk (KERN_INFO "Cirrus Logic chipset on PCI bus\n");
-+	printk ("Cirrus Logic chipset on PCI bus\n");
-=20
- 	DPRINTK ("EXIT, returning 0\n");
- 	return 0;
---- linux-2.4.14-pre7-aa2-SuSE/Documentation/fb/clgenfb.txt	Thu Jan  6 19:2=
-3:46 2000
-+++ linux-2.4.14p7aa2SuSE.compile.AXP/Documentation/fb/clgenfb.txt	Sat Nov =
-10 01:25:32 2001
-@@ -35,11 +35,18 @@
- At the moment, there are two kernel command line arguments supported:
-=20
- mode:640x480
-+mode:800x600
- 	or
- mode:1024x768
-=20
- Full support for startup video modes (modedb) will be integrated soon.
-=20
-+Version 1.9.9.1
-+---------------
-+* Fix memory detection for 512kB case
-+* 800x600 mode
-+* Fixed timings
-+* Hint for AXP: Use -accel false -vyres -1 when changing resolution
-=20
-=20
- Version 1.9.4.4
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
---DEueqSqTbz/jWVG1--
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY
+_________________________________________________________________________
 
---DNUSDXU7R7AVVM8C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE77RXexmLh6hyYd04RAn+pAJ9k2Y3XQ+FlugyuoyUQzJNi2+W8vwCeOWTk
-MqTZDhIFfaZjV+xoOV/BR/s=
-=J3P/
------END PGP SIGNATURE-----
-
---DNUSDXU7R7AVVM8C--

@@ -1,41 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316592AbSFZOSb>; Wed, 26 Jun 2002 10:18:31 -0400
+	id <S316589AbSFZOPw>; Wed, 26 Jun 2002 10:15:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316593AbSFZOSa>; Wed, 26 Jun 2002 10:18:30 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28882 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S316592AbSFZOS3>; Wed, 26 Jun 2002 10:18:29 -0400
-Date: Wed, 26 Jun 2002 01:13:40 +0100
-From: Stephen Tweedie <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Automatically mount or remount EXT3 partitions with EXT2 when alaptop is powered by a battery?
-Message-ID: <20020626011340.A13410@redhat.com>
-References: <1024948946.30229.19.camel@turbulence.megapathdsl.net> <3D18A273.284F8EDD@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D18A273.284F8EDD@zip.com.au>; from akpm@zip.com.au on Tue, Jun 25, 2002 at 10:03:47AM -0700
+	id <S316592AbSFZOPw>; Wed, 26 Jun 2002 10:15:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:904 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316589AbSFZOPv>; Wed, 26 Jun 2002 10:15:51 -0400
+Date: Wed, 26 Jun 2002 10:17:45 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Nicolas Bougues <nbougues-listes@axialys.net>
+cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with wait queues
+In-Reply-To: <20020626140029.GA6310@kiwi>
+Message-ID: <Pine.LNX.3.95.1020626100928.25416A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 26 Jun 2002, Nicolas Bougues wrote:
 
-On Tue, Jun 25, 2002 at 10:03:47AM -0700, Andrew Morton
-<akpm@zip.com.au> wrote:
+> On Wed, Jun 26, 2002 at 12:52:41PM +0200, Andries Brouwer wrote:
+> > On Wed, Jun 26, 2002 at 12:32:43PM +0200, Nicolas Bougues wrote:
+> > 
+> > > Does anybody have any idea on what I may have done wrong, and why
+> > > would loadavg increase when vmstat show no activity ?
+> > 
+> > loadavg does not report what you think it reports
+> > 
+> 
+> As far as I understand, loadavg reports the average number of
+> processes in the TASK_RUNNING state.
+> 
+> What happens in my driver, I believe, is that :
+> - on timer interrupt, I do some stuff, and wake_up the waiting process
+> - then the loadavg is computed (seeing my waiting task as TASK_RUNNING)
+> - then the scheduler runs the task
+> - then the task goes immediatly back to sleep
+> 
+> >From this point of view, then my problem is just "cosmetic". Isn't
+> there a way to do things in a different order, so that I could still
+> get a meaningful(*) loadavg ?
+> 
+> (*): by meaningful, I mean representing the number of busy processes
+> at a random point in time.
+> --
+> Nicolas Bougues
+> 
 
-> If it's because of the disk-spins-up-too-much problem then
-> that can be addressed by allowing the commit interval to be
-> set to larger values.
+I am sure that you can have things look correct as well as run
+properly. However, you didn't show us the code. You need to
+do something like:
 
-> +int jbd_commit_interval = 5;	/* /proc/sys/fs/jbd_commit_interval */
+            interruptible_sleep_on(&semaphore);
 
-I suspect you want this to be per-mount, not system-wide (although
-filesystems could easily just inherit the system default dynamically
-if there's no per-fs override.)  I could easily imagine a user wanting
-a different interval for a scratch disk, for example.
+while your wake-up occurs with:
+
+            wake_up_interruptible(&semaphore);
+
+Or, you can do (the hard way) :
+
+             while(!something)
+             {
+                 current->policy |= SCHED_YIELD;
+                 schedule();
+             }
+
+Both ways (and others) will look fine with `top` and will sleep
+properly.
+
 
 Cheers,
- Stephen
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

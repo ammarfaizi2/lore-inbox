@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVACWmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVACWqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbVACWmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVACWi4
+	id S262009AbVACWqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVACWmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:38:56 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:19614 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261928AbVACWZr
+	Mon, 3 Jan 2005 17:42:45 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31129 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261929AbVACWja
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:25:47 -0500
-Message-ID: <41D9C64E.7080508@zytor.com>
-Date: Mon, 03 Jan 2005 14:25:18 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Mon, 3 Jan 2005 17:39:30 -0500
+Message-ID: <41D9C9B2.2070006@tmr.com>
+Date: Mon, 03 Jan 2005 17:39:46 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nicholas Miell <nmiell@comcast.net>
-CC: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] get/set FAT filesystem attribute bits
-References: <41D9B1C4.5050507@zytor.com>	 <1104787447.3604.9.camel@localhost.localdomain>	 <41D9BA8B.2000108@zytor.com>	 <1104788816.3604.17.camel@localhost.localdomain>	 <41D9C111.2090504@zytor.com> <1104790243.3604.23.camel@localhost.localdomain>
-In-Reply-To: <1104790243.3604.23.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Newsgroups: mail.linux-kernel
+To: Jens Axboe <axboe@suse.de>
+CC: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+References: <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com><Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com> <20050103192844.GA29678@suse.de>
+In-Reply-To: <20050103192844.GA29678@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas Miell wrote:
+Jens Axboe wrote:
+> On Mon, Jan 03 2005, Bill Davidsen wrote:
 > 
-> Yeah, I contemplated adding system.fattattrs, system.ntfsattrs, and
-> system.linuxattrs (for the ext2 attrs that have popped up in several
-> other filesystems) a while ago, but xattrs seem to be the red-headed
-> left-handed stepchild of the Linux VFS and I lost interest in the
-> project.
+>>SCSI command filtering - while I totally support the idea (and always
+>>have), I miss running cdrecord as a normal user. Multisession doesn't work
+>>as a normal user (at least if you follow the man page) because only root
+>>can use -msinfo. There's also some raw mode which got a permission denied,
+>>don't remember as I was trying something not doing production stuff.
 > 
-> Nice to see someone else interested in it, though.
- >
+> 
+> So look at dmesg, the kernel will dump the failed command. Send the
+> result here and we can add that command, done deal. 2.6.10 will do this
+> by default.
+> 
 
-I'm honestly not sure that using an ASCII string in an xattr is the sane 
-way of doing this.  Even a binary byte in an xattr would make more sense 
-in some ways.
+Is this enough? I'm building 2.6.10-bk6 on a spare machine to try this 
+on a system with a "scsi" CD interface via USB. The commands appear to 
+go through the same process, but I'll know in an hour or so.
 
-I think the xattr mechanism is ignored largely because it's painfully 
-complex.
+I was going to look these up before suggesting that they were 
+trustworthy, but I'll take this as a offer to do that and accept! 
+Obviously security comes first, if these are not trustworthy I won't 
+argue for their inclusion.
 
-A plus with using xattr is that in theory (but of course not in 
-practice!) it would let one store a copy of a DOS filesystem on an ext3 
-(or xfs, or...) filesystem and have it restored, all using standard (but 
-by necessity, xattr-aware) tools.  However, the splitting of xattr into 
-namespaces may very well make that impossible, since what's a "system" 
-attribute to one filesystem is a "user" attribute to another.  Classic 
-design flaw, by the way.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hdb1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+scsi: unknown opcode 0x01
+scsi: unknown opcode 0x55
+scsi: unknown opcode 0x1e
+scsi: unknown opcode 0x35
 
-Anyway, I'm going to send out something to the various maintainers of 
-DOS-based filesystems (FAT, CIFS, NTFS) and see what they think.
-
-	-hpa
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,87 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVC3SB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVC3SDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbVC3SB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVC3SB1
+	id S262373AbVC3SDo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVC3SDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:01:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40333 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262368AbVC3SBX (ORCPT
+	Wed, 30 Mar 2005 13:03:43 -0500
+Received: from 64-30-195-78.dsl.linkline.com ([64.30.195.78]:61642 "EHLO
+	jg555.com") by vger.kernel.org with ESMTP id S262373AbVC3SDi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:01:23 -0500
-Message-ID: <424AE960.8020906@osdl.org>
-Date: Wed, 30 Mar 2005 10:01:04 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Wed, 30 Mar 2005 13:03:38 -0500
+Message-ID: <424AE9E0.8040601@jg555.com>
+Date: Wed, 30 Mar 2005 10:03:12 -0800
+From: Jim Gifford <maillist@jg555.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Yum Rayan <yum.rayan@gmail.com>
-CC: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] Reduce stack usage in module.c
-References: <df35dfeb05032823137a208b46@mail.gmail.com>	 <424993B0.9010306@osdl.org> <df35dfeb050329222132823897@mail.gmail.com>
-In-Reply-To: <df35dfeb050329222132823897@mail.gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 64bit build of tulip driver
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yum Rayan wrote:
-> On Tue, 29 Mar 2005 09:43:12 -0800, Randy.Dunlap <rddunlap@osdl.org> wrote:
-> 
->>Yum Rayan wrote:
->>
->>>Attempt to reduce stack usage in module.c (linux-2.6.12-rc1-mm3).
->>>Specifically from checkstack.pl
-> 
->>>Also while at it, fix following in who_is_doing_it(...)
->>>- use only as much memory is needed
->>>- do not write past array index for the boundary case
->>
->>I don't see a boundary case problem with the current code,
->>hence I don't see why the kmalloc(len + 1, GFP_KERNEL) is
->>needed...
-> 
-> 
-> Let's consider the original code and len = 513
-> 
->    1399 static void who_is_doing_it(void)
->    1400 {
->    1401         /* Print out all the args. */
->    1402         char args[512];
->    1403         unsigned long i, len = current->mm->arg_end -
-> current->mm->arg_start;
->    1404
->    1405         if (len > 512)
->    1406                 len = 512;
->    1407
->    1408         len -= copy_from_user(args, (void
-> *)current->mm->arg_start, len);
->    1409
->    1410         for (i = 0; i < len; i++) {
->    1411                 if (args[i] == '\0')
->    1412                         args[i] = ' ';
->    1413         }
->    1414         args[i] = 0;
->    1415         printk("ARGS: %s\n", args);
->    1416 }
-> 
-> After lines 1410 thru 1413, "i" wil be 512. So line 1414 will be
-> "args[512] = 0". But args is 512 byte array with last legally
-> accessible element at 511?
+Under 32bit the tulip driver works fine, but under 64 bit it gives me a 
+lot if problems. I updated the tulip
+to what is in the current repository, and the issue still exists. Any 
+suggestions.
 
-Yes, it's so obvious (now).  :)
+First off it continually sends data out the network interface and never 
+negotiates is speed and duplex.
+Second in the log files all I see is an uninformative message 
+0000:00:07.0: tulip_stop_rxtx() failed
 
->>File names start one level deeper than wanted.  They should begin
->>with linux/ or a/ or ./ e.g.
->>There are plenty of docs on this, please let me know if you need
->>references to them.
-> 
-> 
-> Point noted. Will post patch to linux/Documentation/SubmittingPatches,
-> hopefully making it more clear. Reworked patch at end of email.
+Here is all the bootup information differences I can find on the driver
+64 bit
+Dec 31 16:01:29 lfs tulip0: ***WARNING***: No MII transceiver found!
+Dec 31 16:01:29 lfs tulip1: ***WARNING***: No MII transceiver found!
+32 bit
+Dec 31 16:01:16 lfs tulip0:  MII transceiver #1 config 1000 status 7809 
+advertising 01e1
+Dec 31 16:01:16 lfs tulip1:  MII transceiver #1 config 1000 status 7809 
+advertising 01e1.
 
-Good idea, thanks.
+Complete boot log - yes I know the date and time are off.
+Under a 64 bit compile
+Dec 31 16:01:29 lfs Linux Tulip driver version 1.1.13 (May 11, 2002)
+Dec 31 16:01:29 lfs PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
+Dec 31 16:01:29 lfs tulip0: Old format EEPROM on 'Cobalt Microserver' 
+board.  Using substitute media control info.
+Dec 31 16:01:29 lfs tulip0:  EEPROM default media type Autosense.
+Dec 31 16:01:29 lfs tulip0:  Index #0 - Media MII (#11) described by a 
+21142 MII PHY (3) block.
+Dec 31 16:01:29 lfs tulip0: ***WARNING***: No MII transceiver found!
+Dec 31 16:01:29 lfs eth0: Digital DS21143 Tulip rev 65 at 
+ffffffffb0001400, 00:10:E0:00:32:DE, IRQ 19.
+Dec 31 16:01:29 lfs PCI: Enabling device 0000:00:0c.0 (0005 -> 0007)
+Dec 31 16:01:29 lfs tulip1: Old format EEPROM on 'Cobalt Microserver' 
+board.  Using substitute media control info.
+Dec 31 16:01:29 lfs tulip1:  EEPROM default media type Autosense.
+Dec 31 16:01:29 lfs tulip1:  Index #0 - Media MII (#11) described by a 
+21142 MII PHY (3) block.
+Dec 31 16:01:29 lfs tulip1: ***WARNING***: No MII transceiver found!
+Dec 31 16:01:29 lfs eth1: Digital DS21143 Tulip rev 65 at 
+ffffffffb0001480, 00:10:E0:00:32:DF, IRQ 20.
+Dec 31 16:01:29 lfs bootlog:  Bringing up the eth0 interface...[  OK  ]
+Dec 31 16:01:30 lfs bootlog:  Adding IPv4 address 172.16.0.99 to the 
+eth0 interface...[  OK  ]
+Dec 31 16:01:31 lfs bootlog:  Setting up default gateway...[  OK  ]
+Dec 31 16:01:32 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+Dec 31 16:01:38 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+Dec 31 16:01:44 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+Dec 31 16:01:50 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+Dec 31 16:01:56 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+Dec 31 16:02:02 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+Dec 31 16:02:08 lfs 0000:00:07.0: tulip_stop_rxtx() failed
+
+Under 32 bit
+Dec 31 16:01:16 lfs Linux Tulip driver version 1.1.13 (May 11, 2002)
+Dec 31 16:01:16 lfs PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
+Dec 31 16:01:16 lfs tulip0: Old format EEPROM on 'Cobalt Microserver' 
+board.  Using substitute media control info.
+Dec 31 16:01:16 lfs tulip0:  EEPROM default media type Autosense.
+Dec 31 16:01:16 lfs tulip0:  Index #0 - Media MII (#11) described by a 
+21142 MII PHY (3) block.
+Dec 31 16:01:16 lfs tulip0:  MII transceiver #1 config 1000 status 7809 
+advertising 01e1.
+Dec 31 16:01:16 lfs eth0: Digital DS21143 Tulip rev 65 at b0001400, 
+00:10:E0:00:32:DE, IRQ 19.
+Dec 31 16:01:16 lfs tulip1: Old format EEPROM on 'Cobalt Microserver' 
+board.  Using substitute media control info.
+Dec 31 16:01:16 lfs tulip1:  EEPROM default media type Autosense.
+Dec 31 16:01:16 lfs tulip1:  Index #0 - Media MII (#11) described by a 
+21142 MII PHY (3) block.
+Dec 31 16:01:16 lfs tulip1:  MII transceiver #1 config 1000 status 7809 
+advertising 01e1.
+Dec 31 16:01:16 lfs eth1: Digital DS21143 Tulip rev 65 at b0001480, 
+00:10:E0:00:32:DF, IRQ 20.
+Dec 31 16:01:17 lfs bootlog:  Bringing up the eth0 interface...[  OK  ]
+Dec 31 16:01:17 lfs bootlog:  Adding IPv4 address 172.16.0.99 to the 
+eth0 interface...[  OK  ]
+Dec 31 16:01:18 lfs bootlog:  Setting up default gateway...[  OK  ]
+Dec 31 16:01:20 lfs eth0: Setting full-duplex based on MII#1 link 
+partner capability of 45e1.
 
 -- 
-~Randy
+----
+Jim Gifford
+maillist@jg555.com
+

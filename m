@@ -1,74 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbTDQFyI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 01:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbTDQFxL
+	id S263079AbTDQF6a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 01:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTDQF4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 01:53:11 -0400
-Received: from granite.he.net ([216.218.226.66]:56336 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263086AbTDQFvC convert rfc822-to-8bit
+	Thu, 17 Apr 2003 01:56:43 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:42423 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S263112AbTDQFzE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 01:51:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10505595041530@kroah.com>
-Subject: Re: [PATCH] More USB fixes for 2.5.67
-In-Reply-To: <10505595042845@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 16 Apr 2003 23:05:04 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Thu, 17 Apr 2003 01:55:04 -0400
+Date: Thu, 17 Apr 2003 09:06:39 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
+To: jamal <hadi@cyberus.ca>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Catalin BOIE <util@deuroconsult.ro>,
+       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] qdisc oops fix
+In-Reply-To: <20030416142802.E5912@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.53.0304170844410.23586@hosting.rdsbv.ro>
+References: <20030415084706.O1131@shell.cyberus.ca>
+ <Pine.LNX.4.53.0304160838001.25861@hosting.rdsbv.ro> <20030416072952.E4013@shell.cyberus.ca>
+ <3E9D755A.8060601@colorfullife.com> <20030416142802.E5912@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1062, 2003/04/14 10:25:40-07:00, henning@meier-geinitz.de
+> Catalin, Can you what kernel that is?
 
-[PATCH] USB scanner.c endpoint detection fix
+2.4.20pre10 works ok but 2.4.20 crash.
+With traffic -> no crash with 2.4.20. Without traffic, on other machine,
+no crash.
 
-This patch fixes the endpoint numbers. They were numbered from 1 to n
-but that assumption is not correct in all cases.
 
+> > It's triggered, because someone does something like
+> >     spin_lock_bh(&my_lock);
+> >     p = kmalloc(,GFP_KERNEL);
+> >
+> > I don't like the proposed fix: usually code that calls
+> > kmalloc(,GFP_KERNEL) assumes that it runs at process space, e.g. uses
+> > semaphores, or non-bh spinlocks, etc.
+> > slab just happens to contain a test that complains about illegal calls.
+>
+> ok. Nice.
+>
+> >
+> > >>Trace; c0127e0f <kmalloc+eb/110>
+> > >>Trace; c01d3cac <qdisc_create_dflt+20/bc>
+> > >>Trace; d081ecc7 <END_OF_CODE+1054ff0f/????>
+> > >>Trace; c01d5265 <tc_ctl_tclass+1cd/214>
+> > >>Trace; d0820600 <END_OF_CODE+10551848/????>
+> > >>Trace; c01d27e4 <rtnetlink_rcv+298/3bc>
+> > >>Trace; c01d0605 <__neigh_event_send+89/1b4>
+> > >>Trace; c01d7cd4 <netlink_data_ready+1c/60>
+> > >>Trace; c01d7730 <netlink_unicast+230/278>
+> > >>Trace; c01d7b73 <netlink_sendmsg+1fb/20c>
+> > >>Trace; c01c79d5 <sock_sendmsg+69/88>
+> > >>Trace; c01c8b48 <sys_sendmsg+18c/1e8>
+> > >>Trace; c0120010 <map_user_kiobuf+8/f8>
+> > >>
+> > >>
+> > >>
+> > >>
+> > I don't understand the backtrace. Were any modules loaded? Perhaps
+> > 0xd081ecc7 is a module.
+> >
+>
+> Probably a module. Again Catalin, run no modules.
+It's a production machine. I cannot test this. We plan to replace the
+machine, so I can test then.
 
-diff -Nru a/drivers/usb/image/scanner.c b/drivers/usb/image/scanner.c
---- a/drivers/usb/image/scanner.c	Wed Apr 16 10:48:55 2003
-+++ b/drivers/usb/image/scanner.c	Wed Apr 16 10:48:55 2003
-@@ -355,6 +355,10 @@
-  *      is closed and disconnected. Avoids crashes when writing to a 
-  *      disconnected device. (Thanks to Greg KH).
-  *
-+ * 0.4.12  2003-04-11
-+ *    - Fixed endpoint detection. The endpoints were numbered from 1 to n but
-+ *      that assumption is not correct in all cases.
-+ *
-  * TODO
-  *    - Performance
-  *    - Select/poll methods
-@@ -957,7 +961,7 @@
- 				info ("probe_scanner: ignoring additional bulk_in_ep:%d", ep_cnt);
- 				continue;
- 			}
--			have_bulk_in = ep_cnt;
-+			have_bulk_in = endpoint->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
- 			dbg("probe_scanner: bulk_in_ep:%d", have_bulk_in);
- 			continue;
- 		}
-@@ -968,7 +972,7 @@
- 				info ("probe_scanner: ignoring additional bulk_out_ep:%d", ep_cnt);
- 				continue;
- 			}
--			have_bulk_out = ep_cnt;
-+			have_bulk_out = endpoint->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
- 			dbg("probe_scanner: bulk_out_ep:%d", have_bulk_out);
- 			continue;
- 		}
-@@ -979,7 +983,7 @@
- 				info ("probe_scanner: ignoring additional intr_ep:%d", ep_cnt);
- 				continue;
- 			}
--			have_intr = ep_cnt;
-+			have_intr = endpoint->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
- 			dbg("probe_scanner: intr_ep:%d", have_intr);
- 			continue;
- 		}
+> > I'd add a
+> >     if(in_interrupt()) show_stack(NULL);
+> > into qdisc_create_dflt(), and try to reproduce the bug without modules.
+> >
+>
+> Catalin - again instead of your fix can you please add this call?
+See above. I cannot test now. I'm very sorry!
 
+> cheers,
+> jamal
+>
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

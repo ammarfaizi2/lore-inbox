@@ -1,21 +1,21 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVC2RJ0 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 29 Mar 2005 12:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVC2RJE
+	id S261445AbVC2VN0 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 29 Mar 2005 16:13:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVC2VN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 12:09:04 -0500
-Received: from [211.36.37.22] ([211.36.37.22]:48310 "HELO mail.qsv20.com")
-	by vger.kernel.org with SMTP id S261256AbVC2RH4 (ORCPT
+	Tue, 29 Mar 2005 16:13:26 -0500
+Received: from [211.36.37.41] ([211.36.37.41]:642 "HELO mail.qsv11.com")
+	by vger.kernel.org with SMTP id S261445AbVC2VKO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 12:07:56 -0500
-Date: 29 Mar 2005 23:12:15 +0900
-Message-ID: <20050329141215.1719.qmail@mail.qsv20.com>
-From: info@qsv19.com
+	Tue, 29 Mar 2005 16:10:14 -0500
+Date: 29 Mar 2005 23:37:02 +0900
+Message-ID: <20050329143702.18627.qmail@mail.qsv11.com>
+From: info@qsv11.com
 To: linux-kernel@vger.kernel.org
 Subject: =?ISO-8859-1?Q?=20=1B$B!~=3DP2q$$7OI,>?= =?ISO-8859-1?Q?!>pJs!~=1B(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261256AbVC2RJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261445AbVC2VN0@vger.kernel.org>
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129706AbRAZTw3>; Fri, 26 Jan 2001 14:52:29 -0500
+	id <S129846AbRAZTz3>; Fri, 26 Jan 2001 14:55:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129846AbRAZTwJ>; Fri, 26 Jan 2001 14:52:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27652 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129706AbRAZTwG>;
-	Fri, 26 Jan 2001 14:52:06 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101261948.f0QJm6q09263@flint.arm.linux.org.uk>
-Subject: Re: 2.4.1-pre8 losing pages
-To: pdh@colonel-panic.com (Peter Horton)
-Date: Fri, 26 Jan 2001 19:48:05 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010126194605.A923@colonel-panic.com> from "Peter Horton" at Jan 26, 2001 07:46:05 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130119AbRAZTzT>; Fri, 26 Jan 2001 14:55:19 -0500
+Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:22250 "EHLO mta7")
+	by vger.kernel.org with ESMTP id <S129846AbRAZTzI>;
+	Fri, 26 Jan 2001 14:55:08 -0500
+Date: Fri, 26 Jan 2001 13:15:28 -0500
+From: Alan Shutko <ats@acm.org>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <200101261753.JAA11559@adam.yggdrasil.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, hpa@transmeta.com
+Message-id: <87hf2mw56n.fsf@wesley.springies.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.95
+In-Reply-To: <200101261753.JAA11559@adam.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Horton writes:
-> The corruption is dependent on having a swapped on swap partition. If I
-> "swapoff" the corruption goes away, but it comes back when I "swapon"
-> again. I feel this a kernel bug, but as I'm the only person out here who's
-> seeing it I'm at a loss ...
+"Adam J. Richter" <adam@yggdrasil.com> writes:
 
-What compiler are you using?
+> 	I am surprised that anyone is seriously considering denying
+> service to sites that do not implement an _experimental_ facility
+> and have firewalls that try to play things safe by dropping packets
+> which have 1's in bit positions that in the RFC "must be zero."
 
-The reason I ask is that on an ARM box running plain 2.4.0 with swap
-enabled I get rather a lot of SEGVs.  Turn swap off, and I don't see
-any.
+I don't think people are seriously worried whether site implement ECN
+right now.
 
-It sounds like it may be related.
+But it would be much nicer to those that _want_ to implement it were
+fascist firewalls to set those bits to zero, rather than sending RSTs
+back or dripping the packet.  
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-- 
+Alan Shutko <ats@acm.org> - In a variety of flavors!
+Silver's law: If Murphy's law can go wrong it will.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

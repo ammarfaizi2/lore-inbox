@@ -1,110 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317314AbSFGS1L>; Fri, 7 Jun 2002 14:27:11 -0400
+	id <S317312AbSFGS0s>; Fri, 7 Jun 2002 14:26:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317316AbSFGS1K>; Fri, 7 Jun 2002 14:27:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46854 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317314AbSFGS1J>;
-	Fri, 7 Jun 2002 14:27:09 -0400
-Message-ID: <3D00FBDA.7020106@zip.com.au>
-Date: Fri, 07 Jun 2002 11:30:50 -0700
-From: Andrew Morton <akpm@zip.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+	id <S317314AbSFGS0r>; Fri, 7 Jun 2002 14:26:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46086 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317312AbSFGS0r>;
+	Fri, 7 Jun 2002 14:26:47 -0400
+Message-ID: <3D00FA43.2080809@mandrakesoft.com>
+Date: Fri, 07 Jun 2002 14:24:03 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bernd Jendrissek <berndj@prism.co.za>
-CC: linux-kernel@vger.kernel.org, netfilter@lists.samba.org
-Subject: Re: [patch 2/16] list_head debugging
-In-Reply-To: <20020607161705.V2270@prism.co.za>
+To: Thunder from the hill <thunder@ngforever.de>
+CC: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: [PATCH][2.5] tulip: change device names
+In-Reply-To: <Pine.LNX.4.44.0206071203580.15675-100000@hawkeye.luckynet.adm>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Jendrissek wrote:
-> [sorry for the nonexistent In-Reply-To/whatever headers - cutting&pasting]
-> 
-> Andrew Morton wrote:
-> 
->>  A common and very subtle bug is to use list_heads which aren't on any
->>  lists. It causes kernel memory corruption which is observed long after
->>  the offending code has executed.
+Thunder from the hill wrote:
+
+>Hi,
+>
+>On Fri, 7 Jun 2002, Jeff Garzik wrote:
+>  
+>
+>>Thanks for the effort, that was a quick turnaround :)
 >>
->>  The patch nulls out the dangling pointers so we get a nice oops at the
->>  site of the buggy code.
-> 
-> 
-> I'm not current with the kernel tree, but will one such oops occur in
-> netfilter?  See
-> 
-> http://lists.samba.org/pipermail/netfilter-announce/2002/000010.html
-> 
-> Hmm, no.  A DoS maybe?
-> 
-
-An oops, actually.  This code:
-
-
-         /* Remove from both hash lists: must not NULL out next ptrs,
-            otherwise we'll look unconfirmed.  Fortunately, LIST_DELETE
-            doesn't do this. --RR */
-         LIST_DELETE(&ip_conntrack_hash
-                     [hash_conntrack(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple)],
-                     &ct->tuplehash[IP_CT_DIR_ORIGINAL]);
-         LIST_DELETE(&ip_conntrack_hash
-                     [hash_conntrack(&ct->tuplehash[IP_CT_DIR_REPLY].tuple)],
-                     &ct->tuplehash[IP_CT_DIR_REPLY]);
+>>But unfortunately the patch is wrong.
+>>
+>>You need to use an index which counts _tulip_ boards, which implies that 
+>>the index is local to the driver.  Currently the only such counter is 
+>>board_idx, which is a variable local to tulip_init_one().
+>>    
+>>
+>
+>Would you suggest
+>
+>a) setting it in some global struct (tulip_private etc.)?
+>  
+>
 
 
-I think what is needed is:
+Yes, I would add "board_idx" member to struct tulip_private, and 
+initialize it early in tulip_init_one()
 
---- 2.5.20/net/ipv4/netfilter/ip_conntrack_core.c~ipconntrack-lists	Fri Jun  7 11:26:38 2002
-+++ 2.5.20-akpm/net/ipv4/netfilter/ip_conntrack_core.c	Fri Jun  7 11:26:42 2002
-@@ -210,17 +210,22 @@ static void destroy_expectations(struct
-  static void
-  clean_from_lists(struct ip_conntrack *ct)
-  {
-+ 
-struct list_head *l1;
-+ 
-struct list_head *l2;
-+
-  	DEBUGP("clean_from_lists(%p)\n", ct);
-  	MUST_BE_WRITE_LOCKED(&ip_conntrack_lock);
-- 
-/* Remove from both hash lists: must not NULL out next ptrs,
--           otherwise we'll look unconfirmed.  Fortunately, LIST_DELETE
--           doesn't do this. --RR */
-+
-+ 
-l1 = &ct->tuplehash[IP_CT_DIR_ORIGINAL];
-+ 
-l2 = &ct->tuplehash[IP_CT_DIR_REPLY];
-+
-  	LIST_DELETE(&ip_conntrack_hash
-  		    [hash_conntrack(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple)],
-- 
-	    &ct->tuplehash[IP_CT_DIR_ORIGINAL]);
-- 
-LIST_DELETE(&ip_conntrack_hash
-- 
-	    [hash_conntrack(&ct->tuplehash[IP_CT_DIR_REPLY].tuple)],
-- 
-	    &ct->tuplehash[IP_CT_DIR_REPLY]);
-+ 
-	    l1);
-+ 
-if (l1 != l2)
-+ 
-	LIST_DELETE(&ip_conntrack_hash
-+ 
-		    [hash_conntrack(&ct->tuplehash[IP_CT_DIR_REPLY].tuple)],
-+ 
-		    l2);
+Take care to update the printk's of only those functions which are 
+actually called from tulip_init_one() before register_netdev().  All 
+other references are correctly using dev->name.  "tulip%d" is only 
+needed at startup.
 
-  	/* Destroy all un-established, pending expectations */
-  	destroy_expectations(ct);
+    Jeff
 
 
--
 

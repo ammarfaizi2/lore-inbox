@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUHGQiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUHGQud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUHGQiC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 12:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUHGQiC
+	id S263733AbUHGQud (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 12:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUHGQud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 12:38:02 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19344 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263713AbUHGQiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 12:38:00 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Nicholas Miell <nmiell@attbi.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mj@ucw.cz, James.Bottomley@steeleye.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
-References: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Message-Id: <1091896677.2821.4.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.njm.1) 
-Date: Sat, 07 Aug 2004 09:37:57 -0700
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Aug 2004 12:50:33 -0400
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:993
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S263733AbUHGQuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 12:50:32 -0400
+Message-ID: <41150848.6050601@freemail.hu>
+Date: Sat, 07 Aug 2004 18:50:16 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
+X-Accept-Language: hu, en-US
+MIME-Version: 1.0
+To: For users of Fedora Core releases <fedora-list@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Different . and .. directories on ext3 made with x86-64 mke2fs?
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-07 at 05:17, Joerg Schilling wrote:
-> >From the > 20 platforms that libscg provides abstractions from, _most_
-> platforms do not allow the "UNIX" /dev/something method to work with
-> Generic SCSI:
-> 
-[ long list omitted ]
-> 
-> These are the platforms where /dev/something could work:
-> 
-[ shorter list omitted ]
-> 
-> As you see, the vast majority does not allow the addressing method the
-> people on LKML seem to prefer recently.
-> 
-> Jrg
+I have a dual-boot machine with FC1/i386 and FC2/x86-64 installed.
+They share /home and /tmp but have different / , /boot , /var , /usr
+partitions. Recently I almost filled up my /home but I needed still more
+space and mounted my x86-64 partitions under i386 FC1.
 
-As a user of cdrecord, could you explain to me why referring to my CD
-burner as 1,0,0 is preferable to /dev/cdrw?
+This message bothers me when I start mkisofs in a directory that is on
+a partition that was mke2fs'd under x86-64 FC2:
 
--- Nicholas
+Unknown file type (unallocated) ./.. - ignoring and continuing.
+
+The burned ISOs are OK, but what's with this "./.." file?
+
+Best regards,
+Zoltán Böszörményi
 

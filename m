@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261871AbSJIRQg>; Wed, 9 Oct 2002 13:16:36 -0400
+	id <S261850AbSJIRLO>; Wed, 9 Oct 2002 13:11:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261878AbSJIRQg>; Wed, 9 Oct 2002 13:16:36 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:31650 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261871AbSJIRQf>; Wed, 9 Oct 2002 13:16:35 -0400
-Date: Wed, 9 Oct 2002 12:19:11 -0500
-From: David Kleikamp <shaggy@austin.ibm.com>
-Message-Id: <200210091719.g99HJBVM001363@kleikamp.austin.ibm.com>
-To: rmk@flint.arm.linux.org.uk
-Subject: [PATCH 2.5.41] trap in __release_resource
-Cc: linux-kernel@vger.kernel.org
+	id <S261854AbSJIRLO>; Wed, 9 Oct 2002 13:11:14 -0400
+Received: from netcore.fi ([193.94.160.1]:48910 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id <S261850AbSJIRLM>;
+	Wed, 9 Oct 2002 13:11:12 -0400
+Date: Wed, 9 Oct 2002 20:16:39 +0300 (EEST)
+From: Pekka Savola <pekkas@netcore.fi>
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+cc: dfawcus@cisco.com, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
+       <usagi@linux-ipv6.org>
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
+In-Reply-To: <20021010.015432.63506989.yoshfuji@linux-ipv6.org>
+Message-ID: <Pine.LNX.4.44.0210092015540.17906-100000@netcore.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
-I was getting a NULL pointer dereference in __release_resource when I tried
-to boot 2.5.41.  I traced it down to your recent patch to 8250.c.  Since
-the call to serial8250_request_std_resource() is now conditional, the call
-to release_resource() needs to be conditional as well.  This patch fixes
-the problem.  It looks obviously correct to me, but I don't know this code
-at all.
+On Thu, 10 Oct 2002, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
+> In article <20021009170018.H29133@edinburgh.cisco.com> (at Wed, 9 Oct 2002 17:00:18 +0100), Derek Fawcus <dfawcus@cisco.com> says:
+> 
+> > All link local's are currently supposed to have those top bits
+> > ('tween 10 and 64) zero'd,  however any address within the link local
+> > prefix _is_ on link / connected and should go to the interface.
+> > 
+> > i.e. it's perfectly valid for me to assign a link local of fe80:1910::10
+> >      to an interface and expect it to be work,  likewise for a packet
+> >      destined to any link local address to trigger ND.
+> 
+> First of all, please don't use such addresses.
+> 
+> By spec, auto-configured link-local address is fe80::/64
+> and connected route should be /64.
+> 
+> If you do really want to use such addresses (like fe80:1920::10),
+> you can put another route by yourself, at your own risk.
+> 
+> We should not configure in such way by default.
+> and, we should even have to add "discard" route for them 
+> by default for safe.
 
-Thanks,
-Shaggy
+Personally I think the interfaces should be configured with a /64 but 
+there should be a discard route for the whole /10.
 
-diff -Nur linux-2.5.41/drivers/serial/8250.c linux/drivers/serial/8250.c
---- linux-2.5.41/drivers/serial/8250.c	Wed Oct  9 11:16:52 2002
-+++ linux/drivers/serial/8250.c	Wed Oct  9 11:17:19 2002
-@@ -1636,7 +1636,7 @@
- 	if (up->port.type != PORT_RSA && res_rsa)
- 		release_resource(res_rsa);
- 
--	if (up->port.type == PORT_UNKNOWN)
-+	if (up->port.type == PORT_UNKNOWN && res_std)
- 		release_resource(res_std);
- }
- 
+-- 
+Pekka Savola                 "Tell me of difficulties surmounted,
+Netcore Oy                   not those you stumble over and fall"
+Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
+

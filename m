@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129990AbQK1Mcm>; Tue, 28 Nov 2000 07:32:42 -0500
+        id <S130506AbQK1Mnh>; Tue, 28 Nov 2000 07:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130210AbQK1Mcd>; Tue, 28 Nov 2000 07:32:33 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43794 "EHLO
-        atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-        id <S129990AbQK1Mc1>; Tue, 28 Nov 2000 07:32:27 -0500
-Date: Tue, 28 Nov 2000 13:02:51 +0100
-From: Jan Kara <jack@suse.cz>
-To: torvalds@transmeta.com
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Umount & quotas
-Message-ID: <20001128130250.A32733@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+        id <S130291AbQK1Mn1>; Tue, 28 Nov 2000 07:43:27 -0500
+Received: from ip-205-254-202-114.netwrx1.com ([205.254.202.114]:5130 "EHLO
+        eagle.netwrx1.com") by vger.kernel.org with ESMTP
+        id <S130210AbQK1MnL>; Tue, 28 Nov 2000 07:43:11 -0500
+From: "George R. Kasica" <georgek@netwrx1.com>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linus daughter
+Date: Tue, 28 Nov 2000 06:13:07 -0600
+Organization: Netwrx Consulting Inc.
+Reply-To: georgek@netwrx1.com
+Message-ID: <79872t8l9u25fh2cbg275vnad6nr0sj4rd@4ax.com>
+In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com> <200011280255.eAS2tZ215366@localhost.jbj.dk>
+In-Reply-To: <200011280255.eAS2tZ215366@localhost.jbj.dk>
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello.
+On Tue, 28 Nov 2000 03:55:29 +0100 (CET), you wrote:
 
-  After rewrite on umount code automagical turning of
-quotas off stopped working - filesystem was considered
-busy.
-  I would restore the behaviour in 2.4 and probably
-in 2.5 move this to userland together with other quota
-changes...
-  Following patch (written by Al Viro) should restore
-the behaviour.
+>> 
+>> Oh, well. Some people saw the (unannounced, and not for public
+>> consumption) pre1, so here's pre2. pre1 was just meant to be an interim
+>> patch to sync up with the ISDN patches.
+>> 
+>> Due to the birth of my third daughter last week (yes, I got /.'ed), if you
+>> sent me patches that aren't in pre2, you can pretty much consider them
+>> lost.
+Congratulations from across the pond in Milwaukee WI!
 
-					Honza
+Hope all is well.
 
---- fs/super.c     Thu Nov  2 22:38:59 2000
-+++ fs/super.c     Tue Nov 21 11:36:05 2000
-@@ -1037,13 +1037,13 @@
-	}
+George
 
-	spin_lock(&dcache_lock);
--	if (atomic_read(&mnt->mnt_count) > 2) {
--		spin_unlock(&dcache_lock);
--		mntput(mnt);
--		return -EBUSY;
--	}
-
-	if (mnt->mnt_instances.next != mnt->mnt_instances.prev) {
-+		if (atomic_read(&mnt->mnt_count) > 2) {
-+			spin_unlock(&dcache_lock);
-+			mntput(mnt);
-+			return -EBUSY;
-+		}
-		if (sb->s_type->fs_flags & FS_SINGLE)
-			put_filesystem(sb->s_type);
-		/* We hold two references, so mntput() is safe */
+===[George R. Kasica]===        +1 262 513 8503
+President                       +1 206 374 6482 FAX 
+Netwrx Consulting Inc.          Waukesha, WI USA 
+http://www.netwrx1.com
+georgek@netwrx1.com
+ICQ #12862186
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHaDMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUHaDO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUHaDMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 23:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUHaDMk
+	id S266349AbUHaDO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 23:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUHaDO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 23:12:40 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2217 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S266341AbUHaDMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 23:12:31 -0400
-Date: Mon, 30 Aug 2004 18:17:24 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Driver retries disk errors.
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <002e01c48eef$e3e2dc40$6601a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.d48te6f.1ol6tbb@ifi.uio.no> <fa.eti1vu1.2nqlj5@ifi.uio.no>
+	Mon, 30 Aug 2004 23:14:26 -0400
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:53968 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S266349AbUHaDOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 23:14:10 -0400
+Message-ID: <4133ED00.2070101@pobox.com>
+Date: Mon, 30 Aug 2004 23:14:08 -0400
+From: Will Dyson <will_dyson@pobox.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <412E10A2.1020801@pobox.com> <412EEC07.30707@namesys.com> <412F7B6D.6010305@pobox.com> <4130566C.8020604@namesys.com>
+In-Reply-To: <4130566C.8020604@namesys.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quite likely, in that case the drive has exhausted its spare pool, and there 
-are a bunch of bad sectors that have already been reallocated. Some drives 
-will reallocate sectors if they are still readable but the sector appears to 
-be marginal.
+Hans Reiser wrote:
+> I think there are two ways to analyze the code boundary issue.  One is 
+> "does it belong in the kernel?"  Another is, "does it belong in the 
+> filesystem. and if so should name resolution in a filesystem be split 
+> into two parts, one in kernel, and one in user space."  In ten years I 
+> might have the knowledge needed to make such a split, but I know for 
+> sure that I don't know how to do it today without regretting it 
+> tomorrow, and I don't really have confidence that I will ever be able to 
+> do it without losing performance.
 
+I don't see how exporting a set of indices on file attributes to 
+userspace constitutes putting part of the name resolution into 
+userspace. A file's name (or names, in the case of hardlinks) would 
+still be determined entirely within the filesystem.
 
------ Original Message ----- 
-From: "Rogier Wolff" <R.E.Wolff@harddisk-recovery.nl>
-Newsgroups: fa.linux.kernel
-To: "Theodore Ts'o" <tytso@mit.edu>; <linux-kernel@vger.kernel.org>; 
-<linux-ide@vger.kernel.org>
-Sent: Monday, August 30, 2004 4:19 PM
-Subject: Re: Driver retries disk errors.
+The more I think about it, the more I am convinced that "the index" is 
+the correct primative to use for exposing any filesystem's fast 
+searching features.
 
-
-> On Mon, Aug 30, 2004 at 01:46:32PM -0400, Theodore Ts'o wrote:
->> > a filesystem: if we recover one block this way, the next block will be
->> > errorred and the filesystem "crashes" anyway. In fact this behaviour
->> > may masquerade the first warnings that something is going wrong....
->>
->> If the block gets successfully read after 2 or 3 tries, it might be a
->> good idea for the kernel to automatically do a forced rewrite of the
->> block, which should cause the disk to do its own disk block
->> sparing/reassignment.
->
-> Hi Ted,
->
-> I agree that this is the theory. In practise however, I've never
-> seen it work correctly. We've seen several disks with say 1-5 bad
-> blocks and nothing else, and "dd if=/dev/zero of=/dev/<disk>" doesn't
-> seem to cure them.
->
-> Roger.
->
-> -- 
-> +-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
-> | Files foetsie, bestanden kwijt, alle data weg?!
-> | Blijf kalm en neem contact op met Harddisk-recovery.nl!
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
-
+-- 
+Will Dyson
+"Back off man, I'm a scientist!" -Dr. Peter Venkman

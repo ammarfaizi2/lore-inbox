@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVBNW5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVBNXCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVBNW5M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 17:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVBNW5M
+	id S261175AbVBNXCV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:02:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVBNXCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 17:57:12 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:60585 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261161AbVBNW5G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 17:57:06 -0500
-Date: Mon, 14 Feb 2005 14:57:04 -0800
-To: Gerold Jury <gjury@inode.at>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Mon, 14 Feb 2005 18:02:21 -0500
+Received: from av9-1-sn3.vrr.skanova.net ([81.228.9.185]:51178 "EHLO
+	av9-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261175AbVBNXCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 18:02:15 -0500
+Message-ID: <42112DEB.5030707@fulhack.info>
+Date: Tue, 15 Feb 2005 00:02:03 +0100
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Adrian Bunk <bunk@stusta.de>, lm@bitmover.com,
+       Matthew Jacob <lydianconcepts@gmail.com>,
        Jeff Sipek <jeffpc@optonline.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050214225704.GD16029@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Gerold Jury <gjury@inode.at>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Jeff Sipek <jeffpc@optonline.net>,
-	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-References: <20050214020802.GA3047@bitmover.com> <20050214194428.GC8763@merlin.emma.line.org> <20050214200544.GC16029@bitmover.com> <200502142324.43269.gjury@inode.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502142324.43269.gjury@inode.at>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+References: <20050214020802.GA3047@bitmover.com>	 <58cb370e05021404081e53f458@mail.gmail.com>	 <20050214150820.GA21961@optonline.net>	 <20050214154015.GA8075@bitmover.com>	 <7579f7fb0502141017f5738d1@mail.gmail.com>	 <20050214185624.GA16029@bitmover.com>	 <20050214203651.GA24554@stusta.de> <4d8e3fd3050214132512989629@mail.gmail.com>
+In-Reply-To: <4d8e3fd3050214132512989629@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 11:24:43PM +0100, Gerold Jury wrote:
-> Hi Larry
-> Hi Everyone
+Paolo Ciarrocchi wrote:
+> On Mon, 14 Feb 2005 21:36:51 +0100, Adrian Bunk <bunk@stusta.de> wrote:
 > 
-> Do you think it is possible to make a split licence that will distinguish 
-> between active changes and passive watching/tracking ?
+>>Disclaimer:
+>>I did never use BK and I do not plan to use it.
+> 
+> 
+> Same here, but just because I'm not a developer ;-)
+>  
+> [...]
+> 
+>>I don't know about copyright law in other countries (and the USA have
+>>both a pretty different legal system and a pretty different copyright
+>>law than Germany), but in Germany the clause you mentioned is simply
+>>void according to German copyright law.
+>>
+>>German copyright law doesn't distinguish whether you get money for
+>>allowing the usage of the program or not.
+>>
+>>The licence is still valid but the clause is void.
+>>
+>>I can accept a void licence clause because this doesn't make it
+>>non-void. That's not uncommon. Perhaps 95% of all software licences
+>>contain clauses that are simply void.
+>>
+>>In case you ask:
+>>No, there is no case law in Germany - we have a different legal system.
+>>
+>>If you like it or not - at least for people in Germany, I see no way how
+>>the law allows you to enforce what you are trying to do.
+>>
+>>You can say it might be morally wrong to break this licence clause - but
+>>this doesn't make it illegal.
 
-A lot of people have told us to create two products, the free product
-and the commercial product, and license the free product with standard
-licensing terms.  The expectation is that we would somehow make the free
-product less desirable so that people bought the commercial product.
+If we bring moral into the game, alot of people would say that it's 
+immoral of bitmover to have such a license.. I might agree. ;)
 
-That's an excellent suggestion if our only goal is to make money, that
-makes the free product sort of a teaser and the commercial product the
-real deal.  However, the goal really is to help the open source
-community, Linux in particular.  If we give away crippled software then
-all the people who say we are just a money grubbing corporation are
-more or less correct.  At that point we aren't giving away the good
-stuff and it was always the goal that you got the latest and greatest
-because that's what can do you the most good.
+> I think this is true not only in Germany, if I were Larry I would
+> check if the licence is valid in EU.
 
-However, it sure sounds like the noisy people would be a lot happier
-with a stripped down BK that didn't have as many of the restrictions.
-And a possible out for even the open source users is that they buy seats
-if they really need the more powerful features.  Or we could donate
-some on a case by case basis.
+Well..read the archives. This has been discussed at least once before, 
+with the same conclusions.
 
-If the hackers who are using BK can reach agreement that it would be
-better if the BK they had didn't move forward unless they got commercial
-seats then we could start moving towards a license on the free product
-that was less restrictive.  What that would mean is that the BK you have
-is basically it, we'd not advance it other than keeping it up to date
-with the protocol and/or file formats of the commercial version.  If you
-think BK is good enough, fast enough, done enough that you don't want
-what we have coming down the pike we can go that route.
+This is just noise noise noise. We've heard it all before. :)
 
-I suspect that the heavy lifters really would like a faster BK with more
-features that help them get their job done but the rank and file could
-care less, they just want checkin/checkout.  
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Henrik Persson

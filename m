@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263479AbTDGOwc (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 10:52:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbTDGOwc (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 10:52:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10508 "EHLO
+	id S263455AbTDGO4d (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 10:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTDGO4d (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 10:56:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46860 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263479AbTDGOvE (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 10:51:04 -0400
+	id S263455AbTDGOzc (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 10:55:32 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 64-bit kdev_t - just for playing
-Date: 7 Apr 2003 08:02:14 -0700
+Subject: Re: Re[2]: 845GE Chipset severe performance problems
+Date: 7 Apr 2003 08:06:44 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b6s3tm$i2d$1@cesium.transmeta.com>
-References: <200303311541.50200.pbadari@us.ibm.com> <Pine.LNX.4.44.0304031256550.5042-100000@serv> <20030403133725.GA14027@win.tue.nl> <Pine.LNX.4.44.0304031548090.12110-100000@serv>
+Message-ID: <b6s464$i3t$1@cesium.transmeta.com>
+References: <188481168784.20030329130300@btinternet.com> <153495685337.20030329170457@btinternet.com> <1049039985.14686.11.camel@dhcp22.swansea.linux.org.uk> <20030401204850.A6890@bitwizard.nl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -20,25 +20,19 @@ Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0304031548090.12110-100000@serv>
-By author:    Roman Zippel <zippel@linux-m68k.org>
+Followup to:  <20030401204850.A6890@bitwizard.nl>
+By author:    Rogier Wolff <R.E.Wolff@BitWizard.nl>
 In newsgroup: linux.dev.kernel
 > 
-> Yes, I know this mantra now and that's not the problem (or will be fixed 
-> shortly).
-> This still doesn't answer what will come next. You must have _some_ idea, 
-> otherwise you wouldn't add a new interface, remove other infrastructure 
-> and provide a patch which modifies MKDEV & co. All of this only leads us 
-> away from the goal of dynamic device numbers. Why?
+> 504Mb RAM? That sounds like a 512Mb ram with 8Mb "shared"
+> video-ram. 845? Sounds like one of those "everything integrated"
+> chipsets. performance problems? Do you happen to have the video in a
+> high-bandwidth mode?????
 > 
 
-I have an idea, why don't you read the archives of this mailing list
-for the past eight years and learn, once again, why dynamic numbers
-are broken for nearly all applications (disks and ptys being, perhaps,
-the few case where they actually work.)
-
-This has been hashed and rehashed on this list so many times it's not
-even funny.
+Sure enough it is, and I can personally vouch for the fact that my
+845GE system (a Shuttle-X box) got a lot nicer after I dropped a
+Radeon 9000 into the AGP slot :)
 
 	-hpa
 -- 

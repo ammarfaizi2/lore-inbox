@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261702AbTCZOWQ>; Wed, 26 Mar 2003 09:22:16 -0500
+	id <S261664AbTCZO0N>; Wed, 26 Mar 2003 09:26:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261705AbTCZOWQ>; Wed, 26 Mar 2003 09:22:16 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:36800 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP
-	id <S261702AbTCZOWP>; Wed, 26 Mar 2003 09:22:15 -0500
-From: Erik Hensema <usenet@hensema.net>
-Subject: Re: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
-Date: Wed, 26 Mar 2003 14:33:25 +0000 (UTC)
-Message-ID: <slrnb83ehl.196.usenet@bender.home.hensema.net>
-References: <20030326013839.0c470ebb.akpm@digeo.com> <slrnb8373s.19a.usenet@bender.home.hensema.net> <20030326134834.GA11173@win.tue.nl>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S261685AbTCZO0N>; Wed, 26 Mar 2003 09:26:13 -0500
+Received: from ns.innomedia.soft.net ([164.164.79.130]:52402 "EHLO
+	alabama.innomedia.soft.net") by vger.kernel.org with ESMTP
+	id <S261664AbTCZO0N>; Wed, 26 Mar 2003 09:26:13 -0500
+Message-ID: <3E81BB1B.3020007@innomedia.soft.net>
+Date: Wed, 26 Mar 2003 20:07:15 +0530
+From: Akhilesh <sony@innomedia.soft.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Direck IO  on SCSI Disk 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer (aebr@win.tue.nl) wrote:
-> On Wed, Mar 26, 2003 at 12:26:37PM +0000, Erik Hensema wrote:
->> Andrew Morton (akpm@digeo.com) wrote:
->> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm1/
-> 
->> LVM or device mapper seems to be broken in -mm. I've only tried the
->> following kernels so far:
->> 2.5.64 - works
->> 2.5.65-mm2 - doesn't work
->> 2.5.66 - works
->> 2.5.66-mm1 - doesn't work
-> 
-> Probably you are hit by
-> 
->   dev_t-32-bit.patch
->     [for playing only] change type of dev_t
-[...]
-> You can revert this single patch and probably all will be fine.
+Hi all,
 
-For now I've reverted this patch and LVM is working again.
+I want to develop a clustere  file system using independent Blade 
+servers (about 96 in number) running linux. Each blade  having  2 or 
+more SCSI disks attached to it. In order to build our own filesystem  I 
+need to  do direct  writing/reading  in the SCSI disk bypassing all the 
+kernel level buffering. 
 
-> More interesting would be to apply
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103956089203199&w=3
+Could you please suggest some information as how to go about it.
 
-I'd rather not change the ioctl interface, since that would make dual
-booting with 2.5-vanilla harder.
+Best Regards,
+Akhilesh Soni
+Innomedia Technologies Pvt Ltd.
+India
 
--- 
-Erik Hensema <erik@hensema.net>
+
+

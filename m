@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136279AbRAMBwP>; Fri, 12 Jan 2001 20:52:15 -0500
+	id <S136280AbRAMBzz>; Fri, 12 Jan 2001 20:55:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136280AbRAMBwF>; Fri, 12 Jan 2001 20:52:05 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:58378
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S136279AbRAMBvs>; Fri, 12 Jan 2001 20:51:48 -0500
-Date: Fri, 12 Jan 2001 17:51:10 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: John Heil <kerndev@sc-software.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <Pine.LNX.4.10.10101121726590.893-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101121749390.2411-100000@master.linux-ide.org>
+	id <S136263AbRAMBzs>; Fri, 12 Jan 2001 20:55:48 -0500
+Received: from colorfullife.com ([216.156.138.34]:27398 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136170AbRAMBzc>;
+	Fri, 12 Jan 2001 20:55:32 -0500
+Message-ID: <3A5FB4BA.37A9C7E5@colorfullife.com>
+Date: Sat, 13 Jan 2001 02:51:54 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Frank de Lange <frank@unternet.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, dwmw2@infradead.org,
+        linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+In-Reply-To: <20010113014807.B29757@unternet.org> <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com> <20010113022741.D29757@unternet.org>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Linus Torvalds wrote:
-
+Frank de Lange wrote:
 > 
+> It could be that people using those cards are not the ones who tend
+> to go for the (somewhat tricky) BP6 board...
 > 
-> On Fri, 12 Jan 2001, Andre Hedrick wrote:
-> > 
-> > It works perfectly and exactly as it is defined to work by the rules.
-> > Getting the rules correct == 'the concept of "working"'.
-> 
-> Don't be silly.
-> 
-> You're entirely ignoring the concept of hardware bugs. Which is one very
-> likely reason for this whole discussion in the first place.
 
-First you get the access correct and assume no bugs, round one.
-After this is fixed, then you address the "hardware bugs" by execption
-rules and not the basic premis, the endless round.
+I doubt that it's BP6 specific: I have the problem with a Gigabyte BXD
+board and I doubt that Ingo used an BP6. Perhaps 82093AA specific (the
+IO APIC chip used for SMP 440BX board)
 
-Regards,
+I can't find any spec updates for that chip: either it's the first
+perfect chip Intel ever produced, or ...
 
-Andre Hedrick
-Linux ATA Development
-
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

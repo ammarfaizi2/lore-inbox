@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291901AbSBASaS>; Fri, 1 Feb 2002 13:30:18 -0500
+	id <S291905AbSBASlV>; Fri, 1 Feb 2002 13:41:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291905AbSBASaI>; Fri, 1 Feb 2002 13:30:08 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:33700 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291901AbSBAS3z>;
-	Fri, 1 Feb 2002 13:29:55 -0500
-Date: Fri, 1 Feb 2002 13:29:53 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Momchil Velikov <velco@fadata.bg>,
-        Anton Blanchard <anton@samba.org>, Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>, John Stoffel <stoffel@casc.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <20020201132953.A27508@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.33.0202011125030.5026-100000@localhost.localdomain> <Pine.LNX.4.33.0202010903060.2634-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0202010903060.2634-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Feb 01, 2002 at 09:06:37AM -0800
+	id <S291907AbSBASlM>; Fri, 1 Feb 2002 13:41:12 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11022 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291905AbSBASk6>; Fri, 1 Feb 2002 13:40:58 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Continuing /dev/random problems with 2.4
+Date: 1 Feb 2002 10:40:35 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3enf3$93p$1@cesium.transmeta.com>
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 09:06:37AM -0800, Linus Torvalds wrote:
-> Even databases often use multiple files, and quite frankly, a database
-> that doesn't use mmap and doesn't try very hard to not cause extra system
-> calls is going to be bad performance-wise _regardless_ of any page cache
-> locking.
+Followup to:  <1012582401.813.1.camel@phantasy>
+By author:    Robert Love <rml@tech9.net>
+In newsgroup: linux.dev.kernel
+>
+> On Fri, 2002-02-01 at 04:17, Ken Brownfield wrote:
+> 
+> > Robert Love did some /dev/random maintenance a while back, and his
+> > netdev patches are essential for low disk-activity systems.  While his
+> > patches have helped the situation greatly, it appears that there is
+> > something in the random code that can cause extraction of entropy to
+> > permanently exhaust the pool.  Some kind of issue when entropy is near
+> > zero at the time of a read?
+> 
+> Most of the useful fixes actually came in a large update from Andreas
+> Dilger.  Perhaps he would have some insight, too.
+> 
+> Exhausting entropy to zero under high use is not uncommon (that is a
+> motivation for my netdev-random patch).  What boggles me is why it does
+> not regenerate?
+> 
 
-I've always thought that read(2) and write(2) would in the end wind up
-faster than mmap(2)...  Tests in my rewritten cp/rm/mv type utilities
-seem to bear this out.
+The kernel itself sometimes need randomness, and probably manages to
+keep the enthropy pool completely drained.  Remember, /dev/random
+means "don't give me anything unless you can promise it's fresh
+entrophy."
 
-Is mmap(2) only preferred for large files/databases?
+Anything that is meant to be a server really pretty much needs an
+enthropy generator these days.  We really should push vendors to
+provide it (together with serial console firmware and other "well,
+duh" things rackmount servers should have as a matter of course.)
 
-	Jeff
+Once you have software to assist you, meaning that you don't require
+that every bit stepping off the wire is truly random, just a
+predictable minimum, then building an RNG is a trivial number of
+components -- although some care has to be taken in their assembly.
+This means, IMO, that we should push on server motherboard
+manufacturers more so than, for example, chipsets: although
+integration tend to improve pervasiveness, ICs are awfully noisy
+beasts.
 
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

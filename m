@@ -1,65 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVCCRqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVCCRtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVCCRqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 12:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVCCRpv
+	id S261587AbVCCRtq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 12:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVCCRrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 12:45:51 -0500
-Received: from sta.galis.org ([66.250.170.210]:39040 "HELO sta.galis.org")
-	by vger.kernel.org with SMTP id S262540AbVCCRfK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 12:35:10 -0500
-From: "George Georgalis" <george@galis.org>
-Date: Thu, 3 Mar 2005 12:34:59 -0500
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: problem with linux 2.6.11 and sa
-Message-ID: <20050303173459.GC952@ixeon.local>
-Reply-To: george@galis.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Thu, 3 Mar 2005 12:47:14 -0500
+Received: from ptb-relay03.plus.net ([212.159.14.214]:52997 "EHLO
+	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
+	id S262174AbVCCR3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 12:29:00 -0500
+Message-ID: <42274958.4050400@katalix.com>
+Date: Thu, 03 Mar 2005 17:28:56 +0000
+From: James Chapman <jchapman@katalix.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: LM Sensors <sensors@stimpy.netroedge.com>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH: 2.6.11-rc5] i2c chips: add adt7461 support to lm90 driver
+References: <4223513F.4030403@katalix.com>	<20050302165532.GB2311@kroah.com> <20050302203721.7cce650d.khali@linux-fr.org>
+In-Reply-To: <20050302203721.7cce650d.khali@linux-fr.org>
+Content-Type: multipart/mixed;
+ boundary="------------050601020007080701060808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please keep me in cc as I'm not presently subscribed to lkml)
+This is a multi-part message in MIME format.
+--------------050601020007080701060808
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I recall a problem a while back with a pipe from
-/proc/kmsg that was sent by root to a program with a
-user uid. The fix was to run the logging program as
-root. Has that protected pipe method been extended
-since 2.6.8.1?
+A revised adt7461 patch addressing all of Jean's comments is
+attached.
 
-
-I'm very defiantly seeing a problem with the 2.6.11
-kernel and my spamassassin setup. However, it's not
-clear exactly where the problem is, seems like sa
-but it might be 2.6.11 with daemontools + qmail +
-QMAIL_QUEUE.
-
-A sure sign of it is no logs (with debug) for
-remote sa connections which score "0/0" and correct
-operation with local "cat spam.txt | spamc -R"; fix
-is to use the older kernel.
-
-SA has stopped stdout logging completely with 2.6.11
-in addition to the all pass score. But the message
-seems to go through my temp queue (for testing) and
-sent on to my local MDA. I'm not sure if it's a sa
-problem with the kernel or the new kernel doing
-something new with pipes from tcp connections.
-Maybe the new kernel is not making files available
-(eg 0 bytes), until the writing pipe is closed?
-That would make my SA test a zero byte file, which
-would pass, close, become full, and the file piped
-to local MDA is full? ...humm then I'd get a score
-of "0/5"... this sounds like a SA problem with the
-new kernel, ideas?
+This driver will detect the adt7461 chip only if boot firmware
+has left the chip in its default lm90-compatible mode.
 
 
-// George
 
+--------------050601020007080701060808
+Content-Type: text/plain;
+ name="adt7461.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="adt7461.patch"
 
--- 
-George Georgalis, systems architect, administrator Linux BSD IXOYE
-http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org
+i2c: add adt7461 chip support
 
+Signed-off-by: James Chapman <jchapman@katalix.com>
+
+The Analog Devices ADT7461 temperature sensor chip is compatible with
+the lm90 device provided its extended temperature range is not
+enabled.  The chip will be ignored if the boot firmware enables
+extended temperature range.
+
+Also, since the adt7461 treats temp values <0 as 0 and >127 as 127,
+the driver prevents temperature values outside the supported range
+from being set.
+
+Index: linux-2.6.i2c/drivers/i2c/chips/lm90.c
+===================================================================
+--- linux-2.6.i2c.orig/drivers/i2c/chips/lm90.c	2005-03-03 15:02:40.000000000 +0000
++++ linux-2.6.i2c/drivers/i2c/chips/lm90.c	2005-03-03 15:44:34.000000000 +0000
+@@ -43,6 +43,12 @@
+  * variants. The extra address and features of the MAX6659 are not
+  * supported by this driver.
+  *
++ * This driver also supports the ADT7461 chip from Analog Devices but
++ * only in its "compatability mode". If an ADT7461 chip is found but
++ * is configured in non-compatible mode (where its temperature
++ * register values are decoded differently) it is ignored by this
++ * driver.
++ *
+  * Since the LM90 was the first chipset supported by this driver, most
+  * comments will refer to this chipset, but are actually general and
+  * concern all supported chipsets, unless mentioned otherwise.
+@@ -76,6 +82,7 @@
+  * LM86, LM89, LM90, LM99, ADM1032, MAX6657 and MAX6658 have address 0x4c.
+  * LM89-1, and LM99-1 have address 0x4d.
+  * MAX6659 can have address 0x4c, 0x4d or 0x4e (unsupported).
++ * ADT7461 always has address 0x4c.
+  */
+ 
+ static unsigned short normal_i2c[] = { 0x4c, 0x4d, I2C_CLIENT_END };
+@@ -85,7 +92,7 @@
+  * Insmod parameters
+  */
+ 
+-SENSORS_INSMOD_5(lm90, adm1032, lm99, lm86, max6657);
++SENSORS_INSMOD_6(lm90, adm1032, lm99, lm86, max6657, adt7461);
+ 
+ /*
+  * The LM90 registers
+@@ -180,6 +187,7 @@
+ 	struct semaphore update_lock;
+ 	char valid; /* zero until following fields are valid */
+ 	unsigned long last_updated; /* in jiffies */
++	int kind;
+ 
+ 	/* registers values */
+ 	s8 temp_input1, temp_low1, temp_high1; /* local */
+@@ -221,6 +229,8 @@
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct lm90_data *data = i2c_get_clientdata(client); \
+ 	long val = simple_strtol(buf, NULL, 10); \
++	if ((data->kind == adt7461) && ((val < 0) || (val > 127000))) \
++		return -EINVAL; \
+ 	data->value = TEMP1_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, reg, data->value); \
+ 	return count; \
+@@ -232,6 +242,8 @@
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct lm90_data *data = i2c_get_clientdata(client); \
+ 	long val = simple_strtol(buf, NULL, 10); \
++	if ((data->kind == adt7461) && ((val < 0) || (val > 127000))) \
++		return -EINVAL; \
+ 	data->value = TEMP2_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, regh, data->value >> 8); \
+ 	i2c_smbus_write_byte_data(client, regl, data->value & 0xff); \
+@@ -386,6 +398,12 @@
+ 			 && (reg_config1 & 0x3F) == 0x00
+ 			 && reg_convrate <= 0x0A) {
+ 				kind = adm1032;
++			} else
++			if (address == 0x4c
++			 && chip_id == 0x51 /* ADT7461 */
++			 && (reg_config1 & 0x3F) == 0x00
++			 && reg_convrate <= 0x0A) {
++				kind = adt7461;
+ 			}
+ 		} else
+ 		if (man_id == 0x4D) { /* Maxim */
+@@ -423,12 +441,15 @@
+ 		name = "lm86";
+ 	} else if (kind == max6657) {
+ 		name = "max6657";
++	} else if (kind == adt7461) {
++		name = "adt7461";
+ 	}
+ 
+ 	/* We can fill in the remaining client fields */
+ 	strlcpy(new_client->name, name, I2C_NAME_SIZE);
+ 	new_client->id = lm90_id++;
+ 	data->valid = 0;
++	data->kind = kind;
+ 	init_MUTEX(&data->update_lock);
+ 
+ 	/* Tell the I2C layer a new client has arrived */
+
+--------------050601020007080701060808--

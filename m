@@ -1,41 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbRCBX5Z>; Fri, 2 Mar 2001 18:57:25 -0500
+	id <S130172AbRCCAE0>; Fri, 2 Mar 2001 19:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130167AbRCBX5Q>; Fri, 2 Mar 2001 18:57:16 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:5556 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130162AbRCBX5G>; Fri, 2 Mar 2001 18:57:06 -0500
-Message-ID: <3AA03354.A07F5179@uow.edu.au>
-Date: Sat, 03 Mar 2001 10:57:08 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+	id <S130173AbRCCAEQ>; Fri, 2 Mar 2001 19:04:16 -0500
+Received: from gatekeeper.corp.netcom.net.uk ([194.42.224.25]:30426 "EHLO
+	gatekeeper") by vger.kernel.org with ESMTP id <S130172AbRCCAEB>;
+	Fri, 2 Mar 2001 19:04:01 -0500
+Message-ID: <3AA034DA.1C3ADA41@ops.netcom.net.uk>
+Date: Sat, 03 Mar 2001 00:03:38 +0000
+From: Bill Crawford <bill@ops.netcom.net.uk>
+Reply-To: billc@netcomuk.co.uk
+Organization: Netcom Internet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Collectively Unconscious <swarm@warpcore.provalue.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: I/O problem with sustained writes
-In-Reply-To: <3AA00D5A.44FA21D0@mandrakesoft.com> <Pine.LNX.4.10.10103021455500.29369-100000@warpcore.provalue.net>
+To: Pavel Machek <pavel@suse.cz>
+CC: Bill Crawford <billc@netcomuk.co.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Daniel Phillips <phillips@innominate.de>
+Subject: Re: Hashing and directories
+In-Reply-To: <3A959BFD.B18F833@netcomuk.co.uk> <20000101020213.D28@(none)>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Collectively Unconscious wrote:
-> 
-> We are having a problem with writes.
-> They start at 14 M/s for the first hour and then drop to 2.5 M/s and stay
-> that way. Reads do not seem effected and we've noticed this on the 2.2.16,
-> 2.2.17, 2.2.18 and now the 2.2.19pre11 kernels.
-> 
-> These are SMP P-IIIs from 450 to 800 MHz. Redhat 6.2
+Pavel Machek wrote:
 
-I've seen something similar on Seagate ST313021A IDE drives.
-After a few minutes their read throughput falls from 20
-megs/sec to about 5.  Issuing *any* drive-setting command
-brings the throughput back.  Even a command which the disk
-doesn't support.
+> Hi!
 
-So I have a cron job which runs `hdparm -A1' once per minute.
+> >  I was hoping to point out that in real life, most systems that
+> > need to access large numbers of files are already designed to do
+> > some kind of hashing, or at least to divide-and-conquer by using
+> > multi-level directory structures.
 
--
+> Yes -- because their workaround kernel slowness.
+
+ Not just kernel ... because we use NFS a lot, directory searching is
+a fair bit quicker with smaller directories (especially when looking
+manually at things).
+
+> I had to do this kind of hashing because kernel disliked 70000 html
+> files (copy of train time tables).
+
+> BTW try rm * with 70000 files in directory -- command line will overflow.
+
+ Sort of my point, again.  There are limits to what is sane.
+
+ Another example I have cited -- our ticketing system -- is a good one.
+If there is subdivision, it can be easier to search subsets of the data.
+Can you imagine a source tree with 10k files, all in one directory?  I
+think *people* need subdivision more than the machines do, a lot of the
+time.  Another example would be mailboxes ... I have started to build a
+hierarchy of mail folders because I have more than a screenful.
+
+> Yes? Easier to type cat timetab1/2345 that can timetab12345? With bigger
+> command line size, putting i into *one& directory is definitely easier.
+
+ IMO (strictly my own) it is often easier to have things subdivided.
+I have had to split up my archive of linux tarballs and patches because
+it was getting too big to vgrep.
+
+> >  A couple of practical examples from work here at Netcom UK (now
+> > Ebone :), would be say DNS zone files or user authentication data.
+> > We use Solaris and NFS a lot, too, so large directories are a bad
+> > thing in general for us, so we tend to subdivide things using a
+> > very simple scheme: taking the first letter and then sometimes
+> > the second letter or a pair of letters from the filename.  This
+> > actually works extremely well in practice, and as mentioned above
+> > provides some positive side-effects.
+
+> Positive? Try listing all names that contain "linux" with such case. I'll
+> do ls *linux*. You'll need ls */*linux* ?l/inux* li/nux*. Seems ugly to
+> me.
+
+ It's not that bad, as we tend to be fairly consistent in a scheme.  I
+only have to remember one of those combinations at a time :)
+
+ Anyway, again I apologise for starting or continuing (I forget which)
+this thread.  I really do understand (and agree with) the arguments for
+better directory performance.  I have moved to ReiserFS, mainly for the
+avoidance of long fsck (power failure, children pushing buttons, alpha
+and beta testing of 3D graphics drivers).  I *love* being able to type
+"rm -rf linux-x.y.z-acNN" and have the command prompt reappear in less
+than a second.  I intended merely to highlight the danger inherent in
+saying to people "oh look you can put a million entries in a directory
+now" :)
+
+ *whack* bad thread *die* *die*
+
+>                                                                 Pavel
+
+-- 
+/* Bill Crawford, Unix Systems Developer, Ebone (formerly GTS Netcom) */
+#include <stddiscl>
+const char *addresses[] = {
+    "bill@syseng.netcom.net.uk", "Bill.Crawford@ebone.com",     // work
+    "billc@netcomuk.co.uk", "bill@eb0ne.net"                    // home
+};

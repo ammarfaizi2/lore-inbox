@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129696AbRBAAhe>; Wed, 31 Jan 2001 19:37:34 -0500
+	id <S129756AbRBAAhe>; Wed, 31 Jan 2001 19:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129756AbRBAAhY>; Wed, 31 Jan 2001 19:37:24 -0500
-Received: from shell.chaven.com ([207.238.162.18]:35495 "EHLO shell.chaven.com")
-	by vger.kernel.org with ESMTP id <S129916AbRBAAhH>;
-	Wed, 31 Jan 2001 19:37:07 -0500
-Message-ID: <030301c08be6$e494f480$160912ac@stcostlnds2zxj>
-From: "List User" <lists@chaven.com>
-To: "Alan Chandler" <alan@chandlerfamily.org.uk>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com>
-Subject: Re: spelling of disc (disk) in /devfs
-Date: Wed, 31 Jan 2001 18:35:30 -0600
+	id <S129916AbRBAAhZ>; Wed, 31 Jan 2001 19:37:25 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:28424 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129696AbRBAAhG>; Wed, 31 Jan 2001 19:37:06 -0500
+Message-ID: <3A78AFAF.82FCB4F2@Hell.WH8.TU-Dresden.De>
+Date: Thu, 01 Feb 2001 01:37:03 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Keyboard Scancode Problems
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If it's any consolation from (this American) I'm glad it's 'disc' (always
-thought that 'disk' was just for those marketing dweebs who couldn't spell
-right
-in the first place).
 
-Steve
------ Original Message -----
-From: "Alan Chandler" <alan@chandlerfamily.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, January 31, 2001 18:19
-Subject: spelling of disc (disk) in /devfs
+Hi all,
 
+With all the latest kernels (at least since 2.4.0-test12)
+I have had occasional problems with a PS/2 keyboard when
+switching back and forth between X and text consoles.
 
-> I accidentally built my 2.4.1 kernel with /devfs so had a interesting
-> few minutes looking round it to see what it was doing.
->
-> The thing that struck me most was the spelling of disc with a 'c'.  As
-> an Englishman this is the correct spelling for me most of the time,
-> but I have come to accept "as a technical term" disk (as in American)
-> is the right name for these devices.
->
-> I now find myself confused with the new approach.
->
->
-> Alan
->
-> alan@chandlerfamily.org.uk
-> http://www.chandler.u-net.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+In most cases the problem occurs when switching from X to
+a text console, which renders the keyboard totally unusable.
+Pressing any key results in ^W ^E and other garbage.
+Sometimes pressing Ctrl fixes the problem, other times not
+even SysRq works.
 
+The kernel logs the following stuff:
+
+keyboard: unrecognized scancode (70) - ignored
+keyboard: unrecognized scancode (66) - ignored
+keyboard: unknown scancode e0 71
+keyboard: unknown scancode e0 70
+
+and so forth. I cannot reliably reproduce it though.
+
+Can someone enlighten me whether this is a keyboard problem,
+X problem or something wrong with the kernel's console stuff?
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

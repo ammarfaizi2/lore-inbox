@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264398AbTF1F1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 01:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTF1F1r
+	id S264389AbTF1Fbl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 01:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTF1Fbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 01:27:47 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:4524 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S264398AbTF1F1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 01:27:46 -0400
-Date: Fri, 27 Jun 2003 22:42:00 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030627224200.A14560@google.com>
-References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com> <20030627205140.F29149@newbox.localdomain> <20030628031920.GF18676@work.bitmover.com> <1056773286.10255.5.camel@granite>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1056773286.10255.5.camel@granite>; from jpenix@binarytribe.com on Fri, Jun 27, 2003 at 09:08:06PM -0700
+	Sat, 28 Jun 2003 01:31:41 -0400
+Received: from gibson.mw.luc.edu ([147.126.62.56]:33688 "EHLO
+	gibson.mw.luc.edu") by vger.kernel.org with ESMTP id S264389AbTF1Fbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 01:31:39 -0400
+Date: Sat, 28 Jun 2003 00:51:29 -0500 (CDT)
+From: Fluke <fluke@gibson.mw.luc.edu>
+To: linux-poweredge@dell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Dell vs. GPL
+Message-ID: <Pine.LNX.4.44.0306280005000.29249-100000@gibson.mw.luc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 09:08:06PM -0700, Joshua Penix wrote:
-> On Fri, 2003-06-27 at 20:19, Larry McVoy wrote:
-> > On Fri, Jun 27, 2003 at 08:51:40PM -0400, Scott McDermott wrote:
-> > > Larry McVoy on Fri 27/06 17:16 -0700:
-> > > > I don't know if you all realize this but at one point we
-> > > > had corrupted data in several repositories and the backups
-> > > > were also shot.
-> > > 
-> > > ever hear of tapes?
-> > 
-> > bkbits is 45GB of data and growing.  Tapes are completely impractical,
-> > that's why we have hot spares.
-> 
-> Boy you do need a good admin :)  Done correctly, tapes are quite
-> practical for that amount of data.
+  Dell is providing binary only derived works of the Linux kernel and the 
+modutils package at ftp://ftp.dell.com/fixes/boot-floppy-rh9.tar.gz
 
-Totally.  45GB of data is nothing.  Even a terabyte is easily backed up
-with today's [tape] technology.  You can start talking about impractical
-when you get to petabytes. :-)  (ok, dozens of terabytes)
+  The GPL appears to provide four terms under section 3 that Dell may 
+legally redistribute these works:
 
-Hot spares perform a completely different function than backups.
+- In regards to GPL 3a, Dell does *NOT* provide the source code as part of 
+the tar.gz
+- In regards to GPL 3b, Dell does *NOT* provide a written offer as part of 
+the tar.gz
+- In regards to GPL 3c, Dell does *NOT* provide information regarding an 
+offer to the source code as part of the tar.gz
+- Lastly, Dell does *NOT* provide equivalent access to the source code 
+from the same ftp site
 
-/fc
+  I contacted Dell support and recieved confirmation that Dell does not 
+intend to provide the source code to these binary works.  He explained 
+that all Dell fixes are licensed by Dell from third parties for use by 
+Dell customers in binary only form and "Dell does not intend the fixes to 
+be open source products."
+
+  If they don't want to honor the GPL with their fixes, why do they 
+continue to claim to take Linux seriously and why does RedHat continue to 
+back them?
+
+  This is not the first time I have run into Dell trying to mislead 
+customers in regards to open source.  Dell continues to distribute their 
+ESM kernel module under an "open_src" directory and a license which 
+redistricts use, modification and redistribution.  I'm not sure how it 
+could ever qualify as an OSI approved license but it is clear that Dell is 
+trying to pass it off as such.
+
+  I have also tried to contact RedHat activities but based on the responce 
+that I got from Mark Webbink, I don't think RedHat is prepaired to do 
+anything about it.
+
+  Is the GPL as it applies to the kernel intended to be a legal set of 
+requirements or simply a set of optional guidelines like Dell/RedHat seems 
+to be treating it?
+
+Thanks
+

@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266257AbTCELSJ>; Wed, 5 Mar 2003 06:18:09 -0500
+	id <S265373AbTCELKS>; Wed, 5 Mar 2003 06:10:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266292AbTCELSJ>; Wed, 5 Mar 2003 06:18:09 -0500
-Received: from mailgw3a.lmco.com ([192.35.35.7]:65028 "EHLO mailgw3a.lmco.com")
-	by vger.kernel.org with ESMTP id <S266257AbTCELSI>;
-	Wed, 5 Mar 2003 06:18:08 -0500
-Content-return: allowed
-Date: Wed, 05 Mar 2003 06:28:36 -0500
-From: "Reed, Timothy A" <timothy.a.reed@lmco.com>
-Subject: High Mem Options
-To: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-Message-id: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
-MIME-version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
+	id <S265414AbTCELKS>; Wed, 5 Mar 2003 06:10:18 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17925 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S265373AbTCELKR>; Wed, 5 Mar 2003 06:10:17 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303051122.h25BMC1O000759@81-2-122-30.bradfords.org.uk>
+Subject: Re: Those ruddy punctuation fixes
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Wed, 5 Mar 2003 11:22:12 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030305111015.B8883@flint.arm.linux.org.uk> from "Russell King" at Mar 05, 2003 11:10:15 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-	Yet another quick question...is there any down side to using the
-64GB option over the 4GB option if the machine only has 2GB of RAM onboard??
-I would think this would be a performance issue?  Does the kernel only use
-the translation table if it has to access any memory location over 4GB?
+> Could we stop fix^wbreaking this stuff please.  GCC 3.2.2:
+> 
+> include/asm/proc-fns.h:128:39: missing terminating ' character
 
-TIA
-Tim Reed
-Email: timothy.a.reed@lmco.com
+Ah, but the 'real' fix is to never use a word which requires an
+apostrophe - E.G.
 
+I can't apply this patch -> I can not apply this patch
+Russell's patch -> The patch which Russell wrote
+
+:-)
+
+John.

@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131097AbRAaUVz>; Wed, 31 Jan 2001 15:21:55 -0500
+	id <S130663AbRAaUja>; Wed, 31 Jan 2001 15:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131120AbRAaUVp>; Wed, 31 Jan 2001 15:21:45 -0500
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:5650 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id <S131097AbRAaUVg>; Wed, 31 Jan 2001 15:21:36 -0500
-To: R.A.Reitsma@wbmt.tudelft.nl
-Cc: kaos@ocs.com.au, miles@megapath.net, linux-kernel@vger.kernel.org,
-        pellicci@home.com, Markus.Kuhn@cl.cam.ac.uk
-Subject: RE: 2.4.1 -- Unresolved symbols in radio-miropcm20.o
-From: Robert Siemer <Robert.Siemer@gmx.de>
-In-Reply-To: <NCBBIEBKAIAPGJDGPNCJOENCCFAA.R.A.Reitsma@wbmt.tudelft.nl>
-In-Reply-To: <4987.980895146@ocs3.ocs-net>
-	<NCBBIEBKAIAPGJDGPNCJOENCCFAA.R.A.Reitsma@wbmt.tudelft.nl>
-X-Mailer: Mew version 1.94b25 on Emacs 20.5 / Mule 4.0 (HANANOEN)
-Reply-To: Robert Siemer <siemer@panorama.hadiko.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010131212120R.siemer@panorama.hadiko.de>
-Date: Wed, 31 Jan 2001 21:21:20 +0100
-X-Dispatcher: imput version 990425(IM115)
+	id <S131048AbRAaUjU>; Wed, 31 Jan 2001 15:39:20 -0500
+Received: from entropy.muc.muohio.edu ([134.53.213.10]:47491 "EHLO
+	entropy.muc.muohio.edu") by vger.kernel.org with ESMTP
+	id <S130663AbRAaUjJ>; Wed, 31 Jan 2001 15:39:09 -0500
+Date: Wed, 31 Jan 2001 15:38:55 -0500 (EST)
+From: George <greerga@entropy.muc.muohio.edu>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Bernd Eckenfels <inka-user@lina.inka.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Request: increase in PCI bus limit
+In-Reply-To: <20010131005519.D18746@cadcamlab.org>
+Message-ID: <Pine.LNX.4.30.0101311535130.24040-100000@entropy.muc.muohio.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Ruurd A. Reitsma" <R.A.Reitsma@wbmt.tudelft.nl>
+On Wed, 31 Jan 2001, Peter Samuelson wrote:
 
-> >Miles Lane <miles@megapath.net> wrote:
-> >>depmod: *** Unresolved symbols in
-> >>/lib/modules/2.4.1/kernel/drivers/media/radio/radio-miropcm20.o
-> >>depmod: 	aci_write_cmd
-> >>depmod: 	aci_indexed_cmd
-> >>depmod: 	aci_write_cmd_d
+>[Bernd Eckenfels]
+>> May even decrease the kernel for systems < 4 busses.
+>
+>Be careful, though.  Users may set this thinking "I have a generic
+>system with only one PCI bus" without realizing that AGP, cardbus and
+>some motherboard devices are all counted.  Pad the CONFIG option by
+>about 4 busses and we'll be OK..
 
-> appearently Robert Siemer's patch didn't make it to the actual
-> kernel. He did change the config.in and made some changes to aci.c
-> to support his version of the firmware. He'll probably be happy to
-> maintain the driver since I threw out the pcm20 card.
+If someone says 1 bus, give them one bus.
 
-Many thanks, Ruurd, for mailing me, too! - I'm not reading
-linux-kernel completely and looked only for 'aci' is subjects...
+Just make the description say:
+  Add 1 for every PCI
+  Add 1 for every AGP
+  Add 1 for every CardBus
+  Also account for anything else funny in the system.
 
-First, I've put up a new patch, so don't use this old one. Please read
-my post to linux-kernel:
-http://boudicca.tux.org/hypermail/linux-kernel/latest/0133.html
-
-Second, the described problem is solved: the functions don't exists
-anymore... (:
-
-Third, my patch still has the same problem. <-:  As noted, try my
-patch only when aci and radio-pcm20 is selected as module.
-I will work on this issue.
-
-And I have a request to everyone owning a miroSOUND (or Cardinal
-Technologies) card:
-Please try my patch and send me the version line. Mine looks like:
-<ACI 0x07, id 6d/43 "m/C", (PCM20 radio)> at 0x344
-
-The patch has some enhancements over the original; read more in my
-first post:
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0009.2/0260.html
-
-The plans for the future are a well done support of the RDS functions
-for the "PCM20 radio" and maybe an ALSA driver. This would help me to
-support the equalizer in the "PCM20 radio" better.
+Then panic on boot if they're wrong (sort of like processor type).
 
 
-Thanks,
-	Robert
+It's somewhat annoying that by choosing SMP NR_CPUS goes to 32 when I know
+I only have (and ever will have) 2 in this machine.  Don't make busses have
+the same assumptions that just waste memory.
+
+-George Greer
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

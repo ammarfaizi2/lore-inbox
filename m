@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286359AbRLJThq>; Mon, 10 Dec 2001 14:37:46 -0500
+	id <S286184AbRLJTmg>; Mon, 10 Dec 2001 14:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286301AbRLJThh>; Mon, 10 Dec 2001 14:37:37 -0500
-Received: from walt.tsc.com ([149.97.1.20]:25611 "EHLO mail.tsc.com")
-	by vger.kernel.org with ESMTP id <S286184AbRLJTh0>;
-	Mon, 10 Dec 2001 14:37:26 -0500
-Message-ID: <3C150FD8.290BCBEC@savemail.com>
-Date: Mon, 10 Dec 2001 14:41:12 -0500
-From: Bob Poortinga <bobp@savemail.com>
-X-Mailer: Mozilla 4.7 [en] (Win95; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S286360AbRLJTm1>; Mon, 10 Dec 2001 14:42:27 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:6667 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S286184AbRLJTmL>; Mon, 10 Dec 2001 14:42:11 -0500
+Date: Mon, 10 Dec 2001 20:41:57 +0100
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Upgrade to 2.4.16 produces "Kernel panic: No init found"
+Subject: Re: Compile error 2.4.1-pre8
+Message-ID: <20011210194157.GA2220@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <20011210131425.A24397@rene-engelhard.de> <20011210133558.A24786@rene-engelhard.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011210133558.A24786@rene-engelhard.de>
+User-Agent: Mutt/1.3.24i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello kernel gurus,
+On Mon, Dec 10, 2001 at 01:35:58PM +0100, Rene Engelhard wrote:
+> Rene Engelhard wrote:
+> > I'm gonna want to start with helping developing the kernel and I have
+> > the following compile error at make bzImage from 2.5.1-pre8:
+> 
+> Sorry, I forgot my .config.
+> 
+I don't know anything about your error, but could you please run
+egrep "=m$|=y$" on your .config before posting? We all know what
+comments are in a .config, and they are not interesting!
 
-I have searched the list archives and google'd myself silly, but I
-can't seem to find a solution to my problem.
-
-I am trying to update my 2.4.3 kernel (Mandrake 8.0 distro) to 2.4.16.
-I did a 'make oldconfig' with my old .config file and added ext3 kernel
-support in addition to ext2.  My root fs is ext2 (as are all my fs).
-The new kernel boots but panics when it tries to mount the root fs.
-Here is the error:
---------------------------------------------------------------------
-Mounting /proc filesystem
-Creating root device
-Mounting root filesystem
-pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-Freeing unused kernel memory: 216k freed
-Kernel panic: No init found.  Try passing init= option to kernel.
---------------------------------------------------------------------
-
-There are no other errors displayed.  I upgraded a number of packages,
-but I might have missed something.  My current versions are:
-
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-GNU ld version 2.11.90.0.8 (with BFD 2.11.90.0.8)
-glibc 2.2.4-13
-insmod version 2.4.6
-mkinitrd 3.2.6-1
-
-My system is a dual PII (300 mhz) with 512mb and AIC-7880 scsi.
-Kernel options SMP and 686 have been selected.
-
-Does the 2.4.16 kernel require an ext3 root fs if ext3 support is
-compiled in?  I don't want to risk upgrading my root fs to ext3
-because then my old kernel will not boot.
-
-Any ideas?
-
+Thanks,
+Jurriaan
 -- 
-Bob Poortinga
-Technology Service Corp.
+hundred-and-one symptoms of being an internet addict:
+256. You are able to write down over 250 symptoms of being an internet
+addict, even though they only asked for 101.
+GNU/Linux 2.4.17-pre7 on Debian/Alpha 64-bits 992 bogomips load:0.59 0.29 0.13

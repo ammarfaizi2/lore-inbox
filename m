@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312713AbSCZU4Z>; Tue, 26 Mar 2002 15:56:25 -0500
+	id <S312719AbSCZVGr>; Tue, 26 Mar 2002 16:06:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312716AbSCZU4F>; Tue, 26 Mar 2002 15:56:05 -0500
-Received: from CPE-203-51-26-123.nsw.bigpond.net.au ([203.51.26.123]:29423
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S312713AbSCZUzt>; Tue, 26 Mar 2002 15:55:49 -0500
-Message-ID: <3CA0E051.918CF69@eyal.emu.id.au>
-Date: Wed, 27 Mar 2002 07:55:45 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Announcement] patch-2.0.40-rc4
-In-Reply-To: <20020317135322.J3301@khan.acc.umu.se>
+	id <S312720AbSCZVGh>; Tue, 26 Mar 2002 16:06:37 -0500
+Received: from pool-151-204-73-76.delv.east.verizon.net ([151.204.73.76]:516
+	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
+	id <S312719AbSCZVGW>; Tue, 26 Mar 2002 16:06:22 -0500
+Date: Tue, 26 Mar 2002 16:06:38 -0500
+From: Malcolm Mallardi <magamo@ranka.2y.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre4-ac1 vmware and emu10k1 problems
+Message-ID: <20020326160638.A2103@trianna.upcommand.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> 
-> I'm releasing another -rc with this change, just to stick to my
-> promise that the last pre-patch will be identical with the final
-> release.
-> 
-> 2.0.40-rc4
+The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
+under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
+counterparts.  Here is the errors that I get from vmware-config.pl:
 
-I am trying to build on Debian, which is on gcc 2.95.4. I get some
-asm errrors regarding illegal registers.
+Building the vmmon module.
 
-I did apply a patch linux-2.0.x.patch to fix some other errors.
+make: Entering directory `/tmp/vmware-config1/vmmon-only'
+make[1]: Entering directory `/tmp/vmware-config1/vmmon-only'
+make[2]: Entering directory
+`/tmp/vmware-config1/vmmon-only/driver-2.4.19-pre4-ac1'
+In file included from .././linux/driver.c:38:
+/lib/modules/2.4.19-pre4-ac1/build/include/linux/malloc.h:4: #error
+linux/malloc.h is deprecated, use linux/slab.h instead.
+make[2]: *** [driver.d] Error 1
+make[2]: Leaving directory
+`/tmp/vmware-config1/vmmon-only/driver-2.4.19-pre4-ac1'
+make[1]: *** [deps] Error 2
+make[1]: Leaving directory `/tmp/vmware-config1/vmmon-only'
+make: *** [auto-build] Error 2
+make: Leaving directory `/tmp/vmware-config1/vmmon-only'
+Unable to build the vmmon module.
 
-Is there a patch to fix this or do I have to use an older gcc?
+
+Also, under 2.4.19-pre4-ac1, when the emu10k1 module is loaded, I get a
+large amount of constant static until I rmmod it.  2.4.19-pre4's
+initialization of the emu10k1 driver is fine, and when the emu10k1
+driver is replaced with the latest CVS version of the emu10k1 driver,
+it initializes and performs normally.
 
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Malcolm D. Mallardi - Dark Freak At Large
+"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
+AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
+http://ranka.2y.net:8008/~magamo/index.htm

@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317022AbSGSUgu>; Fri, 19 Jul 2002 16:36:50 -0400
+	id <S317023AbSGSUkB>; Fri, 19 Jul 2002 16:40:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317023AbSGSUgt>; Fri, 19 Jul 2002 16:36:49 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:50429 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S317022AbSGSUgt>;
-	Fri, 19 Jul 2002 16:36:49 -0400
-Message-ID: <3D3875E7.BDFC00DE@mvista.com>
-Date: Fri, 19 Jul 2002 13:26:15 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: dank@kegel.com
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "high-res-timers-discourse@lists.sourceforge.net" 
-	<high-res-timers-discourse@lists.sourceforge.net>
-Subject: Re: high resolution timers in 2.5? (was: [2.6] The List, pass #2)
-References: <3D38442B.FC307ADE@kegel.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S317025AbSGSUkB>; Fri, 19 Jul 2002 16:40:01 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:13527 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317023AbSGSUkA>;
+	Fri, 19 Jul 2002 16:40:00 -0400
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
+From: Michael Hohnbaum <hohnbaum@us.ibm.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D3875D4.3090102@us.ibm.com>
+References: <3D3875D4.3090102@us.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 19 Jul 2002 13:40:42 -0700
+Message-Id: <1027111243.1269.94.camel@dyn9-47-17-90.beaverton.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dank@kegel.com wrote:
-> 
-> Mark Salisbury wrote:
-> > On Friday 19 July 2002 00:47, Guillaume Boissiere wrote:
-> > > Would be nice to have before feature freeze, but most likely 2.7:
-> > >   o High resolution timers
-> >
-> > this has been done for almost a year now, what is holding it up?
-> 
-> I don't know, but it's about time.  George Anziger should know.
-> 
-> George,
-> Have you submitted a high-resolution-timers patch to Linux for 2.5?
-> I seem to recall he didn't like the patch when he first saw
-> it, but that was so long ago presumably it's much cleaner now?
-> - Dan
-That was really a very different patch.  The hang up has
-been time to work on the code.  There are a few, minor,
-changes, like eliminating nanosleep() (it should call
-clock_nanosleep()), and then the code clean up to remove all
-the debug cruft.  
+On Thursday 18 July 2002 10:31 am, Martin J. Bligh wrote:
+> > Do you think the breakdown is realistic?
+>
+> Here's a list of other things I am hoping to see merged:
+>
+> shared pagetables
+> large page support
+> NUMA aware multipath IO
+> NUMA aware scheduler extensions
+> ia32 discontigmem support for NUMA machines
+> NUMA aware slab allocator
+> CONFIG_NONLINEAR (in some form, quite possibly a cut down version)
+> shared pagetables
+> large page support
+> rcu rtcache
+> rcu dcache
 
-The next bit I want to submit is the changes to the timer
-queue to allow subjiffie timers...
+The work for the mentioned NUMA items is quite active.  Some of
+the pieces have already been submitted and others are near completion.
+I would hope that the items mentioned by Martin make it into the 2.5
+kernel.  The NUMA changes tend to be very easy to isolate such that 
+they only affect kernels built with the appropriate NUMA config options.
 
-I am hoping to convince my boss to allow me to work on this
-full time so I can make some real progress.  As always, any
-help will be gratefully accepted :)
+>From my list of NUMA items:
+
+NUMA memory allocation
+NUMA aware scheduler
+Topology representation in kernel
+Memory binding API
+Per-zone swapd
+Multipath support
+
+Also, not NUMA specific but beneficial to databases (which tend to
+run on NUMA platforms) is a fast user space gettimeofday capability.
+This shows up in the AMD-64 port as vsyscalls.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+
+Michael Hohnbaum                      503-578-5486
+hohnbaum@us.ibm.com                   T/L 775-5486
+

@@ -1,30 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbUKGFtp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbUKGF4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbUKGFtp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 00:49:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUKGFto
+	id S261540AbUKGF4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 00:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUKGF4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 00:49:44 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:58959 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261511AbUKGFri (ORCPT
+	Sun, 7 Nov 2004 00:56:43 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:16515 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261540AbUKGFyQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 00:47:38 -0500
+	Sun, 7 Nov 2004 00:54:16 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=huq/B1IdtrKeq/aNYWDRJw3BRUlq3JXoSDAFlXkjQE3ti+Sq6kuodZi1KW1OjxpsFW8zpT338VXUfR086hzEzNG5NKdRiNr6jRlC7bJPiA0tviLHkdKuCiS6W5AyFtB8D1ehhNXipVtTzc+SKrGOgPMCCgraNfVqpMeNT2hxWFk=
-Message-ID: <aad1205e04110621472123bf67@mail.gmail.com>
-Date: Sun, 7 Nov 2004 13:47:38 +0800
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=WSN+w7/46mhJqdrYRPXA+pF7D2qRwUYO+h/LyQSsg3d45sSXHijGl/ek5j7PVEMmfRf7o+/qMgJqLhYcw+uwKCZWSudoef4TktPp8/cpaW9alZv44ei8CQ5t58hDxKDUeLBFmMnBVb/hrVOp5eSuRG+NU94b7vrJQumMfzf4Fo4=
+Message-ID: <aad1205e041106215456203729@mail.gmail.com>
+Date: Sun, 7 Nov 2004 13:54:16 +0800
 From: andyliu <liudeyan@gmail.com>
 Reply-To: andyliu <liudeyan@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH]a tar filesystem for 2.6.10-rc1-mm3
-Cc: akpm@osdl.org
-In-Reply-To: <aad1205e04110523176bf66a37@mail.gmail.com>
+Subject: [PATCH] a tar filesystem for 2.6.*(easily access tar file)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <aad1205e04110523176bf66a37@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -1560,6 +1557,8 @@ linux-2.6.10-rc1-tarfs/fs/tarfs/tarinf.h
 +  char isextended;
 +  char realsize[12];
 +};
+
+
 
 
 -- 

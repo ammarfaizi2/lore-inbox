@@ -1,69 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbUCXWu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 17:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUCXWu3
+	id S262514AbUCXWvV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 17:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUCXWvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 17:50:29 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:38559 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S262493AbUCXWu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 17:50:28 -0500
-Date: Thu, 25 Mar 2004 06:46:12 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Cc: "Nigel Cunningham" <ncunningham@users.sourceforge.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Swsusp mailing list" <swsusp-devel@lists.sourceforge.net>,
-       "Andrew Morton" <akpm@osdl.org>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040323095318.GB20026@hmmn.org> <20040323214734.GD364@elf.ucw.cz> <200403231743.01642.dtor_core@ameritech.net> <20040323233228.GK364@elf.ucw.cz> <1080081653.22670.15.camel@calvin.wpcb.org.au> <20040323234449.GM364@elf.ucw.cz> <opr5ci61g54evsfm@smtp.pacific.net.th> <20040324101704.GA512@elf.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr5d1jave4evsfm@smtp.pacific.net.th>
-In-Reply-To: <20040324101704.GA512@elf.ucw.cz>
-User-Agent: Opera M2/7.50 (Linux, build 615)
+	Wed, 24 Mar 2004 17:51:21 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:9668 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S262514AbUCXWvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 17:51:12 -0500
+Date: Wed, 24 Mar 2004 17:50:12 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: [PATCH] export complete_all
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <406210A4.4030609@sun.com>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary=------------060100040204060507050407
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-May I request that you leave the authors headers intact when quoting. Thank you.
+This is a multi-part message in MIME format.
+--------------060100040204060507050407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 24 Mar 2004 11:17:04 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->> >>So why aren't you arguing against bootsplash too? That definitely
->> >>obscures such an error :> Of course we could argue that such an error
->> >>shouldn't happen and/or will be obvious via other means (assuming it
->> >>indicates hardware failure).
->> >
->> >Of course I *am* against bootsplash. Unfortunately I've probably lost
->> >that war already. But at least it is not in -linus tree (and that's
->> >what I use anyway) => I gave up with bootsplash-equivalents, as long
->> >as they don't come to linus.
->> >
->> >[And I believe Linus would shoot down bootsplash-like code, anyway.]
+No idea why it hasn't been done already, but complete_all wasn't
+exported while complete was.
 
-Why? Joe consumer wants it.
+Please apply,
 
-As to the ever growing size of the kernel, there could be a official addons/tools
-tree with non-core functions maintained by a seperate maintainer. Things like
-debuggers, profiling or (swsusp) debug support could go there as well...
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+mailto: Michael.Waychison@Sun.COM
+http://www.sun.com
 
->>
->> Solution: Auto switch to non-swsusp VT on error showing the error message.
->
-> Hmm, at that point you loose context, like now you know what error
-> happened, but do not know at which phase of suspend. That's pretty bad
-> too.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Right, Good idea!  Just  print always "ugly" swsusp context on a text VT - plus any
-error messages  - and switch over to this VT in printk when not in interrupt
-context. 10 lines of code or so in printk ;)
+iD8DBQFAYhCjdQs4kOxk3/MRAsfQAJ9UuLA3lcBctZl0S961wCFVgE9x6wCfSFlt
+HHJ72qURp63J5cPKoojMDvY=
+=l/qU
+-----END PGP SIGNATURE-----
 
-Michael
+--------------060100040204060507050407
+Content-Type: text/x-patch;
+ name="export_complete_all.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="export_complete_all.patch"
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1493  -> 1.1494 
+#	      kernel/sched.c	1.255   -> 1.256  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/03/24	michael.waychison@fp-b7-17.sfbay.sun.com	1.1494
+# sched.c:
+#   - Export complete_all for module use.
+# --------------------------------------------
+#
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Wed Mar 24 15:30:26 2004
++++ b/kernel/sched.c	Wed Mar 24 15:30:26 2004
+@@ -1869,6 +1869,8 @@
+ 	spin_unlock_irqrestore(&x->wait.lock, flags);
+ }
+ 
++EXPORT_SYMBOL(complete_all);
++
+ void fastcall wait_for_completion(struct completion *x)
+ {
+ 	might_sleep();
 
-
-
-
+--------------060100040204060507050407--

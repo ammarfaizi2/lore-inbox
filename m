@@ -1,99 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbUC2Dza (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 22:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUC2Dza
+	id S262592AbUC2D5c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 22:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUC2D5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 22:55:30 -0500
-Received: from mailout2.samsung.com ([203.254.224.25]:22483 "EHLO
-	mailout2.samsung.com") by vger.kernel.org with ESMTP
-	id S262589AbUC2Dz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 22:55:28 -0500
-Date: Mon, 29 Mar 2004 12:54:24 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: RE: [ANNOUNCE] 2.6.4-hsc1 patch for MMU-less ARM is available.
-In-reply-to: <20040328200026.A10359@flint.arm.linux.org.uk>
-To: "'Russell King - ARM Linux'" <linux@arm.linux.org.uk>,
-       Greg Ungerer <gerg@snapgear.com>, Christoph Hellwig <hch@infradead.org>
-Cc: Linux-Kernel List <linux-kernel@vger.kernel.org>,
-       uClinux development list <uclinux-dev@uclinux.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk
-Message-id: <005201c41541$86d46320$7dc2dba8@dmsst.net>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Sun, 28 Mar 2004 22:57:32 -0500
+Received: from mail.tmr.com ([216.238.38.203]:3210 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S262592AbUC2D5a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 22:57:30 -0500
+Message-ID: <40679ED8.1060502@tmr.com>
+Date: Sun, 28 Mar 2004 22:58:16 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jad Saklawi <jad@saklawi.info>
+CC: linux-kernel@vger.kernel.org, hisham@hisham.cc, llug-users@greencedars.org
+Subject: Re: Fwd: MAC / IP conflict
+References: <405D239B.30602@mail.portland.co.uk>
+In-Reply-To: <405D239B.30602@mail.portland.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jad Saklawi wrote:
+> ----- Forwarded message from Hisham Mardam Bey -----
+>    Date: Sun, 21 Mar 2004 13:52:59 +0200
+> 
+> In short, I need to detect when someone on the network uses my MAC and
+> my IP address.
+> 
+> Longer story follows. I am on a LAN which might have some potentially
+> dangerous users. Those users might spoof my MAC address and additionally
+> use my IP address, thus forcing my box to go offline, and not be able to
+> communicate with my gateway. What I need is a passive way to check for
+> something of the sort, and perhaps a notofication into syslog (the
+> latter is not very important).
 
-RMK> As Christoph said - why do you have a complete copy of the ARM specific
-support,
-RMK>   including lots of stuff which will probably never be used on MMU-less
-CPUs?
+Use arpwatch, it detects ALL changes of IP<=>MAC mapping.
 
-I DO agree with you ;-) The stuffs are to be clean-up(removed) in next
-coming-ups, we planed, already.
-
-Christoph> Is the code really that different that you need a armnommu arch
-instead of merging it into arch/arm?
-RMK> I don't understand this "complete copy and modify" thinking that
-uclinux people seem to have - it's
-RMK> completely against the Linux development methodology.
-
-I think it is just like the arm26 and the m68knommu case. maintenance issue.
-
-a. readability and portability. If you've ever seen armnommu arch files in
-2.4 version, it was just like what you've told, (patching
-on arch/arm, although it was renamed to arch/armnommu). It was very
-obfuscated.
-  In fact, arch/arm supports lots of platforms (e.g. sa, xscale, and so on),
-and they has many machine specific craps on common codes. In some cases, I
-experienced some modification made some side-effects on other platforms.
-  Thus, to increase readability and portability, separating armnommu from
-arm directory could help this. I know that this
-is not a best solution, but we have no other options, I think. In addition,
-it was the way what uc people have done, so that they can work more easily.
-think about it, to merge all arm (with mmu plus without mmu) codes in
-arch/arm can be a right choice, but obviously it makes the codes hard to
-read and hard to port. 
-
-b. armnommu has dependencies with nommu support codes which is maintained by
-uc people. we should test with their working codes. Much of the arch codes
-are for mm. As you said, I think it should be optimized(removed or
-re-written) for armnommu. e.g., mmu-less arm7tdmi, which is one of the main
-target for armnommu, many of files like arm/kernel/head.S is not work at
-all, and the files in arm/mm are not needed.
-
-However, this port is based on RMK codes, if you say this patch must be
-merged into rmk patch, I should agree. ;) but I think to be merged into one
-directory is not good idea.
-
-And for uclinux people, as linuxdevices.com survey says, there exist many
-developers, and they made much efforts, they are linux people also, I think.
-Ignoring them can not be a good idea. 
-
-Best regards,
-Hyok S. Choi
-
-<EOT>
-CHOI, HYOK-SUNG
-Engineer (Linux System Software)
-S/W Platform Lab, Digital Media R&D Center
-Samsung Electronics Co.,Ltd.
-tel: +82-31-200-8594  fax: +82-31-200-3427
-e-mail: hyok.choi@samsung.com
-
-[compile&run]
-main(a){printf(a,34,a="main(a){printf(a,34,a=%c%s%c,34);}",34);}
- 
- 
-
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

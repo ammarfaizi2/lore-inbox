@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSHNUBo>; Wed, 14 Aug 2002 16:01:44 -0400
+	id <S319288AbSHNT6v>; Wed, 14 Aug 2002 15:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319274AbSHNUBo>; Wed, 14 Aug 2002 16:01:44 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:50437 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S315491AbSHNUBn>;
-	Wed, 14 Aug 2002 16:01:43 -0400
-Date: Wed, 14 Aug 2002 22:14:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>, Greg Banks <gnb@alphalink.com.au>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Get rid of shell based Config.in parsers?
-Message-ID: <20020814221400.A1562@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Greg Banks <gnb@alphalink.com.au>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-References: <Pine.LNX.4.44.0208081142390.23063-100000@chaos.physics.uiowa.edu> <20020808164742.GA5780@cadcamlab.org> <20020809041543.GA4818@cadcamlab.org> <3D53D50D.7FA48644@alphalink.com.au> <20020809161046.GB687@cadcamlab.org> <3D579629.32732A73@alphalink.com.au> <20020812154721.GA761@cadcamlab.org> <3D587BA7.1D640926@alphalink.com.au> <20020813180415.B1357@mars.ravnborg.org> <3D59A2DF.3DDA38E8@alphalink.com.au>
+	id <S319290AbSHNT6u>; Wed, 14 Aug 2002 15:58:50 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:43668 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S319288AbSHNT6u>;
+	Wed, 14 Aug 2002 15:58:50 -0400
+Date: Wed, 14 Aug 2002 22:02:40 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre2-ac1 does not compile
+Message-ID: <20020814200240.GS259@khan.acc.umu.se>
+References: <3D5A9451.C240C27A@wanadoo.fr> <20020814184040.A21382@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D59A2DF.3DDA38E8@alphalink.com.au>; from gnb@alphalink.com.au on Wed, Aug 14, 2002 at 10:22:55AM +1000
+In-Reply-To: <20020814184040.A21382@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 14, 2002 at 10:22:55AM +1000, Greg Banks wrote:
-> The trouble is actually achieving that in shell-based parsers where
-> shell code cannot tell whether $CONFIG_EXPERIMENTAL has been used in
-> a condition.
+On Wed, Aug 14, 2002 at 06:40:40PM +0100, Christoph Hellwig wrote:
+> On Wed, Aug 14, 2002 at 07:33:05PM +0200, Jean-Luc Coulon wrote:
+> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6  
+> > -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
+> > -DKBUILD_BASENAME=swap_state  -c -o swap_state.o swap_state.c
+> > swap_state.c:155: macro `PAGE_BUG' used without args
+> 
+> make that a plain BUG() - no idea what drove alan into that..
 
-Where comes the requirement that we shall keep the existing shell 
-based config parsers?
-
-Remembering the CML2 war there were no serious objections about
-shifting away from shell based parsers (but certainly a lot about the
-alternative selected).
-
-It is possible to replace Configure and menuconfig rather easy
-and then see if a new xconfig showed up based on the new parsers.
-This would allow us to do much more advanced semantic checks, and
-give proper warnings to catch errors early.
-The first versions should obviously not introduce new syntax, that
-should evolve over time.
+Shouldn't it be PAGE_BUG(page)?!
 
 
-I dislike seeing arguments that this is not easy/possible in shell based
-parsers. If the chosen technology does not fit the problem domain
-then it's about time to shift technology.
-
-	Sam
+Regards: David
+-- 
+ /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

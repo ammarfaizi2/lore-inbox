@@ -1,106 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUJDAsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268293AbUJDAxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268283AbUJDAsU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 20:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUJDAsU
+	id S268293AbUJDAxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 20:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268294AbUJDAxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 20:48:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13772 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268283AbUJDAsR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 20:48:17 -0400
-Date: Sun, 3 Oct 2004 17:45:39 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041003174539.1652ea2b.pj@sgi.com>
-In-Reply-To: <834330000.1096847619@[10.10.2.4]>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040805190500.3c8fb361.pj@sgi.com>
-	<247790000.1091762644@[10.10.2.4]>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<411685D6.5040405@watson.ibm.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au>
-	<821020000.1096814205@[10.10.2.4]>
-	<20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 3 Oct 2004 20:53:06 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:56756 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268293AbUJDAxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 20:53:02 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20041003195725.GA31882@elte.hu>
+References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu>
+	 <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
+	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
+	 <20040928000516.GA3096@elte.hu> <1096785457.1837.0.camel@krustophenia.net>
+	 <1096786248.1837.4.camel@krustophenia.net>
+	 <1096787179.1837.8.camel@krustophenia.net> <20041003195725.GA31882@elte.hu>
+Content-Type: text/plain
+Message-Id: <1096851180.16648.2.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 03 Oct 2004 20:53:01 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin wrote:
->
-> Mmmm. The fundamental problem I think we ran across (just whilst pondering,
-> not in code) was that some things (eg ... init) are bound to ALL cpus (or
-> no cpus, depending how you word it); i.e. they're created before the cpusets
-> are, and are a member of the grand-top-level-uber-master-thingummy.
+On Sun, 2004-10-03 at 15:57, Ingo Molnar wrote:
+> do you still have the stacktrace too that went to the syslog? What
+> codepath called _mmx_memcpy()?
 > 
-> How do you service such processes? That's what I meant by the exclusive
-> domains aren't really exclusive. 
 
-I move 'em.  I have user code that identifies the kernel threads whose
-cpus_allowed is a superset of cpus_online_map, and I put them in a nice
-little padded cell with init and the classic Unix daemons, called the
-'bootcpuset'.
+Here is an almost identical one (it's even exactly 507 usecs!).  This
+and the one I sent previously were apparently caused by switching from X
+to a text console and back. 
 
-The tasks whose cpus_allowed is a strict _subset_ of cpus_online_map
-need to be where they are.  These are things like the migration helper
-threads, one for each cpu.  They get a license to violate cpuset
-boundaries.
+Sep  2 16:13:49 krustophenia kernel: (events/0/3): new 507 us maximum-latency critical section.
+Sep  2 16:13:49 krustophenia kernel:  => started at: <kernel_fpu_begin+0x15/0x70>
+Sep  2 16:13:49 krustophenia kernel:  => ended at:   <_mmx_memcpy+0x13a/0x180>
+Sep  2 16:13:49 krustophenia kernel:  [check_preempt_timing+259/464] check_preempt_timing+0x103/0x1d0
+Sep  2 16:13:49 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
+Sep  2 16:13:49 krustophenia kernel:  [sub_preempt_count+70/96] sub_preempt_count+0x46/0x60
+Sep  2 16:13:49 krustophenia kernel:  [sub_preempt_count+70/96] sub_preempt_count+0x46/0x60
+Sep  2 16:13:49 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
+Sep  2 16:13:49 krustophenia kernel:  [vgacon_save_screen+120/128] vgacon_save_screen+0x78/0x80
+Sep  2 16:13:49 krustophenia kernel:  [redraw_screen+411/560] redraw_screen+0x19b/0x230
+Sep  2 16:13:49 krustophenia kernel:  [complete_change_console+44/224] complete_change_console+0x2c/0xe0
+Sep  2 16:13:49 krustophenia kernel:  [console_callback+258/272] console_callback+0x102/0x110
+Sep  2 16:13:49 krustophenia kernel:  [worker_thread+422/624] worker_thread+0x1a6/0x270
+Sep  2 16:13:49 krustophenia kernel:  [console_callback+0/272] console_callback+0x0/0x110
+Sep  2 16:13:49 krustophenia kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
+Sep  2 16:13:49 krustophenia kernel:  [schedule+718/1360] schedule+0x2ce/0x550
+Sep  2 16:13:49 krustophenia kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
+Sep  2 16:13:49 krustophenia kernel:  [schedule+718/1360] schedule+0x2ce/0x550
+Sep  2 16:13:49 krustophenia kernel:  [kthread+180/192] kthread+0xb4/0xc0
+Sep  2 16:13:49 krustophenia kernel:  [worker_thread+0/624] worker_thread+0x0/0x270
+Sep  2 16:13:49 krustophenia kernel:  [kthread+0/192] kthread+0x0/0xc0
+Sep  2 16:13:49 krustophenia kernel:  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
 
-I will probably end up submitting a patch at some point, that changes
-two lines, one in ____call_usermodehelper() and one in kthread(), from
-setting the cpus_allowed on certain kernel threads to CPU_MASK_ALL, so
-that instead these lines set that cpus_allowed to a new mask, a kernel
-global variable that can be read and written via the cpuset api.  But
-other than that, I don't need anymore kernel hooks than I already have,
-and even now, I can get everything that's causing me any grief pinned
-into the bootcpuset.
+Lee
 
-
-> But that's the problem ... I think there are *always* cpusets that overlap.
-> Which is sad (fixable?) because it breaks lots of intelligent things we
-> could do. 
-
-So with my bootcpuset, the problem is reduced, to a few tasks per CPU,
-such as the migration threads, which must remain pinned on their one CPU
-(or perhaps on just the CPUs local to one Memory Node).  These tasks
-remain in the root cpuset, which by the scheme we're contemplating,
-doesn't get a sched_domain in the fancier configurations.
-
-Yup - you're right - these tasks will also want the scheduler to give
-them CPU time when they need it.  Hmmm ... logically this violates our
-nice schemes, but seems that we are down to such a small exception case
-that there must be some primitive way to workaround this.
-
-We basically need to keep a list of the 4 or 5 per-cpu kernel threads,
-and whenever we repartition the sched_domains, make sure that each such
-kernel thread is bound to whatever sched_domain happens to be covering
-that cpu.  If we just wrote the code, and quit trying to find a grand
-unifying theory to explain it consistently with the rest of our design,
-it would probably work just fine.
-
-The cpuset code would have to be careful, when it came time to list the
-tasks attached to a cpuset (Workload Manager software is fond of this
-call) _not_ to list these indigenous (not "migrant" !) worker threads.
-And when listing the tasks in the root cpuset, _do_ include them.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

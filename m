@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUIEP0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUIEPdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUIEP0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 11:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266821AbUIEP0H
+	id S266798AbUIEPdz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 11:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIEPdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 11:26:07 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:53891 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266807AbUIEP0C (ORCPT
+	Sun, 5 Sep 2004 11:33:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:40614 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266798AbUIEPdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 11:26:02 -0400
-Message-ID: <9e473391040905082659660d6@mail.gmail.com>
-Date: Sun, 5 Sep 2004 11:26:01 -0400
+	Sun, 5 Sep 2004 11:33:53 -0400
+Message-ID: <9e473391040905083326707923@mail.gmail.com>
+Date: Sun, 5 Sep 2004 11:33:53 -0400
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Intel ICH - sound/pci/intel8x0.c
-Cc: lkml <linux-kernel@vger.kernel.org>, Jaroslav Kysela <perex@suse.cz>
-In-Reply-To: <1094385318.1099.23.camel@localhost.localdomain>
+Subject: Re: New proposed DRM interface design
+Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+In-Reply-To: <1094393713.1264.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <9e4733910409041943490b9587@mail.gmail.com>
-	 <1094385318.1099.23.camel@localhost.localdomain>
+References: <20040904102914.B13149@infradead.org>
+	 <4139B03A.6040706@tungstengraphics.com>
+	 <20040904122057.GC26419@redhat.com>
+	 <4139C8A3.6010603@tungstengraphics.com>
+	 <9e47339104090408362a356799@mail.gmail.com>
+	 <4139FEB4.3080303@tungstengraphics.com>
+	 <9e473391040904110354ba2593@mail.gmail.com>
+	 <1094386050.1081.33.camel@localhost.localdomain>
+	 <9e47339104090508052850b649@mail.gmail.com>
+	 <1094393713.1264.7.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I can change so I don't have to take ownership of the bridge from
-the PCI driver so there isn't a conflict.  "Intel ICH Joystick" is a
-deceptive name for this driver. It should be named something like "LPC
-bridge" since there are other things on that device than the joystick.
-Why does just the joystick need a special driver and nothing else on
-that bridge needs one? Wouldn't PS/2, serial, parallel, etc all have
-this problem?
-
-"Intel ICH" is also a bad driver name. I'd prefer something like
-"snd_intel8x0" since that is what the module is named.
-
-On Sun, 05 Sep 2004 12:55:27 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Also a lot of other vendors Midi and joystick ports do have PCI ids.
-
-I was thinking about this from the probing side. You can't count on
-midi and joystick ports having PCI IDs so you have to manually probe.
-But I also see how a card with a PCI ID could have these ports on it
-and also include logic for turning them off and on.
-
-On Sun, 05 Sep 2004 12:55:27 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sul, 2004-09-05 at 03:43, Jon Smirl wrote:
-> > The joystick PCI ID table in intel8x0.c is not correct. Joysticks and
-> > MIDI ports are ISA devices and need be located by manual probing. This
-> > ID table needs to be removed. Joystick and MIDI ports do not have PCI
-> > IDs.
+On Sun, 05 Sep 2004 15:15:25 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Sul, 2004-09-05 at 16:05, Jon Smirl wrote:
+> > > If DRI stays the way it is currently licensed no problems arise anyway
+> > > (beyond proprietary people reusing DRI code, which given the license is
+> > > presumably the intent)
+> > >
+> > If I copy GPL pieces of fbdev in to the DRM drivers it will pollute
+> > the BSD license and turn it into GPL.
 > 
-> It isn't that simple. The LPC bridge also contains the controls for the
-> joystick ports. You also need them for hotplug handling of the bridge
-> should someone stick one in a laptop docking station. The ID table also
-> ensures the driver is loaded. It's probably true that it will need
-> splitting up a bit if another driver also needs ownership of the LPC
-> bridge but for now that hasn't happened.
-> 
-> Also a lot of other vendors Midi and joystick ports do have PCI ids.
-> 
-> Alan
-> 
+> There is no reason to do that. The fb layer of Linux and BSD is very
+> different and both provide fb drawing functionality.
+
+Then how am I going to merge fbdev and DRM so that we don't have two
+drivers fighting over the same hardware? I was planning on adding
+pieces of the existing fbdev code to DRM in order to implement printk
+from the kernel. It seems silly for me to rewrite 10,000 lines of code
+just to make it BSD licensed when BSD isn't even going to use the
+code.
+
+What is wrong with marking each CVS commit with BSD/GPL license? Then
+having the BSD people pick off the relevant code.
+
+
+
 -- 
 Jon Smirl
 jonsmirl@gmail.com

@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbSKTPkC>; Wed, 20 Nov 2002 10:40:02 -0500
+	id <S261364AbSKTPst>; Wed, 20 Nov 2002 10:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSKTPkC>; Wed, 20 Nov 2002 10:40:02 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:58531 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261321AbSKTPj6>; Wed, 20 Nov 2002 10:39:58 -0500
-Date: Wed, 20 Nov 2002 09:46:57 -0600 (CST)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: kksymoops 
-In-Reply-To: <20021120072654.15E932C079@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0211200938240.24137-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261365AbSKTPst>; Wed, 20 Nov 2002 10:48:49 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:12162 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261364AbSKTPss> convert rfc822-to-8bit; Wed, 20 Nov 2002 10:48:48 -0500
+Subject: Re: PROBLEM: kernel oopsing in ftp.es.debian.org.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David =?ISO-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200211201648.58812.ender@debian.org>
+References: <200211201226.18015.ender@debian.org>
+	<1037800230.3241.4.camel@irongate.swansea.linux.org.uk> 
+	<200211201648.58812.ender@debian.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Nov 2002 16:24:24 +0000
+Message-Id: <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Nov 2002, Rusty Russell wrote:
+On Wed, 2002-11-20 at 15:48, David Martínez Moreno wrote:
+> 	The last kernel that it ran stably I think that was 2.4.19-pre10. I can 
+> reboot with this kernel, because the machine has hung again. One more reboot 
+> doesn't mind. :-(
 
-> In message <3DD9AB88.4000102@pobox.com> you write:
-> > I'm _not_ asking "when", just wondering what the plan is to resuscitate 
-> > kksymoops.
-> 
-> Looks like someone pushed my patch.  Erm, OK, wonder if it works on
-> x86? 8)
-
-I think Linus himself did that ;)
-
-> My mental TODO list looked something like this:
-> 1) Drop the optimization which checks against addr between _stext and
->    _etext, as this skips __init functions on most archs.
-
-Well, this was put in to avoid all kind of garbage in the traces, so it 
-shouldn't just go without replacement. Probably one could even get it 
-correct now, using ->module_init() and ->module_core() (just set them for 
-the core kernel as well).
-
-> 2) Only put in the symbols for functions (currently CONFIG_KALLSYMS=y
->    adds 400k on my laptop: ouch!).
-
-I'm not to sure about this, I sometimes find it useful to have variables 
-on the stack identified correctly.
-
-> 3) Keith asked me to rename it, so as not to get confused with the
->    previous patches and kgdb support).  I guess it's too late for this
->    one.
-
-Nothing wrong with a follow-up patch, is it?
-
-> 5) See if Kai prefers the compile step inside the Makefile rather than
->    in the script.
-
-I'll actually have to look into this. The script is probably fine.
-
-> 6) It'd be nice if CONFIG_KALLSYMS=m worked.
-
-Shouldn't be too hard.
-
-Well, I know talk is cheap. I'll try to find some time to actually look
-into some of these issues and come up with patches.
-
---Kai
-
+Stick the last stable kernel on it and see if becomes stable again. My
+first guess is you've developed a hardware problem, going back to the
+old kernel will eliminate that doubt
 

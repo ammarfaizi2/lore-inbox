@@ -1,79 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131269AbRCXAOr>; Fri, 23 Mar 2001 19:14:47 -0500
+	id <S131221AbRCXAS5>; Fri, 23 Mar 2001 19:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131248AbRCXAO2>; Fri, 23 Mar 2001 19:14:28 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:56550 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131221AbRCXAOW>; Fri, 23 Mar 2001 19:14:22 -0500
-Message-Id: <l03130311b6e19132f3bf@[192.168.239.101]>
-In-Reply-To: <UTC200103232315.AAA07966.aeb@vlet.cwi.nl>
+	id <S131339AbRCXASs>; Fri, 23 Mar 2001 19:18:48 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:30727 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131221AbRCXASe>; Fri, 23 Mar 2001 19:18:34 -0500
+Date: Thu, 22 Mar 2001 21:52:15 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: linux-kernel@vger.kernel.org, lwn@lwn.net
+Cc: jgarzik@mandrakesoft.com, Andrey Panin <pazke@orbita.don.sitek.net>,
+        Hans Grobler <grobh@sun.ac.za>, Andrew Morton <andrewm@uow.edu.au>,
+        Rasmus Andersen <rasmus@jaquet.dk>
+Subject: [ANNOUNCE] The Janitor Project
+Message-ID: <20010322215215.A1052@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, lwn@lwn.net, jgarzik@mandrakesoft.com,
+	Andrey Panin <pazke@orbita.don.sitek.net>,
+	Hans Grobler <grobh@sun.ac.za>, Andrew Morton <andrewm@uow.edu.au>,
+	Rasmus Andersen <rasmus@jaquet.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sat, 24 Mar 2001 00:13:26 +0000
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[to various people]
->
->No, ulimit does not work. (But it helps a little.)
->No, /proc/sys/vm/overcommit_memory does not work.
+Hi,
 
-Entirely correct.  ulimit certainly makes it much harder for a single
-runaway process to take down important parts of the system - now why
-doesn't $(MAJOR_DISTRO_VENDOR) set it up by default?  NetBSD does.  It's
-not an infallible solution by any means, but it sure does help.
+The Kernel Janitor's Project grew out of our search for things to help in
+the development of the Linux kernel, and learning from other patches
+submitted by more experienced people, we saw that some of these patches
+indicated error patterns that could exist in other parts of the kernel, we
+looked and... yes, we discovered that some parts of the kernel suffered
+from the same problems and in the process we found code bitrotting...
 
-I just asked a friend to run my test program on his NetBSD box - it ran
-into ulimit and malloc() returned 0.  Setting ulimit on my RH 6.2 box -
-which defaults to unlimited - also caused it to fail gracefully.
+I (acme) started maintaining a TODO list for things to fix or clean up and
+people started submitting suggestions for things to fix that I collected at
+http://bazar.conectiva.com.br/~acme/TODO, looking at the httpd logs I
+discovered that _lots_ of people accessed it, so this indeed was something
+useful as a starting point for people also wanting to help in cleaning
+up/fixing parts of the kernel.
 
->[to Alan]
->
->> Nobody feels its very important because nobody has implemented it.
->
->Yes, that is the right response.
->What can one say? One can only do.
+Now we're expanding this so that this continues to be useful, hosting it at
+sourceforge to make possible for other people to include more things to
+clean/fix.
 
-Ah, but what does one do?  Badger major distro vendors to set ulimit
-properly by default?  Improve the OOM-killer so it gives less "badness" to
-low-UID processes?  Implement an early-failure mechanism for malloc(), so
-hard OOM is not hit except by an extremely determined process (or set of
-processes)?
+So, get your broom and start cleaning! 8)
 
-Personally, I think all of the above.  Your views may differ.
+regards,
 
-Hmm...  "if ( freemem < (size_of_mallocing_process / 20) ) fail_to_allocate;"
+The kernel-Janitor team.
 
-Seems like a reasonable soft limit - processes which have already got lots
-of RAM can probably stand not to have that little bit more and can be
-curbed more quickly.  Processes with less probably don't deserve to die and
-furthermore are less likely to be engineered to handle malloc() failure, so
-failure only occurs closer to the mark.  In this scenario OOM killing
-(which is, after all, a last resort) should trigger rarely and simple
-malloc() failure (which userspace apps can cope with more easily) is an
-early-warning and prevention system.
+-------------------------------------------------------------------------
+One anouncement is not enough, so here's another one 8)
+-------------------------------------------------------------------------
 
-Comments?
+The kernel janitor project has been created at
+http://www.sourceforge.net/projects/kernel-janitor
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+Acme's TODO list is now held there in CVS, and there are also mailing lists
+announcing new addtions, and another for discussion.
 
-The key to knowledge is not to rely on people to teach you it.
+This project does not replace, but instead compliments the existing janitor
+list maintained by Acme.  By keeping this in CVS with multiple maintainers,
+updates will happen more frequently.
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+The mailing list will contain many discussions of patches fixing problems
+on the TODO, and also explanations of how these things can be fixed.
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
+regards,
 
+The kernel-Janitor team.
+-------------------------------------------------------------------------
 
+And yes, the Stanford team work is helping to make the TODO bigger 8)

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTJ3Si5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 13:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTJ3Si4
+	id S262766AbTJ3Syp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 13:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTJ3Syp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 13:38:56 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:8458 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262758AbTJ3Siz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 13:38:55 -0500
-Date: Thu, 30 Oct 2003 18:38:46 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Ben Collins <bcollins@debian.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV UPDATE] Newer patch.
-In-Reply-To: <20031023234552.GB554@phunnypharm.org>
-Message-ID: <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Oct 2003 13:54:45 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:57995 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262766AbTJ3Syo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 13:54:44 -0500
+Date: Thu, 30 Oct 2003 18:53:44 +0000
+From: Dave Jones <davej@redhat.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Post-halloween doc updates.
+Message-ID: <20031030185344.GF10823@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+References: <20031030141519.GA10700@redhat.com> <20031030085222.3874483e.rddunlap@osdl.org> <20031030183856.GC11311@redhat.com> <20031030104450.0a6a1143.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031030104450.0a6a1143.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 30, 2003 at 10:44:50AM -0800, Randy.Dunlap wrote:
 
-> I noticed one thing, and that is that the mach64 used to use software
-> cursor it seems (I remember wondering why atyfb_cursor was never used
-> anywhere). It's now using the hw cursor.
+ > | [1] http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt-devel
+ > Yes, looks good.  But please change this one also:
+ > | - SCTP (Stream Control Transport Protocol)
+ >           Stream Control Transmission Protocol
 
-Yeap. I'm in the process of getting several driver to use there hardware 
-cursors.
- 
-> Also, I notice with this new code that the random vertical shifting of
-> the console doesn't occur anymore like it does with current 2.6.0-test8
-> code. For as long as I can remember 2.6.0-test, and way back into
-> 2.5.5x, this has been a problem with highly active console programs
-> (mutt, vim, etc...). Good to see it's going away :)
+Done. Good work eagle-eyes 8-)
 
-:-)
-
-I have fixed the problems you have reported. I have a newer patch. Note 
-this is updated with the LCD support. I like to see if the patch works on 
-sparc. I has updates from the latest 2.4.X kernels. Please give it a try.
-
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-
-Let me know the results.
-
-
-
-
+		Dave

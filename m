@@ -1,51 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290424AbSAPL55>; Wed, 16 Jan 2002 06:57:57 -0500
+	id <S290428AbSAPL5U>; Wed, 16 Jan 2002 06:57:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289721AbSAPL5s>; Wed, 16 Jan 2002 06:57:48 -0500
-Received: from smtpde03.sap-ag.de ([194.39.131.54]:44522 "EHLO
-	smtpde03.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S290424AbSAPL5j>; Wed, 16 Jan 2002 06:57:39 -0500
-From: Christoph Rohland <cr@sap.com>
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why not "attach" patches?
-In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
-	<3C446C77.3000806@evision-ventures.com>
-	<a21qvo$375$1@penguin.transmeta.com>
-Organisation: SAP LinuxLab
-Date: Wed, 16 Jan 2002 12:46:40 +0100
-In-Reply-To: <a21qvo$375$1@penguin.transmeta.com> (torvalds@transmeta.com's
- message of "Tue, 15 Jan 2002 18:04:40 +0000 (UTC)")
-Message-ID: <m31ygqldr3.fsf@linux.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+	id <S290425AbSAPL45>; Wed, 16 Jan 2002 06:56:57 -0500
+Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:25259
+	"EHLO server.home.at") by vger.kernel.org with ESMTP
+	id <S290424AbSAPL4t>; Wed, 16 Jan 2002 06:56:49 -0500
+Subject: Re: floating point exception
+From: Christian Thalinger <e9625286@student.tuwien.ac.at>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.33.0201160743010.6146-100000@netfinity.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.33.0201160743010.6146-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 16 Jan 2002 12:55:55 +0100
+Message-Id: <1011182157.513.2.camel@sector17.home.at>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-
-On Tue, 15 Jan 2002, Linus Torvalds wrote:
-> Wrong.
+On Wed, 2002-01-16 at 06:45, Zwane Mwaikambo wrote:
+> On 15 Jan 2002, Christian Thalinger wrote:
 > 
-> If I get a patch in an attachment (other than a "Text/PLAIN" type
-> attachment with no mangling and that pretty much all mail readers
-> and all tools will see as a normal body),
+> > Yes, it did happen that the segfault reoccured and there is nothing in
+> > the dmesg. This was also my first thought, then checked
+> > /var/log/messages with a tail and it stucked. No ctrl-c.
+> 
+> ctrl-alt-sysrq k? I'd just like to know wether your box hung completely.
+> Could you also run the ver_linux script in linux_scripts so that we can
+> get a better idea of your operating environment.
+> 
+> Cheers,
+> 	Zwane Mwaikambo
+> 
+> 
 
-So text/plain is ok for you? How about multiple cummulative patches
-attached to one mail?
+What i got at my last exception (started the client in tty1):
 
-This is the case where I hate your strategy about attachments: You
-want to have separate patches (what I clearly understand), but you do
-not want attachments. That's fine most of the time as long as I send
-it to you privately, but to public lists too many people miss the
-important steps.
+Listened to an mp3 with mpg123. After the exception the mp3 got in the
+_he_my_system_is_completely_locked loop. Couldn't kill the process.
+System was respondable, console switching was ok. Changed to console to
+tty2 where X was running - crtl-c - X went down -> console switching
+wasn't possible anymore.
 
-Greetings
-		Christoph
+ctrl-alt-sysrq was responding but only with the line:
+
+SysRq : Enmergency sync
+SysRq : .... (tried also the other ones)
+
+but nothing happend. No syncing, no unmount and showtasks. Right now i
+noticed that showTasks, mem and pc do not give _any_ output, but syncing
+works.
+
+I'll do further testing when i'm back from work.
+
+Gnu C                  3.0.3
+Gnu make               3.79.1
+util-linux             2.11m
+mount                  2.11h
+modutils               2.4.11
+e2fsprogs              1.25
+reiserfsprogs          3.x.0b
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Linux C++ Library      3.0.2
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         NVdriver sym53c8xx scsi_mod pwcx-i386 pwc rio500
+usb-ohci
+ usbcore w83781d eeprom i2c-proc i2c-amd756 i2c-isa binfmt_misc
+binfmt_aout ospm
+_processor ospm_system ospm_busmgr sercontrol lirc_i2c lirc_dev tuner
+tvaudio ms
+p3400 bttv videodev i2c-algo-bit i2c-core nfsd lockd sunrpc parport_pc
+lp parpor
+t via-rhine emu10k1 sound ac97_codec soundcore rtc
 
 

@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVCVCoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVCVDKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbVCVCoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVCVCmg
+	id S262532AbVCVDKX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVCVCom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:42:36 -0500
-Received: from fire.osdl.org ([65.172.181.4]:27548 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262265AbVCVB5p (ORCPT
+	Mon, 21 Mar 2005 21:44:42 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22449 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262328AbVCVCHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:57:45 -0500
-Date: Mon, 21 Mar 2005 17:57:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dtor_core@ameritech.net
-Cc: dmitry.torokhov@gmail.com, dave.m@email.it, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.11.4 vaio z1xmp mouse click
-Message-Id: <20050321175707.2e0befb1.akpm@osdl.org>
-In-Reply-To: <d120d500050318073671f15ad6@mail.gmail.com>
-References: <200503141916.30252.dave.m@email.it>
-	<d120d500050318073671f15ad6@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 21 Mar 2005 21:07:54 -0500
+Date: Tue, 22 Mar 2005 03:07:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Message-ID: <20050322020738.GA1628@elf.ucw.cz>
+References: <20050321025159.1cabd62e.akpm@osdl.org> <200503212343.31665.rjw@sisk.pl> <20050321160306.2f7221ec.akpm@osdl.org> <20050322004456.GB1372@elf.ucw.cz> <20050321170623.4eabc7f8.akpm@osdl.org> <20050322013535.GA1421@elf.ucw.cz> <20050321175232.34d93a13.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321175232.34d93a13.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->
-> On Mon, 14 Mar 2005 19:16:29 +0100, dave <dave.m@email.it> wrote:
+On Po 21-03-05 17:52:32, Andrew Morton wrote:
+> Pavel Machek <pavel@ucw.cz> wrote:
+> >
+> > > Could I suggest that you prepare a fixup against 2.6.12-rc1-mm1 and send
+> >  > that to Len and myself?  If that fixup is not suitable for a 2.6.12-rc1
+> >  > based tree then I can look after it until things get flushed out.
 > > 
-> > hy,
-> > 
-> > Upgrading kernel from Linux 2.6.10 (full) to 2.6.11.4(full) the left mouse
-> > click get losed (I can not clik).
+> >  Could you just revert those two patches? First one is very
+> >  wrong. Second one might be fixed, but... See comments below.
 > 
-> Is your touchpad being detected as an ALPS touchpad? There are some
-> issues with tapping that should be fixed in 2.6.12. In the meantime
-> you could try 2.6.11-mm or force PS/2 compatinbility mode by bootintg
-> with psmouse.proto=exps on kernel command line.
+> I could revert them locally, but that wouldn't gain us much.
 
-Did we hear back from Dave on this?
+You mean that Len has to revert them or revert is "ineffective"?
+
+> Greg hasn't taken the pm_message_t patches yet.  Perhaps that's for the best.
+> 
+> Perhaps I should just jam everything-from-Pavel into Linus's tree as soon
+> as he returns and then we can fix up the downstream fallout in the various
+> bk trees?
+
+Yes, that would help a lot. I was waiting with
+"turn-pm_message_t-into-struct" until all pm_message_t patches reached
+Linus so that there's not a mess "in flight". Len's patch pretty much
+depends on pm_message_t already being converted... (and I'd prefer it
+to wait a while, so we can see which problems were introduced by
+conversion and which are due to ACPI BIOS bugs).
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

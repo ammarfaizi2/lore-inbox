@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbTEZR7d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTEZR7d
+	id S261970AbTEZR7u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTEZR7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:59:33 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20427
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261968AbTEZR7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:59:31 -0400
-Subject: Re: Linux 2.4.21-rc3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Martijn Uffing <mp3project@jorg.student.utwente.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Russell Coker <russell@coker.com.au>
-In-Reply-To: <3ECE1DBF.5090602@gmx.net>
-References: <Pine.LNX.4.44.0305231437260.28118-100000@cam029208.student.utwente.nl>
-	 <3ECE1DBF.5090602@gmx.net>
+	Mon, 26 May 2003 13:59:50 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:58116 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261970AbTEZR7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:59:45 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: torvalds@transmeta.com, Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053969090.16694.15.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 26 May 2003 14:12:49 -0400
+Message-Id: <1053972773.2298.177.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 May 2003 18:11:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-05-23 at 14:10, Carl-Daniel Hailfinger wrote:
-> Martijn Uffing wrote:
-> > Ave
-> > 
-> > Modular ide is still broken in 2.4.21-rc3  with my config.
-> 
-> IIRC, Alan said it is not suposed to work yet. However, if you're
-> feeling brave (and have no valuable data), you can try to export these
-> symbols to make depmod happy. (Please read on)
 
-Thats the problem - you can't. You have to link the ide core code into one
-file, which itself is easy (now I've fixed the pdc4030 in my tree) except
-fo the cmd640 vlb hooks which are nasty as it sucks in a driver from a sub
-directory.
+    On Mon, May 26 2003, Linus Torvalds wrote:
+    > > What does the block layer need, that it doesn't have now?
+    > 
+    > Exactly. I'd _love_ for people to really think about this.
+    
+    In discussion with Jeff, it seems most of what he wants is already
+    there. He just doesn't know it yet :-)
+    
+    Maybe that's my problem as well, maybe the code / comments / doc /
+    whatever is not clear enough.
+    
+My wishlist for this would be:
 
-That one is the remaining horror and I'm not sure how best to tackle it
+1. Unified SG segment allocation.  The SCSI layer currently has a
+mempool implementation to cope with this, is there a reason it can't
+become block generic?
+
+2. Device locality awareness.  Quite a bit of the esoteric SCSI queueing
+code occurs because we have two type of queue events:
+a. device can't accept another command---stop queue and restart when the
+device sends a completion back
+b. the host adapter is out of resources for *all* its devices.  Block
+all device queues until we free some resources (again, usually a
+returning command).
+
+3. Perhaps some type of unified command handling.  At the moment, we all
+seem to allocate DMA'able regions for our commands/taskfiles/whatever
+and attach them to reqest->special.  Then we need to release them again
+before completing the request.
+
+4. Same thing goes for sense buffers.
+
+5. There needs to be some amalgam of the SCSI code for dynamic tag
+command queue depth handling.
+
+OK, I'll stop now.
+
+James
+
 

@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbRBCAcc>; Fri, 2 Feb 2001 19:32:32 -0500
+	id <S130450AbRBCAcd>; Fri, 2 Feb 2001 19:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbRBCAcW>; Fri, 2 Feb 2001 19:32:22 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:35766 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129439AbRBCAcH>; Fri, 2 Feb 2001 19:32:07 -0500
-Date: Sat, 3 Feb 2001 00:31:06 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
-Subject: Re: CPU capabilities -- an update proposal
-In-Reply-To: <3A7B1B31.1CCED9D9@transmeta.com>
-Message-ID: <Pine.LNX.4.21.0102030007170.7970-100000@localhost.localdomain>
+	id <S129439AbRBCAcX>; Fri, 2 Feb 2001 19:32:23 -0500
+Received: from mail-dns1-nj.dialogic.com ([146.152.228.10]:24595 "EHLO
+	mail-dns1-nj.dialogic.com") by vger.kernel.org with ESMTP
+	id <S129111AbRBCAcF>; Fri, 2 Feb 2001 19:32:05 -0500
+Message-ID: <EFC879D09684D211B9C20060972035B1D4684F@exchange2ca.sv.dialogic.com>
+From: "Miller, Brendan" <Brendan.Miller@Dialogic.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: bidirectional named pipe?
+Date: Fri, 2 Feb 2001 19:33:09 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, H. Peter Anvin wrote:
-> 
-> > diff -up --recursive --new-file linux-2.4.0-ac12.macro/include/asm-i386/bugs.h linux-2.4.0-ac12/include/asm-i386/bugs.h
-> > --- linux-2.4.0-ac12.macro/include/asm-i386/bugs.h      Sun Jan 28 09:41:20 2001
-> > +++ linux-2.4.0-ac12/include/asm-i386/bugs.h    Wed Jan 31 22:18:40 2001
-> > @@ -83,12 +83,12 @@ static void __init check_fpu(void)
-> >                 extern void __buggy_fxsr_alignment(void);
-> >                 __buggy_fxsr_alignment();
-> >         }
-> > -       if (cpu_has_fxsr) {
-> > +       if (boot_has_fxsr) {
-> >                 printk(KERN_INFO "Enabling fast FPU save and restore... ");
-> >                 set_in_cr4(X86_CR4_OSFXSR);
-> >                 printk("done.\n");
-> >         }
-> > -       if (cpu_has_xmm) {
-> > +       if (boot_has_xmm) {
-> >                 printk(KERN_INFO "Enabling unmasked SIMD FPU exception support... ");
-> >                 set_in_cr4(X86_CR4_OSXMMEXCPT);
-> >                 printk("done.\n");
-> 
-> Once you enable OSFXSR (therefore allowing user-space code to issue SSE
-> instructions) you *have* to save using FXSAVE, which you can only do if
-> *all* CPUs support FXSR.  Therefore, I would say this is a buggy
-> change... it is not save to enable OSFXSR unless *all* the CPUs support
-> FXSR (they don't have to all support SSE, however, although since you
-> can't control which CPU you execute on, it's pretty useless if they
-> don't.)
 
-That's nothing new: all Maciej has done there is update the names
-of the macros.  Of course you are right, it is in principle unsafe,
-and it would be nice to know about all the CPUs before making such
-decisions; but I think there are many other choices like that (TSC?
-PSE? PGE? PAE?) made on the basis of that first CPU, before the
-others have even been booted, and it's not been a serious problem
-in practice.  I seem to recall that Intel only support mixed CPU
-steppings if the earliest (presumably least capable) is the first
-to boot.  It would be quite easy to add a second bugs.h check,
-this time on common_x86_capability once all CPUs have booted;
-but that may be too late, and I doubt it's worth trying harder.
+I've countless web searches and linux-kernel archives, but I haven't yet
+found the answer to my question.
 
-Hugh
+I'm porting some software to Linux that requires use of a bidirectional,
+named pipe.  The architecture is as follows:  A server creates a named pipe
+in the /tmp directory.  Any client can then open("/tmp/pipename",
+O_RDWR|O_NDELAY) and gain access to the server.  The pipe is bidirectional,
+so the client and server communicate on the same pipe.  I support a number
+of clients on the single pipe using file-locking to prohibit from two
+clients from writing/reading at once.
 
+How can I do this under Linux?  In SVR4 Unices, I just use pipe() as it's
+pipes are bidirectional, and I can attach a name with fattach().  In SVR3
+Unices, I go through a bunch of hacking using the "stream clone device --
+/dev/spx".  I experiemented with socket-based pipes under Linux, but I
+couldn't gain access to them by open()ing the name.  Is there help?  I
+really don't want to use LiS (the Linux Streams) package, as I'd rather do
+something native and not be dependent on another module.  Plus, I read
+somewhere that this was a poor way to do things.
+
+Brendan
+
+Please cc: me personally, as I am not subscribed.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

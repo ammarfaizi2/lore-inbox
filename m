@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbUACW2A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 17:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbUACW2A
+	id S264275AbUACWUt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 17:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbUACWUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 17:28:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27300 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264288AbUACW16 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 17:27:58 -0500
-Date: Sat, 3 Jan 2004 14:27:47 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <20040103141029.B3393@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl>
- <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net>
- <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl>
- <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>
- <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
- <20040103141029.B3393@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Jan 2004 17:20:48 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:54183 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264275AbUACWUh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 17:20:37 -0500
+Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Chris Shafer <cshafer@toad.net>
+Cc: Edward Tandi <ed@efix.biz>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040103005350.GA4960@cablespeed.com>
+References: <1072479167.21020.59.camel@nosferatu.lan>
+	 <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>
+	 <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>
+	 <2060000.1072483186@[10.10.2.4]> <1072500516.12203.2.camel@duergar>
+	 <8240000.1072511437@[10.10.2.4]> <1072523478.12308.52.camel@nosferatu.lan>
+	 <1072525450.3794.8.camel@wires.home.biz>
+	 <20040103005350.GA4960@cablespeed.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dCo0TwhobuQ3NjIaOv01"
+Message-Id: <1073168600.6075.59.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 04 Jan 2004 00:23:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-dCo0TwhobuQ3NjIaOv01
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, 3 Jan 2004, Andries Brouwer wrote:
-> 
-> Sure. It is not "need". It is "quality of implementation".
-> Consider NFS.
+On Sat, 2004-01-03 at 02:53, Chris Shafer wrote:
+> On Sat, Dec 27, 2003 at 11:44:11AM +0000, Edward Tandi scrawled:
+> >=20
+> > Because it only happens in XMMS I thought it was one of those
+> > application bugs brought out by scheduler changes. I now use Zinf BTW
+> > -It's better for large music collections (although not as stable or
+> > flash).
+>=20
+> Have you tried and see if it occurs with the ALSA output driver for XMMS.
+> Without the whole frag line set?
+>=20
 
-The problems occur when there are things we _cannot_ guarantee, and that
-user space starts unnecessarily to depend on. And that ends up resulting
-in bugs waiting to happen. Bugs that many "normal" developers may never 
-hit, simply because the quality of implementation ends up being so good 
-that it hides the problem cases in regular usage.
+That should work.  The chip used for the i8[67]5 boards used to behave
+like this, but apparently to somebody else on the list it was because
+it could not handle variable data lengths (could have the term wrong)
+written to it, and was fixed driver side - this is not maybe an issue
+for the sis based boards as well (using a realtek chip i think??) ?
+Meaning its chip/driver side, not OSS-emu side?
 
-And then a high-quality implementation actually ends up being 
-_detrimental_. It's hiding problems that can still happen, they just 
-happen rarely enough that the bugs don't get found and fixed.
 
-And then the painful thing of forcing "stupid", aka "bad QoI" behaviour, 
-actually ends up being the better thing in the long run.
+Cheers,
 
-			Linus
+--=20
+Martin Schlemmer
+
+--=-dCo0TwhobuQ3NjIaOv01
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/90DYqburzKaJYLYRAp+TAJ9OALT/vmGb0J31+CSoNI/AZbywdwCcDODv
+v4wFbt1Pr3Ut4fkMmkEwpNU=
+=rK+S
+-----END PGP SIGNATURE-----
+
+--=-dCo0TwhobuQ3NjIaOv01--
+

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVARTqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVARTuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVARTqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 14:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVARTnj
+	id S261417AbVARTuT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 14:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVARTsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 14:43:39 -0500
-Received: from hera.kernel.org ([209.128.68.125]:3821 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261418AbVARTjR (ORCPT
+	Tue, 18 Jan 2005 14:48:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21208 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261417AbVARTon (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 14:39:17 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Patch to control VGA bus routing and active VGA device.
-Date: Tue, 18 Jan 2005 19:38:44 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <csjok4$gn3$1@terminus.zytor.com>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <200501180946.47026.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1106077124 17124 127.0.0.1 (18 Jan 2005 19:38:44 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 18 Jan 2005 19:38:44 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 18 Jan 2005 14:44:43 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1106014803.30801.22.camel@localhost.localdomain> 
+References: <1106014803.30801.22.camel@localhost.localdomain>  <31453.1105979239@redhat.com> 
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Fix kallsyms/insmod/rmmod race 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Tue, 18 Jan 2005 19:44:28 +0000
+Message-ID: <1561.1106077468@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200501180946.47026.jbarnes@engr.sgi.com>
-By author:    Jesse Barnes <jbarnes@engr.sgi.com>
-In newsgroup: linux.dev.kernel
->
-> On Monday, January 17, 2005 7:43 pm, Jon Smirl wrote:
-> > Attached is a patch to control VGA bus routing and the active VGA
-> > device. It works by adding sysfs attributes to bridge and VGA devices.
-> > The bridge attribute is read only and indicates if the bridge is
-> > routing VGA. The attribute on the device has four values:
-> 
-> How is it supposed to work?  Is VGA routing determined by the chipset?  Is it 
-> separate from other legacy I/O and memory addresses?
-> 
 
-Yes, there are special control bits in any PCI bridge header for the
-VGA ports.
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-	-hpa
+> 	The more I looked at this, the more I warmed to it.  I've known for a
+> while that people are using kallsyms not for OOPS (eg. /proc/$$/wchan),
+> so we should provide a "grabs locks" version, but this solution gets
+> around that nicely, while making life more certain for the oops case,
+> too.
+
+
+Hmmm... though it works on i386 SMP, it doesn't, however, seem to work on
+ppc64 SMP:-/
+
+My pSeries box seems to think that it can't find any symbols from previously
+loaded modules, and my Power5 box is quite happy to load modules that depend
+on other modules but panics because it can't mount its root fs.
+
+This is very odd, because the patch is simple enough. Is there anything
+obvious I've missed that you can see? Or maybe I'm just misunderstanding how
+stop_machine_run() works... maybe it can't be called during initialisation.
+
+David

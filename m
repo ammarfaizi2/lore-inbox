@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314471AbSD1Tg4>; Sun, 28 Apr 2002 15:36:56 -0400
+	id <S314472AbSD1TlU>; Sun, 28 Apr 2002 15:41:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314472AbSD1Tgz>; Sun, 28 Apr 2002 15:36:55 -0400
-Received: from [200.241.52.3] ([200.241.52.3]:13832 "EHLO
-	estancia.infonet.com.br") by vger.kernel.org with ESMTP
-	id <S314471AbSD1Tgz>; Sun, 28 Apr 2002 15:36:55 -0400
-From: Kiss The Blade <thiagop@stampede.org>
+	id <S314473AbSD1TlU>; Sun, 28 Apr 2002 15:41:20 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:54952 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S314472AbSD1TlT>; Sun, 28 Apr 2002 15:41:19 -0400
+Date: Sun, 28 Apr 2002 13:41:15 -0600
+Message-Id: <200204281941.g3SJfFB27670@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+Cc: Kiss The Blade <thiagop@stampede.org>,
         Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
         Daniel Phillips <phillips@bonn-fries.net>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Date: Sun, 28 Apr 2002 16:49:15 -0300
-X-Priority: 3 (Normal)
-In-Reply-To: <Pine.LNX.4.44.0204281221260.5090-100000@home.transmeta.com>
-Message-Id: <TOU2V2USPZ75NK531LIXWU1YB98.3ccc523b@kingston>
+        Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-X-Mailer: Opera 6.01 build 1041
+In-Reply-To: <Pine.LNX.4.44.0204281221260.5090-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-28/4/2002 16:27:09, Linus Torvalds <torvalds@transmeta.com> wrote:
+Linus Torvalds writes:
+> 
+> 
+> On Sun, 28 Apr 2002, Kiss The Blade wrote:
+> > 28/4/2002 15:47:43, Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+> >
+> > >It already has, for years. Like it or not, certain questions/issues
+> > >*do* get raised. If the FAQ can capture at least some of these, it
+> > >saves bandwidth on the list.
+> >
+> > I think Linus actually does not want to endorse the FSF stance about how
+> > software must be ethically correct.
+> 
+> Right. Besides, as the whole notion of "free software" has very
+> little to do with the kernel, please just link to some open source
+> site. One of the more neutral ones is
+> "http://www.debian.org/social_contract.html", for example.
 
->Remember: we're not the Judean People's Front, we're the People's Front of
->Judea. Or maybe we're the Popular Front for the Liberation of Judea. I get
->confused.
+To add more "balance" (and to show that people will never agree:-),
+I've added links to the above Debian URL as well as one from OSI.
 
-Don't try to understand this whole mess. It's way more complicated than kernel 
-hacking. Trust me,  i know a lot about war and freedom fighting since i have a 
-older brother ;)
+> Remember: we're not the Judean People's Front, we're the People's
+> Front of Judea. Or maybe we're the Popular Front for the Liberation
+> of Judea. I get confused.
 
---
-Fast, cheap, good. Pick two.
+No, we're the Libertarian Front for the People of Judea. Get it right.
 
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

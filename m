@@ -1,46 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUGEGIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265806AbUGEHOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265792AbUGEGIs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 02:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUGEGIs
+	id S265806AbUGEHOz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 03:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUGEHOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 02:08:48 -0400
-Received: from smtp07.web.de ([217.72.192.225]:59801 "EHLO smtp07.web.de")
-	by vger.kernel.org with ESMTP id S265792AbUGEGIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 02:08:46 -0400
-Subject: Re: [BUG] FAT broken in 2.6.7-bk15
-From: Ali Akcaagac <aliakc@web.de>
-To: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
-Content-Type: text/plain
-Date: Mon, 05 Jul 2004 08:08:55 +0200
-Message-Id: <1089007735.675.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
+	Mon, 5 Jul 2004 03:14:55 -0400
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:60665 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S265806AbUGEHOw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 03:14:52 -0400
+Message-ID: <40E900CE.9020502@sdl.hitachi.co.jp>
+Date: Mon, 05 Jul 2004 16:18:38 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] LKST 2.1.0 for linux-2.6.6 is released.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But you didn't install these. So fatfs couldn't do what you specified,
-> then fatfs logged it and returns error.
-> 
-> Looks like you want to the following config.
-> 
-> CONFIG_FAT_DEFAULT_CODEPAGE=850
-> CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-15"
+Dear all,
 
-Right I figured this one out myself already (see the other mail to you earlier this morning). I only questionize whether having to do this "manually" is such a good idea and if it doesn't lead to misunderstanding (better explaination in my other mail too).
+We are pleased to announce releasing new version of Linux Kernel State
+Tracer.
 
-I recommend to have something like this:
+The Linux Kernel State Tracer(a.k.a. LKST) version 2.1.0 has been
+released. This version can be applied to linux-2.6.6. And platforms of
+LKST 2.1.0 are both IA32 and IA64.
 
-check whether some default NLS and character encoding has been selected in default NLS option.
+LKST is a tool that supports to analyze of fault and evaluate for kernel.
+Especially it is usuful for analyzing the unanticipated fault of kernal.
 
-- If not select 437 and iso8859-1 automatically for msdos and also 'enable' these automatically in the default NLS setup.
+The latest version of the LKST has new features:
 
-- If something has been selected in the default NLS already then popup a submenu which only shows those that you already have selected in the default NLS setup. So you can chose between those you already have selected.
+- LSM hooking addon module.
+   If you use this module, you can trace more detailed information of
+system calls.
+   And you can use this module with SELinux.
 
-- If only utf-8 has been selected in default NLS previously then throw out a warning or something.
+- event flags which show the attribute of an event.
+   You can get the attribute of events from /proc/lkst_etypes
+   For more details, see howto.txt.
 
-At least in any cases make sure that you MUST select something to get msdos and fat support compiled and working correctly so that cases like mine NEVER happens.
+For more changes, see Changelog-2.1.0.txt
+<http://prdownloads.sourceforge.net/lkst/Changelog-2.1.0.txt?download>
 
+Remarks:
+For supporting IA64, we hacked KernelHooks.
+
+LKST binaries, source code and documents are available in the following
+site,
+https://sourceforge.net/projects/lkst/
+http://sourceforge.jp/projects/lkst/
+
+We prepared a mailing list written below in order to let users know
+update of LKST.
+
+lkst-users@lists.sourceforge.net
+lkst-users@lists.sourceforge.jp
+
+To subscribe, please refer following URL,
+
+http://lists.sourceforge.net/lists/listinfo/lkst-users
+http://lists.sourceforge.jp/mailman/listinfo/lkst-users
+
+And if you have any comments, please send to the above list, or to
+another mailing-list written below.
+
+lkst-develop@lists.sourceforge.net
+lkst-develop@lists.sourceforge.jp
+
+With kindest regards,
+All of the LKST developers
+
+-- 
+Masami HIRAMATSU
+
+3rd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
 

@@ -1,64 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbTLOWOO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTLOWOO
+	id S264241AbTLOWHk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTLOWHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:14:14 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:19903 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S264254AbTLOWON
+	Mon, 15 Dec 2003 17:07:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:43394 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264241AbTLOWHi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:14:13 -0500
-Date: Mon, 15 Dec 2003 14:14:10 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215221410.GC8130@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru> <20031215132720.GX7308@phunnypharm.org> <20031215192402.528ce066.vsu@altlinux.ru> <20031215183138.GJ6730@dualathlon.random> <20031215185839.GA8130@work.bitmover.com> <20031215194057.GL6730@dualathlon.random> <20031215214452.GB8130@work.bitmover.com> <20031215220257.GM6730@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031215220257.GM6730@dualathlon.random>
-User-Agent: Mutt/1.4i
+	Mon, 15 Dec 2003 17:07:38 -0500
+Date: Mon, 15 Dec 2003 17:10:00 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Felix von Leitner <felix-kernel@fefe.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: request: capabilities that allow users to drop privileges further
+In-Reply-To: <20031215213912.GA29281@codeblau.de>
+Message-ID: <Pine.LNX.4.53.0312151700320.15531@chaos>
+References: <20031215213912.GA29281@codeblau.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 11:02:57PM +0100, Andrea Arcangeli wrote:
-> On Mon, Dec 15, 2003 at 01:44:52PM -0800, Larry McVoy wrote:
-> > all.  It's our tool and the use of our tool to export information how the
-> 
-> is the web your tool too?
+On Mon, 15 Dec 2003, Felix von Leitner wrote:
 
-The web isn't a tool and it certainly isn't our tool.  The web server on
-bkbits.net is our tool, that's BitKeeper serving up the web pages directly.
+> I would like to be able to drop capabilities that every normal user has,
+> so that network servers can limit the impact of possible future security
+> problems further.  For example, I want my non-cgi web server to be able
+> to drop the capabilities to
+>
+>   * fork
+>   * execve
+>   * ptrace
+>   * load kernel modules
+>   * mknod
+>   * write to the file system
+>
+> and I would like to modify my smtpd to not be able to
+>
+>   * fork
+>   * execve
+>   * ptrace
+>   * load kernel modules
+>   * mknod
+>
+> I can kludge around some of these, for example I can disable fork with
+> resource limits, and I can limit writing to the file system with chroot
+> and proper permissions in the file systems, but I'm not aware of a way
+> to disable ptrace for example, or pthread_create.
+>
+> I know that there are patches to provide an extended "jail" chroot
+> support, but being able to drop capabilities like this would be a more
+> general solution.
+>
+> Felix
 
-> in your previous email you said the information is available via bkbits
-> web.  But in an older email you said if we would use the web to fetch
-> information you would shut it down (for whatever reason, not relevant
-> for this email). Please clarify this single point: is the "web" a tool
-> we can use to fetch information? 
+So you expect kernel support?  Normally, real people write or
+modify applications to provide for specific exceptions to
+the standards. They don't expect an operating system to
+modify itself to unique situations. That's not what
+operating systems have generally done in the past.
 
-I said I'd shut it down if you melted down the T1 line.  We have dual
-T1 lines and rate limited them on both ends so that problem is gone.
+The 'C' runtime library interfaces to the kernel. You
+can use the ld.so.preload capabilities to substitute
+private functions for fork(), etc. This has the additional
+benefit of allowing crappy, poorly-written, executables
+that may have buffer overflows to be executed with
+increased confidence. Of course, some root-shell programs
+bypass the 'C' runtime libraries.
 
-You can grab all the patches you want from bkbits.net until you start
-using those patches to populate another SCM system because at that point
-you are using BK in violation of the BK license.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Tupshin wants both the patches and all the details of how the patches have
-been put together.  I know why he wants it, it's a ton of useful test data
-if what you are doing is building a clone of BitKeeper, and that's exactly
-why he can't have all the information he wants.  It's disingenuous of him
-to pretend it is a freedom of speech issue, but I think it's obvious to
-everyone what is going on here.  If he was actually a kernel developer
-using BK he'd be asking us to reduce the amount of information contained
-in BitKeeper so that it ran faster which is what Linus wants us to do.
-This is all about someone trying to circumvent our license, not about 
-some valuable information that BK is losing or hiding.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+

@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266054AbRF1RcF>; Thu, 28 Jun 2001 13:32:05 -0400
+	id <S266056AbRF1Rhf>; Thu, 28 Jun 2001 13:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266060AbRF1Rb4>; Thu, 28 Jun 2001 13:31:56 -0400
-Received: from vitelus.com ([64.81.36.147]:7184 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S266054AbRF1Rbo>;
-	Thu, 28 Jun 2001 13:31:44 -0400
-Date: Thu, 28 Jun 2001 10:30:38 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: chuckw@altaserv.net
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S266058AbRF1RhZ>; Thu, 28 Jun 2001 13:37:25 -0400
+Received: from t2.redhat.com ([199.183.24.243]:14066 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S266056AbRF1RhN>; Thu, 28 Jun 2001 13:37:13 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.33.0106281024160.15199-100000@penguin.transmeta.com> 
+In-Reply-To: <Pine.LNX.4.33.0106281024160.15199-100000@penguin.transmeta.com> 
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, chuckw@altaserv.net,
         Vipin Malik <vipin.malik@daniel.com>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
+        Aaron Lehmann <aaronl@vitelus.com>, jffs-dev@axis.com,
         linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-Message-ID: <20010628103038.B27775@vitelus.com>
+Subject: Re: Cosmetic JFFS patch. 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106281028170.10308-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.18i
+Date: Thu, 28 Jun 2001 18:35:40 +0100
+Message-ID: <7953.993749740@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 28, 2001 at 10:29:11AM -0700, chuckw@altaserv.net wrote:
-> Taking that one step further, isn't it a developer's right to "toot their
-> own horn" in their code?
 
-Right. In the code. Not in the Linux boot diagnostic information.
+torvalds@transmeta.com said:
+> On Thu, 28 Jun 2001, Alan Cox wrote: 
+> > Managers at places like Cisco see boot messages and it gets into
+> > their brains. They certainly don't all read the source code.
+
+> Quote frankly, I doubt "managers" read the boot messages. 
+
+This is consistent with what Alan said. "read" != "see".
+
+I agree the messages can be ugly. But they don't do any harm either, and 
+sometimes they're useful.
+
+Furthermore, I believe that if you enforce a policy of removing them, the
+direct result of that will be that GPL'd code is released back into the
+community far slower than it is at the moment.
+
+It's your choice, though.
+
+--
+dwmw2
+
+

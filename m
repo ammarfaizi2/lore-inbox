@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271600AbRHPRjP>; Thu, 16 Aug 2001 13:39:15 -0400
+	id <S271598AbRHPRhz>; Thu, 16 Aug 2001 13:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271599AbRHPRjF>; Thu, 16 Aug 2001 13:39:05 -0400
-Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:3521 "EHLO
-	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S271600AbRHPRiz>; Thu, 16 Aug 2001 13:38:55 -0400
-Message-ID: <3B7C112F.1F2D183B@home.com>
-Date: Thu, 16 Aug 2001 11:30:07 -0700
-From: kernelkracker <isys1@home.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S271599AbRHPRhp>; Thu, 16 Aug 2001 13:37:45 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:8049 "EHLO
+	alloc.wat.veritas.com") by vger.kernel.org with ESMTP
+	id <S271598AbRHPRhj>; Thu, 16 Aug 2001 13:37:39 -0400
+Date: Thu, 16 Aug 2001 18:41:08 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+X-X-Sender: <markhe@alloc.wat.veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Align VM locks
+Message-ID: <Pine.LNX.4.33.0108161839180.3340-100000@alloc.wat.veritas.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: global_irq_count vs global_irq_lock
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-This is probably a kernel newbie question so my apologies in advance.
+  The patch below ensures the pagecache_lock and pagemap_lru_lock aren't
+sharing an L1 cacheline with anyone else - espically each other!
 
-I have a design/implementation question.
+Mark
 
-global_irq_count is defined as atomic_t whereas globall_irq_lock is
-defined as unsigned volatiile int.
-Is this by design? or by chance?
 
-Why would you be concerned about reading global_irq_count atomically and
-not global_irq_count as it is done is several
-functions in linux/arch/i386/irq.c in kernel 2.2.18.
+diff -ur -X dontdiff linux-2.4.9-pre4/mm/filemap.c L1-2.4.9-pre4/mm/filemap.c
+--- linux-2.4.9-pre4/mm/filemap.c	Thu Aug 16 15:57:51 2001
++++ L1-2.4.9-pre4/mm/filemap.c	Thu Aug 16 18:28:24 2001
+@@ -45,12 +45,12 @@
+ unsigned int page_hash_bits;
+ struct page **page_hash_table;
 
-If it is by design, what am I missing.
+-spinlock_t pagecache_lock = SPIN_LOCK_UNLOCKED;
++spinlock_t __cacheline_aligned pagecache_lock = SPIN_LOCK_UNLOCKED;
+ /*
+  * NOTE: to avoid deadlocking you must never acquire the pagecache_lock with
+  *       the pagemap_lru_lock held.
+  */
+-spinlock_t pagemap_lru_lock = SPIN_LOCK_UNLOCKED;
++spinlock_t __cacheline_aligned pagemap_lru_lock = SPIN_LOCK_UNLOCKED;
 
-Please cc me on your respone as I am not on the list.
-
-Take care!
+ #define CLUSTER_PAGES		(1 << page_cluster)
+ #define CLUSTER_OFFSET(x)	(((x) >> page_cluster) << page_cluster)
 

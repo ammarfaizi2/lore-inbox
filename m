@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291065AbSAaNZa>; Thu, 31 Jan 2002 08:25:30 -0500
+	id <S291063AbSAaNUJ>; Thu, 31 Jan 2002 08:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291066AbSAaNZT>; Thu, 31 Jan 2002 08:25:19 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:36741 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S291065AbSAaNZK>;
-	Thu, 31 Jan 2002 08:25:10 -0500
-Date: Thu, 31 Jan 2002 14:24:46 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, pavel@atrey.karlin.mff.cuni.cz
-Subject: [PATCH] nbd in 2.5.3 does not work, and can cause severe damage when read-write
-Message-ID: <20020131132446.GA23990@vana.vc.cvut.cz>
+	id <S291064AbSAaNT7>; Thu, 31 Jan 2002 08:19:59 -0500
+Received: from codepoet.org ([166.70.14.212]:40918 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S291063AbSAaNTx>;
+	Thu, 31 Jan 2002 08:19:53 -0500
+Date: Thu, 31 Jan 2002 06:19:49 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec 1480b SlimSCSI vs hotplug
+Message-ID: <20020131131949.GA11787@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020130025212.GA5240@codepoet.org> <200201300453.g0U4rYI61847@aslan.scsiguy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <200201300453.g0U4rYI61847@aslan.scsiguy.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-    I've got strange idea and tried to build diskless machine around
-2.5.3... Besides problem with segfaulting crc32 (it is initialized after 
-net/ipv4/ipconfig.c due to lib/lib.a being a library... I had to hardcode
-lib/crc32.o before --start-group in main Makefile, but it is another
-story) there is bad problem with NBD caused by BIO changes:
+On Tue Jan 29, 2002 at 09:53:34PM -0700, Justin T. Gibbs wrote:
+> to doing the comparison.  The logic in the kernel handles the
+> mask correctly:
+> 
+> 	((ids->class ^ dev->class) & ids->class_mask) == 0
+> 
+> My guess is that diethotplug is not handling the mask correctly
+> and thus doesn't work with a partial mask.
 
-(1) request flags were immediately put into on-wire request format.
-    In the past, we had 0=READ, !0=WRITE. Now only REQ_RW bit determines
-    direction. As nbd-server from nbd distribution package treats any
-    non-zero value as write, it performs writes instead of read. Fortunately
-    it will die due to other consistency checks on incoming request, but...
+Upon looking closer, you are correct.  diethotplug gets it wrong
+here.  I've fixed diethotplug, and now I can plug in my Adaptec
+1480 card and have hotplug load the driver and everything works.
+I can also unplug the card, and things seem to work as expected.
 
-(2) nbd servers handle only up to 10240 byte requests. So setting max_sectors
-    to 20 is needed, as otherwise nbd server commits suicide. Maximum request size
-    should be handshaked during nbd initialization, but currently just use
-    hardwired 20 sectors, so it will behave like it did in the past.
+If I subsequently insert the card, it no longer works until I
+have first manually unloaded the aic7xxx module.  A quick bit of
+debugging shows that ahc_linux_pci_dev_probe is getting called
+the second time as it should be, and aic7xxx_detect_complete is
+indeed 1 the second time, so ahc_linux_register_host gets
+called...  But nothing seems to actually get registered with the
+scsi layer the second time around.
 
-						Thanks,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+Here is another interesting bit.  insert the card for the first
+time and wait for initialization and 'cat /proc/scsi/aic7xxx/0'
+and all looks normal.  Now remove the card.  /proc/scsi/aic7xxx/0
+is still present, and 'cat /proc/scsi/aic7xxx/0' produces an
+Oops...  Hmm.
 
+I see that on card removal, ahc_linux_pci_dev_remove() calls
+ahc_free() which calls ahc_platform_free() which calls
+scsi_unregister(), which means that /proc/scsi/aic7xxx/0
+shouldn't be there anymore....  I'm missing something in 
+there somewhere.  Ideas?
 
-diff -urdN linux/drivers/block/nbd.c linux/drivers/block/nbd.c
---- linux/drivers/block/nbd.c	Thu Jan 10 18:15:38 2002
-+++ linux/drivers/block/nbd.c	Thu Jan 31 00:24:50 2002
-@@ -155,14 +155,15 @@
- 	unsigned long size = req->nr_sectors << 9;
- 
- 	DEBUG("NBD: sending control, ");
-+	
-+	rw = rq_data_dir(req);
-+	
- 	request.magic = htonl(NBD_REQUEST_MAGIC);
--	request.type = htonl(req->flags);
-+	request.type = htonl((rw & WRITE) ? 1 : 0);
- 	request.from = cpu_to_be64( (u64) req->sector << 9);
- 	request.len = htonl(size);
- 	memcpy(request.handle, &req, sizeof(req));
- 
--	rw = rq_data_dir(req);
--
- 	result = nbd_xmit(1, sock, (char *) &request, sizeof(request), rw & WRITE ? MSG_MORE : 0);
- 	if (result <= 0)
- 		FAIL("Sendmsg failed for control.");
-@@ -517,6 +518,7 @@
- 	blksize_size[MAJOR_NR] = nbd_blksizes;
- 	blk_size[MAJOR_NR] = nbd_sizes;
- 	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_nbd_request, &nbd_lock);
-+	blk_queue_max_sectors(BLK_DEFAULT_QUEUE(MAJOR_NR), 20);
- 	for (i = 0; i < MAX_NBD; i++) {
- 		nbd_dev[i].refcnt = 0;
- 		nbd_dev[i].file = NULL;
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,63 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBHAag>; Wed, 7 Feb 2001 19:30:36 -0500
+	id <S129032AbRBHAbq>; Wed, 7 Feb 2001 19:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBHAa1>; Wed, 7 Feb 2001 19:30:27 -0500
-Received: from [203.20.159.141] ([203.20.159.141]:54535 "EHLO memim01")
-	by vger.kernel.org with ESMTP id <S129027AbRBHAaW>;
-	Wed, 7 Feb 2001 19:30:22 -0500
-Message-Id: <974A613A43EED311ACBD00508B5EF8C1D66DF9@meexc04.jbwere.com.au>
-From: JShaw@jbwere.com.au
-To: urban@teststation.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.x and oops on 'mount -t smbfs'
-Date: Thu, 8 Feb 2001 12:28:59 +1100 
+	id <S130704AbRBHAbg>; Wed, 7 Feb 2001 19:31:36 -0500
+Received: from Mail.ubishops.ca ([192.197.190.5]:55817 "EHLO Mail.ubishops.ca")
+	by vger.kernel.org with ESMTP id <S129032AbRBHAb0>;
+	Wed, 7 Feb 2001 19:31:26 -0500
+Message-ID: <3A81E8C6.56825D20@yahoo.co.uk>
+Date: Wed, 07 Feb 2001 19:31:02 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bug: 2.4.0 w/ PCMCIA on ThinkPad: KERNEL: 
+ assertion(dev->ip_ptr==NULL)failed at 
+ dev.c(2422):netdev_finish_unregister
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resolved!  Running like a bought one now.  Thanks Urban, you are so cool
-that you should be in movies.
+Here is a patch which may not solve the underlying
+problem but which does prevent the kernel from 
+generating an infinite number of error messages
+on "cardctl eject" and from hanging up on shutdown.
 
-~NJ!~
+----------------------------------------------------
+jdthood@thanatos:/usr/src/kernel-source-2.4.1-ac3/net/core# diff dev.c_ORIG dev.c
+2558c2558
+< 	while (atomic_read(&dev->refcnt) != 1) {
+---
+> 	while (atomic_read(&dev->refcnt) > 1) {
+-----------------------------------------------------
 
-> -----Original Message-----
-> From:	Urban Widmark [SMTP:urban@teststation.com]
-> Sent:	Thursday, February 08, 2001 9:39 AM
-> To:	Jim Shaw
-> Cc:	linux-kernel@vger.kernel.org
-> Subject:	Re: 2.4.x and oops on 'mount -t smbfs'
-> 
-> On Wed, 7 Feb 2001 JShaw@jbwere.com.au wrote:
-> 
-> > I've compiled a number of 2.4.1 and 2.4.0 kernels (actually supports the
-> 4GB
-> > RAM!!!  Yay!!!!), and I have only one more problem to sort out.  Under
-> > 2.4.x, the mount completes successfully, but 'ls /net' causes an OOPS:
-> 0000.
-> 
-> Try http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.1-pre10-cache-2.patch
-> 
-> Let me know if it works for you or not.
-> (patch should be ok with 2.4.0 or 2.4.1)
-> 
-> /Urban
-		      JBWere Limited
-			DISCLAIMER
+The underlying problem is that refcnt is zero or less
+at this point.  This is erroneous.  The error in 
+maintaining the refcnt appears to occur only when 
+I configure the eth0 interface using pump or dhclient.
+Be that as it may, because of the erroneous refcnt,
+this while loop loops forever in the original.  As
+modified it falls through; and this makes the kernel
+usable for me.
 
-JBWere Limited and its related entities distributing this document and 
-each of their respective directors, officers and agents ("the Were Group") 
-believe that the information contained in this document is correct and that
-any estimates, opinions, conclusions or recommendations contained in this 
-document are reasonably held or made as at the time of compilation. However, 
-no warranty is made as to the accuracy or reliability of any estimates, 
-opinions, conclusions, recommendations (which may change without notice) or 
-other information contained in this document and, to the maximum extent 
-permitted by law, the Were Group disclaims all liability and responsibility 
-for any direct or indirect loss or damage which may be suffered by any recipient 
-through relying on anything contained in or omitted from this document.
+I hope the networking gurus can find the real bug.
+
+Thomas Hood
+
+> I have a bit more information about this bug now.
+> The message "assertion(yadda) failed ..." occurs only
+> if the eth0 interface has been configured using pump
+> or dhclient.  If the card isn't connected to the network
+> the message never occurs.  If eth0 is merely brought up
+> and down using ifconfig the message doesn't occur.  Only
+> if pump or dhclient has configured eth0 does the message
+> occur.  Sometimes it occurs on "ifdown eth0", sometimes
+> on "cardctl eject" and sometimes during the shutdown
+> sequence.
+> 
+> Thomas
+> 
+> > Dear l-k. 
+> > 
+> > I'm still having this problem with kernel 2.4.0: 
+> > 
+> > Conditions: 
+> > Linux 2.4.0 compiled on an IBM ThinkPad 600 51U (Pentium II) 
+> > laptop with PCMCIA support. Same behavior with integral kernel 
+> > PCMCIA, modular kernel PCMCIA and modular Hinds PCMCIA. System 
+> > is Progeny Debian beta II. 
+> > 
+> > I have a Xircom modem/ethernet card which works correctly using 
+> > the serial_cs, xirc2ps_cs, ds, i82365 and pcmcia_core modules; 
+> > however when I try to "cardctl eject" or "reboot" I get first, 
+> >    "KERNEL: assertion(dev->ip_ptr==NULL)failed at 
+> >     dev.c(2422):netdev_finish_unregister" 
+> > (not exact since I had to copy it down on paper ... doesn't 
+> > show up in the logs) then a perpetual series of: 
+> >    "unregister_netdevice: waiting for eth0 to become free. 
+> >     Usage count = -1" 
+> > messages every five seconds or so. "ps -A" reveals that 
+> > modprobe is running; it can't be killed even with "kill -9". 
+> > The "ifconfig" command locks up. Shutdown won't complete 
+> > so I end up having to use SysRq-S-U-B to reboot. 
+> > 
+> > This problem only occurs if the Xircom card is connected to 
+> > the Ethernet (in which case it is configured using DHCP). 
+> > If the card is left unconnected to the network, the problem 
+> > does not occur---the card can be ejected. 
+> > 
+> > Thomas Hood 
+> > Please cc: your replies to me at jdthood_AT_yahoo.co.uk
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

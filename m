@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262684AbREVRa0>; Tue, 22 May 2001 13:30:26 -0400
+	id <S262682AbREVR3r>; Tue, 22 May 2001 13:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262679AbREVRaQ>; Tue, 22 May 2001 13:30:16 -0400
+	id <S262680AbREVR31>; Tue, 22 May 2001 13:29:27 -0400
 Received: from humbolt.nl.linux.org ([131.211.28.48]:28943 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S262680AbREVRaF>; Tue, 22 May 2001 13:30:05 -0400
+	id <S262681AbREVR3W>; Tue, 22 May 2001 13:29:22 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: john slee <indigoid@higherplane.net>,
-        Urban Widmark <urban@teststation.com>
-Subject: Re: Background to the argument about CML2 design philosophy
-Date: Tue, 22 May 2001 19:28:20 +0200
+To: Oliver Xymoron <oxymoron@waste.org>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
+Date: Tue, 22 May 2001 18:51:20 +0200
 X-Mailer: KMail [version 1.2]
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Wayne.Brown@altec.com,
-        David Woodhouse <dwmw2@infradead.org>,
-        Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010521135857.B11361@thyrsus.com> <Pine.LNX.4.30.0105212052290.13267-100000@cola.teststation.com> <20010523004257.C5779@higherplane.net>
-In-Reply-To: <20010523004257.C5779@higherplane.net>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org>
 MIME-Version: 1.0
-Message-Id: <0105221928200D.06233@starship>
+Message-Id: <0105221851200C.06233@starship>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 May 2001 16:42, john slee wrote:
-> On Mon, May 21, 2001 at 10:00:07PM +0200, Urban Widmark wrote:
-> > On Mon, 21 May 2001, Eric S. Raymond wrote:
-> > > the NEW tag).  That phase ended almost a month ago.  Nobody who
-> > > has actually tried the CML2 tools more recently has reported that
-> > > the UI changes present any difficulty.
+On Tuesday 22 May 2001 17:24, Oliver Xymoron wrote:
+> On Mon, 21 May 2001, Daniel Phillips wrote:
+> > On Monday 21 May 2001 19:16, Oliver Xymoron wrote:
+> > > What I'd like to see:
+> > >
+> > > - An interface for registering an array of related devices
+> > > (almost always two: raw and ctl) and their legacy device numbers
+> > > with a single userspace callout that does whatever /dev/ creation
+> > > needs to be done. Thus, naming and permissions live in user
+> > > space. No "device node is also a directory" weirdness...
 > >
-> > What happened with the discussion on configurable colors in make
-> > menuconfig? Darkblue on black as frozen options get isn't exactly
-> > optimal ... at least not for my eyes. Being next to a bold, white
-> > text doesn't help either.
+> > Could you be specific about what is weird about it?
 >
-> if you don't like dark blue on black, change your terminal colours.
-> then you won't find it hard to read in other applications either.
+> *boggle*
+>
+>[general sense of unease]
+>
+> I don't think it's likely to be even workable. Just consider the
+> directory entry for a moment - is it going to be marked d or [cb]?
 
-On the first day of my graduate course 'Advanced Topics in Computer
-Graphics' the professor walked in and wrote on the blackboard "Never
-Use Blue on Black".
+It's going to be marked 'd', it's a directory, not a file.
 
-Yes, we had blackboards then.  No, our eyes have not evolved since
-then. ;-)
+> If it doesn't have the directory bit set, Midnight commander won't
+> let me look at it, and I wouldn't blame cd or ls for complaining. If it
+> does have the 'd' bit set, I wouldn't blame cp, tar, find, or a
+> million other programs if they did the wrong thing. They've had 30
+> years to expect that files aren't directories. They're going to act
+> weird.
+
+No problem, it's a directory.
+
+> Linus has been kicking this idea around for a couple years now and
+> it's still a cute solution looking for a problem. It just doesn't
+> belong in UNIX.
+
+Hmm, ok, do we still have any *technical* reasons?
 
 --
 Daniel
+

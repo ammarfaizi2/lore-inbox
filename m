@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135886AbRDZS7N>; Thu, 26 Apr 2001 14:59:13 -0400
+	id <S132852AbRDZTFy>; Thu, 26 Apr 2001 15:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135887AbRDZS6x>; Thu, 26 Apr 2001 14:58:53 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:15624 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S135886AbRDZS6v>; Thu, 26 Apr 2001 14:58:51 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A018D3AB4@dcmtechdom.dcmtech.co.in>
-From: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+	id <S135887AbRDZTFo>; Thu, 26 Apr 2001 15:05:44 -0400
+Received: from mx3.port.ru ([194.67.23.37]:51982 "EHLO mx3.port.ru")
+	by vger.kernel.org with ESMTP id <S131472AbRDZTF3>;
+	Thu, 26 Apr 2001 15:05:29 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Dyanmics Thread at Kernel Level
-Date: Thu, 26 Apr 2001 19:47:26 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Cc: reiser@idiom.com
+Subject: ReiserFS question
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.16]
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E14sr4v-000EC4-00@f3.mail.ru>
+Date: Thu, 26 Apr 2001 23:05:25 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anybody  tell me, How can I create dynamic threads at Kernel level??
+      Hi People...
+   got a following "dead of alive" question:
+   how to find a root block on a ReiserFS partition
+   with a corrupted superblock?
 
-If u have any sample code in which Semaphore, threads, events are
-implemented, Pls send.
+   reiserfsprogs-3.x.0.9j simply writes -2^32
+   there at start (reset_super_block) and then simply
+   crashes when attempting to access to such mad place
+          ... got nearly lost my main partition ...
 
-Waiting for ur response.
 
-Thanx & Regards
-Rajeev Nigam
+ sorry for bad english
+

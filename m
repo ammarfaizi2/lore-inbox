@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266073AbUG0P7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266126AbUG0QDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266073AbUG0P7e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 11:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUG0P7d
+	id S266126AbUG0QDN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 12:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUG0QDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 11:59:33 -0400
-Received: from webmail-benelux.tiscali.be ([62.235.14.106]:1362 "EHLO
-	mail.tiscali.be") by vger.kernel.org with ESMTP id S266073AbUG0P73 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 11:59:29 -0400
-Date: Tue, 27 Jul 2004 17:59:13 +0200
-Message-ID: <40FB87C400003E92@ocpmta3.freegates.net>
-In-Reply-To: <20040727125432.GA1960@logos.cnet>
-From: "Joel Soete" <soete.joel@tiscali.be>
-Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: "Daniel Jacobowitz" <dan@debian.org>, "Vojtech Pavlik" <vojtech@suse.cz>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 27 Jul 2004 12:03:12 -0400
+Received: from holomorphy.com ([207.189.100.168]:21124 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266203AbUG0QBC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 12:01:02 -0400
+Date: Tue, 27 Jul 2004 09:00:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: raul@pleyades.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The dreadful CLOSE_WAIT
+Message-ID: <20040727160057.GE2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	raul@pleyades.net, linux-kernel@vger.kernel.org
+References: <20040727083947.GB31766@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040727083947.GB31766@DervishD>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+On Tue, Jul 27, 2004 at 10:39:47AM +0200, DervishD wrote:
+>     Seems under Linux that, when a connection is in the CLOSE_WAIT
+> state, the only wait to go to LAST_ACK is the application doing the
+> 'shutdown()' or 'close()'. Doesn't seem to be a timeout for that.
+>     Well, I think this is dangerous because a bad application (and a
+> couple of widely used servers have this problem) can exhaust system
+> network resources (difficult, but possible). For example, a
+> concurrent FTP server with a race condition that doesn't do the
+> shutdown when the remote end aborts. Writing such a 'bad app' is very
+> easy, just do the socket->bind->listen->accept and after accepting
+> the connection forget the connected socket and keeps on listening. If
+> the remote end aborts, the server leaves the connection in
+> CLOSE_WAIT. Sometimes it has a associated timer, when data remains in
+> the tx queue, it seems that the kernel tries to retransmit all that
+> data, which makes no sense: in CLOSE_WAIT state the other end is not
+> there... Surely I'm missing a lot :((
 
-Thanks first for your attention.
-Sorry also for delaying this works but I was a bit busy elsewhere.
-
-> -- Original Message --
-> Date: Tue, 27 Jul 2004 09:54:32 -0300
-> From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-> To: Joel Soete <soete.joel@tiscali.be>
-> Cc: Daniel Jacobowitz <dan@debian.org>,
-> 	Vojtech Pavlik <vojtech@suse.cz>,
-> 	Linux Kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-> 
-> 
-> On Mon, Jul 05, 2004 at 01:59:21PM +0200, Joel Soete wrote:
-> > Hello Daniel,
-> > 
-> > > > So just use
-> > > >
-> > > > 	buffer++;
-> > > >
-> > > > here, and the intent is then clear.
-
-> > >
-> > > Except C does not actually allow incrementing a void pointer, since
-> > > void does not have a size.
-> > That make better sense to me because aifair a void * was foreseen to
-pass
-> > any kind of type * as actual parameter?
-> > (So as far as I understand, the aritthm pointer sould be dynamic for
-the
-> > best 'natural' behaviour?)
-> > 
-> > >   You can't do arithmetic on one either.  GNU
-> > > C allows this as an extension.
-> > >
-> > > It's actually this, IIRC:
-> > >   buffer = ((char *) buffer) + 1;
-> 
-> Joel, 
-> 
-> It seems the current code is working perfectly, generating correct
-> asm code. 
-> 
-> Could you come up with a good enough reason to do this cleanup (as far
-as
-> 
-> I am concerned) in 2.4.x series?
-> 
-My first attention was to cleanup some warning of type "use of cast expression
-as lvalue is deprecated"
-with gcc-3.3.4. But afaik, right now, there are just few warning which didn't
-break the asm code.
-
-I will try to come back asap with a better solution (at least I hope ;)
-)
-
-Thanks again,
-   Joel
-
----------------------------------------------------------------------------
-Tiscali ADSL LIGHT, 19,95 EUR/mois pendant 6 mois, c'est le moment de faire
-le pas!
-http://reg.tiscali.be/default.asp?lg=fr
+Probably best to implement timeouts by hand in your network daemon.
 
 
-
-
+-- wli

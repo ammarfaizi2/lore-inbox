@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279873AbRKFSJg>; Tue, 6 Nov 2001 13:09:36 -0500
+	id <S279885AbRKFSIG>; Tue, 6 Nov 2001 13:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279874AbRKFSJV>; Tue, 6 Nov 2001 13:09:21 -0500
-Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:8851 "EHLO
-	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
-	id <S279873AbRKFSIn>; Tue, 6 Nov 2001 13:08:43 -0500
-Date: Tue, 6 Nov 2001 13:09:42 -0500 (EST)
-From: "Steven N. Hirsch" <shirsch@adelphia.net>
-X-X-Sender: <hirsch@atx.fast.net>
-To: Andrew Morton <akpm@zip.com.au>
-cc: lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: Re: ext3-0.9.15 against linux-2.4.14
-In-Reply-To: <3BE7AB6C.97749631@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0111061305540.8366-100000@atx.fast.net>
+	id <S279893AbRKFSH4>; Tue, 6 Nov 2001 13:07:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9227 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279885AbRKFSHr>; Tue, 6 Nov 2001 13:07:47 -0500
+Subject: Re: Using %cr2 to reference "current"
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 6 Nov 2001 18:14:54 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111060949370.2194-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 06, 2001 09:59:00 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E161AkQ-0001Fp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Nov 2001, Andrew Morton wrote:
-
-> Download details and documentation are at
+> "get_current" interrupt safe (ie switching tasks is totally atomic, as
+> it's the one single "movl ..,%esp" instruction that does the real switch
+> as far as the kernel is concerned).
 > 
-> 	http://www.uow.edu.au/~andrewm/linux/ext3/
-> 
-> Changes since ext3-0.9.13 (which was against linux-2.4.13):
-> 
-> - For a long time, the ext3 patch has used a semaphore in the core
->   kernel to prevent concurrent pagein and truncate of the same
->   file.  This was to prevent a race wherein the paging-in task
->   would wake up after the truncate and would instantiate a page
->   in the process's page tables which had attached buffers.  This
->   leads to a BUG() if the swapout code tries to swap the page out.
-> 
->   This semaphore has been removed.  The swapout code has been altered
->   to simply detect and ignore these pages.
-> 
->   This is an incredibly obscure and hard-to-hit situation.  The testcase
->   which used to trigger it can no longer do so.  So if anyone sees the
->   message "try_to_swap_out: page has buffers!", please shout out.
+> It does require using an order-2 allocation, which the current VM will
+> allow anyway, but which is obviously nastier than an order-1.
 
-Andrew,
+I've seen boxes dead in the water from 8K NFS (ie 16K order-2 allocations),
+let alone the huge memory hit. Michael's rtlinux approach looks even more
+interesting and I may have to play with that (using the TSS to ident the
+cpu)
 
-I have been getting thousands of these when the system was under heavy 
-load, but didn't realize it was from the ext3 code!  I'm using Linus's 
-2.4.14-pre7 + ext3 patch from Neil Brown's site (the latter is identified 
-as "ZeroNineFourteen".)  Would you like me to upgrade kernel and patch?
+Our memory bloat is already pretty gross in 2.4 without adding 16K task
+stacks to the oversided struct page, bootmem and excess double linked lists.
 
-Steve
-
-
+I also need to try sticking a pointer to the task struct at the top of the
+stack and loading that - since that should be a cache line that isnt being
+shared around or swapped between processors

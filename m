@@ -1,85 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbUCYWmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263682AbUCYWl1
+	id S263655AbUCYWu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:50:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbUCYWuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:41:27 -0500
-Received: from mail.tpgi.com.au ([203.12.160.61]:51126 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S263685AbUCYWi1 (ORCPT
+	Thu, 25 Mar 2004 17:50:01 -0500
+Received: from waste.org ([209.173.204.2]:40849 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263698AbUCYWr7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:38:27 -0500
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was
-	Re: Your opinion on the merge?]]
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Pavel Machek <pavel@suse.cz>
-Cc: Suspend development list <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040325222745.GE2179@elf.ucw.cz>
-References: <20040323233228.GK364@elf.ucw.cz>
-	 <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz>
-	 <200403250857.08920.matthias.wieser@hiasl.net>
-	 <1080247142.6679.3.camel@calvin.wpcb.org.au>
-	 <20040325222745.GE2179@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1080250718.6674.35.camel@calvin.wpcb.org.au>
+	Thu, 25 Mar 2004 17:47:59 -0500
+Date: Thu, 25 Mar 2004 16:47:27 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: David Mosberger <davidm@napali.hpl.hp.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: potential /dev/urandom scalability improvement
+Message-ID: <20040325224726.GB8366@waste.org>
+References: <20040325141923.7080c6f0.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Fri, 26 Mar 2004 09:38:38 +1200
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040325141923.7080c6f0.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2004-03-26 at 10:27, Pavel Machek wrote:
-> We should select one, and drop the others.
+On Thu, Mar 25, 2004 at 02:19:23PM -0800, Andrew Morton wrote:
 > 
-> gzip is useless for almost everyone -> gets little testing -> is
-> probably broken.
-
-Nope. Not broken. I used it yesterday in testing some changes you
-suggested. I asked about removing it a while back and people said 'No!
-We're using it!"
-
-> > upgraded my laptop's hard drive, and found I wasn't getting the
-> > performance improvements in suspending I expected. It turns out that the
-> > CPU is now the limiting factor. Because I had the /proc interface, I
-> > could easily adjust the debug settings to show me throughput and then
-> > try a couple of suspend cycles with compression enabled and with it
-> > disabled. Without the /proc interface, I would have had to have
-> > recompiled the kernel to switch settings. (I didn't try gzip because I
-> > knew it wasn't going to be a contender for me).
+> Matt, could you please review David's changes?
 > 
-> Kernel could automagically select the right one.. But I'd prefer for
+> Begin forwarded message:
+> 
+> Date: Wed, 24 Mar 2004 22:06:57 -0800
+> From: David Mosberger <davidm@napali.hpl.hp.com>
+> To: akpm@osdl.org
+> Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+> Subject: potential /dev/urandom scalability improvement
+> 
+> 
+> Hi Andrew,
+> 
+> I'm addressing this patch to you because you seem to have been the
+> person who most recently made some performance improvements to the
+> random driver.
 
-How? It would need to know the drive throughput, the compression
-throughput for each driver... I'm sure you're not suggesting some sort
-of utility run during kernel configuration/compilation. (And if you
-were, that would assume the computer it was being compiled on was the
-computer the kernel would be run on).
+That was probably me, actually.
 
-> only "non compressed" part to reach mainline for 2.6. Feature freeze
-> was few months ago, and "adding possibility to compress swsusp data"
-> does not sound like a bugfix to me...
+> Oh, and somebody who actually understands this code may want to
+> double-check the patch for correctness.
 
-Feature freeze is always half unfrozen anyway. 2.4 just gained XFS! I'm
-sure 2.6 would be fine gaining a permutation of suspend with Highmem
-support, swap file support, support for multiple swap devices, support
-for bootsplash, support for compression and/or encryption and support
-for SMP/HT. (Did I forget anything? :>).
+Seems perfectly sane.
 
-Regards,
+However, I've got a few pending patches that touch the same areas and
+do some more critical cleanup that I've been sitting on since the
+2.6.0 freeze. So perhaps I should start pushing those again and we can
+queue this behind them. David, if you get a chance, grab the latest
+copy of my linux-tiny tree from
 
-Nigel
+ http://www.selenic.com/tiny/2.6.5-rc2-tiny1-broken-out.tar.bz2
+ http://www.selenic.com/tiny/2.6.5-rc2-tiny1.patch.bz2
+
+and see how I've tweaked the pool structure and the locking and how
+your bits fit with it.
+
+> +#ifdef ARCH_HAS_PREFETCH
+> +	for (cp = (char *) r->pool; cp <= (char *) (r->pool + wordmask); cp += PREFETCH_STRIDE)
+> +		prefetch(cp);
+> +#endif
+
+Can we avoid adding this ifdef in some fashion? What does the compiler
+generate here when prefetch is a no-op? This seems to call for a
+prefetch_range(start, len) function/macro in any case.
+
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+Matt Mackall : http://www.selenic.com : Linux development and consulting

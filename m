@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTLXAWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 19:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTLXAWG
+	id S262838AbTLXAYg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 19:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTLXAYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 19:22:06 -0500
-Received: from amber.ccs.neu.edu ([129.10.116.51]:44454 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S262790AbTLXAWE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 19:22:04 -0500
-Subject: Question about badblocks on SWAP partitions
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1072225317.2947.153.camel@duergar>
+	Tue, 23 Dec 2003 19:24:36 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:54975 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S262838AbTLXAYf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 19:24:35 -0500
+Date: Tue, 23 Dec 2003 16:24:30 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Dale Amon <amon@vnl.com>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question on LFS in Redhat
+Message-ID: <20031224002430.GY6438@matchmail.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+References: <20031223151042.GE9089@vnl.com> <1072193917.5262.1.camel@laptop.fenrus.com> <20031223235827.GK9089@vnl.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Dec 2003 19:21:58 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223235827.GK9089@vnl.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Guys,
+On Tue, Dec 23, 2003 at 11:58:27PM +0000, Dale Amon wrote:
+> But you wouldn't be able to handle file systems larger
+> than 2TB then I presume?
 
-This isn't a bug report, just a request for a little help.  I have an
-old p166 (32mb RAM).  It has an old 2.0.36 kernel installed and the
-primary disk appears to have some bad blocks in the SWAP partition
-causing the system to throw out some disk errors and go crazy.  This
-system is not a system I use often, I'm just using it now to examine the
-contents of some old disks.
-
-What can I do to avoid the bad blocks on the SWAP partition without
-reformatting anything or the likes?  I really don't want to do anything
-to disturb the data on the primary disk, and I don't want to use any of
-the disks I have lying around, since they have a great many files I'd
-love to keep at this point.  I don't want to put any work into this
-system at all, it's really just used to read old disks.  Any ideas?
-
-Thanks,
-
-sb
-
+Correct, I'd suggest 2.6 instead of patching your 2.4 kernel.  The 2.6
+drivers have had more testing with large filesystems/block devices, and
+that's very light, and even lighter on patched 2.4.

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbTJPT0R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 15:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbTJPT0R
+	id S263115AbTJPTgV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 15:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbTJPTgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 15:26:17 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:60802 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263085AbTJPT0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 15:26:16 -0400
-Date: Thu, 16 Oct 2003 20:27:16 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310161927.h9GJRGvm002121@81-2-122-30.bradfords.org.uk>
-To: Robert Love <rml@tech9.net>, root@chaos.analogic.com
-Cc: John Bradford <john@grabjohn.com>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org, val@nmt.edu
-In-Reply-To: <1066330835.5398.74.camel@localhost>
-References: <1066163449.4286.4.camel@Borogove>
- <20031015133305.GF24799@bitwizard.nl>
- <3F8D6417.8050409@pobox.com>
- <1066330835.5398.74.camel@localhost>
-Subject: Re: Transparent compression in the FS
+	Thu, 16 Oct 2003 15:36:21 -0400
+Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:63112
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S263115AbTJPTgU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 15:36:20 -0400
+Message-ID: <3F8EF3BB.6090602@trash.net>
+Date: Thu, 16 Oct 2003 21:38:35 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031010 Debian/1.4-6
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test7: XFS fills files with 0-bytes after crash
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Robert Love <rml@tech9.net>:
-> On Thu, 2003-10-16 at 14:56, Richard B. Johnson wrote:
-> 
-> > No! Not true. 'lossy' means that you can't recover the original
-> > data. Some music compression and video compression schemes are
-> > lossy. If you can get back the exact input data, it's not lossy.
-> 
-> ...and with an N-bit hash of M bits of data, where N<M, you cannot
-> recover the original data...
+I recently encountered a problem with XFS: while hacking on some network 
+stuff
+I crashed my box multiple times. Every time I saved a file directly 
+before the crash
+XFS filled the file with 0-bytes (I assume at recovery). The file size 
+was unchanged.
+Syncing and waiting a couple of seconds before crashing the box helped. 
+To confirm
+my network hacking didn't accidentally damage XFS data structures I 
+created a
+module which does nothing more than dereferencing a NULL pointer in softirq
+context, the problem persisted.
 
-I think the confusion has arisen because I said that you can't
-compress N values in to <N values.  This is somewhat ambiguous, and
-can be taken to mean either:
+ver_linux:
 
-1. You can't loss-lessly compress N arbitrary values, in to less than
-N arbitrary values using a certain mathematical transformation.
+Gnu C                  3.3.2
+Gnu make               3.80
+util-linux             2.12
+mount                  2.12
+module-init-tools      0.9.15-pre2
+e2fsprogs              1.35-WIP
+xfsprogs               2.5.11
+nfs-utils              1.0.5
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.1.12
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.0.91
+Modules Loaded         sch_hfsc iptable_filter ipt_MARK iptable_mangle 
+ip_tables cls_fw oprofile nfsd exportfs deflate zlib_deflate twofish 
+serpent aes blowfish des sha256 sha1 md5 af_key 8250 serial_core nfs 
+lockd sunrpc af_packet snd_pcm_oss snd_mixer_oss snd_ens1371 snd_rawmidi 
+snd_seq_device snd_pcm snd_page_alloc snd_timer snd_ac97_codec snd 
+soundcore 8139too mii rtc unix
 
-or
+xfsprogs 2.5.11-1 (debian)
 
-2. You can't loss-lessly compress all N combinations of M bits, in to
-less than M bits, using any mathematical transformation.
+If more specific information is required please tell me ..
 
-Obviously interpretation 1 is incorrect, and interpretation 2 is
-correct.
+Best regards,
+Patrick
 
-John.
+

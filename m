@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSGSWAT>; Fri, 19 Jul 2002 18:00:19 -0400
+	id <S317101AbSGSWCb>; Fri, 19 Jul 2002 18:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317091AbSGSWAS>; Fri, 19 Jul 2002 18:00:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:36491 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317072AbSGSWAS>;
-	Fri, 19 Jul 2002 18:00:18 -0400
-Date: Fri, 19 Jul 2002 14:53:24 -0700 (PDT)
-Message-Id: <20020719.145324.122050429.davem@redhat.com>
-To: spotter@cs.columbia.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: file descriptor passing (jail related question)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1027115899.2161.110.camel@zaphod>
-References: <1027115899.2161.110.camel@zaphod>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317107AbSGSWCb>; Fri, 19 Jul 2002 18:02:31 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:46214 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317101AbSGSWCa>; Fri, 19 Jul 2002 18:02:30 -0400
+Date: Fri, 19 Jul 2002 16:05:29 -0600
+Message-Id: <200207192205.g6JM5TR12776@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: frankeh@watson.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, shreenivasa H V <shreenihv@usa.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Gang Scheduling in linux
+In-Reply-To: <200207191525.40633.frankeh@watson.ibm.com>
+References: <Pine.LNX.4.44.0207201858180.17247-100000@localhost.localdomain>
+	<200207191525.40633.frankeh@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hubertus Franke writes:
+> On a single SMP I could imagine for instance for parallel reendering
+> or similar tightly integrated parallel programs that need data
+> synchronization.  Most of these apps assume a tightly coupled
+> non-virtual resource, i.e., scheduling of tasks is aligned.
+> 
+> SGI used to have that stuff in their base kernel. Read a paper about
+> this some years ago.  Again, at the beginning I'd go with a user
+> level scheduler approach that certainly would satisfy national labs
+> etc. Most of the cluster schedulers, like PBS and LoadLeveler etc.,
+> already provide that functionality.
 
-   From: Shaya Potter <spotter@cs.columbia.edu>
-   Date: 19 Jul 2002 17:58:07 -0400
+A completely user-level solution may have some disadvantages, though,
+such as delays in scheduling on/off (say if some daemon is used to
+scan the process list). Perhaps we could add a small hack to the
+scheduler such that when a task is about to be scheduled off, a signal
+can be sent to a designated pid? Similarly, when a task is scheduled
+on, another signal may be sent. An application that wanted to have
+gang scheduling could then make use of this to STOP/CONT threads.
 
-   How does file descriptor passing work.  From what I can tell it uses the
-   sendmsg and recvmsg calls.  Is this only process to process over a non
-   ip socket  on the same machine (what's the right terminology for this,
-   just a plain FIFO?), or could one conceivably pass a file descriptor
-   over an ip socket?
-   
-File descriptors can only be passed over AF_UNIX sockets.
-These are like fancy FIFO's on the local host using the
-socket APIs for the communication and synchronization.
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131315AbRCHIwR>; Thu, 8 Mar 2001 03:52:17 -0500
+	id <S131292AbRCHJH3>; Thu, 8 Mar 2001 04:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131313AbRCHIwH>; Thu, 8 Mar 2001 03:52:07 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:57486 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S131311AbRCHIwB>;
-	Thu, 8 Mar 2001 03:52:01 -0500
-Date: Thu, 8 Mar 2001 09:51:43 +0100 (MET)
+	id <S131296AbRCHJHU>; Thu, 8 Mar 2001 04:07:20 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:34566 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S131292AbRCHJHQ>;
+	Thu, 8 Mar 2001 04:07:16 -0500
+Date: Thu, 8 Mar 2001 10:06:57 +0100 (MET)
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: linux-kernel@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE bug in 2.4.2-ac12?
 From: Konrad Stopsack <konrad_lkml@gmx.de>
-In-Reply-To: <20010308093605.A904@suse.cz>
-Message-ID: <2083.984041503@www29.gmx.net>
+In-Reply-To: <20010308095705.A976@suse.cz>
+Message-ID: <32463.984042417@www29.gmx.net>
 Mime-Version: 1.0
 X-Priority: 3 (Normal)
 X-Authenticated-Sender: #0009979400@gmx.net
@@ -26,39 +26,39 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Vojtech Pavlik wrote:
-> On Thu, Mar 08, 2001 at 09:01:15AM +0100, Konrad Stopsack wrote:
+> On Thu, Mar 08, 2001 at 09:51:43AM +0100, Konrad Stopsack wrote:
 > 
-> > Do you mean the Power Supply Unit? Or the Program Storage Unit? ;-)
+> > > I don't see any other way how the ZIP could have impact on the IDE 
+HDD
+> > > on a different IDE interface.
+> > The 82c586b can be a chip with locked-together IDE controllers, can't
+> it?
 > 
-> Power Supply Unit, yes.
+> What do you mean by 'locked together'?
+Nasty chips whose two IDE channels aren't really separated. On one IDE 
+channel you either can use DMA or not. On these chips, switching off DMA 
+at the second controller also disables DMA at the first.
+
 > 
-> > To answer to your questions:
-> >  - I haven't tried to remove the CD-ROM because both devices shall 
-work 
-> > together
-> >  - the ZIP doesn't cause problems when just the power cable is 
-connected
+> > > If you wonder why /proc/ide/via reports slower DMA rates for the HDD
+> > > when the ZIP is connected is because the auto slowdown code kicks in
+> and
+> > > lowers the transfer rate when too many CRC errors happen.
 > > 
-> > Although my PC has only got an old Baby AT 200W power supply I don't
-> think 
-> > that's the point.
+> > Well, and what should I do now? I really need the ZIP drive. 
+> > Try without CD-ROM? Buy new ATX case with 300W power supply? And new 
+> > motherboard? And new processor? And ... and ... and?
+> > Isn't there a chance to unlock the IDE channels (if they are locked)? 
+> > Remember, I've heard about a Windows patch to do this.
 > 
-> I don't see any other way how the ZIP could have impact on the IDE HDD
-> on a different IDE interface.
-The 82c586b can be a chip with locked-together IDE controllers, can't it?
+> I have two vt82c586b's here and one old vt82c586. All work fine with
+> different drive combinations, one even has a CD-ROM and a ZIP on the
+> secondary channel like yours.
 
-> 
-> If you wonder why /proc/ide/via reports slower DMA rates for the HDD
-> when the ZIP is connected is because the auto slowdown code kicks in and
-> lowers the transfer rate when too many CRC errors happen.
+Yeah, Ok. My combination SHOULD work without any problems...
 
-Well, and what should I do now? I really need the ZIP drive. 
-Try without CD-ROM? Buy new ATX case with 300W power supply? And new 
-motherboard? And new processor? And ... and ... and?
-Isn't there a chance to unlock the IDE channels (if they are locked)? 
-Remember, I've heard about a Windows patch to do this.
-
-Paul, what did you find out?
+What else could I do? Swap CD-ROM and ZIP? Try new 2.4.2-ac14 with command 
+line parameters "ide0=dma ide1=nodma"?
 
 cu Konrad
 

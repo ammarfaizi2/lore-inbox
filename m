@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263126AbTDBTSa>; Wed, 2 Apr 2003 14:18:30 -0500
+	id <S263132AbTDBTVu>; Wed, 2 Apr 2003 14:21:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263128AbTDBTSa>; Wed, 2 Apr 2003 14:18:30 -0500
-Received: from [207.61.129.108] ([207.61.129.108]:20144 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S263126AbTDBTS3>; Wed, 2 Apr 2003 14:18:29 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.66-bk5 spinlock warnings/errors - Specifically ide-io:109 spinlock notice
-Date: Wed, 2 Apr 2003 14:29:49 -0500
-User-Agent: KMail/1.5
-Cc: desai@mcs.anl.gov, alan@lxorguk.ukuu.org.uk
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S263133AbTDBTVu>; Wed, 2 Apr 2003 14:21:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:23822 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S263132AbTDBTVt>;
+	Wed, 2 Apr 2003 14:21:49 -0500
+Subject: Re: [PATCH][2.4.21-pre6] update x86_64 for kernel_thread change
+From: Andi Kleen <ak@suse.de>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <16011.14209.703212.772185@gargle.gargle.HOWL>
+References: <16011.14209.703212.772185@gargle.gargle.HOWL>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304021429.49589.spstarr@sh0n.net>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 02 Apr 2003 21:33:14 +0200
+Message-Id: <1049311995.10050.47.camel@averell>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->List:     linux-kernel
->Subject:  2.5.66-bk5 spinlock warnings/errors
-From:     Narayan Desai <desai () mcs ! anl ! gov>
->Date:     2003-04-02 4:01:02
+On Wed, 2003-04-02 at 21:18, Mikael Pettersson wrote:
+> Building an x86_64 kernel from 2.4.21-pre6 results in two linkage
+> errors due to the recent kernel_thread to arch_kernel_thread name change.
+> This patch updates x86_64 for that change.
 
->hda: dma_timer_expiry: dma status == 0x24
->drivers/ide/ide-io.c:109: spin_lock(drivers/ide/ide.c:c037abe8) already 
->locked by drivers/ide/ide-io.c/948 drivers/ide/ide-io.c:990: 
->spin_unlock(drivers/ide/ide.c:c037abe8) not locked
->hda: lost interrupt
->hda: dma_intr: bad DMA status (dma_stat=30)
->hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+You need more changes to fix the ptrace hole completely.
 
-I had this problem last night while making a huge debian package (tar.bz2 
-stage). It occured once.
+I have it mostly fixed in CVS (except this change), but Marcelo
+currently only applies merges with several weeks delay so don't expect
+it any time soon in official 2.4
 
-Switching to Debian unstable and already two new interesting kernel notices 
-and one 3c59x  NETDEV Watchdog - eth0 transmit timeout bug.
-
-
+-Andi
+ 
 
 

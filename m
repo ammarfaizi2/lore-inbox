@@ -1,101 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266866AbUBQXYP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 18:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266826AbUBQXYJ
+	id S266941AbUBQX2s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266927AbUBQX2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 18:24:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20661 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266866AbUBQXXC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 18:23:02 -0500
-Date: Tue, 17 Feb 2004 15:24:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Limit hash table size
-Message-Id: <20040217152451.7e1796d9.akpm@osdl.org>
-In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB501F2AADF@scsmsx401.sc.intel.com>
-References: <B05667366EE6204181EABE9C1B1C0EB501F2AADF@scsmsx401.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 17 Feb 2004 18:28:47 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:26082 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266913AbUBQX23
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 18:28:29 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeremy Jackson <jerj@coplanar.net>
+Subject: Re: 2.4.23 IDE hang on boot with two single-channel controllers
+Date: Wed, 18 Feb 2004 00:34:44 +0100
+User-Agent: KMail/1.5.3
+References: <401538C6.5030609@coplanar.net>
+In-Reply-To: <401538C6.5030609@coplanar.net>
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org,
+       linux-ide <linux-ide@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402180034.44917.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+
+[ I've just found it in my mail-archive :-). ]
+
+On Monday 26 of January 2004 16:56, Jeremy Jackson wrote:
+> Hi,
+
+Hi,
+
+> (watch crossposting when replying all)
 >
-> OK, here is another revision on top of what has been discussed.  It adds
-> 4 boot time parameters so user can override default size as needed to
-> suite special needs.
+> I'm hoping to reach the maintainer of the Linux IDE driver for the
+> Compaq TriFlex controller.  I have a problem with this driver when used
+> with a Compaq Armada 7730MT while docked in the base station.
+>
+> The driver appears to only support one triflex controller, due to a
+> missing check (that other chipset drivers have) that should prevent it
+> from registering a /proc interface more than once.  The result is that
+> it hangs on boot in proc_ide_create() in an infinite loop.
 
-You've set the default to 2M entries, with an option for this to be
-increased via a boot parameter.  This means that people whose machines have
-lots of memory and a sane number of zones may suddenly wonder why their
-app-which-uses-a-zillion-files is running like crap.
+Please send outputs of 'lspci' and 'dmesg' commands.
 
-I think it would be better to leave things as they are, with a boot option
-to scale the tables down.  The below patch addresses the inode and dentry
-caches.  Need to think a bit more about the networking ones.
+> triflex.c:
+>
+> static unsigned int __init init_chipset_triflex(struct pci_dev *dev,
+>                  const char *name)
+> {
+> #ifdef CONFIG_PROC_FS
+>          ide_pci_register_host_proc(&triflex_proc);
+> #endif
+>          return 0;
+> }
+>
+> It also appears that triflex_get_info() doesn't support more that one
+> controller.
 
-> I will sent a separate patch for
-> kernel-parameters.txt if everyone is OK with this one.
+Yep, that's true.
 
-Yes please.
+> I won't go into more detail until I can establish who might care :)
 
+I might care ;-).
 
-diff -puN fs/dcache.c~limit-hash-table-sizes-boot-options-restore-defaults fs/dcache.c
---- 25/fs/dcache.c~limit-hash-table-sizes-boot-options-restore-defaults	Tue Feb 17 15:11:09 2004
-+++ 25-akpm/fs/dcache.c	Tue Feb 17 15:11:29 2004
-@@ -49,7 +49,6 @@ static kmem_cache_t *dentry_cache; 
-  */
- #define D_HASHBITS     d_hash_shift
- #define D_HASHMASK     d_hash_mask
--#define D_HASHMAX	(2*1024*1024UL)	/* max number of entries */
+Does this patch fixes hang?
+Does 'cat /proc/ide/triflex' produce sane output?
+
+Cheers,
+--bart
+
+ linux-2.4.23-root/drivers/ide/pci/triflex.c |   41 +++++++++++++++++++---------
+ linux-2.4.23-root/drivers/ide/pci/triflex.h |    5 ++-
+ 2 files changed, 32 insertions(+), 14 deletions(-)
+
+diff -puN drivers/ide/pci/triflex.c~ide_triflex_proc_fix drivers/ide/pci/triflex.c
+--- linux-2.4.23/drivers/ide/pci/triflex.c~ide_triflex_proc_fix	2004-02-17 23:40:34.324345576 +0100
++++ linux-2.4.23-root/drivers/ide/pci/triflex.c	2004-02-18 00:22:53.578320296 +0100
+@@ -44,15 +44,17 @@
+ #include "ide_modes.h"
+ #include "triflex.h"
  
- static unsigned int d_hash_mask;
- static unsigned int d_hash_shift;
-@@ -1567,12 +1566,11 @@ static void __init dcache_init(unsigned 
- 	
- 	set_shrinker(DEFAULT_SEEKS, shrink_dcache_memory);
+-static struct pci_dev *triflex_dev;
++#ifdef CONFIG_PROC_FS
++static u8 triflex_proc;
  
--	if (!dhash_entries) {
-+	if (!dhash_entries)
- 		dhash_entries = PAGE_SHIFT < 13 ?
- 				mempages >> (13 - PAGE_SHIFT) :
- 				mempages << (PAGE_SHIFT - 13);
--		dhash_entries = min(D_HASHMAX, dhash_entries);
--	}
+-static int triflex_get_info(char *buf, char **addr, off_t offset, int count)
+-{
+-	char *p = buf;
+-	int len;
++#define TRIFLEX_MAX_DEVS	2
++static struct pci_dev *triflex_devs[TRIFLEX_MAX_DEVS];
++static unsigned int n_triflex_devs;
+ 
+-	struct pci_dev *dev	= triflex_dev;
++static int triflex_info(char *buffer, struct pci_dev *dev)
++{
+ 	unsigned long bibma = pci_resource_start(dev, 4);
++	char *p = buffer;
+ 	u8  c0 = 0, c1 = 0;
+ 	u32 pri_timing, sec_timing;
+ 
+@@ -87,11 +89,23 @@ static int triflex_get_info(char *buf, c
+ 	p += sprintf(p, "DMA\n");
+ 	p += sprintf(p, "PIO\n");
+ 
++	return p - buffer;
++}
 +
- 	dhash_entries *= sizeof(struct hlist_head);
- 	for (order = 0; ((1UL << order) << PAGE_SHIFT) < dhash_entries; order++)
- 		;
-diff -puN fs/inode.c~limit-hash-table-sizes-boot-options-restore-defaults fs/inode.c
---- 25/fs/inode.c~limit-hash-table-sizes-boot-options-restore-defaults	Tue Feb 17 15:11:09 2004
-+++ 25-akpm/fs/inode.c	Tue Feb 17 15:11:47 2004
-@@ -53,7 +53,6 @@
-  */
- #define I_HASHBITS	i_hash_shift
- #define I_HASHMASK	i_hash_mask
--#define I_HASHMAX	(2*1024*1024UL)	/* max number of entries */
- 
- static unsigned int i_hash_mask;
- static unsigned int i_hash_shift;
-@@ -1336,12 +1335,11 @@ void __init inode_init(unsigned long mem
- 	for (i = 0; i < ARRAY_SIZE(i_wait_queue_heads); i++)
- 		init_waitqueue_head(&i_wait_queue_heads[i].wqh);
- 
--	if (!ihash_entries) {
-+	if (!ihash_entries)
- 		ihash_entries = PAGE_SHIFT < 14 ?
- 				mempages >> (14 - PAGE_SHIFT) :
- 				mempages << (PAGE_SHIFT - 14);
--		ihash_entries = min(I_HASHMAX, ihash_entries);
--	}
++static int triflex_get_info(char *buf, char **addr, off_t offset, int count)
++{
++	char *p = buf;
++	unsigned int i, len;
 +
- 	ihash_entries *= sizeof(struct hlist_head);
- 	for (order = 0; ((1UL << order) << PAGE_SHIFT) < ihash_entries; order++)
- 		;
++	for (i = 0; i < n_triflex_devs; i++)
++		buf += triflex_info(buf, triflex_devs[i]);
++
+ 	len = (p - buf) - offset;
+ 	*addr = buf + offset;
+-	
++
+ 	return len > count ? count : len;
+ }
++#endif
+ 
+ static int triflex_tune_chipset(ide_drive_t *drive, u8 xferspeed)
+ {
+@@ -211,9 +225,13 @@ static unsigned int __init init_chipset_
+ 		const char *name) 
+ {
+ #ifdef CONFIG_PROC_FS
+-	ide_pci_register_host_proc(&triflex_proc);
++	triflex_devs[n_triflex_devs++] = dev;
++	if (!triflex_proc) {
++		triflex_proc = 1;
++		ide_pci_register_host_proc(&triflex_procs);
++	}
+ #endif
+-	return 0;	
++	return 0;
+ }
+ 
+ static int __devinit triflex_init_one(struct pci_dev *dev, 
+@@ -222,11 +240,10 @@ static int __devinit triflex_init_one(st
+ 	ide_pci_device_t *d = &triflex_devices[id->driver_data];
+ 	if (dev->device != d->device)
+ 		BUG();
+-	
++
+ 	ide_setup_pci_device(dev, d);
+-	triflex_dev = dev;
+ 	MOD_INC_USE_COUNT;
+-	
++
+ 	return 0;
+ }
+ 
+diff -puN drivers/ide/pci/triflex.h~ide_triflex_proc_fix drivers/ide/pci/triflex.h
+--- linux-2.4.23/drivers/ide/pci/triflex.h~ide_triflex_proc_fix	2004-02-17 23:58:11.698600256 +0100
++++ linux-2.4.23-root/drivers/ide/pci/triflex.h	2004-02-18 00:27:28.152578664 +0100
+@@ -14,7 +14,6 @@
+ 
+ static unsigned int __devinit init_chipset_triflex(struct pci_dev *, const char *);
+ static void init_hwif_triflex(ide_hwif_t *);
+-static int triflex_get_info(char *, char **, off_t, int);
+ 
+ static ide_pci_device_t triflex_devices[] __devinitdata = {
+ 	{
+@@ -34,7 +33,9 @@ static ide_pci_device_t triflex_devices[
+ };
+ 
+ #ifdef CONFIG_PROC_FS
+-static ide_pci_host_proc_t triflex_proc __initdata = {
++static int triflex_get_info(char *, char **, off_t, int);
++
++static ide_pci_host_proc_t triflex_procs __initdata = {
+ 	.name		= "triflex",
+ 	.set		= 1,
+ 	.get_info 	= triflex_get_info,
 
+_
 

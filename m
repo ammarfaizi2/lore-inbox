@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310603AbSCHAAY>; Thu, 7 Mar 2002 19:00:24 -0500
+	id <S310607AbSCHADE>; Thu, 7 Mar 2002 19:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310604AbSCHAAP>; Thu, 7 Mar 2002 19:00:15 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:46343 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310603AbSCHAAI>;
-	Thu, 7 Mar 2002 19:00:08 -0500
-Date: Thu, 7 Mar 2002 20:59:47 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Jonathan A. George" <JGeorge@greshamstorage.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-In-Reply-To: <3C87FD12.8060800@greshamstorage.com>
-Message-ID: <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S310606AbSCHACy>; Thu, 7 Mar 2002 19:02:54 -0500
+Received: from web21207.mail.yahoo.com ([216.136.175.165]:33197 "HELO
+	web21207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S310608AbSCHACg>; Thu, 7 Mar 2002 19:02:36 -0500
+Message-ID: <20020308000235.24450.qmail@web21207.mail.yahoo.com>
+Date: Thu, 7 Mar 2002 16:02:35 -0800 (PST)
+From: aryan aru <aryan222is@yahoo.com>
+Subject: netlink usage
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Mar 2002, Jonathan A. George wrote:
+Hi,
 
-> I am considering adding some enhancements to CVS to address deficiencies
-> which adversely affect my productivity.
+I need some help on netlink usage. I have a process
+running in user space and a driver in kernel space. I
+want to setup a communication between these two
+through netlink. From kernel point of view I am not
+clear. If I need to send data to user procees thorugh
+"netlink_unicast", this method is expecting the
+process_id of the process that is running in the user
+space. How can I get the process ID from the user
+space.
 
-> ... I would like to know what the Bitkeeper users consider the minimum
-> acceptable set of improvements that CVS would require for broader
-> acceptance.
+Or is there any other way.
 
-1) working merges
+Any help plz...
 
-2) atomic checkins of entire patches, fast tags
+thanks in advance
 
-3) graphical 2-way merging tool like bitkeeper has
-   (this might not seem essential to people who have
-   never used it, but it has saved me many many hours)
+regards
+seenu
 
-4) distributed repositories
-
-5) ability to exchange changesets by email
-
-regards,
-
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+__________________________________________________
+Do You Yahoo!?
+Try FREE Yahoo! Mail - the world's greatest free email!
+http://mail.yahoo.com/

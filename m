@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279580AbRKIHOk>; Fri, 9 Nov 2001 02:14:40 -0500
+	id <S279603AbRKIHRA>; Fri, 9 Nov 2001 02:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279589AbRKIHOa>; Fri, 9 Nov 2001 02:14:30 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8322 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S279580AbRKIHOU>;
-	Fri, 9 Nov 2001 02:14:20 -0500
-Date: Thu, 08 Nov 2001 23:14:05 -0800 (PST)
-Message-Id: <20011108.231405.59654385.davem@redhat.com>
+	id <S279617AbRKIHQo>; Fri, 9 Nov 2001 02:16:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10882 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279603AbRKIHQi>;
+	Fri, 9 Nov 2001 02:16:38 -0500
+Date: Thu, 08 Nov 2001 23:16:32 -0800 (PST)
+Message-Id: <20011108.231632.18311891.davem@redhat.com>
 To: ak@suse.de
 Cc: anton@samba.org, mingo@elte.hu, linux-kernel@vger.kernel.org
 Subject: Re: speed difference between using hard-linked and modular drives?
@@ -26,16 +26,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
    From: Andi Kleen <ak@suse.de>
    Date: Fri, 9 Nov 2001 07:39:46 +0100
    
-   Before jumping to real conclusions it would be interesting to gather
-   some statistics on Anton's machine, but I suspect he just has an very
-   unevenly populated table.
-   
-N_PAGES / N_HASHCHAINS was on the order of 9, and the hash chains were
-evenly distributed.  He posted URLs to graphs of the hash table chain
-lengths.
+   I'm assuming that walking on average 5-10 pages on a lookup is not
+   too big a deal, especially when you use prefetch for the list walk.
+
+Oh no, not this again...
+
+It _IS_ a big deal.  Fetching _ONE_ hash chain cache line
+is always going to be cheaper than fetching _FIVE_ to _TEN_
+page struct cache lines while walking the list.
+
+Even if prefetch would kill all of this overhead (sorry, it won't), it
+is _DUMB_ and _STUPID_ to bring those _FIVE_ to _TEN_ cache lines into
+the processor just to lookup _ONE_ page.
 
 Franks a lot,
 David S. Miller
 davem@redhat.com
 
-   

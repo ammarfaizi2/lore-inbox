@@ -1,139 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVBQQdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVBQQeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVBQQdt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 11:33:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVBQQdt
+	id S262304AbVBQQeA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 11:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVBQQd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 11:33:49 -0500
-Received: from matheson.swishmail.com ([209.10.110.114]:6904 "EHLO
-	matheson.swishmail.com") by vger.kernel.org with ESMTP
-	id S262303AbVBQQdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 11:33:24 -0500
-Subject: Re: /proc/*/statm, exactly what does "shared" mean?
-From: "Richard F. Rebel" <rrebel@whenu.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Mauricio Lin <mauriciolin@gmail.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-In-Reply-To: <Pine.LNX.4.61.0502161559360.18376@goblin.wat.veritas.com>
-References: <1108161173.32711.41.camel@rebel.corp.whenu.com>
-	 <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com>
-	 <1108219160.12693.184.camel@blue.obulous.org>
-	 <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
-	 <3f250c710502160241222dce47@mail.gmail.com>
-	 <Pine.LNX.4.61.0502161142240.17264@goblin.wat.veritas.com>
-	 <3f250c7105021607022362013c@mail.gmail.com>
-	 <1108567021.32711.529.camel@rebel.corp.whenu.com>
-	 <Pine.LNX.4.61.0502161559360.18376@goblin.wat.veritas.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Q/PRfsN3ZKD8I60TQ9PU"
-Organization: Whenu.com
-Date: Thu, 17 Feb 2005 11:33:22 -0500
-Message-Id: <1108658002.32711.753.camel@rebel.corp.whenu.com>
+	Thu, 17 Feb 2005 11:33:59 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:54538 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262304AbVBQQds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 11:33:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=GCjEHTleho2QQnhi+0YGABPHrdBgrrSqgU8EHZkpa/XH2IGA6uq0jAMEGLwp7oiMKcEli23FPl7E8rOJl3sJW4pxAY954SWXQbzRekbkiR25CSl8wv0ntk2XOyOgWCYSGCNhhKazBKJzrdv7H5scHYI0V0k9DnaZrQ2eO/Ppi+I=
+Message-ID: <9e473391050217083312685e44@mail.gmail.com>
+Date: Thu, 17 Feb 2005 11:33:48 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] quiet non-x86 option ROM warnings
+Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1108601294.5426.1.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3-1.1.101mdk 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200502151557.06049.jbarnes@sgi.com>
+	 <1108515817.13375.63.camel@gaston>
+	 <200502161554.02110.jbarnes@sgi.com> <1108601294.5426.1.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Feb 2005 11:48:14 +1100, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> On Wed, 2005-02-16 at 15:54 -0800, Jesse Barnes wrote:
+> > On Tuesday, February 15, 2005 5:03 pm, Benjamin Herrenschmidt wrote:
+> > > What about printing "No PCI ROM detected" ? I like having that info when
+> > > getting user reports, but I agree that a less worrying message would
+> > > be good.
+> >
+> > Ok, how about this then?  It changes the printks in both drivers to KERN_INFO
+> > and describes the situation a bit more accurately.
+> >
+> > Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+> >
+> > Thanks,
+> > Jesse
+> >
+> > P.S. Jon, I think the pci_map_rom code is buggy--if the option ROM signature
+> > is missing or indicates that there's no ROM, the routine still returns a
+> > valid pointer making the caller thing it succeeded.  If we fix that up we can
+> > fix up the callers.
+> 
+> No, pci_map_rom shouldn't test the signature IMHO. While PCI ROMs should
+> have the signature to be recognized as containing valid firmware images
+> on x86 BIOSes an OF, it's just a convention on these platforms, and I
+> would rather let people put whatever they want in those ROMs and still
+> let them map it...
+> 
 
---=-Q/PRfsN3ZKD8I60TQ9PU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+pci_map_rom will return a pointer to any ROM it finds. It the
+signature is invalid the size returned will be zero. Is this ok or do
+we want it to do something different?
 
-Hello Hugh,
-
-On Wed, 2005-02-16 at 16:10 +0000, Hugh Dickins wrote:
-> On Wed, 16 Feb 2005, Richard F. Rebel wrote:
-> >=20
-> > I have heard that this particular information, while very important to
-> > userland developers like me, is probably too expensive to keep track of
-> > for most users.
-> >=20
-> > Perhaps a way to enable it for developers, whom are willing to spend th=
-e
-> > cpu cycles, and disable it for regular use would be a solution.
-> >=20
-> > Would it be possible develop a solution allowing us to enable/disable
-> > this tracking via a sysctl call?
->=20
-> Possible, but I don't think a sysctl would make much sense here.
->=20
-> The most important thing is that any heavyweight information gathering
-> should not be happening by default, as a side-effect of something
-> frequently run.
-
-Okay and agreed.
-
-> So a lot of people would oppose putting back any such heavyweight
-> work into any of the /proc/<pid>/statm fields.  But if it goes into
-> a separate /proc/<pid>/whatever, not read by current tools, then
-> it's much less of a problem.
->=20
-> I'm still resistant, because I think if the information you're
-> interested in (how many private pages shared across forks) really
-> were of interest to many people, then someone would soon write a
-> top-like tool which kept sampling these values, and we'd be back to
-> the original situation.  Or if it's not of interest to many people,
-> then isn't it better off as an out-of-tree patch?
-
-Well, let's put it this way.  In general, would you agree that the bulk
-of Linux servers on the internet run apache?  It's also not hard to
-assume that many of these also run apache+php or apache+mod_perl.
-
-Apache has lots of modules and code that can easily be shared between
-processes.  Especially when you use mod_perl or php.  This sharing
-significantly effects the memory footprint and saves us all from having
-gigabytes of memory that we don't really need.  My apache2 processes
-have a VSS of around 120MB!
-
-The capacity of a web serving machine is some combination of CPU,
-Memory, and IO bandwidth.  Being able to measure the copy-on-write pages
-for processes is a key variable to determining a machine capacity.  This
-figure changes over the life of the process as well, and can be used to
-tell children to exit once they reach a certain point.
-
-Now, about keeping it in the vanilla kernel:  AFAIK, the only way to
-acquire this information is from the kernel.  It's useful to developers,
-and available on most other platforms.  Copy on write pages make sense,
-why waste tons of RAM when there is no real need?  It makes sense to be
-able to observe this behavior, and the information can guide developers
-to make their applications more efficient.
-
-In many organizations developers do not have the ability/skill to make
-custom kernels.  They are given development platforms, told to write
-their applications, and so on and so on.  Patching the kernel for
-keeping track of cow's and subsequently maintaining that patch really
-doesn't help them much.  I could go on but this is getting a bit off
-topic.
-
-Best,
-
-Richard Rebel
-
-> But I don't have a dogmatic position on it,
-> and trust others' judgement better than my own.
->=20
-> Hugh
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---=20
-Richard F. Rebel
-
-cat /dev/null > `tty`
-
---=-Q/PRfsN3ZKD8I60TQ9PU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCFMdSx1ZaISfnBu0RAgCiAJ47QYKzlq9kYT19RzwRU8WO8FQmSQCfdpFS
-Qi7uqi+1CqRHS75uwrL9oUg=
-=Bie0
------END PGP SIGNATURE-----
-
---=-Q/PRfsN3ZKD8I60TQ9PU--
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

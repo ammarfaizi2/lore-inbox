@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315572AbSEVPEC>; Wed, 22 May 2002 11:04:02 -0400
+	id <S315588AbSEVPF1>; Wed, 22 May 2002 11:05:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315580AbSEVPEB>; Wed, 22 May 2002 11:04:01 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:58635 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S315572AbSEVPEA>;
-	Wed, 22 May 2002 11:04:00 -0400
-Date: Wed, 22 May 2002 17:03:38 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
+	id <S315591AbSEVPF0>; Wed, 22 May 2002 11:05:26 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10770 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315588AbSEVPF0>; Wed, 22 May 2002 11:05:26 -0400
 Subject: Re: [PATCH] 2.5.17 /dev/ports
-Message-ID: <20020522150338.GP5182@marowsky-bree.de>
-In-Reply-To: <E17AXfM-0001xc-00@the-village.bc.nu> <3CEBA2D4.4080804@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.99i
-X-Ctuhulu: HASTUR
+To: viro@math.psu.edu (Alexander Viro)
+Date: Wed, 22 May 2002 16:24:49 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        davem@redhat.com (David S. Miller), paulus@samba.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0205221053330.2737-100000@weyl.math.psu.edu> from "Alexander Viro" at May 22, 2002 10:54:25 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AXyr-00020p-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-05-22T15:53:24,
-   Martin Dalecki <dalecki@evision-ventures.com> said:
+> On Wed, 22 May 2002, Alan Cox wrote:
+> 
+> > > The Xfree86 people are actually sane and hold up the BSD tradition.
+> > > They don't even use /proc/bus and killed early /proc/agpgart usage!
+> > > Quite the reverse is true.
+> > 
+> > XFree86 uses /proc/cpuinfo, /proc/bus/pci, /proc/mtrr, /proc/fb, /proc/dri
+> > and even such goodies as /proc/sys/dev/mac_hid/keyboard_sends_linux_keycodes
+> 
+> ... and while we are at flamewar-mongering, none of these files have any
+> business being in procfs.
 
-> /proc/cpuinfo for one could be replaced by dropping syslog
-> messages at a fixed file in /etc/ during boot - it's static after
-> all!.
-
-It is not.
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+That depends on how you define procfs. Linux is not Plan 9. A lot of it 
+certainly is going to cleaner with a devicefs and sysctlfs
 

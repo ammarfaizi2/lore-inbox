@@ -1,96 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264108AbUCZSMs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 13:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbUCZSMr
+	id S264103AbUCZSLK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 13:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbUCZSLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 13:12:47 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:54468 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S264108AbUCZSLv
+	Fri, 26 Mar 2004 13:11:09 -0500
+Received: from mail02.hansenet.de ([213.191.73.62]:18075 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S264103AbUCZSKp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 13:11:51 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Fri, 26 Mar 2004 13:10:45 -0500
+From: Malte =?iso-8859-1?q?Schr=F6der?= <Malte.Schroeder@hanse.net>
+Reply-To: MalteSch@gmx.de
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.6.4-ck2
+Date: Fri, 26 Mar 2004 19:10:11 +0100
+User-Agent: KMail/1.6.1
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200403270252.46873.kernel@kolivas.org>
+In-Reply-To: <200403270252.46873.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_KIHZAH/NeH+DcAe";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16484.29281.375363.39808@laputa.namesys.com>
-Date: Fri, 26 Mar 2004 21:11:45 +0300
-To: Jonathan Briggs <jbriggs@esoft.com>
-Cc: Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] new reiser4 snapshot released.
-In-Reply-To: <1080321833.19218.7.camel@localhost.localdomain>
-References: <16484.24086.167505.94478@laputa.namesys.com>
-	<1080321833.19218.7.camel@localhost.localdomain>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+Message-Id: <200403261910.18293.Malte.Schroeder@hanse.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Briggs writes:
- > On Fri, 2004-03-26 at 09:45, Nikita Danilov wrote:
- > > Hello,
- > > 
- > > new reiser4 snapshot against 2.6.5-rc2 is available at
- > > 
- > > http://www.namesys.com/snapshots/2004.03.26/
- > > 
- > > It is mainly bug-fixing release. See READ.ME for the list of fixes and
- > > caveats.
- > 
- > A definition of fibration:
- > http://mathworld.wolfram.com/Fibration.html
 
-Reiser4 plugin was named this was due to some (arguably vague)
-similarity with mathematical fibrations.
+--Boundary-02=_KIHZAH/NeH+DcAe
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- > 
- > I'm going to have to study math for about a year before I understand all
- > that, I think.
- > 
- > It's a good thing we won't have to understand "fiber bundles",
- > "paracompact topological space" and the "homotopy lifting property" to
- > USE Reiser4.
- > 
- > *grin*
+I was experiencing "skips" in video while playing mpeg4-video with mplayer=
+=20
+over a DVB-S-card (that means on-the-fly transcoding from mpeg4 to mpeg1) o=
+n=20
+kernel 2.6.4 with -ck1-patch. I thought it was a problem with mplayer, but =
+it=20
+went away when I tried -ck2 :)
+Nice work.
 
-Why, of course one has to understand it. Reiser4 refuses to mount unless
-supplied with the homotopy group of the tangent bundle of hard drive,
-for sure.
+On Friday 26 March 2004 16:49, Con Kolivas wrote:
+> Updated my patchset:
+> These are patches designed to improve system responsiveness and add
+> features with specific emphasis on the desktop.
+>
+> http://kernel.kolivas.org
+>
+> Full feature list:
+> am
+>  Autoregulates the virtual memory swappiness.
+> domains
+>  Sched_domains support for better hyperthreading and SMP support including
+> my smt nice changes
+> stair
+>  A complete scheduler policy rewrite for interactivity and responsiveness
+> batch
+>  Batch scheduling.
+> iso
+>  Isochronous scheduling.
+> cfqioprio
+>  Complete Fair Queueing disk scheduler and I/O priorities
+> schedioprio
+>  Set initial I/O priorities according to cpu scheduling policy and nice
+> sng204
+>  Supermount-NG v2.0.4
+> bs314
+>  Bootsplash v3.1.4
+> reiser4
+>  Reiser4 filesystem
+> cddma
+>  DMA for cd audio
+> grsec
+>  Greater security (not included in default patch).
+>
+>
+> Changelog
+> Additions:
+> + Staircase scheduler - my complete scheduler policy rewrite for
+> interactivity built on top of the current O(1) scheduler
+> + CD audio DMA
+> + Grsec (optional only in experimental dir as it breaks compile if
+> disabled)
+>
+> Changes:
+> ~New batch scheduling (idle scheduling) policy from scratch based on new
+> scheduler is much simpler and less prone to system starvation issues
+> ~New isochronous scheduling (low latency, non real time scheduling for
+> non-privileged users)
+> ~Updated sched_domains
+> ~Updated bootsplash v3.1.4
+> ~Updated reiser4 snapshot (2004.03.25)
+>
+> Unchanged:
+> Autoregulated vm swappiness
+> Supermount-NG v 2.0.4
+> CFQ I/O scheduler with I/O priority support.
+>
+>
+> This is my parting gesture as I'll be on extended leave from 31st March
+> till the end of May.
+>
+> Con
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- > 
- > If I missed the discussion or a web page, I am sorry.  But could someone
- > post a quick explanation or pointer to one about this fibration plugin? 
- > What does it do and what effects will it have?
+=2D-=20
+=2D--------------------------------------
+Malte Schr=F6der
+MalteSch@gmx.de
+ICQ# 68121508
+=2D--------------------------------------
 
-Fibration plugin affects how disk blocks are allocated for the files
-within the same directory. Basically, in reiser4 all file system data
-and meta-data (except for allocator bitmaps) are stored in a single
-balanced tree. Every piece of information in the file system (byte of
-file data, on-disk inode, directory entry containing file name, etc.)
-has a key that allows to locate this information in the tree. This
-imposes natural order on all file system data (because keys are just
-large integers, and can be compared).
 
-Block allocator tries to allocate blocks in a parent-first tree
-order. This means, that things with close keys have chances to be close
-to each other on a disk. This leads to the main high-level mechanism
-that reiser4 uses to control disk layout: through key assignment.
+--Boundary-02=_KIHZAH/NeH+DcAe
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-In particular fibration plugin is called when new name is inserted into
-a directory, and, based on a name, selects some (otherwise unused) 7 bits
-in a key of directory entry. This allows to "slice" directory content
-into "fibers", hence the name.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-For example, one possible implementation is to place .o files in one
-fiber and all others in another. This significantly speeds compilations
-up, because .o files are created close to each other and don't interfere
-with sources. Fibrations, and well as other plugins, can be set
-per-object, see http://www.namesys.com/v4/pseudo.html for details.
+iD8DBQBAZHIK4q3E2oMjYtURAhsoAKC305OPAfQY6ji48WI2+DpbIz9uwwCcDDVg
+pa0sytRQWTgpnEQrsBN/j/Y=
+=yPU7
+-----END PGP SIGNATURE-----
 
- > 
- > -- 
- > Jonathan Briggs
- > jbriggs@esoft.com
- > 
-
-Nikita.
+--Boundary-02=_KIHZAH/NeH+DcAe--

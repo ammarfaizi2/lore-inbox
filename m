@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263469AbTDSVER (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 17:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTDSVER
+	id S263465AbTDSVCD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 17:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTDSVCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 17:04:17 -0400
-Received: from h80ad2453.async.vt.edu ([128.173.36.83]:28310 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263469AbTDSVEQ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 17:04:16 -0400
-Message-Id: <200304192115.h3JLFVuL018983@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept? 
-In-Reply-To: Your message of "Sat, 19 Apr 2003 22:56:21 +0200."
-             <20030419205621.GA15577@hh.idb.hist.no> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030419180421.0f59e75b.skraw@ithnet.com> <87lly6flrz.fsf@deneb.enyo.de> <20030419200712.3c48a791.skraw@ithnet.com> <20030419184120.GH669@gallifrey>
-            <20030419205621.GA15577@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2122594070P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 19 Apr 2003 17:15:31 -0400
+	Sat, 19 Apr 2003 17:02:03 -0400
+Received: from web41804.mail.yahoo.com ([66.218.93.138]:35494 "HELO
+	web41804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263465AbTDSVCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 17:02:02 -0400
+Message-ID: <20030419211356.25316.qmail@web41804.mail.yahoo.com>
+Date: Sat, 19 Apr 2003 14:13:56 -0700 (PDT)
+From: Christian Staudenmayer <eggdropfan@yahoo.com>
+Subject: Re: 2.5.67-ac2 and lilo
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030419205152.GA19800@win.tue.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2122594070P
-Content-Type: text/plain; charset=us-ascii
+Hey Andries,
 
-On Sat, 19 Apr 2003 22:56:21 +0200, Helge Hafting said:
+before taking your message into account, i think you misunderstood my
+question:
 
-> There are commercially available programs that guarantees to
-> wipe your drive clean - including hidden areas and remapped
-> sectors.  You should then be able to send drives
-> back for warranty replacement.
+> Hmm. You did not forget to rerun LILO or so?
 
-These don't address the problem - if the drive won't go "ready" because
-of a blown server platter, your data won't get overwritten but it's still
-readable (a number of companies make good money at this).
+the error occurs when _running_ lilo, i.e. after typing "lilo" at the prompt.
 
-In general, if the disk is dead enough that you're looking at replacement,
-you'll probably not be totally pleased with the results of those programs..
+greetings, chris
 
-> There are also bulk erasers that reset every bit magnetically,
-> but those will probably void the warranty too.  (You'll
-> need a low-level reformat to recreate sector addresses on the
-> suddenly blank surface.)
+--- Andries Brouwer <aebr@win.tue.nl> wrote:
+> > but now, when running lilo, i get the following message:
+> > 
+> > Fatal: First boot sector doesn't have a valid LILO signature
+> 
+> Hmm. You did not forget to rerun LILO or so?
+> If ide_xlate_1024 does nothing but "return 0" then
+> handle_ide_mess() does nothing.
+> 
+> What other differences does -ac2 have?
+> It reintroduces a bug in the partition reading code - the fragment
+> 
+> @@ -456,7 +556,7 @@
+>                 if (!subtypes[n].parse)
+>                         continue;
+>                 subtypes[n].parse(state, bdev, START_SECT(p)*sector_size,
+> -                                               NR_SECTS(p)*sector_size, slot);
+> +                                               NR_SECTS(p)*sector_size, n);
+>         }
+>         put_dev_sector(sect);
+> 
+> of the -ac2 patch is bad.
+> In order to judge whether it is this or something else I would have
+> to know much more about your system. What are the kernel boot messages
+> for this disk under 2.5.67-bk9 that works and 2.5.67-ac2 that fails?
+> What is the partition table? No disk managers in sight? Does LILO
+> have lba32 or linear options?
+> Does 2.5.67-ac2 work if you replace its fs/partitions/msdos.c by
+> the vanilla one?
+> 
+> Andries
+> 
 
-Note that this only works well for single-platter disks - the field
-you need to get the *inner* surfaces of the platters, especially for
-a 5 or 6 platter disk, is quite astounding....
 
-We ran into this issue recently on one of our Sun servers - Sun *does*
-have a program to deal with this, but (a) you have to specifically ask
-them and (b) it's additional charge.
-
---==_Exmh_2122594070P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+obxycC3lWbTT17ARAlq6AKCgB8OC+/oTiOOODNONGWPbb4amdgCfQ1eP
-NvEvjtUFv5F+Jo2/dg0mcV8=
-=ZzQf
------END PGP SIGNATURE-----
-
---==_Exmh_2122594070P--
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
+http://platinum.yahoo.com

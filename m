@@ -1,90 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUHQBFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268065AbUHQBGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268060AbUHQBFs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 21:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUHQBFs
+	id S268065AbUHQBGd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 21:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUHQBGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 21:05:48 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:23224 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268060AbUHQBFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 21:05:31 -0400
-Subject: Re: boot time, process start time, and NOW time
-From: Albert Cahalan <albert@users.sf.net>
-To: george@mvista.com
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       johnstul@us.ibm.com, david+powerix@blue-labs.org
-In-Reply-To: <412151CA.4060902@mvista.com>
-References: <1087948634.9831.1154.camel@cube>
-	 <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>
-	 <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
-	 <412151CA.4060902@mvista.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092695544.2301.1227.camel@cube>
+	Mon, 16 Aug 2004 21:06:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13263 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268059AbUHQBGZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 21:06:25 -0400
+Date: Mon, 16 Aug 2004 21:05:33 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: switch ide-proc to use the ide_key functionality
+Message-ID: <20040817010533.GB32628@devserv.devel.redhat.com>
+References: <20040815150414.GA12181@devserv.devel.redhat.com> <200408170135.11465.bzolnier@elka.pw.edu.pl> <20040817001336.GA25753@devserv.devel.redhat.com> <200408170231.25725.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Aug 2004 18:32:25 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408170231.25725.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-16 at 20:31, George Anzinger wrote:
+BTW this may help if I document the locks and what they cover in case its
+not obvious
 
-> Hm...  That patch was for a reason...  It seems to me that doing anything short 
-> of putting "xtime" (or better, clock_gettime() :)) in at fork time is not going 
-> to fix anything.   As written the start_time in the task_struct is fixed.  If 
-> "now - uptime + time_from_boot_to_process_start" it is wandering, it must be the 
-> fault of "now - uptime".  Since this seems to be wandering, and we corrected 
-> uptime in the referenced patch, is it safe to assume that "now" is actually 
-> being computed from "jiffies" rather than a gettimeofday()?
-> 
-> Seems like that is where we should be changing things.
+drives_lock is the spin lock you must own to update the drive list
 
-That's userspace, which works fine on a 2.4.xx kernel.
-If userspace were to change, it wouldn't work OK for
-a 2.4.xx kernel anymore. So consider that cast in stone.
+ide_cfg_sem is the semaphore you must own to walk or hold loose references
+to the ide_hwif_t array and elements relating to adding/removing/busy status
 
-"now" is the time() function. Using gettimeofday()
-would only make sense if I decided to pay the cost
-of asking for the time every time I look at a task.
+ide_lock is taken when you want to write that array and deal with elements
+that are interrupt walked by other devices. Notably this means the hwgroup
+chains.
 
-Here is the "now - uptime + time_from_boot_to_process_start"
-calculation, unsimplified, ripped from the procps code:
+ide_settings_sem could be per drive but isnt, it is used when you are
+processing the ioctl/proc objects attached to the driver either by walking
+them or removing them.
 
-////////////////////////////////////////////////////////////////
-unsigned long   seconds_since_boot = -1;
-static unsigned long seconds_since_1970;
-static unsigned long time_of_boot;
 
-some_init_function(){
-  seconds_since_boot = uptime(0,0);
-  seconds_since_1970 = time(NULL);
-  time_of_boot = seconds_since_1970 - seconds_since_boot;
-}
+drivers_lock is the spin lock you must own to update the drivers list
+drivers_sem is the semaphore you must own to walk the list and while
+holding loose references to drivers (ie when the busy/lists are not
+consistent)
 
-static int pr_stime(char *restrict const outbuf, const proc_t *restrict const pp){
-  struct tm *proc_time;
-  struct tm *our_time;
-  time_t t;
-  const char *fmt;
-  int tm_year;
-  int tm_yday;
-  our_time = localtime(&seconds_since_1970);   /* not reentrant */
-  tm_year = our_time->tm_year;
-  tm_yday = our_time->tm_yday;
-  t = time_of_boot + pp->start_time / Hertz;
-  proc_time = localtime(&t); /* not reentrant, this corrupts our_time */
-  fmt = "%H:%M";                                   /* 03:02 23:59 */
-  if(tm_yday != proc_time->tm_yday) fmt = "%b%d";  /* Jun06 Aug27 */
-  if(tm_year != proc_time->tm_year) fmt = "%Y";    /* 1991 2001 */
-  return strftime(outbuf, 42, fmt, proc_time);
-}
-////////////////////////////////////////////////////////////////
+The lock order is
+
+	ide_cfg_sem
+	drivers_sem
+	ide_settings_sem
+	drivers_lock | drives_lock
+	ide_lock
+
+
+Which means my cunning plan from the previous mail doesn't actually work
+unless we take ide_cfg_sem at the top of the proc code before setting_sem. 
+Also looking over it I need to send you the bits to take the sems in each 
+proc routine for that case.  
+
+PS: what do you think about deprecating (but not yet removing) ide_write_config
+and ide_read_config now we have sysfs ? Does anyone actually use its
+"wait for non busy and then pci config write" - does anyone use it at all ?
+
+Also while looking at proc it would clean up read_imodel and make it a ton
+more useful to stick the string pointers into hwif->chipset_name or somesuch
+so we can report the PCI ones in detail ?
+
+Alan
 
 

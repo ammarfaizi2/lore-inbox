@@ -1,82 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269778AbRHIMH1>; Thu, 9 Aug 2001 08:07:27 -0400
+	id <S269779AbRHIMP1>; Thu, 9 Aug 2001 08:15:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269779AbRHIMHS>; Thu, 9 Aug 2001 08:07:18 -0400
-Received: from dmi1fw.dmi.dk ([130.226.64.130]:16086 "EHLO dmi1fw.dmi.dk")
-	by vger.kernel.org with ESMTP id <S269778AbRHIMHI>;
-	Thu, 9 Aug 2001 08:07:08 -0400
-From: Kim Bisgaard <kib@dmi.dk>
-Date: Thu, 9 Aug 2001 14:07:20 +0200 (MET DST)
-Message-Id: <200108091207.OAA10720@berta>
-To: linux-kernel@vger.kernel.org
-CC: lastec@dmi.dk, kib@dmi.dk
-Subject: Random core dumps, and misreading files
-Content-Type: text
+	id <S269780AbRHIMPS>; Thu, 9 Aug 2001 08:15:18 -0400
+Received: from pc40.e18.physik.tu-muenchen.de ([129.187.154.153]:57612 "EHLO
+	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S269779AbRHIMPJ>; Thu, 9 Aug 2001 08:15:09 -0400
+Date: Thu, 9 Aug 2001 14:15:15 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: <linux-net@vger.kernel.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: ARP misbehaviour
+Message-ID: <Pine.LNX.4.31.0108091335210.25815-100000@pc40.e18.physik.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I gets random core dumps and and misreading of files. The chances for provoking
-there errors, increases with the amount of memory used.
+My question is about ARP behaviour: Why does my machine answer ARP
+requests for eth1 on eth0, even if the address on eth1 has scope link and
+arp_filter is on? What do I have to do to prevent this?
 
-With misreadings of files I mean eg. copy a large file then compare several
-times and get different answers each time.
+I am aware that this issue was already discussed, but I could not find a
+solution to the problem even in the long threads. The recommendation
+seems to be to turn on arp_filter, but that doesn't help a bit.
 
-I have seen this in kernels 2.4.4-7, in both 1GB and 4GB settings, and using
-kgcc and gcc-2.96-69. 
+This is my setup (output beautified a bit):
 
-The HW is AMD Athlon 1100, 1.5GB memory, VIA Apollo KT133 chipset.
+======================================================================
+[root@paco00 all]# ip addr show
 
-I have used a memory test program, which ran without any problems!
-- memtest: http://www.qcc.sk.ca/~charlesc/software/memtester/
-     version is v.2.93.1 by Charles Cazabon <memtest@discworld.dyndns.org>
-     dynamic version (libc.so.6 and ld-linux.so.2) (28/12/2000)
+1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 brd 127.255.255.255 scope host lo
+2: eth0: <BROADCAST,MULTICAST,PROMISC,UP> mtu 1500 qdisc pfifo_fast qlen
+100
+    link/ether 00:01:02:b9:18:8b brd ff:ff:ff:ff:ff:ff
+    inet 129.187.154.217/24 brd 129.187.154.255 scope global eth0
+    inet 129.187.154.218/24 brd 129.187.154.255 scope global secondary
+eth0:0
+    inet 129.187.154.219/24 brd 129.187.154.255 scope global secondary
+eth0:1
+3: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
+    link/ether 00:60:08:f5:ec:0e brd ff:ff:ff:ff:ff:ff
+    inet 10.187.185.12/24 brd 10.187.185.255 scope link eth1:0
+    inet 192.168.1.254/24 brd 192.168.1.255 scope link eth1
 
+[root@paco00 all]# ip route show
 
-Good ways to provoke the error is to create a couple of ~2GB files, the files
-have to get in and out of the file system cache, in order to go different.
+10.187.185.11    dev eth1                scope link
+129.187.154.0/24 dev eth0  proto kernel  scope link  src 129.187.154.217
+192.168.1.0/24   dev eth1  proto kernel  scope link  src 192.168.1.254
+10.187.185.0/24  dev eth1  proto kernel  scope link  src 10.187.185.12
+127.0.0.0/8      dev lo                  scope link
+default via 129.187.154.254 dev eth0
 
-Error scenario:
-% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
-clout010629part001.dump.gz clout010629part001.dump.2.gz differ: char 2351101, line 7984
-% gunzip -vt clout010629part001.dump.2.gz &
-% gunzip -vt clout010629part001.dump.gz&
-gunzip: clout010629part001.dump.2.gz: invalid compressed data--crc error
-[3]    Done                          gunzip -vt clout010629part001.dump.gz
-[2]  - Exit 1                        gunzip -vt clout010629part001.dump.2.gz
-% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
-clout010629part001.dump.gz clout010629part001.dump.2.gz differ: char 1253855229, line 4124979
-% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
-cmp: clout010629part001.dump.gz: Input/output error
-% gunzip -vt clout010629part001.dump.2.gz
-clout010629part001.dump.2.gz:        OK
-% gunzip -vt clout010629part001.dump.gz
-clout010629part001.dump.gz:   OK
-% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
-% gunzip -tv clout010629part001.dump.2.gz &
-% gunzip -tv clout010629part001.dump.gz &
-gunzip: clout010629part001.dump.2.gz: invalid compressed data--crc error
-gunzip: clout010629part001.dump.gz: invalid compressed data--crc error
-gunzip: clout010629part001.dump.gz: invalid compressed data--length error
-% 
+[root@paco00 all]# cat /proc/sys/net/ipv4/conf/{all,eth0,eth1}/arp_filter
 
+1
+1
+1
+======================================================================
 
-A zap from top during these tests:
+This shows the problem:
 
-% top
-    1:44pm  up 2 days, 22:04,  6 users,  load average: 2.03, 1.22, 0.81
-205 processes: 202 sleeping, 3 running, 0 zombie, 0 stopped
-CPU states: 13.3% user, 37.3% system,  0.0% nice, 49.3% idle
-Mem:   899996K av,  896940K used,    3056K free,       0K shrd,    3556K buff
-Swap: 5210256K av,  224132K used, 4986124K free                  851892K cached
+======================================================================
+root@pc40:/ > arping 192.168.1.254
+ARPING 192.168.1.254 from 129.187.154.153 eth0
+Unicast reply from 192.168.1.254 [00:01:02:B9:18:8B]  0.837ms
+======================================================================
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
- 9290 kib       18   0   352  352   288 R    25.2  0.0   0:20 cmp
- 9289 kib       19   0   384  384   316 D    21.6  0.0   0:17 diff
+I'm using kernel 2.4.6 from Linus, machine is a dual PIII450, 512MB RAM
+eth0: 3Com PCI 3c905C Tornado, PROMISC because of arpwatch running
+eth1: 3Com 3C985 Gigabit Ethernet
 
-I am available for further tests, and requests for more info.
+Ciao,
+					Roland
 
-Best Regards,
-Kim Bisgaard
 

@@ -1,41 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311175AbSCLNH3>; Tue, 12 Mar 2002 08:07:29 -0500
+	id <S311180AbSCLNPV>; Tue, 12 Mar 2002 08:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311176AbSCLNHT>; Tue, 12 Mar 2002 08:07:19 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:28362 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311175AbSCLNHJ>;
-	Tue, 12 Mar 2002 08:07:09 -0500
-Date: Tue, 12 Mar 2002 05:03:38 -0800 (PST)
-Message-Id: <20020312.050338.124588076.davem@redhat.com>
-To: dean-list-linux-kernel@arctic.org
-Cc: michael@metaparadigm.com, bcrl@redhat.com, whitney@math.berkeley.edu,
-        rgooch@ras.ucalgary.ca, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-Subject: Re: [patch] ns83820 0.17
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0203120457300.27360-100000@twinlark.arctic.org>
-In-Reply-To: <20020312.031509.53067416.davem@redhat.com>
-	<Pine.LNX.4.33.0203120457300.27360-100000@twinlark.arctic.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311177AbSCLNPN>; Tue, 12 Mar 2002 08:15:13 -0500
+Received: from [194.228.240.11] ([194.228.240.11]:41646 "EHLO sakal.vgd.cz")
+	by vger.kernel.org with ESMTP id <S311024AbSCLNO7>;
+	Tue, 12 Mar 2002 08:14:59 -0500
+Subject: 2.5.6 Swap reporting incorect values (was: 2.5.6 Swap weirdness)
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFD2E4928E.ADAFE981-ONC1256B7A.0048968C@vgd.cz>
+From: Petr.Titera@whitesoft.cz
+Date: Tue, 12 Mar 2002 14:14:31 +0100
+X-MIMETrack: Serialize by Router on Sakal/SRV/SOCO/CZ(Release 5.0.8 |June 18, 2001) at
+ 03/12/2002 02:14:57 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: dean gaudet <dean-list-linux-kernel@arctic.org>
-   Date: Tue, 12 Mar 2002 05:03:45 -0800 (PST)
 
-   On Tue, 12 Mar 2002, David S. Miller wrote:
-   
-   > Use a cross-over cable to play with Jumbo frames, that is
-   > what I do :-)
-   
-   you shouldn't even need a crossover cable :)
+Not a issue. I checked free and it reads values from /proc/meminfo
 
-Intel e1000's can do this too...
+[owl@chudak owl]$ cat /proc/swaps
+Filename                                Type            Size    Used
+Priority
+/dev/hda5                               partition       88664   148     -1
+[owl@chudak owl]$ cat /proc/meminfo
+MemTotal:        62968 kB
+MemFree:          9324 kB
+MemShared:           0 kB
+Buffers:          7396 kB
+Cached:          23608 kB
+SwapCached:        148 kB
+Active:          14908 kB
+Inactive:        31604 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:        62968 kB
+LowFree:          9324 kB
+SwapTotal:       88812 kB
+SwapFree:        88664 kB
+[owl@chudak owl]$
 
-come to think of it there is a link polarity bit in one
-of the tigon3 registers, hmmm...
+
+
+                                                                                              
+                    Mark Hahn                                                                 
+                    <hahn@physics.mc       To:     <Petr.Titera@whitesoft.cz>                 
+                    master.ca>             cc:                                                
+                                           Fax to:                                            
+                    10.03.2002 18:22       Subject:     Re: 2.5.6 Swap weirdness              
+                                                                                              
+                                                                                              
+
+
+
+
+>      in linux kernel 2.5.6 swap statistics are displayed incorrectly.
+Used
+> space is added to total swap size and not subtracted from free space. See
+> attached output
+
+don't you merely mean that 'free' is buggy?  not a kernel issue.
+
+
+
+>
+>
+> [root@nevskij proc]# free
+>              total       used       free     shared    buffers     cached
+> Mem:        257348     159748      97600          0       9328      41004
+> -/+ buffers/cache:     109416     147932
+> Swap:       152800      24320     128480
+> [root@nevskij proc]# cat /proc/swaps
+> Filename                                Type            Size    Used
+> Priority
+> /dev/hda5                               partition       128480  24316
+-1
+> [root@nevskij proc]#
+>
+> Petr Titera
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+--
+operator may differ from spokesperson.               hahn@mcmaster.ca
+                                              http://hahn.mcmaster.ca/~hahn
+
+
+
 

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTKDMgM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 07:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbTKDMgM
+	id S261661AbTKDMqX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 07:46:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTKDMqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 07:36:12 -0500
-Received: from natsmtp00.rzone.de ([81.169.145.165]:7860 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S261606AbTKDMgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 07:36:11 -0500
-Message-ID: <3FA79D3A.8090308@softhome.net>
-Date: Tue, 04 Nov 2003 13:36:10 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Tue, 4 Nov 2003 07:46:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:48768 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261661AbTKDMqW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 07:46:22 -0500
+Date: Tue, 4 Nov 2003 07:47:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Michael Clark <michael@metaparadigm.com>
+cc: Valdis.Kletnieks@vt.edu, Brian Beattie <beattie@beattie-home.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Things that Longhorn seems to be doing right
+In-Reply-To: <3FA767A4.5060403@metaparadigm.com>
+Message-ID: <Pine.LNX.4.53.0311040744400.7408@chaos>
+References: <1067778693.1315.76.camel@kokopelli>
+ <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu> <1067888137.869.26.camel@kokopelli>
+            <Pine.LNX.4.53.0311031512170.2654@chaos>
+ <200311032023.hA3KN3gv000750@turing-police.cc.vt.edu> <Pine.LNX.4.53.0311031538260.2654@chaos>
+ <3FA767A4.5060403@metaparadigm.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.4] Are jiffies in jiffies?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 4 Nov 2003, Michael Clark wrote:
 
-   [ I beleive this is real FAQ - so responding with private e-mails 
-more appropriate.
-     ptr("RTFM") != 0 are welcome. ]
+> On 11/04/03 04:54, Richard B. Johnson wrote:
+> > It is particularly irksome to me because I studied Latin in
+> > High School, where I first encountered this word. My second
+> > encounter was where somebody corrupted it to mean some kind
+> > of new idea. Then some idiot named a company Paradigm and
+> > the end was clear.
+>
+> How do you know the guy is an idiot - did you meet him?
+>
+> Quite a good name for a loudspeaker company in respect to providing
+> a 'reference example' for sound.
+>
+> Although funny they have a registered trademark for 'Paradigm'
+> - a bit generic methinks.
+>
+> ~mc
 
-   jiffies declared in kernel/timer.c.
-   Name suggests that it is incremented 100 times per second.
-   LDD2 suggests that it is incremented every 1000/HZ per second.
+Yes, metaparadigm is much more meaningful --and it can mean anything
+you want it to because it had not been previously defined for a few
+hundred years!
 
-   Is it just name misleading - or I really miss the point?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-   So to translate this to seconds i need (jiffies*1000/HZ)
-   and milliseconds are just (jiffies/HZ) then.
-
-   Am I right?
-   I need this for {add,mod}_timer() calls.
-
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  "... and for $64000 question, could you get yourself       |_|*|_|
-    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
-                                 -- Al Viro @ LKML           |*|*|*|
 

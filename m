@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132854AbQLNUNU>; Thu, 14 Dec 2000 15:13:20 -0500
+	id <S129773AbQLNUO7>; Thu, 14 Dec 2000 15:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132868AbQLNUNJ>; Thu, 14 Dec 2000 15:13:09 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:38916 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S132854AbQLNUM7>; Thu, 14 Dec 2000 15:12:59 -0500
-Date: Thu, 14 Dec 2000 20:43:18 +0100 (CET)
-From: eduard.epi@t-online.de (Peter Bornemann)
-To: Tim Waugh <twaugh@redhat.com>
-cc: Peter Bornemann <eduard.epi@t-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: parport1 gone in 2.2.18
-In-Reply-To: <20001213231332.P5918@redhat.com>
-Message-ID: <Pine.LNX.4.21.0012142026150.684-100000@eduard.t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S131239AbQLNUOt>; Thu, 14 Dec 2000 15:14:49 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:40584 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129773AbQLNUOd>;
+	Thu, 14 Dec 2000 15:14:33 -0500
+Date: Thu, 14 Dec 2000 11:27:55 -0800
+Message-Id: <200012141927.LAA05847@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ionut@moisil.cs.columbia.edu
+CC: mhaque@haque.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200012141838.eBEIc1v08746@moisil.dev.hydraweb.com> (message from
+	Ion Badulescu on Thu, 14 Dec 2000 10:38:01 -0800)
+Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
+In-Reply-To: <200012141838.eBEIc1v08746@moisil.dev.hydraweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Dec 2000, Tim Waugh wrote:
- 
-> The reason it works for you with modules is probably because you have
-> an options line in /etc/modules.conf that tells parport_pc which
-> addresses your PCI card is using at the moment.
+   Date: 	Thu, 14 Dec 2000 10:38:01 -0800
+   From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
 
-Bad news: the old problem with lockups during insmoding parport is back! I
-recompiled 2.2.18, because there is a problem with the 8138too-driver vs. 
-modutils-2.3.22. Since then, the old problem was back! Unfortunately I
-did not save the old modules. So, for the moment I cannot use 2.2.18 at
-all and I have switched to the 2.4 series and modutils-2.3.14 (version of
-modprobe doesn´t matter for the lockups, however). 
+   I won't venture a fix, as I don't know the networking code well
+   enough. So far, no networking maintainer has had anything to say
+   about this bug on the list...
 
-Any hint is welcome, for I would prefer a really stable kernel for this
-machine.
+Because this is the first most of us have heard of the issue, much
+less seen any ksymoops processed OOPS logs of the bug so we can even
+start thinking about what might be wrong.
 
-Peter B
-
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

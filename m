@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312525AbSDJHm4>; Wed, 10 Apr 2002 03:42:56 -0400
+	id <S312332AbSDJIVY>; Wed, 10 Apr 2002 04:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312529AbSDJHmz>; Wed, 10 Apr 2002 03:42:55 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:35593 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S312525AbSDJHmy>; Wed, 10 Apr 2002 03:42:54 -0400
-Date: Wed, 10 Apr 2002 08:45:05 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Geoffrey Gallaway <geoffeg@sin.sloth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ramdisks and tmpfs problems
-Message-ID: <20020410084505.A4493@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Geoffrey Gallaway <geoffeg@sin.sloth.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020409144639.A14678@sin.sloth.org>
-Mime-Version: 1.0
+	id <S312413AbSDJIVY>; Wed, 10 Apr 2002 04:21:24 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:1783 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id <S312332AbSDJIVX>; Wed, 10 Apr 2002 04:21:23 -0400
+Message-ID: <3CB3F5FF.7EBD0A19@bull.net>
+Date: Wed, 10 Apr 2002 10:21:19 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: hu, fr-FR, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re:  Event logging vs enhancing printk
+In-Reply-To: <OF7FF94B66.91DD315B-ON88256B95.00811EF0@boulder.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 09, 2002 at 02:46:39PM -0400, Geoffrey Gallaway wrote:
-> So no go with ram disks (this is kernel 2.4.18 on a 3 gig RAM dual PIII
-> 1gig, BTW). So now to try tmpfs. Since I need to copy the existing files in
-> /etc off to tmpfs I have to create a "temporary" tmpfs, copy /etc off to it
-> then create another tmpfs on top of the existing /etc and copy from the
-> "temporary" tempfs back to the new /etc. I came up with the following 
-> commands:
-> mount -w -n -t tmpfs -o defaults tmpfs /mnt
-> cp -axf /etc /mnt
-> mount -w -t tmpfs -o defaults tmpfs /etc
-> cp -axf /mnt/etc/* /etc/
-> umount /mnt
-> # -- Reapeat for /var and /tmp --
+I am definitely *FOR* adding Enterprise Event Logging feature to Linux.
 
-Wouldn't this be easier?
+We are going to make "not too small, not too cheap" IA64 based machines
+at Bull.
+Having a full featured event logging subsystem is essential to provide
+good services to our clients.
 
-mount -t tmpfs none /dev/shm
-cp -axf /etc/* !$
-mount --bind /dev/shm /etc
+Most of the HW errors are just impossible to print out to the screen
+(and capture them).
+There are lots of boring details, binary data, it's not a print that
+will help us.
 
+People are negligent with prints. They feel free to print out anything
+they think it is important.
+You'll need an artificial intelligence if you want to make status
+reports out of random prints.
+
+Not losing error logs is essential.
+I need a feed-back from the error logging subsystem saying that the log
+is already stored on a permanent storage before I clear the firmware's
+error report.
+
+We should do at leas as well as Windows does the error handling, or even
+better :-)
+
+I am convenienced that Linux becomes a professional system and it needs
+professional tools.
+
+Thanks,
+
+Zoltan Menyhart
+
+P.S.: Please CC your answers to Zoltan.Menyhart@bull.net

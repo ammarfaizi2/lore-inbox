@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVBKHQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVBKHTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbVBKHQx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 02:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVBKHQx
+	id S262224AbVBKHTx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 02:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVBKHTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 02:16:53 -0500
-Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:45918 "HELO
+	Fri, 11 Feb 2005 02:19:38 -0500
+Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:47454 "HELO
 	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262209AbVBKHFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 02:05:38 -0500
+	id S262210AbVBKHFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 02:05:39 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: InputML <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: [PATCH 5/10] Gameport: convert input/gameport to dynamic allocation
-Date: Fri, 11 Feb 2005 02:02:17 -0500
+Subject: [PATCH 6/10] Gameport: convert sound/oss to dynamic allocation
+Date: Fri, 11 Feb 2005 02:02:48 -0500
 User-Agent: KMail/1.7.2
 Cc: alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>,
        Vojtech Pavlik <vojtech@suse.cz>
-References: <200502110158.47872.dtor_core@ameritech.net> <200502110201.00916.dtor_core@ameritech.net> <200502110201.31239.dtor_core@ameritech.net>
-In-Reply-To: <200502110201.31239.dtor_core@ameritech.net>
+References: <200502110158.47872.dtor_core@ameritech.net> <200502110201.31239.dtor_core@ameritech.net> <200502110202.18242.dtor_core@ameritech.net>
+In-Reply-To: <200502110202.18242.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502110202.18242.dtor_core@ameritech.net>
+Message-Id: <200502110202.48966.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,1031 +31,726 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.2153, 2005-02-11 01:19:36-05:00, dtor_core@ameritech.net
-  Input: convert input/gameport to dynamic gameport allocation.
+ChangeSet@1.2154, 2005-02-11 01:20:08-05:00, dtor_core@ameritech.net
+  Input: convert sound/oss to dynamic gameport allocation.
   
   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- drivers/input/gameport/cs461x.c     |   29 +----
- drivers/input/gameport/emu10k1-gp.c |   40 ++++----
- drivers/input/gameport/fm801-gp.c   |   57 +++++------
- drivers/input/gameport/lightning.c  |  176 ++++++++++++++++++++++--------------
- drivers/input/gameport/ns558.c      |  120 +++++++++++-------------
- drivers/input/gameport/vortex.c     |   68 ++++++-------
- drivers/input/joystick/a3d.c        |   59 +++++-------
- include/linux/gameport.h            |    3 
- 8 files changed, 286 insertions(+), 266 deletions(-)
+ cmpci.c      |  100 ++++++++++++++++++++++++++++++++++++++---------------------
+ es1370.c     |   34 ++++++++++++--------
+ es1371.c     |   52 ++++++++++++++++++------------
+ esssolo1.c   |   47 ++++++++++++++++++++-------
+ mad16.c      |   47 ++++++++++++++++++---------
+ sonicvibes.c |   49 +++++++++++++++++++++-------
+ trident.c    |   39 +++++++++++++++++------
+ 7 files changed, 249 insertions(+), 119 deletions(-)
 
 
 ===================================================================
 
 
 
-diff -Nru a/drivers/input/gameport/cs461x.c b/drivers/input/gameport/cs461x.c
---- a/drivers/input/gameport/cs461x.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/gameport/cs461x.c	2005-02-11 01:38:07 -05:00
-@@ -120,9 +120,6 @@
- static unsigned long ba0_addr;
- static unsigned int __iomem *ba0;
+diff -Nru a/sound/oss/cmpci.c b/sound/oss/cmpci.c
+--- a/sound/oss/cmpci.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/cmpci.c	2005-02-11 01:38:28 -05:00
+@@ -426,7 +426,7 @@
+ 	struct address_info mpu_data;
+ #endif
+ #ifdef CONFIG_SOUND_CMPCI_JOYSTICK
+-	struct gameport gameport;
++	struct gameport *gameport;
+ #endif
  
--static char phys[32];
--static char name[] = "CS416x Gameport";
--
- #ifdef CS461X_FULL_MAP
- static unsigned long ba1_addr;
- static union ba1_t {
-@@ -160,10 +157,10 @@
- static int cs461x_free(struct pci_dev *pdev)
- {
- 	struct gameport *port = pci_get_drvdata(pdev);
--	if(port){
+ 	int	chip_version;
+@@ -468,17 +468,17 @@
+ 
+ static LIST_HEAD(devs);
+ 
+-static	int	mpuio = 0;
+-static	int	fmio = 0;
+-static	int	joystick = 0;
+-static	int	spdif_inverse = 0;
+-static	int	spdif_loop = 0;
+-static	int	spdif_out = 0;
+-static	int	use_line_as_rear = 0;
+-static	int	use_line_as_bass = 0;
+-static	int	use_mic_as_bass = 0;
+-static	int	mic_boost = 0;
+-static	int	hw_copy = 0;
++static	int	mpuio;
++static	int	fmio;
++static	int	joystick;
++static	int	spdif_inverse;
++static	int	spdif_loop;
++static	int	spdif_out;
++static	int	use_line_as_rear;
++static	int	use_line_as_bass;
++static	int	use_mic_as_bass;
++static	int	mic_boost;
++static	int	hw_copy;
+ module_param(mpuio, int, 0);
+ module_param(fmio, int, 0);
+ module_param(joystick, bool, 0);
+@@ -2984,6 +2984,51 @@
+ 	return ChipVersion;
+ }
+ 
++#ifdef CONFIG_SOUND_CMPCI_JOYSTICK
++static int __devinit cm_create_gameport(struct cm_state *s, int io_port)
++{
++	struct gameport *gp;
 +
-+	if (port)
- 	    gameport_unregister_port(port);
--	    kfree(port);
++	if (!request_region(io_port, CM_EXTENT_GAME, "cmpci GAME")) {
++		printk(KERN_ERR "cmpci: gameport io ports 0x%#x in use\n", io_port);
++		return -EBUSY;
++	}
++
++	if (!(s->gameport = gp = gameport_allocate_port())) {
++		printk(KERN_ERR "cmpci: can not allocate memory for gameport\n");
++		release_region(io_port, CM_EXTENT_GAME);
++		return -ENOMEM;
++	}
++
++	gameport_set_name(gp, "C-Media GP");
++	gameport_set_phys(gp, "pci%s/gameport0", pci_name(s->dev));
++	gp->dev.parent = &s->dev->dev;
++	gp->io = io_port;
++
++	/* enable joystick */
++	maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x02);
++
++	gameport_register_port(gp);
++
++	return 0;
++}
++
++static void __devexit cm_free_gameport(struct cm_state *s)
++{
++	if (s->gameport) {
++		int gpio = s->gameport->io;
++
++		gameport_unregister_port(s->gameport);
++		s->gameport = NULL;
++		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x02, 0);
++		release_region(gpio, CM_EXTENT_GAME);
++	}
++}
++#else
++static inline int cm_create_gameport(struct cm_state *s, int io_port) { return -ENOSYS; }
++static inline void cm_free_gameport(struct cm_state *s) { }
++#endif
++
+ #define	echo_option(x)\
+ if (x) strcat(options, "" #x " ")
+ 
+@@ -3229,22 +3274,11 @@
+ 	}
+ skip_mpu:
+ #endif
+-#ifdef CONFIG_SOUND_CMPCI_JOYSTICK
+-	/* enable joystick */
+-	if (joystick) {
+-		s->gameport.io = 0x200;
+-		if (!request_region(s->gameport.io, CM_EXTENT_GAME, "cmpci GAME")) {
+-			printk(KERN_ERR "cmpci: gameport io ports in use\n");
+-			s->gameport.io = 0;
+-	       	} else {
+-			maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0, 0x02);
+-			gameport_register_port(&s->gameport);
+-		}
+-	} else {
+-		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x02, 0);
+-		s->gameport.io = 0;
+-	}
+-#endif
++	/* disable joystick port */
++	maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x02, 0);
++	if (joystick)
++		cm_create_gameport(s, 0x200);
++
+ 	/* store it in the driver field */
+ 	pci_set_drvdata(pcidev, s);
+ 	/* put it into driver list */
+@@ -3278,13 +3312,9 @@
+ 
+ 	if (!s)
+ 		return;
+-#ifdef CONFIG_SOUND_CMPCI_JOYSTICK
+-	if (s->gameport.io) {
+-		gameport_unregister_port(&s->gameport);
+-		release_region(s->gameport.io, CM_EXTENT_GAME);
+-		maskb(s->iobase + CODEC_CMI_FUNCTRL1, ~0x02, 0);
+-	}
+-#endif
++
++	cm_free_gameport(s);
++
+ #ifdef CONFIG_SOUND_CMPCI_FM
+ 	if (s->iosynth) {
+ 		/* disable FM */
+diff -Nru a/sound/oss/es1370.c b/sound/oss/es1370.c
+--- a/sound/oss/es1370.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/es1370.c	2005-02-11 01:38:28 -05:00
+@@ -384,7 +384,7 @@
+ 		unsigned char obuf[MIDIOUTBUF];
+ 	} midi;
+ 
+-	struct gameport gameport;
++	struct gameport *gameport;
+ 	struct semaphore sem;
+ };
+ 
+@@ -2556,6 +2556,7 @@
+ static int __devinit es1370_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
+ {
+ 	struct es1370_state *s;
++	struct gameport *gp = NULL;
+ 	mm_segment_t fs;
+ 	int i, val, ret;
+ 
+@@ -2604,12 +2605,17 @@
+ 	/* note: setting CTRL_SERR_DIS is reported to break
+ 	 * mic bias setting (by Kim.Berts@fisub.mail.abb.com) */
+ 	s->ctrl = CTRL_CDC_EN | (DAC2_SRTODIV(8000) << CTRL_SH_PCLKDIV) | (1 << CTRL_SH_WTSRSEL);
+-	s->gameport.io = 0;
+-	if (!request_region(0x200, JOY_EXTENT, "es1370"))
++	if (!request_region(0x200, JOY_EXTENT, "es1370")) {
+ 		printk(KERN_ERR "es1370: joystick io port 0x200 in use\n");
+-	else {
++	} else if (!(s->gameport = gp = gameport_allocate_port())) {
++		printk(KERN_ERR "es1370: can not allocate memory for gameport\n");
++		release_region(0x200, JOY_EXTENT);
++	} else {
++		gameport_set_name(gp, "ESS1370");
++		gameport_set_phys(gp, "pci%s/gameport0", pci_name(s->dev));
++		gp->dev.parent = &s->dev->dev;
++		gp->io = 0x200;
+ 		s->ctrl |= CTRL_JYSTK_EN;
+-		s->gameport.io = 0x200;
+ 	}
+ 	if (lineout[devindex])
+ 		s->ctrl |= CTRL_XCTL0;
+@@ -2665,9 +2671,10 @@
+ 		mixer_ioctl(s, initvol[i].mixch, (unsigned long)&val);
+ 	}
+ 	set_fs(fs);
++
+ 	/* register gameport */
+-	if (s->gameport.io)
+-		gameport_register_port(&s->gameport);
++	if (gp)
++		gameport_register_port(gp);
+ 
+ 	/* store it in the driver field */
+ 	pci_set_drvdata(pcidev, s);
+@@ -2689,8 +2696,10 @@
+  err_dev1:
+ 	printk(KERN_ERR "es1370: cannot register misc device\n");
+ 	free_irq(s->irq, s);
+-	if (s->gameport.io)
+-		release_region(s->gameport.io, JOY_EXTENT);
++	if (s->gameport) {
++		release_region(s->gameport->io, JOY_EXTENT);
++		gameport_free_port(s->gameport);
++	}
+  err_irq:
+ 	release_region(s->io, ES1370_EXTENT);
+  err_region:
+@@ -2709,9 +2718,10 @@
+ 	outl(0, s->io+ES1370_REG_SERIAL_CONTROL); /* clear serial interrupts */
+ 	synchronize_irq(s->irq);
+ 	free_irq(s->irq, s);
+-	if (s->gameport.io) {
+-		gameport_unregister_port(&s->gameport);
+-		release_region(s->gameport.io, JOY_EXTENT);
++	if (s->gameport) {
++		int gpio = s->gameport->io;
++		gameport_unregister_port(s->gameport);
++		release_region(gpio, JOY_EXTENT);
+ 	}
+ 	release_region(s->io, ES1370_EXTENT);
+ 	unregister_sound_dsp(s->dev_audio);
+diff -Nru a/sound/oss/es1371.c b/sound/oss/es1371.c
+--- a/sound/oss/es1371.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/es1371.c	2005-02-11 01:38:28 -05:00
+@@ -453,7 +453,7 @@
+ 		unsigned char obuf[MIDIOUTBUF];
+ 	} midi;
+ 
+-	struct gameport gameport;
++	struct gameport *gameport;
+ 	struct semaphore sem;
+ };
+ 
+@@ -2786,12 +2786,12 @@
+ 	{ PCI_ANY_ID, PCI_ANY_ID }
+ };
+ 
+-
+ static int __devinit es1371_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
+ {
+ 	struct es1371_state *s;
++	struct gameport *gp;
+ 	mm_segment_t fs;
+-	int i, val, res = -1;
++	int i, gpio, val, res = -1;
+ 	int idx;
+ 	unsigned long tmo;
+ 	signed long tmo2;
+@@ -2849,8 +2849,8 @@
+ 		printk(KERN_ERR PFX "irq %u in use\n", s->irq);
+ 		goto err_irq;
+ 	}
+-	printk(KERN_INFO PFX "found es1371 rev %d at io %#lx irq %u joystick %#x\n",
+-	       s->rev, s->io, s->irq, s->gameport.io);
++	printk(KERN_INFO PFX "found es1371 rev %d at io %#lx irq %u\n",
++	       s->rev, s->io, s->irq);
+ 	/* register devices */
+ 	if ((res=(s->dev_audio = register_sound_dsp(&es1371_audio_fops,-1)))<0)
+ 		goto err_dev1;
+@@ -2881,16 +2881,23 @@
+                     	printk(KERN_INFO PFX "Enabling internal amplifier.\n");
+ 		}
+ 	}
+-	s->gameport.io = 0;
+-	for (i = 0x218; i >= 0x200; i -= 0x08) {
+-		if (request_region(i, JOY_EXTENT, "es1371")) {
+-			s->ctrl |= CTRL_JYSTK_EN | (((i >> 3) & CTRL_JOY_MASK) << CTRL_JOY_SHIFT);
+-			s->gameport.io = i;
++
++	for (gpio = 0x218; gpio >= 0x200; gpio -= 0x08)
++		if (request_region(gpio, JOY_EXTENT, "es1371"))
+ 			break;
+-		}
+-	}
+-	if (!s->gameport.io)
++
++	if (gpio < 0x200) {
+ 		printk(KERN_ERR PFX "no free joystick address found\n");
++	} else if (!(s->gameport = gp = gameport_allocate_port())) {
++		printk(KERN_ERR PFX "can not allocate memory for gameport\n");
++		release_region(gpio, JOY_EXTENT);
++	} else {
++		gameport_set_name(gp, "ESS1371 Gameport");
++		gameport_set_phys(gp, "isa%04x/gameport0", gpio);
++		gp->dev.parent = &s->dev->dev;
++		gp->io = gpio;
++		s->ctrl |= CTRL_JYSTK_EN | (((gpio >> 3) & CTRL_JOY_MASK) << CTRL_JOY_SHIFT);
++	}
+ 
+ 	s->sctrl = 0;
+ 	cssr = 0;
+@@ -2960,9 +2967,11 @@
+ 	set_fs(fs);
+ 	/* turn on S/PDIF output driver if requested */
+ 	outl(cssr, s->io+ES1371_REG_STATUS);
++
+ 	/* register gameport */
+-	if (s->gameport.io)
+-		gameport_register_port(&s->gameport);
++	if (s->gameport)
++		gameport_register_port(s->gameport);
++
+ 	/* store it in the driver field */
+ 	pci_set_drvdata(pcidev, s);
+ 	/* put it into driver list */
+@@ -2973,8 +2982,10 @@
+        	return 0;
+ 
+  err_gp:
+-	if (s->gameport.io)
+-		release_region(s->gameport.io, JOY_EXTENT);
++	if (s->gameport) {
++		release_region(s->gameport->io, JOY_EXTENT);
++		gameport_free_port(s->gameport);
++	}
+ #ifdef ES1371_DEBUG
+ 	if (s->ps)
+ 		remove_proc_entry("es1371", NULL);
+@@ -3013,9 +3024,10 @@
+ 	outl(0, s->io+ES1371_REG_SERIAL_CONTROL); /* clear serial interrupts */
+ 	synchronize_irq(s->irq);
+ 	free_irq(s->irq, s);
+-	if (s->gameport.io) {
+-		gameport_unregister_port(&s->gameport);
+-		release_region(s->gameport.io, JOY_EXTENT);
++	if (s->gameport) {
++		int gpio = s->gameport->io;
++		gameport_unregister_port(s->gameport);
++		release_region(gpio, JOY_EXTENT);
+ 	}
+ 	release_region(s->io, ES1371_EXTENT);
+ 	unregister_sound_dsp(s->dev_audio);
+diff -Nru a/sound/oss/esssolo1.c b/sound/oss/esssolo1.c
+--- a/sound/oss/esssolo1.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/esssolo1.c	2005-02-11 01:38:28 -05:00
+@@ -226,7 +226,7 @@
+ 		unsigned char obuf[MIDIOUTBUF];
+ 	} midi;
+ 
+-	struct gameport gameport;
++	struct gameport *gameport;
+ };
+ 
+ /* --------------------------------------------------------------------- */
+@@ -2280,9 +2280,36 @@
+ 	return 0;
+ }
+ 
++static int __devinit solo1_register_gameport(struct solo1_state *s, int io_port)
++{
++	struct gameport *gp;
++
++	if (!request_region(io_port, GAMEPORT_EXTENT, "ESS Solo1")) {
++		printk(KERN_ERR "solo1: gameport io ports are in use\n");
++		return -EBUSY;
++	}
++
++	s->gameport = gp = gameport_allocate_port();
++	if (!gp) {
++		printk(KERN_ERR "solo1: can not allocate memory for gameport\n");
++		release_region(io_port, GAMEPORT_EXTENT);
++		return -ENOMEM;
++	}
++
++	gameport_set_name(gp, "ESS Solo1 Gameport");
++	gameport_set_phys(gp, "isa%04x/gameport0", io_port);
++	gp->dev.parent = &s->dev->dev;
++	gp->io = io_port;
++
++	gameport_register_port(gp);
++
++	return 0;
++}
++
+ static int __devinit solo1_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
+ {
+ 	struct solo1_state *s;
++	int gpio;
+ 	int ret;
+ 
+  	if ((ret=pci_enable_device(pcidev)))
+@@ -2323,7 +2350,7 @@
+ 	s->vcbase = pci_resource_start(pcidev, 2);
+ 	s->ddmabase = s->vcbase + DDMABASE_OFFSET;
+ 	s->mpubase = pci_resource_start(pcidev, 3);
+-	s->gameport.io = pci_resource_start(pcidev, 4);
++	gpio = pci_resource_start(pcidev, 4);
+ 	s->irq = pcidev->irq;
+ 	ret = -EBUSY;
+ 	if (!request_region(s->iobase, IOBASE_EXTENT, "ESS Solo1")) {
+@@ -2342,15 +2369,10 @@
+ 		printk(KERN_ERR "solo1: io ports in use\n");
+ 		goto err_region4;
+ 	}
+-	if (s->gameport.io && !request_region(s->gameport.io, GAMEPORT_EXTENT, "ESS Solo1")) {
+-		printk(KERN_ERR "solo1: gameport io ports in use\n");
+-		s->gameport.io = 0;
+-	}
+ 	if ((ret=request_irq(s->irq,solo1_interrupt,SA_SHIRQ,"ESS Solo1",s))) {
+ 		printk(KERN_ERR "solo1: irq %u in use\n", s->irq);
+ 		goto err_irq;
+ 	}
+-	printk(KERN_INFO "solo1: joystick port at %#x\n", s->gameport.io+1);
+ 	/* register devices */
+ 	if ((s->dev_audio = register_sound_dsp(&solo1_audio_fops, -1)) < 0) {
+ 		ret = s->dev_audio;
+@@ -2373,7 +2395,7 @@
+ 		goto err;
+ 	}
+ 	/* register gameport */
+-	gameport_register_port(&s->gameport);
++	solo1_register_gameport(s, gpio);
+ 	/* store it in the driver field */
+ 	pci_set_drvdata(pcidev, s);
+ 	return 0;
+@@ -2390,8 +2412,6 @@
+ 	printk(KERN_ERR "solo1: initialisation error\n");
+ 	free_irq(s->irq, s);
+  err_irq:
+-	if (s->gameport.io)
+-		release_region(s->gameport.io, GAMEPORT_EXTENT);
+ 	release_region(s->mpubase, MPUBASE_EXTENT);
+  err_region4:
+ 	release_region(s->ddmabase, DDMABASE_EXTENT);
+@@ -2417,9 +2437,10 @@
+ 	synchronize_irq(s->irq);
+ 	pci_write_config_word(s->dev, 0x60, 0); /* turn off DDMA controller address space */
+ 	free_irq(s->irq, s);
+-	if (s->gameport.io) {
+-		gameport_unregister_port(&s->gameport);
+-		release_region(s->gameport.io, GAMEPORT_EXTENT);
++	if (s->gameport) {
++		int gpio = s->gameport->io;
++		gameport_unregister_port(s->gameport);
++		release_region(gpio, GAMEPORT_EXTENT);
+ 	}
+ 	release_region(s->iobase, IOBASE_EXTENT);
+ 	release_region(s->sbbase+FMSYNTH_EXTENT, SBBASE_EXTENT-FMSYNTH_EXTENT);
+diff -Nru a/sound/oss/mad16.c b/sound/oss/mad16.c
+--- a/sound/oss/mad16.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/mad16.c	2005-02-11 01:38:28 -05:00
+@@ -52,7 +52,7 @@
+ 
+ static int      mad16_conf;
+ static int      mad16_cdsel;
+-static struct gameport gameport;
++static struct gameport *gameport;
+ static DEFINE_SPINLOCK(lock);
+ 
+ #define C928	1
+@@ -902,7 +902,30 @@
+ 	-1, -1, -1, -1
+ };
+ 
+-static int __init init_mad16(void)
++static int __devinit mad16_register_gameport(int io_port)
++{
++	if (!request_region(io_port, 1, "mad16 gameport")) {
++		printk(KERN_ERR "mad16: gameport address 0x%#x already in use\n", io_port);
++		return -EBUSY;
++	}
++
++	gameport = gameport_allocate_port();
++	if (!gameport) {
++		printk(KERN_ERR "mad16: can not allocate memory for gameport\n");
++		release_region(io_port, 1);
++		return -ENOMEM;
++	}
++
++	gameport_set_name(gameport, "MAD16 Gameport");
++	gameport_set_phys(gameport, "isa%04x/gameport0", io_port);
++	gameport->io = io_port;
++
++	gameport_register_port(gameport);
++
++	return 0;
++}
++
++static int __devinit init_mad16(void)
+ {
+ 	int dmatype = 0;
+ 
+@@ -1027,17 +1050,9 @@
+ 
+ 	found_mpu = probe_mad16_mpu(&cfg_mpu);
+ 
+-	if (joystick == 1) {
+-		/* register gameport */
+-		if (!request_region(0x201, 1, "mad16 gameport"))
+-			printk(KERN_ERR "mad16: gameport address 0x201 already in use\n");
+-		else {
+-			printk(KERN_ERR "mad16: gameport enabled at 0x201\n");
+-			gameport.io = 0x201;
+-			gameport_register_port(&gameport);
+-		}
+-	}
+-	else printk(KERN_ERR "mad16: gameport disabled.\n");
++	if (joystick)
++		mad16_register_gameport(0x201);
++
+ 	return 0;
+ }
+ 
+@@ -1045,10 +1060,10 @@
+ {
+ 	if (found_mpu)
+ 		unload_mad16_mpu(&cfg_mpu);
+-	if (gameport.io) {
++	if (gameport) {
+ 		/* the gameport was initialized so we must free it up */
+-		gameport_unregister_port(&gameport);
+-		gameport.io = 0;
++		gameport_unregister_port(gameport);
++		gameport = NULL;
+ 		release_region(0x201, 1);
+ 	}
+ 	unload_mad16(&cfg);
+diff -Nru a/sound/oss/sonicvibes.c b/sound/oss/sonicvibes.c
+--- a/sound/oss/sonicvibes.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/sonicvibes.c	2005-02-11 01:38:28 -05:00
+@@ -365,7 +365,7 @@
+ 		unsigned char obuf[MIDIOUTBUF];
+ 	} midi;
+ 
+-	struct gameport gameport;
++	struct gameport *gameport;
+ };
+ 
+ /* --------------------------------------------------------------------- */
+@@ -2485,12 +2485,39 @@
+ #define RSRCISIOREGION(dev,num) (pci_resource_start((dev), (num)) != 0 && \
+ 				 (pci_resource_flags((dev), (num)) & IORESOURCE_IO))
+ 
++static int __devinit sv_register_gameport(struct sv_state *s, int io_port)
++{
++	struct gameport *gp;
++
++	if (!request_region(io_port, SV_EXTENT_GAME, "S3 SonicVibes Gameport")) {
++		printk(KERN_ERR "sv: gameport io ports are in use\n");
++		return -EBUSY;
++	}
++
++	s->gameport = gp = gameport_allocate_port();
++	if (!gp) {
++		printk(KERN_ERR "sv: can not allocate memory for gameport\n");
++		release_region(io_port, SV_EXTENT_GAME);
++		return -ENOMEM;
++	}
++
++	gameport_set_name(gp, "S3 SonicVibes Gameport");
++	gameport_set_phys(gp, "isa%04x/gameport0", io_port);
++	gp->dev.parent = &s->dev->dev;
++	gp->io = io_port;
++
++	gameport_register_port(gp);
++
++	return 0;
++}
++
+ static int __devinit sv_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
+ {
+ 	static char __initdata sv_ddma_name[] = "S3 Inc. SonicVibes DDMA Controller";
+        	struct sv_state *s;
+ 	mm_segment_t fs;
+ 	int i, val, ret;
++	int gpio;
+ 	char *ddmaname;
+ 	unsigned ddmanamelen;
+ 
+@@ -2546,11 +2573,11 @@
+ 	s->iomidi = pci_resource_start(pcidev, RESOURCE_MIDI);
+ 	s->iodmaa = pci_resource_start(pcidev, RESOURCE_DDMA);
+ 	s->iodmac = pci_resource_start(pcidev, RESOURCE_DDMA) + SV_EXTENT_DMA;
+-	s->gameport.io = pci_resource_start(pcidev, RESOURCE_GAME);
++	gpio = pci_resource_start(pcidev, RESOURCE_GAME);
+ 	pci_write_config_dword(pcidev, 0x40, s->iodmaa | 9);  /* enable and use extended mode */
+ 	pci_write_config_dword(pcidev, 0x48, s->iodmac | 9);  /* enable */
+ 	printk(KERN_DEBUG "sv: io ports: %#lx %#lx %#lx %#lx %#x %#x %#x\n",
+-	       s->iosb, s->ioenh, s->iosynth, s->iomidi, s->gameport.io, s->iodmaa, s->iodmac);
++	       s->iosb, s->ioenh, s->iosynth, s->iomidi, gpio, s->iodmaa, s->iodmac);
+ 	s->irq = pcidev->irq;
+ 	
+ 	/* hack */
+@@ -2577,10 +2604,7 @@
+ 		printk(KERN_ERR "sv: io ports %#lx-%#lx in use\n", s->iosynth, s->iosynth+SV_EXTENT_SYNTH-1);
+ 		goto err_region1;
+ 	}
+-	if (s->gameport.io && !request_region(s->gameport.io, SV_EXTENT_GAME, "ESS Solo1")) {
+-		printk(KERN_ERR "sv: gameport io ports in use\n");
+-		s->gameport.io = 0;
 -	}
 +
- 	if (ba0) iounmap(ba0);
- #ifdef CS461X_FULL_MAP
- 	if (ba1.name.data0) iounmap(ba1.name.data0);
-@@ -267,18 +264,17 @@
-                 return -ENOMEM;
-         }
- #else
--	if (ba0 == NULL){
-+	if (ba0 == NULL) {
- 		cs461x_free(pdev);
- 		return -ENOMEM;
+ 	/* initialize codec registers */
+ 	outb(0x80, s->ioenh + SV_CODEC_CONTROL); /* assert reset */
+ 	udelay(50);
+@@ -2639,7 +2663,7 @@
  	}
- #endif
- 
--	if (!(port = kmalloc(sizeof(struct gameport), GFP_KERNEL))) {
--		printk(KERN_ERR "Memory allocation failed.\n");
-+	if (!(port = gameport_allocate_port())) {
-+		printk(KERN_ERR "cs461x: Memory allocation failed\n");
- 		cs461x_free(pdev);
- 		return -ENOMEM;
+ 	set_fs(fs);
+ 	/* register gameport */
+-	gameport_register_port(&s->gameport);
++	sv_register_gameport(s, gpio);
+ 	/* store it in the driver field */
+ 	pci_set_drvdata(pcidev, s);
+ 	/* put it into driver list */
+@@ -2659,8 +2683,6 @@
+ 	printk(KERN_ERR "sv: cannot register misc device\n");
+ 	free_irq(s->irq, s);
+  err_irq:
+-	if (s->gameport.io)
+-		release_region(s->gameport.io, SV_EXTENT_GAME);
+ 	release_region(s->iosynth, SV_EXTENT_SYNTH);
+  err_region1:
+ 	release_region(s->iomidi, SV_EXTENT_MIDI);
+@@ -2689,9 +2711,10 @@
+ 	/*outb(0, s->iodmaa + SV_DMA_RESET);*/
+ 	/*outb(0, s->iodmac + SV_DMA_RESET);*/
+ 	free_irq(s->irq, s);
+-	if (s->gameport.io) {
+-		gameport_unregister_port(&s->gameport);
+-		release_region(s->gameport.io, SV_EXTENT_GAME);
++	if (s->gameport) {
++		int gpio = s->gameport->io;
++		gameport_unregister_port(s->gameport);
++		release_region(gpio, SV_EXTENT_GAME);
  	}
--	memset(port, 0, sizeof(struct gameport));
- 
- 	pci_set_drvdata(pdev, port);
- 
-@@ -287,21 +283,14 @@
- 	port->read = cs461x_gameport_read;
- 	port->cooked_read = cs461x_gameport_cooked_read;
- 
--	sprintf(phys, "pci%s/gameport0", pci_name(pdev));
--
--	port->name = name;
--	port->phys = phys;
--	port->id.bustype = BUS_PCI;
--	port->id.vendor = pdev->vendor;
--	port->id.product = pdev->device;
-+	gameport_set_name(port, "CS416x");
-+	gameport_set_phys(port, "pci%s/gameport0", pci_name(pdev));
-+	port->dev.parent = &pdev->dev;
- 
- 	cs461x_pokeBA0(BA0_JSIO, 0xFF); // ?
- 	cs461x_pokeBA0(BA0_JSCTL, JSCTL_SP_MEDIUM_SLOW);
- 
- 	gameport_register_port(port);
--
--	printk(KERN_INFO "gameport: %s on pci%s speed %d kHz\n",
--		name, pci_name(pdev), port->speed);
- 
- 	return 0;
- }
-diff -Nru a/drivers/input/gameport/emu10k1-gp.c b/drivers/input/gameport/emu10k1-gp.c
---- a/drivers/input/gameport/emu10k1-gp.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/gameport/emu10k1-gp.c	2005-02-11 01:38:07 -05:00
-@@ -44,13 +44,13 @@
- 
- struct emu {
- 	struct pci_dev *dev;
--	struct gameport gameport;
-+	struct gameport *gameport;
-+	int io;
- 	int size;
--	char phys[32];
- };
- 
- static struct pci_device_id emu_tbl[] = {
-- 
-+
- 	{ 0x1102, 0x7002, PCI_ANY_ID, PCI_ANY_ID }, /* SB Live gameport */
- 	{ 0x1102, 0x7003, PCI_ANY_ID, PCI_ANY_ID }, /* Audigy gameport */
- 	{ 0x1102, 0x7004, PCI_ANY_ID, PCI_ANY_ID }, /* Dell SB Live */
-@@ -64,6 +64,7 @@
- {
- 	int ioport, iolen;
- 	struct emu *emu;
-+	struct gameport *port;
- 
- 	if (pci_enable_device(pdev))
- 		return -EBUSY;
-@@ -74,31 +75,29 @@
- 	if (!request_region(ioport, iolen, "emu10k1-gp"))
- 		return -EBUSY;
- 
--	if (!(emu = kmalloc(sizeof(struct emu), GFP_KERNEL))) {
--		printk(KERN_ERR "emu10k1-gp: Memory allocation failed.\n");
-+	emu = kcalloc(1, sizeof(struct emu), GFP_KERNEL);
-+	port = gameport_allocate_port();
-+	if (!emu || !port) {
-+		printk(KERN_ERR "emu10k1-gp: Memory allocation failed\n");
- 		release_region(ioport, iolen);
-+		kfree(emu);
-+		gameport_free_port(port);
- 		return -ENOMEM;
- 	}
--	memset(emu, 0, sizeof(struct emu));
--
--	sprintf(emu->phys, "pci%s/gameport0", pci_name(pdev));
- 
-+	emu->io = ioport;
- 	emu->size = iolen;
- 	emu->dev = pdev;
-+	emu->gameport = port;
- 
--	emu->gameport.io = ioport;
--	emu->gameport.name = pci_name(pdev);
--	emu->gameport.phys = emu->phys;
--	emu->gameport.id.bustype = BUS_PCI;
--	emu->gameport.id.vendor = pdev->vendor;
--	emu->gameport.id.product = pdev->device;
-+	gameport_set_name(port, "EMU10K1");
-+	gameport_set_phys(port, "pci%s/gameport0", pci_name(pdev));
-+	port->dev.parent = &pdev->dev;
-+	port->io = ioport;
- 
- 	pci_set_drvdata(pdev, emu);
- 
--	gameport_register_port(&emu->gameport);
--
--	printk(KERN_INFO "gameport: pci%s speed %d kHz\n",
--		pci_name(pdev), emu->gameport.speed);
-+	gameport_register_port(port);
- 
- 	return 0;
- }
-@@ -106,8 +105,9 @@
- static void __devexit emu_remove(struct pci_dev *pdev)
- {
- 	struct emu *emu = pci_get_drvdata(pdev);
--	gameport_unregister_port(&emu->gameport);
--	release_region(emu->gameport.io, emu->size);
-+
-+	gameport_unregister_port(emu->gameport);
-+	release_region(emu->io, emu->size);
- 	kfree(emu);
- }
- 
-diff -Nru a/drivers/input/gameport/fm801-gp.c b/drivers/input/gameport/fm801-gp.c
---- a/drivers/input/gameport/fm801-gp.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/gameport/fm801-gp.c	2005-02-11 01:38:07 -05:00
-@@ -37,10 +37,8 @@
- #define HAVE_COOKED
- 
- struct fm801_gp {
--	struct gameport gameport;
-+	struct gameport *gameport;
- 	struct resource *res_port;
--	char phys[32];
--	char name[32];
- };
- 
- #ifdef HAVE_COOKED
-@@ -83,40 +81,42 @@
- static int __devinit fm801_gp_probe(struct pci_dev *pci, const struct pci_device_id *id)
- {
- 	struct fm801_gp *gp;
-+	struct gameport *port;
- 
--	if (! (gp = kmalloc(sizeof(*gp), GFP_KERNEL))) {
--		printk("cannot malloc for fm801-gp\n");
--		return -1;
-+	gp = kcalloc(1, sizeof(struct fm801_gp), GFP_KERNEL);
-+	port = gameport_allocate_port();
-+	if (!gp || !port) {
-+		printk(KERN_ERR "fm801-gp: Memory allocation failed\n");
-+		kfree(gp);
-+		gameport_free_port(port);
-+		return -ENOMEM;
- 	}
--	memset(gp, 0, sizeof(*gp));
- 
--	gp->gameport.open = fm801_gp_open;
-+	pci_enable_device(pci);
-+
-+	port->open = fm801_gp_open;
- #ifdef HAVE_COOKED
--	gp->gameport.cooked_read = fm801_gp_cooked_read;
-+	port->cooked_read = fm801_gp_cooked_read;
- #endif
--
--	pci_enable_device(pci);
--	gp->gameport.io = pci_resource_start(pci, 0);
--	if ((gp->res_port = request_region(gp->gameport.io, 0x10, "FM801 GP")) == NULL) {
--		printk("unable to grab region 0x%x-0x%x\n", gp->gameport.io, gp->gameport.io + 0x0f);
-+	gameport_set_name(port, "FM801");
-+	gameport_set_phys(port, "pci%s/gameport0", pci_name(pci));
-+	port->dev.parent = &pci->dev;
-+	port->io = pci_resource_start(pci, 0);
-+
-+	gp->gameport = port;
-+	gp->res_port = request_region(port->io, 0x10, "FM801 GP");
-+	if (!gp->res_port) {
- 		kfree(gp);
--		return -1;
-+		gameport_free_port(port);
-+		printk(KERN_DEBUG "fm801-gp: unable to grab region 0x%x-0x%x\n",
-+			port->io, port->io + 0x0f);
-+		return -EBUSY;
- 	}
- 
--	gp->gameport.phys = gp->phys;
--	gp->gameport.name = gp->name;
--	gp->gameport.id.bustype = BUS_PCI;
--	gp->gameport.id.vendor = pci->vendor;
--	gp->gameport.id.product = pci->device;
--
- 	pci_set_drvdata(pci, gp);
- 
--	outb(0x60, gp->gameport.io + 0x0d); /* enable joystick 1 and 2 */
--
--	gameport_register_port(&gp->gameport);
--
--	printk(KERN_INFO "gameport: at pci%s speed %d kHz\n",
--		pci_name(pci), gp->gameport.speed);
-+	outb(0x60, port->io + 0x0d); /* enable joystick 1 and 2 */
-+	gameport_register_port(port);
- 
- 	return 0;
- }
-@@ -124,8 +124,9 @@
- static void __devexit fm801_gp_remove(struct pci_dev *pci)
- {
- 	struct fm801_gp *gp = pci_get_drvdata(pci);
-+
- 	if (gp) {
--		gameport_unregister_port(&gp->gameport);
-+		gameport_unregister_port(gp->gameport);
- 		release_resource(gp->res_port);
- 		kfree(gp);
- 	}
-diff -Nru a/drivers/input/gameport/lightning.c b/drivers/input/gameport/lightning.c
---- a/drivers/input/gameport/lightning.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/gameport/lightning.c	2005-02-11 01:38:07 -05:00
-@@ -53,13 +53,12 @@
- MODULE_DESCRIPTION("PDPI Lightning 4 gamecard driver");
- MODULE_LICENSE("GPL");
- 
--static struct l4 {
--	struct gameport gameport;
-+struct l4 {
-+	struct gameport *gameport;
- 	unsigned char port;
--	char phys[32];
--} *l4_port[8];
-+};
- 
--static char l4_name[] = "PDPI Lightning 4";
-+static struct l4 l4_ports[8];
- 
- /*
-  * l4_wait_ready() waits for the L4 to become ready.
-@@ -67,10 +66,10 @@
- 
- static int l4_wait_ready(void)
- {
--	unsigned int t;
--	t = L4_TIMEOUT;
-+	unsigned int t = L4_TIMEOUT;
-+
- 	while ((inb(L4_PORT) & L4_BUSY) && t > 0) t--;
--	return -(t<=0);
-+	return -(t <= 0);
- }
- 
- /*
-@@ -113,6 +112,7 @@
- static int l4_open(struct gameport *gameport, int mode)
- {
- 	struct l4 *l4 = gameport->port_data;
-+
-         if (l4->port != 0 && mode != GAMEPORT_MODE_COOKED)
- 		return -1;
- 	outb(L4_SELECT_ANALOG, L4_PORT);
-@@ -129,24 +129,29 @@
- 
- 	outb(L4_SELECT_ANALOG, L4_PORT);
- 	outb(L4_SELECT_DIGITAL + (port >> 2), L4_PORT);
-+	if (inb(L4_PORT) & L4_BUSY)
-+		goto out;
- 
--	if (inb(L4_PORT) & L4_BUSY) goto fail;
- 	outb(L4_CMD_GETCAL, L4_PORT);
-+	if (l4_wait_ready())
-+		goto out;
- 
--	if (l4_wait_ready()) goto fail;
--	if (inb(L4_PORT) != L4_SELECT_DIGITAL + (port >> 2)) goto fail;
-+	if (inb(L4_PORT) != L4_SELECT_DIGITAL + (port >> 2))
-+		goto out;
- 
--	if (l4_wait_ready()) goto fail;
-+	if (l4_wait_ready())
-+		goto out;
-         outb(port & 3, L4_PORT);
- 
- 	for (i = 0; i < 4; i++) {
--		if (l4_wait_ready()) goto fail;
-+		if (l4_wait_ready())
-+			goto out;
- 		cal[i] = inb(L4_PORT);
- 	}
- 
- 	result = 0;
- 
--fail:	outb(L4_SELECT_ANALOG, L4_PORT);
-+out:	outb(L4_SELECT_ANALOG, L4_PORT);
- 	return result;
- }
- 
-@@ -160,24 +165,29 @@
- 
- 	outb(L4_SELECT_ANALOG, L4_PORT);
- 	outb(L4_SELECT_DIGITAL + (port >> 2), L4_PORT);
-+	if (inb(L4_PORT) & L4_BUSY)
-+		goto out;
- 
--	if (inb(L4_PORT) & L4_BUSY) goto fail;
- 	outb(L4_CMD_SETCAL, L4_PORT);
-+	if (l4_wait_ready())
-+		goto out;
- 
--	if (l4_wait_ready()) goto fail;
--	if (inb(L4_PORT) != L4_SELECT_DIGITAL + (port >> 2)) goto fail;
-+	if (inb(L4_PORT) != L4_SELECT_DIGITAL + (port >> 2))
-+		goto out;
- 
--	if (l4_wait_ready()) goto fail;
-+	if (l4_wait_ready())
-+		goto out;
-         outb(port & 3, L4_PORT);
- 
- 	for (i = 0; i < 4; i++) {
--		if (l4_wait_ready()) goto fail;
-+		if (l4_wait_ready())
-+			goto out;
- 		outb(cal[i], L4_PORT);
- 	}
- 
- 	result = 0;
- 
--fail:	outb(L4_SELECT_ANALOG, L4_PORT);
-+out:	outb(L4_SELECT_ANALOG, L4_PORT);
- 	return result;
- }
- 
-@@ -209,73 +219,102 @@
- 	return 0;
- }
- 
--static int __init l4_init(void)
-+static int __init l4_create_ports(int card_no)
- {
--	int cal[4] = {255,255,255,255};
--	int i, j, rev, cards = 0;
--	struct gameport *gameport;
- 	struct l4 *l4;
-+	struct gameport *port;
-+	int i, idx;
- 
--	if (!request_region(L4_PORT, 1, "lightning"))
--		return -1;
-+	for (i = 0; i < 4; i++) {
- 
--	for (i = 0; i < 2; i++) {
-+		idx = card_no * 4 + i;
-+		l4 = &l4_ports[idx];
- 
--		outb(L4_SELECT_ANALOG, L4_PORT);
--		outb(L4_SELECT_DIGITAL + i, L4_PORT);
-+		if (!(l4->gameport = port = gameport_allocate_port())) {
-+			printk(KERN_ERR "lightning: Memory allocation failed\n");
-+			while (--i >= 0) {
-+				gameport_free_port(l4->gameport);
-+				l4->gameport = NULL;
-+			}
-+			return -ENOMEM;
-+		}
-+		l4->port = idx;
- 
--		if (inb(L4_PORT) & L4_BUSY) continue;
--		outb(L4_CMD_ID, L4_PORT);
-+		port->port_data = l4;
-+		port->open = l4_open;
-+		port->cooked_read = l4_cooked_read;
-+		port->calibrate = l4_calibrate;
- 
--		if (l4_wait_ready()) continue;
--		if (inb(L4_PORT) != L4_SELECT_DIGITAL + i) continue;
-+		gameport_set_name(port, "PDPI Lightning 4");
-+		gameport_set_phys(port, "isa%04x/gameport%d", L4_PORT, idx);
- 
--		if (l4_wait_ready()) continue;
--		if (inb(L4_PORT) != L4_ID) continue;
-+		if (idx == 0)
-+			port->io = L4_PORT;
-+	}
- 
--		if (l4_wait_ready()) continue;
--		rev = inb(L4_PORT);
-+	return 0;
-+}
- 
--		if (!rev) continue;
-+static int __init l4_add_card(int card_no)
-+{
-+	int cal[4] = { 255, 255, 255, 255 };
-+	int i, rev, result;
-+	struct l4 *l4;
- 
--		if (!(l4_port[i * 4] = kmalloc(sizeof(struct l4) * 4, GFP_KERNEL))) {
--			printk(KERN_ERR "lightning: Out of memory allocating ports.\n");
--			continue;
--		}
--		memset(l4_port[i * 4], 0, sizeof(struct l4) * 4);
-+	outb(L4_SELECT_ANALOG, L4_PORT);
-+	outb(L4_SELECT_DIGITAL + card_no, L4_PORT);
- 
--		for (j = 0; j < 4; j++) {
-+	if (inb(L4_PORT) & L4_BUSY)
-+		return -1;
-+	outb(L4_CMD_ID, L4_PORT);
- 
--			l4 = l4_port[i * 4 + j] = l4_port[i * 4] + j;
--			l4->port = i * 4 + j;
-+	if (l4_wait_ready())
-+		return -1;
- 
--			sprintf(l4->phys, "isa%04x/gameport%d", L4_PORT, 4 * i + j);
-+	if (inb(L4_PORT) != L4_SELECT_DIGITAL + card_no)
-+		return -1;
- 
--			gameport = &l4->gameport;
--			gameport->port_data = l4;
--			gameport->open = l4_open;
--			gameport->cooked_read = l4_cooked_read;
--			gameport->calibrate = l4_calibrate;
-+	if (l4_wait_ready())
-+		return -1;
-+	if (inb(L4_PORT) != L4_ID)
-+		return -1;
- 
--			gameport->name = l4_name;
--			gameport->phys = l4->phys;
--			gameport->id.bustype = BUS_ISA;
-+	if (l4_wait_ready())
-+		return -1;
-+	rev = inb(L4_PORT);
- 
--			if (!i && !j)
--				gameport->io = L4_PORT;
-+	if (!rev)
-+		return -1;
- 
--			if (rev > 0x28)		/* on 2.9+ the setcal command works correctly */
--				l4_setcal(l4->port, cal);
-+	result = l4_create_ports(card_no);
-+	if (result)
-+		return result;
- 
--			gameport_register_port(gameport);
--		}
-+	printk(KERN_INFO "gameport: PDPI Lightning 4 %s card v%d.%d at %#x\n",
-+		card_no ? "secondary" : "primary", rev >> 4, rev, L4_PORT);
- 
--		printk(KERN_INFO "gameport: PDPI Lightning 4 %s card v%d.%d at %#x\n",
--			i ? "secondary" : "primary", rev >> 4, rev, L4_PORT);
-+	for (i = 0; i < 4; i++) {
-+		l4 = &l4_ports[card_no * 4 + i];
- 
--		cards++;
-+		if (rev > 0x28)		/* on 2.9+ the setcal command works correctly */
-+			l4_setcal(l4->port, cal);
-+		gameport_register_port(l4->gameport);
- 	}
- 
-+	return 0;
-+}
-+
-+static int __init l4_init(void)
-+{
-+	int i, cards = 0;
-+
-+	if (!request_region(L4_PORT, 1, "lightning"))
-+		return -1;
-+
-+	for (i = 0; i < 2; i++)
-+		if (l4_add_card(i) == 0)
-+			cards++;
-+
- 	outb(L4_SELECT_ANALOG, L4_PORT);
- 
- 	if (!cards) {
-@@ -289,13 +328,14 @@
- static void __exit l4_exit(void)
- {
- 	int i;
--	int cal[4] = {59, 59, 59, 59};
-+	int cal[4] = { 59, 59, 59, 59 };
- 
- 	for (i = 0; i < 8; i++)
--		if (l4_port[i]) {
--			l4_setcal(l4_port[i]->port, cal);
--			gameport_unregister_port(&l4_port[i]->gameport);
-+		if (l4_ports[i].gameport) {
-+			l4_setcal(l4_ports[i].port, cal);
-+			gameport_unregister_port(l4_ports[i].gameport);
- 		}
-+
- 	outb(L4_SELECT_ANALOG, L4_PORT);
- 	release_region(L4_PORT, 1);
- }
-diff -Nru a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
---- a/drivers/input/gameport/ns558.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/gameport/ns558.c	2005-02-11 01:38:07 -05:00
-@@ -49,12 +49,11 @@
- 
- struct ns558 {
- 	int type;
-+	int io;
- 	int size;
- 	struct pnp_dev *dev;
-+	struct gameport *gameport;
- 	struct list_head node;
--	struct gameport gameport;
--	char phys[32];
--	char name[32];
- };
- 
- static LIST_HEAD(ns558_list);
-@@ -65,18 +64,19 @@
-  * A joystick must be attached for this to work.
-  */
- 
--static void ns558_isa_probe(int io)
-+static int ns558_isa_probe(int io)
- {
- 	int i, j, b;
- 	unsigned char c, u, v;
--	struct ns558 *port;
-+	struct ns558 *ns558;
-+	struct gameport *port;
- 
- /*
-  * No one should be using this address.
-  */
- 
- 	if (!request_region(io, 1, "ns558-isa"))
--		return;
-+		return -EBUSY;
- 
- /*
-  * We must not be able to write arbitrary values to the port.
-@@ -87,8 +87,8 @@
- 	outb(~c & ~3, io);
- 	if (~(u = v = inb(io)) & 3) {
- 		outb(c, io);
--		i = 0;
--		goto out;
-+		release_region(io, 1);
-+		return -ENODEV;
- 	}
- /*
-  * After a trigger, there must be at least some bits changing.
-@@ -98,8 +98,8 @@
- 
- 	if (u == v) {
- 		outb(c, io);
--		i = 0;
--		goto out;
-+		release_region(io, 1);
-+		return -ENODEV;
- 	}
- 	msleep(3);
- /*
-@@ -110,8 +110,8 @@
- 	for (i = 0; i < 1000; i++)
- 		if ((u ^ inb(io)) & 0xf) {
- 			outb(c, io);
--			i = 0;
--			goto out;
-+			release_region(io, 1);
-+			return -ENODEV;
- 		}
- /*
-  * And now find the number of mirrors of the port.
-@@ -119,7 +119,7 @@
- 
- 	for (i = 1; i < 5; i++) {
- 
--		release_region(io & (-1 << (i-1)), (1 << (i-1)));
-+		release_region(io & (-1 << (i - 1)), (1 << (i - 1)));
- 
- 		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))
- 			break;				/* Don't disturb anyone */
-@@ -139,34 +139,33 @@
- 
- 	if (i != 4) {
- 		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))
--			return;
-+			return -EBUSY;
- 	}
- 
--	if (!(port = kmalloc(sizeof(struct ns558), GFP_KERNEL))) {
-+	ns558 = kcalloc(1, sizeof(struct ns558), GFP_KERNEL);
-+	port = gameport_allocate_port();
-+	if (!ns558 || !port) {
- 		printk(KERN_ERR "ns558: Memory allocation failed.\n");
--		goto out;
-+		release_region(io & (-1 << i), (1 << i));
-+		kfree(ns558);
-+		gameport_free_port(port);
-+		return -ENOMEM;
- 	}
--	memset(port, 0, sizeof(struct ns558));
--
--	port->size = (1 << i);
--	port->gameport.io = io;
--	port->gameport.phys = port->phys;
--	port->gameport.name = port->name;
--	port->gameport.id.bustype = BUS_ISA;
- 
--	sprintf(port->phys, "isa%04x/gameport0", io & (-1 << i));
--	sprintf(port->name, "NS558 ISA");
-+	memset(ns558, 0, sizeof(struct ns558));
-+	ns558->io = io;
-+	ns558->size = 1 << i;
-+	ns558->gameport = port;
-+
-+	port->io = io;
-+	gameport_set_name(port, "NS558 ISA Gameport");
-+	gameport_set_phys(port, "isa%04x/gameport0", io & (-1 << i));
- 
--	gameport_register_port(&port->gameport);
-+	gameport_register_port(port);
- 
--	printk(KERN_INFO "gameport: NS558 ISA at %#x", port->gameport.io);
--	if (port->size > 1) printk(" size %d", port->size);
--	printk(" speed %d kHz\n", port->gameport.speed);
-+	list_add(&ns558->node, &ns558_list);
- 
--	list_add(&port->node, &ns558_list);
--	return;
--out:
--	release_region(io & (-1 << i), (1 << i));
-+	return 0;
- }
- 
- #ifdef CONFIG_PNP
-@@ -202,45 +201,42 @@
- static int ns558_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
- {
- 	int ioport, iolen;
--	struct ns558 *port;
-+	struct ns558 *ns558;
-+	struct gameport *port;
- 
- 	if (!pnp_port_valid(dev, 0)) {
- 		printk(KERN_WARNING "ns558: No i/o ports on a gameport? Weird\n");
- 		return -ENODEV;
- 	}
- 
--	ioport = pnp_port_start(dev,0);
--	iolen = pnp_port_len(dev,0);
-+	ioport = pnp_port_start(dev, 0);
-+	iolen = pnp_port_len(dev, 0);
- 
- 	if (!request_region(ioport, iolen, "ns558-pnp"))
- 		return -EBUSY;
- 
--	if (!(port = kmalloc(sizeof(struct ns558), GFP_KERNEL))) {
--		printk(KERN_ERR "ns558: Memory allocation failed.\n");
-+	ns558 = kcalloc(1, sizeof(struct ns558), GFP_KERNEL);
-+	port = gameport_allocate_port();
-+	if (!ns558 || !port) {
-+		printk(KERN_ERR "ns558: Memory allocation failed\n");
-+		kfree(ns558);
-+		gameport_free_port(port);
- 		return -ENOMEM;
- 	}
--	memset(port, 0, sizeof(struct ns558));
--
--	port->size = iolen;
--	port->dev = dev;
--
--	port->gameport.io = ioport;
--	port->gameport.phys = port->phys;
--	port->gameport.name = port->name;
--	port->gameport.id.bustype = BUS_ISAPNP;
--	port->gameport.id.version = 0x100;
--
--	sprintf(port->phys, "pnp%s/gameport0", dev->dev.bus_id);
--	sprintf(port->name, "%s", "NS558 PnP Gameport");
- 
--	gameport_register_port(&port->gameport);
-+	ns558->io = ioport;
-+	ns558->size = iolen;
-+	ns558->dev = dev;
-+	ns558->gameport = port;
-+
-+	gameport_set_name(port, "NS558 PnP Gameport");
-+	gameport_set_phys(port, "pnp%s/gameport0", dev->dev.bus_id);
-+	port->dev.parent = &dev->dev;
-+	port->io = ioport;
- 
--	printk(KERN_INFO "gameport: NS558 PnP at pnp%s io %#x",
--		dev->dev.bus_id, port->gameport.io);
--	if (iolen > 1) printk(" size %d", iolen);
--	printk(" speed %d kHz\n", port->gameport.speed);
-+	gameport_register_port(port);
- 
--	list_add_tail(&port->node, &ns558_list);
-+	list_add_tail(&ns558->node, &ns558_list);
- 	return 0;
- }
- 
-@@ -279,12 +275,12 @@
- 
- static void __exit ns558_exit(void)
- {
--	struct ns558 *port;
-+	struct ns558 *ns558;
- 
--	list_for_each_entry(port, &ns558_list, node) {
--		gameport_unregister_port(&port->gameport);
--		release_region(port->gameport.io & ~(port->size - 1), port->size);
--		kfree(port);
-+	list_for_each_entry(ns558, &ns558_list, node) {
-+		gameport_unregister_port(ns558->gameport);
-+		release_region(ns558->io & ~(ns558->size - 1), ns558->size);
-+		kfree(ns558);
- 	}
- 
- 	if (pnp_registered)
-diff -Nru a/drivers/input/gameport/vortex.c b/drivers/input/gameport/vortex.c
---- a/drivers/input/gameport/vortex.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/gameport/vortex.c	2005-02-11 01:38:07 -05:00
-@@ -53,11 +53,10 @@
- #define VORTEX_DATA_WAIT	20	/* 20 ms */
- 
- struct vortex {
--	struct gameport gameport;
-+	struct gameport *gameport;
- 	struct pci_dev *dev;
--        unsigned char __iomem *base;
--        unsigned char __iomem *io;
--	char phys[32];
-+	unsigned char __iomem *base;
-+	unsigned char __iomem *io;
- };
- 
- static unsigned char vortex_read(struct gameport *gameport)
-@@ -109,30 +108,17 @@
- static int __devinit vortex_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	struct vortex *vortex;
-+	struct gameport *port;
- 	int i;
- 
--	if (!(vortex = kmalloc(sizeof(struct vortex), GFP_KERNEL)))
--		return -1;
--        memset(vortex, 0, sizeof(struct vortex));
--
--	vortex->dev = dev;
--	sprintf(vortex->phys, "pci%s/gameport0", pci_name(dev));
--
--	pci_set_drvdata(dev, vortex);
--
--	vortex->gameport.port_data = vortex;
--	vortex->gameport.fuzz = 64;
--
--	vortex->gameport.read = vortex_read;
--	vortex->gameport.trigger = vortex_trigger;
--	vortex->gameport.cooked_read = vortex_cooked_read;
--	vortex->gameport.open = vortex_open;
--
--	vortex->gameport.name = pci_name(dev);
--	vortex->gameport.phys = vortex->phys;
--	vortex->gameport.id.bustype = BUS_PCI;
--	vortex->gameport.id.vendor = dev->vendor;
--	vortex->gameport.id.product = dev->device;
-+	vortex = kcalloc(1, sizeof(struct vortex), GFP_KERNEL);
-+	port = gameport_allocate_port();
-+	if (!vortex || !port) {
-+		printk(KERN_ERR "vortex: Memory allocation failed.\n");
-+		kfree(vortex);
-+		gameport_free_port(port);
-+		return -ENOMEM;
-+	}
- 
- 	for (i = 0; i < 6; i++)
- 		if (~pci_resource_flags(dev, i) & IORESOURCE_IO)
-@@ -140,14 +126,26 @@
- 
- 	pci_enable_device(dev);
- 
-+	vortex->dev = dev;
-+	vortex->gameport = port;
- 	vortex->base = ioremap(pci_resource_start(vortex->dev, i),
- 				pci_resource_len(vortex->dev, i));
- 	vortex->io = vortex->base + id->driver_data;
- 
--	gameport_register_port(&vortex->gameport);
-+	pci_set_drvdata(dev, vortex);
-+
-+	port->port_data = vortex;
-+	port->fuzz = 64;
- 
--	printk(KERN_INFO "gameport at pci%s speed %d kHz\n",
--		pci_name(dev), vortex->gameport.speed);
-+	gameport_set_name(port, "AU88x0");
-+	gameport_set_phys(port, "pci%s/gameport0", pci_name(dev));
-+	port->dev.parent = &dev->dev;
-+	port->read = vortex_read;
-+	port->trigger = vortex_trigger;
-+	port->cooked_read = vortex_cooked_read;
-+	port->open = vortex_open;
-+
-+	gameport_register_port(port);
- 
- 	return 0;
- }
-@@ -155,15 +153,17 @@
- static void __devexit vortex_remove(struct pci_dev *dev)
- {
- 	struct vortex *vortex = pci_get_drvdata(dev);
--	gameport_unregister_port(&vortex->gameport);
-+
-+	gameport_unregister_port(vortex->gameport);
- 	iounmap(vortex->base);
- 	kfree(vortex);
- }
- 
--static struct pci_device_id vortex_id_table[] =
--{{ 0x12eb, 0x0001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x11000 },
-- { 0x12eb, 0x0002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x28800 },
-- { 0 }};
-+static struct pci_device_id vortex_id_table[] = {
-+	{ 0x12eb, 0x0001, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x11000 },
-+	{ 0x12eb, 0x0002, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x28800 },
-+	{ 0 }
-+};
- 
- static struct pci_driver vortex_driver = {
- 	.name =		"vortex_gameport",
-diff -Nru a/drivers/input/joystick/a3d.c b/drivers/input/joystick/a3d.c
---- a/drivers/input/joystick/a3d.c	2005-02-11 01:38:07 -05:00
-+++ b/drivers/input/joystick/a3d.c	2005-02-11 01:38:07 -05:00
-@@ -55,7 +55,7 @@
- 
- struct a3d {
- 	struct gameport *gameport;
--	struct gameport adc;
-+	struct gameport *adc;
- 	struct input_dev dev;
+ 	release_region(s->iodmac, SV_EXTENT_DMA);
+ 	release_region(s->iodmaa, SV_EXTENT_DMA);
+diff -Nru a/sound/oss/trident.c b/sound/oss/trident.c
+--- a/sound/oss/trident.c	2005-02-11 01:38:28 -05:00
++++ b/sound/oss/trident.c	2005-02-11 01:38:28 -05:00
+@@ -441,7 +441,7 @@
  	struct timer_list timer;
- 	int axes[4];
-@@ -66,7 +66,6 @@
- 	int reads;
- 	int bads;
- 	char phys[32];
--	char adcphys[32];
+ 
+ 	/* Game port support */
+-	struct gameport gameport;
++	struct gameport *gameport;
  };
  
- /*
-@@ -261,6 +260,7 @@
- static void a3d_connect(struct gameport *gameport, struct gameport_driver *drv)
- {
- 	struct a3d *a3d;
-+	struct gameport *adc;
- 	unsigned char data[A3D_MAX_LENGTH];
- 	int i;
- 
-@@ -292,7 +292,6 @@
- 	}
- 
- 	sprintf(a3d->phys, "%s/input0", gameport->phys);
--	sprintf(a3d->adcphys, "%s/gameport0", gameport->phys);
- 
- 	if (a3d->mode == A3D_MODE_PXL) {
- 
-@@ -315,16 +314,11 @@
- 		a3d_read(a3d, data);
- 
- 		for (i = 0; i < 4; i++) {
--			if (i < 2) {
--				a3d->dev.absmin[axes[i]] = 48;
--				a3d->dev.absmax[axes[i]] = a3d->dev.abs[axes[i]] * 2 - 48;
--				a3d->dev.absflat[axes[i]] = 8;
--			} else {
--				a3d->dev.absmin[axes[i]] = 2;
--				a3d->dev.absmax[axes[i]] = 253;
--			}
--			a3d->dev.absmin[ABS_HAT0X + i] = -1;
--			a3d->dev.absmax[ABS_HAT0X + i] = 1;
-+			if (i < 2)
-+				input_set_abs_params(&a3d->dev, axes[i], 48, a3d->dev.abs[axes[i]] * 2 - 48, 0, 8);
-+			else
-+				input_set_abs_params(&a3d->dev, axes[i], 2, 253, 0, 0);
-+			input_set_abs_params(&a3d->dev, ABS_HAT0X + i, -1, 1, 0, 0);
- 		}
- 
- 	} else {
-@@ -336,23 +330,23 @@
- 		a3d->dev.relbit[0] |= BIT(REL_X) | BIT(REL_Y);
- 		a3d->dev.keybit[LONG(BTN_MOUSE)] |= BIT(BTN_RIGHT) | BIT(BTN_LEFT) | BIT(BTN_MIDDLE);
- 
--		a3d->adc.port_data = a3d;
--		a3d->adc.open = a3d_adc_open;
--		a3d->adc.close = a3d_adc_close;
--		a3d->adc.cooked_read = a3d_adc_cooked_read;
--		a3d->adc.fuzz = 1;
--
--		a3d->adc.name = a3d_names[a3d->mode];
--		a3d->adc.phys = a3d->adcphys;
--		a3d->adc.id.bustype = BUS_GAMEPORT;
--		a3d->adc.id.vendor = GAMEPORT_ID_VENDOR_MADCATZ;
--		a3d->adc.id.product = a3d->mode;
--		a3d->adc.id.version = 0x0100;
--
- 		a3d_read(a3d, data);
- 
--		gameport_register_port(&a3d->adc);
--		printk(KERN_INFO "gameport: %s on %s\n", a3d_names[a3d->mode], gameport->phys);
-+		if (!(a3d->adc = adc = gameport_allocate_port()))
-+			printk(KERN_ERR "a3d: Not enough memory for ADC port\n");
-+		else {
-+			adc->port_data = a3d;
-+			adc->open = a3d_adc_open;
-+			adc->close = a3d_adc_close;
-+			adc->cooked_read = a3d_adc_cooked_read;
-+			adc->fuzz = 1;
-+
-+			gameport_set_name(adc, a3d_names[a3d->mode]);
-+			gameport_set_phys(adc, "%s/gameport0", gameport->phys);
-+			adc->dev.parent = &gameport->dev;
-+
-+			gameport_register_port(adc);
-+		}
- 	}
- 
- 	a3d->dev.private = a3d;
-@@ -370,17 +364,20 @@
- 	printk(KERN_INFO "input: %s on %s\n", a3d_names[a3d->mode], a3d->phys);
- 
- 	return;
-+
- fail2:	gameport_close(gameport);
- fail1:  kfree(a3d);
+ enum dmabuf_mode {
+@@ -4305,6 +4305,31 @@
+ 	return 0;
  }
  
- static void a3d_disconnect(struct gameport *gameport)
- {
--
- 	struct a3d *a3d = gameport->private;
++static int __devinit
++trident_register_gameport(struct trident_card *card)
++{
++	struct gameport *gp;
 +
- 	input_unregister_device(&a3d->dev);
--	if (a3d->mode < A3D_MODE_PXL)
--		gameport_unregister_port(&a3d->adc);
-+	if (a3d->adc) {
-+		gameport_unregister_port(a3d->adc);
-+		a3d->adc = NULL;
++	card->gameport = gp = gameport_allocate_port();
++	if (!gp) {
++		printk(KERN_ERR "trident: can not allocate memory for gameport\n");
++		return -ENOMEM;
 +	}
- 	gameport_close(gameport);
- 	kfree(a3d);
- }
-diff -Nru a/include/linux/gameport.h b/include/linux/gameport.h
---- a/include/linux/gameport.h	2005-02-11 01:38:07 -05:00
-+++ b/include/linux/gameport.h	2005-02-11 01:38:07 -05:00
-@@ -10,7 +10,6 @@
-  */
++
++	gameport_set_name(gp, "Trident 4DWave");
++	gameport_set_phys(gp, "pci%s/gameport0", pci_name(card->pci_dev));
++	gp->read = trident_game_read;
++	gp->trigger = trident_game_trigger;
++	gp->cooked_read = trident_game_cooked_read;
++	gp->open = trident_game_open;
++	gp->fuzz = 64;
++	gp->port_data = card;
++
++	gameport_register_port(gp);
++
++	return 0;
++}
++
+ /* install the driver, we do not allocate hardware channel nor DMA buffer */ 
+ /* now, they are defered until "ACCESS" time (in prog_dmabuf called by */ 
+ /* open/read/write/ioctl/mmap) */
+@@ -4368,13 +4393,6 @@
+ 	card->banks[BANK_B].addresses = &bank_b_addrs;
+ 	card->banks[BANK_B].bitmap = 0UL;
  
- #include <asm/io.h>
--#include <linux/input.h>
- #include <linux/list.h>
- #include <linux/device.h>
- 
-@@ -22,8 +21,6 @@
- 	char name_buf[32];
- 	char *phys;
- 	char phys_buf[32];
+-	card->gameport.port_data = card;
+-	card->gameport.fuzz = 64;
+-	card->gameport.read = trident_game_read;
+-	card->gameport.trigger = trident_game_trigger;
+-	card->gameport.cooked_read = trident_game_cooked_read;
+-	card->gameport.open = trident_game_open;
 -
--	struct input_id id;
+ 	init_MUTEX(&card->open_sem);
+ 	spin_lock_init(&card->lock);
+ 	init_timer(&card->timer);
+@@ -4508,7 +4526,7 @@
+ 	trident_enable_loop_interrupts(card);
  
- 	int io;
- 	int speed;
+ 	/* Register gameport */
+-	gameport_register_port(&card->gameport);
++	trident_register_gameport(card);
+ 
+ out:
+ 	return rc;
+@@ -4551,7 +4569,8 @@
+ 	}
+ 
+ 	/* Unregister gameport */
+-	gameport_unregister_port(&card->gameport);
++	if (card->gameport)
++		gameport_unregister_port(card->gameport);
+ 
+ 	/* Kill interrupts, and SP/DIF */
+ 	trident_disable_loop_interrupts(card);

@@ -1,29 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292389AbSBYXCf>; Mon, 25 Feb 2002 18:02:35 -0500
+	id <S292391AbSBYXHF>; Mon, 25 Feb 2002 18:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292391AbSBYXC0>; Mon, 25 Feb 2002 18:02:26 -0500
-Received: from quechua.inka.de ([212.227.14.2]:30572 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S292389AbSBYXCQ>;
-	Mon, 25 Feb 2002 18:02:16 -0500
-From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18 - Full tarball is OK
-In-Reply-To: <200202252149.g1PLnwe13182@directcommunications.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16fU8N-0002FD-00@sites.inka.de>
-Date: Tue, 26 Feb 2002 00:02:15 +0100
+	id <S292131AbSBYXGp>; Mon, 25 Feb 2002 18:06:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1286 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291152AbSBYXGi>; Mon, 25 Feb 2002 18:06:38 -0500
+Subject: Re: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18?
+To: Raphael_Manfredi@pobox.com (Raphael Manfredi)
+Date: Mon, 25 Feb 2002 23:21:20 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a5ed9u$3tp$1@lyon.ram.loc> from "Raphael Manfredi" at Feb 25, 2002 10:19:42 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16fUQq-0006iZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200202252149.g1PLnwe13182@directcommunications.net> you wrote:
-> So, I think, it's only patch-2.4.18 that has the problem...
+> The problem is that I don't want to shrink the buffer size, hence I need
+> to read the current size.  Do I need to halve the returned value from
+> getsockopt() then?
 
-Which is a pretty serious problem. Because ppl using patches hav different
-source from ppl using tarball. This will get a lot of confusion for the 2.4.19
-patch. I suggest to fix the 2.4.18 patch, even it this is not the best method
-to keep unique version numbers.
-
-Greetings
-Bernd
+The kernel always uses a buffer as big or bigger than you asked for

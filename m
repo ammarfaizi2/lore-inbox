@@ -1,99 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVBAXp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVBAXpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVBAXp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVBAXp6
+	id S262135AbVBAXpf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVBAXpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:45:58 -0500
-Received: from mail.tmr.com ([216.238.38.203]:17672 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262181AbVBAXpa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:45:30 -0500
-Date: Tue, 1 Feb 2005 18:23:26 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] mark the mcd cdrom driver as BROKEN
-In-Reply-To: <20050201223645.GA3258@stusta.de>
-Message-ID: <Pine.LNX.3.96.1050201181051.837A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 18:45:35 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:44486 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262135AbVBAXpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:45:16 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-04
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Tom Rini <trini@kernel.crashing.org>, Bill Huey <bhuey@lnxw.com>,
+       linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20050201204359.GA346@elte.hu>
+References: <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu>
+	 <20041214132834.GA32390@elte.hu>
+	 <20050104064013.GA19528@nietzsche.lynx.com>
+	 <20050104094518.GA13868@elte.hu> <20050107192651.GG5259@smtp.west.cox.net>
+	 <20050126080952.GC4771@elte.hu> <1107288076.18349.7.camel@krustophenia.net>
+	 <20050201201704.GA32139@elte.hu>
+	 <1107289878.18349.20.camel@krustophenia.net> <20050201204359.GA346@elte.hu>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 18:45:14 -0500
+Message-Id: <1107301515.27870.29.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Feb 2005, Adrian Bunk wrote:
-
-> On Tue, Feb 01, 2005 at 10:24:56AM -0500, Bill Davidsen wrote:
-> > Adrian Bunk wrote:
-> > >On Sat, Jan 29, 2005 at 06:22:55PM +0100, Jean Delvare wrote:
-> > >
-> > >>Hi Adrian,
-> > >>
-> > >>
-> > >>>The mcd driver drives only very old hardware (some single and double 
-> > >>>speed CD drives that were connected either via the soundcard or a 
-> > >>>special ISA card), and the mcdx driver offers more functionality for
-> > >>>the  same hardware.
-> > >>>
-> > >>>My plan is to mark MCD as broken in 2.6.11 and if noone complains 
-> > >>>completely remove this driver some time later.
-> > >>>(...)
-> > >>>-	depends on CD_NO_IDESCSI
-> > >>>+	depends on CD_NO_IDESCSI && BROKEN
-> > >>
-> > >>Shouldn't we introduce a DEPRECATED option for use in cases like this
-> > >>one?
-> > >
-> > >
-> > >We could.
-> > >
-> > >We could also list MCD in Documentation/feature-removal-schedule.txt 
-> > >first.
-> > >
-> > >But in this case I doubt it makes any difference.
-> > >
-> > >This driver is for hardware where I doubt many users exist today, and it 
-> > >should have been removed nearly ten years ago when the better mcdx 
-> > >driver for the same now-obsolete hardware entered the kernel.
+On Tue, 2005-02-01 at 21:44 +0100, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > OK.  So for application triggered tracing you need LATENCY_TRACING
+> > enabled, as described here:
 > > 
-> > I actually have one (or two) of these, but I agree that in this case it 
-> > makes no difference. As a general thing I think DEPRECIATED would be 
-> > useful for the case where there is a newer functional driver. The 
-> > systems I have are unlikely to ever run a current kernel, so I am not 
-> > affected, and I suspect most others who have this old stuff are running 
-> > 2.0 or 2.2 kernels, also.
+> > http://lkml.org/lkml/2004/10/29/312
 > 
-> Are you using the mcd or the mcdx driver?
+> correct, that too should still work fine - with the small change that
+> there's now a separate flag to active it:
 > 
-> At 2.2 times, I also had such a drive.
-> But I didn't observe any need for the mcd driver that was already 
-> outdated at that time.
-
-Exactly, that one can go for sure.
+> 	echo 1 > /proc/sys/kernel/trace_user_triggered  # default: 0
 > 
-> The mcd driver should perhaps have been removed 10 years ago when the 
-> mcdx driver was introduced. You could start today with deprecating the 
-> mcd driver instead of a quick removal of this driver. But why? The 
-> question is whether the number of people using one of these drives with 
-> a 2.6 kernel is above zero or not - not whether we need one or two 
-> drivers for them.
+> it is an orthogonal mechanism to atomicity-debugging.
 
-In case my first note wasn't clear, I'm in favor of DEPRECIATED as a
-supported feature, the mcd driver can just go away I would think. I
-believe I'm using the mcdx driver in my old systems, but whatever is there
-is presumably going to stay in the old kernels, and I can't imagine ever
-building another kernel for a box that old. They are happily chugging
-along, and when they die they will go to the 2nd hand store. If the disks
-have anything requiring disposal (I think not), I will drill a few holes
-in them before scrapping.
+OK.  Rereading my old mail, it looks like there were some possibly
+unresolved false positives with the userspace atomicity debugger.
 
-If it wouldn't be a LOT of work, I would think that using a DEPRECIATED
-driver could be noted in some way in an oops, like tainted. That's just a
-thought, feel free to comment, but don't expect me to defend the idea, I'm
-just sharing it.
+Here's one I get from alsaplayer.  Would more information be required to
+know if this is a false positive?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+alsaplayer:5718 userspace BUG: scheduling in user-atomic context!
+ [<c0102a97>] dump_stack+0x17/0x20 (20)
+ [<c026268c>] schedule+0x6c/0x100 (24)
+ [<c026330c>] rwsem_down_read_failed+0x9c/0x170 (48)
+ [<c01277f5>] .text.lock.futex+0x7/0xb2 (44)
+ [<c01276bf>] do_futex+0x4f/0x80 (28)
+ [<c01277ba>] sys_futex+0xca/0xe0 (68)
+ [<c0102457>] syscall_call+0x7/0xb (-4028)
+
+(gdb) bt
+#0  0x4117c4ec in __lll_mutex_unlock_wake () from /lib/tls/libpthread.so.0
+#1  0x41179a69 in _L_mutex_unlock_26 () from /lib/tls/libpthread.so.0
+#2  0x0824d3c0 in ?? ()
+#3  0xb7ef3958 in ?? ()
+#4  0x41179a60 in pthread_mutex_unlock () from /lib/tls/libpthread.so.0
+#5  0x41179a60 in pthread_mutex_unlock () from /lib/tls/libpthread.so.0
+#6  0x08057a30 in CorePlayer::Read32 (this=0x1, data=0xb7508008, samples=64) at CorePlayer.cpp:1076
+#7  0x08057f89 in CorePlayer::streamer_func (arg=0x824d3c0, data=0x824cc80, size=128) at CorePlayer.cpp:1257
+#8  0xb7ffcd52 in process (nframes=64, arg=0x824b258) at jack.cpp:350
+#9  0xb7ef99f9 in jack_client_thread (arg=0x824bb48) at client.c:1264
+#10 0x41177b63 in start_thread () from /lib/tls/libpthread.so.0
+#11 0x410f0c4a in clone () from /lib/tls/libc.so.6
+
+The backtrace is incomplete because I was unable to reproduce the
+problem with the debug glibc.
+
+Lee
+
 

@@ -1,63 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVBYVor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVBYVqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVBYVor (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 16:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVBYVor
+	id S262253AbVBYVqc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 16:46:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVBYVqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 16:44:47 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:34691 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261894AbVBYVoj (ORCPT
+	Fri, 25 Feb 2005 16:46:32 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5295 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262253AbVBYVo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 16:44:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KAW6DIOx7O1JPIGnkEo/d8pdT5T8ZWY4kUFN8jQ0wUQYp3zJ9K28n20EPFpB01CHu6V8PsD9aO3N9CaoThykNL31gVSzZyzSt7l9uDLxd/p+lQJGePa6u76p3RSkWG/kRNocZyJslDZd2xn8ICoE5yYDSd/a5MIyCUJJQ/I3wOQ=
-Message-ID: <d120d500050225134468f8ffac@mail.gmail.com>
-Date: Fri, 25 Feb 2005 16:44:39 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Johan Braennlund <johan_brn@yahoo.com>
-Subject: Re: ALPS touchpad not seen by 2.6.11 kernels
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050225213336.58742.qmail@web50203.mail.yahoo.com>
+	Fri, 25 Feb 2005 16:44:57 -0500
+Date: Fri, 25 Feb 2005 13:44:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] I2C patch 2 - break up the SMBus formatting
+Message-ID: <20050225214439.GC27270@kroah.com>
+References: <421E62DD.5030608@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050225213336.58742.qmail@web50203.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421E62DD.5030608@acm.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Feb 2005 13:33:36 -0800 (PST), Johan Braennlund
-<johan_brn@yahoo.com> wrote:
-> Hi. I've had trouble with my ALPS touchpad on my Acer Aspire, ever
-> since ALPS support was merged into the kernel. I've tried various
-> kernels from 2.6.11-rc3 to -rc5 (including some -mm kernels) and none
-> of them detect the pad. After sprinkling some printk's in the mouse
-> drivers, it seems like psmouse_connect in psmouse-base.c is never even
-> called.
-> 
-> On the other hand, using earlier kernels (such as 2.6.9) with the
-> kernel patch from Peter Osterlund's driver package works fine. In that
-> case, I get lines like this in syslog:
-> 
-> kernel: alps.c: E6 report: 00 00 64
-> kernel: alps.c: E7 report: 73 02 14
-> kernel: alps.c: E6 report: 00 00 64
-> kernel: alps.c: E7 report: 73 02 14
-> kernel: alps.c: Status: 15 01 0a
-> kernel: ALPS Touchpad (Glidepoint) detected
-> kernel: input: AlpsPS/2 ALPS TouchPad on isa0060/serio4
-> 
-> With the newer kernels, there's nothing ALPS-related in the log. Any
-> pointers on what to look for would be appreciated. My kernel config is
-> at http://nullinfinity.org/config-2.6.11-rc5
-> 
+On Thu, Feb 24, 2005 at 05:27:25PM -0600, Corey Minyard wrote:
+> +/*
+> + * Hold a queue of I2C operations to perform, and used to pass data
+> + * around.
+> + */
+> +typedef void (*i2c_op_done_cb)(struct i2c_op_q_entry *entry);
+> +
+> +#define I2C_OP_I2C	0
+> +#define I2C_OP_SMBUS	1
+> +struct i2c_op_q_entry {
+> +	/* The result will be set to the result of the operation when
+> +	   it completes. */
+> +	s32 result;
+> +
+> +	/**************************************************************/
+> +	/* Public interface.  The user should set these up (and the
+> +	   proper structure below). */
+> +	int            xfer_type;
+> +
+> +	/* Handler may be called from interrupt context, so be
+> +	   careful. */
+> +	i2c_op_done_cb handler;
+> +	void           *handler_data;
+> +
+> +	/* Note that this is not a union because an smbus operation
+> +	   may be converted into an i2c operation (thus both
+> +	   structures will be used).  The data in these may be changd
+> +	   by the driver. */
+> +	struct {
+> +		struct i2c_msg *msgs;
+> +		int num;
+> +	} i2c;
+> +	struct {
+> +		/* Addr and flags are filled in by the non-blocking
+> +		   send routine that takes a client. */
+> +		u16 addr;
+> +		unsigned short flags;
+> +
+> +		char read_write;
+> +		u8 command;
+> +
+> +		/* Note that the size is *not* the length of the data.
+> +		   It is the transaction type, like I2C_SMBUS_QUICK
+> +		   and the ones after that below.  If this is a block
+> +		   transaction, the length of the rest of the data is
+> +		   in the first byte of the data, for both transmit
+> +		   and receive. */
+> +		int size;
+> +		union i2c_smbus_data *data;
+> +	} smbus;
+> +
+> +	/**************************************************************/
+> +	/* For use by the bus interface.  The bus interface sets the
+> +	   timeout in microseconds until the next poll operation.
+> +	   This *must* be set in the start operation.  The time_left
+> +	   and data can be used for anything the bus interface likes.
+> +	   data will be set to NULL before being started so the bus
+> +	   interface can use that to tell if it has been set up
+> +	   yet. */
+> +	unsigned int call_again_us;
+> +	long         time_left;
+> +	void         *data;
+> +
+> +	/**************************************************************/
+> +	/* Internals */
+> +	struct list_head  link;
+> +	struct completion *start;
+> +	atomic_t          completed;
+> +	unsigned int      started : 1;
+> +	unsigned int      use_timer : 1;
+> +	u8                swpec;
+> +	u8                partial;
+> +	void (*complete)(struct i2c_adapter    *adap,
+> +			 struct i2c_op_q_entry *entry);
+> +
+> +	/* It's wierd, but we use a usecount to track if an q entry is
+> +	   in use and when it should be reported back to the user. */
+> +	atomic_t usecount;
 
-Hi,
+Please use a kref here instead of rolling your own.
 
-Does i8042 detect presence of an AUX port (check dmesg)? If not try
-booting with i8042.noacpi kernel boot option.
+Oh, and can you cc: your patches to the sensors mailing list so the
+other i2c developers are aware of them and can comment?  I'll stick with
+just applying your first patch for now.
 
--- 
-Dmitry
+thanks,
+
+greg k-h

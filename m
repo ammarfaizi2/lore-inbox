@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261747AbSJQRXn>; Thu, 17 Oct 2002 13:23:43 -0400
+	id <S261575AbSJQRPO>; Thu, 17 Oct 2002 13:15:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261588AbSJQRXb>; Thu, 17 Oct 2002 13:23:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64011 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261747AbSJQRWC>; Thu, 17 Oct 2002 13:22:02 -0400
-Date: Thu, 17 Oct 2002 18:27:56 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: [ANNOUCE] fbdev changes finished.
-Message-ID: <20021017182756.B3326@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.33.0210170919210.4730-100000@maxwell.earthlink.net>
+	id <S261629AbSJQRPN>; Thu, 17 Oct 2002 13:15:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:46098 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261575AbSJQROo>;
+	Thu, 17 Oct 2002 13:14:44 -0400
+Date: Thu, 17 Oct 2002 19:20:41 +0200
+From: Dave Jones <davej@suse.de>
+To: Hiroshi Miura <miura@da-cha.org>
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: NatSemi Geode improvement
+Message-ID: <20021017192041.B17285@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Hiroshi Miura <miura@da-cha.org>, hpa@zytor.com,
+	linux-kernel@vger.kernel.org, alan@redhat.com
+References: <20021017171217.4749211782A@triton2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0210170919210.4730-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Thu, Oct 17, 2002 at 09:38:37AM -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021017171217.4749211782A@triton2>; from miura@da-cha.org on Fri, Oct 18, 2002 at 02:12:17AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 09:38:37AM -0700, James Simmons wrote:
->   I like to annouce that I just finished the final fbdev changes. They are
-> in the BK repository bk://fbdev.bkbits.net/fbdev-2.5. The changes are
-> 
-> 1) Removal of all console related code in the lower level drivers. Smaller
->    easier to program drivers.
-> 
-> 2) Now you can use the framebuffer driver WITHOUT framebuffer console.
->    Last night I built a kernel with MDA console and used the VESA
->    framebuffer by itself. Now you can easily debug new framebuffer
->    drivers. The real bonus is for embedded systems you have much smaller
->    kernels.
-> 
-> 3) I moved the agp and drm code into drivers/video. I did NOT place any
->    drm code with framebuffer code at people's request. I simiple moved the
->    directory from one spot to another. The main reason I did this was
->    because some framebuffer drivers will need to use the agp code initialized
->    before the framebuffer layer. The DRM code was moved because it makes
->    sense to move it there.
-> 
-> 4) I cleaned up the config.in for all the video stuff across all
->    platforms.
-> 
-> You can grab the lastest BK tree at
-> 
-> bk://fbdev.bkbits.net/fbdev-2.5
-> 
-> Give it a try. For people who want a diff it is avaiable at
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+On Fri, Oct 18, 2002 at 02:12:17AM +0900, Hiroshi Miura wrote:
 
-... which is not representative of the changes.
+ > NatSemi Geode has a several feature to speed up,
+ > but reset defalut value is set to slow side.
+ > 
+ > I make a patch to speed up Geode about 20-40%!!
+ > the benchmark result is downloadable from http://www.da-cha.org/geode/geode_graph.sxc.
+ > that is openoffice format.
+ > 
+ > I use this patch with 2.4.18, 2.4.19 in 4 month, I think it is stable enough.
 
-Can you _please_ take much more care over patches and such like and take
-the time to get them correct _please_.
+Previously these tweaks were done in userspace with the set6x86 utility.
+Is there any reason that these need to be done in the kernel apart from
+convenience ?
 
-I really don't like patches that float around that unintentionally delete
-other peoples drivers for no reason.
+        Dave
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

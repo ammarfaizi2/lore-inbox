@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbULKQoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbULKQwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbULKQoV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 11:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbULKQoU
+	id S261965AbULKQwK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 11:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbULKQwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 11:44:20 -0500
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:52153 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S261964AbULKQoP
+	Sat, 11 Dec 2004 11:52:10 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12794 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261965AbULKQwF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 11:44:15 -0500
-Subject: Re: [ANNOUNCE] udev 047 release [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20041208185856.GA26734@kroah.com>
-References: <20041208185856.GA26734@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T9DWcalZZWZg67erCVUu"
-Date: Sat, 11 Dec 2004 18:44:49 +0200
-Message-Id: <1102783489.12795.20.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+	Sat, 11 Dec 2004 11:52:05 -0500
+Message-ID: <41BB25B2.90303@mvista.com>
+Date: Sat, 11 Dec 2004 08:52:02 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
+       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RCU question
+References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com> <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com> <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com> <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com> <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com> <41BB2108.70606@colorfullife.com>
+In-Reply-To: <41BB2108.70606@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Manfred Spraul wrote:
+> Zwane Mwaikambo wrote:
+> 
+>> On Fri, 10 Dec 2004, George Anzinger wrote:
+>>
+>>  
+>>
+>>> That is ok.  Either we have interrupts off and no softirqs are 
+>>> pending and we
+>>> proceed to the "hlt" (where the interrupt will be taken), or softirqs 
+>>> are
+>>> pending, we turn interrupts on, do the softirq, turn interrupts off 
+>>> and try
+>>> again.  Unless some tasklet (RCU?) never "gives up" or we will exit 
+>>> the while
+>>> with interrupts off and move on to the "hlt".  Or did I miss something?
+>>>   
+>>
+>>
+>> But the point is that you cannot execute hlt with interrupts disabled.
+>>  
+>>
+> The trick is the sti instruction: It enables interrupt processing after 
+> the following instruction.
+> 
+> Thus
+>    sti
+>    hlt
+> 
+> cannot race - it atomically enables interrupts and waits.
 
---=-T9DWcalZZWZg67erCVUu
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Exactly :)
 
-On Wed, 2004-12-08 at 10:58 -0800, Greg KH wrote:
-
-> Lots of changes here in this release, see the full changelog below.
-> Highlights are:
-> 	- massive change with the way udevd can now work.  See
-> 	  http://thread.gmane.org/gmane.linux.hotplug.devel/6173 for
-> 	  more details on this (Kay's changes are now part of udev
-> 	  proper, you don't have to apply anything for this to work,
-> 	  just follow the directions in
-> 	  http://article.gmane.org/gmane.linux.hotplug.devel/6192
-> 	  to enable this mode.)
-
-Any suggestions to determining the version of the installed udev?
-This is now during startup, to see if we can make use of using
-udevsend as hotplug agent.  If the system was up, udevinfo could
-be used, but that is in /usr/bin that might be on a seperate /usr.
-I know we might move udevinfo to /bin, but that might be an issue
-for some, and adding a -V switch to /sbin/udev might be a better
-choice if you do not have have any nit's against it ....
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
-
---=-T9DWcalZZWZg67erCVUu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBuyQBqburzKaJYLYRApWDAJ4ttxDm+S/SoShzBFzhsxq7v2Z8zwCfcG9O
-sWrBFqncUJ+VGrvenrzPB9k=
-=DLe4
------END PGP SIGNATURE-----
-
---=-T9DWcalZZWZg67erCVUu--
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 

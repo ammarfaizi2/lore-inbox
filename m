@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbUL3Hkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUL3Hkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbUL3Hkt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 02:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbUL3Hkt
+	id S261563AbUL3Hkg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 02:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbUL3Hkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 02:40:49 -0500
-Received: from wine.ocn.ne.jp ([220.111.47.146]:19186 "EHLO
-	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S261565AbUL3Hki
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 02:40:38 -0500
-To: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
-Subject: Re: Is CAP_SYS_ADMIN checked by every program !?
-From: Tetsuo Handa <from-linux-kernel@i-love.sakura.ne.jp>
-References: <200412291347.JEH41956.OOtStPFFNMLJVGMYS@i-love.sakura.ne.jp>
-	<9033584D-5A24-11D9-989E-000393ACC76E@mac.com>
-In-Reply-To: <9033584D-5A24-11D9-989E-000393ACC76E@mac.com>
-Message-Id: <200412301640.FCB13564.FtFPMSMGJtSOLVOYN@i-love.sakura.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Thu, 30 Dec 2004 16:40:40 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Dec 2004 02:40:36 -0500
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:54210 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261563AbUL3Hka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 02:40:30 -0500
+Message-ID: <41D3B121.1020600@kolivas.org>
+Date: Thu, 30 Dec 2004 18:41:21 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
+Subject: Re: Trying out SCHED_BATCH
+References: <m3mzw262cu.fsf@rajsekar.pc> <41CD51E6.1070105@kolivas.org>	 <04ef01c4ede2$ff4a7cc0$0e25fe0a@pysiak> <41D31373.1090801@kolivas.org>	 <4d8e3fd304122914466b42c632@mail.gmail.com>	 <41D33603.9060501@kolivas.org>	 <4d8e3fd304122923127167067c@mail.gmail.com>	 <20041229232028.055f8786.akpm@osdl.org> <4d8e3fd304122923362d823e34@mail.gmail.com>
+In-Reply-To: <4d8e3fd304122923362d823e34@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-In message <9033584D-5A24-11D9-989E-000393ACC76E@mac.com>
-   "Re: Is CAP_SYS_ADMIN checked by every program !?"
-   "Kyle Moffett <mrmacman_g4@mac.com>" wrote:
-
-> On Dec 28, 2004, at 23:47, Tetsuo Handa wrote:
-> > It seems to me that every program calls capable(CAP_SYS_ADMIN),
+Paolo Ciarrocchi wrote:
+> On Wed, 29 Dec 2004 23:20:28 -0800, Andrew Morton <akpm@osdl.org> wrote:
 > 
-> Umm, the program has nothing to do with this.  Programs themselves have 
-> no
-> access to the kernel function "capable".  Probably something in the 
-> kernel, perhaps
-> triggered by libc or maybe just suid checks, is checking for 
-> CAP_SYS_ADMIN. It's
-> harmless and irrelevant, why do you care?
+>>Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+>>
+>>>Andrew,
+>>> what's your plan for the staircase scheduler ?
+>>
+>>I have none, frankly.  I haven't seen any complaints about the current
+>>scheduler.
+>>
+>>If someone can identify bad behaviour in the current scheduler which
+>>staircase improves then please describe a tescase which the scheduler
+>>developers can use to reproduce the situation.
+>>
+>>If, after that, we deem that the problem cannot be feasibly fixed within the
+>>context of the current scheduler and that the problem is sufficiently
+>>serious to justify wholesale replacement of the scheduler then sure,
+>>staircase is an option.
+> 
+> 
+> Your answer makes lot of sense.
+> I think Con can explain the pro and cons of the staircase scheduler.
 
-I'm developing a kernel patch that provides simple and handy
-MAC(mandatory access control) functionality, much easier than SELinux.
-And now I'm porting the patch from 2.4 to 2.6,
-though the patch can't support LSM, for it refers 'struct vfsmount'.
+I agree fully with Andrew. I'm not going there while we have 2.6 forever 
+development.
 
-At first, I doubted that some kernel function (do_execve(), memory management
-functions, or any kernel functions that are always called by every process) is
-doing this CAP_SYS_ADMIN checking. But may be this CAP_SYS_ADMIN checking is
-caused by the Fedora Core 3's libc, not by the kernel.
-I don't have 2.6 kernel environment other than Fedora Core 3.
-
-But anyway, I have to give up checking for CAP_SYS_ADMIN .
-
-Thank you.
---
-Tetsuo Handa
+Cheers,
+Con

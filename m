@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSHGEEF>; Wed, 7 Aug 2002 00:04:05 -0400
+	id <S316822AbSHGEEE>; Wed, 7 Aug 2002 00:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316842AbSHGEEF>; Wed, 7 Aug 2002 00:04:05 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59918 "HELO
+	id <S316842AbSHGEEE>; Wed, 7 Aug 2002 00:04:04 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:59150 "HELO
 	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316824AbSHGEEE>; Wed, 7 Aug 2002 00:04:04 -0400
-Date: Wed, 7 Aug 2002 01:07:32 -0300 (BRT)
+	id <S316822AbSHGEED>; Wed, 7 Aug 2002 00:04:03 -0400
+Date: Wed, 7 Aug 2002 01:05:25 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c:113!
-In-Reply-To: <20020807034831.2fa1823f.stephane.wirtel@belgacom.net>
-Message-ID: <Pine.LNX.4.44L.0208070106110.23404-100000@imladris.surriel.com>
+To: Anton Blanchard <anton@samba.org>
+cc: Andrew Morton <akpm@zip.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: fix CONFIG_HIGHPTE
+In-Reply-To: <20020807010752.GC6343@krispykreme>
+Message-ID: <Pine.LNX.4.44L.0208070104490.23404-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,18 +23,18 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Stephane Wirtel wrote:
+On Wed, 7 Aug 2002, Anton Blanchard wrote:
 
-> nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
+> On ppc64 shared pagetables will require significant changes to the way
+> we handle the hardware hashtable. So add that to the "more and more crap
+> in there to support these pte_chains"
+>
+> Will shared pagetables be a requirement or can we turn it on per arch?
 
-> kernel BUG at page_alloc.c:113!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c012ed6e>]    Tainted: P
-                               ^^^^^^^^^^
+Sharing the logical page table doesn't mean you'll have to do
+the same for the PPC hashed page table...
 
-Can you trigger this bug without having the nvidia driver
-write all over memory ?
+regards,
 
 Rik
 -- 

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288882AbSAIG3W>; Wed, 9 Jan 2002 01:29:22 -0500
+	id <S288903AbSAIGda>; Wed, 9 Jan 2002 01:33:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288900AbSAIG3M>; Wed, 9 Jan 2002 01:29:12 -0500
-Received: from smtp.comcast.net ([24.153.64.2]:52027 "EHLO mtaout45-01")
-	by vger.kernel.org with ESMTP id <S288882AbSAIG3C>;
-	Wed, 9 Jan 2002 01:29:02 -0500
-Date: Wed, 09 Jan 2002 01:29:04 -0500
-From: Brian <hiryuu@envisiongames.net>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <20020108193904.A1068@w-mikek2.beaverton.ibm.com>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <0GPN00CMLRC7U8@mtaout45-01.icomcast.net>
-MIME-version: 1.0
+	id <S288900AbSAIGdL>; Wed, 9 Jan 2002 01:33:11 -0500
+Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:11276 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288905AbSAIGdA>;
+	Wed, 9 Jan 2002 01:33:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Wed, 9 Jan 2002 07:36:16 +0100
 X-Mailer: KMail [version 1.3.2]
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.33.0201072122290.14092-100000@localhost.localdomain>
- <20020108193904.A1068@w-mikek2.beaverton.ibm.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Robert Love <rml@tech9.net>
+In-Reply-To: <Pine.LNX.4.33.0201090018440.1185-100000@Expansa.sns.it>
+In-Reply-To: <Pine.LNX.4.33.0201090018440.1185-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16OCLQ-0000CO-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can this be correct?
+On January 9, 2002 12:26 am, Luigi Genoni wrote:
+> On Tue, 8 Jan 2002, Daniel Phillips wrote:
+> 
+> > On January 8, 2002 08:47 pm, Andrew Morton wrote:
+> > > Daniel Phillips wrote:
+> > > > What a preemptible kernel can do that a non-preemptible kernel can't 
+is:
+> > > > reschedule exactly as often as necessary, instead of having lots of 
+extra
+> > > > schedule points inserted all over the place, firing when *they* think 
+the
+> > > > time is right, which may well be earlier than necessary.
+> > >
+> > > Nope.  `if (current->need_resched)' -> the time is right (beyond right,
+> > > actually).
+> >
+> > Oops, sorry, right.
+> >
+> > The preemptible kernel can reschedule, on average, sooner than the
+> > scheduling-point kernel, which has to wait for a scheduling point to roll
+> > around.
+>
+> mmhhh. At which cost? And then anyway if I have a spinlock, I still have
+> to wait for a scheduling point to roll around.
 
-Intuitively, I would expect several CPUs hammering away at the compile to 
-finish faster than one.  Given these numbers, I would have to conclude 
-that is not just wrong, but absolutely wrong.  Compile time increases 
-linearly with the number of jobs, regardless of the number of CPUs.
+Did you read the thread?  Think about the relative amount of time spent in
+spinlocks vs the amount of time spent in the regular kernel.
 
-What would cause this?  Severe memory bottlenecks?
-
-	-- Brian
-
-On Tuesday 08 January 2002 10:39 pm, Mike Kravetz wrote:
-> --------------------------------------------------------------------
-> mkbench - Time how long it takes to compile the kernel.
->         We use 'make -j 8' and increase the number of makes run
->         in parallel.  Result is average build time in seconds.
->         Lower is better.
-> --------------------------------------------------------------------
-> # CPUs      # Makes         Vanilla         O(1)	haMQ
-> --------------------------------------------------------------------
-> 2           1                188             192        184
-> 2           2                366             372        362
-> 2           4                730             742        600
-> 2           6               1096            1112        853
-> 4           1                102             101         95
-> 4           2                196             198        186
-> 4           4                384             386        374
-> 4           6                576             579        487
-> 8           1                 58              57         58
-> 8           2                109             108        105
-> 8           4                209             213        186
-> 8           6                309             312        280
+--
+Daniel

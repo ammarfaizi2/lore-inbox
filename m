@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264747AbTFAWip (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 18:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbTFAWip
+	id S264753AbTFAWoh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 18:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264755AbTFAWoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 18:38:45 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:4870 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264747AbTFAWio
+	Sun, 1 Jun 2003 18:44:37 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:29093 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id S264753AbTFAWof convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 18:38:44 -0400
-Date: Mon, 2 Jun 2003 00:42:32 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas williams <chas@cmf.nrl.navy.mil>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] assorted he driver cleanup
-Message-ID: <20030602004232.A25795@electric-eye.fr.zoreil.com>
-References: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil>
-Mime-Version: 1.0
+	Sun, 1 Jun 2003 18:44:35 -0400
+From: Gong Su <gongsu@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.x block device driver question
+Date: Sun, 01 Jun 2003 18:54:56 -0400
+Organization: CS Dept., Columbia Univ.
+Message-ID: <5sukdv4jvcd417f7chvla92je3su1le1r8@4ax.com>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil>; from chas@cmf.nrl.navy.mil on Thu, May 29, 2003 at 12:09:54PM -0400
-X-Organisation: Hungry patch-scripts (c) users
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An unconditional HE_SPIN_UNLOCK(he_dev, flags); stands behind the
-'close_tx_incomplete' label in he_close(). The following patch should cure
-a possible unlock of a non-locked lock (courtesy of kbugs.org, see
-http://kbugs.org/cgi-bin/index.py?page=source&version=2.5.70&file=drivers/atm/he.c#line2840).
+[please cc: me as not subscribed to list]
 
---- linux-2.5.70-1.1229.7.33-to-1.1330/drivers/atm/he.c	Mon Jun  2 00:33:38 2003
-+++ linux-2.5.70-1.1229.7.33-to-1.1330/drivers/atm/he.c	Mon Jun  2 00:34:29 2003
-@@ -2731,12 +2731,13 @@ he_close(struct atm_vcc *vcc)
- 		remove_wait_queue(&he_vcc->tx_waitq, &wait);
- 		set_current_state(TASK_RUNNING);
- 
-+		HE_SPIN_LOCK(he_dev, flags);
-+
- 		if (timeout == 0) {
- 			hprintk("close tx timeout cid 0x%x\n", cid);
- 			goto close_tx_incomplete;
- 		}
- 
--		HE_SPIN_LOCK(he_dev, flags);
- 		while (!((tsr4 = he_readl_tsr4(he_dev, cid)) & TSR4_SESSION_ENDED)) {
- 			HPRINTK("close tx cid 0x%x !TSR4_SESSION_ENDED (tsr4 = 0x%x)\n", cid, tsr4);
- 			udelay(250);
+I was trying to see how __make_request throttles a fast writing process
+from overrunning a slow device. So I took Alessandro Rubini's spull.c
+code from his device driver book (2nd edition) and ran it in "pseudo irq"
+mode. What the driver does basically is to schedule an alarm in its
+request service function (spull_irqdriven_request) and return immediately
+without calling end_request. And when the alarm fires it finishes the IO
+by calling end_request(1). I made the following change to the driver:
 
+1. make the ram disk size infinite by setting blk_size[MAJOR_NR]=NULL.
+2. disable the actual copying to/from the ram disk by commenting out
+   spull_transfer in the spull_irqdriven_request function.
+
+I load the driver with a 3 second delay for the alarm. So basically, the
+driver simulates a "very slow" device that takes 3 seconds to service
+each request (without actually doing anything). Now I do:
+
+dd if=/dev/zero of=/dev/pda bs=1024 count=1000000
+
+What I expect is that the kernel will quickly stop dd after all 128 (64
+on machines with less than 32MB of ram) free request slots are taken.
+Of course it will take forever for dd to finish. But what happened is
+that the system quickly becomes unusable. It still handles a request
+every 3 seconds but is otherwise oblivious of any input (I can still
+switch virtual console but that's it). Is this the expected behavior of
+2.4 or am I just doing something stupid? Your insight will be highly
+appreciated. Thanks in advance.
+
+-- 
+/Gong

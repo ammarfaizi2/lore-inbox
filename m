@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbTFASvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 14:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbTFASvy
+	id S264708AbTFATHf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 15:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTFATHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 14:51:54 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:46578 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264704AbTFASvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 14:51:54 -0400
-Message-Id: <200306011905.h51J57Q03929@owlet.beaverton.ibm.com>
-To: Michael Buesch <fsdeveloper@yahoo.de>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [2.5.70] possible problem with /dev/diskstats 
-In-reply-to: Your message of "Sun, 01 Jun 2003 00:35:58 +0200."
-             <200306010035.58957.fsdeveloper@yahoo.de> 
-Date: Sun, 01 Jun 2003 12:05:07 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Sun, 1 Jun 2003 15:07:35 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:37248
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264708AbTFATHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 15:07:33 -0400
+Date: Sun, 1 Jun 2003 15:10:25 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Steven Cole <elenstev@mesatop.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question about style when converting from K&R to ANSI C.
+In-Reply-To: <1054473242.5862.2.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.50.0306011509430.19313-100000@montezuma.mastecende.com>
+References: <1054446976.19557.23.camel@spc>  <20030601063946.GF10719@conectiva.com.br>
+  <Pine.LNX.4.50.0306010242570.2614-100000@montezuma.mastecende.com>
+ <1054473242.5862.2.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Documentation/iostats.txt says about diskstats:
-    [SNIP]
-    Field  9 -- # of I/Os currently in progress
-        The only field that should go to zero. Incremented as requests are
-        given to appropriate request_queue_t and decremented as they finish.
-    [SNIP]
-    
-    But here is a cat /proc/diskstats:
-       3    0 hda 948 317 16216 4294408142 90 333 848 7309 4294967294 7309215 4280372198
-                                                           ~~~~~~~~~~
+On Sun, 1 Jun 2003, Alan Cox wrote:
 
-Yes, I've had a couple of other reports of this.  I suspect there is
-a path by which an "I/O" appears to have been completed while none was
-begun.  I've only noticed this on my hda drive as well.  What I didn't
-notice was exactly when this behavior began, which may have been useful
-in tracking down the problem.  You'll notice a couple of other values
-there in the 4.2 billion range that probably suffer from a similar
-(or maybe the same) issue.  I haven't seen this on SCSI drives yet,
-just hda drives, which suggests there may be something about that I/O
-path that bears some closer scrutiny.
+> On Sul, 2003-06-01 at 07:43, Zwane Mwaikambo wrote:
+> > --- linux-2.5/scripts/Lindent	31 May 2003 18:57:19 -0000	1.16
+> > +++ linux-2.5/scripts/Lindent	1 Jun 2003 05:46:02 -0000
+> > @@ -1,2 +1,2 @@
+> >  #!/bin/sh
+> > -indent -kr -i8 -ts8 -sob -l80 -ss -bs -psl "$@"
+> > +indent -kr -i8 -ts8 -sob -l80 -ss -bs "$@"
+> 
+> Take out the -l80 as well, it makes indent do horrific things to code,
+> and mangled 80 column wrapping is not the normal Linux style
 
-Rick
+It shan't be missed ;)
+
+Index: linux-2.5/scripts/Lindent
+===================================================================
+RCS file: /home/cvs/linux-2.5/scripts/Lindent,v
+retrieving revision 1.16
+diff -u -p -B -r1.16 Lindent
+--- linux-2.5/scripts/Lindent	31 May 2003 18:57:19 -0000	1.16
++++ linux-2.5/scripts/Lindent	1 Jun 2003 18:12:43 -0000
+@@ -1,2 +1,2 @@
+ #!/bin/sh
+-indent -kr -i8 -ts8 -sob -l80 -ss -bs -psl "$@"
++indent -kr -i8 -ts8 -sob -ss -bs "$@"
+
+-- 
+function.linuxpower.ca

@@ -1,112 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263301AbUEROHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUEROPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbUEROHv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 10:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbUEROHv
+	id S263162AbUEROPK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 10:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUEROPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 10:07:51 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56228 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263301AbUEROHr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 10:07:47 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "O.Sezer" <sezero@superonline.com>
-Subject: Re: [PATCH 2.4] decrypt/update ide help entries
-Date: Tue, 18 May 2004 16:09:04 +0200
-User-Agent: KMail/1.5.3
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-References: <40A8F0E7.4000807@superonline.com> <200405172020.36892.bzolnier@elka.pw.edu.pl> <40AA12E2.1070900@superonline.com>
-In-Reply-To: <40AA12E2.1070900@superonline.com>
+	Tue, 18 May 2004 10:15:10 -0400
+Received: from pop.gmx.de ([213.165.64.20]:48603 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263162AbUEROPA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 10:15:00 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Daniele Venzano <webvenza@libero.it>
+Subject: Re: [PATCH] Sis900 bug fixes 0/4
+Date: Tue, 18 May 2004 16:23:16 +0200
+User-Agent: KMail/1.6.2
+References: <20040518120237.GC23565@picchio.gall.it>
+In-Reply-To: <20040518120237.GC23565@picchio.gall.it>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-9"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200405181609.04045.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405181623.16709.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 of May 2004 15:42, O.Sezer wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > This patch was disccussed long time ago and nobody cared to correct it.
+On Tuesday 18 May 2004 14:02, Daniele Venzano wrote:
+> I have prepared 4 patches that fix various issues with the sis900 driver
+> in Linux 2.6.6, two of them had some discussion on lkml. The entire
+> patchset has been tested by me, but patches 2 and 3 require testing from
+> the people who reported the bugs (they are CCed).
 >
-> Hmm.. too many errors, careless duplicate entries.. ...
-> too many trust in trusted trees.. Me embarassed ;)
-
-hehe
-
-> > +  "Override-Enable UDMA for Promise Contr." (or "Special UDMA Feature")
-> > +  to force UDMA mode for connected UDMA capable disk drives.
-> >
-> >  It is about forcing burst UDMA transfers not UDMA mode.
+> Patches 2,3,4 are incremental and need to be applied in that order.
 >
-> Fixed
-
-OK
-
-> > +PROMISE PDC202{68|69|70|71|75|76|77} support
-> > +CONFIG_BLK_DEV_PDC202XX_NEW
+> Patch summary:
+> 1. change of maintainership for the sis900 driver
+> 2. Add new ISA bridge PCI ID
+> 3. Fix PHY transceiver detection code to fall back to known PHY and not
+>    to the last detected.
+> 4. Small cleanup and spelling fixes of sis900.h (much more needed, also
+>    in sis900.c, will go through trivial).
 >
-> [...]
->
-> > This is just copied from CONFIG_BLK_DEV_PDC202XX_OLD
-> > ('Ultra33') and probably is incorrect for newer Promise controllers.
->
-> Removed the old copied one wrote something generic
+> Any comment is highly appreciated.
 
-OK
+I did some tries on patching the driver. When I did following changes it works 
+here, but I don't know if it isn't broken on other machines?
 
-> > +  You need to say Y here if you have a PDC20276 IDE interface but either
-> > +  you do not have a RAID disk array, or you wish to use the Linux
-> > +  internal RAID software (/dev/mdX).
-> >
-> > This is needed not only for PDC20276.
->
-> I think this time I took the correct chipset names upon reading
-> pdc202XX_old.h and pdc202XX_new.h. Please check.
+Following changes I did in the 3rd patch created code:
 
-OK
+       if( !default_phy && phy_home )
+                default_phy = phy_home;
+       else if( !default_phy && phy_lan )
+               default_phy = phy_lan;
+       else if ( !default_phy )
+                default_phy = sis_priv->first_mii;
 
-> > +  You need to say N here if you wish to use your Promise controller to
-> > +  control a FastTrak RAID disk array, and you you must also say Y to
-> > +  CONFIG_BLK_DEV_ATARAID_PDC.
-> >
-> > This is incorrect.
-> >
-> > You must say Y to this option and to CONFIG_BLK_DEV_ATARAID_PDC.
->
-> Whoops, sorry. Fixed.
+changed to
 
-+  Setting this option causes the kernel to use your Promise IDE disk
-+  controller as an ordinary IDE controller, rather than as a FastTrak
-+  RAID controller (RAID is a system for using multiple physical disks
-+  as one virtual disk).
-+
-+  You need to say Y here if you have one of the above mentioned IDE
-+  interfaces,  but either you do not have a RAID disk array,  or you
-+  wish to use the Linux internal RAID software (/dev/mdX).
-+
-+  If you wish to use your Promise controller to control a FastTrak
-+  RAID disk array, you need to say Y here AND you you must also say Y
-+  to CONFIG_BLK_DEV_ATARAID_PDC.
+       if( phy_lan )
+                default_phy = phy_lan;
+       else if( phy_home )
+               default_phy = phy_home;
+       else if ( !default_phy )
+                default_phy = sis_priv->first_mii;
 
-This sounds awful. ;-)
+dmesg output:
+sis900.c: v1.08.07 11/02/2003
+eth0: Unknown PHY transceiver found at address 0.
+eth0: Realtek RTL8201 PHY transceiver found at address 1.
+eth0: Unknown PHY transceiver found at address 2.
+eth0: Unknown PHY transceiver found at address 3.
+eth0: Unknown PHY transceiver found at address 4.
+eth0: Unknown PHY transceiver found at address 5.
+eth0: Unknown PHY transceiver found at address 6.
+eth0: Unknown PHY transceiver found at address 7.
+eth0: Unknown PHY transceiver found at address 8.
+eth0: Unknown PHY transceiver found at address 9.
+eth0: Unknown PHY transceiver found at address 10.
+eth0: Unknown PHY transceiver found at address 11.
+eth0: Unknown PHY transceiver found at address 12.
+eth0: Unknown PHY transceiver found at address 13.
+eth0: Unknown PHY transceiver found at address 14.
+eth0: Unknown PHY transceiver found at address 15.
+eth0: Unknown PHY transceiver found at address 16.
+eth0: Unknown PHY transceiver found at address 17.
+eth0: Unknown PHY transceiver found at address 18.
+eth0: Unknown PHY transceiver found at address 19.
+eth0: Unknown PHY transceiver found at address 20.
+eth0: Unknown PHY transceiver found at address 21.
+eth0: Unknown PHY transceiver found at address 22.
+eth0: Unknown PHY transceiver found at address 23.
+eth0: Unknown PHY transceiver found at address 24.
+eth0: Unknown PHY transceiver found at address 25.
+eth0: Unknown PHY transceiver found at address 26.
+eth0: Unknown PHY transceiver found at address 27.
+eth0: Unknown PHY transceiver found at address 28.
+eth0: Unknown PHY transceiver found at address 29.
+eth0: Unknown PHY transceiver found at address 30.
+eth0: Unknown PHY transceiver found at address 31.
+eth0: Using transceiver found at address 1 as default
+eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 19, 00:10:dc:8f:a9:ac.
 
-Use controller even if marked as disabled by BIOS
-CONFIG_PDC202XX_FORCE
+Maybe this information can help you!
 
-Say Y unless you want to use Promise proprietary RAID driver.
-
-Makes a lot more sense IMHO.
-BTW it needs to be split-up for old and new driver (hint, hint!).
-
-> > If you want to correct Promise IDE help entries, do it for 2.6 first.
->
-> Don't know much about 2.6; if you can review this one, I can make
-> similar changes for 2.6 (in case options didn't change much).
-
-No, they are the same (see drivers/ide/Kconfig).
-
-Thanks,
-Bartlomiej
-
+greets,
+dominik

@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266203AbUFJGIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUFJGKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266203AbUFJGIy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJGIy
+	id S266186AbUFJGKe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJGKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:08:54 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:3083 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266211AbUFJGHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:07:20 -0400
-Subject: Re: 2.6.7-rc3: waiting for eth0 to become free
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       NetDev Mailinglist <netdev@oss.sgi.com>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <40C793CE.6000609@g-house.de>
-References: <1086722310.1682.1.camel@teapot.felipe-alfaro.com>
-	 <20040608124215.291a7072@dell_ss3.pdx.osdl.net>
-	 <1086725369.1806.1.camel@teapot.felipe-alfaro.com>
-	 <20040608140200.2ddaa6f4@dell_ss3.pdx.osdl.net>
-	 <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
-	 <40C793CE.6000609@g-house.de>
-Content-Type: text/plain
-Date: Thu, 10 Jun 2004 08:07:16 +0200
-Message-Id: <1086847636.1719.6.camel@teapot.felipe-alfaro.com>
+	Thu, 10 Jun 2004 02:10:33 -0400
+Received: from holomorphy.com ([207.189.100.168]:22153 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266186AbUFJGK3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 02:10:29 -0400
+Date: Wed, 9 Jun 2004 23:10:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Clint Byrum <cbyrum@spamaps.org>
+Cc: Ray Lee <ray-lk@madrabbit.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 vm/elevator loading down disks where 2.4 does not
+Message-ID: <20040610061024.GW1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Clint Byrum <cbyrum@spamaps.org>, Ray Lee <ray-lk@madrabbit.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1086829384.13085.10.camel@orca.madrabbit.org> <EAAE7256-BAA3-11D8-B30D-000A95730E92@spamaps.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EAAE7256-BAA3-11D8-B30D-000A95730E92@spamaps.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-10 at 00:48 +0200, Christian Kujau wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> |>What is happening is that some subsystem is holding a reference to the
-> device (calling dev_hold())
-> |>but not cleaning up (calling dev_put).  It can be a hard to track
-> which of the many
-> |>things routing, etc are not being cleared properly.  Look for routes
-> that still
-> |>get stuck (ip route) and neighbor cache entries.  Most of these end up
-> being
-> |>protocol bugs.
-> |
-> |
-> | The two attached patches, one for net/ipv4/route.c, the other for net/
-> | ipv6/route.c fix all my problems when running "cardctl eject" while a
-> | program mantains an open network socket (ESTABLISHED).
-> |
-> | Both patches apply cleanly against 2.6.7-rc3 and 2.6.7-rc3-mm1.
-> | I'm not completely sure what has changed in 2.6.7-rc3 that is breaking
-> | cardctl for me, as it Just Worked(TM) fine in 2.6.7-rc2.
-> 
-> do you know, by any chance, if this error is dependent to eth0 only or
-> could help for my error message too:
-> 
-> unregister_netdevice: waiting for ppp0 to become free. Usage count = 1
+On Wed, Jun 09, 2004 at 11:03:38PM -0700, Clint Byrum wrote:
+> That brings up an interesting point... is there a system wide stat that 
+> tells me how effective the file cache is? I guess majfaults/s fits that 
+> bill to some degree.
 
-I think the mentioned error is not dependent on any specific interface
-(let it be eth0, or ppp0), but any interface in general which has a
-routing entry and is the target/source of IP traffic. This is based on
-the fact that my fixes play with the refcounting on any interface. not
-just eth0 specifically, and pertain to both IPv4 and IPv6 core.
+/proc/vmstat should log global major/minor fault counters (actually
+summed on the fly per-cpu counters). I fixed those to properly report
+major and minor faults for 2.6. The analogous numbers where they are
+present are completely and utterly meaningless gibberish in 2.4.
 
-However, I detected this behavior on my eth0, since this is the only
-interface I have on my laptop. You just can try both patches against
-2.6.7-rc3 or 2.6.7-rc3-mm1 to see if them cure your problems.
 
-> happened just a few hours ago (2.6.7-rc3), i had to reboot the box
-> anyway, but pppd was not able to die (even with kill -9)
-
-In my case, I was able to trigger the problem by running "cardctl eject"
-which was then stuck at D state. Killing any program using a network
-socket, and waiting for opened connections to transition from
-ESTABLISHED to TIME_WAIT and then being closed, allowed "cardctl" to
-exit the D state.
-
+-- wli

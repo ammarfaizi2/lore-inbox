@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbTIDNai (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 09:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbTIDNah
+	id S263584AbTIDN0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 09:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbTIDN0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 09:30:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56082 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264994AbTIDNaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 09:30:35 -0400
-Date: Thu, 4 Sep 2003 14:30:30 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Paul Mackerras <paulus@samba.org>
-Cc: "David S. Miller" <davem@redhat.com>, hch@lst.de, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-Message-ID: <20030904143030.C8414@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	"David S. Miller" <davem@redhat.com>, hch@lst.de,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <20030903203231.GA8772@lst.de> <16214.34933.827653.37614@nanango.paulus.ozlabs.org> <20030904071334.GA14426@lst.de> <20030904083007.B2473@flint.arm.linux.org.uk> <16215.1054.262782.866063@nanango.paulus.ozlabs.org> <20030904023624.592f1601.davem@redhat.com> <20030904104801.A7387@flint.arm.linux.org.uk> <16215.14133.352143.660688@nanango.paulus.ozlabs.org>
-Mime-Version: 1.0
+	Thu, 4 Sep 2003 09:26:17 -0400
+Received: from dub.inr.ac.ru ([193.233.7.105]:1247 "HELO dub.inr.ac.ru")
+	by vger.kernel.org with SMTP id S263584AbTIDN0Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 09:26:16 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200309041325.RAA15845@dub.inr.ac.ru>
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+To: nagendra_tomar@adaptec.com
+Date: Thu, 4 Sep 2003 17:25:36 +0400 (MSD)
+Cc: wa@almesberger.net, quade@hsnr.de, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0308282143330.14580-100000@localhost.localdomain> from "Nagendra Singh Tomar" at  =?ISO-8859-1?Q?=20=E1?=
+	=?ISO-8859-1?Q?=D7=C7?= 28, 2003 09:55:33 
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16215.14133.352143.660688@nanango.paulus.ozlabs.org>; from paulus@samba.org on Thu, Sep 04, 2003 at 10:59:33PM +1000
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 10:59:33PM +1000, Paul Mackerras wrote:
-> > 2. The resource tree won't know about the upper bits or whatever sitting
-> >    in flags, and as such identical addresses on two different buses will
-> >    clash.
-> > 
-> > Resource start,end needs to be some unique quantity no matter which (PCI)
-> > bus you are on.
-> 
-> They are non-overlapping for PCI buses in the same domain.  Perhaps
-> the sensible thing is to have a separate resource tree for each PCI
-> domain (actually two trees, for I/O and memory space), and have them
-> contain bus addresses rather than physical addresses.  I don't know if
-> the generic iomem_resource and ioport_resource are still useful if we
-> do that.
+Hello!
 
-I thought I pointed out that this approach would break request_region
-and request_mem_region, which are the work-horses of the "this region
-of space is busy".
+> All is fine, but the recursive tasklet problem is still there. We need 
+> to add another state to tasklet TASKLET_STATE_KILLED which is set once 
+> tasklet_kill is called. Once this is set tasklet_schedule just does not 
+> schedule the tasklet.
 
-Someone would have to (somehow) fix up all drivers which use those
-functions...
+Maybe. But all my past experience says me that it is some thing,
+next to useless. Look, if you try to schedule some event not even caring
+that the event handler is going to die, you do something really wrong.
+State of death is connected not to tasklet but to source of events
+which wake up the tasklet and need handling inside tasklet.
+So, you just cannot tasklet_kill() before the source is shutdown and,
+therefore, there are no good reasons to hold the bit inside the struct.
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
-
-
+Alexey

@@ -1,65 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266915AbSK2ABl>; Thu, 28 Nov 2002 19:01:41 -0500
+	id <S266859AbSK2Ahn>; Thu, 28 Nov 2002 19:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266916AbSK2ABl>; Thu, 28 Nov 2002 19:01:41 -0500
-Received: from smtp06.iddeo.es ([62.81.186.16]:16565 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id <S266915AbSK2ABj>;
-	Thu, 28 Nov 2002 19:01:39 -0500
-Date: Fri, 29 Nov 2002 01:08:59 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19/20, 2.5 missing P4 ifdef ?
-Message-ID: <20021129000859.GA2027@werewolf.able.es>
-References: <4.3.2.7.2.20021128151157.00b522c0@pop.t-online.de> <20021128142437.GA23664@suse.de>
+	id <S266886AbSK2Ahn>; Thu, 28 Nov 2002 19:37:43 -0500
+Received: from eris.host4u.net ([216.71.64.44]:29458 "EHLO eris.host4u.net")
+	by vger.kernel.org with ESMTP id <S266859AbSK2Ahm>;
+	Thu, 28 Nov 2002 19:37:42 -0500
+Date: Fri, 29 Nov 2002 01:44:16 +0100
+From: Alain Tesio <alain@onesite.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Asus P4B533 and resource conflict on IDE
+Message-Id: <20021129014416.54940079.alain@onesite.org>
+X-Mailer: Sylpheed version 0.8.5claws175 (GTK+ 1.2.10; )
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021128142437.GA23664@suse.de>; from davej@codemonkey.org.uk on Thu, Nov 28, 2002 at 15:24:37 +0100
-X-Mailer: Balsa 1.4.1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Replying to an old thread:
 
-On 2002.11.28 Dave Jones wrote:
->On Thu, Nov 28, 2002 at 03:17:53PM +0100, Margit Schubert-While wrote:
-> > Just noticed this in "include/asm-i386/processor.h" :
+On Thu Jul 18 2002 - 06:12:02 Alan Cox wrote :
+ 
+> On Thu, 2002-07-18 at 13:45, Andrew Halliwell wrote: 
+> > The P4B533 has the intel 801DB IDE controller (stated as supported in rc1) 
+> > but in every 2.4 kernel I've seen so far, this appears in the bootup. 
 > > 
-> > --- snip ---
-> > /* Prefetch instructions for Pentium III and AMD Athlon */
-> > #ifdef  CONFIG_MPENTIUMIII
-> > #define ARCH_HAS_PREFETCH
-> > extern inline void prefetch(const void *x)
-> > {
-> >         __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
-> > }
-> > #elif CONFIG_X86_USE_3DNOW
-> > --- end snip ---
-> > 
-> > The P4 has SSE and prefetch or no ?
->
->It does. You seem to have found a bug.
->
+> > Uniform Multi-Platform E-IDE driver Revision: 6.31 
+> > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx 
+> > PCI_IDE: unknown IDE controller on PCI bus 00 device f9, VID=8086, DID=24cb 
+> > PCI: Device 00:1f.1 not available because of resource collisions 
+> > PCI_IDE: (ide_setup_pci_device:) Could not enable device 
+> 
+> Blame your BIOS vendor 
+> The -ac tree has workarounds for the BIOS forgetting to set up the chip. 
+> Let me know if rc1-ac7 works for you 
 
-Two questions:
-- I am trying to use gcc's __builtin_prefetch, and it is able to
-  spit different prefetch instructions depending on 'temporal
-  locality' of the data:
-	prefetchnta, prefetcht2, prefetcht1, prefetcht0
-temp-loc:    0           1         2           3
-  0 means you can just discard after r or w, and 3 means you
-  are really interested in data lasting in cache.
-  Do not know if the use of prefetch in kernel is extensive,
-  but perhaps this is something to investigate...
+Hi, I have this motherboard and the same problem, I've naively looked for the string
+in the kernel sources and commented the line, and it works fine (hdparm can make
+the driver use DMA again, no corruption after applying this patch on successive
+kernels for months)
 
-- PII also supports the prefetches. Is it worth to add it ?
+The test must be here for a reason, I'm just saying it works in my case if some
+people need a workaround.
 
-TIA
+Alain
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-rc4-jam0 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+
+
+--- linux-2.4.20-rc3/arch/i386/kernel/pci-i386.c.orig   2002-11-28 20:42:57.000000000 +0100
++++ linux-2.4.20-rc3/arch/i386/kernel/pci-i386.c        2002-11-28 20:44:05.000000000 +0100
+@@ -315,7 +315,8 @@
+                r = &dev->resource[idx];
+                if (!r->start && r->end) {
+                        printk(KERN_ERR "PCI: Device %s not available because of resource collisions
+\n", dev->slot_name);
+-                       return -EINVAL;
++                       printk(KERN_ERR "  MY FIX : IGNORE PREVIOUS ERROR\n");
++                       //                      return -EINVAL;
+                }
+                if (r->flags & IORESOURCE_IO)
+                        cmd |= PCI_COMMAND_IO;
+
+
+The exact warning is :
+
+kernel: PCI: Device 00:1f.1 not available because of resource collisions
+
+And the lspci output in case you're interested :
+
+:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 11)
+00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 11)
+00:1d.0 USB Controller: Intel Corp.: Unknown device 24c2 (rev 01)
+00:1d.1 USB Controller: Intel Corp.: Unknown device 24c4 (rev 01)
+00:1d.2 USB Controller: Intel Corp.: Unknown device 24c7 (rev 01)
+00:1d.7 USB Controller: Intel Corp.: Unknown device 24cd (rev 01)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA PCI Bridge (rev 81)
+00:1f.0 ISA bridge: Intel Corp.: Unknown device 24c0 (rev 01)
+00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 01)         <----------------------------
+01:00.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti500] (rev a3)
+02:09.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+02:0a.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 53c810 (rev 11)
+02:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)

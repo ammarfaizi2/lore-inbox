@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbUK0FrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUK0FrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbUK0FrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 00:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUK0DvM
+	id S262101AbUK0FrY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 00:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbUK0Dus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:51:12 -0500
+	Fri, 26 Nov 2004 22:50:48 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262531AbUKZTdm (ORCPT
+	by vger.kernel.org with ESMTP id S262535AbUKZTdn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:33:42 -0500
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-In-Reply-To: <ory8goygpr.fsf@livre.redhat.lsd.ic.unicamp.br>
-References: <19865.1101395592@redhat.com>
-	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
-	 <ory8goygpr.fsf@livre.redhat.lsd.ic.unicamp.br>
-Content-Type: text/plain
-Message-Id: <1101470002.8191.9436.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 26 Nov 2004 11:53:23 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 26 Nov 2004 14:33:43 -0500
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.28 -> ch..ch...changes....
+References: <Pine.LNX.4.44.0411241744210.5172-100000@localhost.localdomain>
+	<200411241957.14527.nick@linicks.net>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: because Hell was full.
+Date: Fri, 26 Nov 2004 11:53:58 +0000
+In-Reply-To: <200411241957.14527.nick@linicks.net> (Nick Warne's message of
+ "24 Nov 2004 23:27:43 -0000")
+Message-ID: <877jo8u8q1.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-26 at 09:47 -0200, Alexandre Oliva wrote:
-> On Nov 25, 2004, Matthew Wilcox <matthew@wil.cx> wrote:
-> 
-> > On Thu, Nov 25, 2004 at 04:20:06PM -0200, Alexandre Oliva wrote:
-> >> This means these headers shouldn't reference each other as
-> >> linux/user/something.h, but rather as linux/something.h, such that
-> >> they still work when installed in /usr/include/linux.  This may
-> >> require headers include/linux/something.h to include
-> >> linux/user/something.h, but that's already part of the proposal.
-> 
-> > That's going to take severe brain-ache to get right ... and worse,
-> > keep right.  These headers aren't going to get tested outside the kernel
-> > tree often.  So we'll have missing includes and files that only work if
-> > the <linux/> they're including is a kernel one rather than a user one.
-> 
-> How about moving the internals (i.e., what's not to be exported to
-> userland) from linux and asm elsewhere, then?
-> 
-> Sure, it means significantly more churn in the kernel, but there's
-> going to be a lot of moving stuff around one way or the other.
+On 24 Nov 2004, Nick Warne mused:
+> Normally memory slowly fills up, perhaps using swap for a bit under these 
+> circumstances - but looking afterwards:
 
-Not really. The kernel code was what was _allowed_ to be using those
-headers with those names in the first place; it was userspace which
-shouldn't necessarily have been doing so.
+This is a feature, not a bug. Free memory is wasted memory (although
+some has to be kept free for drivers that need GFP_ATOMIC allocations:
+i.e. `memory *now* dammit *now*'.
 
-> While at that, we could also split what's kernel internal for real and
-> what's to be visible to external kernel modules as well.  So we'd have
-> 3 layers of headers, instead of two.  I'm not sure this actually makes
-> any sense though, since there might be lots of dependencies of headers
-> for modules on internal headers.
+> root@linuxamd:~# free
+>              total       used       free     shared    buffers     cached
+> Mem:       1292348     520012     772336          0      38596     327304
+> -/+ buffers/cache:     154112    1138236
+> Swap:      1959888          0    1959888
 
-All modules will be entirely dependent on the full set of kernel
-headers. Let's not go there.
+The only thing I can think of that causes this is something very
+memory-hungry that's just been killed, releasing a pile of pages back to
+the system.
+
+> But whatever, I am impressed indeed - somethings changed for the good!!!
+
+I see no signs of such a change on my 2.4.28 boxes:
+
+(UltraSPARC II)
+             total       used       free     shared    buffers     cached
+Mem:        509360     498432      10928          0     133568      52656
+-/+ buffers/cache:     312208     197152
+Swap:      1557264     143992    1413272
+
+(Athlon IV)
+             total       used       free     shared    buffers     cached
+Mem:        775072     762744      12328          0      88304     322740
+-/+ buffers/cache:     351700     423372
+Swap:      1048560      81020     967540
+
+(i586)
+             total       used       free     shared    buffers     cached
+Mem:        126992     123640       3352          0      11792      42012
+-/+ buffers/cache:      69836      57156
+Swap:      1245168     155560    1089608
+
+The only suspiciously high free figure is on a 2.4.28 UML instance
+(2.4.28 + forward-ported 2.4.27-1 patches) on one of those machines:
+
+             total       used       free     shared    buffers     cached
+Mem:         94000      66512      27488          0       2940      31260
+-/+ buffers/cache:      32312      61688
+Swap:            0          0          0
+
+and that is trivially obviously caused by the instance's lack of swap :)
 
 -- 
-dwmw2
-
+`The sword we forged has turned upon us
+ Only now, at the end of all things do we see
+ The lamp-bearer dies; only the lamp burns on.'

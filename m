@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264245AbTLER3S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 12:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTLER3R
+	id S264241AbTLERaG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 12:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTLERaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 12:29:17 -0500
-Received: from twinlark.arctic.org ([168.75.98.6]:36000 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S264245AbTLER3Q
+	Fri, 5 Dec 2003 12:30:05 -0500
+Received: from bay7-dav52.bay7.hotmail.com ([64.4.10.41]:14350 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264241AbTLER3x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 12:29:16 -0500
-Date: Fri, 5 Dec 2003 09:29:15 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Rootkit queston
-In-Reply-To: <1070313094.11356.6.camel@midux>
-Message-ID: <Pine.LNX.4.58.0312050927080.25927@twinlark.arctic.org>
-References: <1070313094.11356.6.camel@midux>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	Fri, 5 Dec 2003 12:29:53 -0500
+X-Originating-IP: [24.61.138.213]
+X-Originating-Email: [jason_kingsland@hotmail.com]
+From: "Jason Kingsland" <Jason_Kingsland@hotmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>,
+       "Kendall Bennett" <KendallB@scitechsoft.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0312031533530.2055@home.osdl.org>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Fri, 5 Dec 2003 12:29:56 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <BAY7-DAV52PZku6s33Y00003c18@hotmail.com>
+X-OriginalArrivalTime: 05 Dec 2003 17:29:52.0464 (UTC) FILETIME=[6439F500:01C3BB55]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Dec 2003, Markus Hästbacka wrote:
+Linus wrote:
+> There's a clarification that user-space programs that use the standard
+> system call interfaces aren't considered derived works
 
-> I've been paranoid after I heard that the debian project got
-> "rootkitted", I ran chkrootkit, and it said that it's possible that I
-> have a LKM rootkit installed, but the website told me that it's possible
-> that the LKM test gives wrong information with recent kernels (Running
-> 2.4.22 now).
+If it said "user-space" or "non-kernel address space" in the Linux license
+then I would agree.
 
-chkrootkit's lkm test is fooled by kernel threads... and if your system is
-under heavy fork/exit load it'll result in some false lkm positives as
-well.  it shouldn't be hard to fix the first problem (in chkrootkit), but
-the second has no real solution.
+But the exact wording is much more vague:
 
--dean
+"user programs that use kernel services by normal system calls"
+
+Any binary loadable kernel module can be considered a "user program"
+Any interface defined in the kernel header files can be considered a "normal
+system call"
+
+This is why I think further clarification is warranted in future versions of
+copying.txt - because we are needlessly giving away the source-code freedom
+that GPL is intended to protect.
+
+The proponents of binary-only kernel modules currently use the above as a
+defense to argue their case for GPL non-compliance.

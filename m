@@ -1,142 +1,856 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261622AbTCGP1o>; Fri, 7 Mar 2003 10:27:44 -0500
+	id <S261626AbTCGPYQ>; Fri, 7 Mar 2003 10:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261625AbTCGP1o>; Fri, 7 Mar 2003 10:27:44 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:48547
+	id <S261628AbTCGPYQ>; Fri, 7 Mar 2003 10:24:16 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:34979
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261622AbTCGP1l>; Fri, 7 Mar 2003 10:27:41 -0500
-Date: Fri, 7 Mar 2003 10:36:04 -0500 (EST)
+	id <S261626AbTCGPXy>; Fri, 7 Mar 2003 10:23:54 -0500
+Date: Fri, 7 Mar 2003 10:32:13 -0500 (EST)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] why noirqbalance doesn't work (resend)
-Message-ID: <Pine.LNX.4.50.0303071035330.18716-100000@montezuma.mastecende.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] protect 'action' in show_interrupts
+In-Reply-To: <20030307022829.7868dda2.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.50.0303071030500.18716-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
+ <20030306222328.14b5929c.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
+ <20030306233517.68c922f9.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070502400.18716-100000@montezuma.mastecende.com>
+ <20030307022829.7868dda2.akpm@digeo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes what seems to have been a longstanding bug. Ever since we 
-moved cpu bringup later into the boot process, we end up programming the 
-ioapics before we have any of our possible cpus in the cpu_online_map. 
-Therefore leading to the following current situation;
+On Fri, 7 Mar 2003, Andrew Morton wrote:
 
-For walmart-smp, bigsmp and summit we set the logical destination for cpu 
-to TARGET_CPUS which can depend on the cpu_online_map, so what you would 
-normally see with noirqbalance would be all interrupts handled on cpu0 
-since at that stage no other cpu apart from the BSP is online.
+> Local variable `action' could be pointing at freed memory by now.  We need to
+> reload it inside the lock.  Or just hold the lock across the entire loop.
 
-You can check for this by looking at the ioredtbls at boottime for a two 
-way system;
+Oops monkey at the helm...
 
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 001 01  0    0    0   0   0    1    1    39
- 02 001 01  0    0    0   0   0    1    1    31
- 03 001 01  0    0    0   0   0    1    1    41
- 04 001 01  0    0    0   0   0    1    1    49
- 05 001 01  0    0    0   0   0    1    1    51
- 06 001 01  0    0    0   0   0    1    1    59
+PS sparc is just a strange one. I wonder if i should just grab the global 
+irq lock (urgh...)
 
-Notice that 'Log' is set to 1 instead of 3.
-
-This patch will simply reprogram all the ioredtbls to handle the other 
-online cpus.
-
-Patch tested on my 2way P2-400 and a 16way NUMAQ both with noirqbalance. 
-It will not affect the irqbalance case because we are simply setting 
-TARGET_CPUS which is done anyway.
-
-before:
-  CPU0       CPU1
-  0:    1495632          0    IO-APIC-edge  timer
-  1:       4270          0    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 12:      83592          0    IO-APIC-edge  i8042
- 14:      93791          0    IO-APIC-edge  ide0
- 15:     103167          0    IO-APIC-edge  ide1
- 17:    1396088          0   IO-APIC-level  EMU10K1, eth0
- 18:      56125          0   IO-APIC-level  aic7xxx, aic7xxx
- 19:       2258          0   IO-APIC-level  uhci-hcd, eth1, serial
-NMI:          0          0
-LOC:    1495566    1497133
-
-after:
-           CPU0       CPU1       
-  0:    1046157    1015670    IO-APIC-edge  timer
-  1:       4923       4173    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  8:          1          0    IO-APIC-edge  rtc
- 12:      48596      48968    IO-APIC-edge  i8042
- 14:       4238       3416    IO-APIC-edge  ide0
- 15:      25362      31525    IO-APIC-edge  ide1
- 17:       3757       4014   IO-APIC-level  EMU10K1, eth0
- 18:        335        366   IO-APIC-level  aic7xxx, aic7xxx
- 19:       1052        908   IO-APIC-level  uhci-hcd, eth1
-NMI:          0          0 
-LOC:    2061856    2061893 
-
-Index: linux-2.5.63-DBE/arch/i386/kernel/io_apic.c
+Index: linux-2.5.64/arch/alpha/kernel/irq.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.63/arch/i386/kernel/io_apic.c,v
+RCS file: /build/cvsroot/linux-2.5.64/arch/alpha/kernel/irq.c,v
 retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 io_apic.c
---- linux-2.5.63-DBE/arch/i386/kernel/io_apic.c	27 Feb 2003 22:03:36 -0000	1.1.1.1
-+++ linux-2.5.63-DBE/arch/i386/kernel/io_apic.c	1 Mar 2003 06:22:57 -0000
-@@ -194,6 +194,31 @@
- 			clear_IO_APIC_pin(apic, pin);
- }
- 
-+/*
-+ * This function currently is only a helper for the i386 smp boot process where 
-+ * we need to reprogram the ioredtbls to cater for the cpus which have come online
-+ * so mask in all cases should simply be TARGET_CPUS
-+ */
-+void __devinit set_ioapic_logical_dest (unsigned long mask)
-+{
-+	struct IO_APIC_route_entry entry;
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/alpha/kernel/irq.c	5 Mar 2003 05:08:08 -0000	1.1.1.1
++++ linux-2.5.64/arch/alpha/kernel/irq.c	7 Mar 2003 15:05:23 -0000
+@@ -515,6 +515,7 @@
+ #endif
+ 	int i;
+ 	struct irqaction * action;
 +	unsigned long flags;
-+	int apic, pin;
+ 
+ #ifdef CONFIG_SMP
+ 	seq_puts(p, "           ");
+@@ -525,9 +526,10 @@
+ #endif
+ 
+ 	for (i = 0; i < ACTUAL_NR_IRQS; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto unlock;
+ 		seq_printf(p, "%3d: ",i);
+ #ifndef CONFIG_SMP
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+@@ -538,15 +540,18 @@
+ #endif
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+ 		seq_printf(p, "  %c%s",
+-			     (action->flags & SA_INTERRUPT)?'+':' ',
+-			     action->name);
++			(action->flags & SA_INTERRUPT)?'+':' ',
++			action->name);
+ 
+ 		for (action=action->next; action; action = action->next) {
+ 			seq_printf(p, ", %c%s",
+-				     (action->flags & SA_INTERRUPT)?'+':' ',
+-				     action->name);
++				  (action->flags & SA_INTERRUPT)?'+':' ',
++				   action->name);
+ 		}
 +
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	for (apic = 0; apic < nr_ioapics; apic++) {
-+		for (pin = 0; pin < nr_ioapic_registers[apic]; pin++) {
-+			*(((int *)&entry)+0) = io_apic_read(apic, 0x10+pin*2);
-+			*(((int *)&entry)+1) = io_apic_read(apic, 0x11+pin*2);
-+			entry.dest.logical.logical_dest = mask;
-+			io_apic_write(apic, 0x10 + 2 * pin, *(((int *)&entry) + 0));
-+			io_apic_write(apic, 0x11 + 2 * pin, *(((int *)&entry) + 1));
-+		}
-+
-+	}
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
-+}
-+
- static void set_ioapic_affinity (unsigned int irq, unsigned long mask)
- {
- 	unsigned long flags;
-Index: linux-2.5.63-DBE/arch/i386/kernel/smpboot.c
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ #if CONFIG_SMP
+ 	seq_puts(p, "IPI: ");
+Index: linux-2.5.64/arch/arm/kernel/irq.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.63/arch/i386/kernel/smpboot.c,v
+RCS file: /build/cvsroot/linux-2.5.64/arch/arm/kernel/irq.c,v
 retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smpboot.c
---- linux-2.5.63-DBE/arch/i386/kernel/smpboot.c	27 Feb 2003 22:03:36 -0000	1.1.1.1
-+++ linux-2.5.63-DBE/arch/i386/kernel/smpboot.c	1 Mar 2003 05:37:20 -0000
-@@ -1152,8 +1152,10 @@
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/arm/kernel/irq.c	5 Mar 2003 05:08:11 -0000	1.1.1.1
++++ linux-2.5.64/arch/arm/kernel/irq.c	7 Mar 2003 15:05:36 -0000
+@@ -165,17 +165,22 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 	    	action = irq_desc[i].action;
+ 		if (!action)
+-			continue;
++			goto unlock;
++
+ 		seq_printf(p, "%3d: %10u ", i, kstat_irqs(i));
+ 		seq_printf(p, "  %s", action->name);
+-		for (action = action->next; action; action = action->next) {
++		for (action = action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+-		}
++
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 
+ #ifdef CONFIG_ARCH_ACORN
+Index: linux-2.5.64/arch/cris/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/cris/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/cris/kernel/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/cris/kernel/irq.c	7 Mar 2003 15:06:02 -0000
+@@ -228,11 +228,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < NR_IRQS; i++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %10u %c %s",
+ 			i, kstat_cpu(0).irqs[i],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -243,6 +245,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
  	return 0;
  }
- 
-+extern void set_ioapic_logical_dest(unsigned long mask);
- void __init smp_cpus_done(unsigned int max_cpus)
+Index: linux-2.5.64/arch/i386/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/i386/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/i386/kernel/irq.c	5 Mar 2003 05:08:03 -0000	1.1.1.1
++++ linux-2.5.64/arch/i386/kernel/irq.c	7 Mar 2003 15:15:28 -0000
+@@ -135,6 +135,7 @@
  {
-+	set_ioapic_logical_dest(TARGET_CPUS);
- 	zap_low_mappings();
- }
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
  
-
+ 	seq_printf(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -143,9 +144,10 @@
+ 	seq_putc(p, '\n');
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%3d: ",i);
+ #ifndef CONFIG_SMP
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+@@ -160,7 +162,10 @@
+ 
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
++
+ 		seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	seq_printf(p, "NMI: ");
+ 	for (j = 0; j < NR_CPUS; j++)
+Index: linux-2.5.64/arch/ia64/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/ia64/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/ia64/kernel/irq.c	5 Mar 2003 05:08:13 -0000	1.1.1.1
++++ linux-2.5.64/arch/ia64/kernel/irq.c	7 Mar 2003 15:07:18 -0000
+@@ -154,6 +154,7 @@
+ 	int i, j;
+ 	struct irqaction * action;
+ 	irq_desc_t *idesc;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -163,9 +164,10 @@
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
+ 		idesc = irq_desc(i);
++		spin_lock_irqsave(&idesc->lock, flags);
+ 		action = idesc->action;
+ 		if (!action)
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%3d: ",i);
+ #ifndef CONFIG_SMP
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+@@ -176,10 +178,12 @@
+ #endif
+ 		seq_printf(p, " %14s", idesc->handler->typename);
+ 		seq_printf(p, "  %s", action->name);
+-
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
++		
+ 		seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&idesc->lock, flags);
+ 	}
+ 	seq_puts(p, "NMI: ");
+ 	for (j = 0; j < NR_CPUS; j++)
+Index: linux-2.5.64/arch/mips/baget/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/baget/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/baget/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/baget/irq.c	7 Mar 2003 15:15:45 -0000
+@@ -146,11 +146,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < BAGET_IRQ_NR ; i++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			i, kstat_cpu(0).irqs[i],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -161,6 +163,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/dec/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/dec/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/dec/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/dec/irq.c	7 Mar 2003 15:26:50 -0000
+@@ -97,11 +97,13 @@
+ {
+ 	int i;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < 32; i++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action)
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 				i, kstat_cpu(0).irqs[i],
+ 				(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -112,6 +114,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/ite-boards/generic/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/ite-boards/generic/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/ite-boards/generic/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/ite-boards/generic/irq.c	7 Mar 2003 15:16:41 -0000
+@@ -222,6 +222,7 @@
+ {
+         int i, j;
+         struct irqaction * action;
++	unsigned long flags;
+ 
+         seq_printf(p, "           ");
+         for (j=0; j<smp_num_cpus; j++)
+@@ -229,20 +230,25 @@
+ 	seq_putc(p, '\n');
+ 
+         for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+                 action = irq_desc[i].action;
++
+                 if ( !action || !action->handler )
+-                        continue;
++                        goto skip;
+                 seq_printf(p, "%3d: ", i);		
+                 seq_printf(p, "%10u ", kstat_irqs(i));
+                 if ( irq_desc[i].handler )		
+                         seq_printf(p, " %s ", irq_desc[i].handler->typename );
+                 else
+                         seq_puts(p, "  None      ");
++
+                 seq_printf(p, "    %s",action->name);
+                 for (action=action->next; action; action = action->next) {
+                         seq_printf(p, ", %s", action->name);
+                 }
+                 seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+         }
+         seq_printf(p, "BAD: %10lu\n", spurious_count);
+         return 0;
+Index: linux-2.5.64/arch/mips/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/kernel/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/kernel/irq.c	7 Mar 2003 15:16:59 -0000
+@@ -73,17 +73,19 @@
+ int show_interrupts(struct seq_file *p, void *v)
+ {
+ 	struct irqaction * action;
++	unsigned long flags;
+ 	int i;
+-
++	
+ 	seq_puts(p, "           ");
+ 	for (i=0; i < 1 /*smp_num_cpus*/; i++)
+ 		seq_printf(p, "CPU%d       ", i);
+ 	seq_putc(p, '\n');
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto unlock;
+ 		seq_printf(p, "%3d: ",i);
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+@@ -92,6 +94,8 @@
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	seq_printf(p, "ERR: %10lu\n", irq_err_count);
+ 	return 0;
+Index: linux-2.5.64/arch/mips/kernel/old-irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/kernel/old-irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 old-irq.c
+--- linux-2.5.64/arch/mips/kernel/old-irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/kernel/old-irq.c	7 Mar 2003 15:26:35 -0000
+@@ -128,11 +128,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < 32 ; i++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			i, kstat_cpu(0).irqs[i],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -143,6 +145,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 atlas_int.c
+--- linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c	7 Mar 2003 15:18:07 -0000
+@@ -99,11 +99,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < ATLASINT_END; i++, num++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -114,6 +116,8 @@
+ 				action->name);
+ 		}
+ 		seq_printf(p, " [hw0]\n");
++skip:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/philips/nino/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/philips/nino/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/philips/nino/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/philips/nino/irq.c	7 Mar 2003 15:17:31 -0000
+@@ -119,11 +119,13 @@
+ {
+     int i;
+     struct irqaction *action;
++    unsigned long flags;
+ 
+     for (i = 0; i < NR_IRQS; i++) {
++	local_irq_save(flags);
+ 	action = irq_action[i];
+ 	if (!action)
+-	    continue;
++	    goto skip;
+ 	seq_printf(p, "%2d: %8d %c %s",
+ 		       i, kstat_cpu(0).irqs[i],
+ 		       (action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -134,6 +136,8 @@
+ 			   action->name);
+ 	}
+ 	seq_putc(p, '\n');
++skip:
++	local_irq_restore(flags);
+     }
+     return 0;
+ }
+Index: linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 atlas_int.c
+--- linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c	7 Mar 2003 15:03:22 -0000
+@@ -95,11 +95,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < ATLASINT_END; i++, num++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto unlock;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -110,6 +112,8 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [hw0]\n");
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 malta_int.c
+--- linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c	7 Mar 2003 15:23:14 -0000
+@@ -125,11 +125,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < 8; i++, num++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip_1;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -140,11 +142,14 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [on-chip]\n");
++skip_1:
++		local_irq_restore(flags);
+ 	}
+ 	for (i = 0; i < MALTAINT_END; i++, num++) {
++		local_irq_save(flags);
+ 		action = hw0_irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip_2;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -155,6 +160,8 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [hw0]\n");
++skip_2:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 ip22-int.c
+--- linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c	7 Mar 2003 15:04:05 -0000
+@@ -237,11 +237,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < 16 ; i++, num++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip_1;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -252,11 +254,14 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [on-chip]\n");
++skip_1:
++		local_irq_restore(flags);
+ 	}
+ 	for (i = 0 ; i < 24 ; i++, num++) {
++		local_irq_save(flags);
+ 		action = local_irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip_2;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -267,6 +272,8 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [local]\n");
++skip_2:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 ip27-irq.c
+--- linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c	7 Mar 2003 15:04:20 -0000
+@@ -141,11 +141,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		local_irq_save(flags);
+ 		action = irq_action[i];
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s", i, kstat_cpu(0).irqs[i],
+ 		               (action->flags & SA_INTERRUPT) ? '+' : ' ',
+ 		               action->name);
+@@ -156,6 +158,8 @@
+ 			                action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/ppc/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/ppc/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/ppc/kernel/irq.c	5 Mar 2003 05:08:03 -0000	1.1.1.1
++++ linux-2.5.64/arch/ppc/kernel/irq.c	7 Mar 2003 15:08:19 -0000
+@@ -346,6 +346,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -354,9 +355,10 @@
+ 	seq_putc(p, '\n');
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if ( !action || !action->handler )
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%3d: ", i);		
+ #ifdef CONFIG_SMP
+ 		for (j = 0; j < NR_CPUS; j++)
+@@ -373,8 +375,10 @@
+ 		seq_printf(p, "%s", (irq_desc[i].status & IRQ_LEVEL) ? "Level " : "Edge  ");
+ 		seq_printf(p, "    %s", action->name);
+ 		for (action = action->next; action; action = action->next)
+-			seq_printf(p, ", %s", action->name);
++				seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ #ifdef CONFIG_TAU_INT
+ 	if (tau_initialized){
+Index: linux-2.5.64/arch/ppc64/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/ppc64/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/ppc64/kernel/irq.c	5 Mar 2003 05:08:10 -0000	1.1.1.1
++++ linux-2.5.64/arch/ppc64/kernel/irq.c	7 Mar 2003 15:09:24 -0000
+@@ -341,6 +341,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_printf(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++) {
+@@ -350,9 +351,10 @@
+ 	seq_putc(p, '\n');
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action || !action->handler)
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%3d: ", i);		
+ #ifdef CONFIG_SMP
+ 		for (j = 0; j < NR_CPUS; j++) {
+@@ -371,6 +373,8 @@
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	seq_printf(p, "BAD: %10u\n", ppc_spurious_interrupts);
+ 	return 0;
+Index: linux-2.5.64/arch/sh/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/sh/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/sh/kernel/irq.c	5 Mar 2003 05:08:16 -0000	1.1.1.1
++++ linux-2.5.64/arch/sh/kernel/irq.c	7 Mar 2003 15:02:47 -0000
+@@ -90,6 +90,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (j=0; j<smp_num_cpus; j++)
+@@ -97,9 +98,10 @@
+ 	seq_putc(p, '\n');
+ 
+ 	for (i = 0 ; i < ACTUAL_NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+-		if (!action) 
+-			continue;
++		if (!action)
++			goto unlock;
+ 		seq_printf(p, "%3d: ",i);
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+@@ -108,6 +110,8 @@
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/sparc/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/sparc/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/sparc/kernel/irq.c	5 Mar 2003 05:08:05 -0000	1.1.1.1
++++ linux-2.5.64/arch/sparc/kernel/irq.c	7 Mar 2003 15:10:48 -0000
+@@ -104,6 +104,7 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ #ifdef CONFIG_SMP
+ 	int j;
+ #endif
+@@ -114,9 +115,10 @@
+ 		return show_sun4d_interrupts(p, v);
+ 	}
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		local_irq_save(flags);
+ 	        action = *(i + irq_action);
+ 		if (!action) 
+-		        continue;
++		        goto skip;
+ 		seq_printf(p, "%3d: ", i);
+ #ifndef CONFIG_SMP
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+@@ -136,6 +138,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/v850/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/v850/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/v850/kernel/irq.c	5 Mar 2003 05:08:16 -0000	1.1.1.1
++++ linux-2.5.64/arch/v850/kernel/irq.c	7 Mar 2003 15:13:53 -0000
+@@ -78,6 +78,7 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (i=0; i < 1 /*smp_num_cpus*/; i++)
+@@ -87,10 +88,10 @@
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
+ 		int j, count, num;
+ 		const char *type_name = irq_desc[i].handler->typename;
+-
++		spin_lock_irqsave(&irq_desc[j].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 
+ 		count = 0;
+ 		num = -1;
+@@ -108,11 +109,13 @@
+ 			seq_printf(p, " %*s%d", 14 - prec, type_name, num);
+ 		} else
+ 			seq_printf(p, " %14s", type_name);
++		
+ 		seq_printf(p, "  %s", action->name);
+-
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&irq_desc[j].lock, flags);
+ 	}
+ 	seq_printf(p, "ERR: %10lu\n", irq_err_count);
+ 	return 0;
+Index: linux-2.5.64/arch/x86_64/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/x86_64/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/x86_64/kernel/irq.c	5 Mar 2003 05:08:16 -0000	1.1.1.1
++++ linux-2.5.64/arch/x86_64/kernel/irq.c	7 Mar 2003 15:14:44 -0000
+@@ -135,6 +135,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_printf(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -143,9 +144,10 @@
+ 	seq_putc(p, '\n');
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		action = irq_desc[i].action;
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%3d: ",i);
+ #ifndef CONFIG_SMP
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+@@ -156,11 +158,13 @@
+ 				kstat_cpu(j).irqs[i]);
+ #endif
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+-		seq_printf(p, "  %s", action->name);
+ 
++		seq_printf(p, "  %s", action->name);
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++skip:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	seq_printf(p, "NMI: ");
+ 	for (j = 0; j < NR_CPUS; j++)
 -- 
 function.linuxpower.ca

@@ -1,336 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313554AbSDHFO6>; Mon, 8 Apr 2002 01:14:58 -0400
+	id <S313561AbSDHF46>; Mon, 8 Apr 2002 01:56:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313555AbSDHFO5>; Mon, 8 Apr 2002 01:14:57 -0400
-Received: from stingr.net ([212.193.32.15]:60551 "HELO hq.stingr.net")
-	by vger.kernel.org with SMTP id <S313554AbSDHFOz>;
-	Mon, 8 Apr 2002 01:14:55 -0400
-Date: Mon, 8 Apr 2002 09:14:52 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH][CLEANUP] task->state cleanups part 5
-Message-ID: <20020408051452.GK839@stingr.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	William Lee Irwin III <wli@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Agent Tanya
-X-Mailer: Roxio Easy CD Creator 5.0
-X-RealName: Stingray Greatest Jr
-Organization: Bedleham International
+	id <S313560AbSDHF45>; Mon, 8 Apr 2002 01:56:57 -0400
+Received: from gw.lowendale.com.au ([203.26.242.120]:12400 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S313060AbSDHF44>; Mon, 8 Apr 2002 01:56:56 -0400
+Date: Mon, 8 Apr 2002 16:33:49 +1000 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIA timer fix was removed?
+In-Reply-To: <20011119182927.A19179@suse.cz>
+Message-ID: <Pine.LNX.4.05.10204081626560.1445-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2Marcelo: the whole cleanup tree derived from yours available at
-linux-stingr.bkbits.net/taskstate
+Hi Vojtech,
 
-2others: people says that it is nice patch, howewer it is completely
-untested. But I dunno what can be broken such way so ...
+Appended patch:
 
-This is task->state cleanup. Big part seems to be eaten my Matti Aarnio so
-splitted goes below.
+(a) merges your patch of November 2001 into 2.2.21rc3
+(b) adds a boot-time option to explicitly disable the via-timer hacks.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.314   -> 1.315  
-#	   drivers/char/vt.c	1.9     -> 1.10   
-#	drivers/ide/ide-tape.c	1.10    -> 1.11   
-#	drivers/char/sonypi.c	1.7     -> 1.8    
-#	drivers/input/evdev.c	1.5     -> 1.6    
-#	drivers/char/stallion.c	1.5     -> 1.6    
-#	drivers/char/serial_21285.c	1.3     -> 1.4    
-#	drivers/char/specialix.c	1.4     -> 1.5    
-#	drivers/input/mousedev.c	1.5     -> 1.6    
-#	drivers/char/serial_txx927.c	1.3     -> 1.4    
-#	   drivers/char/sx.c	1.9     -> 1.10   
-#	drivers/char/tpqic02.c	1.7     -> 1.8    
-#	drivers/input/joydev.c	1.4     -> 1.5    
-#	drivers/char/tty_ioctl.c	1.3     -> 1.4    
-#	drivers/i2c/i2c-keywest.c	1.3     -> 1.4    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/08	stingray@stingr.net	1.315
-# task->state cleanup part 5
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/serial_21285.c b/drivers/char/serial_21285.c
---- a/drivers/char/serial_21285.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/char/serial_21285.c	Mon Apr  8 01:23:45 2002
-@@ -249,14 +249,14 @@
+I've been using this patch for a while, but haven't subjected it to more
+thorough testing than that it boots OK and doesn't appear to complicate
+anything (I might be able to trigger the relevant condition by running the
+battery right down on my (old) AcerNote-950, but one of the last times
+this happened I also got some pretty nasty file system corruption - so I'm
+not too keen to try that one again :-| ).
+
+Anyway, does this patch and my merge of it look correct?
+
+Thanks,
+Neale.
+
+--- linux-2.2.21-rc3-orig/arch/i386/kernel/time.c	Mon Mar 26 02:37:30 2001
++++ linux-2.2.21-rc3-ntb/arch/i386/kernel/time.c	Fri Apr  5 23:04:13 2002
+@@ -81,6 +81,8 @@
+ 
+ spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
+ 
++static int		via686a_hacks = 1; /* default to enabled */
++
+ static inline unsigned long do_fast_gettimeoffset(void)
  {
- 	int orig_jiffies = jiffies;
- 	while (*CSR_UARTFLG & 8) {
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout(1);
- 		if (signal_pending(current))
- 			break;
- 		if (timeout && time_after(jiffies, orig_jiffies + timeout))
- 			break;
- 	}
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
+ 	register unsigned long eax asm("ax");
+@@ -111,6 +113,54 @@
+ 	return delay_at_last_interrupt + edx;
  }
  
- static int rs285_open(struct tty_struct *tty, struct file *filp)
-diff -Nru a/drivers/char/serial_txx927.c b/drivers/char/serial_txx927.c
---- a/drivers/char/serial_txx927.c	Mon Apr  8 01:23:46 2002
-+++ b/drivers/char/serial_txx927.c	Mon Apr  8 01:23:46 2002
-@@ -1472,7 +1472,7 @@
- 	info->tty = 0;
- 	if (info->blocked_open) {
- 		if (info->close_delay) {
--			current->state = TASK_INTERRUPTIBLE;
-+			set_current_state(TASK_INTERRUPTIBLE);
- 			schedule_timeout(info->close_delay);
- 		}
- 		wake_up_interruptible(&info->open_wait);
-@@ -1532,7 +1532,7 @@
- #ifdef SERIAL_DEBUG_RS_WAIT_UNTIL_SENT
- 		printk("cisr = %d (jiff=%lu)...", cisr, jiffies);
++/*
++ * VIA hardware bug workaround with check if it is really needed and
++ * a printk that could tell us what's exactly happening on machines which
++ * trigger the check, but are not VIA-based.
++ *
++ * Must be called with the i8253_spinlock held.
++ */
++
++static void via_reset_and_whine(int *count)
++{
++	static unsigned long last_whine = 0;
++	unsigned long new_whine;
++	int count2;
++
++	new_whine = last_whine;
++
++	outb_p(0x00, 0x43);		/* Re-read the timer */
++	count2 = inb_p(0x40);
++	count2 |= inb(0x40) << 8;
++
++	if (time_after(jiffies, last_whine)) {
++		printk(KERN_WARNING "timer.c: VIA bug check triggered. "
++			"Value read %d [%#x], re-read %d [%#x]\n",
++			*count, *count, count2, count2);
++		new_whine = jiffies + HZ;
++	}
++
++	*count = count2;
++
++	if (count2 > LATCH) {		/* Still bad */
++		if (time_after(jiffies, last_whine)) {
++			printk(KERN_WARNING "timer.c VIA bug really present. ");
++			new_whine = jiffies + HZ;
++		}
++		if (via686a_hacks) {
++			printk(KERN_WARNING "Resetting PIT timer.\n");
++			outb_p(0x34, 0x43);
++			outb_p(LATCH & 0xff, 0x40);
++			outb(LATCH >> 8, 0x40);
++		} else {
++			printk(KERN_WARNING "But VIA hacks disabled.\n");
++		}
++		*count = LATCH - 1;
++	}
++
++	last_whine = new_whine;
++}
++
+ #define TICK_SIZE tick
+ 
+ #ifndef CONFIG_X86_TSC
+@@ -177,12 +227,8 @@
+ 	count |= inb_p(0x40) << 8;
+ 
+ 	/* VIA686a test code... reset the latch if count > max */
+- 	if (count > LATCH-1) {
+-		outb_p(0x34, 0x43);
+-		outb_p(LATCH & 0xff, 0x40);
+-		outb(LATCH >> 8, 0x40);
+-		count = LATCH - 1;
+-	}	
++	if (count > LATCH)
++		via_reset_and_whine(&count);
+ 	
+ 	/*
+ 	 * avoiding timer inconsistencies (they are rare, but they happen)...
+@@ -478,19 +524,8 @@
+ 		count |= inb(0x40) << 8;
+ 
+ 		/* VIA686a test code... reset the latch if count > max */
+-		if (count > LATCH-1) {
+-			static int last_whine;
+-			outb_p(0x34, 0x43);
+-			outb_p(LATCH & 0xff, 0x40);
+-			outb(LATCH >> 8, 0x40);
+-			count = LATCH - 1;
+-			if(time_after(jiffies, last_whine))
+-			{
+-				printk(KERN_WARNING "probable hardware bug: clock timer configuration lost - probably a VIA686a.\n");
+-				printk(KERN_WARNING "probable hardware bug: restoring chip configuration.\n");
+-				last_whine = jiffies + HZ;
+-			}			
+-		}	
++		if (count > LATCH)
++			via_reset_and_whine(&count);
+ 
+ #if 0
+ 		spin_unlock(&i8253_lock);
+@@ -737,3 +772,25 @@
+ 	setup_x86_irq(0, &irq0);
  #endif
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		current->counter = 0;	/* make us low-priority */
- 		schedule_timeout(char_time);
- 		if (signal_pending(current))
-@@ -1540,7 +1540,7 @@
- 		if (timeout && time_after(jiffies, orig_jiffies + timeout))
- 			break;
- 	}
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- #ifdef SERIAL_DEBUG_RS_WAIT_UNTIL_SENT
- 	printk("cisr = %d (jiff=%lu)...done\n", cisr, jiffies);
- #endif
-@@ -1663,7 +1663,7 @@
- 		    (tty->termios->c_cflag & CBAUD))
- 			sio_reg(info)->flcr &= ~(TXx927_SIFLCR_RTSSC|TXx927_SIFLCR_RSDE);
- 		restore_flags(flags);
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		if (tty_hung_up_p(filp) ||
- 		    !(info->flags & ASYNC_INITIALIZED)) {
- #ifdef SERIAL_DO_RESTART
-@@ -1689,7 +1689,7 @@
- #endif
- 		schedule();
- 	}
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	remove_wait_queue(&info->open_wait, &wait);
- 	if (extra_count)
- 		state->count++;
-diff -Nru a/drivers/char/sonypi.c b/drivers/char/sonypi.c
---- a/drivers/char/sonypi.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/char/sonypi.c	Mon Apr  8 01:23:45 2002
-@@ -506,7 +506,7 @@
- 			schedule();
- 			goto repeat;
- 		}
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&sonypi_device.queue.proc_list, &wait);
- 	}
- 	while (i > 0 && !sonypi_emptyq()) {
-diff -Nru a/drivers/char/specialix.c b/drivers/char/specialix.c
---- a/drivers/char/specialix.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/char/specialix.c	Mon Apr  8 01:23:45 2002
-@@ -1434,7 +1434,7 @@
- 		}
- 		schedule();
- 	}
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	remove_wait_queue(&port->open_wait, &wait);
- 	if (!tty_hung_up_p(filp))
- 		port->count++;
-@@ -1567,7 +1567,7 @@
- 		 */
- 		timeout = jiffies+HZ;
- 		while(port->IER & IER_TXEMPTY) {
--			current->state = TASK_INTERRUPTIBLE;
-+			set_current_state(TASK_INTERRUPTIBLE);
-  			schedule_timeout(port->timeout);
- 			if (time_after(jiffies, timeout)) {
- 				printk (KERN_INFO "Timeout waiting for close\n");
-@@ -1586,7 +1586,7 @@
- 	port->tty = 0;
- 	if (port->blocked_open) {
- 		if (port->close_delay) {
--			current->state = TASK_INTERRUPTIBLE;
-+			set_current_state(TASK_INTERRUPTIBLE);
- 			schedule_timeout(port->close_delay);
- 		}
- 		wake_up_interruptible(&port->open_wait);
-diff -Nru a/drivers/char/stallion.c b/drivers/char/stallion.c
---- a/drivers/char/stallion.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/char/stallion.c	Mon Apr  8 01:23:45 2002
-@@ -1283,9 +1283,9 @@
- 	printk("stl_delay(len=%d)\n", len);
- #endif
- 	if (len > 0) {
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout(len);
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 	}
  }
- 
-diff -Nru a/drivers/char/sx.c b/drivers/char/sx.c
---- a/drivers/char/sx.c	Mon Apr  8 01:23:46 2002
-+++ b/drivers/char/sx.c	Mon Apr  8 01:23:46 2002
-@@ -1552,12 +1552,12 @@
- 	sx_send_command (port, HS_CLOSE, 0, 0);
- 
- 	while (to-- && (sx_read_channel_byte (port, hi_hstat) != HS_IDLE_CLOSED)) {
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout (1);
- 		if (signal_pending (current))
- 				break;
- 	}
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	if (sx_read_channel_byte (port, hi_hstat) != HS_IDLE_CLOSED) {
- 		if (sx_send_command (port, HS_FORCE_CLOSED, -1, HS_IDLE_CLOSED) != 1) {
- 			printk (KERN_ERR 
-diff -Nru a/drivers/char/tpqic02.c b/drivers/char/tpqic02.c
---- a/drivers/char/tpqic02.c	Mon Apr  8 01:23:46 2002
-+++ b/drivers/char/tpqic02.c	Mon Apr  8 01:23:46 2002
-@@ -598,7 +598,7 @@
- 	    /* not ready and no exception && timeout not expired yet */
- 	while (((stat = inb_p(QIC02_STAT_PORT) & QIC02_STAT_MASK) == QIC02_STAT_MASK) && time_before(jiffies, spin_t)) {
- 		/* be `nice` to other processes on long operations... */
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 		/* nap 0.30 sec between checks, */
- 		/* but could be woken up earlier by signals... */
- 		schedule_timeout(3 * HZ / 10);
-diff -Nru a/drivers/char/tty_ioctl.c b/drivers/char/tty_ioctl.c
---- a/drivers/char/tty_ioctl.c	Mon Apr  8 01:23:46 2002
-+++ b/drivers/char/tty_ioctl.c	Mon Apr  8 01:23:46 2002
-@@ -65,7 +65,7 @@
- 	if (tty->driver.wait_until_sent)
- 		tty->driver.wait_until_sent(tty, timeout);
- stop_waiting:
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	remove_wait_queue(&tty->write_wait, &wait);
- }
- 
-diff -Nru a/drivers/char/vt.c b/drivers/char/vt.c
---- a/drivers/char/vt.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/char/vt.c	Mon Apr  8 01:23:45 2002
-@@ -1144,7 +1144,7 @@
- 		schedule();
- 	}
- 	remove_wait_queue(&vt_activate_queue, &wait);
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	return retval;
- }
- 
-diff -Nru a/drivers/i2c/i2c-keywest.c b/drivers/i2c/i2c-keywest.c
---- a/drivers/i2c/i2c-keywest.c	Mon Apr  8 01:23:46 2002
-+++ b/drivers/i2c/i2c-keywest.c	Mon Apr  8 01:23:46 2002
-@@ -99,7 +99,7 @@
- 		isr = read_reg(reg_isr) & KW_I2C_IRQ_MASK;
- 		if (isr != 0)
- 			return isr;
--		current->state = TASK_UNINTERRUPTIBLE;
-+		set_current_state(TASK_UNINTERRUPTIBLE);
- 		schedule_timeout(1);
- 	}
- 	return isr;
-diff -Nru a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
---- a/drivers/ide/ide-tape.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/ide/ide-tape.c	Mon Apr  8 01:23:45 2002
-@@ -3227,7 +3227,7 @@
- 		}
- 		if (!(tape->sense_key == 2 && tape->asc == 4 && (tape->ascq == 1 || tape->ascq == 8)))
- 			break;
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
-   		schedule_timeout(HZ / 10);
- 	}
- 	return -EIO;
-diff -Nru a/drivers/input/evdev.c b/drivers/input/evdev.c
---- a/drivers/input/evdev.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/input/evdev.c	Mon Apr  8 01:23:45 2002
-@@ -169,7 +169,7 @@
- 	if (list->head == list->tail) {
- 
- 		add_wait_queue(&list->evdev->wait, &wait);
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 
- 		while (list->head == list->tail) {
- 
-@@ -189,7 +189,7 @@
- 			schedule();
- 		}
- 
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&list->evdev->wait, &wait);
- 	}
- 
-diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
---- a/drivers/input/joydev.c	Mon Apr  8 01:23:46 2002
-+++ b/drivers/input/joydev.c	Mon Apr  8 01:23:46 2002
-@@ -252,7 +252,7 @@
- 	if (list->head == list->tail && list->startup == joydev->nabs + joydev->nkey) {
- 
- 		add_wait_queue(&list->joydev->wait, &wait);
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 
- 		while (list->head == list->tail) {
- 
-@@ -268,7 +268,7 @@
- 			schedule();
- 		}
- 
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&list->joydev->wait, &wait);
- 	}
- 
-diff -Nru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	Mon Apr  8 01:23:45 2002
-+++ b/drivers/input/mousedev.c	Mon Apr  8 01:23:45 2002
-@@ -346,7 +346,7 @@
- 	if (!list->ready && !list->buffer) {
- 
- 		add_wait_queue(&list->mousedev->wait, &wait);
--		current->state = TASK_INTERRUPTIBLE;
-+		set_current_state(TASK_INTERRUPTIBLE);
- 
- 		while (!list->ready) {
- 
-@@ -362,7 +362,7 @@
- 			schedule();
- 		}
- 
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&list->mousedev->wait, &wait);
- 	}
- 
++
++static int __init timer_setup(char *str)
++{
++	int	invert;
++
++	while ((str != NULL) && (*str != '\0')) {
++		invert = (strncmp(str, "no-", 3) == 0);
++		if (invert)
++			str += 3;
++		if (strncmp(str, "via686a", 7) == 0) {
++			via686a_hacks = !invert;
++			if (invert)
++				printk(KERN_INFO "timer: VIA686a workaround disabled.\n");
++		}
++		str = strchr(str, ',');
++		if (str != NULL)
++			str += strspn(str, ", \t");
++	}
++	return 1;
++}
++
++__setup("timer=", timer_setup);
 
-
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4

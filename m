@@ -1,70 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSDBWKU>; Tue, 2 Apr 2002 17:10:20 -0500
+	id <S312970AbSDBWIa>; Tue, 2 Apr 2002 17:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312972AbSDBWKL>; Tue, 2 Apr 2002 17:10:11 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:29924 "EHLO
-	e21.esmtp.ibm.com") by vger.kernel.org with ESMTP
-	id <S312962AbSDBWKA>; Tue, 2 Apr 2002 17:10:00 -0500
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.17
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF6D6C3786.6F0112B1-ON85256B8F.00799E30@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Tue, 2 Apr 2002 16:09:58 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 04/02/2002 05:09:58 PM
+	id <S312962AbSDBWIV>; Tue, 2 Apr 2002 17:08:21 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:28898 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S312970AbSDBWIK>; Tue, 2 Apr 2002 17:08:10 -0500
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_55OYZ3GLLGEH5FEV2RRA"
+From: Dominik Brodowski <devel@brodo.de>
+To: "Luis Falcon" <lfalcon@thymbra.com>, devel@brodo.de
+Subject: [patch] Re: IRQ routing conflicts / Assigning IRQ 0 to ethernet
+Date: Wed, 3 Apr 2002 00:07:53 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <32954.200.45.226.162.1017776187.squirrel@thymbra.com> <19566.1017784479@www7.gmx.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Message-Id: <02040300075302.00816@sonnenschein>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.17 of JFS was made available today.
 
-Drop 55 on April 2, 2002 (jfs-2.4-1.0.17.tar.gz
-and jfsutils-1.0.17.tar.gz) includes fixes to the file
-system and utilities.
+--------------Boundary-00=_55OYZ3GLLGEH5FEV2RRA
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Utilities changes
+Luis:
 
-- more rigorous dtree validation in fsck.jfs
-- fix fsck.jfs to write to the fsck.jfs log properly on big endian machines
-- fix xchklog to read the fsck.jfs log properly on big endian machines
-- fix xpeek to display/modify PXD information properly on big endian
-  machines
-- replace fsck.jfs heartbeat with alarm() based heartbeat
-  (Christoph Hellwig)
-- improve mkfs.jfs and fsck.jfs parameter parsing and usage alerts
-- messaging code cleanup, logredo code cleanup, general code cleanup (all)
+This patch should resolve the remaining issues. Patch is against 
+acpi-20020329 + 2.5.7/2.4.18. Please test + tell me if it works.
 
-File System changes
+Dominik
 
-- Call sb_set_blocksize instead of set_blocksize in 2.5 (Christoph Hellwig)
-- Replace strtok by strsep (Christoph Hellwig)
-- Store entire device number in log superblock rather than just the minor.
-- Include file clean (Christoph Hellwig)
-- Fix race introduced by thread handling cleanups (Christoph Hellwig)
-- Detect dtree corruption to avoid infinite loop
-- JFS needs to include completion.h
-- Support external log(journal) device file system work part 1
-  (Christoph Hellwig)
-- Store device number in JFS superblock and log superblock. This adds
-  robustness to external journal replaying in case the device number
-  changes between reboots.
-- Superblock changes needed to support external journal. Removed some
-  never-used fields and added a couple new ones.  The external
-  journal support is not yet in mkfs.jfs and fsck.jfs, but is coming soon.
-
-For more details about JFS, please see the patch instructions or
-changelog.jfs files.
-
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
-
-
-
+--- linux/arch/i386/kernel/pci-irq.c.original	Tue Apr  2 13:35:24 2002
++++ linux/arch/i386/kernel/pci-irq.c	Tue Apr  2 13:47:23 2002
+@@ -576,10 +576,8 @@
+ 	struct pci_dev *dev2;
+ 	char *msg = NULL;
+ 
+-	if (!pirq_table)
+-		return 0;
+ 
+-	/* Find IRQ routing entry */
++	/* Find IRQ pin */
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+ 	if (!pin) {
+ 		DBG(" -> no interrupt pin\n");
+@@ -588,10 +586,17 @@
+ 	pin = pin - 1;
+ 
+ #ifdef CONFIG_ACPI_PCI
++	/* Use ACPI to lookup IRQ */
++
+ 	if (pci_use_acpi_routing)
+ 		return acpi_lookup_irq(dev, pin, assign);
+ #endif
+ 	
++	/* Find IRQ routing entry */
++
++	if (!pirq_table)
++		return 0;
++
+ 	DBG("IRQ for %s:%d", dev->slot_name, pin);
+ 	info = pirq_get_info(dev);
+ 	if (!info) {
 
 
+On Tuesday,  2. April 2002 23:54, Luis Falcon wrote:
+> Bryan,
+>
+> Thanks a lot for your response.
+> In fact the IRQ routing conflict has been solved !
+>
+> What is still pending is the assignment of a valid IRQ to the Ethernet card
+> ( device 00:05.0 ) and Sound Card ( 00:07.5 ). So, at this point, the
+> ethernet card doesn't work.
+>  does not work.
+>
+> Here's the latest dmesg.
+>
+> Regards,
+> Luis
+--------------Boundary-00=_55OYZ3GLLGEH5FEV2RRA
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="pci-irq1.1.acpi.diff"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="pci-irq1.1.acpi.diff"
+
+--- linux/arch/i386/kernel/pci-irq.c.original	Tue Apr  2 13:35:24 2002
++++ linux/arch/i386/kernel/pci-irq.c	Tue Apr  2 13:47:23 2002
+@@ -576,10 +576,8 @@
+ 	struct pci_dev *dev2;
+ 	char *msg = NULL;
+ 
+-	if (!pirq_table)
+-		return 0;
+ 
+-	/* Find IRQ routing entry */
++	/* Find IRQ pin */
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+ 	if (!pin) {
+ 		DBG(" -> no interrupt pin\n");
+@@ -588,10 +586,17 @@
+ 	pin = pin - 1;
+ 
+ #ifdef CONFIG_ACPI_PCI
++	/* Use ACPI to lookup IRQ */
++
+ 	if (pci_use_acpi_routing)
+ 		return acpi_lookup_irq(dev, pin, assign);
+ #endif
+ 	
++	/* Find IRQ routing entry */
++
++	if (!pirq_table)
++		return 0;
++
+ 	DBG("IRQ for %s:%d", dev->slot_name, pin);
+ 	info = pirq_get_info(dev);
+ 	if (!info) {
+
+--------------Boundary-00=_55OYZ3GLLGEH5FEV2RRA--

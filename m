@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbUBXOmc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 09:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUBXOmc
+	id S262260AbUBXOoc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 09:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUBXOoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 09:42:32 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8833 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262258AbUBXOmU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 09:42:20 -0500
-Date: Tue, 24 Feb 2004 09:44:03 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jim Deas <jdeas0648@jadsystems.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-In-Reply-To: <200402240558.AA3585540272@jadsystems.com>
-Message-ID: <Pine.LNX.4.53.0402240931310.8074@chaos>
-References: <200402240558.AA3585540272@jadsystems.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 09:44:32 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:9205 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262260AbUBXOo0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 09:44:26 -0500
+Subject: Re: JFS default behavior / UTF-8 filenames
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: kernel@mikebell.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040222192237.GC540@tinyvaio.nome.ca>
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
+	 <20040219105913.GE432@tinyvaio.nome.ca>
+	 <1077199506.2275.12.camel@shaggy.austin.ibm.com>
+	 <20040219234746.GG432@tinyvaio.nome.ca>
+	 <1077289257.2533.23.camel@shaggy.austin.ibm.com>
+	 <20040222192237.GC540@tinyvaio.nome.ca>
+Content-Type: text/plain
+Message-Id: <1077633850.2618.16.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 24 Feb 2004 08:44:10 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Jim Deas wrote:
+On Sun, 2004-02-22 at 13:22, kernel@mikebell.org wrote:
 
-> Can someone point me in the right direction.
-> I am getting a oops on a driver I am porting from 2.4 to 2.6.2 kernel.
-> I have expanded the file_operations structures and have a driver that
-> loads and inits the hardware but when I call the open function I
-> get an oops. The best I can track it is
->
+> 
+> And that's why I was saying I think UTF-8 mode is the "least broken" for
+> any filesystem that stores filenames in a specific encoding rather than
+> "as the client submitted it". And most especially for UCS-2/UTF-16
+> filesystems.
 
-Fix your line-warp!
+I receive a lot of complaints when JFS does not accept names because
+they contain an "invalid" character.  Defaulting to UTF-8 will cause
+some non-utf-8 filenames to be rejected.  The change I made makes the
+default behavior sane and posix-compliant.  It won't make everybody
+happy, but it will provide predicable, sane behavior.
 
-> EIP 0060:[c0188954]
-> chrdev_open +0x104
->
-> What is the best debug tool to put this oops information in clear
-> sight? It appears to never get to my modules open routine so I am
-> at a debugging crossroad. What is the option on a kernel compile
-> to get the compile listing so I can see what is at 0x104 in this
-> block of code?
->
+> I think the default for a filesystem should be something that absolutely
+> will not disappear your files. So for NTFS/JFS, it should be UTF-8. And
+> if a traditional UNIX filesystem wants to do a UTF-8 only mode, I think
+> ideally it should be done at mkfs time rather than mount time.
 
-Nothing is going to help with that EIP with a segment value of
-0x60. It looks like some dumb coding error, using a pointer
-that disappeared after the module init function. In other
-words, it's probably something like:
-
-int __init init_module()
-{
-    struct file_operations fops;
-    mset(&fops, 0x00, sizeof(fops));
-    fops.open = open;
-    fops.release = close;
-    fops.owner = THIS_MODULE;
-    register_chrdev(DEV_MAJOR, dev, &fops);
-}
-
-So, everything in init_module is GONE. Your program calls open()
-and the pointer in the kernel gets dereferenced to junk.
-
-There are kernel debugging tools, however I have found that
-the most useful tools are printk() and some discipline.
-
-In the case of code above, don't just change the declaration
-of the fops object to static. Instead, move it outside the
-function, so it's obviously where it won't go away.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+The biggest problem with changing the default now is that the behavior
+was unpredictable before.  Now, the default behavior will not allow
+filenames to be stored with UCS-2 characters greater than 0x00ff, so
+there won't be inaccessible files unless the iocharset option has been
+used.  This allows the average user to get sane behavior, but allows the
+flexibility of accessing the file system in a specific character set for
+those users who know what they are doing.
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

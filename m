@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbVCXQrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVCXQ4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbVCXQrL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 11:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVCXQrK
+	id S262635AbVCXQ4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 11:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVCXQ4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 11:47:10 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:52186 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262635AbVCXQq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 11:46:57 -0500
-Subject: Re: 2.6.12-rc1-mm2
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050324044114.5aa5b166.akpm@osdl.org>
-References: <20050324044114.5aa5b166.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 24 Mar 2005 11:46:52 -0500
-Message-Id: <1111682812.23440.6.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Thu, 24 Mar 2005 11:56:16 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39631 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262635AbVCXQ4O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 11:56:14 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] ppc32/64: Map prefetchable PCI without guarded bit
+Date: Thu, 24 Mar 2005 08:54:45 -0800
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1111645464.5569.15.camel@gaston>
+In-Reply-To: <1111645464.5569.15.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503240854.45741.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 04:41 -0800, Andrew Morton wrote:
->   -mm kernels now aggregate Linus's tree and 34 subsystem trees.  Usually
->   they are pulled 3-4 hours before the release of the -mm kernel.  
-> 
+On Wednesday, March 23, 2005 10:24 pm, Benjamin Herrenschmidt wrote:
+> While experimenting with framebuffer access performances, we noticed a
+> very significant improvement in write access to it when not setting
+> the "guarded" bit on the MMU mappings. This bit basically says that
+> reads and writes won't have side effects (it allows speculation). It
+> appears that it also disables write combining.
 
-Andrew,
+Doesn't pgprot_writecombine imply non-guarded, so can't you use it instead?  
+Either way, you'll probably want to fix fbmem.c as well and turn off 
+_PAGE_GUARDED?
 
-Do you notify the subsystem maintainers ahead of time so that critical
-fixes can be pushed to BK?
+Maybe it's time for a more generic call to support this stuff, both for 
+in-kernel mappings and ones that we export to userspace.
 
-I am thinking of the recent ALSA example, where the emu10k1 driver was
-b0rked in 2.6.12-mm1, but the fix had been in ALSA CVS for a week.
-
-Lee
-
+Jesse

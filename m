@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268864AbUJPUnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUJPUux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268864AbUJPUnN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268877AbUJPUnM
+	id S268861AbUJPUux (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268873AbUJPUux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:43:12 -0400
-Received: from gprs214-153.eurotel.cz ([160.218.214.153]:50048 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268864AbUJPUmV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:42:21 -0400
-Date: Sat, 16 Oct 2004 22:42:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: M?ns Rullg?rd <mru@mru.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-Message-ID: <20041016204206.GB24434@elf.ucw.cz>
-References: <41650CAF.1040901@unimail.com.au> <20041007103210.GA32260@atrey.karlin.mff.cuni.cz> <yw1x7jq2n6k3.fsf@mru.ath.cx> <20041007143245.GA1698@openzaurus.ucw.cz> <yw1x1xfyl9ia.fsf@ford.guide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 16 Oct 2004 16:50:53 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:46278 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268861AbUJPUuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:50:51 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AMD64 Swsusp on 2.6.9-rc4-mm1
+Date: Sat, 16 Oct 2004 22:52:33 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, William Wolf <wwolf@vt.edu>
+References: <417188EA.4090205@vt.edu>
+In-Reply-To: <417188EA.4090205@vt.edu>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <yw1x1xfyl9ia.fsf@ford.guide>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410162252.33347.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >> >> code didn't help much, I don't know C. 
-> >> >
-> >> > Change #define HZ 1000 to #define HZ 100...
-> >> 
-> >> ... and lose all the benefits of HZ=1000.  
-> >
-> > What benefits? HZ=1000 takes 1W more on my system.
+On Saturday 16 of October 2004 22:47, William Wolf wrote:
+> Hey, Im running 2.6.9-rc4-mm1, and when i run either a echo 4 > 
+> /proc/acpi/sleep or echo disk > /sys/power/state  I get the following 
+> messages:
 > 
-> Isn't it supposed to give more accurate timing?
-
-Well, yes, but if it beeps for you... Accurate timing is probably not
-that important.
-
-> > 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 > 
-> Has that really happened?
+> Stopping tasks: =================|
+> Freeing memory... done (0 pages freed)
+> PM: Attempting to suspend to disk.
+> PM: snapshotting memory.
+> ACPI: PCI interrupt 0000:00:02.7[C] -> GSI 18 (level, low) -> IRQ 18
+> Restarting tasks... done
+> 
+> 
+> 
+> It basically just stops everything, then starts it all back up again 
+> immediately.  Any idea whats going on here?  This was done right after 
+> booting and just logging in with no X running.
 
-Yes. On gprs it is rather easy to reproduce, unfortunately...
+IIRC, on 2.6.9-rc4-mm1 swsusp cannot free memory because of some unfinished VM 
+patches that are in there, so it won't work (Andrew, please correct if I'm 
+wrong).
 
-								Pavel
+Greets,
+RJW
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

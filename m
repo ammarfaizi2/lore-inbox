@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSFRObW>; Tue, 18 Jun 2002 10:31:22 -0400
+	id <S317430AbSFROg1>; Tue, 18 Jun 2002 10:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317429AbSFRObV>; Tue, 18 Jun 2002 10:31:21 -0400
-Received: from waste.org ([209.173.204.2]:29569 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317427AbSFRObV>;
-	Tue, 18 Jun 2002 10:31:21 -0400
-Date: Tue, 18 Jun 2002 09:30:27 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Russell King <rmk@arm.linux.org.uk>,
-       Martin Dalecki <dalecki@evision-ventures.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/19] writeback tunables
-In-Reply-To: <3D0E52DD.4CE57058@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0206180921030.26335-100000@waste.org>
+	id <S317431AbSFROg0>; Tue, 18 Jun 2002 10:36:26 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:36309 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S317430AbSFROgZ>; Tue, 18 Jun 2002 10:36:25 -0400
+Date: Tue, 18 Jun 2002 09:36:17 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: "Hans E. Kristiansen" <hans@tropic.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.22 problems with compile.h
+In-Reply-To: <009401c216b4$22458160$252ca8c0@sdfg>
+Message-ID: <Pine.LNX.4.44.0206180931410.5695-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Andrew Morton wrote:
+On Tue, 18 Jun 2002, Hans E. Kristiansen wrote:
 
-> Russell King wrote:
-> >
-> > On Mon, Jun 17, 2002 at 12:33:18PM +0200, Martin Dalecki wrote:
-> > ...
-> > > > +int dirty_expire_centisecs = 30 * 100;
-> > > > +
-> > >
-> > > Blind guess - didn't the 100 wan't to be HZ?!
-> >
-> > The units are centiseconds (as the name suggests). 5 * 100 centiseconds = 5
-> > seconds, so the dirty writeback timeout is 5 seconds.  Check the code a
-> > little further and you'll see HZ gets factored into them on use.
-> >
->
-> Yup.  Sorry about the "_centisecs" thing.  That's a bit anal, but
-> I tend to think that it's best to be really explicit about the
-> units, make it a bit easier to use.  I don't know how many times
-> I've had to peer in fs/buffer.c to remember what those dang numbers do.
->
-> Possibly, "seconds" may be sufficiently high resolution for
-> these things.  But I wasn't sure - maybe someone wants to
-> run the kupdate function five times per second?  Dunno.
+> >From a clean install, I can compile, but I get an error with compile.h (Do
+> not know how to make compile.h). If I compile again, I get a working kernel
+> (bzImage), "depmod -ae -F xx " works like a charm. But, when I reboot with
+> the new kernel, I can not load any modules. None, they all have symbol
+> problems.
 
-Possibly, we should just concede that anywhere where we're measuring time,
-we'll eventually want to use a non-integer external representation just so
-we're not building in obsolescense. With a couple simple wrappers like
-atoif(".667",HZ)=67, this could be pretty painless.
+Seems that I screwed up that version a bit ;( 
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+For now, don't use something like "make dep clean bzImage", but rather
+"make clean; make dep bzImage" - it'll work again in the next release,
+though.
+
+Modversions also have bugs, though I can't see how they lead to the effect 
+you describe. Anyway, try changing CONFIG_MODVERSIONS to off for now,
+again, it should work again in the next release.
+
+Let me know of further problems ;)
+
+--Kai
+
 

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313447AbSC2OgA>; Fri, 29 Mar 2002 09:36:00 -0500
+	id <S313448AbSC2Oin>; Fri, 29 Mar 2002 09:38:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313448AbSC2Ofu>; Fri, 29 Mar 2002 09:35:50 -0500
-Received: from sigint.cs.purdue.edu ([128.10.2.82]:35488 "HELO
-	sigint.cs.purdue.edu") by vger.kernel.org with SMTP
-	id <S313447AbSC2Ofn>; Fri, 29 Mar 2002 09:35:43 -0500
-Date: Fri, 29 Mar 2002 09:35:37 -0500
-From: hatefullinuxuser@diediedie.net
-To: linux-kernel@vger.kernel.org
+	id <S313449AbSC2Oic>; Fri, 29 Mar 2002 09:38:32 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:63752 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S313448AbSC2OiY>;
+	Fri, 29 Mar 2002 09:38:24 -0500
+Date: Fri, 29 Mar 2002 10:38:43 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: bkbits.net down
-Message-ID: <20020329093537.A30425@sigint.cs.purdue.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20020327222738.B16149@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44L.0203291037450.18660-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 29, 2002 at 10:50:22AM +0000, Henning P. Schmiedehausen wrote:
-> Larry McVoy <lm@bitmover.com> writes:
-> 
-> >The drive has bad blocks and when it hits them it goes into retry la la land,
-> >so I won't know which data is bad until I hit the bad blocks.
-> 
-> You've learned now the hard way why integrity checks in an application
-> will never be able to replace things like backups or RAID systems. 
-> Maybe you want to reread the flamewar^Wthread from some time ago with
-> your new knowledge.
+On Wed, 27 Mar 2002, Larry McVoy wrote:
 
-Yeah, maybe he should buy a big fat RAID array with all the money he's
-getting from Linux kernel developers.
+> There are a couple of trees which are missing files, both in Rik's
+> linuxvm.bkbits.net, I suspect an interrupted clone.  They are:
+> 	bk://linuxvm.bkits.net/linux-2.5-vmtidbits
+> 	bk://linuxvm.bkits.net/linux-2.5-writethrot
+> Rik, ping me if you need help cleaning these up.
+
+No big deal, either tree is just a copy of stuff I have here
+so people can pull it. I don't rely on bkbits in any way except
+as a distribution medium ;)
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

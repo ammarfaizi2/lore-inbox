@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287149AbSAGV1c>; Mon, 7 Jan 2002 16:27:32 -0500
+	id <S287139AbSAGV1m>; Mon, 7 Jan 2002 16:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287155AbSAGV1X>; Mon, 7 Jan 2002 16:27:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36108 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287141AbSAGV1H>;
-	Mon, 7 Jan 2002 16:27:07 -0500
-Message-ID: <3C3A12A5.196C81B7@mandrakesoft.com>
-Date: Mon, 07 Jan 2002 16:27:01 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S287155AbSAGV1c>; Mon, 7 Jan 2002 16:27:32 -0500
+Received: from petasus.iil.intel.com ([192.198.152.69]:55283 "EHLO
+	petasus.iil.intel.com") by vger.kernel.org with ESMTP
+	id <S287139AbSAGV1S>; Mon, 7 Jan 2002 16:27:18 -0500
+Message-ID: <3C3A12A8.3010000@intel.com>
+Date: Mon, 07 Jan 2002 23:27:04 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Organization: Intel
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Anton Altaparmakov <aia21@cam.ac.uk>, torvalds@transmeta.com,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-In-Reply-To: <5.1.0.14.2.20020107134718.025e4d90@pop.cus.cam.ac.uk> <E16NbmV-0001R0-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: (v)sscanf handles %i improperly (+patch)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On January 7, 2002 03:13 pm, Anton Altaparmakov wrote:
-> > Goodie. Now we need benchmarks for all the approaches... (-;
-> >
-> > At 13:21 07/01/02, Jeff Garzik wrote:
-> > <snip>
-> > >patch7: implement ext2 use of s_op->{alloc,destroy}
-> > >
-> > >         at this point we have what Linus described:
-> > >
-> > >                 struct ext2_inode_info {
-> > >                         ...ext2 stuff...
-> > >                         struct inode inode;
-> > >                 };
-> >
-> > If we were to raise compiler requirements to gcc-2.96 or later this could
-> > be simplified with an annonymous struct (having elements in struct inode
-> > with the same name as elements in ...ext2 stuff... should be a shooting
-> > offence IMO):
-> >
-> >          struct ext2_inode_info {
-> >                  ...ext2 stuff...
-> >                  struct inode;
-> >          };
-> >
-> > Advantage of this would be that as far as the fs is concerned there is only
-> > one inode and each element can just be dereferenced straight away without
-> > need to think was that the generic inode or the fs inode and without need
-> > for keeping two pointers around. This leads to simpler code inside the
-> > filesystems once they adapt.
-> 
-> Interesting, it's something I've always wanted to be able to do.  But I
-> suppose the compiler requirement is a stupport.
+Sorry for 2-nd posting, but I'm afraid 1-st one was lost. Or is the 
+issue itself not relevant? Anyway,
 
-I am not a fan of anon unions/structs, so I must disagree with Anton
-here...
+I found (v)sscanf included in last kernels handles %i format improperly.
+Currently, up to 2.4.17, %i is handled identical to %d. However,
+accordingly to man for sscanf,
+
+        i      Matches an  optionally  signed  integer;  the  next
+               pointer  must  be a pointer to int.  The integer is
+               read in base 16 if it begins with `0x' or `0X',  in
+               base 8 if it begins with `0', and in base 10 other­
+               wise.  Only characters that correspond to the  base
+               are used.
 
 
-> > Of course fs which are not adapted would still just work with the fs_i()
-> > and fs_sb() macros and/or using two separate pointers.
-> 
-> Yes, the fs_* macros are the really critical part of all this.  I'd like to
-> get them in early, while we hash out the rest of it.  I think Jeff supports
-> me in this, possibly Al as well.
+Please, when replying, CC me: mailto:vladimir.kondratiev@intel.com
 
-agreed, from my side
+Patch is quite small (against 2.4.17):
 
-	Jeff
+--- vsprintf.c.orig    Thu Oct 11 20:17:22 2001
++++ vsprintf.c    Tue Dec 25 23:29:31 2001
+@@ -616,8 +616,9 @@
+          case 'X':
+              base = 16;
+              break;
+-        case 'd':
+          case 'i':
++            base = 0; /* autodetect */
++        case 'd':
+              is_sign = 1;
+          case 'u':
+              break;
 
 
-
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery

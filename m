@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314505AbSEFPWF>; Mon, 6 May 2002 11:22:05 -0400
+	id <S314512AbSEFPTw>; Mon, 6 May 2002 11:19:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314529AbSEFPWE>; Mon, 6 May 2002 11:22:04 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30483 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314525AbSEFPUd>; Mon, 6 May 2002 11:20:33 -0400
-Subject: Re: modversion.h improvement suggestion
-To: sebastian-huber@web.de (Sebastian Huber)
-Date: Mon, 6 May 2002 16:39:45 +0100 (BST)
+	id <S314505AbSEFPTr>; Mon, 6 May 2002 11:19:47 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:24071 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S314512AbSEFPTi>; Mon, 6 May 2002 11:19:38 -0400
+Date: Mon, 6 May 2002 17:19:39 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E174OQu-0007H2-00@smtp.web.de> from "Sebastian Huber" at May 05, 2002 06:00:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: [PATCH 2.5.12] x86 Boot enhancements, boot params 1/11
+Message-ID: <20020506151939.GE12131@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <m11ycuzk4q.fsf@frodo.biederman.org> <20020427025642.E413@toy.ucw.cz> <m1u1pl1t4h.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E174kaX-0005Xb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I tried to compile a device driver module and got the error that 
-> 'modversion.h' cannot be found. My first questions were:
+Hi!
 
-A device driver should not be directly including modversions.h. Its 
-included automatically by the kernel build line only in the case where
-CONFIG_MODVERSIONS is set.
+> > > #5  boot.heap
+> > > ============================================================
+> > > Modify video.S so that mode_list is also allocated from
+> > > the boot time heap.  This probably saves a little memory,
+> > > and makes a compiled in command line a sane thing to implement.
+> > 
+> > Do you see easy way to pass video mode used to kernel? S3 suspend support
+> > is going to need that..
+> 
+> Do you mean something other than the vga= command line option?
+> Which actually just sets a 16bit mode in the kernel parameter structure.
 
-If the module is being built seperate to the tree then it should probably
-borrow the Make rules the kernel uses
+In case of vga=ask, it is kernel that gets number from the user,
+right?
+
+I'd need to know what mode was actually selected, so I can restore it
+after S3 resume.
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

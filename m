@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131404AbRCOVz5>; Thu, 15 Mar 2001 16:55:57 -0500
+	id <S131365AbRCOVwH>; Thu, 15 Mar 2001 16:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131443AbRCOVzr>; Thu, 15 Mar 2001 16:55:47 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6927 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131404AbRCOVzj>; Thu, 15 Mar 2001 16:55:39 -0500
-Date: Fri, 16 Mar 2001 02:08:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Cc: William T Wilson <fluffy@snurgle.org>,
-        Torrey Hoffman <torrey.hoffman@myrio.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Is swap == 2 * RAM a permanent thing?
-In-Reply-To: <200103152145.WAA22485@sunrise.pg.gda.pl>
-Message-ID: <Pine.LNX.4.33.0103160205480.1320-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131400AbRCOVv5>; Thu, 15 Mar 2001 16:51:57 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:47513 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S131365AbRCOVvu>;
+	Thu, 15 Mar 2001 16:51:50 -0500
+Date: Thu, 15 Mar 2001 22:50:06 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200103152150.WAA14187@harpo.it.uu.se>
+To: adilger@turbolinux.com, lars@larsshack.org
+Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
+Cc: amnet@amnet-comp.com, hch@caldera.de, jjasen1@umbc.edu,
+        linux-kernel@vger.kernel.org, util-linux@math.uio.no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Mar 2001, Andrzej Krzysztofowicz wrote:
-> "Rik van Riel wrote:"
-> >   total usage == maximum(swap, ram)
+On Wed, 14 Mar 2001 12:34:06 -0700 (MST), Andreas Dilger wrote in LKML:
+
+>Lars writes:
+>> > Put LABEL=<label set with e2label> in you fstab in place of the device name.
+>> 
+>> Which is great, for filesystems that support labels.  Unfortunately,
+>> this isn't universally available -- for instance, you cannot mount
+>> a swap partition by label or uuid, so it is not possible to completely
+>> isolate yourself from the problems of disk device renumbering.
 >
-> Does it mean that having swap<RAM you only lose some disk space ?
+>There is room for a LABEL and/or UUID in the swap superblock, if you
+>would want to implement support for this.
 
-If you actually "rely" on swap, yes.
+Despair no more! I've implemented a patch for util-linux-2.11a
+which adds LABEL support to mkswap(8) and swapon/swapoff(8).
 
-If you usually don't swap but want to have it for "overflow"
-in some situations, or if only a few things end up on swap,
-then it's actually useful.
+- I shrunk the padding field in the new-style swap_header to make
+  room for 16 bytes worth of volume label (same as ext2)
+- mkswap -L label also sets the volume label
+- swapon -L label looks for a swap partition with the given label
+  (using a clone of mount(8)'s LABEL/UUID= support code)
+- swapon/swapoff -a also handles swap fstab entries where the
+  device is specified as LABEL=<label>
 
-regards,
+The patch is available at http://www.csd.uu.se/~mikpe/linux/swap-label/
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+/Mikael

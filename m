@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131490AbRCSUOn>; Mon, 19 Mar 2001 15:14:43 -0500
+	id <S131619AbRCSUVx>; Mon, 19 Mar 2001 15:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRCSUOd>; Mon, 19 Mar 2001 15:14:33 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:41966
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S131490AbRCSUOW>; Mon, 19 Mar 2001 15:14:22 -0500
-Date: Mon, 19 Mar 2001 13:11:01 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "J. Michael Kolbe" <wicked@convergence.de>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: sysrq.txt
-Message-ID: <20010319131101.B22291@opus.bloom.county>
-In-Reply-To: <20010316161919.A30690@midget.convergence.de> <20010318233955.D13058@bug.ucw.cz> <20010319091559.A22291@opus.bloom.county> <20010319203659.A17888@dontpanic.int.convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010319203659.A17888@dontpanic.int.convergence.de>; from wicked@convergence.de on Mon, Mar 19, 2001 at 08:37:00PM +0100
+	id <S131627AbRCSUVo>; Mon, 19 Mar 2001 15:21:44 -0500
+Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:43784 "EHLO
+	benatar.snurgle.org") by vger.kernel.org with ESMTP
+	id <S131619AbRCSUVY>; Mon, 19 Mar 2001 15:21:24 -0500
+Date: Mon, 19 Mar 2001 15:19:37 -0500 (EST)
+From: William T Wilson <fluffy@snurgle.org>
+To: Otto Wyss <otto.wyss@bluewin.ch>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux should better cope with power failure
+In-Reply-To: <3AB66233.B85881C7@bluewin.ch>
+Message-ID: <Pine.LNX.4.21.0103191513000.22425-100000@benatar.snurgle.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 19, 2001 at 08:37:00PM +0100, J. Michael Kolbe wrote:
-> On Mon, Mar 19, 2001 at 09:15:59AM -0700, Tom Rini wrote:
-> > Speaking of reversed, there's a slightly "nicer" one in 2.2.18+:
-> > On PowerPC - You press 'ALT-Print Screen-<command key>'.
-> > 
-> > (And yes, all the apple keyboards I've seen w/ F13 have Print Screen
-> > right below it).  Tho I'm also rather sure this didn't get into
-> > Linus' tree until after the 2.3 split..
-> > 
-> Well, my Apple Keyboard doesn't. It's F13. And it doesn't work with 'ALT'.
+On Mon, 19 Mar 2001, Otto Wyss wrote:
 
-Which?  And it should indeed work with the "alt" key (ie the one for
-changing VCs).
+> inactivity. From the impression I got during the following startup, I
+> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
+> failiure or manually switching it off. Not even if there wasn't any
+> activity going on.
 
-> I suppose that's why it didn't get into the mainstream tree.
+What data, if any, did you lose?
 
-Er, 2.2 is mainstream.
+While fsck complains loudly when the system comes back up, 9 times in 10
+no data is actually lost during a power loss.  e2fsck is really good at
+recovering damaged filesystems.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> How could this be accomplished:
+> 1. Flush any dirty cache pages as soon as possible. There may not be any
+> dirty cache after a certain amount of idle time.
+
+Mount the filesystem synchronously to accomplish this.  It will prevent
+the kernel from using a write cache basically.  It will ensure that if a
+write operation completes, then the data will be physically on the disk
+afterward.
+
+> 2. Keep open files in a state where it doesn't matter if they where
+> improperly closed (if possible).
+
+The way to do this is to use a highly reliable filesystem, such as ext3fs,
+Tux or ReiserFS.  These filesystems guarantee that metadata is consistent
+at all times.
+
+> 3. Swap may not contain anything which can't be discarded. Otherwise
+> swap has to be treated as ordinary disk space.
+
+I can't think of a case where the contents of swap matter in any way for
+recovering from a power failure.
+

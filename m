@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277739AbRJLPzU>; Fri, 12 Oct 2001 11:55:20 -0400
+	id <S277755AbRJLQ1H>; Fri, 12 Oct 2001 12:27:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277750AbRJLPzL>; Fri, 12 Oct 2001 11:55:11 -0400
-Received: from soul.helsinki.fi ([128.214.3.1]:63748 "EHLO soul.helsinki.fi")
-	by vger.kernel.org with ESMTP id <S277742AbRJLPyz>;
-	Fri, 12 Oct 2001 11:54:55 -0400
-Date: Fri, 12 Oct 2001 18:55:25 +0300 (EET DST)
-From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
-To: <linux-kernel@vger.kernel.org>
-Subject: (memory?) bug between 2.4.9-ac10 and -ac14
-In-Reply-To: <20011012083616.C9992@cpe-24-221-152-185.az.sprintbbd.net>
-Message-ID: <Pine.OSF.4.30.0110121841270.13202-100000@soul.helsinki.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277750AbRJLQ06>; Fri, 12 Oct 2001 12:26:58 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:505 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S277755AbRJLQ0u>; Fri, 12 Oct 2001 12:26:50 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 12 Oct 2001 10:27:03 -0600
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Matt Domsch <mdomsch@Dell.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] EFI GUID Partition Tables
+Message-ID: <20011012102703.Q8382@turbolinux.com>
+Mail-Followup-To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Matt Domsch <mdomsch@Dell.com>,
+	Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200110091725.f99HPZ530405@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.33.0110121026430.9327-100000@biker.pdb.fsc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110121026430.9327-100000@biker.pdb.fsc.net>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 12, 2001  10:31 +0200, Martin Wilck wrote:
+> Richard,
+> > You've put the devfs_unregister_slave() inside an #ifdef. Yuk! It
+> > shouldn't be conditional.
+> 
+> I did that because I didn't want to pollute your code. The function
+> was only needed for the UUID patch.
 
-Hello All!
+What would be more fitting is to put the actual declaration of
+devfs_unregister_slave() inside the #ifdef, and otherwise have an
+empty function which does nothing.
 
-A bug report which seems related to at least memory management:
-
-If becoming root and then su:ing some other, non-local, userid, an oops
-with segfault is the outcome. Non-local here means that the user info is
-located on another machine, our server. su:ing the dummy local user
-seems to work OK.
-
-I remember the new shell being the process that oopses, but can't
-unfortunately get the output (other than "segmentation fault") before
-Monday as the machine is behind locked doors :-/
-
-Anyway, this occurs if I boot the machine with the full 1.5GB of memory,
-but _not_ if I specify mem=512M in lilo.conf, so there seems to be some
-sort of "large memory support" issue.
-
-The system is fine with 2.4.9-ac10, and unfine with these (all I've
-tested): ac-14, ac-15, ac-18.
-
-I can get more detailed info on Monday, but thought that maybe someone has
-come across this before.
-
-Brief system specs:
-Athlon 1.4GHz
-Abit KT7A (with Athlon/VIA-bug)
-3x512MB SDRAM
-2x40GB => RAID-0
-
-Have a nice day,
-    Mikael J.
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

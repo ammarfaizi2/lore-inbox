@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267868AbUHPSif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267861AbUHPSkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267868AbUHPSif (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 14:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267861AbUHPSif
+	id S267861AbUHPSkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 14:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUHPSkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 14:38:35 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:7909 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266128AbUHPSib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 14:38:31 -0400
-Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <200408161923.19024.bzolnier@elka.pw.edu.pl>
-References: <20040815151346.GA13761@devserv.devel.redhat.com>
-	 <200408161923.19024.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092677759.21013.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 Aug 2004 18:36:05 +0100
+	Mon, 16 Aug 2004 14:40:16 -0400
+Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:3456 "EHLO
+	dedasys.com") by vger.kernel.org with ESMTP id S267861AbUHPSkJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:40:09 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8 (or 7?) regression: sleep on older tibooks broken
+References: <873c2ohjrv.fsf@dedasys.com> <1092569364.9539.16.camel@gaston>
+	<873c2n41hs.fsf@dedasys.com> <1092668911.9539.55.camel@gaston>
+	<87llgfdqb7.fsf@dedasys.com>
+From: davidw@dedasys.com (David N. Welton)
+Date: 16 Aug 2004 20:38:16 +0200
+In-Reply-To: <87llgfdqb7.fsf@dedasys.com>
+Message-ID: <874qn353on.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-16 at 18:23, Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 15 August 2004 17:13, Alan Cox wrote:
-> > There really isnt any sane way to break this patch down because all the
-> > changes are interlinked so closely.
-> 
-> at least /proc/ide/hd?/settings:ide-scsi removal and doc fixes are very easy 
-> to separate, I also think that locking fixes should be separated from 
-> hotplugging ones
+davidw@dedasys.com (David N. Welton) writes:
 
-I continue to believe splitting the locking and hotplugging ones are
-essentially impossible without inventing a fake never written version.
-The other stuff can probably be done.
+> If it's useful, I suppose I can try backing of to 2.6.7 to see if it
+> suffers from the same problem...
 
-If you can let me know which bits you are going to apply I can work on
-sorting out the rest. In the meantime I'll keep a -ac patch for people
-who want to work on the IDE bits or who need the fixes and driver
-updates.
+2.6.7 is also broken.  Fresh 2.6.7 compiled, and it doesn't work
+either.
 
-Alan
+Kernel config at dedasys.com/kernelconfig
 
+Thanks,
+-- 
+David N. Welton
+     Personal: http://www.dedasys.com/davidw/
+Free Software: http://www.dedasys.com/freesoftware/
+   Apache Tcl: http://tcl.apache.org/
+       Photos: http://www.dedasys.com/photos/

@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVBLRqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVBLRrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVBLRqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 12:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVBLRqn
+	id S261173AbVBLRrN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 12:47:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVBLRrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 12:46:43 -0500
-Received: from s-utl01-nypop.stsn.com ([199.106.90.52]:2071 "HELO
-	s-utl01-nypop.stsn.com") by vger.kernel.org with SMTP
-	id S261170AbVBLRqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 12:46:42 -0500
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kenan Esau <kenan.esau@conan.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, harald.hoyer@redhat.de,
-       lifebook@conan.de, dtor_core@ameritech.net,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <1108227679.12327.24.camel@localhost>
-References: <20050211201013.GA6937@ucw.cz>
-	 <1108227679.12327.24.camel@localhost>
-Content-Type: text/plain
-Date: Sat, 12 Feb 2005 12:46:32 -0500
-Message-Id: <1108230392.4056.100.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Sat, 12 Feb 2005 12:47:13 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:27275 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261173AbVBLRrC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 12:47:02 -0500
+Message-ID: <420E4139.1050907@watson.ibm.com>
+Date: Sat, 12 Feb 2005 12:47:37 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ckrm-e17
+References: <41F92A48.2010100@watson.ibm.com> <420D98A3.3060508@bigpond.net.au>
+In-Reply-To: <420D98A3.3060508@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Feb 2005 17:46:35.0724 (UTC) FILETIME=[CBE888C0:01C5112A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-02-12 at 18:01 +0100, Kenan Esau wrote:
+Peter Williams wrote:
+> Shailabh Nagar wrote:
+> 
+> 
+> At line 3887 of cpu.ckrm-e17.v10.patch you add the line:
+> 
+>         set_task_cpu(p,this_cpu);
+> 
+> to the middle of the function wake_up_new_task() resulting in the 
+> following code:
+> 
+>     } else {
+>         this_rq = cpu_rq(this_cpu);
+> 
+>         /*
+>          * Not the local CPU - must adjust timestamp. This should
+>          * get optimised away in the !CONFIG_SMP case.
+>          */
+>         p->sdu.ingosched.timestamp = (p->sdu.ingosched.timestamp - 
+> this_rq->timestamp_last_tick)
+>                     + rq->timestamp_last_tick;
+>         set_task_cpu(p,this_cpu);
+>         __activate_task(p, rq);
+>         if (TASK_PREEMPTS_CURR(p, rq))
+>             resched_task(rq->curr);
+> 
+>         schedstat_inc(rq, wunt_moved);
+>         /*
+>          * Parent and child are on different CPUs, now get the
+>          * parent runqueue to update the parent's 
+> ->sdu.ingosched.sleep_avg:
+>          */
+>         task_rq_unlock(rq, &flags);
+>         this_rq = task_rq_lock(current, &flags);
+>     }
+> 
+> where "rq" has been set by the return value of "task_rq_lock(p, 
+> &flags)", and the test "(cpu == this_cpu)" has failed with "cpu" set to 
+> "task_cpu(p)".  The result of this when the CKRM CPU code is not 
+> configured into the build is that "p" will be queued on a runqueue that 
+> is not in agreement with "p->thread_info->cpu" which in turn will lead 
+> to future use of "task_rq_lock()" locking the wrong run queue and 
+> eventually triggering some form of race condition.
+> 
+> If CKRM CPU is configured into the build the results are less drastic as 
+> they only result in "nr_running" being incremented for the wrong run 
+> queue.  However, even this will have adverse scheduling effects as it 
+> will probably confuse the load balancing code.  Another potentially 
+> confusing thing with this code (when CKRM CPU is configured in) is that 
+> __activate_task() does NOT queue "p" on "rq" but on the queue found by 
+> the call "get_task_lrq(p)".
+> 
+> The recommended fix for this problem would be to withdraw the:
+> 
+>         set_task_cpu(p,this_cpu);
+> 
+> Peter
 
-> Second thing is that I am not shure that it is a good idea to integrate
-> the lbtouch-support into the psmouse-driver since there is no real way
-> of deciding if the device you are talking to is REALLY a
-> lifebook-touchsreen or not. 
-...
-> IMHO the driver should be standalone and the user should decide which
-> driver he wants to use. As default the touchscreen-functionality will be
-> disabled and only the quick-point device will work like a normal
-> PS2-mouse.
+Thanks for finding that out. Will confirm and fix in the next release.
 
-I just want to point out that this is a problem for distributions and
-for not-so-technical users.
+> PS I reported this to the ckrm-tech list 5 days ago but it was ignored.
 
-Is there *really*  no way to know if you're on a lifebook? Can't you use
-say the DMI identification mechanism to find this out ? If so, I think
-integrating into the regular driver very much is the right thing to
-do... it makes things JustWork(tm) for users without any need for manual
-configuration (which also makes distribution makers happy).
+Other project priorities prevented us from responding sooner. There's no 
+call to jump to conclusions.
 
-
-
+-- Shailabh
 

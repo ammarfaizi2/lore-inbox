@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbTKAA1n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 19:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTKAA1n
+	id S262099AbTKAAr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 19:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTKAAr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 19:27:43 -0500
-Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:2944
-	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S262071AbTKAA1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 19:27:42 -0500
-Date: Fri, 31 Oct 2003 19:26:51 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jariruusu@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless highmem bounce from loop/cryptoloop
-Message-ID: <20031101002650.GA7397@fukurou.paranoiacs.org>
-References: <20031030134137.GD12147@fukurou.paranoiacs.org> <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org>
+	Fri, 31 Oct 2003 19:47:29 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:6329 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262099AbTKAAr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 19:47:28 -0500
+Subject: Cyclic Scheduling for linux
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: linuxquestasu@yahoo.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067646722.2560.259.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031031015500.44a94f88.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 31 Oct 2003 19:32:03 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Oct 2003 01:55:00 -0800, Andrew Morton wrote:
-> Ben Slusky <sluskyb@paranoiacs.org> wrote:
-> > The current memory allocation procedure really is inadequate. It worked
-> > ok up thru 2.4 because the loop device was used almost exclusively
-> > as a nifty hack to make an initrd or to double-check the ISO you just
-> > created.
-> 
-> mm..  Last time I looked the 2.4 loop driver is fairly robust from the
-> memory management point of view.
+> I am working on providing a cyclic scheduling policy
+> to the current non real time version of the linux to
+> support hard real time tasks as part of one of my
+> projects. This policy should be able to support
+> aperiodic, periodic and sporadic tasks too. Could any
+> one pour some light on how to go about achieving it?.
+>
+> Any Helpful tips, project reports, links or advices
+> are greatly appreciated.
 
-Memory management is fine after we've allocated the memory. The problem is
-in the approach of going back to square one if only n-1 out of n pages
-could be allocated. That approach is inherently prone to deadlock.
+I suppose you expect to write this, but if not,
+you can get it in Concurrent's Red Hawk Linux
+product.
 
-> Here's the patch; feel free to benchmark it.  It kills 200 lines of code
-> and unifies the block-backed and file-backed codepaths.  That surely is a
-> good thing.
+Marketing says:
 
-I will benchmark it soon... meantime I have a real concern about what
-you've done to block-backed loop reads. Now the loop thread has to read
-and transform (decrypt) each bio, whereas in the old code reading was
-done asynchronously in the backing block device driver, leaving the loop
-thread free to do some transforms at the same time. I don't see how this
-could not hurt performance.
+"RedHawk's Frequency-Based Scheduler (FBS) is a
+high-resolution task scheduler that enables the
+user to run processes in cyclical execution patterns.
+FBS can control the periodic execution of multiple,
+coordinated processes utilizing major and minor
+cycles with overrun detection. A performance
+monitor is also provided to view CPU utilization
+during each scheduled execution frame."
 
-> It fixes bug 1198 too, it appears.
+That's on a "real" Linux kernel, not like RTAI
+or RT-Linux. There are some other cool real-time
+features as well, and an Ada compiler if you're
+so inclined.
 
-The file-backed loop code path allocates memory in a sane fashion.
-File-backed loops never manifested the bug.
-
--- 
-Ben Slusky                      | A free society is a society
-sluskyb@paranoiacs.org          | where it is safe to be
-sluskyb@stwing.org              | unpopular.
-PGP keyID ADA44B3B              |               -Adlai Stevenson
 

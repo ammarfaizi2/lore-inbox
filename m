@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316880AbSHNL34>; Wed, 14 Aug 2002 07:29:56 -0400
+	id <S316609AbSHNLh2>; Wed, 14 Aug 2002 07:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316933AbSHNL34>; Wed, 14 Aug 2002 07:29:56 -0400
-Received: from mail.set-software.de ([193.218.212.121]:45213 "EHLO
-	gateway.local.net") by vger.kernel.org with ESMTP
-	id <S316880AbSHNL3z> convert rfc822-to-8bit; Wed, 14 Aug 2002 07:29:55 -0400
-From: Michael Knigge <Michael.Knigge@set-software.de>
-Date: Wed, 14 Aug 2002 11:33:48 GMT
-Message-ID: <20020814.11334845@knigge.local.net>
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-To: Stas Sergeev <stssppnn@yahoo.com>, vda@port.imtp.ilyichevsk.odessa.ua
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <200208141109.g7EB9hp15788@Port.imtp.ilyichevsk.odessa.ua>
-References: <3D450B0F.4090901@yahoo.com> <200208141109.g7EB9hp15788@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
-X-Priority: 3 (Normal)
+	id <S316615AbSHNLh2>; Wed, 14 Aug 2002 07:37:28 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:43790 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316609AbSHNLh2>; Wed, 14 Aug 2002 07:37:28 -0400
+Date: Wed, 14 Aug 2002 13:40:48 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       Greg Banks <gnb@alphalink.com.au>, <linux-kernel@vger.kernel.org>,
+       <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [patch] config language dep_* enhancements
+In-Reply-To: <20020813204829.GJ761@cadcamlab.org>
+Message-ID: <Pine.LNX.4.44.0208141242280.8911-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-> Well, there is (currently) no
-> intention to get it into the mainstream
-> kernel so don't treat it too seriously.
-> However any comments or bugreports are
+On Tue, 13 Aug 2002, Peter Samuelson wrote:
 
-Oh, I would love to see that thing in the Standard-Kernel.... My 
-Server at home uses Dial-On-Demand for my Internet connection and the 
-beautiful Gillian Anderson is talking to me if the connection gets up 
-("wow!") and down ("uuuhhh, you scare me") ;-))))
+> Mutating the language, long-term, so that it looks less like sh and
+> more like a specialised language, is IMO a worthy goal.  And I think
+> it can be done.  The main thing to deal with is adding an alternative
+> syntax for 'if' statements which doesn't look like test(1).  More
+> about that in a separate message.
 
-**THIS** is the only reason why I have a soundcard in my PC - just to 
-get some accoustic information for a few events (another sample could 
-be a finished backup, incoming mail from fetchmail, incoming faxes or 
-incoming ISDN-Calls from friends...). 
+That doesn't solve any of the more fundamental problems.
+1) We still have 3 config parsers, which produce slightly different
+.config files.
+2) To integrate a new driver, you have to touch at least 3 files:
+Config.in, Config.help, Makefile. Properly configuring and building a
+driver outside of the tree is painful to impossible.
 
-For this your driver is more than enough! A "real" soundcard isn't 
-necessary anymore (and PCI-Slots are always rare)..... This evening I 
-will remove my old soundcard from my server!
+I'm not against fixing the bugs in the config scripts or adding some
+small extensions, but if you want to "mutate" the language into something
+different, I really hope you have a good plan for that.
+The problems are really not simple, the current config language is very
+limited, which also limits a bit the current error sources. As soon as you
+add new features, you need to add better error checking, which will be
+very painful in pure shell and keeping it consistent between multiple
+parsers will also be interesting.
+It's not the same problem area as with the build system. There we only
+have a single Rules.make file. Normal users don't need to care much about
+it. make was actually designed to build applications. The build system can
+rely on correct information from the config system.
+The build system was fixable within the capabilities of make, but the
+config system involves a lot more complex system of various scripts and
+programs. If you some great ideas to fix all the problems, I'd really like
+to hear them.
 
-
-Thanks for your work! This is something I was missing for years!
-
-
-Bye
-  Michael
-
-
+bye, Roman
 

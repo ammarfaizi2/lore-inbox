@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274034AbRJGOHK>; Sun, 7 Oct 2001 10:07:10 -0400
+	id <S275852AbRJGOIA>; Sun, 7 Oct 2001 10:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275852AbRJGOHA>; Sun, 7 Oct 2001 10:07:00 -0400
-Received: from ns.suse.de ([213.95.15.193]:38669 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S274034AbRJGOGn>;
-	Sun, 7 Oct 2001 10:06:43 -0400
-Date: Sun, 7 Oct 2001 16:07:11 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Thomas Hood <jdthood@mail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux should not set the "PnP OS" boot flag
-In-Reply-To: <1002462656.831.112.camel@thanatos>
-Message-ID: <Pine.LNX.4.30.0110071604050.11423-100000@Appserv.suse.de>
+	id <S276329AbRJGOHy>; Sun, 7 Oct 2001 10:07:54 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37125 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275852AbRJGOHl>; Sun, 7 Oct 2001 10:07:41 -0400
+Subject: Re: %u-order allocation failed
+To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
+Date: Sun, 7 Oct 2001 15:12:37 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), riel@conectiva.com.br (Rik van Riel),
+        kszysiu@main.braxis.co.uk (Krzysztof Rusocki), linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1011007141040.1764A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Oct 07, 2001 02:28:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qEfV-0005td-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Oct 2001, Thomas Hood wrote:
+> Yes - you can run out of vmalloc space. But you run out of it only when
+> you create too many processes (8192), load too many modules etc. If
+> someone needs to put such heavy load on linux, we can expect that he is
+> not a luser and he knows how to increase size of vmalloc space.
 
-> I think you'll understand why I say that it is not handled
-> _correctly_ and that the handling must be brought under
-> the user's control ... if not via a /proc entry then by
-> a build option or boot option.  I invite advice about this.
+Not just that - you get fragmentation of it which leads you back to the
+same situation as kmalloc except that with the guard pages you fragment the
+address space more.
 
-The final part doesn't need to be in kernel space at all.
-(And from my reading of the spec, shouldn't be, as it signifies
-the OS completed the final stages of booting successfully)
-
-http://www.codemonkey.org.uk/sbf.c
-is some quick code I hacked up when bootflag.c first appeared.
-Its not perfect, and I have some outstanding patches that Randy Dunlap
-sent to clean up some bits, but I've not got around to merging them.
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
-
+Alan

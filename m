@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129735AbRAMStu>; Sat, 13 Jan 2001 13:49:50 -0500
+	id <S130229AbRAMSzd>; Sat, 13 Jan 2001 13:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130229AbRAMStk>; Sat, 13 Jan 2001 13:49:40 -0500
-Received: from gear.torque.net ([204.138.244.1]:43026 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S129735AbRAMSta>;
-	Sat, 13 Jan 2001 13:49:30 -0500
-Message-ID: <3A609F8C.DD30BBCF@torque.net>
-Date: Sat, 13 Jan 2001 13:33:48 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S131131AbRAMSzX>; Sat, 13 Jan 2001 13:55:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:529 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130229AbRAMSzK>;
+	Sat, 13 Jan 2001 13:55:10 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101131854.f0DIskb17050@flint.arm.linux.org.uk>
+Subject: Re: ide.2.4.1-p3.01112001.patch
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Sat, 13 Jan 2001 18:54:46 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        andre@linux-ide.org
+In-Reply-To: <Pine.LNX.4.30.0101131639500.21182-100000@imladris.demon.co.uk> from "David Woodhouse" at Jan 13, 2001 04:42:34 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Meino Christian Cramer <mccramer@s.netic.de>
-Subject: Re: 2.4.0: Raw devices ?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Meino Cramer wrote:
-> short question: How cabn I activate/where can I find the raw devices
-> often described as /dev/raw[12]* in/with kernel linux-2.4.0.
+David Woodhouse writes:
+> Please can we also stop HPT366 from attempting UDMA66 on the IBM DTLA
+> drives, while we're at it? I don't care if it's done by blacklisting the
+> DTLA drives, as was done by the patch I resent numerous times, or if it's
+> done the other way round by putting known-compatible drives (include
+> "FUJITSU MPE3136AT") into a whitelist. But it needs doing.
 
-There doesn't seem to be any config option for raw
-devices in lk 2.4.0 , they are just there. However
-the raw (8) utility expects them in a different place
-from where Documentation/devices.txt currently says 
-they are. You may have to set up these char devices:
+I've been wondering recently why there isn't an option to tell the kernel
+"even if you've been configured to use dma by default, please don't on this
+IDE interface".  There is an option for tuning the interface up, but
+nothing to tune down.
 
-$ ls -l /dev/rawctl 
-crw-r--r--    1 root     root     162,   0 Jan 13 05:12 /dev/rawctl
-
-$ ls -l /dev/raw/*  
-crw-r--r--    1 root     root     162,   1 Jan 13 05:12 /dev/raw/raw1
-crw-r--r--    1 root     root     162,   2 Jan 13 05:12 /dev/raw/raw2
-crw-r--r--    1 root     root     162,   3 Jan 13 05:12 /dev/raw/raw3
-crw-r--r--    1 root     root     162,   4 Jan 13 05:12 /dev/raw/raw4
-etc.
-
-Recent versions of dd meet the alignment requirements
-of raw devices as does lmdd (from the lmbench package).
-I have done some timings of disk to disk copies using
-raw devices compared to other devices. See:
-http://www.torque.net/sg/fst_copy.html
-
-> And where can I find the "raw" utility...
-
-In both RH 6.2 and 7.0 the raw (8) utility is in the 
-util-linux package (RH have applied a "raw" patch for 
-those two lk 2.2 versions). Read man (8) raw to find 
-out how to bind a raw device to an existing block device.
-Example:
-$ raw /dev/raw/raw1 /dev/sda3
-
-Doug Gilbert
-
+It strikes me that this might be a good thing to have.  Comments?
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

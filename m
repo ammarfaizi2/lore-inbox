@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130262AbRCBCnc>; Thu, 1 Mar 2001 21:43:32 -0500
+	id <S130267AbRCBCoX>; Thu, 1 Mar 2001 21:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130267AbRCBCnX>; Thu, 1 Mar 2001 21:43:23 -0500
-Received: from [209.102.105.34] ([209.102.105.34]:46345 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S130262AbRCBCnQ>;
-	Thu, 1 Mar 2001 21:43:16 -0500
-Date: Thu, 1 Mar 2001 18:43:03 -0800
-From: Tim Wright <timw@splhi.com>
-To: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>
-Cc: ext Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x very unstable on 8-way IBM 8500R
-Message-ID: <20010301184303.A5065@kochanski.internal.splhi.com>
-Reply-To: timw@splhi.com
-Mail-Followup-To: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>,
-	ext Andrew Morton <andrewm@uow.edu.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3A9E3F00.E5667AAC@uow.edu.au> <Pine.LNX.4.30.0103011523200.23756-100000@godzilla.research.nokia.com>
+	id <S130290AbRCBCoO>; Thu, 1 Mar 2001 21:44:14 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:1725 "EHLO zooty.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id <S130267AbRCBCny>;
+	Thu, 1 Mar 2001 21:43:54 -0500
+Message-Id: <l03130301b6c4b77f741e@[192.168.239.101]>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0103011523200.23756-100000@godzilla.research.nokia.com>; from panu.matilainen@nokia.com on Thu, Mar 01, 2001 at 03:30:56PM +0200
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 2 Mar 2001 02:43:48 +0000
+To: linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Strange NAT messages on multicast packets
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just FYI,
-I am chasing this problem. There appears to be an unpleasant interaction between
-the Advanced Systems Management card and the NMI watchdog code. Ripping the card
-out of the machine also eradicates the problem, but is less desirable. 
-I'll let people know when there's a better solution.
+I'm seeing a lot of messages in my gateway's system log of the form:
 
-Tim
+lithium kernel: NAT: 0 dropping untracket packet c233f340 1 10.38.10.67 ->
+224.0.0.2
 
-On Thu, Mar 01, 2001 at 03:30:56PM +0200, Matilainen Panu (NRC/Helsinki) wrote:
-> On Thu, 1 Mar 2001, ext Andrew Morton wrote:
-> > "Matilainen Panu (NRC/Helsinki)" wrote:
-> > > On Thu, 1 Mar 2001, ext Andrew Morton wrote:
-> > > >
-> > > > Is it stable with `nmi_watchdog=0'?
-> > >
-> > > If the default value for nmi_watchdog is 0 then no - I added the
-> > > nmi_watchdog=1 just to see if that makes any difference. If it's on by
-> > > default then I'll need to test it that way.
-> >
-> > Default for nmi_watchdog is `enabled'.
-> >
-> > Several people have reported that turning it off with
-> > the `nmi_watchdog=0' LILO option makes systems stable.
-> > Nobody knows why.
-> >
-> > (If nmi_watchdog _does_ make the achine stable, please
-> >  tell linux-kernel.).
-> 
-> It's too early to say for sure but that seems to have fixed it. Uptime now
-> nearly an hour under loads of 20-30 which is way more than it has been
-> able to stay up before. I'll let you know whether its still up tomorrow.
-> 
-> Million thanks for the tip!
-> 
-> 	- Panu -
-> 
+Virtually all these packets come from machines on the student LAN on the
+"outside" of the gateway.  Whether or not iptables is configured to drop
+the packets (on input or forward), these messages still appear.
 
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-Interested in Linux scalability ? Look at http://lse.sourceforge.net/
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+I understand 224.0.0.2 means "multicast router", but why does my kernel
+have to be so verbose about it?  Is there a sensible way to turn off the
+messages without playing havoc with my syslogd configuration?
+
+Kernel 2.4.1 on a P166/MMX, compiled with gcc 2.95.2, based on a
+barely-recognisable RH 6.2 installation.  The NIC which these packets come
+in on is a 3c509, which is not in promiscuous mode.
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
+
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
+
+

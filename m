@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266084AbUALJAR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 04:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266086AbUALJAR
+	id S266086AbUALJIj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 04:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266089AbUALJIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 04:00:17 -0500
-Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:52360
-	"HELO mail.falke.at") by vger.kernel.org with SMTP id S266084AbUALJAM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 04:00:12 -0500
-Message-ID: <400261C9.5000505@winischhofer.net>
-Date: Mon, 12 Jan 2004 09:58:49 +0100
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en, de, de-de, de-at, sv
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       jsimmons@infradead.org
-Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-References: <20040109014003.3d925e54.akpm@osdl.org> <20040109233714.GL1440@fs.tum.de> <3FFF79E5.5010401@winischhofer.net> <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 04:08:35 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:33174 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S266086AbUALJId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 04:08:33 -0500
+Date: Mon, 12 Jan 2004 10:08:31 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/kcore size
+Message-ID: <20040112090831.GC2588@werewolf.able.es>
+References: <20040112090404.GA2588@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040112090404.GA2588@werewolf.able.es> (from jamagallon@able.es on Mon, Jan 12, 2004 at 10:04:04 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+On 01.12, J.A. Magallon wrote:
+> Hi all...
 > 
-> On Sat, 10 Jan 2004, Thomas Winischhofer wrote:
+> To the request of one of my users, I installed the 'hinv' program (1.4pre1) by
+> Larry McVoy.
 > 
->>The whole framebuffer stuff in 2.6 is ancient. (Look at the file dates.)
+> Problem: it detects the memory amount in the box by stat'ing /proc/kcore.
+> Thats not the problem, but that the box has 1Gb of memory, and kcore is just
+> 896Mb big.
 > 
+> Kernel is built with 4Gb support:
 > 
-> Note that the fb stuff is ancient because it's basically not maintained as 
-> far as I'm concerned.
-
-Erm, well, _I_ know. But I assume you meant this message mainly for the 
-public.
-
-> I'm sorry, but this i show it is.  The fbcon people have been changing 
-> interfaces faster than they have been fixing bugs in the code. Together
-
-You tell me. I actually stopped adapting sisfb for a couple of months 
-during the 2.5 development cycle - I could not keep up with the speed of 
-substantial changes either.
-
-> with the fact that most of the development seems to happen in outside 
-> trees, and nobody ever sends me fixes relative to the released tree, this 
-> makes for a pretty bad situation.
+> annwn:/proc# free
+>              total       used       free     shared    buffers     cached
+> Mem:       1033172    1017772      15400          0     164792     556416
+> -/+ buffers/cache:     296564     736608
+> Swap:      1951856          8    1951848
 > 
-> I really think that development should happen in the regular tree, or at 
-> least be synched up in reasonable chunks THAT DO NOT BREAK everything.
+> annwn:/proc# hinv
+> Main memory size: 896 Mbytes
+> ...
 > 
-> I realize that some fb developers seem to disagree with me, but the fact 
-> is, the way things are done now, fb will _always_ be broken. Most people 
-> for whom the standard kernel works will never test the fb development 
-> trees, so those trees will never get any amount of reasonable testing. As 
-> a result, they WILL be buggy, and synching with them WILL be painful as 
-> hell.
+> annwn:/proc# ll /proc/kcore
+> -r--------    1 root     root     939528192 Jan 12 10:02 /proc/kcore
+> 
+> Exactly the same as a box that has _really_ 896 Mb:
+> 
+> werewolf:/proc# ll kcore
+> -r--------    1 root     root     939528192 Jan 12 10:02 kcore
+> 
+> werewolf:/proc# free
+>              total       used       free     shared    buffers     cached
+> Mem:        905012     276008     629004          0      27268     109344
+> -/+ buffers/cache:     139396     765616
+> Swap:       345356          0     345356
+> 
+> BUG ?
+> 
 
-Isn't a large part of the fbcon/dev stuff in current 2.6 broken anyway? 
-Could it become worse by merging James' current changes? But I guess 
-this question - as well as the rest of your message - is for James to 
-answer.
-
-If the lastest and greatest of the fbdev stuff isn't merged with 2.6.2, 
-I will revert the interface changes in sisfb and send a patch which 
-works with the then-current vanilla kernel.
-
-Thomas
+Ooops, sorry. annwn is a (patched)2.4.24 and werewolf is 2.6.1-mm2(+hfsplusfs).
 
 -- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
-twini AT xfree86 DOT org
-
-
-
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.1-jam2 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

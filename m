@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312983AbSDTVl1>; Sat, 20 Apr 2002 17:41:27 -0400
+	id <S312619AbSDTVu4>; Sat, 20 Apr 2002 17:50:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313016AbSDTVl0>; Sat, 20 Apr 2002 17:41:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28678 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S312983AbSDTVl0>;
-	Sat, 20 Apr 2002 17:41:26 -0400
-Date: Sat, 20 Apr 2002 18:40:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Skip Ford <skip.ford@verizon.net>
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <20020420213446.ZCGU13286.out019.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
-Message-ID: <Pine.LNX.4.44L.0204201839380.1960-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313019AbSDTVuz>; Sat, 20 Apr 2002 17:50:55 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:49805 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312619AbSDTVuy>;
+	Sat, 20 Apr 2002 17:50:54 -0400
+Date: Sat, 20 Apr 2002 23:49:19 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Dave Jones <davej@suse.de>, Daniel Phillips <phillips@bonn-fries.net>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree (fwd)
+Message-ID: <20020420214919.GC10549@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Apr 2002, Skip Ford wrote:
 
-> All of section 1 is an advertisement for using bk...including
-> directions on how to setup your own clone.  Those are _clearly_
-> bitkeeper directions and have nothing to do with how to submit
-> patches.
+----- Forwarded message from Pavel Machek <pavel@suse.cz> -----
 
-I'm sure Jeff would be more than happy to include an
-advertisement for a free bitkeeper alternative, once
-one exists. ;)
+To: Dave Jones <davej@suse.de>, Daniel Phillips <phillips@bonn-fries.net>,
+	Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <E16ybpZ-0000V4-00@starship> <20020420191940.D856@suse.de>
+Content-Disposition: inline
+In-Reply-To: <20020420191940.D856@suse.de>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 
-regards,
+Hi!
 
-Rik
+>  > Oh I don't disagree at all.  Bitkeeper is a big improvement over what
+>  > existed before.  But it is proprietary.  Which other tool in the tool chain
+>  > is proprietary?
+> 
+> Film at 11: proprietory tool used in Linux.
+> Maybe we should back out all those fixes the Stanford people found with
+> their checker ? Maybe we should back out the x86-64 port seeing as
+> it
+
+Standford checker was proprietary?
+
+> was (partly) done with a commercial simulator?
+
+That's another case; doing development on proprietary CPU is okay, so
+doing development on emulator (== CPU equivalent) should be okay, too.
+									Pavel
 -- 
-Bravely reimplemented by the knights who say "NIH".
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
 
-http://www.surriel.com/		http://distro.conectiva.com/
+----- End forwarded message -----
 
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264392AbTDOICz (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTDOICy (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 04:02:54 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:32645 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S264392AbTDOICo (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 04:02:44 -0400
-Date: Tue, 15 Apr 2003 10:14:20 +0200 (MEST)
+	id S264391AbTDOIBz (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTDOIBz (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 04:01:55 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:64900 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S264391AbTDOIBy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 04:01:54 -0400
+Date: Tue, 15 Apr 2003 10:11:37 +0200 (MEST)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: Jamie Lokier <jamie@shareable.org>
+cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] M68k IDE updates
-In-Reply-To: <16027.14047.217861.806425@nanango.paulus.ozlabs.org>
-Message-ID: <Pine.GSO.4.21.0304151012390.26578-100000@vervain.sonytel.be>
+In-Reply-To: <20030415044505.GA25139@mail.jlokier.co.uk>
+Message-ID: <Pine.GSO.4.21.0304151010240.26578-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Apr 2003, Paul Mackerras wrote:
-> Geert Uytterhoeven writes:
-> > I think the least-intrusive solution is something like this:
+On Tue, 15 Apr 2003, Jamie Lokier wrote:
+> Geert Uytterhoeven wrote:
+> > > Since __ide_mm_insw doesn't get told whether it is transferring normal
+> > > sector data or drive ID data, it can't necessarily do the right thing
+> > > in both situations.
 > > 
-> > --- linux-2.5/drivers/ide/ide-iops.c.orig	Mon Apr 14 21:43:30 2003
-> > +++ linux-2.5/drivers/ide/ide-iops.c	Mon Apr 14 21:44:53 2003
-> > @@ -423,8 +423,7 @@
-> >   */
-> >  void ide_fix_driveid (struct hd_driveid *id)
-> >  {
-> > -#ifndef __LITTLE_ENDIAN
-> > -# ifdef __BIG_ENDIAN
-> > +    if (ide_driveid_needs_swapping(id)) {
+> > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
+> > on-disk data to be that way, for compatibility with e.g. TOS.
 > 
-> I really think that whether the driveid needs swapping should be
-> regarded as a property of the interface, not of the system as a whole.
-> 
-> I like the idea of adding a "read in driveid" function pointer to the
-> ide_hwif_t structure.  Most systems would set that to the same as the
-> INSW function pointer.  For those systems where the hardware designer
-> suffered a momentary dizzy spell we can set it to point to a function
-> that does the necessary byte-swapping.
+> Isn't that best solved in the TOS filesystem code?
 
-That sounds OK to me.
+There's also a partition table to read. BTW, Atari uses MS-DOS style
+partitioning.
 
-But I'd like to have the actual swapping code in a common source or header
-file, else we fall back to the old approach, where all platforms that needed it
-implemented there own driveid swapping code, which had to be kept in sync when
-more reserved fields in the driveid got an actual meaning.
+> That way, Ataris running Linux can read ext2 disks from other systems
+> properly, and other systems can read TOS disks written by Ataris
+> properly.
+
+That's why there's also an option to swap all diskdata at the IDE level, so you
+can take your Atari disks to a PC and vice versa.
 
 Gr{oetje,eeting}s,
 

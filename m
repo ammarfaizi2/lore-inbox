@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUFRKmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265107AbUFRKoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbUFRKmo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 06:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUFRKmo
+	id S265107AbUFRKoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 06:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUFRKoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 06:42:44 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:5326 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265100AbUFRKkV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 06:40:21 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 18 Jun 2004 12:14:29 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Cc: Paul Focke <paul.focke@pandora.be>
-Subject: [PATCH] v4l: radio-zoltrix fix.
-Message-ID: <20040618101429.GB24904@bytesex.org>
+	Fri, 18 Jun 2004 06:44:44 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:24507 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265109AbUFRKlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 06:41:55 -0400
+Date: Fri, 18 Jun 2004 11:41:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Thorsten Rhau <t-r@swipnet.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MISSING: CONFIG_IDEDISK_STROKE
+Message-ID: <20040618104155.GA17792@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Thorsten Rhau <t-r@swipnet.se>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0406181229500.4837@x.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.58.0406181229500.4837@x.home>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Fri, Jun 18, 2004 at 12:37:44PM +0200, Thorsten Rhau wrote:
+> Hi!
+> I have been using the 2.6.x series kernels sence 2.6.2 and everything just
+> worked fine for me, great job!
+> 
+> A few days ago the 2.6.7 kernel was released and of course i tried to
+> install it on my system. My problem is that i am not able to find
+> "Auto-Geometry Resizing support" in make menuconfig. I think that this
+> parameter is called CONFIG_IDEDISK_STROKE in the .config file. I am not
+> able to find it in the .config either ...........
+> 
+> I have tried to locate information about this in the release notes for the
+> 2.6.7 kernel and on http://www.lkml.org without success.
 
-Patch is ObviouslyCorrect[tm], please apply,
-
-  Gerd
-
------ Forwarded message from Paul Focke <paul.focke@pandora.be> -----
-
-Date: Thu, 17 Jun 2004 12:55:12 +0200
-From: Paul Focke <paul.focke@pandora.be>
-Subject: [PATCH] radio-zoltrix
-To: kraxel@bytesex.org
-Content-Type: multipart/mixed; boundary="=-3kZZlLw+woB/Iii8zHTj"
-X-Bogosity: Ham, tests=bogofilter, spamicity=0.026921, version=0.15.13
-
-Hi,
-
-I recently upgraded from 2.4 to kernel 2.6 & noticed that the zoltrix
-radio driver was not working.  Seems like a little typo.
-I tested this on my system and it's working fine now. I doubt there are
-any other linux users in the world who still use this card ;-)
-This is my first patch.  I tried following the guidelines as stated here
-: http://www.tux.org/lkml/#s4-1 
-If I forgot something, don't hesitate to contact me.
-
-Paul Focke
-
---- a/drivers/media/radio/radio-zoltrix.c	2004-06-17 12:38:20.947707352
-+0200
-+++ b/drivers/media/radio/radio-zoltrix.c	2004-06-17 12:37:18.729166008
-+0200
-@@ -273,7 +273,7 @@
- 	case VIDIOCGAUDIO:
- 		{
- 			struct video_audio *v = arg;
--			memset(&v, 0, sizeof(*v));
-+			memset(v, 0, sizeof(*v));
- 			v->flags |= VIDEO_AUDIO_MUTABLE | VIDEO_AUDIO_VOLUME;
- 			v->mode |= zol_is_stereo(zol)
- 				? VIDEO_SOUND_STEREO : VIDEO_SOUND_MONO;
-
-
-
------ End forwarded message -----
+See the thread starting at http://marc.theaimsgroup.com/?l=linux-kernel&m=108741709003473&w=2

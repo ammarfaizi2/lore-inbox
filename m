@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVCZFyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVCZH0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVCZFyn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 00:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVCZFyn
+	id S262018AbVCZH0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 02:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbVCZH0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 00:54:43 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34775 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262013AbVCZFyl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 00:54:41 -0500
-Date: Fri, 25 Mar 2005 21:52:55 -0800
-From: Jason Uhlenkott <jasonuhl@sgi.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: 2.6.12-rc1-mm3
-Message-ID: <20050326055255.GA210003@dragonfly.engr.sgi.com>
-References: <20050325002154.335c6b0b.akpm@osdl.org> <20050326014327.GB207782@dragonfly.engr.sgi.com> <1111802218.19916.59.camel@d845pe> <20050326020212.GC207782@dragonfly.engr.sgi.com> <1111803861.19920.91.camel@d845pe> <20050326025704.GE207782@dragonfly.engr.sgi.com> <1111810359.19919.113.camel@d845pe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111810359.19919.113.camel@d845pe>
-User-Agent: Mutt/1.5.6i
+	Sat, 26 Mar 2005 02:26:07 -0500
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:30625 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S262015AbVCZHZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 02:25:58 -0500
+Date: Sat, 26 Mar 2005 09:27:33 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Tejun Heo <htejun@gmail.com>, Jens Axboe <axboe@suse.de>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+In-Reply-To: <1111778388.5692.38.camel@mulgrave>
+Message-ID: <Pine.LNX.4.61.0503260907450.19764@kai.makisara.local>
+References: <20050323021335.960F95F8@htj.dyndns.org>  <20050323021335.4682C732@htj.dyndns.org>
+  <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com> 
+ <20050323071920.GJ24105@suse.de> <1111591213.5441.19.camel@mulgrave> 
+ <20050323152550.GB16149@suse.de> <1111711558.5612.52.camel@mulgrave> 
+ <20050325031511.GA22114@htj.dyndns.org> <1111726965.5612.62.camel@mulgrave>
+  <20050325053842.GA24499@htj.dyndns.org> <1111778388.5692.38.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 11:12:39PM -0500, Len Brown wrote:
-> I realize now I didn't answer your original question.
-> The reason ACPI now depends on PM is that
-> it makes it easier for us to do a more orderly shutdown --
-> acpi registers as a device so it can do some stuff
-> upon the PM device shutdowns -- before interrupts are disabled.
-> 
-> I think with all the twisty turney passages
-> related to the suspend states, poweroff, sys-req, and now kexec,
-> that it is best if we can keep the code paths as
-> common as possible or some of them will never get the
-> testing needed to prevent them from getting broken.
-> 
-> Also, it is now common practice to include PM && ACPI together
-> in the x86 world.  Though technically one could have
-> ACPI w/o PM and you'd have lost only ACPI_SLEEP, virtually
-> nobody seems to use/depend-on that combination.
+On Fri, 25 Mar 2005, James Bottomley wrote:
 
-OK, that makes sense.  I see now that Jesse has already sent a patch
-to allow CONFIG_PM on sn2, so we'll be fine as soon as that gets
-merged.
+> On Fri, 2005-03-25 at 14:38 +0900, Tejun Heo wrote:
+> >  We have users of scsi_do_req() other than scsi_wait_req() and they
+> > use different done() functions to do different things.  I've checked
+> > other done functions and none uses contents inside the passed
+> > scsi_cmnd, so using a dummy command should be okay with them.  Am I
+> > missing something here?
+> 
+> Well ... the other users are supposed to be going away.  They're
+> actually all coded wrongly in some way or other ... perhaps I should
+> speed up the process.
+> 
+I have seen you mention this several times now and I am getting more and 
+more worried. The reason is that scsi_wait_req() is a synchronous 
+interface and it does not allow a driver to do this:
+
+- send a request
+- do other useful things/let the user do useful work
+- wait for completion before starting another request
+
+I fully agree that doing done() correctly _is_ a problem, especially when 
+the SCSI subsystem evolves and the high-level driver writers do not follow 
+the development closely enough.
+
+One solution to these problems would be to let the drivers still use 
+scsi_do_req() and their own done() function, but create two 
+(three) helpers:
+- one to be called at the beginning of done(); it would do what needs to 
+  be done here but lets the driver to do some special things of its own if
+  necessary
+- one to be called to wait for the request to finish
+(- one to do scsi_ro_req() and the things necessary before these)
+
+Having these helpers would isolate the user of the SCSI subsystem from the 
+internals. scsi_wait_req() should call these functions and no additional 
+maintenance would be needed for this additional asynchronous interface.
+
+The current drivers may not do any work in done() that could not be done 
+later but there is one patch pending where this happens: the st 
+performance statistics patch needs to get the time stamp when the SCSI 
+command is processed.
+
+-- 
+Kai

@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130079AbRBZApZ>; Sun, 25 Feb 2001 19:45:25 -0500
+	id <S130072AbRBZAtF>; Sun, 25 Feb 2001 19:49:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130078AbRBZApF>; Sun, 25 Feb 2001 19:45:05 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:14021 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S130072AbRBZApB>; Sun, 25 Feb 2001 19:45:01 -0500
-Message-Id: <l03130306b6bf522b1087@[192.168.239.101]>
-In-Reply-To: <3A9999FD.AEFC4570@coplanar.net>
-In-Reply-To: <20010214092251.D1144@e-trend.de>
- <3A8AA725.7446DEA0@ubishops.ca> <20010214165758.L28359@e-trend.de>
- <20010214122244.H7859@conectiva.com.br> <3A99986F.1AC6A46F@yahoo.co.uk>
+	id <S130081AbRBZAs4>; Sun, 25 Feb 2001 19:48:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:23822 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130072AbRBZAsp>;
+	Sun, 25 Feb 2001 19:48:45 -0500
+Date: Mon, 26 Feb 2001 01:48:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Nate Eldredge <neldredge@hmc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2-ac3: loop threads in D state
+Message-ID: <20010226014827.Z7830@suse.de>
+In-Reply-To: <Pine.GSO.4.21.0102251935120.26808-100000@weyl.math.psu.edu> <Pine.GSO.4.21.0102251939230.26808-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 26 Feb 2001 00:24:20 +0000
-To: Jeremy Jackson <jerj@coplanar.net>, linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Should isa-pnp utilize the PnP BIOS?
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0102251939230.26808-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Feb 25, 2001 at 07:40:42PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Would it not be useful if the isa-pnp driver would fall back
->> to utilizing the PnP BIOS (if possible) in order to read and
->
->I would find this EXTREMELY usefull... my Compaq laptop's
->hot-dock with power eject will only work if Linux uses
->PnP BIOS's insert/eject methods.
->
->I saw some code in early 2.3 that would talk to bios, i still have
->a tarball, but it seems 2.4 only does hardware banging (best in
->*most* cases...)
+On Sun, Feb 25 2001, Alexander Viro wrote:
+> Let me elaborate: the race is very narrow and takes deliberate efforts to
+> hit. It _can_ be triggered, unfortunately. This extra up() will mess your
+> life later on.
 
-There are some desktop m/boards that don't seem to respond to the
-kernel-mode ISA-PnP at the moment, too.  Particularly my Abit KT7 - I have
-to use user-mode ISA-PnP for it to pick up my nice SB AWE-64.  This needs
-fixing somehow, and maybe looking at the PnP BIOS stuff is the right way.
+What's the worst that can happen? We do an extra up, but loop_thread
+will still quit once we hit zero lo_pending. And loop_clr_fd
+is still protected by lo_ctl_mutex.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
-
+-- 
+Jens Axboe
 

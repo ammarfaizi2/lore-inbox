@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVCYE2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVCYEbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVCYE2b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 23:28:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVCYE2b
+	id S261221AbVCYEbv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 23:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVCYEbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 23:28:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5790 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261279AbVCYE2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 23:28:25 -0500
-Message-ID: <4243935C.5080607@pobox.com>
-Date: Thu, 24 Mar 2005 23:28:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brett Russ <russb@emc.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH libata-dev-2.6 01/03] libata: whitespace updates
-References: <20050323203514.D62A1893@lns1032.lss.emc.com> <20050323203514.DE0042D8@lns1032.lss.emc.com>
-In-Reply-To: <20050323203514.DE0042D8@lns1032.lss.emc.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 24 Mar 2005 23:31:51 -0500
+Received: from smtpout.mac.com ([17.250.248.44]:16636 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261221AbVCYEbh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 23:31:37 -0500
+In-Reply-To: <a44ae5cd050324201565814701@mail.gmail.com>
+References: <a44ae5cd050324201565814701@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <28bdcf7251e360b81370397cc74a197f@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Error building ndiswrapper-1.0rc1 against 2.6.12-rc1-mm2 sources
+Date: Thu, 24 Mar 2005 23:31:27 -0500
+To: Miles Lane <miles.lane@gmail.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied patches 1-3, thanks much.
+On Mar 24, 2005, at 23:15, Miles Lane wrote:
+> Hi,
+>
+> Was this change intentional or accidental?  I have successfully built
+> ndiswrapper-1.0rc1 with the other recent kernel trees.
+>
+> warning: passing arg 4 of `call_usermodehelper' makes pointer from 
+> integer without a cast
+> error: too few arguments to function `call_usermodehelper'
 
-Small administrivia request, though:  after using my patch merging 
-script to merge your patches, I have to do the following things manually:
+call_usermodehelper was extended with a parameters to allow a
+keyring environment to be passed.  As this is -mm, who knows
+whether the patch will make it into mainline or not.  I suspect
+it will, though, due to its utility at which point external
+modules will need to be converted.
 
-* delete diffstat output
-* delete patch filename
-* un-indent patch description text
+Cheers,
+Kyle Moffett
 
-It would be great if I didn't have to do those manual steps :)
-
-On the other hand, I really like your "patch 0/N" email with a 
-description of the entire patchset.  Keep sending those, thanks.
-
-Everything else looks great.
-
-	Jeff
-
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

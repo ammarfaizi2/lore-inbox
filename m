@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262240AbRENDnt>; Sun, 13 May 2001 23:43:49 -0400
+	id <S262272AbRENEBL>; Mon, 14 May 2001 00:01:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262244AbRENDnk>; Sun, 13 May 2001 23:43:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54278 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S262240AbRENDne>;
-	Sun, 13 May 2001 23:43:34 -0400
-Date: Mon, 14 May 2001 00:43:26 -0300 (BRST)
+	id <S262278AbRENEBB>; Mon, 14 May 2001 00:01:01 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24327 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262247AbRENEAu>;
+	Mon, 14 May 2001 00:00:50 -0400
+Date: Mon, 14 May 2001 01:00:39 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] balance_dirty_state() fix
-Message-ID: <Pine.LNX.4.21.0105140039300.4671-100000@imladris.rielhome.conectiva>
+Subject: [PATCH] filemap.c fixes
+Message-ID: <Pine.LNX.4.21.0105140057180.4671-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,15 +21,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Linus,
 
-The following patch fixes a problem where bdflush eats too
-much cpu time without getting work done; the problem is that
-calls to page_launder() don't achieve anything in the short
-term and may not even achieve anything long-term because we
-may just be short on inactive pages.
+here are a filemap.c fix and a slight addition:
 
-In both of these cases it's better to just let bdflush stop
-eating CPU and have the system do something useful instead.
-Please apply.
+1) __find_page_nolock should only set the referenced bit
+   on an active page, otherwise a number of subsequent
+   reads from the same page within one page scan interval
+   can SEVERELY mess up page aging to the disadvantage of
+   the other pages in the system ...
+   just setting the referenced bit on the page makes the
+   aging a lot fairer
+
+2) in drop_behind() we first increase the page age and
+   will then proceed to deactivate the page again; better
+   have a simpler help function for this ... note that this
+   help function could also be used for eg. ->writepage()
+   write clustering code
 
 regards,
 
@@ -43,31 +49,38 @@ http://www.surriel.com/		http://distro.conectiva.com/
 Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 
 
---- linux-2.4.4/fs/buffer.c.orig	Mon May 14 00:36:15 2001
-+++ linux-2.4.4/fs/buffer.c	Mon May 14 00:36:28 2001
-@@ -1034,7 +1034,6 @@
- int balance_dirty_state(kdev_t dev)
- {
- 	unsigned long dirty, tot, hard_dirty_limit, soft_dirty_limit;
--	int shortage;
- 
- 	dirty = size_buffers_type[BUF_DIRTY] >> PAGE_SHIFT;
- 	tot = nr_free_buffer_pages();
-@@ -1049,16 +1048,6 @@
- 			return 1;
- 		return 0;
+
+--- linux-2.4.5-pre1/mm/filemap.c.orig	Mon May 14 00:55:53 2001
++++ linux-2.4.5-pre1/mm/filemap.c	Mon May 14 00:56:03 2001
+@@ -299,13 +299,14 @@
+ 			break;
  	}
--
--	/*
--	 * If we are about to get low on free pages and
--	 * cleaning the inactive_dirty pages would help
--	 * fix this, wake up bdflush.
--	 */
--	shortage = free_shortage();
--	if (shortage && nr_inactive_dirty_pages > shortage &&
--			nr_inactive_dirty_pages > freepages.high)
--		return 0;
- 
- 	return -1;
+ 	/*
+-	 * Touching the page may move it to the active list.
+-	 * If we end up with too few inactive pages, we wake
+-	 * up kswapd.
++	 * Mark the page referenced, moving inactive pages to the
++	 * active list.
+ 	 */
+-	age_page_up(page);
+-	if (inactive_shortage() > inactive_target / 2 && free_shortage())
+-			wakeup_kswapd();
++	if (!PageActive(page))
++		activate_page(page);
++	else
++		SetPageReferenced(page);
++
+ not_found:
+ 	return page;
  }
+@@ -783,8 +784,7 @@
+ 	 */
+ 	spin_lock(&pagecache_lock);
+ 	while (--index >= start) {
+-		hash = page_hash(mapping, index);
+-		page = __find_page_nolock(mapping, index, *hash);
++		page = __find_page_simple(mapping, index);
+ 		if (!page)
+ 			break;
+ 		deactivate_page(page);
 

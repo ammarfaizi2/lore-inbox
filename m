@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314132AbSDLSGj>; Fri, 12 Apr 2002 14:06:39 -0400
+	id <S314133AbSDLSIK>; Fri, 12 Apr 2002 14:08:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314133AbSDLSGj>; Fri, 12 Apr 2002 14:06:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36163 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314132AbSDLSGi>; Fri, 12 Apr 2002 14:06:38 -0400
-To: suparna@in.ibm.com
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-In-Reply-To: <1759496962.1018114339@[10.10.2.3]>
-	<m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com>
-	<m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com>
-	<m1y9fvlfyb.fsf@frodo.biederman.org> <20020411192649.A1947@in.ibm.com>
-	<m1hemil03d.fsf@frodo.biederman.org> <20020412201950.A1443@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 Apr 2002 11:59:35 -0600
-Message-ID: <m1sn60kdbs.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314134AbSDLSIJ>; Fri, 12 Apr 2002 14:08:09 -0400
+Received: from relay03.valueweb.net ([216.219.253.237]:38152 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S314133AbSDLSII>; Fri, 12 Apr 2002 14:08:08 -0400
+Message-ID: <3CB721A8.F6C772C9@opersys.com>
+Date: Fri, 12 Apr 2002 14:04:24 -0400
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-TRACE i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: Mark Hahn <hahn@physics.mcmaster.ca>,
+        Zoltan Menyhart <Zoltan.Menyhart@bull.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Event logging vs enhancing printk
+In-Reply-To: <Pine.LNX.4.33.0204120836060.22605-100000@coffee.psychology.mcma
+			 ster.ca> <2238694662.1018597136@[10.10.2.3]>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya <suparna@in.ibm.com> writes:
 
-> OK. The crash with bootimg implementation was known to have occasional
-> difficulties when boot got triggered (via panic) while in X -- sometimes 
-> having the console messed up, and on some occasions even hangs.
-> How's been your experience - no problems in kexec'ing from X, 
-> anytime ?
-
-So far I haven't tried it from X.  Most of my test machines don't have
-video.  When working on a good machine you should be able to return
-the video to the state you got it.
-
-I'm not quite certain how to handle the crash dump case.
- 
-> That would be machine_kexec, and the kimage struct, right ?
-> So far looks ok, though I haven't looked at it critically. One thing that 
-> that I require was a way to pass information across boots - 
-> maybe that could be done through command line parameters to the new 
-> kernel.
-
-A command line work work.  You can arbitrary segments so you can pass
-anything that is needed from the user space side.
-
-> > Version 2.0 is an early beta.  Some idiot yanked EM_486 and a couple
-> > of other symbols out of elf.h from glibc.  Despite the ELF spec says
-> > EM_486 at least should be there.  In any case that is just a debugging
-> > bit and you can safely disable those.  Or do a make -k and compile the
-> > kexec piece, but not the kparam, which isn't really relevant.
+"Martin J. Bligh" wrote:
+> > frankly, evlog is a solution in search of a problem.  I see no reason
+> > printk can't do TSC timestamping, more robust and/or efficient buffering,
+> > auto-classification in klogd, realtime filtering/notification in
+> > userspace, even delaying of formatting, and logging of binary data.
 > 
-> I commented out the EM_486 check from the kexec code, and it built
-> cleanly. I was able to boot a 2-way system with it, though it seemed
-> to take a while, perhaps more so because I didn't seem to be getting
-> any of the bootup/startup messages on my console. In one case there were 
-> some INIT respawning messages that came up. Not sure the fact that
-> I'm using a serial console matters.
+> Of course you could. You could just take the existing mechanism
+> that's been written for event logging and call it printk, for one.
 
-A serial console is my usual test case, so that shouldn't affect
-anything.  I'm glad that it worked. 
+True,
 
-For the speed difference my hunch is perhaps you didn't specify your
-normal kernel command line on the command line.  
+I've been following this debate for some time and it seems to me that
+there's been a lot of arguments for or against an "enhanced printk".
+As Michel Dagenais pointed out, we can give it the name we would like,
+it is the technical merits of the evlog proposal which should be looked
+at carefully.
 
-Usually I do something like:
-kexec bzImage root=xxx console=ttyS0,9600 blah, blah, blah.
+Since everyone seems to agree that printk needs to be changed and since
+the evlog folks have already worked extensively on this issue, it would
+seem that their work should be weighed in and, at the very least, tested
+out by the folks who insist on an "enhanced printk".
 
-Mostly kexec is supposed to be the simple test client instead of a
-full fledged interface.
+Cheers,
 
-Eric
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267027AbSLKGXb>; Wed, 11 Dec 2002 01:23:31 -0500
+	id <S267024AbSLKGZo>; Wed, 11 Dec 2002 01:25:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267028AbSLKGX2>; Wed, 11 Dec 2002 01:23:28 -0500
-Received: from holomorphy.com ([66.224.33.161]:4768 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267027AbSLKGX0>;
-	Wed, 11 Dec 2002 01:23:26 -0500
-Date: Tue, 10 Dec 2002 22:30:31 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Love <rml@tech9.net>
-Cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] epoll: don't printk pointer value
-Message-ID: <20021211063031.GH9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Love <rml@tech9.net>, davidel@xmailserver.org,
-	linux-kernel@vger.kernel.org
-References: <1039588045.833.3.camel@phantasy>
+	id <S267029AbSLKGZo>; Wed, 11 Dec 2002 01:25:44 -0500
+Received: from zeus.city.tvnet.hu ([195.38.100.182]:46208 "EHLO
+	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S267024AbSLKGZn>; Wed, 11 Dec 2002 01:25:43 -0500
+Subject: question
+From: Sipos Ferenc <sferi@mail.tvnet.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1039588506.1082.1.camel@zeus.city.tvnet.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039588045.833.3.camel@phantasy>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.0 (1.2.0-1) 
+Date: 11 Dec 2002 07:35:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 01:27:25AM -0500, Robert Love wrote:
-> I really cannot think of a good reason why eventpoll_init() should print
-> a pointer value to user-space - especially the value of current?
-> I do not think this is good practice and someone might even consider it
-> a security hole.  Personally, I would prefer to remove the "successfully
-> initialized" message altogether, but at the very least can we not print
-> current's address?
+Hi!
 
-You're still passing current as an argument to the printk.
+Is the new atapi cd writing method included into the 2.4 backported ac
+ide code or is it separate, if it is, then will it be ported to 2.4?
 
+Thx.
 
-Bill
+Paco

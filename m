@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280035AbRK2Qta>; Thu, 29 Nov 2001 11:49:30 -0500
+	id <S283320AbRK2Qxu>; Thu, 29 Nov 2001 11:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283322AbRK2QtU>; Thu, 29 Nov 2001 11:49:20 -0500
-Received: from okcforum.org ([207.43.150.207]:33797 "EHLO okcforum.org")
-	by vger.kernel.org with ESMTP id <S280035AbRK2QtB>;
-	Thu, 29 Nov 2001 11:49:01 -0500
-Subject: Re: Unresponiveness of 2.4.16 revisited
-From: "Nathan G. Grennan" <ngrennan@okcforum.org>
-To: Oktay Akbal <oktay.akbal@s-tec.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.42.0111291030390.1191-100000@omega.hbh.net>
-In-Reply-To: <Pine.LNX.4.42.0111291030390.1191-100000@omega.hbh.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 29 Nov 2001 10:48:32 -0600
-Message-Id: <1007052513.1470.5.camel@cygnusx-1.okcforum.org>
-Mime-Version: 1.0
+	id <S283327AbRK2Qxl>; Thu, 29 Nov 2001 11:53:41 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:9482 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S283322AbRK2Qxd>;
+	Thu, 29 Nov 2001 11:53:33 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Petr Titera <P.Titera@century.cz>
+Date: Thu, 29 Nov 2001 17:52:49 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [Patch] Windows CP1250 support
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <A936D1616A6@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-29 at 03:32, Oktay Akbal wrote:
-> On 29 Nov 2001, Nathan G. Grennan wrote:
+On 29 Nov 01 at 17:06, Petr Titera wrote:
 > 
-> > ok, I doubled checked things. It seems mounting an ext3 filesystem as
-> > ext2 is somewhat a myth. If the kernel supports ext3 it still mounts it
-> > as ext3 even if /etc/fstab says ext2. 
-> 
-> really on other partitions than root-fs ?
-> 
-> -- 
-> Oktay Akbal
+> Linux contains two codepages for Central European languages (CP852 and
+> iso8859-2) but neither one is correct for character encoding used in 
+> Central European version of Windows (which uses Microsoft's CP1250). 
+> This patch adds support for this codepage.
 
-I am not positive about mounting non-root filesystems. I would suspect
-it is just a problem with root filesystems.
+> +  If you want to display filenames with native language characters
+> +  from the Microsoft FAT file system family or from JOLIET CDROMs
+> +  correctly on the screen, you need to include the appropriate
 
+Correct me, if I'm wrong, but FAT (MSDOS, VFAT short name) uses
+CP852, and VFAT long name uses unicode. JOLIET also uses unicode.
+CP1250 is not used anywhere near to filesystems in Microsoft Windows,
+even Microsoft was bright enough to use only one (MSDOS compatible)
+encoding (+ unicode) on externally visible filenames.
+
+And your system itself (userspace) should use ISO-8859-2, so I see
+no need for CP1250 - everything works fine here without it. Maybe you
+are creating your CDROMs with 16bit-encoded CP1250 instead of unicode,
+but then you should replace your CDROM creating software.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263585AbUC3JsU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 04:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbUC3JsU
+	id S263591AbUC3Jz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 04:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbUC3Jzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:48:20 -0500
-Received: from 80.179.103.90.forward.012.net.il ([80.179.103.90]:65038 "HELO
-	mrson1512.com") by vger.kernel.org with SMTP id S263585AbUC3JsN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:48:13 -0500
-From: "Sofia Pujeh" <sofia20@wowmail.com>
-Reply-To: sofia20@wowmail.com
-To: linux-kernel@vger.kernel.org
-Date: Tue, 30 Mar 2004 11:48:07 +0200
-Subject: please help me
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	Tue, 30 Mar 2004 04:55:55 -0500
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:6290 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S263591AbUC3Jzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 04:55:51 -0500
+Message-ID: <40694474.50776A10@nospam.org>
+Date: Tue, 30 Mar 2004 11:57:08 +0200
+From: Zoltan Menyhart <Zoltan.Menyhart_AT_bull.net@nospam.org>
+Reply-To: Zoltan.Menyhart@bull.net
+Organization: Bull S.A.
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S263585AbUC3JsN/20040330094813Z+313@vger.kernel.org>
+To: Erich Focht <efocht@hpce.nec.com>
+CC: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Migrate pages from a ccNUMA node to another
+References: <4063F188.66DB690A@nospam.org> <200403300116.01877.efocht@hpce.nec.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erich Focht wrote:
+> 
+> Szia Zoltan,
+> 
+> > - Migrate pages identified by their physical addresses to another NUMA node
+> You want this only for your "AI" keeping track of the hw counters in
+> the chipset? I hope you can teach it to keep track of the bandwidth of
+> all processes on the machine, otherwise it might disturb the processes
+> more than it helps them... and waste the machine's bandwidth with
+> migrating pages.
 
+Szervusz Erich,
 
-FROM:SOFIA PUJEH
-DAKAR, SENEGAL.
-WEST-AFRICA
-e-mail:sofia20@wowmail.com
+I put AI between quotation marks because it is not a real intelligence.
+It should not waste much time on being intelligent :-)
+At least we have not managed to find out a general purpose solution that
+could cope with no matter what application.
+We try to tune parameters, like sampling period / time, how many pages
+are checked, when we consider a page as "hot", how many % or # cycles
+distant vs. local justifies the migration...
+We try to set up a "profile" for an application.
+The launcher of the application takes into account the profile and
+the AI evaluates the HW counters according this profile info.
+I think most of the huge applications of our clients will run several
+times with different data but with the data of similar behavior.
+The clients will have the ability to tune their application profiles. 
 
-Dear Sir,
+> > - Migrate pages of a virtual user address range to another NUMA node
+> This is good. I'm thinking about the rss/node patches, they would tell
+> you when you should think about migrating something for a process. My
+> current usage model would be simpler: for a given mm migrate all pages
+> currently on node A to node B. But the flexibility of your API will
+> certainly not remain unused.
 
+You should migrate if it worth the cost of the migration to do
+(private malloc()-ed data, stack,...).
 
-I wish to present this proposal for the purpose of investment in your country.My name is SOFIA PUJEH, and I am 20years old.I am the daughter of HON.NGOR MONOH PUJEH the former Minister of Transport and Communication with the present Government of President Kabbah of Sierra-Leone.My father and mother were arrested on 1st of Nov 2001 by Kabbah's Government on allegation of using their postion in the govenment to aid smuggling of diamond from the Kono diamond field,it was just a political vendetta.
+Do you mean to guess in the kernel what pages to move ?
 
+I need "real information" :-)) to decide, this is either I ask the HW or
+I wait the application to tell me its requirement.
 
-My father later died in the prison,it was diagnonised that he was poisoned,but Government report says heart failure. whatever it is, let God be the judge.He sent a note to me before his death, regarding a deposit of the sum of USD$1,200.000.00) One Million Two Hundred Thousand United States Dollars in a Bank in DAKAR SENEGAL. He instructed me to move immediately with the documents to a neighbouring country to seek asylum.I moved to the Republic of Mali where I spent some time before finally moving to DAKAR,to enquire about the deposit.
+> > BTW Has someone a machine with a chip set other than i82870 ?
+> ??? As far as I know SGI, HP, NEC and IBM have all their own NUMA
+> chipsets for IA64. Was this the question? Are you looking for hardware
+> counters?
 
+I'd like to know - and someone to try :-)) - how much it costs on another
+chip set to measure the page usage statistics, say for 1 Gbytes of memory...
 
-My mother died just on dec.26th, so i am kind of desolete.
-Meanwhile i have located the bank, and have also discussed the possible transfer of the fund to abroad.Unfortunately,my father left a clause that the fund should not be released to me untill i attend the age of 25,or i have to introduce a trusted foreign partner who would be my trustee and investor,hence the need for your assistance.
+Thanks,
 
-
-I request that you be my trustee and assist me in effecting the transfer of the fund to your account or an account you will nominate.You will also be resposible for the investment and management of the fund untill i am able to join you after my education in your country.
-
-You and I will agree on a percentage you will take for your assistance. Please let me know immediately if you can assist me so that I will give you more informations about the deposit.
-I thank you in anticipation to your quick response.
-
-Yours faithfully,
-SOFIA
-
-
-
+Zoltán

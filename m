@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264177AbUDBVHa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264180AbUDBVH3
+	id S264183AbUDBVLB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:11:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbUDBVLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:07:29 -0500
-Received: from mail.shareable.org ([81.29.64.88]:12694 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264177AbUDBVH2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:07:28 -0500
-Date: Fri, 2 Apr 2004 22:07:22 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Paul Eggert <eggert@CS.UCLA.EDU>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       bug-coreutils@gnu.org
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-Message-ID: <20040402210722.GE653@mail.shareable.org>
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de> <20040401220957.5f4f9ad2.ak@suse.de> <7w3c7nb4jb.fsf@sic.twinsun.com> <20040402011411.GE28520@mail.shareable.org> <87wu4yohtp.fsf@penguin.cs.ucla.edu> <20040402162338.GB32483@mail.shareable.org> <87ad1uw1m2.fsf@penguin.cs.ucla.edu>
+	Fri, 2 Apr 2004 16:11:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32737 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264121AbUDBVLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 16:11:00 -0500
+Date: Fri, 2 Apr 2004 13:13:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Hartmann <andihartmann@freenet.de>
+Cc: mason@suse.com, linux-kernel@vger.kernel.org
+Subject: Re: Very poor performance with 2.6.4
+Message-Id: <20040402131309.238729bb.akpm@osdl.org>
+In-Reply-To: <406DD2E2.7030602@A88be.a.pppool.de>
+References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
+	<20040328200710.66a4ae1a.akpm@osdl.org>
+	<4067BF2C.8050801@p3EE060D4.dip0.t-ipconnect.de>
+	<1080570227.20685.93.camel@watt.suse.com>
+	<406D21F6.8080005@A88c0.a.pppool.de>
+	<20040402022348.00d55268.akpm@osdl.org>
+	<406DD2E2.7030602@A88be.a.pppool.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ad1uw1m2.fsf@penguin.cs.ucla.edu>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Eggert wrote:
-> Jamie Lokier <jamie@shareable.org> writes:
-> > The only thing I don't like is that some cacheing algorithms will need
-> > to make 2 system calls for each file being checked, instead of 1.
+Andreas Hartmann <andihartmann@freenet.de> wrote:
+>
+> > What device drivers are running at the time?  disk/network/usb/etc?
 > 
-> Do you mean for mtime versus atime (versus ctime)?  Yes, in that case
-> getxattr etc. would be a better choice.
+> Module                  Size  Used by    Not tainted
+> eepro100               19828   1  (autoclean)
+> mii                     2480   0  (autoclean) [eepro100]
+> sis900                 13036   1  (autoclean)
+> crc32                   2880   0  (autoclean) [sis900]
+> usb-storage            26416   0  (unused)
+> scsi_mod               87488   0  [usb-storage]
+> uhci                   25436   0  (unused)
+> usbcore                62316   0  [usb-storage uhci]
+> lvm-mod                44416  12  (autoclean)
+> unix                   15308  13  (autoclean)
 
-No, I mean that they currently call fstat().  In future they'd need to
-call fstat()+getxattr().
+No.  I mean which drivers were actually doing significant amounts of work
+during the test?
 
-If it's a per-filesystem quantity, then of course fstat() is all they
-need.  So that would be great.
-
-> Coreutils CVS assumes that the time stamp resolution is the same for
-> all files within the same file system.  Is this a safe assumption
-> under Linux?  I now worry that some NFS implementations might violate
-> that assumption, if a remote host is exporting several native file
-> systems, with different native resolutions, to the local host under a
-> single mount point.  On the other hand, NFSv3 and NFSv4 clearly state
-> that the time stamp resolution is a per-filesystem concept, so perhaps
-> we should just consider that to be a buggy NFS server configuration.
-
-Buugy, perhaps, but quite useful sometimes.  It's not a problem, if
-we're clear that it's a per-filesystem quantity.  That kind of NFS
-server configuration can advertise the coarsest timestamp resolution
-of all the underlying filesystems.
-
-NFS is not the only remote filesystem, and some like Samba can
-certainly span multiple underlying filesystems without violating any
-specificaiton.
-
-With that in mind, we'd need to be clear that the resolution actually
-stored may exceed the resolution advertised.  I don't know whether
-that breaks coreutils' assumption.
-
--- Jamie
+(you appear to not have any disks)

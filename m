@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288902AbSAISfQ>; Wed, 9 Jan 2002 13:35:16 -0500
+	id <S288963AbSAISoG>; Wed, 9 Jan 2002 13:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288964AbSAISfG>; Wed, 9 Jan 2002 13:35:06 -0500
-Received: from adsl-63-192-223-74.dsl.snfc21.pacbell.net ([63.192.223.74]:15216
-	"EHLO gateway.berkeley.innomedia.com") by vger.kernel.org with ESMTP
-	id <S287827AbSAISe4>; Wed, 9 Jan 2002 13:34:56 -0500
-Message-ID: <3C3C8D4D.621A4696@berkeley.innomedia.com>
-Date: Wed, 09 Jan 2002 10:34:53 -0800
-From: Christopher James <cjames@berkeley.innomedia.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test1-rtl i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Multicast fails when interface changed
-Content-Type: text/plain; charset=iso-8859-1
+	id <S287850AbSAISn5>; Wed, 9 Jan 2002 13:43:57 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:62178 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S288963AbSAISnn>;
+	Wed, 9 Jan 2002 13:43:43 -0500
+Subject: ext3 umount oops in 2.5.2-pre10
+From: Steve Lord <lord@sgi.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 09 Jan 2002 12:42:40 -0600
+Message-Id: <1010601760.29727.138.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by mangalore.zipworld.com.au id FAA13914
 
-We are running an application that uses multicasting
-on Linux kernel 2.2.19. The application is
-connected to two network interfaces for redundancy
-purposes - only one interface is active at a time.
-When the application starts up on the first interface,
-the application can send and receive multicast messages.
-We then use ifconfig to bring down the first interface,
-and use ifconfig to bring up the second interface. The application
-works with the exception that it cannot receive multicast
-packets (it can still send multicast packets).
 
-It appears that the multicast information is not propagated
-when switching from one interface to the other.  After
-the switch, the information in /proc/dev/mcast is still set
-up to work with the first interface.  Also, it looks like the
-device list of multicast information (checked by calling
-ip_check_mc()) is lost when switching from the first to
-second interface.
+It looks like ext3 does not work if you do not use an external
+journal device - the journal_bdev field is not initialized and
+ext3_put_super goes belly up:
 
-Is there a fix or work around to keep multicasting working
-when switching from one interface to another?  We looked
-at the 2.4 kernel and it appears that it will have the same problem.
 
-Also, if there is no fix or patch, we are considering whether
-we should come up with a kernel patch.  If we submitted a kernel
-patch that propagates the multicast information when the
-interface is changed, would it be accepted into the kernel?
+At the very least it needs this:
 
- I am not on the list so please CC with any answers/comments.
+===========================================================================
+Index: linux/fs/ext3/super.c
+===========================================================================
 
-Thanks.
+--- /usr/tmp/TmpDir.13226-0/linux/fs/ext3/super.c_1.6	Wed Jan  9 12:38:48 2002
++++ linux/fs/ext3/super.c	Wed Jan  9 12:26:00 2002
+@@ -429,7 +429,7 @@
+ 	J_ASSERT(list_empty(&sbi->s_orphan));
+ 
+ 	invalidate_bdev(sb->s_bdev, 0);
+-	if (sbi->journal_bdev != sb->s_bdev) {
++	if (sbi->journal_bdev && (sbi->journal_bdev != sb->s_bdev)) {
+ 		/*
+ 		 * Invalidate the journal device's buffers.  We don't want them
+ 		 * floating about in memory - the physical journal device may
 
-Christopher
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i
+
+
+-- 
+
+Steve
+

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276135AbRJYUAs>; Thu, 25 Oct 2001 16:00:48 -0400
+	id <S273783AbRJYUFs>; Thu, 25 Oct 2001 16:05:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276138AbRJYUAi>; Thu, 25 Oct 2001 16:00:38 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:8406 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S276135AbRJYUAc>; Thu, 25 Oct 2001 16:00:32 -0400
-Date: Thu, 25 Oct 2001 16:01:03 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
-Message-ID: <20011025160103.I23000@redhat.com>
-In-Reply-To: <200110251930.f9PJUJl26883@vegae.deep.net>
+	id <S272549AbRJYUFi>; Thu, 25 Oct 2001 16:05:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32640 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S276285AbRJYUFV>;
+	Thu, 25 Oct 2001 16:05:21 -0400
+Date: Thu, 25 Oct 2001 12:56:46 -0700 (PDT)
+Message-Id: <20011025.125646.59654205.davem@redhat.com>
+To: thockin@sun.com
+Cc: mgm@paktronix.com, david@blue-labs.org, cfriesen@nortelnetworks.com,
+        kuznet@ms2.inr.ac.ru, ja@ssi.bg, linux-kernel@vger.kernel.org
+Subject: Re: issue: deleting one IP alias deletes all
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BD86FA9.A992FE96@sun.com>
+In-Reply-To: <Pine.LNX.4.31.0110251234430.32029-100000@netmonster.pakint.net>
+	<3BD86FA9.A992FE96@sun.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110251930.f9PJUJl26883@vegae.deep.net>; from _deepfire@mail.ru on Thu, Oct 25, 2001 at 11:30:18PM +0400
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 11:30:18PM +0400, Samium Gromoff wrote:
->        Hello folks...
-> 
-> 	Host A: p166, ISA NE2K, linux-2.4.12-ac4
-> 	Host B: p2-400, rtl-8129, WinXP (heh, not my box though ;)
-> 
-> 	Load: smbmount connection from host A to the host B, and getting
->      large files.
+   From: Tim Hockin <thockin@sun.com>
+   Date: Thu, 25 Oct 2001 13:01:45 -0700
+   
+   > Again - if you do not like this behaviour do not use the primary/secondary
+   > addressing scopes. Use /32.
+   
+   Why should user-land be forced to work around what is obviously (to the
+   vast majority of people in this discussion) a mis-feature?
 
-Solution: replace NE2K with a decent network card.
+You have to understand how routing works to setup IP, we're deeply
+sorry about that.
 
-		-ben
+Franks a lot,
+David S. Miller
+davem@redhat.com

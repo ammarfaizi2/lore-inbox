@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131368AbQLLBOI>; Mon, 11 Dec 2000 20:14:08 -0500
+	id <S131585AbQLLBUi>; Mon, 11 Dec 2000 20:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131586AbQLLBNt>; Mon, 11 Dec 2000 20:13:49 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:64778 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131525AbQLLBNm>; Mon, 11 Dec 2000 20:13:42 -0500
-Date: Mon, 11 Dec 2000 18:43:05 -0600
-To: "John O'Donnell" <johnod@voicefx.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: YUP- Almost 2.2.18
-Message-ID: <20001211184305.A3199@cadcamlab.org>
-In-Reply-To: <3A349C12.4000408@voicefx.com>
-Mime-Version: 1.0
+	id <S131591AbQLLBU3>; Mon, 11 Dec 2000 20:20:29 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:58754 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S131585AbQLLBUT>; Mon, 11 Dec 2000 20:20:19 -0500
+Message-ID: <3A35762F.FDCE002B@haque.net>
+Date: Mon, 11 Dec 2000 19:49:51 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Frank Davis <fdavis112@juno.com>
+Subject: task queue updates status?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A349C12.4000408@voicefx.com>; from johnod@voicefx.com on Mon, Dec 11, 2000 at 04:19:14AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[John O'Donnell]
-> The directory of kernel headers (version 2.2.17) does not match your
-> running kernel (version 2.2.18). Consequently, even if the
-> compilation of the module wassuccessful, the module would not load
-> into the running kernel.
+Hello all
 
-> Upon inspection of /usr/src/linux/include/linux/version.h
-> it plainly says 2.2.17.... ????  I changed it to 2.2.18 and all is well.
+How are we doing on the task queue updates?
 
-version.h is an auto-generated file (see the first four lines of the
-toplevel Makefile for the correct version definition).  It is generated
-when you compile the kernel.  If you unpacked the tree (or patched a
-2.2.17 tree) *without* compiling anything, version.h (and compile.h,
-which is created at about the same time) will be either missing or
-wrong.
+-- 
 
-Peter
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

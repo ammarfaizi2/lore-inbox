@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUC3UZo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 15:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUC3UZo
+	id S261156AbUC3U1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 15:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbUC3U1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 15:25:44 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:7179 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S261169AbUC3UZm convert rfc822-to-8bit
+	Tue, 30 Mar 2004 15:27:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61827 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261156AbUC3U1V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 15:25:42 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Len Brown <len.brown@intel.com>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-Date: Tue, 30 Mar 2004 22:25:33 +0200
-User-Agent: KMail/1.6.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com> <200403302030.26476.arekm@pld-linux.org> <1080677134.980.166.camel@dhcppc4>
-In-Reply-To: <1080677134.980.166.camel@dhcppc4>
+	Tue, 30 Mar 2004 15:27:21 -0500
+Date: Tue, 30 Mar 2004 15:29:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Ben Greear <greearb@candelatech.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sched_yield() version 2.4.24
+In-Reply-To: <200403302140.05820.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.53.0403301526100.7833@chaos>
+References: <Pine.LNX.4.53.0403301138260.6967@chaos> <4069AED1.4020102@nortelnetworks.com>
+ <4069B3CC.1040904@candelatech.com> <200403302140.05820.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403302225.33966.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Tuesday 30 of March 2004 22:05, Len Brown napisa³:
-> I can make sure that ACPI checks implicitly or explicitly
-> that CMPXCHG is available -- but I can't make sure that
-> some other random part of the kernel which may not have
-> been written yet does.  So I'd rather that they not build,
-> like ACPI didn't.
-Well, I asked for this because there is similar case with some DRI drivers in 
-kernel. These drivers use cmpxchg and some time ago it was not possible to 
-build them for i386 (and of course run on 486+). This AFAIK did not change.
+On Tue, 30 Mar 2004, Denis Vlasenko wrote:
 
-These not yet written parts of kernel do not exist so nothing to worry about 
-right now. Anyway there always could be #warning for i386 - easy to catch 
-while compiling and would allow to fix that future kernel code then.
+> On Tuesday 30 March 2004 19:52, Ben Greear wrote:
+> > Chris Friesen wrote:
+> > > The cpu util accounting code in kernel/timer.c hasn't changed in 2.4
+> > > since 2002.  Must be somewhere else.
+> > >
+> > > Anyone else have any ideas?
+> >
+> > As another sample point, I have fired up about 100 processes with
+> > each process having 10+ threads.  On my dual-xeon, I see maybe 15
+> > processes shown as 99% CPU in 'top'.  System load was near 25
+> > when I was looking, but the machine was still quite responsive.
+>
+> There was a top bug with exactly this symptom. Fixed.
+> I use procps-2.0.18.
+>
+Wonderful!  Now, where do I find the sources now that RedHat has
+gone "commercial" and is keeping everything secret?
 
-> cheers,
-> -Len
+I followed the http://sources.redhat.com/procps/  instructions
+__exactly__ and get this:
 
-> > Wouldn't be better to just remove #ifdef CONFIG_X86_CMPXCHG around
-> > __cmpxchg() and cmpxchg macro in ./include/asm-i386/system.h so cmpxchg()
-> > would be there always even on i386 but leave CONFIG_X86_CMPXCHG macro if
-> > anyone want's to check for it in some code. No code duplication and you
-> > get what you need.
+Script started on Tue Mar 30 15:27:02 2004
+quark:/home/johnson/foo[1] cvs -d :pserver:anoncvs@sources.redhat.com:/procps login anoncvs
+Logging in to :pserver:anoncvs@sources.redhat.com:2401/procps
+CVS password:
+/procps: no such repository
+quark:/home/johnson/foo[2] exit
+Script done on Tue Mar 30 15:28:32 2004
 
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

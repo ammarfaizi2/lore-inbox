@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264175AbTDWRsf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 13:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264178AbTDWRsf
+	id S264168AbTDWR41 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 13:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264173AbTDWR41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 13:48:35 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:63649 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264175AbTDWRsd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 13:48:33 -0400
-Date: Wed, 23 Apr 2003 11:02:10 -0700
-From: Greg KH <greg@kroah.com>
-To: marcelo@conectiva.com.br
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB fixes for 2.4.21-rc1
-Message-ID: <20030423180210.GA11995@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Apr 2003 13:56:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:4503 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264168AbTDWR40 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 13:56:26 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] HT scheduler, sched-2.5.68-B2
+Date: Wed, 23 Apr 2003 12:53:09 -0500
+User-Agent: KMail/1.4.3
+References: <Pine.LNX.4.44.0304231816210.10779-100000@localhost.localdomain> <1535810000.1051120075@flay>
+In-Reply-To: <1535810000.1051120075@flay>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304231253.09520.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 23 April 2003 12:47, Martin J. Bligh wrote:
+> >  - turn off the more agressive idle-steal variant. This could fix the
+> >    low-load regression reported by Martin J. Bligh.
+>
+> Yup, that fixed it (I tested just your first version with just that
+> bit altered).
 
-Here are three USB bugfixes for 2.4.21-rc1.  They are two fixes for the
-usb-storage driver, and one fix for the keyspan driver.
+Can we make this an arch specific option?  I have a feeling the HT performance 
+on low loads will actually drop with this disabled.  
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/marcelo-2.4
-
-The individual patches will be sent in follow up messages to this email
-to you and the linux-usb-devel mailing list.
-
-thanks,
-
-greg k-h
-
- drivers/usb/serial/keyspan.c    |   15 +++++++++------
- drivers/usb/serial/keyspan.h    |   20 +++++++++++++++++++-
- drivers/usb/storage/transport.c |   10 +++++++++-
- drivers/usb/storage/usb.h       |    1 +
- 4 files changed, 38 insertions(+), 8 deletions(-)
------
-
-<lucy@innosys.com>:
-  o USB: keyspan driver fixes
-
-Alan Stern <stern@rowland.harvard.edu>:
-  o USB: usb-storage fixes
-  o USB: usb storage async unlink error code fix
-
+-Andrew

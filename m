@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286447AbRLTWks>; Thu, 20 Dec 2001 17:40:48 -0500
+	id <S286432AbRLTWl2>; Thu, 20 Dec 2001 17:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286448AbRLTWkj>; Thu, 20 Dec 2001 17:40:39 -0500
-Received: from pc26.tromso2.avidi.online.no ([148.122.16.26]:20497 "EHLO
-	shogun.thule.no") by vger.kernel.org with ESMTP id <S286447AbRLTWk2>;
-	Thu, 20 Dec 2001 17:40:28 -0500
-From: "Troels Walsted Hansen" <troels@thule.no>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Scheduler ( was: Just a second ) ...
-Date: Thu, 20 Dec 2001 23:40:23 +0100
-Message-ID: <007401c189a7$50f6cd60$0300000a@samurai>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S286433AbRLTWlM>; Thu, 20 Dec 2001 17:41:12 -0500
+Received: from [213.140.14.138] ([213.140.14.138]:28050 "HELO
+	markolaptop.markoer.net") by vger.kernel.org with SMTP
+	id <S286432AbRLTWkv>; Thu, 20 Dec 2001 17:40:51 -0500
+Date: Thu, 20 Dec 2001 23:40:45 +0100
+From: Marco Ermini <markoer@markoer.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS
+Message-Id: <20011220234045.34089a2b.markoer@markoer.org>
+In-Reply-To: <Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva>
+In-Reply-To: <20011218121034.B23308@vitelus.com>
+	<Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <20011219.220151.56814481.davem@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: David S. Miller
->   From: Linus Torvalds <torvalds@transmeta.com>
->   Well, that was true when the thing was written, but whether anybody
-_uses_
->   it any more, I don't know. Tux gets the same effect on its own, and
-I
->   don't know if Apache defaults to using sendfile or not.
->   
->Samba uses it by default, that I know for sure :-)
+On Tue, 18 Dec 2001 18:44:41 -0200 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
 
-I wish... Neither Samba 2.2.2 nor the bleeding edge 3.0alpha11 includes
-the word "sendfile" in the source at least. :( Wonder why the sendfile
-patches where never merged...
+> On Tue, 18 Dec 2001, Aaron Lehmann wrote:
+> > On Tue, Dec 18, 2001 at 09:05:55PM +0100, Dave Jones wrote:
+> > > Remember DMCA ? Remember SSSCA ?
+> >
+> > I watch DVD's with DeCSS. Come and get me.
+> 
+> Punishable by fines of up to $500,000 and 5 years
+> in prison, per violation.
 
---
-Troels Walsted Hansen
+But not in Europe. Only in the USA. Algorithms may not be subjected to patents
+in Europe (by now).
 
+Anyway, maybe you may not get catched in the intimacy of your room. But I
+could understand that it's not acceptable as a legitimate proposal for a
+worldwide used OS, as Linux is, to suggest to every single user to violate the
+law in the intimacy of their room to be able to use it. I may feel safe in my
+own room and I may use these tools if I'm able to, but I can't propose to
+anyone to use these such tools, that's the point.
+
+
+bye
+
+-- 
+Marco Ermini
+http://www.markoer.org
+Perche' perdere tempo ad imparare quando l'ignoranza e' istantanea? (Hobbes)

@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbUCSDTF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 22:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUCSDTF
+	id S261426AbUCSHI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 02:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUCSHI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 22:19:05 -0500
-Received: from fmr10.intel.com ([192.55.52.30]:30858 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262182AbUCSDS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 22:18:59 -0500
-Subject: how to disable HT
-From: Len Brown <len.brown@intel.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1079666329.3274.55.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 18 Mar 2004 22:18:49 -0500
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 02:08:26 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:8232 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261426AbUCSHIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 02:08:24 -0500
+Date: Fri, 19 Mar 2004 07:08:26 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+In-Reply-To: <20040319024251.GA31498@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BIOS SETUP is the best method to disable HT.  But sometimes
-that isn't practical, so disabling at Linux boot-time is needed.
+On Fri, 19 Mar 2004, Andrea Arcangeli wrote:
+> On Thu, Mar 18, 2004 at 11:21:07PM +0000, Hugh Dickins wrote:
+> > +	if (!spin_trylock(&mm->page_table_lock))
+> > +		return 1;
+> > +
+> [..]
+> > +	if (down_trylock(&mapping->i_shared_sem))
+> > +		return 1;
+> > +	
+> 
+> those two will hang your kernel in the workload I posted to the list a
+> few days ago.
 
-Most OEMs' BIOS enumerates primary logical processors before
-secondary logical processors -- so reducing NR_CPUS at build-time
-can start a processor per package before hitting the limit --
-effectively disabling HT.
+I missed the actual workload, will search the archives later.
+Fear I won't reproduce it exactly, and more anxious to plug
+the mremap-move and non-linear holes.
 
-2.6.5-rc1-mm2 includes a patch that allows boot-time maxcpus=N to
-work the same as NR_CPUS=N:
+> With previous kernels the above didn't matter, but starting with
+> 2.6.5-rc1 it does matter, if we cannot know if it's referenced or not,
+> we must assume it's not and return 0 or it lives locks hard with all
+> tasks stuck and one must click reboot.
 
-http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm2/broken-out/bk-acpi.patch
+I don't much care whether we return 1 or 0 in that case, be happy to
+make the change if we understand _why_ it's suddenly become necessary.
+I don't remember seeing an explanation from you (and fair enough, you
+didn't want to get stuck on that detail) or anyone else.
 
-It moves maxcpus=N earlier to cpu enumeration time
-from CPU startup time.
+> I recommend you to share my objrmap patch, the objrmap should be exactly
+> the same for both of us.
 
-So if disabling HT at boot-time is important to you, please
-try it out and comment on the success/failure in the bug report:
-http://bugzilla.kernel.org/show_bug.cgi?id=2317
+I can't take its mm/mmap.c (and if Martin keeps that page_table_lock
+avoidance in his tree, then I think he shouldn't have followed your
+advice to skip Dave's mmap_sem in unuse_process).  But of course,
+I could have started from exactly yours and then a patch to change
+those back.  Just so long as we're aware they're not identical.
 
-I expect that it will work on most systems, but not all, and so it
-is important to look in dmesg to verify that it disabled the
-secondary logical processors at intended.
+Hmm, where's page_test_and_clear_dirty gone in your final objrmap.c?
 
-eg. system with 4 logical processors booted with maxcpus=2:
+There's a lot that could be shared between the two approaches.
+Nice if we kept to the same struct page layout: I put int mapcount
+after atomic_t count because almost all arches have atomic_t as an
+int, so won't that placing save us 4 bytes on the 64-bit arches?
 
-Total of 2 processors activated (11091.96 BogoMIPS). 
-WARNING: No sibling found for CPU 0. 
-WARNING: No sibling found for CPU 1. 
-
-thanks,
--Len
-
+Hugh
 

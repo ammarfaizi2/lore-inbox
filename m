@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264622AbSIREfM>; Wed, 18 Sep 2002 00:35:12 -0400
+	id <S264560AbSIREjx>; Wed, 18 Sep 2002 00:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSIREfM>; Wed, 18 Sep 2002 00:35:12 -0400
-Received: from dp.samba.org ([66.70.73.150]:63449 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264622AbSIREfL>;
-	Wed, 18 Sep 2002 00:35:11 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Experimental IDE oops dumper v0.1 
-In-reply-to: Your message of "Tue, 17 Sep 2002 00:42:56 MST."
-             <Pine.LNX.4.10.10209170028370.11597-100000@master.linux-ide.org> 
-Date: Wed, 18 Sep 2002 14:19:53 +1000
-Message-Id: <20020918044012.C77212C075@lists.samba.org>
+	id <S265211AbSIREjx>; Wed, 18 Sep 2002 00:39:53 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:64261
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S264560AbSIREjw>; Wed, 18 Sep 2002 00:39:52 -0400
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+From: Robert Love <rml@tech9.net>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1032296284.12257.66.camel@spc9.esa.lanl.gov>
+References: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain> 
+	<1032290611.4592.206.camel@phantasy> 
+	<1032292468.11907.44.camel@spc9.esa.lanl.gov> 
+	<1032293199.4588.235.camel@phantasy> 
+	<1032296284.12257.66.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Sep 2002 00:44:51 -0400
+Message-Id: <1032324294.4588.758.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.10.10209170028370.11597-100000@master.linux-ide.org> you
- write:
-> > 	if (!(hdid.capability & (1 << 1))) {
-> > 		fprintf(stderr, "Drive does not support LBA\n");
-> > 		exit(1);
-> > 	}
-> 
-> Wrong answer, you do CHS.
+On Tue, 2002-09-17 at 16:58, Steven Cole wrote:
 
-I can't test that, so safe answer is to refuse to arm the oopser.
-Since LBA is most common, that's my first priority.
+> Sorry, it hung so badly that it didn't respond to that.
 
-> > The code always does a read sector then a write: if the sector doesn't
-> > contain the right magic, it stops.  But the more robust the better.
-> 
-> You need a read-modify-write caller.
-> You need to remember setfeatures need to be hammered on flushcache and
-> writecache disabled.
-> You need to be able to walk your buffer and best only if you do single
-> sector transactions and not multimode.
-> 
-> > Patches appreciated 8)
-> 
-> I'll try, but time is tight for me.
+I fixed the hang.  If you notice the problem, please do not laugh.
 
-Me too 8(.  The oopser is allowed to (a) refuse to arm at arming time,
-or (b) refuse to dump at dumping time, but it'd be nice if it worked
-on the widest range of stuff possible (ie. CHS and LBA48 at least).
-Of course, it can't use any external routines, and must be small too.
+The attached patch, against 2.5.36, should work fine...
 
-The IDE layer does a great job (on my hardware) from recovering after
-we rudely steal the device from it, but no doubt the oopser could be
-nicer about it.
+	Robert Love
 
-Thanks for reading,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+diff -urN linux-2.5.36/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.36/kernel/sched.c	Tue Sep 17 20:58:48 2002
++++ linux/kernel/sched.c	Wed Sep 18 00:41:09 2002
+@@ -940,9 +940,6 @@
+ 	struct list_head *queue;
+ 	int idx;
+ 
+-	if (unlikely(in_atomic()))
+-		BUG();
+-
+ #if CONFIG_DEBUG_HIGHMEM
+ 	check_highmem_ptes();
+ #endif
+@@ -950,8 +947,20 @@
+ 	preempt_disable();
+ 	prev = current;
+ 	rq = this_rq();
+-
+ 	release_kernel_lock(prev);
++
++	/*
++	 * Test if we are atomic.  Since do_exit() needs to call into
++	 * schedule() atomically, we ignore that for now.  Otherwise,
++	 * whine if we are scheduling when we should not be.
++	 */
++	if (likely(current->state != TASK_ZOMBIE)) {
++		if (unlikely((preempt_count() & ~PREEMPT_ACTIVE) != 1)) {
++			printk(KERN_ERR "scheduling while non-atomic!\n");
++			dump_stack();
++		}
++	}
++
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+ 
+

@@ -1,87 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315204AbSFXTlH>; Mon, 24 Jun 2002 15:41:07 -0400
+	id <S315202AbSFXTkV>; Mon, 24 Jun 2002 15:40:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315207AbSFXTlG>; Mon, 24 Jun 2002 15:41:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50310 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315204AbSFXTk6>; Mon, 24 Jun 2002 15:40:58 -0400
-Date: Mon, 24 Jun 2002 15:44:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Salvatore D'Angelo" <dangelo.sasaman@tiscalinet.it>
-cc: Chris McDonald <chris@cs.uwa.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: gettimeofday problem
-In-Reply-To: <3D16F252.90309@tiscalinet.it>
-Message-ID: <Pine.LNX.3.95.1020624153816.15499A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315204AbSFXTkU>; Mon, 24 Jun 2002 15:40:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:34528 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315202AbSFXTkT>;
+	Mon, 24 Jun 2002 15:40:19 -0400
+Date: Mon, 24 Jun 2002 12:33:56 -0700 (PDT)
+Message-Id: <20020624.123356.82809701.davem@redhat.com>
+To: manand@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: efficient copy_to_user and copy_from_user routines in Linux
+ Kernel
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OFCB119CD8.D6AE7B3D-ON85256BE2.006AC911@raleigh.ibm.com>
+References: <OFCB119CD8.D6AE7B3D-ON85256BE2.006AC911@raleigh.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002, Salvatore D'Angelo wrote:
+   From: "Mala Anand" <manand@us.ibm.com>
+   Date: Mon, 24 Jun 2002 14:34:08 -0500
 
-> In this piece of code I convert seconds and microseconds in 
-> milliseconds. I think the problem is not in my code, in fact I wrote the 
-> following piece of code in Java, and it does not work too. In the for 
-> loop the 90% of times b > a while for 10% of times not.
-> 
->     class Prova {
->           public static void main(....) {
->                for (;;) {
->                     long a = System.currentTimeMillis();
->                     long b = System.currentTimeMillis();
-> 
->                     if (a > b) {
->                          System.out.println("Wrong!!!!!!!!!!!!!");
->                     }
->                }
->           }
->     }
-> 
-> 
+   The 2.5.19 copy routines use the movsl instruction.  We found that when the
+   src or dst addresses are not aligned on 8 bytes, performance can be
+   improved
+   by using the integer registers instead of the movsl instruction.  For
+   tcpip,
+   the src or dst addresses are often misaligned.
 
-This has been running since I first read your mail about 10:00 this
-morning. The kernel is 2.4.18
+If the code is going to become so much larger, move the implementation
+out of the header file and into arch/i386/lib/foo.S
 
-#include <stdio.h>
-#include <sys/time.h>
-#define MICRO 1000000
-#define ULL unsigned long long
-int main(void);
-static ULL tim(void);
-
-static ULL tim()
-{
-    struct timeval t;
-    (void)gettimeofday(&t, NULL);
-    return (ULL)t.tv_sec * MICRO + (ULL)t.tv_usec;
-}
-int main()
-{
-    ULL a, b, cnt;
-    for(cnt=0;;cnt++)
-    {
-        a = tim();
-        b = tim();
-        if(b < a)
-            break;
-    }
-    printf("Failed after %llu\n", cnt);
-    printf("a = %llu, b = %llu\n", a, b);
-    return 0;
-}
-
-It seems to work fine. That said, I didn't use your code or check
-for the possibility of a sign-change miscompare. I just made sure
-I don't have any by using unsigned stuff. You may want to try
-this code to see if you have a compiler (or coding) problem.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+It makes no sense to inline it anymore if it is going to be
+implemented with so many instructions.

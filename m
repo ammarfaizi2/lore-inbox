@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266545AbUF0EKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266232AbUF0Ean@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266545AbUF0EKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 00:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266548AbUF0EKQ
+	id S266232AbUF0Ean (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 00:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266238AbUF0Ean
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 00:10:16 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:51651 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S266545AbUF0EKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 00:10:10 -0400
-Message-ID: <40DD06C1.9080908@conectiva.com.br>
-Date: Sat, 26 Jun 2004 02:16:49 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Reply-To: acme@conectiva.com.br
-Organization: Conectiva S.A.
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040506)
-X-Accept-Language: en-us, en
+	Sun, 27 Jun 2004 00:30:43 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:31628 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S266232AbUF0Eam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 00:30:42 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: drivers/block/ub.c
+Date: Sun, 27 Jun 2004 06:31:40 +0200
+User-Agent: KMail/1.6.2
+Cc: zaitcev@redhat.com, greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
+       david-b@pacbell.net
+References: <20040626130645.55be13ce@lembas.zaitcev.lan> <200406270036.14716.oliver@neukum.org> <20040626162020.67d661c7.davem@redhat.com>
+In-Reply-To: <20040626162020.67d661c7.davem@redhat.com>
 MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-Cc: Sushant Sharma <sushant@cs.unm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: when is alloc_skb called
-References: <40C4DE2A.1070008@cs.unm.edu> <20040607225744.GA26253@phunnypharm.org>
-In-Reply-To: <20040607225744.GA26253@phunnypharm.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-Bogosity: No, tests=bogofilter, spamicity=0.059953, version=0.16.3
+Message-Id: <200406270631.41102.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> On Mon, Jun 07, 2004 at 03:29:14PM -0600, Sushant Sharma wrote:
+Am Sonntag, 27. Juni 2004 01:20 schrieb David S. Miller:
+> A ten-fold increase in code size just to access any member
+> of the structure.
 > 
->>Hi All
->>
->>I want to know which are the evnets
->>that can lead to the calling of alloc_skb
->>function which is used to allocate sk_buff.
->>Arrival and departure of packet are 2 events
->>which I know. Are there any other events/cases
->>which can lead to alloc_skb(...) function call in kernel.
-> 
-> 
-> Some non-network related drivers use skb's for non-network related
-> things (ieee1394 is one such abuser).
-> 
+> I think you have no idea how astronomically inefficient the code is
+> which gets generated when you add the packed attribute to a structure.
 
-And some network protocol stacks use it to report events, like
-connection requests, etc see the x25 code, for instance 
-(x25_establish_link, x25_terminate_link), sometimes allocating
-1 byte, sometimes using the skb->cb scratch area.
+Are you saying that gcc will generate other code with packed even if
+packed does not change the layout of the structure in question?
 
-- Arnaldo
+	Regards
+		Oliver
+

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267057AbTAOUhj>; Wed, 15 Jan 2003 15:37:39 -0500
+	id <S266982AbTAOUgs>; Wed, 15 Jan 2003 15:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267098AbTAOUhj>; Wed, 15 Jan 2003 15:37:39 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:62478 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267057AbTAOUhg>; Wed, 15 Jan 2003 15:37:36 -0500
-Message-ID: <3E25B964.80AC569D@linux-m68k.org>
-Date: Wed, 15 Jan 2003 20:41:24 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nits on 2.5.58 menuconfig
-References: <200301141504.h0EF4O0p003674@eeyore.valparaiso.cl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266996AbTAOUgs>; Wed, 15 Jan 2003 15:36:48 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:42503 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S266982AbTAOUgr>; Wed, 15 Jan 2003 15:36:47 -0500
+Date: Wed, 15 Jan 2003 21:22:54 +0100
+From: DervishD <raul@pleyades.net>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: argv0 revisited...
+Message-ID: <20030115202254.GF47@DervishD>
+References: <A46BBDB345A7D5118EC90002A5072C7806CACA88@orsmsx116.jf.intel.com> <20030115191942.GD47@DervishD> <b04dqu$4f5$1@ncc1701.cistron.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <b04dqu$4f5$1@ncc1701.cistron.net>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Hi Miquel :)
 
-Horst von Brand wrote:
+> Why not make that INIT=/what/ever, then make this /sbin/init:
 
-> There is no way to leave a radiolist &c just leaving whatever was set
-> alone. An <Exit> option would be nice.
+    I cannot force the users to do that :(( I think that I could
+hardcode the name in the binary. The problem with this is that the
+user may move around the binary afterwards...
 
-Try <esc><esc>.
+    I can't find a way to get the on-disk name from the core image
+:(( Uff, this is getting way complicated, just for a pretty printing
+of the proc titles.
 
-> To give help on menuconfig at an entry that leads to a menu ("blabla --->")
-> is confusing at best. Add a "<Help on menucofig> button instead?
+    Thanks for the suggestion, anyway :)) You're great.
 
-This is the old behaviour.
-Changing lxdialog is very low on my TODO list, patches are welcome
-though. :)
-
-bye, Roman
+    Raúl
 

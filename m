@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267831AbUIVDxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267841AbUIVENK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267831AbUIVDxB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 23:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUIVDxB
+	id S267841AbUIVENK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 00:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267850AbUIVENJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 23:53:01 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:24196 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267831AbUIVDvg
+	Wed, 22 Sep 2004 00:13:09 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:33924 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267841AbUIVENH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 23:51:36 -0400
-Subject: Re: [patch] updated inotify
+	Wed, 22 Sep 2004 00:13:07 -0400
+Subject: Re: Does ZONE_HIGHMEM exist on machines with 1G memeory
 From: Robert Love <rml@novell.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040922001255.GA4120@conectiva.com.br>
-References: <1095800893.5090.16.camel@betsy.boston.ximian.com>
-	 <20040921235449.GO2482@conectiva.com.br>
-	 <1095811483.2454.67.camel@localhost>
-	 <20040922001255.GA4120@conectiva.com.br>
+To: Ronghua Zhang <rz5b@cs.virginia.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.51.0409212305520.8395@mamba.cs.Virginia.EDU>
+References: <Pine.GSO.4.51.0409212305520.8395@mamba.cs.Virginia.EDU>
 Content-Type: text/plain
-Date: Tue, 21 Sep 2004 23:51:36 -0400
-Message-Id: <1095825096.2454.82.camel@localhost>
+Date: Wed, 22 Sep 2004 00:13:07 -0400
+Message-Id: <1095826387.2454.101.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 21:12 -0300, Arnaldo Carvalho de Melo wrote:
+On Tue, 2004-09-21 at 23:09 -0400, Ronghua Zhang wrote:
 
-> > I know.  You know I know, so I don't need the commentary dude :)
-> 
-> Hey, I still haven't read your book :P Thanks anyway for acknowledging that
-> my comments were in some way useful :-)
+>   This may be a dumb question. But it seems to me that when the machine
+> has 1GB memory, it can be mapped to the 1GB kernel virtual address space.
+> Do we still need ZONE_HIGHMEM in this case? Please CC any follow-up to me.
+> Thanks
 
-The book has a pages upon pages on coding style. :-)
-
-Anyhow, I agree that there are more changes to make.  I will fix more as
-I rediff.
-
-Thanks,
+Highmem is actually everything above 896MB ... so, yes, you need
+ZONE_HIGHMEM.
 
 	Robert Love
 

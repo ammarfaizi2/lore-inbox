@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbTEKWJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 18:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTEKWJB
+	id S261272AbTEKWI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 18:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTEKWI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 18:09:01 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:56010 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261288AbTEKWBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 18:01:36 -0400
-Date: Sun, 11 May 2003 15:15:06 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: tomlins@cam.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, laforge@netfilter.org
-Subject: Re: Slab corruption mm3 + davem fixes
-Message-Id: <20030511151506.172eee58.akpm@digeo.com>
-In-Reply-To: <1052690490.4471.2.camel@rth.ninka.net>
-References: <20030511031940.97C24251B@oscar.casa.dyndns.org>
-	<200305111221.26048.tomlins@cam.org>
-	<1052690490.4471.2.camel@rth.ninka.net>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Sun, 11 May 2003 18:08:57 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:56033 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S261272AbTEKV5U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 17:57:20 -0400
+Date: Sun, 11 May 2003 23:09:57 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Christoph Hellwig <hch@infradead.org>, Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.5.69-dj1: agp_init shouldn't be static
+Message-ID: <20030511220957.GA20415@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Christoph Hellwig <hch@infradead.org>, Adrian Bunk <bunk@fs.tum.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030510145653.GA26216@suse.de> <20030511122934.GH1107@fs.tum.de> <20030511132120.GA8834@suse.de> <20030511145148.A20017@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 May 2003 22:14:14.0232 (UTC) FILETIME=[A7E92580:01C3180A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030511145148.A20017@infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
-> On Sun, 2003-05-11 at 09:21, Ed Tomlinson wrote:
-> > I am also seeing this on 69-bk (as of Sunday morning)
-> ...
-> > On May 10, 2003 11:19 pm, Ed Tomlinson wrote:
-> > > I looked at my logs and found the following error in it.  My kernel is
-> > > 69-mm3 with two davem fixes on it.
-> ...
-> > > May 10 22:41:06 oscar kernel: Call Trace:
-> > > May 10 22:41:06 oscar kernel:  [__slab_error+30/32] __slab_error+0x1e/0x20
-> > > May 10 22:41:06 oscar kernel:  [check_poison_obj+376/384]
-> > > check_poison_obj+0x178/0x180 May 10 22:41:06 oscar kernel: 
-> > > [kmalloc+221/392] kmalloc+0xdd/0x188 May 10 22:41:06 oscar kernel: 
-> > > [alloc_skb+64/240] alloc_skb+0x40/0xf0 May 10 22:41:06 oscar kernel: 
-> 
-> Yeah, more bugs in the NAT netfilter changes.  Debugging this one
-> patch is becomming a full time job :-(
-> 
-> This should fix it.  Rusty, you're computing checksums and mangling
-> src/dst using header pointers potentially pointing to free'd skbs.
-> 
+On Sun, May 11, 2003 at 02:51:48PM +0100, Christoph Hellwig wrote:
+ > On Sun, May 11, 2003 at 02:21:20PM +0100, Dave Jones wrote:
+ > > duhh, the 810 framebuffer needs it early. I forgot about that.
+ > > Will apply patch, and add a comment. Thanks.
+ > 
+ > no, it doesn't need the agp banner printk early :)  Fix i810fb instead.
 
-Did you mean to send a one megabyte diff?
+Ahh crap, this may bring up another problem. The agpgart _has_ to be
+initialised before the i810fb code, otherwise it won't work.
+Now that agp_init() doesn't do anything useful, we're relying
+on link order.  Whether we get that right or not right now depends..
+Needs to be tested by someone who actually uses i810fb to be sure.
+
+Volunteers?  (Just chop out the agp_init call in
+drivers/video/i810/i810_main.c), oh and I'm only interested in
+feedback from either users of 2.5.69-dj1, or 2.5 bitkeeper tree,
+(Linus seems to have taken the first round of AGP updates in the last few hours).
+
+		Dave
+

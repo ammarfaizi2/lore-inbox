@@ -1,153 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266524AbUFQOzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266450AbUFQOyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266524AbUFQOzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 10:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUFQOzS
+	id S266450AbUFQOyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 10:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266515AbUFQOyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 10:55:18 -0400
-Received: from [61.49.235.7] ([61.49.235.7]:22518 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S266524AbUFQOy1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 10:54:27 -0400
-Date: Thu, 17 Jun 2004 06:45:23 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: Patch: 2.6.7/fs/dnotify.c - make dn_lock a regular spinlock
-Message-ID: <20040617064523.A7062@adam>
-References: <20040617163826.A4558@freya> <20040617035313.6e1d6d93.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20040617035313.6e1d6d93.akpm@osdl.org>; from akpm@osdl.org on Thu, Jun 17, 2004 at 03:53:13AM -0700
+	Thu, 17 Jun 2004 10:54:18 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:5265 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S266524AbUFQOww convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 10:52:52 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Proposal for new generic device API: dma_get_required_mask()
+Date: Thu, 17 Jun 2004 10:52:49 -0400
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FD24032@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Proposal for new generic device API: dma_get_required_mask()
+Thread-Index: AcRUdS/kP+2zVmFbTsucpZBldt84egAA/XWg
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "James Bottomley" <James.Bottomley@steeleye.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As I said in the other thread, if the SG list was not the descending
+order page and instead was in ascending order allocations, we would have
+a major reduction in the quantity of SG elements thus not having to make
+this performance tradeoff. Not making the request moot, still worth
+doing for other optimizations such as preventing DAC cycles with the
+upper 32 bits all zero, but the real hit in performance for the aacraid
+driver is the shear quantity of increased sized SG elements.
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Currently, large requests come through as follows:
 
-On Thu, Jun 17, 2004 at 03:53:13AM -0700, Andrew Morton wrote:
-> "Adam J. Richter" <adam@yggdrasil.com> wrote:
-> >
-> > 	In the near future, I expect to try to eliminate dn_lock by
-> >  using parent_inode->i_sem instead, as the kmem_cache_t in dnotify.c
-> >  does not need to be protected by a separate lock.
-> 
-> inode->i_lock would be better.  Take care to keep it an "innermost" VFS
-> lock though.
+SG#	Size	Phys
+0	4096	ef400000
+1	4096	ef3ff000
+2	4096	ef3fe000
+3	4096	ef3fd000
+. . .
 
-	Thank you for the suggestion.  I was not aware of inode->i_lock.
+Another change in F/W that is altering the interface to deal with this
+problem allows us to negotiate a larger FIB (adapter command packet)
+size to accommodate a huge number of SG elements. We can dodge this
+bullet as well for Linux if this SG element allocation issue is
+resolved.
 
-	Looking at other users of inode->i_lock, I believe that using
-inode->i_lock should not cause any conflict.  The lock for
-inode->i_dnotify is only taken when someone calls the dnotify ioctl
-or if there actually is a match to some dnotify event, so the change
-in lock contention between a single dn_lock and inode->i_lock (which
-is obviously used elsewhere) should be minimal.  The text + data of
-the .o file generate on x86 was actually 32 bytes smaller when I
-switched to inode->i_lock, and, of course, it made the source code
-1 line shorter.
+FYI, when we allow 4M I/O to occur with this new larger FIB size, the
+system performance drops to its knees. Mouse movement is sluggish etc.
+there appears to be some scaling issues that I have yet to understand or
+characterize to root cause.
 
->Move kmem_cache_free() outside the lock altoghter.
+Sincerely -- Mark Salyzyn
 
-	Per your suggestion, I've done that in fcntl_dirnotify().
-This wipes out the trivial space saving from switching to
-inode->i_lock, but it's probably more important to avoid holding
-inode->i_lock unnecessarily anyhow.  My removal of one of the
-goto labels had no effect on object code size on my x86
-configuration.
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of James Bottomley
+Sent: Thursday, June 17, 2004 10:09 AM
+To: Linux Kernel; SCSI Mailing List
+Subject: Proposal for new generic device API: dma_get_required_mask()
 
-	The other places that call kmem_cache_free() with the lock
-held do so because they are iterating through inode->i_dnotify, and
-may have to call kmem_cache_free() repeatedly.
+Background:
 
-	Here is an updated patch.
+We have a large number of devices in scsi: aacraid, aic7xxx, qla1280,
+qla2xxx which can all do full 64 bit DMA, but which pay a performance
+penalty for using the larger descriptors (aic7xxx is stranger in that it
+has three modes of operation: 32 bit, 39 bit and 64 bit each with an
+increasing performance penalty).
+
+What all these devices would like to do is instead of simply trying the
+64 bit mask first and having the platform accept it, even if it only has
+< 4GB of memory, they'd like to be able to have the platform tell them,
+given my current dma mask setting, what's the actual number of bits you
+need me to DMA to.
+
+This is precisely what the API would do.  It would return a bit mask
+(never over the current dma_mask) that the platform considers optimal. 
+The platform has complete freedom in this: it may return a mask covering
+the total physical memory, or a mask covering all the bits it needs
+setting for some weird numa scheme.
+
+If the driver decides to use the mask, it would do another
+dma_set_mask() to confirm it (this gives the platform the opportunity if
+it so chooses to return a mask that doesn't quite cover memory, but
+would be more optimal...say for platforms that have all memory under 4GB
+bar one small chunk at 64GB or something).
+
+Once the driver has the platform's optimal mask, it can use this to
+decide on the correct descriptor size.
+
+Comments?
+
+James
 
 
--- 
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dnotify.diff2"
-
---- linux-2.6.7/fs/dnotify.c	2004-06-15 22:19:09.000000000 -0700
-+++ linux/fs/dnotify.c	2004-06-17 21:38:07.000000000 -0700
-@@ -23,7 +23,6 @@
- 
- int dir_notify_enable = 1;
- 
--static rwlock_t dn_lock = RW_LOCK_UNLOCKED;
- static kmem_cache_t *dn_cache;
- 
- static void redo_inode_mask(struct inode *inode)
-@@ -46,7 +45,7 @@
- 	inode = filp->f_dentry->d_inode;
- 	if (!S_ISDIR(inode->i_mode))
- 		return;
--	write_lock(&dn_lock);
-+	spin_lock(&inode->i_lock);
- 	prev = &inode->i_dnotify;
- 	while ((dn = *prev) != NULL) {
- 		if ((dn->dn_owner == id) && (dn->dn_filp == filp)) {
-@@ -57,7 +56,7 @@
- 		}
- 		prev = &dn->dn_next;
- 	}
--	write_unlock(&dn_lock);
-+	spin_unlock(&inode->i_lock);
- }
- 
- int fcntl_dirnotify(int fd, struct file *filp, unsigned long arg)
-@@ -81,7 +80,7 @@
- 	dn = kmem_cache_alloc(dn_cache, SLAB_KERNEL);
- 	if (dn == NULL)
- 		return -ENOMEM;
--	write_lock(&dn_lock);
-+	spin_lock(&inode->i_lock);
- 	prev = &inode->i_dnotify;
- 	while ((odn = *prev) != NULL) {
- 		if ((odn->dn_owner == id) && (odn->dn_filp == filp)) {
-@@ -104,12 +103,13 @@
- 	inode->i_dnotify_mask |= arg & ~DN_MULTISHOT;
- 	dn->dn_next = inode->i_dnotify;
- 	inode->i_dnotify = dn;
--out:
--	write_unlock(&dn_lock);
--	return error;
-+	spin_unlock(&inode->i_lock);
-+	return 0;
-+
- out_free:
-+	spin_unlock(&inode->i_lock);
- 	kmem_cache_free(dn_cache, dn);
--	goto out;
-+	return error;
- }
- 
- void __inode_dir_notify(struct inode *inode, unsigned long event)
-@@ -119,7 +119,7 @@
- 	struct fown_struct *	fown;
- 	int			changed = 0;
- 
--	write_lock(&dn_lock);
-+	spin_lock(&inode->i_lock);
- 	prev = &inode->i_dnotify;
- 	while ((dn = *prev) != NULL) {
- 		if ((dn->dn_mask & event) == 0) {
-@@ -138,7 +138,7 @@
- 	}
- 	if (changed)
- 		redo_inode_mask(inode);
--	write_unlock(&dn_lock);
-+	spin_unlock(&inode->i_lock);
- }
- 
- EXPORT_SYMBOL(__inode_dir_notify);
-
---sm4nu43k4a2Rpi4c--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

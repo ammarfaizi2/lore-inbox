@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbUKWT1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbUKWTZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbUKWT1q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:27:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUKWTZb
+	id S261467AbUKWTZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUKWTWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:25:31 -0500
-Received: from alog0426.analogic.com ([208.224.222.202]:30336 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261490AbUKWTVB
+	Tue, 23 Nov 2004 14:22:54 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:47761 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261507AbUKWTWJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:21:01 -0500
-Date: Tue, 23 Nov 2004 14:20:17 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jesper Juhl <juhl-lkml@dif.dk>, Matthew Wilcox <matthew@wil.cx>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable in
- fs/fcntl.c
-In-Reply-To: <Pine.LNX.4.58.0411231035500.20993@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0411231410480.7154@chaos.analogic.com>
-References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost>
- <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk> <41A30612.2040700@dif.dk>
- <Pine.LNX.4.58.0411230958260.20993@ppc970.osdl.org>
- <Pine.LNX.4.61.0411231916410.3389@dragon.hygekrogen.localhost>
- <Pine.LNX.4.58.0411231035500.20993@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 23 Nov 2004 14:22:09 -0500
+Subject: SELinux performance issue with large systems (32 cpus)
+From: keith <kmannth@us.ibm.com>
+To: devnull@us.ibm.com, djwong <djwong@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1101237725.27848.301.camel@knk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 23 Nov 2004 11:22:05 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Nov 2004, Linus Torvalds wrote:
+I work with i386 16-way systems.  When hyperthreading is enabled they
+have 32 "cpus".  I recently did a quick performance check on with 2.6
+(as it turn out with a SElinux enabled) doing kernel builds.  
 
->
->
-> On Tue, 23 Nov 2004, Jesper Juhl wrote:
->>
->> Shutting up gcc is not the primary goal here, the goal is/was to
->> a) review the code and make sure that it is safe and correct, and fix it
->> when it is not.
->> b) remove comparisons that are just a waste of CPU cycles when the result
->> is always true or false (in *all* cases on *all* archs).
->
-> Well, I'm convinced that (b) is unnecessary, as any compiler that notices
-> the range thing enough to warn will also be smart enough to just remove
-> the test internally.
->
-> But yes, as long as the thing is a "review and fix bugs" and not a quest
-> to remove warnings which may well be compiler figments, that's obviously
-> ok.
->
-> 			Linus
-> -
+My basic test was timing kernel makes using -j16 and -j32.  I saw
+tremendous differences between these two times. 
 
-There are some pretty scary macros like:
-MIN(a, b) (a < b) ? a:b  You can throw any parentheses you want
-around and it doesn't make it correct for selecting the lowest value
-of the amount to read/write from a buffer. The a and b need to be cast
-to unsigned before the comparison is made --and then some compilers
-will (correctly, I'm told) compain about range.
+ for -j16  
+real	0m52.450s
+user	6m24.572s
+sys	2m25.331s
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+ for -j32
+real	2m56.743s
+user	9m28.781s
+sys	73m50.536s 
+   
+This performance was not seen without hyperthreading.  I have only seen
+this on 16-way with HT.  2.6.10-rc1 was used to evaluate the problem. 
+
+Notice the system time goes through the roof.  From 2.5 min to almost 74
+min!  We looked at schedstat data and tried various scheduler / numa
+options without much to point at.  We then did some oprofiling and saw 
+
+31999102 83.2007  _spin_lock_irqsave
+
+for make -j32.  
+
+After some lock profiling (keeping track of what locks were last used
+and how many cycles were spent waiting) it became quite clean the the
+avc_lock was to blame.  The avc_lock is a SELinux lock.  
+
+The theory was proved by booting with selinux=0.  The performance with
+make -j32 is now within an acceptable level (within 20%) when compared
+to a make -j16. 
+
+It appears that SELinux only scales to somewhere between 16 and 32
+cpus.  I now very little about SELinux and it's workings but I wanted to
+report what I have seen on my system.  I can't say I am really happy
+about this performance. 
+
+I would like to thank Derrick Wong and Rick Lindsley for helping to
+identify this issue.  
+
+Keith Mannthey 
+LTC xSeries 
+
+Please cc me as I am not a regular subscriber to this list. 
+ 
+

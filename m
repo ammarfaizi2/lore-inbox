@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTJOIHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 04:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTJOIHZ
+	id S262454AbTJOI24 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 04:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTJOI24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 04:07:25 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:38103 "EHLO jaguar")
-	by vger.kernel.org with ESMTP id S262446AbTJOIHY (ORCPT
+	Wed, 15 Oct 2003 04:28:56 -0400
+Received: from main.gmane.org ([80.91.224.249]:32386 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262454AbTJOI2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 04:07:24 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
-       davidm@napali.hpl.hp.com, jbarnes@sgi.com
-Subject: Re: [PATCH] Altix I/O code cleanup
-References: <3F872984.7877D382@sgi.com> <20031013095652.A25495@infradead.org>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 15 Oct 2003 04:07:07 -0400
-In-Reply-To: <20031013095652.A25495@infradead.org>
-Message-ID: <yq0llrmncus.fsf@trained-monkey.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Oct 2003 04:28:54 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Florian Zwoch <zwoch@backendmedia.com>
+Subject: Re: why does netfilter make upload very slow? (was: Re: e1000 ->
+ 82540EM on linux 2.6.0-test[45] very slow in one direction)
+Date: Wed, 15 Oct 2003 10:28:50 +0200
+Message-ID: <3F8D0542.1060101@backendmedia.com>
+References: <20031008131320.GD16964@favonius> <20031008153237.GC25743@sunbeam.de.gnumonks.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030909 Thunderbird/0.2
+X-Accept-Language: en-us, en
+In-Reply-To: <20031008153237.GC25743@sunbeam.de.gnumonks.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
+Harald Welte wrote:
+>>Would somebody like to explain why netfilter (in kernel, but not in use)
+>>makes upload go very slow? I am by no means a network guru, but eager to
+>>learn :-)
+> 
+> 
+> let's get this straight.  There are five possible cases
+> 
+> a) CONFIG_NETFILTER disabled.  you won't even have the netfilter hooks
+>    in the network stack (so certainly no netfilter-using modules loaded)
 
-Christoph> On Fri, Oct 10, 2003 at 04:49:57PM -0500, Patrick Gefre
-Christoph> wrote:
+no problem
 
-Christoph> Why do you remove the per-nod wrappers?  Unlike the other
-Christoph> these actually had some use as preparation for a node-aware
-Christoph> kmalloc..
+> b) CONFIG_NETFILTER enabled, but _no_ modules (iptable_filter,
+>    ip_conntrack, ...) attached to the netfilter hook
 
-I believe it was me who nuked it, until we start using it properly I
-don't see any reason for keeping it as a placeholder.
+no problem
 
->>  - intr_hdl = snia_kmem_alloc_node(sizeof(struct hub_intr_s),
->> KM_NOSLEEP, cnode); + intr_hdl = kmalloc(sizeof(struct hub_intr_s),
->> GFP_KERNEL); ASSERT_ALWAYS(intr_hdl);
+> c) CONFIG_NETFILTER enabled and iptable_filter.o (which pulls ip_tables.o)
+>    loaded, NO RULES in the table
 
-Christoph> NULL return not handled again (and the assert is totally
-Christoph> useless)
+no problem
 
-ASSERT_ALWAYS checks it, it may not be pretty but it does check it.
+> d) CONFIG_NETFILTER enabled and iptable_filter.o (which pulls ip_tables.o)
+>    loaded, RULES in the table
 
->> -#define NEWAf(ptr,n,f) (ptr = snia_kmem_zalloc((n)*sizeof
->> (*(ptr)), (f&PCIIO_NOSLEEP)?KM_NOSLEEP:KM_SLEEP)) -#define
->> NEWA(ptr,n) (ptr = snia_kmem_zalloc((n)*sizeof (*(ptr)), KM_SLEEP))
->> +#define NEWAf(ptr,n,f) (ptr = snia_kmem_zalloc((n)*sizeof
->> (*(ptr)))) +#define NEWA(ptr,n) (ptr = snia_kmem_zalloc((n)*sizeof
->> (*(ptr)))) #define DELA(ptr,n) (kfree(ptr))
+no problem (as long as i dont load any rules that require ip_conntrack)
 
-Christoph> What about killing this stupid wrappers while you're at it?
-Christoph> Also PCIIO_NOSLEEP is never set.
+> e) CONFIG_NETFILTER enabled and ip_conntrack.o loaded, iptable_filter
+>    loaded or not, rules or not
 
-All the NEWA stuff is going, I sent Pat a patch for it already, it's
-going away.
+*boink*
 
-Cheers,
-Jes
+whenever i try to load ip_conntrack the nic performance drops from 5mb/s 
+to 200k/s.
+
+still using 2.6.0-test6.
+
+regards,
+Florian
+
+

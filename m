@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbSKOPDg>; Fri, 15 Nov 2002 10:03:36 -0500
+	id <S266368AbSKOP0T>; Fri, 15 Nov 2002 10:26:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266368AbSKOPDg>; Fri, 15 Nov 2002 10:03:36 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:62987 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S266367AbSKOPDf>; Fri, 15 Nov 2002 10:03:35 -0500
-Date: Fri, 15 Nov 2002 10:13:19 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Moving from Linux 2.4.19 LVM to LVM2
-In-Reply-To: <20021115094934.GB2122@reti>
-Message-ID: <Pine.LNX.4.44.0211151012470.14891-100000@ibm-ps850.purdueriots.com>
+	id <S266369AbSKOP0T>; Fri, 15 Nov 2002 10:26:19 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:13605 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S266368AbSKOP0S>; Fri, 15 Nov 2002 10:26:18 -0500
+Message-ID: <3DD513A4.666B4E11@cinet.co.jp>
+Date: Sat, 16 Nov 2002 00:32:52 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.47-ac4-pc98smp i686)
+X-Accept-Language: ja, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: PC-9800 patch for 2.5.47-ac4: not merged yet (0/15)
+References: <3DD4E2D5.AEF13F1@cinet.co.jp> <1037371650.19971.6.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002, Joe Thornber wrote:
+Alan Cox wrote:
+> 
+> On Fri, 2002-11-15 at 12:04, Osamu Tomita wrote:
+> > Thanks for interest in PC-9800 subarchitecture support.
+> > I've made additional patch for 2.5.47-ac4 to support
+> > PC-9800 completely. Would you please merge into your tree?
+> 
+> I'll look over them if and when I get time. Fixing the IDE and some of
+> the other stuff is more important to me (although maybe not to PC98
+> users 8))
+I see. Thanks. I'll be happy if that day will come earlier.
 
-> On Thu, Nov 14, 2002 at 10:51:48PM -0500, Patrick Finnegan wrote:
-> > On Thu, 14 Nov 2002, Joe Thornber wrote:
-> >
-> > > On Wed, Nov 13, 2002 at 11:05:37PM -0500, Patrick Finnegan wrote:
-> > > > Is there an easy and plainless way to do this?  Are the LVM2 tools
-> > > > backwards-compatible with the old LVM?
-> > >
-> > > Yes
-> >
-> > Actually, the answer is aparently "No."  LVM2's tools don't work with a
-> > 2.4.x kernel.
->
-> Had you applied the device-mapper patches for 2.4 ?
-
-Umm, no.  If I had, then that wouldn't be 2.4's native LVM.
-
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
-
-
+Regards,
+Osamu

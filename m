@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVDDTMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVDDTOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVDDTMS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 15:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDDTKk
+	id S261340AbVDDTOR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 15:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVDDTOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 15:10:40 -0400
-Received: from 71-33-33-84.albq.qwest.net ([71.33.33.84]:8843 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261338AbVDDTJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 15:09:27 -0400
-Date: Mon, 4 Apr 2005 13:11:32 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Li Shaohua <shaohua.li@intel.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC 5/6]clean cpu state after hotremove CPU
-In-Reply-To: <1112580367.4194.344.camel@sli10-desk.sh.intel.com>
-Message-ID: <Pine.LNX.4.61.0504041242420.30273@montezuma.fsmlabs.com>
-References: <1112580367.4194.344.camel@sli10-desk.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Apr 2005 15:14:16 -0400
+Received: from smtpout17.mailhost.ntl.com ([212.250.162.17]:53941 "EHLO
+	mta09-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S261340AbVDDTND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 15:13:03 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+	copyright notice.
+From: Ian Campbell <ijc@hellion.org.uk>
+To: Sven Luther <sven.luther@wanadoo.fr>
+Cc: Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050404182144.GB31055@pegasos>
+References: <20050404100929.GA23921@pegasos>
+	 <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
+	 <20050404175130.GA11257@kroah.com>  <20050404182144.GB31055@pegasos>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eMPk3lGsd+DQSgqp/dgW"
+Date: Mon, 04 Apr 2005 20:12:48 +0100
+Message-Id: <1112641971.4342.8.camel@cthulhu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Apr 2005, Li Shaohua wrote:
 
-> Clean up all CPU states including its runqueue and idle thread, 
-> so we can use boot time code without any changes.
-> Note this makes /sys/devices/system/cpu/cpux/online unworkable.
->  
->  #ifdef CONFIG_HOTPLUG_CPU
->  #include <asm/nmi.h>
-> +
-> +#ifdef CONFIG_STR_SMP
-> +extern void cpu_exit_clear(int);
-> +#endif
+--=-eMPk3lGsd+DQSgqp/dgW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Perhaps change that ifdef to denote something which clearly shows that its 
-physical hotplug as we'll need this for other users too.
+On Mon, 2005-04-04 at 20:21 +0200, Sven Luther wrote:
+> On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
+> > Then let's see some acts.  We (lkml) are not the ones with the percieve=
+d
+> > problem, or the ones discussing it.
 
-> +#ifdef CONFIG_STR_SMP
-> +extern void do_exit_idle(void);
-> +extern void cpu_uninit(void);
-> +void cpu_exit_clear(int cpu)
-> +{
-> +	int sibling;
-> +	cpucount --;
+[...]
 
-Is that protected by the cpu_control semaphore?
+> All i am asking is that *the copyright holders* of said firmware blobs pu=
+t a
+> little comment on top of the files in question saying, all this driver is
+> GPLed, except the firmware blobs, and we give redistribution rights to sa=
+id
+> firmware blobs.
 
-Thanks,
-	Zwane
+I think what Greg may have meant[0] was that if it bothers you, then you
+should act by contacting the copyright holders privately yourself in
+each case that you come across and asking them if you may add a little
+comment etc, and then submit patches once you have their agreement.
+
+Ian.
+
+[0] if I may be so bold as to put words into his mouth.
+--=20
+Ian Campbell
+
+Hiccuping & trembling into the WASTE DUMPS of New Jersey like some
+drunken CABBAGE PATCH DOLL, coughing in line at FIORUCCI'S!!
+
+--=-eMPk3lGsd+DQSgqp/dgW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCUZGwM0+0qS9rzVkRAl6dAKDNNFLWFIkKF4Gw+Pl49zvJwg/9PACfb6wH
+nHP9fisOq+v3Ofm2+khYxt4=
+=l4NG
+-----END PGP SIGNATURE-----
+
+--=-eMPk3lGsd+DQSgqp/dgW--
 

@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbTJJO11 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 10:27:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbTJJO11
+	id S262819AbTJJOT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 10:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTJJOT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 10:27:27 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:24270 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S262802AbTJJO1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 10:27:24 -0400
-X-Sender-Authentication: net64
-Date: Fri, 10 Oct 2003 16:27:22 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-Cc: lgb@lgb.hu, Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-Id: <20031010162722.3cd1813f.skraw@ithnet.com>
-In-Reply-To: <3F86BD0E.4060607@longlandclan.hopto.org>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
-	<20031009115809.GE8370@vega.digitel2002.hu>
-	<20031009165723.43ae9cb5.skraw@ithnet.com>
-	<3F864F82.4050509@longlandclan.hopto.org>
-	<20031010125137.4080a13b.skraw@ithnet.com>
-	<3F86BD0E.4060607@longlandclan.hopto.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Oct 2003 10:19:29 -0400
+Received: from mail.native-instruments.de ([217.9.41.138]:7616 "EHLO
+	mail.native-instruments.de") by vger.kernel.org with ESMTP
+	id S262819AbTJJOT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 10:19:28 -0400
+Message-ID: <02b001c38f39$72baabd0$9602010a@jingle>
+From: "Florian Schirmer" <jolt@tuxbox.org>
+To: <dwmw2@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, "David Turner" <novalis@fsf.org>,
+       <andrew@mikl.as>, <rob@nocat.net>
+References: <1064859766.20847.33983.camel@banks> <1065428944.22491.169.camel@hades.cambridge.redhat.com> <01f301c38f2f$b1a7e0b0$9602010a@jingle> <1065791790.24015.238.camel@hades.cambridge.redhat.com> <023501c38f32$2b83caa0$9602010a@jingle> <1065793144.24015.274.camel@hades.cambridge.redhat.com>
+Subject: Re: Linksys/Cisco GPL Violations
+Date: Fri, 10 Oct 2003 16:18:58 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Oct 2003 00:07:10 +1000
-Stuart Longland <stuartl@longlandclan.hopto.org> wrote:
+Hi,
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephan von Krawczynski wrote:
-> 
-> > You are obviously not quite familiar with industrial boxes where this is
-> > state-of-the-art. 
->  >
->  > [...]
->  >
-> > Generally spoken every part of a computer should be thought of as a
-> > "resource" that can be added or removed at any time during runtime. CPU or
-> > RAM is in no way different.
->
-> Hotplug RAM I could see would be possible, but hotplug CPUs?  I spose if 
-> you've got a multiprocessor box, you could swap them one at a time, but 
-> my thinking is that this would cause issues with the OS as it wouldn't 
-> be expecting the CPU to suddenly disappear.  Problems would be even 
-> worse if the old and new CPUs were of different types too.
+> That is true, according to the GPL, _only_ if the modules are
+> distributed as separate works. If they are part of a collective work
+> which is based on the kernel (note, not a _derived_ work but a
+> _collective_ work) then they must be released under the terms of the
+> GPL.
 
-I wouldn't expect a hotplug feature for differing CPU types actually. But in
-fact there are boxes out there that complain via phonecall that a processor
-board just died and request replacement. Same goes for RAM. It is obvious that
-no feature like this exists on desktop nowadays, but 2.7 and release of 2.8 is
-far ahead, so I see no good reason why people should not be enabled to do this
-- _then_ .
-In fact it is sounds really simple to plug in additional boards to a numa-type
-box. Boards meaning RAM+CPU.
-HP builds hotplug PCI stuff in comparably cheap boxes, so this is not
-completely off-reality.
- 
-> Hotplug RAM would also be interesting, but then again, I spose the 
-> procedure would be to alert the kernel that the memory area from byte X 
-> to byte Y would disappear, so it could page that out to swapspace.
-
-This direction sounds likely.
+Dont get me wrong. I agreee that there are still issues with the wireless
+driver. IMHO binary modules aren't legal at all. I just don't wanted to
+start the binary discussion and therefore posted the misleading statement.
 
 Regards,
-Stephan
+   Florian
+

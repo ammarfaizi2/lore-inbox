@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266846AbSL3KsT>; Mon, 30 Dec 2002 05:48:19 -0500
+	id <S266903AbSL3KwV>; Mon, 30 Dec 2002 05:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266854AbSL3KsT>; Mon, 30 Dec 2002 05:48:19 -0500
-Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:64516 "EHLO
-	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S266846AbSL3KsS>; Mon, 30 Dec 2002 05:48:18 -0500
-Date: Mon, 30 Dec 2002 10:57:15 +0000
-To: lvm-devel@sistina.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] [PATCH] add kobject to struct mapped_device
-Message-ID: <20021230105715.GC2703@reti>
-References: <20021218184307.GA32190@kroah.com> <20021219105530.GA2003@reti> <20021220083149.GA10484@kroah.com> <20021220094447.GA1169@reti> <20021220174952.GB12128@kroah.com>
-Mime-Version: 1.0
+	id <S266907AbSL3KwV>; Mon, 30 Dec 2002 05:52:21 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:56324 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266903AbSL3KwU>;
+	Mon, 30 Dec 2002 05:52:20 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212301100.gBUB0105000718@darkstar.example.net>
+Subject: Re: kernel compilation: pls send cc to me
+To: joshk@ludicrus.ath.cx (Joshua M. Kwan)
+Date: Mon, 30 Dec 2002 11:00:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, abacus_an@yahoo.co.in
+In-Reply-To: <20021230104357.GB13892@localhost> from "Joshua M. Kwan" at Dec 30, 2002 02:43:57 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021220174952.GB12128@kroah.com>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 09:49:52AM -0800, Greg KH wrote:
-> I saw that logic.  I don't think sysfs can handle poll right now, but we
-> could modify the last access/modify/change time when the status changes
-> so stat(2) can be used on the file.  This is how usbfs currently
-> notifies userspace of changes to their files.  Would this be acceptable?
+> Well, I stand corrected. I never noticed any difference compiling with 
+> gcc-2.95 versus compiling with 3.2.
+> 
+> What is the recommended version then?
 
-Blech.  The nice thing about a blocking operation like poll is that
-the process doesn't keep getting rescheduled to check if there is
-anything to do.
+Well, as far as I know it's still officially 2.95.3 for both 2.4 and
+2.5.
 
-- Joe
+There shouldn't be _major_ problems compiling with 3.2, but it has had
+far less testing, so something like a filesystem corruption bug could
+go unnoticed for longer if it wasn't happening with 2.95.3 compiled
+kernels as well.
+
+John.

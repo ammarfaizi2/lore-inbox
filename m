@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268392AbUIQGOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUIQGXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268392AbUIQGOR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 02:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268335AbUIQGOR
+	id S268335AbUIQGXz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 02:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268397AbUIQGXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 02:14:17 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:22693 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S268392AbUIQGOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 02:14:12 -0400
-Subject: Re: [PATCH] Suspend2 Merge: Supress various actions/errors while
-	suspending [1/5]
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040916220339.A24267@mail.kroptech.com>
-References: <1095378660.5897.98.camel@laptop.cunninghams>
-	 <20040916220339.A24267@mail.kroptech.com>
-Content-Type: text/plain
-Message-Id: <1095401738.5902.131.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 17 Sep 2004 16:15:38 +1000
+	Fri, 17 Sep 2004 02:23:55 -0400
+Received: from mail.gmx.net ([213.165.64.20]:4502 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268335AbUIQGXx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 02:23:53 -0400
+Date: Fri, 17 Sep 2004 08:23:52 +0200 (MEST)
+From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+MIME-Version: 1.0
+Subject: How about a new development series kernel?
+X-Priority: 3 (Normal)
+X-Authenticated: #15156664
+Message-ID: <28141.1095402232@www21.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+The below quotes do originate from the linux-usb-devel
+mailing list. They were created in respect to the code
+for ub.c and its releated files.
 
-On Fri, 2004-09-17 at 12:03, Adam Kropelin wrote:
-> On Fri, Sep 17, 2004 at 09:51:03AM +1000, Nigel Cunningham wrote:
-> > +#ifdef CONFIG_SOFTWARE_SUSPEND2
-> > +	if (software_suspend_state & SOFTWARE_SUSPEND_RUNNING)
-> > +		return;
-> > +#endif
-> >  	spin_lock(&oom_lock);
-> >  	now = jiffies;
-> >  	since = now - last;
+> > I really wonder how such a yet unfinished module
+> > ever made it to merge into a stable kernel series.
 > 
-> Any chance you could...
-> 
-> #ifdef CONFIG_SOFTWARE_SUSPEND2
-> <whatever-it-is-now>
-> #else
-> #define software_suspend_state 0
-> #endif
-> 
-> ...and thereby eliminate all the #ifdefs in the main codepaths?
+> And where would our "development series" kernel be?  :)
 
-Will do.
+Other than that i observed some other rather more 
+critical code like the nfs implementation got broken 
+which in turn lead to the usage of a brown paperbag. 
 
-Thanks for the suggestion.
+How about cloning a Linux-2.7.0 tree
+from maybe the upcoming 2.6.9 release?
 
-Nigel
+-Alex.
+
+PS: I am reading this list via the MARC servers.
+Feel free if you want to CC me in your replys.
+
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
+NEU: GMX ProMail mit bestem Virenschutz http://www.gmx.net/de/go/mail
++++ Empfehlung der Redaktion +++ Internet Professionell 10/04 +++
 

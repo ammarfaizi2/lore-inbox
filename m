@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbSLTOUZ>; Fri, 20 Dec 2002 09:20:25 -0500
+	id <S262089AbSLTOQw>; Fri, 20 Dec 2002 09:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbSLTOUZ>; Fri, 20 Dec 2002 09:20:25 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:15877 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S262215AbSLTOUY>; Fri, 20 Dec 2002 09:20:24 -0500
-Message-Id: <200212201427.gBKERHxY007808@pincoya.inf.utfsm.cl>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Are working modules going to be in 2.6? 
-In-reply-to: Your message of "Thu, 19 Dec 2002 15:58:11 CDT."
-             <Pine.LNX.3.96.1021219154713.29567A-100000@gatekeeper.tmr.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Fri, 20 Dec 2002 11:27:17 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S262215AbSLTOQv>; Fri, 20 Dec 2002 09:16:51 -0500
+Received: from dhcp024-210-222-139.woh.rr.com ([24.210.222.139]:35960 "EHLO
+	mail.tacomeat.net") by vger.kernel.org with ESMTP
+	id <S262089AbSLTOQv>; Fri, 20 Dec 2002 09:16:51 -0500
+Date: Fri, 20 Dec 2002 09:28:18 -0500 (EST)
+Message-Id: <20021220.092818.74750920.hoho@tacomeat.net>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Subject: Re: BUG: 2.5.52-bk4
+CC: linux-kernel@vger.kernel.org
+From: Colin Slater <hoho@tacomeat.net>
+X-Mailer: Mew version 2.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> said:
-> I have downloaded any number of modutil this and init-mod that, built them
-> static, rolled my own initrd files, and as far as I can tell it just
-> doesn't work with 2.5.48+.
 
-Strange. My setup works fine with initrd, modutils from Rusty and 2.5.50 at
-least. I had to redo the mkinitrd step for it to work under RH 8.0, but
-that was it.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> solved that problem. Now it works ok for me.
+
+Do you mean the patch compiles now or that it fixes the problem you
+were having?
+
+Colin

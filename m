@@ -1,94 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUH3CpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUH3DCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268446AbUH3CpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 22:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUH3CpZ
+	id S266273AbUH3DCM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 23:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUH3DCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 22:45:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61331 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268446AbUH3CpT convert rfc822-to-8bit
+	Sun, 29 Aug 2004 23:02:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42644 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265823AbUH3DCD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 22:45:19 -0400
-Date: Sun, 29 Aug 2004 22:07:12 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Neil Horman <nhorman@redhat.com>
-Cc: Marc =?iso-8859-1?Q?Str=E4mke?= <marcstraemke.work@gmx.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the IDE bus)
-Message-ID: <20040830010712.GC12313@logos.cnet>
-References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com>
+	Sun, 29 Aug 2004 23:02:03 -0400
+Date: Mon, 30 Aug 2004 04:01:57 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
+       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
+       jamie@shareable.org, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
+       jra@samba.org, hch@lst.de,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040830030157.GE16297@parcelfarce.linux.theplanet.co.uk>
+References: <4132205A.9080505@namesys.com> <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk> <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> <41323751.5000607@namesys.com> <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org> <1093821430.8099.49.camel@lade.trondhjem.org> <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org> <1093830135.8099.181.camel@lade.trondhjem.org> <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41326FE1.2050508@redhat.com>
-User-Agent: Mutt/1.5.5.1i
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 08:08:01PM -0400, Neil Horman wrote:
-> Marc Strämke wrote:
+On Sun, Aug 29, 2004 at 07:31:49PM -0700, Linus Torvalds wrote:
+> And that's not just theory - it's quite common for programs to just 
+> concatenate a directory name (which may or may not end with a slash) with 
+> another path-name that starts with a slash. So you _will_ see existing 
+> scripts and programs using things like "/usr/include//sys/type.h", and 
+> they'd break if "//" would switch from "regular namespace" to "attribute 
+> namespace".
 > 
-> >Neil Horman wrote:
-> >
-> >>Its been awhile, but the last time that I looked at the relevant 
-> >>code, there was a table of drive vendor/device strings that were used 
-> >>to identify CFA devices and differentiate them from regular ide 
-> >>devices.  If this particular device isn't a match in that table, it 
-> >>would be mis-identified, and that could be leading to your above 
-> >>problem.
-> >>Neil
-> >>
-> >
-> >Thx for the suggestion. The only table i could find is in 
-> >drive_is_flashcard, which is only checked if drive->removable is set, 
-> >which is not the case with the newer card (but is with the old one).
-> >Another thing which is weird is that the old card returns an 
-> >id->config value of 0x848a which according to manuals from SanDisk is 
-> >for a Compactflash card NOT running in True Ide mode, but instead in 
-> >memory mapped IO mode (iam no expert for Compactflash, so i dont even 
-> >know the exact difference), but as far as i can tell are both cards 
-> >wired by the IDE adapter so that they should run in True IDE mode, and 
-> >if i understand the Compactflash specification correctly, this is the 
-> >only mode of operation which is electrically compatible with the 
-> >IDE/ATA bus, isnt it?
-> >I tried forcing both the drive->removable and drive->is_flash flags to 
-> >the true, my dmesg output then shows me the card as a CFA DISK drive, 
-> >but i still get the same errors when reading or writing from/to the 
-> >device.
-> >
-> >TIA for any further hints,
-> >Marc
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe 
-> >linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> What kernel are you looking at?  I'm looking at 2.4.21, and it seems to 
-> get checked more-or-less universally.  Also, I noticed this:
-> || !strncmp(id->model, "SunDisk SDCFB", 13)    /* SunDisk */
-> I've not heard of SunDisk.  SunDisk->SanDisk == Typo?
-> Are you using a SanDisk CFA card?  Could this perhaps be part of your issue?
+> So I don't see any way to extend pathname semantics to distinguish between 
+> "directory contents" and "directory attribute stream". 
 
-Indeed this is a typo but has been fixed on 2.4.26:
+I do, actually.  There might be a way and it is kinda-sorta similar to
+your openat() variant, but lives in normal namespace.  No, I'm not too
+fond of that, but since we are discussing weird variants anyway...
 
-        if (drive->removable && id != NULL) {
-                if (id->config == 0x848a) return 1;     /* CompactFlash */
-                if (!strncmp(id->model, "KODAK ATA_FLASH", 15)  /* Kodak */
-                 || !strncmp(id->model, "Hitachi CV", 10)       /* Hitachi */
-                 || !strncmp(id->model, "SunDisk SDCFB", 13)    /* old SanDisk */
-                 || !strncmp(id->model, "SanDisk SDCFB", 13)    /* SanDisk */
-                 || !strncmp(id->model, "HAGIWARA HPC", 12)     /* Hagiwara */
-                 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)  /* Lexar */
-                 || !strncmp(id->model, "ATA_FLASH", 9))        /* Simple Tech */
-                {
+	a) associated directory tree of object is not automounted on top
+of it.  Instead of that, we always do detached vfsmount (and do it on demand -
+see below)
+	b) we have a bunch of pseudo-symlinks in /proc/<pid>/fd/ - same
+kind as what we already have there, but instead of (file->f_vfsmount,
+file->f_dentry) they lead to associated vfsmount (allocated if needed).
+Once we get a reference to such guy, we can
+	* do further lookups
+	* chdir there and poke around
+	* hell, we can even bind it someplace (that will require slight change
+in attach_mnt() logics, but it's not hard) and get it permanently mounted
 
-I haven't got much of a clue about IDE, but I can see the newer card supports
-DMA, and the older doesnt, but you are probably not using DMA on that? whats
-the output of "hdparm /dev/hda".
+Since it's not attached anywhere, normal GC logics works just fine.  And
+yes, they are usable from scripts, etc. -
+	exec 42<foo/bar/baz
+	cat /proc/self/fd/#42/whatever/crap/you/want
+and enjoy.
 
-Also can you show us dmesg from both old and new cards.
+> However, being prodded by Andries, I think I'm wrong _anyway_. Since the
+> dcache is only "dense" down one path to the root, and doesn't contain all
+> the alternate ways of getting to a particular directory, I came to the
+> conclusion that the VFS layer can't actually do cyclic detection after
+> all...
 
+<blinks>
+<rereads a bunch of earlier postings>
+
+Oh, _that_'s what you meant...  No, we definitely have no chance in hell
+to catch loops, dcache or not.  It costs too much - we need to examine
+a *lot* of nodes to do that and all of them would have to be read at some
+point.  We either need entire fs tree locked in core or we might have to
+reread it on every rename().  The former will kill us on memory use, the
+latter - on amount of IO.

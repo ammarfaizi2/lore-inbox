@@ -1,92 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263894AbTDVVCh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 17:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263896AbTDVVCh
+	id S263849AbTDVVM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 17:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbTDVVM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 17:02:37 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:20674 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263894AbTDVVCf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 17:02:35 -0400
-Date: Tue, 22 Apr 2003 14:15:08 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net
-cc: Jack F Vogel <jfv@us.ibm.com>, John Bradford <john@grabjohn.com>,
-       hannal@us.ibm.com, linux-kernel@vger.kernel.org, cliffw@osdl.org,
-       wli@holomorphy.com
-Subject: Re: [Lse-tech] Re: LSE conference call
-Message-ID: <142480000.1051046108@w-hlinder>
-In-Reply-To: <OFA2F966AA.BA4A9007-ON87256D10.00660233-88256D10.00663100@us.ibm.com>
-References: <OFA2F966AA.BA4A9007-ON87256D10.00660233-88256D10.00663100@us.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 22 Apr 2003 17:12:56 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:33235 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S263849AbTDVVMz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 17:12:55 -0400
+Message-ID: <3EA7045C.1040008@softhome.net>
+Date: Thu, 24 Apr 2003 02:53:40 +0530
+From: Balram Adlakha <b_adlakha@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] fbcon
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ >>There seems to be a problem in the frame buffer console, It appears 
+as >>if the
+ >>resolution has been changed from 1024x768 to 1024x800 or something 
+ >>like that
+ >>(I can only half see the sh prompt when it has come down), but the 
+ >>argument I
+ >>passed at boot time was still 788. It doesn't appear to have been 
+ >>solved
+ >>according to the bk csets taken from kernel.org.
+ >>
 
+ >Did you reset your monitor so it remembers the height/width/centering >for
+ >your new resolution? Maybe you didn't know?
+ >
+ >Cheers,
+ >Dick Johnson
+ >Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+ >Why is the government concerned about the lunatic fringe? Think about >it.
 
+Thats not the problem (I still checked it though)
 
-I am getting reports of some conflicts. Would 2pm on Thursday
-or 3pm on Friday be acceptable? Pacific Time that is...
-
-Remember this is every other week (at best ;)
-
-Hanna
-
-
---On Tuesday, April 22, 2003 11:36:12 AM -0700 Jack F Vogel <jfv@us.ibm.com> wrote:
-
-> 
-> Long as its not before my morning coffee :) I think this is a good idea
-> Hanna
-> 
-> Cheers,
-> 
-> Jack
-> 
-> 
-> John Bradford <john@grabjohn.com>@lists.sourceforge.net on 04/22/2003
-> 10:49:41 AM
-> 
-> Sent by:    lse-tech-admin@lists.sourceforge.net
-> 
-> 
-> To:    hannal@us.ltcfwd.linux.ibm.com
-> cc:    lse-tech@lists.sourceforge.net, john@grabjohn.com (John Bradford),
->        linux-kernel@vger.kernel.org, cliffw@osdl.org, wli@holomorphy.com
-> Subject:    [Lse-tech] Re: LSE conference call
-> 
-> 
->> In light of our speaker sleeping through the meeting and
->> the fact that kernel hackers tend not to be awake early
->> in the morning I propose moving the time of the call to
->> 1pm Pacific Time (GMT-0800).
-> 
-> 10 PM U.K. time is no problem for me.
-> 
->> Originally we chose 9:30am to encourage people in Europe and
->> India to attend. However, the time change has not increased
->> attendance so I think we should move it to a more reasonable
->> time for North American Continental dwellers who are the
->> main attendees.
->> 
->> Any comments? Debate? Hate mail?
-> 
-> Flame war?  :-)
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+The problem is that screen that is showed will fit 1024x773 and not 
+1024x768. Everything that I open starts at the very top of my screen but 
+ends 3 or 4 pixels below. This does not happen with older kernels and 
+with X and it is _not_ a monitor problem.
 

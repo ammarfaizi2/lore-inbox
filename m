@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263549AbTDGRFA (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbTDGRFA (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:05:00 -0400
-Received: from smtp01.web.de ([217.72.192.180]:57382 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263549AbTDGRE7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 13:04:59 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: Sergei Organov <osv@javad.ru>
-Subject: Re: modifying line state manually on ttyS
-Date: Mon, 7 Apr 2003 19:16:16 +0200
-User-Agent: KMail/1.5
-References: <200304071702.08114.freesoftwaredeveloper@web.de> <200304071832.20627.freesoftwaredeveloper@web.de> <877ka6i6m1.fsf@osv.javad.ru>
-In-Reply-To: <877ka6i6m1.fsf@osv.javad.ru>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S263568AbTDGRR1 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 13:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTDGRR0 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 13:17:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:19329 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263568AbTDGRRZ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 13:17:25 -0400
+Date: Mon, 7 Apr 2003 09:32:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Vagn Scott <vagn@ranok.com>, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [2.5.66-bk9] : undefined reference to `i2c_detect'
+Message-ID: <20030407163232.GC2553@kroah.com>
+References: <E191DBZ-0004ac-00@Maya.ny.ranok.com> <20030403223901.GB6170@kroah.com> <20030404222922.GE20044@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304071916.16835.freesoftwaredeveloper@web.de>
+In-Reply-To: <20030404222922.GE20044@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 April 2003 19:01, Sergei Organov wrote:
-> Michael Buesch <freesoftwaredeveloper@web.de> writes:
-> > What does it do? I haven't found a description for TIOCSBRK, TIOCSBRK.
->
-> Changes the state of TxD line, I believe. Did you hear about "break
-> condition"? It sets/clears the "break condition", at least for me ;)
+On Sat, Apr 05, 2003 at 12:29:23AM +0200, Adrian Bunk wrote:
+> On Thu, Apr 03, 2003 at 02:39:01PM -0800, Greg KH wrote:
+> > On Thu, Apr 03, 2003 at 05:27:53PM -0500, Vagn Scott wrote:
+> > > 
+> > > CONFIG_SENSORS_LM75=y
+> > > CONFIG_SENSORS_VIA686A=y
+> > > CONFIG_I2C_SENSOR=m
+> > 
+> > Ok, I need a bit of Kconfig help for drivers/i2c/chips to set
+> > CONFIG_I2C_SENSOR to be "y" if either of those two drivers are selected
+> > as "y".  Anyone know how?
+> 
+> The following (untested) should work:
+> 
+> config I2C_SENSOR
+>         tristate
+>         default y if SENSORS_ADM1021=y || SENSORS_LM75=y || SENSORS_VIA686A=y   || SENSORS_W83781D=y
+>         default m if SENSORS_ADM1021=m || SENSORS_LM75=m || SENSORS_VIA686A=m   || SENSORS_W83781D=m
+>         default n
 
-Oh my goodness, it works. Thank you *very* much!
+Thanks, that worked out great.  I'll make up a patch and send it on.
 
-Regards
-Michael Buesch.
-
--- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
-
+greg k-h

@@ -1,16 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbUKDQ1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbUKDQ3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbUKDQ1R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbUKDQ1R
+	id S262283AbUKDQ3V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 11:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUKDQ3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:27:17 -0500
-Received: from dfw-gate4.raytheon.com ([199.46.199.233]:30893 "EHLO
-	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
-	id S262281AbUKDQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:27:13 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-To: Ingo Molnar <mingo@elte.hu>
+	Thu, 4 Nov 2004 11:29:21 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:30608 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262283AbUKDQ3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 11:29:15 -0500
+Date: Thu, 4 Nov 2004 17:30:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
 Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
        Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
        linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
@@ -18,33 +19,44 @@ Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
        Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
        Thomas Gleixner <tglx@linutronix.de>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF5DB3F102.6D3B4834-ON86256F42.00598BFD@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 4 Nov 2004 10:22:02 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 11/04/2004 10:22:09 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+Message-ID: <20041104163012.GA3498@elte.hu>
+References: <OF5DB3F102.6D3B4834-ON86256F42.00598BFD@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF5DB3F102.6D3B4834-ON86256F42.00598BFD@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->what priority does events/0 and events/1 have? keventd handles part of
->the mouse/keyboard workload.
-The default priorities and not RT.
 
-ps -eo pid,pri,rtprio,cmd
-...
-  6  34    -  [events/0]
-  7  34    -  [events/1]
-...
-I can set those as well but then I'd probably have to follow with
-the X server and everything else in the chain. The starvation problem
-ripples across the system.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-Will try the patch shortly and get back on the results later today.
+> >what priority does events/0 and events/1 have? keventd handles part of
+> >the mouse/keyboard workload.
+> The default priorities and not RT.
+> 
+> ps -eo pid,pri,rtprio,cmd
+> ...
+>   6  34    -  [events/0]
+>   7  34    -  [events/1]
+> ...
+> I can set those as well but then I'd probably have to follow with
+> the X server and everything else in the chain. The starvation problem
+> ripples across the system.
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+X should be scheduled on the other CPU just fine. Only per-CPU kernel
+threads (which are affine to their particular CPU) are affected by this
+problem - ordinary tasks not. I.e. the system threads that have /0 and
+/1 in their name. In theory you should not even need to chrt the hardirq
+threads, those should schedule fine too.
 
+	Ingo

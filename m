@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263479AbTKWWJp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 17:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbTKWWJp
+	id S263490AbTKWWYf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 17:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTKWWYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 17:09:45 -0500
-Received: from zork.zork.net ([64.81.246.102]:40136 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S263479AbTKWWJo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 17:09:44 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Coredump file
-References: <000c01c3b20b$a4857560$34dfa7c8@bsb.virtua.com.br>
-Reply-To: Sean Neakums <sneakums@zork.net>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sun, 23 Nov 2003 22:09:43 +0000
-In-Reply-To: <000c01c3b20b$a4857560$34dfa7c8@bsb.virtua.com.br> (brenosp@brasilsec.com.br's
- message of "Sun, 23 Nov 2003 19:49:15 -0200")
-Message-ID: <6ud6birb2w.fsf@zork.zork.net>
+	Sun, 23 Nov 2003 17:24:35 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:16005 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263490AbTKWWYe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 17:24:34 -0500
+Message-ID: <3FC13382.3060701@colorfullife.com>
+Date: Sun, 23 Nov 2003 23:24:02 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Paul Mackerras <paulus@samba.org>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Fix locking in input
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Breno" <brenosp@brasilsec.com.br> writes:
+Paul wrote:
 
-> How can I generate a coredump file ?
-> I tryed to force a signal "Quit" , using ^\ , but didn´t work.
+>Pavel Machek writes:
+>
+>> input uses "volatile signed char" as a shared variable between normal
+>> and interrupt threads (look at _sendbyte()). Thats bad idea, this
+>> switches it to atomic_t.
+>
+>This change looks unnecessary to me - we aren't trying to increment or
+>decrement the variable, just set it and read it.  Reading and writing
+>individual bytes is atomic on any platform we care about.
+>  
+>
+I think one platform (early ARM?) cannot access bytes directly, and 
+implement the access with read 16-bit, change 8-bit, write back 16 bit. 
+Reading/writing pointers or longs is atomic.
 
-Here are some possible reasons for this:
+Pavel: Do you know that atomic_set and atomic_read aren't memory barriers?
+I.e.
 
-* the core dump ulimit may be set too low (check this with ulimit -c)
-* you do not have write permission for the process's cwd
-* there is a core file in the process's cwd that you do not own
+-	psmouse->ack = 0;
++	atomic_set(&psmouse->ack, 0);
+ 	psmouse->acking = 1;
+
+It's not guaranteed that all cpus will see psmouse->ack=0 before psmouse->acking=1. And adding the required memory barriers usually makes the code completely unreadable, thus I usually give up and switch to a spinlock.
+
+--
+	Manfred
+
+
+
 

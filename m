@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280960AbRK3TFL>; Fri, 30 Nov 2001 14:05:11 -0500
+	id <S283768AbRK3THv>; Fri, 30 Nov 2001 14:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280967AbRK3TFB>; Fri, 30 Nov 2001 14:05:01 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:49868 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S280960AbRK3TEn>; Fri, 30 Nov 2001 14:04:43 -0500
-Message-ID: <3C07DDC6.5FAE4E35@t-online.de>
-Date: Fri, 30 Nov 2001 20:28:06 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16 i686)
+	id <S283767AbRK3THm>; Fri, 30 Nov 2001 14:07:42 -0500
+Received: from mail211.mail.bellsouth.net ([205.152.58.151]:47897 "EHLO
+	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S283760AbRK3THa>; Fri, 30 Nov 2001 14:07:30 -0500
+Message-ID: <3C07D8EA.988130B1@mandrakesoft.com>
+Date: Fri, 30 Nov 2001 14:07:22 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Chris Meadors <clubneon@hereintown.net>,
-        Martin Eriksson <nitrax@giron.wox.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        martin@jtrix.com
-Subject: Re: 'spurious 8259A interrupt: IRQ7' -> read the 8259 datasheet !
-In-Reply-To: <Pine.LNX.3.95.1011128084801.10732A-100000@chaos.analogic.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+CC: kumon@flab.fujitsu.co.jp, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 8139too.c
+In-Reply-To: <200111301123.UAA23808@asami.proc.flab.fujitsu.co.jp> <20011130095717.F15936@lynx.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> On Wed, 28 Nov 2001, Chris Meadors wrote:
-> 
-> > On Wed, 28 Nov 2001, Martin Eriksson wrote:
+Andreas Dilger wrote:
+> Please try to keep patches relative to the linux/ directory, so they can
+> be applied via "patch -p1" as most other kernel patches are.  Also note
+> that you should CC the driver maintainer if you want to get the patch
+> into the kernel (in this case Jeff Garzik <jgarzik@mandrakesoft.com>).
 
-...
-... rumours deleted (e.g. "printer status bits are all ORed into irq7")
-...
+Kumon forgot... he resent privately
 
->From "Harris Semiconductor 82C59A Interrupt Controller Datasheet":
-  If no interrupt request is present at step 4 of either sequence
-  (i.e., the request was too short in duration), the 82C59A will
-  issue an interrupt level 7. 
+> --- linux/drivers/net/8139too.c.orig    Sun Nov 25 10:46:36 2001
+> +++ linux/drivers/net/8139too.c Fri Nov 30 19:50:48 2001
 
-1. The irq controller sees an interrupt.
-2. The irq controller signals "there is _some_ interrupt" to the cpu.
-3. The CPU acks via INTA
-4. The irq controller looks if the irq is still there
-   (and signals IRQ7 if the line is no longer active).
+patch applied
 
-You have some device which doesn't keep the IRQ raised long enough !
-(or the CPU doesn't service the irq for a too long time and the 
- edge triggered irq is de-asserted or even serviced by a polling routine)
+> -                  tp->tx_flag | (skb->len >= ETH_ZLEN ? skb->len : ETH_ZLEN));
+> +                  tp->tx_flag | max(len, (unsigned int)ETH_ZLEN));
+
+style:  use max_t if you need to cast.  I'll fix it up.
+
+thanks to you both,
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

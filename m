@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUIED7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUIEECT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266199AbUIED7m (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 23:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUIED7m
+	id S266204AbUIEECT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 00:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUIEECS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 23:59:42 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:46555 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266199AbUIED72
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 23:59:28 -0400
-Subject: Re: [patch] kernel sysfs events layer
-From: Robert Love <rml@ximian.com>
-To: Greg KH <greg@kroah.com>
-Cc: akpm@osdl.org, kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040904005433.GA18229@kroah.com>
-References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
-	 <20040831145643.08fdf612.akpm@osdl.org>
-	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
-	 <20040831150645.4aa8fd27.akpm@osdl.org>
-	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
-	 <20040902083407.GC3191@kroah.com>
-	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
-	 <20040904005433.GA18229@kroah.com>
-Content-Type: text/plain
-Date: Sat, 04 Sep 2004 23:59:24 -0400
-Message-Id: <1094356764.2591.31.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Sep 2004 00:02:18 -0400
+Received: from [61.48.52.95] ([61.48.52.95]:20472 "EHLO freya.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S266188AbUIEECF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 00:02:05 -0400
+Date: Sun, 5 Sep 2004 11:57:30 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200409051857.i85IvUt06042@freya.yggdrasil.com>
+To: janitor@sternwelten.at
+Subject: [patch 2.6.9-rc1-bk11] riscom8: previous patch did not compile
+Cc: linux-kernel@vger.kernel.org, pgmdsg@ibi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 02:54 +0200, Greg KH wrote:
+	linux-2.6.9-rc1-bk11/drivers/char/riscom8.c added
+the patch "drivers/char/riscom8.c MIN/MAX removal", which
+had a typo where one of the new min_t() calls is missing the
+type parameter.  Because both of the parameters and the result
+are all explicitly declared int on all architectures, I changed
+it to use min() rather than min_t(int, ...).
 
-> But transports are important, I agree.
+	This is the third patch in bk11 that never could have compiled
+anywhere.  Although I am glad to see patches being integrated into the
+stock kernel more quickly, I would ask each submitter either
 
-Oh, I have another thought (see my previous email first).
+	(1) check that the patch being submitted has compiled somewhere, or
+	(2) mention in the submission when this has not been done.
 
-The proper course of action based on your suggestion is to cleanly
-abstract the concept of the "backend transport" from the notifier, and
-offer a compile-time option of hotplug, netlink, and/or whatever else.
-Make the transport pluggable and configurable.  Do it cleanly.  Yada
-yada.
+Signed-off-by: Adam J. Richter <adam@yggdrasil.com>
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l
 
-But that is a lot of code and a lot of work.  More than I think is
-warranted, right?
-
-Accepting that the above is the clean and proper way to do what you say,
-let's carry it through.  What is the ideal situation?  People pick
-either hotplug or netlink or foo as their transport.  Why pick more than
-one?  Most people select hotplug because that is there now and works.
-Maybe in the future people would choose netlink and move to that.  This
-is all ideally.
-
-In practice, however, we get people enabling both hotplug and netlink,
-because they need hotplug for hotplug and want netlink for the new
-kevent stuff.  So this approach leads to no one ever picking the ideal.
-
-What we want is people using hotplug for hotplug, and kevent over
-netlink for the event stuff.
-
-So why stick the two together?
-
-We have kobject_hotplug() and kobject_notify() and everything makes
-sense.
-
-	Robert Love
-
-
+--- linux-2.6.9-rc1-bk11/drivers/char/riscom8.c	2004-09-05 09:11:24.000000000 -0700
++++ linux/drivers/char/riscom8.c	2004-09-05 11:35:58.000000000 -0700
+@@ -1174,8 +1174,8 @@
+ 			}
+ 
+ 			cli();
+-			c = min_t(c, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
+-					 SERIAL_XMIT_SIZE - port->xmit_head));
++			c = min(c, min(SERIAL_XMIT_SIZE - port->xmit_cnt - 1,
++				       SERIAL_XMIT_SIZE - port->xmit_head));
+ 			memcpy(port->xmit_buf + port->xmit_head, tmp_buf, c);
+ 			port->xmit_head = (port->xmit_head + c) & (SERIAL_XMIT_SIZE-1);
+ 			port->xmit_cnt += c;

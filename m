@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289769AbSBNF3i>; Thu, 14 Feb 2002 00:29:38 -0500
+	id <S289789AbSBNFnf>; Thu, 14 Feb 2002 00:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289762AbSBNF3T>; Thu, 14 Feb 2002 00:29:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47883 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289750AbSBNF3L>;
-	Thu, 14 Feb 2002 00:29:11 -0500
-Message-ID: <3C6B4B20.FE4AE960@mandrakesoft.com>
-Date: Thu, 14 Feb 2002 00:29:04 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S289775AbSBNFnQ>; Thu, 14 Feb 2002 00:43:16 -0500
+Received: from defiant.secureone.com.au ([203.55.158.195]:65190 "EHLO
+	defiant.secureone.com.au") by vger.kernel.org with ESMTP
+	id <S289762AbSBNFnF>; Thu, 14 Feb 2002 00:43:05 -0500
+Posted-Date: Thu, 14 Feb 2002 15:43:34 +1000
+X-URL: SecureONE SecureSentry - http://www.secureone.com.au/
+Message-ID: <046e01c1b51b$01a50160$0f01000a@brisbane.hatfields.com.au>
+Reply-To: "Andrew Hatfield" <lkml@secureone.com.au>
+From: "Andrew Hatfield" <lkml@secureone.com.au>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1013662709.6671.16.camel@ohdarn.net>
+Subject: Re: Linux 2.4.18-pre9-mjc2
+Date: Thu, 14 Feb 2002 15:46:53 +1000
+Organization: SecureONE
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: Petro <petro@auctionwatch.com>, linux-kernel@vger.kernel.org
-Subject: Re: Eepro100 driver.
-In-Reply-To: <20020213211639.GB2742@auctionwatch.com> <3C6B2277.CA9A0BF8@mandrakesoft.com> <3C6B406E.1010706@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> 
-> Jeff Garzik wrote:
-> 
-> > Long term, it is going to be replaced with e100 from Intel, as soon as
-> > that driver is in good shape.
-> 
-> Any ETA on that?  (Make them really support the ethtool IOCTLs first :))
+got this problem when applying 2.4.18-pre8-mjc to 2.4.18-pre8 to 2.4.17 as
+well as newly released 2.4.18-pre8-mjc2
 
-Soon but not terribly soon.  Intel has been responsive to feedback from
-Andrew Morton and myself.  Once it passes our review and Intel's
-testing, it will go in.  eepro100 will live on for a while, until we are
-certain e100 is stable, though.  (and eepro100 won't disappear from 2.4
-at all)
+filemap.c: In function `__find_page_nolock':
+filemap.c:404: structure has no member named `next_hash'
 
+Not sure if this is related to Rik's rmap patch or Ingo's O(1) Scheduler
+patch (or again, something else entirely)
 
-> In the past, I heard there were licensing problems, have those
-> been cleared up?
+your mjc2 patch contains....
+patch-2.4.18-pre9-mjc2:-        struct page *next_hash;         /* Next page
+sharing our hash bucket in
+patch-2.4.18-pre9-mjc2:-        struct page **pprev_hash;       /*
+Complement to *next_hash. */
 
-Things are looking hopeful on this front.  e1000 is going to be
-submitted for inclusion into the kernel soon, reportedly with a GPL /
-BSD + patent grant license.  e100 should follow suit.
-
-This hasn't happened yet, so I don't want to say "yes" for sure...
-
-	Jeff
+which modifes linux/include/linux/mm.h
 
 
+if i comment out the line in filemap.c it continues to compile... until
+problems with ip.h (more to come)
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+  --
+
+  Andrew Hatfield
+  SecureONE - http://www.secureone.com.au/
+  President - South East Brisbane Linux Users Group  http://www.seblug.org/
+
+  Kernel work available at http://development.secureone.com.au/kernel/
+
+

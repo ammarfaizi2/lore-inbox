@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbSLPVEk>; Mon, 16 Dec 2002 16:04:40 -0500
+	id <S261354AbSLPVSu>; Mon, 16 Dec 2002 16:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSLPVEj>; Mon, 16 Dec 2002 16:04:39 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:57225 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261456AbSLPVEi>; Mon, 16 Dec 2002 16:04:38 -0500
-Date: Mon, 16 Dec 2002 16:15:49 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: FYI
-Message-ID: <Pine.LNX.3.95.1021216161441.19614A-101000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1225067816-1040073349=:19614"
+	id <S261356AbSLPVSu>; Mon, 16 Dec 2002 16:18:50 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:55567 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261354AbSLPVSt>;
+	Mon, 16 Dec 2002 16:18:49 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to do -nostdinc? 
+In-reply-to: Your message of "Mon, 16 Dec 2002 19:29:19 BST."
+             <20021216182919.GA1607@mars.ravnborg.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 17 Dec 2002 08:26:33 +1100
+Message-ID: <20218.1040073993@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 16 Dec 2002 19:29:19 +0100, 
+Sam Ravnborg <sam@ravnborg.org> wrote:
+>On Sun, Dec 15, 2002 at 11:06:41PM +1100, Keith Owens wrote:
+>> There are two ways of setting the -nostdinc flag in the kernel Makefile :-
+>> 
+>> (1) -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+>> (2) -nostdinc -iwithprefix include
+>> 
+>> The first format breaks with non-English locales, however the fix is trivial.
+>> 
+>> (1a) -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+>> 
+>Hi Keith.
+>
+>Based on the comments received, solution (2) seems to be OK.
+>Do you agree?
 
---1678434306-1225067816-1040073349=:19614
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Does gcc still mark -iwithprefix as deprecated?  If it does then do not
+rely on it and use (1a).  If gcc will support -iwithprefix then use (2).
 
-Small Linux Christmas Poem.
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
---1678434306-1225067816-1040073349=:19614
-Content-Type: APPLICATION/octet-stream; name="LinuxXmas.gz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.3.95.1021216161549.19614B@chaos.analogic.com>
-Content-Description: 
-
-H4sIAINB/j0AA11Vy3LjOAy8+ytwm4ud/YA9JTO1Vd7Krqsm3sp1aRGWWKZI
-DR+R9ffTIGWHsU9KBKCB7ga0Ifkd/39XkdLA5Ew/JDrx2QemSS1aLaScJmUt
-3gef+6HEDT5H3m7o9vvXJ1LU+XHKiQPNKDf7cDGuJzzuqbOmu7AuuaPk/llz
-j/g7doHZUcrBIeJkMxdInxNFyzP+F/3IlPiaGsS3wc9SPnBvomDqPE6xNqt1
-4Bg5knE08LXB0iZedrYMKT32thaRLOuzppkxtzQZfXY6NniHM82DmXZWxUFS
-SqXIfMGkIAnd7vx5dyppn4COfmVMLiQoAtSlFq8Tx6RCElI8naVsg/bf5B2x
-6gZyPGNGFAbDJXfBtCPYzVZTF5C2ou0RhgTUg3gl9N047edI33/88fPwj8AY
-B0xrG6DjZ0nVK+O2dA5+lA5VAroE3wxwxxFlRRX+4KCseCHAPWERWgAyqgs/
-IMgQt24OE7KSxL5V3IT4W+20DuakdvGT5VQVEQYkK/KvzK57cF/RZA9V9BYN
-aLHQglDXOs1BQZVKiwtwnOYgWbzAKXEouGqaWIWm9EsWY78al6+o2wGGpQCs
-AHb23zT1wc+ONLLu/HTeOe7SancxSiW11eTkr3QK/sKuAds7lJaor3jFPEli
-V4hnCKJZmBEIjNT5EPKU7tUnGMsk49vibx6cgCjwutpg5RpPXjzW+d6VpJax
-k4J7165u1W99Fbrpi5+OTdi9ibuO+obczCG4orX0o1VSW5qC74Ma4xbvIge8
-bKb4S4iEfFgrTnahkJ0TEStjNfyphr8XxX2ARtgdOSeFqxo5KOyJubJuaj/f
-W78fspIhsSdZWCcJzTUB7ZOHmWFO0+9m02MNvL/QmGV1UmL3oIEM3Gw9jKJz
-B4M5EPPBMZlefRVAKMhWLnJZrmLfgRdkli2RqyvqPazb5Odb75/TwuEwqpxS
-PKwIb76W09xZFW5uGmS9cETSUE+JwfUt+zjiq/Bl7R6MeuLaThG6XquElBXs
-4Eo4dIUlnq1y5eFVhbCUp5d2Fw4Swtf69fmhPsRoeAKBuHL1zL/e9+EIa4cx
-rl8pOd5WGw5AKocDSljGace5XBqrgv+Q43AXvVfhpHrekknfIridSXvC/Cj1
-tKlpux39xOIreOrlif72g4tofLfb0GbzG1SetSxLBwAA
---1678434306-1225067816-1040073349=:19614--

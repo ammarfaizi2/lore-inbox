@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263964AbTFHVeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 17:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTFHVeJ
+	id S263949AbTFHVhV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 17:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263952AbTFHVhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 17:34:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2830 "EHLO
+	Sun, 8 Jun 2003 17:37:21 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9486 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263964AbTFHVeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 17:34:07 -0400
-Date: Sun, 8 Jun 2003 22:47:31 +0100
+	id S263949AbTFHVhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 17:37:20 -0400
+Date: Sun, 8 Jun 2003 22:50:55 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: =?iso-8859-1?Q?Colm_MacC=E1rthaigh?= <colm@stdlib.net>
-Cc: Andrew Miklas <public@mikl.as>, linux-kernel@vger.kernel.org
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: greendisease <jaboutboul@gentoo.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030608224731.D9520@flint.arm.linux.org.uk>
-Mail-Followup-To: =?iso-8859-1?Q?Colm_MacC=E1rthaigh?= <colm@stdlib.net>,
-	Andrew Miklas <public@mikl.as>, linux-kernel@vger.kernel.org
-References: <200306072241.23725.public@mikl.as> <20030608194421.GA92559@kilmainham.stdlib.net>
+Message-ID: <20030608225055.E9520@flint.arm.linux.org.uk>
+Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
+	greendisease <jaboutboul@gentoo.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <8FD91C2E-99F1-11D7-A998-000A95689082@gentoo.org> <Pine.LNX.4.55.0306081402140.3604@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030608194421.GA92559@kilmainham.stdlib.net>; from colm@stdlib.net on Sun, Jun 08, 2003 at 08:44:22PM +0100
+In-Reply-To: <Pine.LNX.4.55.0306081402140.3604@bigblue.dev.mcafeelabs.com>; from davidel@xmailserver.org on Sun, Jun 08, 2003 at 02:08:39PM -0700
 X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 08:44:22PM +0100, Colm MacCárthaigh wrote:
-> # cat /etc/hosts
-> 127.0.0.1               vLinux/Vitals_System_Inc.
->   
-> They appear to have a website at:
->   
->   http://www.vitalsystem.com/
+On Sun, Jun 08, 2003 at 02:08:39PM -0700, Davide Libenzi wrote:
+> IANAL, but in many coutries the fact that you didn't know is not an
+> excuse. When you integrate alien parts in your products you become
+> responsible and you have to be sure about all aspects that arise.
 
-and www.armlinux.net.  Linus has already been informed of this situation,
-and we came to the conclusion that, at the time, there was no way to
-enforce the copyright due to their location in the world.  This may have
-changed recently.
-
-Since this is the case, it may be arguable that the users of vLinux from
-Vitals are unkowningly breaking the GPL due to the apparant licensing
-which Vitals Systems Inc are re-distributing the code to their customers.
+What if, when you obtained said parts, it came with a license which
+appeared to be genuine, but in fact was illegally changed in a country
+which has not signed up to the copyright treaty?  (I believe this may
+be part of the story here.)  I believe that you'd need a good copyright
+lawyer, and it may depend upon local law.
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbTAXXbi>; Fri, 24 Jan 2003 18:31:38 -0500
+	id <S265786AbTAXXjH>; Fri, 24 Jan 2003 18:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbTAXXbi>; Fri, 24 Jan 2003 18:31:38 -0500
-Received: from smtp.terra.es ([213.4.129.129]:35680 "EHLO tsmtp2.mail.isp")
-	by vger.kernel.org with ESMTP id <S265816AbTAXXbh>;
-	Fri, 24 Jan 2003 18:31:37 -0500
-Date: Sat, 25 Jan 2003 00:41:01 +0100
-From: Arador <diegocg@teleline.es>
-To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, jun.nakajima@intel.com,
-       asit.k.mallick@intel.com, sunil.saxena@intel.com
-Subject: Re: 2.5.59-mm5: cpu1 not working
-Message-Id: <20030125004101.5976149a.diegocg@teleline.es>
-In-Reply-To: <E88224AA79D2744187E7854CA8D9131DFEE8B7@fmsmsx407.fm.intel.com>
-References: <E88224AA79D2744187E7854CA8D9131DFEE8B7@fmsmsx407.fm.intel.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265863AbTAXXjH>; Fri, 24 Jan 2003 18:39:07 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:17339 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S265786AbTAXXjG>; Fri, 24 Jan 2003 18:39:06 -0500
+Message-ID: <3E31D637.1030306@kegel.com>
+Date: Fri, 24 Jan 2003 16:11:35 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: Matti Aarnio <matti.aarnio@zmailer.org>, Corey Minyard <minyard@acm.org>,
+       Mark Mielke <mark@mark.mielke.cc>, Mark Hahn <hahn@physics.mcmaster.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: debate on 700 threads vs asynchronous code
+References: <Pine.LNX.4.33L2.0301241528100.9816-100000@dragon.pdx.osdl.net>
+In-Reply-To: <Pine.LNX.4.33L2.0301241528100.9816-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Jan 2003 14:44:17 -0800
-"Kamble, Nitin A" <nitin.a.kamble@intel.com> wrote:
+Randy.Dunlap wrote:
+> On Sat, 25 Jan 2003, Matti Aarnio wrote:
+> 
+> | On Fri, Jan 24, 2003 at 04:53:46PM -0600, Corey Minyard wrote:
+> | ...
+> | > I would disagree.  One thread per connection is easier to conceptually
+> | > understand.  In my experience, an event-driven model (which is what you
+> | > end up with if you use one or a few threads) is actually easier to
+> | > correctly implement and it tends to make your code more modular and
+> | > portable.
+> |
+> |   An old thing from early annals of computer science (I browsed Knuth's
+> | "The Art" again..) is called   Coroutine.
+> |
+> | Gives you "one thread per connection" programming model, but without
+> | actual multiple scheduling threads in the kernel side.  ...
+> | Doing coroutine library all in portable C (by means of setjmp()/longjmp())
+> | is possible, but not very efficient.  A bit of assembly helps a lot.
 
-> Hi Arador,
->   There is nothing wrong with the /proc/interrupts output. The kirq patch balances the interrupts load only when there is sizable load imbalance, which you don't seem to have. In such cases interrupts will not move around.
->    Try generating lots of interrupts load in the system, and then the interrupts will get distributed across CPUs.
+There's also an elegant implementation that uses switch statements
+or computed gotos; see http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
+I'm using it.  It's a bit limited, but hey, it works for me.
 
+> Davide Libenzi (epoll) likes and discusses coroutines on one of his
+> web pages:  http://www.xmailserver.org/linux-patches/nio-improve.html
+> (search for /coroutine/)
 
+IMHO coroutines are harder to use than either threads or nonblocking I/O.
+Then again, I don't like Scheme; many things in this world are a matter of taste.
+- Dan
 
-true, sorry for the noise
-After ping -f i got
-11:    1446896    1452624   IO-APIC-level  eth0
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-cat /dev/hda was not enought to "distribute" the interrupts it seems.
-
-btw, ping -f hits 24000-29000 int. per second; adding
-a cat /dev/hda slows it down to 20, 22000. Shouldn't
-it redistribute the interrupts in a way you get > 29000?
-(note that i've not idea of this thing)
-
-
-Diego Calleja

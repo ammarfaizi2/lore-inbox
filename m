@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266789AbUHCSbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266796AbUHCSeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266789AbUHCSbl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 14:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266806AbUHCSbl
+	id S266796AbUHCSeP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 14:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266806AbUHCSeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 14:31:41 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:22972 "EHLO
+	Tue, 3 Aug 2004 14:34:14 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:24252 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266789AbUHCSbg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 14:31:36 -0400
-Subject: Re: ide-cd problems
+	id S266796AbUHCSeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 14:34:09 -0400
+Subject: Re: dma problems with Serverworks CSB5 chipset
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Doug Maxey <dwm@austin.ibm.com>
-Cc: Jens Axboe <axboe@suse.de>, Zinx Verituse <zinx@epicsol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408031528.i73FSPrB021051@falcon10.austin.ibm.com>
-References: <200408031528.i73FSPrB021051@falcon10.austin.ibm.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Richard Wohlstadter <rwohlsta@watson.wustl.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20040803180821.GB6265@logos.cnet>
+References: <4107E4B3.6070904@watson.wustl.edu>
+	 <20040803180821.GB6265@logos.cnet>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1091554122.3946.3.camel@localhost.localdomain>
+Message-Id: <1091554289.3898.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 03 Aug 2004 18:28:43 +0100
+Date: Tue, 03 Aug 2004 18:31:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-03 at 16:28, Doug Maxey wrote:
->   Where would the case of firmware download fit?  For x86 ATA/ATAPI
->   devices, the vendor usually supplies a dos disk to accomplish this.
+On Maw, 2004-08-03 at 19:08, Marcelo Tosatti wrote:
+> ServerWorks OSB4/5 chipsets are known to not work reliably with the Linux
+> IDE code. AFAIK its a hardware problem which we dont correctly work around.
+> 
+> Have you tried disabling DMA?
+> 
+> Bart and Alan are IDE experts, they can probably give you more useful
+> information.
 
-We already have CAP_SYS_RAWIO methods for such things so that is ok.
-As to the claim that allowed commands vary by device I disagree. At the
-"user safe" level the list is somewhat smaller and consistent
+CSB5 is reliable, rock solidly so in my experience. OSB4 was the older
+interface with problems. Are these systems SMP, what disks are you using
+and in what IDE mode ?
 

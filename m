@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUGROUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUGROeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUGROUj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 10:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUGROUh
+	id S264246AbUGROeW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 10:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUGROeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 10:20:37 -0400
-Received: from [80.190.193.18] ([80.190.193.18]:5041 "EHLO mx.vsadmin.de")
-	by vger.kernel.org with ESMTP id S264147AbUGROUd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 10:20:33 -0400
-From: Stefan Meyknecht <sm0407@nurfuerspam.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.8-rc2: MO-drive write open fix
-Date: Sun, 18 Jul 2004 16:20:29 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_tco+AjF4tRRFGGe"
-Message-Id: <200407181620.29001.sm0407@nurfuerspam.de>
+	Sun, 18 Jul 2004 10:34:22 -0400
+Received: from r200-40-199-66.adinet.com.uy ([200.40.199.66]:45033 "EHLO
+	zeus.keynet.com.uy") by vger.kernel.org with ESMTP id S264113AbUGROeS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 10:34:18 -0400
+From: <gravadordigi@yahoo.com.br>
+To: linux@vivaolinux.com.br
+Subject: Pare de perder dinheiro ! Time:11:31:50
+Date: Sun, 18 Jul 2004 11:31:50
+Mime-Version: 1.0
+Content-Type: text/plain; charset="DEFAULT_CHARSET"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Message-Id: <20040718113823.5D26F41ED9@zeus.keynet.com.uy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+GRAVADOR DIGITAL TELEFONICO AUTOMÁTICO
+ 
+www.gigitech.com.br/gravador
 
---Boundary-00=_tco+AjF4tRRFGGe
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+gravador@gigitech.com.br
+ 
+Telefone: 11 3851-2704 Plantão: 9780-6340 / 9822-0364 
+ 
+VOCê CONHECE O NOSSO PRODUTO ? 
+ 
+- Gravador  telefônico  digital  automático, para monitoramento de ligações telefonicas.
 
-Hi,
 
-the attached patch allows me to mount my mo-drive readwrite. Please 
-review.
+- Indicado para uso em empresas que necessitam monitorar seus contatos telefônicos para avaliar a qualidade de atendimento  para  seus  clientes, além do uso doméstico (monitorar ligações telefônicas de filhos, empregados, etc).
 
-Stefan
+As gravações podem serem efetuadas de modo automático ou manual em formato mp3 que podem serem ouvidas em qualquer computador ou armazenadas em qualquer tipo de midia para serem ouvidas em qualquer lugar, inclusive seu CD player.
 
--- 
-Stefan Meyknecht
-stefan at meyknecht dot org
+Visite nosso site: www.gigitech.com.br/gravador
 
---Boundary-00=_tco+AjF4tRRFGGe
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-cdrom"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="patch-cdrom"
 
---- linux/drivers/cdrom/cdrom.c.orig	2004-07-18 15:01:17.087953545 +0200
-+++ linux/drivers/cdrom/cdrom.c	2004-07-18 15:32:26.325231750 +0200
-@@ -899,7 +899,7 @@
- 			ret = -EROFS;
- 			if (cdrom_open_write(cdi))
- 				goto err;
--			if (!CDROM_CAN(CDC_RAM))
-+			if (!CDROM_CAN(CDC_RAM) && !CDROM_CAN(CDC_MO_DRIVE))
- 				goto err;
- 			ret = 0;
- 		}
+Para aquisição ou  duvidas entre em contato pelos meios abaixo:
 
---Boundary-00=_tco+AjF4tRRFGGe--
+Telefone:  11 3851-2704 plantão: 9780-6340 / 9822-0364
+
+E-mail: gravador@gigitech.com.br
+
+
+Para sair da lista por favor envie um e-mail para remover2@gigitech.com.br 
+
+ 

@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265133AbUGHWel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265151AbUGHWk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265133AbUGHWel (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 18:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUGHWel
+	id S265151AbUGHWk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 18:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUGHWk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 18:34:41 -0400
-Received: from hera.ecs.csus.edu ([130.86.71.150]:53906 "EHLO
-	hera.ecs.csus.edu") by vger.kernel.org with ESMTP id S265133AbUGHWek
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 18:34:40 -0400
-Message-ID: <36266.68.126.187.236.1089326080.squirrel@gaia.ecs.csus.edu>
-Date: Thu, 8 Jul 2004 15:34:40 -0700 (PDT)
-Subject: 2.6.6 kernel memory space
-From: sirpj@ecs.csus.edu
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
+	Thu, 8 Jul 2004 18:40:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25832 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265151AbUGHWk2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 18:40:28 -0400
+Date: Thu, 8 Jul 2004 15:43:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: evil@g-house.de, drightler@technicalogic.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7 "Unable to handle kernel paging request" plus kobject_get
+ badness
+Message-Id: <20040708154328.557bb2d5.akpm@osdl.org>
+In-Reply-To: <20040708150223.2fa765bf.rddunlap@osdl.org>
+References: <004101c462c8$b870fbd0$0200000a@darkomen.lan>
+	<40EDC3C3.40302@g-house.de>
+	<20040708150223.2fa765bf.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+> Andrew, do you recognize this Oops?
+>   http://marc.theaimsgroup.com/?l=linux-kernel&m=108905677320691&w=2
 
-I have found a lot of documentation on how linux is addressing the 4 gig
-issue... But what I would like to know is how much space does the kernel
-have to run a kernel process? For example, if I build a module that
-allocates storage for a linked list of structures (that are 64 bytes in
-size) how long can my list be before the kernel runs out of memory? Can
-kernel space programs use Virtual Memory -- or do they just have access to
-1 GB?
-
-thanks a lot,
-
-Jenn
+Nope.  Looks like the IDE I/O error triggered some bug in JBD.

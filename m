@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbUK3XbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUK3Xis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbUK3XbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 18:31:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUK3Xa3
+	id S262398AbUK3Xis (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 18:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbUK3Xir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 18:30:29 -0500
-Received: from gate.crashing.org ([63.228.1.57]:37527 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262464AbUK3X2W (ORCPT
+	Tue, 30 Nov 2004 18:38:47 -0500
+Received: from waste.org ([209.173.204.2]:45740 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262398AbUK3Xg0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 18:28:22 -0500
-Subject: Re: [1/7] Xen VMM #3: add ptep_establish_new to make va available
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E1CZH45-0000Gk-00@mta1.cl.cam.ac.uk>
-References: <E1CZH45-0000Gk-00@mta1.cl.cam.ac.uk>
-Content-Type: text/plain
-Date: Wed, 01 Dec 2004 10:27:45 +1100
-Message-Id: <1101857266.5174.26.camel@gaston>
+	Tue, 30 Nov 2004 18:36:26 -0500
+Date: Tue, 30 Nov 2004 15:35:47 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041130233547.GX2460@waste.org>
+References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> <1101828924.26071.172.camel@hades.cambridge.redhat.com> <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org> <1101832116.26071.236.camel@hades.cambridge.redhat.com> <Pine.LNX.4.58.0411300846190.22796@ppc970.osdl.org> <1101837135.26071.380.camel@hades.cambridge.redhat.com> <Pine.LNX.4.58.0411301020160.22796@ppc970.osdl.org> <20041130224851.GH8040@waste.org> <20041130225128.GA31216@infradead.org> <41ACFDAF.3040209@nortelnetworks.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41ACFDAF.3040209@nortelnetworks.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 23:05 +0000, Ian Pratt wrote:
-
-> I'd appreciate a pointer to the patch. 
-
-Well, I was hoping that David would reply with one :) It wasn't ported
-to all archs tho, but I did ppc & ppc64, and he did x86 & sparc iirc
-
-> It may still be of some use to distinguish between call sites
-> where it is likely that mm == current->mm to avoid adding a
-> futile test in all the others.
-
-Maybe ...
-
- 
-> > Is there also a need for ptep_establish and ptep_establish_new to be 2
-> > different functions ?
+On Tue, Nov 30, 2004 at 05:09:35PM -0600, Chris Friesen wrote:
+> Christoph Hellwig wrote:
 > 
-> They allow different TLB invalidation behaviour. I guess it could
-> be one function with an extra arg.
+> >>b) when include/user is deemed sufficiently populated, a flag day is
+> >>declared and links from /usr/include are switched to them
+> >
+> >
+> >there are no such links, only copies (more or less modified)
 
-Not sure, my point is that we tend nowadays to have one abstraction per
-call site, and I wonder if it's the right way to go ...
+Indeed.
+ 
+> This may be somewhat heretical, but someone has to ask...
+> 
+> Once include/user/foo.h is sufficiently clean and sufficiently complete, is 
+> there any reason to not allow such links?
 
-Ben.
+Briefly it's preferable not to need the kernel source nor a particular
+version of the kernel source around to compile things. Though a
+complete include/user makes building a proper kernel-headers package
+to install in /usr/include pretty trivial.
 
-
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267582AbTBGAAv>; Thu, 6 Feb 2003 19:00:51 -0500
+	id <S267361AbTBFX7a>; Thu, 6 Feb 2003 18:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbTBGAAv>; Thu, 6 Feb 2003 19:00:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60421 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267582AbTBGAAt>; Thu, 6 Feb 2003 19:00:49 -0500
-Date: Fri, 7 Feb 2003 00:10:07 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	id <S267582AbTBFX7a>; Thu, 6 Feb 2003 18:59:30 -0500
+Received: from dp.samba.org ([66.70.73.150]:52899 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267361AbTBFX72>;
+	Thu, 6 Feb 2003 18:59:28 -0500
+Date: Fri, 7 Feb 2003 11:07:33 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: jt@hpl.hp.com
+Cc: Jouni Malinen <jkmaline@cc.hut.fi>, joshk@triplehelix.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Restore module support.
-Message-ID: <20030207001006.A19306@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org
-References: <20030204233310.AD6AF2C04E@lists.samba.org> <Pine.LNX.4.44.0302062358140.32518-100000@serv> <20030206232515.GA29093@kroah.com>
+Subject: Re: 2.5 kernel + hostap_cs + X11 = scheduling while atomic
+Message-ID: <20030207000733.GD4905@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	jt@hpl.hp.com, Jouni Malinen <jkmaline@cc.hut.fi>,
+	joshk@triplehelix.org, linux-kernel@vger.kernel.org
+References: <20030205073637.GA10725@saltbox.argot.org> <20030206052849.GA1540@jm.kir.nu> <20030206172759.GC17785@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030206232515.GA29093@kroah.com>; from greg@kroah.com on Thu, Feb 06, 2003 at 03:25:15PM -0800
+In-Reply-To: <20030206172759.GC17785@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 06, 2003 at 03:25:15PM -0800, Greg KH wrote:
-> Come on, what Rusty did was the "right thing to do" and has made life
-> easier for all of the arch maintainers (or so says the ones that I've
-> talked to)
+On Thu, Feb 06, 2003 at 09:27:59AM -0800, Jean Tourrilhes wrote:
+> On Wed, Feb 05, 2003 at 09:28:49PM -0800, Jouni Malinen wrote:
+> > On Tue, Feb 04, 2003 at 11:36:37PM -0800, Joshua Kwan wrote:
+> > 
+> > > However, a combination of running said kernel, hostap_cs, and X11 produces
+> > > this nasty infinite string of errors:
+> > > 
+> > > bad: scheduling while atomic!
+> > > Call Trace:
+> > 
+> > >  [<d2948a30>] hfa384x_get_rid+0x36/0x2d6b7606 [hostap_cs]
+> > 
+> > That will sleep, so it better not be called while in interrupt context
+> > or apparently also, while atomic with preemptive kernels(?).
+> > 
+> > >  [<d29388b5>] hostap_get_wireless_stats+0xa6/0x2d6c77f1 [hostap]
+> > 
+> > That's the dev->get_wireless_stats handler. I have assumed that it is
+> > allowed to sleep there, but apparently that is not the case with Linux
+> > 2.5.x (at least with CONFIG_PREEMPT). I added a workaround for this into
+> > Host AP CVS, but you will not get signal quality statistics in that
+> > case. I'll do a proper fix if that function is indeed not allowed to
+> > sleep (e.g., by collecting the statistics before and just copying the
+> > values here).
+> > 
+> > Jean, do you have a comment on this? This happens, e.g., when executing
+> > 'cat /proc/net/wireless':
+> > 
+> > >  [<c0168f45>] seq_printf+0x45/0x56
+> > >  [<c02bd9b6>] wireless_seq_show+0xd6/0xf7
+> > >  [<c0141dd5>] do_mmap_pgoff+0x40e/0x6dc
+> > >  [<c0168a56>] seq_read+0x1c9/0x2ee
+> > >  [<c014d20f>] vfs_read+0xbc/0x127
+> > >  [<c014d496>] sys_read+0x3e/0x55
+> > >  [<c01093cb>] syscall_call+0x7/0xb
+> 
+> 	I had an argument with David a few month ago on the subject
+> (you can ask him how it ended). I believe that it's not a good
+> practice to "schedule" in any of the ioctl, and that seem to also
+> apply to get_wireless_stats. On the other hand, you can perfectly take
+> a spinlock, disable irq and do your job.
 
-And I'll promptly provide you with the other view.  I'm still trying to
-sort out the best thing to do for ARM.  We have the choice of:
-
-1. load modules in the vmalloc region and build two jump tables, one for
-   the init text and one for the core text.
-
-2. fix vmalloc and /proc/kcore to be able to cope with a separate module
-   region located below PAGE_OFFSET.  Currently, neither play well with
-   this option.
-
-(1) has the advantage that it's all architecture code, its what we've
-done with the old modutils, and I've finally managed to implement it.
-However, it introduces an extra instruction and data cache line fetch
-to branches from modules into the kernel text.
-
-(2) has the disadvantage that its touching non-architecture specific
-code, but this is the option I'd prefer due to the obvious performance
-advantage.  However, I'm afraid that it isn't worth the effort to fix
-up vmalloc and /proc/kcore.  vmalloc fix appears simple, but /proc/kcore
-has issues (anyone know what KCORE_BASE is all about?)
-
-I've not made up my mind which option I'm going to take.  If I don't get
-around to fixing /proc/kcore by this weekend, I'll probably just throw
-option (1) at Linus, which bring Linus' tree back to a buildable state
-for some ARM targets again.
+Yes, this is because most of the device ioctl() calls are made with
+one or more spinlocks held by the network layer.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbTIARYT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 13:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTIARYT
+	id S263112AbTIARWP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 13:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTIARWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 13:24:19 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:64518 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S263151AbTIARYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 13:24:14 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Dirk Jakobsmeier <dirk@dirk-jakobsmeier.de>
-Newsgroups: linux.kernel
-Subject: raid1 error while rewind tape
-Date: Mon, 01 Sep 2003 19:24:05 +0200
-Organization: debitel.net - der Onlinedienst
-Message-ID: <bivvbr$53i$1@ulysses.news.tiscali.de>
-Reply-To: dirk@dirk-jakobsmeier.de
-NNTP-Posting-Host: mwnews.dnsg.net
-Mime-Version: 1.0
+	Mon, 1 Sep 2003 13:22:15 -0400
+Received: from webmail.netapps.org ([12.162.17.40]:39631 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263112AbTIARWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 13:22:13 -0400
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+	<20030829103943.A18608@home.com>
+	<20030901060040.GH748@mail.jlokier.co.uk>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 01 Sep 2003 10:22:02 -0700
+In-Reply-To: <20030901060040.GH748@mail.jlokier.co.uk>
+Message-ID: <52oey4ifut.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1062437051 5234 195.71.125.220 (1 Sep 2003 17:24:11 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Mon, 1 Sep 2003 17:24:11 +0000 (UTC)
-User-Agent: KNode/0.7.2
-X-NNTP-Posting-Host: 217.185.55.198
+X-OriginalArrivalTime: 01 Sep 2003 17:22:02.0781 (UTC) FILETIME=[8F07C4D0:01C370AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi you all
+    Matt> PPC440GX, non cache coherent, L1 icache is VTPI, L1 dcache
+    Matt> is PTPI
 
-i have a big problem with running my backup server with kernel 2.4.21 and a
-raid1. Both, the scsi disks and the tape use the same scsi controller.
-While i let the system rewind the tape, and if this command needs long
-time, the scsi driver from kernel recogizes an error.
+    Jamie> The cache looks very coherent to me.
 
-kernel: scsi : aborting command due to timeout.
-kernel: SCSI disk error
-kernel:  I/O error
-kernel: raid1: Disk failure
-kernel: ^IOperation continuing on 1 devices
-kernel: md: updating md2 RAID superblock on device
-kernel: md: recovery thread got woken up
-kernel: md2: resyncing spare disk
-kernel: RAID1 conf printout:
-.
-.
-.
+Matt (like me) is probably just used to thinking of the IBM PPC 440
+chips as non-coherent because they are not cache coherent with respect
+to external bus masters (eg they don't snoop the PCI bus).  Of course,
+this is a different type of coherency from what you are measuring.
 
-Is there a possibility to handle this problem, or do i have to install a
-second scsi controller?
-
-Thanks for any help.
-
-Dirk
+ - Roland

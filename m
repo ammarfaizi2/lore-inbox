@@ -1,903 +1,1235 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314702AbSFJMnl>; Mon, 10 Jun 2002 08:43:41 -0400
+	id <S313773AbSFJMrQ>; Mon, 10 Jun 2002 08:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314548AbSFJMnB>; Mon, 10 Jun 2002 08:43:01 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:22535 "EHLO
+	id <S314707AbSFJMql>; Mon, 10 Jun 2002 08:46:41 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:26631 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314227AbSFJMly>; Mon, 10 Jun 2002 08:41:54 -0400
-Message-ID: <3D0490D0.5070200@evision-ventures.com>
-Date: Mon, 10 Jun 2002 13:43:12 +0200
+	id <S313898AbSFJMpO>; Mon, 10 Jun 2002 08:45:14 -0400
+Message-ID: <3D049198.2060706@evision-ventures.com>
+Date: Mon, 10 Jun 2002 13:46:32 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.21 kill warnings 12/19
+Subject: [PATCH] 2.5.21 kill warnings 15/19
 In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com>
 Content-Type: multipart/mixed;
- boundary="------------030100000906040900090107"
+ boundary="------------000004090904080802080702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030100000906040900090107
+--------------000004090904080802080702
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-The irda people use shreddy editors saga continues.
+irlmp abused __FUNCTION__ and the space bar as well.
 
---------------030100000906040900090107
+--------------000004090904080802080702
 Content-Type: text/plain;
- name="warn-2.5.21-12.diff"
-Content-Transfer-Encoding: 7bit
+ name="warn-2.5.21-15.diff"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline;
- filename="warn-2.5.21-12.diff"
+ filename="warn-2.5.21-15.diff"
 
-diff -urN linux-2.5.21/net/irda/irlap.c linux/net/irda/irlap.c
---- linux-2.5.21/net/irda/irlap.c	2002-06-09 07:29:10.000000000 +0200
-+++ linux/net/irda/irlap.c	2002-06-09 21:32:20.000000000 +0200
-@@ -1,5 +1,5 @@
+diff -urN linux-2.5.21/net/irda/irlmp.c linux/net/irda/irlmp.c
+--- linux-2.5.21/net/irda/irlmp.c	2002-06-09 07:31:21.000000000 +0200
++++ linux/net/irda/irlmp.c	2002-06-09 21:46:26.000000000 +0200
+@@ -1,25 +1,25 @@
  /*********************************************************************
-- *                
+- *               =20
 + *
-  * Filename:      irlap.c
+  * Filename:      irlmp.c
   * Version:       1.0
-  * Description:   IrLAP implementation for Linux
-@@ -8,25 +8,25 @@
-  * Created at:    Mon Aug  4 20:40:53 1997
-  * Modified at:   Tue Dec 14 09:26:44 1999
+- * Description:   IrDA Link Management Protocol (LMP) layer             =
+   =20
++ * Description:   IrDA Link Management Protocol (LMP) layer
+  * Status:        Stable.
+  * Author:        Dag Brattli <dagb@cs.uit.no>
+  * Created at:    Sun Aug 17 20:54:32 1997
+  * Modified at:   Wed Jan  5 11:26:03 2000
   * Modified by:   Dag Brattli <dagb@cs.uit.no>
-- * 
+- *=20
+- *     Copyright (c) 1998-2000 Dag Brattli <dagb@cs.uit.no>,=20
 + *
-  *     Copyright (c) 1998-1999 Dag Brattli, All Rights Reserved.
++ *     Copyright (c) 1998-2000 Dag Brattli <dagb@cs.uit.no>,
+  *     All Rights Reserved.
   *     Copyright (c) 2000-2001 Jean Tourrilhes <jt@hpl.hp.com>
-- *     
-- *     This program is free software; you can redistribute it and/or 
-- *     modify it under the terms of the GNU General Public License as 
-- *     published by the Free Software Foundation; either version 2 of 
+- *    =20
+- *     This program is free software; you can redistribute it and/or=20
+- *     modify it under the terms of the GNU General Public License as=20
+- *     published by the Free Software Foundation; either version 2 of=20
 + *
 + *     This program is free software; you can redistribute it and/or
 + *     modify it under the terms of the GNU General Public License as
 + *     published by the Free Software Foundation; either version 2 of
   *     the License, or (at your option) any later version.
-- * 
-+ *
-  *     This program is distributed in the hope that it will be useful,
-  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
-  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  *     GNU General Public License for more details.
-- * 
-- *     You should have received a copy of the GNU General Public License 
-- *     along with this program; if not, write to the Free Software 
-- *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
-+ *
-+ *     You should have received a copy of the GNU General Public License
-+ *     along with this program; if not, write to the Free Software
-+ *     Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-  *     MA 02111-1307 USA
-- *     
-+ *
+  *
+  *     Neither Dag Brattli nor University of Troms=F8 admit liability no=
+r
+- *     provide warranty for any of this software. This material is=20
++ *     provide warranty for any of this software. This material is
+  *     provided "AS-IS" and at no charge.
+  *
   ********************************************************************/
- 
- #include <linux/config.h>
 @@ -82,7 +82,7 @@
- 	/* Allocate master array */
- 	irlap = hashbin_new(HB_LOCAL);
- 	if (irlap == NULL) {
--	        ERROR(__FUNCTION__ "(), can't allocate irlap hashbin!\n");
-+	        ERROR("%s: can't allocate irlap hashbin!\n", __FUNCTION__);
+ 	if (irlmp =3D=3D NULL)
  		return -ENOMEM;
- 	}
- 
-@@ -108,12 +108,12 @@
- 	struct irlap_cb *self;
- 
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
--	
+ 	memset(irlmp, 0, sizeof(struct irlmp_cb));
+-=09
 +
- 	/* Initialize the irlap structure. */
- 	self = kmalloc(sizeof(struct irlap_cb), GFP_KERNEL);
- 	if (self == NULL)
+ 	irlmp->magic =3D LMP_MAGIC;
+ 	spin_lock_init(&irlmp->log_lock);
+=20
+@@ -91,13 +91,13 @@
+ 	irlmp->links =3D hashbin_new(HB_GLOBAL);
+ 	irlmp->unconnected_lsaps =3D hashbin_new(HB_GLOBAL);
+ 	irlmp->cachelog =3D hashbin_new(HB_GLOBAL);
+-=09
++
+ 	irlmp->free_lsap_sel =3D 0x10; /* Reserved 0x00-0x0f */
+ 	strcpy(sysctl_devname, "Linux");
+-=09
++
+ 	/* Do discovery every 3 seconds */
+ 	init_timer(&irlmp->discovery_timer);
+-   	irlmp_start_discovery_timer(irlmp, sysctl_discovery_timeout*HZ);
++	irlmp_start_discovery_timer(irlmp, sysctl_discovery_timeout*HZ);
+=20
+ 	return 0;
+ }
+@@ -108,20 +108,20 @@
+  *    Remove IrLMP layer
+  *
+  */
+-void irlmp_cleanup(void)=20
++void irlmp_cleanup(void)
+ {
+ 	/* Check for main structure */
+ 	ASSERT(irlmp !=3D NULL, return;);
+ 	ASSERT(irlmp->magic =3D=3D LMP_MAGIC, return;);
+=20
+ 	del_timer(&irlmp->discovery_timer);
+-=09
++
+ 	hashbin_delete(irlmp->links, (FREE_FUNC) kfree);
+ 	hashbin_delete(irlmp->unconnected_lsaps, (FREE_FUNC) kfree);
+ 	hashbin_delete(irlmp->clients, (FREE_FUNC) kfree);
+ 	hashbin_delete(irlmp->services, (FREE_FUNC) kfree);
+ 	hashbin_delete(irlmp->cachelog, (FREE_FUNC) kfree);
+-=09
++
+ 	/* De-allocate main structure */
+ 	kfree(irlmp);
+ 	irlmp =3D NULL;
+@@ -152,11 +152,11 @@
+ 	/* Allocate new instance of a LSAP connection */
+ 	self =3D kmalloc(sizeof(struct lsap_cb), GFP_ATOMIC);
+ 	if (self =3D=3D NULL) {
+-		ERROR(__FUNCTION__ "(), can't allocate memory");
++		ERROR("%s: can't allocate memory", __FUNCTION__);
  		return NULL;
--	
+ 	}
+ 	memset(self, 0, sizeof(struct lsap_cb));
+-=09
 +
- 	memset(self, 0, sizeof(struct irlap_cb));
- 	self->magic = LAP_MAGIC;
- 
-@@ -145,22 +145,22 @@
- 	init_timer(&self->slot_timer);
- 	init_timer(&self->query_timer);
- 	init_timer(&self->discovery_timer);
--	init_timer(&self->final_timer);		
-+	init_timer(&self->final_timer);
- 	init_timer(&self->poll_timer);
- 	init_timer(&self->wd_timer);
- 	init_timer(&self->backoff_timer);
--	init_timer(&self->media_busy_timer);	
-+	init_timer(&self->media_busy_timer);
- 
- 	irlap_apply_default_connection_parameters(self);
- 
- 	self->N3 = 3; /* # connections attemts to try before giving up */
--	
+ 	self->magic =3D LMP_LSAP_MAGIC;
+ 	self->slsap_sel =3D slsap_sel;
+=20
+@@ -176,11 +176,11 @@
+ 	self->notify =3D *notify;
+=20
+ 	self->lsap_state =3D LSAP_DISCONNECTED;
+-=09
 +
- 	self->state = LAP_NDM;
- 
- 	hashbin_insert(irlap, (irda_queue_t *) self, self->saddr, NULL);
- 
- 	irlmp_register_link(self, self->saddr, &self->notify);
--	
+ 	/* Insert into queue of unconnected LSAPs */
+ 	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) self, (int) s=
+elf,=20
+ 		       NULL);
+-=09
 +
  	return self;
  }
- 
-@@ -179,16 +179,16 @@
- 	del_timer(&self->slot_timer);
- 	del_timer(&self->query_timer);
- 	del_timer(&self->discovery_timer);
--	del_timer(&self->final_timer);		
-+	del_timer(&self->final_timer);
- 	del_timer(&self->poll_timer);
- 	del_timer(&self->wd_timer);
- 	del_timer(&self->backoff_timer);
- 	del_timer(&self->media_busy_timer);
- 
- 	irlap_flush_all_queues(self);
--       
-+
- 	self->magic = 0;
--	
-+
- 	kfree(self);
- }
- 
-@@ -198,12 +198,12 @@
-  *    Remove IrLAP instance
-  *
-  */
--void irlap_close(struct irlap_cb *self) 
-+void irlap_close(struct irlap_cb *self)
- {
- 	struct irlap_cb *lap;
- 
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
--	
-+
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
- 
-@@ -227,7 +227,7 @@
-  *    Another device is attempting to make a connection
-  *
-  */
--void irlap_connect_indication(struct irlap_cb *self, struct sk_buff *skb) 
-+void irlap_connect_indication(struct irlap_cb *self, struct sk_buff *skb)
- {
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
- 
-@@ -237,7 +237,7 @@
- 	irlap_init_qos_capabilities(self, NULL); /* No user QoS! */
- 
- 	skb_get(skb); /*LEVEL4*/
--	irlmp_link_connect_indication(self->notify.instance, self->saddr, 
-+	irlmp_link_connect_indication(self->notify.instance, self->saddr,
- 				      self->daddr, &self->qos_tx, skb);
- }
- 
-@@ -247,10 +247,10 @@
-  *    Service user has accepted incoming connection
-  *
-  */
--void irlap_connect_response(struct irlap_cb *self, struct sk_buff *skb) 
-+void irlap_connect_response(struct irlap_cb *self, struct sk_buff *skb)
- {
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
--	
-+
- 	irlap_do_event(self, CONNECT_RESPONSE, skb, NULL);
- 	kfree_skb(skb);
- }
-@@ -258,26 +258,26 @@
- /*
-  * Function irlap_connect_request (self, daddr, qos_user, sniff)
-  *
-- *    Request connection with another device, sniffing is not implemented 
-+ *    Request connection with another device, sniffing is not implemented
-  *    yet.
-  *
-  */
--void irlap_connect_request(struct irlap_cb *self, __u32 daddr, 
--			   struct qos_info *qos_user, int sniff) 
-+void irlap_connect_request(struct irlap_cb *self, __u32 daddr,
-+			   struct qos_info *qos_user, int sniff)
- {
- 	IRDA_DEBUG(3, __FUNCTION__ "(), daddr=0x%08x\n", daddr);
- 
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
- 
-- 	self->daddr = daddr;
--	
-+	self->daddr = daddr;
-+
- 	/*
--	 *  If the service user specifies QoS values for this connection, 
-+	 *  If the service user specifies QoS values for this connection,
- 	 *  then use them
- 	 */
- 	irlap_init_qos_capabilities(self, qos_user);
--	
-+
- 	if ((self->state == LAP_NDM) && !self->media_busy)
- 		irlap_do_event(self, CONNECT_REQUEST, NULL, NULL);
- 	else
-@@ -304,12 +304,12 @@
- /*
-  * Function irlap_data_indication (self, skb)
-  *
-- *    Received data frames from IR-port, so we just pass them up to 
-+ *    Received data frames from IR-port, so we just pass them up to
-  *    IrLMP for further processing
-  *
-  */
- void irlap_data_indication(struct irlap_cb *self, struct sk_buff *skb,
--			   int unreliable) 
-+			   int unreliable)
- {
- 	/* Hide LAP header from IrLMP layer */
- 	skb_pull(skb, LAP_ADDR_HEADER+LAP_CTRL_HEADER);
-@@ -325,7 +325,7 @@
-  *    Queue data for transmission, must wait until XMIT state
-  *
-  */
--void irlap_data_request(struct irlap_cb *self, struct sk_buff *skb, 
-+void irlap_data_request(struct irlap_cb *self, struct sk_buff *skb,
- 			int unreliable)
- {
- 	ASSERT(self != NULL, return;);
-@@ -333,12 +333,12 @@
- 
- 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
- 
--	ASSERT(skb_headroom(skb) >= (LAP_ADDR_HEADER+LAP_CTRL_HEADER), 
-+	ASSERT(skb_headroom(skb) >= (LAP_ADDR_HEADER+LAP_CTRL_HEADER),
- 	       return;);
- 	skb_push(skb, LAP_ADDR_HEADER+LAP_CTRL_HEADER);
- 
--	/*  
--	 *  Must set frame format now so that the rest of the code knows 
-+	/*
-+	 *  Must set frame format now so that the rest of the code knows
- 	 *  if its dealing with an I or an UI frame
- 	 */
- 	if (unreliable)
-@@ -349,11 +349,11 @@
- 	/* Add at the end of the queue (keep ordering) - Jean II */
- 	skb_queue_tail(&self->txq, skb);
- 
--	/* 
--	 *  Send event if this frame only if we are in the right state 
-+	/*
-+	 *  Send event if this frame only if we are in the right state
- 	 *  FIXME: udata should be sent first! (skb_queue_head?)
- 	 */
--  	if ((self->state == LAP_XMIT_P) || (self->state == LAP_XMIT_S)) {
-+	if ((self->state == LAP_XMIT_P) || (self->state == LAP_XMIT_S)) {
- 		/* If we are not already processing the Tx queue, trigger
- 		 * transmission immediately - Jean II */
- 		if((skb_queue_len(&self->txq) <= 1) && (!self->local_busy))
-@@ -377,7 +377,7 @@
- 
- 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
- 
--	ASSERT(skb_headroom(skb) >= (LAP_ADDR_HEADER+LAP_CTRL_HEADER), 
-+	ASSERT(skb_headroom(skb) >= (LAP_ADDR_HEADER+LAP_CTRL_HEADER),
- 	       return;);
- 	skb_push(skb, LAP_ADDR_HEADER+LAP_CTRL_HEADER);
- 
-@@ -399,7 +399,7 @@
- #ifdef CONFIG_IRDA_ULTRA
- void irlap_unitdata_indication(struct irlap_cb *self, struct sk_buff *skb)
- {
--	IRDA_DEBUG(1, __FUNCTION__ "()\n"); 
-+	IRDA_DEBUG(1, __FUNCTION__ "()\n");
- 
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
-@@ -418,17 +418,17 @@
-  *
-  *    Request to disconnect connection by service user
-  */
--void irlap_disconnect_request(struct irlap_cb *self) 
-+void irlap_disconnect_request(struct irlap_cb *self)
- {
- 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
- 
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
--	
-+
- 	/* Don't disconnect until all data frames are successfully sent */
- 	if (skb_queue_len(&self->txq) > 0) {
- 		self->disconnect_pending = TRUE;
--		
-+
+=20
+@@ -247,11 +247,11 @@
+ 	self->lap =3D NULL;
+ 	/* Check if we found the LSAP! If not then try the unconnected lsaps */=
+
+ 	if (!lsap) {
+-		lsap =3D hashbin_remove(irlmp->unconnected_lsaps, (int) self,=20
++		lsap =3D hashbin_remove(irlmp->unconnected_lsaps, (int) self,
+ 				      NULL);
+ 	}
+ 	if (!lsap) {
+-		IRDA_DEBUG(0, __FUNCTION__=20
++		IRDA_DEBUG(0, __FUNCTION__
+ 		     "(), Looks like somebody has removed me already!\n");
  		return;
  	}
- 
-@@ -436,9 +436,9 @@
- 	switch (self->state) {
- 	case LAP_XMIT_P:        /* FALLTROUGH */
- 	case LAP_XMIT_S:        /* FALLTROUGH */
-- 	case LAP_CONN:          /* FALLTROUGH */
-- 	case LAP_RESET_WAIT:    /* FALLTROUGH */
-- 	case LAP_RESET_CHECK:   
-+	case LAP_CONN:          /* FALLTROUGH */
-+	case LAP_RESET_WAIT:    /* FALLTROUGH */
-+	case LAP_RESET_CHECK:
- 		irlap_do_event(self, DISCONNECT_REQUEST, NULL, NULL);
- 		break;
- 	default:
-@@ -454,30 +454,30 @@
-  *    Disconnect request from other device
-  *
-  */
--void irlap_disconnect_indication(struct irlap_cb *self, LAP_REASON reason) 
-+void irlap_disconnect_indication(struct irlap_cb *self, LAP_REASON reason)
- {
--	IRDA_DEBUG(1, __FUNCTION__ "(), reason=%s\n", lap_reasons[reason]); 
-+	IRDA_DEBUG(1, __FUNCTION__ "(), reason=%s\n", lap_reasons[reason]);
- 
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
- 
- 	/* Flush queues */
- 	irlap_flush_all_queues(self);
--	
-+
- 	switch (reason) {
- 	case LAP_RESET_INDICATION:
- 		IRDA_DEBUG(1, __FUNCTION__ "(), Sending reset request!\n");
- 		irlap_do_event(self, RESET_REQUEST, NULL, NULL);
- 		break;
--	case LAP_NO_RESPONSE:	   /* FALLTROUGH */	
-+	case LAP_NO_RESPONSE:	   /* FALLTROUGH */
- 	case LAP_DISC_INDICATION:  /* FALLTROUGH */
- 	case LAP_FOUND_NONE:       /* FALLTROUGH */
- 	case LAP_MEDIA_BUSY:
--		irlmp_link_disconnect_indication(self->notify.instance, self, 
-+		irlmp_link_disconnect_indication(self->notify.instance, self,
- 						 reason, NULL);
- 		break;
- 	default:
--		ERROR(__FUNCTION__ "(), Unknown reason %d\n", reason);
-+		ERROR("%s: Unknown reason %d\n", __FUNCTION__, reason);
- 	}
- }
- 
-@@ -487,23 +487,23 @@
-  *    Start one single discovery operation.
-  *
-  */
--void irlap_discovery_request(struct irlap_cb *self, discovery_t *discovery) 
-+void irlap_discovery_request(struct irlap_cb *self, discovery_t *discovery)
- {
- 	struct irlap_info info;
--	
-+
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
- 	ASSERT(discovery != NULL, return;);
--	
-+
- 	IRDA_DEBUG(4, __FUNCTION__ "(), nslots = %d\n", discovery->nslots);
- 
- 	ASSERT((discovery->nslots == 1) || (discovery->nslots == 6) ||
--	       (discovery->nslots == 8) || (discovery->nslots == 16), 
-+	       (discovery->nslots == 8) || (discovery->nslots == 16),
- 	       return;);
--	
--  	/* Discovery is only possible in NDM mode */
-+
-+	/* Discovery is only possible in NDM mode */
- 	if (self->state != LAP_NDM) {
--		IRDA_DEBUG(4, __FUNCTION__ 
-+		IRDA_DEBUG(4, __FUNCTION__
- 			   "(), discovery only possible in NDM mode\n");
- 		irlap_discovery_confirm(self, NULL);
- 		/* Note : in theory, if we are not in NDM, we could postpone
-@@ -521,18 +521,18 @@
- 		hashbin_delete(self->discovery_log, (FREE_FUNC) kfree);
- 		self->discovery_log = NULL;
- 	}
--	
-+
- 	self->discovery_log= hashbin_new(HB_LOCAL);
--	
-+
- 	info.S = discovery->nslots; /* Number of slots */
- 	info.s = 0; /* Current slot */
--	
-+
- 	self->discovery_cmd = discovery;
- 	info.discovery = discovery;
--	
-+
- 	/* sysctl_slot_timeout bounds are checked in irsysctl.c - Jean II */
- 	self->slot_timeout = sysctl_slot_timeout * HZ / 1000;
--	
-+
- 	irlap_do_event(self, DISCOVERY_REQUEST, NULL, &info);
- }
- 
-@@ -542,15 +542,15 @@
-  *    A device has been discovered in front of this station, we
-  *    report directly to LMP.
-  */
--void irlap_discovery_confirm(struct irlap_cb *self, hashbin_t *discovery_log) 
-+void irlap_discovery_confirm(struct irlap_cb *self, hashbin_t *discovery_log)
- {
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
--	
-+
- 	ASSERT(self->notify.instance != NULL, return;);
--	
--	/* 
--	 * Check for successful discovery, since we are then allowed to clear 
-+
-+	/*
-+	 * Check for successful discovery, since we are then allowed to clear
- 	 * the media busy condition (IrLAP 6.13.4 - p.94). This should allow
- 	 * us to make connection attempts much faster and easier (i.e. no
- 	 * collisions).
-@@ -562,7 +562,7 @@
+@@ -278,11 +278,11 @@
  	 */
- 	if (discovery_log)
- 		irda_device_set_media_busy(self->netdev, FALSE);
--	
+ 	lap =3D kmalloc(sizeof(struct lap_cb), GFP_KERNEL);
+ 	if (lap =3D=3D NULL) {
+-		ERROR(__FUNCTION__ "(), unable to kmalloc\n");
++		ERROR("%s: unable to kmalloc\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	memset(lap, 0, sizeof(struct lap_cb));
+-=09
 +
- 	/* Inform IrLMP */
- 	irlmp_link_discovery_confirm(self->notify.instance, discovery_log);
- }
-@@ -573,7 +573,7 @@
-  *    Somebody is trying to discover us!
-  *
-  */
--void irlap_discovery_indication(struct irlap_cb *self, discovery_t *discovery) 
-+void irlap_discovery_indication(struct irlap_cb *self, discovery_t *discovery)
- {
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
- 
-@@ -599,11 +599,8 @@
- 
- /*
-  * Function irlap_status_indication (quality_of_link)
-- *
-- *    
-- *
-  */
--void irlap_status_indication(struct irlap_cb *self, int quality_of_link) 
-+void irlap_status_indication(struct irlap_cb *self, int quality_of_link)
- {
- 	switch (quality_of_link) {
- 	case STATUS_NO_ACTIVITY:
-@@ -621,9 +618,6 @@
- 
- /*
-  * Function irlap_reset_indication (void)
-- *
-- *    
-- *
-  */
- void irlap_reset_indication(struct irlap_cb *self)
- {
-@@ -631,7 +625,7 @@
- 
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
--	
+ 	lap->irlap =3D irlap;
+ 	lap->magic =3D LMP_LAP_MAGIC;
+ 	lap->saddr =3D saddr;
+@@ -293,7 +293,7 @@
+ #endif
+=20
+ 	lap->lap_state =3D LAP_STANDBY;
+-=09
 +
- 	if (self->state == LAP_RESET_WAIT)
- 		irlap_do_event(self, RESET_REQUEST, NULL, NULL);
- 	else
-@@ -640,13 +634,10 @@
- 
- /*
-  * Function irlap_reset_confirm (void)
-- *
-- *    
-- *
-  */
- void irlap_reset_confirm(void)
- {
-- 	IRDA_DEBUG(1, __FUNCTION__ "()\n");
-+	IRDA_DEBUG(1, __FUNCTION__ "()\n");
- }
- 
- /*
-@@ -656,11 +647,11 @@
-  *    S = Number of slots (0 -> S-1)
-  *    s = Current slot
-  */
--int irlap_generate_rand_time_slot(int S, int s) 
-+int irlap_generate_rand_time_slot(int S, int s)
- {
- 	static int rand;
- 	int slot;
--	
-+
- 	ASSERT((S - s) > 0, return 0;);
- 
- 	rand += jiffies;
-@@ -668,20 +659,20 @@
- 	rand ^= (rand >> 20);
- 
- 	slot = s + rand % (S-s);
--	
-+
- 	ASSERT((slot >= s) || (slot < S), return 0;);
--	
-+
- 	return slot;
- }
- 
- /*
-  * Function irlap_update_nr_received (nr)
-  *
-- *    Remove all acknowledged frames in current window queue. This code is 
-+ *    Remove all acknowledged frames in current window queue. This code is
-  *    not intuitive and you should not try to change it. If you think it
-  *    contains bugs, please mail a patch to the author instead.
-  */
--void irlap_update_nr_received(struct irlap_cb *self, int nr) 
-+void irlap_update_nr_received(struct irlap_cb *self, int nr)
- {
- 	struct sk_buff *skb = NULL;
- 	int count = 0;
-@@ -690,7 +681,7 @@
-          * Remove all the ack-ed frames from the window queue.
-          */
- 
--	/* 
+ 	init_timer(&lap->idle_timer);
+=20
+ 	/*
+@@ -301,9 +301,9 @@
+ 	 */
+ 	hashbin_insert(irlmp->links, (irda_queue_t *) lap, lap->saddr, NULL);
+=20
+-	/*=20
 +	/*
- 	 *  Optimize for the common case. It is most likely that the receiver
- 	 *  will acknowledge all the frames we have sent! So in that case we
- 	 *  delete all frames stored in window.
-@@ -703,17 +694,17 @@
- 		self->va = nr - 1;
- 	} else {
- 		/* Remove all acknowledged frames in current window */
--		while ((skb_peek(&self->wx_list) != NULL) && 
--		       (((self->va+1) % 8) != nr)) 
-+		while ((skb_peek(&self->wx_list) != NULL) &&
-+		       (((self->va+1) % 8) != nr))
- 		{
- 			skb = skb_dequeue(&self->wx_list);
- 			dev_kfree_skb(skb);
--			
+ 	 *  We set only this variable so IrLAP can tell us on which link the
+-	 *  different events happened on=20
++	 *  different events happened on
+ 	 */
+ 	irda_notify_init(notify);
+ 	notify->instance =3D lap;
+@@ -328,7 +328,7 @@
+ 		/* Remove all discoveries discovered at this link */
+ 		irlmp_expire_discoveries(irlmp->cachelog, link->saddr, TRUE);
+=20
+-		del_timer(&link->idle_timer);=09
++		del_timer(&link->idle_timer);
+=20
+ 		link->magic =3D 0;
+ 		kfree(link);
+@@ -338,12 +338,12 @@
+ /*
+  * Function irlmp_connect_request (handle, dlsap, userdata)
+  *
+- *    Connect with a peer LSAP =20
++ *    Connect with a peer LSAP
+  *
+  */
+-int irlmp_connect_request(struct lsap_cb *self, __u8 dlsap_sel,=20
+-			  __u32 saddr, __u32 daddr,=20
+-			  struct qos_info *qos, struct sk_buff *userdata)=20
++int irlmp_connect_request(struct lsap_cb *self, __u8 dlsap_sel,
++			  __u32 saddr, __u32 daddr,
++			  struct qos_info *qos, struct sk_buff *userdata)
+ {
+ 	struct sk_buff *skb =3D NULL;
+ 	struct lap_cb *lap;
+@@ -352,18 +352,18 @@
+=20
+ 	ASSERT(self !=3D NULL, return -EBADR;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return -EBADR;);
+-=09
+-	IRDA_DEBUG(2, __FUNCTION__=20
+-	      "(), slsap_sel=3D%02x, dlsap_sel=3D%02x, saddr=3D%08x, daddr=3D%0=
+8x\n",=20
 +
- 			self->va = (self->va + 1) % 8;
- 			count++;
++	IRDA_DEBUG(2, __FUNCTION__
++	      "(), slsap_sel=3D%02x, dlsap_sel=3D%02x, saddr=3D%08x, daddr=3D%0=
+8x\n",
+ 	      self->slsap_sel, dlsap_sel, saddr, daddr);
+-=09
++
+ 	if (test_bit(0, &self->connected))
+ 		return -EISCONN;
+-=09
++
+ 	/* Client must supply destination device address */
+ 	if (!daddr)
+ 		return -EINVAL;
+-=09
++
+ 	/* Any userdata? */
+ 	if (userdata =3D=3D NULL) {
+ 		skb =3D dev_alloc_skb(64);
+@@ -373,27 +373,27 @@
+ 		skb_reserve(skb, LMP_MAX_HEADER);
+ 	} else
+ 		skb =3D userdata;
+-=09
++
+ 	/* Make room for MUX control header (3 bytes) */
+ 	ASSERT(skb_headroom(skb) >=3D LMP_CONTROL_HEADER, return -1;);
+ 	skb_push(skb, LMP_CONTROL_HEADER);
+=20
+ 	self->dlsap_sel =3D dlsap_sel;
+-=09
+-	/* =20
++
++	/*
+ 	 * Find the link to where we should try to connect since there may
+ 	 * be more than one IrDA port on this machine. If the client has
+ 	 * passed us the saddr (and already knows which link to use), then
+ 	 * we use that to find the link, if not then we have to look in the
+ 	 * discovery log and check if any of the links has discovered a
+-	 * device with the given daddr=20
++	 * device with the given daddr
+ 	 */
+ 	if ((!saddr) || (saddr =3D=3D DEV_ADDR_ANY)) {
+ 		if (daddr !=3D DEV_ADDR_ANY)
+ 			discovery =3D hashbin_find(irlmp->cachelog, daddr, NULL);
+ 		else {
+ 			IRDA_DEBUG(2, __FUNCTION__ "(), no daddr\n");
+-			discovery =3D (discovery_t *)=20
++			discovery =3D (discovery_t *)
+ 				hashbin_get_first(irlmp->cachelog);
+ 		}
+=20
+@@ -402,7 +402,7 @@
+ 			daddr =3D discovery->daddr;
  		}
  	}
--	
-+
- 	/* Advance window */
- 	self->window = self->window_size - skb_queue_len(&self->wx_list);
- }
-@@ -723,7 +714,7 @@
-  *
-  *    Validate the next to send (ns) field from received frame.
-  */
--int irlap_validate_ns_received(struct irlap_cb *self, int ns) 
-+int irlap_validate_ns_received(struct irlap_cb *self, int ns)
- {
- 	/*  ns as expected?  */
- 	if (ns == self->vr)
-@@ -733,7 +724,7 @@
- 	 *  IrLAP, Recv ... with-invalid-Ns. p. 84
+-	lap =3D hashbin_find(irlmp->links, saddr, NULL);=09
++	lap =3D hashbin_find(irlmp->links, saddr, NULL);
+ 	if (lap =3D=3D NULL) {
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unable to find a usable link!\n");
+ 		return -EHOSTUNREACH;
+@@ -433,9 +433,9 @@
+=20
+ 	self->lap =3D lap;
+=20
+-	/*=20
+-	 *  Remove LSAP from list of unconnected LSAPs and insert it into the=20
+-	 *  list of connected LSAPs for the particular link=20
++	/*
++	 *  Remove LSAP from list of unconnected LSAPs and insert it into the
++	 *  list of connected LSAPs for the particular link
  	 */
- 	return NS_UNEXPECTED;
--	
+ 	lsap =3D hashbin_remove(irlmp->unconnected_lsaps, (int) self, NULL);
+=20
+@@ -447,13 +447,13 @@
+ 	hashbin_insert(self->lap->lsaps, (irda_queue_t *) self, (int) self, NUL=
+L);
+=20
+ 	set_bit(0, &self->connected);	/* TRUE */
+-=09
 +
- 	/* return NR_INVALID; */
- }
- /*
-@@ -742,7 +733,7 @@
-  *    Validate the next to receive (nr) field from received frame.
-  *
-  */
--int irlap_validate_nr_received(struct irlap_cb *self, int nr) 
-+int irlap_validate_nr_received(struct irlap_cb *self, int nr)
- {
- 	/*  nr as expected?  */
- 	if (nr == self->vs) {
-@@ -751,17 +742,17 @@
- 	}
- 
  	/*
--	 *  unexpected nr? (but within current window), first we check if the 
-+	 *  unexpected nr? (but within current window), first we check if the
- 	 *  ns numbers of the frames in the current window wrap.
+ 	 *  User supplied qos specifications?
  	 */
- 	if (self->va < self->vs) {
- 		if ((nr >= self->va) && (nr <= self->vs))
- 			return NR_UNEXPECTED;
- 	} else {
--		if ((nr >= self->va) || (nr <= self->vs)) 
-+		if ((nr >= self->va) || (nr <= self->vs))
- 			return NR_UNEXPECTED;
- 	}
--	
+ 	if (qos)
+ 		self->qos =3D *qos;
+-=09
 +
- 	/* Invalid nr!  */
- 	return NR_INVALID;
- }
-@@ -772,10 +763,10 @@
-  *    Initialize the connection state parameters
+ 	irlmp_do_lsap_event(self, LM_CONNECT_REQUEST, skb);
+=20
+ 	return 0;
+@@ -465,18 +465,18 @@
+  *    Incoming connection
   *
   */
--void irlap_initiate_connection_state(struct irlap_cb *self) 
-+void irlap_initiate_connection_state(struct irlap_cb *self)
+-void irlmp_connect_indication(struct lsap_cb *self, struct sk_buff *skb)=
+=20
++void irlmp_connect_indication(struct lsap_cb *self, struct sk_buff *skb)=
+
  {
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
--	
+ 	int max_seg_size;
+ 	int lap_header_size;
+ 	int max_header_size;
+-=09
 +
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
- 
-@@ -799,11 +790,11 @@
-  *    frame in order to delay for the specified amount of time. This is
-  *    done to avoid using timers, and the forbidden udelay!
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return;);
+ 	ASSERT(skb !=3D NULL, return;);
+ 	ASSERT(self->lap !=3D NULL, return;);
+=20
+-	IRDA_DEBUG(2, __FUNCTION__ "(), slsap_sel=3D%02x, dlsap_sel=3D%02x\n", =
+
++	IRDA_DEBUG(2, __FUNCTION__ "(), slsap_sel=3D%02x, dlsap_sel=3D%02x\n",
+ 		   self->slsap_sel, self->dlsap_sel);
+=20
+ 	/* Note : self->lap is set in irlmp_link_data_indication(),
+@@ -492,10 +492,10 @@
+=20
+ 	/* Hide LMP_CONTROL_HEADER header from layer above */
+ 	skb_pull(skb, LMP_CONTROL_HEADER);
+-=09
++
+ 	if (self->notify.connect_indication)
+-		self->notify.connect_indication(self->notify.instance, self,=20
+-						&self->qos, max_seg_size,=20
++		self->notify.connect_indication(self->notify.instance, self,
++						&self->qos, max_seg_size,
+ 						max_header_size, skb);
+ 	else
+ 		dev_kfree_skb(skb);
+@@ -507,7 +507,7 @@
+  *    Service user is accepting connection
+  *
   */
--void irlap_wait_min_turn_around(struct irlap_cb *self, struct qos_info *qos) 
-+void irlap_wait_min_turn_around(struct irlap_cb *self, struct qos_info *qos)
+-int irlmp_connect_response(struct lsap_cb *self, struct sk_buff *userdat=
+a)=20
++int irlmp_connect_response(struct lsap_cb *self, struct sk_buff *userdat=
+a)
  {
- 	__u32 min_turn_time;
- 	__u32 speed;
--	
+ 	ASSERT(self !=3D NULL, return -1;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return -1;);
+@@ -515,13 +515,13 @@
+=20
+ 	set_bit(0, &self->connected);	/* TRUE */
+=20
+-	IRDA_DEBUG(2, __FUNCTION__ "(), slsap_sel=3D%02x, dlsap_sel=3D%02x\n", =
+
++	IRDA_DEBUG(2, __FUNCTION__ "(), slsap_sel=3D%02x, dlsap_sel=3D%02x\n",
+ 		   self->slsap_sel, self->dlsap_sel);
+=20
+ 	/* Make room for MUX control header (3 bytes) */
+ 	ASSERT(skb_headroom(userdata) >=3D LMP_CONTROL_HEADER, return -1;);
+ 	skb_push(userdata, LMP_CONTROL_HEADER);
+-=09
 +
- 	/* Get QoS values.  */
- 	speed = qos->baud_rate.value;
- 	min_turn_time = qos->min_turn_time.value;
-@@ -813,10 +804,10 @@
- 		self->mtt_required = min_turn_time;
+ 	irlmp_do_lsap_event(self, LM_CONNECT_RESPONSE, userdata);
+=20
+ 	return 0;
+@@ -532,26 +532,26 @@
+  *
+  *    LSAP connection confirmed peer device!
+  */
+-void irlmp_connect_confirm(struct lsap_cb *self, struct sk_buff *skb)=20
++void irlmp_connect_confirm(struct lsap_cb *self, struct sk_buff *skb)
+ {
+ 	int max_header_size;
+ 	int lap_header_size;
+ 	int max_seg_size;
+=20
+ 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
+-=09
++
+ 	ASSERT(skb !=3D NULL, return;);
+ 	ASSERT(self !=3D NULL, return;);
+-	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return;);=09
++	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return;);
+ 	ASSERT(self->lap !=3D NULL, return;);
+=20
+ 	self->qos =3D *self->lap->qos;
+=20
+ 	max_seg_size    =3D self->lap->qos->data_size.value-LMP_HEADER;
+-	lap_header_size =3D IRLAP_GET_HEADER_SIZE(self->lap->irlap);=09
++	lap_header_size =3D IRLAP_GET_HEADER_SIZE(self->lap->irlap);
+ 	max_header_size =3D LMP_HEADER + lap_header_size;
+=20
+-	IRDA_DEBUG(2, __FUNCTION__ "(), max_header_size=3D%d\n",=20
++	IRDA_DEBUG(2, __FUNCTION__ "(), max_header_size=3D%d\n",
+ 		   max_header_size);
+=20
+ 	/* Hide LMP_CONTROL_HEADER header from layer above */
+@@ -572,7 +572,7 @@
+  *    new LSAP so it can keep listening on the old one.
+  *
+  */
+-struct lsap_cb *irlmp_dup(struct lsap_cb *orig, void *instance)=20
++struct lsap_cb *irlmp_dup(struct lsap_cb *orig, void *instance)
+ {
+ 	struct lsap_cb *new;
+=20
+@@ -595,8 +595,8 @@
+ 	/* new->slsap_sel =3D orig->slsap_sel; =3D> done in the memcpy() */
+=20
+ 	init_timer(&new->watchdog_timer);
+-=09
+-	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) new, (int) ne=
+w,=20
++
++	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) new, (int) ne=
+w,
+ 		       NULL);
+=20
+ 	/* Make sure that we invalidate the cache */
+@@ -610,10 +610,10 @@
+ /*
+  * Function irlmp_disconnect_request (handle, userdata)
+  *
+- *    The service user is requesting disconnection, this will not remove=
+ the=20
++ *    The service user is requesting disconnection, this will not remove=
+ the
+  *    LSAP, but only mark it as disconnected
+  */
+-int irlmp_disconnect_request(struct lsap_cb *self, struct sk_buff *userd=
+ata)=20
++int irlmp_disconnect_request(struct lsap_cb *self, struct sk_buff *userd=
+ata)
+ {
+ 	struct lsap_cb *lsap;
+=20
+@@ -633,13 +633,13 @@
+=20
+ 	skb_push(userdata, LMP_CONTROL_HEADER);
+=20
+-	/*=20
++	/*
+ 	 *  Do the event before the other stuff since we must know
+ 	 *  which lap layer that the frame should be transmitted on
+ 	 */
+ 	irlmp_do_lsap_event(self, LM_DISCONNECT_REQUEST, userdata);
+=20
+-	/*=20
++	/*
+ 	 *  Remove LSAP from list of connected LSAPs for the particular link
+ 	 *  and insert it into the list of unconnected LSAPs
+ 	 */
+@@ -653,13 +653,13 @@
+ 	ASSERT(lsap->magic =3D=3D LMP_LSAP_MAGIC, return -1;);
+ 	ASSERT(lsap =3D=3D self, return -1;);
+=20
+-	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) self, (int) s=
+elf,=20
++	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) self, (int) s=
+elf,
+ 		       NULL);
+-=09
++
+ 	/* Reset some values */
+ 	self->dlsap_sel =3D LSAP_ANY;
+ 	self->lap =3D NULL;
+-=09
++
+ 	return 0;
+ }
+=20
+@@ -668,8 +668,8 @@
+  *
+  *    LSAP is being closed!
+  */
+-void irlmp_disconnect_indication(struct lsap_cb *self, LM_REASON reason,=
+=20
+-				 struct sk_buff *userdata)=20
++void irlmp_disconnect_indication(struct lsap_cb *self, LM_REASON reason,=
+
++				 struct sk_buff *userdata)
+ {
+ 	struct lsap_cb *lsap;
+=20
+@@ -677,7 +677,7 @@
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return;);
+=20
+-	IRDA_DEBUG(3, __FUNCTION__ "(), slsap_sel=3D%02x, dlsap_sel=3D%02x\n", =
+
++	IRDA_DEBUG(3, __FUNCTION__ "(), slsap_sel=3D%02x, dlsap_sel=3D%02x\n",
+ 		   self->slsap_sel, self->dlsap_sel);
+=20
+ 	/* Already disconnected ?
+@@ -691,12 +691,12 @@
  		return;
  	}
--	
--	/*  
-+
+=20
+-	/*=20
+-	 *  Remove association between this LSAP and the link it used=20
 +	/*
- 	 *  Send additional BOF's for the next frame for the requested
--	 *  min turn time, so now we must calculate how many chars (XBOF's) we 
-+	 *  min turn time, so now we must calculate how many chars (XBOF's) we
- 	 *  must send for the requested time period (min turn time)
++	 *  Remove association between this LSAP and the link it used
  	 */
- 	self->xbofs_delay = irlap_min_turn_time_in_bytes(speed, min_turn_time);
-@@ -828,7 +819,7 @@
-  *    Flush all queues
-  *
-  */
--void irlap_flush_all_queues(struct irlap_cb *self) 
-+void irlap_flush_all_queues(struct irlap_cb *self)
- {
- 	struct sk_buff* skb;
- 
-@@ -838,7 +829,7 @@
- 	/* Free transmission queue */
- 	while ((skb = skb_dequeue(&self->txq)) != NULL)
- 		dev_kfree_skb(skb);
--	
+ 	ASSERT(self->lap !=3D NULL, return;);
+ 	ASSERT(self->lap->lsaps !=3D NULL, return;);
+-=09
 +
- 	while ((skb = skb_dequeue(&self->txq_ultra)) != NULL)
- 		dev_kfree_skb(skb);
- 
-@@ -894,7 +885,7 @@
- 	irda_qos_compute_intersection(&self->qos_rx, self->qos_dev);
- 
+ 	lsap =3D hashbin_remove(self->lap->lsaps, (int) self, NULL);
+ #ifdef CONFIG_IRDA_CACHE_LAST_LSAP
+ 	self->lap->cache.valid =3D FALSE;
+@@ -704,17 +704,17 @@
+=20
+ 	ASSERT(lsap !=3D NULL, return;);
+ 	ASSERT(lsap =3D=3D self, return;);
+-	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) lsap, (int) l=
+sap,=20
++	hashbin_insert(irlmp->unconnected_lsaps, (irda_queue_t *) lsap, (int) l=
+sap,
+ 		       NULL);
+=20
+ 	self->dlsap_sel =3D LSAP_ANY;
+ 	self->lap =3D NULL;
+-=09
++
  	/*
--	 *  Check for user supplied QoS parameters. The service user is only 
-+	 *  Check for user supplied QoS parameters. The service user is only
- 	 *  allowed to supply these values. We check each parameter since the
- 	 *  user may not have set all of them.
+ 	 *  Inform service user
  	 */
-@@ -926,7 +917,6 @@
-  * Function irlap_apply_default_connection_parameters (void, now)
-  *
-  *    Use the default connection and transmission parameters
-- * 
-  */
- void irlap_apply_default_connection_parameters(struct irlap_cb *self)
- {
-@@ -945,9 +935,9 @@
- 	/* Set mbusy when going to NDM state */
- 	irda_device_set_media_busy(self->netdev, TRUE);
- 
--	/* 
-+	/*
- 	 * Generate random connection address for this session, which must
--	 * be 7 bits wide and different from 0x00 and 0xfe 
-+	 * be 7 bits wide and different from 0x00 and 0xfe
- 	 */
- 	while ((self->caddr == 0x00) || (self->caddr == 0xfe)) {
- 		get_random_bytes(&self->caddr, sizeof(self->caddr));
-@@ -991,10 +981,10 @@
-  * frame is sent.
-  * If 'now' is true, the speed and xbofs is changed immediately
-  */
--void irlap_apply_connection_parameters(struct irlap_cb *self, int now) 
-+void irlap_apply_connection_parameters(struct irlap_cb *self, int now)
- {
- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
--	
+ 	if (self->notify.disconnect_indication)
+-		self->notify.disconnect_indication(self->notify.instance,=20
++		self->notify.disconnect_indication(self->notify.instance,
+ 						   self, reason, userdata);
+ 	else {
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), no handler\n");
+@@ -747,7 +747,7 @@
+ 	lap =3D (struct lap_cb *) hashbin_get_first(irlmp->links);
+ 	while (lap !=3D NULL) {
+ 		ASSERT(lap->magic =3D=3D LMP_LAP_MAGIC, return;);
+-	=09
 +
- 	ASSERT(self != NULL, return;);
- 	ASSERT(self->magic == LAP_MAGIC, return;);
- 
-@@ -1014,15 +1004,15 @@
- 	 *  Calculate how many bytes it is possible to transmit before the
- 	 *  link must be turned around
- 	 */
--	self->line_capacity = 
-+	self->line_capacity =
- 		irlap_max_line_capacity(self->qos_tx.baud_rate.value,
- 					self->qos_tx.max_turn_time.value);
- 	self->bytes_left = self->line_capacity;
- #endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
- 
--	
--	/* 
--	 *  Initialize timeout values, some of the rules are listed on 
-+
-+	/*
-+	 *  Initialize timeout values, some of the rules are listed on
- 	 *  page 92 in IrLAP.
- 	 */
- 	ASSERT(self->qos_tx.max_turn_time.value != 0, return;);
-@@ -1056,27 +1046,27 @@
- 	 */
- 
- 	/*
--	 *  Set N1 to 0 if Link Disconnect/Threshold Time = 3 and set it to 
-+	 *  Set N1 to 0 if Link Disconnect/Threshold Time = 3 and set it to
- 	 *  3 seconds otherwise. See page 71 in IrLAP for more details.
- 	 *  Actually, it's not always 3 seconds, as we allow to set
- 	 *  it via sysctl... Max maxtt is 500ms, and N1 need to be multiple
- 	 *  of 2, so 1 second is minimum we can allow. - Jean II
- 	 */
- 	if (self->qos_tx.link_disc_time.value == sysctl_warn_noreply_time)
--		/* 
-+		/*
- 		 * If we set N1 to 0, it will trigger immediately, which is
- 		 * not what we want. What we really want is to disable it,
--		 * Jean II 
-+		 * Jean II
- 		 */
- 		self->N1 = -2; /* Disable - Need to be multiple of 2*/
- 	else
- 		self->N1 = sysctl_warn_noreply_time * 1000 /
- 		  self->qos_rx.max_turn_time.value;
--	
-+
- 	IRDA_DEBUG(4, "Setting N1 = %d\n", self->N1);
--	
-+
- 	/* Set N2 to match our own disconnect time */
--	self->N2 = self->qos_tx.link_disc_time.value * 1000 / 
-+	self->N2 = self->qos_tx.link_disc_time.value * 1000 /
- 		self->qos_rx.max_turn_time.value;
- 	IRDA_DEBUG(4, "Setting N2 = %d\n", self->N2);
- }
-@@ -1093,7 +1083,7 @@
- 	struct irlap_cb *self;
- 	unsigned long flags;
- 	int i = 0;
--     
-+
- 	save_flags(flags);
- 	cli();
- 
-@@ -1105,9 +1095,9 @@
- 		ASSERT(self->magic == LAP_MAGIC, return -EBADR;);
- 
- 		len += sprintf(buf+len, "irlap%d ", i++);
--		len += sprintf(buf+len, "state: %s\n", 
-+		len += sprintf(buf+len, "state: %s\n",
- 			       irlap_state[self->state]);
--		
-+
- 		len += sprintf(buf+len, "  device name: %s, ",
- 			       (self->netdev) ? self->netdev->name : "bug");
- 		len += sprintf(buf+len, "hardware name: %s\n", self->hw_name);
-@@ -1115,34 +1105,34 @@
- 		len += sprintf(buf+len, "  caddr: %#02x, ", self->caddr);
- 		len += sprintf(buf+len, "saddr: %#08x, ", self->saddr);
- 		len += sprintf(buf+len, "daddr: %#08x\n", self->daddr);
--		
--		len += sprintf(buf+len, "  win size: %d, ", 
-+
-+		len += sprintf(buf+len, "  win size: %d, ",
- 			       self->window_size);
- 		len += sprintf(buf+len, "win: %d, ", self->window);
- #if CONFIG_IRDA_DYNAMIC_WINDOW
--		len += sprintf(buf+len, "line capacity: %d, ", 
-+		len += sprintf(buf+len, "line capacity: %d, ",
- 			       self->line_capacity);
- 		len += sprintf(buf+len, "bytes left: %d\n", self->bytes_left);
- #endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
--		len += sprintf(buf+len, "  tx queue len: %d ", 
-+		len += sprintf(buf+len, "  tx queue len: %d ",
- 			       skb_queue_len(&self->txq));
--		len += sprintf(buf+len, "win queue len: %d ", 
-+		len += sprintf(buf+len, "win queue len: %d ",
- 			       skb_queue_len(&self->wx_list));
- 		len += sprintf(buf+len, "rbusy: %s", self->remote_busy ?
- 			       "TRUE" : "FALSE");
- 		len += sprintf(buf+len, " mbusy: %s\n", self->media_busy ?
- 			       "TRUE" : "FALSE");
--		
-+
- 		len += sprintf(buf+len, "  retrans: %d ", self->retry_count);
- 		len += sprintf(buf+len, "vs: %d ", self->vs);
- 		len += sprintf(buf+len, "vr: %d ", self->vr);
- 		len += sprintf(buf+len, "va: %d\n", self->va);
--		
-+
- 		len += sprintf(buf+len, "  qos\tbps\tmaxtt\tdsize\twinsize\taddbofs\tmintt\tldisc\tcomp\n");
--		
--		len += sprintf(buf+len, "  tx\t%d\t", 
-+
-+		len += sprintf(buf+len, "  tx\t%d\t",
- 			       self->qos_tx.baud_rate.value);
--		len += sprintf(buf+len, "%d\t", 
-+		len += sprintf(buf+len, "%d\t",
- 			       self->qos_tx.max_turn_time.value);
- 		len += sprintf(buf+len, "%d\t",
- 			       self->qos_tx.data_size.value);
-@@ -1150,15 +1140,15 @@
- 			       self->qos_tx.window_size.value);
- 		len += sprintf(buf+len, "%d\t",
- 			       self->qos_tx.additional_bofs.value);
--		len += sprintf(buf+len, "%d\t", 
-+		len += sprintf(buf+len, "%d\t",
- 			       self->qos_tx.min_turn_time.value);
--		len += sprintf(buf+len, "%d\t", 
-+		len += sprintf(buf+len, "%d\t",
- 			       self->qos_tx.link_disc_time.value);
- 		len += sprintf(buf+len, "\n");
- 
--		len += sprintf(buf+len, "  rx\t%d\t", 
-+		len += sprintf(buf+len, "  rx\t%d\t",
- 			       self->qos_rx.baud_rate.value);
--		len += sprintf(buf+len, "%d\t", 
-+		len += sprintf(buf+len, "%d\t",
- 			       self->qos_rx.max_turn_time.value);
- 		len += sprintf(buf+len, "%d\t",
- 			       self->qos_rx.data_size.value);
-@@ -1166,12 +1156,12 @@
- 			       self->qos_rx.window_size.value);
- 		len += sprintf(buf+len, "%d\t",
- 			       self->qos_rx.additional_bofs.value);
--		len += sprintf(buf+len, "%d\t", 
-+		len += sprintf(buf+len, "%d\t",
- 			       self->qos_rx.min_turn_time.value);
--		len += sprintf(buf+len, "%d\t", 
-+		len += sprintf(buf+len, "%d\t",
- 			       self->qos_rx.link_disc_time.value);
- 		len += sprintf(buf+len, "\n");
--		
-+
- 		self = (struct irlap_cb *) hashbin_get_next(irlap);
+ 		if (lap->lap_state =3D=3D LAP_STANDBY) {
+ 			/* Expire discoveries discovered on this link */
+ 			irlmp_expire_discoveries(irlmp->cachelog, lap->saddr,
+@@ -770,35 +770,35 @@
+=20
+ 	/* Make sure the value is sane */
+ 	if ((nslots !=3D 1) && (nslots !=3D 6) && (nslots !=3D 8) && (nslots !=3D=
+ 16)){
+-		WARNING(__FUNCTION__=20
+-		       "(), invalid value for number of slots!\n");
++		WARNING("%s: invalid value for number of slots!\n",
++				__FUNCTION__);
+ 		nslots =3D sysctl_discovery_slots =3D 8;
  	}
- 	restore_flags(flags);
-@@ -1180,4 +1170,3 @@
+=20
+ 	/* Construct new discovery info to be used by IrLAP, */
+ 	irlmp->discovery_cmd.hints.word =3D irlmp->hints.word;
+-=09
+-	/*=20
+-	 *  Set character set for device name (we use ASCII), and=20
+-	 *  copy device name. Remember to make room for a \0 at the=20
++
++	/*
++	 *  Set character set for device name (we use ASCII), and
++	 *  copy device name. Remember to make room for a \0 at the
+ 	 *  end
+ 	 */
+ 	irlmp->discovery_cmd.charset =3D CS_ASCII;
+-	strncpy(irlmp->discovery_cmd.nickname, sysctl_devname,=20
++	strncpy(irlmp->discovery_cmd.nickname, sysctl_devname,
+ 		NICKNAME_MAX_LEN);
+ 	irlmp->discovery_cmd.name_len =3D strlen(irlmp->discovery_cmd.nickname)=
+;
+ 	irlmp->discovery_cmd.nslots =3D nslots;
+-=09
++
+ 	/*
+ 	 * Try to send discovery packets on all links
+ 	 */
+ 	lap =3D (struct lap_cb *) hashbin_get_first(irlmp->links);
+ 	while (lap !=3D NULL) {
+ 		ASSERT(lap->magic =3D=3D LMP_LAP_MAGIC, return;);
+-	=09
++
+ 		if (lap->lap_state =3D=3D LAP_STANDBY) {
+ 			/* Try to discover */
+-			irlmp_do_lap_event(lap, LM_LAP_DISCOVERY_REQUEST,=20
++			irlmp_do_lap_event(lap, LM_LAP_DISCOVERY_REQUEST,
+ 					   NULL);
+ 		}
+ 		lap =3D (struct lap_cb *) hashbin_get_next(irlmp->links);
+@@ -816,9 +816,9 @@
+ 	/* Return current cached discovery log */
+ 	irlmp_discovery_confirm(irlmp->cachelog, DISCOVERY_LOG);
+=20
+-	/*=20
++	/*
+ 	 * Start a single discovery operation if discovery is not already
+-         * running=20
++         * running
+ 	 */
+ 	if (!sysctl_discovery) {
+ 		/* Check if user wants to override the default */
+@@ -864,9 +864,6 @@
+ #if 0
+ /*
+  * Function irlmp_check_services (discovery)
+- *
+- *   =20
+- *
+  */
+ void irlmp_check_services(discovery_t *discovery)
+ {
+@@ -896,7 +893,7 @@
+ 			/* Don't notify about the ANY service */
+ 			if (service =3D=3D S_ANY)
+ 				continue;
+-			/* =20
++			/*
+ 			 * Found no clients for dealing with this service,
+ 			 */
+ 		}
+@@ -923,20 +920,20 @@
+ 	discovery_t *discovery;
+=20
+ 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
+-=09
++
+ 	/* Check if client wants or not partial/selective log (optimisation) */=
+
+ 	if (!client->disco_callback)
+ 		return;
+=20
+-	/*=20
+-	 * Now, check all discovered devices (if any), and notify client=20
+-	 * only about the services that the client is interested in=20
++	/*
++	 * Now, check all discovered devices (if any), and notify client
++	 * only about the services that the client is interested in
+ 	 */
+ 	discovery =3D (discovery_t *) hashbin_get_first(log);
+ 	while (discovery !=3D NULL) {
+-		IRDA_DEBUG(3, "discovery->daddr =3D 0x%08x\n", discovery->daddr);=20
+-	=09
+-		/*=20
++		IRDA_DEBUG(3, "discovery->daddr =3D 0x%08x\n", discovery->daddr);
++
++		/*
+ 		 * Any common hint bits? Remember to mask away the extension
+ 		 * bits ;-)
+ 		 */
+@@ -952,24 +949,24 @@
+  *
+  *    Some device(s) answered to our discovery request! Check to see whi=
+ch
+  *    device it is, and give indication to the client(s)
+- *=20
++ *
+  */
+-void irlmp_discovery_confirm(hashbin_t *log, DISCOVERY_MODE mode)=20
++void irlmp_discovery_confirm(hashbin_t *log, DISCOVERY_MODE mode)
+ {
+ 	irlmp_client_t *client;
+-=09
++
+ 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
+-=09
++
+ 	ASSERT(log !=3D NULL, return;);
+-=09
++
+ 	if (!(HASHBIN_GET_SIZE(log)))
+ 		return;
+-=09
++
+ 	client =3D (irlmp_client_t *) hashbin_get_first(irlmp->clients);
+ 	while (client !=3D NULL) {
+ 		/* Check if we should notify client */
+ 		irlmp_notify_client(client, log, mode);
+-		=09
++
+ 		client =3D (irlmp_client_t *) hashbin_get_next(irlmp->clients);
+ 	}
  }
- 
- #endif /* CONFIG_PROC_FS */
+@@ -980,19 +977,19 @@
+  *	This device is no longer been discovered, and therefore it is beeing
+  *	purged from the discovery log. Inform all clients who have
+  *	registered for this event...
+- *=20
++ *
+  *	Note : called exclusively from discovery.c
+  *	Note : as we are currently processing the log, the clients callback
+  *	should *NOT* attempt to touch the log now.
+  */
+-void irlmp_discovery_expiry(discovery_t *expiry)=20
++void irlmp_discovery_expiry(discovery_t *expiry)
+ {
+ 	irlmp_client_t *client;
+-=09
++
+ 	IRDA_DEBUG(3, __FUNCTION__ "()\n");
+=20
+ 	ASSERT(expiry !=3D NULL, return;);
+-=09
++
+ 	client =3D (irlmp_client_t *) hashbin_get_first(irlmp->clients);
+ 	while (client !=3D NULL) {
+ 		/* Check if we should notify client */
+@@ -1020,14 +1017,14 @@
+=20
+ 	irlmp->discovery_rsp.hints.word =3D irlmp->hints.word;
+=20
+-	/*=20
+-	 *  Set character set for device name (we use ASCII), and=20
+-	 *  copy device name. Remember to make room for a \0 at the=20
++	/*
++	 *  Set character set for device name (we use ASCII), and
++	 *  copy device name. Remember to make room for a \0 at the
+ 	 *  end
+ 	 */
+ 	irlmp->discovery_rsp.charset =3D CS_ASCII;
+=20
+-	strncpy(irlmp->discovery_rsp.nickname, sysctl_devname,=20
++	strncpy(irlmp->discovery_rsp.nickname, sysctl_devname,
+ 		NICKNAME_MAX_LEN);
+ 	irlmp->discovery_rsp.name_len =3D strlen(irlmp->discovery_rsp.nickname)=
+;
+=20
+@@ -1040,15 +1037,15 @@
+  *    Send some data to peer device
+  *
+  */
+-int irlmp_data_request(struct lsap_cb *self, struct sk_buff *skb)=20
++int irlmp_data_request(struct lsap_cb *self, struct sk_buff *skb)
+ {
+ 	ASSERT(self !=3D NULL, return -1;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return -1;);
+-=09
++
+ 	/* Make room for MUX header */
+ 	ASSERT(skb_headroom(skb) >=3D LMP_HEADER, return -1;);
+ 	skb_push(skb, LMP_HEADER);
+-=09
++
+ 	return irlmp_do_lsap_event(self, LM_DATA_REQUEST, skb);
+ }
+=20
+@@ -1058,7 +1055,7 @@
+  *    Got data from LAP layer so pass it up to upper layer
+  *
+  */
+-void irlmp_data_indication(struct lsap_cb *self, struct sk_buff *skb)=20
++void irlmp_data_indication(struct lsap_cb *self, struct sk_buff *skb)
+ {
+ 	/* Hide LMP header from layer above */
+ 	skb_pull(skb, LMP_HEADER);
+@@ -1071,16 +1068,13 @@
+=20
+ /*
+  * Function irlmp_udata_request (self, skb)
+- *
+- *   =20
+- *
+  */
+-int irlmp_udata_request(struct lsap_cb *self, struct sk_buff *skb)=20
++int irlmp_udata_request(struct lsap_cb *self, struct sk_buff *skb)
+ {
+- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");=20
++	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	ASSERT(skb !=3D NULL, return -1;);
+-=09
++
+ 	/* Make room for MUX header */
+ 	ASSERT(skb_headroom(skb) >=3D LMP_HEADER, return -1;);
+ 	skb_push(skb, LMP_HEADER);
+@@ -1094,9 +1088,9 @@
+  *    Send unreliable data (but still within the connection)
+  *
+  */
+-void irlmp_udata_indication(struct lsap_cb *self, struct sk_buff *skb)=20
++void irlmp_udata_indication(struct lsap_cb *self, struct sk_buff *skb)
+ {
+- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");=20
++	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return;);
+@@ -1106,7 +1100,7 @@
+ 	skb_pull(skb, LMP_HEADER);
+=20
+ 	if (self->notify.udata_indication)
+-		self->notify.udata_indication(self->notify.instance, self,=20
++		self->notify.udata_indication(self->notify.instance, self,
+ 					      skb);
+ 	else
+ 		dev_kfree_skb(skb);
+@@ -1114,23 +1108,20 @@
+=20
+ /*
+  * Function irlmp_connless_data_request (self, skb)
+- *
+- *   =20
+- *
+  */
+ #ifdef CONFIG_IRDA_ULTRA
+-int irlmp_connless_data_request(struct lsap_cb *self, struct sk_buff *sk=
+b)=20
++int irlmp_connless_data_request(struct lsap_cb *self, struct sk_buff *sk=
+b)
+ {
+ 	struct sk_buff *clone_skb;
+ 	struct lap_cb *lap;
+=20
+- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");=20
++	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	ASSERT(skb !=3D NULL, return -1;);
+-=09
++
+ 	/* Make room for MUX and PID header */
+ 	ASSERT(skb_headroom(skb) >=3D LMP_HEADER+LMP_PID_HEADER, return -1;);
+-=09
++
+ 	/* Insert protocol identifier */
+ 	skb_push(skb, LMP_PID_HEADER);
+ 	skb->data[0] =3D self->pid;
+@@ -1149,7 +1140,7 @@
+ 			return -ENOMEM;
+=20
+ 		irlap_unitdata_request(lap->irlap, clone_skb);
+-	=09
++
+ 		lap =3D (struct lap_cb *) hashbin_get_next(irlmp->links);
+ 	}
+ 	dev_kfree_skb(skb);
+@@ -1165,9 +1156,9 @@
+  *
+  */
+ #ifdef CONFIG_IRDA_ULTRA
+-void irlmp_connless_data_indication(struct lsap_cb *self, struct sk_buff=
+ *skb)=20
++void irlmp_connless_data_indication(struct lsap_cb *self, struct sk_buff=
+ *skb)
+ {
+- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");=20
++	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	ASSERT(self !=3D NULL, return;);
+ 	ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return;);
+@@ -1184,7 +1175,7 @@
+ }
+ #endif /* CONFIG_IRDA_ULTRA */
+=20
+-void irlmp_status_request(void)=20
++void irlmp_status_request(void)
+ {
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), Not implemented\n");
+ }
+@@ -1197,7 +1188,7 @@
+  * Jean II
+  */
+ void irlmp_status_indication(struct lap_cb *self,
+-			     LINK_STATUS link, LOCK_STATUS lock)=20
++			     LINK_STATUS link, LOCK_STATUS lock)
+ {
+ 	struct lsap_cb *next;
+ 	struct lsap_cb *curr;
+@@ -1213,7 +1204,7 @@
+ 		 *  Inform service user if he has requested it
+ 		 */
+ 		if (curr->notify.status_indication !=3D NULL)
+-			curr->notify.status_indication(curr->notify.instance,=20
++			curr->notify.status_indication(curr->notify.instance,
+ 						       link, lock);
+ 		else
+ 			IRDA_DEBUG(2, __FUNCTION__ "(), no handler\n");
+@@ -1279,7 +1270,7 @@
+=20
+ 		/* Inform lsap user that it can send one more packet. */
+ 		if (curr->notify.flow_indication !=3D NULL)
+-			curr->notify.flow_indication(curr->notify.instance,=20
++			curr->notify.flow_indication(curr->notify.instance,
+ 						     curr, flow);
+ 		else
+ 			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
+@@ -1297,8 +1288,8 @@
+ 	__u8 *service;
+ 	int i =3D 0;
+=20
+-	/*=20
+-	 * Allocate array to store services in. 16 entries should be safe=20
++	/*
++	 * Allocate array to store services in. 16 entries should be safe
+ 	 * since we currently only support 2 hint bytes
+ 	 */
+ 	service =3D kmalloc(16, GFP_ATOMIC);
+@@ -1327,10 +1318,10 @@
+ 	if (hint[0] & HINT_FAX)
+ 		IRDA_DEBUG(1, "Fax ");
+ 	if (hint[0] & HINT_LAN) {
+-		IRDA_DEBUG(1, "LAN Access ");	=09
++		IRDA_DEBUG(1, "LAN Access ");
+ 		service[i++] =3D S_LAN;
+ 	}
+-	/*=20
++	/*
+ 	 *  Test if extension byte exists. This byte will usually be
+ 	 *  there, but this is not really required by the standard.
+ 	 *  (IrLMP p. 29)
+@@ -1341,7 +1332,7 @@
+ 			service[i++] =3D S_TELEPHONY;
+ 		} if (hint[1] & HINT_FILE_SERVER)
+ 			IRDA_DEBUG(1, "File Server ");
+-	=09
++
+ 		if (hint[1] & HINT_COMM) {
+ 			IRDA_DEBUG(1, "IrCOMM ");
+ 			service[i++] =3D S_COMM;
+@@ -1357,7 +1348,7 @@
+ 	service[i++] =3D S_ANY;
+=20
+ 	service[i] =3D S_END;
+-=09
++
+ 	return service;
+ }
+=20
+@@ -1436,7 +1427,7 @@
+ 	irlmp->hints.word |=3D hints;
+=20
+ 	/* Make a new registration */
+- 	service =3D kmalloc(sizeof(irlmp_service_t), GFP_ATOMIC);
++	service =3D kmalloc(sizeof(irlmp_service_t), GFP_ATOMIC);
+ 	if (!service) {
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unable to kmalloc!\n");
+ 		return 0;
+@@ -1450,19 +1441,19 @@
+ /*
+  * Function irlmp_unregister_service (handle)
+  *
+- *    Unregister service with IrLMP.=20
++ *    Unregister service with IrLMP.
+  *
+  *    Returns: 0 on success, -1 on error
+  */
+ int irlmp_unregister_service(__u32 handle)
+ {
+ 	irlmp_service_t *service;
+-	=09
+- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++
++	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	if (!handle)
+ 		return -1;
+-=20
++
+ 	service =3D hashbin_find(irlmp->services, handle, NULL);
+ 	if (!service) {
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown service!\n");
+@@ -1503,14 +1494,14 @@
+=20
+ 	IRDA_DEBUG(1, __FUNCTION__ "()\n");
+ 	ASSERT(irlmp !=3D NULL, return 0;);
+-=09
++
+ 	/* Get a unique handle for this client */
+ 	get_random_bytes(&handle, sizeof(handle));
+ 	while (hashbin_find(irlmp->clients, handle, NULL) || !handle)
+ 		get_random_bytes(&handle, sizeof(handle));
+=20
+ 	/* Make a new registration */
+- 	client =3D kmalloc(sizeof(irlmp_client_t), GFP_ATOMIC);
++	client =3D kmalloc(sizeof(irlmp_client_t), GFP_ATOMIC);
+ 	if (!client) {
+ 		IRDA_DEBUG( 1, __FUNCTION__ "(), Unable to kmalloc!\n");
+ 		return 0;
+@@ -1522,7 +1513,7 @@
+ 	client->expir_callback =3D expir_clb;
+ 	client->priv =3D priv;
+=20
+- 	hashbin_insert(irlmp->clients, (irda_queue_t *) client, handle, NULL);=
+
++	hashbin_insert(irlmp->clients, (irda_queue_t *) client, handle, NULL);
+=20
+ 	return handle;
+ }
+@@ -1535,8 +1526,8 @@
+  *
+  *    Returns: 0 on success, -1 on error
+  */
+-int irlmp_update_client(__u32 handle, __u16 hint_mask,=20
+-			DISCOVERY_CALLBACK1 disco_clb,=20
++int irlmp_update_client(__u32 handle, __u16 hint_mask,
++			DISCOVERY_CALLBACK1 disco_clb,
+ 			DISCOVERY_CALLBACK1 expir_clb, void *priv)
+ {
+ 	irlmp_client_t *client;
+@@ -1554,7 +1545,7 @@
+ 	client->disco_callback =3D disco_clb;
+ 	client->expir_callback =3D expir_clb;
+ 	client->priv =3D priv;
+-=09
++
+ 	return 0;
+ }
+=20
+@@ -1566,13 +1557,13 @@
+  */
+ int irlmp_unregister_client(__u32 handle)
+ {
+- 	struct irlmp_client *client;
+-=20
+- 	IRDA_DEBUG(4, __FUNCTION__ "()\n");
++	struct irlmp_client *client;
++
++	IRDA_DEBUG(4, __FUNCTION__ "()\n");
+=20
+ 	if (!handle)
+ 		return -1;
+-=20
++
+ 	client =3D hashbin_find(irlmp->clients, handle, NULL);
+ 	if (!client) {
+ 		IRDA_DEBUG(1, __FUNCTION__ "(), Unknown client!\n");
+@@ -1583,7 +1574,7 @@
+ 	client =3D hashbin_remove( irlmp->clients, handle, NULL);
+ 	if (client)
+ 		kfree(client);
+-=09
++
+ 	return 0;
+ }
+=20
+@@ -1628,13 +1619,13 @@
+=20
+ 			if ((self->slsap_sel =3D=3D slsap_sel)) {
+ 				IRDA_DEBUG(4, "Source LSAP selector=3D%02x in use\n",
+-				      self->slsap_sel);=20
++				      self->slsap_sel);
+ 				return TRUE;
+ 			}
+ 			self =3D (struct lsap_cb*) hashbin_get_next(lap->lsaps);
+ 		}
+ 		lap =3D (struct lap_cb *) hashbin_get_next(irlmp->links);
+-	}    =20
++	}
+ 	return FALSE;
+ }
+=20
+@@ -1644,16 +1635,16 @@
+  *    Find a free source LSAP to use. This function is called if the ser=
+vice
+  *    user has requested a source LSAP equal to LM_ANY
+  */
+-__u8 irlmp_find_free_slsap(void)=20
++__u8 irlmp_find_free_slsap(void)
+ {
+ 	__u8 lsap_sel;
+ 	int wrapped =3D 0;
+=20
+ 	ASSERT(irlmp !=3D NULL, return -1;);
+ 	ASSERT(irlmp->magic =3D=3D LMP_MAGIC, return -1;);
+-     =20
++
+ 	lsap_sel =3D irlmp->free_lsap_sel++;
+-=09
++
+ 	/* Check if the new free lsap is really free */
+ 	while (irlmp_slsap_inuse(irlmp->free_lsap_sel)) {
+ 		irlmp->free_lsap_sel++;
+@@ -1668,7 +1659,7 @@
+ 		}
+ 	}
+ 	IRDA_DEBUG(4, __FUNCTION__ "(), next free lsap_sel=3D%02x\n", lsap_sel)=
+;
+-=09
++
+ 	return lsap_sel;
+ }
+=20
+@@ -1683,7 +1674,7 @@
+ {
+ 	int reason =3D LM_LAP_DISCONNECT;
+=20
+-	switch (lap_reason) {	=09
++	switch (lap_reason) {
+ 	case LAP_DISC_INDICATION: /* Received a disconnect request from peer */=
+
+ 		IRDA_DEBUG( 1, __FUNCTION__ "(), LAP_DISC_INDICATION\n");
+ 		reason =3D LM_USER_REQUEST;
+@@ -1703,14 +1694,14 @@
+ 		reason =3D LM_CONNECT_FAILURE;
+ 		break;
+ 	default:
+-		IRDA_DEBUG(1, __FUNCTION__=20
++		IRDA_DEBUG(1, __FUNCTION__
+ 		      "(), Unknow IrLAP disconnect reason %d!\n", lap_reason);
+ 		reason =3D LM_LAP_DISCONNECT;
+ 		break;
+ 	}
+=20
+ 	return reason;
+-}=09
++}
+=20
+ __u32 irlmp_get_saddr(struct lsap_cb *self)
+ {
+@@ -1724,7 +1715,7 @@
+ {
+ 	ASSERT(self !=3D NULL, return 0;);
+ 	ASSERT(self->lap !=3D NULL, return 0;);
+-=09
++
+ 	return self->lap->daddr;
+ }
+=20
+@@ -1742,37 +1733,37 @@
+ 	unsigned long flags;
+=20
+ 	ASSERT(irlmp !=3D NULL, return 0;);
+-=09
++
+ 	save_flags( flags);
+ 	cli();
+=20
+ 	len =3D 0;
+-=09
++
+ 	len +=3D sprintf( buf+len, "Unconnected LSAPs:\n");
+ 	self =3D (struct lsap_cb *) hashbin_get_first( irlmp->unconnected_lsaps=
+);
+ 	while (self !=3D NULL) {
+ 		ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return 0;);
+-		len +=3D sprintf(buf+len, "lsap state: %s, ",=20
++		len +=3D sprintf(buf+len, "lsap state: %s, ",
+ 			       irlsap_state[ self->lsap_state]);
+-		len +=3D sprintf(buf+len,=20
++		len +=3D sprintf(buf+len,
+ 			       "slsap_sel: %#02x, dlsap_sel: %#02x, ",
+-			       self->slsap_sel, self->dlsap_sel);=20
++			       self->slsap_sel, self->dlsap_sel);
+ 		len +=3D sprintf(buf+len, "(%s)", self->notify.name);
+ 		len +=3D sprintf(buf+len, "\n");
+=20
+ 		self =3D (struct lsap_cb *) hashbin_get_next(
+ 			irlmp->unconnected_lsaps);
+- 	}=20
++	}
+=20
+ 	len +=3D sprintf(buf+len, "\nRegistred Link Layers:\n");
+=20
+ 	lap =3D (struct lap_cb *) hashbin_get_first(irlmp->links);
+ 	while (lap !=3D NULL) {
+-		len +=3D sprintf(buf+len, "lap state: %s, ",=20
++		len +=3D sprintf(buf+len, "lap state: %s, ",
+ 			       irlmp_state[lap->lap_state]);
+=20
+ 		len +=3D sprintf(buf+len, "saddr: %#08x, daddr: %#08x, ",
+-			       lap->saddr, lap->daddr);=20
++			       lap->saddr, lap->daddr);
+ 		len +=3D sprintf(buf+len, "num lsaps: %d",
+ 			       HASHBIN_GET_SIZE(lap->lsaps));
+ 		len +=3D sprintf(buf+len, "\n");
+@@ -1781,27 +1772,24 @@
+ 		self =3D (struct lsap_cb *) hashbin_get_first(lap->lsaps);
+ 		while (self !=3D NULL) {
+ 			ASSERT(self->magic =3D=3D LMP_LSAP_MAGIC, return 0;);
+-			len +=3D sprintf(buf+len, "  lsap state: %s, ",=20
++			len +=3D sprintf(buf+len, "  lsap state: %s, ",
+ 				       irlsap_state[ self->lsap_state]);
+-			len +=3D sprintf(buf+len,=20
++			len +=3D sprintf(buf+len,
+ 				       "slsap_sel: %#02x, dlsap_sel: %#02x, ",
+ 				       self->slsap_sel, self->dlsap_sel);
+ 			len +=3D sprintf(buf+len, "(%s)", self->notify.name);
+ 			len +=3D sprintf(buf+len, "\n");
+-		=09
+-			self =3D (struct lsap_cb *) hashbin_get_next(=20
++
++			self =3D (struct lsap_cb *) hashbin_get_next(
+ 				lap->lsaps);
+-		}=20
++		}
+ 		len +=3D sprintf(buf+len, "\n");
+=20
+ 		lap =3D (struct lap_cb *) hashbin_get_next(irlmp->links);
+- 	}=20
++	}
+ 	restore_flags(flags);
+-=09
++
+ 	return len;
+ }
+=20
+ #endif /* PROC_FS */
+-
+-
 -
 
---------------030100000906040900090107--
+--------------000004090904080802080702--
 

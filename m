@@ -1,41 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269710AbUISC2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269731AbUISCct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269710AbUISC2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 22:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269692AbUISC2Y
+	id S269731AbUISCct (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 22:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269729AbUISCcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 22:28:24 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:42100 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269710AbUISC2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 22:28:23 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech and Microsoft Tilt Wheel Mice. Driver suggestions wanted.
-Date: Sat, 18 Sep 2004 21:28:18 -0500
-User-Agent: KMail/1.6.2
-Cc: mike cox <mikecoxlinux@yahoo.com>
-References: <20040919015125.32796.qmail@web52803.mail.yahoo.com>
-In-Reply-To: <20040919015125.32796.qmail@web52803.mail.yahoo.com>
+	Sat, 18 Sep 2004 22:32:48 -0400
+Received: from pimout5-ext.prodigy.net ([207.115.63.73]:31680 "EHLO
+	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S269731AbUISCcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 22:32:46 -0400
+Date: Sat, 18 Sep 2004 22:32:43 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+In-Reply-To: <9e4733910409181916446719b8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0409182229130.3641@node2.an-vo.com>
+References: <9e47339104091815125ef78738@mail.gmail.com>  <E1C8oiI-0001xU-UG@evo.keithp.com>
+  <9e47339104091817545b3d2675@mail.gmail.com>  <Pine.LNX.4.61.0409182156160.3498@node2.an-vo.com>
+ <9e4733910409181916446719b8@mail.gmail.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409182128.19138.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 September 2004 08:51 pm, mike cox wrote:
-> I'm modifying Vojtech Pavlik's 2.6.8.1 kernel
-> mousedev.c mouse driver to support the new "Tilt
-> wheel" functionality on the Logitech MX1000 Laser
-> Mouse, and the Microsoft Wireless Optical mouse with
-> Tilt Wheel Technology.
 
-How will the tilt information be exported? And what is wrong with using
-event interface? I think that the evdev patches are included into X shipped
-by Gentoo, Mandrake and Fedora at least...
 
--- 
-Dmitry
+On Sat, 18 Sep 2004, Jon Smirl wrote:
+
+> You did that from an xterm, right? Which console device is the xterm running on?
+
+Yes.
+
+I thought /dev/pts/1 was a console - much like regular tty or a serial 
+port.
+
+>
+> X starts up a process that knows which device it is running and it can
+> remember that device since X stays running.
+>
+> Maybe the answer is that this is something for the VC layer since the
+> VC layer stays running and knows what device it was started on. An
+> escape sequence could query the device from the VC terminal emulator.
+>
+> Is there some way to figure this out from the environment?
+
+Well, there is a DISPLAY variable which you likely knew about. Otherwise 
+there does not seem to be anything else console specific.
+
+Btw, completely unrelated, but I found that that I have 
+WINDOW_MANAGER=metacity set. Not sure how I got it, but I am running KDE.
+
+                              best
+
+                                 Vladimir Dergachev

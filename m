@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273204AbRJNBhb>; Sat, 13 Oct 2001 21:37:31 -0400
+	id <S273261AbRJNB4Z>; Sat, 13 Oct 2001 21:56:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273261AbRJNBhV>; Sat, 13 Oct 2001 21:37:21 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:49083 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S273204AbRJNBhL>; Sat, 13 Oct 2001 21:37:11 -0400
-From: "Paul E. McKenney" <pmckenne@us.ibm.com>
-Message-Id: <200110140137.f9E1bYN18728@eng4.beaverton.ibm.com>
-Subject: Re: Re: RFC: patch to allow lock-free traversal of lists with insertion
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Sat, 13 Oct 2001 18:37:34 -0700 (PDT)
-Cc: torvalds@transmeta.com (Linus Torvalds), dipankar@in.ibm.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E15sWCI-0005tP-00@wagner> from "Rusty Russell" at Oct 14, 2001 06:19:54 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S273269AbRJNB4P>; Sat, 13 Oct 2001 21:56:15 -0400
+Received: from cogito.cam.org ([198.168.100.2]:41735 "EHLO cogito.cam.org")
+	by vger.kernel.org with ESMTP id <S273261AbRJNB4G>;
+	Sat, 13 Oct 2001 21:56:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@CAM.ORG>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: mount hanging 2.4.12
+Date: Sat, 13 Oct 2001 21:51:15 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: Alexander Viro <viro@math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011014015115.E894D11718@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Where, if anywhere, is this worth it?  Good question: 3% on 4-way
->dbench doesn't cut it in my book...
 
-No argument here, we need to show compelling performance cases for RCU in
-a number of situations.  We have some (e.g., for FD set management on
-8-way reported at OLS), but need more.  We will continue to work on this.
+>On Sun, 14 Oct 2001, Riley Williams wrote:
 
-If nothing else, this thread seems to have raised awareness of RCU.  ;-)
+>> He said in his original email that it was a USB SmartMedia reader,
+>> which reads the SmartMedia cards used with FujiFilm digital cameras
+>> (amongst others). The actual file system is determined by the cards
+>> themselves and can't be changed.
 
-						Thanx, Paul
+>Ahem.  Which fs driver is used when it's successfully mounted?
+
+fat.  Would an strace help?
+
+TIA
+Ed Tomlinson
+

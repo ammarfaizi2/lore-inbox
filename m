@@ -1,66 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbTDVAuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 20:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDVAuF
+	id S262764AbTDVBVD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 21:21:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbTDVBVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 20:50:05 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:61058 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262682AbTDVAuD (ORCPT
+	Mon, 21 Apr 2003 21:21:03 -0400
+Received: from air.nwconx.net ([216.211.26.26]:48656 "EHLO air.on.ca")
+	by vger.kernel.org with ESMTP id S262764AbTDVBU6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 20:50:03 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 22 Apr 2003 03:02:06 +0200 (MEST)
-Message-Id: <UTC200304220102.h3M126n06187.aeb@smtp.cwi.nl>
-To: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new system call mknod64
+	Mon, 21 Apr 2003 21:20:58 -0400
+From: Garrett Kajmowicz <gkajmowi@tbaytel.net>
+Organization: Garrett Kajmowicz
+Subject: 2.4.20 Kernel panic in IDE-SCSI with CDROM drive
+Date: Mon, 21 Apr 2003 21:37:54 -0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+Reply-To: gkajmowi@tbaytel.net
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200304212137.54302.gkajmowi@tbaytel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[You prefer sending to l-k only. But my mailbox is aeb@cwi.nl,
-and l-k is read elsewhere. What you send there I may or may not see.
-If you want me to see it, please cc.]
+I recieved the appened kernel oops while attempting to mount a cdrom, as well 
+as to dd the CDROM into a file.  This as occured under 2.4.19 as well as 
+2.4.20 (reason why I tried upgrading).  The drive is bootable and works fine 
+under Win98.
 
->> u64, or, if you prefer, as struct { u32 major, minor; }.
+The oops in question locks the system up completely and causes Caps+Scroll 
+lock lights to blink.
 
-> Any reason why we don't just *make it* a struct?
+The drive in question is an HP CD-RW drive, attached via IDE using IDE-SCSI.
+I have also attached information on my drive, should it be useful.
 
-Well, I have also done that of course. Both struct and u64 work well.
-Since only kdev_t.h knows about the actual structure of kdev_t
-it is very easy to switch.
-
---------------
-typedef struct {
-        u32 major;
-        u32 minor;
-} kdev_t;
-
-#define major(dev)      ((dev).major)
-#define minor(dev)      ((dev).minor)
-#define mk_kdev(major, minor)   ((kdev_t) { major, minor } )
-
-#define HASHDEV(dev)    (major(dev) ^ minor(dev))       /* arbitrary */
-#define NODEV           (mk_kdev(0,0))
-#define kdev_none(dev)  (major(dev) == 0 && minor(dev) == 0)
-
-static inline int kdev_same(kdev_t dev1, kdev_t dev2)
-{
-        return (dev1.major == dev2.major) && (dev1.minor == dev2.minor);
-}
---------------
-
-(there are some defines in the tty code that have to be adapted,
-that is all)
+Thank you for all of yuor hard work.  Let me know if you need more info.
+Garrett Kajmowicz
+gkajmowi@tbayel.net
 
 
->> sys_mknod takes unsigned int (instead of dev_t)
->> sys_mknod64 takes two unsigned ints.
 
-> Why unsigned int?  If we have a legacy call it should presumably use
-> the legacy __u16 format.
+Output from ksymoops (kernel was NOT tainted):
 
-That would become rather ugly. The present situation is not u16,
-it depends on the architecture. But unsigned int covers the
-present situation on all architectures.
+Unable to handle kernel NULL pointer dereference at virtual address 00000018
+Oops: 0
+CPU: 0
+EIP: 0010:[<c01e702b>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: e7de5b40  ebx: c02df488  ecx: db5ef8c0  edx: db5ef8c0
+esi: 00000000  edi: c02df488  ebp: 00000000  esp: c029fe90
+ds: 00000018  es: 00000018  ss: 00000018
+c01cda7c 000005dc e758ff7c 00000046 e7de5b40 00000000 00000000 c02df488
+c02df444 c01cde6a c02df488 00000000 00000000 00000088 00000003 00000000
+c026f414 c029ff00 00000000 aca424e9 c02df488 e7f46280 c02df444 db5ef8c0
+Call trace: [<c01cda7c>] [<c01cde6a>] [<c01ce065>] [<c01ce345>] [<c01ce260>]
+[<c011c3fe>] [<c0118842>] [<c0118756>] [<c0118594>] [<c0108a3e>] [<c01053a0>]
+[<c010af98>] [<c01053a0>] [<c01053c3>] [<c0105432>] [<c0105000>]
+Code: 8b 56 18 89 70 04 8b 46 1c 8b 7e 0c c7 46 10 00 00 00 00 89
 
-Andries
+
+>>EIP; c01e702b <idescsi_issue_pc+1b/1b0>   <=====
+
+>>eax; e7de5b40 <_end+27b01428/28566968>
+>>ebx; c02df488 <ide_hwifs+388/20a8>
+>>ecx; db5ef8c0 <_end+1b30b1a8/28566968>
+>>edx; db5ef8c0 <_end+1b30b1a8/28566968>
+>>edi; c02df488 <ide_hwifs+388/20a8>
+>>esp; c029fe90 <init_task_union+1e90/2000>
+
+Trace; c01cda7c <ide_wait_stat+bc/130>
+Trace; c01cde6a <start_request+1ba/260>
+Trace; c01ce065 <ide_do_request+c5/1c0>
+Trace; c01ce345 <ide_timer_expiry+e5/1c0>
+Trace; c01ce260 <ide_timer_expiry+0/1c0>
+Trace; c011c3fe <run_timer_list+ee/160>
+Trace; c0118842 <bh_action+22/40>
+Trace; c0118756 <tasklet_hi_action+46/70>
+Trace; c0118594 <do_softirq+94/a0>
+Trace; c0108a3e <do_IRQ+9e/a0>
+Trace; c01053a0 <default_idle+0/30>
+Trace; c010af98 <call_do_IRQ+5/d>
+Trace; c01053a0 <default_idle+0/30>
+Trace; c01053c3 <default_idle+23/30>
+Trace; c0105432 <cpu_idle+42/60>
+Trace; c0105000 <_stext+0/0>
+
+Code;  c01e702b <idescsi_issue_pc+1b/1b0>
+00000000 <_EIP>:
+Code;  c01e702b <idescsi_issue_pc+1b/1b0>   <=====
+   0:   8b 56 18                  mov    0x18(%esi),%edx   <=====
+Code;  c01e702e <idescsi_issue_pc+1e/1b0>
+   3:   89 70 04                  mov    %esi,0x4(%eax)
+Code;  c01e7031 <idescsi_issue_pc+21/1b0>
+   6:   8b 46 1c                  mov    0x1c(%esi),%eax
+Code;  c01e7034 <idescsi_issue_pc+24/1b0>
+   9:   8b 7e 0c                  mov    0xc(%esi),%edi
+Code;  c01e7037 <idescsi_issue_pc+27/1b0>
+   c:   c7 46 10 00 00 00 00      movl   $0x0,0x10(%esi)
+Code;  c01e703e <idescsi_issue_pc+2e/1b0>
+  13:   89 00                     mov    %eax,(%eax)
+
+<0>Kernel panic: Aiee, killing interupt handler!
+
+--------------------Enf od ksymoops output----------------------------
+Panic message ended with:  In interupt handler - not syncing.
+
+cat /proc/ide/drivers
+ide-scsi version 0.9
+ide-disk version 1.12
+
+cat /proc/ide/ide1/config
+pci bus 00 device 39 vid 1106 did 0571 channel 1
+06 11 71 05 07 00 90 02 06 8a 01 01 00 20 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+01 d4 00 00 00 00 00 00 00 00 00 00 06 11 71 05
+00 00 00 00 c0 00 00 00 00 00 00 00 ff 00 00 00
+0b 52 09 3a 10 10 c0 00 a8 20 a8 20 11 00 20 20
+07 07 07 e0 14 00 00 00 a8 a8 a8 a8 00 00 00 00
+00 02 00 00 00 00 00 00 00 02 00 00 00 00 00 00
+02 01 00 00 00 00 00 00 02 01 00 00 00 00 00 00
+00 60 df 27 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
+06 00 71 05 06 11 71 05 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+cat /proc/ide/ide1/hdc/settings
+name                    value           min             max             mode
+----                    -----           ---             ---             ----
+bios_cyl                0               0               1023            rw
+bios_head               0               0               255             rw
+bios_sect               0               0               63              rw
+current_speed           34              0               69              rw
+ide_scsi                0               0               1               rw
+init_speed              12              0               69              rw
+io_32bit                1               0               3               rw
+keepsettings            0               0               1               rw
+log                     0               0               1               rw
+nice1                   1               0               1               rw
+number                  2               0               3               rw
+pio_mode                write-only      0               255             w
+slow                    0               0               1               rw
+transform               1               0               3               rw
+unmaskirq               1               0               1               rw
+using_dma               1               0               1               rw
+
+cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(tm) XP 1800+
+stepping        : 2
+cpu MHz         : 1529.036
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
+pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 3047.42
+
+Using version:
+GNU assembler 2.13.2
+gcc (GCC) 3.2.2
+/lib/libc-2.3.1.so
+
+
+

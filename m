@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284305AbRLXCH5>; Sun, 23 Dec 2001 21:07:57 -0500
+	id <S284335AbRLXC2u>; Sun, 23 Dec 2001 21:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284314AbRLXCHr>; Sun, 23 Dec 2001 21:07:47 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:2059 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S284305AbRLXCHe>;
-	Sun, 23 Dec 2001 21:07:34 -0500
-Date: Mon, 24 Dec 2001 00:07:28 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Joe <joeja@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17.. multiple oops 's
-Message-ID: <20011224000728.A21656@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Joe <joeja@mindspring.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C26676A.3E4237C3@mindspring.com>
-Mime-Version: 1.0
+	id <S284356AbRLXC2k>; Sun, 23 Dec 2001 21:28:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63505 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284335AbRLXC2Z>; Sun, 23 Dec 2001 21:28:25 -0500
+Subject: Re: Booting a modular kernel through a multiple streams file
+To: mm@ns.caldera.de (Marcus Meissner)
+Date: Mon, 24 Dec 2001 02:38:46 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200112232305.fBNN5vM19844@ns.caldera.de> from "Marcus Meissner" at Dec 24, 2001 12:05:57 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C26676A.3E4237C3@mindspring.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16IL0o-0002Ua-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Dec 23, 2001 at 03:23:22PM -0800, Joe escreveu:
-> uname -r = 2.4.17
-> OS = RH 7.2
-> glibc = /lib/libc-2.2.4.so
+> Apart that it moves the initrd somewhere unsafe on high memory machines
+> and some other odds ends we have fixed, I know of exactly 1 problem with a
+> hw raid controller, which we did not come around to debug yet.
+> 
+> All other machines, obscure as they may are, boot just fine and without  
+> problems with GRUB.
 
-And the compiler, which version? This is a very important information to
-provide...
+I can introduce you to machines that don't work with grub in my
+test collection. Things like the keyboard not working with a USB
+keyboard on one box.
 
-- Arnaldo
+Alan

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132158AbRCVTSH>; Thu, 22 Mar 2001 14:18:07 -0500
+	id <S132168AbRCVTah>; Thu, 22 Mar 2001 14:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132155AbRCVTR7>; Thu, 22 Mar 2001 14:17:59 -0500
-Received: from clueserver.org ([206.163.47.224]:36360 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S132158AbRCVTRq>;
-	Thu, 22 Mar 2001 14:17:46 -0500
-Date: Thu, 22 Mar 2001 11:30:46 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Danny ter Haar <dth@HoHo.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where's Alan?
-In-Reply-To: <99cnj3$5ij$1@voyager.cistron.net>
-Message-ID: <Pine.LNX.4.10.10103221129570.22867-100000@clueserver.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132167AbRCVTa1>; Thu, 22 Mar 2001 14:30:27 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:13621 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S132165AbRCVTaP>; Thu, 22 Mar 2001 14:30:15 -0500
+Date: Thu, 22 Mar 2001 13:29:02 -0600
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+Message-ID: <20010322132902.B23177@mandrakesoft.mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <m18zly2pam.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <m18zly2pam.fsf@frodo.biederman.org>; from Eric W. Biederman on Thu, Mar 22, 2001 at 01:14:41AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Danny ter Haar wrote:
+On Thu, Mar 22, 2001 at 01:14:41AM -0700, Eric W. Biederman wrote:
+> Rik van Riel <riel@conectiva.com.br> writes:
+> Is there ever a case where killing init is the right thing to do?
 
-> alterity  <alterity@dingoblue.net.au> wrote:
-> >Haven't seen a post for sometime from the usually prolific Mr Cox.
-> >What's the gossip?
-> 
-> Don't worry, missed him as well, but he's been posting
-> comments since yesterday. His personal webpage hasn't
-> been updated since 13th of this month though...
+There are cases where panic() is the right thing to do.  Broken init
+is such a case.
 
-He found out what happens when you mix Penguin bars and Penguin Mints and
-he has been in detox since. ];>
+> My impression is that if init is selected the whole machine dies.
+> If you can kill init and still have a machine that mostly works,
 
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
+you can't.
 
+> Guaranteeing not to select init can buy you piece of mind because
+> init if properly setup can put the machine back together again, while
+> not special casing init means something weird might happen and init
+> would be selected.
+
+If we're in a situation where long-running processes with relatively
+small VM are killed the box is very unlikely to be usable anyway.

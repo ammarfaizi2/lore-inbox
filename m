@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136097AbRDVNCR>; Sun, 22 Apr 2001 09:02:17 -0400
+	id <S136098AbRDVNFr>; Sun, 22 Apr 2001 09:05:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136096AbRDVNCF>; Sun, 22 Apr 2001 09:02:05 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49423 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136095AbRDVNBW>; Sun, 22 Apr 2001 09:01:22 -0400
-Subject: Re: APIC-Errors+Crashes on GA 586DX, 2.2.17/2.4.3
-To: dusty@strike.wu-wien.ac.at
-Date: Sun, 22 Apr 2001 14:02:29 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kkeil@suse.de (Karsten Keil),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3AE2D4E7.4D7E58BD@violin.dyndns.org> from "Hermann Himmelbauer" at Apr 22, 2001 02:56:07 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136102AbRDVNFi>; Sun, 22 Apr 2001 09:05:38 -0400
+Received: from CPE-61-9-151-92.vic.bigpond.net.au ([61.9.151.92]:7676 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S136098AbRDVNFU>;
+	Sun, 22 Apr 2001 09:05:20 -0400
+Message-ID: <3AE2D6F9.3AFE9F73@eyal.emu.id.au>
+Date: Sun, 22 Apr 2001 23:04:57 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac12
+In-Reply-To: <E14rIqf-0005hx-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14rJVY-0005nY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> /proc/sys/kernel/print_apic_errors
-> This would simply disable those "APIC error" kernel logs, so that the
-> logfile is not flooded. (45000 log entries in 1 hour are quite a lot).
-> Anyway once you know that your board has this problem, IMHO there is no
-> further use in those messages.
+Alan Cox wrote:
+> 
+> > gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4/include -Wall
+> > -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> > -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE
+> > -DMODVERSIONS -include
+> > /data2/usr/local/src/linux-2.4/include/linux/modversions.h   -c -o
+> > inode.o inode.c
+> > inode.c: In function `affs_notify_change':
+> > inode.c:236: void value not ignored as it ought to be
+> > make[2]: *** [inode.o] Error 1
+> > make[2]: Leaving directory `/data2/usr/local/src/linux-2.4/fs/affs'
+> 
+> In the -ac tree inode_setattr is int. So if this is a -ac tree something is
+> misapplied. It may well be wrong in Linus tree right now
 
-'My computer is broken, please dont tell me'. At 45,000 an hour you are asking
-to get real problems.
+Yep, I think this is a -pre4 problem, not -ac12.
 
-> /proc/sys/kernel/enable_apic
-> The second one would enable/disable the APIC code for testing purposes -
-> like the "noapic" parameter during boottime. But as I have no knowledge
-> about those kernel internals, perhaps this wish is impossible to
-> implement...
-
-That one is actually very tricky to do. The decision is made at boot time and
-rather hard to flip between them.
-
-Alan
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290592AbSB0Alv>; Tue, 26 Feb 2002 19:41:51 -0500
+	id <S290593AbSB0AoB>; Tue, 26 Feb 2002 19:44:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290593AbSB0Ald>; Tue, 26 Feb 2002 19:41:33 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:3223 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S287045AbSB0AlU>; Tue, 26 Feb 2002 19:41:20 -0500
-Date: Tue, 26 Feb 2002 19:41:13 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: lkml <linux-kernel@vger.kernel.org>
+	id <S290689AbSB0Anu>; Tue, 26 Feb 2002 19:43:50 -0500
+Received: from balu.sch.bme.hu ([152.66.208.40]:59902 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S290593AbSB0Anc> convert rfc822-to-8bit;
+	Tue, 26 Feb 2002 19:43:32 -0500
+Date: Wed, 27 Feb 2002 01:43:13 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: <nick@snowman.net>
+cc: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>,
+        lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
 Subject: Re: 3c59x and cardbus
-Message-ID: <20020227004113.GN803@ufies.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.30.0202270126570.28095-100000@balu> <Pine.LNX.4.21.0202261932330.14013-100000@ns>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SqfawxHnX56H7Ukl"
-Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.21.0202261932330.14013-100000@ns>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
+Message-ID: <Pine.GSO.4.30.0202270141030.29857-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---SqfawxHnX56H7Ukl
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But the weird fact is that after the _first_ load of the module (3c59x),
+both of my cards work perfectly. The problem only occurs (and can be only
+helped by reboot) if I rmmod it, and then try to reload. I don't think i'm
+having irq problems, but i can check it tomorrow.
 
-On Tue, Feb 26, 2002 at 07:32:59PM -0500, nick@snowman.net wrote:
+
+On Tue, 26 Feb 2002 nick@snowman.net wrote:
+
 > I've gotten this exact same error on various 3c905x cards.  What it
 > usually means for me is IRQ problems of some type.
 > 	Nick
->=20
-
-This is a timeout for a tx packet.
-Each time you have a problem with a network card, you will see a tx
-timeout. This is a result not a cause.
-So I guess that you have NOT the same problem expecially if it's IRD
-related.
-
-Christophe
-
+>
 > On Wed, 27 Feb 2002, Pozsar Balazs wrote:
->=20
-> >=20
-> > I get very similar error if I remove the module and then reload it (rmm=
-od
-> > followed by a modprobe). So once I rmmod it, It will never be usable ag=
-ain
+>
+> >
+> > I get very similar error if I remove the module and then reload it (rmmod
+> > followed by a modprobe). So once I rmmod it, It will never be usable again
 > > until i reboot.
-> >=20
+> >
 > > I have to pci 3com 905's, I can send the pci id's if those matters
 > > tomorrow.
-> >=20
-> >=20
-> > On Tue, 26 Feb 2002, christophe [iso-8859-15] barb=E9 wrote:
-> >=20
+> >
+> >
+> > On Tue, 26 Feb 2002, christophe [iso-8859-15] barbé wrote:
+> >
 > > > Now that the forget_option bug is solved I have the following :
 > > >
-> > > Each time I suspend, the card resume in a bad state but return in a g=
-ood
+> > > Each time I suspend, the card resume in a bad state but return in a good
 > > > state after that :
 > > >
 > > > NETDEV WATCHDOG: eth0: transmit timed out
@@ -92,9 +79,8 @@ ood
 > > >
 > > > Christophe
 > > >
-> > > On Tue, Feb 26, 2002 at 01:59:07PM -0500, christophe barb=E9 wrote:
-> > > > Thank you, I have done something similar and that solve it in my ca=
-se at
+> > > On Tue, Feb 26, 2002 at 01:59:07PM -0500, christophe barbé wrote:
+> > > > Thank you, I have done something similar and that solve it in my case at
 > > > > least. This driver was clearly not designed for cardbus.
 > > > >
 > > > > I am still looking for my resume/suspend problem.
@@ -103,28 +89,22 @@ se at
 > > > > Christophe
 > > > >
 > > > > On Tue, Feb 26, 2002 at 10:51:08AM -0800, Andrew Morton wrote:
-> > > > > christophe barb=E9 wrote:
+> > > > > christophe barbé wrote:
 > > > > > >
 > > > > > > Ok I have found why.
-> > > > > > When I resinsert the card, the driver give it a new id (this dr=
-iver
-> > > > > > supports multiple cards) and the option as I set it is only def=
-ined for
-> > > > > > the card #0. I would expect that the driver give the same id ba=
-ck.
+> > > > > > When I resinsert the card, the driver give it a new id (this driver
+> > > > > > supports multiple cards) and the option as I set it is only defined for
+> > > > > > the card #0. I would expect that the driver give the same id back.
 > > > > > >
 > > > > >
-> > > > > hrm.  OK, hotplugging and slot-positional module parameters weren=
-'t
+> > > > > hrm.  OK, hotplugging and slot-positional module parameters weren't
 > > > > > designed to live together.
 > > > > >
 > > > > > This should fix it for single cards.   For multiple cards, you'll
 > > > > > have to make sure you eject them in reverse scan order :)
 > > > > >
 > > > > > Index: drivers/net/3c59x.c
-> > > > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > > > > ===================================================================
 > > > > > RCS file: /opt/cvs/lk/drivers/net/3c59x.c,v
 > > > > > retrieving revision 1.74.2.7
 > > > > > diff -u -r1.74.2.7 3c59x.c
@@ -134,10 +114,10 @@ ck.
 > > > > >  		BUG();
 > > > > >  	}
 > > > > >
-> > > > > +	if (vp->card_idx =3D=3D vortex_cards_found)
+> > > > > +	if (vp->card_idx == vortex_cards_found)
 > > > > > +		vortex_cards_found--;
 > > > > > +
-> > > > >  	vp =3D dev->priv;
+> > > > >  	vp = dev->priv;
 > > > > >
 > > > > >  	/* AKPM: FIXME: we should have
 > > > > >
@@ -145,9 +125,8 @@ ck.
 > > > > > -
 > > > >
 > > > > --
-> > > > Christophe Barb=E9 <christophe.barbe@ufies.org>
-> > > > GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B4=
-1E
+> > > > Christophe Barbé <christophe.barbe@ufies.org>
+> > > > GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
 > > > >
 > > > > Imagination is more important than knowledge.
 > > > >    Albert Einstein, On Science
@@ -155,47 +134,24 @@ ck.
 > > >
 > > >
 > > > --
-> > > Christophe Barb=E9 <christophe.barbe@ufies.org>
+> > > Christophe Barbé <christophe.barbe@ufies.org>
 > > > GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
 > > >
 > > > Imagination is more important than knowledge.
 > > >    Albert Einstein, On Science
 > > >
-> >=20
-> > --=20
+> >
+> > --
 > > pozsy
-> >=20
+> >
 > > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > > the body of a message to majordomo@vger.kernel.org
 > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > > Please read the FAQ at  http://www.tux.org/lkml/
-> >=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
 
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+-- 
+pozsy
 
-L'experience, c'est une connerie par jour mais jamais la m=EAme.
-
---SqfawxHnX56H7Ukl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8fCspj0UvHtcstB4RAoIvAJ4pMPtBCk4V2PvItKGzxSGn23fjkgCfZO0s
-ptQeAF1CPBVGcBr4RfWOXfQ=
-=mYy7
------END PGP SIGNATURE-----
-
---SqfawxHnX56H7Ukl--

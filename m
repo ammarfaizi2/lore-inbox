@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269850AbRHIQJa>; Thu, 9 Aug 2001 12:09:30 -0400
+	id <S269802AbRHIQZZ>; Thu, 9 Aug 2001 12:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269851AbRHIQJU>; Thu, 9 Aug 2001 12:09:20 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:51205
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S269850AbRHIQJP>; Thu, 9 Aug 2001 12:09:15 -0400
-Date: Thu, 09 Aug 2001 12:09:11 -0400
-From: Chris Mason <mason@suse.com>
-To: marc heckmann <heckmann@hbesoftware.com>, linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: Re: 2.4.8-pre7: still buffer cache problems
-Message-ID: <382140000.997373351@tiny>
-In-Reply-To: <32774.213.7.60.90.997365391.squirrel@webmail.hbesoftware.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S269808AbRHIQZF>; Thu, 9 Aug 2001 12:25:05 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:6779 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S269802AbRHIQYz>; Thu, 9 Aug 2001 12:24:55 -0400
+Date: Thu, 9 Aug 2001 17:12:43 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: alloc_area_pte: page already exists
+In-Reply-To: <20010809180344.J4895@athlon.random>
+Message-ID: <Pine.LNX.3.96.1010809170813.5473D-100000@medusa.sparta.lu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thursday, August 09, 2001 09:56:31 AM -0400 marc heckmann
-<heckmann@hbesoftware.com> wrote:
-
-> Hi.
+On Thu, 9 Aug 2001, Andrea Arcangeli wrote:
+> > I'm trying to track down a problem which seems to be a race condition
+> > vmalloc page table delayed PTE copying", or "you must never
+> > call free_kiovec in an interrupt context" etc..)
 > 
-> While 2.4.8-pre7 definitely fixes the "dd if=/dev/zero of=bigfile bs=1000k
-> count=bignumber" case. The "dd if=/dev/hda of=/dev/null" is still quite
-> broken for me. while I appreciate that it is a case of "root" doing
-> something stupid, it shouldn't mess up the system so badly. On 2.2.19 the
-> system is completely useable. on 2.4.8-pre7 it's thrashing swap like mad
-> and the buffercache is huge. this is all on a PPC [G3] w/ 192Mb's of RAM
-> and 200MB's of swap. so no highmem is involved. vmstat outputs:
->
+> The latter is certainly the case. The former could be the case, however
 
-Hmmm, perhaps its because the buffer cache doesn't have any use-once or
-drop behind optimizations?
+Had some nasty bugs in that case before.. 
 
-What happens when you do this instead (assuming your dd supports large
-files, otherwise use 1000 instead of 9000)
+> if you know you're running any free_kiovec from irqs remove it and try
+> again first.
 
-dd if=/dev/zero of=some_file seek=9000 bs=1MB count=1
+Yes, I found it. The irq which signals end-of-I/O also frees the kiovec,
+which is bad. But it seemed that what would happen then would be deadlocks
+(due to the spinlocks) and not races - but I'll try to make it free in a
+task or something instead (there is no kernel context for the "calling"
+process because the driver is asynchronous so the context which did the
+alloc_kiovec etc. has exited when the irq comes later) and see if it works
+better.
 
-Then, run your test again:
+> BTW, you should also avoid all the kiobuf allocation in all the fast
+> paths, try to pre-allocate it in a slow path to deliver higher
+> performance. (shortly we'll split the bh/blocks array out of the kiobuf
 
-dd if=some_file of=/dev/null
+Ok, that's probably not a problem since the allocation is done in a normal
+system-call context.
 
--chris
+/Bjorn
 

@@ -1,40 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310141AbSBRGMp>; Mon, 18 Feb 2002 01:12:45 -0500
+	id <S292603AbSBPXLZ>; Sat, 16 Feb 2002 18:11:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310142AbSBRGMf>; Mon, 18 Feb 2002 01:12:35 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:27609 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S310141AbSBRGMW>; Mon, 18 Feb 2002 01:12:22 -0500
-Date: Sun, 17 Feb 2002 23:12:04 -0700
-Message-Id: <200202180612.g1I6C4L25410@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: devfsd-v1.3.24 available
+	id <S292604AbSBPXLP>; Sat, 16 Feb 2002 18:11:15 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:31492 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292603AbSBPXLC>; Sat, 16 Feb 2002 18:11:02 -0500
+Message-ID: <3C6EE6EB.9070506@evision-ventures.com>
+Date: Sun, 17 Feb 2002 00:10:35 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] size-in-bytes
+In-Reply-To: <UTC200202162245.WAA31932.aeb@cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.24 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
+Andries.Brouwer@cwi.nl wrote:
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+>I planned a road to happiness in 92 steps, where each of the steps
+>
+Beware I may drive you to ruin if there will be less or more then 92 ;-)...
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+>does something clear and simple, simplifies the tree, beautifies
+>the code, restructures in a clearly necessary way.
+>Indeed, your suggested steps are also there.
+>Five or six of these steps found their way into the kernel,
+>(some thanks to Christoph Hellwig) but there is still a long way to go.
+>The present patch is just a rediff of step 02.
+>
+My main concern is simple the following: The broken design was there for 
+already 8 years and
+the cleanup just goes far too slow for my personal taste if it goes at 
+the same peace of speed as
+of now...
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+>I do not know what the best strategy is, these times.
+>I see you and Vojtech do good things to the IDE code,
+>but would myself prefer to do such things in a series
+>of really small steps. That way it is also very clear
+>for Andre what happens.
+>
+Well I have no problems to synchronize in small steps. However I have
+problems with synchronization in microsteps, becouse due to my daily 
+dueties, which btw.
+have *nothing* with kernel hacking to do, I can hardly go below the
+resolution of a day.... Or more precisely: some time at afternoon which 
+can vary
+between:
+- nothing
+- a whole night
+- a whole weekend
 
-The main changes are:
+depending on:
+- my personal mood,
+- my druglevel,
+- blood preassure,
+- my world domination dreams (Andre thinks so apparently :-),
+- the current conjugation between saturn and venus,
 
-- Do not re-read config file if signals other than SIGHUP are caught
+and so on...
 
-- Added sample configuration entries to devfsd.conf for PTY
-  ownerships.
+But in fact: I'm flexible and even more happy if somebody, who can 
+certainly devote more
+time to it then me, just picks the shit^Wsuggestions I call patches up...
 
-				Regards,
+In regards of Andre, well unfortunately, after reading his last mail 
+about my employer and
+what-a-not, well I  have some... please  excuse me... concerns about his 
+mind-wellth ;-)
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+

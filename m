@@ -1,272 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287005AbRL1U0K>; Fri, 28 Dec 2001 15:26:10 -0500
+	id <S287009AbRL1U1u>; Fri, 28 Dec 2001 15:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287003AbRL1U0B>; Fri, 28 Dec 2001 15:26:01 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36871
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S287000AbRL1UZz>; Fri, 28 Dec 2001 15:25:55 -0500
-Date: Fri, 28 Dec 2001 12:23:48 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Daniel Stodden <stodden@in.tum.de>,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-In-Reply-To: <20011228115956.E2973@suse.de>
-Message-ID: <Pine.LNX.4.10.10112281023000.24491-100000@master.linux-ide.org>
+	id <S287003AbRL1U1n>; Fri, 28 Dec 2001 15:27:43 -0500
+Received: from web12303.mail.yahoo.com ([216.136.173.101]:44069 "HELO
+	web12303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S287009AbRL1U1Z>; Fri, 28 Dec 2001 15:27:25 -0500
+Message-ID: <20011228202724.99671.qmail@web12303.mail.yahoo.com>
+Date: Fri, 28 Dec 2001 12:27:24 -0800 (PST)
+From: Myrddin Ambrosius <imipak@yahoo.com>
+Subject: IGMPv3 (and the network code in general)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="0-802426236-1009571244=:99127"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001, Jens Axboe wrote:
+--0-802426236-1009571244=:99127
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Thu, Dec 27 2001, Andre Hedrick wrote:
-> > 
-> > I would provide patches if you had not goat screwed the block layer and
-> > had taken a little more thought in design, but GAWD forbid we have design.
-> 
-> You still have zero, absolutely zero facts. _What_ is screwed?
+Hi,
 
-Well your total lack of documentation.
-You have changed portions of struct request * and no referrences.
-You have change the behavor of calculating ones position of the
-rq->buffer, wrt "nr_sectors - current_nr_sectors".  There is still no
-valid reason yet given by you.
+   Well, I finally got to work on IGMPv3 for Linux.
+Bad
+Mistake! This looks like it'll be some seriously heavy
+work,
+if I'm going to do this properly, and not just make
+some
+half-hearted effort.
 
-> > You have made it clear that you do not believe in testing the data
-> > transport layers in storage.
-> 
-> That's not true. I would not mind such a framework. What I opposed was
-> you claiming that you can _proof_ data correctness. Verifying data
-> integrity and proof are two different things.
+   First, IGMPv3 starts off apparently trivial - an
+extended
+IGMP header, a few #defines, one function, and a
+couple
+of structures. No biggie. But then it starts to get
+fun.....
 
-You have strange defs.
+   Auxiliary data structures are the next layer in
+IGMPv3.
+The draft IGMPv3 document doesn't define any, but
+there
+is one for authentication, also in draft form, which
+begins
+to make things complicated.
 
-PROOF it works is done but "Verifying data integrity".
-	thus
-"Verifying data integrity" is PROOF it works.
+   Parallel to all of this (and part of IGMPv3) is SSM
+(Source Specific Multicast). Built around that, is
+MSNIP
+(Multicast Source Notification of Interest Protocol),
+which
+then has extensions for proxying. There's an RTCP
+extension for SSM, but I'm going to ignore that. MSNIP
+looks like it is going to be the biggest chunk of the
+code.
+The bulk of the API extensions, structures, etc, are
+all
+MSNIP stuff.
 
-One of those silly mathmatic rules of equality.
+   I've included a diff for igmp.h, which inserts my
+(shaky)
+interpretation of the relevent draft documents' specs
+for the
+required structures, defines and functions. I've
+backetted
+the new code with #if define's. That way, it's visible
+as to
+what bit of code is intended for what, and the
+extensions
+can be selectively compiled in. (I've a nasty
+suspicion that
+there's going to be a fair amount of overhead involved
+in
+all this.)
 
-You have had access to this code for at least a year (one variation or
-another), I can be responsible if you elect to ignore things.
+   I want to get my interpretation of the API out
+-now-,
+because if I'm incorrect, I'd rather know about it
+sooner,
+rather than later. I'll get the back-end code out,
+eventually,
+but I'm sure you don't want to see a bunch of stubs
+and
+half-chewed code. (My hamster got into the computer.)
 
-> > Translation: You do not care if data gets to disk correctly or not.
-> 
-> Bullshit.
+   I might miss a reply on the list, so if anyone is
+interested
+in the IGMPv3 stuff, I'd be grateful if you could CC
+the
+reply to imipak@yahoo.com. Also, if anyone else is
+working on Linux IGMPv3 code, if they could drop me a
+note, it would be helpful. Diversity is a good thing,
+but
+too much causes migranes in 8 out of 10 cats.
 
-Really, then why did you not use the BUS Analyzers given to you to test
-your changes to the new BLOCK translation between FS and DRIVER.
-Obviously you have the tools, but you neglected to even look.
+Thanks,
 
-> > You have stated you do not believe in standards, thus you believe less in
-> > me because I "Co-Author" one for NCITS.
-> 
-> Please stop misquoting me. _You_ claim that if you have the states down
-> 100% from the specs, then your driver is proofen correct. I say that
-> believing that is an illusion, only in a perfect world with perfect
-> hardware would that be the case.
-
-This is where you fail to understand, I do not know how to teach you
-anymore, nor does having you visit the folks in the drive making
-industry help because even they could not instruct you.
-
-Maybe if you could see that writing code that is correct to the
-state-machine described at the physical layer of the hardware, one would
-have the understand of a base from which to address exceptions.
-
-> > You have stated the tools of the trade are worthless but you have an ATA
-> > and SCSI analyzer but you refuse to use them.  I know you have them
-> > because I know who provided them to you.
-> 
-> Again, I've _never_ made such claims. I have the tools, yes, and they
-> are handy at times.
-
-Really! well let me replay an irc-log
-
-*andre* maybe I trust it because it passes signal correctness on an ata-bus analizer
-*axboe* who has proven the analyzer? :)
-*andre* are you serious ?
-*axboe* of course
-*andre* that is all I want to know -- sorry I asked
-
-Electrons do not lie.
-
-> > Maybe when you get off your high horse and begin to listen, I will quit
-> > being the ASS pointing out your faulty implimentation of BIO.  Maybe when
-> > you decide it is important we can try to work togather again.
-> 
-> ... obviously no need for me to comment on this.
-
-Yes because you have no intention of getting off your high-horse.
-
-> > One thing you need to remember, BLOCK is everybodies "BITCH".
-> > FileSystems dictate to BLOCK there requirements.
-> > Low_Level Drivers dictate to BLOCK there rulesets.
-> > BLOCK is there to bend over backwards to make the transition work.
-> > BLOCK is not a RULE-SETTER, it is nothing but a SLAVE, and it has to be
-> > damn clever.  One of you assests is you are "clever", but that will not
-> > cover your knowledge defecits in pure storage transport.
-> 
-> I agree.
-
-Really, now that you are backed into a corner I will tell you how the
-driver is to work and you will adjust block to conform to that ruleset.
-
-> > Now I am tired of this game you are playing, so lets spell it out.
-> > 
-> > Congratulations of your copying of the rq->special for the CDB transport
-> > out of the ACB driver that myself and two other people authored.
-> 
-> Strictly a cleanup, what's your point?
-> 
-> > Congratulations on you first attempts to create the "pre-builder" model
-> > that myself and one other has described to you, to bad you did not listen
-> > 9 months ago or you would have the bigger picture.
-> 
-> I did it now because it's easy to do, comprende? It can be done cleanly
-> because elv_next_request is there now.
-> 
-> > BUZZIT on mixing two issues that are volitale on there own rights to sort
-> > out.  The high memory bounce and block are two different changes, and one
-> > is dependent on the other, regardless if you see it or not.
-> 
-> Explain.
-
-Given the volitale nature of these two areas on their own, why would
-anyone in their right mind mix the two.
-
-> > BUZZIT on your short sightedness on the immediate intercept of command
-> > mode
-> 
-> Explain
-
-Well the obvious usage for "immediate immediate" is for domain-validation.
-This allows one to test and access the behavor of the codebase before
-assuming it is valid and it gives you a way to compare expected v/s
-observed when using a bus analyzer.  This is another way to verify if the
-code written is doing what is expected.
-
-> > BUZZIT on you himem operations that is not able to perform the vaddr
-> > windowing for the entire request, but choose to suffer the latency of
-> > single sector transaction repetion.
-> 
-> s/single sector/single segment. And that temp mapping is done for _PIO_
-> for christ sakes, I challenge you to show me that being a bottleneck in
-> any way at all. Red herring.
-
-"bottleneck" no, it breaks a valid and tested method for using the
-buffer, and PIO is where we land if we have DMA problems.
-
-> > BUZZIT on your total lack of documention the the changes to the
-> > request_struct, otherwise I could follow your mindset and it would not be
-> > a pissing contest.
-> 
-> Tried reading the source?
-
-I would if there were any docs.
-
-Maybe you could finally explain your new recipe for the changes in the
-request struct.  I have been asking you in private for more than a month
-and you have yet to disclose the usage.
-
-Recall above where you agree that BLOCK is a SLAVE to the DRIVER.
-Now I require that upon entry the following be set and only released upon
-the dequeuing of the request.
+Jonathan Day
 
 
-to = ide_map_buffer(rq, &flags);
+__________________________________________________
+Do You Yahoo!?
+Send your FREE holiday greetings online!
+http://greetings.yahoo.com
+--0-802426236-1009571244=:99127
+Content-Type: application/x-gzip; name="igmp-patch.gz"
+Content-Transfer-Encoding: base64
+Content-Description: igmp-patch.gz
+Content-Disposition: attachment; filename="igmp-patch.gz"
 
-This is to be performed upon entry for the given request.
-It is to be released upon a dequeuing.
+H4sICL/SLDwCA2lnbXAtcGF0Y2gAtVrbcts4En2mvwJVU7UT6+JYkq1ko5c4
+suKoxrqMJGdmn1g0CUkc86IQpB1tav59uxsExbuUSdYVx6LQaHQfNE43ALbb
+bWZv3N2F71gXW221jdjNLmCdLutcv+t03vX+zbqXl52zZrMp5bbax8Bmt9xk
+3bck03vXeytl3r9n7X6rz5r9VueavX9/xlgDf7XR15B7FrdY6LPQcJ5YuOXs
+w/KWcdUwvpvM2S7wQ9/0HeavmRv4UQgNvYs+qWnm1Nie6UQWJ01WYKxDUvHc
+YzfzcSv17SRyQts0REgaln4UmJxN/dBew7eh7Xs42NgLecBFyObKAmNns1eT
+5XQ8P2eGZ6HClIL2csdN1HBQL3ssl5PzC0b9qBs8MyMAW/ja9rhFKgwh3RYw
+uEBX0PAWOJSyWsT6yUJxwW4EE5G5bZECENuT1g1gtCM4Nhy+DNiLHW5JC8Fp
++hZvsbUfMGG7O8c27XB/QRpWW1uAhsDwNtzlXshs1P/4FzdDNMjcYgNpg0lg
+HqBlcjDC8b0N9adx+DMP9syngQ00OCQoaRYuGA0B/7b2ZuvsweMdD2wcy3BI
+hTTO9EGJ7W3A6IBzJbx2ItvKYyBDoPHBCGGubC7QLBUF1kUSajQuBNImMFwc
+f416hb8OXwCxAdv7ETMNjwXcskUY2I8QZMwOcbJe+wFpcH3LXu/xywiCLSA8
+YUhXoHv4cDd9YHfc44HhsHn0CMCyewDIE5xWQLff6vZYs3fd6vb7tArOGAwV
+AT64gLYWDPPtrK3pevSWhfsdH6gHxGSgaa8b7CNMmsdfYHSaycZrKdLpM1NE
+btyh15URMDhrUn+NlFH/D3YoNPwB1PAPa7DLdk/TPvMAw46lG67abzRtBV1R
+/DV8HXkgAn+/oQgpjrxIcGuAmml+O5qSle3ScNXaTVr/jk3r9DWym2wbbrn5
+BE+JFLmiSVdI4g4/shvLgjUpYqlf7LVaRa+Gs+nH8Z2Og/XOlfNrx9iIWu8X
+XPDgmVuZhittGe12OBBbIOME7aUNtAJEYMJ3GJoH2WtA6vcIoy/4FcUfIxF6
+2POzEdjGo8MTf95qX77YprTm0AM/7SXZPEPsDAG1pAdAJDwF0TRyH2HuId4k
+3wiWxaohDABHysaUFqMFkShCBRmQJaCGkKcAw2BiMDHsrP2LBJRmTf80W670
+yWjyYbRYfhrP9d8fRov/aJdfOx0KyMB32eLjsNOBzIDhWNt3MZrPFivs3MXO
+t3YIrFLodft5spiDrSDWIzF8Zsj7BHtefD6eSOErFIanatHV4mY4ksLXZaZO
+R38UzWUg3Sf0+Qt7jhcKTAFCUOHy/ejm8wg0LZc3dyOGw72pi9Q85BOyE4Zf
+zslWXtou/VifNXGykXQhdOJcJ2klgokHQvsS2ZATDNa9aj8CeT3HMXnBlsCS
+lCgDrhGLAi96vwJbwzjA9NYe8yVmAKUNedP2DrkW6PQZFwV0uGDj8FcRqyHu
+f7EFZ8DrMDhQN/CEA2F4oWnx8mZnTaQlcEuRoK4T2T/uQy7OmkAyjBH7Of7L
+IHlwgW6SB0wL8PQ3PnWv4FMlyLpM2SiBYR8FAVjm7GVB4HtgoBF9tR3bgHWI
+Zikd6DF1ldwAvv2x5Z5sxQgDLs71FFKndDwF3SuZkqBTrAilgLdhSiiBbLkB
+SeWcucAd7BHny8USYudwbAVKR8ELuYBLoMMMooMl8Btuaf3fRF/hF0bxQlXR
+fHB884k0fFN0lMoNOWHJ/Afi0hzubcJtqew9NaWZSGtYRmiUCt9Cg1T8N8uY
+LSewjJzk9DHpOzSt8mGJYZtMmQdZey8LJhmWDEO8BaiaBsQhQOtFjiNrR0j6
+guLawBBdRw6oeYak3YLawOUhVCZxzB7DHVVKb6X2Q1Q85lEHNkkyp0rqpu89
+c8/muCIxHgsAodJBrQlq1uNhDzCXT7aSy80zy0+0kltw0w+s9FSzbEWQhcJa
+O+FA5ixAYwgoH0nYyRJNaaJgptAoiaOlmv9UUotriwNuNZC5gatv3CBVWUw4
+plextXext5XwxWCEqepIihiWMyiZiPwKwRCoSeuZpK655iGrH/YVSRmUWXWV
+BUAslwRLA8GpDJkYwBiiehClXWnodn4AGywY1NjwMgiTp/QqUFUYbUzWES1s
+aM1AVlospgWkwk5/cKrGTVAyCzIa5ByLFG4qYhqISV3ciByIg5i3YH/J3wF7
+8Xh7lMrTgnMXcypQvyJ+IZm/TSkCWE3Y/+UXcfYgBrR8kJnOVunOmFaI09Bp
+fMCt5mGcFjNC5nAIoFgR7DrXBm7UWLJ9NFV6VOsUdm0Bh360vQMOxeXXgl1Q
+aDuoPikeYHzchLVVN007Sp1CuAfqzFPFt9JAQfiIYk2STCGtlA3qxwssXy4Q
+QGZBO9pbW9COc89mO3QuN3qaECeGeFKrObv2YLOwtuM1dcsFVKCSp+b0fcFQ
+sKLezvQiLp4rVFITerUq8FLaBZSQHtDpAhVcZVu87AQ1wMgKSk+JIrYNdI0W
+YDW4aZqGfifWbuVYBW6gB6FlpJkZEaCTFpwJ4sBKwEgUVlpM+Qlq3avvIyiM
+gQP7piMgQ8Gx08roOm4Vnk2CyjFuA4xFqk08y6LRIPUFUP6Vg0SxlBpsUAe0
+sdMtjhtJ3GlRXL/GBfF6RnQWBkhboUhDferKOHmpfc+0JFjHdp8AtrE7RO4E
+HrS8M1vfsbAupAj/BA9sBU+0kgTA7GUyxgGxBnwqImB7YLVrJMsiNxnG7qjF
+ttiR1uSocunTiZ6R5zHMdqfarpIjVKQxyvJci2we39J53pyJvQi5W7QbTDpq
+tkC7D/xWb33OXdR/xOc4mkwfklSmGhriN9qPLfJG5SGLQ4csBUBEPSICygmd
+OxnCLxQWI8dNz+aPkVP2CE3RcGzGMUsDbtZaCmST49rUNEjpzCxkMRCkNYNu
+epGkZ7dQjqfTXlZr4RCxoFOBAFOFHh4PYCwEa1HYZeNXaYYaPTBpiFR3VTaW
+xM6R+puEKEGrxOzLLFsgrtNqqIPCY6NKjqaN+QbZAaoTkdmS1SVb2c9N7RFK
+jpfT58u1AZ6Ns0wtH0hkGR7lQlFbOH+u2VMUi6EU2tn97SyNeUaYMgoxeSav
+JD0KHRKGqyK4TBml5TlVqL51zMqKfTGcKdaOBDVu7UqcDLQg7nukTkkXftT5
+aHC7RlC+9ZVo5sPcXhuKP8h3fKyp1OWMqEoku++G+iMthPWIVrJYwMAT0rSk
+9/Ey2RgXFuiBn2FpLCm5Fnf5pWkcHxj+F2hl6dg9pch0ydHJotq+4GCgvBIp
+P4M4dgSRoHvKocb3uxuo/XZ9+SH9XY4XbIexOoxtLTh9ojfWCZX/P/MHTT2l
+nIr9WR7x56caevzYKb53KiuJ3BPPe6uvq7CxcPfyuVO8rSpcV7XVfdVRBfGV
+VfHOqll6Z1V9adUsubQqu7XSisLqukfeW5WZ3K0wuZ9xutvt9Suczt1Y0ZVV
+4m5sUvVNa4lFvTqL4msq+U4Dq7+TbFZfjcm7sWb53Vh8OXbsUCHbGb/UFzfT
+O8DiRo7Q7R3qnNjgErOo43i6GoFlK305ux8Px6ub1Xg2RRVXh8hRPxUqFqPh
+aPx5tCi9Ne1en6xnuRhWm9M/eDQP/K/7GjV3FZa8qVAhp7FyObMzaKK3KR4E
+T9728QwoBNWBZXx0afruDqjp0XbscE/vT7zp4CtEvW6v1b2i1ycy9t7Phjf3
++t1i9jDXtqHvOa8uv44u5c/9ebUwzPPyt6THR/qRPU6P+PF0eP9wC0F3mWsY
+/Rk3dApcNZndjvTxMunbqWhXKrq59uEnitLVLNHQq5RQOq5yEjf397M/6NJ7
+OXtYDEdLLc8uHwCp3/TZ/W0i0T/lpK4kkmBZTpeT8aroKDV/gjE0cvKH8kEc
+XSpHYiA9cb6TbxLFJ+tUaOBOHTaBZxS2GF2dyx6F15te66pL4aWZW6w8Ncc3
+LLx1li9H1AVF9WFuEKdG84lDJQ5FOM8cN2J+Vq8C4YUB/wLlva0uGcZQlOFy
+8D3YwIjMFtg9vBlkO1iRTfDdkX+enMHSuu3/brPzdNi+Sl3zu/k0u4GtKWnr
+iqdMnRELJuXGisqNtI3KimOWynEJbKyJ5G4GP015+OIHT3lj3ZOv2TIGS705
+e0+epBywJZOlLl4Lc4Wdfujg3A1EfmuFu7ddfL0KwP0ziP4PgYmm/oR6kd6w
+DPDclVaaiTt+3TVfqcXn6fL6nzXgb4vhq3SuqaOZ54NsZzrdNZ9VT/GkP0br
+NWvk5cB0U//LB810BpXIAxWwhnhqsdy6Z7juQQlxUue6dc2aV92OSnmx5mff
+tmLVlv/ilZhfaobFzawVqQ7yo3Q5529qNNv7Lg3t+FZe/W3W0mfBXiRp7p0G
+GYz7lrn08ujBNDQDuqCe89qVgu/nlhggokdhBvYjL9qgvKycwKK2yPshfeWR
+j5d5cdwfYYGid3QOuUGQg5/iICq0+E9XKUIjCH+iNn/38+A/faOaNOr6b6PF
+dHSv68Wm+/H04U+p+RO2/g9bduvLhi8AAA==
 
-ide_unmap_buffer(to, &flags);
-
-This will allow me to walk "to" and not "buffer" so that BLOCK can
-properly map into the DRIVER.
-
-/*
- * Handler for command with PIO data-in phase
- */
-ide_startstop_t task_in_intr (ide_drive_t *drive)
-{
-        byte stat               = GET_STAT();
-        byte io_32bit           = drive->io_32bit;
-        struct request *rq      = HWGROUP(drive)->rq;
-        char *pBuf              = NULL;
-
-        if (!OK_STAT(stat,DATA_READY,BAD_R_STAT)) {
-                if (stat & (ERR_STAT|DRQ_STAT)) {
-                        return ide_error(drive, "task_in_intr", stat);
-                }
-                if (!(stat & BUSY_STAT)) {
-                        DTF("task_in_intr to Soon wait for next interrupt\n");
-                        ide_set_handler(drive, &task_in_intr, WAIT_CMD, NULL);
-                        return ide_started;
-                }
-        }
-        DTF("stat: %02x\n", stat);
-        pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
-        DTF("Read: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);
-
-        drive->io_32bit = 0;
-        taskfile_input_data(drive, pBuf, SECTOR_WORDS);
-        drive->io_32bit = io_32bit;
-
-        if (--rq->current_nr_sectors <= 0) {
-                /* (hs): swapped next 2 lines */
-                DTF("Request Ended stat: %02x\n", GET_STAT());
-                ide_end_request(1, HWGROUP(drive));
-        } else {
-                ide_set_handler(drive, &task_in_intr,  WAIT_CMD, NULL);
-                return ide_started;
-        }
-        return ide_stopped;
-}
-
-As you can see "rq->nr_sectors" is not touched, nor is "rq->buffer".
-This was your primary bender and I fixed it but you choose not to use it.
-I only modify "rq->current_nr_sectors" and no longer bastardize the rest
-of the request.
-
-> > BUZZIT on your moving CDROM operations to create a bogus BLOCK_IOCTL, for
-> > what?  Who know it may have some valid usage, but CDROM is not it.
-> 
-> That part isn't even started yet, block_ioctl is just to show that
-> rq->cmd[] and ide-cd does work with passing packet commands around.
-
-Well maybe if you had or would disclose a model then people could help and
-not be left wondering about the mess created, while working to clean up a
-bigger mess from the past.
-
-> > BUZZIT on your cut and past in block to make an effective rabbit warren or
-> > chaotic maze to make it total opaque in what is really going on.
-> 
-> Again, what are you talking about?
-
-Well after discussing w/ Suparna, I now understand that it is related to
-the multi-segments but I am sure that most do not see that because it is
-not comments or explained in any model.  Much of what I saw was a glorious
-cut-n-paste job to make a readable (but rather large function) now
-scattered and run through a whopper-chopper.  However I see some of the
-validity of the changes but still much needs explaining.
-
-> Congratulations on spending so much time writing an email with very
-> little factual content. Here's an idea -- try backing up your statements
-> and claims with something besides hot air.
-
-And for you in a total waste of communication requests from the past that
-have yet to appear, thus I have to be a BOHA to get your attention.
-However you still ignore valid questions and concerns.
-
-
-Regards,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
-
-
+--0-802426236-1009571244=:99127--

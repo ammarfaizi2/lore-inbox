@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263886AbRFMVnD>; Wed, 13 Jun 2001 17:43:03 -0400
+	id <S264240AbRFMWSq>; Wed, 13 Jun 2001 18:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263975AbRFMVmx>; Wed, 13 Jun 2001 17:42:53 -0400
-Received: from temp20.astound.net ([24.219.123.215]:43525 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S263886AbRFMVmk>; Wed, 13 Jun 2001 17:42:40 -0400
-Date: Wed, 13 Jun 2001 14:42:47 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Craig Lyons <craigl@promise.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Eye2Eye a hope for Promise to Join Linux
-Message-ID: <Pine.LNX.4.10.10106131428430.11106-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264256AbRFMWSg>; Wed, 13 Jun 2001 18:18:36 -0400
+Received: from jalon.able.es ([212.97.163.2]:45458 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S264240AbRFMWST>;
+	Wed, 13 Jun 2001 18:18:19 -0400
+Date: Thu, 14 Jun 2001 00:19:29 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: accounting for threads
+Message-ID: <20010614001929.A1242@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Greetings Craig,
+First, sorry if this is a glibc issue. Just chose to ask here first.
 
-I would like to publicly thank you for coming to the table of GNU/GPL with
-an open perspective.  After 90 minutes on the phone, of which 45 minutes
-were me pointing out issues promblems and complaints w/ 20 minutes on ways
-to work on solutions in the near and distant future and the listening to
-your concerns and questions between my moments of interruption.
+I want to know the CPU time used by a POSIX-threaded program. I have tried
+to use getrusage() with RUSAGE_SELF and RUSAGE_CHILDREN. Problem:
+main thread just do nothing, spawns children and waits. And I get always
+0 ru_utime.
 
-The next conversion will not have the burst-in moments because it will be
-in person or my cell battery will be fully charged.
+I guess it can be because of 2 things:
 
-Since you have stated "I will not make promise, I can not keep" this is a
-good thing and it will go a fair way to clean up messes from the past on
-both sides.
+- RUSAGE_CHILDREN only works for fork()'ed children (although in linux threads
+and processes are the same). Perhaps fork() sets some kind of flag in
+clone() for accounting.
 
-I look forward to Promise working with Linux in meaningful and productive
-ways.
+- AFAIK, linux puts an intermediate 'thread controller'. That controller
+uses no CPU time, and RUSAGE_CHILDREN gets only the first children level.
 
-Please reply and correct anything that is mistated by me or verify the
-correctness.  This will show an action of good-faith before all those
-watching here.
+Any suggestion to mesaure threads CPU time ? I can't manage only with
+wall-time, because I'm not sure to have all the box just for me.
+And I would like also to mesaure system time to evaluate contention.
 
-Respectfully,
+TIA
 
-Andre Hedrick
-Linux ATA Development
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac13 #1 SMP Sun Jun 10 21:42:28 CEST 2001 i686

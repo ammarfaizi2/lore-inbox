@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSBFTsq>; Wed, 6 Feb 2002 14:48:46 -0500
+	id <S290785AbSBFTvq>; Wed, 6 Feb 2002 14:51:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290779AbSBFTsg>; Wed, 6 Feb 2002 14:48:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64017 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290767AbSBFTsY>;
-	Wed, 6 Feb 2002 14:48:24 -0500
-Message-ID: <3C618863.DA7AC3B9@zip.com.au>
-Date: Wed, 06 Feb 2002 11:47:47 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-In-Reply-To: <Pine.LNX.4.21.0202061844450.1856-100000@localhost.localdomain>
+	id <S290789AbSBFTvh>; Wed, 6 Feb 2002 14:51:37 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:27223 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S290785AbSBFTvY>;
+	Wed, 6 Feb 2002 14:51:24 -0500
+Date: Wed, 6 Feb 2002 12:50:54 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] List of maintainers (draft #2)
+Message-ID: <20020206125054.F15496@lynx.turbolabs.com>
+Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua> <20020206193300.GA314@mis-mike-wstn>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020206193300.GA314@mis-mike-wstn>; from mfedyk@matchmail.com on Wed, Feb 06, 2002 at 11:33:00AM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+On Feb 06, 2002  11:33 -0800, Mike Fedyk wrote:
+> On Wed, Feb 06, 2002 at 12:08:14PM -0200, Denis Vlasenko wrote:
+> > H. Peter Anvin <hpa@zytor.com> [5 feb 2002]
 > 
-> Sorry, no solution, but maybe another oops in __free_pages_ok might help?
+> Kernel.org sysadmin.  Contact me if you notice something breaks, or if you
+> want a change make sure you give me at least 1-2 weeks...
 
-What problem are you trying to solve?
+Also bootloader, kernel init code, i386 feature code.
 
-> 
-> --- 2.4.18-pre8/mm/page_alloc.c Tue Feb  5 12:55:36 2002
-> +++ linux/mm/page_alloc.c       Wed Feb  6 18:31:07 2002
-> @@ -73,9 +73,11 @@
->         /* Yes, think what happens when other parts of the kernel take
->          * a reference to a page in order to pin it for io. -ben
->          */
-> -       if (PageLRU(page))
-> +       if (PageLRU(page)) {
-> +               if (in_interrupt())
-> +                       BUG();
->                 lru_cache_del(page);
-> -
-> +       }
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-Yes.  lru_cache_del() in interrupt context will deadlock on SMP
-or wreck the LRU list on UP.  I can't see how we can ever perform
-the final release of a PageLRU page in interrupt context but I agree
-this test is a good one.
-
--

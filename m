@@ -1,76 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285730AbSALLlp>; Sat, 12 Jan 2002 06:41:45 -0500
+	id <S285747AbSALLqF>; Sat, 12 Jan 2002 06:46:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285747AbSALLlg>; Sat, 12 Jan 2002 06:41:36 -0500
-Received: from AGrenoble-101-1-1-156.abo.wanadoo.fr ([193.251.23.156]:2432
-	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S285730AbSALLlW> convert rfc822-to-8bit; Sat, 12 Jan 2002 06:41:22 -0500
-Message-ID: <3C402279.1000708@wanadoo.fr>
-Date: Sat, 12 Jan 2002 12:48:09 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-Cc: timothy.covell@ashavan.org, mingo@elte.hu,
-        Mike Kravetz <kravetz@us.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain>	<3C3F5C43.7060300@wanadoo.fr> 	<200201112150.g0BLoESr004177@svr3.applink.net> <1010814327.2018.5.camel@phantasy>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S285783AbSALLp4>; Sat, 12 Jan 2002 06:45:56 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:7493 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S285747AbSALLpk>; Sat, 12 Jan 2002 06:45:40 -0500
+Date: Sat, 12 Jan 2002 12:45:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, bcrl@redhat.com,
+        axboe@suse.de, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Mostly PAGE_SIZE IO for RAW (NEW VERSION)
+Message-ID: <20020112124504.C1482@inspiron.school.suse.de>
+In-Reply-To: <200201112351.g0BNp8912572@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200201112351.g0BNp8912572@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Fri, Jan 11, 2002 at 03:51:08PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Fri, Jan 11, 2002 at 03:51:08PM -0800, Badari Pulavarty wrote:
+> diff -Nur -X dontdiff linux/drivers/block/ll_rw_blk.c linux-2417newvary/drivers/block/ll_rw_blk.c
+> --- linux/drivers/block/ll_rw_blk.c	Mon Oct 29 12:11:17 2001
+> +++ linux-2417newvary/drivers/block/ll_rw_blk.c	Fri Jan 11 16:58:37 2002
+> @@ -874,20 +881,7 @@
+>  }
+>  
+>  
+> -/**
+> - * submit_bh: submit a buffer_head to the block device later for I/O
+> - * @rw: whether to %READ or %WRITE, or maybe to %READA (read ahead)
+> - * @bh: The &struct buffer_head which describes the I/O
+> - *
+> - * submit_bh() is very similar in purpose to generic_make_request(), and
+> - * uses that function to do most of the work.
+> - *
+> - * The extra functionality provided by submit_bh is to determine
+> - * b_rsector from b_blocknr and b_size, and to set b_rdev from b_dev.
+> - * This is is appropriate for IO requests that come from the buffer
+> - * cache and page cache which (currently) always use aligned blocks.
+> - */
+> -void submit_bh(int rw, struct buffer_head * bh)
+> +static inline void submit_bh_rsector(int rw, struct buffer_head * bh, int rsect)
+>  {
+>  	int count = bh->b_size >> 9;
+>  
+> @@ -901,7 +895,7 @@
+>  	 * further remap this.
+>  	 */
+>  	bh->b_rdev = bh->b_dev;
+> -	bh->b_rsector = bh->b_blocknr * count;
+> +	bh->b_rsector = rsect;
+>  
+>  	generic_make_request(rw, bh);
+>  
+> @@ -913,6 +907,33 @@
+>  			kstat.pgpgin += count;
+>  			break;
+>  	}
+> +}
+> +
+> +/**
+> + * submit_bh: submit a buffer_head to the block device later for I/O
+> + * @rw: whether to %READ or %WRITE, or maybe to %READA (read ahead)
+> + * @bh: The &struct buffer_head which describes the I/O
+> + *
+> + * submit_bh() is very similar in purpose to generic_make_request(), and
+> + * uses that function to do most of the work.
+> + *
+> + * The extra functionality provided by submit_bh is to determine
+> + * b_rsector from b_blocknr and b_size, and to set b_rdev from b_dev.
+> + * This is is appropriate for IO requests that come from the buffer
+> + * cache and page cache which (currently) always use aligned blocks.
+> + */
+> +void submit_bh(int rw, struct buffer_head * bh)
+> +{
+> +	submit_bh_rsector(rw, bh, bh->b_blocknr * (bh->b_size >> 9));
+> +}
+> +
+> +/*
+> + * submit_bh_blknr() - same as submit_bh() except that b_rsector is
+> + * set to b_blocknr. Used for RAW VARY.
+> + */
+> +void submit_bh_blknr(int rw, struct buffer_head * bh)
+> +{
+> +	submit_bh_rsector(rw, bh, bh->b_blocknr);
+>  }
+>  
+>  /**
 
-> On Fri, 2002-01-11 at 16:46, Timothy Covell wrote:
-> 
->> But, given the above case, what happens when you have Sendmail on
->> the first CPU and Squid is sharing the second CPU?  This is not optimal
->> either, or am I missing something?
-> 
-> Correct.  I sort of took the "optimal cache use" comment as 
-> tongue-in-cheek.  If I am mistaken, correct me, but here is my 
-> perception of the scenario:
-> 
-> 2 CPUs, 3 tasks.  1 task receives 100% of the CPU time on one CPU.  The 
-> remaining two tasks share the second CPU.  The result is, of three 
-> evenly prioritized tasks, one receives double as much CPU time as the 
-> others.
+I find confusing to mix the semantics of b_blocknr with b_rsector,
+they've different meanings, I'd prefer if you would recall
+submit_bh_rsector directly, rather than adding a submit_bh_blknr. You
+can implement submit_bh_rsector extern for buffer.c and inline for
+ll_rw_block, so submit_bh remains fast and you still avoid code
+duplication.
 
+> diff -Nur -X dontdiff linux/drivers/char/raw.c linux-2417newvary/drivers/char/raw.c
+> --- linux/drivers/char/raw.c	Sat Sep 22 20:35:43 2001
+> +++ linux-2417newvary/drivers/char/raw.c	Fri Jan 11 21:37:16 2002
+> @@ -308,6 +312,7 @@
+>  	sector_bits = raw_devices[minor].sector_bits;
+>  	sector_mask = sector_size- 1;
+>  	max_sectors = KIO_MAX_SECTORS >> (sector_bits - 9);
+> +	can_do_varyio = raw_devices[minor].can_do_vary;
+>  	
+>  	if (blk_size[MAJOR(dev)])
+>  		limit = (((loff_t) blk_size[MAJOR(dev)][MINOR(dev)]) << BLOCK_SIZE_BITS) >> sector_bits;
+> @@ -350,8 +355,12 @@
+>  
+>  		for (i=0; i < blocks; i++) 
+>  			iobuf->blocks[i] = blocknr++;
+> +
+> +		iobuf->dovary = can_do_varyio;
+>  		
+>  		err = brw_kiovec(rw, 1, &iobuf, dev, iobuf->blocks, sector_size);
+> +
+> +		iobuf->dovary = 0;
+>  
+>  		if (rw == READ && err > 0)
+>  			mark_dirty_kiobuf(iobuf, err);
 
-Yes, but that makes sense if the one that receives double as much
-CPU time as the others _needs_ that CPU time. For example, an idle
-MTA _should_ not receive as much CPU time as an overworked proxy
-server... Yet, unless someone changes the priority, they are treated
-evenly by the scheduler. This is not so good in my mind.
+I don't think you need to initialize this bit in any fast path,
+initializing it in raw_open for the preallocated iobuf, and after the
+alloc_kiovec of the slow path of rw_raw_dev should be enough.
 
+> diff -Nur -X dontdiff linux/drivers/scsi/sd.c linux-2417newvary/drivers/scsi/sd.c
+> --- linux/drivers/scsi/sd.c	Fri Nov  9 14:05:06 2001
+> +++ linux-2417newvary/drivers/scsi/sd.c	Fri Jan 11 21:34:19 2002
+> @@ -1241,6 +1241,8 @@
+>  	return 1;
+>  }
+>  
+> +#define SD_DISK_MAJOR(i)	SD_MAJOR((i) >> 4)
+> +
+>  static int sd_attach(Scsi_Device * SDp)
+>  {
+>          unsigned int devnum;
+> @@ -1274,6 +1276,22 @@
+>  	printk("Attached scsi %sdisk %s at scsi%d, channel %d, id %d, lun %d\n",
+>  	       SDp->removable ? "removable " : "",
+>  	       nbuff, SDp->host->host_no, SDp->channel, SDp->id, SDp->lun);
+> +
+> +	if (SDp->host->hostt->can_do_varyio) {
+> +		char *varyio;
+> +
+> +		varyio = blkdev_varyio[SD_DISK_MAJOR(i)];
+> +		if (varyio == NULL) {
+> +			varyio =  kmalloc((sd_template.dev_max << 4), GFP_ATOMIC);
 
-> Aside from the cache utilization, this is not really "fair" -- the 
-> problem is, the current design of load_balance (which is quite good) 
-> just won't throw the tasks around so readily.  What could be done -- 
-> cleanly -- to make this better?
-> 
-> 	Robert Love
+how big is this kmalloc (dunno on top of my head, depends on .dev_max)?
+The only thing we must make sure is that insmod sd.c won't fail because
+of fragmentation (in such case either make it static [so it will be in
+the module vmalloced space automatically] or use vmalloc instead).
 
+This updated patch looked much better btw :).
 
-Is it possible for the scheduler to take into account another parameter
-than priority to decide an app' CPU affinity ? For example, size
-in memory and %CPU. For example, if an app accounts for
-80% of the total CPU utilisation, by all means it should stay
-on the same CPU. That, in my mind, would have the effect that this
-app would run faster (because of the cache) AND that the load on
-the machine would decrease (having to bump that app from one
-CPU to another is _not_ good).
-
-Is this feasible, or am I dreaming ?
-
-François Cami
-
-
+Andrea

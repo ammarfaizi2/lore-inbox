@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262452AbSLFNKL>; Fri, 6 Dec 2002 08:10:11 -0500
+	id <S262506AbSLFNK4>; Fri, 6 Dec 2002 08:10:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSLFNKL>; Fri, 6 Dec 2002 08:10:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35090 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262452AbSLFNKL>;
-	Fri, 6 Dec 2002 08:10:11 -0500
-Date: Fri, 6 Dec 2002 13:17:46 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
-       "Grover, Andrew" <andrew.grover@intel.com>, pavel@ucw.cz,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-       acpi-devel@sourceforge.net
-Subject: Re: [ACPI] RE: [BK PATCH] ACPI updates
-Message-ID: <20021206131746.C10368@parcelfarce.linux.theplanet.co.uk>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com> <20021206125943.2199892e.hanno@gmx.de> <20021206072932.B16173@devserv.devel.redhat.com>
+	id <S262528AbSLFNK4>; Fri, 6 Dec 2002 08:10:56 -0500
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:32772 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id <S262506AbSLFNKy>;
+	Fri, 6 Dec 2002 08:10:54 -0500
+Message-Id: <5.2.0.9.0.20021206141312.00a20b70@mail.science.uva.nl>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 06 Dec 2002 14:15:55 +0100
+To: linux-kernel@vger.kernel.org
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Subject: [PATCH] kill warning
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021206072932.B16173@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, Dec 06, 2002 at 07:29:32AM -0500
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 07:29:32AM -0500, Arjan van de Ven wrote:
-> On Fri, Dec 06, 2002 at 12:59:43PM +0100, Hanno Böck wrote:
-> > I think this is a very bad news. In my opinion, the ACPI-patch
-> > is the most-needed kernel-patch at the moment. For many laptop-users
-> > that don't know about this patch, Linux is nearly
-> > unuseable. 
-> 
-> the 2.4 patch doesnt' actually offer suspend/resume capabilities; what
-> else did you have in mind as required ?
+Hi,
 
-booting?
+Following patch is needed to kill this warning:
+   CC      drivers/char/sysrq.o
+In file included from drivers/char/sysrq.c:30:
+include/linux/suspend.h:76: warning: static declaration for 
+`software_suspend' follows non-static
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+	Rudmer
+
+# diff -u linux-2.5.50-bk5/drivers/char/sysrq.c.orig 
+linux-2.5.50-bk5/drivers/char/sysrq.c
+--- linux-2.5.50-bk5/drivers/char/sysrq.c.orig  2002-12-06 
+14:11:50.000000000 +0100
++++ linux-2.5.50-bk5/drivers/char/sysrq.c       2002-12-06 
+14:09:00.000000000 +0100
+@@ -21,13 +21,13 @@
+  #include <linux/mount.h>
+  #include <linux/kdev_t.h>
+  #include <linux/major.h>
++#include <linux/suspend.h>
+  #include <linux/reboot.h>
+  #include <linux/sysrq.h>
+  #include <linux/kbd_kern.h>
+  #include <linux/quotaops.h>
+  #include <linux/smp_lock.h>
+  #include <linux/module.h>
+-#include <linux/suspend.h>
+  #include <linux/writeback.h>
+  #include <linux/buffer_head.h>         /* for fsync_bdev() */
+

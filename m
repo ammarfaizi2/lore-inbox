@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131480AbRCUOfL>; Wed, 21 Mar 2001 09:35:11 -0500
+	id <S131503AbRCUOfB>; Wed, 21 Mar 2001 09:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131500AbRCUOfB>; Wed, 21 Mar 2001 09:35:01 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15332 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131480AbRCUOe7>;
-	Wed, 21 Mar 2001 09:34:59 -0500
-Message-ID: <3AB8BBC5.61A7F65F@mandrakesoft.com>
-Date: Wed, 21 Mar 2001 09:33:41 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        netdev@oss.sgi.com
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: PATCH 2.4.3.6: fix netdevice initialization
-In-Reply-To: <3AB8BA16.A25C0929@mandrakesoft.com>
+	id <S131500AbRCUOev>; Wed, 21 Mar 2001 09:34:51 -0500
+Received: from ns.suse.de ([213.95.15.193]:46086 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131480AbRCUOet>;
+	Wed, 21 Mar 2001 09:34:49 -0500
+Date: Wed, 21 Mar 2001 15:33:07 +0100
+From: Olaf Hering <olh@suse.de>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: RE: 2.4.2 freezes with bad ISOs in IDE cdroms
+Message-ID: <20010321153307.A4571@suse.de>
+In-Reply-To: <20010320225845.A5763@suse.de> <XFMail.010321151922.pochini@shiny.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.010321151922.pochini@shiny.it>; from pochini@shiny.it on Wed, Mar 21, 2001 at 03:19:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have this bad habit of thinking of things after I click <Send>.
+On Wed, Mar 21, Giuliano Pochini wrote:
 
-One other change that accompanies this -- define a feature macro.  The
-following should go into linux/netdevice.h:
-	#define HAVE_ALLOC_NETDEV
+> This happens on my blue G3 with 2.2.x too. I think it's a bug in the IDE
+> driver. My old 7300 (mesh) with a SCSI cd just reported a read error on
+> the same disk.
+
+Yes, I got that also with 2.2.18 on the G4 with cmd646.
+
+
+Gruss Olaf
 
 -- 
-Jeff Garzik       | May you have warm words on a cold evening,
-Building 1024     | a full mooon on a dark night,
-MandrakeSoft      | and a smooth road all the way to your door.
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...

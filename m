@@ -1,89 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266813AbUIAO52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUIAPFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266813AbUIAO52 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 10:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUIAO52
+	id S266820AbUIAPFF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUIAPFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 10:57:28 -0400
-Received: from nef.ens.fr ([129.199.96.32]:12049 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S266825AbUIAO4k (ORCPT
+	Wed, 1 Sep 2004 11:05:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1204 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266820AbUIAPFA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 10:56:40 -0400
-Date: Wed, 1 Sep 2004 16:56:38 +0200
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH (RESENT) swsuspend for ne2k-pci cards
-Message-ID: <20040901145638.GA9993@lps.ens.fr>
-References: <20040806235438.GA7095@lps.ens.fr> <20040807071346.91641.qmail@web60510.mail.yahoo.com> <20040807140845.GA8353@lps.ens.fr> <20040821121430.GB8826@lps.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 1 Sep 2004 11:05:00 -0400
+From: Daniel Phillips <phillips@redhat.com>
+Organization: Red Hat
+To: linux-cluster@redhat.com, sdake@mvista.com
+Subject: Re: [Linux-cluster] New virtual synchrony API for the kernel: was Re: [Openais] New API in openais
+Date: Wed, 1 Sep 2004 11:06:00 -0400
+User-Agent: KMail/1.6.2
+Cc: John Cherry <cherry@osdl.org>, openais@lists.osdl.org,
+       linux-kernel@vger.kernel.org, linux-ha-dev@new.community.tummy.com
+References: <1093941076.3613.14.camel@persist.az.mvista.com> <1093973757.5933.56.camel@cherrybomb.pdx.osdl.net> <1093981842.3613.42.camel@persist.az.mvista.com>
+In-Reply-To: <1093981842.3613.42.camel@persist.az.mvista.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040821121430.GB8826@lps.ens.fr>
-User-Agent: Mutt/1.4.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Wed, 01 Sep 2004 16:56:39 +0200 (CEST)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409011106.00541.phillips@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Steven,
 
-This is a resent of my patch to add suspend/resume support to ne2k-pci
-network adapters.
+On Tuesday 31 August 2004 15:50, Steven Dake wrote:
+> It would be useful for linux cluster developers for a common low
+> level group communication API to be agreed upon by relevant clusters
+> projects.  Without this approach, we may end up with several systems
+> all using different cluster communication & membership mechanisms
+> that are incompatible.
 
-* The patch was tested on a RealTek ne2k clone and works nicely,
-* It was reviewed and largely improved by Arkadiusz Miskiewicz
-* It was approved of by Pavel Machek, the software suspend maintainer.
+To be honest, this does look interesting, however could you help me on a 
+few points:
 
-It would be nice if this patch could go into the kernel.
+  - Is there any evil IP we have to worry about with this?
 
-Thank you,
+  - Can I get a formal interface spec from AIS for this, without
+    signing a license?
 
-	Éric Brunet
+  - Have you got benchmarks available for control and normal messaging
 
---- linux-old/drivers/net/ne2k-pci.c	2004-08-07 15:54:24.000000000 +0200
-+++ linux-2.6.8-rc1/drivers/net/ne2k-pci.c	2004-08-21 12:24:27.000000000 +0200
-@@ -653,12 +653,43 @@
- 	pci_set_drvdata(pdev, NULL);
- }
- 
-+#ifdef CONFIG_PM
-+static int ne2k_pci_suspend (struct pci_dev *pdev, u32 state)
-+{
-+	struct net_device *dev = pci_get_drvdata (pdev);
-+
-+	netif_device_detach(dev);
-+	pci_save_state(pdev, pdev->saved_config_space);
-+	pci_set_power_state(pdev, state);
-+
-+	return 0;
-+}
-+
-+static int ne2k_pci_resume (struct pci_dev *pdev)
-+{
-+	struct net_device *dev = pci_get_drvdata (pdev);
-+
-+	pci_set_power_state(pdev, 0);
-+	pci_restore_state(pdev, pdev->saved_config_space);
-+	NS8390_init(dev, 1);
-+	netif_device_attach(dev);
-+
-+	return 0;
-+}
-+
-+#endif /* CONFIG_PM */
-+
- 
- static struct pci_driver ne2k_driver = {
- 	.name		= DRV_NAME,
- 	.probe		= ne2k_pci_init_one,
- 	.remove		= __devexit_p(ne2k_pci_remove_one),
- 	.id_table	= ne2k_pci_tbl,
-+#ifdef CONFIG_PM
-+	.suspend	= ne2k_pci_suspend,
-+	.resume		= ne2k_pci_resume,
-+#endif /* CONFIG_PM */
-+
- };
- 
- 
+  

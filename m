@@ -1,129 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbUKCUra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbUKCUrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbUKCUra (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 15:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbUKCUpu
+	id S261869AbUKCUrb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 15:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUKCUpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 15:45:50 -0500
-Received: from hal-5.inet.it ([213.92.5.24]:58350 "EHLO hal-5.inet.it")
-	by vger.kernel.org with ESMTP id S261876AbUKCUnx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 15:43:53 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Test patch for ub and double registration
-Date: Wed, 3 Nov 2004 21:43:01 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, cs@tequila.co.jp
-References: <20041101164432.3fa72b81@lembas.zaitcev.lan> <200411022257.24752.cova@ferrara.linux.it> <20041102151044.4270bc12@lembas.zaitcev.lan>
-In-Reply-To: <20041102151044.4270bc12@lembas.zaitcev.lan>
+	Wed, 3 Nov 2004 15:45:19 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:4741 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261869AbUKCUlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 15:41:11 -0500
+From: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
+Organization: -ENOENT
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+Date: Wed, 3 Nov 2004 21:41:05 +0100
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20041018145008.GA25707@elte.hu> <20041103134626.GA13852@elte.hu> <200411031853.03050.l_allegrucci@yahoo.it>
+In-Reply-To: <200411031853.03050.l_allegrucci@yahoo.it>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200411032143.02197.cova@ferrara.linux.it>
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411032141.05571.l_allegrucci@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 00:10, mercoledì 03 novembre 2004, Pete Zaitcev ha scritto:
+On Wednesday 03 November 2004 18:53, Lorenzo Allegrucci wrote:
+> On Wednesday 03 November 2004 14:46, Ingo Molnar wrote:
+> > 
+> > * Lorenzo Allegrucci <l_allegrucci@yahoo.it> wrote:
+> > 
+> > >   LD      init/built-in.o
+> > >   LD      .tmp_vmlinux1
+> > > net/built-in.o(.text+0x1887f): In function `netpoll_setup':
+> > > : undefined reference to `rcu_read_lock_up_read'
+> > > net/built-in.o(.text+0x188ed): In function `netpoll_setup':
+> > > : undefined reference to `rcu_read_lock_up_read'
+> > > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > fixed in -V0.7.3.
+> 
+> I've just tried V0.7.3 but my PS/2 mouse and keyboard don't work.
+> No message from the kernel.  I attach my .config
 
-> I'd like to secure one last favour from you. Please do this for me:
-> 1. Connect the thing
-> 2. Run
-> find /sys -name diag | xargs cat | mail -s "Flavio's ub diag"
-> zaitcev@redhat.com
-
-uhm.. maybe the mail was not so interesting.. :)
-
-[root@kefk root]# find /sys -name diag | xargs cat | mail -s "Flavio's ub 
-diag" zaitcev@redhat.com
-find: /sys/devices/system/timer: No such file or directory
-Null message body; hope that's ok
-
-After inserting the device, I've got this:
-============
-Nov  3 21:36:25 kefk kernel: ehci_hcd 0000:00:1d.7: GetStatus port 3 status 
-001803 POWER sig=j  CSC CONNECT
-Nov  3 21:36:25 kefk kernel: hub 5-0:1.0: port 3, status 0501, change 0001, 
-480 Mb/s
-Nov  3 21:36:25 kefk kernel: hub 5-0:1.0: debounce: port 3: total 100ms stable 
-100ms status 0x501
-Nov  3 21:36:25 kefk kernel: ehci_hcd 0000:00:1d.7: port 3 high speed
-Nov  3 21:36:25 kefk kernel: ehci_hcd 0000:00:1d.7: GetStatus port 3 status 
-001005 POWER sig=se0  PE CONNECT
-Nov  3 21:36:25 kefk kernel: usb 5-3: new high speed USB device using ehci_hcd 
-and address 8
-Nov  3 21:36:25 kefk kernel: ehci_hcd 0000:00:1d.7: devpath 3 ep0in 3strikes
-Nov  3 21:36:26 kefk kernel: ehci_hcd 0000:00:1d.7: port 3 full speed --> 
-companion
-Nov  3 21:36:26 kefk kernel: ehci_hcd 0000:00:1d.7: GetStatus port 3 status 
-003801 POWER OWNER sig=j  CONNECT
-Nov  3 21:36:26 kefk kernel: uhci_hcd 0000:00:1d.1: wakeup_hc
-Nov  3 21:36:26 kefk kernel: uhci_hcd 0000:00:1d.1: port 1 portsc 0083,00
-Nov  3 21:36:26 kefk kernel: hub 2-0:1.0: port 1, status 0101, change 0001, 12 
-Mb/s
-Nov  3 21:36:26 kefk kernel: hub 2-0:1.0: debounce: port 1: total 100ms stable 
-100ms status 0x101
-Nov  3 21:36:26 kefk kernel: usb 2-1: new full speed USB device using uhci_hcd 
-and address 4
-Nov  3 21:36:26 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-failed with status 440000
-Nov  3 21:36:26 kefk kernel: [f7a6c240] link (37a6c1b2) element (37a6b040)
-Nov  3 21:36:26 kefk kernel:   0: [f7a6b040] link (37a6b080) e0 Stalled 
-CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=37c882a0)
-Nov  3 21:36:26 kefk kernel:   1: [f7a6b080] link (37a6b0c0) e3 SPD Active 
-Length=0 MaxLen=3f DT1 EndPt=0 Dev=0, PID=69(IN) (buf=1cd988c0)
-Nov  3 21:36:26 kefk kernel:   2: [f7a6b0c0] link (00000001) e3 IOC Active 
-Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=e1(OUT) (buf=00000000)
-Nov  3 21:36:26 kefk kernel:
-Nov  3 21:36:26 kefk kernel: usb 2-1: device descriptor read/64, error -71
-Nov  3 21:36:26 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-failed with status 440000
-Nov  3 21:36:26 kefk kernel: [f7a6c240] link (37a6c1b2) element (37a6b040)
-Nov  3 21:36:26 kefk kernel:   0: [f7a6b040] link (37a6b080) e0 Stalled 
-CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=377657c0)
-Nov  3 21:36:26 kefk kernel:   1: [f7a6b080] link (37a6b0c0) e3 SPD Active 
-Length=0 MaxLen=3f DT1 EndPt=0 Dev=0, PID=69(IN) (buf=1cd988c0)
-Nov  3 21:36:26 kefk kernel:   2: [f7a6b0c0] link (00000001) e3 IOC Active 
-Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=e1(OUT) (buf=00000000)
-Nov  3 21:36:26 kefk kernel:
-Nov  3 21:36:26 kefk kernel: usb 2-1: device descriptor read/64, error -71
-Nov  3 21:36:27 kefk kernel: usb 2-1: new full speed USB device using uhci_hcd 
-and address 5
-Nov  3 21:36:27 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-failed with status 440000
-Nov  3 21:36:27 kefk kernel: [f7a6c240] link (37a6c1b2) element (37a6b040)
-Nov  3 21:36:27 kefk kernel:   0: [f7a6b040] link (37a6b080) e0 Stalled 
-CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=377657c0)
-Nov  3 21:36:27 kefk kernel:   1: [f7a6b080] link (37a6b0c0) e3 SPD Active 
-Length=0 MaxLen=3f DT1 EndPt=0 Dev=0, PID=69(IN) (buf=1cd988c0)
-Nov  3 21:36:27 kefk kernel:   2: [f7a6b0c0] link (00000001) e3 IOC Active 
-Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=e1(OUT) (buf=00000000)
-Nov  3 21:36:27 kefk kernel:
-Nov  3 21:36:27 kefk kernel: usb 2-1: device descriptor read/64, error -71
-Nov  3 21:36:27 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
-failed with status 440000
-Nov  3 21:36:27 kefk kernel: [f7a6c240] link (37a6c1b2) element (37a6b040)
-Nov  3 21:36:27 kefk kernel:   0: [f7a6b040] link (37a6b080) e0 Stalled 
-CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=377657c0)
-Nov  3 21:36:27 kefk kernel:   1: [f7a6b080] link (37a6b0c0) e3 SPD Active 
-Length=0 MaxLen=3f DT1 EndPt=0 Dev=0, PID=69(IN) (buf=1cd988c0)
-Nov  3 21:36:27 kefk kernel:   2: [f7a6b0c0] link (00000001) e3 IOC Active 
-Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=e1(OUT) (buf=00000000)
-Nov  3 21:36:27 kefk kernel:
-Nov  3 21:36:27 kefk kernel: usb 2-1: device descriptor read/64, error -71
-=================
-
-But I don't know why now usb 2-1 device is called (the machine is in the same 
-state of last try, no reboots).
-
-
-
+Problem solved disabling ACPI.
 
 -- 
-Fabio Coatti       http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+I route therefore you are

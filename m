@@ -1,38 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319671AbSH3VaN>; Fri, 30 Aug 2002 17:30:13 -0400
+	id <S319678AbSH3Vey>; Fri, 30 Aug 2002 17:34:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319673AbSH3VaN>; Fri, 30 Aug 2002 17:30:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30130 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319671AbSH3VaM>;
-	Fri, 30 Aug 2002 17:30:12 -0400
-Date: Fri, 30 Aug 2002 14:28:33 -0700 (PDT)
-Message-Id: <20020830.142833.118548108.davem@redhat.com>
-To: cel@citi.umich.edu
-Cc: marcelo@plucky.distro.conectiva, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net
-Subject: Re: [PATCH] sock_writeable not appropriate for TCP sockets, for
- 2.4.20
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0208301648230.1645-100000@dexter.citi.umich.edu>
-References: <Pine.LNX.4.44.0208301648230.1645-100000@dexter.citi.umich.edu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319680AbSH3Vex>; Fri, 30 Aug 2002 17:34:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40971 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319678AbSH3Veq>; Fri, 30 Aug 2002 17:34:46 -0400
+To: LKML <linux-kernel@vger.kernel.org>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] 2.5.29-rdunzip
+Message-Id: <E17ktTw-00034z-00@flint.arm.linux.org.uk>
+Date: Fri, 30 Aug 2002 22:39:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chuck Lever <cel@citi.umich.edu>
-   Date: Fri, 30 Aug 2002 16:51:57 -0400 (EDT)
+This patch appears not to be in 2.5.32, but applies cleanly.
 
-   patch reviewed by Trond and Alexey.  patch already sent to linus for 2.5.
-   
-I think this patch should go in too.
-   
-   --- 2.4.20-pre5/net/sunrpc/xprt.c.orig	Fri Aug 30 15:49:28 2002
-   +++ 2.4.20-pre5/net/sunrpc/xprt.c	Fri Aug 30 15:52:55 2002
+This patch ensures that we report failures when unzipping ramdisks and the
+like, including if we fail to write to the ramdisk.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Unfortunately, there is no way to guarantee that the gunzip function will
+ever terminate (gzip itself uses a setjmp and longjmp to achieve this).
+
+ init/do_mounts.c |   19 ++++++++++++++++---
+ 1 files changed, 16 insertions, 3 deletions
+
+diff -urN orig/init/do_mounts.c linux/init/do_mounts.c
+--- orig/init/do_mounts.c	Sat Jul 27 13:55:25 2002
++++ linux/init/do_mounts.c	Sat Jul 27 14:13:56 2002
+@@ -877,6 +877,7 @@
+ static unsigned inptr;   /* index of next byte to be processed in inbuf */
+ static unsigned outcnt;  /* bytes in output buffer */
+ static int exit_code;
++static int unzip_error;
+ static long bytes_out;
+ static int crd_infd, crd_outfd;
+ 
+@@ -924,13 +925,17 @@
+ /* ===========================================================================
+  * Fill the input buffer. This is called only when the buffer is empty
+  * and at least one byte is really needed.
++ * Returning -1 does not guarantee that gunzip() will ever return.
+  */
+ static int __init fill_inbuf(void)
+ {
+ 	if (exit_code) return -1;
+ 	
+ 	insize = read(crd_infd, inbuf, INBUFSIZ);
+-	if (insize == 0) return -1;
++	if (insize == 0) {
++		error("RAMDISK: ran out of compressed data\n");
++		return -1;
++	}
+ 
+ 	inptr = 1;
+ 
+@@ -944,10 +949,15 @@
+ static void __init flush_window(void)
+ {
+     ulg c = crc;         /* temporary variable */
+-    unsigned n;
++    unsigned n, written;
+     uch *in, ch;
+     
+-    write(crd_outfd, window, outcnt);
++    written = write(crd_outfd, window, outcnt);
++    if (written != outcnt && unzip_error == 0) {
++	printk(KERN_ERR "RAMDISK: incomplete write (%d != %d) %d\n",
++	       written, outcnt, bytes_out);
++	unzip_error = 1;
++    }
+     in = window;
+     for (n = 0; n < outcnt; n++) {
+ 	    ch = *in++;
+@@ -962,6 +972,7 @@
+ {
+ 	printk(KERN_ERR "%s", x);
+ 	exit_code = 1;
++	unzip_error = 1;
+ }
+ 
+ static int __init crd_load(int in_fd, int out_fd)
+@@ -990,6 +1001,8 @@
+ 	}
+ 	makecrc();
+ 	result = gunzip();
++	if (unzip_error)
++		result = 1;
+ 	kfree(inbuf);
+ 	kfree(window);
+ 	return result;
+

@@ -1,143 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293632AbSCATJM>; Fri, 1 Mar 2002 14:09:12 -0500
+	id <S293640AbSCATNk>; Fri, 1 Mar 2002 14:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293633AbSCATIP>; Fri, 1 Mar 2002 14:08:15 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:35856 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S293625AbSCATHG>; Fri, 1 Mar 2002 14:07:06 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A76CB@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Roman Kurakin'" <rik@cronyx.ru>
-Cc: linux-kernel@vger.kernel.org, "'Russell King'" <rmk@arm.linux.org.uk>
-Subject: RE: Serial.c BUG 2.4.x-2.5x
-Date: Fri, 1 Mar 2002 11:07:03 -0800 
+	id <S293633AbSCATMT>; Fri, 1 Mar 2002 14:12:19 -0500
+Received: from hanoi.cronyx.ru ([144.206.181.53]:62222 "EHLO hanoi.cronyx.ru")
+	by vger.kernel.org with ESMTP id <S293641AbSCATLC>;
+	Fri, 1 Mar 2002 14:11:02 -0500
+Message-ID: <007501c1c154$bca973c0$48b5ce90@crox>
+From: "Serge Vakulenko" <vak@cronyx.ru>
+To: <alan@cymru.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [patch] added SIGIO support for /dev/tap0 and other netlink-based drivers
+Date: Fri, 1 Mar 2002 22:10:22 +0300
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0072_01C1C16D.E1EBD650"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 4:19 AM, Roman Kurakin wrote:
-> 
->     Who is responsible person for applying [serial driver] patches 
->     to main tree?
+This is a multi-part message in MIME format.
 
-Hi Roman,
+------=_NextPart_000_0072_01C1C16D.E1EBD650
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 
-Well it's a little complicated. Russell King is the official serial driver
-maintainer, at least for 2.5. He is very busy right now on a rewrite of the
-serial driver subsystem that will eventually make things better in many ways
-for writing support for new devices with serial nature. 
+Dear Alan,
 
-He has (properly) backed away from trying to also support the existing
-driver. There has been no willing victim to take on maintainer duties for
-the existing driver since Ted Tso got busy with other things over a year
-ago. 
+I added fasync support to netlink_dev.c.
+It permits signal-based i/o on /dev/tap0 and other
+netlink-based devices.
 
-BTW, your patch is correct and, as you suspected, there are indeed other
-ways that the existing driver is broken for memory mapped devices. My
-favorite is the bug that causes kudzu to die with a null pointer dereference
-during system initialization IFF there is a memory mapped serial card
-present. 
+The sources of small testing program included.
+___
+Best wishes,
+Serge Vakulenko
 
-I have been trying to volunteer to ride the current driver into its sunset,
-so as to (1) get my own changes in :-), and (2) call for the ignored patches
-and help fix the known broken bits (be it known that since 2.4 is a "stable"
-release, there are good ideas/enhancements that we simply should not do in
-2.4) - without distracting Russell from his good work. The last word I
-received was:
+------=_NextPart_000_0072_01C1C16D.E1EBD650
+Content-Type: application/octet-stream;
+	name="netlnk_dev.pch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="netlnk_dev.pch"
 
-> The more help the better as always - providing you can co-ordinate
-> with Russell. 
+Adding SIGIO support for /dev/tapX and other netlink-based drivers.=0A=
+=0A=
+Use the following program to test it:=0A=
+=0A=
+	#include <stdio.h>=0A=
+	#include <stdlib.h>=0A=
+	#include <unistd.h>=0A=
+	#include <signal.h>=0A=
+	=0A=
+	#define __USE_GNU=0A=
+	#include <fcntl.h>=0A=
+	=0A=
+	#define DEVNAME	"/dev/tap0"=0A=
+	#define SIGNUM	SIGIO=0A=
+	=0A=
+	void sigio (int signum)=0A=
+	{=0A=
+		printf ("Got signal %d\n", signum);=0A=
+		fflush (stdout);=0A=
+	}=0A=
+	=0A=
+	int main (int argc, char **argv)=0A=
+	{=0A=
+		int fd, flags;=0A=
+	=0A=
+		fd =3D open (DEVNAME, O_RDWR);=0A=
+		if (fd < 0) {=0A=
+			perror (DEVNAME);=0A=
+			exit (1);=0A=
+		}=0A=
+		signal (SIGNUM, sigio);=0A=
+		fcntl (fd, F_SETOWN, getpid());=0A=
+		fcntl (fd, F_SETSIG, SIGNUM);=0A=
+	=0A=
+		flags =3D fcntl (fd, F_GETFL, 0);=0A=
+		fcntl (fd, F_SETFL, flags | O_ASYNC);=0A=
+	=0A=
+		printf ("Waiting for i/o signal.\n");=0A=
+		printf ("Ping /dev/tap0 interface.\n");=0A=
+		for (;;)=0A=
+			pause ();=0A=
+	}=0A=
+___=0A=
+Best wishes,=0A=
+Serge Vakulenko <vak@cronyx.ru>=0A=
+=0A=
+=0A=
+--- /usr/src/linux-2.2.5/net/netlink/netlink_dev.c	Fri Aug 28 06:33:09 =
+1998=0A=
++++ netlink_dev.c	Fri Mar  1 21:20:17 2002=0A=
+@@ -25,6 +25,7 @@=0A=
+ #include <linux/netlink.h>=0A=
+ #include <linux/poll.h>=0A=
+ #include <linux/init.h>=0A=
++#include <net/sock.h>=0A=
+ =0A=
+ #include <asm/system.h>=0A=
+ #include <asm/uaccess.h>=0A=
+@@ -148,11 +149,27 @@=0A=
+ 	return err;=0A=
+ }=0A=
+ =0A=
++static int netlink_fasync(int fd, struct file *filp, int on)=0A=
++{=0A=
++	struct inode *inode =3D filp->f_dentry->d_inode;=0A=
++	struct socket *sock =3D netlink_user[MINOR(inode->i_rdev)];=0A=
++	int retval;=0A=
++=0A=
++	lock_sock(sock->sk);=0A=
++	retval =3D fasync_helper(fd, filp, on, &sock->fasync_list);=0A=
++	release_sock(sock->sk);=0A=
++=0A=
++	if (retval <=3D 0)=0A=
++		return retval;=0A=
++	return 0;=0A=
++}=0A=
++=0A=
+ static int netlink_release(struct inode * inode, struct file * file)=0A=
+ {=0A=
+ 	unsigned int minor =3D MINOR(inode->i_rdev);=0A=
+ 	struct socket *sock =3D netlink_user[minor];=0A=
+ =0A=
++	netlink_fasync(-1, file, 0);=0A=
+ 	netlink_user[minor] =3D NULL;=0A=
+ 	open_map &=3D ~(1<<minor);=0A=
+ 	sock_release(sock);=0A=
+@@ -187,7 +204,9 @@=0A=
+ 	NULL,		/* netlink_mmap */=0A=
+ 	netlink_open,=0A=
+ 	NULL,		/* flush */=0A=
+-	netlink_release=0A=
++	netlink_release,=0A=
++	NULL,		/* no fsync */=0A=
++	netlink_fasync=0A=
+ };=0A=
+ =0A=
+ __initfunc(int init_netlink(void))=0A=
 
-I then asked Russell to set the rules for this co-ordination and no response
-has been forthcoming. Perhaps he missed my question? So there is almost, but
-not quite, somebody official to evaluate changes to the existing driver and
-push the verified patches to Marcelo. I don't think it is time to abandon
-the existing driver, just yet. 
+------=_NextPart_000_0072_01C1C16D.E1EBD650--
 
-BTW, I monitor the abandoned linux-serial mailing list. If you post ignored
-patches there I will be more likely to see them than on lkml. If and when
-the people in charge say "go", I will start grinding on the existing serial
-driver. 
-
-Best regards,
-Ed Vance
-
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
-
------Original Message-----
-From: Roman Kurakin [mailto:rik@cronyx.ru]
-Sent: Friday, March 01, 2002 4:19 AM
-To: linux-kernel@vger.kernel.org
-Subject: Serial.c BUG 2.4.x-2.5x
-
-
-Hi,
-
-    Who is responsible person for applying patches to main tree?
-
-This time I decide to send 2.5.5 patch version:
-
---- serial-255.c    Thu Feb 28 19:24:47 2002
-+++ ../serial-255.c    Wed Feb 20 05:10:59 2002
-@@ -2084,7 +2084,6 @@
-     unsigned int        i,change_irq,change_port;
-     int             retval = 0;
-     unsigned long        new_port;
--    unsigned long        new_mem;
- 
-     if (copy_from_user(&new_serial,new_info,sizeof(new_serial)))
-         return -EFAULT;
-@@ -2094,7 +2093,6 @@
-     new_port = new_serial.port;
-     if (HIGH_BITS_OFFSET)
-         new_port += (unsigned long) new_serial.port_high << 
-HIGH_BITS_OFFSET;
--    new_mem = new_serial.iomem_base;
- 
-     change_irq = new_serial.irq != state->irq;
-     change_port = (new_port != ((int) state->port)) ||
-@@ -2136,7 +2134,6 @@
-         for (i = 0 ; i < NR_PORTS; i++)
-             if ((state != &rs_table[i]) &&
-                 (rs_table[i].port == new_port) &&
--                (rs_table[i].iomem_base == new_mem) &&
-                 rs_table[i].type)
-                 return -EADDRINUSE;
-     }
-
--------- Original Message --------
- Subject: Serial.c Bug
- Date: Wed, 14 Nov 2001 13:02:47 +0300
- From: Roman Kurakin <rik@cronyx.ru>
- To: linux-kernel@vger.kernel.org
-
-   I have found a bug. It is in support of serial cards which uses 
-memory for
-   I/O insted of ports. I made a patch for serial.c and fix one place, but
-   probably the problem like this one could be somewhere else.
-  
-   If you try to use setserial with such cards you will get "Address in use"
-   (-EADDRINUSE)
-     
-   Best regards,
-                    Kurakin Roman
-
-
-Best regards,
-                        Roman Kurakin
-
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

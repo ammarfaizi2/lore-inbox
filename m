@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265594AbUBJAG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 19:06:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265584AbUBJAG2
+	id S265584AbUBJAG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 19:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265581AbUBJAGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 19:06:28 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:27265 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265389AbUBJACH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 19:02:07 -0500
-Date: Mon, 9 Feb 2004 19:02:05 -0500
-From: Willem Riede <wrlk@riede.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Selective attach for ide-scsi
-Message-ID: <20040210000205.GG28026@serve.riede.org>
-Reply-To: wrlk@riede.org
-References: <20040208224248.GA28026@serve.riede.org> <16423.17315.777835.128816@alkaid.it.uu.se>
+	Mon, 9 Feb 2004 19:06:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30159 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265422AbUBIX47 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 18:56:59 -0500
+Date: Mon, 9 Feb 2004 15:58:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Philippe =?ISO-8859-1?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.3-rc1-mm1
+Message-Id: <20040209155823.6f884f23.akpm@osdl.org>
+In-Reply-To: <20040209151818.32965df6@philou.gramoulle.local>
+References: <20040209014035.251b26d1.akpm@osdl.org>
+	<20040209151818.32965df6@philou.gramoulle.local>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <16423.17315.777835.128816@alkaid.it.uu.se> (from mikpe@csd.uu.se on Mon, Feb 09, 2004 at 03:24:03 -0500)
-X-Mailer: Balsa 2.0.16
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.02.09 03:24, Mikael Pettersson wrote:
-> Willem Riede writes:
->  > Today, if you boot 2.6.x with hdd=ide-scsi, ide-scsi will attach to
->  > all your Atapi drives, not just hdd, unless you explicitely specified
->  > another driver for those.
->  > 
->  > Given that we don't want people to use ide-scsi for cdroms and cd-writers,
->  > that behavior is IMHO suboptimal.
->  > 
->  > The patch below makes ide-scsi attach ONLY to those drives that you tell
->  > it to. So if you want it to handle hdb and hdd, but not hdc, you boot
->  > with hdb=ide-scsi hdd=ide-scsi.
-> 
-> The patch I posted, which you apparently didn't like, doesn't
-> require the use of boot-only options: it instead adds a module_param
-> to ide-scsi which allows for greater flexibility.
-> 
-> Personally I never liked that butt-ugly hdX=ide-scsi hack.
+Philippe Gramoullé  <philippe.gramoulle@mmania.com> wrote:
+>
+> Starting with 2.6.3-rc1-mm1, nfsd isn't working any more. Exportfs just hangs.
 
-I hear you. There are certainly advantages to use a module parameter rather
-than a boot argument.
+Yes, sorry.  The nfsd patches had a painful birth.  This chunk got lost.
 
-However, there should not be two mechanisms to achieve the same goal. For
-better or for worse, the hdX=<driver> construction exists, and people are
-using it. Its use is not limited to ide-scsi.
+--- 25/net/sunrpc/svcauth.c~nfsd-02-sunrpc-cache-init-fixes	Mon Feb  9 14:04:03 2004
++++ 25-akpm/net/sunrpc/svcauth.c	Mon Feb  9 14:06:26 2004
+@@ -150,7 +150,13 @@ DefineCacheLookup(struct auth_domain,
+ 		  &auth_domain_cache,
+ 		  auth_domain_hash(item),
+ 		  auth_domain_match(tmp, item),
+-		  kfree(new); if(!set) return NULL;
++		  kfree(new); if(!set) {
++			if (new)
++				write_unlock(&auth_domain_cache.hash_lock);
++			else
++				read_unlock(&auth_domain_cache.hash_lock);
++			return NULL;
++		  }
+ 		  new=item; atomic_inc(&new->h.refcnt),
+ 		  /* no update */,
+ 		  0 /* no inplace updates */
 
-Since it can very easily be adjusted to achieve the desired selectivety,
-I believe it is the mechanism of choice. 
-
-Does anyone else have an opinion?
-
-Thanks, Willem Riede.
+_

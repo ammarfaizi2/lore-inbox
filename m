@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261753AbSJHXmn>; Tue, 8 Oct 2002 19:42:43 -0400
+	id <S263315AbSJHXZu>; Tue, 8 Oct 2002 19:25:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261641AbSJHXlJ>; Tue, 8 Oct 2002 19:41:09 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:52233 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261429AbSJHXPy>;
-	Tue, 8 Oct 2002 19:15:54 -0400
-Date: Tue, 8 Oct 2002 16:17:47 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB and driver core changes for 2.5.41
-Message-ID: <20021008231747.GD11337@kroah.com>
-References: <20021008231511.GA11337@kroah.com> <20021008231557.GB11337@kroah.com> <20021008231646.GC11337@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021008231646.GC11337@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S263238AbSJHXZk>; Tue, 8 Oct 2002 19:25:40 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:36578 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S263283AbSJHXYF>;
+	Tue, 8 Oct 2002 19:24:05 -0400
+Message-ID: <39B5C4829263D411AA93009027AE9EBB1EF28EFB@fmsmsx35.fm.intel.com>
+From: "Luck, Tony" <tony.luck@intel.com>
+To: lse-tech@lists.sourceforge.net
+Cc: "Kamble, Nitin A" <nitin.a.kamble@intel.com>, linux-kernel@vger.kernel.org,
+       tomlins@cam.org, akpm@digeo.com,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: RE: [Lse-tech] [RFC] numa slab for 2.5.41-mm1
+Date: Tue, 8 Oct 2002 16:29:45 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.573.92.14 -> 1.573.92.15
-#	drivers/usb/serial/pl2303.c	1.26    -> 1.27   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/07	greg@kroah.com	1.573.92.15
-# [PATCH] USB: fix ctsrts handling in pl2303 driver.
-# 
-# Thanks to the prolific engineers for pointing this out to me.
-# --------------------------------------------
-#
-diff -Nru a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
---- a/drivers/usb/serial/pl2303.c	Tue Oct  8 15:53:47 2002
-+++ b/drivers/usb/serial/pl2303.c	Tue Oct  8 15:53:47 2002
-@@ -358,7 +358,7 @@
- 
- 	if (cflag & CRTSCTS) {
- 		i = usb_control_msg (serial->dev, usb_sndctrlpipe (serial->dev, 0),
--				     VENDOR_WRITE_REQUEST_TYPE, VENDOR_WRITE_REQUEST_TYPE,
-+				     VENDOR_WRITE_REQUEST, VENDOR_WRITE_REQUEST_TYPE,
- 				     0x0, 0x41, NULL, 0, 100);
- 		dbg ("0x40:0x1:0x0:0x41  %d", i);
- 	}
+Manfred Spraul wrote:
+
+> - is it possible implement ptr_to_nodeid()
+>   on all archs efficiently? It will happen for every kfree().
+
+The best platform independent way that I came up with was to stash
+the node id in the page structure ... the initial patch that Nitin
+posted included code for this (and it's all my fault that this
+added an extra element to the page structure).  I think that you
+suggested that slab could overload the use of some existing field
+if we wanted to pursue this direction.
+
+If ptr_to_nodeid() is made a platform dependent function, then
+there are some platforms that can do this very efficiently (since
+the nodeid is embedded in some of the high-order address bits), and
+some for which this is complex (e.g. platforms that concatenate
+memory from each node).
+
+-Tony

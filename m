@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263426AbTIHPmM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 11:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTIHPlJ
+	id S262630AbTIHQAE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 12:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTIHQAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 11:41:09 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:29887 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263411AbTIHPkt
+	Mon, 8 Sep 2003 12:00:04 -0400
+Received: from dyn-ctb-210-9-244-100.webone.com.au ([210.9.244.100]:50185 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262630AbTIHQAA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 11:40:49 -0400
-Date: Mon, 8 Sep 2003 08:39:54 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] More USB fixes for 2.6.0-test4
-Message-ID: <20030908083954.A13225@beaverton.ibm.com>
-References: <20030906010405.GA18959@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030906010405.GA18959@kroah.com>; from greg@kroah.com on Fri, Sep 05, 2003 at 06:04:05PM -0700
+	Mon, 8 Sep 2003 12:00:00 -0400
+Message-ID: <3F5CA77E.6050104@cyberone.com.au>
+Date: Tue, 09 Sep 2003 01:59:58 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Nick's scheduler policy v14
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 06:04:05PM -0700, Greg KH wrote:
-> Hi,
-> 
-> Here are some more USB fixes for 2.6.0-test4.  They include a fix for
-> the uhci driver that a lot of people have been running into for a while.
-> Also included is a fix for the pl2303 driver for B0 and for when you
-> connect to the device after closing it.
+Hi everyone,
+kerneltrap gave me a more permanent place to host my patches.
 
-> Duncan Sands:
->   o USB: fix uhci "host controller process error"
+http://www.kerneltrap.org/~npiggin/v14/
 
-That patch fixed my problems with the UHCI driver (VIA) and 2.6.
+I'm starting to attack SMP and NUMA balancing, which is silly because I
+only have a 2xSMP to test on (I'll try to get some NUMA time from OSDL).
 
-Thanks!
+I have provided rollups with and without the "core policy". Everything
+else consists of cleanups and balancing changes, so its probably what
+SMP/NUMA testers will want to use to start with.
 
--- Patrick Mansfield
+

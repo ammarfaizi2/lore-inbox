@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263524AbREYEk0>; Fri, 25 May 2001 00:40:26 -0400
+	id <S263529AbREYEzt>; Fri, 25 May 2001 00:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263528AbREYEkQ>; Fri, 25 May 2001 00:40:16 -0400
-Received: from nwcst284.netaddress.usa.net ([204.68.23.29]:11154 "HELO
-	nwcst284.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S263524AbREYEkJ> convert rfc822-to-8bit; Fri, 25 May 2001 00:40:09 -0400
-Message-ID: <20010525044008.14212.qmail@nwcst284.netaddress.usa.net>
-Date: 24 May 2001 22:40:08 MDT
-From: Blesson Paul <blessonpaul@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Re: How to add ntfs support]
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S263530AbREYEzj>; Fri, 25 May 2001 00:55:39 -0400
+Received: from beppo.feral.com ([192.67.166.79]:1286 "EHLO beppo.feral.com")
+	by vger.kernel.org with ESMTP id <S263529AbREYEzc>;
+	Fri, 25 May 2001 00:55:32 -0400
+Date: Thu, 24 May 2001 21:55:22 -0700 (PDT)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Copyright for drivers- two SCSI HBA drivers
+In-Reply-To: <20010524213404.A22585@vitelus.com>
+Message-ID: <Pine.BSF.4.21.0105242149380.4849-100000@beppo.feral.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton
-              So you are constructing a improved NTFS file driver. So when you
-have to check your written codes of file driver, will u recompile the whole
-kernel ? . That is what I am asking. I am in a way to build a new file system.
-I took NTFS as a sample one. I thought , I will first try to compile and make
-it run. 
-Thanks in advance
-                        by
-                           Blesson Paul
+
+> As a user of hardware which requires firmware like this, I have mixed
+> feelings, but feel strongly that requirements of the GPL clearly
+> override any measure of convenience. Are there any plans to remove the
+> binary-only firmware from the kernel, and/or eventually from the Linux
+> source distribution? I am not refering to this USB driver
+> specifically, but rather the general occurance of firmware embedded in
+> Linux device trivers.
+> 
+
+In the specific instances that I know about, the f/w for the older Qlogic SCSI
+cards (the drivers *not* supplied by vendors) for qlogicisp (qlogicisp_asm.c)
+and qlogicpti (qlogicisp_pti.c) is in the Linux source *and has been for
+years) with no copyright attribution whatsoever. qlogicfc has the BSD style
+copyright that I partly, but mostly Theo Deraadt of OpenBSD, managed to beat
+QLogic into doing.
+
+Versions of f/w for qlogicisp && qlogicpti can easily also be had with the BSD
+licence- check any *BSD distribution, or pick 'em up via bitkeeper from my
+site.
 
 
-Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-At 09:20 24/05/2001, Blesson Paul wrote:
->      I have redhat6.2. I have to add ntfs support to it(defaultly
->    it do not have). I know to do it by changing the configuration and
->    recompiling the whole kernel. I want to know , is there any method to
->register ntfs file system without recompiling the whole kernel
-
-No, it is not possible to not recompile the kernel if NTFS was configured. 
-You might see some very strange effects if you try... What is your problem? 
-Just recompile the kernel. Remember NTFS should be used read-only as write 
-support is broken.
-
-I have a much improved NTFS driver but my Sourceforge linux-NTFS CVS is 
-down (for a week now!) so I can't release it at the moment. )-:
-
-Anton
+-matt
 
 
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
-
-
-____________________________________________________________________
-Get free email and a permanent address at http://www.netaddress.com/?N=1

@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRALMpm>; Fri, 12 Jan 2001 07:45:42 -0500
+	id <S129183AbRALNNd>; Fri, 12 Jan 2001 08:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbRALMpX>; Fri, 12 Jan 2001 07:45:23 -0500
-Received: from mons.uio.no ([129.240.130.14]:44703 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S129183AbRALMpP>;
-	Fri, 12 Jan 2001 07:45:15 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14942.64595.157544.350302@charged.uio.no>
-Date: Fri, 12 Jan 2001 13:45:07 +0100 (CET)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS devel <nfs-devel@linux.kernel.org>
-Subject: Spinlocking patch for in xprt.c
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S131153AbRALNNX>; Fri, 12 Jan 2001 08:13:23 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:55818 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S129183AbRALNNE>;
+	Fri, 12 Jan 2001 08:13:04 -0500
+Date: Fri, 12 Jan 2001 14:13:02 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: shmfs behaviour
+Message-ID: <20010112141302.M441@marowsky-bree.de>
+In-Reply-To: <20010112111039.A2160@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <20010112111039.A2160@werewolf.able.es>; from "J . A . Magallon" on 2001-01-12T11:10:39
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2001-01-12T11:10:39,
+   "J . A . Magallon" <jamagallon@able.es> said:
 
-The following patch (taken from the zero copy networking) upgrades the
-spinlocking of the xprt_(up|down)_transmit() 'semaphores' in order to
-work safely with the networking bottom halves. Several of the latter
-(cf. xprt.c:tcp_write_space() & friends) do want to test the value of
-'xprt->snd_task'.
+> A couple of questions about shm filesystem:
+> - Time ago I remember you could see some dot files inside the /dev/shm
+>   filesystem (then, even it was mounted in /var/shm...). No it shows nothing.
+>   Is it the supposed behaviour ?
 
-Cheers,
-  Trond
+AFAIK yes.
 
-diff -u --recursive --new-file linux-2.4.1-fh_align/net/sunrpc/xprt.c linux-2.4.1-xprt/net/sunrpc/xprt.c
---- linux-2.4.1-fh_align/net/sunrpc/xprt.c	Wed Nov 29 07:34:01 2000
-+++ linux-2.4.1-xprt/net/sunrpc/xprt.c	Fri Jan 12 11:58:42 2001
-@@ -1116,7 +1116,7 @@
- 	struct rpc_xprt *xprt = task->tk_rqstp->rq_xprt;
- 	struct rpc_rqst	*req = task->tk_rqstp;
- 
--	spin_lock(&xprt_lock);
-+	spin_lock_bh(&xprt_sock_lock);
- 	if (xprt->snd_task && xprt->snd_task != task) {
- 		dprintk("RPC: %4d TCP write queue full (task %d)\n",
- 			task->tk_pid, xprt->snd_task->tk_pid);
-@@ -1130,7 +1130,7 @@
- #endif
- 		req->rq_bytes_sent = 0;
- 	}
--	spin_unlock(&xprt_lock);
-+	spin_unlock_bh(&xprt_sock_lock);
- 	return xprt->snd_task == task;
- }
- 
-@@ -1143,10 +1143,10 @@
- 	struct rpc_xprt *xprt = task->tk_rqstp->rq_xprt;
- 
- 	if (xprt->snd_task && xprt->snd_task == task) {
--		spin_lock(&xprt_lock);
-+		spin_lock_bh(&xprt_sock_lock);
- 		xprt->snd_task = NULL;
- 		rpc_wake_up_next(&xprt->sending);
--		spin_unlock(&xprt_lock);
-+		spin_unlock_bh(&xprt_sock_lock);
- 	}
- }
- 
+> - By accident (switching between 2.2 and 2.4), i left the shm fs 'commented'
+>   (with a fs type of 'ignore'). Kernel 2.4 looked working good. What is
+>   /dev/shm for exactly ? Because it looks like I can live without it...
+
+No. You will need it for POSIX shared memory.
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

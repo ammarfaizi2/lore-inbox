@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQLOEfA>; Thu, 14 Dec 2000 23:35:00 -0500
+	id <S131135AbQLOEkA>; Thu, 14 Dec 2000 23:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbQLOEeu>; Thu, 14 Dec 2000 23:34:50 -0500
-Received: from web9407.mail.yahoo.com ([216.136.129.23]:22536 "HELO
-	web9407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129257AbQLOEee>; Thu, 14 Dec 2000 23:34:34 -0500
-Message-ID: <20001215040404.89406.qmail@web9407.mail.yahoo.com>
-Date: Thu, 14 Dec 2000 20:04:04 -0800 (PST)
-From: Lee Reynolds <kelticman1972@yahoo.com>
-Subject: Question about RTC interrupts on i386
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	id <S129267AbQLOEjw>; Thu, 14 Dec 2000 23:39:52 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:55314 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129257AbQLOEjk>; Thu, 14 Dec 2000 23:39:40 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Fri, 15 Dec 2000 15:08:44 +1100
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]: fix for nfs on 64 bit archs.
+Message-ID: <20001215150844.A6588@linuxcare.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm reading the book Linux Internals by Moshe Bar. 
-Early on he describes the use of the real time clock
-to generate an interrupt 100 times a second.  He
-explains that this value was chosen early in the
-development cycle of the linux kernel and is therefore
-relatively low compared to what current hardware can
-make good use of.  He mentions that the alpha port of
-linux uses a 1024Hz interrupt rate and that patches
-have been made for the Intel kernel to give it the
-same rate while maintaining the interrupt rate that
-appears to userland  programs such as top at 100Hz.
 
-I'm just wondering what the benefits of increasing
-this value are and whether these patches are going to
-be included in 2.4?
+Hi,
 
-Thanks,
-Lee Reynolds
+Since we use bitops on wb_flags it needs to be unsigned long. With this
+fix nfs works on sparc64 again.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+Anton
+
+--- linux/include/linux/nfs_page.h	Wed Dec  6 22:19:17 2000
++++ linux_work/include/linux/nfs_page.h	Fri Dec 15 14:38:18 2000
+@@ -33,8 +33,8 @@
+ 	unsigned long		wb_timeout;	/* when to read/write/commit */
+ 	unsigned int		wb_offset,	/* Offset of read/write */
+ 				wb_bytes,	/* Length of request */
+-				wb_count,	/* reference count */
+-				wb_flags;
++				wb_count;	/* reference count */
++	unsigned long		wb_flags;
+ 	struct nfs_writeverf	wb_verf;	/* Commit cookie */
+ };
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

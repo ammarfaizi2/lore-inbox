@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271239AbTHMACS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 20:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271245AbTHMACS
+	id S271269AbTHMAIs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 20:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271266AbTHMAIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 20:02:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64202 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271239AbTHMACR
+	Tue, 12 Aug 2003 20:08:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8395 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271269AbTHMAIm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 20:02:17 -0400
-Message-ID: <3F397FFB.9090601@pobox.com>
-Date: Tue, 12 Aug 2003 20:02:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Matthew Wilcox <willy@debian.org>, davem@redhat.com,
+	Tue, 12 Aug 2003 20:08:42 -0400
+Date: Wed, 13 Aug 2003 01:08:41 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+       Matthew Wilcox <willy@debian.org>, jgarzik@pobox.com, davem@redhat.com,
        linux-kernel@vger.kernel.org,
        kernel-janitor-discuss@lists.sourceforge.net
 Subject: Re: C99 Initialisers
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812053826.GA1488@kroah.com> <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk> <20030812180158.GA1416@kroah.com>
-In-Reply-To: <20030812180158.GA1416@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030813000841.GP10015@parcelfarce.linux.theplanet.co.uk>
+References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812053826.GA1488@kroah.com> <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk> <20030812180158.GA1416@kroah.com> <20030812235324.GA12953@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030812235324.GA12953@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> In the end, it's up to the maintainer of the driver what they want to
-> do.  So, Jeff and David, here's a patch against the latest 2.6.0-test3
-> tg3.c that converts the pci_device_id table to C99 initializers.  If you
-> want to, please apply it.
+On Wed, Aug 13, 2003 at 12:53:24AM +0100, Dave Jones wrote:
+> What would be *really* nice, would be the ability to do something
+> to the effect of..
 
+While we're off in never-never land, it'd be nice to specify default
+values for struct initialisers.  eg, something like:
 
-it expands a few lines to a bazillion :(   I would rather leave it as 
-is...  you'll find several PCI ethernet drivers with pci_device_id 
-entries that fit entirely on one line, and I think that compactness has 
-value at least to me.
+struct pci_device_id {
+        __u32 vendor = PCI_ANY_ID;
+        __u32 device = PCI_ANY_ID;
+        __u32 subvendor = PCI_ANY_ID;
+	__u32 subdevice = PCI_ANY_ID;
+        __u32 class = 0;
+	__u32 class_mask = 0;
+        kernel_ulong_t driver_data = 0;
+};
 
-	Jeff
+Erm, hang on a second ...  Since when are PCI IDs 32-bit?  What is this
+ridiculous bloat?  You can't even argue that this makes things pack
+better since this packs equally well:
 
+struct pci_device_id {
+        __u16 vendor;
+        __u16 device;
+        __u16 subvendor;
+        __u16 subdevice;     
+        __u32 class;
+        __u32 class_mask;
+        kernel_ulong_t driver_data;
+};
 
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

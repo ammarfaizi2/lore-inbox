@@ -1,112 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265197AbTBJVUS>; Mon, 10 Feb 2003 16:20:18 -0500
+	id <S265177AbTBJVTR>; Mon, 10 Feb 2003 16:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265205AbTBJVUR>; Mon, 10 Feb 2003 16:20:17 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:12707 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265197AbTBJVUO>; Mon, 10 Feb 2003 16:20:14 -0500
-Subject: [PATCH] linux-2.5.60_enable-cyclone_A0
+	id <S265197AbTBJVTR>; Mon, 10 Feb 2003 16:19:17 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:42963 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265177AbTBJVTP>;
+	Mon, 10 Feb 2003 16:19:15 -0500
+Subject: [PATCH] linux-2.5.60_cyclone-fixes_A1
 From: john stultz <johnstul@us.ibm.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: lkml <linux-kernel@vger.kernel.org>,
        "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>
-In-Reply-To: <1044912403.989.4.camel@w-jstultz2.beaverton.ibm.com>
-References: <1044912403.989.4.camel@w-jstultz2.beaverton.ibm.com>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1044912464.985.6.camel@w-jstultz2.beaverton.ibm.com>
+Message-Id: <1044912403.989.4.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Feb 2003 13:27:45 -0800
+Date: 10 Feb 2003 13:26:44 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All, 
-        This patch simply enables the existing timer_cyclone code for
-Summit/x440 systems. It depends on the previously posted
-cyclone-fixes_A1.
+Linus, All,
+
+        This patch "fixes" the timer_cyclone code by having it
+initialize fast_gettimeoffset_quotient and cpu_khz in the same manner as
+timer_tsc. This is required for enabling the timer_cyclone code on the
+x440. 
+
+Ideally fast_gettimeoffset_quotient would not be used outside timer_tsc
+and cpu_khz would be initialized generically outside the timer
+subsystem. I have patches to do this, but they touch quite a bit of
+generic code, and I'd rather not make the timer_cyclone enablement
+(patch to follow) depend on these larger changes. 
 
 Please apply.
 
 thanks
 -john
 
-
-diff -Nru a/arch/i386/kernel/timers/Makefile b/arch/i386/kernel/timers/Makefile
---- a/arch/i386/kernel/timers/Makefile	Mon Feb 10 13:22:44 2003
-+++ b/arch/i386/kernel/timers/Makefile	Mon Feb 10 13:22:44 2003
-@@ -4,4 +4,4 @@
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Mon Feb 10 13:21:37 2003
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Mon Feb 10 13:21:37 2003
+@@ -17,6 +17,8 @@
+ #include <asm/fixmap.h>
  
- obj-y := timer.o timer_none.o timer_tsc.o timer_pit.o
+ extern spinlock_t i8253_lock;
++extern unsigned long fast_gettimeoffset_quotient;
++extern unsigned long calibrate_tsc(void);
  
--obj-$(CONFIG_X86_CYCLONE)	+= timer_cyclone.o
-+obj-$(CONFIG_X86_SUMMIT)	+= timer_cyclone.o
-diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
---- a/arch/i386/kernel/timers/timer.c	Mon Feb 10 13:22:44 2003
-+++ b/arch/i386/kernel/timers/timer.c	Mon Feb 10 13:22:44 2003
-@@ -4,9 +4,14 @@
- /* list of externed timers */
- extern struct timer_opts timer_pit;
- extern struct timer_opts timer_tsc;
--
-+#ifdef CONFIG_X86_SUMMIT
-+extern struct timer_opts timer_cyclone;
-+#endif
- /* list of timers, ordered by preference, NULL terminated */
- static struct timer_opts* timers[] = {
-+#ifdef CONFIG_X86_SUMMIT
-+	&timer_cyclone,
-+#endif
- 	&timer_tsc,
- 	&timer_pit,
- 	NULL,
-diff -Nru a/include/asm-i386/fixmap.h b/include/asm-i386/fixmap.h
---- a/include/asm-i386/fixmap.h	Mon Feb 10 13:22:44 2003
-+++ b/include/asm-i386/fixmap.h	Mon Feb 10 13:22:44 2003
-@@ -60,7 +60,7 @@
- #ifdef CONFIG_X86_F00F_BUG
- 	FIX_F00F_IDT,	/* Virtual mapping for IDT */
- #endif
--#ifdef CONFIG_X86_CYCLONE
-+#ifdef CONFIG_X86_SUMMIT
- 	FIX_CYCLONE_TIMER, /*cyclone timer register*/
- #endif 
- #ifdef CONFIG_HIGHMEM
-diff -Nru a/include/asm-i386/mach-summit/mach_mpparse.h b/include/asm-i386/mach-summit/mach_mpparse.h
---- a/include/asm-i386/mach-summit/mach_mpparse.h	Mon Feb 10 13:22:44 2003
-+++ b/include/asm-i386/mach-summit/mach_mpparse.h	Mon Feb 10 13:22:44 2003
-@@ -1,6 +1,8 @@
- #ifndef __ASM_MACH_MPPARSE_H
- #define __ASM_MACH_MPPARSE_H
- 
-+extern int use_cyclone;
+ /* Number of usecs that the last interrupt was delayed */
+ static int delay_at_last_interrupt;
+@@ -142,6 +144,28 @@
+ 			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
+ 			cyclone_timer = 0;
+ 			return -ENODEV;
++		}
++	}
 +
- static inline void mpc_oem_bus_info(struct mpc_config_bus *m, char *name, 
- 				struct mpc_config_translation *translation)
- {
-@@ -17,14 +19,18 @@
- {
- 	if (!strncmp(oem, "IBM ENSW", 8) && 
- 			(!strncmp(productid, "VIGIL SMP", 9) 
--			 || !strncmp(productid, "RUTHLESS SMP", 12)))
-+			 || !strncmp(productid, "RUTHLESS SMP", 12))){
- 		x86_summit = 1;
-+		use_cyclone = 1; /*enable cyclone-timer*/
-+	}
- }
++	/* init fast_gettimeoffset_quotent and cpu_khz.
++	 * XXX - This should really be done elsewhere, 
++	 * 		and in a more generic fashion. -johnstul@us.ibm.com
++	 */
++	if (cpu_has_tsc) {
++		unsigned long tsc_quotient = calibrate_tsc();
++		if (tsc_quotient) {
++			fast_gettimeoffset_quotient = tsc_quotient;
++			/* report CPU clock rate in Hz.
++			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
++			 * clock/second. Our precision is about 100 ppm.
++			 */
++			{	unsigned long eax=0, edx=1000;
++				__asm__("divl %2"
++		       		:"=a" (cpu_khz), "=d" (edx)
++        	       		:"r" (tsc_quotient),
++	                	"0" (eax), "1" (edx));
++				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
++			}
+ 		}
+ 	}
  
- /* Hook from generic ACPI tables.c */
- static inline void acpi_madt_oem_check(char *oem_id, char *oem_table_id)
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Mon Feb 10 13:21:37 2003
++++ b/arch/i386/kernel/timers/timer_tsc.c	Mon Feb 10 13:21:37 2003
+@@ -130,7 +130,7 @@
+ #define CALIBRATE_LATCH	(5 * LATCH)
+ #define CALIBRATE_TIME	(5 * 1000020/HZ)
+ 
+-static unsigned long __init calibrate_tsc(void)
++unsigned long __init calibrate_tsc(void)
  {
--	if (!strncmp(oem_id, "IBM", 3) && !strncmp(oem_table_id, "SERVIGIL", 8))
-+	if (!strncmp(oem_id, "IBM", 3) && !strncmp(oem_table_id, "SERVIGIL", 8)){
- 		x86_summit = 1;
-+		use_cyclone = 1; /*enable cyclone-timer*/
-+	}
- }
- #endif /* __ASM_MACH_MPPARSE_H */
+        /* Set the Gate high, disable speaker */
+ 	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
 
 
 

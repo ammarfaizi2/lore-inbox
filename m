@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263469AbRFTW15>; Wed, 20 Jun 2001 18:27:57 -0400
+	id <S264656AbRFTW2h>; Wed, 20 Jun 2001 18:28:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264656AbRFTW1u>; Wed, 20 Jun 2001 18:27:50 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:5507
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S263469AbRFTW1g>; Wed, 20 Jun 2001 18:27:36 -0400
-Date: Wed, 20 Jun 2001 15:29:39 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@gw.soze.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: freeze with 2.4.5-ac16
-In-Reply-To: <Pine.LNX.4.33.0106201405430.28876-100000@gw.soze.net>
-Message-ID: <Pine.LNX.4.33.0106201527120.29004-100000@gw.soze.net>
+	id <S263742AbRFTW2S>; Wed, 20 Jun 2001 18:28:18 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:45063 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264656AbRFTW2H>; Wed, 20 Jun 2001 18:28:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, Miles Lane <miles@megapathdsl.net>
+Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+Date: Thu, 21 Jun 2001 00:31:05 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0106201833000.1376-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33.0106201833000.1376-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0106210031050G.00439@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001, Justin Guyett wrote:
-
-> I got it to freeze in console (two generic find / -type f / type d), one
-> process allocating and writing 0 to 192mb
+On Wednesday 20 June 2001 23:33, Rik van Riel wrote:
+> On 20 Jun 2001, Miles Lane wrote:
+> > http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html
 >
-> machine responds to pings, switching VTs works
->
-> (256 physical, 512 swap)
+> Yes, he sure knows how to bring Linux to the attention
+> of people ;)
 
-happened again (vt1 and 2 echo but shells are unresponsive, vt3+ don't
-echo) only active process was the program allocating 192mb and writing to
-it, no find this time.
+Not to mention the GPL, which I can guarantee you, before today my mom had 
+*never* heard of.
 
-SysRq : Show Memory
-Mem-info:
-Free pages:        1524kB (     0kB HighMem)
-( Active: 22717, inactive_dirty: 18852, inactive_clean: 0, free: 381 (383
-766 1149) )
-1*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 0*512kB 0*1024kB 0*2048kB
-= 508kB)
-2*4kB 0*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB
-= 1016kB)
-= 0kB)
-Swap cache: add 241834, delete 202609, find 1028/3579
-Free swap:       369532kB
-65520 pages of RAM
-0 pages of HIGHMEM
-1595 reserved pages
-1633 pages shared
-39225 pages swap cached
-0 pages in page table cache
-Buffer memory:     5544kB
-gffffSysRq : SAK
-
-
-justin
-
+--
+Daniel

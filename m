@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbTDTQZY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 12:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTDTQZY
+	id S263628AbTDTQqy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 12:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbTDTQqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 12:25:24 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:28032 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263626AbTDTQZX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 12:25:23 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304201640.h3KGeTs6000657@81-2-122-30.bradfords.org.uk>
-Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Sun, 20 Apr 2003 17:40:29 +0100 (BST)
-Cc: josh@stack.nl (Jos Hulzink), alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030420180720.099b4c34.skraw@ithnet.com> from "Stephan von Krawczynski" at Apr 20, 2003 06:07:20 PM
-X-Mailer: ELM [version 2.5 PL6]
+	Sun, 20 Apr 2003 12:46:53 -0400
+Received: from 12-211-64-22.client.attbi.com ([12.211.64.22]:64390 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S263628AbTDTQqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 12:46:53 -0400
+Message-ID: <3EA2D1C9.5030707@comcast.net>
+Date: Sun, 20 Apr 2003 09:58:49 -0700
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030419
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: admin@brien.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re:  my dual channel DDR 400 RAM won't work on any linux distro
+X-Enigmail-Version: 0.74.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Fault tolerance in a filesystem layer means in practical terms
-> > that you are guessing what a filesystem should look like, for the
-> > disk doesn't answer that question anymore. IMHO you don't want
-> > that to be done automagically, for it might go right sometimes,
-> > but also might trash everything on RW filesystems.
-> 
-> Let me clarify again: I don't want fancy stuff inside the filesystem that
-> magically knows something about right-or-wrong. The only _very small_
-> enhancement I would like to see is: driver tells fs there is an error while
-> writing a certain block => fs tries writing the same data onto another block.
-> That's it, no magic, no RAID stuff. Very simple.
+Do you perhaps have a video card with 128MB on board? I had the same
+symptoms as you, and it turned out to be the vesafb driver. It basically
+tries to ioremap the entire framebuffer and can't fit it in the reserved
+area because it's only 128MB. You can either boot with vga=0 or some
+such text mode, which disables the vesafb, or patch vesafb to only
+ioremap the space needed for the video mode selected. BTW, the same
+applies to rivafb and others I suspect, if your video card has 128MB ram.
 
-That doesn't belong in the filesystem.
+-Walt
 
-Imagine you have ten blocks free, and you allocate data to all of them
-in the filesystem.  The write goes to cache, and succeeds.
-
-30 seconds later, the write cache is flushed, and an error is reported
-back from the device.
-
-John.

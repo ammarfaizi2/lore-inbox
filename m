@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbTE1UT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbTE1UT2
+	id S264861AbTE1USX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 16:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbTE1USX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:19:28 -0400
-Received: from server1.comparato.de ([217.11.50.117]:35746 "HELO
-	server1.comparato.de") by vger.kernel.org with SMTP id S264862AbTE1US1
+	Wed, 28 May 2003 16:18:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:52359 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264861AbTE1USV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:18:27 -0400
-Message-ID: <3ED51CAE.1090708@burstedde.de>
-Date: Wed, 28 May 2003 22:31:42 +0200
-From: Carsten Burstedde <c@burstedde.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en
+	Wed, 28 May 2003 16:18:21 -0400
+Date: Wed, 28 May 2003 16:34:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: linux390@de.ibm.com, James Antill <jantill@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch for strncmp use in s390 in 2.5
+In-Reply-To: <20030528162019.A3492@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.53.0305281631440.14073@chaos>
+References: <20030528162019.A3492@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: via82cxxx.c compile error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 28 May 2003, Pete Zaitcev wrote:
 
-I tried 2.4.21-rc5 today and it did not compile 
-drivers/ide/pci/via82cxxx.c.  It says
-PCI_DEVICE_ID_VIA_8237 undefined on line 77.  I commented this line out 
-and it worked.
+> Martin & others:
+>
+> I didn't see this posted before. Sorry if I missed it.
+> It's a harmless buglet which causes false positives with correctness
+> checking tools, and so annoys me.
+>
+> Cheers,
+> -- Pete
 
-Machine is x86 Debian 3.0, gcc 2.95.4.
+Maybe it should be changed to memcmp() with the null-byte included
+in the length since the compare length is already defined in the code.
+This should reduce the overhead at the same time it gets rid
+of the false positive.
 
-I am not on this list, so please CC if you like.
+[SNIPPED...]
 
-Carsten
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,190 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVCVU4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVCVU6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVCVU4L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 15:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVCVU4L
+	id S261937AbVCVU6A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 15:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCVU57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 15:56:11 -0500
-Received: from mail.dif.dk ([193.138.115.101]:951 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261759AbVCVUzp (ORCPT
+	Tue, 22 Mar 2005 15:57:59 -0500
+Received: from mailhub.hp.com ([192.151.27.10]:57220 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S261937AbVCVU5x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 15:55:45 -0500
-Date: Tue, 22 Mar 2005 21:57:26 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       David Howells <dhowells@redhat.com>, Chris Vance <cvance@nai.com>,
-       Wayne Salamon <wsalamon@nai.com>, James Morris <jmorris@redhat.com>,
-       dgoeddel@trustedcs.com, Karl MacMillan <kmacmillan@tresys.com>,
-       Frank Mayer <mayerf@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] don't do pointless NULL checks and casts before kfree()
- in security/selinux/
-In-Reply-To: <1111503629.15346.72.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Pine.LNX.4.62.0503222150210.2683@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503201316270.2501@dragon.hyggekrogen.localhost>
- <1111503629.15346.72.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 22 Mar 2005 15:57:53 -0500
+Message-ID: <41062.15.99.19.46.1111525073.squirrel@mail.atl.hp.com>
+In-Reply-To: <Pine.LNX.4.62.0503220022290.7305@alpha.polcom.net>
+References: <1110989436.8378.19.camel@eeyore> 
+    <1111023217.15278.7.camel@sli10-desk.sh.intel.com> 
+    <1111082914.11380.30.camel@eeyore> 
+    <1111108150.22239.6.camel@sli10-desk.sh.intel.com> 
+    <1111169239.13286.39.camel@eeyore> <1111422838.17576.22.camel@eeyore>
+    <Pine.LNX.4.62.0503220022290.7305@alpha.polcom.net>
+Date: Tue, 22 Mar 2005 13:57:53 -0700 (MST)
+Subject: Re: [ACPI] Re: Fw: Anybody? 2.6.11 (stable and -rc) ACPI breaks USB
+From: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
+To: "Grzegorz Kulewski" <kangur@polcom.net>
+Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
+       "Li Shaohua" <shaohua.li@intel.com>,
+       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "ACPI List" <acpi-devel@lists.sourceforge.net>,
+       "lkml" <linux-kernel@vger.kernel.org>,
+       "Len Brown" <len.brown@intel.com>
+User-Agent: SquirrelMail/1.4.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Your patch applied with some problems:
+>
+> patching file arch/i386/pci/irq.c
+> Hunk #2 succeeded at 1081 with fuzz 2 (offset 1 line).
+> patching file drivers/acpi/pci_irq.c
+> patching file drivers/pci/quirks.c
+> Hunk #1 succeeded at 678 (offset -5 lines).
 
-Andrew, as pr Stephen's comment below I'm sending you a diff that's a 
-subset of the kfree() fixes i did for security/ earlier. The patch below 
-contains only the bits from security/selinux/ that Stephen ACK'ed - 
-re-diff'ed against 2.6.12-rc1-mm1.
+These indicate minor differences in these files between upstream BK
+(which is what my patch was against) and the kernel you're building.
+You can ignore them.
 
-Please consider applying.
+> Then I tested it and it works (at least my speedtouch still works).
 
-On Tue, 22 Mar 2005, Stephen Smalley wrote:
+Great.  Shaohua, where should we go from here?  Do you have more
+concerns with the current patch, or should we ask Andrew to put it
+in -mm?  If you do have concerns, would you like to propose an
+alternate patch that fixes the problem for Grzegorz?
 
-> On Sun, 2005-03-20 at 13:29 +0100, Jesper Juhl wrote:
-> > kfree() handles NULL pointers, so checking a pointer for NULL before 
-> > calling kfree() on it is pointless. kfree() takes a void* argument and 
-> > changing the type of a pointer before kfree()'ing it is equally pointless.
-> > This patch removes the pointless checks for NULL and needless mucking 
-> > about with the pointer types before kfree() for all files in security/* 
-> > where I could locate such code.
-> > 
-> > The following files are modified by this patch:
-[snip]
-> > 	security/selinux/hooks.c
-> > 	security/selinux/selinuxfs.c
-> > 	security/selinux/ss/conditional.c
-> > 	security/selinux/ss/policydb.c
-> > 	security/selinux/ss/services.c
-> > 
-> > (please keep me on CC if you reply)
-> > 
-> > 
-> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
-> The diffs to selinux look fine to me, and the resulting kernel seems to
-> be operating without problem.  Feel free to send along to Andrew Morton.
-> 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> 
+> Mar 22 01:32:37 kangur speedtch: Unknown symbol release_firmware
+> Mar 22 01:32:37 kangur usb 1-2: modprobe timed out on ep0in
 
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-diff -uprN linux-2.6.12-rc1-mm1-orig/security/selinux/hooks.c linux-2.6.12-rc1-mm1/security/selinux/hooks.c
---- linux-2.6.12-rc1-mm1-orig/security/selinux/hooks.c	2005-03-21 23:12:51.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/security/selinux/hooks.c	2005-03-22 21:48:29.000000000 +0100
-@@ -1663,9 +1663,8 @@ static int selinux_bprm_secureexec (stru
- 
- static void selinux_bprm_free_security(struct linux_binprm *bprm)
- {
--	struct bprm_security_struct *bsec = bprm->security;
-+	kfree(bprm->security);
- 	bprm->security = NULL;
--	kfree(bsec);
- }
- 
- extern struct vfsmount *selinuxfs_mount;
-diff -uprN linux-2.6.12-rc1-mm1-orig/security/selinux/selinuxfs.c linux-2.6.12-rc1-mm1/security/selinux/selinuxfs.c
---- linux-2.6.12-rc1-mm1-orig/security/selinux/selinuxfs.c	2005-03-21 23:12:51.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/security/selinux/selinuxfs.c	2005-03-22 21:48:29.000000000 +0100
-@@ -951,8 +951,7 @@ static int sel_make_bools(void)
- 	u32 sid;
- 
- 	/* remove any existing files */
--	if (bool_pending_values)
--		kfree(bool_pending_values);
-+	kfree(bool_pending_values);
- 
- 	sel_remove_bools(dir);
- 
-@@ -997,10 +996,8 @@ static int sel_make_bools(void)
- out:
- 	free_page((unsigned long)page);
- 	if (names) {
--		for (i = 0; i < num; i++) {
--			if (names[i])
--				kfree(names[i]);
--		}
-+		for (i = 0; i < num; i++)
-+			kfree(names[i]);
- 		kfree(names);
- 	}
- 	return ret;
-diff -uprN linux-2.6.12-rc1-mm1-orig/security/selinux/ss/conditional.c linux-2.6.12-rc1-mm1/security/selinux/ss/conditional.c
---- linux-2.6.12-rc1-mm1-orig/security/selinux/ss/conditional.c	2005-03-02 08:37:49.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/security/selinux/ss/conditional.c	2005-03-22 21:48:29.000000000 +0100
-@@ -166,16 +166,14 @@ static void cond_list_destroy(struct con
- 
- void cond_policydb_destroy(struct policydb *p)
- {
--	if (p->bool_val_to_struct != NULL)
--		kfree(p->bool_val_to_struct);
-+	kfree(p->bool_val_to_struct);
- 	avtab_destroy(&p->te_cond_avtab);
- 	cond_list_destroy(p->cond_list);
- }
- 
- int cond_init_bool_indexes(struct policydb *p)
- {
--	if (p->bool_val_to_struct)
--		kfree(p->bool_val_to_struct);
-+	kfree(p->bool_val_to_struct);
- 	p->bool_val_to_struct = (struct cond_bool_datum**)
- 		kmalloc(p->p_bools.nprim * sizeof(struct cond_bool_datum*), GFP_KERNEL);
- 	if (!p->bool_val_to_struct)
-@@ -185,8 +183,7 @@ int cond_init_bool_indexes(struct policy
- 
- int cond_destroy_bool(void *key, void *datum, void *p)
- {
--	if (key)
--		kfree(key);
-+	kfree(key);
- 	kfree(datum);
- 	return 0;
- }
-diff -uprN linux-2.6.12-rc1-mm1-orig/security/selinux/ss/policydb.c linux-2.6.12-rc1-mm1/security/selinux/ss/policydb.c
---- linux-2.6.12-rc1-mm1-orig/security/selinux/ss/policydb.c	2005-03-21 23:12:51.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/security/selinux/ss/policydb.c	2005-03-22 21:48:29.000000000 +0100
-@@ -590,17 +590,12 @@ void policydb_destroy(struct policydb *p
- 		hashtab_destroy(p->symtab[i].table);
- 	}
- 
--	for (i = 0; i < SYM_NUM; i++) {
--		if (p->sym_val_to_name[i])
--			kfree(p->sym_val_to_name[i]);
--	}
-+	for (i = 0; i < SYM_NUM; i++)
-+		kfree(p->sym_val_to_name[i]);
- 
--	if (p->class_val_to_struct)
--		kfree(p->class_val_to_struct);
--	if (p->role_val_to_struct)
--		kfree(p->role_val_to_struct);
--	if (p->user_val_to_struct)
--		kfree(p->user_val_to_struct);
-+	kfree(p->class_val_to_struct);
-+	kfree(p->role_val_to_struct);
-+	kfree(p->user_val_to_struct);
- 
- 	avtab_destroy(&p->te_avtab);
- 
-diff -uprN linux-2.6.12-rc1-mm1-orig/security/selinux/ss/services.c linux-2.6.12-rc1-mm1/security/selinux/ss/services.c
---- linux-2.6.12-rc1-mm1-orig/security/selinux/ss/services.c	2005-03-21 23:12:51.000000000 +0100
-+++ linux-2.6.12-rc1-mm1/security/selinux/ss/services.c	2005-03-22 21:48:29.000000000 +0100
-@@ -1703,11 +1703,9 @@ out:
- err:
- 	if (*names) {
- 		for (i = 0; i < *len; i++)
--			if ((*names)[i])
--				kfree((*names)[i]);
-+			kfree((*names)[i]);
- 	}
--	if (*values)
--		kfree(*values);
-+	kfree(*values);
- 	goto out;
- }
- 
-
-
+I don't know about the above messages, but I don't think they're
+related to the Via quirk we're working on at the moment.  Probably
+some mismatch between the kernel you built and the modules.
 

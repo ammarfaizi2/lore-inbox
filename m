@@ -1,75 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274064AbRJNEbD>; Sun, 14 Oct 2001 00:31:03 -0400
+	id <S274062AbRJNE0D>; Sun, 14 Oct 2001 00:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274194AbRJNEax>; Sun, 14 Oct 2001 00:30:53 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:44517 "EHLO pltn13.pbi.net")
-	by vger.kernel.org with ESMTP id <S274064AbRJNEat>;
-	Sun, 14 Oct 2001 00:30:49 -0400
-Date: Sat, 13 Oct 2001 21:31:20 -0700 (PDT)
-From: Chris Rankin <rankinc@pacbell.net>
-Subject: Re: xine pauses with recent (not -ac) kernels
+	id <S274064AbRJNEZx>; Sun, 14 Oct 2001 00:25:53 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:50950 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S274062AbRJNEZg>;
+	Sun, 14 Oct 2001 00:25:36 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Message-id: <200110140431.f9E4VKpp000976@twopit.underworld>
-MIME-version: 1.0
-X-Mailer: ELM [version 2.5 PL6]
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+Cc: Andrew Morton <andrewm@uow.edu.au>
+Subject: Recursive deadlock on die_lock
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 14 Oct 2001 14:25:52 +1000
+Message-ID: <27496.1003033552@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is interesting, because I am using 2.4.12 SMP with > 1 GB RAM,
-devfs, and I am also seeing large unnatural pauses with xine. However,
-only with one particular DVD ("BlackAdder : Back and Forth"). I tried
-the suggested fix of:
+Typical die() code.
 
-sleep 100000 < /dev/cdroms/rdvd&
+spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
 
-and it *did* work. The slider control started working again as well.
+void die(const char * str, struct pt_regs * regs, long err)
+{
+        console_verbose();
+        spin_lock_irq(&die_lock);
+        bust_spinlocks(1);
+        printk("%s: %04lx\n", str, err & 0xffff);
+        show_registers(regs);
+        bust_spinlocks(0);
+        spin_unlock_irq(&die_lock);
+        do_exit(SIGSEGV);
+}
 
-I have no idea why it affects this one particular DVD and not others;
-I had thought that it was a xine bug.
+If show_registers() fails (which it does far too often on IA64) then
+the system deadlocks trying to recursively obtain die_lock.  Also
+die_lock is never used outside die(), it should be proc local.
+Suggested fix:
 
-BTW, I have patched my kernel to at least create the /dev/rawctl
-device and /dev/raw directory when using devfs. It's better than
-nothing.
+void die(const char * str, struct pt_regs * regs, long err)
+{
+	static spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
+	static int die_lock_owner = -1, die_lock_owner_depth = 0;
 
-Cheers,
-Chris
+	if (die_lock_owner != smp_processor_id()) {
+		console_verbose();
+		spin_lock_irq(&die_lock);
+		die_lock_owner = smp_processor_id();
+		die_lock_owner_depth = 0;
+		bust_spinlocks(1);
+	}
 
---- drivers/char/raw.c.orig	Wed Jun 27 17:10:55 2001
-+++ drivers/char/raw.c	Sat Sep  1 14:54:43 2001
-@@ -15,6 +15,7 @@
- #include <linux/raw.h>
- #include <linux/capability.h>
- #include <linux/smp_lock.h>
-+#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
- 
- #define dprintk(x...) 
-@@ -53,7 +54,24 @@
- static int __init raw_init(void)
- {
- 	int i;
--	register_chrdev(RAW_MAJOR, "raw", &raw_fops);
-+
-+	if (devfs_register_chrdev(RAW_MAJOR, "raw", &raw_fops) != 0) {
-+		printk(KERN_ERR "Unable to get major device %d for raw block devices",
-+		                RAW_MAJOR);
-+	} else {
-+		/*
-+		 * Make a directory for raw devices to go in ...
-+		 */
-+		devfs_mk_dir(NULL, "raw", NULL);
-+
-+		/*
-+		 * Make the "control" device node for raw devices ...
-+		 */
-+		devfs_register(NULL, "rawctl", DEVFS_FL_DEFAULT,
-+		               RAW_MAJOR, 0,
-+		               S_IFCHR | S_IRUSR | S_IWUSR,
-+		               &raw_fops, NULL);
-+	}
- 
- 	for (i = 0; i < 256; i++)
- 		init_MUTEX(&raw_devices[i].mutex);
+	if (++die_lock_owner_depth < 3) {
+		printk("%s: %04lx\n", str, err & 0xffff);
+		show_registers(regs);
+	}
+	else
+		printk(KERN_ERR "Recursive die() failure, registers suppressed\n");
+
+	bust_spinlocks(0);
+	die_lock_owner = -1;
+	spin_unlock_irq(&die_lock);
+        do_exit(SIGSEGV);
+}
+

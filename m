@@ -1,35 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318114AbSGMHVh>; Sat, 13 Jul 2002 03:21:37 -0400
+	id <S318112AbSGMHVV>; Sat, 13 Jul 2002 03:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318115AbSGMHVh>; Sat, 13 Jul 2002 03:21:37 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:925 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318114AbSGMHVg>; Sat, 13 Jul 2002 03:21:36 -0400
-Date: Sat, 13 Jul 2002 09:41:13 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Peter Osterlund <petero2@telia.com>
-Cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-rc1-ac3
-In-Reply-To: <m2znwwikcj.fsf@best.localdomain>
-Message-ID: <Pine.LNX.4.44.0207130940000.3808-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318114AbSGMHVU>; Sat, 13 Jul 2002 03:21:20 -0400
+Received: from mail12.speakeasy.net ([216.254.0.212]:12479 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S318112AbSGMHVU>; Sat, 13 Jul 2002 03:21:20 -0400
+Subject: kbd not functioning in 2.5.25-dj2
+From: Ed Sweetman <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 13 Jul 2002 03:24:09 -0400
+Message-Id: <1026545050.1203.116.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yOn 13 Jul 2002, Peter Osterlund wrote:
+Same config as in my last post about the issue linking with this
+kernel.  I'm having my keyboard just not respond from boot.  I've got
+Input Device support built in and i had it as module and the keyboard is
+ps/2.  No idea what's going on here 
 
-> It doesn't work because of a bug in cpufreq_p4_validatedc. Here is a
-> patch to fix it:
 
-Thanks, for personal interest can you please post your /proc/cpuinfo and 
-lspci, a dmesg would be nice too.
-
-Cheers,
-	Zwane Mwaikambo
-
--- 
-function.linuxpower.ca
 

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264268AbUEXMGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264263AbUEXMJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264268AbUEXMGs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 08:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264263AbUEXMGr
+	id S264263AbUEXMJH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 08:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUEXMJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 08:06:47 -0400
-Received: from canuck.infradead.org ([205.233.217.7]:40199 "EHLO
+	Mon, 24 May 2004 08:09:07 -0400
+Received: from canuck.infradead.org ([205.233.217.7]:53767 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S264268AbUEXMFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 08:05:23 -0400
-Date: Mon, 24 May 2004 08:05:21 -0400
+	id S264263AbUEXMI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 08:08:59 -0400
+Date: Mon, 24 May 2004 08:08:58 -0400
 From: hch@infradead.org
 To: "Peter J. Braam" <braam@clusterfs.com>
 Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
        "'Phil Schwan'" <phil@clusterfs.com>
 Subject: Re: [PATCH/RFC] Lustre VFS patch
-Message-ID: <20040524120521.GD26863@infradead.org>
+Message-ID: <20040524120858.GE26863@infradead.org>
 Mail-Followup-To: hch@infradead.org, "Peter J. Braam" <braam@clusterfs.com>,
 	torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
 	'Phil Schwan' <phil@clusterfs.com>
@@ -30,16 +30,28 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by canuck.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> vfs-intent_api-vanilla-2.6.patch
+> vfs-raw_ops-vanilla-2.6.patch
+> 
+>   This adds raw operations for setattr, mkdir, rmdir, mknod, unlink,
+>   symlink, link and rename.  The raw operations look up the parent
+>   directories (but not leaf nodes) involved in the operation and then
+>   ask the file system to execute the operation.  These methods allow
+>   us to delegate the execution of these functions to the server, and
+>   instantiate no dentries for leaf nodes, leaf nodes will only enter
+>   the dcache on subsequent lookups.  This patch dramatically
+>   simplifies the client/server lock management, particularly for
+>   rename.
 >  
->   Introduce intents for other operations.  Add a file system hook to
->   release intent data.  Make a few "intent versions" of functions such
->   as "lookup_one_len_it" and "user_walk_it" available through headers.
->   Arrange that the open intent is visible in the open methods. Add a
->   few missing intent_init calls.
+>   In Ottawa Linus suggested that we could maybe do this with intents
+>   instead.  I feel that both are ugly, both are possible but intents
+>   looked akward.
 
-I can't comment on the exact change, you need to talk to trond about
-these.  But as-is they change the API exported to filesystems and thus
-it's and absolute no-go for 2.6.   Where have you been when Trond's
-intent patches went in?  Hiding under a rock?
+
+This is complete crap.  We don't want to methods for every namespace
+operation.  Please try to work out a scheme that needs only one method
+fitting both lustre and normal filesystems (I guess by passing struct
+nameidata everywhere instead of just the dentry and allowing no instanciation
+for special filesystems).  But this is major surgery and makes only sense
+for 2.7.x and if you actually want to merge lustre (or another filesystem
+makign use of it) into mainline.
 

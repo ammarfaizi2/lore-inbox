@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADR02>; Thu, 4 Jan 2001 12:26:28 -0500
+	id <S129348AbRADRgI>; Thu, 4 Jan 2001 12:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129830AbRADR0S>; Thu, 4 Jan 2001 12:26:18 -0500
-Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:21776 "HELO
-	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
-	id <S129348AbRADR0H>; Thu, 4 Jan 2001 12:26:07 -0500
-Date: Thu, 4 Jan 2001 18:25:56 +0100
-From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DHCP Problems with 3com 3c905C Tornado
-Message-ID: <20010104182556.A15932@gidayu.max.uni-duisburg.de>
-In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de> <m14ECpF-000OXlC@amadeus.home.nl>
+	id <S129830AbRADRf6>; Thu, 4 Jan 2001 12:35:58 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:34682 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129348AbRADRfr>; Thu, 4 Jan 2001 12:35:47 -0500
+Date: Thu, 4 Jan 2001 18:35:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dcache 2nd chance replacement
+Message-ID: <20010104183535.A4602@athlon.random>
+In-Reply-To: <20010104175238.F1507@athlon.random> <Pine.LNX.4.21.0101041459050.1188-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <m14ECpF-000OXlC@amadeus.home.nl>; from arjan@fenrus.demon.nl on Thu, Jan 04, 2001 at 05:01:13PM +0100
+In-Reply-To: <Pine.LNX.4.21.0101041459050.1188-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Jan 04, 2001 at 02:59:49PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Jan 04, 2001 at 02:59:49PM -0200, Rik van Riel wrote:
+> Unfortunately you seem to ignore my arguments, so lets
 
-On Thu, Jan 04, 2001 at 05:01:13PM +0100, Arjan van de Ven wrote:
-> 
-> Is this machine by chance an SMP machine ? 
-> 
+I've not ignored them, as said they were either obviously wrong of offtopic.
 
-Indeed, it is.
-
-- Chris
-
--- 
-Christian Loth
-Coder of 'Project Gidayu'
-Computer Science Student, University of Dortmund
-chris@gidayu.mud.de - http://gidayu.mud.de
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

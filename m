@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVAKBDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVAKBDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbVAKBDX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVAKBAb
+	id S262762AbVAKBDR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbVAKBAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:00:31 -0500
-Received: from waste.org ([216.27.176.166]:43492 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262562AbVAKAzG (ORCPT
+	Mon, 10 Jan 2005 20:00:12 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:3581 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262691AbVAJVdU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 19:55:06 -0500
-Date: Mon, 10 Jan 2005 16:54:39 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       John Richard Moser <nigelenki@comcast.net>, znmeb@cesmail.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-Message-ID: <20050111005439.GI2995@waste.org>
-References: <1105045853.17176.273.camel@localhost.localdomain> <1105115671.12371.38.camel@DreamGate> <41DEC5F1.9070205@comcast.net> <1105237910.11255.92.camel@DreamGate> <41E0A032.5050106@comcast.net> <1105278618.12054.37.camel@localhost.localdomain> <41E1CCB7.4030302@comcast.net> <21d7e99705010917281c6634b8@mail.gmail.com> <1105361337.12054.66.camel@localhost.localdomain> <21d7e99705011014197b8a9767@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <21d7e99705011014197b8a9767@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 10 Jan 2005 16:33:20 -0500
+Message-ID: <41E2F49F.4090503@us.ibm.com>
+Date: Mon, 10 Jan 2005 13:33:19 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Kevin P. Fleming" <kpfleming@starnetworks.us>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/6] 2.4.19-rc1 number() stack reduction
+References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com> <1105378775.4000.138.camel@dyn318077bld.beaverton.ibm.com> <41E2DC8C.6080101@starnetworks.us>
+In-Reply-To: <41E2DC8C.6080101@starnetworks.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 09:19:24AM +1100, Dave Airlie wrote:
-> Say theoretically ATI decide tomorrow:
-> 1. GPL in kernel source code (ATI is based on the DRM so it isn't such
-> a leap of faith as say NVIDIA doing it...)
-> 2. clean it all up so that it follows every single kernel coding
-> practice to the letter
-> 3. submit it for inclusion into the kernel as a device driver,
-> drivers/char/drm/fglrx.c
+
+Yep. My bad. I got little carried away...
+
+But I remember seeing this on earlier distros..
+
+Thanks,
+Badari
+
+Kevin P. Fleming wrote:
+
+> Badari Pulavarty wrote:
 > 
-> Now would you include it? we can't use the no-one is using it excuse,
-> as people are using fglrx already and many have no choice, the driver
-> would have no userspace applications other than the binary only 2D/3D
-> drivers they supply for X... ATI would then benefit from the kernel
-> development process for keeping the things up-to-date with respect to
-> interfaces etc...
+>> + /* Move these off of the stack for number().  This way we reduce the
+>> +  * size of the stack and don't have to copy them every time we are 
+>> called.
+>> +  */
+>> +const char small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+>> +const char large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+>> +
+>>  static char * number(char * buf, char * end, long long num, int base, 
+>> int size, int precision, int type)
+>>  {
+>>      char c,sign,tmp[66];
+>>      const char *digits;
+>> -    static const char small_digits[] = 
+>> "0123456789abcdefghijklmnopqrstuvwxyz";
+>> -    static const char large_digits[] = 
+>> "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+> 
+> 
+> Is this actually correct? Since these are declared "static const", they 
+> are not on the stack anyway, because they have to persist between calls 
+> to this function and cannot be changed. I'd be very surprised if the 
+> compiler was copying this data from the static data segment to the stack 
+> on every entry to this function.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-I think so, yes. We'd be able to fix kernelspace bugs in it, for
-starters.
-
-> In this way, people who are running on ppc etc would still not have or
-> be any closer to 3D acceleration for their graphics cards, but ATI
-> would have followed the rules as far as the kernel is concerned....
-
-They'd certainly be closer in that userspace code is significantly
-easier to emulate and/or reverse engineer.
-
-> The main reason 3D graphics drivers are the big one here as of course
-> we can't put OpenGL into the kernel, so it requires a split
-> kernel/userspace solution, and one is of little use without the other,
-> if the kernel one is GPL and userspace one is closed source how do
-> people sit with it? (uneasy?)
-
-If the userspace portion is using a standard API and not just using
-the driver to open gaping holes in the kernel/user barrier, I see it
-as a step forward.
-
--- 
-Mathematics is the supreme nostalgia of our time.

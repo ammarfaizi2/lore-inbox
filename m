@@ -1,88 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUIPQhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268197AbUIPRki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268274AbUIPQhK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 12:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268158AbUIPQfy
+	id S268197AbUIPRki (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 13:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUIPRk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 12:35:54 -0400
-Received: from ms-smtp-03-qfe0.socal.rr.com ([66.75.162.135]:184 "EHLO
-	ms-smtp-03-eri0.socal.rr.com") by vger.kernel.org with ESMTP
-	id S268472AbUIPQeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:34:20 -0400
-Date: Thu, 16 Sep 2004 09:30:29 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: "Oliver M. Bolzer" <oliver@fakeroot.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qla2xxx: frequent total lockups (2.6.8, 2.6.9-rc{1-mm5,2})
-Message-ID: <20040916163029.GA14441@praka.san.rr.com>
-Mail-Followup-To: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	"Oliver M. Bolzer" <oliver@fakeroot.net>,
-	linux-kernel@vger.kernel.org
-References: <20040915231657.GA2005@magi.fakeroot.net>
+	Thu, 16 Sep 2004 13:40:27 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:45719 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S268565AbUIPRjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 13:39:49 -0400
+Date: Thu, 16 Sep 2004 19:38:21 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Utz Lehmann <lkml@de.tecosim.com>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] flexmmap: optimise mmap_base gap for hard limited stack
+Message-ID: <20040916173821.GG15426@dualathlon.random>
+References: <20040916165613.GA10825@de.tecosim.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040915231657.GA2005@magi.fakeroot.net>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.6.9-rc1-mm2
+In-Reply-To: <20040916165613.GA10825@de.tecosim.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004, Oliver M. Bolzer wrote:
-
-> I'm currently setting up a new Dual Opteron box (Tyan Transport
-> GX28) equipped with a QLogic QLA2340 fibre channel HBA.
+On Thu, Sep 16, 2004 at 06:56:13PM +0200, Utz Lehmann wrote:
+> Hi
 > 
-> As soon as there is I/O load on the HBA, I start seeing
+> With the flexmmap memory layout there is at least a 128 MB gap between
+> mmap_base and TASK_SIZE. I think this is for the case that a running process
+> can expand it's stack soft rlimit.
 > 
-
-Could you provide some details on the type of I/O load?  
-
-> I've tested and reproduced the error on the following kernels, all
-> compiled for x86_64.
-> 2.6.8.1
-> 2.6.9-rc1-mm5 (with dma_fixups patch posted by Andrew Vasquez on 13.9)
-> 2.6.9-rc2 
+> If there is a hard limit for the stack this minium gap is just a waste of
+> space. This patch reduce the gap to the hard limit + 1 MB hole. If a process
+> has a 8192 KB hard limit it have additional 119 MB space available over the
+> current behavior.
 > 
+> And the current implemention has a problem. If the stack soft limit is
+> 128+ MB there is no hole between the stack and mmap_base. If there is a
+> mapping at mmap_base stack overflows are not detected. The patch made a
+> 1MB hole between them.
 
-For another datapoint, did you have any problems with earlier driver
-versions (pre b21)?  2.6.8.1 had b14k...
+I developed a sysctl several years ago in all my 2.2 and 2.4 kernels
+including all 2.2 and 2.4 SUSE kernels that major software vendors
+requires for safety of their apps. IIRC I tried to merge it once but I
+failed (got not applied to mainline). Now I'v just got another bugzilla
+open about the lack of the sysctl and the major app is now again not
+foolproof. A fixed number won't work, so I have to drop such a fixed GAP
+anyways and rewrite it by forward porting my patch.
 
-> Without any I/O on the HBA (nothing mounted), I have yet to capture a 
-> crash, but the driver still ocasionally reports 
-> qla2300 0000:01:03.0: cmd_timeout: LOST command state = 0x6
-> 
-> Any help would be greatly appreciated. If there are any tests I could 
-> run, just let me know.
-> 
+The sysctl in question is /proc/sys/vm/heap-stack-gap, so I recommend to
+drop all those fixed GAP sizes and implement this instead:
 
-Hmm, could you enable some additional debug settings in the driver:
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa3/00_silent-stack-overflow-20
 
-
-  in qla_settings.h:
-
-    modify the following line:
-
-	#define DEBUG_QLA2100           0       /* For Debug of qla2x00 */
-
-    to read as:
-
-	#define DEBUG_QLA2100           1       /* For Debug of qla2x00 */
-
-
-  and in qla_dbg.h
-
-    modify the following line:
-
-	/* #define QL_DEBUG_LEVEL_2  */ /* Output error msgs to COM1 */
-
-    to read as:
-
-	#define QL_DEBUG_LEVEL_2   /* Output error msgs to COM1 */
-
-Rerun your test, then forward over the log.
-
-
-Regards,
-Andrew Vasquez
-
+If you reinvet the wheel and you prefer not to share the above code to
+make a sysctl, at least make sure to use the name "heap-stack-gap" to
+avoid any pointless incompatibility.

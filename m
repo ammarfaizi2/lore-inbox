@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292843AbSCDUgp>; Mon, 4 Mar 2002 15:36:45 -0500
+	id <S292895AbSCDUoK>; Mon, 4 Mar 2002 15:44:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292738AbSCDUgf>; Mon, 4 Mar 2002 15:36:35 -0500
-Received: from ns.caldera.de ([212.34.180.1]:16329 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S292843AbSCDUg1>;
-	Mon, 4 Mar 2002 15:36:27 -0500
-Date: Mon, 4 Mar 2002 21:35:22 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Robert Love <rml@tech9.net>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Ed Tomlinson <tomlins@cam.org>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] radix-tree pagecache for 2.4.19-pre2-ac2
-Message-ID: <20020304213522.A318@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Robert Love <rml@tech9.net>, Mike Fedyk <mfedyk@matchmail.com>,
-	Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-In-Reply-To: <20020303210346.A8329@caldera.de> <20020304045557.C1010BA9E@oscar.casa.dyndns.org> <20020304051310.GC1459@matchmail.com> <1015273914.15479.127.camel@phantasy>
+	id <S292891AbSCDUn7>; Mon, 4 Mar 2002 15:43:59 -0500
+Received: from mnh-1-15.mv.com ([207.22.10.47]:39175 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S292895AbSCDUnw>;
+	Mon, 4 Mar 2002 15:43:52 -0500
+Message-Id: <200203042046.PAA04125@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Mon, 04 Mar 2002 18:49:47 GMT."
+             <E16hxWu-0000Bc-00@the-village.bc.nu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1015273914.15479.127.camel@phantasy>; from rml@tech9.net on Mon, Mar 04, 2002 at 03:31:52PM -0500
+Date: Mon, 04 Mar 2002 15:46:07 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04, 2002 at 03:31:52PM -0500, Robert Love wrote:
-> On Mon, 2002-03-04 at 00:13, Mike Fedyk wrote:
-> 
-> > On Sun, Mar 03, 2002 at 11:55:57PM -0500, Ed Tomlinson wrote:
-> >
-> > > Got this after a couple of hours with pre2-ac2+preempth+radixtree. 
-> > 
-> > Can you try again without preempt?
-> 
-> I've had success with the patch on 2.4.18+preempt and 2.5.5, so I
-> suspect preemption is not a problem.  I also did not see any
-> preempt_schedules in his backtrace ...
+alan@lxorguk.ukuu.org.uk said:
+> Ok got you - 
 
-I can repdoduce it locally here.  IT looks like we leak a pgae with
-incorrect flags in an error path.  Still investigating it.
+Good, if that's not being sarcastic...
 
-	Christoph
+> so its merely grossly ineffecient and downright rude to
+> other users of the system ? 
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+OK, when something calls alloc_pages and gets back some pages, it's almost
+always going to modify them immediately, right?
+
+If this is true, then what I'm proposing would force the host to find backing
+memory for those pages a tiny bit earlier than it would have had to otherwise.
+
+This is the only possibility for inefficiency and rudeness that I can see.
+If I'm totally missing what you are referring to, please be a little bit more
+specific.
+
+				Jeff
+

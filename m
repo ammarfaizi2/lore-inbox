@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316089AbSEOOhX>; Wed, 15 May 2002 10:37:23 -0400
+	id <S316178AbSEOOjU>; Wed, 15 May 2002 10:39:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316177AbSEOOhW>; Wed, 15 May 2002 10:37:22 -0400
-Received: from synapse.mensalinux.org ([208.255.12.2]:17792 "EHLO
-	iq.mensalinux.org") by vger.kernel.org with ESMTP
-	id <S316089AbSEOOhV>; Wed, 15 May 2002 10:37:21 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Jason Straight <jason@blazeconnect.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre8-ac2 - which vaio?
-Date: Tue, 14 May 2002 08:00:12 -0400
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200205140800.12610.jason@blazeconnect.net>
+	id <S316135AbSEOOjT>; Wed, 15 May 2002 10:39:19 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:37895 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S316178AbSEOOjO>; Wed, 15 May 2002 10:39:14 -0400
+Message-Id: <200205151437.g4FEb5990247@aslan.scsiguy.com>
+To: Meelis Roos <mroos@linux.ee>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2 
+In-Reply-To: Your message of "Wed, 15 May 2002 17:03:06 +0300."
+             <E177zMw-0000ml-00@roos.tartu-labor> 
+Date: Wed, 15 May 2002 08:37:05 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Which vaio bios was added to the tables? My grx still has problems with sound 
-and such apparantly due to conflicts.
+>I had 0x2008 here IIRC. Did not capture the output because this was about the
+>root partition and I had no serial cable at home. Will capture it with serial
+>console today.
 
-Also on my GRX - the console acts wierd with framebuffer, when text reaches 
-the bottom of a console it nearly freezes the machine.
--- 
+Please do.  They are invaluable in diagnosing the cause of such problems.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Jason Straight
-President
-BlazeConnect Internet Services
-Cheboygan Michigan
-www.blazeconnect.net
-Phone: 231-597-0376
-
+--
+Justin

@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVBYNSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbVBYN1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262691AbVBYNSe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 08:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVBYNSe
+	id S262692AbVBYN1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 08:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVBYN1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 08:18:34 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:12550 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262691AbVBYNRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 08:17:36 -0500
-Date: Fri, 25 Feb 2005 21:15:12 +0800 (WST)
-From: raven@themaw.net
-To: Herbert Poetzl <herbert@13thfloor.at>
-cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, autofs@linux.kernel.org
-Subject: Re: [Patch 2/6] Bind Mount Extensions 0.06
-In-Reply-To: <20050224211727.GD4981@mail.13thfloor.at>
-Message-ID: <Pine.LNX.4.61.0502252105260.1921@donald.themaw.net>
-References: <20050222121129.GC3682@mail.13thfloor.at> <20050223230105.GD21383@infradead.org>
- <20050224211727.GD4981@mail.13thfloor.at>
+	Fri, 25 Feb 2005 08:27:13 -0500
+Received: from pat.uio.no ([129.240.130.16]:42461 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262692AbVBYN1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 08:27:10 -0500
+To: James Colannino <lkml@colannino.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to capture kernel panics
+References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
+	<421E96AF.1070908@colannino.org>
+From: Trond Hasle Amundsen <t.h.amundsen@usit.uio.no>
+Organization: Universitas Osloensis
+Date: Fri, 25 Feb 2005 14:26:57 +0100
+In-Reply-To: <421E96AF.1070908@colannino.org> (James Colannino's message of
+ "Thu, 24 Feb 2005 19:08:31 -0800")
+Message-ID: <15toee8lqhq.fsf@klodrik.uio.no>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-100.6, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
-	USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.976, required 12,
+	autolearn=disabled, AWL 0.02, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Feb 2005, Herbert Poetzl wrote:
+James Colannino <lkml@colannino.org> writes:
 
-> On Wed, Feb 23, 2005 at 11:01:05PM +0000, Christoph Hellwig wrote:
->> On Tue, Feb 22, 2005 at 01:11:29PM +0100, Herbert Poetzl wrote:
->>>
->>>
->>> ;
->>> ; Bind Mount Extensions
->>> ;
->>> ; This part adds the required checks for touch_atime() to allow
->>> ; for vfsmount based NOATIME and NODIRATIME
->>> ; autofs4 update_atime is the only exception (ignored on purpose)
->>
->> and that purpose is?
+> shabanip wrote:
 >
-> this is based on a statement from Al Viro:
+>>is there any way to capture and log kernel panics on disk or ...?
 >
-> | autofs4 use - AFAICS there we want atime updated unconditionally,
-> | so calling update_atime() (update atime after checking
-> | noatime/nodiratime/readonly flags) is wrong.
->
-> agreed, maybe a proper fix would be better ...
->
->> Did you discuss this with the autofs maintainers?
+> My guess would be, at the very least, it depends on what part of the
+> kernel is causing the panic.
 
-I've had a look at the patch and I can't see any problem.
+A kernel panic means that the kernel no longer knows what it's doing,
+and therefore stops doing anything immediately. Hence it won't use the
+filesystems and cannot log the panic to anything but the console. I
+would think the best solution to your problem is to set up a serial
+console to another machine, and log everything to disk on that
+machine. See Documentation/serial-console.txt for how to set up a
+serial console.
 
-autofs4 doesn't use the inode atime for expire purposes but does update it 
-in sync with its dentry info struct field that is used for this purpose.
+Regards,
 
-So AFAICS the atime is an external view of expire status, 
-but only when updated within the autofs4 module VFS callbacks.
-
-I haven't yet looked at the v3 (autofs) module.
-I'll get back if I see an issue there.
-
-Ian
-
+-- 
+Trond Hasle Amundsen <t.h.amundsen@usit.uio.no>
+Center for Information Technology Services, University of Oslo

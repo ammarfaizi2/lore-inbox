@@ -1,58 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbTH0LG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 07:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbTH0LG7
+	id S263338AbTH0LH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 07:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbTH0LH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 07:06:59 -0400
-Received: from webmail2.vsnl.net ([203.197.12.44]:17120 "EHLO bom6.vsnl.net.in")
-	by vger.kernel.org with ESMTP id S263277AbTH0LG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 07:06:58 -0400
-Date: Wed, 27 Aug 2003 16:38:44 -0500 (GMT)
-Message-Id: <200308272138.h7RLciK29987@webmail2.vsnl.net>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
+	Wed, 27 Aug 2003 07:07:58 -0400
+Received: from dyn-ctb-203-221-73-100.webone.com.au ([203.221.73.100]:39175
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263330AbTH0LHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 07:07:53 -0400
+Message-ID: <3F4C90F1.8070605@cyberone.com.au>
+Date: Wed, 27 Aug 2003 21:07:29 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.411 (Entity 5.404)
-From: warudkar@vsnl.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
-X-Mailer: VSNL, Web based email
-X-Sender-Ip: 203.197.141.34
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+CC: Mike Fedyk <mfedyk@matchmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cache limit
+References: <oJ5P.699.21@gated-at.bofh.it> <oJ5P.699.23@gated-at.bofh.it> <oJ5P.699.25@gated-at.bofh.it> <oJ5P.699.27@gated-at.bofh.it> <oJ5P.699.19@gated-at.bofh.it> <oQh2.4bQ.13@gated-at.bofh.it> <3F4BB043.6010805@softhome.net> <20030826192333.GA1258@matchmail.com> <3F4C8619.4020505@softhome.net>
+In-Reply-To: <3F4C8619.4020505@softhome.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org, Rational Rose and Konsole at a time. All of these take extremely long time to startup. (approx > 5 minutes). Kswapd hogs the CPU all the time.
-X becomes unusable till all of them startup, although I can telnet and run top.
-Same thing run under 2.4.18 starts up in 3 minutes, X stays usable and kswapd never take more than 2% CPU.
 
 
-Here a snapshot of Top output when running 2.6.0-test4-mm1:
-==============================
-  4:24pm  up 21:19,  6 users,  load average: 3.47, 2.04, 1.49
-96 processes: 88 sleeping, 8 running, 0 zombie, 0 stopped
-CPU states: 11.3% user, 88.6% system,  0.0% nice,  0.0% idle
-Mem:   124632K av,  122664K used,    1968K free,       0K shrd,     160K buff
-Swap: 1052248K av,   71256K used,  980992K free                   43540K cached
+Ihar 'Philips' Filipau wrote:
 
-  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-    8 root      15   0     0    0     0 SW   66.6  0.0   4:59 kswapd0
- 2087 wipro     17   0 29576  10M 27408 S     4.6  8.9   0:03 kdeinit
- 2044 wipro     17   0  118M  22M  103M D     2.7 18.8   0:04 soffice.bin
- 2292 wipro     18   0  3856  912  3716 S     1.8  0.7   0:02 top
- 2312 wipro     18   0  3852  912  3716 R     1.8  0.7   0:00 top
-  540 wipro     15   0 28988 6640 26672 S     0.9  5.3  10:40 kdeinit
- 1254 wipro     15   0 26340 4916 24716 S     0.9  3.9   0:17 kdeinit
-    1 root      17   0  1320  268  1288 S     0.0  0.2   0:04 init
-    2 root      0K   0     0    0     0 SW    0.0  0.0   0:00 migration/0
-    3 root      34  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd/0
-    4 root       5 -10     0    0     0 SW<   0.0  0.0   0:00 events/0
-    5 root       5 -10     0    0     0 SW<   0.0  0.0   0:01 kblockd/0
-    6 root      15   0     0    0     0 SW    0.0  0.0   0:00 pdflush
-    7 root      15   0     0    0     0 SW    0.0  0.0   0:00 pdflush
-    9 root      10 -10     0    0     0 SW<   0.0  0.0   0:00 aio/0
-   10 root      10 -10     0    0     0 SW<   0.0  0.0   0:00 aio_fput/0
-   11 root      15   0     0    0     0 SW    0.0  0.0   0:00 kseriod
-   12 root      15   0     0    0     0 SW    0.0  0.0   0:00 kjournald
+> Mike Fedyk wrote:
+>
+>>
+>> That was because they wanted the non-streaming files to be left in 
+>> the cache.
+>>
+>>>  I will try to produce some benchmarktings tomorrow with different 
+>>> 'mem=%dMB'. I'm afraid to confirm that it will make difference.
+>>>  But in advance: mantainance of page tables for 1GB and for 128MB of 
+>>> RAM are going to make a difference.
+>>
+>>
+>> I'm sorry to say, but you *will* get lower performance if you lower 
+>> the mem=
+>> value below your working set.  This will also lower the total amount of
+>> memory available for your applications, and force your apps, to swap and
+>> balance cache, and app memory.
+>>
+>> That's not what you are looking to benchmark.
+>>
+>
+>   Okay. I'm completely puzzled.
+>   I will qute here only one test - and I really do not understand this 
+> stuff.
+>
+>   Three boots with the same parameters and only mem=nMB, n = 
+> {512,256,128} (I have 512MB RAM)
+>
+>   hdparm tests:
+> [root@hera ifilipau]# hdparm -t /dev/hda
+> /dev/hda:
+>  Timing buffered disk reads:  64 MB in  1.56 seconds = 41.03 MB/sec
+> [root@hera ifilipau]# hdparm -T /dev/hda
+> /dev/hda:
+>  Timing buffer-cache reads:   128 MB in  0.44 seconds =290.91 MB/sec
+> [root@hera ifilipau]#
+>
+>   Before tests I was doing 'swapoff -a; sync'
+>   RedHat's 2.4.20-20.9 kernel.
+>
+>   What has really puzzled me.
+>   Operation: "cat *.bz2 >big_file", where *.bz2 is just two bzipped 
+> kernels. Total size: 29MB+32MB (2.4.22 + 2.6.0-test1)
+>
+>   To be bsolutely fair in this unfair benchmark I have run test only 
+> once. Times in seconds as shown by bash's time.
+>
+>            cat      sync
+>   512MB:  1.565    0.007
+>   256MB:  1.649    0.008
+>   128MB:  2.184    0.007
+>
+>   Kill me - shoot me, but how it can be?
+>   Resulting file fits RAM.
+>   Not hard to guess that source files, which no one cares about 
+> already - are still hanging in the RAM...
+>
+>   That's not right: as long as resulting file fits memory - and it 
+> fits memory in all (512MB, 256MB, 128MB) cases - this operation should 
+> take the _same_ time. (Actually before 128MB test, vmstat was saying 
+> that I have +70MB of free non-touched memory)
+>
+>   So resume is quite simple: kernel loses *terribly* much time 
+> resorting read()s against write()s. Way _too_ _much_ time. 
+
+
+The kernel spends _very_ little time in the disk elevator actually. The
+2.4 elevator can send very suboptimal orderings of requests to the disk
+when reads and writes are going to the disk at the same time. That might
+be happening here. The VM might also be doing more work if you have other
+things in RAM as well, although its unlikely to cause such a big
+difference.
+
+

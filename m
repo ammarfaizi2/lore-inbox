@@ -1,71 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVAOV7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVAOVnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVAOV7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVAOV4D
+	id S262332AbVAOVnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVAOVmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:56:03 -0500
-Received: from host268.ipowerweb.com ([66.235.211.80]:55303 "HELO
-	host268.ipowerweb.com") by vger.kernel.org with SMTP
-	id S262330AbVAOVw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:52:57 -0500
-Message-ID: <41E990B8.8070100@galaktika.ru>
-Date: Sat, 15 Jan 2005 13:52:56 -0800
-From: Nick <nick@galaktika.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Can I ask a smbfs question here?
-References: <41E87CB1.30804@galaktika.ru> <200501150631.59243.yarick@it-territory.ru>
-In-Reply-To: <200501150631.59243.yarick@it-territory.ru>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Jan 2005 16:42:02 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:20241 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262330AbVAOVkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:40:08 -0500
+Date: Sat, 15 Jan 2005 22:40:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, discuss@x86-64.org
+Subject: [2.6 patch] i386 cpu/common.c: some cleanups (fwd)
+Message-ID: <20050115214003.GU4274@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/usr/sbin/smbmnt ?
+The patch forwarded below still applies and compiles against 
+2.6.11-rc1-mm1.
 
-After I chmodded /usr/bin/smbmnt one, I got:
-libsmb based programs must *NOT* be setuid root.
-29612: Connection to nata failed
-SMB connection failed
+Please apply.
 
-I do not have /usr/sbin/smbmnt
 
->>not remember which one - found its name in one of FAQs) and specified
->>    
->>
->....
->  
->
->>username=administrator,password=xxx,fmask=0666,codepage=cp866,iocharset=utf8,users 
->>    
->>
->Are you sure it's "users" and not "user" ?
->  
->
-I actually tried both. The reaction is the same (may be synonims?).  As 
-soon as I specify it, codepage= and iocharset= parameters are no longer 
-recognized and an error message starts to appear in the 
-/var/log/messages saying that "noexec" parameter is not recognized by 
-smbfs (Jan  9 15:24:09 NS kernel: smbfs: Unrecognized mount option 
-noexec). This is actually not a big issue as I could write a script with 
-"sudo mount /my/mountpoint". And I probably can exclude this line from 
-my fstab and specify the parameters in this script. This just does not 
-look very user-friendly to me (ok for my single-user laptop). It appears 
-that I cannot use fstab with smbfs volumes if I want international 
-characters.
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
->>Any ideas if it is possible to fix this? I can "sudo mount" all the time
->>but it does not sound right...
->>    
->>
->And what's wrong with smbmount ?
->smbmount //server/share /your/mountpoint -o 
->username=<uname>,iocharset=utf8,codepage=cp866
->Works like a charm as long as /usr/sbin/smbmnt is suid-root
->
->  
->
-Thanks!
+Date:	Mon, 29 Nov 2004 00:08:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de, discuss@x86-64.org
+Subject: [2.6 patch] i386 cpu/common.c: some cleanups
+
+The patch below contains the following changes:
+- make some needlessly global code static
+- remove the unused dodgy_tsc function
+- remove the stale dodgy_tsc z86_64 prototype
+
+
+diffstat output:
+ arch/i386/kernel/cpu/common.c  |   15 ++-------------
+ arch/i386/kernel/cpu/cpu.h     |    1 -
+ include/asm-i386/processor.h   |    1 -
+ include/asm-x86_64/processor.h |    1 -
+ 4 files changed, 2 insertions(+), 16 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/cpu.h.old	2004-11-28 21:03:26.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/cpu.h	2004-11-28 21:03:32.000000000 +0100
+@@ -25,7 +25,6 @@
+ extern void display_cacheinfo(struct cpuinfo_x86 *c);
+ 
+ extern void generic_identify(struct cpuinfo_x86 * c);
+-extern int have_cpuid_p(void);
+ 
+ extern void early_intel_workaround(struct cpuinfo_x86 *c);
+ 
+--- linux-2.6.10-rc2-mm3-full/include/asm-i386/processor.h.old	2004-11-28 21:01:43.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/include/asm-i386/processor.h	2004-11-28 21:01:56.000000000 +0100
+@@ -101,7 +101,6 @@
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+ extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
+-extern void dodgy_tsc(void);
+ 
+ /*
+  * EFLAGS bits
+--- linux-2.6.10-rc2-mm3-full/include/asm-x86_64/processor.h.old	2004-11-28 21:02:04.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/include/asm-x86_64/processor.h	2004-11-28 21:02:08.000000000 +0100
+@@ -91,7 +91,6 @@
+ extern void identify_cpu(struct cpuinfo_x86 *);
+ extern void print_cpu_info(struct cpuinfo_x86 *);
+ extern unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c);
+-extern void dodgy_tsc(void);
+ 
+ /*
+  * EFLAGS bits
+--- linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/common.c.old	2004-11-28 21:02:16.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/arch/i386/kernel/cpu/common.c	2004-11-28 21:03:13.000000000 +0100
+@@ -194,7 +194,7 @@
+ 
+ 
+ /* Probe for the CPUID instruction */
+-int __init have_cpuid_p(void)
++static int __init have_cpuid_p(void)
+ {
+ 	return flag_is_changeable_p(X86_EFLAGS_ID);
+ }
+@@ -202,7 +202,7 @@
+ /* Do minimum CPU detection early.
+    Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
+    The others are not touched to avoid unwanted side effects. */
+-void __init early_cpu_detect(void)
++static void __init early_cpu_detect(void)
+ {
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
+ 
+@@ -421,16 +421,6 @@
+ 	mcheck_init(c);
+ #endif
+ }
+-/*
+- *	Perform early boot up checks for a valid TSC. See arch/i386/kernel/time.c
+- */
+- 
+-void __init dodgy_tsc(void)
+-{
+-	if (( boot_cpu_data.x86_vendor == X86_VENDOR_CYRIX ) ||
+-	    ( boot_cpu_data.x86_vendor == X86_VENDOR_NSC   ))
+-		cpu_devs[X86_VENDOR_CYRIX]->c_init(&boot_cpu_data);
+-}
+ 
+ void __init print_cpu_info(struct cpuinfo_x86 *c)
+ {
+@@ -474,7 +464,6 @@
+ extern int rise_init_cpu(void);
+ extern int nexgen_init_cpu(void);
+ extern int umc_init_cpu(void);
+-void early_cpu_detect(void);
+ 
+ void __init early_cpu_init(void)
+ {
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

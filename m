@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274372AbRIYBh4>; Mon, 24 Sep 2001 21:37:56 -0400
+	id <S274376AbRIYBh4>; Mon, 24 Sep 2001 21:37:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274377AbRIYBhl>; Mon, 24 Sep 2001 21:37:41 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4880 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S274372AbRIYBhZ>; Mon, 24 Sep 2001 21:37:25 -0400
-Date: Mon, 24 Sep 2001 19:03:20 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Olivier Sessink <olivier@lx.student.wau.nl>
-Cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: weird memory related problems, negative memory usage or fake
- memory usage?
-In-Reply-To: <20010924233139.A14548@fender.fakenet>
-Message-ID: <Pine.LNX.4.33L.0109241900550.1864-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274372AbRIYBhr>; Mon, 24 Sep 2001 21:37:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3723 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274376AbRIYBhd>;
+	Mon, 24 Sep 2001 21:37:33 -0400
+Date: Mon, 24 Sep 2001 18:35:55 -0700 (PDT)
+Message-Id: <20010924.183555.15266457.davem@redhat.com>
+To: thockin@sun.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: read() called twice for /proc files
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BAFDE0D.8A69A993@sun.com>
+In-Reply-To: <3BAFDE0D.8A69A993@sun.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Andrea, please read this bugreport ...]
+   From: Tim Hockin <thockin@sun.com>
+   Date: Mon, 24 Sep 2001 18:29:49 -0700
+   
+   This results in the actual read taking twice as long.  Perhaps I am missing
+   something...
 
-On Mon, 24 Sep 2001, Olivier Sessink wrote:
+EOF isn't known until you return the zero.  You can watch the loff_t
+arg to the read operation to see if it is at the end, and if so just
+avoid retouching the device or whatever and go straight to returning
+0.
 
-> after upgrade from 2.4.10pre8 to 2.4.10 I have weird problems,
-> Xfree sometimes shows up with 99.9% memory in top (on a box with
-> 512 mb), and in ps axl it has 4294989036 in the RSS column. When
-> this happens the box starts to kill some processes, starts
-> heavily swapping (top reports > 400MB in the cache, but the
-> machine is heavily swapping!!!) and is completely unusable.
-
-> Since this makes the machine completely unusable, and since it is not
-> happening on 2.4.10pre8 I guess it is a bug ;-)
-
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->  1262 root       5 -10 50764  -1M  1320 S <   2.7 99.9   0:01 XFree86
-
-
-It seems Andrea wasn't careful with the merge and
-backed out some of the locking wrt mm->rss.
-
-Andrea, you may want to spend some time auditing
-your VM like has been done with the other 2.4 VM.
-
-cheers,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbTIQVav (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 17:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTIQVau
+	id S262651AbTIQVN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 17:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbTIQVN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 17:30:50 -0400
-Received: from smtp-int-01.mx.pitdc1.stargate.net ([206.210.69.149]:9917 "EHLO
-	smtp-int-01.mx.pitdc1.stargate.net") by vger.kernel.org with ESMTP
-	id S262848AbTIQVat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 17:30:49 -0400
-Message-ID: <3F68D055.3090701@psc.edu>
-Date: Wed, 17 Sep 2003 17:21:25 -0400
-From: Paul N <pauln@psc.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Wed, 17 Sep 2003 17:13:57 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:55230 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id S262651AbTIQVMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 17:12:36 -0400
+Date: Wed, 17 Sep 2003 17:12:34 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: wait_on_irq, CPU 1:
+In-Reply-To: <20030917210545.GS1758@ovh.net>
+Message-ID: <Pine.LNX.4.58.0309171709580.12413@filesrv1.baby-dragons.com>
+References: <20030917210545.GS1758@ovh.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20 NFS / EJUKEBOX problem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm seeing a weird problem with NFSv3's EJUKEBOX when
-mounting a irix machine running DMF (software for managing offline/tape
-copies of files).    When an NFS read request is made for an 'offline' file
-it causes other write requests to stall until the 'offline'  file is 
-unmigrated to
-disk and the read can resume. 
- From looking at tcpdump it seems that the write requests proceed until
-an EJUKEBOX msg from the read is returned from the server.  At that point
-all write requests are stuck behind the  jukeboxed read. 
+	Hello All ,  Any more info I can pass along ?  This got dumped
+	into my /var/log/syslog .  Please advise .  Tia ,  JimL
 
-Could someone please give me some information on this?
-
-Thanks
-Paul
-
-
+Sep 17 15:00:59 filesrv1 kernel:
+Sep 17 15:00:59 filesrv1 kernel: wait_on_irq, CPU 1:
+Sep 17 15:00:59 filesrv1 kernel: irq:  0 [ 0 0 ]
+Sep 17 15:00:59 filesrv1 kernel: bh:   1 [ 2 0 ]
+Sep 17 15:00:59 filesrv1 kernel: Stack dumps:
+Sep 17 15:00:59 filesrv1 kernel: CPU 0: <unknown>
+Sep 17 15:00:59 filesrv1 kernel: CPU 1:c2b29f34 c03f8fdd 00000001 00000020 00000000 c2b29f60 c010a79d c03f8ff2
+Sep 17 15:00:59 filesrv1 kernel:        c04bc104 f70a8000 00000001 c2b29f7c c01f8006 c04bc104 c2b29f94 00000282
+Sep 17 15:00:59 filesrv1 kernel:        f70a876c f70a836c c2b29f9c c01224dc f70a8000 c2b28000 c2b2865c ffffffff
+Sep 17 15:00:59 filesrv1 kernel: Call Trace:    [<c010a79d>] [<c01f8006>] [<c01224dc>] [<c012bc0b>] [<c0107448>]
+Sep 17 15:00:59 filesrv1 kernel:
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

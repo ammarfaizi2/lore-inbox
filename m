@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVASPji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVASPoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVASPji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 10:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVASPje
+	id S261754AbVASPoB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 10:44:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVASPoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 10:39:34 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37611 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261750AbVASPjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 10:39:23 -0500
-Date: Wed, 19 Jan 2005 13:56:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050119125618.GA476@openzaurus.ucw.cz>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org> <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
+	Wed, 19 Jan 2005 10:44:01 -0500
+Received: from mail1.upco.es ([130.206.70.227]:6839 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261754AbVASPlA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 10:41:00 -0500
+Date: Wed, 19 Jan 2005 16:40:57 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net
+Subject: 2.6.11-rc1: ACPI keys events: only "arrive" after 8 of them.
+Message-ID: <20050119154057.GA15099@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
+	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > For us thankfully, exec-shield has trapped quite a few remotely
-> > exploitable holes, preventing the above.
-> 
-> One thing worth considering, but may be abit _too_ draconian, is a
-> capability that says "can execute ELF binaries that you can write to".
-> 
-> Without that capability set, you can only execute binaries that you cannot
-> write to, and that you cannot _get_ write permission to (ie you can't be
-> the owner of them either - possibly only binaries where the owner is
-> root).
+Dear Linux gurus, 
 
-Well, if there's gdb installed on such machine, you can probably circumvent this.
+     this is a minor bug that is puzzling me since my switch from 2.6.7 to
+     2.6.9 (and continuing with 2.6.11-rc1).
 
-Hmm, you can probably do /lib/ld-linux.so.2 your binary, no?
-				Pavel
+     When I press the suspend key on my Vaio FX701, nothing happens. It
+     should trigger an ACPI event that, caught by acpid, run the suspend
+     script (which show a confirmation window); and so worked in 2.6.7.
+
+          
+     Now, the really strange thing: if I press it 8 times in a row, then the
+     event arrives. It's as if the events are queued in a 8-depth queue. If
+     now I cancel suspend, and press another special key, like the
+     combination to switch video output to the external VGA, all the
+     "queued" suspend-event do arrive... this happens with the two "display
+     switch" key, and the "suspend" key. There is no interaction with, for
+     example, lid close event which works as should. 
+
+     I'm stymied. If anyone can help me with this, or simply tell me how to
+     have more data on this, I will try to obtain all the data I can. 
+     I'm using a vanilla 2.6.11-rc1, which config is available here: 
+
+     http://www.dea.icai.upco.es/romano/linux/config-2.6.11rc1.txt
+
+     Thank you in advance,      
+                                Romano 
+     
+
+          
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

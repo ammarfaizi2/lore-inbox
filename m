@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268717AbUIXMxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268728AbUIXMy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268717AbUIXMxe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 08:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUIXMxe
+	id S268728AbUIXMy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 08:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUIXMy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 08:53:34 -0400
-Received: from scanner2.mail.elte.hu ([157.181.151.9]:34190 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268717AbUIXMx3 (ORCPT
+	Fri, 24 Sep 2004 08:54:57 -0400
+Received: from stgeorges-1-81-56-1-93.fbx.proxad.net ([81.56.1.93]:38574 "EHLO
+	garfield") by vger.kernel.org with ESMTP id S268728AbUIXMx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 08:53:29 -0400
-Date: Fri, 24 Sep 2004 14:55:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       Roman Weissgaerber <weissg@vienna.at>,
-       linux-usb-devel@lists.sourceforge.net, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: OHCI_QUIRK_INITRESET (was: 2.6.9-rc2-mm2 ohci_hcd doesn't work)
-Message-ID: <20040924125500.GB9369@elte.hu>
-References: <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <24137.195.245.190.93.1095946528.squirrel@195.245.190.93> <20040923134000.GA15455@elte.hu> <35929.195.245.190.93.1095956611.squirrel@195.245.190.93> <48836.195.245.190.94.1095962870.squirrel@195.245.190.94> <1076.195.245.190.93.1096029825.squirrel@195.245.190.93>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076.195.245.190.93.1096029825.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 24 Sep 2004 08:53:58 -0400
+Message-ID: <415418DC.1090601@free.fr>
+Date: Fri, 24 Sep 2004 14:53:48 +0200
+From: Fabian Fenaut <fabian.fenaut@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 MultiZilla/1.6.4.0b
+X-Accept-Language: French/France, fr-FR, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Libata - sata_sil - error
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+I was writing to my sata drive, and I've just had this :
 
-> Then, in a silent suggestion from David Brownell, I hacked ohci_hcd.c,
-> forcing the OHCI_QUIRK_INITRESET flag behaviour, build a new kernel and
-> modules and voila', all USB is back to functionality.
+Sep 24 14:26:58 odie kernel: scsi1: ERROR on channel 0, id 0, lun 0, 
+CDB: Read (10) 00 03 14 ca a7 00 00 08 00
+Sep 24 14:26:58 odie kernel: Current sda: sense key Medium Error
+Sep 24 14:26:58 odie kernel: Additional sense: Unrecovered read error - 
+auto reallocate failed
+Sep 24 14:26:58 odie kernel: end_request: I/O error, dev sda, sector 
+51694247
+Sep 24 14:26:58 odie kernel: ATA: abnormal status 0x58 on port 0xE080E087
+Sep 24 14:26:58 odie last message repeated 2 times
 
-> diff -duPNr linux.0/drivers/usb/host/ohci-hcd.c linux.1/drivers/usb/host/ohci-hcd.c
-> --- linux.0/drivers/usb/host/ohci-hcd.c	2004-09-24 11:07:00.982690336 +0100
-> +++ linux.1/drivers/usb/host/ohci-hcd.c	2004-09-24 11:19:06.232435616 +0100
-> @@ -564,11 +564,12 @@
->  	 * (SiS, OPTi ...), so reset again instead.  SiS doesn't need
->  	 * this if we write fmInterval after we're OPERATIONAL.
->  	 */
-> -	if (ohci->flags & OHCI_QUIRK_INITRESET) {
-> +	 ohci_dbg(ohci, "OHCI_QUIRK_INITRESET forced!\n");
-> +/*	if (ohci->flags & OHCI_QUIRK_INITRESET) { */
->  		writel (ohci->hc_control, &ohci->regs->control);
->  		// flush those writes
->  		(void) ohci_readl (&ohci->regs->control);
-> -	}
-> +/*	} */
->  	writel (ohci->fminterval, &ohci->regs->fminterval);
+uname -r = 2.6.7-mm7-ff
 
-it would be cleaner to make this dependent on your chipset/vendor-id -
-look how OHCI_QUIRK_INITRESET gets activated for e.g. SiS
-(PCI_VENDOR_ID_SI) and OPTi (PCI_VENDOR_ID_OPTI). What is your box's
-pdev->vendor and pdev->device? (lspci -v) (If it's indeed a quirk that
-is needed, not some other fix.)
+Drive : Vendor: ATA       Model: ST3120026AS       Rev: 3.05
 
-	Ingo
+Full dmesg : http://fabian.fenaut.free.fr/linux/dmesg-2.6.7-mm7-ff
+.config : http://fabian.fenaut.free.fr/linux/config-2.6.7-mm7-ff
+
+Since 7 sept, I had "EXT3-fs warning: mounting fs with errors, running
+e2fsck is recommended" when mounting this drive. So I tried to fsck, but
+it hangs and nothing happened.
+
+Please help :)
+
+Fabian

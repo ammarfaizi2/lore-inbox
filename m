@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289016AbSBDPWs>; Mon, 4 Feb 2002 10:22:48 -0500
+	id <S289017AbSBDPYS>; Mon, 4 Feb 2002 10:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289017AbSBDPWi>; Mon, 4 Feb 2002 10:22:38 -0500
-Received: from 216-42-72-147.ppp.netsville.net ([216.42.72.147]:4017 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S289016AbSBDPWW>; Mon, 4 Feb 2002 10:22:22 -0500
-Date: Mon, 04 Feb 2002 10:21:05 -0500
-From: Chris Mason <mason@suse.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, Chris Wedgwood <cw@f00f.org>
-cc: Stephen Lord <lord@sgi.com>, Andrea Arcangeli <andrea@suse.de>,
-        Andrew Morton <akpm@zip.com.au>, Ricardo Galli <gallir@uib.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT fails in some kernel and FS
-Message-ID: <402060000.1012836065@tiny>
-In-Reply-To: <3C5EA30D.8B51C639@mandrakesoft.com>
-In-Reply-To: <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org> <234710000.1012674008@tiny> <20020202205438.D3807@athlon.random> <242700000.1012680610@tiny> <3C5C4929.5080403@sgi.com> <20020202155028.B26147@havoc.gtf.org> <3C5D3DE9.4080503@sgi.com> <20020203140926.GA14532@tapu.f00f.org> <3C5D51A0.4050509@sgi.com> <20020203224406.GA17396@tapu.f00f.org> <3C5EA30D.8B51C639@mandrakesoft.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S289018AbSBDPYJ>; Mon, 4 Feb 2002 10:24:09 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:15232 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289017AbSBDPX5>;
+	Mon, 4 Feb 2002 10:23:57 -0500
+Date: Mon, 4 Feb 2002 10:23:56 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: john slee <indigoid@higherplane.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
+        <dank@kegel.org>
+Subject: Re: Asynchronous CDROM Events in Userland
+In-Reply-To: <20020204124344.GA4757@higherplane.net>
+Message-ID: <Pine.LNX.4.30.0202041017220.2423-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Feb 2002, john slee wrote:
 
+> [ added dan to cc list ]
+>
+> On Sun, Feb 03, 2002 at 09:07:24PM -0800, H. Peter Anvin wrote:
+> > > If not what do you guys think about extensions to the cdrom drivers to
+> > > handle these types of things?
+> > >
+> >
+> > Rather than a signal, it should be a file descriptor of some sort, so
+> > one can select() etc on it.  Personally I can't imagine polling would
+> > take any appreciable amount of resources, though.
+> >
+> > A more important issue is probably to get notification when the eject
+> > button is pushed and the device is locked, so that it can try to
+> > umount and eject it, unless busy.
+>
+> not so long ago dan kegel suggested an interface to signals based on
+> file descriptors, and perhaps even an alpha patch implementing such.
+> this allowed you to select() on them.
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=99356014431024&w=2
+>
+> of particular interest is this quote from dan's fantasy manpage:
+>
+> > HISTORY
+> >      sigopen() first appeared in the 2.5.2 Linux kernel.
+>
+> a bit late, but an uncanny prediction.
+> dan, are you nostradamus ? :-)
+>
 
-On Monday, February 04, 2002 10:04:45 AM -0500 Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+Hahah that's hilarious.  I really like the idea, by the way, of this
+sigopen() feature.  An inverse of that owuld be to map existing file
+descriptors to signals, that way an application doesn't have to explicitly
+select() on them, but rather can install a very asynchronous fd reader for
+whenever the data is available.  I am not sure how useful this would be,
+but in the case of asynch. cdrom events it would be useful.  :)
 
-> Chris Wedgwood wrote:
->> 
->> On Sun, Feb 03, 2002 at 09:05:04AM -0600, Stephen Lord wrote:
->> 
->>     I agree is is not a big issue in this case - my interpretation of
->>     tails was the end of any file could be packed, but if it is only
->>     small files.....
->> 
->> But you can't mmap (say) a 1k file right now...  so right now this
-> 
-> huh?  You can mmap a file of any size > 0.  Is this a reiserfs
-> limitation or something?
-> 
+Also, why did the author of this manpage seem to complain about
+conflicting signals?  You can always find out what signals your process is
+waiting for....
 
-No, reiserfs can mmap files of size 1k.  Data past the end of file is
-zerod on write.
+-Calin
 
--chris
 

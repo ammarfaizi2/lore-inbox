@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132060AbQK0Fss>; Mon, 27 Nov 2000 00:48:48 -0500
+        id <S129228AbQK0GUg>; Mon, 27 Nov 2000 01:20:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132143AbQK0Fsj>; Mon, 27 Nov 2000 00:48:39 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:18440 "EHLO
-        munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-        id <S132060AbQK0FsY>; Mon, 27 Nov 2000 00:48:24 -0500
-Date: Mon, 27 Nov 2000 00:19:23 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Universal debug macros.
-Message-ID: <20001127001923.B16176@munchkin.spectacle-pond.org>
-In-Reply-To: <200011270045.BAA13121@cave.bitwizard.nl> <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise> <8vsno2$pc6$1@cesium.transmeta.com>
-Mime-Version: 1.0
+        id <S129295AbQK0GUR>; Mon, 27 Nov 2000 01:20:17 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:60172 "HELO
+        note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+        id <S129228AbQK0GUP>; Mon, 27 Nov 2000 01:20:15 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Alexander Viro <viro@math.psu.edu>
+Date: Mon, 27 Nov 2000 16:49:45 +1100 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <8vsno2$pc6$1@cesium.transmeta.com>; from hpa@zytor.com on Sun, Nov 26, 2000 at 08:25:38PM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <14881.62969.786424.812353@notabene.cse.unsw.edu.au>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Tigran Aivazian <tigran@veritas.com>
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: message from Alexander Viro on Friday November 24
+In-Reply-To: <14877.53881.182935.597766@notabene.cse.unsw.edu.au>
+        <Pine.GSO.4.21.0011240006040.12702-100000@weyl.math.psu.edu>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+        LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+        8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 26, 2000 at 08:25:38PM -0800, H. Peter Anvin wrote:
-> Followup to:  <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
-> By author:    Elmer Joandi <elmer@ylenurme.ee>
-> In newsgroup: linux.dev.kernel
-> > 
-> > Red Hat will ship two kernels. Well, they actually ship now about 4 ones
-> > or something. So they will ship 8.
-> > 
+On Friday November 24, viro@math.psu.edu wrote:
 > 
-> Something RedHat & co may want to consider doing is providing a basic
-> kernel and have, as part of the install procedure or later, an
-> automatic recompile and install kernel procedure.  It could be
-> automated very easily, and on all but the very slowest of machines, it
-> really doesn't take that long.
+> 
+> On Fri, 24 Nov 2000, Neil Brown wrote:
+> 
+> > I ran my test script, which builds a variety of raid5 arrays with
+> > varying numbers of drives and chunk sizes, and runs mkfs/bonnie/dbench
+> > on each array, and it got through about 8 file systems but choked on
+> > the 9th by trying to allocate lots of blocks in the system zone (after
+> > running for about an hour). 
+> 
+> Bloody interesting. I don't see anything recent that could affect the
+> areas in question. Intersting versions to check: 11-pre5 and 11-pre6.
+> It smells like buffer cache corruption, but I don't see anything
+> relevant. __generic_unplug_device() change loock pretty innocent,
+> ditto for bh_kmap() ones in raid5 and on ext2 side we had two obviously
+> equivalent replacements (pre5->pre6). No buffer.c changes, no VM ones.
+> Urgh.
 
-(Note, I work in the GCC group, not the Linux group, so the following is MHO,
-and not Red Hat gospel).
+Turns out my data is a false alarm.  It was a bug in my raid5 code -
+and not a recent bug either - that was causing my filesystem
+corruption.
 
-Assuming you've installed the compiler/other relevant tools, installed the
-kernel source, and have enough disk space to build the kernel.  This would
-screw people wanting to install Linux on their old 386/486/pentium for use as a
-firewall or web server.  For example, the machine I'm planning on moving a web
-server to only has 2 gig of disk.  Right now, I have barely enough space to
-hold the compiler tools plus web pages I want to serve.  If I was serving much
-more content, I would probably chuck the compiler tools/kernel source.
+So if your earlier patches work for everybody else then they look like
+a good way to go.  I have fixed my fatal flaw and I cannot reproduce
+the problems any more.  Patch has gone to Alan.
 
--- 
-Michael Meissner, Red Hat, Inc.
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

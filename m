@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136867AbREJRbX>; Thu, 10 May 2001 13:31:23 -0400
+	id <S136864AbREJRdx>; Thu, 10 May 2001 13:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136866AbREJRbN>; Thu, 10 May 2001 13:31:13 -0400
-Received: from ns.suse.de ([213.95.15.193]:40717 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S136864AbREJRbC>;
-	Thu, 10 May 2001 13:31:02 -0400
-Date: Thu, 10 May 2001 19:30:47 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ulrich.Weigand@de.ibm.com, linux-kernel@vger.kernel.org,
-        schwidefsky@de.ibm.com
-Subject: Re: Deadlock in 2.2 sock_alloc_send_skb?
-Message-ID: <20010510193047.A22970@gruyere.muc.suse.de>
-In-Reply-To: <C1256A48.00451BD1.00@d12mta11.de.ibm.com> <E14xq0v-0004j0-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S136866AbREJRdn>; Thu, 10 May 2001 13:33:43 -0400
+Received: from windsormachine.com ([206.48.122.28]:51973 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S136864AbREJRd3>; Thu, 10 May 2001 13:33:29 -0400
+Message-ID: <3AFAD0DC.90510557@windsormachine.com>
+Date: Thu, 10 May 2001 13:33:16 -0400
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI Tape Driver Failure in Kernel 2.4.4, More
+In-Reply-To: <3AF9558F.9C76953C@tpr.com> <3AF9B411.2A0F3F43@tpr.com> <3AF9B876.FDB1B6DD@bigfoot.com> <3AFA8A1D.A9BBB4DF@tpr.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14xq0v-0004j0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 10, 2001 at 01:57:49PM +0100
+Content-Transfer-Encoding: 7bit
+X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 10, 2001 at 01:57:49PM +0100, Alan Cox wrote:
-> > If that happens, and the socket uses GFP_ATOMIC allocation, the while (1)
-> > loop in sock_alloc_send_skb() will endlessly spin, without ever calling
-> > schedule(), and all the time holding the kernel lock ...
-> 
-> If the socket is using GFP_ATOMIC allocation it should never loop. That is
-> -not-allowed-. 
+Mark Bratcher wrote:
 
-It is just not clear why any socket should use GFP_ATOMIC. I can understand
-it using GFP_BUFFER e.g. for nbd, but GFP_ATOMIC seems to be rather radical
-and fragile.
+>
+> This all works OK in kernel 2.2.17. But it fails in 2.4.4.
+> > hdd: HP COLORADO 20GB, ATAPI TAPE drive
 
--Andi
+I did my own playing with 2.4.x on the 14gb model of this tape drive, all i've managed
+to do is be able to write to the tape, but not read from it.  Even in 2.2.x, putting the
+IDE patches in, breaks it.  Apparently the HP's aren't completely ATAPI compatible
 

@@ -1,79 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUGEChA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265886AbUGEDSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUGEChA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 22:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUGEChA
+	id S265886AbUGEDSR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 23:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUGEDSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 22:37:00 -0400
-Received: from almesberger.net ([63.105.73.238]:56585 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S265910AbUGECg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 22:36:57 -0400
-Date: Sun, 4 Jul 2004 23:36:51 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: prio_tree generalization
-Message-ID: <20040704233651.A1453@almesberger.net>
-References: <20040704222438.A11865@almesberger.net> <20040705020740.GA3246@dualathlon.random>
-Mime-Version: 1.0
+	Sun, 4 Jul 2004 23:18:17 -0400
+Received: from web20809.mail.yahoo.com ([216.136.226.198]:23967 "HELO
+	web20809.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265886AbUGEDSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 23:18:13 -0400
+Message-ID: <20040705031812.4571.qmail@web20809.mail.yahoo.com>
+Date: Sun, 4 Jul 2004 20:18:12 -0700 (PDT)
+From: Fawad Lateef <fawad_lateef@yahoo.com>
+Subject: Re: Re: Need help in creating 8GB RAMDISK
+To: joelja@darkwing.uoregon.edu
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040705020740.GA3246@dualathlon.random>; from andrea@suse.de on Mon, Jul 05, 2004 at 04:07:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> that's a nice effort, I agree prio_tree.c is better suited for lib/ than
-> mm/ but the code already looks quite generic and well written.
+Dear Joel 
 
-The code is great, no problem there. But at some places, it needs
-a macro that extracts the indices from each node. Callbacks are
-likely to be too expensive, and e.g. with VMAs, the indices are
-actually calculated, so just passing offsets wouldn't work
-either.
+Can you please tell me the way of using more than 4GB
+of RAM in a single process or module ???? I tried to
+solve that problem using threads, but it isn't working
+tooo, there might be the problem in my thread
+implementation but can it be done using threads ???
+Please do tell me way of doing this ......... 
 
-> why don't you move the shared code to lib/prio_tree.c instead of
-> duplicating it in every object?
+I also tried to make 2 different modules each for 4GB
+and then made another module which is just receiving
+the request changes its bh->b_rdev to the
+corresponding drive and returns 1. So kernel will try
+to call the request function of the module related to
+bh->b_rdev. but this is also not working .!!!!
 
-Yes, there are some more functions that should be shareable,
-i.e. prio_tree_replace, prio_tree_parent, and prio_tree_next.
-Also prio_tree_expand might be a candidate.
+Please help me ..... I m working on Linux-2.4.23
 
-But this still leaves a few that depend on GET_INDEX.
+Thanks and Regards,
 
-> I thought prio_tree_next was already the equivalent of rb_next for
-> prio-trees.
-
-Yeah, it kind of is, but I'm looking for something more
-light-weight, that just gives me an adjacent node. Also, I
-want to be able to go back. Here's my prio_tree_prev (minus
-the comments). It should look familiar to you :-)
+Fawad Lateef
 
 
-struct prio_tree_node *prio_tree_succ(struct prio_tree_node *node)
-{
-	if (!prio_tree_right_empty(node)) {
-		node = node->right;
-		while (!prio_tree_left_empty(node))
-			node = node->left;
-		return node;
-	}
-
-	while (!prio_tree_no_parent(node) && node == node->parent->right)
-		node = node->parent;
-
-	return prio_tree_no_parent(node) ? NULL : node->parent;
-}
 
 
-Of course, this kind of iteration only makes sense if your tree
-isn't just a bag of random ranges.
+> On Sun, 4 Jul 2004, Fawad Lateef wrote:
+> 
+> > Hello
+> > 
+> > I am creating a RAMDISK of 7GB (from 1GB to 8GB).
+> I
+> > reserved the RAM by changing the code in
+> > arch/i386/mm/init.c .......... 
+> > 
+> > But I am not able to access the RAM from 1GB to
+> 8GB in
+> > a kernel module ........ after crossing the 4GB
+> RAM,
+> > the system goes into standby state. But if I
+> insert
+> > the same module 2 times means one for 1GB to 4GB
+> and
+> > other for 4GB to 8GB. and mount them seprately
+> both
+> > works fine ............ 
+> 
+> on a non-64bit intel architecture you can only grab
+> 4GB of ram per 
+> process because that's how big the page table is.
+> There are 16 4GB page 
+> tables for the 64GB ram that intel machines are
+> capable of addressing.
+>  
+> > Can any one tell me the reason behind this ??? I
+> think
+> > that in a single module we can't access more than
+> 4GB
+> > RAM ...... If this is the reason then what to do
+> ??? I
+> > need 7GB RAMDISK as a single drive ....
+> > 
+> > Thanks and Regards,
+> > 
+> > Fawad Lateef
+> > 
+> > 
+> > 		
+> > __________________________________
+> > Do you Yahoo!?
+> > Yahoo! Mail - You care about security. So do we.
+> > http://promotions.yahoo.com/new_mail
+> > -
+> > To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> -- 
+>
+--------------------------------------------------------------------------
+> 
+> Joel Jaeggli  	       Unix Consulting 	      
+> joelja@darkwing.uoregon.edu    
+> GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3
+> C38B F000 35AB B67F 56B2
+> 
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

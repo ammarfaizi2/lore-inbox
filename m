@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314553AbSEVOXd>; Wed, 22 May 2002 10:23:33 -0400
+	id <S314571AbSEVO3j>; Wed, 22 May 2002 10:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314571AbSEVOXd>; Wed, 22 May 2002 10:23:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:55237 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314553AbSEVOXb>;
-	Wed, 22 May 2002 10:23:31 -0400
-Date: Wed, 22 May 2002 09:14:53 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>
-cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.17
-Message-ID: <10810000.1022076893@baldur.austin.ibm.com>
-In-Reply-To: <Pine.LNX.4.44.0205212013020.5712-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.0 (Linux/x86)
+	id <S314596AbSEVO3i>; Wed, 22 May 2002 10:29:38 -0400
+Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:52623 "EHLO
+	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S314571AbSEVO3h>; Wed, 22 May 2002 10:29:37 -0400
+Date: Wed, 22 May 2002 15:29:37 +0100 (BST)
+From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
+X-X-Sender: alastair@gerber
+To: linux-kernel@vger.kernel.org
+Subject: Re: Have the 2.4 kernel memory management problems on large machines
+ been fixed?
+Message-ID: <Pine.GSO.4.44.0205221524130.1550-100000@gerber>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> ... Linus is not applying them
 
---On Tuesday, May 21, 2002 08:21:56 PM -0700 Linus Torvalds
-<torvalds@transmeta.com> wrote:
+Shouldn't that be "Marcelo is not applying them"?  Linus has devolved
+all responsibility for 2.4 now, and is concentrating on the 2.5 series
+and all its radical changes.
 
-> The problem is just finding a _good_ context to switch to. We can do this
-> two different ways:
-> 
-> (...)
-> 
->  - my preferred solution: speculatively find _some_ process (preferably
->    one that we are likely to schedule next), and use that process's
->    "active_mm" to do a "switch_mm()" into (and set that to "current->mm")
-> 
-> The speculative thing has the problem of finding a good process, but I
-> would suggest something along the lines of:
-> 
->  - take the first process in the run-queue on the current CPU.
->  - if there is no process on th erun-queue, take our parent
+Marcelo objected to Andrea's mega-patch, but if I recall, he hinted that
+me might start merging the split-up patches for 2.4.20 - in the
+meantime, you can always apply the latest -aa patch yourself to a
+2.4.19-pre kernel. Otherwise, the Red Hat patched kernel (which I
+believe still doesn't use Andrea's VM at all) ought to work well, with
+all their spiffy regression testing etc....
 
-What would be the incremental cost of just switching to init_mm?  Granted,
-it's likely to require switching again when you schedule, but this is the
-exit path.  It could be a fallback if nothing else looks good.
+Cheers
+Alastair
 
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+o o o o o o o o o o o o o o o o o o o o o o o o o o o o
+Alastair Stevens           \ \
+MRC Biostatistics Unit      \ \___________ 01223 330383
+Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
 

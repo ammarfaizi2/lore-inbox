@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVCHGFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVCHGCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVCHGFI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:05:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVCHGEq
+	id S261726AbVCHGCv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVCHGCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:04:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:53639 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261523AbVCHGDC (ORCPT
+	Tue, 8 Mar 2005 01:02:50 -0500
+Received: from waste.org ([216.27.176.166]:25769 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261726AbVCHGBn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:03:02 -0500
-Date: Mon, 7 Mar 2005 22:00:11 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       paul@linuxaudiosystems.com, joq@io.com, cfriesen@nortelnetworks.com,
-       chrisw@osdl.org, hch@infradead.org, rlrevell@joe-job.com,
-       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050308060011.GH5389@shell0.pdx.osdl.net>
-References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308043349.GG3120@waste.org> <20050307204044.23e34019.akpm@osdl.org> <422D3AB2.9020409@bigpond.net.au>
+	Tue, 8 Mar 2005 01:01:43 -0500
+Date: Mon, 7 Mar 2005 22:01:29 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] unified device list allocator
+Message-ID: <20050308060128.GJ3120@waste.org>
+References: <20050308051818.GI3120@waste.org> <20050307213302.560de053.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <422D3AB2.9020409@bigpond.net.au>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050307213302.560de053.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Peter Williams (pwil3058@bigpond.net.au) wrote:
-> Andrew Morton wrote:
-> >Matt Mackall <mpm@selenic.com> wrote:
+On Mon, Mar 07, 2005 at 09:33:02PM -0800, Andrew Morton wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
 > >
-> >>I think Chris Wright's last rlimit patch is more sensible and ready to
-> >>go.
-> >
-> >
-> >I must say that I like rlimits - very straightforward, although somewhat
-> >awkward to use from userspace due to shortsighted shell design.
-> >
-> >Does anyone have serious objections to this approach?
+> > +	/* search for insertion point in reverse for dynamic allocation */
+> >  +	list_for_each_prev(l, list) {
 > 
-> I don't object to rlimits per se and I think that they are useful but 
-> not as a sole solution to this problem.  Being able to give a task 
-> preferential treatment is a permissions issue and should be solved as one.
+> hrmph.  Any time we do anything in O(n) time, some smarty comes along with
+> a workload which blows us out of the water.  Although it's hard to think of
+> any register_blkdev()-intensive workloads.
 > 
-> Having RT cpu usage limits on tasks is a useful tool to have when 
-> granting normal users the privilege of running tasks as RT tasks so that 
-> you can limit the damage that they can do BUT the presence of a limit on 
-> a task is not a very good criterion for granting that privilege.
-> 
-> The granting of the ability to switch to and from RT mode should require 
-> a means to specify which users it applies to and also which programs it 
-> applies to.  The RT rlimits mechanism doesn't meet these criteria.
-> 
-> In summary, IMHO you should put them both in but modify the RT rlimits 
-> patch so that it plays no part in the decision as to whether the task is 
-> allowed to run as RT or not.
+> It's not possible to do this with prio-trees?
 
-I'm not sure I follow you.  This patch just sets the max RT priority a
-process can have (defaults to 0, as w/out the patch).  Increasing that
-value is a form of permission granting, giving the process the ability
-to increase its RT prio if it chooses to ask for it.
+I thought about using rbtrees. But I decided it was overkill. Beyond
+the 4k limit of the current proc code, currently that's limited to
+~256 entries per block/char and will be limited to about ~1024 each
+for the foreseeable future. It's only walked on driver init/exit and
+when catting said proc file (where O(n) is unavoidable). In other
+words, worst case we're talking less than a millisecond at
+boot/shutdown.
 
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Mathematics is the supreme nostalgia of our time.

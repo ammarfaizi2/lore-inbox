@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbUALMoL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 07:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUALMoL
+	id S266130AbUALM77 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 07:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUALM77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 07:44:11 -0500
-Received: from [212.239.225.130] ([212.239.225.130]:641 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S266132AbUALMoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 07:44:04 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: Bart Samwel <bart@samwel.tk>
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Date: Mon, 12 Jan 2004 13:43:34 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Dax Kelson <dax@gurulabs.com>,
+	Mon, 12 Jan 2004 07:59:59 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:7755 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S266130AbUALM76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 07:59:58 -0500
+Message-ID: <40029A44.4030406@samwel.tk>
+Date: Mon, 12 Jan 2004 13:59:48 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dax Kelson <dax@gurulabs.com>
+CC: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
        Kiko Piris <kernel@pirispons.net>, Bartek Kania <mrbk@gnarf.org>,
        Simon Mackinlay <smackinlay@mail.com>
-References: <3FFFD61C.7070706@samwel.tk> <200401121212.44902.lkml@kcore.org> <4002836A.8050908@samwel.tk>
-In-Reply-To: <4002836A.8050908@samwel.tk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
+References: <3FFFD61C.7070706@samwel.tk> <200401121045.56749.lkml@kcore.org>	 <40026FEC.4040707@samwel.tk> <1073911834.2892.0.camel@mentor.gurulabs.com>
+In-Reply-To: <1073911834.2892.0.camel@mentor.gurulabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401121343.34688.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 January 2004 12:22, Bart Samwel wrote:(
-> Jan De Luyck wrote:
-> > Patch applied, kernel built, laptop_mode activated, but my disk just
-> > doesn't want to spin down...
->
-> [...]
->
-> > But the disk never spins down. Not that I can tell, hdparm -C /dev/hda
-> > always tells me active/idle, and the sdsl tool also reports 100% disk
-> > spinning...
-> >
-> > anything else I have to activate/check?
->
-> Two things to try:
->
-> 1. Check your HD with hdparm -I /dev/hdX, and see what it says at the
-> "Standby timer values:" entry. Mine says:
->
-> Standby timer values: spec'd by Standard, with device specific minimum
+Dax Kelson wrote:
+>>>There seems to be a typo in the battery.sh script. It 
+>>>reads /proc/acpi/ac_adapter/AC/state to determine the AC Adaptor state, but 
+>>>this is in the ACAD directory instead of the AC directory.
+>>
+>>Hmmm, Dax says it works for him, and I don't have an ac_adapter on my 
+>>machine because I don't own a laptop. Dax, is this a typo or is it 
+>>actually called AC on your machine?
+> 
+> On my Dell Inspiron 4150 it is called AC not ACAD.
 
-Mine gives:
+Hmmmm. Does anybody have any idea why these names differ? Googling for 
+acpi/ac_adapter gives me hits on a number of different programs that 
+check for ac_adapter/*/state. I've seen AC, ACAD, 0 and 1 for names, so 
+they're really pretty variable. So, a wildcard seems appropriate. Dax, 
+if you agree, would you test + send in a patch to correct this? I can't 
+do it myself because I can't test it. TIA!
 
-Standby timer values: spec'd by Vendor, no device specific minimum
-
-(is an HITACHI_DK23EA-40)
-
-> smart_spindown script instead (I posted this a while ago, with one of
-> the laptop_mode patches).
-
-Will do.
-
-> 2. Stop klogd, do "echo 1 > /proc/sys/vm/block_dump" and see which
-> process keeps your disk spun up using dmesg.
-
-Welll.... i see no READs, and the writes i see is spamd, kmail, pdflush, 
-reiserfs/0.
-
-Jan
--- 
-The only possible interpretation of any research whatever in the `social
-sciences' is: some do, some don't.
-		-- Ernest Rutherford
-
+-- Bart

@@ -1,14 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTB0HJc>; Thu, 27 Feb 2003 02:09:32 -0500
+	id <S264688AbTB0HF5>; Thu, 27 Feb 2003 02:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbTB0HJc>; Thu, 27 Feb 2003 02:09:32 -0500
-Received: from viefep15-int.chello.at ([213.46.255.19]:25882 "EHLO
+	id <S264699AbTB0HF5>; Thu, 27 Feb 2003 02:05:57 -0500
+Received: from viefep15-int.chello.at ([213.46.255.19]:56634 "EHLO
 	viefep15-int.chello.at") by vger.kernel.org with ESMTP
-	id <S261463AbTB0HJa>; Thu, 27 Feb 2003 02:09:30 -0500
+	id <S264688AbTB0HF4>; Thu, 27 Feb 2003 02:05:56 -0500
 Subject: Re: About /etc/mtab and /proc/mounts
-From: Joseph Wenninger <kernel@jowenn.at>
-To: linux-kernel@vger.kernel.org
+From: Joseph Wenninger <jowenn@jowenn.at>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: Miles Bader <miles@gnu.org>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
 In-Reply-To: <3E5DB2CA.32539D41@daimi.au.dk>
 References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
 	<buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> 
@@ -16,8 +18,8 @@ References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 27 Feb 2003 08:07:16 +0100
-Message-Id: <1046329637.1404.13.camel@jowennmobile>
+Date: 27 Feb 2003 08:03:42 +0100
+Message-Id: <1046329422.1404.10.camel@jowennmobile>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -45,5 +47,4 @@ anyways.
 
 Kind regards
 Joseph Wenninger
-
 

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTI0Ibj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 04:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbTI0Ibj
+	id S262410AbTI0Ip7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 04:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbTI0Ip7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 04:31:39 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22532 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262406AbTI0Ibi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 04:31:38 -0400
-Date: Sat, 27 Sep 2003 09:31:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-pcmcia@lists.infradead.org
-Subject: Re: [CFT] Socket quiescing changes
-Message-ID: <20030927093131.A3440@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	linux-pcmcia@lists.infradead.org
-References: <20030922195805.E31823@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030922195805.E31823@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Sep 22, 2003 at 07:58:05PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Sat, 27 Sep 2003 04:45:59 -0400
+Received: from [66.220.30.22] ([66.220.30.22]:53907 "EHLO london.netmongol.com")
+	by vger.kernel.org with ESMTP id S262410AbTI0Ip6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 04:45:58 -0400
+Message-ID: <3144.192.116.82.113.1064652009.squirrel@webmail.netmongol.com>
+Date: Sat, 27 Sep 2003 02:40:09 -0600 (MDT)
+Subject: Presentation
+From: <co-ord29@emailboutique.com>
+To: <co-ord29@emailboutique.com>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-Mailer: WWWebmail (version 1.2.7)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 07:58:05PM +0100, Russell King wrote:
-> This patch changes the way in which we turn off power to PCMCIA sockets.
-> We have traditionally relied on the socket drivers "init" method to
-> shut down the power to the socket by calling its own "set_socket" function.
+Respond to: co-ord16@tiscali.co.uk
+Good day,
+I wish to contact you quickly concerning some investment and business we
+can undertake quickly.  I am the sales co-ordinator of the local Honda
+firm here. My boss Mr Vaswani has been indicted on some financial charges
+in the Uk and I think this is the best time to make some good Money.
+Sincerly speaking he does all sorts of business and does not really
+finance this business from selling cars. There are so many closed doors we
+do not know. We take delivery of base model Honda cars from Turkey and
+Japan and add standard features in our workshops and My boss sources money
+from his numerous international business and can never notice this one.
+We have supplied 500 untis of Honda cars to an oil firm where we have
+quoted 50% over the normal price. We have been paid full for the supplied
+cars and have remitted it accordingly. I do not want the second part to go
+to Honda place. so I need an account and company to tell them that they
+supplied half so they can wire this amount to your account. I have made
+the paper arrangements and everything is a totally legal and straight
+foward deal. I am ready to discuss all the proceedures with you or any
+representative. Total amount here is $5,250,000.00. Once this funds get to
+your account, your share would be 10% of this funds and you shall wire the
+remaning to my personal Account. I do not have any contact aparts from my
+Country and I do not want anything to be linked there to Mr Vaswani as he
+is well connected. So I need a neutral person and someone that can keep
+this deal between us. So many more business to come if you can handle this
+well. Are you interested? Can you handle this?
+We need to commence as soon as possible as there is no time to waste.
+My Regards,
+Sales Co-ordinator.
+Endeavour to respond to: co-ord16@tiscali.co.uk
 
-I've heard nothing back from this patch, so I'm going to assume that
-it works for everyone, and therefore it'll be committed later today.
 
-If anyone has any objections to it, or found that it doesn't work on
-their machine, it would be preferable that they spoke up in the next
-couple of hours.
-
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core

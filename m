@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbTAABpR>; Tue, 31 Dec 2002 20:45:17 -0500
+	id <S264963AbTAACBv>; Tue, 31 Dec 2002 21:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265108AbTAABpR>; Tue, 31 Dec 2002 20:45:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63249 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264969AbTAABpO>; Tue, 31 Dec 2002 20:45:14 -0500
-Date: Tue, 31 Dec 2002 17:47:49 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Dimitrie O. Paun" <dpaun@rogers.com>
-cc: James Simmons <jsimmons@infradead.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK fbdev updates]
-In-Reply-To: <200212311931.24544.dpaun@rogers.com>
-Message-ID: <Pine.LNX.4.44.0212311746550.8101-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264969AbTAACBv>; Tue, 31 Dec 2002 21:01:51 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:17162 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S264963AbTAACBu>; Tue, 31 Dec 2002 21:01:50 -0500
+Message-Id: <200301010210.h012ABG4014534@pincoya.inf.utfsm.cl>
+To: Joshua Stewart <joshua.stewart@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Production vs development version numbers 
+In-Reply-To: Message from Joshua Stewart <joshua.stewart@comcast.net> 
+   of "Tue, 31 Dec 2002 20:58:29 CDT." <1041386309.16613.5.camel@localhost.localdomain> 
+Date: Tue, 31 Dec 2002 23:10:11 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joshua Stewart <joshua.stewart@comcast.net>  said:
 
-On Tue, 31 Dec 2002, Dimitrie O. Paun wrote:
-> 
-> What about a diffstat? Come on dude, this a problem _every_single_patch_ :)
+[...]
 
-There are some nice scripts in the Documentation/BK directory, to not just 
-have diffstats but also listings of the things changed etc. Much nicer 
-than just a "please pull this blind without any clue what it will do for 
-you" email.
+> If an even version is "stable", what types of differences are there
+> between different patch levels of an even version, for example 2.4.x and
+> 2.4.y.  Are these bug fixes, performance boosters, or functionality
+> additions?
 
-		Linus
+Usually; but not always. Sometimes support for new hardware is added, and
+there have been cases on larger scale changes.
 
+> Also, when fixes are made to a stable version kernel, such as those
+> added to 2.4.19 to give us 2.4.20, do those fixes get incorporated into
+> the current development version as well?
+
+The two veersions usually diverge rather fast. Changes in the development
+version are sometimes backported to the stable version(s), sometimes fixes
+form the stable series find their way into the development series.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

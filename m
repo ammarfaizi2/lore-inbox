@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313819AbSDUUyY>; Sun, 21 Apr 2002 16:54:24 -0400
+	id <S313818AbSDUU4T>; Sun, 21 Apr 2002 16:56:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313820AbSDUUyX>; Sun, 21 Apr 2002 16:54:23 -0400
-Received: from zork.zork.net ([66.92.188.166]:48900 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S313819AbSDUUyV>;
-	Sun, 21 Apr 2002 16:54:21 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: possible GPL violation involving linux kernel code
-In-Reply-To: <Pine.LNX.4.33.0204211510030.1048-100000@tweedle.cabbey.net>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Message-Flag: Message text advisory: HEINOUS SELF-AGGRANDIZATION,
- MISMATCHED PARENTHESES
-X-Mailer: Norman
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sun, 21 Apr 2002 21:54:20 +0100
-Message-ID: <6uznzwlqmb.fsf@zork.zork.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
- (i386-debian-linux-gnu)
+	id <S313824AbSDUU4S>; Sun, 21 Apr 2002 16:56:18 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:36357 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S313818AbSDUU4Q>;
+	Sun, 21 Apr 2002 16:56:16 -0400
+Date: Sun, 21 Apr 2002 21:54:59 +0100 (IST)
+From: Mel <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmalloc comments patch
+In-Reply-To: <20020420234752.GA26727@krispykreme>
+Message-ID: <Pine.LNX.4.44.0204212153200.1650-100000@skynet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Chris Abbey quotation:
+On Sun, 21 Apr 2002, Anton Blanchard wrote:
 
-> Today, Christoph Hellwig wrote:
->> Blah.  First thing you'd do if you were serious would be to contact
->> Promise.
+> > + * To give a safety margin, the linear address starts about 8MB after the end
+> > + * of physical memory at VMALLOC_START. This is to try and catch memory
+> > + * overruns.
 >
-> As I am not the copyright holder of the material in question I can
-> not do that. Only the copyright holder can, at least in this
-> country.
+> Thats architecture dependent. On ppc64 for example the kernel text
+> starts at 0xC000000000000000 and the vmalloc region starts at
+> 0xD000000000000000, 2^60 bits apart.
+>
 
-You cannot ENFORCE the license, but you could have certainly sent them
-a polite message, drawing their attention to the matter.  It could
-have been a simple mistake, but you don't know, because you decided to
-"send a precise report to the copyright holders" by sending a message
-to a widely-read mailing list.  This is very different to sending a
-message to the FSF, who will typically begin by sending a polite
-e-mail.
+Changed to
 
--- 
- /////////////////  |                  | The spark of a pin
-<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
- \\\\\\\\\\\\\\\\\  |                  | There is too much noise.
+ * These are the functions for assigning a block of linear addresses for pages.
+ * To give a safety margin, the linear address starts at VMALLOC_START.
+ * This is at PAGE_OFFSET + VMALLOC_OFFSET which are all arch dependant
+ * values
+
+Is that ok?
+
+> >  		spin_unlock(&init_mm.page_table_lock);
+> >  		page = alloc_page(gfp_mask);
+> >  		spin_lock(&init_mm.page_table_lock);
+>
+> Since alloc_page can sleep we must drop the spinlock.
+>
+
+Changed to
+
+                /* The page table lock has to be released because alloc_page
+                 * could sleep if memory is low
+                 */
+
+All good?
+
+			Mel
+

@@ -1,64 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbUCJSKv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbUCJSIG
+	id S262741AbUCJSHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUCJSHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:08:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24468 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262748AbUCJSHb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:07:31 -0500
-Message-ID: <404F5955.6040702@pobox.com>
-Date: Wed, 10 Mar 2004 13:07:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Christoph Hellwig <hch@infradead.org>, prism54-devel@prism54.org,
-       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
-References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com>
-In-Reply-To: <20040310172114.GA8867@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 10 Mar 2004 13:07:36 -0500
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:53436 "EHLO
+	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S262749AbUCJSGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:06:07 -0500
+Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
+From: Disconnect <lkml@sigkill.net>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <404E27E6.40200@linux.co.intel.com>
+	 <1078866774.2925.15.camel@mentor.gurulabs.com>
+	 <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Message-Id: <1078941969.14394.41.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 10 Mar 2004 13:06:09 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> On Wed, Mar 10, 2004 at 04:55:48PM +0000, Christoph Hellwig wrote:
+On Wed, 2004-03-10 at 03:15, vda wrote:
+> *FLAME ALERT*
+> /me is slowly getting mad about his prism54 11g hardware
+> and its firmware, with neither firmware authors nor documentation
+> for this pile of silicon crap nowhere in sight
 > 
->>On Wed, Mar 03, 2004 at 06:35:24PM -0800, Jean Tourrilhes wrote:
->>
->>>	Hi Dave & Jeff,
->>>
->>>	The attached .bz2 file is a patch for 2.6.3 adding the
->>>Intersil Prism54 wireless driver. Sorry for the attachement, the file
->>>is rather big, if you want inline+plaintext, I'll send that personal
->>>to you.
->>>	I've been using this driver with great success on 2.6.3 and
->>>2.6.4-rc1 (SMP). This driver support various popular CardBus and PCI
->>>802.11g cards (54 Mb/s) based on the Intersil PrismGT/PrismDuette
->>>chipset.
->>>	I would like this driver to go into 2.6.X. However, I
->>>understand that it's lot's of code to review.
->>
->>Here's a few things I found.
-> 
-> 
-> 	I'm forwarding to prism54-devel where the real developpers can
-> answer your questions.
+> What's so cool about having binary firmware? Bugs are bugs,
+> and you won't be able to even see bugs, less fix, in it.
+> I don't like being at the mercy of firmware authors.
+> --
+> vda
 
-since I'm not on the this list, I am getting a bunch of "your message 
-for prism54-devel awaits moderator approval" responses.
+Short list of places you have binary firmware, in no particular order:
+ - BIOS
+ - Hard drives
+ - CD/DVD ROM/RAM/RW/R/...
+ - Controller for drives
+ - Video card (regardless of open/closed driver status)
+ - Sound card
+ - Most 100M+ NICs
+ - LCD display panels
+ - CRT displays
+ - KVMs
+ - Printers more advanced than daisy-wheel
+ - Some older daisy-wheel printers
+ - Networking gear of all forms more complex than a cat5 inline
+ - USB->* (usb->serial, usb->parallel, that sort of thing)
 
-Maybe the prism54 and hostAP developers could join us on netdev?  It 
-would be nice to have everybody in one place, if we're all gonna be 
-collaborating on a generic 802.11 stack.
+..and to go a little farther:
 
-	Jeff
+ - Microwave, Dishwasher, Clothes Washing machine (maybe not the latter,
+since cogs/gears is sorta open source...)
+ - TV
+ - TV Cable/Sat Box
+ - Tivo (yep, OS is linux. with lots of binary goo. but the loader
+isn't..)
+ - PDA (unless it runs - eg - CRL's arm bootldr)
+ - Cellphone
+ - Cordless phone
+ - Some corded phones
+ - Car, car radio, radar detector (if applicable)
+ - Digital/crystal watch (analog-with-gears falls under sorta-open)
+ - Many fridge/freezers
+ - Many newer coffee makers
 
+I'm curious as to how you go through life avoiding all that.  (For that
+matter, hardware designers have you even more at their mercy than
+firmware authors....)
 
+I suspect the real beef here is -undocumented- firmware.  With api docs
+the vast majority of bugs could be worked around, and some could be
+fixed. (Its a 'firmware bug' if doing something that seems legit causes
+failure. Its a driver bug if the firmware docs say "this has these
+[currently undocumented] side-effects, so don't follow it with
+'that'"..)
+
+-- 
+Disconnect <lkml@sigkill.net>
 

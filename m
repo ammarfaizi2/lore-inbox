@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbTDVBtu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 21:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbTDVBtu
+	id S262710AbTDVCCM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 22:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbTDVCCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 21:49:50 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:17796 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262810AbTDVBtt
+	Mon, 21 Apr 2003 22:02:12 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:15869 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S262710AbTDVCCL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 21:49:49 -0400
-Date: Tue, 22 Apr 2003 03:01:53 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new system call mknod64
-Message-ID: <20030422020153.GA18141@mail.jlokier.co.uk>
-References: <UTC200304220102.h3M126n06187.aeb@smtp.cwi.nl> <b8262k$6t8$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b8262k$6t8$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Apr 2003 22:02:11 -0400
+Message-ID: <3EA4A54F.6060709@quark.didntduck.org>
+Date: Mon, 21 Apr 2003 22:13:35 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC, PATCH] fix verify_write for 80386 support
+References: <3EA45485.2080500@colorfullife.com> <3EA4565D.4070302@colorfullife.com>
+In-Reply-To: <3EA4565D.4070302@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> > Well, I have also done that of course. Both struct and u64 work well.
-> > Since only kdev_t.h knows about the actual structure of kdev_t
-> > it is very easy to switch.
-> > 
+Manfred Spraul wrote:
+> [ 2nd part of the mail, after hitting the send button in the middle of 
+> the sentence]
 > 
-> The main advantage with making it a struct is that it keep people from
-> doing stupid stuff like (int)dev where dev is a kdev_t...  There is
-> all kinds of shit like that in the kernel...
+> The solution is to perform the check for write protection in the actual 
+> access functions, not during access_ok.
+> 
+> The attached patch does that:
+> - remove the check from access_ok
+> - redirect all user space write access into __copy_to_user_ll
+> - within __copy_to_user_ll: use get_user_pages, and write directly to 
+> the obtained kernel address.
+> 
+> This fixes all swapout & data corruption bugs, and even removes 26 lines 
+> from the kernel.
+> 
+> What do you think? The alternative would be to drop support for real 
+> 80386 cpus.
+> 
+> Not tested on a real 80386, I've just replace wp_works_ok with 
+> !wp_works_ok.
+> 
+> -- 
+>    Manfred
+> 
 
-If you want that good quality 64-bit code, try making it a struct
-containing just a u64 :)
+Close, but there is still a race here.  You need to hold mmap_sem over 
+the memcpy.  Another thread will expect the memory to not be written to 
+after write-protecting it.
 
--- Jamie
+--
+				Brian Gerst
+

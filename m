@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132800AbRDDMTd>; Wed, 4 Apr 2001 08:19:33 -0400
+	id <S132801AbRDDMUn>; Wed, 4 Apr 2001 08:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132801AbRDDMTX>; Wed, 4 Apr 2001 08:19:23 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:29703 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132800AbRDDMTN>;
-	Wed, 4 Apr 2001 08:19:13 -0400
-Date: Wed, 4 Apr 2001 08:18:22 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: Remko van der Vossen <remko.van.der.vossen@cmg.nl>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PThreads in kernel module & network interface
-In-Reply-To: <B569A4D2254ED2119FE500104BC1D5CD01294138@NL-EIN-MAIL01>
-Message-ID: <Pine.LNX.4.30.0104040812010.10013-100000@localhost>
+	id <S132805AbRDDMUY>; Wed, 4 Apr 2001 08:20:24 -0400
+Received: from mailhost.mipsys.com ([62.161.177.33]:7672 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S132801AbRDDMUO>; Wed, 4 Apr 2001 08:20:14 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>, <linux-kernel@vger.kernel.org>,
+        <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: console.c unblank_screen problem
+Date: Wed, 4 Apr 2001 14:18:56 +0200
+Message-Id: <20010404121856.1992@mailhost.mipsys.com>
+In-Reply-To: <200104041109.NAA28776@harpo.it.uu.se>
+In-Reply-To: <200104041109.NAA28776@harpo.it.uu.se>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>Thanks for this patch. I've been using it on my Dell Latitude laptop
+>for the last 10 days, and it has been a significant improvement.
+>
+>Before the patch: After a few days with a 2.4 kernel and RH7.0
+>(XFree86-4.0.1-1 and XFree86-SVGA-3.3.6-33) the latop would
+>misbehave at a resume event: when I opened the lid the screen would
+>unblank and then after less than a second the entire screen would
+>shift (wrap/rotate) left by about 40% of its width. Restarting X
+>would only fix this temporarily, as the next resume would have the
+>same problem. This does not occur with a 2.2 kernel or with the
+>Accelerated-X server I used before.
+>
+>With the patch: No problem after 10 days with frequent suspend/resume
+>cycles. (2.4.2-ac24 + the patch)
+>
+>[Alan, mind putting this in the next 2.4.3-ac? I've rediffed it
+>against 2.4.3-ac2.]
 
-On Wed, 4 Apr 2001, Remko van der Vossen wrote:
-> second problem is that when I use the PThread functions from this module I
-> need the pthread library. As you probably know gcc doesn't link the pthread
-> library into the module, so I tried to do that with ld, that in itself
-> worked, I successfully linked the pthread library into the module I made,
+Glad to get some feedback !
 
-The first problem you are running into is mixing user space with kernel
-code.  You cannot use pthreads in the kernel... not directly anyways.  You
-could use kernel_thread() instead.
+I'm still getting other problems related to console.c power management
+however. On the PowerBook, occasionally, if suspend is triggered from
+a text console, the machine may hang during the sleep process. I don't
+quite understand that code in console.c anyway since it seems to trigger
+a timer to later call the VESA blank. That timer thing doesn't makes much
+sense to me, especially since when the timer fire (if it ever fires),
+the machine will probably be sleeping. 
 
-If your future stack will have a BSD socket interface you could prototype
-your server in user space - and use pthreads.  If you don't want the
-interface then you can hook into the stack directly by using the sock_*
-functions (see include/linux/net.h).  You will probably get everything you
-need to start you off from an article by Alessandro Rubini at the Linux
-Magazine:	http://www.linux-mag.com/2000-12/gear_01.html
+The problem with it on powerbooks is that we do suspend the graphic chip
+from fbdev layer (later on).
+So if after this timer expires, the console code tries to access the chip
+in any way, bad things will happen (it will die).
 
-> Thank you in advance,
+I'm working on workaround at the fbdev level, but I'm curious to know
+if that PM code in console.c is useful at all in it's current form,
+especially since it plays those tricks with timers which don't seem like
+a good idea when the machine is going to sleep.
 
-Cheers,
-Bart.
+Ben.
 
--- 
-	WebSig: http://www.jukie.net/~bart/sig/
 
 

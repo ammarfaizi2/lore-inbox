@@ -1,79 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265099AbUFRKjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUFRKmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265099AbUFRKjm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 06:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUFRKjm
+	id S265100AbUFRKmo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 06:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUFRKmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 06:39:42 -0400
-Received: from mail45.messagelabs.com ([140.174.2.179]:8117 "HELO
-	mail45.messagelabs.com") by vger.kernel.org with SMTP
-	id S265099AbUFRKjg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 06:39:36 -0400
-X-VirusChecked: Checked
-X-Env-Sender: justin.piszcz@mitretek.org
-X-Msg-Ref: server-7.tower-45.messagelabs.com!1087555174!3667409
-X-StarScan-Version: 5.2.10; banners=-,-,-
-X-Originating-IP: [141.156.156.57]
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ACPI vs. APM - Which is better for desktop and why?
-Date: Fri, 18 Jun 2004 06:39:00 -0400
-Message-ID: <2E314DE03538984BA5634F12115B3A4E895296@email1.mitretek.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI vs. APM - Which is better for desktop and why?
-Thread-Index: AcRUmVA9MtzyxwdmQzuSgT9VQIPpuAAhv60Q
-From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>,
-       "Justin Piszcz" <jpiszcz@lucidpixels.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Fri, 18 Jun 2004 06:42:44 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:5326 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265100AbUFRKkV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 06:40:21 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Fri, 18 Jun 2004 12:14:29 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Cc: Paul Focke <paul.focke@pandora.be>
+Subject: [PATCH] v4l: radio-zoltrix fix.
+Message-ID: <20040618101429.GB24904@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any performance degradation when using ACPI as it uses IRQ 9,
-therefore forcing more devices to share IRQ's thus possibly decreasing
-performance?
+  Hi,
+
+Patch is ObviouslyCorrect[tm], please apply,
+
+  Gerd
+
+----- Forwarded message from Paul Focke <paul.focke@pandora.be> -----
+
+Date: Thu, 17 Jun 2004 12:55:12 +0200
+From: Paul Focke <paul.focke@pandora.be>
+Subject: [PATCH] radio-zoltrix
+To: kraxel@bytesex.org
+Content-Type: multipart/mixed; boundary="=-3kZZlLw+woB/Iii8zHTj"
+X-Bogosity: Ham, tests=bogofilter, spamicity=0.026921, version=0.15.13
+
+Hi,
+
+I recently upgraded from 2.4 to kernel 2.6 & noticed that the zoltrix
+radio driver was not working.  Seems like a little typo.
+I tested this on my system and it's working fine now. I doubt there are
+any other linux users in the world who still use this card ;-)
+This is my first patch.  I tried following the guidelines as stated here
+: http://www.tux.org/lkml/#s4-1 
+If I forgot something, don't hesitate to contact me.
+
+Paul Focke
+
+--- a/drivers/media/radio/radio-zoltrix.c	2004-06-17 12:38:20.947707352
++0200
++++ b/drivers/media/radio/radio-zoltrix.c	2004-06-17 12:37:18.729166008
++0200
+@@ -273,7 +273,7 @@
+ 	case VIDIOCGAUDIO:
+ 		{
+ 			struct video_audio *v = arg;
+-			memset(&v, 0, sizeof(*v));
++			memset(v, 0, sizeof(*v));
+ 			v->flags |= VIDEO_AUDIO_MUTABLE | VIDEO_AUDIO_VOLUME;
+ 			v->mode |= zol_is_stereo(zol)
+ 				? VIDEO_SOUND_STEREO : VIDEO_SOUND_MONO;
 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Felipe Alfaro
-Solana
-Sent: Thursday, June 17, 2004 2:27 PM
-To: Justin Piszcz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACPI vs. APM - Which is better for desktop and why?
 
-On Thu, 2004-06-17 at 13:10 -0400, Justin Piszcz wrote:
-> I have enabled ACPI on my Dell GX1 (Pentium 3/500MHZ) machine and
-disabled 
-> APM, however, what are the benefits of using ACPI over APM?
-
-Well, I can't tell for sure... ACPI is supposed to offer better power
-management and battery usage for laptops, while being more flexible than
-APM.
-
-The truth is that on my laptop, both work equally well but since ACPI is
-still less mature than APM, I chose to use ACPI in order to test it and
-helping in its future development.
-
-> 
-> I am using Kernel 2.6.7
-> 
-> I see ACPI eats up an IRQ and does not share it:
-
-I wouldn't mind about IRQ's...
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+----- End forwarded message -----

@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbRBLXMZ>; Mon, 12 Feb 2001 18:12:25 -0500
+	id <S129142AbRBLXRc>; Mon, 12 Feb 2001 18:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129075AbRBLXMN>; Mon, 12 Feb 2001 18:12:13 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:12814 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129092AbRBLXME>;
-	Mon, 12 Feb 2001 18:12:04 -0500
-Date: Tue, 13 Feb 2001 00:11:23 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S129154AbRBLXRX>; Mon, 12 Feb 2001 18:17:23 -0500
+Received: from [209.81.55.2] ([209.81.55.2]:39433 "EHLO cyclades.com")
+	by vger.kernel.org with ESMTP id <S129142AbRBLXRH>;
+	Mon, 12 Feb 2001 18:17:07 -0500
+Date: Mon, 12 Feb 2001 15:17:04 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: LILO and serial speeds over 9600
-Message-ID: <20010213001123.D17129@almesberger.net>
-In-Reply-To: <3A885F72.ED9ADAE8@transmeta.com> <E14SRPp-0008J1-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14SRPp-0008J1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 12, 2001 at 10:25:47PM +0000
+In-Reply-To: <Pine.LNX.4.31.0102121147390.25638-100000@lairdtest1.internap.com>
+Message-ID: <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Explain 'controlled buffer overrun'.
 
-That's probably the ability to send new data even if there's unacked old
-data (e.g. because the receiver can't keep up or because we've had losses).
+On Mon, 12 Feb 2001, Scott Laird wrote:
+> 
+> On 12 Feb 2001, H. Peter Anvin wrote:
+> >
+> > Just checked my own code, and SYSLINUX does indeed support 115200 (I
+> > changed this to be a 32-bit register ages ago, apparently.)  Still
+> > doesn't answer the question "why"... all I think you do is increase
+> > the risk for FIFO overrun and lost characters (flow control on a boot
+> > loader console is vestigial at the best.)
+> 
+> It's simple -- we want the kernel to have its serial console running at
+> 115200, and we don't want to have to change speeds to talk to the
+> bootloader. 
 
-Such a feature would be mainly useful in cases where data becomes useless
-if too old, e.g. VoIP. Ironically, for the console, the opposite may be
-true: if the kernel all of a sudden starts vomiting printks, the relevant
-information is more likely to be at the beginning than at the end.
+Exactly.
 
-One advantage of TCP would be that such an implementation is more likely
-to get congestion control right, so it would be safer to use over the
-Internet. (And using UDP wouldn't make this any easier.) Also, when using
-TCP, it's more likely that some reasonable session management is built
-into the design.
+Then HPA may ask: but why do you want to run the serial console at
+115200?? The answer is simple: because we can (or more precisely, because
+the HW can ;).
 
-BTW, as far as the boot loader is concerned: any of the Linux boots Linux
-designs should nicely solve this, with the possible exception of
-environments where a legacy OS needs to be booted. Reminds me that I should
-find some time besides traffic control to work a bit on bootimg ...
+If the hardware is supposed to support 115.2Kbps, why can't / shouldn't 
+we use it?? Remember, this is not a modem connection, there is no
+compression involved, both sides are running 115.2Kbps, so there should
+NOT be a risk for FIFO overruns (unless you have buggy hardware). And in
+this case, you can then decrease your baud rate. But at least you have the
+_option_! :)
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+> Some boot processes, particularaly fsck, can be *REALLY*
+> verbose on screwed up systems.  I've seen systems take hours to run fsck,
+> even on small filesystems, simply because they were blocking on a 9600 bps
+> console.
+
+This is true!!
+
+Another one (not as critical as the fsck though): when compiling the
+kernel, sometimes the kernel compilation is done, but the console output
+isn't finished yet (I'm serious).
+
+Later,
+Ivan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

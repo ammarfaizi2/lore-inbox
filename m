@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267175AbUBSKiS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:38:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267177AbUBSKiS
+	id S267177AbUBSKjH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267183AbUBSKjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:38:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40326 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267175AbUBSKiN (ORCPT
+	Thu, 19 Feb 2004 05:39:07 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:54958 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S267177AbUBSKjD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:38:13 -0500
-Date: Thu, 19 Feb 2004 02:38:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       error27@email.com
-Subject: Re: [Announce] Strace Test
-Message-Id: <20040219023813.2d4b0ced.akpm@osdl.org>
-In-Reply-To: <16436.35563.593635.277584@laputa.namesys.com>
-References: <20040216052257.A2C971D7214@ws3-3.us4.outblaze.com>
-	<16436.35563.593635.277584@laputa.namesys.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 19 Feb 2004 05:39:03 -0500
+Date: Thu, 19 Feb 2004 11:39:00 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
+Message-ID: <20040219103900.GH17140@khan.acc.umu.se>
+Mail-Followup-To: Greg Ungerer <gerg@snapgear.com>,
+	linux-kernel@vger.kernel.org
+References: <40342BD5.9080105@snapgear.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40342BD5.9080105@snapgear.com>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov <Nikita@Namesys.COM> wrote:
->
->  > Strace Test uses a modified version of strace 4.5.1.  
->   > Instead of printing out information about system calls, 
->   > the modified version calls the syscalls with improper 
->   > values.
+On Thu, Feb 19, 2004 at 01:21:57PM +1000, Greg Ungerer wrote:
+> Hi All,
 > 
->  It immediately DoSes kernel by calling sys_sysctl() with huge nlen:
->  printk() consumes all CPU.
+> An update of the uClinux (MMU-less) fixups against 2.6.3.
+> Nothing much new, just redone against 2.6.3.
+> 
+> http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.3-uc0.patch.gz
 
-Something like this?
+Any plans for a 2.6-version of the ARM-support?
 
---- 25/kernel/sysctl.c~sysctl-nlen-check	2004-02-19 02:36:20.000000000 -0800
-+++ 25-akpm/kernel/sysctl.c	2004-02-19 02:37:40.000000000 -0800
-@@ -913,6 +913,9 @@ asmlinkage long sys_sysctl(struct __sysc
- 
- 	if (copy_from_user(&tmp, args, sizeof(tmp)))
- 		return -EFAULT;
-+
-+	if (tmp.nlen < 0 || tmp.nlen > CTL_MAXNAME)
-+		return -EINVAL;
- 	
- 	if (tmp.nlen != 2 || copy_from_user(name, tmp.name, sizeof(name)) ||
- 	    name[0] != CTL_KERN || name[1] != KERN_VERSION) { 
 
-_
-
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

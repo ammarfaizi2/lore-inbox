@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310749AbSDQRMF>; Wed, 17 Apr 2002 13:12:05 -0400
+	id <S293132AbSDQRNT>; Wed, 17 Apr 2002 13:13:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293132AbSDQRME>; Wed, 17 Apr 2002 13:12:04 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:64972 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S310749AbSDQRKl>; Wed, 17 Apr 2002 13:10:41 -0400
-Date: Wed, 17 Apr 2002 18:09:26 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Martin Rode <martin.rode@programmfabrik.de>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, linux-kernel@vger.kernel.org
-Subject: Re: Callbacks to userspace from VFS ?
-Message-ID: <20020417180926.C2046@kushida.apsleyroad.org>
-In-Reply-To: <1019053273.8655.109.camel@marge> <15549.34936.502136.339319@laputa.namesys.com> <1019054427.8745.114.camel@marge>
+	id <S310769AbSDQRNS>; Wed, 17 Apr 2002 13:13:18 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:15633 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293132AbSDQRNQ>;
+	Wed, 17 Apr 2002 13:13:16 -0400
+Date: Wed, 17 Apr 2002 09:12:23 -0700
+From: Greg KH <greg@kroah.com>
+To: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Change "return EBLAH" to "return -EBLAH in drivers/*
+Message-ID: <20020417161223.GC374@kroah.com>
+In-Reply-To: <Pine.LNX.4.33.0204171223370.14274-100000@thor.cantech.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 20 Mar 2002 12:59:31 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Rode wrote:
-> I did not look deeper into F_NOTIFY, but if I only get a SIGNAL I don't
-> know _what_ has happened (or better on what file something has
-> happened). But to process the new / updated files I need the filename.
-> If I only learn which directory was updated I still have to find out
-> _which_ file is new or was changed.
+On Wed, Apr 17, 2002 at 12:42:23PM +0800, Anthony J. Breeds-Taurima wrote:
+> Hello All,
+> 	This is a simple patch that changes several "return EBLAH"'s in drivers/*
+> for "return -EBLAH".  I have done my best to check the call stack to ensure
+> that the change in sign of the return values wont break anything.
 
-If you use a real-time signal (number >= SIGRTMIN), then you can find
-out which directory was affected.  Look for "siginfo" and SA_SIGINFO.
+I'll add the usb driver changes to my tree, thanks.
 
-But you are right that it doesn't tell you which filename is new or was
-changed.
+Now if only those function return values were actually checked in the
+code... :)
 
--- Jamie
+greg k-h

@@ -1,129 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275761AbRJBB52>; Mon, 1 Oct 2001 21:57:28 -0400
+	id <S275759AbRJBB4r>; Mon, 1 Oct 2001 21:56:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275758AbRJBB5S>; Mon, 1 Oct 2001 21:57:18 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:12724 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S275757AbRJBB5J>;
-	Mon, 1 Oct 2001 21:57:09 -0400
-Date: Mon, 1 Oct 2001 21:54:49 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>, Ingo Molnar <mingo@elte.hu>,
-        <netdev@oss.sgi.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <20011001210445.D15341@redhat.com>
-Message-ID: <Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275758AbRJBB4h>; Mon, 1 Oct 2001 21:56:37 -0400
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:40065 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S275757AbRJBB40>; Mon, 1 Oct 2001 21:56:26 -0400
+Date: Mon, 1 Oct 2001 20:56:43 -0500
+From: J Troy Piper <jtp@dok.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] when accessing ide-scsi emulated cd-rw
+Message-ID: <20011001205643.C548@dok.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 1 Oct 2001, Benjamin LaHaise wrote:
+This is a reproducible OOPS for me.  I mount the drive, cd into the 
+directory which it is mounted in, attempt to 'ls' the dir.  On the first  
+attempt to 'ls' I get: 
 
-> On Mon, Oct 01, 2001 at 08:41:20PM -0400, jamal wrote:
-> >
-> > >The new mechanizm:
-> > >
-> > >- the irq handling code has been extended to support 'soft mitigation',
-> > >  ie. to mitigate the rate of hardware interrupts, without support from
-> > >  the actual hardware. There is a reasonable default, but the value can
-> > >  also be decreased/increased on a per-irq basis via
-> > > /proc/irq/NR/max_rate.
-> >
-> > I am sorry, but this is bogus. There is no _reasonable value_. Reasonable
-> > value is dependent on system load and has never been and never
-> > will be measured by interupt rates. Even in non-work conserving schemes
->
-> It is not dependant on system load, but rather on the performance of the
-> CPU and the number of interrupt sources in the system.
+paranoia kernel: scsi1: ERROR on channel 0, id 0, lun 0, CDB: Request Sense 00 00 00 40 00
+paranoia kernel: Info fld=0x0, Current sd0b:00: sense key Medium Error
+paranoia kernel:  I/O error: dev 0b:00, sector 96
+paranoia kernel: scsi : aborting command due to timeout : pid 0, scsi1, channel 0, id 0, lun 0 Read (10) 00 00 00 00 18 00 00 01 00
+paranoia kernel: hdd: timeout waiting for DMA
+paranoia kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
 
-i am not sure what you are getting at. CPU load is of course a function of
-the CPU capacity. assuming that interupts are the only source of system
-load is just bad engineering.
+After waiting a second or so for the bus to reset, another 'ls' OOPSes the 
+kernel.  I've inline attached the output of the oops I've run thru our 
+friend ksymoops below.
 
->
-> > There is already a feedback system that is built into 2.4 that
-> > measures system load by the rate at which the system processes the backlog
-> > queue. Look at netif_rx return values. The only driver that utilizes this
-> > is currently the tulip. Look at the tulip code.
-> > This in conjuction with h/ware flow control should give you sustainable
-> > system.
->
-> Not quite.  You're still ignoring the effect of interrupts on the users'
-> ability to execute instructions during their timeslice.
->
+The cd-r is an HP CD-Writer Plus (atapi with ide-scsi module).  I can burn 
+CDs no problem, listen to music thru it no problem.  This OOPS only occurs 
+when I try to use the drive to mount an iso9660 filesystem (ie. a data cd)
 
-And how does /proc/irq/NR/max_rate solve this?
-I have a feeling you are trying to say that varying /proc/irq/NR/max_rate
-gives opportunity for user processes to execute;
-note, although that is bad logic, you could also modify the high and low
-watermarks for when we have congestion in the backlog queue
-(This is already doable via /proc)
+Thanks in advance for any help. 
+---
 
-> > [Granted that mitigation is a hardware specific solution; the scheme we
-> > presented at the kernel summit is the next level to this and will be
-> > non-dependednt on h/ware.]
-> >
-> > >(note that in case of shared interrupts, another 'innocent' device might
-> > >stay disabled for some short amount of time as well - but this is not an
-> > >issue because this mitigation does not make that device inoperable, it
-> > >just delays its interrupt by up to 10 msecs. Plus, modern systems have
-> > >properly distributed interrupts.)
-> >
-> > This is a _really bad_ idea. not just because you are punishing other
-> > devices.
->
-> I'm afraid I have to disagree with you on this statement.  What I will
-> agree with is that 10msec is too much.
->
-
-It is unfair to add any latency to a device that didnt cause or
-contributre to the havoc.
+/************************/
+/*    J. Troy Piper     */
+/*    <jtp@dok.org>     */
+/* Ignotum per Ignotius */
+/************************/
 
 
-> > Lets take network devices as examples: we dont want to disable interupts;
-> > we want to disable offending actions within the device. For example, it is
-> > ok to disable/mitigate receive interupts because they are overloading the
-> > system but not transmit completion because that will add to the overall
-> > latency.
->
-> Wrong.  Let me introduce you to my 486DX/33.  It has PCI.  I'm putting my
-> gige card into the poor beast.  transmitting full out, it can receive a
-> sufficiently high number of tx done interrupts that it has no CPU cycles left
-> to run, say, gated in userspace.
->
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=cdrw-ksymoops
 
-I think you missed my point. i am saying there is more than one source of
-interupt for that same IRQ number that you are indiscrimately shutting
-down in a network device.
-So, assuming that tx complete interupts do actually shut you down
-(although i doubt that very much given the classical Donald Becker tx
-descriptor prunning) pick another interupt source; lets say MII link
-status; why do you want to kill that when it is not causing any noise but
-is a source of good asynchronous information (that could be used for
-example in HA systems)?
+ksymoops 2.4.3 on i586 2.4.10-ac3.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10-ac3/ (default)
+     -m /usr/src/linux/System.map (default)
 
-> Falling back to polled operation is a well known technique in realtime and
-> reliable systems.  By limiting the interrupt rate to a known safe limit,
-> the system will remain responsive to non-interrupt tasks even under heavy
-> interrupt loads.  This is the point at which a thruput graph on a slow
-> machine shows a complete breakdown in performance, which is always possible
-> on a slow enough CPU with a high performance device that takes input from
-> a remotely controlled user.  This is *required*, and is not optional, and
-> there is no way that a system can avoid it without making every interrupt
-> a task, but that's a mess nobody wants to see in Linux.
->
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-and what is this "known safe limit"? ;->
-What we are providing is actually a scheme to exactly measure that "known
-safe limit" you are refering to without depending on someone having to
-tell you "here's a good number for that 8 way xeon"
-If there is system capacity available  why the fsck is it not being used?
+Unable to handle kernel NULL pointer dereference at virtul address 00000178
+*pde = 00000000
+Oops: 0002
+CPU:    2
+EIP:    0010:[<c4c672f0>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010002
+eax: 00000000   ebx: c2c04d3c   ecx: 00000000   edx: c2c04d3c
+esi: 00000000   edi: 000000d0   ebp: c1b7d000   esp: c02e7ed0
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c02e7000)
+Stack: c2c04d3c c034f104 000000d0 c034ef90 00000000 c2c04d3c c0ceb514 c034f104
+       c01c00a2 00000000 c11c158c c034f104 c11c158c c4c674c8 000000d0 c01c0c6c
+       c034f104 c0287bc2 000000d0 c11c158c c01c0ae8 c031e5a0 00000000 00000292
+Call Trace: [<c01c00a2>] [<c4c674c8>] [<c01c0c6c>] [<c01c0ae8>] [<c0117cf2>]
+   [<c01175c6>] [<c0114932>] [<c0114869>] [<c011465a>] [<c01082bd>] [<c0105150>]
+   [<c0105150>] [<c0105173>] [<c01051d7>] [<c0105000>] [<c0105027>]
+Code: c7 80 78 01 00 00 00 00 07 00 83 7c 24 10 00 0f 84 6f 01 00
 
-cheers,
-jamal
+>>EIP; c4c672f0 <.bss.end+5492/????>   <=====
+Trace; c01c00a2 <ide_system_bus_speed+42/6c>
+Trace; c4c674c8 <.bss.end+566a/????>
+Trace; c01c0c6c <ide_dump_status+21c/2d0>
+Trace; c01c0ae8 <ide_dump_status+98/2d0>
+Trace; c0117cf2 <timer_bh+be/288>
+Trace; c01175c6 <add_timer+66/cc>
+Trace; c0114932 <tasklet_kill+2e/64>
+Trace; c0114868 <tasklet_hi_action+c/80>
+Trace; c011465a <do_softirq+a/ac>
+Trace; c01082bc <do_IRQ+9c/b0>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105172 <default_idle+22/28>
+Trace; c01051d6 <cpu_idle+3e/54>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105026 <rest_init+26/28>
+Code;  c4c672f0 <.bss.end+5492/????>
+0000000000000000 <_EIP>:
+Code;  c4c672f0 <.bss.end+5492/????>   <=====
+   0:   c7 80 78 01 00 00 00      movl   $0x70000,0x178(%eax)   <=====
+Code;  c4c672f6 <.bss.end+5498/????>
+   7:   00 07 00 
+Code;  c4c672fa <.bss.end+549c/????>
+   a:   83 7c 24 10 00            cmpl   $0x0,0x10(%esp,1)
+Code;  c4c672fe <.bss.end+54a0/????>
+   f:   0f 84 6f 01 00 00         je     184 <_EIP+0x184> c4c67474 <.bss.end+5616/????>
 
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+1 warning issued.  Results may not be reliable.
+
+--gKMricLos+KVdGMg--

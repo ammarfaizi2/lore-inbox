@@ -1,66 +1,149 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132866AbRDPGrG>; Mon, 16 Apr 2001 02:47:06 -0400
+	id <S132870AbRDPG7r>; Mon, 16 Apr 2001 02:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132867AbRDPGq4>; Mon, 16 Apr 2001 02:46:56 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3422 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S132866AbRDPGqk>; Mon, 16 Apr 2001 02:46:40 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: db@zigo.dhs.org (Dennis Bjorklund), linux-kernel@vger.kernel.org
-Subject: Re: Data-corruption bug in VIA chipsets
-In-Reply-To: <E14o3HM-0002pm-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Apr 2001 00:45:12 -0600
-In-Reply-To: Alan Cox's message of "Fri, 13 Apr 2001 14:06:22 +0100 (BST)"
-Message-ID: <m1ae5htkav.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S132868AbRDPG71>; Mon, 16 Apr 2001 02:59:27 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:59643 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132867AbRDPG7S>; Mon, 16 Apr 2001 02:59:18 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104160658.f3G6wL6s019012@webber.adilger.int>
+Subject: Re: Ext2 Directory Index - File Structure
+In-Reply-To: <20010415195233Z92259-21887+33@humbolt.nl.linux.org>
+ "from Daniel Phillips at Apr 15, 2001 09:52:33 pm"
+To: Daniel Phillips <phillips@nl.linux.org>
+Date: Mon, 16 Apr 2001 00:58:20 -0600 (MDT)
+CC: adilger@turbolinux.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Daniel, you write (re indexed directories):
+> Superblock Feature Flag
+> -----------------------
+> 
+> This is now incorporated.  I use the following code:
+> 
+> 	if (!EXT2_HAS_COMPAT_FEATURE(sb, EXT2_FEATURE_COMPAT_DIR_INDEX))
+> 	{
+> 		lock_kernel();
+> 		ext2_update_dynamic_rev(sb);
+> 		EXT2_SET_COMPAT_FEATURE(sb, EXT2_FEATURE_COMPAT_DIR_INDEX);
+> 		unlock_kernel();
+> 		ext2_write_super(sb);
+> 	}
+> 	new->u.ext2_i.i_flags |= EXT2_INDEX_FL;
 
-> > Here might be one of the resons for the trouble with VIA chipsets:
-> > 
-> > http://www.theregister.co.uk/content/3/18267.html
-> > 
-> > Some DMA error corrupting data, sounds like a really nasty bug. The
-> > information is minimal on that page.
-> 
-> What annoys me is that we've known about the problem for _ages_. If you look
-> the 2.4 kernel has experimental workarounds for this problem. VIA never once
-> even returned an email to say 'we are looking into this'. Instead people sat
-> there flashing multiple BIOS images and seeing what made the difference.
-> 
-> > I just bought one of these babies and I should probably return it
-> > directly. I have seven days to return it and get my money back. I have not
-> > even opened the box yet.
-> 
-> Disabling pci master read caching is likely to reduce the performance of the 
-> board.
-> 
-> > They seems to think they can correct it by some bios updates, but who
-> > knows what that fix might be. Maybe they turn of DMA alltogether
-> > (hopefully not).
-> 
-> The -ac kernel does this on the KT7 series boards which seemed the worst
-> affected. 
-> 
-> Hopefully now someone in VIA will have the decency to tell the community 
-> how to detect setups that need a BIOS upgrade so we can warn them before the
-> chipset bug turns there file systems into sludge.
+Why lock_kernel() calls and not lock_super()?  I would _think_ that
+file creation within the VFS was already protected with BKL, but you
+need to do lock_super(), because lock_kernel() can be dropped on
+context switch.  A typo in the email maybe?
 
-I wonder if someone at VIA even knows what is going on.  In working
-with linuxBIOS Ron Minnich was worked with VIA to get it up on some of
-their chipsets. He ran into a few cases where his code wouldn't work,
-he'd show it to the engineers at VIA and they also wouldn't have a
-clue why his code was failing.  And that it looked like only Award
-knew how the chipset really worked.  This is northbridge code not
-southbridge code so it may be an entirely different ball game but...
+> It looks like there is a common factor in there that should be used
+> throughout the ext2 code.
 
-Anyway Alan you might want to bounce off Ron.  He might have a clue
-how to help you get get VIA's attention...
+Yes, may be worthwhile to have a little helper function do this.
 
-Eric
+> This is only done on the deferred-creation path since the other path
+> will be gone by beta time.
+
+Yes, it only makes sense to do this at initial dx root creation.
+
+> Delete Performance
+> ------------------
+> 
+> As we both noticed, delete performance for rm -rf is running
+> considerably behind create performance by a factor of 4 or so - worse,
+> it's running behind non-indexed Ext2 :-O 
+> 
+> There is no valid reason for this in the index code.  The indexed delete
+> dirties the same things as a non-indexed delete, so it's not clear to me
+> why we see a lot of extra disk activity with the indexed code. 
+
+Possibilities:
+- extra cache footprint for code (unlikely cause)
+- extra block reads because of index blocks
+- 
+
+> Redundant Existence Test
+> ------------------------
+> 
+> The inner loop of add_ext2_entry has traditionally included a test for
+> an existing entry with the same name as the new entry, in which case an
+> error exit is taken:
+> 
+> 	err = -EEXIST;
+> 	if (ext2_match (namelen, name, de))
+> 		goto err_out;
+> 
+> This test is entirely redundant as can be seen from this code snippet
+> from fs/namei.c, open_namei:
+> 
+> 980         dentry = lookup_hash(&nd->last, nd->dentry);
+> [...]
+> 989         /* Negative dentry, just create the file */
+> 990         if (!dentry->d_inode) {
+> 991                 error = vfs_create(dir->d_inode, dentry, mode);
+> [...]
+> 1000                goto ok;
+> 1001         }
+> 1002 
+> 1003         /*
+> 1004          * It already exists.
+> 1005          */
+> 
+> There is always an explicit search for the entry before creating it
+> (except in the case where we find a deleted entry in the dcache - then
+> the search can be safely skipped)  Thus, ext2's create never gets called
+> when the name already exists.  Worse, the ext2 existence test is not
+> reliable.  If there is a hole in the directory big enough for the new
+> entry then add_ext2_entry will stop there and not check the rest of 
+> the directory.   So the test in add_ext2_entry adds no extra protection,
+> except perhaps helping verify that the code is correct.  In this case,
+> an assertion would capture the intent better.  On the other hand, it
+> does cost a lot of CPU cycles. 
+
+Possibly it is a holdout from (or extra check for) some sort of locking
+race condition?  ISTR that the dentry cache _should_ protect us from a
+dirent being created twice (that would also corrupt the dentry cache).
+
+However, if it _was_ some sort of race avoidance, the existence check
+_would_ be enough.  Reasoning is that if we had two processes trying
+to create the same dirent then one of them would find "the spot" big
+enough to hold the new entry first, and the second process would _have_
+to pass this spot in order to find another place to put the dentry
+(assuming no other dentry was deleted in the meantime).  The check
+would be equally valid (if it is needed at all, mind you) in the index
+code because we would always search the same hash bucket to find the
+new home of the dentry.  In fact, in the indexed code we would be much
+more likely to find duplicate dentries because the hashing would always
+place the duplicate dentries into the same hash bucket.
+
+> With the directory index it becomes attractive to combine the existence
+> test with the entry creation and this would come almost for free: after
+> a suitable place has been found for the new entry the rest of the block
+> has to be searched for an entry of the same name, and if the name's hash
+> value continues in the next block(s) those blocks have to be checked
+> too, the latter test being needed very infrequently.  So in exchange for
+> 20-30 new lines of code we get a significant performance boost.   A
+> similar argument applies to unlink.  The only difficulty is, there is
+> currently no internal interface to support this, so I'll just note that
+> it's possible.
+
+Yes, I have thought about this as well.  If it is possible (I'm not sure
+how, maybe a hashed per-super cache?) you could keep a pointer to the first
+free entry in a directory, along with the dentry size and the mtime of the
+directory.  You could use this cache at dentry insertion time (validating
+it by size and directory mtime).  If the cache entry is invalid, fall back
+to linear search again.
+
+>     http://kernelnewbies.org/~phillips/htree/dx.testme.2.4.3-2
+
+Good.  You have version numbers for the patches now...
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

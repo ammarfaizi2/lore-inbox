@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267950AbRG0Nhq>; Fri, 27 Jul 2001 09:37:46 -0400
+	id <S268853AbRG0NpQ>; Fri, 27 Jul 2001 09:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268855AbRG0Nhg>; Fri, 27 Jul 2001 09:37:36 -0400
-Received: from [213.69.58.122] ([213.69.58.122]:61339 "EHLO syntags.de")
-	by vger.kernel.org with ESMTP id <S267950AbRG0NhZ>;
-	Fri, 27 Jul 2001 09:37:25 -0400
-Message-Id: <200107271337.f6RDbVN22777@syntags.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Frank Fiene <ffiene@veka.com>
-Organization: VEKA AG
-To: linux-kernel@vger.kernel.org
-Subject: Re: Graphical overview
-Date: Fri, 27 Jul 2001 15:37:31 +0200
-X-Mailer: KMail [version 1.2.3]
-In-Reply-To: <20010727145202.A507@freakzone.net>
-In-Reply-To: <20010727145202.A507@freakzone.net>
+	id <S268854AbRG0NpG>; Fri, 27 Jul 2001 09:45:06 -0400
+Received: from d122251.upc-d.chello.nl ([213.46.122.251]:5900 "EHLO
+	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
+	id <S268853AbRG0Noy>; Fri, 27 Jul 2001 09:44:54 -0400
+From: bvermeul@devel.blackstar.nl
+Date: Fri, 27 Jul 2001 15:47:42 +0200 (CEST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Hans Reiser <reiser@namesys.com>, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Steve Kieu <haiquy@yahoo.com>,
+        Sam Thompson <samuelt@cervantes.dabney.caltech.edu>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <E15Q7q5-0005e9-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0107271542331.10602-100000@devel.blackstar.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Friday, 27. July 2001 14:52, Gordon Fraser wrote:
-> Frank Fiene <ffiene@veka.com> [010727 13:19] wrote:
-> > Where can i find the graphical overview of the linux kernel
-> > source tree? I saw a big jpg and a link to a homepage, but i lost
-> > the informations.
+On Fri, 27 Jul 2001, Alan Cox wrote:
+
+> > > Putting a sync just before the insmod when developing new drivers is a good
+> > > idea btw
+> >
+> > I've been doing that most of the time. But I sometimes forget that.
+> > But as I said, it's not something I expected from a journalled filesystem.
 >
-> This is what you're looking for:
-> http://fcgp.sourceforge.net/
+> You misunderstand journalling then
 
-Thanks, Gordon and Jan-Benedict.
+Yup, I guess I did.
 
-lgp version 2.4.0a works fine but the latest 2.5.1 does not. Compile 
-error is
-data2ps.o: In function `d2p_draw_line':
-/home/ffiene/docs/lgp-2.5.1/data2ps.c:180: undefined reference to 
-`cos'
-/home/ffiene/docs/lgp-2.5.1/data2ps.c:181: undefined reference to 
-`sin'
+> A journalling file system can offer different levels of guarantee. With
+> metadata only journalling you don't take any real performance hit but your
+> file system is always consistent on reboot (consistent as in fsck would pass
+> it) but it makes no guarantee that data blocks got written.
 
-The files data2ps.c in both versions have not man different lines of 
-code, so i didn't find the error.
+I allways thought that it could/would roll back the changes that weren't
+consistent. But I stand corrected. Thanks... :)
 
-Regards. Frank
+> Full data journalling will give you what you expect but at a performance hit
+> for many applications.
+
+Do any of the other journalled filesystems for linux do this? If not, I
+guess I'll go back to ext2.
+
+Bas Vermeulen
+
 -- 
-Frank Fiene, SYNTAGS GmbH, Im Defdahl 5-10, D-44141 Dortmund, Germany
-Security, Cryptography, Networks, Software Development
-http://www.syntags.de mailto:Frank.Fiene@syntags.de
+"God, root, what is difference?"
+	-- Pitr, User Friendly
+
+"God is more forgiving."
+	-- Dave Aronson
+

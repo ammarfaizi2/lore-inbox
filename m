@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbUKHTss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKHT5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbUKHTss (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 14:48:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKHTsr
+	id S261204AbUKHT5h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 14:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKHT5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 14:48:47 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:58259 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261200AbUKHTs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 14:48:29 -0500
-Date: Mon, 08 Nov 2004 14:47:59 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: problem with printk--  somebody please help
-In-reply-to: <BAY10-F469WbbjykeNX00014ef5@hotmail.com>
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <418FCD6F.30100@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <BAY10-F469WbbjykeNX00014ef5@hotmail.com>
+	Mon, 8 Nov 2004 14:57:37 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:21716 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261204AbUKHT5d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 14:57:33 -0500
+Date: Mon, 8 Nov 2004 20:57:30 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: davids@webmaster.com,
+       =?ISO-8859-1?Q?Rapha=EBl?= Rigo LKML <lkml@twilight-hall.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
+In-Reply-To: <1099927447.5564.145.camel@localhost.localdomain>
+Message-ID: <Pine.GSO.4.61.0411082053440.14874@waterleaf.sonytel.be>
+References: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>
+ <1099927447.5564.145.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 8 Nov 2004, Alan Cox wrote:
+> On Llu, 2004-11-08 at 01:14, David Schwartz wrote:
+> > 	For those not familiar, sveasoft revokes your license to receive further
+> > updates if you exercise your distribution rights under the GPL. I would
+> > argue that conditioning the sale of a GPL'd work on a failure to exercise
+> > your rights under the GPL is a "further restriction".
 
-Arun Srinivas wrote:
-> hi
+Did you have to pay first to receive updates later? I.e. you buy the device,
+and will receive future updates for free (no money)?
+
+> I don't see the problem. If I ship you GPL code then you have no "right"
+> to updates from me. You are arguing about a right that never existed and
+> for good reason. Do you think that if Linus personally emails you a
+> snapshot you somehow acquire the right to demand newer updates from him
+> ? or how about "I bought Red Hat 1.1 so you must send me 9.0". Both
+> strike me as a little ridiculous and certainly not GPL granted rights.
 > 
-> I am new to the kernel world and would be very glad if somebody could
-> help me with this problem.
-> 
-> I am unable to do printk or even a macro call like rdtsc()...(for
-> reading the time stamp counter) from within the "activate_task"
-> function on a kernel with smp support.But these work under the main
-> schedule() function.
-> 
-> I was able to do all these i.e., inside "activate_task" on a kernel
-> without smp support.Can anybody suggest a solution as to what could be
-> the problem??
-> 
-> somebody please help.
+> As a GPL code provider their duties to you are to the source to the GPL
+> code they gave you binaries for (or other variant options in the
+> license). They end there. I don't have to give your friend a copy, I
+> don't have to give you updates.
 
-I seem to recall that doing so would deadlock your machine.
-activate_task is called with the given cpu's runqueue locked.  printk
-eventually calls release_console_sem, which will wake_up_interruptible,
-which will eventually call try_to_wake_up which grabs the same lock.
+That's true: you don't have an automatic right to receive updates for free.
 
-I don't think I've ever seen printk work while task_rq_lock'ed.
+But revoking a (paid) license if you do something that's explicitly allowed by
+the license of (part of) the supplied software sounds a bit fishy to me...
 
-Someone correct me if I'm wrong, this is the best I was able to figure
-out before giving up.
+Gr{oetje,eeting}s,
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
+						Geert (IANAL)
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-iD8DBQFBj81vdQs4kOxk3/MRAlJGAKCIYIgXCkaSXpwGLdsj/WK1BhPOlwCeK6s0
-1pc0XbERKlQKpLIBpObhwZA=
-=2DSX
------END PGP SIGNATURE-----
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

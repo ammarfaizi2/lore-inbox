@@ -1,174 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262164AbREaPWt>; Thu, 31 May 2001 11:22:49 -0400
+	id <S261715AbREaPd3>; Thu, 31 May 2001 11:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262557AbREaPWa>; Thu, 31 May 2001 11:22:30 -0400
-Received: from SMTP2.ANDREW.CMU.EDU ([128.2.10.82]:49805 "EHLO
-	smtp2.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S262164AbREaPWY>; Thu, 31 May 2001 11:22:24 -0400
-Date: Thu, 31 May 2001 11:22:18 -0400 (EDT)
-From: Steinar Hauan <s.hauan@cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at inode.c:486!
-Message-ID: <Pine.GSO.4.21L.0105311113210.7672-500000@unix8.andrew.cmu.edu>
+	id <S261719AbREaPdU>; Thu, 31 May 2001 11:33:20 -0400
+Received: from comverse-in.com ([38.150.222.2]:10437 "EHLO
+	eagle.comverse-in.com") by vger.kernel.org with ESMTP
+	id <S261715AbREaPdR>; Thu, 31 May 2001 11:33:17 -0400
+Message-ID: <6B1DF6EEBA51D31182F200902740436802678F08@mail-in.comverse-in.com>
+From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
+        "'Martin Mares'" <pci-ids@ucw.cz>, Keith Owens <kaos@ocs.com.au>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        "'Linus Torvalds'" <torvalds@transmeta.com>,
+        "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.4.x: update for PCI vendor id 0x12d4
+Date: Thu, 31 May 2001 11:31:52 -0400
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-991322538=:7672"
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+> From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
+> 
+> > "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com> wrote:
+> > >What I don't understand is why pci_ids.h doesn't get
+> > >generated from pci.ids as well.
+> 
+> Although they are similar, you cannot reliably generate useable C
+> constants from english words in the PCI id list...
 
+I agree. Still, right now the update of the 2 is independant. Do you think
+that 
+merging the C constant names (with the common prefix stripped)
+into the PCI id list so that there's a single source to control it would be
+better? 
 
+It's also possible to apply an heuristic to only store "exception" C names 
+there - just take the 1st word and make it uppercase:
 
----559023410-1804928587-991322538=:7672
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+pci.ids:
+1043  Asustek Computer, Inc.
 
-hello,
+would automatically map into what it is now:
+pci_ids.h
+#define PCI_VENDOR_ID_ASUSTEK		0x1043
 
-  over the last few days, i've started to get several error messages of
-  the following type:
+whereas for 0x1042 one would have to change in the pci.ids: 
+1042  Micron
+	1000  FDC 37C665
+	1001  37C922
+	3000  Samurai_0
+	3010  Samurai_1
+	3020  Samurai_IDE
 
-kernel: kernel BUG at inode.c:486!
-kernel: invalid operand: 0000
-kernel: CPU:    1
-kernel: EIP:    0010:[clear_inode+53/256]
-kernel: EIP:    0010:[<c014a365>]
-kernel: EFLAGS: 00010286
+into
+1042{PCTECH}  Micron
+	1000{RZ1000}  FDC 37C665
+	1001{RZ1001}  37C922
+	3000  Samurai_0
+	3010  Samurai_1
+	3020  Samurai_IDE
 
-(2 examples with full output attached along with pci info)
+to generate in the .h
+#define PCI_VENDOR_ID_PCTECH		0x1042
+#define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000
+#define PCI_DEVICE_ID_PCTECH_RZ1001	0x1001
+#define PCI_DEVICE_ID_PCTECH_SAMURAI_0	0x3000
+#define PCI_DEVICE_ID_PCTECH_SAMURAI_1	0x3010
+#define PCI_DEVICE_ID_PCTECH_SAMURAI_IDE 0x3020
 
-notes:
-  (a) kernel is standard 2.4.5
-  (b) the EFLAGS vary, but the rest always look the same
-  (c) the problem occur both on Apollo Pro266 and KT133 chipsets.
-      (i.e. both with amd t-bird and p3/ddr systems)
+You get the idea... This way it is also very easy to look up the .ids file
+and see instantly where the names mismatch severely.
 
-any ideas? i'd be happy to provide more examples if of any help.
+Does this make sense? If you think it does (say so), I can easily make this
+into the tree of your choice in a backward-compatible way. There'll be an
+option to generate the older .ids, too, for easier merge back into the 2.2
+series.
 
-regards,
---
-  Steinar Hauan, dept of ChemE     -     s.hauan@cmu.edu
-  Carnegie Mellon University, Pittsburgh PA, USA
-
----559023410-1804928587-991322538=:7672
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dump1.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21L.0105311122180.7672@unix8.andrew.cmu.edu>
-Content-Description: 
-Content-Disposition: attachment; filename="dump1.txt"
-
-a2VybmVsOiBrZXJuZWwgQlVHIGF0IGlub2RlLmM6NDg2IQ0Ka2VybmVsOiBp
-bnZhbGlkIG9wZXJhbmQ6IDAwMDANCmtlcm5lbDogQ1BVOiAgICAxDQprZXJu
-ZWw6IEVJUDogICAgMDAxMDpbY2xlYXJfaW5vZGUrNTMvMjU2XQ0Ka2VybmVs
-OiBFSVA6ICAgIDAwMTA6WzxjMDE0YTM2NT5dDQprZXJuZWw6IEVGTEFHUzog
-MDAwMTAyODYNCmtlcm5lbDogZWF4OiAwMDAwMDAxYiAgIGVieDogZTEwMTI2
-MjAgICBlY3g6IDAwMDAwMDAwICAgZWR4OiAwMDAwMDAwMg0Ka2VybmVsOiBl
-c2k6IGY4OTU2N2UwICAgZWRpOiBlMTAxMjYyMCAgIGVicDogMDAwMDAwMWEg
-ICBlc3A6IGNmYWE5ZDY0DQprZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTgg
-ICBzczogMDAxOA0Ka2VybmVsOiBQcm9jZXNzIGdhbXMgKHBpZDogMjA3MSwg
-c3RhY2twYWdlPWNmYWE5MDAwKQ0Ka2VybmVsOiBTdGFjazogYzAxZGI5NGQg
-YzAxZGI5Y2MgMDAwMDAxZTYgZGRmNTgwYTAgYzAxNDgzYWMgZTEwMTI2MjAg
-Zjg5NTY3ZTAgZTEwMTI2MjAgDQprZXJuZWw6ICAgICAgICBjMDE0YWU5MCBl
-MTAxMjYyMCBlMTA0YjU4MCBlMTA0YjU2MCBjMDE0ODdhMCBlMTAxMjYyMCBl
-MTAxMjYyMCAwMDAwMDAwMCANCmtlcm5lbDogICAgICAgIDAwMDAwMDAwIDNi
-MTY0Y2E2IDAwMDAwMDAwIDNiMTY0Y2FjIDAwMDAwMDAwIDAwMDAwMDFiIGUx
-MDRiNWUwIGUxMDRiNWUwIA0Ka2VybmVsOiBDYWxsIFRyYWNlOiBbZHB1dCsy
-OC8zNTJdIFs8Zjg5NTY3ZTA+XSBbaXB1dCszNTIvMzY4XSBbcHJ1bmVfZGNh
-Y2hlKzIyNC8zNjhdIFtzaHJpbmtfZGNhY2hlX3BhcmVudCsyMi80OF0gWzxm
-ODk0OTkyNj5dIFs8Zjg5MTM3MWU+XSANCmtlcm5lbDogQ2FsbCBUcmFjZTog
-WzxjMDE0ODNhYz5dIFs8Zjg5NTY3ZTA+XSBbPGMwMTRhZTkwPl0gWzxjMDE0
-ODdhMD5dIFs8YzAxNDhhZTY+XSBbPGY4OTQ5OTI2Pl0gWzxmODkxMzcxZT5d
-IA0Ka2VybmVsOiAgICAgICAgWzxmODkxMmNlMT5dIFtidWlsZF9tbWFwX2F2
-bCsxMTcvMTQ0XSBbZG9fd3BfcGFnZSszMTkvMTAwOF0gW3NldHVwX2ZyYW1l
-KzI0NC80OTZdIFtjYWNoZWRfbG9va3VwKzQ1LzgwXSBbcGF0aF93YWxrKzY0
-My8yMzIwXSBbZG9fcGFnZV9mYXVsdCszOTYvMTE4NF0gW29wZW5fbmFtZWkr
-MTkxLzE0ODhdIA0Ka2VybmVsOiAgICAgICAgWzxmODkxMmNlMT5dIFs8YzAx
-MjRiNzU+XSBbPGMwMTIyZDlmPl0gWzxjMDEwNjVlND5dIFs8YzAxM2ZkOGQ+
-XSBbPGMwMTQwMmEzPl0gWzxjMDExMjEwYz5dIFs8YzAxNDBmZmY+XSANCmtl
-cm5lbDogICAgICAgIFtzb2NrX3dmcmVlKzAvNjRdIFtmaWxwX29wZW4rNTQv
-OTZdIFtnZXRuYW1lKzkxLzE2MF0gW3N5c19vcGVuKzU4LzIyNF0gW3N5c3Rl
-bV9jYWxsKzUxLzU2XSANCmtlcm5lbDogICAgICAgIFs8YzAxOGI3NTA+XSBb
-PGMwMTM0M2Y2Pl0gWzxjMDEzZmFhYj5dIFs8YzAxMzQ2ZmE+XSBbPGMwMTA2
-ZTBiPl0gDQprZXJuZWw6IA0Ka2VybmVsOiBDb2RlOiAwZiAwYiA4MyBjNCAw
-YyA4YiA4MyBmNCAwMCAwMCAwMCBhOSAxMCAwMCAwMCAwMCA3NSAxZiA2OCBl
-OCANCg==
----559023410-1804928587-991322538=:7672
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dump2.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21L.0105311122181.7672@unix8.andrew.cmu.edu>
-Content-Description: 
-Content-Disposition: attachment; filename="dump2.txt"
-
-a2VybmVsOiBrZXJuZWwgQlVHIGF0IGlub2RlLmM6NDg2IQ0Ka2VybmVsOiBp
-bnZhbGlkIG9wZXJhbmQ6IDAwMDANCmtlcm5lbDogQ1BVOiAgICAwDQprZXJu
-ZWw6IEVJUDogICAgMDAxMDpbY2xlYXJfaW5vZGUrNTMvMjU2XQ0Ka2VybmVs
-OiBFSVA6ICAgIDAwMTA6WzxjMDE0YTM2NT5dDQprZXJuZWw6IEVGTEFHUzog
-MDAwMTAyODINCmtlcm5lbDogZWF4OiAwMDAwMDAxYiAgIGVieDogZjM4ZDcw
-YTAgICBlY3g6IDAwMDAwMDEyICAgZWR4OiAwMjAwMDAwMA0Ka2VybmVsOiBl
-c2k6IGY4OTU2N2UwICAgZWRpOiBmMzhkNzBhMCAgIGVicDogMDAwMDYxOTEg
-ICBlc3A6IGMyMTJkZjM0DQprZXJuZWw6IGRzOiAwMDE4ICAgZXM6IDAwMTgg
-ICBzczogMDAxOA0Ka2VybmVsOiBQcm9jZXNzIGtzd2FwZCAocGlkOiAzLCBz
-dGFja3BhZ2U9YzIxMmQwMDApDQprZXJuZWw6IFN0YWNrOiBjMDFkYjk0ZCBj
-MDFkYjljYyAwMDAwMDFlNiBlMDVmOThhMCBjMDE0ODNhYyBmMzhkNzBhMCBm
-ODk1NjdlMCBmMzhkNzBhMCANCmtlcm5lbDogICAgICAgIGMwMTRhZTkwIGYz
-OGQ3MGEwIGUxMDRiYTAwIGUxMDRiOWUwIGMwMTQ4N2EwIGYzOGQ3MGEwIGYz
-OGQ3MGEwIDAwMDAwMDAwIA0Ka2VybmVsOiAgICAgICAgYzFiNDVjMmMgYzFl
-YTU4ODggMDAwMDAwMDAgMDAwMDAwMDAgYzAxMmQ0ZDYgMDAwMDAwMDAgMDAw
-MDAwMDQgMDAwMDAwMDQgDQprZXJuZWw6IENhbGwgVHJhY2U6IFtkcHV0KzI4
-LzM1Ml0gWzxmODk1NjdlMD5dIFtpcHV0KzM1Mi8zNjhdIFtwcnVuZV9kY2Fj
-aGUrMjI0LzM2OF0gW3BhZ2VfbGF1bmRlcisyMjE0LzIyODhdIFtzaHJpbmtf
-ZGNhY2hlX21lbW9yeSszMy82NF0gW2RvX3RyeV90b19mcmVlX3BhZ2VzKzM5
-Lzk2XSANCmtlcm5lbDogQ2FsbCBUcmFjZTogWzxjMDE0ODNhYz5dIFs8Zjg5
-NTY3ZTA+XSBbPGMwMTRhZTkwPl0gWzxjMDE0ODdhMD5dIFs8YzAxMmQ0ZDY+
-XSBbPGMwMTQ4YjIxPl0gWzxjMDEyZDg5Nz5dIA0Ka2VybmVsOiAgICAgICAg
-W2tzd2FwZCsxMDcvMjQwXSBbcHJlcGFyZV9uYW1lc3BhY2UrMC8xNl0gW3By
-ZXBhcmVfbmFtZXNwYWNlKzAvMTZdIFtrZXJuZWxfdGhyZWFkKzM4LzQ4XSBb
-a3N3YXBkKzAvMjQwXSANCmtlcm5lbDogICAgICAgIFs8YzAxMmQ5M2I+XSBb
-PGMwMTA1MDAwPl0gWzxjMDEwNTAwMD5dIFs8YzAxMDU1NDY+XSBbPGMwMTJk
-OGQwPl0gDQprZXJuZWw6IA0Ka2VybmVsOiBDb2RlOiAwZiAwYiA4MyBjNCAw
-YyA4YiA4MyBmNCAwMCAwMCAwMCBhOSAxMCAwMCAwMCAwMCA3NSAxZiA2OCBl
-OCANCg==
----559023410-1804928587-991322538=:7672
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pci1.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21L.0105311122182.7672@unix8.andrew.cmu.edu>
-Content-Description: 
-Content-Disposition: attachment; filename="pci1.txt"
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBW
-VDg2MzMgW0Fwb2xsbyBQcm8yNjZdIChyZXYgMDEpDQowMDowMS4wIFBDSSBi
-cmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4NjMzIFtBcG9sbG8g
-UHJvMjY2IEFHUF0NCjAwOjBhLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxl
-cjogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10gODZDMzI2IChy
-ZXYgMGIpDQowMDowYi4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IEludGVsIENv
-cnBvcmF0aW9uIDgyNTU3IFtFdGhlcm5ldCBQcm8gMTAwXSAocmV2IDA4KQ0K
-MDA6MTEuMCBJU0EgYnJpZGdlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZU
-ODIzMyBQQ0kgdG8gSVNBIEJyaWRnZQ0KMDA6MTEuMSBJREUgaW50ZXJmYWNl
-OiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIEJ1cyBNYXN0ZXIgSURFIChyZXYg
-MDYpDQo=
----559023410-1804928587-991322538=:7672
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pci2.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21L.0105311122183.7672@unix8.andrew.cmu.edu>
-Content-Description: 
-Content-Disposition: attachment; filename="pci2.txt"
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBW
-VDgzNjMvODM2NSBbS1QxMzMvS00xMzNdIChyZXYgMDIpDQowMDowMS4wIFBD
-SSBicmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MzYzLzgzNjUg
-W0tUMTMzL0tNMTMzIEFHUF0NCjAwOjA3LjAgSVNBIGJyaWRnZTogVklBIFRl
-Y2hub2xvZ2llcywgSW5jLiBWVDgyQzY4NiBbQXBvbGxvIFN1cGVyIFNvdXRo
-XSAocmV2IDIyKQ0KMDA6MDcuMSBJREUgaW50ZXJmYWNlOiBWSUEgVGVjaG5v
-bG9naWVzLCBJbmMuIEJ1cyBNYXN0ZXIgSURFIChyZXYgMTApDQowMDowNy40
-IEhvc3QgYnJpZGdlOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNjg2
-IFtBcG9sbG8gU3VwZXIgQUNQSV0gKHJldiAzMCkNCjAwOjA5LjAgRXRoZXJu
-ZXQgY29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb24gODI1NTcgW0V0aGVy
-bmV0IFBybyAxMDBdIChyZXYgMDgpDQowMDowYS4wIEV0aGVybmV0IGNvbnRy
-b2xsZXI6IEludGVsIENvcnBvcmF0aW9uIDgyNTU3IFtFdGhlcm5ldCBQcm8g
-MTAwXSAocmV2IDA4KQ0KMDA6MGYuMCBNdWx0aW1lZGlhIGF1ZGlvIGNvbnRy
-b2xsZXI6IEMtTWVkaWEgRWxlY3Ryb25pY3MgSW5jIENNODczOCAocmV2IDEw
-KQ0KMDE6MDAuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBuVmlkaWEg
-Q29ycG9yYXRpb24gVmFudGEgW05WNl0gKHJldiAxNSkNCg==
----559023410-1804928587-991322538=:7672--
+Vassilii
+P.S. Even if you don't think the merge of the 2 files is worth it, don't
+forget to apply the 12d4 patch...	

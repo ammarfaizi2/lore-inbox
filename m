@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUHaHXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUHaHYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267301AbUHaHXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 03:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUHaHXN
+	id S267287AbUHaHYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 03:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUHaHYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 03:23:13 -0400
-Received: from mail.gmx.de ([213.165.64.20]:43193 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267287AbUHaHXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 03:23:00 -0400
-Date: Tue, 31 Aug 2004 09:22:59 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: Roland McGrath <roland@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, drepper@redhat.com,
-       linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net,
-       tonnerre@thundrix.ch
+	Tue, 31 Aug 2004 03:24:20 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:43273 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267287AbUHaHYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 03:24:10 -0400
+Message-ID: <41342898.2000607@hist.no>
+Date: Tue, 31 Aug 2004 09:28:24 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-References: <200408310604.i7V64k7o010652@magilla.sf.frob.com>
-Subject: Re: [PATCH] waitid system call
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <12757.1093936979@www31.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+To: "David N. Welton" <davidw@dedasys.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux Incompatibility List
+References: <87r7q0th2n.fsf@dedasys.com> <412C4295.1000700@hist.no> <876577ejxy.fsf@dedasys.com>
+In-Reply-To: <876577ejxy.fsf@dedasys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone writing a manual page for this sys call?  If not, I will.
+David N. Welton wrote:
 
-> The AIX results someone posted suggested that it does not clear siginfo_t
-> fields on WNOHANG early returns.  
+>Helge Hafting <helge.hafting@hist.no> writes:
+>
+>  
+>
+>>An idea: To really put some pressure on vendors, also have an entry
+>>for "alternate/better solution" where people can list a way to
+>>achieve the same result with someone else's product and open
+>>drivers.  Example:
+>>    
+>>
+>
+>  
+>
+>>Product: Matrox parhelia  (a triplehead graphichs card)
+>>Reason: Bad binary-only 2D-only driver
+>>    
+>>
+>
+>Please add it here, using the 'template'.
+>
+>http://leenooks.com/19
+>
+>  
+>
+Done.  I didn't recommend any particular brand when describing
+the "alternate solution", as you didn't want that.  The reason for
+specifying a brand was only to create more pressure than
+"use a couple of supported cards instead".
 
-Yes.
-
-> I still maintain that a POSIX application
-> must not assume that waitid will clear any fields.  
-
-Despite the fact that I've pushed in the direction of changing 
-this, I do agree: a portable application must handle weird 
-behaviours on AIX and HP-UX.  (And I would document this in 
-the man page.)
-
-> However, since the
-> majority do, I see no harm in making Linux do so as well.
-
-And I do think this is the right way to go.  Perhaps one day
-the other implementations will do the Right Thing, or POSIX 
-will tighten its spec to require the behavior currently 
-implemented by the majority -- best then that Linux doesn't 
-imitate the "broken" implementations.
-
-Cheers,
-
-Michael
-
--- 
-Supergünstige DSL-Tarife + WLAN-Router für 0,- EUR*
-Jetzt zu GMX wechseln und sparen http://www.gmx.net/de/go/dsl
-
+Helge Hafting

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289507AbSAONrU>; Tue, 15 Jan 2002 08:47:20 -0500
+	id <S289549AbSAONx7>; Tue, 15 Jan 2002 08:53:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289549AbSAONrJ>; Tue, 15 Jan 2002 08:47:09 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:29708 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289507AbSAONrA>;
-	Tue, 15 Jan 2002 08:47:00 -0500
-Date: Tue, 15 Jan 2002 14:46:52 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Gerd Knorr <kraxel@bytesex.org>
+	id <S289577AbSAONxt>; Tue, 15 Jan 2002 08:53:49 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:47611 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S289549AbSAONxk>; Tue, 15 Jan 2002 08:53:40 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <a1vu5q$1uu$1@cesium.transmeta.com> 
+In-Reply-To: <a1vu5q$1uu$1@cesium.transmeta.com>  <20020114125228.B14747@thyrsus.com> <20020114223042.ENDG28486.femail48.sdc1.sfba.home.com@there> <20020114173423.A23081@thyrsus.com> <20020115080218.7709cef7.bruce@ask.ne.jp> 
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory problem with bttv driver
-Message-Id: <20020115144652.46d9ee18.skraw@ithnet.com>
-In-Reply-To: <20020115142017.D8191@bytesex.org>
-In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com>
-	<E16QETz-0002yD-00@the-village.bc.nu>
-	<20020115004205.A12407@werewolf.able.es>
-	<slrna480cv.68d.kraxel@bytesex.org>
-	<20020115121424.10bb89b2.skraw@ithnet.com>
-	<20020115142017.D8191@bytesex.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution) 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Jan 2002 13:53:32 +0000
+Message-ID: <12322.1011102812@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002 14:20:17 +0100
-Gerd Knorr <kraxel@bytesex.org> wrote:
 
-> On Tue, Jan 15, 2002 at 12:14:24PM +0100, Stephan von Krawczynski wrote:
-> > On 15 Jan 2002 10:17:03 GMT
-> > Gerd Knorr <kraxel@bytesex.org> wrote:
-> > 
-> > > MM wise it shouldn't make a difference whenever you are using 0.7.83 or
-> > > 0.7.88 (I've mailed 0.7.88 patches to macelo for 2.4.18 btw).  The 0.8.x
-> > > versions have a complete different way to do the memory management.
-> > 
-> > No vmallocs?
-> 
-> Yes.  Instead of remapping vmalloced kernel memory it gives you shared
-> anonymous pages, then does zerocopy DMA using kiobufs.  You may run in
-> trouble with >4GB machines.
+hpa@zytor.com said:
+>   If we have designed our kernels so that:
+	<...>
+> b) It's not possible to add a driver without rebuilding the kernel,
+> or;
+	<...>
+> then we have screwed up. 
 
-Interesting.
-What's the problem on > 4GB ?
+Oops. In that case, we screwed up (130 - delta) times.
 
-Regards,
-Stephan
+find /usr/src/linux/ -name \*.[ch] | xargs egrep \#if.*CONFIG_.*_MODULE |  cut -f2- -d: | sort | uniq | wc -l
+
+--
+dwmw2
+
 

@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264867AbTLQXZo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 18:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbTLQXZj
+	id S264604AbTLQXWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 18:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbTLQXWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 18:25:39 -0500
-Received: from chico.cs.colostate.edu ([129.82.45.30]:61384 "EHLO
-	chico.cs.colostate.edu") by vger.kernel.org with ESMTP
-	id S264867AbTLQXZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 18:25:30 -0500
-X-WebMail-UserID: jshankar@cs.colostate.edu
-Date: Wed, 17 Dec 2003 16:25:11 -0700
-From: jshankar <jshankar@CS.ColoState.EDU>
-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-X-EXP32-SerialNo: 00002247, 00002264
-Subject: RE: ext3 file system
-Message-ID: <3FF18FD8@webmail.colostate.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Infinite Mobile Delivery (Hydra) SMTP v3.62.01
+	Wed, 17 Dec 2003 18:22:13 -0500
+Received: from zero.aec.at ([193.170.194.10]:49157 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264604AbTLQXWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 18:22:12 -0500
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI Express support for 2.4 kernel
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 18 Dec 2003 00:22:02 +0100
+In-Reply-To: <13SY1-35z-19@gated-at.bofh.it> (Alan Cox's message of "Thu, 18
+ Dec 2003 00:10:17 +0100")
+Message-ID: <m3hdzzni79.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <130kQ-3A0-13@gated-at.bofh.it> <130Xy-4Ia-3@gated-at.bofh.it>
+	<131Ac-5Qy-3@gated-at.bofh.it> <137cD-8eg-9@gated-at.bofh.it>
+	<13kD2-1kF-11@gated-at.bofh.it> <13qIi-31G-1@gated-at.bofh.it>
+	<13DvZ-2RY-9@gated-at.bofh.it> <13DFw-3a8-9@gated-at.bofh.it>
+	<13DPq-3s4-7@gated-at.bofh.it> <13Fem-6iy-7@gated-at.bofh.it>
+	<13SY1-35z-19@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Please provide some more insight.
-
-Suppose a filesystem issues a write command to the disk with around 10 4K 
-Blocks  to be written. SCSI device point of view i don't get what is the 
-parallel I/O.
-It has only 1 write command. If some other sends a write request it needs to 
-be queued. But the next question arises how the write data would be handled. 
-Does it mean the SCSI does not give a response for the block of data written. 
-In otherwords does it mean that the response would be given after all the 
-block of data is written for a single write request.
- 
-Thanks
-Jay
-
-
-
-
->===== Original Message From Mike Fedyk <mfedyk@matchmail.com> =====
->On Wed, Dec 17, 2003 at 05:25:49PM -0500, Richard B. Johnson wrote:
->> to the physical media. There are special file-systems (journaling)
->> that guarantee that something, enough to recover the data, is
->> written at periodic intervals.
+Alan Cox <alan@redhat.com> writes:
 >
->Most journaling filesystems make guarantees on the filesystem meta-data, but
->not on the data.  Some like ext3, and reiserfs (with suse's journaling
->patch) can journal the data, or order things so that the data is written
->before any pointers (ie meta-data) make it to the disk so it will be harder
->to loose data.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> And X11 will want to access it via /proc interfaces. And someone will eventually
+> go and design a different way to access PCI-EX for their hardware 8)
 
+It would be nice if it did. Just currently it uses racy port accesses
+from user space :-(
+
+-Andi

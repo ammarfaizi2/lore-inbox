@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264905AbTK3NOx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 08:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264907AbTK3NOx
+	id S264911AbTK3N1v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 08:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbTK3N1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 08:14:53 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:31751 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264905AbTK3NOv (ORCPT
+	Sun, 30 Nov 2003 08:27:51 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:43020 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264911AbTK3N1t (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 08:14:51 -0500
-Date: Sun, 30 Nov 2003 14:13:14 +0100
+	Sun, 30 Nov 2003 08:27:49 -0500
+Date: Sun, 30 Nov 2003 14:26:49 +0100
 From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org (kernel list)
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
 Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Message-ID: <20031130131314.GB5738@win.tue.nl>
-References: <200311300220.hAU2K0dr019280@sunrise.pg.gda.pl> <200311300222.hAU2MqcB002434@green.mif.pg.gda.pl>
+Message-ID: <20031130132649.GC5738@win.tue.nl>
+References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <20031129222722.GA505@gnu.org> <20031130003428.GA5465@win.tue.nl> <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200311300222.hAU2MqcB002434@green.mif.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi>
 User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 03:22:52AM +0100, Andrzej Krzysztofowicz wrote:
-
-> > The BIOS reads the MBR and jumps to the code loaded from there.
-> > There is no need for any partition table, or, if there is a table,
-> > for any particular format. It is all up to the code that is found
-> > in the MBR.
+On Sun, Nov 30, 2003 at 01:10:36PM +0200, Szakacsits Szabolcs wrote:
 > 
-> I found some PC BIOS-es refuse to read the MBR if no active partition is
-> found in the partition table...
+> On Sun, 30 Nov 2003, Andries Brouwer wrote:
+> 
+> > Just ask yourself this question: does Windows XP require a bootable
+> > partition to start below the 1024 cylinder mark?
+> > Windows NT4 has such a restriction. Not Windows 2000 or XP.
+> 
+> Wrong:
+> 	http://support.microsoft.com/default.aspx?scid=kb;en-us;282191
 
-Yes. We are getting a bit away from disk geometries, but it is true
-that there are many broken BIOSes that in some way depend on partition
-table format or MBR format.
+"Wrong" - what a pessimism. That URL just confirms what I wrote:
+Windows XP has no such restriction. If you explicitly ask Windows XP
+to use oldfashioned means, then of course that is your own choice.
 
-I recall the report that one BIOS tuned IDE modes by reading the MBR
-and seeing whether it ended with 0xaa55. If not it tried a lower speed.
-So on a disk without this MBR signature, the I/O would be slow.
+> > > > Usually booting goes like this: the BIOS reads sector 0 (the MBR)
+> > > > from the first disk, and starts the code found there. What happens
+> > > > afterwards is up to that code. If that code uses CHS units to find
+> > > > a partition, and if the program that wrote the table has different
+> > > > ideas about those units than the BIOS, booting may fail.
+> > > Exactly.
+> > Good. We agree.
+> 
+> I'm glad also. So what actually [cs]fdisk do with the CHS entries in the
+> partition table? Ignore them? Might they convert a given partition start to
+> different CHS units if the partition entry was deleted then recreated at
+> the same cylinder? 
 
-BSD used to use an entirely different partition table scheme.
-And it was not uncommon to run a whole-disk BSD system, without
-any partitioning.
-Increasingly often that caused problems with broken BIOSes
-that wanted to interpret partition table contents.
+Ha, now we are getting down to business.
+*fdisk evolves in time, so the answer is very version dependent.
+Let me answer for today's fdisk.
 
-The categories of problems that come to mind are:
-- BIOS has a virus detection option and checks the MBR
-- BIOS inspects the partition table to find the hibernation partition
-- BIOS inspects the partition table to find the service partition
-- BIOS inspects the partition table to guess what geometry it should report
+Disk geometry is determined as follows (see fdisk.c:get_geometry())
 
-I recall that certain Thinkpads would not boot FreeBSD even with a DOS-type
-partition table because the BIOS did not like the a5 partition ID.
+        heads = user_heads ? user_heads :
+                pt_heads ? pt_heads :
+                kern_heads ? kern_heads : 255;
+        sectors = user_sectors ? user_sectors :
+                pt_sectors ? pt_sectors :
+                kern_sectors ? kern_sectors : 63;
 
-So, yes, you are right, practice is much more complicated than theory.
+that is, if the user has specified a geometry on the command line,
+then that is what we use; otherwise, if there is a partition
+table already and we are able to guess a geometry from that, use that;
+otherwise, if the kernel has some idea, use that; finally use */255/63
+when no information is available.
 
 Andries
 

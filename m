@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270079AbTGQT4l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 15:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270324AbTGQT4k
+	id S269913AbTGQT51 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 15:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270190AbTGQT4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 15:56:40 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:59114 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id S270079AbTGQT4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 15:56:36 -0400
-Date: Thu, 17 Jul 2003 13:09:20 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: root@mauve.demon.co.uk
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Wireless linux router
-In-Reply-To: <200307171924.UAA21477@mauve.demon.co.uk>
-Message-ID: <Pine.LNX.4.44.0307171237490.13919-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 15:56:45 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28625 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270085AbTGQT4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 15:56:39 -0400
+Date: Thu, 17 Jul 2003 22:11:27 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] netfilter Configure.help cleanup
+Message-ID: <20030717201127.GK1407@fs.tum.de>
+References: <20030627233357.GN24661@fs.tum.de> <20030630051516.AAEC12C220@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030630051516.AAEC12C220@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-define router... do you mean an ap with nat... or do you meant an actaul
-router but with wireless interfaces... 
-
-consumer wireless ap's are dreadfully tight on flash and ram. there are
-inexpensive embeded pc platforms that are far more appropriate for 
-consumer wireless development platforms than an accesspoint you buy for 
-$70 at frys... microtik or soekris boxes come to mind almost immediatly 
-and there are others. 
-
-We have embeded machines built on such platforms doing various tasks 
-running freebsd and modern linux distros that cost order of $250-400ea
-
-
-On Thu, 17 Jul 2003 root@mauve.demon.co.uk wrote:
-
-> A while ago there was much discussion about wireless routers with
-> linux kernels, and no source.
+On Mon, Jun 30, 2003 at 02:38:12PM +1000, Rusty Russell wrote:
+> In message <20030627233357.GN24661@fs.tum.de> you write:
+> > - remove useless short descriptions above CONFIG_*
 > 
-> Are there any readily available ones that do, and that I can edit the 
-> image, and that have a couple of meg of RAM/ROM free?
+> > -Connection tracking (required for masq/NAT)
+> >  CONFIG_IP_NF_CONNTRACK
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Can you really do this?  A quick skim didn't find anyone else skipping
+> this line...
+
+These lines are only (sometimes outdated) copies of the lines in the
+Config.in files that are not used by any tool I am aware of. 
+
+> Thanks,
+> Rusty.
+
+cu
+Adrian
 
 -- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-  In Dr. Johnson's famous dictionary patriotism is defined as the last
-  resort of the scoundrel.  With all due respect to an enlightened but
-  inferior lexicographer I beg to submit that it is the first.
-	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

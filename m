@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTJ3Rgr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 12:36:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTJ3Rgr
+	id S262719AbTJ3RuY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 12:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTJ3RuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 12:36:47 -0500
-Received: from main.gmane.org ([80.91.224.249]:63186 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262694AbTJ3Rgp (ORCPT
+	Thu, 30 Oct 2003 12:50:23 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:21411 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S262719AbTJ3RuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 12:36:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 30 Oct 2003 12:50:20 -0500
+Subject: Re: Transmit timeout with 3c395, 2.4.19, 2.4.22
+From: Stian Jordet <liste@jordet.nu>
 To: linux-kernel@vger.kernel.org
-From: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: WG:  EIO DM-8401H ATA133 IDE Controller Card ( Silicon Image
- Chip ?!?)
-Date: Thu, 30 Oct 2003 20:36:43 +0300
-Message-ID: <20031030203643.56474e23.vsu@altlinux.ru>
-References: <S261606AbTJ3JsA/20031030094800Z+24028@vger.kernel.org>
+In-Reply-To: <20031027111827.07b04891.akpm@osdl.org>
+References: <20031027141358.GA26271@gamma.logic.tuwien.ac.at>
+	 <20031027111827.07b04891.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1067536222.1197.8.camel@chevrolet.hybel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Newsreader: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-alt-linux-gnu)
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 30 Oct 2003 18:50:22 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Oct 2003 10:47:52 +0100 Michael Labuschke wrote:
+man, 27.10.2003 kl. 20.18 skrev Andrew Morton:
+> Norbert Preining <preining@logic.at> wrote:
+> >
+> > Hi Andrew, hi list!
+> > 
+> > Suddenly, after 160 days of running, our bridged firewall started to
+> > spit out this:
+> > NETDEV WATCHDOG: eth1: transmit timed out
 
-> Hi
-> I bought an IDE Controller the other day ( non RAID version)
-> See  http://www.ivmm.com/eio/products_dm8401h.html
-> As ist stated there should be linux support.
-> No the problem is
-> (output from  cat /proc/pci
-> 
->   Bus  0, device  17, function  0:
->     Unknown mass storage controller: PCI device 1283:8212 (Integrated
-> Technology Express, Inc.) (rev 17).
->       IRQ 11.
->       Master Capable.  No bursts.  Min Gnt=8.Max Lat=8.
->       I/O at 0xd800 [0xd807].
->       I/O at 0xdc00 [0xdc03].
->       I/O at 0xe000 [0xe007].
->       I/O at 0xe400 [0xe403].
->       I/O at 0xe800 [0xe80f].
+My gateway started to give me this errors on eth0 some days ago. Eth0 is
+the internal network-card, which is connected to just one pc through a
+crossed tp-cable. When I run a certain app on my pc (xMule), the gateway
+alway starts spitting those messages.
 
-http://www.ite.com.tw/productInfo/Download.html#IT8212%20ATA133%20Controller
-
-The driver is complete shit... they do locking this way:
-
-...
-static spinlock_t io_request_lock	= SPIN_LOCK_UNLOCKED;
-...
+Could have been hardware, but only happens when xmule is active on my
+computer. Wasn't like this earlier.
 

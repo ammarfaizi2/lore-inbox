@@ -1,81 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265298AbRFUXlP>; Thu, 21 Jun 2001 19:41:15 -0400
+	id <S265302AbRFUXwQ>; Thu, 21 Jun 2001 19:52:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265299AbRFUXlF>; Thu, 21 Jun 2001 19:41:05 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:28288 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265298AbRFUXky>; Thu, 21 Jun 2001 19:40:54 -0400
-Date: Thu, 21 Jun 2001 19:40:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: linux-kernel@vger.kernel.org
+	id <S265303AbRFUXwG>; Thu, 21 Jun 2001 19:52:06 -0400
+Received: from ip-64-63-65-105.reverse.mobilenetics.com ([64.63.65.105]:56045
+	"HELO homa.asicdesigners.com") by vger.kernel.org with SMTP
+	id <S265302AbRFUXv4>; Thu, 21 Jun 2001 19:51:56 -0400
+Date: Thu, 21 Jun 2001 16:50:15 -0700
+From: Mike Mackovitch <macko@asicdesigners.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Mike Mackovitch <macko@asicdesigners.com>,
+        Pete Zaitcev <zaitcev@redhat.com>, root@chaos.analogic.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <200106212206.f5LM6dK12282@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.3.95.1010621193107.6383A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010621165015.A11197@wacko.asicdesigners.com>
+In-Reply-To: <mailman.993156181.18994.linux-kernel2news@redhat.com> <200106212206.f5LM6dK12282@devserv.devel.redhat.com> <15154.29468.215080.602628@pizda.ninka.net> <20010621160949.A10977@wacko.asicdesigners.com> <15154.33208.744328.463419@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <15154.33208.744328.463419@pizda.ninka.net>; from davem@redhat.com on Thu, Jun 21, 2001 at 04:22:32PM -0700
+X-OriginalArrivalTime: 21 Jun 2001 23:51:28.0390 (UTC) FILETIME=[16B94260:01C0FAAD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Pete Zaitcev wrote:
-
-> > There is no such thing as a "user mode" interrupt service routine.
-> > There never was one, and there will never be one on any machine
-> > that fetches instructions from memory for execution. [...]
+On Thu, Jun 21, 2001 at 04:22:32PM -0700, David S. Miller wrote:
 > 
-> If memory does not deceive me, SunLab Spring processed interrupts
-> in user space. I do not remember for sure, but I think QNX did, too.
-> User mode interrupt handlers are perfectly doable, provided that the
-> hardware allows to mask interrupts selectively.
->
-
-QNX does not have any difference between user-space and kernel space.
-It's not paged-virtual. It's just one big sheet of address space
-with no memory protection (everything is shared). All procedures
-to be executed are known at compile time.
-
-Therefore, any piece of code can do anything it wants including
-handling hardware directly. In fact, that's what QNX was designed
-for.
- 
-> Large part of the post that I quoted was spent on spitting
-> in the general direction of clueless programmers; indeed,
-> I observe that perhaps 90% of requests for user mode interrupt
-> processing come from the same people who would like to write
-> Linux kernel mode code in C++ (total retards, in other words).
+> Mike Mackovitch writes:
+>  > Sorry, but SGI's IRIX does NOT handle graphics interrupts in user space.
 > 
+> What the heck is ULI then?  I've actually read the assembly code for
+> this back when I did my SGI internship.
 
-I think I said (or implied) that too.
+If my memory serves me correctly, I believe ULI was some
+hacked up "user-level interrupt" feature.  I have no idea
+who (if anyone) used it, but it definitely wasn't used by
+SGI's graphics drivers.
 
-> It does not mean, however, that there are not justified cases
-> for user-mode interrupt handlers, especially outside of Linux.
-
-Not if that memory can get swapped or paged out .
-
-
-> Some OSes are even written in C++ and Java, and run just fine
-> on a machine that fetches instructions from memory.
-> 
-
-Then you are stretching the meaning of "OS" just a bit. It's
-true that I can make an Operating System  entirely in interpreted
-BASIC. However, it is really only a "Command Processor" even
-though it can have multiple "connections" requesting commands
-to be processed.
-
-
-> -- Pete
-> -
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+--macko

@@ -1,67 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRBZQWl>; Mon, 26 Feb 2001 11:22:41 -0500
+	id <S130320AbRBZQab>; Mon, 26 Feb 2001 11:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130318AbRBZQWb>; Mon, 26 Feb 2001 11:22:31 -0500
-Received: from [212.115.175.146] ([212.115.175.146]:63739 "EHLO
-	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
-	id <S130317AbRBZQW1>; Mon, 26 Feb 2001 11:22:27 -0500
-Message-ID: <27525795B28BD311B28D00500481B7601F0F12@ftrs1.intranet.ftr.nl>
-From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: awe_ram.c
-Date: Mon, 26 Feb 2001 17:31:10 +0100
+	id <S130323AbRBZQaW>; Mon, 26 Feb 2001 11:30:22 -0500
+Received: from nuvol.uji.es ([150.128.16.10]:63250 "HELO nuvol.uji.es")
+	by vger.kernel.org with SMTP id <S130320AbRBZQaJ>;
+	Mon, 26 Feb 2001 11:30:09 -0500
+Message-ID: <3A9A8489.224CF54C@inf.uji.es>
+Date: Mon, 26 Feb 2001 17:30:01 +0100
+From: David <dllorens@lsi.uji.es>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Posible bug in gcc
+Content-Type: multipart/mixed;
+ boundary="------------CACF4A28F3327438DFF13325"
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------CACF4A28F3327438DFF13325
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On http://helllabs.org/~claudio/awebd/awe_ram.c I found some code which
-transforms the
-RAM on an AWE32/64 into a block-device. I tried to compile it, but I did not
-succeed.
-The writer of this code doesn't respond to e-mails.
-Anyone out there who has a clue what is going wrong with it? (using kernel
-2.2.18)
+I hope you will find this information usefull.
 
-Am getting the following errors:
-bash-2.03# gcc -Wall -Wstrict-prototypes -Winline -O2 -fomit-frame-pointer
--I/usr/src/linux/include/ -c awe_ram.c -o awe_ram.o 2>&1 | more 
-In file included from /usr/src/linux/include/linux/sched.h:74,
-                 from awe_ram.c:26:
-/usr/src/linux/include/asm/processor.h:287: warning: `struct task_struct'
-declared inside parameter list
-/usr/src/linux/include/asm/processor.h:287: warning: its scope is only this
-definition or declaration,
-/usr/src/linux/include/asm/processor.h:287: warning: which is probably not
-what you want.
-/usr/src/linux/include/asm/processor.h:291: warning: `struct task_struct'
-declared inside parameter list
-In file included from /usr/src/linux/include/linux/blk.h:4,
-                 from awe_ram.c:42:
-/usr/src/linux/include/linux/blkdev.h:23: parse error before `kdev_t'
-/usr/src/linux/include/linux/blkdev.h:23: warning: no semicolon at end of
-struct or union
-/usr/src/linux/include/linux/blkdev.h:36: parse error before `}'
-/usr/src/linux/include/linux/blkdev.h:39: parse error before `dev'
-/usr/src/linux/include/linux/blkdev.h:39: warning: function declaration
-isn't a prototype
-/usr/src/linux/include/linux/blkdev.h:55: parse error before `unsigned'
-/usr/src/linux/include/linux/blkdev.h:55: warning: function declaration
-isn't a prototype
-/usr/src/linux/include/linux/blkdev.h:75: field `plug' has incomplete type
-/usr/src/linux/include/linux/blkdev.h:94: parse error before `kdev_t'
-/usr/src/linux/include/linux/blkdev.h:94: warning: function declaration
-isn't a prototype
-/usr/src/linux/include/linux/blkdev.h:96: parse error before `mddev'
-/usr/src/linux/include/linux/blkdev.h:96: warning: function declaration
-isn't a prototype
-<etc.>
+I am not in the linux-kernel list so, if posible, I would like to be
+personally CC'ed the answers/comments sent to the list in response to
+this posting.
+
+I think I heve found a bug in gcc. I have tried both egcs 1.1.2 (gcc
+2.91.66) and gcc 2.95.2 versions.
+
+I am attaching you a simplified test program ('bug.c', a really simple
+program).
+
+To generate the faulty program from correct code compile as:
+  gcc -O2 -o bug bug.c
+
+You can generate good code in two ways:
+1. Compiling with:
+  gcc -fno-strength-reduce -O2 -o bug bug.c
+
+   So the problem is with the option -fstrength-reduce which is 
+   active with the common '-O2' optimization option.
+
+2. Uncomment the printf at line 34. Bugs are surprising.
+
+I have also sent the bug report to the gcc maintainers.
+
+Is it really a bug?
+
+Thank you,
+
+David Llorens.
+--------------CACF4A28F3327438DFF13325
+Content-Type: text/plain; charset=us-ascii;
+ name="bug.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bug.c"
+
+/* 
+#include <stdio.h>
+*/
+
+#define SMALL_N  2
+#define NUM_ELEM 4
+
+int main(void)
+{
+  int listElem[NUM_ELEM]={30,2,10,5};
+  int listSmall[SMALL_N];
+  int i, j;
+  int posGreatest=-1, greatest=-1;
+
+  for (i=0; i<SMALL_N; i++) { 
+    listSmall[i] = listElem[i];
+    if (listElem[i] > greatest) {
+      posGreatest = i;
+      greatest = listElem[i];
+    }
+  }
+  
+  for (i=SMALL_N; i<NUM_ELEM; i++) { 
+    if (listElem[i] < greatest) {
+      listSmall[posGreatest] = listElem[i];
+      posGreatest = 0;
+      greatest = listSmall[0];
+      for (j=1; j<SMALL_N; j++) 
+	if (listSmall[j] > greatest) {
+	  posGreatest = j;
+	  greatest = listSmall[j];
+	}
+      /*
+      printf("%d\n", posGreatest);
+      */
+    }
+  }
+ 
+  printf("Correct output: 5 2\n");
+  printf("GCC output: ");
+  for (i=0; i<SMALL_N; i++) printf(" %.1d", listSmall[i]);
+  printf("\n");
+  return (1);
+}
 
 
-Greetings,
-Folkert van Heusden.
+--------------CACF4A28F3327438DFF13325--
+

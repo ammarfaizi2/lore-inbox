@@ -1,326 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSCVBNJ>; Thu, 21 Mar 2002 20:13:09 -0500
+	id <S312603AbSCVBOk>; Thu, 21 Mar 2002 20:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312600AbSCVBNB>; Thu, 21 Mar 2002 20:13:01 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:3541 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S312599AbSCVBMn>;
-	Thu, 21 Mar 2002 20:12:43 -0500
-Date: Thu, 21 Mar 2002 17:09:30 -0800
-From: Russ Weight <rweight@us.ibm.com>
-To: mingo@elte.hu
-Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.7] Scalable CPU bitmasks
-Message-ID: <20020321170929.A7281@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312604AbSCVBO1>; Thu, 21 Mar 2002 20:14:27 -0500
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:6140 "EHLO
+	filestore.kroptech.com") by vger.kernel.org with ESMTP
+	id <S312603AbSCVBN4>; Thu, 21 Mar 2002 20:13:56 -0500
+Message-ID: <00e401c1d13e$d5d92580$02c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020321180811.A12688@rushmore>
+Subject: Re: Linux 2.4.19-pre3-ac5
+Date: Thu, 21 Mar 2002 20:13:54 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 22 Mar 2002 01:13:54.0898 (UTC) FILETIME=[D5D83B20:01C1D13E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	This version of the patch has been split into two files
-(cpumap.h and cpumap.c) in order to avoid bloated inline functions.
-I am also detecting the invalid use of the cpumap_to_ulong() and
-cpumap_ulong_to_cpumap() interfaces at compile time (per Manfred's
-suggestion).
+----- Original Message -----
+From: <rwhron@earthlink.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, March 21, 2002 6:08 PM
+Subject: Re: Linux 2.4.19-pre3-ac5
 
-          This patch implements a scalable bitmask specifically
-  for tracking CPUs. It consists of two architecture-independent
-  files, cpumap.h and cpumap.c. These files add a new datatype and
-  supporting functions which allow for future expansion to a CPU count 
-  which is not confined to the bit-size of (unsigned long).  The new
-  datatype (cpumap_t) and supporting interfaces are optimized at
-  compile-time according to the definition of NR_CPUS.
-  
-          While systems with more than 32 processors are still
-  out in the future, these interfaces provide a path for gradual
-  code migration. One of the primary goals is to provide current
-  functionality without affecting performance. The following 
-  is a list of some of the bitmasks that could be converted to
-  the new datatype.
-  
-          phys_cpu_present_map
-          cpu_initialized
-          wait_init_idle
-          cpu_online_map/cpu_present_mask
-          cpu_callin_map
-          cpu_callout_map
-  
-  NOTE:   The cpumap_to_ulong() and cpumap_ulong_to_cpumap() interfaces
-          are provided specifically for migration. If these interfaces are
-          used when NR_CPUS is greater than the bitsize of (unsigned long),
-          they will cause a link-time failure.
 
-diff -Nru a/include/linux/cpumap.h b/include/linux/cpumap.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/cpumap.h	Thu Mar 21 15:47:34 2002
-@@ -0,0 +1,114 @@
-+/*
-+ * cpumap_t data type and supporting functions
-+ *
-+ * Copyright (c) 2002 IBM Corp.
-+ *
-+ *	01/25/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
-+ *	03/20/02 Move larger functions to cpumap.c	Russ Weight
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+#ifndef __LINUX_CPUMAP_H
-+#define __LINUX_CPUMAP_H
-+
-+#include <linux/config.h>
-+#include <linux/threads.h>
-+#include <asm/types.h>
-+
-+#ifdef CONFIG_SMP
-+#define CPUMAP_SIZE       ((NR_CPUS + BITS_PER_LONG - 1) / BITS_PER_LONG)
-+#else
-+#define CPUMAP_SIZE       1
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+#include <linux/bitops.h>
-+typedef unsigned long cpumap_t[CPUMAP_SIZE];
-+
-+/*
-+ * The following interfaces are the same for SMP and UP.
-+ */
-+#define cpumap_clear_bit	clear_bit
-+#define cpumap_set_bit		set_bit
-+#define cpumap_test_and_set_bit	test_and_set_bit
-+#define cpumap_test_bit		test_bit
-+
-+#if (NR_CPUS % BITS_PER_LONG)
-+#define CPUMAP_FILLMASK	((1 << (NR_CPUS % BITS_PER_LONG)) -1)
-+#else
-+#define CPUMAP_FILLMASK	(~0UL)
-+#endif
-+
-+/*
-+ * The following macros and prototype are used to format
-+ * a cpumap_t object for display. This function knows the 
-+ * minimum size required, which is provided as CPUMAP_BUFSIZE.
-+ *
-+ * The CPUMAP_BUFSIZE is an exact calcuation of the byte count
-+ * required to display a cpumap_t object.
-+ */
-+
-+#define CPUMAP_BUFSIZE (((sizeof(long) * 2) + 1) * CPUMAP_SIZE + 2)
-+
-+#if BITS_PER_LONG > 32
-+#define CPUMAP_FORMAT_STR	"%016lx"
-+#else
-+#define CPUMAP_FORMAT_STR	"%08lx"
-+#endif
-+extern char *cpumap_format(cpumap_t map, char *buf, int size);
-+
-+#if CPUMAP_SIZE == 1
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long). The single
-+ * CPU case falls into the CPUMAP_SIZE==1 case.
-+ */
-+#define cpumap_to_ulong(cpumap)			(cpumap[0])
-+#define cpumap_ulong_to_cpumap(bitmap, cpumap)	(cpumap[0] = bitmap)
-+#define cpumap_is_empty(cpumap) 		(cpumap[0] == 0)
-+#define cpumap_cmp_mask(map1, map2)		(map1[0] ==  map2[0])
-+#define cpumap_clear_mask(cpumap)		(cpumap[0] = 0)
-+#define cpumap_fill(cpumap)			(cpumap[0] = CPUMAP_FILLMASK)
-+#define cpumap_copy_mask(srcmap, destmap) 	(destmap[0] = srcmap[0])
-+#define cpumap_and_mask(map1, map2, result)	(result[0] = map1[0] & map2[0])
-+
-+#else
-+
-+/*
-+ * The cpumap_to_ulong() and cpumap_ulong_to_cpumap() functions
-+ * are provided to facilitate migration to the cpumap_t datatype.
-+ * As currently defined, they are only valid for CPUMAP_SIZE==1.
-+ * If they are referenced when CPUMAP_SIZE > 1, then we call a
-+ * bogus function name in order to trigger a link-time error.
-+ */
-+extern unsigned long __bad_cpumap_to_ulong(void);
-+extern void __bad_cpumap_ulong_to_cpumap(void);
-+#define cpumap_to_ulong(cpumap)			__bad_cpumap_to_ulong()
-+#define cpumap_ulong_to_cpumap(bitmap, cpumap)	__bad_cpumap_ulong_to_cpumap()
-+
-+extern int cpumap_is_empty(cpumap_t map);
-+extern int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2);
-+extern void cpumap_clear_mask(cpumap_t cpumap);
-+extern void cpumap_fill(cpumap_t cpumap);
-+extern void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap);
-+extern void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result);
-+
-+#endif
-+#endif
-+#endif
-diff -Nru a/lib/Makefile b/lib/Makefile
---- a/lib/Makefile	Thu Mar 21 15:47:34 2002
-+++ b/lib/Makefile	Thu Mar 21 15:47:34 2002
-@@ -8,9 +8,9 @@
- 
- L_TARGET := lib.a
- 
--export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o crc32.o
-+export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o crc32.o cpumap.o
- 
--obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o
-+obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o cpumap.o
- 
- obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
-diff -Nru a/lib/cpumap.c b/lib/cpumap.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/lib/cpumap.c	Thu Mar 21 15:47:34 2002
-@@ -0,0 +1,132 @@
-+/*
-+ * Supporting functions for cpumap_t data type
-+ *
-+ * Copyright (c) 2002 IBM Corp.
-+ *
-+ *	03/20/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+#include <linux/kernel.h>
-+#include <linux/cpumap.h>
-+#include <asm/string.h>
-+
-+/* Not all architectures define BUG() */
-+#ifndef BUG
-+  #define BUG() do { \
-+	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
-+	* ((char *) 0) = 0; \
-+  } while (0)
-+#endif /* BUG */
-+
-+/*
-+ * The cpumap_format() function is used to format a cpumap_t
-+ * object for display. This function knows the minimum size
-+ * required, which is provided as CPUMAP_BUFSIZE.
-+ */
-+char *cpumap_format(cpumap_t map, char *buf, int size)
-+{
-+	if (size < CPUMAP_BUFSIZE) {
-+		BUG();
-+	}
-+
-+#if CPUMAP_SIZE > 1
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
-+	{
-+		int i;
-+		char *p = buf + strlen(buf);
-+		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
-+			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
-+		}
-+	}
-+#else
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
-+#endif
-+	return(buf);
-+}
-+
-+#if CPUMAP_SIZE > 1
-+/*
-+ * The following interfaces are provided for (CPUMAP_SIZE > 1).
-+ * For the case of (CPUMAP_SIZE==1) (i.e. a single unsigned long),
-+ * the same interfaces are provided as inline functions in cpumap.h.
-+ */
-+int cpumap_is_empty(cpumap_t cpumap)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (cpumap[i] !=  0) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}
-+
-+/*
-+ * Return 1 (non-zero) if they are equal, 0 if not equal
-+ */
-+int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (map1[i] !=  map2[i]) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}
-+
-+void cpumap_clear_mask(cpumap_t cpumap)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		cpumap[i] = 0UL;
-+	}
-+}
-+
-+void cpumap_fill(cpumap_t cpumap)
-+{
-+	int i;
-+	for (i = 0; i < (CPUMAP_SIZE - 1); i++) {
-+		cpumap[i] = ~0UL;
-+	}
-+	cpumap[CPUMAP_SIZE - 1] = CPUMAP_FILLMASK;
-+}
-+
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long).
-+ */
-+void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		destmap[i] = srcmap[i];
-+	}
-+}
-+
-+void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		result[i] = map1[i] & map2[i];
-+	}
-+}
-+
-+#endif
--- 
-Russ Weight (rweight@us.ibm.com)
-Linux Technology Center
+> > stuff. If you want a peaceful life and a production -ac system please
+> > stick at 2.4.18-ac3 or 2.4.19pre3-ac4. IDE and large NFS changes do not
+> > in general make for stability first time around.
+>
+> No complaints.  Maybe this ksymoops output is helpful.
+>
+> Oops occured at boot time:
+
+<snip>
+
+Me Too (tm).
+
+Same BUG, similar oops trace, different hardware (SMP PPro, 440FX chipset).
+Here it is in case it's useful:
+
+ksymoops 2.4.1 on i686 2.4.19-pre3-ac4.  Options used
+     -v /usr/src/linux-2.4.19-pre3-ac5/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /usr/src/linux-2.4.19-pre3-ac5/System.map (specified)
+
+kernel BUG at ide-cd.c:790!
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c0237e5f>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: c03d8c28   ecx: 00000064   edx: 00000177
+esi: 000001f4   edi: c12f1e84   ebp: 00000000   esp: c12f1cb4
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c12f1000)
+Stack: 0080c8dc 00000000 00000000 c1369a00 c03d8c28 c02389dd c03d8c28 c12f1e6c
+       c02387d0 c0237de4 c03d8c28 00000064 00000000 c03d8c28 00000040 c12f1dac
+       c0238a33 c03d8c28 00000018 c02389b0 c022d647 c03d8c28 c12f1dac 00000000
+Call Trace: [<c02389dd>] [<c02387d0>] [<c0237de4>] [<c0238a33>] [<c02389b0>]
+   [<c022d647>] [<c022d99c>] [<c022e03a>] [<c0238acf>] [<c01157a1>] [<c0239992>]
+   [<c0265c5d>] [<c023a11b>] [<c023a18b>] [<c0140feb>] [<c023aaa6>] [<c023af99>]
+   [<c0105000>] [<c0105068>] [<c0105000>] [<c0105696>] [<c0105040>]
+Code: 0f 0b 16 03 9d 87 2f c0 68 50 7c 23 c0 56 8b 74 24 28 56 53
+
+>>EIP; c0237e5f <cdrom_transfer_packet_command+6f/a0>   <=====
+Trace; c02389dd <cdrom_do_pc_continuation+2d/40>
+Trace; c02387d0 <cdrom_pc_intr+0/1e0>
+Trace; c0237de4 <cdrom_start_packet_command+154/160>
+Trace; c0238a33 <cdrom_do_packet_command+43/50>
+Trace; c02389b0 <cdrom_do_pc_continuation+0/40>
+Trace; c022d647 <start_request+197/200>
+Trace; c022d99c <ide_do_request+29c/2f0>
+Trace; c022e03a <ide_do_drive_cmd+fa/130>
+Trace; c0238acf <cdrom_queue_packet_command+4f/b0>
+Trace; c01157a1 <wait_for_completion+91/c0>
+Trace; c0239992 <ide_cdrom_packet+72/80>
+Trace; c0265c5d <cdrom_mode_sense+4d/60>
+Trace; c023a11b <ide_cdrom_get_capabilities+9b/b0>
+Trace; c023a18b <ide_cdrom_probe_capabilities+5b/420>
+Trace; c0140feb <bdput+8b/a0>
+Trace; c023aaa6 <ide_cdrom_setup+466/4f0>
+Trace; c023af99 <ide_cdrom_init+e9/17f>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105068 <init+28/190>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105696 <kernel_thread+26/30>
+Trace; c0105040 <init+0/190>
+Code;  c0237e5f <cdrom_transfer_packet_command+6f/a0>
+00000000 <_EIP>:
+Code;  c0237e5f <cdrom_transfer_packet_command+6f/a0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0237e61 <cdrom_transfer_packet_command+71/a0>
+   2:   16                        push   %ss
+Code;  c0237e62 <cdrom_transfer_packet_command+72/a0>
+   3:   03 9d 87 2f c0 68         add    0x68c02f87(%ebp),%ebx
+Code;  c0237e68 <cdrom_transfer_packet_command+78/a0>
+   9:   50                        push   %eax
+Code;  c0237e69 <cdrom_transfer_packet_command+79/a0>
+   a:   7c 23                     jl     2f <_EIP+0x2f> c0237e8e
+<cdrom_transfer_packet_command+9e/a0>
+Code;  c0237e6b <cdrom_transfer_packet_command+7b/a0>
+   c:   c0 56 8b 74               rclb   $0x74,0xffffff8b(%esi)
+Code;  c0237e6f <cdrom_transfer_packet_command+7f/a0>
+  10:   24 28                     and    $0x28,%al
+Code;  c0237e71 <cdrom_transfer_packet_command+81/a0>
+  12:   56                        push   %esi
+Code;  c0237e72 <cdrom_transfer_packet_command+82/a0>
+  13:   53                        push   %ebx
+
+--Adam
+
+

@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131869AbQLNSs2>; Thu, 14 Dec 2000 13:48:28 -0500
+	id <S131646AbQLNSx6>; Thu, 14 Dec 2000 13:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbQLNSsS>; Thu, 14 Dec 2000 13:48:18 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:65199 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131869AbQLNSr6>; Thu, 14 Dec 2000 13:47:58 -0500
-Date: Thu, 14 Dec 2000 13:17:28 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: test13-pre1 Makefiles
-Message-ID: <Pine.LNX.4.30.0012141315250.15676-200000@viper.haque.net>
+	id <S130687AbQLNSxi>; Thu, 14 Dec 2000 13:53:38 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2052 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129602AbQLNSxc>; Thu, 14 Dec 2000 13:53:32 -0500
+Subject: Re: macro MSG_PEEK
+To: marco@ca.provincia.parma.it
+Date: Thu, 14 Dec 2000 18:25:41 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A38F21E.B135B1C8@ca.provincia.parma.it> from "Marco Nardelli" at Dec 14, 2000 04:15:26 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1585941084-976817848=:15676"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146d4a-00008f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+> The "make test" gives me this problem:
+> 
+> t/07io..............Your vendor has not defined Socket macro MSG_PEEK,
+> used at blib/lib/Convert/BER.pm line 968
+> dubious
 
----1463811839-1585941084-976817848=:15676
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Um.. I suggest you go ask them to fix it
 
-Small errors in two Makefiles
+> Does anyone know where I can find the macro MSG_PEEK?
 
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+grep is your friend. Also its broken to assume its a macro - MSG_PEEK is 
+entitled by an enum
 
 
----1463811839-1585941084-976817848=:15676
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="t13p1-Makefiles-1.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0012141317280.15676@viper.haque.net>
-Content-Description: 
-Content-Disposition: attachment; filename="t13p1-Makefiles-1.diff"
-
-ZGlmZiAtdXJ3IGxpbnV4LTIuNC4wLXRlc3QxMy5vcmlnL01ha2VmaWxlIGxp
-bnV4L01ha2VmaWxlDQotLS0gbGludXgtMi40LjAtdGVzdDEzLm9yaWcvTWFr
-ZWZpbGUJVGh1IERlYyAxNCAxMzoxMTozNCAyMDAwDQorKysgbGludXgvTWFr
-ZWZpbGUJVGh1IERlYyAxNCAxMzoxMjo0NiAyMDAwDQpAQCAtMSw3ICsxLDcg
-QEANCiBWRVJTSU9OID0gMg0KIFBBVENITEVWRUwgPSA0DQogU1VCTEVWRUwg
-PSAwDQotRVhUUkFWRVJTSU9OID0gLXRlc3QxMg0KK0VYVFJBVkVSU0lPTiA9
-IC10ZXN0MTMNCiANCiBLRVJORUxSRUxFQVNFPSQoVkVSU0lPTikuJChQQVRD
-SExFVkVMKS4kKFNVQkxFVkVMKSQoRVhUUkFWRVJTSU9OKQ0KIA0KZGlmZiAt
-dXJ3IGxpbnV4LTIuNC4wLXRlc3QxMy5vcmlnL2RyaXZlcnMvY2hhci9NYWtl
-ZmlsZSBsaW51eC9kcml2ZXJzL2NoYXIvTWFrZWZpbGUNCi0tLSBsaW51eC0y
-LjQuMC10ZXN0MTMub3JpZy9kcml2ZXJzL2NoYXIvTWFrZWZpbGUJVGh1IERl
-YyAxNCAxMjoyODoyMiAyMDAwDQorKysgbGludXgvZHJpdmVycy9jaGFyL01h
-a2VmaWxlCVRodSBEZWMgMTQgMTM6MTM6MjEgMjAwMA0KQEAgLTE1NSw3ICsx
-NTUsNyBAQA0KIHN1YmRpci0kKENPTkZJR19GVEFQRSkgKz0gZnRhcGUNCiBz
-dWJkaXItJChDT05GSUdfRFJNKSArPSBkcm0NCiBzdWJkaXItJChDT05GSUdf
-UENNQ0lBKSArPSBwY21jaWENCi1zdWJkaXItJChDT05GSUdfYWdwKSArPSBh
-Z3ANCitzdWJkaXItJChDT05GSUdfQUdQKSArPSBhZ3ANCiANCiBpZmVxICgk
-KENPTkZJR19GVEFQRSkseSkNCiBvYmoteSAgICAgICArPSBmdGFwZS9mdGFw
-ZS5vDQo=
----1463811839-1585941084-976817848=:15676--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

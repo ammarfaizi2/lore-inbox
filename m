@@ -1,32 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318172AbSHNHkO>; Wed, 14 Aug 2002 03:40:14 -0400
+	id <S319238AbSHNHz0>; Wed, 14 Aug 2002 03:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319238AbSHNHkO>; Wed, 14 Aug 2002 03:40:14 -0400
-Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:17419 "EHLO
-	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S318172AbSHNHkN>; Wed, 14 Aug 2002 03:40:13 -0400
-Date: Wed, 14 Aug 2002 08:43:37 +0100
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [PATCH] simplify b_inode usage
-Message-ID: <20020814074337.GB1045@fib011235813.fsnet.co.uk>
-References: <20020813171024.A4365@lst.de> <3D5975B2.66B4B215@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D5975B2.66B4B215@zip.com.au>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S319239AbSHNHz0>; Wed, 14 Aug 2002 03:55:26 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:59914 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S319238AbSHNHz0>;
+	Wed, 14 Aug 2002 03:55:26 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [patch] printk from userspace
+Date: Wed, 14 Aug 2002 07:59:01 +0000 (UTC)
+Organization: Cistron
+Message-ID: <ajd2k5$h8l$1@ncc1701.cistron.net>
+References: <Pine.GSO.4.21.0208140016140.3712-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208132123500.1208-100000@home.transmeta.com>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1029311941 17685 62.216.29.67 (14 Aug 2002 07:59:01 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 02:10:10PM -0700, Andrew Morton wrote:
-> Also, Joe Thornber needs to add another pointer to struct buffer_head
-> for LVM2 reasons.  If we collapse b_inode into a b_flags bit then
-> Joe gets his pointer for free (bh stays at 48 bytes on ia32).
+In article <Pine.LNX.4.44.0208132123500.1208-100000@home.transmeta.com>,
+Linus Torvalds  <torvalds@transmeta.com> wrote:
+>That said, I like the notion. I've always hated the fact that all the 
+>boot-time messages get lost, simply because syslogd hadn't started, and 
+>as a result things like fsck ran without any sign afterwards. The kernel 
+>log approach saves it all in one place.
 
-This change is in the latest -ac.
+I have a bootlogd that does a TIOCCONS on /dev/console, so
+that it can capture all messages written to /dev/console.
 
-- Joe
+It buffers the messages in-memory, until it is able to open
+a logfile in /var/log/ at which point it writes the buffered
+data to the logfile, and starts logging to that file.
+
+The only problem is that TIOCCONS is a redirect, so there's no
+output to the console anymore. Ofcourse that can be solved by
+letting bootlogd open("/dev/realconsole") and sending a copy
+to it, but there is no way to ask the kernel to which _real_
+device /dev/console is connected.
+
+I submitted a TIOCGDEV ioctl patch a few times during 2.2 development
+but it was never integrated, alas.
+
+So this is all solveable in userspace. No need to buffer
+messages in non-swappable memory in the the kernel.
+
+Simply add TIOCGDEV or add a flags to the TIOCCONS ioctl that
+means 'copy instead of redirect'. Both are useful .. Or, hmm,
+interesting, add some code so that if you write to the master
+side of the pty pair to which the console is redirected, the
+output ends up on the real console. That has a nice symmetric
+feel to it.
+
+Sample code is in sysvinit since 2.79 or 2.80, sysvinit-2.xx/src/bootlogd.c
+
+Mike.
+

@@ -1,61 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTIWTSP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 15:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbTIWTSJ
+	id S263430AbTIWTMA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 15:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTIWTKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 15:18:09 -0400
-Received: from ns.suse.de ([195.135.220.2]:20404 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263447AbTIWTQg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 15:16:36 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: bcrl@kvack.org, tony.luck@intel.com, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, ak@suse.de,
-       iod00d@hp.com, peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
-	<20030923142925.A16490@kvack.org> <jehe3372th.fsf@sykes.suse.de>
-	<20030923115200.1f5b44df.davem@redhat.com>
-	<je4qz3724k.fsf@sykes.suse.de>
-	<20030923120110.4a039808.davem@redhat.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Sometime in 1993 NANCY SINATRA will lead a BLOODLESS COUP on GUAM!!
-Date: Tue, 23 Sep 2003 21:16:33 +0200
-In-Reply-To: <20030923120110.4a039808.davem@redhat.com> (David S. Miller's
- message of "Tue, 23 Sep 2003 12:01:10 -0700")
-Message-ID: <jer8275n8u.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+	Tue, 23 Sep 2003 15:10:44 -0400
+Received: from ivoti.terra.com.br ([200.176.3.20]:32207 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S263410AbTIWTJr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 15:09:47 -0400
+Message-ID: <3F709719.6030107@terra.com.br>
+Date: Tue, 23 Sep 2003 15:55:21 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Memory leak in scsi_debug found by checker
+References: <3F7096EE.8080105@terra.com.br>
+In-Reply-To: <3F7096EE.8080105@terra.com.br>
+Content-Type: multipart/mixed;
+ boundary="------------090306080801020104080500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+This is a multi-part message in MIME format.
+--------------090306080801020104080500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Tue, 23 Sep 2003 21:09:47 +0200
-> Andreas Schwab <schwab@suse.de> wrote:
->
->> The compiler is allowed to take advantage that there are no unaligned
->> accesses.  You need to use compiler extensions (like attribute packed) to
->> stop it from doing this.
->
-> That's correct, and if the address is misaligned the cpu "traps"
-> and the kernel fixes up the load/store access to fix it up.
+	Forgot the patch :)
 
-Or the compiler generates code to take advantage of the fact that the
-lower address bits are zero.
+Felipe W Damasio wrote:
+>     Hi James,
+> 
+>     Patch against 2.6-test5.
+> 
+>     If in the middle of loop a kmalloc failed, that means that the 
+> previous calls succeeded..so they must be also be freed (and removed 
+> from the dev_info_list).
+> 
+>     Please review and consider applying.
+> 
+>     Cheers,
+> 
+> Felipe
+> 
 
-> That's what we're talking about here.
+--------------090306080801020104080500
+Content-Type: text/plain;
+ name="scsi_debug-leak.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="scsi_debug-leak.patch"
 
-Of course, the kernel language is not ISO C, and never will be.
+--- linux-2.6.0-test5/drivers/scsi/scsi_debug.c.orig	2003-09-23 15:46:57.000000000 -0300
++++ linux-2.6.0-test5/drivers/scsi/scsi_debug.c	2003-09-23 15:43:39.000000000 -0300
+@@ -1614,7 +1614,7 @@
+                         printk(KERN_ERR "%s: out of memory at line %d\n",
+                                __FUNCTION__, __LINE__);
+                         error = -ENOMEM;
+-			goto clean1;
++			goto clean;
+                 }
+                 memset(sdbg_devinfo, 0, sizeof(*sdbg_devinfo));
+                 sdbg_devinfo->sdbg_host = sdbg_host;
+@@ -1634,12 +1634,12 @@
+         error = device_register(&sdbg_host->dev);
+ 
+         if (error)
+-		goto clean2;
++		goto clean;
+ 
+ 	++scsi_debug_add_host;
+         return error;
+ 
+-clean2:
++clean:
+ 	list_for_each_safe(lh, lh_sf, &sdbg_host->dev_info_list) {
+ 		sdbg_devinfo = list_entry(lh, struct sdebug_dev_info,
+ 					  dev_list);
+@@ -1647,7 +1647,6 @@
+ 		kfree(sdbg_devinfo);
+ 	}
+ 
+-clean1:
+ 	kfree(sdbg_host);
+         return error;
+ }
 
-Andreas.
+--------------090306080801020104080500--
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."

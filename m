@@ -1,68 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289010AbSAIUS0>; Wed, 9 Jan 2002 15:18:26 -0500
+	id <S289002AbSAIUPH>; Wed, 9 Jan 2002 15:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289001AbSAIUSL>; Wed, 9 Jan 2002 15:18:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13073 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289012AbSAIURr>; Wed, 9 Jan 2002 15:17:47 -0500
-Date: Wed, 9 Jan 2002 12:15:59 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        Mike Kravetz <kravetz@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-        george anzinger <george@mvista.com>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <Pine.LNX.4.33.0201091154440.2276-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0201091212380.7845-100000@penguin.transmeta.com>
+	id <S289020AbSAIUOs>; Wed, 9 Jan 2002 15:14:48 -0500
+Received: from cygnus.equallogic.com ([65.170.102.10]:5394 "HELO
+	cygnus.equallogic.com") by vger.kernel.org with SMTP
+	id <S289002AbSAIUMY>; Wed, 9 Jan 2002 15:12:24 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15420.42020.88898.576943@pkoning.dev.equallogic.com>
+Date: Wed, 9 Jan 2002 15:12:20 -0500 (EST)
+From: Paul Koning <pkoning@equallogic.com>
+To: mrs@windriver.com
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <200201091953.LAA27042@kankakee.wrs.com>
+X-Mailer: VM 6.75 under 21.1 (patch 11) "Carlsbad Caverns" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "mike" == mike stump <mrs@windriver.com> writes:
 
-On Wed, 9 Jan 2002, Ingo Molnar wrote:
->
-> 2.5.2-pre10-vanilla running the test at the default priority level:
->
->     # ./chat_s 127.0.0.1
->     # ./chat_c 127.0.0.1 10 1000
->
->     Average throughput : 124676 messages per second
->     Average throughput : 102244 messages per second
->     Average throughput : 115841 messages per second
->
->     [ system is unresponsive at the start of the test, but
->       once the 2.5.2-pre10 load-estimator establishes which task is
->       interactive and which one is not, the system becomes usable.
->       Load can be felt and there are frequent delays in commands. ]
->
-> 2.5.2-pre10-vanilla running at nice level 19:
->
->     # nice -n 19 ./chat_s 127.0.0.1
->     # nice -n 19 ./chat_c 127.0.0.1 10 1000
->
->     Average throughput : 214626 messages per second
->     Average throughput : 220876 messages per second
->     Average throughput : 225529 messages per second
->
->     [ system is usable from the beginning - nice levels are working as
->       expected. Load can be felt while executing shell commands, but the
->       system is usable. Load cannot be felt in truly interactive
->       applications like editors.
+ >> From: dewar@gnat.com To: dewar@gnat.com, mrs@windriver.com,
+ >> paulus@samba.org Cc: gcc@gcc.gnu.org,
+ >> linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+ >> velco@fadata.bg Date: Tue, 8 Jan 2002 21:13:43 -0500 (EST)
 
-Ingo, there's something wrong there.
+ >> Yes, of course! No one disagrees. I am talking about *LOADS* not
+ >> stores, your example is 100% irrelevant to my point, since it does
+ >> stores.
 
-Not a way in hell should "nice 19" cause the throughput to improve like
-that. It looks like this is a result of "nice 19" simply doing _different_
-scheduling, possibly more batch-like, and as such those numbers cannot
-sanely be compared to anything else.
+ mike> Ok, in the bodies of those, put in
 
-(And if they _are_ comparable, then you should be able to get the good
-numbers even without "nice 19". Quite frankly it sounds to me like the
-whole chat benchmark is another "dbench", ie doing unbalanced scheduling
-_helps_ it performance-wise, which implies that it's probably a bad
-benchmark to look at numbers for).
+ mike> j1=c1;
 
-		Linus
+ mike> j2=c2;
+
+ mike> j3=c3;
+
+ mike> With new definitions for j1, j2 and k3 as being volatile.
+ mike> Accesses are volatile:
+
+ mike> [#2] Accessing a volatile object, modifying an object,
+ mike> modifying a file, or calling a function that does any of those
+ mike> operations are all side effects
+
+ mike> So, I would claim that the case is symetric with writing
+ mike> volatiles.  If the standard doesn't make a distinction for
+ mike> write v read, then you can't and claim that distinction is
+ mike> based in the standard.  If you claim the standard does make a
+ mike> distinction, please point it out, I am unaware of it.
+
+Ah... so (paraphrasing) -- if you have two byte size volatile objects,
+and they happen to end up adjacent in memory, the compiler is
+explicitly forbidden from turning an access to one of them into a
+wider access -- because that would be an access to both of them, which
+is a *different* side effect.  (Certainly that exactly matches the
+hardware-centric view of why "volatile" exists.)  And the compiler
+isn't allowed to change side effects, including causing them when the
+source code didn't ask you to cause them.
+
+So that says that you are indeed entitled to expect the compiler not
+to enlarge volatile accesses, neither loads nor stores.  Or, if you
+want to be *really* paranoid, you can at least enforce that by
+"wrapping" the volatile object, if necessary, with two more volatile
+objects that are +1 and -1 address unit away from the one you care
+about.  And if the compiler then generates a larger reference, that's
+a compiler bug.
+
+Nice.
+
+	paul
 

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbTF3N4i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 09:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTF3N4i
+	id S264304AbTF3OHM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 10:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTF3OHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 09:56:38 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:57607 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264754AbTF3N4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 09:56:36 -0400
-Subject: Re: [PATCH] fix for kallsyms module symbol resolution problem
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030630074948.8F43D2C0A7@lists.samba.org>
-References: <20030630074948.8F43D2C0A7@lists.samba.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 30 Jun 2003 09:10:46 -0500
-Message-Id: <1056982249.2069.25.camel@mulgrave>
-Mime-Version: 1.0
+	Mon, 30 Jun 2003 10:07:12 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:14295 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264304AbTF3OHK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 10:07:10 -0400
+Subject: Evaluation of three I/O schedulers
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>, "Mike Sullivan" <mksully@us.ibm.com>,
+       "Bill Hartner" <bhartner@us.ibm.com>,
+       "Ray Venditti" <venditti@us.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF9393D547.0D1D003C-ON85256D55.004DFAA4@pok.ibm.com>
+From: "Peter Wong" <wpeter@us.ibm.com>
+Date: Mon, 30 Jun 2003 09:21:24 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 06/30/2003 10:21:28 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-30 at 01:17, Rusty Russell wrote:
-> Yeah, but I was trying to get you to do more work.  And if the names
-> resulting are useless anyway, why apply the patch?
+We used 2.5.72+mm1 to evaluate three I/O schedulers, namely
+anticipatory, deadline and complete fair queueing under a very heavy
+database workload on an 8-way Pentium 4 machine. The workload is a
+decision support system doing mostly sequential I/O and each run takes
+about one hour. All three runs finished completely without encountering
+functional problems, and achieved similar performance level.
 
-I noticed.
+The 8-way machine has Pentium 4 2.0 GHz processors, 16 GB physical
+memory, 2MB L3 cache, 8 FC controllers with 80 disks. Hyperthreading
+was turned on for the three runs. The CPU utilization is similar for all
+three runs: 65% user, 7% system and 28% idle.
 
-However, not printing empty names makes the trace a lot more useful. 
-Just doing a symbolic trace on modules on x86, I see pretty much the
-correct call trace now.
+Regards,
+Peter
 
-But, I'll investigate and see if I can find a way of generically telling
-if a particular symbol is useful or not.
-
-> > Perhaps there should be a per-arch hook for purging the symbol tables of
-> > irrelevant symbols before we do kallsyms lookups in it?
-> 
-> I think you can do it easily in module_finalize... or if we were
-> ambitious we'd extract only the function symbols rather than keeping
-> the whole strtab and symtab.
-
-Apart from the dubious writing to a const * pointer, yes I can (it's
-what I'm doing now).  There is some annoyance in that module_finalize
-isn't told where the string or symbol tables are, so I have to find them
-again.
-
-James
+Peter Wai Yee Wong
+IBM Linux Technology Center Performance Team
+email: wpeter@us.ibm.com
 
 

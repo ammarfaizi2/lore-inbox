@@ -1,176 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265539AbUFIE7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265537AbUFIFVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265539AbUFIE7V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 00:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUFIE7V
+	id S265537AbUFIFVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 01:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUFIFU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 00:59:21 -0400
-Received: from [132.216.18.132] ([132.216.18.132]:4998 "EHLO secure.ckut.ca")
-	by vger.kernel.org with ESMTP id S265539AbUFIE7P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 00:59:15 -0400
-Date: Wed, 9 Jun 2004 00:58:23 -0400
-From: Marc Heckmann <mh@nadir.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.7-rc2 0IDE "lost interrupt" messages on K8 board
-Message-ID: <20040609045822.GA21455@nadir.org>
+	Wed, 9 Jun 2004 01:20:59 -0400
+Received: from system65-210-78-197.hpti.com ([65.210.78.197]:64605 "EHLO
+	hptimail01.HPTI.COM") by vger.kernel.org with ESMTP id S265537AbUFIFU5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 01:20:57 -0400
+Subject: Re: NFS corruption (duplicated data)
+From: Craig Tierney <ctierney@hpti.com>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Andy <genanr@emsphone.com>, cattelan@sgi.com, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <20040609095109.E1200131@wobbly.melbourne.sgi.com>
+References: <20040608154422.GA3946@thumper2>
+	 <20040609095109.E1200131@wobbly.melbourne.sgi.com>
+Content-Type: text/plain
+Message-Id: <1086758368.3004.312.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 08 Jun 2004 23:19:29 -0600
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jun 2004 05:20:58.0938 (UTC) FILETIME=[8C42B9A0:01C44DE1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Tue, 2004-06-08 at 17:51, Nathan Scott wrote:
+> Hi Andy,
+> 
+> Be good to try this with files served from ext2/3 as well,
+> to try isolate it to XFS/NFS.  We have a known issue thats
+> possibly related to this in XFS - Russell, does this sound
+> like that problem you've been looking at?
+> 
+> If you have a simple test case to reproduce it (we have an
+> extremely complex test case to reproduce that other issue,
+> but from your description I'm not sure its the same), that
+> would be very helpful Andy.
+> 
+> thanks.
 
-I recently put together an x86_64 system using an Asus K8V SE deluxe
-board.
+> 
+> On Tue, Jun 08, 2004 at 10:44:22AM -0500, Andy wrote:
+> > I really don't understand what could be causing this, but it happens on
+> > several machine and at least on kernels 2.4.22, 2.4.25, 2.4.26.
+> > NFS v3 : hard, udp, rsize=8192,wsize=8192
+> > local filesystems are XFS
+> > 
+> > Trond, this is data corruption not dropped packets so the protocol
+> > being UDP is not the problem.
+> > 
+> > Here is what is happening :
+> > 
+> > Copying a file of offsets from machine A to machine B over NFS and then
+> > comparing the file on B with the file on A over NFS, the file on machine B
+> > is corrupted in the following ways. 
+> > 
+> > Usually, data earlier in the file will show up again later.
+> > For example :
+> > 
+> > 57344 bytes of data from 672190464-672247807 is also in positions
+> > 1449664512-1449721855
+> > 
+> > sometimes, data later in the file is dupped to a position before it
+> > should be
+> > 
+> > 53248 bytes of data from 1197158400-1197211647 is also in positions
+> > 1036660736-1036713983
+> > 
 
-The system has 3 disks setup in a raid 5 array: 1 SATA (sata_promise)
-and 2 PATA on the via controller (hda + hdc).
+Are you performing other IO on the NFS system while this copy is
+occuring?  Are you copying the same file over and over to try and
+cause this problem?
 
-Under heavy write IO combined with heavy network IO (100 Mbit, samba
-fileserving, large files) I get the following messages with 2.6.7-rc2:
+Is it possible to zero all or as much disk as possible?  If you are 
+copying the same file over and over, you might be seeing old data on
+the disk and not necessarily seeing the filesystem putting the data in
+the wrong place.  This might help isolate the problem to the one Russell
+is working on vs. a different problem.
 
-hda: dma_timer_expiry: dma status == 0x24
-hda: DMA interrupt recovery
-hda: lost interrupt
-
-
-This system freezes up for a few seconds when this happens.
-
-The hda is an ATA-133 capable disk. 
-
-Does anyone know how to fix this? Would passing "ide0=serialize
-ide1=serialize" help? Would changing some BIOS settings help?
-
-below is the output of lspci -v. I would really like to get this
-solved as it is hindering production. I can also provide dmesg output
-if needed. The system uses ACPI+APIC. thanks in advance.
-
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT8385 [K8T800 AGP] Host Bridge (rev 01)
-	Subsystem: Asustek Computer, Inc.: Unknown device 80a3
-	Flags: bus master, 66Mhz, medium devsel, latency 8
-	Memory at f8000000 (32-bit, prefetchable)
-	Capabilities: <available only to root>
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800 South] (prog-if 00 [Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Capabilities: <available only to root>
-
-00:07.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80) (prog-if 10 [OHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 808a
-	Flags: bus master, medium devsel, latency 64, IRQ 16
-	Memory at f6400000 (32-bit, non-prefetchable)
-	I/O ports at 7000 [size=128]
-	Capabilities: <available only to root>
-
-00:08.0 RAID bus controller: Promise Technology, Inc. PDC20378 (SATA150 TX) (rev 02)
-	Subsystem: Asustek Computer, Inc.: Unknown device 80f5
-	Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 18
-	I/O ports at 8000
-	I/O ports at 7800 [size=16]
-	I/O ports at 7400 [size=128]
-	Memory at f6600000 (32-bit, non-prefetchable) [size=4K]
-	Memory at f6500000 (32-bit, non-prefetchable) [size=128K]
-	Capabilities: <available only to root>
-
-00:0a.0 Ethernet controller: Marvell Yukon Gigabit Ethernet 10/100/1000Base-T Adapter (rev 13)
-	Subsystem: Asustek Computer, Inc.: Unknown device 811a
-	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 17
-	Memory at f6800000 (32-bit, non-prefetchable) [size=f6700000]
-	I/O ports at 8400 [size=256]
-	Expansion ROM at 00020000 [disabled]
-	Capabilities: <available only to root>
-
-00:0c.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
-	Subsystem: 3Com Corporation 3C905B Fast Etherlink XL 10/100
-	Flags: bus master, medium devsel, latency 64, IRQ 17
-	I/O ports at a400 [size=f6b00000]
-	Memory at f6c00000 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at 00020000 [disabled]
-	Capabilities: <available only to root>
-
-00:0d.0 VGA compatible controller: ATI Technologies Inc 3D Rage I/II 215GT [Mach64 GT] (rev 41) (prog-if 00 [VGA])
-	Subsystem: ATI Technologies Inc 3D Rage I/II 215GT [Mach64 GT]
-	Flags: bus master, stepping, medium devsel, latency 64
-	Memory at f7000000 (32-bit, non-prefetchable) [size=f6e00000]
-	I/O ports at e000 [size=256]
-	Memory at f6f00000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at 00020000 [disabled]
-
-00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 64, IRQ 20
-	I/O ports at e800
-	I/O ports at d800 [size=4]
-	I/O ports at d400 [size=8]
-	I/O ports at d000 [size=4]
-	I/O ports at c800 [size=16]
-	I/O ports at c400 [size=256]
-	Capabilities: <available only to root>
-
-00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 32, IRQ 20
-	I/O ports at fc00 [size=16]
-	Capabilities: <available only to root>
-
-00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 64, IRQ 21
-	I/O ports at a800 [size=32]
-	Capabilities: <available only to root>
-
-00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 64, IRQ 21
-	I/O ports at b000 [size=32]
-	Capabilities: <available only to root>
-
-00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 64, IRQ 21
-	I/O ports at b400 [size=32]
-	Capabilities: <available only to root>
-
-00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 64, IRQ 21
-	I/O ports at b800 [size=32]
-	Capabilities: <available only to root>
-
-00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86) (prog-if 20 [EHCI])
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, medium devsel, latency 64, IRQ 21
-	Memory at f6d00000 (32-bit, non-prefetchable)
-	Capabilities: <available only to root>
-
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard
-	Flags: bus master, stepping, medium devsel, latency 0
-	Capabilities: <available only to root>
-
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-	Subsystem: Asustek Computer, Inc. A7V600 motherboard (ADI AD1980 codec [SoundMAX])
-	Flags: medium devsel, IRQ 22
-	I/O ports at c000
-	Capabilities: <available only to root>
-
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-	Flags: fast devsel
-	Capabilities: <available only to root>
-
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-	Flags: fast devsel
-
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-	Flags: fast devsel
-
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-	Flags: fast devsel
-
+Craig
 
 

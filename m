@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSGOPJf>; Mon, 15 Jul 2002 11:09:35 -0400
+	id <S315178AbSGOPIP>; Mon, 15 Jul 2002 11:08:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316786AbSGOPJe>; Mon, 15 Jul 2002 11:09:34 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:36168 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315415AbSGOPJc>; Mon, 15 Jul 2002 11:09:32 -0400
-Date: Mon, 15 Jul 2002 17:12:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Sam Vilain <sam@vilain.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dax@gurulabs.com,
-       linux-kernel@vger.kernel.org, Jeff Dike <jdike@karaya.com>
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020715151207.GA7146@dualathlon.random>
-References: <1026490866.5316.41.camel@thud> <1026679245.15054.9.camel@thud> <E17U1BD-0000m0-00@hofmann> <1026736251.13885.108.camel@irongate.swansea.linux.org.uk> <E17U4YE-0000TL-00@hofmann>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17U4YE-0000TL-00@hofmann>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S315415AbSGOPIO>; Mon, 15 Jul 2002 11:08:14 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:24764 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S315178AbSGOPIO>; Mon, 15 Jul 2002 11:08:14 -0400
+Date: Mon, 15 Jul 2002 17:08:52 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207151508.g6FF8qJG020820@burner.fokus.gmd.de>
+To: riel@conectiva.com.br, schilling@fokus.gmd.de
+Cc: linux-kernel@vger.kernel.org, willy@w.ods.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 01:02:01PM +0100, Sam Vilain wrote:
-> Hey, while I've got your attention, how do you go about debugging your
-> kernel?  I'm trying to add fair scheduling to the new O(1) scheduler,
-> something of a token bucket filter counting jiffies used by a
-> process/user/s_context (in scheduler_tick()) and tweaking their
-> priority accordingly (in effective_prio()).  It'd be really nice if I
-> could run it under UML or something like that so I can trace through
-> it with gdb, but I couldn't get the UML patch to apply to your tree.
-> Any hints?
 
--aa ships with both uml and o1 scheduler. I need uml for everything non
-hardware related so expect it to be always uptodate there. However since
-I merged the O(1) scheduler there is the annoyance that sometime wakeup
-events don't arrive at least until kupdate reschedule or something
-like that (of course only with uml, not with real hardware).  Also
-pressing keys is enough to unblock it. I didn't debugged it hard yet.
-Accoring to Jeff it's a problem with cli that masks signals.
+>From: Rik van Riel <riel@conectiva.com.br>
+>On Mon, 15 Jul 2002, Joerg Schilling wrote:
 
-Andrea
+>> I would be happy to hear about concepts. Currently it looks as if at
+>> least some people like to keep everything as it is. This is not a
+>> conceptional OS but a grown structure. If you like to keep code
+>> maintainable for a long time, you need to clean up the thicket from time
+>> to time.
+
+>I couldn't agree more.  Now, why do you oppose cleaning up
+>the "use scsi as everyone's mid layer" hack and putting a
+>better generic abstraction in place ?
+
+I never said this.
+
+I would like to see a integrated aproach where the mid level prevents something
+like ide-cd to access ATAPI drives. In this case, there is a unique address 
+space and generic SCSI transport systems like libscg will be able to work
+in a way that is easy to understand by outsiders and does not force me to add
+one workaround after the other.
+
+Jörg
+
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

@@ -1,86 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbTILQ2q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 12:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbTILQ2q
+	id S261767AbTILRBW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 13:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTILRBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 12:28:46 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3712 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261762AbTILQ2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 12:28:40 -0400
-Date: Fri, 12 Sep 2003 17:41:47 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309121641.h8CGflK0000145@81-2-122-30.bradfords.org.uk>
-To: anthony.truong@mascorp.com, linux-kernel@vger.kernel.org
-Subject: Re: Memory mapped IO vs Port IO
-Cc: jamie@shareable.org, willy@debian.org
+	Fri, 12 Sep 2003 13:01:22 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:30696 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S261767AbTILRBT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 13:01:19 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: Hyperthreading: easiest userland method?
+Date: Fri, 12 Sep 2003 10:00:54 -0700
+Message-ID: <7F740D512C7C1046AB53446D3720017304A789@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Hyperthreading: easiest userland method?
+Thread-Index: AcN5PFvN6pKMTa+SSs6oThAqfuCh2AAEqaIg
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Dan Behman" <dbehman@ca.ibm.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Sep 2003 17:00:55.0412 (UTC) FILETIME=[6E29DB40:01C3794F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My claim is basically:
-> > 
-> > Change everybody who currently does
-> > 
-> > #ifdef CONFIG_MMIO
-> >         writel(... )
-> >         readl(...)
-> > #else
-> >         outl( ... ) 
-> >         inl ( ...) 
-> > #endif
-> > 
-> > to 
-> >         if (dev->mmio) { 
-> >                 writel(); 
-> >                 real();
-> >         } else { 
-> >                 outl();
-> >                 inl();
-> >         } 
-> > 
-> > and you will have a hard time to benchmark the difference on any non
-> > ancient system
-> > in actual driver operation.
+For licensing purposes, we recommend the number of the physical
+packages, rather than the number of logical processors. We can provide a
+tool (with source code) that counts the number of the physical packages
+in the system.
 
-Or an embedded system, maybe?
+Thanks,
+Jun
 
-At the end of the day, it still means loosing a tiny amount of
-performance just to make it easier for distributions to have one
-generic kernel.  There is nothing wrong with that, but why force it on
-systems that are not running a generic kernel?
-
-What's wrong with:
-
-#ifdef CONFIG_MMIO
-	writel(... );
-        readl(... );
-#endif
-#ifdef CONFIG_NO_MMIO
-	outl(... );
-	inl(...);
-#endif
-#ifdef CONFIG_DONT_CARE_MMIO
-	if (dev->mmio) {	
-		writel(... );
-		readl(... );
-	} else {
-		outl(... );
-		inl(... );
-	}
-#endif
-
-Although I'm dubious of having a global switch for MMIO anyway.
-
-> Wouldn't it be better if we set the IN and OUT function pointers to the
-> right functions during driver init. based on the setting of dev->mmio.
-> And throughout the driver, we just call the IN and OUT functions by
-> their pointers.  Then we don't have to do if (dev->mmio) every time.
-> It's similar to the concept of virtual member function in C++.
-
-It's neater, but still means bloat, however small.
-
-I know we're talking a few bytes here and there, but embedded systems
-really care about them.
-
-John.
+> -----Original Message-----
+> From: Dan Behman [mailto:dbehman@ca.ibm.com]
+> Sent: Friday, September 12, 2003 7:41 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Hyperthreading: easiest userland method?
+> 
+> Hi,
+> 
+> I have a need to programmatically determine whether or not
+hyperthreading
+> is enabled (and in use) for licensing reasons in my application.
+> Currently, I know of two ways to do this:
+> 
+> 1) parse /proc/cpuinfo for "processor id"
+> 2) port Intel's documented method (written for Windows) to directly
+query
+> the CPUs
+> 
+> Both methods have drawbacks - 1) relying on specific text that could
+> change
+> is a bad idea; 2) this doesn't take into account whether or not Linux
+> and/or the BIOS is making use of the hyperthreading.
+> 
+> From scouring the archives and the net, it doesn't seem like there's
+any
+> API that currently exists, but perhaps I've missed something.
+> /proc/cpuinfo gathers its information from somewhere - is there a way
+in
+> userland to bypass /proc/cpuinfo and directly get this data manually?
+> 
+> I'm interested in both 2.4 and 2.6 implementations and would like to
+be
+> personally CC'ed on any repsonses.
+> 
+> Thanks in advance!
+> 
+> Dan Behman.
+> IBM Canada Ltd.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

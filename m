@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130599AbRAWO3V>; Tue, 23 Jan 2001 09:29:21 -0500
+	id <S131096AbRAWObC>; Tue, 23 Jan 2001 09:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130805AbRAWO3L>; Tue, 23 Jan 2001 09:29:11 -0500
-Received: from web11603.mail.yahoo.com ([216.136.172.55]:60938 "HELO
-	web11603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130599AbRAWO3F>; Tue, 23 Jan 2001 09:29:05 -0500
-Message-ID: <20010123142904.465.qmail@web11603.mail.yahoo.com>
-Date: Tue, 23 Jan 2001 06:29:04 -0800 (PST)
+	id <S131104AbRAWOaw>; Tue, 23 Jan 2001 09:30:52 -0500
+Received: from web11604.mail.yahoo.com ([216.136.172.56]:1296 "HELO
+	web11604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131096AbRAWOan>; Tue, 23 Jan 2001 09:30:43 -0500
+Message-ID: <20010123143042.59117.qmail@web11604.mail.yahoo.com>
+Date: Tue, 23 Jan 2001 06:30:42 -0800 (PST)
 From: Tom <freyason@yahoo.com>
 Subject: Re: Proper OOPS report
-To: linux-kernel@vger.kernel.org
+To: Henrik Stokseth <hstokset@privat.cybercity.no>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Bernd Schmidt <bernds@redhat.com> wrote:
-> Details please.
+--- Henrik Stokseth <hstokset@privat.cybercity.no> wrote:
+> you were the one with the gcc 2.95.3 compiler right? even though this
+> compiler is a prerelease of a stable branch i have confirmed errors
+> in the
+> optimalization passes. my advice: use a compiler which really IS
+> stable
+> (gcc-2.95.2 or egcs-1.1.2 are fine), or turn off all optimalizations.
 > 
-> 
-> Bernd
+> -henrik
 
-Processor:
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 5
-model           : 8
-model name      : AMD-K6(tm) 3D processor
-stepping        : 12
-cpu MHz         : 451.034
-cache size      : 64 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 pge mmx syscall 3dnow
-k6_mtrr
-bogomips        : 897.84
-
-When the OOPS happened, I was in X (3.3.6, not 4) and I had up on my
-screen 2 Eterms, xmms, and Netscape. The OOPS took out Netscape and
-xmms. Nothing else was touched.
-
-Sound card:  Soundblaster AWE64 Gold  (using standard OSS modules)
+The kernel was compiled with 2.95.2.. I did not upgrade to 2.95.3 until
+a week after I compiled the kernel.
 
 Tom
 

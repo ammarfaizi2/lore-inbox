@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUBKN5k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 08:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbUBKN5k
+	id S264391AbUBKOIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 09:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264433AbUBKOIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 08:57:40 -0500
-Received: from denise.shiny.it ([194.20.232.1]:38879 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S264374AbUBKN5j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 08:57:39 -0500
-Date: Wed, 11 Feb 2004 14:57:30 +0100 (CET)
-From: Giuliano Pochini <pochini@denise.shiny.it>
-To: Peter Lieverdink <peter@cc.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2 PPC ALSA snd-powermac
-In-Reply-To: <1076483508.13791.6.camel@kahlua>
-Message-ID: <Pine.LNX.4.58.0402111450290.1726@denise.shiny.it>
-References: <1076483508.13791.6.camel@kahlua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 11 Feb 2004 09:08:12 -0500
+Received: from sea2-f29.sea2.hotmail.com ([207.68.165.29]:5394 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264391AbUBKOIJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 09:08:09 -0500
+X-Originating-IP: [212.143.127.195]
+X-Originating-Email: [zstingx@hotmail.com]
+From: "sting sting" <zstingx@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re : Re: printk and long long
+Date: Wed, 11 Feb 2004 16:08:08 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F294mt5UJoched000331f3@hotmail.com>
+X-OriginalArrivalTime: 11 Feb 2004 14:08:08.0505 (UTC) FILETIME=[79CB6290:01C3F0A8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+Thnks
 
+>printk("%ld%ld",loff_t >> (sizeof(long) * 8), loff_t << sizeof(long) * 8 >>
+>sizeof(long) * 8);
 
-On Wed, 11 Feb 2004, Peter Lieverdink wrote:
+Well I had tried it but I got
+the follwing compilation errors while trying to add that code:
+invalid operands to binary >>
+invalid operands to binary <<
 
-> Is it just me or does 'make menuconfig' in kernel 2.6.2 on ppc not give
-> me an option to enable i2c? It's supposed to be in Character Devices,
-> no? The ALSA snd-powermac module needs i2c and upon a 'modprobe
-> snd-powermac' spews forth:
+I assume maybe it is a problems with the flags I use:
+I use gcc 3.2.2 and the flags are:
+O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-DMODULE -D__KERNEL__ -DNOKERNEL
 
-Yes, it is there IIRC (I'm not at home, I can't verify). But I don't know
-if the official kernel is up to date with all macintosh stuff. I'm using
-2.6.2-benh1 and the option to enable i2c exists and works fine.
-http://www.penguinppc.org/dev/kernel.shtml
+regards,
+sting
 
+_________________________________________________________________
+The new MSN 8: smart spam protection and 2 months FREE*  
+http://join.msn.com/?page=features/junkmail
 
---
-Giuliano.

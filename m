@@ -1,229 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265959AbUFDT4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265961AbUFDT4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265959AbUFDT4E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 15:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUFDT4D
+	id S265961AbUFDT4N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 15:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUFDT4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 15:56:03 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2065 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265959AbUFDTzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 15:55:17 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Greg KH <greg@kroah.com>
-Subject: 2.6.7-rc2-bk4: empty-named directory in /sys
-Date: Fri, 4 Jun 2004 22:53:23 +0300
-User-Agent: KMail/1.5.4
+	Fri, 4 Jun 2004 15:56:12 -0400
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:3803 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S265961AbUFDTzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 15:55:44 -0400
+Date: Fri, 4 Jun 2004 13:58:09 -0600
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: mattia <mattia@nixlab.net>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zMNwAXfrmtIYp+K"
-Message-Id: <200406042253.23428.vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: DriveReady SeekComplete Error
+Message-ID: <20040604195809.GB15249@bounceswoosh.org>
+Mail-Followup-To: mattia <mattia@nixlab.net>, linux-kernel@vger.kernel.org
+References: <E1BWBjw-0003QZ-1h@andromeda.hostvector.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <E1BWBjw-0003QZ-1h@andromeda.hostvector.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: status=0x51 {
+>DriveReady SeekComplete Error }
+>Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: error=0x04 {
+>DriveStatusError }
+>Jun  4 08:05:43 blink kernel: hdd: Write Cache FAILED Flushing!
 
---Boundary-00=_zMNwAXfrmtIYp+K
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+That is a known issue in older driver versions that should be resolved
+now.  It only affects our latest generation of drives that are <=
+120GB, it will not affect the larger drives (>= 160GB), and it won't
+affect any drives of the next product generation because I fixed the
+root cause in the drive as well as helping identify a driver
+workaround/fix.
 
-# ls /sys
-   block  bus  class  devices  firmware  module
-# ls -l /sys
-total 0
-drwxr-xr-x   9 root     root            0 Jun  5  2004
-drwxr-xr-x  29 root     root            0 Jun  5  2004 block
-drwxr-xr-x  10 root     root            0 Jun  5  2004 bus
-drwxr-xr-x  16 root     root            0 Jun  5  2004 class
-drwxr-xr-x   7 root     root            0 Jun  5  2004 devices
-drwxr-xr-x   2 root     root            0 Jun  5  2004 firmware
-drwxr-xr-x  30 root     root            0 Jun  5  2004 module
+error=0x04 is an "abort" and not a critical error
 
-I cannot enter that directory. Actually, it looks more like
-directory named " ", because I get similar ls outputs when
-I create regular directory named " ". However, I can enter into
-regular directory named " ", unlike /sys one.
+The original note had error=0x40, which is an Uncorrectable ECC
+error... that is bad, and you should probably RMA the drive.
 
-# mkdir " " a b c
-# ls
-   a  b  c
-# ls -l
-total 0
-drwxr-xr-x   2 root     root           48 Jun  4 22:45
-drwxr-xr-x   2 root     root           48 Jun  4 22:45 a
-drwxr-xr-x   2 root     root           48 Jun  4 22:45 b
-drwxr-xr-x   2 root     root           48 Jun  4 22:45 c
+You can also try to see if you can "fix" it by writing to that LBA
+(obviously backup your data first) and see if the error goes
+away... if that is the case, the ECC could have been due to a write
+splice at power failure or some other transient event (extreme shock
+or heat or something)
 
-.config and boot messages are attached
---
-vda
+If there are a lot of ECC errors (you have them in about 2 places)
+which could be a sign of bad things in progress, just RMA the drive.
 
---Boundary-00=_zMNwAXfrmtIYp+K
-Content-Type: application/x-gzip;
-  name=".config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename=".config.gz"
+--eric
 
-H4sIAC7QwEACA41au5bsKg7N5zNuPmuV69VVQQcYY5tTYGjA9TgJ8QR3TTDJnb8f4ao+JQE+d5Lu
-0t48ZCwJCczN1Msh3k/Hz//+gz8Free3MMuuQdwgJuEkj9Kz2Gn2JsTdAqHFFJh6o1wJNkVutJVK
-vOHWmYuYopmi1/YN+xvD0sNfpeWol++idYYL7yPjPJCmPKBplYHWcx/9KPvw2Ry+8dEEq+bh3VBe
-nj9KZJnpDV+YUv6hfYlE+P9G+zmIO1oVazArjeej6OJkjC1R5kusE6xTchIlw/svtM4c1JDDBPNP
-PEgz+c+m4BRrhaoSoE4N/zFrjGvTzUogJZ9AnCdlWFfAvXG8JE3rjRJBpFaWOU26XYXzi/LvVQb0
-LYGZRmwReo/tNrEv+6Qg1/bOx4GCd9ZlI6smcgZr+zKbj2/O3bzQMY0AXWBpBuNkGHWmFthL7MXE
-BcX7zaYHW8wmv9l4M+7io7lQQk5XZbPGLfWLZTZjWVd0Xt5acsHYHPNhg1Bx9sJxYx+Um21kNl8y
-ZThTFVznzwcAmPPUM+L334zdh1E4jSktOXiW6cTnn6S1dxTgFkLPG5rMKIdRC2wwwbm3xLiVsTUG
-hQXLJRHiYNj0oFAL/kSRTjrB6SgQEvM4kdCJaewOEBOR5xdSvKoWoorUchoyJg1W6yBdmOE1OPJU
-C5VNbbnmEnV/pDiMwgNzXTtjVU/bzXlL5N3x8JYDxy/+OXqKiC16+69gSlcZgUvYZ18r3Hqv9Odn
-OBwOm980KPy8lVOvQxSqR8H4FlPwEciyIORY40IBpLBSwSB0qAYRkyWvm8ggUGNq1QXi9zX2XYnd
-OzKdxO7wlEtVv/sqsnt8o9w9bDALV/SY2q4EHdPlKABGL3+Kz/3mfMxJOcng0MOoFgnpEYrh1sBO
-+gvpmoCoZxVk2gfqnXhXhQOzonw6IHplLAS7GuW5l28irXZgoIA0JI1IeGlo3+utu+N+U9WImAXG
-sc0/ZdhrmBNRuq+yx+rU7mez2dSnhpws5tO8sMjmYMpOjKRxv1Alm8N9VyF097G/31fWo4b7w2G7
-qeO7Cj7asKuNk/DjscStlJXWXsLwTUX/q2SnLb/XnuC5VMXS0WVbLIdIS6YY+4rje2SwfHRPDDn0
-N2a8r7g53hDfWLyKqTOuMvDwbr6o9fQmNU+ZukzyD/L8LyC9QR8hi0/DSdjnT3kDJ7wIwCr2gP0a
-8mqwwrzNskl873flHJ2AXChqcLbPTTl8yrpFCI+0TU6hovc51/v8d3qf/w+9zyuKLdN+KbYly6Ur
-YUij+Kq7mDJ25gjkmOw2BdIUyKFAjgRZ3qplYSyNo9NvrNPPDQElUALnNIxfsAwk6LwM8+4xT9iz
-oEm8CJQ9STKitE/VOPMUZd2VQVYMz2KgNnJlD6tS9G1JZQHc0hy2cM3cpUJMLFTQ9+qUXDC1CaDk
-aI0XhKHb/CLHbuQlmNLNEnWwcdN1k1Za8iYAGZyoQKk0Zh1dRP9IJbS5SLxC0KOXiixoC2nDIGoM
-KDb1MMY0BQdvHu18C9EHm0PS8RwKlWZMs6ljOfo1i1kUI9rXS85wzQIfwWO0DHVKWsemQdRJzXid
-sBeII3a1l7usMIsBkbQL08mGqgSUDJBy1znBpzrReW7rDINefoVTYhqw+xP9IH2pE9xqv6L7KJTF
-OTLmfGBhZRFXzelJm9u0NqgdH55EmpcZPq02NzvmBvAOJ36kqiwjUxQoIXABAXt3bv+vkSDGg4E6
-1onVqV4lYJ0G/9LMrpAe6rKaRks9nSuUCD9piCPMS17rVnHDBFc8McFhBa97KYCDWluDiqG/mIo1
-v5iaOf9a89LhXhRXzHvZP1ZoZYYVZl6n6tYOYbkegoCo2x4Qv1+myVQ9wLEb2p5fYbmPos3nf3FA
-pMA/Y1dDVChcg5DECRBz2mzjrsowbaahzjhbxWUdzsI2YugbR0QRmBHnQ32aq2LTmrpOWPWokt3a
-wiTdYp0qfR+rtzYgscR7j081k7QcvOX7NM0QljPdAoq8/aJJQgLH0FbA3vMS5f5nCUJybUoUnrwE
-fV+ZP4gvVUHbvgSH6qidp9bxC08ZegnLCYbB7pyIL0OTIdgvg4TtBZdG0xJefAGk462pE3c6YiIW
-H9yv4OU4/a1sOu+2lf7+auvosYStUZJns4HXDGIibenVwtIIkLQtBwc/BF2IZ22E1qKbtcZ+Y6ZO
-4qAgvmam5E8cdcKMNBDpZDew7LEWlBQGWuKDPmbtQwu8FfoZkjtNH+RZ48YdN4gQqsHCFgtW4dNN
-aHnEEjoG2PFDg845r5Dp4fsaiEyjMahiVmzKX8VLOa/RycytO23+QtNAFulYJu6QxtD53Jz31YFh
-Q8HrM8nDptkQeYslfGzLQvOBD4bSERNSY7QNZpeigxw6bwkvbu6CnkmIu138sEBS0Y9ngUWL9I0s
-GFpVuz8d0bKC1TRHiTXbbnJNs8N8gPCCMt2dmqZJIyGwYzYInpJY10NYx5cFuy2egEFM5PiQvd2j
-l7PcZHVkaO5P57/wSg+OLAysCFlLNYndGck9+MCEq2sWvNB0CS70mWGELTYE4al8anZnXKMmORh8
-dCX9mbxfKzlRElyxo/YeyGu7ShbdSG4jGZQ9+IiyU1tUrQt6Tjn50+6EzwJHyEz5KPG9hVLm1ks0
-qTs1xzPS8XI+KcwHOZgJmam8Dy21HEj1pcFOogXav5aT0Rxa7jvq6E3twCER7KTXB7RnjMaTsPiU
-IYVz+sYcuUBZCKvuReP04nOMZzvgDSxaEX+0Cqdp1lLhWdumYx7Uw9qYHxYkjPnHxGnvhEB9+aBo
-OmUnFWICW9+lu59sdmtpM4NETzRP0nJ7lIILTosWIiUPIcPSncHyC8V9D5sN3r1gzeBXun3GZ1h2
-DpkIg0G+lurTFTxaz+b7Kuu5E2KK989ms93/vs3j8+N4ok3ElVTGA9STy3HE+7EMeGkF/0bAyw6H
-E2ovHLb+RYzytNlvcxD+ZlMtMNii9dv8cS/i0RqGb4O+EfCbC7kYej86vuwHMZJxn1CaE29/14B/
-x+INjrcSe44RT1t8hYjA3/aIk4szWJj/3NdYcQ+wTROjRCwUi4+YFtHX+cptD6Zhj4Hao8pz40QV
-LB8mndueT9GGB44N6UQdu4OyZU9rifHB2joGOQnOzq7k2tAFFPvZgHwYhOdXBxUoaj5SeLrKTjKK
-XXNA9D2ksAbloB2utEAAu242hAZklyF6QONCpQ6gvOKV0ez+xMXVf24Px/duNQ1QpnGoHaXGEbNv
-8W/I43BSBU8mkm8p8lEBNBuxHiCDFhSgDwMAlDfO3CsQJNmQ8E9y1mSGb/IBpdHXLGrcsMc+gnCS
-GKCx0h4yCvxFD5CQWRCtQI67bIAFI7n3wEoL1N0b/JOUKmXbHkxRtHPfC1cx5eUDhLwH1Ebx9Nep
-QHC9sARYtBllwuvlEwhSAwqA+WiwaAp6KKnSB0JZZwN7HCwrUgBALe/wVAZXva+JSvDXuAtFhgH/
-rKir7bzfNEuUowTj54+Yvs3hFF+89nTf1NHs2Zcb1jsy09kj/wDhedeWQ6k8xZeoCRUjvMUR3/sn
-1FTRuYqOsgSyTR8i+pZc376AeGchuBK2xss7LJUqKS/47GR4EGaXD76rD75bH3xXH/wH3mahhW6X
-79dQeBYSdgpgsAa/wOXeWk69IYNUNNASdhQ6htHZqOmW/An9SaE9waQ35+NxQ7r+MEriE4Of0Ajz
-T5l0mbueDNunQ3H8ZaLvDO1xzZtMIVN3AdwNb5nZvf4CXLKd+OFxE7DjTNWgLRbHeRBBtRUoWoZP
-BSG44UY8k+dc+2zaJF93mbwnckd6d3nzrmifztWxDZiQYPzZLb90mUgGEfeUG2G1oeR0+IvOpxwH
-HMgAANtPWLy49oBPUVqyBlySFZPJaQILhV1YCHwyfSWLHo8cEyqfChsGe93nH//6z79Pp8P5n80f
-mE5BMr2vuN99oGXEzMc683FYYU6HzSqzXWXWR1vT4HRcnefYrDKrGhx3q8x+lVnV+nhcZc4rzHm3
-1ue8uqLn3drznPdr85w+sueB0JSsI55WOjTb1fmBauqDrcDbOryrwyuKHurwsQ5/1OHzit4rqjQr
-ujSZMhcjT9FVsJlic+hP+ADG9OlYA2UU5onhFHL5vOeSzqbx1sqcen1sdMExPLWFyMEvBgqDXplb
-lYR8gkTsF6UYSnc0GyRPmwQu6V4NrZxSiIQeQtgsrYVt+Fmv/YL3l2VSn31eLlMCqJdajnyfvHxT
-bSHS4ar7+Y1oLscxfUWRg9OMrxdeoO72FexQYFDnNjUQqqkafGi2BdwJX2Dtcjjox4IIN1PF05GG
-wF+SvXBWGTx9dHOooqXOzPF9RePnWRjCOT6j/qlkm/It2mhBi67Ld/8S9ion6DftifChS9+0mdlx
-+hE4/P4fI/UR8dEzAAA=
 
---Boundary-00=_zMNwAXfrmtIYp+K
-Content-Type: application/x-gzip;
-  name="dmesg.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="dmesg.gz"
-
-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
-30RLUe2KpvF/7OG8Wi08AAA=
-
---Boundary-00=_zMNwAXfrmtIYp+K--
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 

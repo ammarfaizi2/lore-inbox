@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUJTXEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268993AbUJTW77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269032AbUJTXEk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270474AbUJTXAu
+	id S268993AbUJTW77 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270474AbUJTWb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:00:50 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:6347 "EHLO baikonur.stro.at")
-	by vger.kernel.org with ESMTP id S269043AbUJTW5r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:57:47 -0400
-Date: Thu, 21 Oct 2004 00:57:48 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       greg@kroah.com
-Subject: Re: [Kernel-janitors] [PATCH 2.6.9-rc2-mm4 ibmphp_core.c][6/8] replace pci_get_device with pci_dev_present
-Message-ID: <20041020225747.GA1953@stro.at>
-References: <25390000.1096500931@w-hlinder.beaverton.ibm.com>
+	Wed, 20 Oct 2004 18:31:27 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:63550 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S268993AbUJTW1m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:27:42 -0400
+Subject: Re: belkin usb serial converter (mct_u232), break not working
+From: Paul Fulghum <paulkf@microgate.com>
+To: Thomas Stewart <thomas@stewarts.org.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410202308.02624.thomas@stewarts.org.uk>
+References: <200410201946.35514.thomas@stewarts.org.uk>
+	 <1098307331.2818.15.camel@deimos.microgate.com>
+	 <200410202308.02624.thomas@stewarts.org.uk>
+Content-Type: text/plain
+Message-Id: <1098311228.6006.3.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <25390000.1096500931@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 20 Oct 2004 17:27:08 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004, Hanna Linder wrote:
+On Wed, 2004-10-20 at 17:08, Thomas Stewart wrote:
 
+> take porttest.c:
+> #include <sys/fcntl.h>
+> #include <sys/ioctl.h>
+> main(int argc, char ** argv) {
+>         int fd = open(argv[1], O_RDWR|O_NOCTTY);
+>         ioctl(fd, TCSBRKP, 20);
+>         close(fd);
+> }
 > 
-> This can be converted to pci_dev_present as the dev returned is never used.
-> Compile tested.
+> $ time ./porttest /dev/ttyS0
+> real    0m2.001s
+> user    0m0.001s
+> sys     0m0.000s
 > 
-> Hanna Linder
-> IBM Linux Technology Center
+> A standard serial port with a 2 second break (20*100ms), takes as expected 
+> just over 2 seconds.
 > 
-> Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+> $ time ./porttest /dev/ttyUSB1
+> real    0m0.004s
+> user    0m0.000s
+> sys     0m0.001s
 > 
-> diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/pci/hotplug/ibmphp_core.c linux-2.6.9-rc2-mm4patch2/drivers/pci/hotplug/ibmphp_core.c
-> --- linux-2.6.9-rc2-mm4cln/drivers/pci/hotplug/ibmphp_core.c	2004-09-28 14:58:50.000000000 -0700
-> +++ linux-2.6.9-rc2-mm4patch2/drivers/pci/hotplug/ibmphp_core.c	2004-09-29 15:39:39.385406240 -0700
-> @@ -838,8 +838,11 @@ static int set_bus (struct slot * slot_c
->  	int rc;
->  	u8 speed;
->  	u8 cmd = 0x0;
-> -	struct pci_dev *dev = NULL;
->  	int retval;
-> +	static struct pci_device_id ciobx[] = {
-> +		{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS, 0x0101) },
-> +	        { },
-> +	};	
-            ^^^^
-white space damaged
+> However with the USB converter instead, it takes 5 ms to complete. Much 
+> shorter than expected.
+> 
+> Is it a driver issue?
 
->  
->  	debug ("%s - entry slot # %d\n", __FUNCTION__, slot_cur->number);
->  	if (SET_BUS_STATUS (slot_cur->ctrl) && is_bus_empty (slot_cur)) {
-> @@ -886,8 +889,7 @@ static int set_bus (struct slot * slot_c
->  				break;
->  			case BUS_SPEED_133:
->  				/* This is to take care of the bug in CIOBX chip */
-> -				while ((dev = pci_get_device(PCI_VENDOR_ID_SERVERWORKS,
-> -							      0x0101, dev)) != NULL)
-> +				if(pci_dev_present(ciobx))
->  					ibmphp_hpc_writeslot (slot_cur, HPC_BUS_100PCIXMODE);
->  				cmd = HPC_BUS_133PCIXMODE;
->  				break;
-> 
+Can you record and display the return code from the ioctl()?
 
-first timer for your patches.
-corrected for next kjt.
+Thanks
 
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
---
-maks
-kernel janitor  	http://janitor.kernelnewbies.org/
 

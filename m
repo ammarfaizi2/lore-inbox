@@ -1,24 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130471AbRCDRrN>; Sun, 4 Mar 2001 12:47:13 -0500
+	id <S130473AbRCDRxx>; Sun, 4 Mar 2001 12:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130473AbRCDRrE>; Sun, 4 Mar 2001 12:47:04 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:59067 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S130471AbRCDRq4>;
-	Sun, 4 Mar 2001 12:46:56 -0500
-Content-Type: text/plain;
-  charset="Big5"
-From: Thomas Lau <lkthomas@hkicable.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How can I get promise FastTrak 66 work in kernel?
-Date: Mon, 5 Mar 2001 02:02:58 +0000
-X-Mailer: KMail [version 1.2]
+	id <S130475AbRCDRxn>; Sun, 4 Mar 2001 12:53:43 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:23760 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130473AbRCDRxg>;
+	Sun, 4 Mar 2001 12:53:36 -0500
+Message-ID: <3AA2811F.83D67FDD@mandrakesoft.com>
+Date: Sun, 04 Mar 2001 12:53:35 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01030502025800.97230@cm61-18-16-156.hkcable.com.hk>
-Content-Transfer-Encoding: 8bit
+To: Thomas Lau <lkthomas@hkicable.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How can I get promise FastTrak 66 work in kernel?
+In-Reply-To: <01030502025800.97230@cm61-18-16-156.hkcable.com.hk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anyone have idea?
-I am helping my friend to ask this question, Thanks
-I mean kernel 2.4.1
+Thomas Lau wrote:
+> 
+> anyone have idea?
+> I am helping my friend to ask this question, Thanks
+> I mean kernel 2.4.1
+
+Read Documentation/SubmittingDrivers
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbTFBEIq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 00:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTFBEIp
+	id S261825AbTFBEJy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 00:09:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTFBEJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 00:08:45 -0400
-Received: from ns2.jaj.com ([66.93.21.106]:46311 "EHLO ns2.jaj.com")
-	by vger.kernel.org with ESMTP id S261808AbTFBEIp (ORCPT
+	Mon, 2 Jun 2003 00:09:54 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:54007 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261825AbTFBEJv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 00:08:45 -0400
-Date: Mon, 2 Jun 2003 00:22:09 -0400
-From: Phil Edwards <phil@jaj.com>
-To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE kernel parameter (was: 2.4.20 SMP, a PDC20269, and a huge Maxtor disk)
-Message-ID: <20030602042209.GA16248@disaster.jaj.com>
-References: <20030529110903.79026.qmail@web11804.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030529110903.79026.qmail@web11804.mail.yahoo.com>
-User-Agent: Mutt/1.5.3i
+	Mon, 2 Jun 2003 00:09:51 -0400
+Message-Id: <200306020423.h524NBd02594@owlet.beaverton.ibm.com>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [2.5.70] possible problem with /dev/diskstats 
+In-reply-to: Your message of "Sun, 01 Jun 2003 21:31:31 +0200."
+             <200306012131.32006.fsdeveloper@yahoo.de> 
+Date: Sun, 01 Jun 2003 21:23:11 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 01:09:03PM +0200, Etienne Lorrain wrote:
-> 
->   What I can propose you is:
->   - to first double check with your documentation that you typed in
->  the right address 0x10d2 (I have also seen wrong documentation).
+    I've done some disk-io (compiled some software) and the values
+    now are even lower:
+    
+Interesting, yes, you now have 60 fewer "I/O's in flight."
 
-The steps I followed to arrive at those numbers was the Ultra-DMA HOWTO:
+    Where exactly is the code in the kernel, that produces the diskstats file,
+    so I can try grepping through it?
 
-    http://www.tldp.org/HOWTO/mini/Ultra-DMA-5.html#ss5.1
+The I/O's in flight are incremented in drive_stat_acct() (see ll_rw_blk.c)
+and decremented in attempt_merge() and end_that_request_last().  My gut feel
+is that end_that_request_last() is getting called more often than expected
+via some interesting path, but I've nothing right now to back that up.
 
-Once I had recompiled a new 2.4.20 with all the goodies, the ide2=
-parameter became unneeded.  At least, I can boot without it.  Still having
-GRUB problems, but no additional drive errors lately.  (Knock on wooden
-backup tapes.)
-
-I will try and do the other steps this week.
-
-
-Thanks,
-Phil
-
--- 
-If ye love wealth greater than liberty, the tranquility of servitude greater
-than the animating contest for freedom, go home and leave us in peace.  We seek
-not your counsel, nor your arms.  Crouch down and lick the hand that feeds you;
-and may posterity forget that ye were our countrymen.            - Samuel Adams
+Rick

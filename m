@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292897AbSCFBVI>; Tue, 5 Mar 2002 20:21:08 -0500
+	id <S292880AbSCFBVs>; Tue, 5 Mar 2002 20:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292879AbSCFBU6>; Tue, 5 Mar 2002 20:20:58 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:14497 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292901AbSCFBUy>;
-	Tue, 5 Mar 2002 20:20:54 -0500
-Message-ID: <3C856EC4.5090505@us.ibm.com>
-Date: Tue, 05 Mar 2002 17:20:04 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
+	id <S292901AbSCFBV3>; Tue, 5 Mar 2002 20:21:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44300 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292879AbSCFBVP>;
+	Tue, 5 Mar 2002 20:21:15 -0500
+Message-ID: <3C856EA1.A88F9EA4@zip.com.au>
+Date: Tue, 05 Mar 2002 17:19:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: linux-kernel@vger.kernel.org
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] remove BKL from ext2_get_block() version 2
-In-Reply-To: <200203060023.g260NIB09974@localhost.localdomain> <E16iPdM-0004x1-00@the-village.bc.nu> <20020306004432.GC5538@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <Pine.GSO.4.21.0203051935160.18755-100000@weyl.math.psu.edu> <3C856818.4050005@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
- > Also, there seems to be a plan already in progress to do this on
- > 2.5.  BLK has been moved around in several filesystems to ease
- > transition to another lock.
+Dave Hansen wrote:
+> 
+> Alexander Viro wrote:
+> > Denied.  You can trivially do that in ext2_read_inode() and ext2_new_inode().
+> Good point.  That makes it much easier.
+> 
+> > ext2 patches _MUST_ get testing in 2.5 before they can go into 2.4.  At
+> > the very least a month, preferably - two.  Until then consider them vetoed
+> > for 2.4, no matter how BKL brigade feels about their crusade.
+> ChangeSet@1.290  2002-02-11 21:26:50-08:00  viro@psu.edu
+> 
+> So, it has been almost a month.  Do you plan to port these changes back
+> to 2.4 yourself?
+> 
 
-As I indicated elsewhere in the thread, this _is_ a 2.5 backport
-chosen because of the tremendous impact on BKL contention.
+2.5.5's ext2 has an SMP race, probably in get_block, which results in
+the freeing of already-free buffers.   That has not yet been found and
+fixed.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+-

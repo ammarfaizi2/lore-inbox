@@ -1,278 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262829AbTHZRaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 13:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbTHZRaj
+	id S261711AbTHZRZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 13:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbTHZRZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 13:30:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262829AbTHZRaM
+	Tue, 26 Aug 2003 13:25:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42974 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261711AbTHZRZy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 13:30:12 -0400
-Date: Tue, 26 Aug 2003 13:30:10 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Linux-2.4.22
-Message-ID: <Pine.LNX.4.53.0308261327540.229@chaos>
+	Tue, 26 Aug 2003 13:25:54 -0400
+Message-ID: <3F4B9814.2090202@pobox.com>
+Date: Tue, 26 Aug 2003 13:25:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-925727316-1061919010=:229"
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Francois Romieu <romieu@fr.zoreil.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [bk patches] net driver updates
+References: <20030817183137.GA18521@gtf.org> <20030823154231.A11381@electric-eye.fr.zoreil.com> <20030826171754.GD16831@matchmail.com>
+In-Reply-To: <20030826171754.GD16831@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
---1678434306-925727316-1061919010=:229
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-
-I configured, built and booted Linux-2.4.22. There are
-some problems.
-
-(1) `dmesg` fails to read the first part of the buffered
-kernel log. I have attached two files, dmesg-20 (normal)
-and dmesg-22 (bad). File dmesg-22 is from Linux-2.4.22
-and dmesg-20 is from Linux-2.4.20. To save space, I
-snip everything after 'NET4'.
-
-(2)  The ipx module fails to load with undefined symbols.
-This module loads fine in Linux-2.4.20.
-
-depmod: *** Unresolved symbols in /lib/modules/2.4.22/kernel/net/ipx/ipx.o
-depmod: 	unregister_8022_client
-depmod: 	make_EII_client
-depmod: 	register_8022_client
-depmod: 	register_snap_client
-depmod: 	make_8023_client
-depmod: 	destroy_8023_client
-depmod: 	destroy_EII_client
-depmod: 	unregister_snap_client
-
-(3)  When umounting the root file-system, the machine usually
-hangs. The result is a long `fsck` on the next boot. The problem
-seems to be that sendmail doesn't get killed during the `init 0`
-sequence. It remains with a file open and the root file-system isn't
-unmounted. A temporary work-round is to `ifconfig eth0 down` before
-starting shutdown. Otherwise, sendmail remains stuck in the 'D' state.
-
-(4)  When mounting the DOS file-systems during startup, the echo
-on the screen shows about 15 lines of white-space. This never
-happened before. When mounting /proc, there are 6 lines of
-white-space, also strange.
-#
-# /etc/fstab
-#
-# device			directory	type	options	freq pass
-# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-/dev/sdb1			/		ext2	rw,noatime  0   1
-/dev/sdc1			/alt		ext2	rw,noatime  0   2
-/dev/sdb2			none		swap	defaults    0	2
-/dev/sdc2			none		swap	defaults    0	2
-/dev/sdc3			/home/users	ext2	rw,noatime  0	2
-none				/proc		proc	defaults  0	2
-/dev/sda1			/dos/drive_C	msdos	defaults  0     2
-/dev/sda5			/dos/drive_D	msdos	defaults  0     2
+Mike Fedyk wrote:
+> On Sat, Aug 23, 2003 at 03:42:31PM +0200, Francois Romieu wrote:
+> 
+>>Jeff Garzik <jgarzik@pobox.com> :
+>>[net-drivers-2.6 update]
+>>
+>>> drivers/net/sis190.c              | 2094 +++++++++++++++++++++++++++++---------
+>>
+>>
+>>synchronize_irq() requires an argument when built with CONFIG_SMP.
+> 
+> 
+> Shouldn't it also require it for the UP case?  Or is this one of those
+> subtle things that tells you it's not working on SMP?
 
 
-Otherwise it works. I am using it now so I can test any possible
-fixes.
+the latter :)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+	Jeff
 
 
---1678434306-925727316-1061919010=:229
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmesg-20
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0308261330100.229@chaos>
-Content-Description: 
-Content-Disposition: attachment; filename=dmesg-20
 
-PlBhZ2UtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAxMzEwNzIgKG9yZGVy
-OiA3LCA1MjQyODggYnl0ZXMpDQpDUFU6IEwxIEkgY2FjaGU6IDE2SywgTDEg
-RCBjYWNoZTogMTZLDQpDUFU6IEwyIGNhY2hlOiA1MTJLDQpDUFU6ICAgICBB
-ZnRlciBnZW5lcmljLCBjYXBzOiAwMTgzZmJmZiAwMDAwMDAwMCAwMDAwMDAw
-MCAwMDAwMDAwMA0KQ1BVOiAgICAgICAgICAgICBDb21tb24gY2FwczogMDE4
-M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDANCkVuYWJsaW5nIGZh
-c3QgRlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gZG9uZS4NCkNoZWNraW5nICdo
-bHQnIGluc3RydWN0aW9uLi4uIE9LLg0KUE9TSVggY29uZm9ybWFuY2UgdGVz
-dGluZyBieSBVTklGSVgNCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNh
-Y2hlOiAxNksNCkNQVTogTDIgY2FjaGU6IDUxMksNCkNQVTogICAgIEFmdGVy
-IGdlbmVyaWMsIGNhcHM6IDAxODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAw
-MDAwMDAwDQpDUFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBzOiAwMTgzZmJm
-ZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVMDogSW50ZWwgUGVu
-dGl1bSBJSSAoRGVzY2h1dGVzKSBzdGVwcGluZyAwMQ0KcGVyLUNQVSB0aW1l
-c2xpY2UgY3V0b2ZmOiAxNDY0LjE3IHVzZWNzLg0KZW5hYmxlZCBFeHRJTlQg
-b24gQ1BVIzANCkVTUiB2YWx1ZSBiZWZvcmUgZW5hYmxpbmcgdmVjdG9yOiAw
-MDAwMDAwMA0KRVNSIHZhbHVlIGFmdGVyIGVuYWJsaW5nIHZlY3RvcjogMDAw
-MDAwMDANCkJvb3RpbmcgcHJvY2Vzc29yIDEvMCBlaXAgMjAwMA0KSW5pdGlh
-bGl6aW5nIENQVSMxDQptYXNrZWQgRXh0SU5UIG9uIENQVSMxDQpFU1IgdmFs
-dWUgYmVmb3JlIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDANCkVTUiB2YWx1
-ZSBhZnRlciBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwDQpDYWxpYnJhdGlu
-ZyBkZWxheSBsb29wLi4uIDc5Ny4xNCBCb2dvTUlQUw0KQ1BVOiBMMSBJIGNh
-Y2hlOiAxNkssIEwxIEQgY2FjaGU6IDE2Sw0KQ1BVOiBMMiBjYWNoZTogNTEy
-Sw0KQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJpYywgY2FwczogMDE4M2ZiZmYgMDAw
-MDAwMDAgMDAwMDAwMDAgMDAwMDAwMDANCkNQVTogICAgICAgICAgICAgQ29t
-bW9uIGNhcHM6IDAxODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAw
-DQpDUFUxOiBJbnRlbCBQZW50aXVtIElJIChEZXNjaHV0ZXMpIHN0ZXBwaW5n
-IDAxDQpUb3RhbCBvZiAyIHByb2Nlc3NvcnMgYWN0aXZhdGVkICgxNTkyLjg4
-IEJvZ29NSVBTKS4NCkVOQUJMSU5HIElPLUFQSUMgSVJRcw0KU2V0dGluZyAy
-IGluIHRoZSBwaHlzX2lkX3ByZXNlbnRfbWFwDQouLi5jaGFuZ2luZyBJTy1B
-UElDIHBoeXNpY2FsIEFQSUMgSUQgdG8gMiAuLi4gb2suDQppbml0IElPX0FQ
-SUMgSVJRcw0KIElPLUFQSUMgKGFwaWNpZC1waW4pIDItMCwgMi0xMCwgMi0x
-MSwgMi0xMiwgMi0xMywgMi0xNSwgMi0yMCwgMi0yMSwgMi0yMiwgMi0yMyBu
-b3QgY29ubmVjdGVkLg0KLi5USU1FUjogdmVjdG9yPTB4MzEgcGluMT0yIHBp
-bjI9MA0KbnVtYmVyIG9mIE1QIElSUSBzb3VyY2VzOiAxNS4NCm51bWJlciBv
-ZiBJTy1BUElDICMyIHJlZ2lzdGVyczogMjQuDQp0ZXN0aW5nIHRoZSBJTyBB
-UElDLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4NCg0KSU8gQVBJQyAjMi4uLi4u
-Lg0KLi4uLiByZWdpc3RlciAjMDA6IDAyMDAwMDAwDQouLi4uLi4uICAgIDog
-cGh5c2ljYWwgQVBJQyBpZDogMDINCi4uLi4gcmVnaXN0ZXIgIzAxOiAwMDE3
-MDAxMQ0KLi4uLi4uLiAgICAgOiBtYXggcmVkaXJlY3Rpb24gZW50cmllczog
-MDAxNw0KLi4uLi4uLiAgICAgOiBQUlEgaW1wbGVtZW50ZWQ6IDANCi4uLi4u
-Li4gICAgIDogSU8gQVBJQyB2ZXJzaW9uOiAwMDExDQouLi4uIHJlZ2lzdGVy
-ICMwMjogMDAwMDAwMDANCi4uLi4uLi4gICAgIDogYXJiaXRyYXRpb246IDAw
-DQouLi4uIElSUSByZWRpcmVjdGlvbiB0YWJsZToNCiBOUiBMb2cgUGh5IE1h
-c2sgVHJpZyBJUlIgUG9sIFN0YXQgRGVzdCBEZWxpIFZlY3Q6ICAgDQogMDAg
-MDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0K
-IDAxIDAwMyAwMyAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAg
-MzkNCiAwMiAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAx
-ICAgIDMxDQogMDMgMDAzIDAzICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEg
-ICAgMSAgICA0MQ0KIDA0IDAwMyAwMyAgMCAgICAwICAgIDAgICAwICAgMCAg
-ICAxICAgIDEgICAgNDkNCiAwNSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAg
-IDAgICAgMSAgICAxICAgIDUxDQogMDYgMDAzIDAzICAwICAgIDAgICAgMCAg
-IDAgICAwICAgIDEgICAgMSAgICA1OQ0KIDA3IDAwMyAwMyAgMCAgICAwICAg
-IDAgICAwICAgMCAgICAxICAgIDEgICAgNjENCiAwOCAwMDMgMDMgIDAgICAg
-MCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDY5DQogMDkgMDAzIDAzICAw
-ICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA3MQ0KIDBhIDAwMCAw
-MCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwYiAw
-MDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQog
-MGMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAw
-MA0KIDBkIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAg
-ICAgMDANCiAwZSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAg
-ICAxICAgIDc5DQogMGYgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAg
-IDAgICAgMCAgICAwMA0KIDEwIDAwMyAwMyAgMSAgICAxICAgIDAgICAxICAg
-MCAgICAxICAgIDEgICAgODENCiAxMSAwMDMgMDMgIDEgICAgMSAgICAwICAg
-MSAgIDAgICAgMSAgICAxICAgIDg5DQogMTIgMDAzIDAzICAxICAgIDEgICAg
-MCAgIDEgICAwICAgIDEgICAgMSAgICA5MQ0KIDEzIDAwMyAwMyAgMSAgICAx
-ICAgIDAgICAxICAgMCAgICAxICAgIDEgICAgOTkNCiAxNCAwMDAgMDAgIDEg
-ICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTUgMDAwIDAw
-ICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDE2IDAw
-MCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAx
-NyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAw
-DQpJUlEgdG8gcGluIG1hcHBpbmdzOg0KSVJRMCAtPiAwOjINCklSUTEgLT4g
-MDoxDQpJUlEzIC0+IDA6Mw0KSVJRNCAtPiAwOjQNCklSUTUgLT4gMDo1DQpJ
-UlE2IC0+IDA6Ng0KSVJRNyAtPiAwOjcNCklSUTggLT4gMDo4DQpJUlE5IC0+
-IDA6OQ0KSVJRMTAgLT4gMDoxNw0KSVJRMTEgLT4gMDoxNg0KSVJRMTIgLT4g
-MDoxOA0KSVJRMTQgLT4gMDoxNA0KSVJRMTUgLT4gMDoxOQ0KLi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIGRvbmUuDQpVc2luZyBsb2Nh
-bCBBUElDIHRpbWVyIGludGVycnVwdHMuDQpjYWxpYnJhdGluZyBBUElDIHRp
-bWVyIC4uLg0KLi4uLi4gQ1BVIGNsb2NrIHNwZWVkIGlzIDM5OS4xMzgxIE1I
-ei4NCi4uLi4uIGhvc3QgYnVzIGNsb2NrIHNwZWVkIGlzIDk5LjIyMTkgTUh6
-Lg0KY3B1OiAwLCBjbG9ja3M6IDI0OTcxOSwgc2xpY2U6IDgzMjM5DQpDUFUw
-PFQwOjI0OTcxMixUMToxNjY0NjQsRDo5LFM6ODMyMzksQzoyNDk3MTk+DQpj
-cHU6IDEsIGNsb2NrczogMjQ5NzE5LCBzbGljZTogODMyMzkNCkNQVTE8VDA6
-MjQ5NzEyLFQxOjgzMjMyLEQ6MixTOjgzMjM5LEM6MjQ5NzE5Pg0KY2hlY2tp
-bmcgVFNDIHN5bmNocm9uaXphdGlvbiBhY3Jvc3MgQ1BVczogcGFzc2VkLg0K
-V2FpdGluZyBvbiB3YWl0X2luaXRfaWRsZSAobWFwID0gMHgyKQ0KQWxsIHBy
-b2Nlc3NvcnMgaGF2ZSBkb25lIGluaXRfaWRsZQ0KUENJOiBQQ0kgQklPUyBy
-ZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZjA3NTAsIGxhc3QgYnVzPTENClBD
-STogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDENClBDSTogUHJvYmluZyBQ
-Q0kgaGFyZHdhcmUNClBDSTogVXNpbmcgSVJRIHJvdXRlciBQSUlYIFs4MDg2
-LzcxMTBdIGF0IDAwOjA0LjANCkxpbWl0aW5nIGRpcmVjdCBQQ0kvUENJIHRy
-YW5zZmVycy4NCkxpbnV4IE5FVDQuMCBmb3IgTGludXggMi40DQpbU05JUFBF
-RF0NCg==
-
---1678434306-925727316-1061919010=:229
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmesg-22
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0308261330101.229@chaos>
-Content-Description: 
-Content-Disposition: attachment; filename=dmesg-22
-
-cy4NCmVuYWJsZWQgRXh0SU5UIG9uIENQVSMwDQpFU1IgdmFsdWUgYmVmb3Jl
-IGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDANCkVTUiB2YWx1ZSBhZnRlciBl
-bmFibGluZyB2ZWN0b3I6IDAwMDAwMDAwDQpCb290aW5nIHByb2Nlc3NvciAx
-LzAgZWlwIDIwMDANCkluaXRpYWxpemluZyBDUFUjMQ0KbWFza2VkIEV4dElO
-VCBvbiBDUFUjMQ0KRVNSIHZhbHVlIGJlZm9yZSBlbmFibGluZyB2ZWN0b3I6
-IDAwMDAwMDAwDQpFU1IgdmFsdWUgYWZ0ZXIgZW5hYmxpbmcgdmVjdG9yOiAw
-MDAwMDAwMA0KQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiA3OTcuOTAgQm9n
-b01JUFMNCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksN
-CkNQVTogTDIgY2FjaGU6IDUxMksNCkNQVTogICAgIEFmdGVyIGdlbmVyaWMs
-IGNhcHM6IDAxODNmYmZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwDQpD
-UFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBzOiAwMTgzZmJmZiAwMDAwMDAw
-MCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVMTogSW50ZWwgUGVudGl1bSBJSSAo
-RGVzY2h1dGVzKSBzdGVwcGluZyAwMQ0KVG90YWwgb2YgMiBwcm9jZXNzb3Jz
-IGFjdGl2YXRlZCAoMTU5NS44MCBCb2dvTUlQUykuDQpFTkFCTElORyBJTy1B
-UElDIElSUXMNClNldHRpbmcgMiBpbiB0aGUgcGh5c19pZF9wcmVzZW50X21h
-cA0KLi4uY2hhbmdpbmcgSU8tQVBJQyBwaHlzaWNhbCBBUElDIElEIHRvIDIg
-Li4uIG9rLg0KaW5pdCBJT19BUElDIElSUXMNCiBJTy1BUElDIChhcGljaWQt
-cGluKSAyLTAsIDItMTAsIDItMTEsIDItMTIsIDItMTMsIDItMTUsIDItMjAs
-IDItMjEsIDItMjIsIDItMjMgbm90IGNvbm5lY3RlZC4NCi4uVElNRVI6IHZl
-Y3Rvcj0weDMxIHBpbjE9MiBwaW4yPTANCm51bWJlciBvZiBNUCBJUlEgc291
-cmNlczogMTUuDQpudW1iZXIgb2YgSU8tQVBJQyAjMiByZWdpc3RlcnM6IDI0
-Lg0KdGVzdGluZyB0aGUgSU8gQVBJQy4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-DQoNCklPIEFQSUMgIzIuLi4uLi4NCi4uLi4gcmVnaXN0ZXIgIzAwOiAwMjAw
-MDAwMA0KLi4uLi4uLiAgICA6IHBoeXNpY2FsIEFQSUMgaWQ6IDAyDQouLi4u
-Li4uICAgIDogRGVsaXZlcnkgVHlwZTogMA0KLi4uLi4uLiAgICA6IExUUyAg
-ICAgICAgICA6IDANCi4uLi4gcmVnaXN0ZXIgIzAxOiAwMDE3MDAxMQ0KLi4u
-Li4uLiAgICAgOiBtYXggcmVkaXJlY3Rpb24gZW50cmllczogMDAxNw0KLi4u
-Li4uLiAgICAgOiBQUlEgaW1wbGVtZW50ZWQ6IDANCi4uLi4uLi4gICAgIDog
-SU8gQVBJQyB2ZXJzaW9uOiAwMDExDQouLi4uIHJlZ2lzdGVyICMwMjogMDAw
-MDAwMDANCi4uLi4uLi4gICAgIDogYXJiaXRyYXRpb246IDAwDQouLi4uIElS
-USByZWRpcmVjdGlvbiB0YWJsZToNCiBOUiBMb2cgUGh5IE1hc2sgVHJpZyBJ
-UlIgUG9sIFN0YXQgRGVzdCBEZWxpIFZlY3Q6ICAgDQogMDAgMDAwIDAwICAx
-ICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDAxIDAwMyAw
-MyAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgMzkNCiAwMiAw
-MDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDMxDQog
-MDMgMDAzIDAzICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA0
-MQ0KIDA0IDAwMyAwMyAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEg
-ICAgNDkNCiAwNSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAg
-ICAxICAgIDUxDQogMDYgMDAzIDAzICAwICAgIDAgICAgMCAgIDAgICAwICAg
-IDEgICAgMSAgICA1OQ0KIDA3IDAwMyAwMyAgMCAgICAwICAgIDAgICAwICAg
-MCAgICAxICAgIDEgICAgNjENCiAwOCAwMDMgMDMgIDAgICAgMCAgICAwICAg
-MCAgIDAgICAgMSAgICAxICAgIDY5DQogMDkgMDAzIDAzICAwICAgIDAgICAg
-MCAgIDAgICAwICAgIDEgICAgMSAgICA3MQ0KIDBhIDAwMCAwMCAgMSAgICAw
-ICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwYiAwMDAgMDAgIDEg
-ICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMGMgMDAwIDAw
-ICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBkIDAw
-MCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAw
-ZSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDc5
-DQogMGYgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAg
-ICAwMA0KIDEwIDAwMyAwMyAgMSAgICAxICAgIDAgICAxICAgMCAgICAxICAg
-IDEgICAgODENCiAxMSAwMDMgMDMgIDEgICAgMSAgICAwICAgMSAgIDAgICAg
-MSAgICAxICAgIDg5DQogMTIgMDAzIDAzICAxICAgIDEgICAgMCAgIDEgICAw
-ICAgIDEgICAgMSAgICA5MQ0KIDEzIDAwMyAwMyAgMSAgICAxICAgIDAgICAx
-ICAgMCAgICAxICAgIDEgICAgOTkNCiAxNCAwMDAgMDAgIDEgICAgMCAgICAw
-ICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTUgMDAwIDAwICAxICAgIDAg
-ICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDE2IDAwMCAwMCAgMSAg
-ICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxNyAwMDAgMDAg
-IDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQpJUlEgdG8g
-cGluIG1hcHBpbmdzOg0KSVJRMCAtPiAwOjINCklSUTEgLT4gMDoxDQpJUlEz
-IC0+IDA6Mw0KSVJRNCAtPiAwOjQNCklSUTUgLT4gMDo1DQpJUlE2IC0+IDA6
-Ng0KSVJRNyAtPiAwOjcNCklSUTggLT4gMDo4DQpJUlE5IC0+IDA6OQ0KSVJR
-MTAgLT4gMDoxNw0KSVJRMTEgLT4gMDoxNg0KSVJRMTIgLT4gMDoxOA0KSVJR
-MTQgLT4gMDoxNA0KSVJRMTUgLT4gMDoxOQ0KLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLi4uLi4uIGRvbmUuDQpVc2luZyBsb2NhbCBBUElDIHRp
-bWVyIGludGVycnVwdHMuDQpjYWxpYnJhdGluZyBBUElDIHRpbWVyIC4uLg0K
-Li4uLi4gQ1BVIGNsb2NrIHNwZWVkIGlzIDM5OS41NjA2IE1Iei4NCi4uLi4u
-IGhvc3QgYnVzIGNsb2NrIHNwZWVkIGlzIDk5Ljg4OTkgTUh6Lg0KY3B1OiAw
-LCBjbG9ja3M6IDk5ODg5OSwgc2xpY2U6IDMzMjk2Ng0KQ1BVMDxUMDo5OTg4
-OTYsVDE6NjY1OTIwLEQ6MTAsUzozMzI5NjYsQzo5OTg4OTk+DQpjcHU6IDEs
-IGNsb2NrczogOTk4ODk5LCBzbGljZTogMzMyOTY2DQpDUFUxPFQwOjk5ODg5
-NixUMTozMzI5NjAsRDo0LFM6MzMyOTY2LEM6OTk4ODk5Pg0KY2hlY2tpbmcg
-VFNDIHN5bmNocm9uaXphdGlvbiBhY3Jvc3MgQ1BVczogcGFzc2VkLg0KV2Fp
-dGluZyBvbiB3YWl0X2luaXRfaWRsZSAobWFwID0gMHgyKQ0KQWxsIHByb2Nl
-c3NvcnMgaGF2ZSBkb25lIGluaXRfaWRsZQ0KUENJOiBQQ0kgQklPUyByZXZp
-c2lvbiAyLjEwIGVudHJ5IGF0IDB4ZjA3NTAsIGxhc3QgYnVzPTENClBDSTog
-VXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDENClBDSTogUHJvYmluZyBQQ0kg
-aGFyZHdhcmUNClBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUgKGJ1cyAwMCkN
-ClBDSTogVXNpbmcgSVJRIHJvdXRlciBQSUlYIFs4MDg2LzcxMTBdIGF0IDAw
-OjA0LjANCkxpbWl0aW5nIGRpcmVjdCBQQ0kvUENJIHRyYW5zZmVycy4NCkxp
-bnV4IE5FVDQuMCBmb3IgTGludXggMi40DQpbU05JUFBFRC4uLl0NCg==
-
---1678434306-925727316-1061919010=:229--

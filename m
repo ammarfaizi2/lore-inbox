@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbTHTSOr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 14:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTHTSOq
+	id S262147AbTHTSVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 14:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTHTSVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 14:14:46 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30213 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262133AbTHTSOp
+	Wed, 20 Aug 2003 14:21:21 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32005 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262128AbTHTSVR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 14:14:45 -0400
+	Wed, 20 Aug 2003 14:21:17 -0400
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
 Subject: Re: DVD ROM on 2.6
-Date: 20 Aug 2003 18:06:31 GMT
+Date: 20 Aug 2003 18:13:03 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bi0db7$err$1@gatekeeper.tmr.com>
-References: <200308192009.11298.admin@kentonet.net>
-X-Trace: gatekeeper.tmr.com 1061402791 15227 192.168.12.62 (20 Aug 2003 18:06:31 GMT)
+Message-ID: <bi0dnf$etl$1@gatekeeper.tmr.com>
+References: <20030819193456.B25148@animx.eu.org> <20030819202108.A25325@animx.eu.org> <3F437D8A.3040409@lanil.mine.nu> <20030820114719.A26833@animx.eu.org>
+X-Trace: gatekeeper.tmr.com 1061403183 15285 192.168.12.62 (20 Aug 2003 18:13:03 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200308192009.11298.admin@kentonet.net>,
-Bryan D. Stine <admin@kentonet.net> wrote:
-
-| Try passing the -t iso9660 option to mount or (if that doesn't work) you
-|  could go so far as to removing the UDF support from the kernel.
+In article <20030820114719.A26833@animx.eu.org>,
+Wakko Warner  <wakko@animx.eu.org> wrote:
+| > >I do have DVDs playing now on 2.6.0-test3.  I used ide-cd instead of
+| > >ide-scsi.  apparently the scsi layer didn't like it.
+| > >Buffer I/O error on device sr1, logical block 7651
+| > >Buffer I/O error on device sr1, logical block 7652
+| > >Buffer I/O error on device sr1, logical block 7653
+| > >end_request: I/O error, dev sr1, sector 660400
+| > >
+| > >I would get tons of Buffer I/O errors and some end_requests like the above
+| > >
+| > I thought ide-scsi was broken?
 | 
-| On Tuesday 19 August 2003 07:34 pm, Wakko Warner wrote:
-| > I'm trying out 2.6 on one of my test boxes with an IDE dvd drive.  I'm
-| > using ide-scsi (I prefer scdx as opposed to hdx).  I noticed that any
-| > attempt to mount a DVD movie (lord of the rings comes to mind) it mounts as
-| > UDF.  My laptop mounts this same dvd as iso9660.
-| >
-| > I've also been unable to play DVDs on this machine, but I don't have the
-| > same packages installed as I do on my laptop.
+| I can't tell if this is in the ide-scsi driver or the scsi cdrom driver.  I
+| still personally wish that the ide drivers were modules of scsi instead of
+| being a seperate block device.  USB storage creates scsi adapters, ide-scsi
+| allows ATAPI access via scsi.  Why not do this for ide in general (if that
+| starts a flame war, please don't contribute =)
 
-If iso9660 looks enough like UDF to confuse the f/s typing logic, would
-the problem go away if the iso9660 were checked first? It seems iso9660
-can be mistaken for UDF, is the converse true?
-
-In any case it can be set explicitly.
+Probably because IDE and ATAPI are not the same thing. There are devices
+which electrically connect to the IDE bus which don't speak ATAPI.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

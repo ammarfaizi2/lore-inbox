@@ -1,61 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbULIMM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbULIMqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbULIMM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 07:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbULIMM6
+	id S261515AbULIMqR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 07:46:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbULIMqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 07:12:58 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:29579 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261512AbULIMMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 07:12:07 -0500
-Date: Thu, 9 Dec 2004 13:11:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209121133.GB23077@elte.hu>
-References: <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <41B6839B.4090403@cybsft.com> <20041208083447.GB7720@elte.hu> <41B726D1.6030009@cybsft.com> <41B7BC60.1060407@cybsft.com>
+	Thu, 9 Dec 2004 07:46:17 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:62155 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261515AbULIMqJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 07:46:09 -0500
+Date: Thu, 9 Dec 2004 18:17:38 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kprobes: dont steal interrupts from vm86
+Message-ID: <20041209124738.GB5528@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru> <20041207055348.GA1305@in.ibm.com> <41B5FA1B.9090507@aknet.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41B7BC60.1060407@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <41B5FA1B.9090507@aknet.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+> Now the comments (that you just altered)
+> suggest that the break-point can be
+> removed by another CPU. I don't think
+> delivering the fault to the user-space
+> in this case is wise (but that's what
+> I'd care least, as I am not using the
+> kprobes myself yet). Maybe instead
+> it would be better to return 1 when
 
-* K.R. Foley <kr@cybsft.com> wrote:
+The patch below takes both the cases into 
+consideration. 
 
-> OK dumb question. I am going out to get my own personal brown paper
-> bag, since I seem to be wearing it so often. I forgot tasks get
-> removed from the runqueue when they are sleeping, etc. so the active
-> array should empty most of the time. However, with more RT tasks and
-> interactive tasks being thrown back into the active queue I could see
-> this POSSIBLY occasionally starving a few processes???
+> Also, you still use the completely
+> invalid addrress and pass it to several
+> functions like get_kprobe() (addr is
+> invalid in either v86 case or when the
+> segmentation is used). Since the
+> deref is now optimized away by gcc, I
+> can't write an Oops test-case for this,
+> but why you do not perform the sanity
+> checks to see whether or not the address
+> is valid? (the checks like I suggested
+> in previous posting)
+> 
+I am not able to think of a case, where 
+address is invalid when it enters int3 handler.
+I would appreciate if you can provide such a
+test case.
 
-interactive tasks do get thrown back, but they wont ever preempt RT
-tasks. RT tasks themselves can starve any lower-prio process
-indefinitely. Interactive tasks can starve other tasks up to a certain
-limit, which is defined via STARVATION_LIMIT, at which point we empty
-the active array and perform an array switch. (also see
-EXPIRED_STARVING())
+Your comments are welcome.
 
-	Ingo
+Thanks
+Prasanna
+
+
+Stas reported that kprobes steals int3 exceptions when not in 
+virtual-8086 mode. If processor  executes int 3 INT n type instruction, it
+will end up executing int3 handler. This patch fixes the problem by returning 0,
+if the int3 exceptions does not belong to kprobes and allowing the kernel to 
+handle it.
+
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+
+
+---
+
+ linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+diff -puN arch/i386/kernel/kprobes.c~kprobes-steals-int3 arch/i386/kernel/kprobes.c
+--- linux-2.6.10-rc3/arch/i386/kernel/kprobes.c~kprobes-steals-int3	2004-12-09 17:09:08.000000000 +0530
++++ linux-2.6.10-rc3-prasanna/arch/i386/kernel/kprobes.c	2004-12-09 17:09:36.000000000 +0530
+@@ -117,8 +117,12 @@ static inline int kprobe_handler(struct 
+ 	p = get_kprobe(addr);
+ 	if (!p) {
+ 		unlock_kprobes();
+-		if (regs->eflags & VM_MASK) {
+-			/* We are in virtual-8086 mode. Return 0 */
++		if ((regs->eflags & VM_MASK) ||
++				((*addr == 0x3) && (*(addr - 1) == 0xcd))) {
++			/* Either we are in virtual-8086 mode, or we executed
++			 * int 3 INT n type instruction. Let kernel handle
++			 * it, return 0.
++			 */
+ 			goto no_kprobe;
+ 		}
+ 
+
+_
+-- 
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

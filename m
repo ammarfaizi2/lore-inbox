@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267944AbTAHWbd>; Wed, 8 Jan 2003 17:31:33 -0500
+	id <S267925AbTAHWat>; Wed, 8 Jan 2003 17:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267945AbTAHWbd>; Wed, 8 Jan 2003 17:31:33 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:38930 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S267944AbTAHWb0>; Wed, 8 Jan 2003 17:31:26 -0500
-Date: Wed, 8 Jan 2003 22:40:06 +0000
-From: John Levon <levon@movementarian.org>
+	id <S267943AbTAHWat>; Wed, 8 Jan 2003 17:30:49 -0500
+Received: from mx3.mail.ru ([194.67.57.13]:43788 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id <S267925AbTAHWas>;
+	Wed, 8 Jan 2003 17:30:48 -0500
+Date: Wed, 8 Jan 2003 23:37:02 +0100 (CET)
+From: Guennadi Liakhovetski <lyakh@mail.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
-Message-ID: <20030108224006.GA47765@compsoc.man.ac.uk>
-References: <20030108205220.GB35912@compsoc.man.ac.uk> <Pine.LNX.4.44.0301081300200.1497-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301081300200.1497-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18WOrm-0001dy-00*xgXqIe.0UUs*
+Subject: Re: Oops 2.4.20 + ppp + ide-scsi / usb
+In-Reply-To: <Pine.LNX.4.44.0301021137001.10593-100000@poirot.grange>
+Message-ID: <Pine.LNX.4.44.0301082320360.1765-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 01:03:14PM -0800, Linus Torvalds wrote:
+Forgot to mention - the hardware:
+an ASUS (A7VI-VM) mobo with the
+VIA ProSavage KM133 (VIA VT8365) North and
+VT82C686B South bridges,
+Duron 900MHz
+hda: Maxtor 2B020H1,
+hdb: WDC AC21600H,
+hdc: 40X12, (BenQ CD/RW "CRW 4012A")
+Adaptec 29160 Ultra160 SCSI adapter
+PIONEER   Model: DVD-ROM DVD-305   Rev: 1.03
 
-> You should certainly see it in "uname -a" output, for example.
+...still hoping for some feedback / encouragement:-) Now that I was trying
+to reproduce those Oopses it works rock-stable with the same kernel /
+modules:-( whatever I do - ide-scsi read / write with usb-printing and
+ppp-transfers, with and without X - conditions that gave me multiple
+Oopses when I didn't want them:-) From all the info in these messages, any
+idea how to re-trigger them?
 
-Hrmph. Actually we can take it from the ELF headers of the vmlinux file
-that gets passed in I suppose. Along with a uname hack for when there's
-no vmlinux available...
+Thanks
+---
+Guennadi Liakhovetski
 
-> The same is true of kernel modules - 32-bit kernel modules do not work at 
-> all when the kernel is 64-bit.
 
-Modules aren't in userspace.
 
-> Compile oprofile for the proper architecture if you do it yourself, and
-> complain to the vendor if the vendor is stupid enough to supply a 32-bit 
-> oprofile with a 64-bit kernel.
-
-I don't see what's stupid about a 32-bit binary on a system where all of
-user-space is 32-bit. But it doesn't matter.
-
-regards
-john
-
--- 
-"CUT IT OUT FACEHEAD"
-	- jeffk

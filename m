@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVBWAs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVBWA67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVBWAs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 19:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVBWAs5
+	id S261371AbVBWA67 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 19:58:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVBWA67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 19:48:57 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:46734 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261368AbVBWAsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 19:48:53 -0500
-Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Andrew Morton <akpm@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <yq0650kl1gd.fsf@jaguar.mkp.net>
-References: <16923.193.128608.607599@jaguar.mkp.net>
-	 <20050222020309.4289504c.akpm@osdl.org> <yq0ekf8lksf.fsf@jaguar.mkp.net>
-	 <20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
-	 <20050222112513.4162860d.akpm@osdl.org>
-	 <1109100938.25666.44.camel@localhost>  <yq0650kl1gd.fsf@jaguar.mkp.net>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 16:48:44 -0800
-Message-Id: <1109119724.7277.25.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 19:58:59 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:4010 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261371AbVBWA65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 19:58:57 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: uninterruptible sleep lockups
+To: linux-os@analogic.com, linux-kernel@vger.kernel.org,
+       theant@nodivisions.com
+Reply-To: 7eggert@gmx.de
+Date: Wed, 23 Feb 2005 01:59:28 +0100
+References: <fa.duv6ag6.p5mth0@ifi.uio.no> <fa.irk349q.1c3si2o@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1D3ksD-0001NH-MI@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-22 at 16:38 -0500, Jes Sorensen wrote:
-> >>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
-> 
-> Dave> I was talking with Nigel Cunningham about doing something a
-> Dave> little different from the classic page flag bits when the number
-> Dave> of users is restricted and performance isn't ultra-critical.
-> Dave> Would something like this work for you, instead of using a real
-> Dave> page->flags bit for PG_cached?
-> 
-> Just took a quick look at this and it looks a bit heavy for our
-> use. We are only looking at a small number of pages. However I could
-> imagine future cases where performance may be more critical.
+linux-os <linux-os@analogic.com> wrote:
 
-If it's a quite small number (or range) of pages, perhaps a short
-list_head list would suffice.  It would sure beat consuming a page flag.
+> You don't seem to understand. A process that's stuck in 'D' state
+> shows a SEVERE error, usually with a hardware driver.
 
--- Dave
+Or a network filesystem mount to a no longer existing server or share.
 
+> For instance, 
+> somebody may have coded something in a critical section that will
+> wait forever for some bit to be set when, in fact, that bit may
+> never be set because of a hardware glitch. Such problems must
+> be found. One can't just suck some process out of the 'D' state.
+
+But you can easily fall into one, e.g. by mounting a SMB share to ~/mnt,
+working until after the windows box breaks down and trying to save the
+work of the last hour (which involves enumerating and stat()ing all
+entries in ~).
+
+> The 'D' state usually stands for 'Down' where a task
+> was 'down()' on a semaphore. To get out of that state,
+> that task (and none other) needs to execute `up()`.
+> This means that whatever that task was waiting for
+> needs to happen or it won't call 'up()'.
+
+Maybe the device/mountpoint causing the processes to hang can be declared
+dead (This is the more important part to me) and/or the syscall can be
+forced to fail. If it involves wasting some MB of RAM for copying all
+possibly affected memory in order to avoid corrupting used RAM, that
+will be the price to pay for not losing your data.
+
+How to clean up the stuck processes: (This requires a MMU)
+Add an error path to each syscall (or create some generic error paths) and
+keep the original stack frame. On errors, you can "longjump" (not exactly,
+but similar) to the error path after copying the memory. The semaphore will
+not be taken, and the code depending on the semaphore will not be executed.
+
+
+
+BTW: Your Reply-To: should be omited if it's equal to the From:

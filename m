@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265020AbSKAOBt>; Fri, 1 Nov 2002 09:01:49 -0500
+	id <S265022AbSKAOGf>; Fri, 1 Nov 2002 09:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265021AbSKAOBt>; Fri, 1 Nov 2002 09:01:49 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7996 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265020AbSKAOBt>; Fri, 1 Nov 2002 09:01:49 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dave Jones <davej@codemonkey.org.uk>, boissiere@adiglobal.com,
+	id <S265023AbSKAOGf>; Fri, 1 Nov 2002 09:06:35 -0500
+Received: from ns.suse.de ([213.95.15.193]:15879 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265022AbSKAOGe>;
+	Fri, 1 Nov 2002 09:06:34 -0500
+Date: Fri, 1 Nov 2002 15:13:01 +0100
+From: Dave Jones <davej@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+       kernel-janitor-discuss@lists.sourceforge.net,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  October 30, 2002
-References: <20021030161708.GA8321@suse.de>
-	<m1iszjgmaz.fsf@frodo.biederman.org>
-	<20021031230136.GE4331@elf.ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Nov 2002 07:05:50 -0700
-In-Reply-To: <20021031230136.GE4331@elf.ucw.cz>
-Message-ID: <m1ela5gzb5.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+Subject: Re: might_sleep() in copy_{from,to}_user and friends?
+Message-ID: <20021101151301.C20859@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andrew Morton <akpm@digeo.com>,
+	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+	kernel-janitor-discuss@lists.sourceforge.net,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200211011302.05461.arnd@bergmann-dalldorf.de> <3DC25CA5.B15848E0@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3DC25CA5.B15848E0@digeo.com>; from akpm@digeo.com on Fri, Nov 01, 2002 at 02:51:17AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+On Fri, Nov 01, 2002 at 02:51:17AM -0800, Andrew Morton wrote:
+ > And if you're feeling really keen, Dave Jones has a patch which
+ > makes the might_sleep check a real config option rather than
+ > overloading CONFIG_DEBUG_KERNEL - would be nice to squeeze that
+ > out of him if poss.
 
-> Hi!
-> 
-> > If you want I can dig up the drivers I am currently using and send
-> > them to you.
-> > 
-> > I even have a working memory scrub routine.
-> 
-> What is "memory scrubbing" good for?
+Will update to the new kconfig thingy later, and forward it on..
 
-When you have a correctable ECC error on a page you need to rewrite the
-memory to remove the error.  This prevents the correctable error from becoming
-an uncorrectable error if another bit goes bad.  Also if you have a
-working software memory scrub routine you can be certain multiple
-errors from the same address are actually distinct.  As opposed to
-multiple reports of the same error.
+        Dave
 
-Eric
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

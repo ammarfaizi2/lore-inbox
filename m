@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267019AbSLXAPz>; Mon, 23 Dec 2002 19:15:55 -0500
+	id <S267021AbSLXAVl>; Mon, 23 Dec 2002 19:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267020AbSLXAPz>; Mon, 23 Dec 2002 19:15:55 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:44736 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S267019AbSLXAPy>;
-	Mon, 23 Dec 2002 19:15:54 -0500
-Date: Tue, 24 Dec 2002 11:22:33 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: torvalds@transmeta.com, lk@tantalophile.demon.co.uk, mingo@elte.hu,
-       drepper@redhat.com, bart@etpmod.phys.tue.nl, davej@codemonkey.org.uk,
-       hpa@transmeta.com, terje.eggestad@scali.com, matti.aarnio@zmailer.org,
-       hugh@veritas.com, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-Id: <20021224112233.00e6295d.sfr@canb.auug.org.au>
-In-Reply-To: <20021223232743.GC2907@ppc.vc.cvut.cz>
-References: <Pine.LNX.4.44.0212221050210.2587-100000@home.transmeta.com>
-	<Pine.LNX.4.44.0212222050030.1217-100000@home.transmeta.com>
-	<20021223232743.GC2907@ppc.vc.cvut.cz>
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S267022AbSLXAVl>; Mon, 23 Dec 2002 19:21:41 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:18818 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267021AbSLXAVk>;
+	Mon, 23 Dec 2002 19:21:40 -0500
+Date: Mon, 23 Dec 2002 16:23:51 -0800 (PST)
+Message-Id: <20021223.162351.40761424.davem@redhat.com>
+To: cw@f00f.org
+Cc: kiran@in.ibm.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Convert sockets_in_use to use per_cpu areas
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021224000048.GA14346@tapu.f00f.org>
+References: <20021223190847.G23413@in.ibm.com>
+	<20021223.121632.105420794.davem@redhat.com>
+	<20021224000048.GA14346@tapu.f00f.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Dec 2002 00:27:43 +0100 Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
->
-> On Sun, Dec 22, 2002 at 09:03:44PM -0800, Linus Torvalds wrote:
-> > 
-> > How does the attached patch work for people? I've verified that
-> > single-stepping works, and I've also verified that it does improve
-> > performance for simple system calls. Everything looks quite simple.
-> 
-> > ===== arch/i386/kernel/sysenter.c 1.4 vs edited =====
-> > --- 1.4/arch/i386/kernel/sysenter.c	Sat Dec 21 16:02:02 2002
-> > +++ edited/arch/i386/kernel/sysenter.c	Sun Dec 22 20:17:28 2002
-> > @@ -54,19 +54,18 @@
-> >  		0xc3			/* ret */
-> >  	};
-> >  	static const char sysent[] = {
-> > -		0x9c,			/* pushf */
-> >  		0x51,			/* push %ecx */
-> >  		0x52,			/* push %edx */
-> >  		0x55,			/* push %ebp */
-> >  		0x89, 0xe5,		/* movl %esp,%ebp */
-> >  		0x0f, 0x34,		/* sysenter */
-> > +		0x00,			/* align return point */
-> >  	/* System call restart point is here! (SYSENTER_RETURN - 2) */
-> >  		0xeb, 0xfa,		/* jmp to "movl %esp,%ebp" */
-> 
-> Hi Linus,
-> 
-> Jump instruction should be 0xeb, 0xf9, with 0xeb, 0xfa it jumps into 
-> the middle of movl %esp,%ebp because of added alignment.
+   From: Chris Wedgwood <cw@f00f.org>
+   Date: Mon, 23 Dec 2002 16:00:48 -0800
 
-And if you change the 0x00 use for alighment to 0x90 (nop) you can
-use gdb to disassemble that array of bytes to check any changes ...
+   On Mon, Dec 23, 2002 at 12:16:32PM -0800, David S. Miller wrote:
+   
+   > You have to provide an explicit initializer for DEFINE_PER_CPU
+   > declarations or you break some platforms with older GCC's which
+   > otherwise won't put it into the proper section.
+   
+   I wonder if "some platforms with older GCC's" will ever have these
+   issues resolved...
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+I still don't have gcc-3.2.1 working properly on sparc64.
+
+I hope to have it working soon, but this does mean that 2.6.x
+cannot deprecate it, whereas 2.7.x certainly can.

@@ -1,166 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269293AbUINLpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269323AbUINLnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269293AbUINLpV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269282AbUINLoK
+	id S269323AbUINLnG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269302AbUINLkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:44:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:5529 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269291AbUINLl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:41:56 -0400
-Date: Tue, 14 Sep 2004 13:42:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040914114228.GD2804@elte.hu>
-References: <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu>
+	Tue, 14 Sep 2004 07:40:53 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:57532 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269314AbUINLi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 07:38:57 -0400
+Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: "C.Y.M." <syphir@syphir.sytes.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040914111207.GR2336@suse.de>
+References: <20040914060628.GC2336@suse.de>
+	 <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net>
+	 <20040914070649.GI2336@suse.de> <20040914071555.GJ2336@suse.de>
+	 <1095156542.16570.7.camel@localhost.localdomain>
+	 <20040914111207.GR2336@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095158149.16520.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="xo44VMWPx7vlQ2+2"
-Content-Disposition: inline
-In-Reply-To: <20040914112847.GA2804@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 14 Sep 2004 11:35:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-09-14 at 12:12, Jens Axboe wrote:
+> > Drive acked the command is all that proves. Maybe its a nop, maybe it
+> > does it, maybe like the last time someone engaged in this kind of "lets
+> > not check" approach it erases your firmware and leaves your CD-ROM drive
+> > defunct as the Mandrake error of the same form did.
+> 
+> Alan, you are sounding like a broken record :)
 
---xo44VMWPx7vlQ2+2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thats because someone else appears incapable of listening and learning
+that issuing commands that may not be safe is not a good idea. I happen
+to think users should be able to expect their hardware not to go boom
 
+I've nothing against a well documented "actually I have a cache" option
+with appropriate warnings (and of course possibly a whitelist if we can
+get vendors to help). But one that like hdparm does bother to note when
+you may be playing with fire.
 
-this patch adds a handful of cond_resched() points to a number of
-key, scheduling-latency related non-inlined functions.
-
-this reduces preemption latency for !PREEMPT kernels. These are
-scheduling points complementary to PREEMPT_VOLUNTARY scheduling
-points (might_sleep() places) - i.e. these are all points where
-an explicit cond_resched() had to be added.
-
-has been tested as part of the -VP patchset.
-
-	Ingo
-
---xo44VMWPx7vlQ2+2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fix-latency-nopreempt.patch"
-
-
-this patch adds a handful of cond_resched() points to a number of
-key, scheduling-latency related non-inlined functions.
-
-this reduces preemption latency for !PREEMPT kernels. These are
-scheduling points complementary to PREEMPT_VOLUNTARY scheduling
-points (might_sleep() places) - i.e. these are all points where
-an explicit cond_resched() had to be added.
-
-has been tested as part of the -VP patchset.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/fs/exec.c.orig	
-+++ linux/fs/exec.c	
-@@ -184,6 +184,7 @@ static int count(char __user * __user * 
- 			argv++;
- 			if(++i > max)
- 				return -E2BIG;
-+			cond_resched();
- 		}
- 	}
- 	return i;
---- linux/fs/fs-writeback.c.orig	
-+++ linux/fs/fs-writeback.c	
-@@ -366,6 +366,7 @@ sync_sb_inodes(struct super_block *sb, s
- 			list_move(&inode->i_list, &sb->s_dirty);
- 		}
- 		spin_unlock(&inode_lock);
-+		cond_resched();
- 		iput(inode);
- 		spin_lock(&inode_lock);
- 		if (wbc->nr_to_write <= 0)
---- linux/fs/select.c.orig	
-+++ linux/fs/select.c	
-@@ -239,6 +239,7 @@ int do_select(int n, fd_set_bits *fds, l
- 						retval++;
- 					}
- 				}
-+				cond_resched();
- 			}
- 			if (res_in)
- 				*rinp = res_in;
---- linux/kernel/printk.c.orig	
-+++ linux/kernel/printk.c	
-@@ -280,6 +280,7 @@ int do_syslog(int type, char __user * bu
- 			error = __put_user(c,buf);
- 			buf++;
- 			i++;
-+			cond_resched();
- 			spin_lock_irq(&logbuf_lock);
- 		}
- 		spin_unlock_irq(&logbuf_lock);
-@@ -321,6 +322,7 @@ int do_syslog(int type, char __user * bu
- 			c = LOG_BUF(j);
- 			spin_unlock_irq(&logbuf_lock);
- 			error = __put_user(c,&buf[count-1-i]);
-+			cond_resched();
- 			spin_lock_irq(&logbuf_lock);
- 		}
- 		spin_unlock_irq(&logbuf_lock);
-@@ -336,6 +338,7 @@ int do_syslog(int type, char __user * bu
- 					error = -EFAULT;
- 					break;
- 				}
-+				cond_resched();
- 			}
- 		}
- 		break;
---- linux/mm/memory.c.orig	
-+++ linux/mm/memory.c	
-@@ -1516,6 +1516,7 @@ do_no_page(struct mm_struct *mm, struct 
- 	}
- 	smp_rmb();  /* Prevent CPU from reordering lock-free ->nopage() */
- retry:
-+	cond_resched();
- 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, &ret);
- 
- 	/* no page was available -- either SIGBUS or OOM */
---- linux/mm/slab.c.orig	
-+++ linux/mm/slab.c	
-@@ -2793,7 +2793,7 @@ static void cache_reap(void *unused)
- next_unlock:
- 		spin_unlock_irq(&searchp->spinlock);
- next:
--		;
-+		cond_resched();
- 	}
- 	check_irq_on();
- 	up(&cache_chain_sem);
---- linux/mm/vmscan.c.orig	
-+++ linux/mm/vmscan.c	
-@@ -361,6 +361,8 @@ static int shrink_list(struct list_head 
- 		int may_enter_fs;
- 		int referenced;
- 
-+		cond_resched();
-+
- 		page = lru_to_page(page_list);
- 		list_del(&page->lru);
- 
-@@ -710,6 +712,7 @@ refill_inactive_zone(struct zone *zone, 
- 		reclaim_mapped = 1;
- 
- 	while (!list_empty(&l_hold)) {
-+		cond_resched();
- 		page = lru_to_page(&l_hold);
- 		list_del(&page->lru);
- 		if (page_mapped(page)) {
-
---xo44VMWPx7vlQ2+2--
+Alan

@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264546AbTFITbg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 15:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264549AbTFITbg
+	id S261180AbTFITnc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 15:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTFITnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 15:31:36 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:23557 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264546AbTFITbe (ORCPT
+	Mon, 9 Jun 2003 15:43:32 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:32663 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261180AbTFITnb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 15:31:34 -0400
-Date: Mon, 9 Jun 2003 21:45:10 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>, Jaroslav Kysela <perex@suse.cz>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ALSA development <alsa-devel@alsa-project.org>,
-       kbuild-devel@lists.sourceforge.net,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: 2.5 kbuild: use of '-z muldefs' for LD?
-Message-ID: <20030609194510.GA11830@mars.ravnborg.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jaroslav Kysela <perex@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-	ALSA development <alsa-devel@alsa-project.org>,
-	kbuild-devel@lists.sourceforge.net,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-References: <Pine.LNX.4.44.0306091342400.1323-100000@pnote.perex-int.cz> <20030609130438.A6417@infradead.org>
-Mime-Version: 1.0
+	Mon, 9 Jun 2003 15:43:31 -0400
+Date: Mon, 09 Jun 2003 12:46:03 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 793] New: Thinkpad T30, new BIOS, and ACPI 
+Message-ID: <56010000.1055187963@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030609130438.A6417@infradead.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 01:04:38PM +0100, Christoph Hellwig wrote:
-> On Mon, Jun 09, 2003 at 01:56:59PM +0200, Jaroslav Kysela wrote:
-> > one object file for more targets. Example:
-> > 
-> > ------
-> > snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o ak4xxx.o
-> > snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o ak4xxx.o
-> > 
-> > # Toplevel Module Dependency
-> > obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o
-> > obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o
-> > ------
-> > 
-> > The ak4xxx.o module is shared and has defined a few public functions.
-> > Unfortunately, the default build-in.o rule fails when targets are 
-> > requested to be included into the solid kernel because the public 
-> > functions are duplicated in snd-ice1712.o and snd-ice17124.o.
-> > 
-> > I can instruct the ld compiler to ignore the multiple definitions using 
-> > '-z muldefs':
-> > 
-> > EXTRA_LDFLAGS = -z muldefs
-> > 
-> > But it seems like a hack for me.
-> > Does anybody have another idea to solve my problem?
-> 
-> Move ak4xxx.o out of the multi-obj rules.  Just declare a new helper-
-> config option CONFIG_SND_AK4XXX that gets defined by all drivers
-> using it and add
-> 
-> obj-$(CONFIG_SND_AK4XXX)	+= ak4xxx.o
+http://bugme.osdl.org/show_bug.cgi?id=793
 
-Would it be worthwhile to resolve common functions from a library instead?
-On request from Linus I made the lib-y change, and it is getting
-a lot easier to create libraries.
-So ak4xxx.o would be used to create lib.a in that particular directory.
+           Summary: Thinkpad T30, new BIOS, and ACPI
+    Kernel Version: 2.5.70-mm6
+            Status: NEW
+          Severity: normal
+             Owner: akpm@digeo.com
+         Submitter: peter@peterjohanson.com
 
-A limitation would be that libaries would only be valid for current
-directory - but that is OK for this situation.
 
-On the other hand there should be very good reasons to clutter up the
-build-system with this, so more users than sound is required.
+Distribution: gentoo
+Hardware Environment: T30 with BIOS v2.04 and EC v1.03
+Software Environment:
+Problem Description: I recently upgraded the BIOS and embedded controller on my
+thinkpad T30 to the latest released by IBM. This has fixed the invalid ECDT
+table, which had forced me to use the small patch from 
+http://www.poupinou.org/acpi/ibm_ecdt.html
+to get ACPI working. Now the table passes the test, and a lot of the ACPI stuff
+works. the problem is now when i close and re-open the lid on my laptop. the
+system turns nearly unresponsive, and dmesg shows a *ton* of lines:
 
-Comments?
-[Will there be problems with modules exporting symbols?]
+ ACPI-0295: *** Error: AE_TIME while evaluating method [_L18] for GPE[ 0]
+    ACPI-0345: *** Error: Handler for [EmbeddedControl] returned AE_TIME
+    ACPI-1121: *** Error: Method execution failed [\_GPE._L18] (Node c1ae74c0), 
+AE_TIME
+    ACPI-0295: *** Error: AE_TIME while evaluating method [_L18] for GPE[ 0]
+    ACPI-0345: *** Error: Handler for [EmbeddedControl] returned AE_TIME
+    ACPI-1121: *** Error: Method execution failed [\_GPE._L18] (Node c1ae74c0), 
+AE_TIME
 
-	Sam
+and top shows events/0 taking about 10% of the CPU. i will attach my dmesg
+output from the system before closing the lid.
+
+Steps to reproduce: close lid  & reopen it.
+

@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVBVUcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbVBVUlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVBVUcY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 15:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVBVUcX
+	id S261234AbVBVUlc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 15:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVBVUlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 15:32:23 -0500
-Received: from mta11.adelphia.net ([68.168.78.205]:46552 "EHLO
-	mta11.adelphia.net") by vger.kernel.org with ESMTP id S261234AbVBVUcC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 15:32:02 -0500
-Message-ID: <421B963F.7000204@nodivisions.com>
-Date: Tue, 22 Feb 2005 15:29:51 -0500
-From: Anthony DiSante <theant@nodivisions.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Tue, 22 Feb 2005 15:41:32 -0500
+Received: from ida.rowland.org ([192.131.102.52]:23300 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S261234AbVBVUl2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 15:41:28 -0500
+Date: Tue, 22 Feb 2005 15:41:25 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.6: USB Storage hangs machine on bootup for
+ ~2 minutes
+In-Reply-To: <200502221344.58420.kernel-stuff@comcast.net>
+Message-ID: <Pine.LNX.4.44L0.0502221525200.6861-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: uninterruptible sleep lockups
-References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no> <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com> <421B9018.7020007@nodivisions.com> <421B9309.6080503@nortel.com>
-In-Reply-To: <421B9309.6080503@nortel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
->>> There has been some discussion that these hung
->>> states could be "fixed", but that's absolutely
->>> positively incorrect.
->>
->> That's one of the things I asked a few messages ago.  Some people on 
->> the list were saying that it'd be "really hard" and would "require a 
->> lot of bookkeeping" to "fix" permanently-D-stated processes... which 
->> is completely different than "impossible."
+On Tue, 22 Feb 2005, Parag Warudkar wrote:
+
+> > You said that the system hangs during bootup.  Where in the log does that
+> > hang occur?  The log itself looks perfectly normal.  The Maxtor drive is
+> > scanned, the partitions detected, and then apparently one or two
+> > partitions are mounted.  There's no indication of any problem.
 > 
+> I have tracked down the reason for this hang  - it seems that kudzu gets stuck 
+> in D state on usb_device_read - Below SysRQ+T from 2.6.11-rc4 - always 
+> reproducible.
 > 
-> Nothing is "impossible".
+> kudzu         D 00000000ffffffff     0  4424   4472                     
+> (NOTLB)
+> ffff81002bebfd98 0000000000000086 ffff81002c538150 ffff81002f21d00e
+>        000000078847ce40 ffff81002b5977c0 000000000000fd38 ffffffff803defc0
+>        ffff81002bebfd88 ffffffff80219b32
+> Call Trace:
+> <ffffffff80219b32>{_atomic_dec_and_lock+290} <ffffffff80383835>{__down+421}
+>        <ffffffff80133e30>{default_wake_function+0} 
+> <ffffffff803868ae>{__down_failed+53}
+>        <ffffffff802db9f1>{.text.lock.usb+5} 
+> <ffffffff802edb35>{usb_device_read+229}
+>        <ffffffff801998d1>{vfs_read+225} <ffffffff80199bd0>{sys_read+80}
+>        <ffffffff8010ed1e>{system_call+126}
+> 
+> Thereafter, if I try to mount the USB drive, even mount gets stuck.
 
-Maybe where you live, but in my world some things are most certainly 
-impossible.  Getting a 1MHz CPU to run at 1THz is impossible.  Having the 
-kernel automatically install the latest firmware for a buggy device, without 
-actually having the new firmware file, is impossible.  Turning your 17" LCD 
-monitor into a 50" HDTV is impossible.
+usb_device_read acquires a couple of locks, one for the USB bus list and 
+one for the root hub of the bus it's looking at.  I don't know which one 
+occurs at offset 229 on your system -- maybe you can tell.  Oddly enough, 
+neither of those locks is for a USB device like the Maxtor drive.  So it's 
+not at all clear why plugging in the drive should mess up kudzu.  Or why 
+the blockage should clear up after a couple of minutes.
 
-> Cracking SHA-256 isn't "impossible", it just 
-> takes more computing power than exists on the face of the planet.
+Perhaps we can find out by looking at other entries in the stack trace.  
+Of particular interest are the khubd, usb-storage, and scsi_eh processes.
 
-Thanks for proving my point.  That's a perfect example of the difference 
-between "hard" and "impossible."
+Alan Stern
 
-> Call it "infeasable" if you like.  It's theoretically possible, but the 
-> amount of work and the overhead involved just are not realistic.
-
-Again, that was one of my earlier questions, since some people here were 
-saying "impossible" while other were saying "really hard."
-
--Anthony DiSante
-http://nodivisions.com/

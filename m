@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264264AbTEZFRY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 01:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTEZFRY
+	id S264266AbTEZFS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 01:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTEZFS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 01:17:24 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:43784 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S264264AbTEZFRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 01:17:22 -0400
-Message-ID: <3ED1A7E2.6080607@kolumbus.fi>
-Date: Mon, 26 May 2003 08:36:34 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: rmk@arm.linux.org.uk, akpm@digeo.com, hugh@veritas.com,
-       LW@KARO-electronics.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at
- least))
-References: <20030523193458.B4584@flint.arm.linux.org.uk>	<1053919171.14018.2.camel@rth.ninka.net>	<3ED1A0FE.3000101@kolumbus.fi> <20030525.220852.42800415.davem@redhat.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 26.05.2003 08:31:42,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 26.05.2003 08:31:13,
-	Serialize complete at 26.05.2003 08:31:13
+	Mon, 26 May 2003 01:18:56 -0400
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:56400 "EHLO
+	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S264266AbTEZFSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 01:18:49 -0400
+Subject: Re: [RFC] Fix NMI watchdog documentation
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305260236.h4Q2ala7003115@turing-police.cc.vt.edu>
+References: <200305251050.h4PAoSoG028882@harpo.it.uu.se>
+	 <200305260236.h4Q2ala7003115@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053927100.1291.7.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 26 May 2003 01:31:41 -0400
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ah, ok. so there are cache issues even if if the user pte is not 
-established yet? Then it seems natural to couple flush_dcache_page with 
-pte establishing, not at the driver level.
+On Sun, 2003-05-25 at 22:36, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 25 May 2003 12:50:28 +0200, mikpe@csd.uu.se said:
+> 
+> > The blacklist rule is a catch-all since we don't have detailed DMI
+> > data on all Inspiron/Latitude models, and at the time, _all_ of them
+> > were broken. Looking through my records, Inspiron 8000 and 8100, and
+> > Latitude C600, C610, C640, C800, and C810 are known to be broken. Note
+> > that this includes at least one P4-based machine (C640), so it's not
+> > restricted to "old" mobile P3s.
+> 
+> OK, I put together a kernel that had the Latitude blacklist commented out,
+> and it comes up with:
+> 
+> No local APIC present or hardware disabled
+> Initializing CPU#0
+> 
+> So add the Latitude C840 to the "known b0rken" list.
 
---Mika
+Ditto the Inspiron 8500 - no apic at all (which is different from
+known-broken, since nothing bad happened.)  
 
+For cleanliness sake it would be nice to have specific model info in the
+blacklist ("your hardware doesn't have a frobber" is nicer than "the
+frobber on your hardware causes your pets to catch fire"), but since the
+hardware doesn't exist anyway the end result is the same. (And the code
+is a lot more readable.)
 
-David S. Miller wrote:
+Perhaps just a comment above those entries:
+/* Latitude C840 and Inspiron 8500 have no APIC support in hardware */
 
->   From: **UNKNOWN CHARSET** <mika.penttila@kolumbus.fi>
->   Date: Mon, 26 May 2003 08:07:10 +0300
->
->   I don't think the flush_dcache_page thing is done almost anywhere in the 
->   block/driver level right now.
->
->It isn't and it shouldn't :-)
->
->   And we shouldn't be doing io reads to pagecache pages with user
->   mappings anyway normally. direct-io is a different thing.
->   
->We are talking about the case where we are bringing in the
->data for the first time, on the page cache lookup miss.
->
->  
->
+Eventually it might even turn into a proper whitelist/blacklist
+collection.
 
+-- 
+Disconnect <lkml@sigkill.net>
 

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbUKSENk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbUKSEiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbUKSENk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 23:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUKSENj
+	id S261250AbUKSEiB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 23:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUKSEiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 23:13:39 -0500
-Received: from bgm-24-95-139-53.stny.rr.com ([24.95.139.53]:56534 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261249AbUKSENh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 23:13:37 -0500
-Subject: what is the need for task_rq in setscheduler?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Thu, 18 Nov 2004 23:38:01 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:9399 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261250AbUKSEh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 23:37:58 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: martin f krafft <madduck@madduck.net>
+Date: Fri, 19 Nov 2004 15:42:55 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Thu, 18 Nov 2004 23:13:36 -0500
-Message-Id: <1100837616.4051.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Message-ID: <16797.31183.853387.514386@cse.unsw.edu.au>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 nfsd crashing often
+In-Reply-To: message from martin f krafft on Thursday November 18
+References: <20041118173504.GA24187@cirrus.madduck.net>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm curious to the need for the task_rq in setscheduler in the following
-code:
+On Thursday November 18, madduck@madduck.net wrote:
+> We upgraded our cluster master server to 2.6.9 this morning and are
+> now experiencing major problems with the kernel NFS server, which
+> crashes every hours or so:
+> 
+>   Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>   printing eip:
+>   00000000
+...
+>   Call Trace:
+>   [<c0166197>] __lookup_hash+0xa7/0xe0
 
-   3316         rq = task_rq_lock(p, &flags);
-   3317         /* recheck policy now with rq lock held */
-   3318         if (unlikely(oldpolicy != -1 && oldpolicy != p->policy)) {
-   3319                 policy = oldpolicy = -1;
-   3320                 task_rq_unlock(rq, &flags);
-   3321                 goto recheck;
-   3322         }
-   3323         array = p->array;
-   3324         if (array)
-   3325                 deactivate_task(p, task_rq(p));
-   3326         retval = 0;
-   3327         oldprio = p->prio;
-   3328         __setscheduler(p, policy, lp.sched_priority);
-   3329         if (array) {
-   3330                 __activate_task(p, task_rq(p));
-   3331                 /*
-   3332                  * Reschedule if we are currently running on this runqueue and
-   3333                  * our priority decreased, or if we are not currently running on
-   3334                  * this runqueue and our priority is higher than the current's
-   3335                  */
-   3336                 if (task_running(rq, p)) {
-   3337                         if (p->prio > oldprio)
-   3338                                 resched_task(rq->curr);
-   3339                 } else if (TASK_PREEMPTS_CURR(p, rq))
-   3340                         resched_task(rq->curr);
-   3341         }
-   3342         task_rq_unlock(rq, &flags);
+Looks like i_op->lookup == NULL, and I don't think nfsd could do that.
 
+What filesystem are you using?
 
-On lines 3325 and 3330 with the calls to deactivate_task and
-__activate_task respectively. The runqueue is locked at 3316. Can the
-runqueue returned by task_rq change in this setup? If not, what is the
-need for the call to task_rq. Can't rq just be used instead, or is this
-just some extra paranoia? 
+NeilBrown
 
-Thanks,
-
--- Steve

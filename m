@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUHIMPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUHIMQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266521AbUHIMPB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUHIMNK
+	id S266512AbUHIMQa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbUHIMPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:13:10 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51100 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266508AbUHIMMw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:12:52 -0400
-Date: Mon, 9 Aug 2004 14:12:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040809121222.GH10418@suse.de>
-References: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de> <20040809140426.142dc4eb.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809140426.142dc4eb.skraw@ithnet.com>
+	Mon, 9 Aug 2004 08:15:17 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:53677 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S266508AbUHIMOy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:14:54 -0400
+Message-ID: <41176AB6.6080902@namesys.com>
+Date: Mon, 09 Aug 2004 16:14:46 +0400
+From: "Vladimir V. Saveliev" <vs@namesys.com>
+Organization: Namesys
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040220
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8-rc3-mm2
+References: <20040808152936.1ce2eab8.akpm@osdl.org> <411753A4.8020801@svorka.net>
+In-Reply-To: <411753A4.8020801@svorka.net>
+X-Enigmail-Version: 0.76.8.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09 2004, Stephan von Krawczynski wrote:
-> > AGAIN: if you believe you did invent a better method, _describe_ it.
-> > As you did not describe a _working_ method different from the one I request,
-> > you need to agree that you are wrong - as long as your description is
-> > missing.
+Hello
+
+Espen Fjellvær Olsen wrote:
+> Gah, sending this to lkml also, next time i hit reply i'll try to
+> remember to insert the lkml mail address ;)
 > 
-> You obviously did not get the basics of the whole story, did you? I really
-> wonder how you came this far.
-> _You_ are writing code that should be - according to _your_ idea - platform
-> independent. If you do something like this it is most obvious that your code
-> falls mainly into two pieces: 
-> a) platform-independent code
-> b) glue code to the specific host/platform
-> You have full control over a) and certain unbreakable external requirements for
-> b).
-> Listening to your posts makes me wonder what your intention really is. Linux
+> I wonder if there are any plans to implement Reiser4 into mm soon?
+> I think that Reiser4 is stable enough to get in mm now.
+> 
+We sent it to Andrew Morton at the end of last week and he made few warnings we are currently trying to address.
 
-Joergs intentions are just as clear as ever - he would much much rather
-bash linux than fix whatever issues there might be with it, because if
-they get fixed, he would have nothing else to complain about. It's
-ironic that Linux is most likely his largest user base.
 
--- 
-Jens Axboe
+> --
+> Med Vennlig Hilsen / Best Regards
+> Espen Fjellvær Olsen
+> eldiablo@svorka.net
+> Norway
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 

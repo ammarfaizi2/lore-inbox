@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261331AbSKGRmN>; Thu, 7 Nov 2002 12:42:13 -0500
+	id <S261332AbSKGRnN>; Thu, 7 Nov 2002 12:43:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261332AbSKGRmN>; Thu, 7 Nov 2002 12:42:13 -0500
-Received: from xedos.starman.ee ([62.65.192.3]:51597 "EHLO mx1.starman.ee")
-	by vger.kernel.org with ESMTP id <S261331AbSKGRmM>;
-	Thu, 7 Nov 2002 12:42:12 -0500
-Message-ID: <32851.62.65.205.175.1036691341.squirrel@webmail.starman.ee>
-Date: Thu, 7 Nov 2002 19:49:01 +0200 (EET)
-Subject: 2.5.46: ide-cd cdrecord success report
-From: "MdkDev" <mdkdev@starman.ee>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Reply-To: mdkdev@starman.ee
-X-Mailer: SquirrelMail (version 1.2.6)
+	id <S261344AbSKGRnN>; Thu, 7 Nov 2002 12:43:13 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:37273 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S261332AbSKGRnM>;
+	Thu, 7 Nov 2002 12:43:12 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200211071749.UAA10171@sex.inr.ac.ru>
+Subject: Re: IPSEC FIRST LIGHT! (by non-kernel developer :-))
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 7 Nov 2002 20:49:37 +0300 (MSK)
+Cc: ahu@ds9a.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20021107.071808.43409100.davem@redhat.com> from "David S. Miller" at Nov 7, 2 07:18:08 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Decided to replicate Adam Kropelins CD burning test (burn cd while
-executing 'dd if=/dev/zero of=foo bs=1M'). Didn't have any problems - I
-burned 323 MB ISO image while running the aforementioned dd command.
-cdrecord reported:Track 01:  323 of  323 MB written (fifo 100%) [buf  99%]   4.2x.
-Track 01: Total bytes read/written: 339247104/339247104 (165648 sectors).
-Writing  time:  566.244s
-Average write speed   4.0x.
-Min drive buffer fill was 99%
-Fixating...
-Fixating time:   77.859s
-cdrecord: fifo had 5344 puts and 5344 gets.
-cdrecord: fifo was 0 times empty and 5186 times full, min fill was 92%.
+> Alexey, any ideas?
 
-File foo contained 7363 1 MB records.
+Yes, rules with prefixlen!=32 do not work, gem forgot htonl() on netmask.
 
-Hardware:
-CPU - AMD XP 2100+
-RAM - 512 MB
-MB - MSI KT3 Ultra3 (VIA KT333 chipset)
-HDD - 2 IBM Deskstar IDE disks (using integrated RAID controller PDC 20276
-as an ordinary ATA133 controller)CD burner - LiteOn LTR-16101B
+Also, forwarding is still sick, as I told you before going to sleep,
+so expect a patch soon. Unfortunately, despite of all the precautions
+I sleeped all the day, so I am again at the point when cannot test
+anything but loopback. :-)
+
+Alexey
 
 
+===== net/key/af_key.c 1.6 vs edited =====
+--- 1.6/net/key/af_key.c	Thu Nov  7 04:52:11 2002
++++ edited/net/key/af_key.c	Thu Nov  7 20:44:51 2002
+@@ -488,7 +491,8 @@
+ 	case AF_INET:
+ 		xaddr->xfrm4_addr = 
+ 			((struct sockaddr_in*)(addr + 1))->sin_addr.s_addr;
+-		xaddr->xfrm4_mask = ~0 << (32 - addr->sadb_address_prefixlen);
++		if (addr->sadb_address_prefixlen)
++			xaddr->xfrm4_mask = htonl(~0 << (32 - addr->sadb_address_prefixlen));
+ 		break;
+ 	case AF_INET6:
+ 		memcpy(xaddr->a6, 

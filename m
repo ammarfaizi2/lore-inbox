@@ -1,94 +1,178 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281843AbRK1Bbl>; Tue, 27 Nov 2001 20:31:41 -0500
+	id <S281856AbRK1Bnw>; Tue, 27 Nov 2001 20:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281854AbRK1Bbf>; Tue, 27 Nov 2001 20:31:35 -0500
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:5322 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S281843AbRK1BbW>; Tue, 27 Nov 2001 20:31:22 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Andrew Morton <andrewm@uow.edu.au>
-Subject: RE:  Unresponiveness of 2.4.16
-Date: Wed, 28 Nov 2001 02:31:16 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S281852AbRK1Bnf>; Tue, 27 Nov 2001 20:43:35 -0500
+Received: from web14810.mail.yahoo.com ([216.136.224.231]:36613 "HELO
+	web14810.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281856AbRK1BnV>; Tue, 27 Nov 2001 20:43:21 -0500
+Message-ID: <20011128014320.52461.qmail@web14810.mail.yahoo.com>
+Date: Tue, 27 Nov 2001 17:43:20 -0800 (PST)
+From: Rock Gordon <rockgordon@yahoo.com>
+Subject: Re: Executing binaries on new filesystem
+To: Terje Eggestad <terje.eggestad@scali.no>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1006248848.19959.4.camel@pc-16.office.scali.no>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20011128013129Z281843-17408+21534@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jens Axboe wrote:
+Oh yes, I've implemented a feeble mmap, but it never
+get's to the point where it calls f_op->mmap:
+It actually issues a read, starts the program with
+start_thread, and it gets a segfault !
+
+All this without calling a single line of code that
+I've written that could be the cause of the segfault.
+If it had page faulted, it would have been ok, since
+readpage would have taken care of it ...
+
+--- Terje Eggestad <terje.eggestad@scali.no> wrote:
+> man, 2001-11-19 kl. 17:34 skrev Rock Gordon:
+> > All said and done, the file is with correct
+> > permissions (for that matter any binary that I
+> execute
+> > on my filesystem has correct permissions). The
+> only
+> > thing strace tells me is "bad file format". The
+> same
+> > binary works perfectly elsewhere.
+> > 
+> > I don't think mmap is the problem; you don't need
+> it
+> > in order to run binaries ...
+> > 
+> 
+> Yes you do. See load_elf_binary in fs/binfmt_elf.c,
+> or
+> load_aout_binary in fs/binfmt_aout.c.....
+> 
+> 
+> > --- Terje Eggestad <terje.eggestad@scali.no>
+> wrote:
+> > > On Sat, 17 Nov 2001, Rock Gordon wrote:
+> > > 
+> > > > Hi,
+> > > >
+> > > > I've written a modest filesystem for fun, it
+> works
+> > > > pretty ok, but when I try to execute binaries
+> from
+> > > it,
+> > > > bash says "cannot execute binary file" ... If
+> I
+> > > copy
+> > > > the same binary elsewhere, it executes
+> perfectly.
+> > > >
+> > > > Does anybody have any clue ?
+> > > 
+> > > Yes
+> > > 
+> > > keep in mind taht the kernel do demand paging of
+> the
+> > > text (code) in our
+> > > executable, meaning that a page of code is not
+> > > loaded into the procs
+> > > memory spce (and thus phys mem) until the proc
+> > > actually tries to exec the
+> > > code page. This is one manifestation of the
+> funny
+> > > term "page fault"!
+> > > 
+> > > I do belive that the current kernel uses mmap to
+> map
+> > > in the exec file text
+> > > segment. (Even if I can hear the ice cracking
+> under
+> > > my feet, never
+> > > actually looked at the code handling execs) but
+> if
+> > > you strace anexec that
+> > > uses shared libs you'll note that the sh.libs
+> are
+> > > mmaped into the process
+> > > space. (also note the MMAP_EXEC flag in the
+> mmap(2)
+> > > man page).
+> > > 
+> > > 
+> > > TJ
+> > > 
+> > > >
+> > > > Regards,
+> > > > Rock
+> > > >
+> > > >
+> __________________________________________________
+> > > > Do You Yahoo!?
+> > > > Find the one for you at Yahoo! Personals
+> > > > http://personals.yahoo.com
+> > > > -
+> > > > To unsubscribe from this list: send the line
+> > > "unsubscribe linux-kernel" in
+> > > > the body of a message to
+> majordomo@vger.kernel.org
+> > > > More majordomo info at 
+> > > http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at 
+> http://www.tux.org/lkml/
+> > > >
+> > > 
+> > > -- 
+> > >
 > >
-> > I agree that the current i/o scheduler has really bad interactive
-> > performance -- at first sight your changes looks mostly like add-on
-> > hacks though.
 >
-> Good hacks, or bad ones?
-
-As I can "see" not so good.
-I've tried "dbench 32" and playing an MP3 with Noatun (KDE-2.2.2) and  "saw" 
-my reported hiccup since 2.4.7-ac4, as always.
-
-Noatun stops after 9-10 seconds of the "dbench 32" run and then every few 
-seconds, again and again. The hiccup take place more often but for shorter 
-times then without your patch.
-
-System was:
-
-2.4.16 +
-preempt +
-lock-break-rml-2.4.16-1.patch +
-all ReiserFS patches for 2.4.16
-
-1 GHz Athlon II
-MSI MS-6167 Rev 1.0B (AMD Irongate C4, without bypass)
-640 MB PC100-2-2-2 SDRAM
-U160 IBM 18 GB disk
-AHA-2940 UW
-
-> It keeps things localised.  It works.  It's tunable.  It's the best
-> IO scheduler presently available.
-
-Throughput was a little lower ;-)
-
-Don't forget to tune max-readahead.
-I've used 127 and that gave me 4 MB (at the end) to 6 MB (at the beginning of 
-the disk) more transferrate.
-Write caching is off per default on all of my disks and it didn't offer much 
-gain with dbench and bonnie++.
-
-> > Arjan's priority based scheme is more promising.
+_________________________________________________________________________
+> > > 
+> > > Terje Eggestad                 
+> > > terje.eggestad@scali.no
+> > > Scali Scalable Linux Systems   
+> http://www.scali.com
+> > > 
+> > > Olaf Helsets Vei 6              tel:    +47 22
+> 62 89
+> > > 61 (OFFICE)
+> > > P.O.Box 70 Bogerud                      +47 975
+> 31
+> > > 574  (MOBILE)
+> > > N-0621 Oslo                     fax:    +47 22
+> 62 89
+> > > 51
+> > > NORWAY
+> > >
+> >
 >
-> If the IO priority becomes an attribute of the calling process
-> then an approach like that has value.  For writes, the priority
-> should be driven by VM pressure and it's probably simpler just
-> to stick the priority into struct buffer_head -> struct request.
-> For reads, the priority could just be scooped out of *current.
-
-Yes, please. I think, too that we need IO priority even for "little" IO 
-consuming (weak) RT tasks (MP3, DVD, etc).
-
-> If we're not going to push the IO priority all the way down from
-> userspace then you may as well keep the logic inside the elevator
-> and just say reads-go-here and writes-go-there.
+_________________________________________________________________________
+> > > 
+> > 
+> > 
+> > __________________________________________________
+> > Do You Yahoo!?
+> > Find the one for you at Yahoo! Personals
+> > http://personals.yahoo.com
+> -- 
 >
-> But this has potential to turn into a great designfest.  Are
-> we going to leave 2.4 as-is?  Please say no.  
+_________________________________________________________________________
+> 
+> Terje Eggestad                 
+> terje.eggestad@scali.no
+> Scali Scalable Linux Systems    http://www.scali.com
+> 
+> Olaf Helsets Vei 6              tel:    +47 22 62 89
+> 61 (OFFICE)
+> P.O.Box 70 Bogerud                      +47 975 31
+> 574  (MOBILE)
+> N-0621 Oslo                     fax:    +47 22 62 89
+> 51
+> NORWAY            
+>
+_________________________________________________________________________
+> 
 
-I'll second that.
 
-Thank you for your work, Andrew!
-
--Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel@hamburg.de
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269495AbUI3U4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUI3VCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269495AbUI3U4A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269515AbUI3Uy6
+	id S269501AbUI3VCI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 17:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUI3VCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:54:58 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:17555 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S269474AbUI3UtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:49:08 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.9-rc3: USB OHCI failure on suspend on AMD64
-Date: Thu, 30 Sep 2004 22:51:30 +0200
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@suse.cz>, linux-usb-devel@lists.sourceforge.net
-MIME-Version: 1.0
+	Thu, 30 Sep 2004 17:02:08 -0400
+Received: from mh57.com ([217.160.185.21]:54461 "EHLO mithrin.mh57.de")
+	by vger.kernel.org with ESMTP id S269520AbUI3U64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 16:58:56 -0400
+Date: Thu, 30 Sep 2004 22:58:51 +0200
+From: Martin Hermanowski <martin@mh57.de>
+To: Roland Dreier <roland.list@gmail.com>
+Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+Subject: Re: Hard lockup on IBM ThinkPad T42
+Message-ID: <20040930205851.GA6911@mh57.de>
+References: <f8ca0a1504093011206230ddea@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409302251.30903.rjw@sisk.pl>
+In-Reply-To: <f8ca0a1504093011206230ddea@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040722i
+X-Broken-Reverse-DNS: no host name found for IP address 2001:8d8:81:4d0:8000::1
+X-Spam-Score: -2.5 (--)
+X-Authenticated-ID: martin
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-It seems there's a problem with USB OHCI driver that causes these traces to 
-appear on suspend on an AMD64-based box:
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- ..<7>PM: Image restored successfully.
- PCI: Setting latency timer of device 0000:00:02.0 to 64
- ohci_hcd 0000:00:02.0: HC died; cleaning up
- usb 1-2: USB disconnect, address 3
- Badness in hcd_endpoint_disable at drivers/usb/core/hcd.c:1310
+On Thu, Sep 30, 2004 at 11:20:17AM -0700, Roland Dreier wrote:
+> Hi, I just got an IBM ThinkPad T42 (model 2378FVU) with
+> Centrino/Pentium M 735 and a Radeon 9600.  I'm running 2.6.9-rc3 (with
+> ipw2200 0.9 wireless drivers) and I've experienced several hard
+> lockups over the past few days.
+>=20
+> The system seems to be completely unresponsive to keyboard and
+> network, and even "nmi_watchdog=3D2" didn't produce anything.  I'm not
+> sure what triggers the lockup -- I've had them happen while the system
+> was idle running an X screensaver, and also while I've been on the
+> console (non-X) doing nothing but typing through an ssh connection.=20
+> Generally it takes a couple of hours for the lockup to happen.
 
- Call Trace:<7>Losing some ticks... checking if CPU frequency changed.
- <ffffffff803455fb>{hcd_endpoint_disable+107} 
-<ffffffff80346729>{usb_disable_endpoint+41}
-        <ffffffff803468aa>{usb_disable_device+26} 
-<ffffffff803422fc>{usb_disconnect+188}
-        <ffffffff803441b0>{hcd_panic+0} <ffffffff803441fa>{hcd_panic+74}
-        <ffffffff8015824d>{worker_thread+733} 
-<ffffffff80137c00>{default_wake_function+0}
-        <ffffffff80137c00>{default_wake_function+0} 
-<ffffffff80157f70>{worker_thread+0}
-        <ffffffff8015f51d>{kthread+205} <ffffffff80111b43>{child_rip+8}
-        <ffffffff8015f450>{kthread+0} <ffffffff80111b3b>{child_rip+0}
+I have lockups in X running xlock with my T41p about once a month,
+running 2.6.7-rc3-mm1 with atheros and the XFree4.3 radeon driver.
 
-[-- several times the above --]
+The only thing I noticed is that the hdd-led is constantly on when this
+happens.
 
- Call Trace:<ffffffff80345c3e>{hcd_unlink_urb+494} 
-<ffffffff803463dc>{usb_kill_urb+380}
-        <ffffffff80345a37>{hcd_endpoint_disable+1191} 
-<ffffffff8019ed6e>{invalidate_inode_buffers+14}
-        <ffffffff80346729>{usb_disable_endpoint+41} 
-<ffffffffa022374c>{:usbhid:hid_disconnect+44}
-        <ffffffff8033f4e9>{usb_unbind_interface+73} 
-<ffffffff8030b95e>{device_release_driver+94}
-        <ffffffff8030baf4>{bus_remove_device+164} 
-<ffffffff8030a898>{device_del+88}
-        <ffffffff8034690b>{usb_disable_device+123} 
-<ffffffff803422fc>{usb_disconnect+188}
-        <ffffffff803441b0>{hcd_panic+0} <ffffffff803441fa>{hcd_panic+74}
-        <ffffffff8015824d>{worker_thread+733} 
-<ffffffff80137c00>{default_wake_function+0}
-        <ffffffff80137c00>{default_wake_function+0} 
-<ffffffff80157f70>{worker_thread+0}
-        <ffffffff8015f51d>{kthread+205} <ffffffff80111b43>{child_rip+8}
-        <ffffffff8015f450>{kthread+0} <ffffffff80111b3b>{child_rip+0}
+LLAP, Martin
 
-[-- once again the above --]
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-The workaround is to explicitly unload the driver before suspend and reload it 
-after resume.  It is possible that it's fixed in -mm kernels, as I haven't 
-seen such symptoms there, recently (since 2.6.9-rc2-mm1 at least).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Greets,
-RJW
+iD8DBQFBXHOLmGb6Npij0ewRAmDFAJ9w1YTqkYGFXdKAkb3Cbqnl2mSM0gCeNby7
+h2usi7mw5j3ZlTh1nrrfXog=
+=xfD/
+-----END PGP SIGNATURE-----
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+--X1bOJ3K7DJ5YkBrT--

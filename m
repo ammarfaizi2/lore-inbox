@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293643AbSCER6W>; Tue, 5 Mar 2002 12:58:22 -0500
+	id <S293654AbSCESLe>; Tue, 5 Mar 2002 13:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293647AbSCER6M>; Tue, 5 Mar 2002 12:58:12 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:41989 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S293643AbSCER57>; Tue, 5 Mar 2002 12:57:59 -0500
-To: "Rajan Ravindran" <rajancr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: Fwd: [Lse-tech] get_pid() performance fix
-In-Reply-To: <OF810580E6.8672B341-ON85256B73.005AF9B8@pok.ibm.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 06 Mar 2002 02:57:36 +0900
-In-Reply-To: <OF810580E6.8672B341-ON85256B73.005AF9B8@pok.ibm.com>
-Message-ID: <873czeaodr.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S293658AbSCESLP>; Tue, 5 Mar 2002 13:11:15 -0500
+Received: from fcaglp.fcaglp.unlp.edu.ar ([163.10.4.1]:31159 "EHLO
+	fcaglp.fcaglp.unlp.edu.ar") by vger.kernel.org with ESMTP
+	id <S293653AbSCESLL>; Tue, 5 Mar 2002 13:11:11 -0500
+Message-ID: <3C850A19.2690120A@fcaglp.fcaglp.unlp.edu.ar>
+Date: Tue, 05 Mar 2002 15:10:33 -0300
+From: "Eduardo A. Suarez" <esuarez@fcaglp.fcaglp.unlp.edu.ar>
+Organization: Observatorio Astronomico de La Plata
+X-Mailer: Mozilla 4.7 [en] (X11; I; SunOS 5.8 sun4m)
+X-Accept-Language: Spanish/Argentina, es-AR, en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: suse-sparc@suse.com
+Subject: Kernel 2.4.19-pre2
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rajan Ravindran" <rajancr@us.ibm.com> writes:
+Hi,
 
-> Yes, pid's are guaranteed to be unique.
-> Here the problem we focused is the time taken in finding the next
-> available free pid.
-> I really don't mean by your task->xxx.
+I have this error in sparc10 when I try to boot 2.4.19-pre2:
 
-I'm confused.
+PROMLIB obio_ranges 5
+Fixup b f0203b4c doesn't refer to a SETHI at f00156c0[8b500000]
 
-I said:
-	task { pid = 300, pgrp = 301, };
-	301 is free;
+2.4.19-pre1 boots fine.
 
-	get_pid() returns 301.
-
-"task 301" can't call setsid(). pid 301 is available?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Thanks,
+Eduardo.-

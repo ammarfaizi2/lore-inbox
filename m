@@ -1,117 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266238AbUF0EdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266241AbUF0E7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266238AbUF0EdS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 00:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUF0EdS
+	id S266241AbUF0E7e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 00:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUF0E7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 00:33:18 -0400
-Received: from relay.pair.com ([209.68.1.20]:516 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S266238AbUF0EdE (ORCPT
+	Sun, 27 Jun 2004 00:59:33 -0400
+Received: from mproxy.gmail.com ([216.239.56.245]:37111 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266241AbUF0E71 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 00:33:04 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <40DE3E95.4070702@kegel.com>
-Date: Sat, 26 Jun 2004 20:27:17 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.20 rh9 thrashing unreasonably
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 27 Jun 2004 00:59:27 -0400
+Message-ID: <cfe85dfa040626215929dd09ed@mail.gmail.com>
+Date: Sat, 26 Jun 2004 22:59:24 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: supporting PC87366 in scx200*
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies for posting a tuning question on a non-vanilla kernel -
-I'll switch to a recent 2.6 vanilla kernel next chance I get.
-But just in case this situation sounds familliar to anyone:
+hi folks,
 
-I have a zippy little 2GHz Athlon XP with 512 MB RAM running
-2.4.20 (as supplied by Red Hat 9) which
-normally builds gcc/glibc toolchains very quickly.   However,
-when I wrote a script to build 200 different combinations of gcc / glibc / target
-one after the other, deleting each one immediately after installing it,
-performance mysteriously drops after about the 40th iteration;
-the CPU is mostly idle, and the system is swapping like crazy.
-It's turning a several day job into a several week job :-(
+I recently got a Soekris net4801, which sports an SC-1100 (586 CPU,
+with lots of integrated goodies), and a NSC PC87366 SuperIO chip.
 
-I see someone else reported a similar problem (http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=118397),
-and said adjusting a proc setting helped, but they didn't say which one :-(
 
-Any suggestions on tuning the existing kernel before I pitch it?
-I'll append the contents of /proc/meminfo etc below.
-Thanks!
-- Dan
+Ive hacked at the 2.4.26 version of the scx200 drivers, and have
+gotten the code to recognize various hardware bits on the board (ie
+new pci.ids entries).  Im writing to solicit advice on how to
+restructure my hacks to make it acceptable for inclusion in Linux.  Im
+aware that you want 2.6 code, but im hoping youll indulge me a bit til
+I get a chance to forward-port it.
 
-$ uname -a
-Linux fast 2.4.20-6 #1 Thu Feb 27 10:01:19 EST 2003 i686 athlon i386 GNU/Linux
+1. although the scx200{,_gpio}.c works with the sc-1100 GPIOs (and is
+supported in 2.6.7), many of these pins are not usable for GPIO; they
+are used in the Soekris board design for mutually exclusive functions.
 
-$ free
-              total       used       free     shared    buffers     cached
-Mem:        513852     507464       6388          0       1456       6012
--/+ buffers/cache:     499996      13856
-Swap:      1052248      16276    1035972
+Instead, the Soekris board provides gpio via the PC87366, which has a
+very similar pin design, but which uses a different address-to-pin
+mapping; the pin values are mapped in bytes, not long words.
 
-$ cat meminfo
-         total:    used:    free:  shared: buffers:  cached:
-Mem:  526184448 515788800 10395648        0  1277952  8548352
-Swap: 1077501952 17084416 1060417536
-MemTotal:       513852 kB
-MemFree:         10152 kB
-MemShared:           0 kB
-Buffers:          1248 kB
-Cached:           5532 kB
-SwapCached:       2816 kB
-Active:            972 kB
-ActiveAnon:        312 kB
-ActiveCache:       660 kB
-Inact_dirty:      3944 kB
-Inact_laundry:       0 kB
-Inact_clean:      4816 kB
-Inact_target:     1944 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       513852 kB
-LowFree:         10152 kB
-SwapTotal:     1052248 kB
-SwapFree:      1035564 kB
+The existing gpio char-dev API will work with these pins, I can extend
+the driver instead of creating a separate driver file which is hugely
+dependent upon scx200*, however this is my 1st ever attempt to hack at
+linux in any way, so Im unsure what would be more palatable to you
+all.
 
-$ vmstat 5
-    procs                      memory      swap          io     system      cpu
-  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-  0  3  2  52456   6304    876   2080    1    2     9     8    3     4  3  2  2
-  0  1  2  52596   6304    824    524 12519  118 12806   129  575  1026  0  3 97
-  1  0  2  52596   6396    836    560 10437   74 10864    77  517   921  0  2 98
-  0  1  2  52596   6308    804    644 10522   72 10996    75  519   919  0  2 98
 
-$ ps augxw | egrep 'dank|kswapd|bdflush'
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-root         9  0.0  0.0     0    0 ?        SW   May09   0:27 [bdflush]
-root         5  0.0  0.0     0    0 ?        DW   May09  18:57 [kswapd]
-dank     21494  0.0  0.0  4144    0 pts/1    SW   14:55   0:00 sh /home/dank/wk/crosstool-0.28-rc26/crosstool.sh
-dank     20973  0.0  0.0  3572    0 pts/1    SW   17:54   0:00 make LD=arm-softfloat-linux-gnu-ld RANLIB=arm-softfloat-linux-gnu-ranlib
-dank     20974  0.0  0.0  5920    0 pts/1    SW   17:54   0:03 make -r PARALLELMFLAGS= CVSOPTS= -C /home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/gl
-ibc-2.3.2 objdir=/home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/build-glibc all
-dank     27105  0.9  0.2 46920 1228 pts/1    D    17:58   1:03 make -C iconvdata subdir_lib
+Assuming for a moment that extending scx200 to handle pc87366 pins is
+better (less lines of new code, no lines of cut-paste boilerplate); I
+have some questions:
 
-... wait a second just to see what's running besides make ...
+1.  
 
-$ ps augxw | egrep 'dank'
-dank     21494  0.0  0.0  4144    0 pts/1    SW   14:55   0:00 sh /home/dank/wk/crosstool-0.28-rc26/crosstool.sh
-dank     20973  0.0  0.0  3572    0 pts/1    SW   17:54   0:00 make LD=arm-softfloat-linux-gnu-ld RANLIB=arm-softfloat-linux-gnu-ranlib
-dank     20974  0.0  0.0  5920    0 pts/1    SW   17:54   0:03 make -r PARALLELMFLAGS= CVSOPTS= -C /home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/glibc-2.3.2 
-objdir=/home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/build-glibc all
-dank     29787  3.3  0.1  5100  528 pts/1    S    19:56   0:00 make -C locale subdir_lib
-dank     30180  1.0  0.0  4168  412 pts/1    S    19:57   0:00 /bin/sh -c arm-softfloat-linux-gnu-gcc  -M -MP C-ctype.c -std=gnu99 -O -Wall -Winline -Wstrict-prototypes -Wwrite-strings     -DLOCALE_PATH='"/usr/lib/locale:/usr/share/i18n"' 
--DLOCALEDIR='"/usr/lib/locale"' -DLOCALE_ALIAS_PATH='"/usr/share/locale"' -DCHARM
-dank     30181  0.0  0.0  1448  140 pts/1    S    19:57   0:00 arm-softfloat-linux-gnu-gcc -M -MP C-ctype.c -std=gnu99 -O -Wall -Winline -Wstrict-prototypes -Wwrite-strings -DLOCALE_PATH="/usr/lib/locale:/usr/share/i18n" 
--DLOCALEDIR="/usr/lib/locale" -DLOCALE_ALIAS_PATH="/usr/share/locale" -DCHARMAP_PATH="/usr/share/i1
-dank     30182  5.0  0.3  5308 1676 pts/1    D    19:57   0:00 /opt/crosstool/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/lib/gcc-lib/arm-softfloat-linux-gnu/3.3.3/cc1 -E -quiet -nostdinc -Iprograms -I../include -I. 
--I/home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/build-glibc/lo
-dank     30183  0.0  0.0  3560  148 pts/1    S    19:57   0:00 sed -e s,C-ctype\.o,/home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/build-glibc/locale/C-ctype.o 
-/home/dank/wk/crosstool-0.28-rc26/build/arm-softfloat-linux-gnu/gcc-3.3.3-glibc-2.3.2/build-glibc/locale/C-ctype.os /home/
+The scx200 supports 64 pins (wrt the register assignments), the
+pc87366 supports 32 (29 actual pins).  Should these new pins get minor
+numbers 64-95 ?  Or should they get a new major # and start from minor
+0 ?
 
--- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+With this approach, Ill have to (at minimum) replace the following
+with other expressions that work with the new address mapping (also).
+
+/* Definitions to make sure I do the same thing in all functions */
+#define __SCx200_GPIO_BANK unsigned bank = index>>5
+#define __SCx200_GPIO_IOADDR unsigned short ioaddr = scx200_gpio_base+0x10*bank
+#define __SCx200_GPIO_SHADOW long *shadow = scx200_gpio_shadow+bank
+#define __SCx200_GPIO_INDEX index &= 31
+
+Additionally, the inline functions that use the above defines;
+
+static inline int scx200_gpio_get(int index) {
+static inline int scx200_gpio_current(int index) {
+static inline void scx200_gpio_set_high(int index) {
+static inline void scx200_gpio_set_low(int index) {
+static inline void scx200_gpio_set(int index, int state) {
+static inline void scx200_gpio_change(int index) {
+
+(also in include/linux/scx200_gpio.h) would be replaced by actual
+functions that are sensitive to the minor numbers.
+
+2.
+
+The PC87366 setup uses index,data io-addrs to programm the chip,
+I tried to request_region on these 2 bytes and got an error.
+Is this a wrong idea, or just some user error ?
+
+	// reserve the index, data register pair (hardwired to 2e or 4e)
+	r = request_region(PC87366_IDX, 2, "pc87366 index, data regs");
+	if (!r) {
+		printk (KERN_ERR NAME
+			": pc87366 I/O resource %x,%d is not free.\n",
+			PC87366_IDX, 2);
+                // return -EIO;
+
+3.
+
+The comBIOS on the Soekris board sets up the PC87366 GPIO pins at IOaddr 6600.
+Is it a bad idea to rely on this ?  I assume so, but for time being I dont
+want to try to reprogram it to hard; Id prefer to have some mileage on the
+board before I do this.
+
+4.
+
+Im working in 2.4.26.  Im sure youre more interested in 2.6 patches,
+I ask your patience while I get up to speed (which may still be a
+snails pace compared to you all).  Besides 2.6 is closed to careless
+hackers and newbies.
+
+5.
+
+Responses can be off-list if you prefer, tho if theyre flames, Im sure
+everyone will want a voyeuristic chuckle (and I dont need to be triple crispy,
+double will suffice).  Im not on-list, but can read the archive.
+(which I havent done wrt pc87366, having grepped for it in the src)
+
+
+6.
+
+Also, while Im writing, there are pin capabilities which are not
+exposed by the driver; these set.. (well, here are NSCs words)
+
+
+Offset 08h-0Bh                           GPIEN0 -- GPIO Interrupt
+Enable 0 Register (R/W)                           Reset Value:
+00000000h
+  31:16     Reserved. Must be set to 0.
+   15:0     GPIO Power Management Event (PME) Enable. Bits [15:0]
+correspond to GPIO15-GPIO0 signals, respectively. Each bit
+            allows PME generation by the corresponding GPIO signal.
+            0: Disable PME generation.
+            1: Enable PME generation.
+            Notes: 1) All of the enabled GPIO PMEs are always repor
+ted at F1BAR1+I/O Offset 10h[3].
+                       2) Any enabled GPIO PME can be selected to
+generate an SCI or SMI at F1BAR1+I/O Offset 0Ch[0].
+                           If SCI is selected, then the individually
+selected GPIO PMEs are globally enabled for SCI generation at
+                           F1BAR1+I/O Offset 12h[3] and the status is
+repor ted at F1BAR1+I/O Offset 10h[3].
+                           If SMI is selected, the individually
+selected GPIO PMEs generate an SMI and the status is repor ted at
+                           F1BAR0+I/O Offset 00h/02h[0].
+Offset 0Ch-0Fh                               GPST0 -- GPIO Status 0
+Register (R/W1C)                                Reset Value: 00000000h
+  31:16     Reserved. Must be set to 0.
+   15:0     GPIO Status. Bits [15:0] correspond to GPIO15-GPIO0
+signals, respectively. Each bit repor ts a 1 when hardware detects
+            the edge (rising/falling on the GPIO signal) that is
+programmed in F0BAR0+I/O Offset 24h[5]. If the corresponding bit in
+            F0BAR0+I/O Offset 08h is set, this edge generates a PME.
+            0: No active edge detected since the bit was last cleared.
+            1: Active edge detected.
+            Writing 1 to the Status bit clears it to 0.
+            This is the third level of SMI status repor ting to the
+second level at F0 Index 87h/F7h[7] and the top level at F1BAR0+I/O
+            Offset 00h/02h[0]. Clearing the third level also clears
+the second and top levels.
+            This is the second level of SCI status repor ting to the
+top level at F1BAR1+Offset 10h[3]. The status must be cleared at both
+            the this level and the top level (i.e., the top level is
+not automatically cleared when a bit in this register is cleared).
+
+
+Note the 31:16 restrictions - those GPIOs dont have these capabilities,
+and is likely (one reason) why Christer didnt add support for them.
+That, and he didnt need to use them, and didnt add features he wasnt
+going to test.  I dont know yet whether I NEED them, but I thought Id
+float it..  It appears that other support work (which doesnt 'fit' in
+this driver)
+is needed to control the features in those 2 registers ( interrupt routing, etc)

@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285965AbRLTDbd>; Wed, 19 Dec 2001 22:31:33 -0500
+	id <S285972AbRLTDdn>; Wed, 19 Dec 2001 22:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285972AbRLTDbX>; Wed, 19 Dec 2001 22:31:23 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27660 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285965AbRLTDbD>; Wed, 19 Dec 2001 22:31:03 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: 19 Dec 2001 19:30:55 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vrm1f$mde$1@cesium.transmeta.com>
-In-Reply-To: <m14rmnw6p3.fsf@frodo.biederman.org> <Pine.GSO.4.21.0112191153280.11104-100000@weyl.math.psu.edu>
+	id <S285974AbRLTDdd>; Wed, 19 Dec 2001 22:33:33 -0500
+Received: from [206.40.202.198] ([206.40.202.198]:34576 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S285972AbRLTDdY>; Wed, 19 Dec 2001 22:33:24 -0500
+Date: Wed, 19 Dec 2001 19:30:13 +0000 (   )
+From: John Heil <kerndev@sc-software.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: aio
+In-Reply-To: <20011219.190629.03111291.davem@redhat.com>
+Message-ID: <Pine.LNX.3.95.1011219190820.581I-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.GSO.4.21.0112191153280.11104-100000@weyl.math.psu.edu>
-By author:    Alexander Viro <viro@math.psu.edu>
-In newsgroup: linux.dev.kernel
+On Wed, 19 Dec 2001, David S. Miller wrote:
+
+> Date: Wed, 19 Dec 2001 19:06:29 -0800 (PST)
+> From: "David S. Miller" <davem@redhat.com>
+> To: kerndev@sc-software.com
+> Cc: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
+>     linux-kernel@vger.kernel.org, linux-aio@kvack.org
+> Subject: Re: aio
 > 
-> On 19 Dec 2001, Eric W. Biederman wrote:
+>    From: John Heil <kerndev@sc-software.com>
+>    Date: Wed, 19 Dec 2001 18:57:34 +0000 (   )
+>    
+>    True for now, but if we want to expand linux into the enterprise and the
+>    desktop to a greater degree, then we need to support the Java community to
+>    draw them and their management in, rather than delaying beneficial 
+>    features until their number on lkml reaches critical mass for a design
+>    discussion.
 > 
-> > I have alarm bells ringing in my gut saying there are pieces of your
-> > proposal that are on the edge of being overly complex... But without
-> > source I can't really say.  Arbitrary NULL padding between images is
-> > cool but why?
+> Firstly, you say this as if server java applets do not function at all
+> or with acceptable performance today.  That is not true for the vast
+> majority of cases.
 > 
-> 	Alignment that might be wanted by loaders.  Take that with hpa - for
-> all I care it's a non-issue.  while(!*p) p++; added before p = handle_part(p);
-> in the main loop...
+> If java server applet performance in all cases is dependent upon AIO
+> (it is not), that would be pretty sad.  But it wouldn't be the first
+> time I've heard crap like that.  There is propaganda out there telling
+> people that 64-bit address spaces are needed for good java
+> performance.  Guess where that came from?  (hint: they invented java
+> and are in the buisness of selling 64-bit RISC processors)
 > 
 
-Examples on allowing NULL padding makes life easier for the
-bootloader, because it can pick its own alignment:
+Agree. However, put your business hat for a minute. We want increased
+market share for linux and a lot of us, you included, live by it. 
+If aio, the proposed implementation or some other, can provide an
+adequate performance boost for Java (yet to be seen), that at least 
+allows the marketing folks one more argument to draw users to linux. 
+Do think the trade mags etc don't watch what we do? A demonstrable
+advantage in Java performance is marketable and beneficial to all.
+   
 
-a) A bootloader uses INT 15h AH=87h to move things to high memory.
-   This function can only move 16-bit words.
+-
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
 
-b) SYSLINUX' builting high bcopy routine can only move 32-bit words.
-
-c) If a boot loader runs in protected mode, it may want to operate on
-   4K pages only.
-
-d) A block-oriented boot loader like LILO can simply concatentate the
-   blocks of multiple files together (as long as it can make sure
-   the slop is zeroed out.)
-
-It's an insignificant addition to the kernel that allows the
-bootloader to be potentially significantly simpler, by removing the
-corner cases.  This is a Good Thing[TM].
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

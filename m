@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUAGKd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 05:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266191AbUAGKd1
+	id S266171AbUAGKiV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 05:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUAGKiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 05:33:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21380 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266189AbUAGKdX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 05:33:23 -0500
-Date: Wed, 7 Jan 2004 02:33:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: mru@kth.se (=?ISO-8859-1?B?TeVucyBSdWxsZ+VyZA==?=)
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: raid0_make_request bug: can't convert block across chunks or
- bigger than
-Message-Id: <20040107023332.5ff0b9ff.akpm@osdl.org>
-In-Reply-To: <yw1xznd0ult1.fsf@ford.guide>
-References: <yw1xznd0ult1.fsf@ford.guide>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 7 Jan 2004 05:38:21 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:10717 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S266171AbUAGKiT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 05:38:19 -0500
+X-Sender-Authentication: net64
+Date: Wed, 7 Jan 2004 11:37:51 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andreas Haumer <andreas@xss.co.at>
+Cc: andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: ACPI: problem on ASUS PR-DLS533
+Message-Id: <20040107113751.1da9b288.skraw@ithnet.com>
+In-Reply-To: <3FE85D67.1010707@xss.co.at>
+References: <3FE82F4C.7070207@xss.co.at>
+	<200312231448.03106.andrew@walrond.org>
+	<3FE85D67.1010707@xss.co.at>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mru@kth.se (Måns Rullgård) wrote:
->
-> I'm using Linux 2.6.0 on an Alpha SX164 machine.  Using four ATA
->  disks, hd[egik], on a Highpoint hpt374 controller, I created two raid0
->  arrays from hd[eg]1 and hd[ik]1, md0 and md1.  From these, I created a
->  raid1 mirror, md4, on which I created an XFS filesystem.  For various
->  reasons, I first ran md4 with only md0 as a member and filled it with
->  some files, all going well.  Then, I added md1, and it was synced
->  properly.  Now, I can mount md4 without problems.  However, when I
->  read things, I get this in the kernel log:
+On Tue, 23 Dec 2003 16:21:11 +0100
+Andreas Haumer <andreas@xss.co.at> wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->  raid0_make_request bug: can't convert block across chunks or bigger than 32k 439200 32
+> Hi!
+> 
+> Andrew Walrond wrote:
+> > On Tuesday 23 Dec 2003 12:04 pm, Andreas Haumer wrote:
+> >
+> >>Hi!
+> >>
+> >>There are some ACPI-related problems w/ an ASUS PR-DLS5333
+> >>Dual Xeon motherboard. I already reported this back in June
+> >>for Linux-2.4.21-ac and since then I've tested several kernel
+> >
+> >
+> > See http://bugme.osdl.org/show_bug.cgi?id=1662
+> >
+> > Len and co are working through the list, one bug at a time, so hopefully
+> > they'll get to this soonish. I've also notified Asus about their bogus
+> > bios, but little response so far :(
+> >
+> Thanks for the info. Your problem looks quite similar,
+> but not completely identical. It's a different board,
+> mine (the PR-DLS533) is the 533MHz FSB version of yours
+> (the PR-DLS), I think.
+> 
+> Anyway, I'll try to add as much info as I can get
+> to your bugzilla entry.
 
-This was fixed post-2.6.0.  2.6.1-rc2 should be OK.
+You are not alone ;-)
 
->  raid1: Disk failure on md1, disabling device. 
->  	Operation continuing on 1 devices
+I have some TRL-DLS here (P-III). They have dual AIC onboard which are not
+recognised under 2.4.24 but work flawlessly with ACPI in 2.4.23.
 
-I assume this is due to the raid0 error above.
+Regards,
+Stephan

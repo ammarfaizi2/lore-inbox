@@ -1,70 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVCVE2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbVCVE2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVCVE2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 23:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVCVE1X
+	id S262368AbVCVE2U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 23:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVCVE2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 23:27:23 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58820 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262312AbVCVEXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 23:23:35 -0500
-Date: Mon, 21 Mar 2005 20:23:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       apatard@mandrakesoft.com, perex@suse.cz, tiwai@suse.de
-Subject: Re: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
-Message-Id: <20050321202303.58300ec6.akpm@osdl.org>
-In-Reply-To: <1111465002.3058.26.camel@mindpipe>
-References: <20050321025159.1cabd62e.akpm@osdl.org>
-	<20050321202022.B16069@flint.arm.linux.org.uk>
-	<20050321124159.0fbf1bef.akpm@osdl.org>
-	<1111463491.3058.15.camel@mindpipe>
-	<20050321201040.2a241f15.akpm@osdl.org>
-	<1111465002.3058.26.camel@mindpipe>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 23:28:11 -0500
+Received: from v-1635.easyco.net ([69.26.169.185]:26884 "EHLO
+	mail.intworks.biz") by vger.kernel.org with ESMTP id S262368AbVCVEVF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 23:21:05 -0500
+Date: Mon, 21 Mar 2005 20:20:42 -0800
+From: jayalk@intworks.biz
+Message-Id: <200503220420.j2M4Kg0g018842@intworks.biz>
+To: gregkh@suse.de
+Subject: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
-> On Mon, 2005-03-21 at 20:10 -0800, Andrew Morton wrote:
-> > Lee Revell <rlrevell@joe-job.com> wrote:
-> > >
-> > > On Mon, 2005-03-21 at 12:41 -0800, Andrew Morton wrote:
-> > >  > From: bugme-daemon@osdl.org
-> > >  > Subject: [Bug 4282] ALSA driver in Linux 2.6.11 causes a kernel panic when loading the EMU10K1 driver
-> > >  > 
-> > > 
-> > >  This one is a real mystery.  No one can reproduce it.
-> > 
-> > OK.  But we don't seem to have heard from the originator since March 5th.
-> > 
-> > >  > From: bugme-daemon@osdl.org
-> > >  > Subject: [Bugme-new] [Bug 4348] New: snd_emu10k1 oops'es with Audigy 2 and
-> > >  > 
-> > > 
-> > >  This one is fixed in ALSA CVS.
-> > 
-> > But not in http://linux-sound.bkbits.net/linux-sound yet.  How does stuff
-> > propagate from ALSA CVS into bk?
-> > 
-> > 
-> 
-> The ALSA maintainers periodically ask Linus to pull from the linux-sound
-> tree.  But that's just the general "ALSA update" process.
+Hi Greg, PCI folk,
 
-Oh.  I was always under the impression that
-http://linux-sound.bkbits.net/linux-sound contains the latest devel stuff
-for -mm.
+I updated this to remove unnecessary variable initialization, make 
+check_routing be inline only and not __init, switch to strtoul, and 
+formatting fixes as per Randy Dunlap's recommendations.
 
-> I'm not aware of a mechanism for getting critical fixes like this in
-> ASAP.  The last few have been shepherded through manually by various
-> people.  Looks like we need a better system.
-> 
+I updated this to change pirq_table_addr to a long, and to add a warning
+msg if the PIRQ table wasn't found at the specified address, as per thread
+with Matthew Wilcox. 
 
-It's not a trivial problem.
+In our hardware situation, the BIOS is unable to store or generate it's PIRQ
+table in the F0000h-100000h standard range. This patch adds a pci kernel
+parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
+the kernel where the PIRQ table got stored. A beneficial side-effect is that,
+if one's BIOS uses a static address each time for it's PIRQ table, then
+pirqaddr can be used to avoid the $pirq search through that address block each
+time at boot for normal PIRQ BIOSes.
+
+---
+
+Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
+
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
+--- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-17 14:25:54.111123816 +0800
+@@ -25,7 +25,8 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
+ 
+ int pci_routeirq;
+ int pcibios_last_bus = -1;
+-struct pci_bus *pci_root_bus = NULL;
++unsigned long pirq_table_addr;
++struct pci_bus *pci_root_bus;
+ struct pci_raw_ops *raw_pci_ops;
+ 
+ static int pci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
+@@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
+ 	} else if (!strcmp(str, "biosirq")) {
+ 		pci_probe |= PCI_BIOS_IRQ_SCAN;
+ 		return NULL;
++	} else if (!strncmp(str, "pirqaddr=", 9)) {
++		pirq_table_addr = simple_strtoul(str+9, NULL, 0);
++		return NULL;
+ 	}
+ #endif
+ #ifdef CONFIG_PCI_DIRECT
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
+--- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-17 14:04:22.000000000 +0800
+@@ -58,6 +58,35 @@ struct irq_router_handler {
+ int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
+ 
+ /*
++ *  Check passed address for the PCI IRQ Routing Table signature 
++ *  and perform checksum verification.
++ */
++
++static inline struct irq_routing_table * pirq_check_routing_table(u8 *addr)
++{
++	struct irq_routing_table *rt;
++	int i;
++	u8 sum;
++
++	rt = (struct irq_routing_table *) addr;
++	if (rt->signature != PIRQ_SIGNATURE ||
++	    rt->version != PIRQ_VERSION ||
++	    rt->size % 16 ||
++	    rt->size < sizeof(struct irq_routing_table))
++		return NULL;
++	sum = 0;
++	for (i=0; i < rt->size; i++)
++		sum += addr[i];
++	if (!sum) {
++		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
++		return rt;
++	}
++	return NULL;
++}
++
++
++
++/*
+  *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
+  */
+ 
+@@ -65,23 +94,17 @@ static struct irq_routing_table * __init
+ {
+ 	u8 *addr;
+ 	struct irq_routing_table *rt;
+-	int i;
+-	u8 sum;
+ 
++	if (pirq_table_addr) {
++		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
++		if (rt)
++			return rt;
++		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
++	}
+ 	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
+-		rt = (struct irq_routing_table *) addr;
+-		if (rt->signature != PIRQ_SIGNATURE ||
+-		    rt->version != PIRQ_VERSION ||
+-		    rt->size % 16 ||
+-		    rt->size < sizeof(struct irq_routing_table))
+-			continue;
+-		sum = 0;
+-		for(i=0; i<rt->size; i++)
+-			sum += addr[i];
+-		if (!sum) {
+-			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
++		rt = pirq_check_routing_table(addr);
++		if (rt) 
+ 			return rt;
+-		}
+ 	}
+ 	return NULL;
+ }
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
+--- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
++++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-17 08:54:36.000000000 +0800
+@@ -27,6 +27,7 @@
+ #define PCI_ASSIGN_ALL_BUSSES	0x4000
+ 
+ extern unsigned int pci_probe;
++extern unsigned long pirq_table_addr;
+ 
+ /* pci-i386.c */
+ 
+diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
+--- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
++++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-17 13:01:20.000000000 +0800
+@@ -967,6 +967,10 @@ running once the system is up.
+ 		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
+ 					automatically to PCI devices. You can make the kernel
+ 					exclude IRQs of your ISA cards this way.
++		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
++					of the PIRQ table (normally generated
++					by the BIOS) if it is outside the
++					F0000h-100000h range.
+ 		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
+ 					if the kernel is unable to find your secondary buses
+ 					and you want to tell it explicitly which ones they are.

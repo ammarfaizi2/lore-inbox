@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262876AbSJWFxJ>; Wed, 23 Oct 2002 01:53:09 -0400
+	id <S262877AbSJWFyn>; Wed, 23 Oct 2002 01:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262877AbSJWFxJ>; Wed, 23 Oct 2002 01:53:09 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:20412 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262876AbSJWFxJ>; Wed, 23 Oct 2002 01:53:09 -0400
-Date: Tue, 22 Oct 2002 22:57:14 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New panic (io-apic / timer?) going from 2.5.44 to 2.5.44-mm1
-Message-ID: <2715941567.1035327433@[10.10.2.3]>
-In-Reply-To: <3DB5EDEF.59A27A9A@digeo.com>
-References: <3DB5EDEF.59A27A9A@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S262881AbSJWFym>; Wed, 23 Oct 2002 01:54:42 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19460 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262877AbSJWFym>; Wed, 23 Oct 2002 01:54:42 -0400
+Message-Id: <200210230555.g9N5tJp00618@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: landley@trommello.org, linux-kernel@vger.kernel.org
+Subject: Re: Crunch Time, in 3D!  (2.5 final merge candidate list, v 1.4)
+Date: Wed, 23 Oct 2002 08:47:58 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: "Guillaume Boissiere" <boissiere@adiglobal.com>
+References: <200210221719.41868.landley@trommello.org>
+In-Reply-To: <200210221719.41868.landley@trommello.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Is possibly the code which defers the allocation of the per-cpu
->> > memory until the secondary processors are being brought online.
->> 
->> Aha ... ;-) thanks for the pointer. Will poke at that.
+> 6) Page table sharing  (Daniel Phillips, Dave McCracken) (in -mm
+> tree) http://www.geocrawler.com/mail/msg.php3?msg_id=7855063&list=35
+> (A newer version of which seems to be at:)
+> http://lists.insecure.org/lists/linux-kernel/2002/Oct/6446.html
+>
+> Ed Tomlinson seems to have a show-stopper bug for this one, though:
+>
+> http://lists.insecure.org/lists/linux-kernel/2002/Oct/7147.html
 
-Humpf. Well I tried -mm3 (after backing out Rusty's patch), and
-it still has the problem ;-( Must be something else.
- 
-> The kgdb code plays around at that level too.  A patch -R of
-> kgdb.patch would be interesting.
-
-OK ... will try that then brute force and ignorance (binary chop
-search) I guess.
-
-M.
-
+Is it a major feature? I felt it's an optimization designed to
+fix one of rmap VM speed issues (namely, slower fork+exec compared to
+2.4 VM). As such it can be accepted after feature freeze as well.
+--
+vda

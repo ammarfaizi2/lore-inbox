@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbVAKD0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVAKDap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262411AbVAKD0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbVAKDZ3
+	id S262601AbVAKDap (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 22:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbVAKD3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:25:29 -0500
-Received: from gprs215-170.eurotel.cz ([160.218.215.170]:3201 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262543AbVAKDVg (ORCPT
+	Mon, 10 Jan 2005 22:29:43 -0500
+Received: from holomorphy.com ([207.189.100.168]:15801 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262557AbVAKD1L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 22:21:36 -0500
-Date: Tue, 11 Jan 2005 04:21:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Bernard Blackham <bernard@blackham.com.au>
-Cc: Shaw <shawv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Screwy clock after apm suspend
-Message-ID: <20050111032121.GD4092@elf.ucw.cz>
-References: <7bb8b8de05010710085ea81da9@mail.gmail.com> <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net> <20050110074422.GA17710@mussel> <20050110105759.GM1353@elf.ucw.cz> <20050110174804.GC4641@blackham.com.au> <20050111001426.GF1444@elf.ucw.cz> <20050111011611.GE4641@blackham.com.au>
+	Mon, 10 Jan 2005 22:27:11 -0500
+Date: Mon, 10 Jan 2005 19:26:55 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm2: panic when munmap()ping the stack
+Message-ID: <20050111032655.GF2696@holomorphy.com>
+References: <1105401719.4153.2.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050111011611.GE4641@blackham.com.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1105401719.4153.2.camel@localhost>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Jan 10, 2005 at 04:01:58PM -0800, Jeremy Fitzhardinge wrote:
+> This program causes an instant panic for me:
+>         #include <sys/mman.h>
+>         int main(int argc, char **argv)
+>         {
+>         	munmap((char *)(((unsigned long)&argc) & ~4095), 4096*2);
+>         
+>         	return 0;
+>         }
+> I'm not sure if setting the signal handler is necessary or not.  My
+> environment is largeish, so the stack is 2 pages; you might need to
+> adjust it.
+> There's a message on the console saying something like "panic: bad pgd:
+> 0x00000e13".  It was a bit too quick to see.
+> Plain 2.6.10 segfaults as expected; I haven't tried -mm1 to see what it
+> does.
+> Config attached.
 
-> > If I do cli(); sleep(5 hours); sti();, system should survive that. If
-> > you do cli(); sleep(5 hours); sti() but fail to compensate for lost
-> > ticks, all sorts of funny things might happen if you are comunicating
-> > with someone who did not sleep.
-> 
-> Then shouldn't it be fixed to compensate?
-> 
-> By including suspend time in jiffies, there becomes absolutely no
-> way for a kernel or userspace thread to measure actual usable system
-> time. At least if suspend time is not counted, they can use jiffies
-> or xtime depending on what they want to do. Making them one and the
-> same gives them no choice.
+$ grep -nr pgd_ERROR .
+./arch/i386/kernel/vm86.c:151:          pgd_ERROR(*pgd);
+./arch/arm/mm/fault-armv.c:67:  pgd_ERROR(*pgd);
+./arch/sh/mm/init.c:94:         pgd_ERROR(*pgd);
+./arch/m68k/atari/stram.c:679:          pgd_ERROR(*dir);
+./arch/ppc64/mm/init.c:327:             pgd_ERROR(*dir);
+./arch/parisc/kernel/pci-dma.c:206:             pgd_ERROR(*dir);
+./arch/parisc/mm/kmap.c:116:            pgd_ERROR(*dir);
+./mm/swapfile.c:530:            pgd_ERROR(*pgd);
+./mm/msync.c:106:               pgd_ERROR(*pgd);
+./mm/memory.c:162:              pgd_ERROR(*pgd);
+./mm/memory.c:446:                      pgd_ERROR(*src_pgd);
+./mm/memory.c:580:              pgd_ERROR(*pgd);
+./mm/vmalloc.c:95:              pgd_ERROR(*pgd);
+./mm/mprotect.c:100:            pgd_ERROR(*pgd);
+(includes etc.)
 
-I do not think anyone should know about "actual usable system
-time". If you do cli(); sleep(5hours); sti(), you include that in
-jiffies, too. I do not see why swsusp should be handled differently.
+Anyway, it's blatant pagetable corruption. Does binary searching -mm2
+reveal anything?
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+-- wli

@@ -1,47 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTICG5k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 02:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbTICG5k
+	id S261240AbTICG4J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 02:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTICG4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 02:57:40 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1664 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261336AbTICG5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 02:57:39 -0400
-Date: Wed, 3 Sep 2003 08:10:33 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309030710.h837AXnR000500@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org, lm@bitmover.com
+	Wed, 3 Sep 2003 02:56:09 -0400
+Received: from anumail4.anu.edu.au ([150.203.2.44]:65227 "EHLO anu.edu.au")
+	by vger.kernel.org with ESMTP id S261240AbTICG4F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 02:56:05 -0400
+Message-ID: <3F55907B.1030700@cyberone.com.au>
+Date: Wed, 03 Sep 2003 16:55:55 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+MIME-Version: 1.0
+To: Anton Blanchard <anton@samba.org>
+CC: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Scaling noise
+References: <20030903040327.GA10257@work.bitmover.com> <20030903041850.GA2978@krispykreme> <20030903042953.GC10257@work.bitmover.com> <20030903062817.GA19894@krispykreme>
+In-Reply-To: <20030903062817.GA19894@krispykreme>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Sender-Domain: cyberone.com.au
+X-Spam-Score: (-3)
+X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tell me again that it is a good idea to screw up uniprocessor performance
-> for 64 way machines.  Great idea, that.  Go Dinosaurs!
+Anton Blanchard wrote:
 
-I suspect Larry is actually right that uniprocessor and $smallnum CPUs
-SMP performance will remain the most important, but I don't agree with
-his reasoning:
+>>>>I've frequently tried to make the point that all the scaling for
+>>>>lots of processors is nonsense.  Mr Dell says it better:
+>>>>
+>>>>    "Eight-way (servers) are less than 1 percent of the market and
+>>>>    shrinking pretty dramatically," Dell said. "If our competitors
+>>>>    want to claim they're No. 1 in eight-ways, that's fine. We
+>>>>    want to lead the market with two-way and four-way (processor
+>>>>    machines)."
+>>>>
+>>>>Tell me again that it is a good idea to screw up uniprocessor
+>>>>performance for 64 way machines.  Great idea, that.  Go Dinosaurs!
+>>>>
+>>>And does your 4 way have hyperthreading?
+>>>
+>>What part of "shrinking pretty dramatically" did you not understand?
+>>Maybe you know more than Mike Dell.  Could you share that insight?
+>>
+>
+>Ok. But only because you asked nicely.
+>
+>Mike Dell wants to sell 2 and 4 processor boxes and Intel wants to sell 
+>processors with hyperthreading on them. Scaling to 4 or 8 threads is just
+>like scaling to 4 or 8 processors, only worse.
+>
+>However, lets not end up in a yet another 64 way scalability argument here.
+>
+>The thing we should be worrying about is the UP -> 2 way SMP scalability
+>issue. If every chip in the future has hyperthreading then all of sudden
+>everyone is running an SMP kernel. And what hurts us?
+>
+>atomic ops
+>memory barriers
+>
+>Ive always worried about those atomic ops that only appear in an SMP
+>kernel, but Rusty recently reminded me its the same story for most of the
+>memory barriers.
+>
+>Things like RCU can do a lot for this UP -> 2 way SMP issue. The fact it
+>also helps the big end of town is just a bonus.
+>
 
-Once true virtualisation becomes part of a mainstream microprocessor
-architecture, we'll start to see a lot of small ISPs wanting to move 4
-or so 1U servers on to a single, 1U SMP box.  Server consolidation
-saves money in many ways - physical LAN cabling is replaced by virtual
-LANs, less network hardware such as switches is required, there is
-less hardware to break, you can add a new Linux image in seconds using
-spare capacity rather than going out and buying a new box.
+I think LM advocates aiming single image scalability at or before the knee
+of the CPU vs performance curve. Say thats 4 way, it means you should get
+good performance on 8 ways while keeping top performance on 1 and 2 and 4
+ways. (Sorry if I mis-represent your position).
 
-Once the option of running a firewall, a hot spare firewall, a
-customer webserver, a hot spare customer webserver, mail server,
-backup mail server, and a few virtual machines for customers, all on a
-1U box, why are you going to want to pay for seven or more Us in a
-datacentre, plus extra network hardware?
+I don't think anyone advocates sacrificing UP performance for 32 ways, but
+as he says it can happen .1% at a time.
 
-You can do this today on Z/Series, but you need to consolidate a lot
-of machines to make it financially viable.  Once virtualisation is
-available on cheaper hardware, everybody will want $bignum way SMP
-boxes, but no Linux image will run on more than $smallnum virtual
-CPUs.
+But it looks like 2.6 will scale well to 16 way and higher. I wonder if
+there are many regressions from 2.4 or 2.2 on small systems.
 
-John.
+

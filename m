@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbTH0Wl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 18:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbTH0Wl2
+	id S262482AbTH0W7w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 18:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbTH0W7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 18:41:28 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:11782 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262436AbTH0Wl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 18:41:27 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: linux-2.2 future?
-Date: Thu, 28 Aug 2003 00:40:33 +0200
-User-Agent: KMail/1.5.3
-Cc: adefacc@tin.it, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ruben =?iso-8859-15?q?P=FCttmann?= <ruben@puettmann.net>,
-       Ville Herva <vherva@niksula.hut.fi>
-References: <3F468ABD.1EBAD831@tin.it> <200308251815.20131.m.c.p@wolk-project.de> <1061910188.20846.39.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1061910188.20846.39.camel@dhcp23.swansea.linux.org.uk>
+	Wed, 27 Aug 2003 18:59:52 -0400
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:31081 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262482AbTH0W7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 18:59:50 -0400
+Message-ID: <3F4D3899.1010207@sbcglobal.net>
+Date: Wed, 27 Aug 2003 18:02:49 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308280034.19050.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]O18int
+References: <200308222231.25059.kernel@kolivas.org> <1061592027.13091.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1061592027.13091.2.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 August 2003 17:03, Alan Cox wrote:
+Felipe Alfaro Solana wrote:
 
-Hi Alan,
+>I have been using 2.6.0-test3-mm3 plus O18int for a whole day and I must
+>say that, for me, O18int is the best I've seen until date. I dare to say
+>I think it's even better than O10int.
+>
+I'll second that, the priority inversion issues I was having with 
+2.6.0-test3-mm2 are completely gone!  I haven't been able to get any 
+serious inversion issues to bring the system to its knees yet, but I'll 
+keep trying.  The only difference is that I've disabled sound in order 
+to use the latest kernels, but I don't think that probably had anything 
+to do with the inversion problems I was running into.
 
-> The problem is that change breaks stuff. a lot of the 2.2 users will
-> happily trade lack of LBA48 support for stability and predictability.
-> Thats why I took a basically "if its not a serious bugfix its not going
-> in" approach
+And after using 2.6.0-test4 vanilla for a few hours I have a new 
+appreciation for the improvements that come with Con's patches...
 
-Yeah, I agree with you. Anyway, I've never said I will integrate that IDE 
-stuff when I become the 2.2 maintainer :) ... I just said I'll think about it 
-;) ... I never ever want to break 2.2, and such an update will definitively 
-break things. 2.2 took a long time to become that stable like it is now and it 
-can be broke within minutes. A no-go!
-
-For users who need/want/experiment with that stuff there is still my 
-2.2-secure tree.
-
-Anyway, 2.2 needs the hashing exploit fix ASAP ;)
-
-ciao, Marc
+-Wes-
 

@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130766AbRARToq>; Thu, 18 Jan 2001 14:44:46 -0500
+	id <S131214AbRARTpq>; Thu, 18 Jan 2001 14:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130847AbRARTog>; Thu, 18 Jan 2001 14:44:36 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:29203 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135445AbRARToP>;
-	Thu, 18 Jan 2001 14:44:15 -0500
-Date: Thu, 18 Jan 2001 20:43:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        "David S. Miller" <davem@redhat.com>
+	id <S132643AbRARTpg>; Thu, 18 Jan 2001 14:45:36 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:5643 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131398AbRARTpW>;
+	Thu, 18 Jan 2001 14:45:22 -0500
+Date: Thu, 18 Jan 2001 20:45:13 +0100
+From: Andi Kleen <ak@suse.de>
+To: Rick Jones <raj@cup.hp.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <20010118203802.D28276@athlon.random>
-Message-ID: <Pine.LNX.4.30.0101182041240.1009-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010118204513.A32521@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.10.10101171259470.10031-100000@penguin.transmeta.com> <3A661A00.E3344A18@cup.hp.com> <20010118103414.A18205@gruyere.muc.suse.de> <3A6733E0.6286A388@cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A6733E0.6286A388@cup.hp.com>; from raj@cup.hp.com on Thu, Jan 18, 2001 at 10:20:16AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 18, 2001 at 10:20:16AM -0800, Rick Jones wrote:
+> Andi Kleen wrote:
+> > 
+> > On Wed, Jan 17, 2001 at 02:17:36PM -0800, Rick Jones wrote:
+> > > How does CORKing interact with ACK generation? In particular how it
+> > > might interact with (or rather possibly induce) standalone ACKs?
+> > 
+> > It doesn't change the ACK generation. If your cork'ed packets gets sent
+> > before the delayed ack triggers it is piggy backed, if not it is send
+> > individually. When the delayed ack triggers depends; Linux has dynamic
+> > delack based on the rtt and also a special quickack mode to speed up slow
+> > start.
+> 
+> So if I understand  all this correctly...
+> 
+> The difference in ACK generation would be that with nagle it is a race
+> between the standalone ack heuristic and the first byte of response
+> data, with cork, the race is between the standalone ack heuristic and
+> the last byte of response data and an uncork call, or the MSSth byte
+> whichever comes first.
 
-On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
+For the case of the cork'ed packet being at the beginning of the connection
+(as http/1.0) then cork will not help much, because quickack will send an
+ack immediately, but the write only occurs after the process got woken up.
 
-> I'm all for TCP_CORK but it has the disavantage of two syscalls for
-> doing the flush of the outgoing queue to the network. And one of those
-> two syscalls is spurious. [...]
+For later cases it depends on the ack state -- 2.4 added more complicated
+ack state (e.g "pingpong mode") to fix a few performance problems with the 
+normal delack in uncommon situations.  In pingpong mode ack happens very
+quickly, too fast for cork. 
 
-i believe a network-conscious application should use MSG_MORE - that has
-no system-call overhead.
+I suspect at least persistent HTTP will be always affected by one of these
+and generate more acks.
 
-> +	case SIOCPUSH:
-> +		lock_sock(sk);
-> +		__tcp_push_pending_frames(sk, tp, tcp_current_mss(sk), 1);
-> +		release_sock(sk);
-> +		break;
 
-i believe it should rather be a new setsockopt TCP_CORK value (or a new
-setsockopt constant), not an ioctl. Eg. a value of 2 to TCP_CORK could
-mean 'force packet boundary now if possible, and dont touch TCP_CORK
-state'.
 
-	Ingo
 
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

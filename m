@@ -1,38 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315192AbSEaHyX>; Fri, 31 May 2002 03:54:23 -0400
+	id <S315198AbSEaIFo>; Fri, 31 May 2002 04:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315182AbSEaHyW>; Fri, 31 May 2002 03:54:22 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26373
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315198AbSEaHyV>; Fri, 31 May 2002 03:54:21 -0400
-Date: Fri, 31 May 2002 00:53:48 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: "David S. Miller" <davem@redhat.com>, mathieu@newview.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre9, IDE on Sparc, Big Disks
-In-Reply-To: <Pine.SOL.4.30.0205301424440.2028-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.10.10205310053070.4871-100000@master.linux-ide.org>
+	id <S315200AbSEaIFo>; Fri, 31 May 2002 04:05:44 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:28068 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S315198AbSEaIFn>;
+	Fri, 31 May 2002 04:05:43 -0400
+Reply-To: <o.pitzeier@uptime.at>
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Cc: <axp-kernel-list@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
+        <torvalds@transmeta.com>,
+        "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>
+Subject: 
+Date: Fri, 31 May 2002 10:04:26 +0200
+Organization: =?US-ASCII?Q?UPtime_Systemlosungen?=
+Message-ID: <000201c20879$cbd73960$010b10ac@sbp.uptime.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi volks/Linus/Alan/Ivan! :o)
 
-And offline I suggested using that fix, but I had not tested it.
+I tried to compile kernel 2.5.19 on an alpha.
 
-On Thu, 30 May 2002, Bartlomiej Zolnierkiewicz wrote:
+Can someone help me? I had the same problem already with kernel 2.5.18.
+Kernel 2.5.15 works well. Everything above _not_.
 
-> 
-> I fixed this endianness mess some time ago, patch is included in 2.5.x
-> but for some reason not in 2.4.x, although Andre was informed about
-> problem and send patch ...
-> 
-> --
-> bkz
-> 
+Please help!!! Thanks!
 
-Andre Hedrick
-LAD Storage Consulting Group
+While trying to compile 2.5.19, this happens:
+<snip>
+make[2]: Entering directory `/root/linux-2.5.19/drivers/base'
+gcc -D__KERNEL__ -I/root/linux-2.5.19/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6
+-DKBUILD_BASENAME=bus -DEXPORT_SYMTAB -c -o bus.o bus.c
+In file included from /root/linux-2.5.19/include/linux/thread_info.h:10,
+                 from /root/linux-2.5.19/include/linux/spinlock.h:7,
+                 from /root/linux-2.5.19/include/linux/tqueue.h:16,
+                 from /root/linux-2.5.19/include/linux/sched.h:10,
+                 from /root/linux-2.5.19/include/linux/device.h:30,
+                 from bus.c:12:
+/root/linux-2.5.19/include/linux/bitops.h: In function
+`get_bitmask_order':
+/root/linux-2.5.19/include/linux/bitops.h:77: warning: implicit
+declaration of function `fls'
+bus.c: At top level:
+bus.c:114: parse error before `bus_init'
+bus.c:115: warning: return type defaults to `int'
+bus.c:120: warning: type defaults to `int' in declaration of
+`core_initcall'
+bus.c:120: warning: parameter names (without types) in function
+declaration
+bus.c:120: warning: data definition has no type or storage class
+make[2]: *** [bus.o] Error 1
+make[2]: Leaving directory `/root/linux-2.5.19/drivers/base'
+make[1]: *** [_subdir_base] Error 2
+make[1]: Leaving directory `/root/linux-2.5.19/drivers'
+make: *** [drivers] Error 2
+<snip>
+
+Best regards,
+  Greetz to the community,
+    Oliver
+
 

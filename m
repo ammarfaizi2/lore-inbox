@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288882AbSAUXGq>; Mon, 21 Jan 2002 18:06:46 -0500
+	id <S288972AbSAUXO4>; Mon, 21 Jan 2002 18:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288917AbSAUXGg>; Mon, 21 Jan 2002 18:06:36 -0500
-Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:56204 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288882AbSAUXG1>;
-	Mon, 21 Jan 2002 18:06:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Giacomo Catenazzi <cate@dplanet.ch>
-Subject: Re: [kbuild-devel] Re: CML2-2.1.3 is available
-Date: Tue, 22 Jan 2002 00:11:16 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20020115145324.A5772@thyrsus.com> <E16ShDP-0001ic-00@starship.berlin> <3C4C4A60.7030700@dplanet.ch>
-In-Reply-To: <3C4C4A60.7030700@dplanet.ch>
+	id <S288966AbSAUXOg>; Mon, 21 Jan 2002 18:14:36 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:13067 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288928AbSAUXOe>; Mon, 21 Jan 2002 18:14:34 -0500
+Message-ID: <3C4C9F53.D6949776@zip.com.au>
+Date: Mon, 21 Jan 2002 15:08:03 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Snav-0001kl-00@starship.berlin>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Jeff Dike <jdike@karaya.com>, bulb@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 OOPS in tty code.
+In-Reply-To: <200201212204.RAA03719@ccure.karaya.com>,
+		<20020121151037.A21622@ucw.cz>
+		<200201212204.RAA03719@ccure.karaya.com> <200201212247.g0LMlBU01766@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 21, 2002 06:05 pm, Giacomo Catenazzi wrote:
-> Daniel Phillips wrote:
+Richard Gooch wrote:
 > 
-> > 
-> > I detect a slight lack of symmetry here, shouldn't it be "make
-> > autoconfig"? Pardon me if this has been beaten to^W^W discussed above.
+> Jeff Dike writes:
+> > bulb@ucw.cz said:
+> > > Tty device code causes oopses when closing /dev/console and devfs is
+> > > used. The bug is reproducible on 2.4.17 UML port.
+> >
+> > How do you reproduce it?
+> >
+> > UML config, command line, a backtrace, etc would be nice.
 > 
+> Furthermore, this was done without applying the latest devfs patch
+> (v199.8 as I write this). Bug reports with old versions of devfs are
+> (and should be) dropped in the bit-bucket, especially considering
+> recent devfs patches have ChangeLog entries which talk about fixing
+> Oopses!
 > 
-> Yes. It should be "make autoconfig", for symmterty reasons :-)
-> I called the files and the project autoconfigure, because
-> 'autoconfig' is already an utility made by GNU. (not related
-> to kernel)
 
-This is kernel autoconfig, different namespace, same idea.  I don't think you 
-have a problem.  Besides, last time I checked, autoconfig wasn't copyrighted.
+Jan's report seems to have nothing to do with devfs.  It
+sounds like it's purely a tty-layer thing.
 
---
-Daniel
+I'd like to see the full backtrace before we bitbucket
+this one, please.
+
+
+-

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261293AbTC3ODW>; Sun, 30 Mar 2003 09:03:22 -0500
+	id <S261309AbTC3OTA>; Sun, 30 Mar 2003 09:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261307AbTC3ODW>; Sun, 30 Mar 2003 09:03:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51419 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261293AbTC3ODV>;
-	Sun, 30 Mar 2003 09:03:21 -0500
-Date: Sun, 30 Mar 2003 16:14:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-Message-ID: <20030330141404.GG917@suse.de>
-References: <3E8610EA.8080309@telia.com> <1048987260.679.7.camel@teapot> <1048989922.13757.20.camel@localhost> <200303301233.03803.kernel@kolivas.org> <1048992365.13757.23.camel@localhost>
+	id <S261319AbTC3OTA>; Sun, 30 Mar 2003 09:19:00 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:51469 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261309AbTC3OS7>;
+	Sun, 30 Mar 2003 09:18:59 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jonathan Abbey <jonabbey@arlut.utexas.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre6: mmx_memcpy not properly exposed to modules with Athlon 
+In-reply-to: Your message of "Sun, 30 Mar 2003 04:47:21 CST."
+             <20030330104720.GA27518@arlut.utexas.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048992365.13757.23.camel@localhost>
+Date: Mon, 31 Mar 2003 00:30:08 +1000
+Message-ID: <22235.1049034608@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 29 2003, Robert Love wrote:
-> On Sat, 2003-03-29 at 21:33, Con Kolivas wrote:
-> 
-> > Are you sure this should be called a bug? Basically X is an interactive 
-> > process. If it now is "interactive for a priority -10 process" then it should 
-> > be hogging the cpu time no? The priority -10 was a workaround for lack of 
-> > interactivity estimation on the old scheduler.
-> 
-> Well, I do not necessarily think that renicing X is the problem.  Just
-> an idea.
+On Sun, 30 Mar 2003 04:47:21 -0600, 
+Jonathan Abbey <jonabbey@arlut.utexas.edu> wrote:
+>I've had a good deal of trouble this evening trying to compile
+>2.4.21-pre6 for the Athlon processor.  It appears that when the
+>kernel's bzImage is built all is well, but building modules (for USB)
+>results in unresolved references to _mmx_memcpy in the modules.
 
-I see the exact same behaviour here (systems appears fine, cpu intensive
-app running, attempting to start anything _new_ stalls for ages), and I
-definitely don't play X renice tricks.
+To change cpu type -
 
-It basically made 2.5 unusable here, waiting minutes for an ls to even
-start displaying _anything_ is totally unacceptable.
+save .config
+make mrproper
+restore .config
+make menuconfig
+make dep - in a separate step from make *config
+make bzImage modules
 
--- 
-Jens Axboe
-
+Kernel build gets confused by changing cpu type, especially if you
+make *config dep as one command.

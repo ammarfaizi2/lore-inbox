@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289831AbSAWMcm>; Wed, 23 Jan 2002 07:32:42 -0500
+	id <S289832AbSAWMcw>; Wed, 23 Jan 2002 07:32:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289833AbSAWMcc>; Wed, 23 Jan 2002 07:32:32 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:61444 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S289831AbSAWMcR>;
-	Wed, 23 Jan 2002 07:32:17 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: manfred@colorfullife.com, masp0008@stud.uni-saarland.de,
-        drobbins@gentoo.org, linux-kernel@vger.kernel.org
-Subject: Re: Athlon/AGP issue update
-In-Reply-To: <3C4E9291.8DA0BD7F@stud.uni-saarland.de>
-	<20020123.034411.71089598.davem@redhat.com>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020123.034411.71089598.davem@redhat.com>
-Date: 23 Jan 2002 14:32:57 +0200
-Message-ID: <87wuy9b62u.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S289833AbSAWMcm>; Wed, 23 Jan 2002 07:32:42 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:169 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289832AbSAWMc1>; Wed, 23 Jan 2002 07:32:27 -0500
+Date: Wed, 23 Jan 2002 14:28:54 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: 2.5.2-pre2-3 SMP broken on UP boxen
+In-Reply-To: <Pine.LNX.4.44.0201231420270.20635-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0201231426500.20902-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
-David> 4MB pages map the GART pages and "other stuff", ie. memory used by
-David> other subsystems, user pages and whatever else.  This is the only
-David> way the bug can be thus triggered for kernel mappings, which is why
-David> turning off 4MB pages fixes this part.
+On Wed, 23 Jan 2002, Zwane Mwaikambo wrote:
 
-Erm, why would the granularity of mapping matter at all ? Or, for that
-matter, the very existanse of address translation ?
+> Al Viro just asked me to try something, patch coming in...
 
-David> The only unresolved bit is the fact that we map these GART pages
-David> cacheable into user space.  That ought to cause the problem too.
+Here's Al's suggestion, unfortunately the box is at home so i can't test 
+it right now.
 
-They're mapped with 4KB pages too, right ? What makes it diferent to
-4KB kernel mappings ?
+
+Cheers,
+	Zwane Mwaikambo
+
+--- linux-2.5.3-pre3/arch/i386/kernel/smpboot.c.orig	Wed Jan 23 14:23:49 2002
++++ linux-2.5.3-pre3/arch/i386/kernel/smpboot.c	Wed Jan 23 14:24:33 2002
+@@ -1018,7 +1018,7 @@
+ 	boot_cpu_logical_apicid = logical_smp_processor_id();
+ 	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
+ 
+-	global_irq_holder = 0;
++	global_irq_holder = NO_PROC_ID;
+ 	current->cpu = 0;
+ 	smp_tune_scheduling();
+ 
 
 

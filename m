@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265923AbUFVVPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266028AbUFVVRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265923AbUFVVPs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 17:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUFVVMU
+	id S266028AbUFVVRa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 17:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUFVVPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:12:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21464 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265655AbUFVUsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:48:03 -0400
-Date: Tue, 22 Jun 2004 13:47:38 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org
-Subject: Re: [profile]: [21/23] use atomic_t for prof_buffer
-Message-Id: <20040622134738.3f9d8d76.davem@redhat.com>
-In-Reply-To: <20040622201654.GG2135@holomorphy.com>
-References: <0406220817.4aXa3aHb5aMb4a3a1aYaZa3aIbXa5aIbKbJbXa1aLbJb4a2a2aZaYa0aHb2aMbYa15250@holomorphy.com>
-	<0406220817.2aWaKb4aHb4aMbZaWaLbKb5aLbXaXa0aWaYa2a1aKb5aMb5aXaZa3aIbIbIbHbYa15250@holomorphy.com>
-	<20040622130116.6e12a15a.davem@redhat.com>
-	<20040622201654.GG2135@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Jun 2004 17:15:55 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:47778 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265930AbUFVVNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 17:13:37 -0400
+Message-ID: <40D8A122.7020806@hotmail.com>
+Date: Tue, 22 Jun 2004 14:14:10 -0700
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040622
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.7-bk] NFS-related kernel panic
+References: <fa.l7nhc0k.1k1oepm@ifi.uio.no> <fa.gh5h9hv.b2sm3v@ifi.uio.no>
+In-Reply-To: <fa.gh5h9hv.b2sm3v@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jun 2004 13:16:54 -0700
-William Lee Irwin III <wli@holomorphy.com> wrote:
+Chris Wright wrote:
 
-> On Tue, 22 Jun 2004 08:17:55 -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
-> >> Convert prof_buffer to an array of atomic_t's.
-> 
-> On Tue, Jun 22, 2004 at 01:01:16PM -0700, David S. Miller wrote:
-> > Part of a data type exported to userspace, is it not?
-> > Thus, is it really valid to change it like this?
-> 
-> They're copied raw to userspace now and casted to atomic_t for all
-> modifications except for sparc32, arm, h8300, m68k, and m68knommu,
-> where it's still equivalent (the atomic operations just do normal
-> arithmetic under hashed locks or with ll/sc or other easily zennable
-> asm), so there is no change. Or did I miss an arch?
+> The lockless loopback transmission patch mucks up the preempt count.
+> Can you give this patch a try?
 
-That sets my mind at ease, looks good.
+I saw an update to loopback.c from linus which I assume was yours --
+anyway my panic is fixed.  Thanks.
+

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUCBUsG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 15:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUCBUsD
+	id S261759AbUCBUro (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 15:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbUCBUrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 15:48:03 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40340 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261764AbUCBUrk
+	Tue, 2 Mar 2004 15:47:43 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35476 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261759AbUCBUre
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 15:47:40 -0500
+	Tue, 2 Mar 2004 15:47:34 -0500
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-ide@vger.kernel.org
-Subject: [PATCH] update for pdc202xx_old driver
-Date: Tue, 2 Mar 2004 21:54:45 +0100
+Subject: [PATCH] small update for pdc202xx_old driver
+Date: Tue, 2 Mar 2004 20:31:01 +0100
 User-Agent: KMail/1.5.3
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -20,12 +20,12 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403022154.45119.bzolnier@elka.pw.edu.pl>
+Message-Id: <200403022031.01766.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[IDE] update for pdc202xx_old driver
+[IDE] small update for pdc202xx_old driver
 
 - fix bug introduced by my recent fixes
   (do not try to disable 66MHz clock on PDC20246)

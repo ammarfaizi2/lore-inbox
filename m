@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132902AbRALUFe>; Fri, 12 Jan 2001 15:05:34 -0500
+	id <S132636AbRALUGo>; Fri, 12 Jan 2001 15:06:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132898AbRALUFS>; Fri, 12 Jan 2001 15:05:18 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53509 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132805AbRALUEy>; Fri, 12 Jan 2001 15:04:54 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-Date: 12 Jan 2001 12:04:21 -0800
-Organization: Transmeta Corporation
-Message-ID: <93no05$7k1$1@penguin.transmeta.com>
-In-Reply-To: <E14H8Ks-0004hA-00@the-village.bc.nu> <3A5F4827.2E443786@colorfullife.com> <20010112200541.A25675@unternet.org>
+	id <S132673AbRALUGe>; Fri, 12 Jan 2001 15:06:34 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:5642 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S132636AbRALUGY>;
+	Fri, 12 Jan 2001 15:06:24 -0500
+Date: Fri, 12 Jan 2001 21:05:59 +0100
+From: Frank de Lange <frank@unternet.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
+        linux-kernel@vger.kernel.org, mingo@elte.hu,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
+Message-ID: <20010112210559.B26555@unternet.org>
+In-Reply-To: <20010112205245.A26555@unternet.org> <Pine.LNX.4.10.10101121158050.3010-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10101121158050.3010-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 11:59:25AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010112200541.A25675@unternet.org>,
-Frank de Lange  <frank@unternet.org> wrote:
->As per Linus' suggestion, I removed the disable_irq/enable_irq statements from
->the 8390 core driver, and replace the spinlocks with irq-safe versions. This
->seems to solve the network hangs, as I am currently running a heavy network
->load (which would have killed a non-patched driver within seconds). Network
->latency seems a bit higher, and there are some hiccups in the streaming audio
->(part of the network load, easy indicator of performance...), but no hangs.
+On Fri, Jan 12, 2001 at 11:59:25AM -0800, Linus Torvalds wrote:
+> > Could this really be the solution?
+> 
+> I'd like to know _which_ of the two makes a difference (or does it only
+> trigger with both of them enabled)? And even then I'm not sure that it is
+> "the" solution - both changes to io-apic handling had some reason for
+> them. Ingo, what was the focus-cpu thing?
 
-Ok, so it's tentatively the IOAPIC disable/enable code.  But it could
-obviously be something that just interacts with it, including just a
-timing issue (ie the _real_ bug might just be bad behaviour when
-changing IO-APIC state at the same time as an interrupt happens, and
-disable/enable-irq just happen to be the only things that do it at a
-high enough frequency that you can see the problem). 
+Well, with 'this' (in 'could THIS be') I really meant the move from disable_irq
+to the irq_safe spinlocks. I'm currently running with the patched 8390.c
+driver, patched io_apic (TARGET_CPUS 0xff) and patched apic.c (focus cpu
+enabled), and have had no problems yet... even though I'm running several
+simulatnsous nfs cp -rd <big_dir>, streaming network audio, scanning with an
+USB scanner, etc.
 
-Remind me: what polarity are your io-apic irq's? Level, edge, sideways?
-Anything else that might be relevant?
+So far, it seems that the patch to 8390.c removed the symptoms. The changes to
+apic.c and io_apic.c did not make the network hang come back. 
 
-		Linus
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

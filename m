@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263676AbREYKKd>; Fri, 25 May 2001 06:10:33 -0400
+	id <S263684AbREYKTY>; Fri, 25 May 2001 06:19:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263677AbREYKKX>; Fri, 25 May 2001 06:10:23 -0400
-Received: from gold.MUSKOKA.COM ([216.123.107.5]:17170 "EHLO gold.muskoka.com")
-	by vger.kernel.org with ESMTP id <S263676AbREYKKR>;
-	Fri, 25 May 2001 06:10:17 -0400
-Message-ID: <3B0D733F.1829DC88@yahoo.com>
-Date: Thu, 24 May 2001 16:46:55 -0400
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.4 i586)
-MIME-Version: 1.0
-To: Hal Duston <hald@sound.net>
-CC: linux-kernel@vger.kernel.org, rasmus@jaquet.dk
-Subject: Re: PS/2 Esdi patch #8
-In-Reply-To: <Pine.GSO.4.10.10105231748550.23376-200000@sound.net>
+	id <S263683AbREYKTP>; Fri, 25 May 2001 06:19:15 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:17 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263674AbREYKTG>;
+	Fri, 25 May 2001 06:19:06 -0400
+Date: Fri, 25 May 2001 06:19:05 -0400 (EDT)
+From: Mike Brown <mbrown@cs.uml.edu>
+Message-Id: <200105251019.f4PAJ5h466785@saturn.cs.uml.edu>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] memory leak in scsi_proc.c (fixed patch error)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hal Duston wrote:
+Hi,
 
-> http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.4-patch4
-> 
-> Hal Duston
-> hald@sound.net
+fixed patch poster earlier.  PINE's default editor munged it up.  Also changed
+the 8 spaces indentation to a tab character.
 
-You PS/2 ESDI guys might want to set the max sectors for your
-driver - old default used to be 128, currently 255 (which maybe
-hardware can handle ok?) - the xd and hd drivers were broken until
-a similar fix was added to them.
+Sorry about that.
 
-Probably makes sense for driver to set it regardless, seeing 
-as default (MAX_SECTORS) has changed several times over last
-few months.  At least then it will be under driver control
-and not at the mercy of some global value.
+> If someone writes to a scsi adapter's /proc entry and that scsi adapter
+> has not defined a proc_info() entry point, proc_scsi_write() will leak a
+> page.  Furthermore, no sense asking for a page if said proc_info() entry
+> point does not exist.  This patch fixes the above problem and patches
+> cleanly against 2.4.4
 
-Paul.
 
---- drivers/block/ps2esdi.c~	Sun Apr 29 04:42:35 2001
-+++ drivers/block/ps2esdi.c	Thu May 24 16:33:46 2001
-@@ -117,6 +117,7 @@
- static char ps2esdi_valid[MAX_HD];
- static int ps2esdi_sizes[MAX_HD << 6];
- static int ps2esdi_blocksizes[MAX_HD << 6];
-+static int ps2esdi_maxsect[MAX_HD << 6];
- static int ps2esdi_drives;
- static struct hd_struct ps2esdi[MAX_HD << 6];
- static u_short io_base;
-@@ -414,8 +415,11 @@
+--- drivers/scsi/scsi_proc.c.orig	Fri May 25 06:01:20 2001
++++ drivers/scsi/scsi_proc.c	Fri May 25 06:04:16 2001
+@@ -99,6 +99,9 @@
+ 	char * page;
+ 	char *start;
+     
++	if (hpnt->hostt->proc_info == NULL)
++		ret = -ENOSYS;
++
+ 	if (count > PROC_BLOCK_SIZE)
+ 		return -EOVERFLOW;
  
- 	ps2esdi_gendisk.nr_real = ps2esdi_drives;
+@@ -106,11 +109,9 @@
+ 		return -ENOMEM;
+ 	copy_from_user(page, buf, count);
  
--	for (i = 0; i < (MAX_HD << 6); i++)
-+	/* 128 was old default, maybe maxsect=255 is ok too? - Paul G. */
-+	for (i = 0; i < (MAX_HD << 6); i++) {
-+		ps2esdi_maxsect[i] = 128;
- 		ps2esdi_blocksizes[i] = 1024;
-+	}
- 
- 	request_dma(dma_arb_level, "ed");
- 	request_region(io_base, 4, "ed");
-
-
-
+-	if (hpnt->hostt->proc_info == NULL)
+-		ret = -ENOSYS;
+-	else
+-		ret = hpnt->hostt->proc_info(page, &start, 0, count,
+-						hpnt->host_no, 1);
++	ret = hpnt->hostt->proc_info(page, &start, 0, count,
++				     hpnt->host_no, 1);
++
+ 	free_page((ulong) page);
+ 	return(ret);
+ }

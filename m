@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316134AbSETRBG>; Mon, 20 May 2002 13:01:06 -0400
+	id <S316143AbSETRDP>; Mon, 20 May 2002 13:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316136AbSETRBF>; Mon, 20 May 2002 13:01:05 -0400
-Received: from holomorphy.com ([66.224.33.161]:43143 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316134AbSETRBF>;
-	Mon, 20 May 2002 13:01:05 -0400
-Date: Mon, 20 May 2002 10:00:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Todd R. Eigenschink" <todd@tekinteractive.com>
+	id <S316145AbSETRDO>; Mon, 20 May 2002 13:03:14 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:40462 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S316143AbSETRDM>; Mon, 20 May 2002 13:03:12 -0400
+To: Martin Dalecki <dalecki@evision-ventures.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: kswapd OOPS under 2.4.19-pre8 (ext3, Reiserfs + (soft)raid0)
-Message-ID: <20020520170059.GA2046@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Todd R. Eigenschink" <todd@tekinteractive.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205160528.g4G5S631019167@sol.mixi.net> <15587.42492.25950.446607@rtfm.ofc.tekinteractive.com> <15592.62193.715212.569689@rtfm.ofc.tekinteractive.com>
-Mime-Version: 1.0
+Subject: HPT366 hangs up at boot
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 21 May 2002 02:02:16 +0900
+Message-ID: <87adquda7b.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 20, 2002 at 07:58:25AM -0500, Todd R. Eigenschink wrote:
-> Since the particular snippet of code at the point of oops in the last
-> one I posted was P3-specified, I recompiled for 586.  The oops remains
-> the same, although the call stack happens to be a lot longer this
-> time.
+Hi,
 
-I suspect the lowest parts of the call chain are being handed bad data.
+I'm using hpt366. 2.5.15 and 2.5.16 hangs up at the following message.
 
+ATAL: Triones Technologies, Inc. HPT366 / HPT370: onboard version of chipset, pin1=1 pin2=2
+ATA: Triones Technologies, Inc. HPT366 / HPT370: controller on PCI slot 00:13.0
+ATA: chipset rev.: 1
+ATA: non-legacy mode: IRQ probe delayed
+    ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:pio, hdf:pio
+ATA: Triones Technologies, Inc. HPT366 / HPT370 (#2): controller on PCI slot 00:13.1
+ATA: chipset rev.: 1
+ATA: non-legacy mode: IRQ probe delayed
+    ide3: BM-DMA at 0xe800-0xe807, BIOS settings: hdg:pio, hdh:pio
+hda: IBM-DJNA-351520, ATA DISK drive
+hdb: ATAPI 44X CDROM, ATAPI CD/DVD-ROM drive
+hde: WDC WD800AB-00CBA0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide2 at 0xd400-0xd407,0xd802 on irq 18
+hda: 30033360 sectors w/430KiB Cache, CHS=29795/16/63, UDMA(33)
+hde: 156301488 sectors w/2048KiB Cache, CHS=155061/16/63, UDMA(66)
+Partition check:
+ hda: [PTBL] [1869/255/63] hda1 hda2 hda3 hda4
+ hda4: <bsd: hda5 hda6 hda7 hda8 >
+ hde:
 
-On Mon, May 20, 2002 at 07:58:25AM -0500, Todd R. Eigenschink wrote:
-> I'm going to run memtest86 on it for a while after it gets done with
-> its morning processing, although this failure seems a little too
-> consistent to be memory related.
+Then, I tried this and that. I don't know whether the following change
+is right or not. However this works for me. Could you consider the
+following?
 
-I hope I didn't say that.
+diff -u /home/hirofumi/hpt366.c.orig /home/hirofumi/hpt366.c
+--- /home/hirofumi/hpt366.c.orig	Tue May 21 01:48:58 2002
++++ /home/hirofumi/hpt366.c	Tue May 21 01:49:28 2002
+@@ -863,7 +863,7 @@
+ 	byte ultra66		= eighty_ninty_three(drive);
+ 	int  rval;
+ 
+-	config_chipset_for_pio(drive);
++//	config_chipset_for_pio(drive);
+ 	drive->init_speed = 0;
+ 
+ 	if ((drive->type != ATA_DISK) && (speed < XFER_SW_DMA_0))
 
-
-On Mon, May 20, 2002 at 07:58:25AM -0500, Todd R. Eigenschink wrote:
-> Trace; c0129b39 <unlock_page+81/88>
-> Trace; c0139179 <end_buffer_io_async+8d/a8>
-> Trace; c01b6f45 <end_that_request_first+65/c8>
-> Trace; c01c1c3c <ide_end_request+68/a8>
-> Trace; c01c806a <ide_dma_intr+6a/ac>
-> Trace; c01c38ad <ide_intr+f9/164>
-> Trace; c01c8000 <ide_dma_intr+0/ac>
-> Trace; c010a1e1 <handle_IRQ_event+59/84>
-> Trace; c010a3d9 <do_IRQ+a9/f4>
-> Trace; c010c568 <call_do_IRQ+5/d>
-> Trace; c0154b07 <statm_pgd_range+133/1a8>
-> Trace; c0154c43 <proc_pid_statm+c7/16c>
-> Trace; c015279e <proc_info_read+5a/118>
-> Trace; c0137497 <sys_read+8f/104>
-> Trace; c0108a43 <system_call+33/40>
-
-The __wake_up()/unlock_page() isn't the interesting part of the call
-chain, the parts from end_buffer_io_async() to ide_dma_intr() are.
-
-Any chance you can list them in gdb?
-
-
-Cheers,
-Bill
+Regards.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

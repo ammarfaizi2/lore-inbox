@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269081AbRHWQ7R>; Thu, 23 Aug 2001 12:59:17 -0400
+	id <S269099AbRHWRG2>; Thu, 23 Aug 2001 13:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269099AbRHWQ7I>; Thu, 23 Aug 2001 12:59:08 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:48391 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269081AbRHWQ6z>;
-	Thu, 23 Aug 2001 12:58:55 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200108231658.UAA07224@ms2.inr.ac.ru>
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 23 Aug 2001 20:58:38 +0400 (MSK DST)
-Cc: kraxel@bytesex.org, alan@lxorguk.ukuu.org.uk, Gunther.Mayer@t-online.de,
-        alan@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E15Zu68-0003nE-00@the-village.bc.nu> from "Alan Cox" at Aug 23, 1 02:00:35 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S269119AbRHWRGS>; Thu, 23 Aug 2001 13:06:18 -0400
+Received: from eamail1-out.unisys.com ([192.61.61.99]:38582 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S269099AbRHWRGK>; Thu, 23 Aug 2001 13:06:10 -0400
+Message-ID: <245F259ABD41D511A07000D0B71C4CBA289F34@us-slc-exch-3.slc.unisys.com>
+From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+To: "'Andrew Morton'" <akpm@zip.com.au>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: The cause of the "VM" performance problem with 2.4.X
+Date: Thu, 23 Aug 2001 12:06:01 -0500
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> > Yes, it helps quite a bit.  Still not as good as I'd like: I don't
+> > dare try lots of disks yet :-(
+> 
+> Great, thanks.  Aside from the lock contention and stuff, how was the
+> actual disk throughput affected?  You said that the stock kernel
+> basically stops doing anything, yes?
 
-> We will see what happens. Certainly if someone wants to provide pnpbios code
-> patches for -ac that grab and reserve the motherboard resources from the PCI
-> code go ahead.
+It got really bad.  It would make "progress", but slower than I
+can encode the bits on the platter with a hand magnet ;-)
+Now, it's only "pretty bad".
 
-Khm... this does not look simple. Seems, right way involves modification
-of each place, where the same ports are used by kernel.
-pcmcia-cs had completely private resource manager, so that it just
-did not worry about other subsystems and they still were able to allocate
-the same resources.
+> > Looks like blkdev_put() holds kernel_flag for way too long.
+> 
+> It calls fsync_dev().
 
-Look f.e. at extermal example, pnpbios announces as "system" resource
-all the memory. :-)
+Right.  Which ends up calling our friend, write_unlocked_buffers(),
+which does locking, but it also holds the kernel lock the entire time.
 
-Pallaitive soultions, sort of reserving of ports >= 0x1000 using
-this information do not look cool too. 
+> There are two n^2 loops in buffer.c.  There's one on the 
+> sync_buffers()
+> path, which we fixed yesterday.  But there's also a potential 
+> O(2n) path
+> in balance_dirty().  So if we're calling mark_buffer_dirty() a lot,
+> this becomes quadratic.  For this to bite us the BUF_DIRTY list would
+> have to be "almost full" of buffers for another device.  There's also
+> some weird stuff in sync_buffers() - not sure what it's trying to do.
+> I'll take that up with the boss when he gets back from the polar bear
+> hunt or whatever it is they do over there.
+> 
+> Here's a different patch which addresses the balance_dirty() thing
+> as well..
 
-Alexey
+It looks like the same patch as yesterday.  Did you attach the wrong
+patch?  In any event, it doesn't look like it helps balance_dirty()
+at all because the location is not retained across multiple calls
+to write_some_buffers().
+
+Kevin Van Maren

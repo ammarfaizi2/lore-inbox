@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUKSAod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbUKSAoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUKSAod (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 19:44:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262916AbUKSAoQ
+	id S263006AbUKSAoc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 19:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUKSAoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 19:44:16 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:62885 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262896AbUKRTIP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 14:08:15 -0500
-Subject: [patch] inotify: grab right lock
-From: Robert Love <rml@novell.com>
-To: ttb@tentacle.dhs.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1100710677.6280.2.camel@betsy.boston.ximian.com>
-References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+	Thu, 18 Nov 2004 19:44:02 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:60649 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261221AbUKSAnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 19:43:25 -0500
+Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
+	using SELinux and SOCK_SEQPACKET
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: James Morris <jmorris@redhat.com>
+Cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>, netdev@oss.sgi.com,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Xine.LNX.4.44.0411181328460.5555-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0411181328460.5555-100000@thoron.boston.redhat.com>
 Content-Type: text/plain
-Date: Thu, 18 Nov 2004 14:05:21 -0500
-Message-Id: <1100804721.28785.34.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1100821144.6005.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 18 Nov 2004 23:39:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John,
+On Iau, 2004-11-18 at 18:40, James Morris wrote:
+> One thing that looks broken (unrelated to the patch I posted) is that
+> unix_dgram_sendmsg() already does not check sk->sk_shutdown &
+> SEND_SHUTDOWN for SOCK_SEQPACKET.
 
-Ah, another part of my locking rewrite I remember and should pull out
-and send now.
+Looks like a real bug yes.
 
-We need to grab inode_lock before calling __iget().
-
-	Robert Love
-
-
-need to hold inode_lock around __iget()
-
- drivers/char/inotify.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -u linux/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux/drivers/char/inotify.c	2004-11-18 12:31:14.294242616 -0500
-+++ linux/drivers/char/inotify.c	2004-11-18 13:59:33.400655992 -0500
-@@ -171,7 +171,9 @@
- 		goto release_and_out;
- 	}
- 
-+	spin_lock(&inode_lock);
- 	__iget(inode);
-+	spin_unlock(&inode_lock);
- release_and_out:
- 	path_release(&nd);
- out:
-@@ -790,7 +792,7 @@
-  */
- static void inotify_release_all_watches(struct inotify_device *dev)
- {
--	struct inotify_watch *watch,*next;
-+	struct inotify_watch *watch, *next;
- 
- 	list_for_each_entry_safe(watch, next, &dev->watches, d_list)
- 		ignore_helper(watch, 0);
-
+As to the other stuff I think the only change needed is to check the
+queued asynchronous error and report that before going on to the
+connected test
 

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbVAFRCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVAFRDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbVAFRCV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVAFRCV
+	id S262914AbVAFRDe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 12:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbVAFRDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:02:21 -0500
-Received: from inetc.connecttech.com ([64.7.140.42]:37650 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id S262913AbVAFRCU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:02:20 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: <Tim_T_Murphy@Dell.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: [2.6.10-bk8] [SERIAL] dropping chars when > 512
-Date: Thu, 6 Jan 2005 12:02:18 -0500
-Organization: Connect Tech Inc.
-Message-ID: <00f101c4f411$7ae33af0$294b82ce@stuartm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D30@ausx2kmps304.aus.amer.dell.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+	Thu, 6 Jan 2005 12:03:34 -0500
+Received: from holomorphy.com ([207.189.100.168]:1211 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262908AbVAFRCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:02:43 -0500
+Date: Thu, 6 Jan 2005 08:59:08 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
+       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
+       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050106165908.GA9636@holomorphy.com>
+References: <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de> <20050104210117.GA7280@thunk.org> <20050106094519.GD20203@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106094519.GD20203@logos.cnet>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tim_T_Murphy@Dell.com [mailto:Tim_T_Murphy@Dell.com] 
-> Nope, not a typo.
-> I'm no expert, but i thought 'status' shows the LSR when an interrupt
-> occurs, and LSR = 1 indicates 'data available', while LSR = 
-> 60 indicates
-> transmitter status (40 = THR empty, 20 = THR + shift register empty)?
-> so status = 1 indicates an interrupt occurs while transmitter is busy?
+On Thu, Jan 06, 2005 at 07:45:19AM -0200, Marcelo Tosatti wrote:
+> You got to be kidding now?
+> 99% of the features distributions have applied to their 2.4 based kernels 
+> are "enterprise" features such as direct IO, AIO, etc.
+> Really I can't recall any "attempt to make 2.4 stable" from the distros,
+> its mostly "attempt to backport nice v2.6 feature".
+> Do you have any example?
+[tytso's comments elided]
+> It took sometime to happen, but instability related to "high memory
+> pressure" has been fixed in almost all cases long ago (the only
+> remaining issue to my knowledged is loopback device with highmemory).
+> I hardly see complaints of "crashes under load" problems since
+> v2.4.19/20 or so.
 
-That's what I get for not checking the code first. You are correct;
-that is exactly what's going on. It shouldn't be a problem.
+I am unfortunately holding 2.4.x' earlier history against it. While you
+were maintaining it, much of what we're discussing was resolved.
+Unfortunately, the stabilization you're talking about was essentially
+too late; distros had long-since wildly diverged, they had frozen on
+older releases, and the damage to Linux' reputation was already done.
+I'm also unaware of major commercial distros (e.g. Red Hat, SuSE) using
+2.4.x more recent than 2.4.21 as a baseline, and it's also notable that
+one of the largest segments of the commercial userbase I see is using a
+distro kernel based on 2.4.9.
 
-> I think this is related to tty flip buffer full (size = 512), and no
-> low_latency setting (which, if set, hangs the 2.6 SMP 
-> kernel).  but i'm
-> not expert enough with serial to know a fix.
-
-That is possible; I'm not familiar with the 2.6 drivers yet so I can't
-be of more help.
-
-..Stu
-
+-- wli

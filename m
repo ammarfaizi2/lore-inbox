@@ -1,113 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbTHXU5w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 16:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTHXU5w
+	id S261306AbTHXUxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 16:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbTHXUxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 16:57:52 -0400
-Received: from mail1-106.ewetel.de ([212.6.122.106]:56806 "EHLO
-	mail1.ewetel.de") by vger.kernel.org with ESMTP id S261307AbTHXU5s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 16:57:48 -0400
-Date: Sun, 24 Aug 2003 22:57:30 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: linux-kernel@vger.kernel.org
-cc: sct@redhat.com, <akpm@osdl.org>
-Subject: [2.4.22-rc1] ext3/jbd assertion failure transaction.c:1164 
-Message-ID: <Pine.LNX.4.44.0308242250100.1411-100000@neptune.local>
+	Sun, 24 Aug 2003 16:53:05 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:30121 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261306AbTHXUxB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 16:53:01 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: jes@trained-monkey.org, alan@lxorguk.ukuu.org.uk, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030818111522.A12835@devserv.devel.redhat.com>
+	<m33cfyt3x6.fsf@trained-monkey.org>
+	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
+	<20030819095547.2bf549e3.davem@redhat.com>
+	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
+	<m3isoo2taz.fsf@trained-monkey.org> <m3n0dz5kfg.fsf@defiant.pm.waw.pl>
+	<20030824060057.7b4c0190.davem@redhat.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 24 Aug 2003 21:58:49 +0200
+In-Reply-To: <20030824060057.7b4c0190.davem@redhat.com>
+Message-ID: <m365kmltdy.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" <davem@redhat.com> writes:
 
-Hi!
+> > The code has to get the mask anyway, either from
+> > pci_dev->(consistent_)dma_mask or from its arguments.
+> 
+> But it does not have to verify the mask each and every mapping call
+> currently.  We'll need to do that with your suggested changes.
 
-I was running fsx to test a userspace NFSv3 server. The underlying 
-filesystem was ext3. After about 10 seconds into the fsx run, I hit the 
-following BUG() in transaction.c. data=journal was used. I could not start 
-any new processes after the incident and had to press the reset button.
+No, why? What we'll need is to verify the mask at driver startup.
+It would be driver responsibility to use only valid (verified) masks.
 
-Is this a known problem?
+> Nobody is going to agree to any of your proposals at the rate you're
+> currently going.
 
-Assertion failure in journal_dirty_metadata() at transaction.c:1164: 
-"jh->b_frozen_data == 0"
+What do you propose instead?
 
-ksymoops 2.4.4 on i686 2.4.22-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-rc1/ (default)
-     -m /boot/System.map-2.4.22-rc1 (default)
+> Effectively, the correct effects are obtained on i386, Alpha,
+> IA64, and sparc for all drivers in the tree.  I can say this because
+> nobody tries to do anything interesting with consistent_dma_mask
+> yet, and that is why nobody has any incentive to "fix" it as you
+> keep complaining we need to do.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+False. I have a device which needs different mask for consistent allocs.
+In fact the whole story began with me trying to put this driver into
+the tree.
 
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-kernel BUG at transaction.c:1164!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[journal_dirty_metadata+359/416]    Not tainted
-EIP:    0010:[<c015dcc7>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010292
-eax: 00000061   ebx: e6044f30   ecx: 00000005   edx: e77a9f44
-esi: e77a67c0   edi: e7c447c0   ebp: e655c940   esp: d1459dcc
-ds: 0018   es: 0018   ss: 0018
-Process fsx (pid: 4689, stackpage=d1459000)
-Stack: c02d8fa0 c02d4126 c02d49b8 0000048c c02d4bd1 d0785640 e655c940 00000000 
-       00001000 c015581a e655c940 d0785640 00000246 00000000 00000246 00000000 
-       d0785640 d07d7000 00001000 0000001e 00001000 d0785640 0000001c c01637f7 
-Call Trace:    [commit_write_fn+26/96] [__jbd_kmalloc+39/160] [walk_page_buffers+93/128] [ext3_commit_write+166/448] [commit_write_fn+0/96]
-Call Trace:    [<c015581a>] [<c01637f7>] [<c015557d>] [<c0155906>] [<c0155800>]
-  [<c01276cd>] [<c0127ad0>] [<c01531ff>] [<c0132245>] [<c0131e20>] [<c0131fce>]
-  [<c01088a3>]
-Code: 0f 0b 8c 04 b8 49 2d c0 83 c4 14 6a 03 ff 75 00 53 e8 43 0a 
+> See, to show something is broken, you have to show a device that
+> will break currently.
 
->>EIP; c015dcc7 <journal_dirty_metadata+167/1a0>   <=====
-Trace; c015581a <commit_write_fn+1a/60>
-Trace; c01637f7 <__jbd_kmalloc+27/a0>
-Trace; c015557d <walk_page_buffers+5d/80>
-Trace; c0155906 <ext3_commit_write+a6/1c0>
-Trace; c0155800 <commit_write_fn+0/60>
-Trace; c01276cd <do_generic_file_write+29d/3e0>
-Trace; c0127ad0 <generic_file_write+f0/110>
-Trace; c01531ff <ext3_file_write+1f/b0>
-Trace; c0132245 <sys_write+95/f0>
-Trace; c0131e20 <generic_file_llseek+0/b0>
-Trace; c0131fce <sys_lseek+6e/80>
-Trace; c01088a3 <system_call+33/38>
-Code;  c015dcc7 <journal_dirty_metadata+167/1a0>
-00000000 <_EIP>:
-Code;  c015dcc7 <journal_dirty_metadata+167/1a0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c015dcc9 <journal_dirty_metadata+169/1a0>
-   2:   8c 04 b8                  movl   %es,(%eax,%edi,4)
-Code;  c015dccc <journal_dirty_metadata+16c/1a0>
-   5:   49                        dec    %ecx
-Code;  c015dccd <journal_dirty_metadata+16d/1a0>
-   6:   2d c0 83 c4 14            sub    $0x14c483c0,%eax
-Code;  c015dcd2 <journal_dirty_metadata+172/1a0>
-   b:   6a 03                     push   $0x3
-Code;  c015dcd4 <journal_dirty_metadata+174/1a0>
-   d:   ff 75 00                  pushl  0x0(%ebp)
-Code;  c015dcd7 <journal_dirty_metadata+177/1a0>
-  10:   53                        push   %ebx
-Code;  c015dcd8 <journal_dirty_metadata+178/1a0>
-  11:   e8 43 0a 00 00            call   a59 <_EIP+0xa59> c015e720 <__journal_file_buffer+0/1e0>
+SBE wanXL sync serial adapter. 32 bits for buffers but 28 bits for
+consistent data.
 
+>  The consistent_dma_mask is only modified
+> by tg3, and it does so in such a way that all platforms work properly.
 
-1 warning and 1 error issued.  Results may not be reliable.
+I can't imagine all devices work properly on all platforms wrt
+consistent allocs. Say, sound drivers setting only dma_mask to < 32 bits
+and expecting consistent alloc will use that and not consistent_dma_mask.
 
-
+Of course, there is a question if we want to support such sound cards
+on Itaniums and Opterons? Of course they work on i386 as
+i386 pci_alloc_consistent() ignores consistent_dma_mask.
 -- 
-Ciao,
-Pascal
-
+Krzysztof Halasa
+Network Administrator

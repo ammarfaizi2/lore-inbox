@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271966AbRIEKKD>; Wed, 5 Sep 2001 06:10:03 -0400
+	id <S271994AbRIEKOn>; Wed, 5 Sep 2001 06:14:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271994AbRIEKJo>; Wed, 5 Sep 2001 06:09:44 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:63650 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S271988AbRIEKJe>;
-	Wed, 5 Sep 2001 06:09:34 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: getpeereid() for Linux
-In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de.suse.lists.linux.kernel>
-	<oupae0ax8vq.fsf@pigdrop.muc.suse.de>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 05 Sep 2001 12:05:50 +0200
-In-Reply-To: <oupae0ax8vq.fsf@pigdrop.muc.suse.de> (Andi Kleen's message of "05 Sep 2001 11:52:09 +0200")
-Message-ID: <tgu1yi2br5.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S271988AbRIEKOf>; Wed, 5 Sep 2001 06:14:35 -0400
+Received: from [202.106.127.107] ([202.106.127.107]:43784 "EHLO bestdns.net")
+	by vger.kernel.org with ESMTP id <S271909AbRIEKO1>;
+	Wed, 5 Sep 2001 06:14:27 -0400
+Reply-To: <info@gujun.net>
+From: <webmaster@gujun.net>
+To: <linux@treblig.org>
+X-Mailer: Jinfengmailer 2.0
+X-Auto-Forward: To: <linux@treblig.org>
+Subject: =?ISO-8859-1?Q?=D4=DB=C3=C7=B5=C4=BC=D2?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_1"
+Message-Id: <20010905180693.SM00900@jfsoft>
+Date: Wed,  5 Sep 2001 18:09:28 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+------=_NextPart_1
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8bit
 
-> Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE> writes:
-> 
-> > Would anyone like to give me a helping hand in implementing the
-> > getpeereid() syscall for Linux?  See the following page for the
-> > documentation of the OpenBSD implementation:
-> 
-> It is implemented for unix sockets (see unix(7))
+    茫茫的网络，如同广阔的大海。我们像一叶小舟在海面上漂泊不定，我们一直在寻找，寻找一个港湾，一个心灵停靠的地方。
+    中华恋人网虚拟社区是一个可以让您心灵停靠的地方，欢迎您来这里，把您的心情，您的心事与我们一起分享，这里没有专家，只有真诚的朋友，大家一起来解决棘手的问题，我们充满爱，等待您的到来。
+都是感情至上的动物，我们经常被感情所左右。这里是个感情交流的地方，在这里把您的心扉敞开，您会发现这里充满了感情，友情，爱请，亲情，还有人世间所有的情感。
+    给我一点爱，我会站起来。
 
-Hmm, it is not documented in my local copy (?).  getpeereid() is
-different from the standard credential passing mechanism because it
-does not require cooperation of the other end.
+     欢迎访问中华恋人社区:  http://www.gujun.net/bbs
 
-> For TCP it is rather useless because it would work only locally.
 
-Obviously, we need it only locally. ;-) The interface is useful if you
-are implementing poor man's VPN in user space.
 
-> If you trust the localhost you're probably better off using the
-> ident protocol for it.
+                        
 
-This means running just another server, even with root privileges. :-(
 
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+
+---------------------------------------------------------------
+该邮件由《金锋邮件群发 2.0》发送，邮件内容与软件作者无关 
+---------------------------------------------------------------
+金锋软件，值得信赖的软件 http://www.jinfengnet.com
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+------=_NextPart_1--

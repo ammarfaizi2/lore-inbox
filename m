@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263790AbUGIECT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUGIEGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263790AbUGIECT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 00:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUGIECT
+	id S263802AbUGIEGd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 00:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUGIEGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 00:02:19 -0400
-Received: from mail-relay-3.tiscali.it ([212.123.84.93]:52371 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S263790AbUGIECD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 00:02:03 -0400
-Date: Fri, 9 Jul 2004 06:01:51 +0200
+	Fri, 9 Jul 2004 00:06:31 -0400
+Received: from mail-relay-2.tiscali.it ([212.123.84.92]:11395 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S263802AbUGIEGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 00:06:25 -0400
+Date: Fri, 9 Jul 2004 06:06:11 +0200
 From: Andrea Arcangeli <andrea@suse.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
        Chris Mason <mason@suse.com>
-Subject: writepage fs corruption fixes
-Message-ID: <20040709040151.GB20947@dualathlon.random>
+Subject: Re: writepage fs corruption fixes
+Message-ID: <20040709040611.GC20947@dualathlon.random>
+References: <20040709040151.GB20947@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040709040151.GB20947@dualathlon.random>
 X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Jul 09, 2004 at 06:01:51AM +0200, Andrea Arcangeli wrote:
+> --- sles/fs/mpage.c.~1~	2004-07-05 03:08:08.000000000 +0200
+> +++ sles/fs/mpage.c	2004-07-09 05:11:13.543787408 +0200
+> @@ -105,7 +105,7 @@ mpage_alloc(struct block_device *bdev,
+>  	bio = bio_alloc(gfp_flags, nr_vecs);
+>  
+>  	if (bio == NULL && (current->flags & PF_MEMALLOC)) {
+> -		while (!bio && (nr_vecs /= 2))
+> +		while (!bio && (nr_vecs /= 2) && nr_vecs)
+>  			bio = bio_alloc(gfp_flags, nr_vecs);
+>  	}
+>  
 
-I believe I found three bugs in the writepage code.
-
-1) The major one (the only one I believe that was triggering [only on
-ext2 due the fact mpage is working only there]) is the marking of the bh
-clean despite we could still run into the "confused" path. After that
-the confused path really becomes confused and it writes nothing and fs
-corruption triggers silenty (the reugular writepage only writes bh that
-are marked dirty, it never attempts to submit_bh anything marked clean).
-The mpage-writepage code must never mark the bh clean as far as it
-wants to still fallback in the regular writepage which depends on the bh
-to be dirty (i.e. the "goto confused" path). This could only triggers
-with memory pressure (it also needs buffer_heads_over_limit == 0, and
-that is frequent under mm pressure).
-
-2) Second bug is that we must always alloc a bio with some vector on it
-(even in the PF_MEMALLOC path), otherwise submit_bio will BUG() (this
-one never triggered though).
-
-3) Third bug is in the regular writepage, the nr_underway == 0 code was
-walking buffers on an unlocked page without keeping the bh pinned, and
-in turn the bh could be released under it by the VM. Fix is to delay the
-put_bh loop. (this might have triggered but it's not certain)
-
-This patch should fix all the above three bugs. beware, it's almost
-untested but it looks very good. I've only tried mounting ext2 and doing
-some I/O on it.  applies cleanly to the kernel CVS.
-
-Thanks a lot to Chris for his fine debugging that localized the problem
-in the writepage code.
-
-I don't yet know if this is enough to close all corruption in practice
-but I'm quite optimistic (at the moment at least ;).
+the above change is a "noop", the above one wasn't really a bug (I just
+misread the code), the rest of the patch is needed.  reattached after
+filtering out the noop.
 
 --- sles/fs/buffer.c.~1~	2004-07-05 03:08:09.000000000 +0200
 +++ sles/fs/buffer.c	2004-07-09 05:16:47.544011656 +0200
@@ -127,15 +111,6 @@ but I'm quite optimistic (at the moment at least ;).
  	goto done;
 --- sles/fs/mpage.c.~1~	2004-07-05 03:08:08.000000000 +0200
 +++ sles/fs/mpage.c	2004-07-09 05:11:13.543787408 +0200
-@@ -105,7 +105,7 @@ mpage_alloc(struct block_device *bdev,
- 	bio = bio_alloc(gfp_flags, nr_vecs);
- 
- 	if (bio == NULL && (current->flags & PF_MEMALLOC)) {
--		while (!bio && (nr_vecs /= 2))
-+		while (!bio && (nr_vecs /= 2) && nr_vecs)
- 			bio = bio_alloc(gfp_flags, nr_vecs);
- 	}
- 
 @@ -520,6 +520,17 @@ alloc_new:
  	}
  

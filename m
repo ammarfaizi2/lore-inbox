@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289297AbSAIJ0V>; Wed, 9 Jan 2002 04:26:21 -0500
+	id <S289296AbSAIJZm>; Wed, 9 Jan 2002 04:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289295AbSAIJ0M>; Wed, 9 Jan 2002 04:26:12 -0500
-Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:43277 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289299AbSAIJ0F>;
-	Wed, 9 Jan 2002 04:26:05 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Matti Aarnio <matti.aarnio@zmailer.org>, David Weinehall <tao@acc.umu.se>
-Subject: Re: [Announcement] linux-2.0.40-rc1
-Date: Wed, 9 Jan 2002 10:29:53 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020109003424.S5235@khan.acc.umu.se> <20020109020947.S1914@mea-ext.zmailer.org>
-In-Reply-To: <20020109020947.S1914@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16OF3R-0000DW-00@starship.berlin>
+	id <S289295AbSAIJZc>; Wed, 9 Jan 2002 04:25:32 -0500
+Received: from mario.gams.at ([194.42.96.10]:16477 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S289296AbSAIJZU> convert rfc822-to-8bit;
+	Wed, 9 Jan 2002 04:25:20 -0500
+Message-Id: <200201090925.g099PG023088@frodo.gams.co.at>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] C undefined behavior fix 
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E40E@IIS000> 
+In-Reply-To: Your message of "Wed, 09 Jan 2002 10:06:24 +0100."
+             <17B78BDF120BD411B70100500422FC6309E40E@IIS000> 
+X-url: http://www.luga.at/~bernd/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 09 Jan 2002 10:25:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 9, 2002 01:09 am, Matti Aarnio wrote:
-> On Wed, Jan 09, 2002 at 12:34:24AM +0100, David Weinehall wrote:
-> > o	Fix some missing includes		(me)
-> > o	Change array-size from 0 to 1 for	(me)
-> > 	two arrays in the symbol-table
-> > 	in include/linux/module.h
-> ....
-> 
->    My comment is about these author attributions, this "(me)" seems
->    to refer to 5-10 people who make different patch collections.
-> 
->    Could you folks consider instead using your own name ?
->    (And allow Linus to be "me", if he so desires.)
+In message <17B78BDF120BD411B70100500422FC6309E40E@IIS000>, Bernard Dautrevaux 
+wrote:
+>I agree that in some cases reading a 32-bit word when needing a 16-bit
+>volatile short may be allowed by the standard. HOWEVER that suppose that gcc
+>makes a careful examination of all the memory layout for the program so that
+>to be sure that the 16 unneeded bits it reads for efficiency do NOT come
+>from some volatile object(s), or gcc will then BREAK the volatile semantics
+>for these objects.
+>
+>So in any case this is not allowed in a lot of cases such as accessing
+>accessing an external "volatile short" (only the linker knwos for sure what
+>is near this short) or reading memory through a "volatile short*" (only GOD
+>knows if you can). And in fact it's WRONG to access in such a way if you
+>know that near this object you have other objects (such as is the case in a
+>volatile struct...). So even if it *may* be legal in some cases, such an
+>optimization that *may* be more efficient is not at all very interesting.
 
-Hi Matti,
+Especially if there are cases were this optimization yields a slower 
+access (or even worse indirect bugs).
+E.g. if the referenced "volatile short" is a hardware register and the
+access is multiplexed over a slow 8 bit bus.  There are embedded systems
+around where this is the case and the (cross-)compiler has no way to
+know this (except it can be told by the programmer).
 
-It's perfectly clear that the (me) above is David Weinehall.
+	Bernd
+-- 
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
 
-Given the huge amount of work required to maintain an active tree, why would 
-you begrudge the maintainer the little perk of using the 'royal me' in that 
-space?
 
---
-Daniel

@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315483AbSGIPvA>; Tue, 9 Jul 2002 11:51:00 -0400
+	id <S315491AbSGIPxz>; Tue, 9 Jul 2002 11:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315487AbSGIPu7>; Tue, 9 Jul 2002 11:50:59 -0400
-Received: from mnh-1-27.mv.com ([207.22.10.59]:58116 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S315483AbSGIPu6>;
-	Tue, 9 Jul 2002 11:50:58 -0400
-Message-Id: <200207091655.LAA02540@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: Re: [uml-user] Re: user-mode port 0.58-2.4.18-36 
-In-Reply-To: Your message of "Tue, 09 Jul 2002 05:16:18 +0200."
-             <20020709031618.GC113@elf.ucw.cz> 
+	id <S315513AbSGIPxy>; Tue, 9 Jul 2002 11:53:54 -0400
+Received: from adsl-216-62-200-178.dsl.austtx.swbell.net ([216.62.200.178]:26523
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S315491AbSGIPxx>; Tue, 9 Jul 2002 11:53:53 -0400
+Subject: Re: DELL array controller access.
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matt_Domsch@Dell.com, dtroth@bellsouth.net, linux-kernel@vger.kernel.org
+In-Reply-To: <E17RrxQ-0004XB-00@the-village.bc.nu>
+References: <E17RrxQ-0004XB-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 09 Jul 2002 10:55:08 -0500
+Message-Id: <1026230108.6979.2.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Jul 2002 11:55:13 -0500
-From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pavel@ucw.cz said:
-> ...and using CAP_SYS_RAWIO... 
+I believe this is the case on these particular controllers. They are in
+fact 147x controllers, with a 154x emulation mode. I used to support
+lots of legacy equipment at Dell, and I believe that's the case, but if
+Matt wants to chime in to confirm that or not, would be helpful. There's
+lots of info on this as I believe there are still plenty of customers
+actually still using 4100's and the like.
 
-... or were you complaining about 'jail' turning off CAP_SYS_RAWIO, rather
-than claiming that it is an unplugged hole?
-
-If so, that may be a problem, but I haven't seen anything that cares about
-CAP_SYS_RAWIO being off.  That was the simplest way I could find to disable
-writing to /dev/kmem.
-
-				Jeff
-
+On Tue, 2002-07-09 at 05:10, Alan Cox wrote:
+> > I know at a minimum...those cards can be put into a 154x mode, so it
+> > will work. I remember that NetWare needed this feature.
+> 
+> If they are AHA147x based then the 154x mode has emulation errors and Linux
+> specifically avoids using 154x drivers on them.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

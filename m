@@ -1,90 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUJDPfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268218AbUJDPij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268212AbUJDPfD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268223AbUJDPfD
+	id S268218AbUJDPij (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268214AbUJDPij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:35:03 -0400
-Received: from ida.rowland.org ([192.131.102.52]:5636 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S268212AbUJDPdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:33:36 -0400
-Date: Mon, 4 Oct 2004 11:33:35 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Andrew Morton <akpm@osdl.org>, Reuben Farrelly <reuben-news@reub.net>,
-       Hanno Meyer-Thurow <h.mth@web.de>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH (as387)] UHCI: check return code from pci_register_driver
-In-Reply-To: <20041001225636.76224a2c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0410041125290.1358-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Oct 2004 11:38:39 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17932 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S268218AbUJDPfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 11:35:52 -0400
+Date: Mon, 4 Oct 2004 17:35:16 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm2: error: `u64' used prior to declaration
+Message-ID: <20041004153515.GB12736@stusta.de>
+References: <416160FE.2090107@eyal.emu.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416160FE.2090107@eyal.emu.id.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg:
+On Tue, Oct 05, 2004 at 12:41:02AM +1000, Eyal Lebedinsky wrote:
 
-This is all your fault!  :-)
+>   CC [M]  drivers/media/dvb/bt8xx/dvb-bt8xx.o
+> In file included from drivers/media/dvb/bt8xx/dvb-bt8xx.c:22:
+> include/asm/bitops.h:543: error: parse error before "rol64"
+>...
 
-The patch below fixes the problem in which the UHCI driver doesn't
-properly check the return code from pci_register_driver().
+The first error is the most interesting one.
 
-Alan Stern
-
-
-On Fri, 1 Oct 2004, Andrew Morton wrote:
-
-> Greg's latest tree, on x86_64:
+> include/asm/types.h: At top level:
+> include/asm/types.h:50: error: `u64' used prior to declaration
+> make[4]: *** [drivers/media/dvb/bt8xx/dvb-bt8xx.o] Error 1
+>...
 > 
-> Badness in remove_proc_entry at fs/proc/generic.c:688
-> 
-> Call Trace:<ffffffff8019cfb6>{remove_proc_entry+391} <ffffffff805a981f>{uhci_hcd_init+224} 
->        <ffffffff8010c26d>{init+475} <ffffffff8010ff17>{child_rip+8} 
->        <ffffffff8010c092>{init+0} <ffffffff8010ff0f>{child_rip+0} 
-> 
-> 
->                 WARN_ON(de->subdir);
-> 
-> which is a bit weird.  How did driver/uhci get itself a subdirectory?
-> 
-> Maybe it already existed, and uhci_hcd_init() tried to delete it anwyay?
+> I just added
+> 	#include <asm/types.h>
+> to the top of
+> 	include/asm/bitops.h
+> and the build finished
+>...
 
-On Sat, 2 Oct 2004, Reuben Farrelly wrote:
+The real problem seem to be files including asm/bitops.h instead of 
+linux/bitops.h .
 
-> slab error in kmem_cache_destroy(): cache `uhci_urb_priv': Can't free
-> all objects
->   [<c0104ddc>] dump_stack+0x17/0x19
->   [<c013dfd5>] kmem_cache_destroy+0xea/0x15b
->   [<c03e17eb>] uhci_hcd_init+0xc8/0xff
->   [<c03ca89f>] do_initcalls+0x56/0xb3 
->   [<c01004f5>] init+0x81/0x189
->   [<c01022f1>] kernel_thread_helper+0x5/0xb
-> drivers/usb/host/uhci-hcd.c: not all urb_priv's were freed!
-> Badness in remove_proc_entry at fs/proc/generic.c:688
->   [<c0104ddc>] dump_stack+0x17/0x19
->   [<c017c196>] remove_proc_entry+0x129/0x133
->   [<c03e1810>] uhci_hcd_init+0xed/0xff
->   [<c03ca89f>] do_initcalls+0x56/0xb3 
->   [<c01004f5>] init+0x81/0x189
->   [<c01022f1>] kernel_thread_helper+0x5/0xb
+@Andrew:
+Would you accept a patch that changes all #include <asm/bitops.h> to
+#include <linux/bitops.h> ?
 
+cu
+Adrian
 
+-- 
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-===== drivers/usb/host/uhci-hcd.c 1.134 vs edited =====
---- 1.134/drivers/usb/host/uhci-hcd.c	2004-09-30 13:58:40 -04:00
-+++ edited/drivers/usb/host/uhci-hcd.c	2004-10-04 10:37:21 -04:00
-@@ -2412,7 +2412,7 @@
- 		goto up_failed;
- 
- 	retval = pci_register_driver(&uhci_pci_driver);
--	if (retval)
-+	if (retval < 0)
- 		goto init_failed;
- 
- 	return 0;
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVAEAp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVAEApa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVAEAp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 19:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVAEApZ
+	id S261845AbVAEApa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 19:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVAEAcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 19:45:25 -0500
-Received: from THUNK.ORG ([69.25.196.29]:42152 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261534AbVAEAdT (ORCPT
+	Tue, 4 Jan 2005 19:32:16 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37010 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262105AbVAEAbY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 19:33:19 -0500
-Date: Tue, 4 Jan 2005 19:33:05 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Thomas Graf <tgraf@suug.ch>,
-       Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
-       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050105003304.GA7828@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Thomas Graf <tgraf@suug.ch>, Adrian Bunk <bunk@stusta.de>,
-	Diego Calleja <diegocg@teleline.es>,
-	Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com,
-	aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-	linux-kernel@vger.kernel.org
-References: <20050104211910.GB7280@thunk.org> <41DB2E20.90309@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DB2E20.90309@tmr.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 4 Jan 2005 19:31:24 -0500
+Message-ID: <41DB35B8.1090803@sgi.com>
+Date: Tue, 04 Jan 2005 18:32:56 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Hirokazu Takahashi <taka@valinux.co.jp>, Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: page migration patchset
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 07:00:32PM -0500, Bill Davidsen wrote:
-> I'm not an optimist; I assumed -rc meant "only fixes" and was worth 
-> testing to get bugs identified. And that's what I would hope could 
-> happen again. If you think -fo (fixes only) is a better term I wouldn't 
-> argue.
+Andrew,
 
-You mean you haven't been reading Linus's changelogs that are in the
--rc release announcements?
+Dave Hansen and I have reordered the memory hotplug patchset so that the page 
+migration patches occur first.  This allows us to create a standalone page
+migration patchset (on top of which the rest of the memory hotplug patches
+apply).  A snapshot of these patches is available at:
 
-						- Ted
+http://sr71.net/patches/2.6.10/2.6.10-mm1-mhp-test7/
+
+A number of us are interested in using the page migration patchset by itself:
+
+(1)  Myself, for a manual page migration project I am working on.  (This
+      is for migrating jobs from one set of nodes to another under batch
+      scheduler control).
+(2)  Marcello, for his memory defragmentation work.
+(3)  Of course, the memory hotplug project itself.
+
+(there are probably other "users" that I have not enumerated here).
+
+Unfortunately, none of these "users" of the page migration patchset are ready
+to be merged into -mm yet.
+
+The question at the moment is, "Would you be interesting in merging the
+page migration patchset now, or should we wait until one or more of (1) to
+(3) above is also ready for merging?"
+
+(Historically, lkml has waited for a user of new functionality before merging
+that functionality, so I expect that to be your answer;  in that case, please
+consider this note to be an preliminary notice that we will be submitting
+such patches for merging in the next month or so.  :-) )
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

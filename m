@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270068AbUJTW7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269157AbUJTW7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270068AbUJTW7y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUJTWcb
+	id S269157AbUJTW7x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270068AbUJTWcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:32:31 -0400
-Received: from [209.195.52.120] ([209.195.52.120]:44994 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S270005AbUJTW0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:26:13 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Wed, 20 Oct 2004 15:26:08 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-In-Reply-To: <4176E08B.2050706@techsource.com>
-Message-ID: <Pine.LNX.4.60.0410201521310.17443@dlang.diginsite.com>
-References: <4176E08B.2050706@techsource.com>
+	Wed, 20 Oct 2004 18:32:10 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:46307 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S268646AbUJTW2C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:28:02 -0400
+Message-ID: <4176E671.4090104@verizon.net>
+Date: Wed, 20 Oct 2004 18:28:01 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Timothy Miller <miller@techsource.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com>
+In-Reply-To: <4176E08B.2050706@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [209.158.211.53] at Wed, 20 Oct 2004 17:28:01 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Timothy Miller wrote:
+Timothy Miller wrote:
 
-> Sure, SOME companies release specs so that we can develop 
-> open source drivers, but those cards tend to be prohibitively expensive, 
-> slower than their cheaper counterparts from ATI or nVidia...
+> I can produce more detail later, but first, some characteristics and 
+> advantages of what I'm proposing:
+> 
+> - x86 BIOS/OpenBoot/OpenFirmware code under BSD and GPL license
+> - kernel drivers under BSD and GPL license
+> - X11 module under MIT license
+> - flashable PROM so that boot code can be added for more platforms
+> - usable as the console on any platform that can take a PCI, AGP, or 
+> PCI-Express card
+> - downloadable schematic for the circuit board
+> - FPGA-based graphics engine so it's reprogrammable
+> - instructions on how to reprogram the FPGA, so it's hackable
+> - if we discontinue a product, we may release the Verilog code for the FPGA
+> - Since this is designed to be open-source-friendly, we want to play by 
+> the rules of the open-source community.
+> - Tech Source would actively participate in the development and 
+> maintenance of our own drivers.
+> - We will actually pay attention to problems and concerns raised by 
+> users and developers.
+> - We won't be control-freaks.
 
-Tim, I think this is the key problem. with the current ATI/nVidia cards 
-beign in the $50 range (with other cards on the market for as low as 
-$30) are you really going to be able to come up with a card that's price 
-competitive? (completely ignoring the performance question)
+> I haven't worked out a complete design spec for this product.  The 
+> reason is that what we think people want and what people REALLY want may 
+> not be congruent.  If you have a good idea for a piece of graphics 
+> hardware which you think would be beneficial to the free software 
+> community (and worth it for a company to produce), then Tech Source, as 
+> a graphics company, might be willing to sell it.
+> 
+> 
 
-as for your other question of if an open approach could be viable (after 
-all nobody does it today so doesn't that proove it isn't)
+You might want to take a look at the onboard video market.  Providing an 
+open-source 2D rendering engine and the PCI glue logic that work on an 
+FPGA would probably revolutionize embedded PC applicatiuons that rely on 
+a graphical interface.  Providing support to motherboard manufaturers 
+who might want a low-cost onboard video solution (micro-ITX, etc) is 
+another possibility.
 
-this is where there is a significant disagreement. the Linux folks think 
-that such openess would be very viable and the companies are just pursuing 
-a legacy approach, but the companies are scared to open things up becouse 
-they don't believe that they would remain viable.
+You also might want to look at PC/104 and CompactPCI form factors - I 
+think the industrial market will be a great target, and, after all, if 
+you have to move 80% industrial equipment to justify the 20% AGP sales, 
+it makes good sense.  There might even be a market for ISA, SBus, and 
+MCA cards, for people stuck supporting seriously old machines (386, 486, 
+SPARC) where it's almost impossible to find working graphics cards. 
+Even if it's a DOS machine, hardware is hardware, and a brand-new VL-bus 
+card for someone's 486 would be pretty cool :)
 
-since nobody has done this yet (for video cards anyeay) there is no proof 
-one way or the other.
-
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+My $0.02

@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130519AbRCFMFV>; Tue, 6 Mar 2001 07:05:21 -0500
+	id <S130520AbRCFMJB>; Tue, 6 Mar 2001 07:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130520AbRCFMFM>; Tue, 6 Mar 2001 07:05:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51720 "EHLO
+	id <S130529AbRCFMIw>; Tue, 6 Mar 2001 07:08:52 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53512 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130519AbRCFMFF>; Tue, 6 Mar 2001 07:05:05 -0500
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No
-To: greearb@candelatech.com (Ben Greear)
-Date: Tue, 6 Mar 2001 12:07:25 +0000 (GMT)
-Cc: 0@pervalidus.net (Frédéric L. W. Meunier),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3AA4888F.77E3B422@candelatech.com> from "Ben Greear" at Mar 05, 2001 11:49:51 PM
+	id <S130520AbRCFMIo>; Tue, 6 Mar 2001 07:08:44 -0500
+Subject: Re: scsi vs ide performance on fsync's
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Tue, 6 Mar 2001 12:09:33 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        dougg@torque.net (Douglas Gilbert), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10103052310080.13719-100000@master.linux-ide.org> from "Andre Hedrick" at Mar 05, 2001 11:12:05 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14aGFU-0000YQ-00@the-village.bc.nu>
+Message-Id: <E14aGHY-0000Yc-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> running a bad hdparm command while running a full GNOME desktop:
-> (This was not a good idea...and I know, and knew that...but....)
-> 
-> hdparm -X34 -d1 -u1 /dev/hda
-> (As found here: http://www.oreillynet.com/pub/a/linux/2000/06/29/hdparm.html?page=2
-> 
-> Sorry for the lame bug report, but I'm scared to try it again, and
-> I didn't realize the complexity of the problem when I simply powered
-> down my machine with the HD light on solid...
+> > I don't know if there is any way to turn of a write buffer on an IDE disk.
+> You want a forced set of commands to kill caching at init?
 
-Its not a bug. As the system administrator you reconfigured a hard disk on
-the fly and shit happened. The hdparm man page warnings do exist for a reason.
+Wrong model
+
+You want a write barrier. Write buffering (at least for short intervals) in
+the drive is very sensible. The kernel needs to able to send drivers a write
+barrier which will not be completed with outstanding commands before the
+barrier.
 

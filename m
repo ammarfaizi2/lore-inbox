@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSGCTE7>; Wed, 3 Jul 2002 15:04:59 -0400
+	id <S317215AbSGCTQd>; Wed, 3 Jul 2002 15:16:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSGCTE6>; Wed, 3 Jul 2002 15:04:58 -0400
-Received: from linux.kappa.ro ([194.102.255.131]:6636 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S317181AbSGCTE4>;
-	Wed, 3 Jul 2002 15:04:56 -0400
-Date: Wed, 3 Jul 2002 22:09:31 +0300
-From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-To: linux-kernel@vger.kernel.org
-Subject: eth0: memory shortage
-Message-ID: <20020703190931.GA13103@linux.kappa.ro>
-Mime-Version: 1.0
+	id <S317230AbSGCTQc>; Wed, 3 Jul 2002 15:16:32 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33544
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317215AbSGCTQb>; Wed, 3 Jul 2002 15:16:31 -0400
+Date: Wed, 3 Jul 2002 12:17:31 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Dave Jones <davej@suse.de>
+cc: Nick Evgeniev <nick@octet.spb.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
+In-Reply-To: <20020703172832.A8934@suse.de>
+Message-ID: <Pine.LNX.4.10.10207031216420.18712-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+No it has everything to do with determining if the HBA is in compatablity
+or native mode and if the device is properly enabled.
 
-I keep getting these messages (like about twice a day) in the messages:
-eth0: memory shortage
-eth0: memory shortage
-eth1: memory shortage
-eth1: memory shortage
+On Wed, 3 Jul 2002, Dave Jones wrote:
 
+> On Mon, Jul 01, 2002 at 03:49:43PM +0400, Nick Evgeniev wrote:
+> 
+>  >     Why are you so assure? It's "msi 845e Max" with LAN on-board mb with
+>  > _latest_ BIOS installed....
+>  > Just FYI 2.4.18 was even unable to run eepro100 driver on it while intels
+>  > e100 driver was working perfectly.
+> 
+> Could this be related to the pci id clash I pointed out last week?
+> That id was for an intel IDE device iirc.
+> 
+> (Recap: Two id's don't tally between 2.4/2.5)
+> 
+>         Dave
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Any idea what could be the reason behind this?
+Andre Hedrick
+LAD Storage Consulting Group
 
-I have the following hardware/software configuration:
-
-XP 2000+ / KT333 (Soltek DRV5) / 512MB DDR PC2100
-2 x 3Com 3c905 NICs
-
-
-The kernel is 2.4.19-pre10 with netfilter for bridging patch
-applied and it is configured as a bridge between 2 routers
-to do filtering for forwarding and packet scheduling (htb)
-it has a throughput of 17Mbps, 900 entries in FORWARD chain,
-and 700 classes in htb on each card.
-
-Anyway my real question is if I should be worried about 
-those messages? and of course any solutions if this is a
-problem?
-
-
-
--- 
-      Teodor Iacob,
-Astral TELECOM Internet

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUDDW7v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 18:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUDDW7v
+	id S262916AbUDDXBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 19:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbUDDXBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 18:59:51 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:36525 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262906AbUDDW7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 18:59:49 -0400
-Date: Sun, 04 Apr 2004 18:59:41 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: 2.6.5-aa1
-In-reply-to: <40707888.80006@web.de>
-To: Marcus Hartig <m.f.h@web.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200404041859.47940.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.1
-References: <40707888.80006@web.de>
+	Sun, 4 Apr 2004 19:01:47 -0400
+Received: from gate.crashing.org ([63.228.1.57]:43942 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262916AbUDDXB0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 19:01:26 -0400
+Subject: Re: [PANIC] ohci1394 & copy large files
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ben Collins <bcollins@debian.org>
+Cc: Marcel Lanz <marcel.lanz@ds9.ch>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040404141339.GW13168@phunnypharm.org>
+References: <20040404141600.GB10378@ds9.ch>
+	 <20040404141339.GW13168@phunnypharm.org>
+Content-Type: text/plain
+Message-Id: <1081119623.1285.121.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 05 Apr 2004 09:00:24 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2004-04-05 at 00:13, Ben Collins wrote:
+> On Sun, Apr 04, 2004 at 04:16:00PM +0200, Marcel Lanz wrote:
+> > Since 2.6.4 and still in 2.6.5 I get regurarly a Kernel panic if I try
+> > to backup large files (10-35GB) to an external attached disc (200GB/JFS) via ieee1394/sbp2.
+> > 
+> > Has anyone similar problems ?
+> 
+> Known issue, fixed in our repo. I still need to sync with Linus once I
+> iron one more issue and merge some more patches.
 
-On Sunday 04 April 2004 17:05, Marcus Hartig wrote:
-<snip>
-> But now with the vanilla 2.6.5 and/or -aa1 my favourite game Enemy
-> Territory quits with "signal 11". With 2.6.5-rc3 it runs stable for hours.
->
-> No change in the kernel config, all with preempt, no CONFIG_REGPARM for
-> nVidia binary drivers is set, or other changes. But only when I want to
-> access the net server game browser in ET to play online! Only then bumm!
+Hi Ben !
 
-Same here (with vanilla 2.6.5, I didn't try -aa.)
+I don't want to be too critical or harsh or whatever, but why don't you
+just send such fixes right upstream instead of stacking patches for a
+while in your repo ? From my experience, such "batching" of patches is
+the _wrong_ thing to do, and typically, there is a major useability
+issue with sbp2 that could have been "right" in 2.6.5 final and will not
+be (so we'll have to wait what ? 1 or 2 monthes more now to have a
+release kernel with a reliable sbp2)
 
-> With 2.6.5-rc3 all runs fine. Amusingly, hmmm?
+Ben.
 
-In 2.6.5-rc1 it works fine.
 
-Jeff.
-
-- -- 
-Penguin : Linux version 2.6.2-rc2-net64 on an i686 machine (3932.16 BogoMips).
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAcJNhwFP0+seVj/4RAp6gAKCXL7rhnhWrlPLGHd+uHYNU1b+QggCcCb0n
-ivXbW7pWxMXXEt+jlH8gEx0=
-=tmuS
------END PGP SIGNATURE-----

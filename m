@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317838AbSFMXuC>; Thu, 13 Jun 2002 19:50:02 -0400
+	id <S317853AbSFNAAu>; Thu, 13 Jun 2002 20:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317854AbSFMXuB>; Thu, 13 Jun 2002 19:50:01 -0400
-Received: from mail-src.takas.lt ([212.59.31.78]:19633 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S317838AbSFMXuA>;
-	Thu, 13 Jun 2002 19:50:00 -0400
-Date: Fri, 14 Jun 2002 01:48:45 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re[2]: Serverworks OSB4 in impossible state
-To: Daniela Engert <dani@ngrt.de>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <20020613104659.37E7B109F6@mail.medav.de>
-X-Mailer: Mahogany 0.64.2 'Sparc', compiled for Linux 2.4.18-rc4 i686
-Message-ID: <ISPFE7tJZEkcDtTXrtf0000bf6d@mail.takas.lt>
-X-OriginalArrivalTime: 13 Jun 2002 23:50:00.0472 (UTC) FILETIME=[07CAC980:01C21335]
+	id <S317854AbSFNAAt>; Thu, 13 Jun 2002 20:00:49 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:266 "EHLO
+	whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S317853AbSFNAAt>; Thu, 13 Jun 2002 20:00:49 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: viro@math.psu.edu
+X-Envelope-Sender: stevie@qrpff.net
+Message-Id: <5.1.0.14.2.20020613195114.0225abd0@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 13 Jun 2002 19:54:22 -0400
+To: Alexander Viro <viro@math.psu.edu>, Francois Gouget <fgouget@free.fr>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0206130454040.18281-100000@weyl.math.psu.edu
+ >
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jun 2002 13:50:25 +0200 (CDT) Daniela Engert <dani@ngrt.de> wrote:
+At 05:18 AM 6/13/2002 -0400, Alexander Viro wrote:
+>I don't see where VFS would come into the game - what you had described
+>is behaviour of ->symlink() and ->lookup() of filesystem in question.
+>For VFS name components are arbitrary sequences of characters other than
+>'\0' and '/'.  Period.  It has no idea of extensions, maximal component
+>lengths, etc.
+>
+>Moreover, names returned by ->readdir() are not interpreted - they are
+>responsibility of filesystem in question.  Ditto for limits you place
+>on the names acceptable for ->create(), ->mkdir(), etc. - it's up to
+>filesystem.
+>
+>Same goes for the way you store and interpret symlinks - VFS has no
+>business messing with that; that's what ->readlink() and ->follow_link()
+>are for.
+>
+>_If_ you want to use "add magical 4 bytes to the end of component to
+>indicate a symlink" - more power to you, but that's nothing but a
+>detail of your filesystem layout.  You are making a directory with
+>both 'foo' and 'foo.!nk' invalid, but that's the matter of fsck for
+>your filesystem and ability of fs driver to cope with such error
+>gracefully.
 
-> My conclusion: don't do ATAPI DMA on a serverworks ROSB4 revision 0 IDE
-> controller.
+Sounds great.
 
-How can I find revision? I have a problem with (Seagate) hdds, but lspci -v
-only shows:
-
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 51)
-        Subsystem: ServerWorks OSB4 South Bridge
-        Flags: bus master, medium devsel, latency 0
+Now add this to NTFS, iso9660, and vfat, without directly modifying any of the three filesystems (otherwise you'd need to maintain patches for different versions of these filesystem drivers).
 
 
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller (prog-if 8a [Master SecP PriP])
-        Flags: bus master, medium devsel, latency 64
-        I/O ports at 2000 [size=16]
+--
+Stevie-O
 
-
-Regards,
-Nerijus
+Real programmers use COPY CON PROGRAM.EXE
 

@@ -1,107 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbTL3Fz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 00:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTL3Fz1
+	id S264379AbTL3GF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 01:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264410AbTL3GF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 00:55:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10385 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264367AbTL3FzY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 00:55:24 -0500
-Message-ID: <3FF11339.2000104@pobox.com>
-Date: Tue, 30 Dec 2003 00:55:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Netdev <netdev@oss.sgi.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [BK PATCHES] 2.6.x experimental net driver updates
-Content-Type: multipart/mixed;
- boundary="------------050107060807060906000004"
+	Tue, 30 Dec 2003 01:05:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:5323 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264379AbTL3GFz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 01:05:55 -0500
+Date: Mon, 29 Dec 2003 22:01:22 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: Problem with dev_kfree_skb_any() in 2.6.0
+Message-Id: <20031229220122.30078657.davem@redhat.com>
+In-Reply-To: <20031230051519.GA6916@gtf.org>
+References: <1072567054.4112.14.camel@gaston>
+	<20031227170755.4990419b.davem@redhat.com>
+	<3FF0FA6A.8000904@pobox.com>
+	<20031229205157.4c631f28.davem@redhat.com>
+	<20031230051519.GA6916@gtf.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050107060807060906000004
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 30 Dec 2003 00:15:19 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
+> OK, agreed.  But fixing it in the driver is still incorrect, also.
+> 
+> We need a single solution in the net stack, not a per-driver solution.
 
-Summary of new changes:
-* bonding fixes
-* e100/e1000 fixes
-* other fixes
-* via-rhine netpoll support
+I totally disagree.
 
+Let's quickly review, this is illegal:
 
-Summary of patchkit:
-* new e100 driver (rewritten from scratch)
-* new nVidia nForce NIC driver
-* new pc200syn WAN driver
+	local_irq_disable();
+	{
+		local_bh_disable();
+		... do kfree_skb work ...
+		local_bh_enable();
+	}
+	local_irq_enable();
 
-* tg3 bug fixes
-* r8169 major bug fixes
-* e1000 minor updates / fixes
-* sk98lin vendor updates / fixes
-* misc bug fixes
+as is this:
 
-* 8139too NAPI support
-* tulip NAPI support
+	local_irq_disable();
+	{
+		... queue to softirq TX work ...
+	}
+	local_irq_enable();
+	... oops this won't make softirq TX work get run ...
 
-* netconsole / netdump support
-* net_device allocation and reference counting work
+The driver must therefore recognize that it may only free packets
+in it's IRQ handler or in situations where BH protection has occurred
+at a higher level or BH protection is the only protection it uses
+from base context.
 
+This is similar to how the driver must be aware that
+netif_receive_skb() can cause it's ->hard_start_xmit() method to run
+and therefore it must prevent deadlocks that might occur as a result
+of locks held during the netif_receive_skb() call.
 
-Patch:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-bk2-netdrvr-exp1.patch.bz2
-(NOTE: _requires_ 2.6.0-bk2 snapshot, or IOW Linus-latest from BK, in 
-order to apply successfully)
-
-Full changelog:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-bk2-netdrvr-exp1.log
-
-BK repo:
-bk://gkernel.bkbits.net/net-drivers-2.5-exp
-
-Changelog delta attached.
-
-
---------------050107060807060906000004
-Content-Type: text/plain;
- name="changelog.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="changelog.txt"
-
-
-Alexander Viro:
-  o [irda sa1100_ir] convert to using standard alloc_irdadev()
-
-Amir Noam:
-  o [netdrvr bonding] Add support for slaves that use ethtool_ops
-  o [netdrvr bonding] Releasing the original active slave causes mac address duplication
-  o [netdrvr bonding] Cannot remove and re-enslave the original active slave
-
-Andrew Morton:
-  o [netdrvr] new-probe warning fix
-
-Jeff Garzik:
-  o Merge redhat.com:/spare/repo/linux-2.5 into redhat.com:/spare/repo/net-drivers-2.5-exp
-  o [netdrvr bonding] fix broken build
-
-Pavel Machek:
-  o [netdrvr via-rhine] add netpoll support
-
-Russell King:
-  o [irda sa1100_ir] "resurrect from bitrot hell"
-
-Scott Feldman:
-  o [netdrvr e1000] netpoll support
-  o [netdrvr e1000] h/w workarounds + remove device ID
-  o [netdrvr e100] netpoll + fixes to speed/duplex forced settings
-
-
---------------050107060807060906000004--
-
+So let's fix the drivers. :)

@@ -1,177 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUETV5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265303AbUETV6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265287AbUETV5i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 17:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUETV5h
+	id S265303AbUETV6x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 17:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUETV6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 17:57:37 -0400
-Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:10247 "HELO
-	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
-	id S265304AbUETV5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 17:57:19 -0400
-Date: Thu, 20 May 2004 14:59:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: knobi@knobisoft.de
-Cc: linux-kernel@vger.kernel.org, "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: 2.6.6-mm4: missing symbol __log_start_commit in ext3.o
-Message-Id: <20040520145956.749567cb.akpm@osdl.org>
-In-Reply-To: <20040519151913.47070.qmail@web13906.mail.yahoo.com>
-References: <20040519151913.47070.qmail@web13906.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 20 May 2004 17:58:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44974 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265286AbUETV6L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 17:58:11 -0400
+Date: Thu, 20 May 2004 18:59:09 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Cc: Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: file attributes (ext2/3) in 2.4.26
+Message-ID: <20040520215909.GB21344@logos.cnet>
+References: <20040517185141.GA23102@MAIL.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 May 2004 21:57:16.0248 (UTC) FILETIME=[6A0D5D80:01C43EB5]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040517185141.GA23102@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-(Resend due to MTA problems)
-
-Martin Knoblauch <knobi@knobisoft.de> wrote:
->
-> Hi,
+On Mon, May 17, 2004 at 08:51:41PM +0200, Herbert Poetzl wrote:
 > 
->  ext3 complains about a missing symbol in 2.6.6.-mm4:
+> Hi Folks!
 > 
->   SPLIT   include/linux/autoconf.h -> include/config/*
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CC [M]  fs/ext3/balloc.o
->   LD [M]  fs/ext3/ext3.o
->   Building modules, stage 2.
->   MODPOST
-> *** Warning: "__log_start_commit" [fs/ext3/ext3.ko] undefined!
+> is it intentional that the file attributes
+> (those accessible with chattr -*) are modifyable
+> even if a file has the 'i' immutable flag set,
+> and the user is lacking CAP_IMMUTABLE (or all
+> CAPs if you prefer that ;)
 > 
+> # touch /tmp/x
+> # chattr +iaA /tmp/x
+> 
+> # lcap -z
+> # chattr -i /tmp/x 
+> chattr: Operation not permitted while setting flags on /tmp/x
+> 
+> # chattr -A /tmp/x 
+> # lsattr /tmp/x
+> ----ia------- /tmp/x
+> 
+> I'd consider this a bug, but it might be some
+> strange posix/linux conformance issue too ...
+> 
+> let me know if this _is_ a bug, if so, I'm 
+> willing to provide patches to fix it ...
 
-Ah, we forgot to export that symbol.
+Hi Herbert,
 
-Actually that patch is being a bit naughty playing with JBD internals - it
-should be cast as a JBD entrypoint.
+The chattr man page says
 
-This isn't runtime-tested:
+       A file with the `i' attribute cannot be modified: it cannot be  deleted
+       or  renamed,  no  link  can  be created to this file and no data can be
+       written to the file.  Only the superuser or a  process  possessing  the
+       CAP_LINUX_IMMUTABLE capability can set or clear this attribute.
 
-
-
-
----
-
- 25-akpm/fs/ext3/balloc.c    |   28 ++--------------------------
- 25-akpm/fs/jbd/journal.c    |   34 ++++++++++++++++++++++++++++++++++
- 25-akpm/include/linux/jbd.h |    1 +
- 3 files changed, 37 insertions(+), 26 deletions(-)
-
-diff -puN fs/jbd/journal.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api fs/jbd/journal.c
---- 25/fs/jbd/journal.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api	2004-05-20 00:04:58.390761800 -0700
-+++ 25-akpm/fs/jbd/journal.c	2004-05-20 00:11:04.682077056 -0700
-@@ -73,6 +73,7 @@ EXPORT_SYMBOL(journal_ack_err);
- EXPORT_SYMBOL(journal_clear_err);
- EXPORT_SYMBOL(log_wait_commit);
- EXPORT_SYMBOL(journal_start_commit);
-+EXPORT_SYMBOL(journal_force_commit_nested);
- EXPORT_SYMBOL(journal_wipe);
- EXPORT_SYMBOL(journal_blocks_per_page);
- EXPORT_SYMBOL(journal_invalidatepage);
-@@ -465,6 +466,39 @@ int log_start_commit(journal_t *journal,
- }
- 
- /*
-+ * Force and wait upon a commit if the calling process is not within
-+ * transaction.  This is used for forcing out undo-protected data which contains
-+ * bitmaps, when the fs is running out of space.
-+ *
-+ * We can only force the running transaction if we don't have an active handle;
-+ * otherwise, we will deadlock.
-+ *
-+ * Returns true if a transaction was started.
-+ */
-+int journal_force_commit_nested(journal_t *journal)
-+{
-+	transaction_t *transaction = NULL;
-+	tid_t tid;
-+
-+	spin_lock(&journal->j_state_lock);
-+	if (journal->j_running_transaction && !current->journal_info) {
-+		transaction = journal->j_running_transaction;
-+		__log_start_commit(journal, transaction->t_tid);
-+	} else if (journal->j_committing_transaction)
-+		transaction = journal->j_committing_transaction;
-+
-+	if (!transaction) {
-+		spin_unlock(&journal->j_state_lock);
-+		return 0;	/* Nothing to retry */
-+	}
-+
-+	tid = transaction->t_tid;
-+	spin_unlock(&journal->j_state_lock);
-+	log_wait_commit(journal, tid);
-+	return 1;
-+}
-+
-+/*
-  * Start a commit of the current running transaction (if any).  Returns true
-  * if a transaction was started, and fills its tid in at *ptid
-  */
-diff -puN fs/ext3/balloc.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api fs/ext3/balloc.c
---- 25/fs/ext3/balloc.c~ext3-retry-allocation-after-transaction-commit-v2-jbd-api	2004-05-20 00:04:58.411758608 -0700
-+++ 25-akpm/fs/ext3/balloc.c	2004-05-20 00:12:10.623052504 -0700
-@@ -977,43 +977,19 @@ static int ext3_has_free_blocks(struct e
- }
- 
- /*
-- * Ext3_should_retry_alloc is called when ENOSPC is returned, and if
-+ * ext3_should_retry_alloc() is called when ENOSPC is returned, and if
-  * it is profitable to retry the operation, this function will wait
-  * for the current or commiting transaction to complete, and then
-  * return TRUE.
-  */
- int ext3_should_retry_alloc(struct super_block *sb, int *retries)
- {
--	transaction_t *transaction = NULL;
--	journal_t *journal = EXT3_SB(sb)->s_journal;
--	tid_t tid;
--
- 	if (!ext3_has_free_blocks(EXT3_SB(sb)) || (*retries)++ > 3)
- 		return 0;
- 
- 	jbd_debug(1, "%s: retrying operation after ENOSPC\n", sb->s_id);
- 
--	/*
--	 * We can only force the running transaction if we don't have
--	 * an active handle; otherwise, we will deadlock.
--	 */
--	spin_lock(&journal->j_state_lock);
--	if (journal->j_running_transaction && !current->journal_info) {
--		transaction = journal->j_running_transaction;
--		__log_start_commit(journal, transaction->t_tid);
--	} else if (journal->j_committing_transaction)
--		transaction = journal->j_committing_transaction;
--
--	if (!transaction) {
--		spin_unlock(&journal->j_state_lock);
--		return 0;	/* Nothing to retry */
--	}
--
--	tid = transaction->t_tid;
--	spin_unlock(&journal->j_state_lock);
--	log_wait_commit(journal, tid);
--
--	return 1;
-+	return journal_force_commit_nested(EXT3_SB(sb)->s_journal);
- }
- 
- /*
-diff -puN include/linux/jbd.h~ext3-retry-allocation-after-transaction-commit-v2-jbd-api include/linux/jbd.h
---- 25/include/linux/jbd.h~ext3-retry-allocation-after-transaction-commit-v2-jbd-api	2004-05-20 00:11:09.466349736 -0700
-+++ 25-akpm/include/linux/jbd.h	2004-05-20 00:11:33.140750680 -0700
-@@ -1006,6 +1006,7 @@ int __log_space_left(journal_t *); /* Ca
- int log_start_commit(journal_t *journal, tid_t tid);
- int __log_start_commit(journal_t *journal, tid_t tid);
- int journal_start_commit(journal_t *journal, tid_t *tid);
-+int journal_force_commit_nested(journal_t *journal);
- int log_wait_commit(journal_t *journal, tid_t tid);
- int log_do_checkpoint(journal_t *journal);
- 
-
-_
-
-
+You still can modify other flags from the file, right?

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129455AbQLCOAZ>; Sun, 3 Dec 2000 09:00:25 -0500
+	id <S130164AbQLCOBY>; Sun, 3 Dec 2000 09:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbQLCOAO>; Sun, 3 Dec 2000 09:00:14 -0500
-Received: from www1.ExperTeam.de ([195.138.53.252]:6002 "EHLO
-	www1.ExperTeam.de") by vger.kernel.org with ESMTP
-	id <S129455AbQLCOAB>; Sun, 3 Dec 2000 09:00:01 -0500
-Message-Id: <200012031330.OAA04450@www1.ExperTeam.de>
-X-Mailer: exmh version 2.2 06/23/2000 (debian 2.2-1) with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-X-Face: "7u#"=sUEnmXhasPDW#QwNqMOaW5JQ2,rqy\Yt"a1yk9LI640Mv9g!TLQpp/tatO@T`=S:S
- xuqEDD30%F#fw>|!oX?g24"P/fr%)/]LhB~9++.hNy]}X/@q(XPGn:~p[q:n_[.B-SE;?J,%gHIq;N
- bl+of~~UF8/A9Jat?P!=Y%Q18tk
-Organization: ExperTeam AG
-Subject: Problems with CDROMVOLCTRL
-Mime-Version: 1.0
+	id <S130133AbQLCOBO>; Sun, 3 Dec 2000 09:01:14 -0500
+Received: from pat.uio.no ([129.240.130.16]:18112 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S129632AbQLCOBJ>;
+	Sun, 3 Dec 2000 09:01:09 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 03 Dec 2000 14:25:02 +0100
-From: Roderich Schupp <rsch@ExperTeam.de>
+Content-Transfer-Encoding: 7bit
+Message-ID: <14890.19197.796098.104054@charged.uio.no>
+Date: Sun, 3 Dec 2000 14:30:37 +0100 (CET)
+To: buhr@stat.wisc.edu (Kevin Buhr)
+Cc: linux-kernel@vger.kernel.org
+Subject: negative NFS cookies: bad C library or bad kernel?
+In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>
+In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-CDROMVOLCTRL does not work with my configuration in test11.
-The ioctl always returns an error and volume stays the same
-(seen with xmcd and gtcd). I tried the patch at
+>>>>> " " == Kevin Buhr <buhr@stat.wisc.edu> writes:
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/cd-1.bz2
+     > However, who's to blame here?  It can't be CFS---any four-byte
+     > cookie should be valid, right?
 
-This changed the error code from some bogus large positive number
-to -EOPNOTSUPP :) However, volume control works fine in 2.2.17,
-so the hardware shouldn't be the culprit.
-The cdrom drive in question is an old TEAC CD-56S on an 
-Adaptec AHA-2940 (narrow) controller.
+     > Is the kernel NFS client code to blame?  If it's going to be
+     > using cookies as offsets, shouldn't we have an nfs_lseek that
+     > special-cases directory lseeks (at least those using SEEK_SET)
+     > to take negative offsets, so utilities and libraries don't need
+     > to be bigfile-aware just to read directories?  And what in the
+     > world can we do about bogus code like the:
 
-Cheers, Roderich
--- 
-There is something to be learned from a rainstorm. When meeting with 
-a sudden shower, you try not to get wet and run quickly along the road.
-But doing such things as passing under the eaves of houses, you still
-get wet. When you are resolved from the beginning, you will not be
-perplexed, though you still get the same soaking. 
+The problem here is that in NFS we have to match cookies in lieu of
+using true directory 'offsets'. I did try to work around this by using
+offsets into the page cache and the likes, however this sort of scheme
+is almost impossible to implement sanely because an offset into the
+page cache changes all the time. This was why I returned to Olaf's
+scheme in which we use the cookie as the return value for lseek &
+friends.
 
-         -- Hagakure - The Book of the Samurai
+The problem then arises that lseek tries to cram both a returned
+offset and an error value into the return values. When NFS returns an
+opaque type, this causes a problem; one that won't be fixed by adding
+an nfs_lseek. Furthermore, lseek is 32-bits: for NFSv3 and higher, the
+cookie is 64-bits...
 
-Roderich Schupp 		mailto:rsch@ExperTeam.de
-ExperTeam GmbH			http://www.experteam.de/
-Munich, Germany
+I know of no scheme that can fix all problems with lseek.
+For example concerning SEEK_CUR: forget about it. NFS is not POSIX and
+never will be. You simply cannot give meaningful semantics to SEEK_CUR
+as long as the client knows nothing about the organization of dirents
+on the server.
 
+We can return offsets that are based on the internal caching of
+dirents, but the problem then is that you need to find some permanent
+'index' that doesn't change when we invalidate the cache and read it
+in anew. Making stuff like 'rm -rf *' work (when the directory size &
+organization keeps changing) is quite a challenge...
+One possibility would be to make a pointer into a table of cookies be
+our 'offset'. That could work if we can ensure that cookies can't move
+around...
+
+Cheers,
+  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

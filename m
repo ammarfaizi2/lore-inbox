@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266701AbUHCU63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266737AbUHCVC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266701AbUHCU63 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 16:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266839AbUHCU62
+	id S266737AbUHCVC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266839AbUHCVC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 16:58:28 -0400
-Received: from mail.dif.dk ([193.138.115.101]:15015 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266701AbUHCU6R (ORCPT
+	Tue, 3 Aug 2004 17:02:26 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:55436 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S266737AbUHCVCX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 16:58:17 -0400
-Date: Tue, 3 Aug 2004 23:02:56 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Marko Macek <marko.macek@gmx.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       Eric Wong <eric@yhbt.net>
-Subject: Re: KVM & mouse wheel
-In-Reply-To: <410FAE9B.5010909@gmx.net>
-Message-ID: <Pine.LNX.4.60.0408032257250.2821@dragon.hygekrogen.localhost>
-References: <410FAE9B.5010909@gmx.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Aug 2004 17:02:23 -0400
+Subject: Re: [RFC] dev_acpi: device driver for userspace access to ACPI
+From: Alex Williamson <alex.williamson@hp.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091558040.27397.5523.camel@nighthawk>
+References: <1091552426.4981.103.camel@tdi>
+	 <1091554271.27397.5327.camel@nighthawk>  <1091557050.4981.135.camel@tdi>
+	 <1091558040.27397.5523.camel@nighthawk>
+Content-Type: text/plain
+Organization: LOSL
+Date: Tue, 03 Aug 2004 15:02:16 -0600
+Message-Id: <1091566936.4981.188.camel@tdi>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.91 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Aug 2004, Marko Macek wrote:
+On Tue, 2004-08-03 at 11:34 -0700, Dave Hansen wrote:
 
-> Hello!
-> A few months ago I posted about problems with 2.6 kernel, KVM and mouse
-> wheel.
-> I was using 2.4 kernel until recently, but with the switch to FC2 with
-> 2.6 kernel this problem became much more annoying.
+> Instead of architecting a generic interface, might you simply exclude
+> access from your driver to things that already have generic interfaces? 
+> I think there are things that we exclude from /proc/device-tree on ppc64
+> because there's a generic equivalent elsewhere.  
+> 
 
-I also had problems with my KVM switch and mouse when I initially moved to 
-2.6, but adding this kernel boot parameter fixed it, meybe it will help 
-you as well :  psmouse.proto=imps
+   The access interfaces I'm exposing are pretty simple building block
+type features.  It's a toolset to poke at namespace, not a predefined
+set of device specific functions.  I'm sure you can mix them all
+together and duplicate something that already exists, but trying to
+kludge in limitations sounds futile and would reduce the usefulness of
+the entire interface.  Besides, given a choice, I kinda doubt people are
+going to choose to implement something that requires them to know about
+ACPI ;^)
 
-My mouse was jumping all over the screen, clicking buttons at random, but 
-since I added 
-append="psmouse.proto=imps"
-to my lilo.conf everything has been working perfectly with every 2.6 
-kernel I've tried.
+> There are certainly some very platform-specific things that obviously
+> need to be done with direct access to the firmware, and that we don't
+> want to pollute the kernel with.  Parsing some of the firmware error
+> logs on ppc64 comes to mind.  You just need to be *very* careful with
+> the application authors because it's such a big gun :)
 
-My mouse is a "Logitec MouseMan Wheel" (USB mouse, but connected to the 
-KVM with a USB->PS/2 adapter), my KVM switch is an old 8port thing that I 
-unfortunately don't know the name/brand of since I got it used and the 
-label with that info on it is gone.
+   This is certainly a big gun, but in the software world, I'd rather
+have a big gun available than no gun at all.  Thanks for the comments,
 
- Hope that helps you :)
+	Alex
 
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 

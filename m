@@ -1,93 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUJNLZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUJNL0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUJNLZD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 07:25:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUJNLZD
+	id S261375AbUJNL0P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 07:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUJNL0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 07:25:03 -0400
-Received: from mail01.hpce.nec.com ([193.141.139.228]:16067 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S261239AbUJNLY6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 07:24:58 -0400
-From: Erich Focht <efocht@hpce.nec.com>
+	Thu, 14 Oct 2004 07:26:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62082 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261375AbUJNL0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 07:26:06 -0400
+Date: Thu, 14 Oct 2004 04:23:07 -0700
+From: Paul Jackson <pj@sgi.com>
 To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: mbligh@aracnet.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
 Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Date: Thu, 14 Oct 2004 13:22:41 +0200
-User-Agent: KMail/1.6.2
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-       Simon.Derr@bull.net, colpatch@us.ibm.com, pwil3058@bigpond.net.au,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
-       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       ak@suse.de, sivanich@sgi.com
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <1344740000.1097172805@[10.10.2.4]> <m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
+Message-Id: <20041014042307.0172d229.pj@sgi.com>
 In-Reply-To: <m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<835810000.1096848156@[10.10.2.4]>
+	<20041003175309.6b02b5c6.pj@sgi.com>
+	<838090000.1096862199@[10.10.2.4]>
+	<20041003212452.1a15a49a.pj@sgi.com>
+	<843670000.1096902220@[10.10.2.4]>
+	<Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>
+	<58780000.1097004886@flay>
+	<20041005172808.64d3cc2b.pj@sgi.com>
+	<1193270000.1097025361@[10.10.2.4]>
+	<20041005190852.7b1fd5b5.pj@sgi.com>
+	<1097103580.4907.84.camel@arrakis>
+	<20041007015107.53d191d4.pj@sgi.com>
+	<Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr>
+	<1250810000.1097160595@[10.10.2.4]>
+	<20041007105425.02e26dd8.pj@sgi.com>
+	<1344740000.1097172805@[10.10.2.4]>
+	<m1ekk1egdx.fsf@ebiederm.dsl.xmission.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410141322.41847.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 October 2004 12:35, Eric W. Biederman wrote:
-> Sorry I spotted this thread late. 
-
-The thread was actually d(r)ying out...
-
-> People seem to be looking at how things
-> are done on clusters and then apply them to numa machines.  Which I agree
-> looks totally backwards.  
-> 
-> The actual application requirement (ignoring the sucky batch schedulers)
-> is for a group of processes (a magic process group?) to all be
-> simultaneously runnable.  On a cluster that is accomplished by having
-> an extremely stupid scheduler place one process per machine.   On a
-> NUMA machine you can do better because you can suspend and migrate
-> processes.  
-
-Eric, beyond wanting all processes scheduled at the same time we also
-want separation and real isolation (CPU and memory-wise) of processes
-belonging to different users. The first emails in the thread describe
-the requirements well. They are too complex to be simply handled by
-cpus_allowed and mems_allowed masks, basically a hierarchy is needed
-in the cpusets allocation.
-
-> > It all just seems like a lot of complexity for a fairly obscure set of
-> > requirements for a very limited group of users, to be honest. 
-> 
-> I think that is correct to some extent.  I think the requirements are
-> much more reasonable when people stop hanging on to the cludges they
-> have been using because they cannot migrate jobs, or suspend
-> sufficiently jobs to get out of the way of other jobs. 
-
-Cpusets and alike have a long history originating from ccNUMA
-machines. It is not simply simulating replicating cluster
-behavior. Batch schedulers may be an unelegant solution but they are
-reality and used since computers were invented (more or less).
-
-> Martin does enhancing the scheduler to deal with a group of processes 
-> that all run in lock-step, usually simultaneously computing or
-> communicating sound sane?  Where preempting one is effectively preempting
-> all of them.
-> 
+Eric wrote:
 > I have been quite confused by this thread in that I have not seen
 > any mechanism that looks beyond an individual processes at a time,
 > which seems so completely wrong.
 
-You seem to be suggesting a gang scheduler!!! YES!!! I would love
-that! But I remember that 2 years ago there were some emails from
-major kernel maintainers (I don't exactly remember whom) saying that a
-gang scheduler will never go into Linux. So ... here's something which
-somewhat simulates that behavior. Anyhow, cpusets makes sense (for
-isolation of resources) anyway, no matter whether we have gang
-scheduling or not.
+In the simplest form, we obtain the equivalent of gang scheduling for
+the several threads of a tightly coupled job by arranging to have only
+one runnable thread per cpu, each such thread pinned on one cpu, and all
+threads in a given job simultaneously runnable.
 
-> Eric
+For compute bound jobs, this is often sufficient.  Time share (to a
+coarse granularity of minutes or hours) and overlap of various sized
+jobs is handled using suspension and migration in order to obtain the
+above invariants of one runnable thread per cpu at any given time, and
+of having all threads in a tightly coupled job pinned to distinct cpus
+and runnable simultaneously.
 
-Regards,
-Erich
+For jobs that are not compute bound, where other delays such as i/o
+would allow for running more than one such job at a time (both
+intermittendly runnable on a finer scale of seconds), then one needs
+something like gang scheduling in order to keep all the threads in a
+tightly coupled job running together, while still obtaining maximum
+utilization of cpu/memory hardware from jobs with cpu duty cycles of
+less than 50%.
 
+The essential purpose of cpusets is to take the placement of individual
+threads by the sched_setaffinity and mbind/set_mempolicy calls, and
+extend that to manage placing groups of tasks on administratively
+designated and controlled groups of cpus/nodes.
 
+If you see nothing beyond individual processes, then I think you are
+missing that.
+
+However, it is correct that we haven't (so far as I recall) considered
+the gang scheduling that you describe.  My crystal ball says we might
+get to that next year.
+
+Gang scheduling isn't needed for the compute bound jobs, because just
+running a single job at a time on a given subset of a systems cpus and
+memory obtains the same result.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

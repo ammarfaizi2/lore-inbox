@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264882AbUFRA3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUFRAba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264882AbUFRA3m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 20:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264883AbUFRA3l
+	id S264883AbUFRAba (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 20:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUFRAba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 20:29:41 -0400
-Received: from YahooBB219049177065.bbtec.net ([219.49.177.65]:5650 "HELO
-	addr.com") by vger.kernel.org with SMTP id S264882AbUFRA33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 20:29:29 -0400
-Date: Fri, 18 Jun 2004 00:27:36 +0000
-From: gor@inbox.lv
-Subject: software
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <E7KI4E8AD65LG608@vger.kernel.org>
-In-Reply-To: <E7KI4E8AD65LG608@vger.kernel.org>
-Message-ID: <LA9KBLHACH0899C2@inbox.lv>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 17 Jun 2004 20:31:30 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:30388 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264883AbUFRAbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 20:31:22 -0400
+Date: Fri, 18 Jun 2004 01:31:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: 4Front Technologies <dev@opensound.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618003118.GA9904@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	4Front Technologies <dev@opensound.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> <40D23701.1030302@opensound.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D23701.1030302@opensound.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Microsoft Windows XP Professional 2002 
-Retail price: $270.99 Our low Price: $50.00 You Save: $220.00  
- 
-Adobe Photoshop 7.0  
-Retail price: $609.99 Our low Price: $60.00 You Save: $550.00  
- 
-Microsoft Office XP Professional 2002  
-Retail price: $579.99 Our low Price: $60.00 You Save: $510.00  
- 
-Adobe Illustrator 10
-Retail price: $270.99 Our low Price: $60.00 You Save: $210.00  
- 
-Corel Draw Graphics Suite 11
-Retail price: $270.99 Our low Price: $60.00 You Save: $210.00  
+> Our commercial OSS drivers work perfectly with Linux 2.6.5, 2.6.6, 2.6.7
+> and they are failing to install with SuSE's 2.6.5 kernel. The reason is that
+> they have gone and changed the kernel headers which mean that nothing works.
 
-Delphi 7
-Retail price: $404.99 Our low Price: $60.00 You Save: $335.00  
- 
+Bad luck.  The OSS and ALSA driver in the kernel tree work fine even with
+SuSE's tree ;-)
 
-And more!!!
-
-Our site is  http://uvwnixit.ildligg.biz/?V8XuXGpY2twOHVVmedahwtx
-
-
-Why so cheap?
-
-All the software is OEM- Meaning that you don't get the box and the
-manual with your software. All you will receive is the actual
-software and your unique registration code. 
-
-All the software is in the English language for PC. Our offers
-are unbeatable and we always update our prices to make sure we
-provide you with the best possible offers. Hurry up and place
-your order, because our supplies are limited.
-
-Our site is  http://qatktpzg.ildligg.biz/?V8XuXGpY2twOHVVwqcenlqt
-
-
-hmxpjgzy jcyry rootibc aatxr kbhxroe gluq tuodwn 
-wvgl jawlcwm jtgvv mrmcxtor ktla ltntdvu 
-nvpaxmn thu dchw pitjzkv hyvtg i cjexz 
+And now stop trolling.  I don't like the gazillions of crappy IBM patches
+in their tree either but people that are too clueless to build their own
+code shouldn't complain.
 

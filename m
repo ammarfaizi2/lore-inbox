@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262694AbSI1Dhr>; Fri, 27 Sep 2002 23:37:47 -0400
+	id <S262275AbSI1EOm>; Sat, 28 Sep 2002 00:14:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262695AbSI1Dhr>; Fri, 27 Sep 2002 23:37:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46487 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262694AbSI1Dhr>;
-	Fri, 27 Sep 2002 23:37:47 -0400
-Date: Fri, 27 Sep 2002 20:36:06 -0700 (PDT)
-Message-Id: <20020927.203606.32735488.davem@redhat.com>
-To: kuznet@ms2.inr.ac.ru
+	id <S262697AbSI1EOm>; Sat, 28 Sep 2002 00:14:42 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:59076 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S262275AbSI1EOl>;
+	Sat, 28 Sep 2002 00:14:41 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200209280419.IAA02894@sex.inr.ac.ru>
+Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
+To: davem@redhat.com (David S. Miller)
+Date: Sat, 28 Sep 2002 08:19:29 +0400 (MSD)
 Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
        usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200209280338.HAA02810@sex.inr.ac.ru>
-References: <20020927.195507.87349906.davem@redhat.com>
-	<200209280338.HAA02810@sex.inr.ac.ru>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020927.203606.32735488.davem@redhat.com> from "David S. Miller" at Sep 27, 2 08:36:06 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: kuznet@ms2.inr.ac.ru
-   Date: Sat, 28 Sep 2002 07:38:09 +0400 (MSD)
+Hello!
 
-   Now I see retransmission of practicllay the same patch, which was deferred
-   for improvement that time.
+> Alexey, I still am not clear, this belongs in the output routing logic
+> right?
+...
+> where source address selection belongs.
 
-Ok, Yoshi please work Alexey to put source address selection into the
-right place and remove ipv6_get_saddr().
+Yes, it naturally belongs to the time when route is created.
 
-Alexey, I still am not clear, this belongs in the output routing logic
-right?  You dance in circles talking about this patch, that patch,
-but what I cannot decode this into an answer to question of where
-source address selection belongs.
+This is just extending ipv6 routing entry with a field to hold
+source address and, generally, making the same work as IPv4 does,
+with all the advantages, particularily capability to select preferred
+source address via routes set up by admin (RTA_PREFSRC attribute,
+"src" in "ip route add").
+
+Alexey

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263081AbTKTVum (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 16:50:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbTKTVum
+	id S262902AbTKTV5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 16:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbTKTV5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 16:50:42 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:37900 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S263081AbTKTVuk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 16:50:40 -0500
-Date: Thu, 20 Nov 2003 22:49:53 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Timothy Miller <miller@techsource.com>
-cc: Andreas Dilger <adilger@clusterfs.com>,
+	Thu, 20 Nov 2003 16:57:36 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:10515 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S262902AbTKTV5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 16:57:35 -0500
+Message-ID: <3FBD37B5.3090500@techsource.com>
+Date: Thu, 20 Nov 2003 16:52:53 -0500
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Maciej Zenczykowski <maze@cela.pl>
+CC: Andreas Dilger <adilger@clusterfs.com>,
        Justin Cormack <justin@street-vision.com>,
        Jesse Pollard <jesse@cats-chateau.net>,
        linux-kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: OT: why no file copy() libc/syscall ??
-In-Reply-To: <3FBD328C.1070607@techsource.com>
-Message-ID: <Pine.LNX.4.44.0311202249150.10515-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <Pine.LNX.4.44.0311202249150.10515-100000@gaia.cela.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is, though.  If you run out of space copying a file, you know it when 
-> you're copying.  Applications don't usually expect to get out-of-space 
-> errors while overwriting something in the middle of a file.
 
-What about sparse files?
 
-> In effect, your free space and your used space add up to greater than 
-> the capacity of the disk.  An application that checks for free space 
-> before doing something would be fooled into thinking there is more free 
-> space than there really is.  How can an application find out in advance 
-> that a file that it's about to modify (without appending anything to the 
-> end) is going to need more disk space?
+Maciej Zenczykowski wrote:
+>>It is, though.  If you run out of space copying a file, you know it when 
+>>you're copying.  Applications don't usually expect to get out-of-space 
+>>errors while overwriting something in the middle of a file.
+> 
+> 
+> What about sparse files?
 
-I don't think it can do that already now with sparse files, can it?
 
-Cheers,
-MaZe.
+Ah, good point.  Never mind.  :)
 
 

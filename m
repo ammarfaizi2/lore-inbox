@@ -1,54 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbTD0Soa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 14:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbTD0Soa
+	id S261405AbTD0SxC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 14:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbTD0SxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 14:44:30 -0400
-Received: from almesberger.net ([63.105.73.239]:4626 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261323AbTD0So2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 14:44:28 -0400
-Date: Sun, 27 Apr 2003 15:56:39 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030427155639.B16041@almesberger.net>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424083730.5F79A2127F@dungeon.inka.de> <20030424085913.GH28253@mail.jlokier.co.uk> <3EA804A8.8070608@techsource.com> <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk> <20030424192941.E1425@almesberger.net> <20030427142106.GA24244@merlin.emma.line.org> <20030427165959.GC6820@work.bitmover.com>
+	Sun, 27 Apr 2003 14:53:02 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:52964 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261405AbTD0Swj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 14:52:39 -0400
+Date: Sun, 27 Apr 2003 21:04:44 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: rmoser <mlmoser@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re:  Swap Compression
+Message-ID: <20030427190444.GC5174@wohnheim.fh-wedel.de>
+References: <200304251848410590.00DEC185@smtp.comcast.net> <20030426091747.GD23757@wohnheim.fh-wedel.de> <200304261148590300.00CE9372@smtp.comcast.net> <20030426160920.GC21015@wohnheim.fh-wedel.de> <200304262224040410.031419FD@smtp.comcast.net> <20030427090418.GB6961@wohnheim.fh-wedel.de> <200304271324370750.01655617@smtp.comcast.net> <20030427175147.GA5174@wohnheim.fh-wedel.de> <200304271431250990.01A281C7@smtp.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030427165959.GC6820@work.bitmover.com>; from lm@bitmover.com on Sun, Apr 27, 2003 at 09:59:59AM -0700
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200304271431250990.01A281C7@smtp.comcast.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> What seems to be forgotten is that the people who are locking things up
-> are the people who own those things
+On Sun, 27 April 2003 14:31:25 -0400, rmoser wrote:
+> 
+> Yeah I know.  I really need to get a working user-space version of this
+> thing so I can bench it against source tarballs and extractions from
+> /dev/random a bunch of times.
 
-Ownership is a cultural concept and the understanding of who owns
-what, and what they're allowed to do with it, vary widely.
+Your compression won't be too good on /dev/random. ;)
+But /dev/kmem might be useful test data.
 
-If I was your theocrat, and I decreed that any software written in
-my theocracy belongs to the church (e.g. because all the works of
-man belong to whatever deity or deities this theocracy believes
-in), would you be pleased with this ? (If not, I'll have you burnt
-for heresy, so you're better smiling when handing over your
-work :-)
+> >Why should someone decide on an algorithm before measuring?
+> 
+> Erm.  You can use any one of the other algos you want, there's a lot
+> out there.  Go ahead and try zlib/gzip/bzip2/7zip/compress if you
+> want.  I just figured, the simplest algo would hopefully be the fastest.
 
-> But Garloff just shrugged it off as not his problem.
+Hopefully, yes. Also, the one that doesn't trash the L[12] caches too
+much will be "fast" in that it doesn't slow down the rest of the
+system. This aspect really favors current uncompressing code, as it is
+very easy on the CPU.
 
-On the other hand, I'm sure you'll be eager to comply with any
-orders he may have for your employees.
+> But really we need some finished code to make this work :-)
 
-> The more you push back the more locked up things will become.
+Yes!
 
-Yes, Larry, so give up the futile struggle, and open source BK :-)
+> The real reason I'm working on this is because I favor speed completely
+> over size in this application.  It's all modular; make the interface for the
+> kernel module flexible enough to push in gzip/bzip2 modules or whatever
+> else you want:
+> 
+> <M> Swap partition support
+> ____<M> Compressed Swap
+> ________<M> fcomp
+> ____________<M> fcomp-extended support
+> ________<M> zlib
+> ________<M> gzip
+> ________<M> bzip2
+> ________<M> compress
+> ____<M> Swap on RAM
 
-- Werner
+Exactly. It might also be possible to choose the algorithm at bootup
+or during runtime.
+
+> As far as I know, zlib, gzip, and compress use Huffman trees.  I am pretty
+> sure about zlib, not sure about the others.  gzip I believe uses 16 bit
+> backpointers as well, which means you need a 64k processing window
+> for [de]compression, not to mention that it takes more work.  bzip2 we
+> all know is CPU-intensive, or at least it was last time I checked.
+
+Yes, zlib eats up several 100k of memory. You really notice this when
+you add it to a bootloader that was (once) supposed to be small. :)
+
+> Yeah true.  But for guessing the decompressed size I meant like when
+> you don't want to load the WHOLE block into RAM at once.  Ahh, so you
+> swap in pages?  Well whatever unit you swap in, that's how you should
+> compress things.  Look I'm confusing myself here, just ignore anything
+> that sounds retarded--I'm just a kid after all :-p
+
+Will do. :)
+It should be fine to load a page (maybe several pages) at once. There
+is read-ahead code all over the kernel and this is nothing else. Plus
+it simplifies things.
+
+> >a) Even with 4M, two pages of 4k each don't hurt that much. If they
+> >do, the whole compression trick doesn't pay off at all.
+> >b) Compression ratios usually suck with small buffers.
+> >
+> a)
+> True, two chunks of 4k don't hurt.  But how big are swap pages?  Assuming
+> the page can't be compressed at all, it's [page size / 256] * 3 + [page size]
+> for the maximum compressed data size.  (4144 bytes for 4k of absolutely
+> non-redundant data within 256 bytes).
+
+4k + sizeof(header). If the compression doesn't manage to shrink the
+code, it should return an error. The calling code will then put an
+uncompressed flag in the header and we're done.
+The header may be as small as one byte.
+
+> b)
+> Yeah they do.  But to find the compression performance (ratio) loss, you
+> do [max pointer distance]/[block size], meaning like for this one
+> 256/[page size].  If you do a 4k page size, you lose 6.25% of the compression
+> performance (so if we average 2:1, we'll average 1.875:1).  What IS the page
+> size the kernel uses?
+
+4k on most architectures, 8k on alpha.
+
+> >I didn't look that far yet. What you could do, is read through
+> >/usr/src/linux/Documentation/CodingStyle. It is just so much nicer
+> >(and faster) to read and sticking to it usually produces better code.
+> >
+> 
+> Eh, I should just crack open the kernel source and immitate it.  But I have
+> that file on my hard disk, so mebbe I should look.  Mebbe I should take a
+> whack at getting the compression algo to work too, instead of pushing it
+> on someone else.
+
+:)
+
+Imitating the kernel source may or may not be a good idea, btw. It is
+very diverse in style and quality. Some drivers are absolutely
+horrible, but they are just drivers, so noone without that hardware
+cares.
+
+Another thing: Did you look at the links John Bradford gave yet? It
+doesn't hurt to try something alone first, but once you have a good
+idea about what the problem is and how you would solve it, look for
+existing code.
+
+Most times, someone else already had the same idea and the same
+general solution. Good, less work. Sometimes you were stupid and the
+existing solution is much better. Good to know. And on very rare
+occasions, your solution is better, at least in some details.
+
+Well, in this case, the sourceforge project appears to be silent since
+half a year or so, whatever that means.
+
+Jörn
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Data dominates. If you've chosen the right data structures and organized
+things well, the algorithms will almost always be self-evident. Data
+structures, not algorithms, are central to programming.
+-- Rob Pike

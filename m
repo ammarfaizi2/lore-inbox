@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289255AbSAVKyH>; Tue, 22 Jan 2002 05:54:07 -0500
+	id <S289270AbSAVLLE>; Tue, 22 Jan 2002 06:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289270AbSAVKx4>; Tue, 22 Jan 2002 05:53:56 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:7940 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S289255AbSAVKxk>;
-	Tue, 22 Jan 2002 05:53:40 -0500
+	id <S289273AbSAVLKy>; Tue, 22 Jan 2002 06:10:54 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:10500 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289270AbSAVLKq>;
+	Tue, 22 Jan 2002 06:10:46 -0500
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: Giacomo Catenazzi <cate@debian.org>
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
-Subject: Re: CML2-2.1.3 is available 
-In-Reply-To: Your message of "Tue, 22 Jan 2002 11:48:06 BST."
-             <3C4D4366.9020406@debian.org> 
+To: Armin Schindler <mac@melware.de>
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, kkeil@suse.de,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: missing memset in divas and eicon in 2.2.20 
+In-Reply-To: Your message of "Tue, 22 Jan 2002 10:19:15 BST."
+             <Pine.LNX.4.31.0201221017280.21391-100000@phoenix.one.melware.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 22 Jan 2002 21:53:22 +1100
-Message-ID: <15543.1011696802@ocs3.intra.ocs.com.au>
+Date: Tue, 22 Jan 2002 21:43:15 +1100
+Message-ID: <15377.1011696195@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jan 2002 11:48:06 +0100, 
-Giacomo Catenazzi <cate@debian.org> wrote:
->My question: where do you find
+On Tue, 22 Jan 2002 10:19:15 +0100 (MET), 
+Armin Schindler <mac@melware.de> wrote:
+>Did you use plain 2.2.20 ?
+>I cannot reproduce this problem here, can you please send me your
+>kernel config.
 >
->autoconf autoconfigure: symlinks
->    $(SHELL_SCRIPT) script/...
+>On Tue, 22 Jan 2002, Peter T. Breuer wrote:
+>>   betty:/usr/local/src/linux-2.2.20% sudo depmod -ae -F System.map 2.2.20-SMP
+>>   depmod: *** Unresolved symbols in
+>>   /lib/modules/2.2.20-SMP/misc/divas.o depmod:         memset
+>>   depmod: *** Unresolved symbols in
+>>   /lib/modules/2.2.20-SMP/misc/eicon.o depmod:         memset
 
-You don't.  That was an example of how you can have multiple targets
-pointing to the same code, it is not in kbuild yet.
+This can be a gcc problem.  Some versions of gcc generate internal
+calls to memset and memcpy when manipulating structures.  Because these
+internal calls are created after cpp they end up as phantom calls to
+functions instead of being converted by string.h.
 
->BTW: I used 'make autoprobe' because of possible confutions, in
->latter version. Now Eric will use both 'make autoconfig' and
->'make autoprobe'.
+If it is a gcc problem, you track it down by first identifying the object
 
-FWIW, I prefer autoprobe.
+  nm -A drivers/isdn/eicon/*.o | fgrep memset
+
+then compile the xxx object with -S
+
+  make CFLAGS_xxx.o=-S SUBDIRS=drivers/isdn/eicon modules
+
+vi drivers/isdn/eicon/xxx.o looking for calls to memset.  Scroll up
+until you find the function that that is generating the call, then
+eyeball the code looking for structure assignments like s = *foo or s =
+0.  Replace the assignments with explicit calls to memcpy or memset.
 

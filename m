@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUEPDvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUEPD64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbUEPDvT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 23:51:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbUEPDvT
+	id S262956AbUEPD64 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 23:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUEPD64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 23:51:19 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:13208 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S262951AbUEPDvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 23:51:18 -0400
-Date: Sat, 15 May 2004 20:48:47 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Andreas Schwab <schwab@suse.de>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>,
-       Davide Libenzi <davidel@xmailserver.org>, Ingo Molnar <mingo@elte.hu>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Message-ID: <20040516034847.GA5774@taniwha.stupidest.org>
-References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com> <20040512200305.GA16078@elte.hu> <Pine.LNX.4.58.0405121400360.11950@bigblue.dev.mdolabs.com> <20040512213913.GA16658@fieldses.org> <jevfj1nwe1.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <jevfj1nwe1.fsf@sykes.suse.de>
+	Sat, 15 May 2004 23:58:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50098 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262956AbUEPD6z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 23:58:55 -0400
+Date: Sat, 15 May 2004 20:58:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Steven Cole <elenstev@mesatop.com>, adi@bitmover.com, scole@lanl.gov,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
+ s->tree' failed: The saga continues.)
+In-Reply-To: <20040515202054.32bf06d5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405152050350.10718@ppc970.osdl.org>
+References: <200405132232.01484.elenstev@mesatop.com>
+ <5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14> <20040514204153.0d747933.akpm@osdl.org>
+ <200405151923.41353.elenstev@mesatop.com> <20040515202054.32bf06d5.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 11:55:18PM +0200, Andreas Schwab wrote:
-
-> Signed integer overflow is undefined in C, so the compiler is
-> allowed to assume it does not happen.
-
-Really?
-
-Just because something is undefined assuming it never happens is a bit
-of a leap of faith IMO.
 
 
+On Sat, 15 May 2004, Andrew Morton wrote:
+> 
+> Two hours so far here.
+> 
+> bix:/usr/src> ~/clone.sh 
+> 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 
+> 
+> That's 2.6.6-mm2+, 2GB 4-way x86.
 
-  --cw
+I think Steven's machine (according to an earlier 'dmesg') has something 
+like 384MB of RAM and just one PIII-450 CPU.
+
+With that setup, he's likely getting a lot of IO (and possibly even
+swapping). The BK disk working set for the kernel archive is something
+like half a gig per tree, I think.
+
+In contrast, your nicer machine will do the whole stress-test basically
+totally cached (well, BK will force writeback with fsync, but it will all
+be pretty synchronous with nothing else going on).
+
+So if it's IO-related or happens when swapping...
+
+But again, neither of those should usually cause that kind of strange 
+partial-page corruption. 
+
+		Linus

@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313509AbSDUQPe>; Sun, 21 Apr 2002 12:15:34 -0400
+	id <S313555AbSDUQZU>; Sun, 21 Apr 2002 12:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313508AbSDUQPd>; Sun, 21 Apr 2002 12:15:33 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:39071 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313509AbSDUQPd>;
-	Sun, 21 Apr 2002 12:15:33 -0400
-Date: Sun, 21 Apr 2002 12:15:32 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Russell King <rmk@arm.linux.org.uk>, Rob Landley <landley@trommello.org>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421121532.A4220@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yx1z-0000jV-00@starship> <20020421165944.A20834@flint.arm.linux.org.uk> <E16yxRE-0000jm-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313556AbSDUQZT>; Sun, 21 Apr 2002 12:25:19 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35474 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S313555AbSDUQZS>; Sun, 21 Apr 2002 12:25:18 -0400
+Date: Sun, 21 Apr 2002 10:25:14 -0600
+Message-Id: <200204211625.g3LGPEE19519@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK patches exported.
+In-Reply-To: <31608.1019318609@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 06:10:12PM +0200, Daniel Phillips wrote:
-> Right.  I made the conjecture, if you wish to verify/disprove it then feel
-> free.  I did my share of the work already.
+David Woodhouse writes:
+> For the benefit of the BK haters, or more to the point for my benefit to 
+> shut up the occasional whinging I've heard about needing to use BK to get 
+> at the very latest patches from Linus' tree...
+> 
+> 	http://www.kernel.org/~dwmw2/bk-2.5/
+> 
+> It should be updated every hour on the hour, and has the last week's
+> worth of changesets exported as patches.
 
-This is too funny.
+PLEASE STOP!!! Your hourly empty updates trigger the mirror system,
+which in turn causes hundreds of mirror sites around the world to do
+an rsync. It's very wasteful.
 
-If you are unwilling to verify your own conjecture, go ahead and admit
-it was nothing but pointless, un-backed-up wanking.  :)
+				Regards,
 
-	Jeff
-
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

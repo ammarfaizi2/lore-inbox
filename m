@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279904AbRKDMF0>; Sun, 4 Nov 2001 07:05:26 -0500
+	id <S279913AbRKDMBq>; Sun, 4 Nov 2001 07:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279906AbRKDMFQ>; Sun, 4 Nov 2001 07:05:16 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:16065 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S279904AbRKDMFE>;
-	Sun, 4 Nov 2001 07:05:04 -0500
-Date: Sun, 4 Nov 2001 07:05:02 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mike Black <mblack@csihq.com>
-cc: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org
-Subject: Re: Something broken in sys_swapon
-In-Reply-To: <00a901c16526$48c64300$1a502341@cfl.rr.com>
-Message-ID: <Pine.GSO.4.21.0111040702440.20848-100000@weyl.math.psu.edu>
+	id <S279906AbRKDMBg>; Sun, 4 Nov 2001 07:01:36 -0500
+Received: from laas.laas.fr ([140.93.0.15]:758 "EHLO laas.laas.fr")
+	by vger.kernel.org with ESMTP id <S279904AbRKDMBR>;
+	Sun, 4 Nov 2001 07:01:17 -0500
+Message-ID: <3BE52ECB.DFE7B040@laas.fr>
+Date: Sun, 04 Nov 2001 13:04:27 +0100
+From: Tahar <tahar.jarboui@laas.fr>
+Reply-To: jarboui@laas.fr
+Organization: LAAS-CNRS
+X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.5.1 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ted Deppner <ted@psyber.com>
+CC: Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Regression testing of 2.4.x before release?
+In-Reply-To: <3BE4E835.CF85035B@kegel.com> <20011103231503.A16083@dondra.ofc.psyber.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Yes it would.  It would be a better idea if everyone (including you and
+> me) stress test those pre and final kernels too.
 
-On Sun, 4 Nov 2001, Mike Black wrote:
+Just a newbie question: where can we find such stress tests, and what
+are the kernel parts targeted by these tests ?
 
-> I think I see a potential problem (I'm looking at 2.4.10) in fs/namei.c.
-> 
-> If path_init() returns 0 in __user_walk() then err is not set to anything
-> (it defaults to 0)
+Thanks,
 
-path_init() returns 0 only if you are in altroot situation (running with
-personality that has its own /usr/gnuemul/<...>/) _and_ it had succeeded
-doing lookup from the altroot.  Otherwise it returns non-zero and lets
-path_walk() do the right thing.
-
+Tahar

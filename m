@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVA3VRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVA3VsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVA3VRa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 16:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVA3VRa
+	id S261795AbVA3VsC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 16:48:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVA3VsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 16:17:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6529 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261786AbVA3VRZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 16:17:25 -0500
-Date: Sun, 30 Jan 2005 13:17:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: bcollins@debian.org, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() &&
- irqs_disabled()
-Message-Id: <20050130131723.781991d3.akpm@osdl.org>
-In-Reply-To: <41FD498C.9000708@comcast.net>
-References: <41FD498C.9000708@comcast.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 30 Jan 2005 16:48:02 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:39941 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261795AbVA3Vrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 16:47:39 -0500
+Date: Sun, 30 Jan 2005 22:56:21 +0100
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@gmail.com>,
+       Andreas Hartmann <andihartmann@01019freenet.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, further binary search result
+Message-ID: <20050130215621.GA25824@hh.idb.hist.no>
+References: <fa.ks44mbo.ljgao4@ifi.uio.no> <fa.hinb9iv.s38127@ifi.uio.no> <41F21FA4.1040304@pD9F8757A.dip0.t-ipconnect.de> <21d7e99705012205012c95665@mail.gmail.com> <41F76B4D.8090905@hist.no> <20050130111634.GA9269@hh.idb.hist.no> <21d7e9970501300322ffdabe0@mail.gmail.com> <9e473391050130070520631901@mail.gmail.com> <20050130163241.GA18036@hh.idb.hist.no> <9e473391050130090532067a5f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e473391050130090532067a5f@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar <kernel-stuff@comcast.net> wrote:
->
-> Problem - ohci1394.c:ohci_devctl ends up calling dma_pool_destroy from 
-> invalid context. Below is the dmesg output when I exit Kino after video 
-> capture -
+On Sun, Jan 30, 2005 at 12:05:27PM -0500, Jon Smirl wrote:
+> On Sun, 30 Jan 2005 17:32:41 +0100, Helge Hafting
+> <helgehaf@aitel.hist.no> wrote:
+> > Yes, it is a PCI radeon.  And the machine has an AGP slot
+> > too, which is used by a matrox G550.  This AGP card was not
+> > used in the test, (other than being the VGA console).
+> > Note that there is no crash if I don't compile
+> > AGP support, so the crash is related to AGP somehow even though
+> > AGP is not supposed to be used in this case.
 > 
-> Debug: sleeping function called from invalid context at 
-> include/asm/semaphore.h:107
-> in_atomic():1, irqs_disabled():1
->  [<c0104c2e>] dump_stack+0x1e/0x20
->  [<c011f8a2>] __might_sleep+0xa2/0xc0
->  [<c028c660>] dma_pool_destroy+0x20/0x140
->  [<f0b7affe>] free_dma_rcv_ctx+0x8e/0x150 [ohci1394]
->  [<f0b774a4>] ohci_devctl+0x214/0x9b0 [ohci1394]
->  [<f0e7aa99>] handle_iso_listen+0x2d9/0x310 [raw1394]
->  [<f0e7f22b>] state_connected+0x29b/0x2b0 [raw1394]
->  [<f0e7f2de>] raw1394_write+0x9e/0xd0 [raw1394]
->  [<c0183ef2>] vfs_write+0xc2/0x170
->  [<c018406b>] sys_write+0x4b/0x80
->  [<c0103cb1>] sysenter_past_esp+0x52/0x75
+> Can you set the PCI card to be primary in your BIOS or remove the AGP
+> card, and then see if it works? It could be that X's video reset code
+> for secondary PCI cards is broken.
+> 
+I set the PCI card to primary, and kept the AGP card. Then I booted up
+2.6.9-rc3 which normally crashes hard when X starts.  
 
-Yes, that's certainly wrong.
+But now X came up just fine on the radeon!  The log indicates
+no problems with drm either, I did not get a "pci oom".
+I didn't actually test with glxgears, but drm came up according
+to the logs.
+I did not change the X setup, so the pci card was initialized by
+int10 although that wasn't necessary this time.
 
-> Attached patch against 2.6.11-rc2 (tested to work normally with a  
-> camcorder device) enables ohci_devctl to defer the work of destroying 
-> the dma pool by using a work queue, so the dma pool is destroyed in a 
-> valid context and we no longer get an error in dmesg (duh :)
 
-yup.  But what happens if someone removes the module while
-ohci_free_dma_work_fn() is still pending?
+I have not yet tested wether the AGP card works in this configuration, my
+user was impatient so I had to restore a known working configuration.
 
-Suggestions:
+Helge Hafting
 
-- The work_struct cannot be on the stack.  The code as you have it will
-  read gunk from the stack when the delayed work executes.  The work_struct
-  needs to be placed into some ohci data structure which has the appropriate
-  lifetime.  That might be struct ti_ohci.  Or not.
-
-- We'll need a flush_workqueue() in the teardown function for that data
-  structure to ensure that any pending callbacks have completed before we
-  free the storage.
-
-  Care needs to be taken to ensure that the work_struct is suitably
-  initialised so that the flush_workqueue() will work OK even if the
-  callback has never been scheduled.
-
-- You have several typecasts between struct pci_pool* and void*.  These
-  defeat typechecking.  It's better to leave these casts out.

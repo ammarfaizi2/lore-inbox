@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVBRMpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVBRMvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVBRMpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 07:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVBRMpQ
+	id S261356AbVBRMvD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 07:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVBRMvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 07:45:16 -0500
-Received: from soundwarez.org ([217.160.171.123]:49356 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261352AbVBRMpE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 07:45:04 -0500
-Date: Fri, 18 Feb 2005 13:45:03 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, david@fubar.dk
-Subject: Re: [PATCH] add I/O error uevent for block devices
-Message-ID: <20050218124503.GA7705@vrfy.org>
-References: <20050218083316.GA6619@vrfy.org> <20050218014621.0b453232.akpm@osdl.org>
+	Fri, 18 Feb 2005 07:51:03 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:52594
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261352AbVBRMvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 07:51:00 -0500
+Date: Fri, 18 Feb 2005 13:50:57 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Erik =?iso-8859-1?Q?B=E5gfors?= <zindar@gmail.com>
+Cc: Tupshin Harper <tupshin@tupshin.com>, darcs-users@darcs.net,
+       lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: [darcs-users] Re: [BK] upgrade will be needed
+Message-ID: <20050218125057.GE2071@opteron.random>
+References: <20050214020802.GA3047@bitmover.com> <200502172105.25677.pmcfarland@downeast.net> <421551F5.5090005@tupshin.com> <20050218090900.GA2071@opteron.random> <845b6e8705021803533ba8cc34@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050218014621.0b453232.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <845b6e8705021803533ba8cc34@mail.gmail.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 01:46:21AM -0800, Andrew Morton wrote:
-> Kay Sievers <kay.sievers@vrfy.org> wrote:
-> >
-> > For HAL we want to get notified about I/O errors of block devices.
-> >  This is especially useful for devices we are unable to poll and
-> >  therefore can't know if something goes wrong here.
+On Fri, Feb 18, 2005 at 12:53:09PM +0100, Erik Bågfors wrote:
+> RCS/SCCS format doesn't make much sence for a changeset oriented SCM.
 
-> - buffer_io_error() is called from interrupt context, and
->   kobject_uevent() does multiple GFP_KERNEL allocations.  You'll need to
->   use kobject_uevent_atomic().
+The advantage it will provide is that it'll be compact and a backup will
+compress at best too. Small compressed tarballs compress very badly
+instead, it wouldn't be even comparable. Once the thing is very compact
+it has a better chance to fit in cache, and if it fits in cache
+extracting diffs from each file will be very fast. Once it'll be compact
+the cost of a changeset will be diminished allowing it to scale better
+too.
 
-Fixed.
+Now it's true new disks are bigger, but they're not much faster, so if
+the size of the repository is much larger, it'll be much slower to
+checkout if it doesn't fit in cache. And if it's smaller it has better
+chances of fitting in cache too.
 
-> - the prink_ratelimit() fix in end_buffer_async_read() should be a
->   separate patch, really.  I'll fix that up.
+The thing is, RCS seems a space efficient format for storing patches,
+and it's efficient at extracting them too (plus it's textual so it's not
+going to get lost info even if something goes wrong).
 
-Removed that part.
+The whole linux-2.5 CVS is 500M uncompressed and 75M tar.bz2 compressed.
 
-> - there are numerous other places where an I/O error can be detected:
->   grep the tree for b_end_io and bio_end_io.
-
-You mean the mmap and direct-io stuff?
-
-Thanks,
-Kay
-
------
-For HAL we want to get notified about I/O errors of block devices.
-This is especially useful for devices we are unable to poll and
-therefore can't know if something goes wrong here.
-
-Signed-off-by: David Zeuthen <david@fubar.dk>
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-
-===== fs/buffer.c 1.270 vs edited =====
---- 1.270/fs/buffer.c	2005-01-21 06:02:13 +01:00
-+++ edited/fs/buffer.c	2005-02-18 13:00:18 +01:00
-@@ -105,6 +105,7 @@ static void buffer_io_error(struct buffe
- 	printk(KERN_ERR "Buffer I/O error on device %s, logical block %Lu\n",
- 			bdevname(bh->b_bdev, b),
- 			(unsigned long long)bh->b_blocknr);
-+	kobject_uevent_atomic(&bh->b_bdev->bd_disk->kobj, KOBJ_IO_ERROR, NULL);
- }
- 
- /*
-===== include/linux/kobject_uevent.h 1.6 vs edited =====
---- 1.6/include/linux/kobject_uevent.h	2004-11-08 20:43:30 +01:00
-+++ edited/include/linux/kobject_uevent.h	2005-02-18 12:59:18 +01:00
-@@ -29,6 +29,7 @@ enum kobject_action {
- 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
- 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
- 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
-+	KOBJ_IO_ERROR	= (__force kobject_action_t) 0x08,	/* I/O error for devices */
- };
- 
- 
-===== lib/kobject_uevent.c 1.18 vs edited =====
---- 1.18/lib/kobject_uevent.c	2005-01-08 06:44:13 +01:00
-+++ edited/lib/kobject_uevent.c	2005-02-18 12:59:18 +01:00
-@@ -44,6 +44,8 @@ static char *action_to_string(enum kobje
- 		return "offline";
- 	case KOBJ_ONLINE:
- 		return "online";
-+	case KOBJ_IO_ERROR:
-+		return "io_error";
- 	default:
- 		return NULL;
- 	}
-
+My suggestion is to convert _all_ dozen thousand changesets to arch or
+SVN and then compare the size with CVS (also the compressed size is
+interesting for backups IMHO). Unfortunately I know nothing about darcs
+yet (except it eats quite some memory ;)

@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270171AbRHRN46>; Sat, 18 Aug 2001 09:56:58 -0400
+	id <S270155AbRHRNwi>; Sat, 18 Aug 2001 09:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270165AbRHRN4j>; Sat, 18 Aug 2001 09:56:39 -0400
-Received: from nef.ens.fr ([129.199.96.32]:23821 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S270164AbRHRN4i>;
-	Sat, 18 Aug 2001 09:56:38 -0400
-Date: Sat, 18 Aug 2001 15:56:46 +0200 (MET DST)
-Message-Id: <200108181356.PAA24216@clipper.ens.fr>
-From: david.madore@ens.fr (David Madore)
-In-Reply-To: <20010817204358.38BAB501D7@localhost.localdomain>
+	id <S270164AbRHRNw2>; Sat, 18 Aug 2001 09:52:28 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:7701 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S270155AbRHRNwX>;
+	Sat, 18 Aug 2001 09:52:23 -0400
+Date: Sat, 18 Aug 2001 05:34:56 -0700 (PDT)
+From: David Lang <dlang@diginsite.com>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+cc: <fattymikefx@yahoo.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: more kernel .01
-X-Newsreader: Flrn (0.5.0pre0 - 10/00)
-To: fattymikefx@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-X-Start-Date: 18 Aug 2001 13:35:20 GMT
-In-Reply-To: <20010817204358.38BAB501D7@localhost.localdomain>
+In-Reply-To: <3B7DF521.FA49BB13@wanadoo.fr>
+Message-ID: <Pine.LNX.4.33.0108180533510.18300-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tristan in litteris <20010817204358.38BAB501D7@localhost.localdomain> 
-scripsit:
-> The reason i was hoping to run an old version of the kernel,
-> .01 or .02(as someone proposed), is so i can use it as a basis
-> for learning to add on to, compile, and change an os's kernel.
-<snip>
+for that matter I don't think slackware dropped the full floppy install
+untill 7.0 or 7.1 and even with slackware 9 you can install from
+floppy+NFS
 
-Does it have to be Linux?  If not, there are several systems which are
-supposed to be simpler than Linux and pedagogically interesting.  For
-example, VSTa (see on <URL: http://www.vsta.org/ >).  It's GPL'ed.
+David Lang
 
-Also, if you are interested in history, you might have a look at <URL:
-http://www.sco.com/offers/ancient.html >: the Santa Cruz Organization
-is offering free source licenses for versions 5, 6 and 7 of Unix
-(circa 1970).  The entire v7 kernel source code, for example is below
-20klines (mostly C, and a bit of PDP-11 assembler), including device
-drivers.  You can even find PDP-11 emulators to run the thing and play
-with it.  (But you can't redistribute it.)
+ On Sat, 18 Aug 2001, Pierre Rousselet wrote:
 
-(If you want something old *and* free-as-in-free-speech, there's ITS.
-I don't think anyone was able to make it run on modern machines,
-though.  Making a PDP-10 emulator is much harder than for a PDP-11.)
-
-Happy hacking,
-
--- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.eleves.ens.fr:8080/home/madore/ )
+> Date: Sat, 18 Aug 2001 06:54:57 +0200
+> From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+> To: fattymikefx@yahoo.com
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: more kernel .01
+>
+> tristan wrote:
+> >
+> > The reason i was hoping to run an old version of the kernel,
+> > .01 or .02(as someone proposed), is so i can use it as a basis
+> > for learning to add on to, compile, and change an os's kernel.
+> > I know i can do this with all kernels, but the .01 kernel is very small
+> > and the very beginning of the kernel so i can build on it. i am
+> > open to installing say red hat 5.2 and then running .01 on a
+> > VM, but i only have it on a cd, and the 386 has no cdrom drive.
+> > Does anyone know of a place i can get an old version of red hat
+> > ive been searching for awhile, or a way to copy the cd to
+> > multiple floppies that are able to be install.
+> > Id really rather have away of just installing it over the DOS partition
+> > but it seems everyone thinks it would be best to install minix of red
+> > hat first, and im fine with that.
+> > So if anyone has information on old red hat version i would
+> > be very greatful
+> >
+>
+> Slackware-3.0 (kernel 1.2.13) is installable from floppies (a lot of).
+>
+> http://www.buckosoft.com/linux/slakware.html
+> http://ftp.gcu-squad.org/mirrors/slackware-3.0/
+>
+> Pierre
+> --
+> ------------------------------------------------
+>  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+> ------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

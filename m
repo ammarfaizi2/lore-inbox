@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132127AbRDNNAv>; Sat, 14 Apr 2001 09:00:51 -0400
+	id <S132137AbRDNNCv>; Sat, 14 Apr 2001 09:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132137AbRDNNAc>; Sat, 14 Apr 2001 09:00:32 -0400
-Received: from mp-216-40-25.daxnet.no ([193.216.40.25]:17959 "EHLO
-	pilt.home.garstad.net") by vger.kernel.org with ESMTP
-	id <S132127AbRDNNAZ> convert rfc822-to-8bit; Sat, 14 Apr 2001 09:00:25 -0400
-Message-ID: <001201c0c4e2$d71e8b10$01000001@pompel>
-From: "Ola Garstad" <olag@eunet.no>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-        "Arthur Pedyczak" <arthur-p@home.com>
-In-Reply-To: <Pine.LNX.4.33.0104140843170.21879-100000@cs865114-a.amp.dhs.org>
-Subject: Re: loop problems continue in 2.4.3
-Date: Sat, 14 Apr 2001 14:58:50 +0200
-MIME-Version: 1.0
+	id <S132140AbRDNNCl>; Sat, 14 Apr 2001 09:02:41 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:1294 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132137AbRDNNCV> convert rfc822-to-8bit; Sat, 14 Apr 2001 09:02:21 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SW-RAID0 Performance problems
+Date: Sat, 14 Apr 2001 15:09:37 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041411380600.00516@debian> <20010414142839.A12760@ping.be>
+In-Reply-To: <20010414142839.A12760@ping.be>
+MIME-Version: 1.0
+Message-Id: <01041415093700.01502@debian>
 Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a tip:
+Am Samstag, 14. April 2001 14:28 schrieb Kurt Roeckx:
+> Does turning unmaskirq on help?
 
-I had the same problems when I started to use 2.4.x kernels. It was the compiler that caused the problem. 
-I switch to using kgcc (comes with RH 7.0) and all the problems when away. :-)
+Already tried this, but it doesn't help
+The actual settings (same on /dev/hdc):
 
------ Original Message ----- 
-From: "Arthur Pedyczak" <arthur-p@home.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: "Linux kernel list" <linux-kernel@vger.kernel.org>; "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Sent: Saturday, April 14, 2001 2:46 PM
-Subject: Re: loop problems continue in 2.4.3
+bash-2.04# hdparm /dev/hda
+ 
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 59556/16/63, sectors = 60032448, start = 0
 
+bash-2.04# hdparm -tT /dev/md0
+ 
+/dev/md0:
+ Timing buffer-cache reads:   128 MB in  1.30 seconds = 98.46 MB/sec
+ Timing buffered disk reads:  64 MB in  3.14 seconds = 20.38 MB/sec
 
-> On Sat, 14 Apr 2001, Jens Axboe wrote:
-> 
-> [ SNIP..................]
-> > > =====================
-> > > Apr 13 20:50:03 cs865114-a kernel: Unable to handle kernel paging request at virtual address 7e92bfd7
-> >
-> > Please disable syslog decoding (it sucks) and feed it through ksymoops
-> > instead.
-> >
-> > In other words, reproduce and dmesg | ksymoops instead.
-> >
-> >
-> I tried to reproduce the error this morning and couldn't. Same kernel
-> (2.4.3), same setup, same iso file. It mounted/unmounted 10 times with no
-> problem. DOn't know what to think.
-> 
-> Arthur
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+bash-2.04# hdparm -tT /dev/hda3
+ 
+/dev/hda3:
+ Timing buffer-cache reads:   128 MB in  1.31 seconds = 97.71 MB/sec
+ Timing buffered disk reads:  64 MB in  2.26 seconds = 28.32 MB/sec
+
+Andreas
+-- 
+Andreas Peter *** ujq7@rz.uni-karlsruhe.de
 

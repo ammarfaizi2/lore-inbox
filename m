@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285013AbRLUT0W>; Fri, 21 Dec 2001 14:26:22 -0500
+	id <S282212AbRLVUWN>; Sat, 22 Dec 2001 15:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285041AbRLUT0P>; Fri, 21 Dec 2001 14:26:15 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:41478 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S285014AbRLUTX7>;
-	Fri, 21 Dec 2001 14:23:59 -0500
-Date: Tue, 18 Dec 2001 00:21:10 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
-Cc: linux-kernel@vger.kernel.org, large-discuss@lists.sourceforge.net,
-        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
-        Jason McMullan <jmcmullan@linuxcare.com>,
-        Anton Blanchard <antonb@au1.ibm.com>,
-        Greg Kroah-Hartman <ghartman@us.ibm.com>, rusty@rustcorp.com.au
-Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.5.0
-Message-ID: <20011218002110.B37@toy.ucw.cz>
-In-Reply-To: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp>
+	id <S282222AbRLVUWD>; Sat, 22 Dec 2001 15:22:03 -0500
+Received: from pD9053081.dip.t-dialin.net ([217.5.48.129]:61169 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S282212AbRLVUWA> convert rfc822-to-8bit; Sat, 22 Dec 2001 15:22:00 -0500
+Date: Thu, 7 Jan 1904 09:32:10 +0100
+From: Marc Heckmann <heckmann@hbe.ca>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cerberus on 2.4.17-rc2 UP
+Message-ID: <19040107093209.B1421@hbe.ca>
+In-Reply-To: <20011220135904.B32516@hbe.ca> <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp>; from k-suganuma@mvj.biglobe.ne.jp on Thu, Dec 13, 2001 at 01:29:42PM -0800
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Dec 21, 2001 at 02:56:34PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Dec 21, 2001 at 02:56:34PM -0200, Marcelo Tosatti wrote:
+> 
+> Can you please run Cerberus again and give me more information ?
 
-> The Hotplug CPU patch for 2.5.0 is uploaded.
-> 
->   http://sourceforge.net/projects/lhcs/
-> 
-> This patch works on s390, s390x, x86 and ia64 architectures.
-> It can also be applied against 2.4.16 with a little modification.
-> 
-> Down CPU
-> echo 0 > /proc/sys/kernel/cpu/<id>/online
-> 
-> Up CPU
-> echo 1 > /proc/sys/kernel/cpu/<id>/online
+I did and the machine made it through this time ( in 18 hours). The thing 
+is that I skipped the LTP and crashme tests because last time, they 
+finished in 8 hours succesfully and the machine only locked up after 14 so 
+I thought that one of the other tests that were still running were 
+responsible. 
 
-Such patches are neccessary for ACPI S3/S4 sleep support. It would be nice to
-apply them soon.
-								Pavel
+In anz case, I don't have access to the box till thursday due to the 
+holidays. I will re-run with all tests then.
+
+Cheers, 
+
+> 
+> On Thu, 20 Dec 2001, marc. h. wrote:
+> 
+> > I tried out the latest cerberus from
+> > http://people.redhat.com/bmatthews/cerberus/ on a UP redhat-7.2 box. I ran the
+> > standard non-destructive RedHat tests.
+> > 
+> > It ran for about 14 hours and then became unresponsive..  machine still ping'ed
+> > , I could switch VC's scroll up on console, but that's it. Could not log in,
+> > etc.. Another point is that the hard drive light remained on but it was not
+> > seeking, it seemed dead silent.
+> 
+> 
+> 
+
+-m
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+	C3C5 9226 3C03 CDF7 2EF1  029F 4CAD FBA4 F5ED 68EB
+	key: http://people.hbesoftware.com/~heckmann/

@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268413AbUHQUYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUHQU0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268413AbUHQUYP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 16:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268415AbUHQUXG
+	id S268425AbUHQU0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 16:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268419AbUHQUZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 16:23:06 -0400
-Received: from mail.siemenscom.com ([12.146.131.10]:62104 "EHLO
-	mail.siemenscom.com") by vger.kernel.org with ESMTP id S268412AbUHQUW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 16:22:29 -0400
-Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310F320@stca204a.bus.sc.rolm.com>
-From: "Bloch, Jack" <jack.bloch@siemens.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bonding driver 
-Date: Tue, 17 Aug 2004 13:22:19 -0700
+	Tue, 17 Aug 2004 16:25:53 -0400
+Received: from av1-1-sn1.fre.skanova.net ([81.228.11.107]:21213 "EHLO
+	av1-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S268416AbUHQUYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 16:24:49 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Packet writing problems
+References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
+	<m3657iq4rk.fsf@telia.com> <1092686149.4338.1.camel@freddy>
+	<m37jrxk024.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 17 Aug 2004 22:24:43 +0200
+In-Reply-To: <m37jrxk024.fsf@telia.com>
+Message-ID: <m33c2ljywk.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 2.4.19 Kernel from SuSE running the bonding driver. I can see that
-the bonding driver is switching over to the standby bonded interface for no
-"apparent" reason. I have a couple of questions.
+Peter Osterlund <petero2@telia.com> writes:
 
-Namely,
+> Frediano Ziglio <freddyz77@tin.it> writes:
+> 
+> > Il lun, 2004-08-16 alle 21:09, Peter Osterlund ha scritto:
+> > ...
+> > > 
+> > > The second problem is in the dvdrw-support patch in the -mm kernel.
+> > > (This patch is also included in the patch you are using.)
+> > > 
+> > > The problem is that some drives fail the "GET CONFIGURATION" command
+> > > when asked to only return 8 bytes. This happens for example on my
+> > > drive, which is identified as:
+> > > 
+> > >         hdc: HL-DT-ST DVD+RW GCA-4040N, ATAPI CD/DVD-ROM drive
+> > > 
+> > > Since the cdrom_mmc3_profile() function already allocates 32 bytes for
+> > > the reply buffer, this patch is enough to make the command succeed on
+> > > my drive.
+> > > 
+> > 
+> > I'm forgetting... 
+> > 
+> > mounting devices it reports that disk was CD-RW and speed was 15
+> > (DVD-RW) and 31 (DVD+RW).
+> 
+> That shouldn't cause any real problems, but since it's quite
+> confusing, here is a patch to fix it.  With this change, both DVD+RW
+> and DVD-RW media is correctly identified in the kernel log, and DVD
+> speeds are printed in kB/s.
 
-Are there any patches to the bonding driver?
+I forgot to say:
 
-What would cause a bonded interface to be switched over?
+Signed-off-by: Peter Osterlund <petero2@telia.com>
 
-I am also seeing duplex packets being caused by this. Is this known
-behavior?
-
-
-Please CC me directly on any response.
-
-
-Regards,
-
-
-Jack
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

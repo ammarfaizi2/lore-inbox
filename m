@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287348AbSAQMtV>; Thu, 17 Jan 2002 07:49:21 -0500
+	id <S288662AbSAQNDL>; Thu, 17 Jan 2002 08:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287283AbSAQMtM>; Thu, 17 Jan 2002 07:49:12 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:9999 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S287253AbSAQMtF>; Thu, 17 Jan 2002 07:49:05 -0500
-Date: Thu, 17 Jan 2002 13:48:57 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: ciak@virgilio.it
+	id <S288660AbSAQNDB>; Thu, 17 Jan 2002 08:03:01 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:38083 "EHLO smtp3a.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S288657AbSAQNCo> convert rfc822-to-8bit;
+	Thu, 17 Jan 2002 08:02:44 -0500
+Message-ID: <3C42180D00005FB3@ims1b.cp.tin.it>
+Date: Thu, 17 Jan 2002 14:02:03 +0100
+In-Reply-To: <20020117124857.GD28788@arthur.ubicom.tudelft.nl>
+From: ciak@virgilio.it
+Subject: =?iso-8859-1?Q?Re=3A=20Web=20interface=20in=20order=20to=20submit=20patch=2E?=
+To: =?iso-8859-1?Q?Erik=20Mouw?= <J.A.K.Mouw@its.tudelft.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Web interface in order to submit patch.
-Message-ID: <20020117124857.GD28788@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3C42180D00005ABE@ims1b.cp.tin.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C42180D00005ABE@ims1b.cp.tin.it>
-User-Agent: Mutt/1.3.25i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 17, 2002 at 11:00:59AM +0100, ciak@virgilio.it wrote:
-> I'm not a developer (I was it) so my advice may be not useful.
-> I'm windering about why you haven't a simly web interface in order to submit
-> the patch. This solution should solve the problem related to how to poste
-> the patch and should e very easy to obtain a sort of repository of the patches.
+[...]
+>We already have such interfaces. They are called "web based email",
+>like hotmail.com or netscape.net [...]
 
-We already have such interfaces. They are called "web based email",
-like hotmail.com or netscape.net.
+I'm using a "web based email"...
+What I suggested was, why don't use a web interface in order to submit a
+patch, something with forms to fill, with the description of the patch,
+the body of the patch, the results of the test done...
+
+Using something like this I think you could have a nice repository of all
+posted patch.
+
+Howevere, this is _only_ my idea, pleas don't reply to this mail with others
+satiral comments. 
+
+Ciao,
+Ciak
 
 
-Erik
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+
+

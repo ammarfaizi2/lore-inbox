@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286744AbRL1EUI>; Thu, 27 Dec 2001 23:20:08 -0500
+	id <S286747AbRL1FnN>; Fri, 28 Dec 2001 00:43:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286747AbRL1ETt>; Thu, 27 Dec 2001 23:19:49 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:2826 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286746AbRL1ETl>;
-	Thu, 27 Dec 2001 23:19:41 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.17 drivers/scsi/NCR5380.c
+	id <S286751AbRL1FnG>; Fri, 28 Dec 2001 00:43:06 -0500
+Received: from osiris.silug.org ([64.240.156.225]:46250 "EHLO osiris.silug.org")
+	by vger.kernel.org with ESMTP id <S286747AbRL1Fms>;
+	Fri, 28 Dec 2001 00:42:48 -0500
+Date: Thu, 27 Dec 2001 23:42:34 -0600
+From: Steven Pritchard <steve@silug.org>
+To: "Steven P. Cole" <elenstev@mesatop.com>,
+        "Eric S. Raymond" <esr@thyrsus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Configure.help entry fix
+Message-ID: <20011227234234.A353@osiris.silug.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 15:19:27 +1100
-Message-ID: <20002.1009513167@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several drivers #include "NCR5380.c".  If two or more of those drivers
-are built into vmlinux then you get duplicate global symbols.
-Functions in NCR5380.c must be static.  There are a couple of other
-suspect functions but they are conditioned by #ifdef so I left them
-alone.
+Then entry in Configure.help for CONFIG_BLK_DEV_3W_XXXX_RAID starts
+out "3ware is the only hardware ATA-Raid product in Linux to date."
+This is a mistake, since the driver for the Adaptec 2400A card
+(dpt_i2o) is in the kernel.
 
-Index: 17.9/drivers/scsi/NCR5380.c
---- 17.9/drivers/scsi/NCR5380.c Sat, 08 Dec 2001 10:12:02 +1100 kaos (linux-2.4/U/b/0_NCR5380.c 1.4 644)
-+++ 17.9(w)/drivers/scsi/NCR5380.c Fri, 28 Dec 2001 15:15:16 +1100 kaos (linux-2.4/U/b/0_NCR5380.c 1.4 644)
-@@ -612,7 +612,7 @@ static int NCR5380_set_timer(struct Scsi
-  *	Locks: disables irqs, takes and frees io_request_lock
-  */
-  
--void NCR5380_timer_fn(unsigned long unused)
-+static void NCR5380_timer_fn(unsigned long unused)
- {
- 	struct Scsi_Host *instance;
+I've included a patch below to fix that, plus add a note about a data
+corruption issue that users should be aware of.  I suppose the entry
+should probably also include the standard "If you want to compile this
+driver as a module..." block also...
+
+On a side note, shouldn't CONFIG_BLK_DEV_3W_XXXX_RAID really be
+something like CONFIG_SCSI_3W_XXXX_RAID?
+
+Steve
+-- 
+steve@silug.org           | Southern Illinois Linux Users Group
+(618)398-7360             | See web site for meeting details.
+Steven Pritchard          | http://www.silug.org/
+
+--- Documentation/Configure.help.orig	Fri Dec 21 11:41:53 2001
++++ Documentation/Configure.help	Thu Dec 27 23:34:49 2001
+@@ -917,9 +917,13 @@
  
-
+ 3ware Hardware ATA-RAID support
+ CONFIG_BLK_DEV_3W_XXXX_RAID
+-  3ware is the only hardware ATA-Raid product in Linux to date.
+-  This card is 2,4, or 8 channel master mode support only.
+-  SCSI support required!!!
++  This driver supports the 3ware Escalade 5000, 6000, and 7000-series
++  IDE RAID controllers.
++
++  Note that RAID 5 on 6000-series controllers requires a recent
++  firmware revision.  Running old firmware or old versions of the
++  driver on a degraded RAID 5 array can cause data corruption on the
++  array.  See 3ware's web site for firmware updates.
+ 
+   <http://www.3ware.com/>
+ 

@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUAYWgD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbUAYWgD
+	id S265306AbUAYW1S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUAYW1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:36:03 -0500
-Received: from mail.g-housing.de ([62.75.136.201]:42667 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S265290AbUAYWf7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:35:59 -0500
-Message-ID: <401444C6.3090602@g-house.de>
-Date: Sun, 25 Jan 2004 23:35:50 +0100
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031203 Thunderbird/0.4RC2
-X-Accept-Language: en-us, en
+	Sun, 25 Jan 2004 17:27:18 -0500
+Received: from mail4.edisontel.com ([62.94.0.37]:60641 "EHLO
+	mail4.edisontel.com") by vger.kernel.org with ESMTP id S265306AbUAYW1O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 17:27:14 -0500
+From: Eduard Roccatello <lilo@roccatello.it>
+Organization: SPINE
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel/ptrace.c BUG_ON fixes
+Date: Sun, 25 Jan 2004 23:28:56 +0100
+User-Agent: KMail/1.5.4
+X-IRC: #hardware@azzurra.org #rolug@freenode
+X-Jabber: eduardroccatello@jabber.linux.it
+X-GPG-Keyserver: keyserver.linux.it
+X-GPG-FingerPrint: F7B3 3844 038C D582 2C04 4488 8D46 368B 474D 6DB0
+X-GPG-KeyID: 474D6DB0
+X-Website: http://www.pcimprover.it
 MIME-Version: 1.0
-To: Marco Rebsamen <mrebsamen@swissonline.ch>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Troubles Compiling 2.6.1 on SuSE 9
-References: <200401242137.34881.mrebsamen@swissonline.ch> <20040125124557.GA2036@mars.ravnborg.org> <200401251427.02975.mrebsamen@swissonline.ch>
-In-Reply-To: <200401251427.02975.mrebsamen@swissonline.ch>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_oMEFAGEIMaOAghx"
+Message-Id: <200401252328.56344.lilo@roccatello.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Marco Rebsamen wrote:
-| bineo:/usr/src/linux-2.6.1 # LANG=C LC_ALL=C objcopy -O binary -R .note
-| -R .comment -S vmlinux arch/i386/boot/compressed/vmlinux.bin
-| Ungültiger Maschinenbefehl
+--Boundary-00=_oMEFAGEIMaOAghx
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-try with "export LANG=C && objcopy ...." to get english messages.
+Hello
 
-also: what binutils (objcopy -V), gcc, make, etc.. do you use? have you
-bugged SuSE yet?
+ptrace.c has some references to BUG() in form
 
-Christian.
+if (condition)
+	BUG();
 
-- --
-BOFH excuse #154:
+I've changed them in BUG_ON(condition);
 
-You can tune a file system, but you can't tune a fish (from most tunefs
-man pages)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Cheers,
+Eduard Roccatello
 
-iD8DBQFAFETE+A7rjkF8z0wRAnbOAJ9oxQi0xuZNzE2S0t3R67NkWxzwjQCgxfDP
-j36b+cPwz0vgJ8WiINsu+Wk=
-=8Ba0
------END PGP SIGNATURE-----
+--Boundary-00=_oMEFAGEIMaOAghx
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ptrace_clean.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ptrace_clean.patch"
+
+--- /usr/src/linux/kernel/ptrace.c.orig	2004-01-25 23:19:22.000000000 +0100
++++ /usr/src/linux/kernel/ptrace.c	2004-01-25 23:20:58.000000000 +0100
+@@ -28,8 +28,8 @@
+  */
+ void __ptrace_link(task_t *child, task_t *new_parent)
+ {
+-	if (!list_empty(&child->ptrace_list))
+-		BUG();
++	BUG_ON(!list_empty(&child->ptrace_list));
++
+ 	if (child->parent == new_parent)
+ 		return;
+ 	list_add(&child->ptrace_list, &child->parent->ptrace_children);
+@@ -46,8 +46,8 @@ void __ptrace_link(task_t *child, task_t
+  */
+ void __ptrace_unlink(task_t *child)
+ {
+-	if (!child->ptrace)
+-		BUG();
++	BUG_ON(!child->ptrace);
++		
+ 	child->ptrace = 0;
+ 	if (list_empty(&child->ptrace_list))
+ 		return;
+
+--Boundary-00=_oMEFAGEIMaOAghx--
 

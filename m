@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311206AbSCPXh5>; Sat, 16 Mar 2002 18:37:57 -0500
+	id <S311209AbSCPXqI>; Sat, 16 Mar 2002 18:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311205AbSCPXhr>; Sat, 16 Mar 2002 18:37:47 -0500
-Received: from gateway2.ensim.com ([65.164.64.250]:50703 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S311198AbSCPXhh>; Sat, 16 Mar 2002 18:37:37 -0500
-X-mailer: xrn 8.03-beta-26
-From: Paul Menage <pmenage@ensim.com>
-Subject: Re: [PATCH] Speedup SMP kernel on UP box
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
+	id <S311210AbSCPXpt>; Sat, 16 Mar 2002 18:45:49 -0500
+Received: from diale112.ppp.lrz-muenchen.de ([129.187.28.112]:42761 "HELO
+	Nicole.fhm.edu") by vger.kernel.org with SMTP id <S311209AbSCPXpn>;
+	Sat, 16 Mar 2002 18:45:43 -0500
+Subject: Re: [Lse-tech] 7.52 second kernel compile
+From: Daniel Egger <degger@fhm.edu>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-X-Newsgroups: 
-In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D238DE0@nasdaq.ms.ensim.com>
-Message-Id: <E16mNjq-0002xW-00@pmenage-dt.ensim.com>
-Date: Sat, 16 Mar 2002 15:37:26 -0800
+In-Reply-To: <730219199.1016271418@[10.10.2.3]>
+In-Reply-To: <20020316061535.GA16653@krispykreme> 
+	<730219199.1016271418@[10.10.2.3]>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 16 Mar 2002 19:57:32 +0100
+Message-Id: <1016305054.19498.13.camel@sonja>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D238DE0@nasdaq.ms.ensim.com>,
-you write:
->@@ -9,9 +9,15 @@
->  */
-> 
-> #ifdef CONFIG_SMP
->-#define LOCK "lock ; "
->+#define LOCK "\n1:\tlock ; "
->+#define LOCK_ADDR	"\n" \
->+			".section .lock.init,\"a\"\n\t" \
->+			".align 4\n\t" \
->+			".long 1b\n" \
->+			".previous\n"
+Am Sam, 2002-03-16 um 18.37 schrieb Martin J. Bligh:
 
+> BTW - the other tip that was in the big book of whizzy kernel
+> compiles was to set gcc to use -pipe ... you might want to try
+> that.
 
-Why not do:
+Interestingly -pipe doesn't give any measurable performance increases or
+even leads to a minor decrease in compile speed in my latest tests on
+bigger projects like the linux kernel or GIMP. I suspect that's because
+of the caching nature of nowadays systems: the temporary products are
+cached in memory and likely not to never end on a drive because they're
+read and removed before the point the filesystem decides to physically
+write the data.
 
-#define LOCK "1: lock ; \n" \
-	 	".section .lock.init,\"a\"\n" \
-		".align 4\n"\
-		".long 1b\n"\
-		".previous\n" 
+I also benchmarked tmpfs mounts and it demonstrated - to my surprise -
+small advantages slightly above the noise range; I suspect this is due
+to the way it handles files in memory.
+ 
+-- 
+Servus,
+       Daniel
 
-Then you don't need the LOCK_ADDR macro, so most of atomic.h can be
-left as is. The assembler doesn't seem to care that there's a section
-change between the lock prefix and the instruction that it's locking.
-
-Paul

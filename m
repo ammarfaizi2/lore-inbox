@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276923AbRJHO7N>; Mon, 8 Oct 2001 10:59:13 -0400
+	id <S276914AbRJHPEX>; Mon, 8 Oct 2001 11:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276920AbRJHO7E>; Mon, 8 Oct 2001 10:59:04 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:32698 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S276912AbRJHO6y>;
-	Mon, 8 Oct 2001 10:58:54 -0400
-Date: Mon, 08 Oct 2001 16:01:05 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: "Eric W. Biederman" <ebiederman@uswest.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: %u-order allocation failed
-Message-ID: <1231218688.1002556865@[10.132.113.67]>
-In-Reply-To: <m1wv27wber.fsf@frodo.biederman.org>
-In-Reply-To: <m1wv27wber.fsf@frodo.biederman.org>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S276339AbRJHPEN>; Mon, 8 Oct 2001 11:04:13 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:26218 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S276917AbRJHPD5>; Mon, 8 Oct 2001 11:03:57 -0400
+Date: Mon, 8 Oct 2001 10:03:57 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
+        jamal <hadi@cyberus.ca>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <E15qbtV-0000hd-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1011008100030.13807A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 8 Oct 2001, Alan Cox wrote:
+> > Of course we agree that such a "polling router/firewall" behaviour must
+> > not be the default but it must be enabled on demand by the admin via
+> > sysctl or whatever else userspace API. And I don't see any problem with
+> > that.
+> 
+> No I don't agree. "Stop random end users crashing my machine at will" is not
+> a magic sysctl option - its a default. 
+
+I think (Ingo's?) analogy of an airbag was appropriate, if that's indeed
+how the code winds up functioning.
+
+Having a mechanism that prevents what would otherwise be a lockup is
+useful.  NAPI is useful.  Having both would be nice :)
+
+	Jeff
 
 
---On Sunday, October 07, 2001 12:30 PM -0600 "Eric W. Biederman" 
-<ebiederman@uswest.net> wrote:
 
->> Note also that something (not sure what) has made fragmentation
->> increasingly prevalent over the years since the buddy allocator
->> was originally put in.
->
-> Actually it seems to be situations like the stack now being two pages
 
-Instrumentation posted here before appears to corellate fragmentation
-being /caused/ with I/O activity (single bonnie process and thus a
-single 8k stack frame). My own guess is that it is due to
-a different persistence of various caches.
-
-I haven't seen anyone before blaming stack frame allocation
-as a /cause/ of fragmenation - I've heard people say they
-notice fragmentation more as stack frame allocs start to
-fail - but that's a symptom.
-
---
-Alex Bligh

@@ -1,25 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265697AbSIRMNX>; Wed, 18 Sep 2002 08:13:23 -0400
+	id <S266399AbSIRMPf>; Wed, 18 Sep 2002 08:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266382AbSIRMNX>; Wed, 18 Sep 2002 08:13:23 -0400
-Received: from host-217-146-2-126.warsun.com ([217.146.2.126]:45325 "HELO
-	coolre4215.com") by vger.kernel.org with SMTP id <S265697AbSIRMNX> convert rfc822-to-8bit;
-	Wed, 18 Sep 2002 08:13:23 -0400
-From: "PRINCESS VIVIAN INYEKWERE" <vivianonye@excite.com>
-Reply-To: vivianonye@usa.com
-Date: Mon, 16 Sep 2002 19:39:47 -0600
-Subject: 
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	id <S266418AbSIRMPf>; Wed, 18 Sep 2002 08:15:35 -0400
+Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:8658 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S266399AbSIRMPe>;
+	Wed, 18 Sep 2002 08:15:34 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Audio problems on 2.4.20-pre5
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 18 Sep 2002 14:20:23 +0200
+Message-ID: <m3hegnh4l4.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20020918121323Z265697-685+50072@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ATTN: INTRODUTION I am Princess Vivian Onyekwere, daughter of Chief Oti Onyekwer, the king of Ogoni Kingdom. Iam 25 Years old and a graduate of Mass Communication. My Father was the king of Ogoni Kingdom the highest oil Producing area in Nigeria. He was in charge of Reviving royalties from the multi-national oil Companies and government on behalf of the oil Producing communities in Nigeria. After the hanging of The Ogoni Nine (9) including Ken Saro Wiwa by the late Dictator General Sani Abacha, my father suffered Stroke and died November 15th lastyear. But before his death, he called me and told me he has twenty Three Million Five Hundred and Sixty Thousand Dollars(USD23,560,000.00) cash in his Possession, Specially deposited in a Security company here. He advised me not to tell anybody except my mother who is the last wife of the (8) eight wives that he married. My mother did not bear any male child for him. Which implies that all my fathers' properties, companies' e.t.c, we have no share in them because my mother has No male child according to African Tradition. My father there fore secretly gave me all the relevant Documents of the said money, and told me that I should Use this money with my mother and my younger sisters Because he knows that traditionally, if he dies we Cannot get anything, as inheritance. He importantly Advised me that I should seek foreign assistance’s and that I should not invest this money here in Nigeria Because of his other wives and male children who happen to be my elders. I am soliciting for your immediate assistance to get a bungalow for us, wherein Will live with my mother and two younger sisters and Further advise me where and how I will invest the balance money overseas, possibly on products of your Company and other profitable ventures. I believe that by the special grace of God, you will help us move this money out of Nigeria to any country of your Choice where we can invest this money judiciously with you. You are entitled to a reasonable part of this Money based on o!
-ur agreement, and God will bless you as you help us. Please reply through my e-mail Looking Forward to hear from you as soon as possible. Best regard, 
+I've had this happen a few times on 2.4.20-preX, as this time I
+thoguht it was time to ask what's up about it. Every once in a while
+the machine will decide to not play audio, or play it at odd speeds,
+after trying to play an mp3 now I got my syslog full of these:
 
+i810_audio: DMA overrun on write
+i810_audio: CIV 23, LVI 22, hwptr ba18, count -24
+i810_audio: DMA overrun on write
+i810_audio: CIV 23, LVI 22, hwptr bd00, count -232 
 
+The sound init from dmesg is here:
+
+i810: Intel ICH3 found at IO 0x4400 and 0x4000, MEM 0x0000 and 0x0000, IRQ 5
+i810_audio: Audio Controller supports 6 channels.
+i810_audio: Defaulting to base 2 channel mode.
+i810_audio: Resetting connection 0
+ac97_codec: AC97 Audio codec, id: ADS99(Unknown)
+i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), total channels = 2
+i810_audio: setting clocking to 68246
+
+Any pointer to why this happens?
+
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

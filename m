@@ -1,295 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282824AbRLGJsf>; Fri, 7 Dec 2001 04:48:35 -0500
+	id <S285444AbRLGJxM>; Fri, 7 Dec 2001 04:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285444AbRLGJsZ>; Fri, 7 Dec 2001 04:48:25 -0500
-Received: from bb94-125.singnet.com.sg ([165.21.94.125]:56985 "HELO
-	accellion.com") by vger.kernel.org with SMTP id <S282824AbRLGJsK>;
-	Fri, 7 Dec 2001 04:48:10 -0500
-Date: Fri, 7 Dec 2001 17:48:00 +0800
-From: Mathieu Legrand <mathieu@accellion.com>
-To: linux-kernel@vger.kernel.org
-Subject: Compaq Proliant DL360 + 2.4.1?-* eepro100 and e100 pause when inactive (+ .config attached)
-Message-ID: <20011207094800.GB22128@accellion.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+	id <S285447AbRLGJww>; Fri, 7 Dec 2001 04:52:52 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:725 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S285444AbRLGJwp>;
+	Fri, 7 Dec 2001 04:52:45 -0500
+Importance: Normal
+Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
+To: dipankar@beaverton.ibm.com
+Cc: kiran@linux.ibm.com, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFEDC68CF2.34B05314-ON85256B1B.00355B4C@raleigh.ibm.com>
+From: "Niels Christiansen" <nchr@us.ibm.com>
+Date: Fri, 7 Dec 2001 04:52:40 -0500
+X-MIMETrack: Serialize by Router on D04NM104/04/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 12/07/2001 04:52:41 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---RASg3xLB4tUQ4RcS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello Dikanpar,
 
-I forgot to attach the .config file, here it is:
+| > Anyway, since we just had a long thread going on NUMA topology, maybe
+| > it would be proper to investigate if there is a better way, such as
+| > using the topology to decide where to put counters?  I think so, seeing
+| > as it is that most Intel based 8-ways and above will have at least some
+| > NUMA in them.
+|
+| It should be easy to place the counters in appropriately close
+| memory if linux gets good NUMA APIs built on top of the topology
+| services. If we extend kmem_cache_alloc() to allocate memory
+| in a particular NUMA node, we could simply do this for placing the
+| counters -
+| ...
+| This would put the block of counters corresponding to a CPU in
+| memory local to the NUMA node. If there are more sophisticated
+| APIs available for suitable memory selection, those too can be made
+| use of here.
+|
+| Is this the kind of thing you are looking at ?
 
-# grep ^C .config
-CONFIG_X86=3Dy
-CONFIG_ISA=3Dy
-CONFIG_UID16=3Dy
-CONFIG_EXPERIMENTAL=3Dy
-CONFIG_MODULES=3Dy
-CONFIG_KMOD=3Dy
-CONFIG_MPENTIUMIII=3Dy
-CONFIG_X86_WP_WORKS_OK=3Dy
-CONFIG_X86_INVLPG=3Dy
-CONFIG_X86_CMPXCHG=3Dy
-CONFIG_X86_XADD=3Dy
-CONFIG_X86_BSWAP=3Dy
-CONFIG_X86_POPAD_OK=3Dy
-CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
-CONFIG_X86_L1_CACHE_SHIFT=3D5
-CONFIG_X86_TSC=3Dy
-CONFIG_X86_GOOD_APIC=3Dy
-CONFIG_X86_PGE=3Dy
-CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
-CONFIG_NOHIGHMEM=3Dy
-CONFIG_MTRR=3Dy
-CONFIG_SMP=3Dy
-CONFIG_HAVE_DEC_LOCK=3Dy
-CONFIG_NET=3Dy
-CONFIG_X86_IO_APIC=3Dy
-CONFIG_X86_LOCAL_APIC=3Dy
-CONFIG_PCI=3Dy
-CONFIG_PCI_GOANY=3Dy
-CONFIG_PCI_BIOS=3Dy
-CONFIG_PCI_DIRECT=3Dy
-CONFIG_PCI_NAMES=3Dy
-CONFIG_SYSVIPC=3Dy
-CONFIG_BSD_PROCESS_ACCT=3Dy
-CONFIG_SYSCTL=3Dy
-CONFIG_KCORE_ELF=3Dy
-CONFIG_BINFMT_AOUT=3Dm
-CONFIG_BINFMT_ELF=3Dy
-CONFIG_BINFMT_MISC=3Dy
-CONFIG_PM=3Dy
-CONFIG_ACPI=3Dy
-CONFIG_ACPI_BUSMGR=3Dy
-CONFIG_APM=3Dy
-CONFIG_APM_RTC_IS_GMT=3Dy
-CONFIG_BLK_DEV_FD=3Dy
-CONFIG_BLK_CPQ_DA=3Dy
-CONFIG_BLK_DEV_DAC960=3Dy
-CONFIG_BLK_DEV_LOOP=3Dy
-CONFIG_BLK_DEV_NBD=3Dm
-CONFIG_BLK_DEV_RAM=3Dy
-CONFIG_BLK_DEV_RAM_SIZE=3D4096
-CONFIG_BLK_DEV_INITRD=3Dy
-CONFIG_PACKET=3Dy
-CONFIG_NETLINK_DEV=3Dm
-CONFIG_NETFILTER=3Dy
-CONFIG_FILTER=3Dy
-CONFIG_UNIX=3Dy
-CONFIG_INET=3Dy
-CONFIG_SYN_COOKIES=3Dy
-CONFIG_IP_NF_CONNTRACK=3Dy
-CONFIG_IP_NF_FTP=3Dy
-CONFIG_IP_NF_IRC=3Dy
-CONFIG_IP_NF_IPTABLES=3Dy
-CONFIG_IP_NF_MATCH_LIMIT=3Dy
-CONFIG_IP_NF_MATCH_MAC=3Dy
-CONFIG_IP_NF_MATCH_MARK=3Dy
-CONFIG_IP_NF_MATCH_MULTIPORT=3Dy
-CONFIG_IP_NF_MATCH_TOS=3Dy
-CONFIG_IP_NF_MATCH_LENGTH=3Dy
-CONFIG_IP_NF_MATCH_TTL=3Dy
-CONFIG_IP_NF_MATCH_TCPMSS=3Dy
-CONFIG_IP_NF_MATCH_STATE=3Dy
-CONFIG_IP_NF_MATCH_UNCLEAN=3Dy
-CONFIG_IP_NF_MATCH_OWNER=3Dy
-CONFIG_IP_NF_FILTER=3Dy
-CONFIG_IP_NF_TARGET_REJECT=3Dy
-CONFIG_IP_NF_TARGET_MIRROR=3Dy
-CONFIG_IP_NF_NAT=3Dy
-CONFIG_IP_NF_NAT_NEEDED=3Dy
-CONFIG_IP_NF_TARGET_MASQUERADE=3Dy
-CONFIG_IP_NF_TARGET_REDIRECT=3Dy
-CONFIG_IP_NF_NAT_IRC=3Dy
-CONFIG_IP_NF_NAT_FTP=3Dy
-CONFIG_IP_NF_MANGLE=3Dy
-CONFIG_IP_NF_TARGET_TOS=3Dy
-CONFIG_IP_NF_TARGET_MARK=3Dy
-CONFIG_IP_NF_TARGET_LOG=3Dy
-CONFIG_IP_NF_TARGET_TCPMSS=3Dy
-CONFIG_NET_SCHED=3Dy
-CONFIG_NET_SCH_CBQ=3Dm
-CONFIG_NET_SCH_CSZ=3Dm
-CONFIG_NET_SCH_PRIO=3Dm
-CONFIG_NET_SCH_RED=3Dm
-CONFIG_NET_SCH_SFQ=3Dm
-CONFIG_NET_SCH_TEQL=3Dm
-CONFIG_NET_SCH_TBF=3Dm
-CONFIG_NET_SCH_GRED=3Dm
-CONFIG_NET_SCH_DSMARK=3Dm
-CONFIG_NET_SCH_INGRESS=3Dm
-CONFIG_NET_QOS=3Dy
-CONFIG_NET_ESTIMATOR=3Dy
-CONFIG_NET_CLS=3Dy
-CONFIG_NET_CLS_TCINDEX=3Dm
-CONFIG_NET_CLS_ROUTE4=3Dm
-CONFIG_NET_CLS_ROUTE=3Dy
-CONFIG_NET_CLS_FW=3Dm
-CONFIG_NET_CLS_U32=3Dm
-CONFIG_NET_CLS_RSVP=3Dm
-CONFIG_NET_CLS_RSVP6=3Dm
-CONFIG_NET_CLS_POLICE=3Dy
-CONFIG_IDE=3Dy
-CONFIG_BLK_DEV_IDE=3Dy
-CONFIG_BLK_DEV_IDEDISK=3Dy
-CONFIG_IDEDISK_MULTI_MODE=3Dy
-CONFIG_BLK_DEV_IDECD=3Dy
-CONFIG_BLK_DEV_IDEFLOPPY=3Dm
-CONFIG_BLK_DEV_CMD640=3Dy
-CONFIG_BLK_DEV_RZ1000=3Dy
-CONFIG_BLK_DEV_IDEPCI=3Dy
-CONFIG_IDEPCI_SHARE_IRQ=3Dy
-CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
-CONFIG_BLK_DEV_ADMA=3Dy
-CONFIG_IDEDMA_PCI_AUTO=3Dy
-CONFIG_BLK_DEV_IDEDMA=3Dy
-CONFIG_BLK_DEV_CS5530=3Dy
-CONFIG_BLK_DEV_PIIX=3Dy
-CONFIG_PIIX_TUNING=3Dy
-CONFIG_IDEDMA_AUTO=3Dy
-CONFIG_BLK_DEV_IDE_MODES=3Dy
-CONFIG_SCSI=3Dy
-CONFIG_BLK_DEV_SD=3Dy
-CONFIG_SD_EXTRA_DEVS=3D40
-CONFIG_BLK_DEV_SR=3Dy
-CONFIG_SR_EXTRA_DEVS=3D2
-CONFIG_CHR_DEV_SG=3Dm
-CONFIG_SCSI_DEBUG_QUEUES=3Dy
-CONFIG_SCSI_MULTI_LUN=3Dy
-CONFIG_SCSI_CONSTANTS=3Dy
-CONFIG_SCSI_AHA152X=3Dy
-CONFIG_SCSI_AHA1542=3Dy
-CONFIG_SCSI_AHA1740=3Dy
-CONFIG_SCSI_AIC7XXX=3Dy
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=3D8
-CONFIG_AIC7XXX_RESET_DELAY_MS=3D15000
-CONFIG_NETDEVICES=3Dy
-CONFIG_DUMMY=3Dm
-CONFIG_NET_ETHERNET=3Dy
-CONFIG_NET_PCI=3Dy
-CONFIG_EEPRO100=3Dm
-CONFIG_NE2K_PCI=3Dm
-CONFIG_VIA_RHINE=3Dm
-CONFIG_VT=3Dy
-CONFIG_VT_CONSOLE=3Dy
-CONFIG_SERIAL=3Dy
-CONFIG_SERIAL_CONSOLE=3Dy
-CONFIG_UNIX98_PTYS=3Dy
-CONFIG_UNIX98_PTY_COUNT=3D256
-CONFIG_BUSMOUSE=3Dm
-CONFIG_MS_BUSMOUSE=3Dm
-CONFIG_MOUSE=3Dy
-CONFIG_PSMOUSE=3Dy
-CONFIG_RTC=3Dy
-CONFIG_AUTOFS_FS=3Dy
-CONFIG_AUTOFS4_FS=3Dy
-CONFIG_REISERFS_FS=3Dy
-CONFIG_EXT3_FS=3Dy
-CONFIG_JBD=3Dy
-CONFIG_FAT_FS=3Dy
-CONFIG_MSDOS_FS=3Dy
-CONFIG_VFAT_FS=3Dy
-CONFIG_TMPFS=3Dy
-CONFIG_ISO9660_FS=3Dy
-CONFIG_JOLIET=3Dy
-CONFIG_MINIX_FS=3Dm
-CONFIG_NTFS_FS=3Dm
-CONFIG_PROC_FS=3Dy
-CONFIG_DEVPTS_FS=3Dy
-CONFIG_EXT2_FS=3Dy
-CONFIG_INTERMEZZO_FS=3Dm
-CONFIG_NFS_FS=3Dm
-CONFIG_SUNRPC=3Dm
-CONFIG_LOCKD=3Dm
-CONFIG_SMB_FS=3Dm
-CONFIG_MSDOS_PARTITION=3Dy
-CONFIG_SMB_NLS=3Dy
-CONFIG_NLS=3Dy
-CONFIG_NLS_DEFAULT=3D"cp437"
-CONFIG_NLS_CODEPAGE_437=3Dm
-CONFIG_NLS_CODEPAGE_850=3Dm
-CONFIG_NLS_ISO8859_1=3Dm
-CONFIG_NLS_ISO8859_15=3Dm
-CONFIG_VGA_CONSOLE=3Dy
-CONFIG_VIDEO_SELECT=3Dy
-CONFIG_FB=3Dy
-CONFIG_DUMMY_CONSOLE=3Dy
-CONFIG_FB_VGA16=3Dy
-CONFIG_VIDEO_SELECT=3Dy
-CONFIG_FBCON_VGA_PLANES=3Dy
-CONFIG_FONT_8x8=3Dy
-CONFIG_FONT_8x16=3Dy
-CONFIG_DEBUG_KERNEL=3Dy
-CONFIG_MAGIC_SYSRQ=3Dy
+I'm no NUMA person so I can't verify your code snippet but if it does
+what you say, yes, that is exactly what I meant:  We may have to deal
+with both cache coherence and placement of counters in local memory.
 
-~~~~~~~~~~~~~~~~~~~~
+Niels
 
-# lspci
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
-00:01.0 RAID bus controller: LSI Logic / Symbios Logic (formerly NCR): Unkn=
-own device 0010 (rev 02)
-00:03.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC =
-[Mach64 GT IIC] (rev 7a)
-00:04.0 System peripheral: Compaq Computer Corporation Advanced System Mana=
-gement Controller
-00:05.0 PCI bridge: Digital Equipment Corporation DECchip 21154 (rev 05)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 51)
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-01:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-01:05.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-03:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-03:05.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
-03:06.0 PCI bridge: Intel Corp. 80960RP [i960 RP Microprocessor/Bridge] (re=
-v 05)
-03:06.1 Memory controller: Intel Corp. 80960RP [i960RP Microprocessor] (rev=
- 05)
-04:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC =
-[Mach64 GT IIC] (rev 7a)
-
-~~~~~~~~~~~~~~~~~~~~~
-
-Logs show nothing:
-
-# tail /var/log/syslog
-Dec  7 15:43:21 parrot kernel: Symbols match kernel version 2.4.17.
-Dec  7 15:43:21 parrot kernel: Loaded 8 symbols from 1 module.
-Dec  7 15:44:51 parrot qmail: 1007711091.180024 status: exiting
-Dec  7 15:44:52 parrot qmail: 1007711092.021596 status: local 0/10 remote 0=
-/20
-Dec  7 16:03:09 parrot -- MARK --
-Dec  7 16:23:09 parrot -- MARK --
-Dec  7 16:43:09 parrot -- MARK --
-Dec  7 17:03:09 parrot -- MARK --
-Dec  7 17:23:09 parrot -- MARK --
-Dec  7 17:43:10 parrot -- MARK --
-
-
-Mathieu.
---=20
-Mathieu Legrand <mathieu @ {accellion.com -work | globules.net -perso}>
-GPG: 0x349EBC9961C501D1   fp: D6D2D2D74E6320D99B54 38F3349EBC9961C501D1
- - Yoda of Borg are we: Futile is resistance.  Assimilate you, we will.
-
---RASg3xLB4tUQ4RcS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8EJBQNJ68mWHFAdERAjTfAJ9kjRw6Eh8M1iFwRg/IJIHEP9iCuQCgq1Yl
-wkqSdsLzU3r4jtl7/SkpczA=
-=kA8f
------END PGP SIGNATURE-----
-
---RASg3xLB4tUQ4RcS--

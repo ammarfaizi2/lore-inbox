@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313690AbSDJT7T>; Wed, 10 Apr 2002 15:59:19 -0400
+	id <S313694AbSDJUGN>; Wed, 10 Apr 2002 16:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313697AbSDJT7S>; Wed, 10 Apr 2002 15:59:18 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:14816 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313690AbSDJT7R>; Wed, 10 Apr 2002 15:59:17 -0400
-Subject: Re: [PATCH] Futex Generalization Patch
-To: frankeh@watson.ibm.com
-Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
-        pwaechtler@loewe-Komp.de, Rusty Russell <rusty@rustcorp.com.au>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF6ED1E5D5.39630DC3-ON85256B97.006D2F99@raleigh.ibm.com>
-From: "Bill Abt" <babt@us.ibm.com>
-Date: Wed, 10 Apr 2002 15:59:39 -0400
-X-MIMETrack: Serialize by Router on D04NM202/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 04/10/2002 03:59:09 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S313697AbSDJUGM>; Wed, 10 Apr 2002 16:06:12 -0400
+Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:22281 "EHLO
+	nic.osagesoftware.com") by vger.kernel.org with ESMTP
+	id <S313694AbSDJUGM>; Wed, 10 Apr 2002 16:06:12 -0400
+Message-Id: <4.3.2.7.2.20020410160354.00d77a00@mail.osagesoftware.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 10 Apr 2002 16:06:08 -0400
+To: "Calin A. Culianu" <calin@ajvar.org>
+From: David Relson <relson@osagesoftware.com>
+Subject: Re: Cannot compile mandrake 8.2 Kernel
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L2.0204101505220.5649-100000@rtlab.med.cornel
+ l.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/10/2002 at 02:47:50 PM AST, Hubertus Franke <frankeh@watson.ibm.com>
-wrote:
+At 03:10 PM 4/10/02, Calin A. Culianu wrote:
 
-> The current interface is
+>The stupid mandrake 8.2 kernel (2.4.18-mdk6) won't compile.  I know,
+>mandrake is kind of a newbie distro, but I needed to mess with that kernel
+>for some reason (don't ask).
 >
-> (A)
-> async wait:
->    sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*) sig);
-> upon signal handling
->    sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
->    to retrieve the uaddrs that got woken up...
+>Anyway it gets errors like the following then you do make modules.  I
+>notices someone else also had the exact same problem.. also below is
+>preprocessor output from that compile... I think the problem is due to
+>some of the exported kernel symbols containing parens...:
 
-This is actually the preferred way.  I must've misinterpeted what you said
-earlier.  I believe this is actually a more generic way of handling.  A
-thread package can specify the signal to used much in the way the current
-LinuxThreads pre-allocates and uses certain real-time signals...
 
-> I am mainly concerned that SIGIO can be overloaded in a thread package ?
-> How would you know whether a SIGIO came from the futex or from other file
+Calin,
 
-> handle.
+I think the proper place for this query is the Mandrake Expert mailing 
+list, which can be subscribed to at expert@linux-mandrake.com.
 
-By keep with the original interface, we don't have to contend with this
-problem.  The thread package can use the signal that most suits its'
-implementation...
+Mandrake has been around for several years and I've used their distribution 
+(and often their kernels) since Mandrake 7.0.  I think it's incorrect to 
+blame their "newness".
 
-Make sense?
+What gcc are you running?  gcc-3.0.4 has worked fine for me in building 
+2.4.18 kernels on 8.2.
 
-Regards,
-      Bill Abt
-      Senior Software Engineer
-      Next Generation POSIX Threading for Linux
-      IBM Cambridge, MA, USA 02142
-      Ext: +(00)1 617-693-1591
-      T/L: 693-1591 (M/W/F)
-      T/L: 253-9938 (T/Th/Eves.)
-      Cell: +(00)1 617-803-7514
-      babt@us.ibm.com or abt@us.ibm.com
-      http://oss.software.ibm.com/developerworks/opensource/pthreads
+David
+
 

@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261663AbSKTVzL>; Wed, 20 Nov 2002 16:55:11 -0500
+	id <S261724AbSKTV5O>; Wed, 20 Nov 2002 16:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbSKTVzL>; Wed, 20 Nov 2002 16:55:11 -0500
-Received: from packet.digeo.com ([12.110.80.53]:42915 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261663AbSKTVzK>;
-	Wed, 20 Nov 2002 16:55:10 -0500
-Message-ID: <3DDC0661.B0292BF0@digeo.com>
-Date: Wed, 20 Nov 2002 14:02:09 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Haverkamp <markh@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Call trace at mm/page-writeback.c in 2.5.47
-References: <1037826852.8555.83.camel@markh1.pdx.osdl.net>
+	id <S261721AbSKTV4W>; Wed, 20 Nov 2002 16:56:22 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:20106 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261701AbSKTV4P>;
+	Wed, 20 Nov 2002 16:56:15 -0500
+Date: Wed, 20 Nov 2002 22:04:26 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Message-ID: <20021120220426.GB11879@bjl1.asuk.net>
+References: <20021120030919.GA9007@bjl1.asuk.net> <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Nov 2002 22:02:09.0843 (UTC) FILETIME=[79172830:01C290E0]
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Haverkamp wrote:
-> 
-> On Wed, 2002-11-20 at 11:07, Andrew Morton wrote:
-> > Mark Haverkamp wrote:
-> > >
-> > > While running a memory stress workload test on a 16 processor numa
-> > > system, I received a number of call traces like the following:
-> >
-> > What is the workload?  And in which journalling mode was ext3
-> > being used?
-> 
-> I am using bash-shared-mapping and the ext3 journaling mode was the
-> default.
+Davide Libenzi wrote:
+> And the lower size of the structure will help to reduce the amount of
+> memory transfered to userspace. I just saw that adding the extra "obj"
+> member lowered performance of about 15% with crazy tests like Ben's
+> pipetest. This because it creates, on my machine, more than 400000 events
+> per second, and saving memory bandwidth on such conditions is a must. With
+> the "more human" http test performance are about the same.
 
-OK, thanks.  The fact that we actually survive this, on ext3, on
-a 16p NUMA-Q is fairly encouraging.
+I'd be quite surprised if 400,000 word/sec of memory bandwidth can
+explain a 15% time difference, especially considering all the other
+things that are done to communicate over a pipe (wakeups etc).
 
-> ...
-> 
-> I get about 10 of these each time I run.  Usually after a few minutes of
-> run time and all at once.  Then no more.
+Btw, I have seen variations of that magnitude in other network tests
+that I've done that _appear_ to be explained by small changes to the
+code like that, but the next day or week the variation stops
+correlating with the change.  Page colouring affecting benchmarks
+again?
 
-The warning shuts itself up after 10 messages.
- 
-> I tried your suggestion and still got the call traces:
-> 
-> buffer layer error at mm/page-writeback.c:559
-
-I shall attempt to reproduce this, thanks.
+-- Jamie

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTI3WKz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 18:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTI3WKy
+	id S261835AbTJAAwo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 20:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJAAwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 18:10:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:58323 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261773AbTI3WKx (ORCPT
+	Tue, 30 Sep 2003 20:52:43 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:37892 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261835AbTJAAwm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 18:10:53 -0400
-Date: Tue, 30 Sep 2003 15:10:46 -0700
-From: Greg KH <greg@kroah.com>
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test6: a few __init bugs
-Message-ID: <20030930221046.GA21000@kroah.com>
-References: <1064872693.5733.42.camel@dooby.cs.berkeley.edu> <20030929221113.GB2720@kroah.com> <1064946634.5734.106.camel@dooby.cs.berkeley.edu> <20030930191117.GA20054@kroah.com> <1064956854.5733.233.camel@dooby.cs.berkeley.edu> <20030930212551.GA20709@kroah.com> <1064958129.5264.237.camel@dooby.cs.berkeley.edu>
+	Tue, 30 Sep 2003 20:52:42 -0400
+Date: Wed, 1 Oct 2003 02:52:14 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Rob Landley <rob@landley.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Keyboard dead on bootup on -test6.
+Message-ID: <20031001005214.GC1520@win.tue.nl>
+References: <200309301632.01498.rob@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1064958129.5264.237.camel@dooby.cs.berkeley.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200309301632.01498.rob@landley.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 02:42:09PM -0700, Robert T. Johnson wrote:
-> On Tue, 2003-09-30 at 14:25, Greg KH wrote:
-> > Hm, good point.  Can you think of a better place for this that would
-> > have helped you out?
+On Tue, Sep 30, 2003 at 04:32:01PM -0500, Rob Landley wrote:
+
+> This was the failure:
 > 
-> Take two.  It might not have prevented me from reporting the potential
-> bug, but I would've known you'd thought about it, it might help future
-> developers, and it's unlikely to become dangerously wrong.  Thanks.
+> Sep 30 16:17:31 localhost kernel: atkbd.c: Unknown key pressed (raw set 0, 
+> code 0xfc, data 0xfc, on isa0060/serio1).
+> Sep 30 16:17:31 localhost kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+> Sep 30 16:17:31 localhost kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+> 
+> Under -test5, that failure would have left me with a stuck key endlessly 
+> repeating (and an otherwise dead keyboard).  Now at least the stuck key part 
+> has gone away, but the keyboard is still dead until I power cycle the 
+> machine.
 
-Thanks, I've applied this patch.
+I suppose this is the kernel trying to set LEDs on the mouse,
+and the mouse complains.
 
-greg k-h
+Andries
+
+
+(0xfc is a typical mouse error code; also "set 0" suggests this)
+

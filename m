@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131129AbQKJUWl>; Fri, 10 Nov 2000 15:22:41 -0500
+	id <S131500AbQKJU1f>; Fri, 10 Nov 2000 15:27:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131557AbQKJUWc>; Fri, 10 Nov 2000 15:22:32 -0500
-Received: from web1106.mail.yahoo.com ([128.11.23.126]:55821 "HELO
-	web1106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130369AbQKJUWX>; Fri, 10 Nov 2000 15:22:23 -0500
-Message-ID: <20001110202221.29946.qmail@web1106.mail.yahoo.com>
-Date: Fri, 10 Nov 2000 21:22:21 +0100 (CET)
-From: willy tarreau <wtarreau@yahoo.fr>
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
+	id <S131510AbQKJU1Z>; Fri, 10 Nov 2000 15:27:25 -0500
+Received: from tantalum.btinternet.com ([194.73.73.80]:43410 "EHLO
+	tantalum.btinternet.com") by vger.kernel.org with ESMTP
+	id <S131500AbQKJU1R>; Fri, 10 Nov 2000 15:27:17 -0500
+From: davej@suse.de
+Date: Fri, 10 Nov 2000 20:26:35 +0000 (GMT)
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Brian Gerst <bgerst@didntduck.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: CPU detection revamp (Request for comments)]
+In-Reply-To: <3A0C5297.D039881@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0011102025540.1089-100000@neo.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dick, have you tried a simple "strace -f -p <pid>" ?
-This often gives enough info.
+On Fri, 10 Nov 2000, H. Peter Anvin wrote:
 
-BTW, there's one version of sendmail that tests the
-capability security hole of a previous kernel version
-(2.2.15 ?), and refuses to launch if it discovers it.
-It may be possible that sendmail does other tests like
-this one.
+> > And where does sysenter/sysexit fit in?
+> sysenter/sysexit is the "sep" feature.
 
-Regards,
-Willy
+Ah, of course.
+*slaps head*
 
+regards,
 
-___________________________________________________________
-Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
-Yahoo! Messenger : http://fr.messenger.yahoo.com
+davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

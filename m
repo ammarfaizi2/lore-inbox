@@ -1,149 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261719AbSJIOAf>; Wed, 9 Oct 2002 10:00:35 -0400
+	id <S261737AbSJIOB6>; Wed, 9 Oct 2002 10:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261723AbSJIOAf>; Wed, 9 Oct 2002 10:00:35 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:24711 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261719AbSJIOAd>;
-	Wed, 9 Oct 2002 10:00:33 -0400
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: softdog doesn't work on 2.4.20-pre10?
-Date: Wed, 9 Oct 2002 16:07:32 +0200
-User-Agent: KMail/1.4.1
+	id <S261738AbSJIOB6>; Wed, 9 Oct 2002 10:01:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34052 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261737AbSJIOB4>;
+	Wed, 9 Oct 2002 10:01:56 -0400
+Message-ID: <3DA43830.9010308@pobox.com>
+Date: Wed, 09 Oct 2002 10:07:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS"
-Message-Id: <200210091607.32769.roy@karlsbakk.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+References: <Pine.LNX.4.44.0210091546070.8911-100000@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 9 Oct 2002, Jeff Garzik wrote:
+> 
+> 
+>>Well, my basic preference is
+>>
+>>* something other than Config.new (the original name in your config system)
+>>* something other than Config.in
+>>
+>>I think it is a mistake to name a totally different format the same name
+>>as an older format...  even "config.in" would be better than "Config.in"...
+> 
+> 
+> My first plan was to use Config.in, but I can't overwrite the old files
+> yet, so I named it Config.new.
 
---------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+yeah, I understood it was a temporary name, I just wanted to make sure 
+the name was changed fairly soonish, so we could have this filename 
+debate :)
 
-hi
 
-I have the softdog running on some of my machines, and I noticed it didn'=
-t=20
-work very well. I've got this little program feeding the dog (attached), =
-so=20
-if it gets killed, the machine should reboot.
+ > Personally I only prefer that it starts
+> with a capital letter (like Makefile, Readme), so it's at the top of a
+> dir listing, but otherwise I don't care much about the name.
 
-but - this doesn't happen!
+That's fine with me.  My only preference is anything-but-Config.in, for 
+the reason stated in the last email...
 
-can anyone take a look at this?
+	Jeff
 
-roy
---=20
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
 
-Computers are like air conditioners.
-They stop working when you open Windows.
-
---------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS
-Content-Type: text/x-csrc;
-  charset="us-ascii";
-  name="feedthedog.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="feedthedog.c"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <syslog.h>
-#include "watchdog.h"
-
-#define TIMEOUT_DEFAULT 60
-
-int fd;
-
-void sig_any() {
-	syslog(LOG_EMERG, "feedthedog killed by untrapped signal. System will be rebooted by watchdog.");
-	exit(0);
-}
-
-void sig_term() {
-	syslog(LOG_NOTICE, "Exiting, shutting down watchdog...");
-	if (write(fd, "V", 1) == -1) {
-		syslog(LOG_NOTICE, "Failed!");
-		exit(1);
-	}
-	if (close(fd) == -1) {
-		syslog(LOG_NOTICE, "Failed!");
-		exit(1);
-	}
-	syslog(LOG_NOTICE, "Watchdog successfully shut down!");
-	exit(0);
-}
-
-void get_info() {
-	int timeout;
-	struct watchdog_info info;
-
-    ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
-    syslog(LOG_INFO, "Watchdog timeout is %d seconds\n", timeout);
-
-	ioctl(fd, WDIOC_GETSUPPORT, &info);
-	syslog(LOG_INFO, "Watchdog options: 0x%04x", info.options);
-	syslog(LOG_INFO, "Watchdog firmware ver: %d", info.firmware_version);
-	syslog(LOG_INFO, "Watchdog type:%s", info.identity);
-}
-
-int main() {
-	int i,timeout;
-
-	openlog("feedthedog", LOG_PID, LOG_DAEMON);
-
-	if ((fd = open("/dev/watchdog", O_WRONLY)) == -1) {
-		perror("open");
-		exit(1);
-	}
-
-	timeout = atoi(getenv("WATCHDOG_TIMEOUT"));
-	if (timeout <= 0) {
-		syslog(LOG_WARNING, "Timeout set to %d. Using default.", timeout);
-		timeout = TIMEOUT_DEFAULT;
-	}
-
-	get_info();
-	for (i=1;i<=_NSIG;i++) {
-		switch (i) {
-			case SIGSTOP:
-			case SIGKILL:
-				break;
-			case SIGTERM:
-				signal(SIGTERM, sig_term);
-				break;
-			default:
-				signal(i, sig_any);
-				break;
-		}
-	}
-
-	if (fork())
-		exit(0);
-
-	syslog(LOG_INFO, "Watchdog feeder started");
-
-	while (1) {
-		write(fd, "\0", 1);
-		sleep(10);
-	}
-
-	return 0;
-}
-
---------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS--
 

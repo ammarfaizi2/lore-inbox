@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266565AbSKLNwC>; Tue, 12 Nov 2002 08:52:02 -0500
+	id <S266322AbSKLN5N>; Tue, 12 Nov 2002 08:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266581AbSKLNwC>; Tue, 12 Nov 2002 08:52:02 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:11686 "EHLO
+	id <S266578AbSKLN5M>; Tue, 12 Nov 2002 08:57:12 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:13478 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266565AbSKLNwC>; Tue, 12 Nov 2002 08:52:02 -0500
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
+	id <S266322AbSKLN5M>; Tue, 12 Nov 2002 08:57:12 -0500
+Subject: Re: [PATCH] IDE: correct partially initialised hw structures
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roland Dreier <roland@topspin.com>
-Cc: "David S. Miller" <davem@redhat.com>,
+To: Peter Denison <lkml@marshadder.uklinux.net>
+Cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <52isz3mza0.fsf@topspin.com>
-References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
-	<20021111.151929.31543489.davem@redhat.com> <52r8drn0jk.fsf_-_@topspin.com>
-	<20021111.153845.69968013.davem@redhat.com>
-	<1037060322.2887.76.camel@irongate.swansea.linux.org.uk> 
-	<52isz3mza0.fsf@topspin.com>
+In-Reply-To: <Pine.LNX.4.44.0211071845350.6917-100000@marshall.localnet>
+References: <Pine.LNX.4.44.0211071845350.6917-100000@marshall.localnet>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Nov 2002 14:23:49 +0000
-Message-Id: <1037111029.8321.12.camel@irongate.swansea.linux.org.uk>
+Date: 12 Nov 2002 14:28:59 +0000
+Message-Id: <1037111339.8313.14.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 00:01, Roland Dreier wrote:
-> What drivers in the kernel are there with address length more than
-> MAX_ADDR_LEN?  What do they put dev->addr_len and dev->dev_addr?
+On Thu, 2002-11-07 at 19:04, Peter Denison wrote:
+> Actually, if the patch that moves ide_init_default_hwifs() is applied then
+> maybe this isn't strictly necessary. The whole area needs cleaning up, but
+> I was loathe to start doing major changes. I've done large parts of the
+> call tree for the ide driver, and I _still_ don't fully understand what
+> should be called when. Just as a sample, there's:
+> 	ide_init_data
+> 	ide_init_default_hwifs
+> 	ide_init_hwif_ports
+> 	init_hwif_data
+> 	ideprobe_init
+> 	probe_hwif_init
+> 	hwif_init
+> 	etc.
 
-AX.25 addresses are 7 bytes long at the physical layer, but because they
-including routing info up to about 60 bytes long elsewhere. Fortunately
-lengths are passed to all but the hw level SIOCSIF/SIOCGIF calls, and
-even those can be increased a little without harm as they use the
-struct sockaddr - in fact I think 14 bytes would be the limit.
+Can you leave that bit alone for the moment. I'm currently splitting
+ide.c into ide.c and ide-io.c so that all the crap is in one place ready
+for extermination
 
-Seems trivial to do in 2.5 and quite doable in 2.4 if you actually have
-to worry about this at the SIOCSIFADDR/GIFHWADDR level.
-
-Alan
 

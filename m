@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbTBTNBn>; Thu, 20 Feb 2003 08:01:43 -0500
+	id <S265409AbTBTMsh>; Thu, 20 Feb 2003 07:48:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265725AbTBTNBm>; Thu, 20 Feb 2003 08:01:42 -0500
-Received: from ns.suse.de ([213.95.15.193]:65287 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265700AbTBTNBl> convert rfc822-to-8bit;
-	Thu, 20 Feb 2003 08:01:41 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Labs, SuSE Linux AG
-To: Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: [RFC] ACLs over NFS: Handling of large buffers
-Date: Thu, 20 Feb 2003 14:11:42 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, Olaf Kirch <okir@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200302201411.42714.agruen@suse.de>
+	id <S265414AbTBTMsg>; Thu, 20 Feb 2003 07:48:36 -0500
+Received: from cal003100.student.utwente.nl ([130.89.160.36]:12231 "EHLO
+	margo.student.utwente.nl") by vger.kernel.org with ESMTP
+	id <S265409AbTBTMsD>; Thu, 20 Feb 2003 07:48:03 -0500
+Date: Thu, 20 Feb 2003 13:58:08 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x release process comments
+Message-ID: <20030220125808.GA11694@margo.student.utwente.nl>
+Mail-Followup-To: simon, linux-kernel@vger.kernel.org
+References: <20030220102404.GA10138@margo.student.utwente.nl> <200302201056.h1KAuwui000635@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302201056.h1KAuwui000635@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.4i
+From: Simon Oosthoek <simon@margo.student.utwente.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Feb 20, 2003 at 10:56:58AM +0000, John Bradford wrote:
+> > - Kernel version releases (and -pre releases) do not happen often enough to
+> > keep up with recent hardware
+> > 
+> Distributions typically use modified versions of the standard kernel
+> anyway.  The kernel development schedule has never been based around
+> the needs of any particular distribution or distributions.
 
-in the current kernel nfsd, a buffer of (8+1)k is allocated for each 
-kernel nfsd thread. Since the NFS ACL protocol requests arrive at the 
-same transport endpoint, in the short term (i.e., for the NFS ACL 
-protocol) I need a limit of (24+1)k for each nfsd thread. While this 
-wastes memory that will not be used most of the time, the amount of 
-wasted memory is still not totally crazy.
+I'm not saying it should, but it would be good from a PR perspective and as
+an element in the reliability feeling vector ;-)
+ 
+> > I'd love to see regular (say once a week) releases -preX releases and no
+> > more than 10 -pre releases before a -rc. No more than 4 -rc's (released no
+> > more than 2 weeks apart) before a new version. Faster full version releases
+> > would also be fine with me.
+> 
+> It doesn't make sense to limit the number of -pre releases and release
+> candidates - they are needed to make sure, as far as possible, that
+> the actual release is stable.
 
-However, the NFS ACL protocol still does not support Extended Attributes 
-in general, so somebody will have to implement one of the EA NFS 
-protocols in addition. (I'm leaning towards the one protocol extension 
-from  SGI OB1). This will require a buffer of 64k. So I'm wondering how 
-we could solve the problem of buffer space more flexibly. Any ideas?
+The number of -pre releases shouldn't be limited for its own sake, but
+rather in the process of stabilising the kernel for release. So I mean after
+a couple of -pre releases start focussing on debugging and then finish with
+a few -rc's before the next cycle starts. That way the diffs between full
+versions are smaller and upgrading gets easier.
+ 
+> > My personal interest in this is that my laptop is not yet working 100%...
+> > (see http://margo.student.utwente.nl/simon/ongoing/jade8060.php)
+> 
+> I had a quick look, and it looks like it's 95% working, though :-).
 
+yup, I'm getting there :-) Would be nice to have the smartcard reader
+working as well... Some things I can't test because I don't have the
+hardware (IEEE1394, wireless lan, irda). power management is still quite
+magical to me though ;-)
 
-Thanks,
-Andreas.
+Cheers
 
+Simon

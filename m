@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUHJNdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUHJNHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUHJNdh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUHJNcK
+	id S265127AbUHJNHR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUHJNGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:32:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42937 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266345AbUHJNaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:30:10 -0400
-Date: Tue, 10 Aug 2004 09:29:58 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Kurt Garloff <garloff@suse.de>
-cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-In-Reply-To: <20040810085746.GB12445@tpkurt.garloff.de>
-Message-ID: <Xine.LNX.4.44.0408100922490.7461-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Aug 2004 09:06:43 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:62445 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S265127AbUHJNGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 09:06:23 -0400
+Date: Tue, 10 Aug 2004 15:05:37 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408101305.i7AD5biZ014084@burner.fokus.fraunhofer.de>
+To: mj@ucw.cz, schilling@fokus.fraunhofer.de
+Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004, Kurt Garloff wrote:
 
-> Hi,
-> 
-> while looking into LSM hooks and SElinux for SLES9, we came across
-> a couple of issues and the whole thing ended up in a patch that I
-> think should be applied upstream.
-> 
-> Some boundary conditions:
-> * We don't want to use selinux by default: The complexity to set up a
->   secure system using it is currently quite complex
-> * The impact of SElinux on performance on SMP is disastrous
+>From: Martin Mares <mj@ucw.cz>
 
-This is a known issue and is being worked on.
+>> Your statements are correct for programs that include locale support.
 
-> * SElinux needs to be compiled in
-> * CONFIG_SECURITY should remain on -- it allows the flexibility to
->   use different LSMs
-> * This however has the nasty side-effect of ending up with a system
->   that uses dummy rather than the Linux default capabilities; so your
->   boot up scripts need to take care of loading it. Making capability
->   static is no option either, of course, as you want to be able to
->   use a different primary LSM or load capability as secondary LSM.
-> * Even with selinux=0 and capability loaded, the kernel takes a 
->   few percents in networking benchmarks (measured by HP on ia64); 
->   this is caused by the slowliness of indirect jumps on ia64.
-> 
-> The first patch patch does just change the selinux default; so you
-> need to enable with selinux=1.
+>Would you accept a patch to cdrecord to add such support?
 
-This issue has been through a couple of iterations and the current scheme
-where if you have SELinux enabled, it is on by default, is aimed at being
-more secure by default.  On some platforms, boot parameters are not
-feasible.  To allow SELinux to be disable for these, the /selinux/disable
-node was implemented, which allows SELinux to be unregistered during boot.  
-I suggest you investigate using this; look at what Fedora does.
+Locale support is on a top positoon of my TODO list, adding it for e.g. Solaris
+would be extremely simple but my software runs on many platforms.
+
+If you send a patch that includes autoconf support and everything that is needed
+else, I would be glad......
 
 
-- James
+Jörg
+
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

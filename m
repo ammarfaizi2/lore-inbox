@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263530AbTC3KAs>; Sun, 30 Mar 2003 05:00:48 -0500
+	id <S263529AbTC3JzA>; Sun, 30 Mar 2003 04:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263531AbTC3KAs>; Sun, 30 Mar 2003 05:00:48 -0500
-Received: from mta02bw.bigpond.com ([144.135.24.138]:4332 "EHLO
-	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S263530AbTC3KAs>; Sun, 30 Mar 2003 05:00:48 -0500
-Message-ID: <3E86C396.60706@bigpond.com>
-Date: Sun, 30 Mar 2003 20:14:46 +1000
-From: Allan Duncan <allan.d@bigpond.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-au, en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.66] compile failure with RTC
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263530AbTC3Jy7>; Sun, 30 Mar 2003 04:54:59 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:44488 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id <S263529AbTC3Jy7>;
+	Sun, 30 Mar 2003 04:54:59 -0500
+Date: Sun, 30 Mar 2003 12:05:42 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: war <war@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 Raid Bug?
+Message-ID: <20030330100541.GA3798@marowsky-bree.de>
+References: <Pine.LNX.4.51.0303291603230.2530@p300> <20030329214131.GC2755@marowsky-bree.de> <Pine.LNX.4.51.0303291643530.10793@p300> <20030329215602.GE2755@marowsky-bree.de> <Pine.LNX.4.51.0303291657550.16794@p300>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.51.0303291657550.16794@p300>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Worked OK with 2.5.64:
+On 2003-03-29T16:58:29,
+   war <war@lucidpixels.com> said:
 
-gcc -Wp,-MD,drivers/char/.genrtc.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes
-   -Wno-trigraphs   -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-   -march=athlon -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix
-   include    -DKBUILD_BASENAME=genrtc -DKBUILD_MODNAME=genrtc -c -o drivers/char/genrtc.o 
-drivers/char/genrtc.c
-drivers/char/genrtc.c:100: warning: static declaration for `gen_rtc_interrupt' follows non-static
-drivers/char/genrtc.c: In function `gen_rtc_timer':
-drivers/char/genrtc.c:135: warning: comparison of distinct pointer types lacks a cast
-drivers/char/genrtc.c: In function `gen_rtc_proc_output':
-drivers/char/genrtc.c:453: void value not ignored as it ought to be
-drivers/char/genrtc.c:498: `RTC_BATT_BAD' undeclared (first use in this function)
-drivers/char/genrtc.c:498: (Each undeclared identifier is reported only once
-drivers/char/genrtc.c:498: for each function it appears in.)
-make[2]: *** [drivers/char/genrtc.o] Error 1
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
+> Before I even configured it, this showed up.
+> How is that relevant?
 
+Because you did not mention it before at all. There was no way of knowing
+whether you used a special RAID configuration which triggered the problem.
+
+In any case, I cannot reproduce it. Maybe you should try the latest .21pre
+kernel instead, perhaps its doing better for you?
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

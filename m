@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbUBYUNS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 15:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUBYUNR
+	id S261304AbUBYUW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUBYUW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 15:13:17 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:17025 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261304AbUBYUNI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 15:13:08 -0500
-Message-ID: <403D02E3.4070208@tmr.com>
-Date: Wed, 25 Feb 2004 15:17:39 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Reply-To: bill davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IO scheduler, queue depth, nr_requests
-References: <1qJVx-75K-15@gated-at.bofh.it> <1qJVx-75K-17@gated-at.bofh.it> <1qJVw-75K-11@gated-at.bofh.it> <1qLb8-6m-27@gated-at.bofh.it> <1qLXl-XV-17@gated-at.bofh.it> <1qMgF-1dA-5@gated-at.bofh.it> <1qTs3-7A2-51@gated-at.bofh.it> <1qTBB-7Hh-7@gated-at.bofh.it> <1r3AS-1hW-5@gated-at.bofh.it> <1r5jD-2RQ-31@gated-at.bofh.it> <1r6fH-3L8-11@gated-at.bofh.it> <1r6S4-6cv-1@gated-at.bofh.it>
-In-Reply-To: <1r6S4-6cv-1@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 15:22:26 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:39572 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S261304AbUBYUWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 15:22:25 -0500
+Date: Wed, 25 Feb 2004 15:12:16 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: cryptoapi highmem bug
+Message-ID: <20040225201216.GA6799@certainkey.com>
+References: <1077655754.14858.0.camel@leto.cs.pocnet.net> <20040224223425.GA32286@certainkey.com> <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net> <20040225155121.GA7148@leto.cs.pocnet.net> <20040225154453.GB4218@certainkey.com> <20040225181540.GB8983@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040225181540.GB8983@leto.cs.pocnet.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux.kernelNick Piggin wrote:
-
-> But the whole reason it is getting blocked in the first place
-> is because your controller is sucking up all your requests.
-> The whole problem is not a problem if you use properly sized
-> queues.
+On Wed, Feb 25, 2004 at 07:15:40PM +0100, Christophe Saout wrote:
+> Ok, here it is. Still working (when not using omac or hmac) after
+> fixing the compile problems (see other mail).
 > 
-> I'm a bit surprised that it wasn't working well with a controller
-> queue depth of 64 and 128 nr_requests. I'll give you a per process
-> request limit patch to try in a minute.
+> If this is ok someone should split out the scatterwalk_* move from
+> your patch and submit it and this one to Andrew so that dm-crypt
+> doesn't go boom on highmem machines.
 
-And there's the rub... he did try what you are calling correctly sized 
-queues, and his patch works better. I'm all in favor of having the 
-theory and then writing the code, but when something works I would 
-rather understand why and modify the theory.
+Great thanks a bunch.
 
-In other words, given a patch which does help performance in this case, 
-it would be good to understand why, instead of favoring a solution which 
-is better in theory, but which has been tried and found inferior in 
-performance.
+Here is the scatterlist+"Le Patch de Christophe":
+  http://jlcooke.ca/lkml/cryptowalk_christophe_25feb2004.patch
 
-I am NOT saying we should just block, effective as Miquel's patch seems, 
-just that we should understand why it works well instead of saying it is 
-in theory bad. I agree, but it works! Hopefully per-process limits solve 
-this, but they "in theory" could result in blocking a process in an 
-otherwise idle system. Unless I midread what you mean of course. 
-Processes which calculate for a while and write results are not uncomon, 
-and letting such a process write a whole bunch of data and then go 
-calculate while it is written is certainly the way it should work. I'm 
-unconvinced that per-process limits are the whole answer without 
-considering the entire io load on the system.
+Reguarding dm-crypt:
+ I didn't get a response back when suggesting we store IV and MAC info for
+ each block.  Can we do this?  Can I do this?  Where's the source, in
+ 2.3.6-main?  I'd like to implement this IV and optional OMAC stuff for
+ encrypted filesyetems (I assume that's that dm-crypt is replacing)
 
-Feel free to tell me I'm misreading your intent (and why).
+JLC
+
 -- 
-bill on the road <davidsen@tmr.com>
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

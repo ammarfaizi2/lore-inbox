@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266198AbUG0BtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUG0D2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266198AbUG0BtU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 21:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266210AbUG0BtU
+	id S265930AbUG0D2k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 23:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUG0D2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 21:49:20 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:37283 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266198AbUG0BtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 21:49:18 -0400
-Date: Mon, 26 Jul 2004 20:47:57 -0500
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Locking optimization for cache_reap
-Message-ID: <20040727014757.GA23937@sgi.com>
-References: <20040723190555.GB16956@sgi.com> <20040726180104.62c480c6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040726180104.62c480c6.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 26 Jul 2004 23:28:40 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:21432 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265930AbUG0D2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 23:28:38 -0400
+Message-ID: <4105CBD9.7080209@yahoo.com.au>
+Date: Tue, 27 Jul 2004 13:28:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+CC: Dimitri Sivanich <sivanich@sgi.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       John Hawkes <hawkes@sgi.com>
+Subject: Re: [PATCH] consolidate sched domains
+References: <41008386.9060009@yahoo.com.au> <20040726022202.GA21602@sgi.com> <41048324.8070302@yahoo.com.au> <200407261106.33173.jbarnes@engr.sgi.com>
+In-Reply-To: <200407261106.33173.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 26, 2004 at 06:01:04PM -0700, Andrew Morton wrote:
-> Dimitri Sivanich <sivanich@sgi.com> wrote:
-> >
-> > Here is another cache_reap optimization that reduces latency when
-> > applied after the 'Move cache_reap out of timer context' patch I
-> > submitted on 7/14 (for inclusion in -mm next week).
-> > 
-> > This applies to 2.6.8-rc2 + the above mentioned patch.
-> 
-> How does it "reduce latency"?
-> 
-> It looks like a reasonable cleanup, but afaict it will result in the
-> per-cache spinlock actually being held for longer periods, thus increasing
-> latencies???
-> 
+Jesse Barnes wrote:
 
-While you've got irq's disabled, drain_array() (the function my patch removes)
-acquires the cache spin_lock, then releases it.  Cache_reap then acquires
-it again (with irq's having been off the entire time).  My testing has found
-that simply acquiring the lock once while irq's are off results in fewer
-excessively long latencies.
+>On Sunday, July 25, 2004 9:05 pm, Nick Piggin wrote:
+>
+>>Yes of course, thank you.
+>>
+>>The fix is for cpu_to_phys_group() to just return cpu when
+>>!CONFIG_SCHED_SMT.
+>>
+>
+>Here's the node domain span stuff on top of your consolidation patch, along 
+>with the two fixes mentioned in this thread.  It compiles and works fine on 
+>my small box, but I haven't tested it on a large box yet.
+>
+>
 
-Results probably vary somewhat depending on the circumstance.
+You'll also want Jack Steiner's one liner. (I've sent all these to Andrew.)
+
+
+Looks pretty neat. It may even be usable in the generic setup code if more
+architectures start needing it.
+
+For now, put it in your arch code when it is ready to be merged up of 
+course.
+I would be very interested to see what sort of performance improvements you
+get out of the scheduler...
+
+

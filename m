@@ -1,34 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271852AbRICXF7>; Mon, 3 Sep 2001 19:05:59 -0400
+	id <S271855AbRICXH3>; Mon, 3 Sep 2001 19:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271855AbRICXFt>; Mon, 3 Sep 2001 19:05:49 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:4871 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S271852AbRICXFh>;
-	Mon, 3 Sep 2001 19:05:37 -0400
-Message-Id: <200109031544.f83Fidbr002589@sleipnir.valparaiso.cl>
-To: "David S. Miller" <davem@redhat.com>
-cc: ak@suse.de, alan@lxorguk.ukuu.org.uk, willy@debian.org, thunder7@xs4all.nl,
-        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc architecture 
-In-Reply-To: Message from "David S. Miller" <davem@redhat.com> 
-   of "Mon, 03 Sep 2001 01:15:30 MST." <20010903.011530.62340995.davem@redhat.com> 
-Date: Mon, 03 Sep 2001 11:44:39 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S271856AbRICXHK>; Mon, 3 Sep 2001 19:07:10 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:11195 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271855AbRICXGx>; Mon, 3 Sep 2001 19:06:53 -0400
+Date: Mon, 3 Sep 2001 17:07:09 -0600
+Message-Id: <200109032307.f83N79j29982@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Taylor Carpenter <taylorcc@codecafe.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops when accessing /dev/fd0 (kernel 2.4.7 and devfsd 1.3.11)
+In-Reply-To: <20010825112812.A31755@pioneer.oftheInter.net>
+In-Reply-To: <20010816222811.A1672@pioneer.oftheInter.net>
+	<200108170419.f7H4J7c20693@vindaloo.ras.ucalgary.ca>
+	<20010821223042.A30478@pioneer.oftheInter.net>
+	<200108220507.f7M576q25412@vindaloo.ras.ucalgary.ca>
+	<20010822191227.A11226@pioneer.oftheInter.net>
+	<200108230505.f7N55sr05856@vindaloo.ras.ucalgary.ca>
+	<20010825112812.A31755@pioneer.oftheInter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> said:
-> IP header length is measured in octets, so how is this possible?
-> :-)
+Taylor Carpenter writes:
+> On Wed, Aug 22, 2001 at 11:05:54PM -0600, Richard Gooch wrote:
+> > Taylor Carpenter writes:
+> > >
+> > You mean the floppy module gets loaded as a result of the mountall
+> > script being run?
+> 
+> As far as I can tell, when it runs mount -avt, the floppy module
+> is loaded if there is an entry in /etc/fstab for /dev/fd0 (even w/the noauto
+> option).
+>  
+> > Is the /etc/modules.devfs the one that ships with devfsd?
+> > Specifically, you need the following line:
+> > alias     /dev/floppy		floppy
+> 
+> I do not have a modules.devfs.  I do have a /etc/modutils/devfsd,
+> but it does not have an alias entry for the floppy.
 
-1 octet == 8 bits in RFC-speak. "Byte" is the name given to character
-units.  There were machines around with non-8-bit bytes. AFAIR, DEC PDP-10
-had the options of 6, 7, or 8 bits/byte in 36 bit words. Purely historical
-now, since (AFAIK) everybody has agreed with IBM (S/360?) that 1 byte == 8
-bits. As Brian Reid (IIRC) used to say: "It is spelled 'o-c-t-e-t' and
-pronounced 'byte'"
--- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+What the hell is /etc/modutils/devfsd? More Debian tricks?
 
+[...]
+> > You must have a bogus /etc/devfsd.conf or /etc/modules.devfs file for
+> > module autoloading not to work.
+> 
+> I had commented out the .* MODLOAD, it worked before that.  I uncommented the
+> .* and it still does not work, something else must have changed.
+> 
+> > I don't know what a "perms" file is. I know Debian uses some
+> > convoluted directory tree for devfsd configuration, but frankly, I
+> > don't want to know about that. If you have one of these monstrosities,
+> > please collapse them all into a single /etc/devfsd.conf file a report
+> > based on that.
+> 
+> OK.  I have nothing but REGISTER PERMISSIONS for floppy in devfsd.conf.
+
+Argh! Let me spell it out: I want you to collapse all devfsd
+configuration files into a single file, and throw the stuff in
+directories away. And I also want you to do the same for modutils
+configuration files. I don't want you to edit out stuff that you think
+isn't relevant. I want the whole bloody lot so I can see the context.
+
+Once you've stripped down the configuration to something simple, check
+if the Oops still happens. If so, decode it with ksymoops and send it.
+Hm. And also send the complete output of dmesg. No editing.
+
+> > Hm. Please try a virgin 2.4.9 kernel with CONFIG_DEVFS_FS=n and try
+> > again. I have this feeling that I'm chasing someone else's bug...
+> 
+> OK, done.  I did not get the oops with DEVFS turned off (in 2.4.9).
+
+Interesting. But I need those collapsed files. I have no desire to
+figure out the subtle effects that can be generated by Debian's
+configuration system.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbUKQNHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbUKQNK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbUKQNHK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 08:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbUKQNHK
+	id S262309AbUKQNK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 08:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUKQNK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 08:07:10 -0500
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:58344 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262305AbUKQNGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 08:06:03 -0500
-Message-ID: <419B4CAF.4090302@kolivas.org>
-Date: Thu, 18 Nov 2004 00:05:51 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>
-Cc: CK Kernel <ck@vds.kolivas.org>, Peter Williams <pwil3058@bigpond.net.au>,
-       Chris Han <xiphux@gmail.com>
-Subject: Plugsched 041117
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig56D6C42215F630142E0311FF"
+	Wed, 17 Nov 2004 08:10:26 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:56077 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262309AbUKQNJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 08:09:27 -0500
+Date: Wed, 17 Nov 2004 14:08:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] DEBUG_BUGVERBOSE for i386 (fwd)
+Message-ID: <20041117130820.GQ4943@stusta.de>
+References: <20041117043228.GH4943@stusta.de> <20041117003032.7fd91c47.akpm@osdl.org> <20041117113755.GL4943@stusta.de> <Pine.LNX.4.61.0411171347300.17266@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411171347300.17266@scrub.home>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig56D6C42215F630142E0311FF
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Nov 17, 2004 at 01:57:05PM +0100, Roman Zippel wrote:
 
-An updated version of the pluggable cpu scheduler framework is available 
-for 2.6.10-rc2-mm1
-http://ck.kolivas.org/patches/plugsched/2.6.10-rc2-mm1/
+> Hi,
 
-The main changes in this version are a more robust version of minisched 
-and the addition of "nanosched".
+Hi Roman,
 
-Nanosched is a minimal uniprocessor non preemptive scheduler with no 
-priority support at all for the smallest environments.
+> On Wed, 17 Nov 2004, Adrian Bunk wrote:
+> 
+> > I simply did it as on other architectures.
+> > 
+> > Do you want the following?
+> > 
+> > config DEBUG_BUGVERBOSE
+> >         bool "Verbose BUG() reporting (adds 70K)" if EMBEDDED
+> >         depends on (DEBUG_KERNEL || EMBEDDED=n) && (ARM || ...)
+> > 	default y
+> 
+> What are you trying to do here?
 
-Peter Williams is working on sharing more code between schedulers and 
-Chris Han has a working sysfs interface to the scheduler tunables that I 
-will be looking at merging in some form in the near future (thanks).
+- if EMBEDDED=n, always enable it
+- if EMBEDDED=y:
+  - disable if DEBUG_KERNEL=n
+  - ask if DEBUG_KERNEL=y
 
-Cheers,
-Con
+> I guess you want something more like this?
+> 
+> config DEBUG_BUGVERBOSE
+> 	bool "Verbose BUG() reporting (adds 70K)" if DEBUG_KERNEL && EMBEDDED
+> 	depends on ARM || ...
+> 	default y
 
---------------enig56D6C42215F630142E0311FF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+This has a different semantics:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+If you want no kernel debugging in an embedded environment, 
+DEBUG_BUGVERBOSE would be automatically enabled.
 
-iD8DBQFBm0yvZUg7+tp6mRURAo2UAJ92w8gu9VwB59H+F8Fv0kKLQ6WoGACfe+1h
-eCRftH70GgDRQ2JhJ351zWg=
-=Nu4B
------END PGP SIGNATURE-----
+This is definitely not intended.
 
---------------enig56D6C42215F630142E0311FF--
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

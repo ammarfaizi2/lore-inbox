@@ -1,75 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270745AbTGNT4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270755AbTGNT4H
+	id S270775AbTGNTxC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 15:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270772AbTGNTxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:56:07 -0400
-Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:20434 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S270745AbTGNTzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:55:48 -0400
-Subject: Re: RFC on io-stalls patch
-From: Chris Mason <mason@suse.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <20030714195138.GX833@suse.de>
-References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
-	 <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com>
-	 <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
-	 <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random>
-	 <20030714054918.GD843@suse.de>
-	 <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
-	 <20030714131206.GJ833@suse.de>  <20030714195138.GX833@suse.de>
+	Mon, 14 Jul 2003 15:53:01 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:12007 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270775AbTGNTvE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 15:51:04 -0400
+Subject: Re: Linux v2.6.0-test1 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0307132055080.2096-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0307132055080.2096-100000@home.osdl.org>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1058213348.13313.274.camel@tiny.suse.com>
+Message-Id: <1058213335.11859.4.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 14 Jul 2003 16:09:08 -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Jul 2003 13:08:56 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-14 at 15:51, Jens Axboe wrote:
+Compile statistics: 2.6.0-test1
+Compiler: gcc 3.2.2
+Script: http://developer.osdl.org/~cherry/compile/compregress.sh
 
-> Some initial results with the attached patch, I'll try and do some more
-> fine grained tomorrow. Base kernel was 2.4.22-pre5 (obviously), drive
-> tested is a SCSI drive (on aic7xxx, tcq fixed at 4), fs is ext3. I would
-> have done ide testing actually, but the drive in that machine appears to
-> have gone dead. I'll pop in a new one tomorrow and test on that too.
-> 
+               bzImage       bzImage        modules
+             (defconfig)  (allmodconfig) (allmodconfig)
 
-Thanks Jens, the results so far are very interesting (although I'm
-curious to hear how 2.4.21 did).
+2.6.0-test1  0 warnings     8 warnings   1296 warnings
+             0 errors       9 errors       39 errors
 
-> --- 1.47/drivers/block/ll_rw_blk.c	Fri Jul 11 10:30:54 2003
-> +++ edited/drivers/block/ll_rw_blk.c	Mon Jul 14 20:42:36 2003
-> @@ -549,10 +549,12 @@
->  static struct request *get_request(request_queue_t *q, int rw)
->  {
->  	struct request *rq = NULL;
-> -	struct request_list *rl;
-> +	struct request_list *rl = &q->rq;
->  
-> -	rl = &q->rq;
-> -	if (!list_empty(&rl->free) && !blk_oversized_queue(q)) {
-> +	if ((rw == WRITE) && (blk_oversized_queue(q) || (rl->count < 4)))
-> +		return NULL;
-> +
-> +	if (!list_empty(&rl->free)) {
->  		rq = blkdev_free_rq(&rl->free);
->  		list_del(&rq->queue);
->  		rl->count--;
-> @@ -947,7 +949,7 @@
+2.5.75       0 warnings     8 warnings   1296 warnings
+             0 errors       9 errors       39 errors
 
-Could I talk you into trying a form of this patch that honors
-blk_oversized_queue for everything except the BH_sync requests?
 
--chris
+
+Compile statistics have been for kernel releases from 2.5.46 to
+2.6.0-test1 at: http://developer.osdl.org/~cherry/compile/
+
+Failure summary:
+
+   drivers/block: 2 warnings, 1 errors
+   drivers/char: 226 warnings, 4 errors
+   drivers/isdn: 216 warnings, 5 errors
+   drivers/media: 102 warnings, 5 errors
+   drivers/mtd: 42 warnings, 1 errors
+   drivers/net: 293 warnings, 6 errors
+   drivers/net: 29 warnings, 6 errors
+   drivers/scsi: 109 warnings, 10 errors
+   drivers/scsi/aic7xxx: 0 warnings, 1 errors
+   drivers/video: 101 warnings, 3 errors
+   sound: 5 warnings, 3 errors
+   sound/oss: 55 warnings, 3 errors
+
+Warning summary:
+
+
+   drivers/atm: 36 warnings, 0 errors
+   drivers/cdrom: 25 warnings, 0 errors
+   drivers/i2c: 3 warnings, 0 errors
+   drivers/ide: 28 warnings, 0 errors
+   drivers/md: 2 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/pci: 1 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/aacraid: 1 warnings, 0 errors
+   drivers/scsi/pcmcia: 5 warnings, 0 errors
+   drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 9 warnings, 0 errors
+   drivers/video/aty: 3 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/sis: 1 warnings, 0 errors
+   fs/afs: 1 warnings, 0 errors
+   fs/intermezzo: 1 warnings, 0 errors
+   fs/jffs: 1 warnings, 0 errors
+   fs/lockd: 4 warnings, 0 errors
+   fs/nfsd: 2 warnings, 0 errors
+   fs/smbfs: 2 warnings, 0 errors
+   net: 39 warnings, 0 errors
+   sound/isa: 3 warnings, 0 errors
+
+John
+
 
 

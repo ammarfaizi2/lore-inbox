@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbTE3WXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTE3WXt
+	id S263996AbTE3W2a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264050AbTE3W2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:23:49 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:14241 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261244AbTE3WXt
+	Fri, 30 May 2003 18:28:30 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:42166 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263996AbTE3W23 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:23:49 -0400
-Message-ID: <3ED7DCF6.20206@us.ibm.com>
-Date: Fri, 30 May 2003 15:36:38 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	Fri, 30 May 2003 18:28:29 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 30 May 2003 15:39:19 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
+In-Reply-To: <20030530222630.GF3308@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.55.0305301535100.4421@bigblue.dev.mcafeelabs.com>
+References: <20030530212013.GE3308@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.44.0305301431390.2671-100000@home.transmeta.com>
+ <20030530222630.GF3308@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm2
-References: <20030529012914.2c315dad.akpm@digeo.com>	<20030529042333.3dd62255.akpm@digeo.com>	<16087.47491.603116.892709@gargle.gargle.HOWL> <20030530133015.4f305808.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->>
->>Any hint on when -mm3 will be out,
-> 
-> 
-> About ten hours hence, probably.
-> 
-> Welll ext3 has been a bit bumpy of course.  It's getting better, but I
-> haven't yet been able to give it a 12-hour bash on the 4-way.  Last time I
-> tried a circuit breaker conked; it lasted three hours but even ext3 needs
-> electricity.  But three hours is very positive - it was hard testing.
-> 
-I run many fsx tests on mm2 on 8 way yesterday for a overnight run, 
-before I saw your previous post.  Of course the tests failed with lots 
-of error messages, but the good news is the system did not hang. Looking 
-forward to mm3 out.
+On Sat, 31 May 2003, [iso-8859-1] Jörn Engel wrote:
 
+> On Fri, 30 May 2003 14:38:07 -0700, Linus Torvalds wrote:
+> > On Fri, 30 May 2003, Jörn Engel wrote:
+> > >
+> > > How about an all or nothing approach?  If you really want to get rid
+> > > of K&R, change indentation as well, rip out some of the rather
+> > > tasteless macros (ZEXPORT, ZEXPORTVA, ZEXTERN, FAR, ...) and so on.
+> >
+> > I'd love to, but I suspect we lack the motivation to do so, and there
+> > aren't any obvious upsides. Yes, the code is ugly, but it's also fairly
+> > stable so people seldom need to look at it.
+>
+> Well, since I'm currently working on the zlib anyway...
+
+Talking about the code, there are still a bunch of files that uses spaces
+with tabsize=4. Shouldn't those be reformatted with real TABs ? An emacs
+lisp (indent+tabify) might do it pretty fast ...
+
+
+
+- Davide
 

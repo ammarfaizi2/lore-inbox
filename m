@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263223AbUCNAXI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 19:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUCNAXI
+	id S263228AbUCNAXb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 19:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUCNAXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 19:23:08 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50948
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263223AbUCNAXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 19:23:06 -0500
-Date: Sun, 14 Mar 2004 01:23:48 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: riel@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: anon_vma RFC2
-Message-ID: <20040314002348.GQ30940@dualathlon.random>
-References: <20040310080000.GA30940@dualathlon.random> <Pine.LNX.4.44.0403100759550.7125-100000@chimarrao.boston.redhat.com> <20040310135012.GM30940@dualathlon.random> <Pine.GSO.4.58.0403121149400.2624@sapphire.engin.umich.edu> <20040312172600.GC30940@dualathlon.random> <Pine.GSO.4.58.0403121548530.2624@sapphire.engin.umich.edu> <Pine.LNX.4.58.0403131246580.28574@ruby.engin.umich.edu> <20040313181606.GO30940@dualathlon.random> <Pine.GSO.4.58.0403131426590.12823@blue.engin.umich.edu>
+	Sat, 13 Mar 2004 19:23:31 -0500
+Received: from gate.crashing.org ([63.228.1.57]:23514 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263228AbUCNAX3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 19:23:29 -0500
+Subject: Re: Dealing with swsusp vs. pmdisk
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@zip.com.au>,
+       torvalds@transmeta.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040313123620.GA3352@openzaurus.ucw.cz>
+References: <20040312224645.GA326@elf.ucw.cz>
+	 <20040313004756.GB5115@thunk.org> <1079146273.1967.63.camel@gaston>
+	 <20040313123620.GA3352@openzaurus.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1079223482.1960.113.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0403131426590.12823@blue.engin.umich.edu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Mar 2004 11:18:02 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 02:40:09PM -0500, Rajesh Venkatasubramanian wrote:
-> Agreed. prio_tree is only useful for anon_vma. But, after
-> linus-unshare-mremap, the anon_vma patch can be modified
-> (simplified ?) a lot. You don't need any as.anon_vma, as.vma
-> pointers in the page struct. You just need the already existing
-> page->mapping and page->index, and a prio_tree of all anon vmas.
+On Sat, 2004-03-13 at 23:36, Pavel Machek wrote:
+> Hi!
+> 
+> > > Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
+> > > complaint about it is that since it's maintained outside of the
+> > > kernel, it's constantly behind about 0.75 revisions behind the latest
+> > > 2.6 release.  The feature set of swsusp2, if they can ever get it
+> > > completely bugfree(tm) is certainly impressive.
+> > 
+> > I'd like it to be merged upstream too.
+> 
+> Are we talking 2.6 or 2.7 here?
 
-what you are missing is that we don't need a prio_tree at all with
-anonmm+linus-unshare-mremap, prio tree can make sense only with
-anon_vma, not with anonmm. the vm_pgoff is meaningless with anonmm.
-find_vma (and the rbtree) already does the trick with anonmm. the
-linus-unshare-mremap guarantees that a certain physical page will be
-only at a certain virtual address in every mm, so prio_tree taking pgoff
-into account isn't needed there, find_vma is more than enough.
+2.6. I don't see any problem merging it at this point as long as
+it's not invasive (I haven't looked at the code though). If it's
+self-contained, it's more/less like adding a driver.
 
-any prio_tree can't fix anyways the problem that anonmm will force
-the vm to scan all mm at the page->index address, even for a newly
-allocated malloc region. that is optimized away by anon_vma, plus
-anon_vma avoids the early-COW in mremap. the relevant downside of
-anon_vma is that it takes some more byte in the vma to provide those
-features.
+Ben.
+
+

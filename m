@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132882AbQL2AGy>; Thu, 28 Dec 2000 19:06:54 -0500
+	id <S132883AbQL2AIy>; Thu, 28 Dec 2000 19:08:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132883AbQL2AGp>; Thu, 28 Dec 2000 19:06:45 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18437 "EHLO
+	id <S132925AbQL2AIo>; Thu, 28 Dec 2000 19:08:44 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:20485 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132882AbQL2AGe>; Thu, 28 Dec 2000 19:06:34 -0500
-Date: Thu, 28 Dec 2000 15:36:00 -0800 (PST)
+	id <S132883AbQL2AId>; Thu, 28 Dec 2000 19:08:33 -0500
+Date: Thu, 28 Dec 2000 15:37:51 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
 To: Andi Kleen <ak@suse.de>
-cc: "David S. Miller" <davem@redhat.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: test13-pre5
-In-Reply-To: <20001229001721.B25388@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.10.10012281533060.1123-100000@penguin.transmeta.com>
+In-Reply-To: <20001229002527.C25388@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.10.10012281536510.1123-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,33 +22,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 On Fri, 29 Dec 2000, Andi Kleen wrote:
-
-> On Thu, Dec 28, 2000 at 02:54:52PM -0800, David S. Miller wrote:
-> >    Date: Thu, 28 Dec 2000 23:58:36 +0100
-> >    From: Andi Kleen <ak@suse.de>
-> > 
-> >    Why exactly a power of two ? To get rid of ->index ? 
-> > 
-> > To make things like "page - mem_map" et al. use shifts instead of
-> > expensive multiplies...
 > 
-> I thought that is what ->index is for ? 
+> Hopefully all the "goto out" micro optimizations can be taken out then too,
 
-No. "index" only gives the virtual index.
+"goto out" often generates much more readable code, so the optimization is
+secondary.
 
-"page - mem_map" is how you get the _physical_ index in the zone in
-question, which is common for physical tranlations (ie "pte_page()",
-"page_to_virt()" or "page_to_phys()")
+> I recently found out that gcc 2.97's block moving pass has the tendency
+> to move the outlined blocks inline again ;) 
 
-> Also gcc seems to be already quite clever at dividing through small
-> integers, e.g. using mul and shift and sub, so it may not be even worth to reach
-> for a real power-of-two. 
-
-Look at the code - it's a big multiply to do a divide by 68 or similar.
-Quite expensive.
-
-Doing "page->address - TASK_SIZE" on x86 for the non-highmem case would
-probably be faster.
+Too bad. Maybe somebody should tell gcc maintainers about programmers that
+know more than the compiler again.
 
 		Linus
 

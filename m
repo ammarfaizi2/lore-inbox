@@ -1,94 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280588AbRLQPts>; Mon, 17 Dec 2001 10:49:48 -0500
+	id <S280537AbRLQPo3>; Mon, 17 Dec 2001 10:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280825AbRLQPti>; Mon, 17 Dec 2001 10:49:38 -0500
-Received: from [212.16.7.124] ([212.16.7.124]:52866 "HELO laputa.namesys.com")
-	by vger.kernel.org with SMTP id <S280805AbRLQPt2>;
-	Mon, 17 Dec 2001 10:49:28 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S280583AbRLQPoS>; Mon, 17 Dec 2001 10:44:18 -0500
+Received: from copper.ftech.net ([212.32.16.118]:7684 "EHLO relay5.ftech.net")
+	by vger.kernel.org with ESMTP id <S280537AbRLQPoF>;
+	Mon, 17 Dec 2001 10:44:05 -0500
+Message-ID: <7C078C66B7752B438B88E11E5E20E72E41A1@GENERAL.farsite.co.uk>
+From: Kevin Curtis <kevin.curtis@farsite.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: pci_enable_device reports IRQ routing conflict
+Date: Mon, 17 Dec 2001 15:41:25 -0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15390.4943.64152.676583@laputa.namesys.com>
-Date: Mon, 17 Dec 2001 18:46:23 +0300
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-Cc: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: [PATCH]: reiserfs: B-check_nlink_in_reiserfs_read_inode2.patch
-X-Mailer: VM 6.96 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+Hi,
+	I am updating a driver for a pci card that has two variants (a long
+established and working variant and one with updated hardware), but both are
+handled by the same driver.  They are identified with the same vendor id but
+a different device id.  During driver initialisation I probe for the cards,
+and set them up in terms of getting irq's, io and memory etc.  
 
-    This patch closes a race between iput() and threads accessing files
-    directly by "inode numbers" (i.e., bypassing directory lookup) like
-    knfsd.
+The first card has irq5 returned from pci_find_device, the second has irq9
+returned.
 
-    Suppose, last reference to file is being unlinked and iput() sleeps
-    in sb->s_op->delete_inode(), after removing inode from hash
-    table. At this moment "knfsd" comes and looks for this inode. Inode
-    is not found in hash table, new instance is created and
-    hashed. ->read_inode() is called only to find that on disk inode is
-    there, still not deleted by sb->s_op->delete_inode(), so
-    ->read_inode() returns successfully. Now, delete_inode() wakes up
-    and removes remaining meta-data. At this moment we have valid inode
-    in memory without meta-data on disk.
+However when I call pci_enable_device for the second card I get the
+following kernel log message:
 
-    Reiserfs updates on-disk meta-data including nlink during unlink(),
-    so it's enough to check nlink during reiserfs_read_inode2(). This is
-    _not_ enough to fix this race for ext2.
+Dec 17 15:06:37 minion kernel: IRQ routing conflict for 00:0b.0, have irq 9,
+want irq 5
 
-Please apply.
+The call didn't return an error, so I assume this was a non-fatal.  
 
-Nikita.
-diff -rup -X dontdiff linux/fs/reiserfs/inode.c linux.patched/fs/reiserfs/inode.c
---- linux/fs/reiserfs/inode.c	Wed Oct 31 02:11:34 2001
-+++ linux.patched/fs/reiserfs/inode.c	Mon Nov 26 15:27:09 2001
-@@ -1138,6 +1138,30 @@ void reiserfs_read_inode2 (struct inode 
-     }
- 
-     init_inode (inode, &path_to_sd);
-+   
-+    /* It is possible that knfsd is trying to access inode of a file
-+       that is being removed from the disk by some other thread. As we
-+       update sd on unlink all that is required is to check for nlink
-+       here. This bug was first found by Sizif when debugging
-+       SquidNG/Butterfly, forgotten, and found again after Philippe
-+       Gramoulle <philippe.gramoulle@mmania.com> reproduced it. 
-+
-+       More logical fix would require changes in fs/inode.c:iput() to
-+       remove inode from hash-table _after_ fs cleaned disk stuff up and
-+       in iget() to return NULL if I_FREEING inode is found in
-+       hash-table. */
-+    /* Currently there is one place where it's ok to meet inode with
-+       nlink==0: processing of open-unlinked and half-truncated files
-+       during mount (fs/reiserfs/super.c:finish_unfinished()). */
-+    if( ( inode -> i_nlink == 0 ) && 
-+	! inode -> i_sb -> u.reiserfs_sb.s_is_unlinked_ok ) {
-+	    reiserfs_warning( "vs-13075: reiserfs_read_inode2: "
-+			      "dead inode read from disk %K. "
-+			      "This is likely to be race with knfsd. Ignore\n", 
-+			      &key );
-+	    make_bad_inode( inode );
-+    }
-+
-     reiserfs_check_path(&path_to_sd) ; /* init inode should be relsing */
- 
- }
-diff -rup -X dontdiff linux/include/linux/reiserfs_fs_sb.h linux.patched/include/linux/reiserfs_fs_sb.h
---- linux/include/linux/reiserfs_fs_sb.h	Thu Nov 22 22:46:19 2001
-+++ linux.patched/include/linux/reiserfs_fs_sb.h	Mon Nov 26 15:22:44 2001
-@@ -420,6 +420,10 @@ struct reiserfs_sb_info
-     int s_bmaps_without_search;
-     int s_direct2indirect;
-     int s_indirect2direct;
-+	/* set up when it's ok for reiserfs_read_inode2() to read from
-+	   disk inode with nlink==0. Currently this is only used during
-+	   finish_unfinished() processing at mount time */
-+    int s_is_unlinked_ok;
-     reiserfs_proc_info_data_t s_proc_info_data;
-     struct proc_dir_entry *procdir;
- };
+I can't see anything wrong with the pci_dev structures, and even when I
+probe for the cards in the reverse order I still get the same error message.
+
+When I only have one of the cards present in the system when I load the
+driver, then there aren't any problems, it's only when both are physically
+installed that the error message is produced.
+
+Has anyone got any ideas where to look to debug this?
+
+I am using RH 7.2 with Kernel 2.4.16
+
+The card
+Kevin Curtis

@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279065AbRJVXBV>; Mon, 22 Oct 2001 19:01:21 -0400
+	id <S279059AbRJVXEa>; Mon, 22 Oct 2001 19:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279051AbRJVW6m>; Mon, 22 Oct 2001 18:58:42 -0400
-Received: from zero.tech9.net ([209.61.188.187]:41226 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279053AbRJVW6X>;
-	Mon, 22 Oct 2001 18:58:23 -0400
-Subject: Re: 2.4.12 w/ preempt patch
+	id <S279053AbRJVXEO>; Mon, 22 Oct 2001 19:04:14 -0400
+Received: from zero.tech9.net ([209.61.188.187]:41738 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279051AbRJVXC5>;
+	Mon, 22 Oct 2001 19:02:57 -0400
+Subject: Re: [PATCH] updated preempt-kernel
 From: Robert Love <rml@tech9.net>
-To: steve <sdroemen@home.com>
+To: szonyi calin <caszonyi@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1003790595.3536.9.camel@lws01>
-In-Reply-To: <1003790595.3536.9.camel@lws01>
+In-Reply-To: <20011022144601.55173.qmail@web13103.mail.yahoo.com>
+In-Reply-To: <20011022144601.55173.qmail@web13103.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
-Date: 22 Oct 2001 18:58:59 -0400
-Message-Id: <1003791539.1712.50.camel@phantasy>
+Date: 22 Oct 2001 19:03:35 -0400
+Message-Id: <1003791816.1712.55.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-10-22 at 18:43, steve wrote:
-> I got a bug error in my syslog  My machine had been running about 1 day.
-> it is the 2.4.12 kernel with the preempt-kernel-rml-2.4.12-1.patch 
-> patch from http://www.tech9.net/rml/linux
+On Mon, 2001-10-22 at 10:46, szonyi calin wrote:
+> Hi 
+> I'm using the preemptible kernel patch since 2.4.10 
+> (no 2.4.11). And it makes a big difference on 486 with
+> 12Megs of ram. 
+> I can't send you benchmarks (i don't have time for
+> this but if you really want one ... it can be arranged
+> :-)). 
+> But:
 > 
-> anybody know what went wrong, and how to fix it?
+> When I run a configure script I can actually see it
+> running (without this patch it is very slow).
+> 
+> The coolest thing was that I could run Gnome and KDE
+> (with loadavg of 4 and waiting 2 to 4 minutes for an
+> application to start (because of ram I think))
+> something not possible without the preemtible kernel.
+> I don't swear after them anyway.( I prefer fvwm)
+> 
+> Compilation is much faster (i'll make a benchmark
+> compiling linux kernel -- i promise :-)) ).
 
-First, get the most recent patch.  revision -3 is out now at
-http://tech9.net/rml/linux
+I am very glad to here this -- thank you :)
+I'm glad it works so good.
 
-Try this.  Even better, try the 2.4.13-pre6 patch against that kernel. 
-Either way, a possible race was fixed in the newer versions.
+> The system is stable with high system loads.
+> Now is kernel 2.4.12 and no problems at all.
+> 
+> Any chance to be in the main stable kernel ?
 
-If you still have an oops, try to reproduce it without any binary
-modules loaded.
+Hopefully for 2.5.
+
+> Bye 
 
 	Robert Love
 

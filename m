@@ -1,284 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbTENKjv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 06:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTENKjv
+	id S261855AbTENKoN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 06:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTENKoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 06:39:51 -0400
-Received: from quechua.inka.de ([193.197.184.2]:29388 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261618AbTENKjq (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Wed, 14 May 2003 06:39:46 -0400
-Subject: 2.5.69/ipsec assertion failed
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: linux-kernel@vger.redhat.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052910046.6883.37.camel@simulacron>
+	Wed, 14 May 2003 06:44:13 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:55056 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261855AbTENKoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 06:44:10 -0400
+Date: Wed, 14 May 2003 11:56:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] PAG support, try #2
+Message-ID: <20030514115653.A15202@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	openafs-devel@openafs.org
+References: <24225.1052909011@warthog.warthog>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 14 May 2003 13:00:47 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <24225.1052909011@warthog.warthog>; from dhowells@redhat.com on Wed, May 14, 2003 at 11:43:31AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was testing ipsec stuff, stating tcpdump and got this:
+On Wed, May 14, 2003 at 11:43:31AM +0100, David Howells wrote:
+> +extern long sys_setpag(pag_t);
+> +extern long sys_getpag(void);
 
-May 14 12:48:20 localhost kernel: eth0: Promiscuous mode enabled.
-May 14 12:48:20 localhost kernel: device eth0 entered promiscuous mode
-May 14 12:48:21 localhost kernel: KERNEL: assertion (x->km.state ==
-XFRM_STATE_DEAD) failed at net/xfrm/xfrm_state.c(192)
-May 14 12:48:21 localhost kernel: ------------[ cut here ]------------
-May 14 12:48:21 localhost kernel: kernel BUG at
-net/xfrm/xfrm_state.c:54!
-May 14 12:48:21 localhost kernel: invalid operand: 0000 [#1]
-May 14 12:48:21 localhost kernel: CPU:    0
-May 14 12:48:21 localhost kernel: EIP:   
-0060:[xfrm_state_gc_destroy+26/208]    Not tainted
-May 14 12:48:21 localhost kernel: EFLAGS: 00010202
-May 14 12:48:21 localhost kernel: EIP is at
-xfrm_state_gc_destroy+0x1a/0xd0
-May 14 12:48:21 localhost kernel: eax: 00000001   ebx: c4917800   ecx:
-00000286   edx: c117bf70
-May 14 12:48:21 localhost kernel: esi: c117bf64   edi: c7ff57e0   ebp:
-00000000   esp: c117bf54
-May 14 12:48:21 localhost kernel: ds: 007b   es: 007b   ss: 0068
-May 14 12:48:21 localhost kernel: Process events/0 (pid: 3,
-threadinfo=c117a000 task=c114cc40)
-May 14 12:48:21 localhost kernel: Stack: c4917914 c117bf64 c02ca8d8
-c4917800 c4917800 c4917800 c0409864 00000293 
-May 14 12:48:21 localhost kernel:        c0127ec4 00000000 c117bfa0
-00000000 c7ff57f8 c7ff57f0 c117a000 c117a000 
-May 14 12:48:21 localhost kernel:        c02ca860 c7ff57e8 c117a000
-00000001 00000000 c0118000 00010000 00000000 
-May 14 12:48:21 localhost kernel: Call Trace:
-May 14 12:48:21 localhost kernel:  [xfrm_state_gc_task+120/144]
-xfrm_state_gc_task+0x78/0x90
-May 14 12:48:21 localhost kernel:  [worker_thread+452/640]
-worker_thread+0x1c4/0x280
-May 14 12:48:21 localhost kernel:  [xfrm_state_gc_task+0/144]
-xfrm_state_gc_task+0x0/0x90
-May 14 12:48:21 localhost kernel:  [default_wake_function+0/32]
-default_wake_function+0x0/0x20
-May 14 12:48:21 localhost kernel:  [ret_from_fork+6/20]
-ret_from_fork+0x6/0x14
-May 14 12:48:21 localhost kernel:  [default_wake_function+0/32]
-default_wake_function+0x0/0x20
-May 14 12:48:21 localhost kernel:  [worker_thread+0/640]
-worker_thread+0x0/0x280
-May 14 12:48:21 localhost kernel:  [kernel_thread_helper+5/24]
-kernel_thread_helper+0x5/0x18
-May 14 12:48:21 localhost kernel: 
-May 14 12:48:21 localhost kernel: Code: 0f 0b 36 00 3b 97 33 c0 8b 83 cc
-00 00 00 85 c0 0f 85 90 00 
-May 14 12:48:22 localhost kernel:  KERNEL: assertion (x->km.state ==
-XFRM_STATE_DEAD) failed at net/xfrm/xfrm_state.c(192)
+These have to be a marked asmlinkage.  What's the reason you have
+the syscall in this header anyway?
 
+> +static kmem_cache_t *vfs_token_cache;
+> +static kmem_cache_t *vfs_pag_cache;
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_IDEDMA_IVB=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_INET_IPCOMP=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_PKTTYPE=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_AH_ESP=y
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_CONNTRACK=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_IPV6=y
-CONFIG_INET6_AH=y
-CONFIG_INET6_ESP=y
-CONFIG_XFRM_USER=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_HTB=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_PPP=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_PPPOE=y
-CONFIG_NET_RADIO=y
-CONFIG_HOSTAP=y
-CONFIG_HOSTAP_HOSTAPD=y
-CONFIG_HOSTAP_FIRMWARE=y
-CONFIG_HOSTAP_PLX=y
-CONFIG_HOSTAP_PCI=y
-CONFIG_NET_WIRELESS=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_PIIX4=y
-CONFIG_SENSORS_ADM1021=y
-CONFIG_SENSORS_LM75=y
-CONFIG_SENSORS_VIA686A=y
-CONFIG_SENSORS_W83781D=y
-CONFIG_I2C_SENSOR=y
-CONFIG_HW_RANDOM=y
-CONFIG_RTC=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_FAT_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_RAMFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_UTF8=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_DYNAMIC_MINORS=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_SHA512=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_SERPENT=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_CRC32=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_X86_BIOS_REBOOT=y
+So do you have an estimate for the number of users here yet?
+Adding two more slab caches that are unused for 99% of the users
+might not be the best choice if there's no strong need.
 
+> +inline pag_t vfs_leave_pag(void)
+
+Inline but not static seems strange..
+
+> +/*
+> + * join an existing PAG (+ve), run without PAG (0), or create and join new PAG (-1)
+> + * - PAG IDs must be +ve, >0 and unique
+> + * - returns ID of PAG joined or 0 if now running without a PAG
+> + */
+> +long sys_setpag(pag_t pag)
+> +{
+> +	if (pag > 0)		return vfs_join_pag(pag);
+> +	else if (pag == 0)	return vfs_leave_pag();
+> +	else if (pag == -1)	return vfs_new_pag();
+> +	else			return -EINVAL;
+> +}
+
+We already discussed the coding style issue, but anyway, why aren't
+these three separate syscalls?
+
+> +void vfs_pag_put(struct vfs_pag *vfspag)
+> +{
+> +	struct vfs_token *vtoken;
+> +
+> +	if (vfspag && atomic_dec_and_lock(&vfspag->usage, &vfs_pag_lock)) {
+> +		rb_erase(&vfspag->node, &vfs_pag_tree);
+> +		spin_unlock(&vfs_pag_lock);
+> +
+> +		while (!list_empty(&vfspag->tokens)) {
+
+What protects vfspag->tokens?
+
+> +/*
+> + * search for a token covering a particular filesystem key in the specified pag list
+> + */
+
+Please linwrap after 80 chars.
+
+> +
+> +	if (p->vfspag)
+> +		vfs_pag_get(p->vfspag);
+> +
+
+Shouldn't vfs_pag_get hanlde a NULL argument instead?
+
+> diff -uNr linux-2.5.69/kernel/Makefile linux-2.5.69-pag/kernel/Makefile
+> --- linux-2.5.69/kernel/Makefile	2003-05-06 15:04:56.000000000 +0100
+> +++ linux-2.5.69-pag/kernel/Makefile	2003-05-13 10:45:27.000000000 +0100
+> @@ -3,7 +3,7 @@
+>  #
+>  
+>  obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
+> -	    exit.o itimer.o time.o softirq.o resource.o \
+> +	    cred.o exit.o itimer.o time.o softirq.o resource.o \
+
+What happened to the suggestion to make the pag code optional?  It's
+really easy to stub it out properly and most people don't need it.
 

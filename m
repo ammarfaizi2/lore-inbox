@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318895AbSIIUeV>; Mon, 9 Sep 2002 16:34:21 -0400
+	id <S318851AbSIIUhE>; Mon, 9 Sep 2002 16:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318896AbSIIUeV>; Mon, 9 Sep 2002 16:34:21 -0400
-Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:6337 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318895AbSIIUeT>;
-	Mon, 9 Sep 2002 16:34:19 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: Calculating kernel logical address ..
-Date: Mon, 9 Sep 2002 22:41:30 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jesse Barnes <jbarnes@sgi.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "'David S. Miller'" <davem@redhat.com>, linux-kernel@vger.kernel.org
-References: <019f01c25826$c553f310$9e10a8c0@IMRANPC> <E17oTES-0006qj-00@starship> <3D7CF93A.972FCC8D@digeo.com>
-In-Reply-To: <3D7CF93A.972FCC8D@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17oVLe-0006uT-00@starship>
+	id <S318853AbSIIUgg>; Mon, 9 Sep 2002 16:36:36 -0400
+Received: from crack.them.org ([65.125.64.184]:61713 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S318882AbSIIUfi>;
+	Mon, 9 Sep 2002 16:35:38 -0400
+Date: Mon, 9 Sep 2002 16:40:26 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: do_syslog/__down_trylock lockup in current BK
+Message-ID: <20020909204026.GA8719@nevyn.them.org>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20020909201516.GA7465@nevyn.them.org> <Pine.LNX.4.44.0209092230550.16779-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209092230550.16779-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 September 2002 21:40, Andrew Morton wrote:
-> We need a general-purpose "read or write these pages to this blockdev"
-> library function.
+On Mon, Sep 09, 2002 at 10:33:17PM +0200, Ingo Molnar wrote:
+> 
+> the attached patch fixes one bug in the way we did zap_thread() - but this
+> alone does not fix the lockup.
+> 
+> the bug was that list_for_each_safe() is not 'safe enough' - zap_thread()  
+> drops the tasklist lock at which point anything might happen to the child
+> list.
+> 
+> the lockup is likely in the while loop - ie. zap_thread() not actually
+> reparenting a thread and thus causing an infinite loop - is that possible?
 
-I thought bio was supposed to be that.  In what way does it not suffice?
-Simply because of not having a suitable wrapper?
+Well, it shouldn't be.  forget_original_parent should update
+real_parent for every child on either list, and then zap_thread unlinks
+each child from the current parent and links it to the new real_parent.
+A couple of printks in there should be able to work out if I'm wrong,
+though...
 
-> For mtdblk, LVM1/LVM2 and probably swapper_space.
-> With that we can remove the block IO stuff from kiovecs.  And convert
-> the other drivers to use get_user_pages() directly into an ad-hoc private
-> page array.  Those things would allow kiovecs/kiobufs to be retired.
+> @@ -554,17 +553,16 @@
+>  		do_notify_parent(current, current->exit_signal);
+>  
+>  zap_again:
+> -	list_for_each_safe(_p, _n, &current->children)
+> -		zap_thread(list_entry(_p,struct task_struct,sibling), current, 0);
+> -	list_for_each_safe(_p, _n, &current->ptrace_children)
+> -		zap_thread(list_entry(_p,struct task_struct,ptrace_list), current, 1);
+> +	while (!list_empty(&current->children))
+> +		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
+> +	while (!list_empty(&current->ptrace_children))
+> +		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,sibling), current, 0);
 
-As far as pressing generic_direct_IO into use for this purpose goes, why
-not forget about that (crufty looking) layer and sit directly on top of
-bio?
+As Linus points out, typo right there on the last argument.
 
 -- 
-Daniel
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

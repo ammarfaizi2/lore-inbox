@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277269AbRJDX2u>; Thu, 4 Oct 2001 19:28:50 -0400
+	id <S277203AbRJDXeu>; Thu, 4 Oct 2001 19:34:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277265AbRJDX23>; Thu, 4 Oct 2001 19:28:29 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:21167 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S277203AbRJDX2T>;
-	Thu, 4 Oct 2001 19:28:19 -0400
-Date: Fri, 05 Oct 2001 00:28:44 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@alex.org.uk
-Cc: mingo@elte.hu, jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Simon Kirby <sim@netnation.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+	id <S277265AbRJDXej>; Thu, 4 Oct 2001 19:34:39 -0400
+Received: from peace.netnation.com ([204.174.223.2]:2573 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S277203AbRJDXeW>; Thu, 4 Oct 2001 19:34:22 -0400
+Date: Thu, 4 Oct 2001 16:34:50 -0700
+From: Simon Kirby <sim@netnation.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
 Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Message-ID: <309943687.1002241724@[195.224.237.69]>
-In-Reply-To: <E15pGhY-0004Qz-00@the-village.bc.nu>
-In-Reply-To: <E15pGhY-0004Qz-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <20011004163450.A23708@netnation.com>
+In-Reply-To: <20011004150119.B2373@netnation.com> <309761448.1002241541@[195.224.237.69]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <309761448.1002241541@[195.224.237.69]>; from linux-kernel@alex.org.uk on Fri, Oct 05, 2001 at 12:25:41AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 05, 2001 at 12:25:41AM +0100, Alex Bligh - linux-kernel wrote:
 
+> > Ingo is not limiting interrupts to make it drop packets and forget things
+> > just so that userspace can proceed.  Instead, he is postponing servicing
+> > of the interrupts so that the card can batch up more packets and the
+> > interrupt will retrieve more at once rather than continually leaving and
+> > entering the interrupt to just pick up a few packets.  Without this, the
+> > interrupt will starve everything else, and nothing will get done.
+> 
+> Ah OK. in this case already looking at interupt coalescing at firmware
+> level which mitigates this 'earlier on', however even this
+> stratgy fails at higher pps levels => i.e. in these circumstances
+> the card buffer is already full-ish, as the interrupt has already been
+> postponed, and postponing it further can only cause dropped packets
+> through buffer overrun.
 
---On Thursday, 04 October, 2001 11:10 PM +0100 Alan Cox 
-<alan@lxorguk.ukuu.org.uk> wrote:
+Right.  But right now, the fact that the packets are so small and are
+arriving so fast makes the interrupt handler overhead starve everything
+else, and interrupt mitigation can make a box that would otherwise be
+dead work properly.  If the box gets even more packets and the CPU
+saturates, then the box would be dead before without the patch anyway.
 
-> You only think that. After a few minutes the kiddie pulls down your
-> routing because your route daemons execute no code. Also during the
-> attack your sshd wont run so you cant log in to find out what is up
+Simon-
 
-There is truth in this. Which is why doing things like
-a crude WRED on the card, in the firmware,
-(i.e. before it sends the data into user space) is something
-we looked at but never got round to.
-
---
-Alex Bligh
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbTKDIqj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 03:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTKDIqi
+	id S263991AbTKDIu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 03:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbTKDIu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 03:46:38 -0500
-Received: from gort.metaparadigm.com ([203.117.131.12]:12684 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S263996AbTKDIqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 03:46:38 -0500
-Message-ID: <3FA767A4.5060403@metaparadigm.com>
-Date: Tue, 04 Nov 2003 16:47:32 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030930 Debian/1.4-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: Valdis.Kletnieks@vt.edu, Brian Beattie <beattie@beattie-home.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Things that Longhorn seems to be doing right
-References: <1067778693.1315.76.camel@kokopelli> <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu> <1067888137.869.26.camel@kokopelli>            <Pine.LNX.4.53.0311031512170.2654@chaos> <200311032023.hA3KN3gv000750@turing-police.cc.vt.edu> <Pine.LNX.4.53.0311031538260.2654@chaos>
-In-Reply-To: <Pine.LNX.4.53.0311031538260.2654@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Nov 2003 03:50:26 -0500
+Received: from ns.suse.de ([195.135.220.2]:44002 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263991AbTKDIuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 03:50:23 -0500
+Date: Tue, 4 Nov 2003 09:49:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BIO] Bounce queue in bio_add_page
+Message-ID: <20031104084929.GH1477@suse.de>
+References: <20031101044619.GA15628@gondor.apana.org.au> <20031101100543.GA16682@gondor.apana.org.au> <20031103122500.GA6963@suse.de> <20031103205234.GA17570@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031103205234.GA17570@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/04/03 04:54, Richard B. Johnson wrote:
-> It is particularly irksome to me because I studied Latin in
-> High School, where I first encountered this word. My second
-> encounter was where somebody corrupted it to mean some kind
-> of new idea. Then some idiot named a company Paradigm and
-> the end was clear.
+On Tue, Nov 04 2003, Herbert Xu wrote:
+> On Mon, Nov 03, 2003 at 01:25:00PM +0100, Jens Axboe wrote:
+> > 
+> > I think the best fix would be to simply not allow more than one page
+> > that needs to be bounced to a bio. The problem is that the whole bio and
+> 
+> Here is an alternative solution, what if we simply disregarded high
+> pages when doing the recount?  Something like this,
 
-How do you know the guy is an idiot - did you meet him?
+That could work, but it breaks the rule that counts are always accurate.
+I'd have to audit some drivers to rule that completely safe, although it
+seems harmless. The idea is sound, though.
 
-Quite a good name for a loudspeaker company in respect to providing
-a 'reference example' for sound.
-
-Although funny they have a registered trademark for 'Paradigm'
-- a bit generic methinks.
-
-~mc
+-- 
+Jens Axboe
 

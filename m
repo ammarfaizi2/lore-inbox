@@ -1,173 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265948AbUAEVka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 16:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUAEVk3
+	id S265931AbUAEVcO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 16:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUAEVcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 16:40:29 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:27850 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265948AbUAEVkJ (ORCPT
+	Mon, 5 Jan 2004 16:32:13 -0500
+Received: from ns.suse.de ([195.135.220.2]:7574 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265924AbUAEVcB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 16:40:09 -0500
-Message-ID: <3FF9D8A3.4020608@us.ibm.com>
-Date: Mon, 05 Jan 2004 13:35:31 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: Re: [TRIVIAL PATCH] Ensure pfn_to_nid() is always defined for i386
-References: <3FE74984.3000602@us.ibm.com> <1814780000.1072139199@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 Jan 2004 16:32:01 -0500
+Date: Mon, 5 Jan 2004 22:31:58 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       gibbs@scsiguy.com
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple 
+ map/unmaps
+Message-Id: <20040105223158.3364a676.ak@suse.de>
+In-Reply-To: <20040105130118.0cb404b8.davem@redhat.com>
+References: <200401051929.i05JTsM0000014248@mudpuddle.cs.wustl.edu.suse.lists.linux.kernel>
+	<20040105112800.7a9f240b.davem@redhat.com.suse.lists.linux.kernel>
+	<p73brpi1544.fsf@verdi.suse.de>
+	<20040105130118.0cb404b8.davem@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok... This looks good to me.  It's definitely longer than my 1 line fix, 
-but it's also more correct long-term solution.
+On Mon, 5 Jan 2004 13:01:18 -0800
+"David S. Miller" <davem@redhat.com> wrote:
 
-Cheers!
+> On 05 Jan 2004 22:02:19 +0100
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > It sets length to zero to terminate the list when entries were merged.
+> > It doesn't have a dma_length.
+> 
+> I understand, and you are defining dma_length to just use the
+> normal sg->length field, and I'm trying to explain to you that this
+> is not allowed.  If you want to modify the length field to zero terminate
+> the DMA chunks, you must have a seperate dma_length field in your
+> platforms scatterlist structure.
 
--Matt
+DMA-mapping.txt does not ever mention a dma_length or that remapping
+is legal. 
 
-Martin J. Bligh wrote:
->>pfn_to_nid() is defined for *almost* all configurations for i386.  
->>There is a small bug in that for CONFIG_X86_PC it is not.  This 
->>just sets up a generic definition so that this function is always 
->>defined in a reasonable manner.
-> 
-> 
-> I'd prefer to fix the current ungodly mess in the current fashion ...
-> I know it's longer, but I'd prefer to clean it up more if we're 
-> going to touch it. This has been sitting in my tree for a while, 
-> waiting for the code freeze to slush out a bit.
-> 
-> M.
-> 
-> 
-> diff -purN -X /home/mbligh/.diff.exclude 276-per_node_rss/include/asm-i386/mmzone.h 278-pfn_to_nid/include/asm-i386/mmzone.h
-> --- 276-per_node_rss/include/asm-i386/mmzone.h	2003-10-01 11:48:22.000000000 -0700
-> +++ 278-pfn_to_nid/include/asm-i386/mmzone.h	2003-12-11 17:16:48.000000000 -0800
-> @@ -10,7 +10,49 @@
->  
->  #ifdef CONFIG_DISCONTIGMEM
->  
-> +#ifdef CONFIG_NUMA
-> +	#ifdef CONFIG_X86_NUMAQ
-> +		#include <asm/numaq.h>
-> +	#else	/* summit or generic arch */
-> +		#include <asm/srat.h>
-> +	#endif
-> +#else /* !CONFIG_NUMA */
-> +	#define get_memcfg_numa get_memcfg_numa_flat
-> +	#define get_zholes_size(n) (0)
-> +#endif /* CONFIG_NUMA */
-> +
->  extern struct pglist_data *node_data[];
-> +#define NODE_DATA(nid)		(node_data[nid])
-> +
-> +/*
-> + * generic node memory support, the following assumptions apply:
-> + *
-> + * 1) memory comes in 256Mb contigious chunks which are either present or not
-> + * 2) we will not have more than 64Gb in total
-> + *
-> + * for now assume that 64Gb is max amount of RAM for whole system
-> + *    64Gb / 4096bytes/page = 16777216 pages
-> + */
-> +#define MAX_NR_PAGES 16777216
-> +#define MAX_ELEMENTS 256
-> +#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
-> +
-> +extern u8 physnode_map[];
-> +
-> +static inline int pfn_to_nid(unsigned long pfn)
-> +{
-> +#ifdef CONFIG_NUMA
-> +	return(physnode_map[(pfn) / PAGES_PER_ELEMENT]);
-> +#else
-> +	return 0;
-> +#endif
-> +}
-> +
-> +static inline struct pglist_data *pfn_to_pgdat(unsigned long pfn)
-> +{
-> +	return(NODE_DATA(pfn_to_nid(pfn)));
-> +}
-> +
->  
->  /*
->   * Following are macros that are specific to this numa platform.
-> @@ -43,11 +85,6 @@ extern struct pglist_data *node_data[];
->   */
->  #define kvaddr_to_nid(kaddr)	pfn_to_nid(__pa(kaddr) >> PAGE_SHIFT)
->  
-> -/*
-> - * Return a pointer to the node data for node n.
-> - */
-> -#define NODE_DATA(nid)		(node_data[nid])
-> -
->  #define node_mem_map(nid)	(NODE_DATA(nid)->node_mem_map)
->  #define node_start_pfn(nid)	(NODE_DATA(nid)->node_start_pfn)
->  #define node_end_pfn(nid)						\
-> @@ -93,40 +130,6 @@ extern struct pglist_data *node_data[];
->   */ 
->  #define pfn_valid(pfn)          ((pfn) < num_physpages)
->  
-> -/*
-> - * generic node memory support, the following assumptions apply:
-> - *
-> - * 1) memory comes in 256Mb contigious chunks which are either present or not
-> - * 2) we will not have more than 64Gb in total
-> - *
-> - * for now assume that 64Gb is max amount of RAM for whole system
-> - *    64Gb / 4096bytes/page = 16777216 pages
-> - */
-> -#define MAX_NR_PAGES 16777216
-> -#define MAX_ELEMENTS 256
-> -#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
-> -
-> -extern u8 physnode_map[];
-> -
-> -static inline int pfn_to_nid(unsigned long pfn)
-> -{
-> -	return(physnode_map[(pfn) / PAGES_PER_ELEMENT]);
-> -}
-> -static inline struct pglist_data *pfn_to_pgdat(unsigned long pfn)
-> -{
-> -	return(NODE_DATA(pfn_to_nid(pfn)));
-> -}
-> -
-> -#ifdef CONFIG_X86_NUMAQ
-> -#include <asm/numaq.h>
-> -#elif CONFIG_ACPI_SRAT
-> -#include <asm/srat.h>
-> -#elif CONFIG_X86_PC
-> -#define get_zholes_size(n) (0)
-> -#else
-> -#define pfn_to_nid(pfn)		(0)
-> -#endif /* CONFIG_X86_NUMAQ */
-> -
->  extern int get_memcfg_numa_flat(void );
->  /*
->   * This allows any one NUMA architecture to be compiled
-> diff -purN -X /home/mbligh/.diff.exclude 276-per_node_rss/include/linux/mmzone.h 278-pfn_to_nid/include/linux/mmzone.h
-> --- 276-per_node_rss/include/linux/mmzone.h	2003-10-14 15:50:34.000000000 -0700
-> +++ 278-pfn_to_nid/include/linux/mmzone.h	2003-12-11 17:16:48.000000000 -0800
-> @@ -303,7 +303,7 @@ extern struct pglist_data contig_page_da
->  #define NODE_DATA(nid)		(&contig_page_data)
->  #define NODE_MEM_MAP(nid)	mem_map
->  #define MAX_NODES_SHIFT		0
-> -
-> +#define pfn_to_nid(pfn)		(0)
->  #else /* CONFIG_DISCONTIGMEM */
->  
->  #include <asm/mmzone.h>
-> 
-> 
+> Again, for the 3rd time, see what sparc64 is doing here.
 
+Sorry Dave, I'm not going to reverse engineer your cryptic mess.
+If you have any more such undocumented requirements you should definitely
+add them to the Spec.
+
+For the sake of bug-to-bug compatibility to the SCSI layer this patch may
+work. I haven't tested it so no guarantees if it won't eat your file systems.
+Feedback welcome anyways.
+
+-Andi
+
+diff -u linux-2.6.1rc1-amd64/arch/x86_64/kernel/pci-gart.c-o linux-2.6.1rc1-amd64/arch/x86_64/kernel/pci-gart.c
+--- linux-2.6.1rc1-amd64/arch/x86_64/kernel/pci-gart.c-o	2004-01-01 06:40:28.000000000 +0100
++++ linux-2.6.1rc1-amd64/arch/x86_64/kernel/pci-gart.c	2004-01-05 22:17:49.000000000 +0100
+@@ -384,6 +395,7 @@
+ 			}
+ 		}
+ 		s->dma_address = addr;
++		s->dma_length = s->length;
+ 	}
+ 	flush_gart(dev);
+ 	return nents;
+@@ -410,8 +422,9 @@
+ 			*sout = *s; 
+ 			sout->dma_address = iommu_bus_base;
+ 			sout->dma_address += iommu_page*PAGE_SIZE + s->offset;
++			sout->dma_length = s->length;
+ 		} else { 
+-			sout->length += s->length; 
++			sout->dma_length += s->length; 
+ 		}
+ 
+ 		addr = phys_addr;
+@@ -538,9 +551,9 @@
+ 	int i;
+ 	for (i = 0; i < nents; i++) { 
+ 		struct scatterlist *s = &sg[i];
+-		if (!s->length) 
++		if (!s->dma_length || !s->length) 
+ 			break;
+-		pci_unmap_single(dev, s->dma_address, s->length, dir);
++		pci_unmap_single(dev, s->dma_address, s->dma_length, dir);
+ 	}
+ }
+ 
+diff -u linux-2.6.1rc1-amd64/include/asm-x86_64/scatterlist.h-o linux-2.6.1rc1-amd64/include/asm-x86_64/scatterlist.h
+--- linux-2.6.1rc1-amd64/include/asm-x86_64/scatterlist.h-o	2003-07-18 02:40:01.000000000 +0200
++++ linux-2.6.1rc1-amd64/include/asm-x86_64/scatterlist.h	2004-01-05 22:10:15.000000000 +0100
+@@ -4,8 +4,9 @@
+ struct scatterlist {
+     struct page		*page;
+     unsigned int	offset;
+-    unsigned int	length;
++    unsigned int	length;  
+     dma_addr_t		dma_address;
++    unsigned int        dma_length;
+ };
+ 
+ #define ISA_DMA_THRESHOLD (0x00ffffff)
 

@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTITS0z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 14:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbTITS0z
+	id S261935AbTITS2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 14:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTITS2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 14:26:55 -0400
-Received: from dhcp065-024-038-074.columbus.rr.com ([65.24.38.74]:15787 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S261930AbTITS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 14:26:53 -0400
-Date: Sat, 20 Sep 2003 14:28:52 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ftape new web address
-Message-ID: <20030920182852.GA16742@rivenstone.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <20030920100331.GO9599@kiwi.hjbaader.home> <1064067139.21728.0.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
-Content-Disposition: inline
-In-Reply-To: <1064067139.21728.0.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
-From: <jhf@rivenstone.net>
+	Sat, 20 Sep 2003 14:28:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15050 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261935AbTITS2v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 14:28:51 -0400
+Message-ID: <3F6C9C55.6050608@pobox.com>
+Date: Sat, 20 Sep 2003 14:28:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+References: <200309131101.h8DB1WNd021570@harpo.it.uu.se> <1063476275.8702.35.camel@dhcp23.swansea.linux.org.uk> <20030913184934.GB10047@gtf.org> <20030913190131.GD10047@gtf.org> <20030915073445.GC27105@suse.de> <20030916194955.GC5987@gtf.org> <20030916195515.GC906@suse.de>
+In-Reply-To: <20030916195515.GC906@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> On Tue, Sep 16 2003, Jeff Garzik wrote:
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>And we should deprecate them with a solution that aligns what with Linus
+>>described in Dec 2001 on lkml:  a chrdev where userland write(2)s cdbs
+>>and taskfiles, and read(2)s the results.  This is where my thinking
+>>picked up:  if we are creating a chrdev to send "packets" and receive
+>>responses to those packets............  <insert conclusion here>
+> 
+> 
+> == bsg, block sg. Did you read what I wrote? :). I started implementing
+> this and have something that barely works. You just bind a block device
+> to a /dev/sg* char device and use read/write on that. Aka sg.
 
-On Sat, Sep 20, 2003 at 03:12:27PM +0100, Alan Cox wrote:
-> On Sad, 2003-09-20 at 11:03, Hans-Joachim Baader wrote:
-> > Hi,
-> >=20
-> > the attached patch for 2.4.22 fixes the web address of the ftape driver.
-> > Why does the kernel still contain version 3.0.4 when 4.0.4a is the
-> > current one?
->=20
-> It never got merged for 2.4. Long history. For 2.6 if you want to pick
-> up the updates and merge them go for it although floppy tape is kind of
-> dead technology now
+sg needs some modifications -- for example it errors out instead of 
+sleeps on queue full -- but sounds good to me.
 
-   I still use it, and I'm interested if anyone gets it working for
-2.6.
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
+> I don't want ioctls command submission interfaces more than you do.
 
-"Anyone who quotes me in their sig is an idiot." -- Rusty Russell.
+Groovy.
 
---6TrnltStXW4iwmi0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	Jeff
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/bJxkWv4KsgKfSVgRAgGeAJ9PN5vFTsLDYcWnPLwcZ4B1ub6tEwCbBaLh
-fQr0W4jtqcSvqByd8SQqlkY=
-=hQYp
------END PGP SIGNATURE-----
 
---6TrnltStXW4iwmi0--

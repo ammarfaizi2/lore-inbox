@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVA0Wwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVA0W5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVA0Wwd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 17:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVA0Wwc
+	id S261266AbVA0W5z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 17:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVA0W5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 17:52:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1766 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261263AbVA0WwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 17:52:19 -0500
-Date: Thu, 27 Jan 2005 16:55:34 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Ake <Ake.Sandgren@hpc2n.umu.se>, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>
-Subject: Re: Bug in 2.4.26 in mm/filemap.c when using RLIMIT_RSS
-Message-ID: <20050127185534.GW26308@logos.cnet>
-References: <20050126110750.GE7349@hpc2n.umu.se> <20050126144904.GE26308@logos.cnet> <20050127063849.GA11119@hpc2n.umu.se> <20050127074459.GH26308@logos.cnet> <Pine.LNX.4.61.0501281502540.10979@goblin.wat.veritas.com>
+	Thu, 27 Jan 2005 17:57:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14865 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261266AbVA0W5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 17:57:33 -0500
+Date: Thu, 27 Jan 2005 22:57:25 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Netdev <netdev@oss.sgi.com>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100, xircom_tulip_cb, iph5526
+Message-ID: <20050127225725.F3036@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Netdev <netdev@oss.sgi.com>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>
+References: <41F952F4.7040804@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501281502540.10979@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41F952F4.7040804@pobox.com>; from jgarzik@pobox.com on Thu, Jan 27, 2005 at 03:45:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 03:09:40PM +0000, Hugh Dickins wrote:
-> On Thu, 27 Jan 2005, Marcelo Tosatti wrote:
-> > On Thu, Jan 27, 2005 at 07:38:49AM +0100, Ake wrote:
-> > > On Wed, Jan 26, 2005 at 12:49:04PM -0200, Marcelo Tosatti wrote:
-> > > > 
-> > > > --- a/mm/filemap.c.orig	2004-11-17 09:54:22.000000000 -0200
-> > > > +++ b/mm/filemap.c	2005-01-26 15:21:10.614842296 -0200
-> > > > @@ -2609,6 +2609,9 @@
-> > > >  	error = -EIO;
-> > > >  	rlim_rss = current->rlim ?  current->rlim[RLIMIT_RSS].rlim_cur :
-> > > >  				LONG_MAX; /* default: see resource.h */
-> > > > +
-> > > > +	rlim_rss = (rlim_rss & PAGE_MASK) >> PAGE_SHIFT;
-> > > > +
-> > > >  	if ((vma->vm_mm->rss + (end - start)) > rlim_rss)
-> > > >  		return error;
+On Thu, Jan 27, 2005 at 03:45:40PM -0500, Jeff Garzik wrote:
+> 3) eepro100
 > 
-> Isn't the right fix just to remove rlim_rss and this RLIMIT_RSS code
-> from here?  It's pretty silly for madvise alone to be taking notice
-> of it.  Presumably the code crept in by mistake from some tree which
-> was using an RLIMIT_RSS patch on 2.4.
+> Unmaintained; users should use e100.
+> 
+> When I last mentioned eepro100 was going away, I got a few private 
+> emails saying complaining about issues not yet taken care of in e100. 
+> eepro100 will not be removed until these issues are resolved.
 
-True. Will do it. 
+Has e100 actually been fixed to use the PCI DMA API correctly yet?
+Looking at it, it doesn't look like it, so until it does, eepro100
+is the far better bet for platforms needing working DMA API.
 
-> > > Since we don't use it i can't really test it, but a visual inspection is
-> > > good enough in this simple case. And since this is the only place in 2.4
-> > > that RLIMIT_RSS is used, the problem is solved.
-> > > 
-> > > BTW do you know if there is any plans for 2.6++ to actually use
-> > > RLIMIT_RSS? I saw a hint in that direction in mm/thrash.c
-> > > grab_swap_token but it is commented out and only skeleton code...
-> > 
-> > Nope, RLIMIT_RSS does not seem to be used at all in v2.6:
-> > 
-> > Its there for compatibility reasons, support for it might be added
-> > in the future?
-> 
-> Rik had a patch implementing RLIMIT_RSS in 2.6-mm for a while.
-> But I think there were a couple of problems with it, and no great
-> demand for the feature, so Andrew dropped it until someone makes
-> a better case for it.
-> 
-> Hugh
+What I'm talking about is e100's apparant belief that it can modify
+rfd's in the receive ring on a non-cache coherent architecture and
+expect the data around it to remain unaffected (see e100_rx_alloc_skb):
+
+struct rfd {
+        u16 status;
+        u16 command;
+        u32 link;
+        u32 rbd;
+        u16 actual_size;
+        u16 size;
+};
+
+it touches command and link.  This means that the whole rfd plus
+maybe the following or preceding 16 bytes get loaded into a cache
+line (assuming cache lines of 32 bytes), and that data written
+out again at sync.  However, it does this on what seems to be an
+active receive chain.
+
+So, both the CPU _and_ the device own the same data.  Which is a
+violation of the DMA API.
+
+So, eepro100 works.  e100 is a dead loss for non-cache coherent
+architectures.  Therefore, I say eepro100 stays until e100 is
+fixed.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270797AbTHOSqx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 14:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270757AbTHOSey
+	id S270740AbTHOSqy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 14:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270739AbTHOSei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 14:34:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:52868 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270755AbTHOSdJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 14:33:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10609724081720@kroah.com>
-Subject: Re: [PATCH] i2c driver changes 2.6.0-test3
-In-Reply-To: <10609724071636@kroah.com>
+	Fri, 15 Aug 2003 14:34:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:56708 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270759AbTHOSdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 14:33:14 -0400
+Date: Fri, 15 Aug 2003 11:32:07 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 15 Aug 2003 11:33:28 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: [BK PATCH] i2c driver fixes for 2.6.0-test3
+Message-ID: <20030815183207.GA3851@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1123.18.6, 2003/08/14 14:31:21-07:00, rusty@linux.co.intel.com
+Hi,
 
-[PATCH] I2C: bugfix for initialization bug in adm1021 driver
+Here are some i2c driver fixes for 2.6.0-test3.  They include a fix for
+the i2c-dev driver that has gone into 2.4 and a pii4x bugfix from Tom
+Rini.  I've also added adapter and client "name" files in sysfs as the
+driver core no longer supplies them.
 
-While initializing the adm1021 device, the driver is performing a conversion
-from fixed point to Celcius on values that were declaired as Celcius.  On
-my Dell Precision 220 this results in a shutdown after a couple of minutes
-running.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
 
-This is a very simple patch against the 2.6.0-test3 tree that just removes the
-conversion.
+thanks,
 
+greg k-h
 
- drivers/i2c/chips/adm1021.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-nforce2.c |   29 ++++-----------------------
+ drivers/i2c/busses/i2c-piix4.c   |   13 ++++++++++--
+ drivers/i2c/chips/Makefile       |    4 ++-
+ drivers/i2c/chips/adm1021.c      |    8 +++----
+ drivers/i2c/i2c-core.c           |   28 ++++++++++++++++++++++++++
+ drivers/i2c/i2c-dev.c            |   41 ++++++++++++++++++++++++---------------
+ 6 files changed, 77 insertions(+), 46 deletions(-)
+-----
 
+<khali:linux-fr.org>:
+  o i2c: user/kernel bug and memory leak in i2c-dev
 
-diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
---- a/drivers/i2c/chips/adm1021.c	Fri Aug 15 11:26:53 2003
-+++ b/drivers/i2c/chips/adm1021.c	Fri Aug 15 11:26:53 2003
-@@ -356,13 +356,13 @@
- {
- 	/* Initialize the adm1021 chip */
- 	adm1021_write_value(client, ADM1021_REG_TOS_W,
--			    TEMP_TO_REG(adm1021_INIT_TOS));
-+			    adm1021_INIT_TOS);
- 	adm1021_write_value(client, ADM1021_REG_THYST_W,
--			    TEMP_TO_REG(adm1021_INIT_THYST));
-+			    adm1021_INIT_THYST);
- 	adm1021_write_value(client, ADM1021_REG_REMOTE_TOS_W,
--			    TEMP_TO_REG(adm1021_INIT_REMOTE_TOS));
-+			    adm1021_INIT_REMOTE_TOS);
- 	adm1021_write_value(client, ADM1021_REG_REMOTE_THYST_W,
--			    TEMP_TO_REG(adm1021_INIT_REMOTE_THYST));
-+			    adm1021_INIT_REMOTE_THYST);
- 	/* Enable ADC and disable suspend mode */
- 	adm1021_write_value(client, ADM1021_REG_CONFIG_W, 0);
- 	/* Set Conversion rate to 1/sec (this can be tinkered with) */
+Greg Kroah-Hartman:
+  o I2C: add adapter and client name files as the driver core no longer provides them
+  o I2C: fix up the wording for the pii4x bugfix
+  o i2c: move w83481d to top of link order due to chip address takeover ability
+  o i2c: fix up "raw" printk() call
+
+Mark M. Hoffman:
+  o I2C: i2c nforce2.c fixes
+
+Rusty Lynch:
+  o I2C: bugfix for initialization bug in adm1021 driver
+
+Tom Rini:
+  o I2C: Fix for i2c-piix4 with on some boards
 

@@ -1,82 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317386AbSGYGQc>; Thu, 25 Jul 2002 02:16:32 -0400
+	id <S318352AbSGYGZv>; Thu, 25 Jul 2002 02:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318348AbSGYGQc>; Thu, 25 Jul 2002 02:16:32 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:43784 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317386AbSGYGQb>;
-	Thu, 25 Jul 2002 02:16:31 -0400
-Date: Wed, 24 Jul 2002 23:19:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: cli-sti-removal.txt fixup
-Message-ID: <20020725061926.GC13691@kroah.com>
-References: <20020725003735.GA12682@kroah.com> <Pine.LNX.4.44.0207241815120.4293-100000@home.transmeta.com> <20020725060106.GA13691@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020725060106.GA13691@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 27 Jun 2002 04:48:34 -0700
+	id <S318353AbSGYGZv>; Thu, 25 Jul 2002 02:25:51 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:519 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318352AbSGYGZu>; Thu, 25 Jul 2002 02:25:50 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Header files and the kernel ABI
+Date: 24 Jul 2002 23:28:37 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aho5ql$9ja$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 11:01:06PM -0700, Greg KH wrote:
-> On Wed, Jul 24, 2002 at 06:17:17PM -0700, Linus Torvalds wrote:
-> > > @@ -2814,15 +2814,15 @@
-> > >  		}
-> > >  		dmabuf->count = dmabuf->dmasize;
-> > >  		outb(31,card->iobase+dmabuf->write_channel->port+OFF_LVI);
-> > > -		save_flags(flags);
-> > > -		cli();
-> > > +		local_irq_save(flags);
-> > > +		local_irq_disable();
-> > 
-> > First off, "local_irq_save()" does both the save and the disable (the same
-> > way "spin_lock_irqsave()" does), it's the "local_save_flags(") that is
-> > equivalent to the old plain save_flags. So this should just be
-> > 
-> > 	local_irq_save(flags);
-> 
-> Ah, sorry, I didn't get that from cli-sti-removal.txt.  Actually it
-> looks like cli-sti-removal.txt is a bit wrong, as there is no
-> local_irq_save_off() function.  I'll send a patch for that next.
+OK... I have had a thought grinding in my head for a while, and wanted
+to throw it out for everyone to think about...
 
-Here's that patch.
+In the libc4/libc5 days, we attempted to use kernel headers in user
+space.  This was a total mess, not the least because the kernel
+headers tended to pull in a lot of other kernel headers, and the
+datatypes were unsuitable to have spead all across userspace.
 
-thanks,
+In glibc, the official rule is "don't use kernel headers."  This
+causes problems, because certain aspects of the kernel ABI is only
+available through the include files, and reproducing them by hand is
+tedious and error-prone.
 
-greg k-h
+I'm in the process of writing a very tiny libc for initramfs, and will
+likely have to deal with how to use the kernel ABI as well.
+
+It seems to me that a reasonable solution for how to do this is not
+for user space to use kernel headers, but for user space and the
+kernel to share a set of common ABI description files[1].  These files
+should be highly stylized, and only describe things visible to user
+space.  Furthermore, if they introduce types, they should use the
+already-established __kernel_ namespace, and of course __s* and __u*
+could be used for specific types.
+
+This means that we would be able to get rid of #if(n)def __KERNEL__ in
+the main kernel header files, because there would be a separation by
+file location -- something in the main kernel include files could
+include the ABI description files, but the opposite should never be
+true.
+
+I would like to propose that these files be set up in the #include
+namespace as <linux/abi/*>, with <linux/abi/arch/*> for any
+architecture-specific support files (I do believe, however, that those
+files should only be included by files in the linux/abi/ root.  This
+probably would be a symlink to ../asm/abi in the kernel sources,
+unless we change the kernel include layout.)  The linux/ namespace is
+universally reserved for the kernel, and unlike <abi/*> I don't know
+of any potential conflicts.  I was considered <kabi/*>, but it seems
+cleaner to use existing namespace.
+
+If people think this is an idea, I will try to set up the
+infrastructure as part of my work on klibc, although I'm definitely
+not going to be able to migrate every portion of every include file
+that needs to be migrated all by myself.
+
+Thoughts?
+
+	-hpa
 
 
-diff -Nru a/Documentation/cli-sti-removal.txt b/Documentation/cli-sti-removal.txt
---- a/Documentation/cli-sti-removal.txt	Wed Jul 24 23:25:38 2002
-+++ b/Documentation/cli-sti-removal.txt	Wed Jul 24 23:25:38 2002
-@@ -94,10 +94,10 @@
- released.
- 
- drivers that want to disable local interrupts (interrupts on the
--current CPU), can use the following five macros:
-+current CPU), can use the following four macros:
- 
-   local_irq_disable(), local_irq_enable(), local_irq_save(flags),
--  local_irq_save_off(flags), local_irq_restore(flags)
-+  local_irq_restore(flags)
- 
- but beware, their meaning and semantics are much simpler, far from
- that of the old cli(), sti(), save_flags(flags) and restore_flags(flags)
-@@ -107,11 +107,7 @@
- 
-     local_irq_enable()        => turn local IRQs on
- 
--    local_irq_save(flags)     => save the current IRQ state into flags. The
--                                 state can be on or off. (on some
--                                 architectures there's even more bits in it.)
--
--    local_irq_save_off(flags) => save the current IRQ state into flags and
-+    local_irq_save(flags)     => save the current IRQ state into flags and
-                                  disable interrupts.
- 
-     local_irq_restore(flags)  => restore the IRQ state from flags.
+
+[1] I'm assuming here they are C include files, just because it's a
+common language to everyone; however, it would be possible to create
+an "ABI description language" which would compile to C headers as well
+as perhaps other formats (assembly language support files?), ...)
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318067AbSGLXkW>; Fri, 12 Jul 2002 19:40:22 -0400
+	id <S318074AbSGMAda>; Fri, 12 Jul 2002 20:33:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318068AbSGLXkV>; Fri, 12 Jul 2002 19:40:21 -0400
-Received: from t2o913p32.telia.com ([195.252.44.152]:48256 "EHLO
-	best.localdomain") by vger.kernel.org with ESMTP id <S318067AbSGLXkU>;
-	Fri, 12 Jul 2002 19:40:20 -0400
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1-ac3
-References: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 13 Jul 2002 01:42:52 +0200
-In-Reply-To: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
-Message-ID: <m2znwwikcj.fsf@best.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S318075AbSGMAda>; Fri, 12 Jul 2002 20:33:30 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:51208 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318074AbSGMAd3>;
+	Fri, 12 Jul 2002 20:33:29 -0400
+Date: Fri, 12 Jul 2002 17:36:01 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Removal of pci_find_* in 2.5
+Message-ID: <20020713003601.GA12118@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Fri, 14 Jun 2002 22:21:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@redhat.com> writes:
+Hi all,
 
-> o	Update cpufreq, add PIV throttling		(Robert Schwebel,
-> 			Padraig Brady, Zwane Mwaikambo, Arjan van de Ven,
-> 			Tora Engstad)
+Well, I've been trying to figure out a way to remove the existing
+pci_find_device(), and other pci_find_* functions from the 2.5 kernel
+without hurting to many things (well, things that people care about.)
 
-It doesn't work because of a bug in cpufreq_p4_validatedc. Here is a
-patch to fix it:
+Turns out these are very useful functions, outside of the "old" pci
+framework, and I can't really justify removing them, so they are staying
+for now (or until someone else can think of a replacement...)
 
---- linux/arch/i386/kernel/p4-clockmod.c.orig	Sat Jul 13 01:27:30 2002
-+++ linux/arch/i386/kernel/p4-clockmod.c	Sat Jul 13 01:27:55 2002
-@@ -97,8 +97,9 @@
- 	for (i=0; i<8; i++) 
- 		if (percent <= cycle_table[i][0]) {
- 			dc = cycle_table[i][1];
- 			*pct = cycle_table[i][0];
-+			break;
- 		}
- 
- 
- 	if (has_N44_O17_errata && (dc == DC_25PT || dc == DC_DFLT)) {
+The main reason for wanting to do this, is that any PCI driver that
+relies on using pci_find_* to locate a device to control, will not work
+with the existing PCI hotplug code.  Moving forward, those drivers will
+also not work with the driverfs, struct driver, or the device naming
+code.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+So if you own a PCI driver that does not conform to the "new" PCI api
+(using pci_register_driver() and friends) consider yourself warned.
+Your driver will NOT inherit any of the upcoming changes to the drivers
+tree, which might cause them to break.  Also remember, all of the people
+that are buying hotplug PCI systems for their datacenters will not buy
+your cards :)
+
+thanks,
+
+greg k-h

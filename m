@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317137AbSEXPgB>; Fri, 24 May 2002 11:36:01 -0400
+	id <S314468AbSEXPfx>; Fri, 24 May 2002 11:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317144AbSEXPgA>; Fri, 24 May 2002 11:36:00 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:57615 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317137AbSEXPf6>; Fri, 24 May 2002 11:35:58 -0400
-Message-ID: <3CEE4ECB.5070603@evision-ventures.com>
-Date: Fri, 24 May 2002 16:31:39 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S317137AbSEXPfw>; Fri, 24 May 2002 11:35:52 -0400
+Received: from ABordeaux-202-1-1-47.abo.wanadoo.fr ([217.128.241.47]:35456
+	"EHLO buffy.mds") by vger.kernel.org with ESMTP id <S314468AbSEXPfv>;
+	Fri, 24 May 2002 11:35:51 -0400
+Message-ID: <3CEE5E96.7EA1D748@roulaise.net>
+Date: Fri, 24 May 2002 17:39:02 +0200
+From: "Frederic Lochon (crazyfred)" <lochon@roulaise.net>
+Organization: http://www.crazyfred.org
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.17 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jan Kara <jack@suse.cz>, Nathan Scott <nathans@sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Quota patches
-In-Reply-To: <E17BHEJ-0006ed-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: hang. bug ? tcp.c recvmsg() 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alan Cox napisa?:
->>If we can do it for quota - we could possible remove the
->>IPC_OLD variant away as well. It's looong overdue by now,
->>becouse the IPC_OLD was not standard conformant anyway.
->>
->>I would be really really glad to do it iff ACK-ed.
-> 
-> 
-> More code that takes almost no space, ensures old systems still work and 
-> old XFree86 still runs on new kernels. Why remove it ?
+Hello,
 
-It is an illusion to think that you can actually run *that old*
-a.out binaries on a modern kernel I think.
+My kernel (2.4.17 with Usagi/Preempt/lm-sensors patches) has hang with
+these kind of messages (from /var/log/messages):
 
-BTW. (almost no space) * (many times) == huge number.
+kernel: recvmsg bug: copied 99564C37 seq 9956A67C
+...
+kernel: recvmsg bug: copied 99564C37 seq 0
 
-> If you want to design a mathematically elegant and small ultra clean OS go
-> do it. Linux however has to work in the real world not in the happy clueless
-> world of pure mathematical elegance
+I waited some minutes but had to reboot with the button because nothing
+was responding.
 
+I have reguraly the same (I suppose) hangs: I hear an access on a disk
+(the one with /var/log) and it hangs. I suppose I've been lucky this
+time since I have something in logs.
+
+I've (allmost) never had anything in logs except this afternoon.
+The last time I had something was on January 16th (same kernel, without
+Usagi).
+
+Here is the full log:
+http://crazy.fred.free.fr/tmp/bug.txt
+
+The log looks awful, it seems syslogs had some trouble..
+It seems there is another message but maybe not very useful since it is
+allmost unreadable.
+
+I use:
+- Linux 2.4.17 SMP on Abit BP6 (dual celeron) with 384MB RAM
+- Usagi patch
+- preempt patch
+- lm-sensors patch
+- gcc version 2.95.3 20010315 (release)
+- binutils 2.11.2
+- glibc 2.2.4
+
+PS: please CC since I'm not on the list.
+
+-- 
+Frederic Lochon

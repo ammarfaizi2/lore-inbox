@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289962AbSAKN5y>; Fri, 11 Jan 2002 08:57:54 -0500
+	id <S289957AbSAKOEe>; Fri, 11 Jan 2002 09:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289961AbSAKN5p>; Fri, 11 Jan 2002 08:57:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56325 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289959AbSAKN5b>;
-	Fri, 11 Jan 2002 08:57:31 -0500
-Date: Fri, 11 Jan 2002 14:57:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Michael Zhu <mylinuxk@yahoo.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: About block device request function
-Message-ID: <20020111145722.C19814@suse.de>
-In-Reply-To: <20020111135300.67270.qmail@web14911.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020111135300.67270.qmail@web14911.mail.yahoo.com>
+	id <S289959AbSAKOEY>; Fri, 11 Jan 2002 09:04:24 -0500
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:13831 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id <S289957AbSAKOEM>; Fri, 11 Jan 2002 09:04:12 -0500
+Message-ID: <3C3EF0AC.6010505@turbolinux.co.jp>
+Date: Fri, 11 Jan 2002 23:03:24 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+Organization: Turbolinx Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:0.9.6) Gecko/20011206
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: sd@turbolinux.co.jp, "David S. Miller" <davem@redhat.com>
+Subject: Re: [sd:04032] Re: [PATCH] removed socket buffer in unix domain socket
+In-Reply-To: <E16NaD0-0001Hs-00@the-village.bc.nu>	<3C3EE76C.1030808@turbolinux.co.jp> <20020111.054525.107941129.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11 2002, Michael Zhu wrote:
-> On Thu, Jan 10 2002, Jens Axboe wrote:
-> > 
-> > Read drivers/block/ll_rw_blk.c:blk_get_queue() -- >
-> > either a driver uses
-> > the statically allocated per-major queue, or it > >
-> > provides its own and
-> > defines a get_queue function to return it.
-> > 
-> > You are still heading in the wrong direction :/
+Thank you very much for your comment.
+
+>    
+> Slot 256 is a special slot fo unbound sockets.  The table is
+> sized to UNIX_HASH_SIZE + 1, so it is ok and your patch is
+> not right.
 > 
-> You mean that I am still in the wrong direction? I
-> need to use the loop device to implement my project?
+> Please see the other email from Alexey Kuznetsov which includes
+> a real fix for your bug.
+> 
+> 
 
-For the 3rd time, yes!
+OK, however that fix can not work the test program.
+The problem always occurred by process of slot 256.
+I try to confirm the "real fix" once again.
 
-> Can you give me the right directions? Thank you very
-> much.
-
-Look at the internation crypto patches for loop, there are oodles of
-examples for you to look at.
-
--- 
-Jens Axboe
+Thanx.
 

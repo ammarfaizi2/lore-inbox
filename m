@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132406AbRDFVFJ>; Fri, 6 Apr 2001 17:05:09 -0400
+	id <S132414AbRDFVOL>; Fri, 6 Apr 2001 17:14:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132407AbRDFVE7>; Fri, 6 Apr 2001 17:04:59 -0400
-Received: from imchub1.cosinecom.com ([63.88.104.18]:26374 "EHLO
-	imchub1.cosinecom.com") by vger.kernel.org with ESMTP
-	id <S132406AbRDFVEw>; Fri, 6 Apr 2001 17:04:52 -0400
-Message-ID: <5E686636124A2042B4E5EE1F15191F270D40A6@exchsrv3>
-From: John Van Horne <JohnVan.Horne@cosinecom.com>
-To: "'ddugger@willie.n0ano.com'" <ddugger@willie.n0ano.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Core dumps for threads
-Date: Fri, 6 Apr 2001 14:03:26 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132413AbRDFVOC>; Fri, 6 Apr 2001 17:14:02 -0400
+Received: from [204.244.205.25] ([204.244.205.25]:3436 "HELO post.gateone.com")
+	by vger.kernel.org with SMTP id <S132407AbRDFVNq>;
+	Fri, 6 Apr 2001 17:13:46 -0400
+Subject: Re: a quest for a better scheduler
+From: Michael Peddemors <michael@linuxmagic.com>
+To: Timothy "D." Witham <wookie@osdlab.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010406110603.A1599@osdlab.org>
+In-Reply-To: <20010404151632.A2144@kochanski> <18230000.986424894@hellman>
+	<20010405153841.A2452@osdlab.org>  <20010406110603.A1599@osdlab.org>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 06 Apr 2001 14:08:11 -0700
+Message-Id: <986591292.11092.4.camel@mistress>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don,
+Missing an important one, our VPN's routinely run on 16 MG Ram, no HD or swap..
+Loaded from an initrd on a floppy..
 
-I've searched the linux-kernel mail archives about this patch, and the most
-recent 
-thing I can find is that it was waiting for verification.
+Don't we need to test on minimalistic machines as well :)
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.3/0553.html
+> So the server hardware configurations have evolved to look like 
+> the following.
+> 
+>       1 way, 512 MB,   2 IDE
+>       2 way,   1 GB,  10 SCSI (1 SCSI channel)
+>       4 way,   4 GB,  20 SCSI (2 channels) 
+>       8 way,   8 GB,  40 SCSI (4 channels) maybe Fibre Channel (FC)
+>        16 way,  16 GB,  80 FC   (8 channels)
+> 
 
-Is there anything more recent?  Has it been accepted?
-
-Also, if I apply this patch to the kernel I am running (2.4.2), will I need
-to patch gdb to be able
-to read core dumps made by threads?  Or should I ask the gdb maintainers
-this question?
-
-Please include my mail address in your response, as I do not subscribe to
-linux-kernel.
-
-Thanks,
--John
-
-----------------------------------------------------------------------------
---------------------------------------------
-John Van Horne				voice: 650-628-4148
-Software Tools Engineer			fax:      650-637-2411
-CoSine Communications, Inc.			cell:     650-346-0401
-<http://www.cosinecom.com>			email:
-jvhorne@cosinecom.com
-----------------------------------------------------------------------------
---------------------------------------------
-
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+WizardInternet Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
 

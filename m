@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266750AbSKHD6F>; Thu, 7 Nov 2002 22:58:05 -0500
+	id <S266755AbSKHEMT>; Thu, 7 Nov 2002 23:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266752AbSKHD6F>; Thu, 7 Nov 2002 22:58:05 -0500
-Received: from [192.58.209.91] ([192.58.209.91]:3767 "HELO handhelds.org")
-	by vger.kernel.org with SMTP id <S266750AbSKHD6E>;
-	Thu, 7 Nov 2002 22:58:04 -0500
-From: George France <france@handhelds.org>
-To: axp-list@redhat.com, Richard Henderson <rth@twiddle.net>
-Subject: Re: [PATCH] eliminate compile warnings
-Date: Thu, 7 Nov 2002 23:04:34 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: axp-list mailing list <axp-list@redhat.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <02110721542901.28099@shadowfax.middleearth> <20021107192554.A4465@twiddle.net>
-In-Reply-To: <20021107192554.A4465@twiddle.net>
-MIME-Version: 1.0
-Message-Id: <02110723043402.28099@shadowfax.middleearth>
-Content-Transfer-Encoding: 8bit
+	id <S266756AbSKHEMS>; Thu, 7 Nov 2002 23:12:18 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28938
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S266755AbSKHEMR>; Thu, 7 Nov 2002 23:12:17 -0500
+Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
+From: Robert Love <rml@tech9.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Alexander Viro <viro@math.psu.edu>,
+       mbligh@aracnet.com, ahu@ds9a.nl, peter@chubb.wattle.id.au,
+       jw@pegasys.ws, linux-kernel@vger.kernel.org
+In-Reply-To: <20021108035724.GB22031@holomorphy.com>
+References: <32290000.1036545797@flay>
+	<Pine.GSO.4.21.0211051932140.6521-100000@steklov.math.psu.edu>
+	<20021107230613.5194156c.rusty@rustcorp.com.au> 
+	<20021108035724.GB22031@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Nov 2002 23:17:21 -0500
+Message-Id: <1036729047.765.2887.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 November 2002 22:25, Richard Henderson wrote:
-> On Thu, Nov 07, 2002 at 09:54:29PM -0500, George France wrote:
-> > Today we were mostly absorbed in discussing where  or too whom
-> > should Thorsten send the patch instead of the patch itself, since
-> > there is no maintainer in the MAINTAINERS file.
->
-> If, as with binutils, you want me to put my name in there, I will.
-> It didn't seem particularly important at the time...
+On Thu, 2002-11-07 at 22:57, William Lee Irwin III wrote:
 
-I do not want to create any extra work for you by having your name
-in the MAINTAINERS file.  If this is something that you would like to
-do, then I would be very please to see your name added as the 
-maintainer for the Alpha Architecture.  You do excellent work and
-there is nobody that I can think of that is more qualified.
+> One way to at least "postpone" having to do things like making a fair
+> tasklist_lock is to make readers well-behaved. /proc/ is the worst
+> remaining offender left with its quadratic (!) get_pid_list(). After
+> "kernel, you're being bad and spinning in near-infinite loops with the
+> tasklist_lock readlocked" is (completely?) solved, then we can wait for
+> boxen with higher cpu counts to catch fire anyway when the arrival rate
+> of readers * hold time of readers > 1, which will happen because arrival
+> rates are O(cpus), and cpus will grow without bound as machines advance.
+> 
+> I'm not sure RCU would help this any; I'd be very much afraid of the
+> writes being postponed indefinitely or just too long in the presence
+> of what's essentially perpetually in-progress read access. Does RCU
+> have a guarantee of forward progress for writers?
 
-If you do decide to become the maintainer, please keep me in
-mind if you need any assistance.  I would be happy to help.
+I am not sure I like the idea of RCU for the tasklist_lock.
 
-If you decide not to become the 'maintainer', I would really 
-appreciate your input and recommendation for someone
-to be named as the maintainer.
+I do agree 100% with your first point, though - the problem is
+ill-behaved readers.  I think the writing vs. reading is such that the
+rw-lock we have now is fine, we just need to make e.g. /proc play way
+way more fair.
 
-Best Regards,
+	Robert Love
 
-
---George

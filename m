@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUDESXW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 14:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUDESXW
+	id S263032AbUDER7n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 13:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUDER7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 14:23:22 -0400
-Received: from mail.kroah.org ([65.200.24.183]:26289 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263095AbUDESXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 14:23:21 -0400
-Date: Mon, 5 Apr 2004 11:23:04 -0700
-From: Greg KH <greg@kroah.com>
-To: wdebruij@dds.nl
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [ANNOUNCE] various linux kernel devtools : device handling/memory mapping/profiling/etc.
-Message-ID: <20040405182304.GA8008@kroah.com>
-References: <1081186402.407198620a28b@webmail.dds.nl>
-Mime-Version: 1.0
+	Mon, 5 Apr 2004 13:59:43 -0400
+Received: from web40509.mail.yahoo.com ([66.218.78.126]:540 "HELO
+	web40509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263032AbUDER7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 13:59:41 -0400
+Message-ID: <20040405175940.94093.qmail@web40509.mail.yahoo.com>
+Date: Mon, 5 Apr 2004 10:59:40 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Timothy Miller <miller@techsource.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+In-Reply-To: <4071A036.4050003@techsource.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1081186402.407198620a28b@webmail.dds.nl>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 07:33:22PM +0200, wdebruij@dds.nl wrote:
-> - a generic device file interface, which abstracts away kernelversion 
-> differences, devfs/mknod/udev differences and memory addressing differences. 
 
-I don't see anything in there that will work properly for udev.  Am I
-just missing the code somewhere?  Remember, for udev to work, you have
-to create stuff in sysfs, which I don't see this code doing.
+--- Timothy Miller <miller@techsource.com> wrote:
+> 
+> 
+> Sergiy Lozovsky wrote:
+> 
+> > 
+> > I put LISP interpreter inside the Kernel -
+> 
+> 
+> 
+> I'm dying to know why you need a LISP interpreter
+> inside the kernel.
 
-> - a generic pci initialization interface. Could perhaps be merged with the 
-> existing PCI subsytem. I needed it for implementing a PCI driver (more below)
+It is explained at my project home page -
+http://vxe.quercitron.com
 
-Ick, you are using pci_find_device() which is racy, depreciated, and
-does not play nice with the rest of the kernel.  Yes, it's the lowest
-common denominater accross 2.2, 2.4, and 2.6, but please don't sink to
-that level if you don't have to.  For 2.6 it's just not acceptable.
+Basically there are two reasons.
 
-I agree that at times the current kernel driver api learning curve is a
-bit steep.  But people are working to reduce that curve where they can,
-and it's one of my main priorities for 2.7.  Any help and suggestions
-that you might have in that area are greatly appreciated.
+1. Give system administrator possibility to change
+security policy easy enough without C programminig
+inside the kernel (we should not expect system
+administartor to be a kernel guru). Language of higher
+lavel make code more compact (C - is too low level,
+that's why people use PERL for example or LISP). Lisp
+was chosen because of very compact VM - around 100K.
 
-thanks,
+2. Protect system from bugs in security policy created
+by system administrator (user). LISP interpreter is a
+LISP Virtual Machine (as Java VM). So all bugs are
+incapsulated and don't affect kernel. Even severe bugs
+in this LISP kernel module can cause termination of
+user space application only (except of stack overflow
+- which I can address). LISP error message will be
+printed in the kernel log.
 
-greg k-h
+Serge.
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

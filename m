@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVBCKAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVBCKKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbVBCKAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbVBCKAJ
+	id S262384AbVBCKKh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbVBCKKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:00:09 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28546 "EHLO
+	Thu, 3 Feb 2005 05:10:34 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30850 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262778AbVBCJ76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 04:59:58 -0500
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: kdump on non-boot cpu
-References: <20050203140438.18E1.ODA@valinux.co.jp>
-	<1107412952.11609.174.camel@2fwv946.in.ibm.com>
-	<20050203171700.18E7.ODA@valinux.co.jp>
+	id S262363AbVBCKKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 05:10:02 -0500
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: vgoyal@in.ibm.com, akpm@osdl.org, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, maneesh@in.ibm.com, hari@in.ibm.com,
+       suparna@in.ibm.com
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <1106833527.15652.146.camel@2fwv946.in.ibm.com>
+	<20050203.160252.104031714.taka@valinux.co.jp>
+	<1107421303.11609.183.camel@2fwv946.in.ibm.com>
+	<20050203.183747.85413533.taka@valinux.co.jp>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Feb 2005 02:58:02 -0700
-In-Reply-To: <20050203171700.18E7.ODA@valinux.co.jp>
-Message-ID: <m1pszi6k45.fsf@ebiederm.dsl.xmission.com>
+Date: 03 Feb 2005 03:07:58 -0700
+In-Reply-To: <20050203.183747.85413533.taka@valinux.co.jp>
+Message-ID: <m1hdku6jnl.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itsuro Oda <oda@valinux.co.jp> writes:
+Hirokazu Takahashi <taka@valinux.co.jp> writes:
 
-> Hi,
+> Hi Vivek, 
 > 
-> This is not for kdump but an experience of our project(mkdump).
-> The dump kernel(not SMP config) boot hangs if machine_kexec()
-> excutes on non-boot CPU on x86_64 platform.
+> > > Hi Vivek and Eric,
+> > > 
+> > > IMHO, why don't we swap not only the contents of the top 640K
+> > > but also kernel working memory for kdump kernel?
+> > 
+> > 
+> > Initial patches of kdump had adopted the same approach but given the
+> > fact devices are not stopped during transition to new kernel after a
+> > panic, it carried inherent risk of some DMA going on and corrupting the
+> > new kernel/data structures. Hence the idea of running the kernel from a
+> > reserved location came up. This should be DMA safe as long as DMA is not
+> > misdirected.
+> 
+> I see, that makes sense.
+> But I'm not sure yet that it's safe to access the top of 640MB.
+640K?
 
-?? x86_64 is Opteron cpu, amd64, Intel cpu?
-Are the kernels running in 32bit or 64bit mode. I'm guessing
-SMP Opterons running in 32bit mode.
+> I wonder how kmalloc(GFP_DMA) works in a kdump kernel.
 
-Anyway one thing I want to do is actually drop the apic shutdown
-code altogether in this code path.  I threw it in there to
-ease the transition from the old code base to the new, but
-if that code is causing issues....  So this is probably a good time
-to start testing that.
+All that happens there is a one line change to vmlinux.lds.S  that
+causes the kernel to live at a different physical and virtual
+address.  So everything works as normal.
 
-> We don't found why. (Please let me know if you know why.)
-> but fix that the boot-cpu excutes machine_kexec() in the nmi handler. 
-> (It becomes OK after that)
+I do agree that it is risky to use the first 640K for normal work.
+But on the list of things to fix it is a minor war, and even if we
+back up that region of memory we don't need to use it.
 
-My best hunch is that your UP kernel is not getting interrupts.
-Any chance on getting a serial console boot log?  
-
-I suspect it can be made to work if you compile your UP
-kernel with IOAPIC support.  I do know the table parsers
-no longer complain about the configuration.
+There are still remain a lot of code reviews to ensure the code is
+generally safe.
 
 Eric

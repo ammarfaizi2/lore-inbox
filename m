@@ -1,87 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318139AbSIITag>; Mon, 9 Sep 2002 15:30:36 -0400
+	id <S318798AbSIITgQ>; Mon, 9 Sep 2002 15:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318794AbSIITag>; Mon, 9 Sep 2002 15:30:36 -0400
-Received: from florin.dsl.visi.com ([209.98.146.184]:44901 "EHLO
-	bird.iucha.org") by vger.kernel.org with ESMTP id <S318139AbSIITaf>;
-	Mon, 9 Sep 2002 15:30:35 -0400
-Date: Mon, 9 Sep 2002 14:35:19 -0500
+	id <S318153AbSIITgQ>; Mon, 9 Sep 2002 15:36:16 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42906 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318798AbSIITgP>;
+	Mon, 9 Sep 2002 15:36:15 -0400
+Date: Mon, 9 Sep 2002 21:45:20 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.34
-Message-ID: <20020909193519.GD7683@iucha.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0209091049180.11925-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xB0nW4MQa6jZONgY"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0209091049180.11925-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: [patch] fix NMI watchdog, 2.5.34
+Message-ID: <Pine.LNX.4.44.0209092144140.10544-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xB0nW4MQa6jZONgY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+the attached patch fixes the NMI watchdog to trigger on all CPUs - the
+cpu_up() code broke it long time ago. With this patch NMI interrupts get
+generated on all CPUs, not just the boot CPU.
 
-It compiled fine but make modules_install failed with:
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map 2.5.34-my; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.34-my-xfs/kernel/fs/auto=
-fs4/autofs4.o
-depmod:         recalc_sigpending
-depmod: *** Unresolved symbols in /lib/modules/2.5.34-my-xfs/kernel/fs/lock=
-d/lockd.o
-depmod:         recalc_sigpending
-depmod: *** Unresolved symbols in /lib/modules/2.5.34-my-xfs/kernel/fs/nfsd=
-/nfsd.o
-depmod:         recalc_sigpending
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.34-my-xfs/kernel/fs/smbfs/smbfs.o
-depmod:         recalc_sigpending
-depmod: *** Unresolved symbols in /lib/modules/2.5.34-my-xfs/kernel/net/sun=
-rpc/sunrpc.o
-depmod:         recalc_sigpending
-bear:/usr/local/src/linux-my-34# grep SUN .config
-# CONFIG_PARPORT_SUNBPP is not set
-# CONFIG_SUNLANCE is not set
-# CONFIG_SUNBMAC is not set
-# CONFIG_SUNQE is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_KEYBOARD_SUNKBD is not set
-CONFIG_SUNRPC=3Dm
-bear:/usr/local/src/linux-my-34# grep -i autofs .config
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=3Dm
+	Ingo
 
-Of course, the same config yielded a working kernel with 2.5.33 .
+--- linux/arch/i386/kernel/io_apic.c.orig	Mon Sep  9 21:34:53 2002
++++ linux/arch/i386/kernel/io_apic.c	Mon Sep  9 21:37:27 2002
+@@ -1490,7 +1490,7 @@
+ 	end_lapic_irq
+ };
+ 
+-static void enable_NMI_through_LVT0 (void * dummy)
++void enable_NMI_through_LVT0 (void * dummy)
+ {
+ 	unsigned int v, ver;
+ 
+--- linux/arch/i386/kernel/smpboot.c.orig	Mon Sep  9 21:35:48 2002
++++ linux/arch/i386/kernel/smpboot.c	Mon Sep  9 21:43:00 2002
+@@ -452,6 +452,11 @@
+ 	while (!test_bit(smp_processor_id(), &smp_commenced_mask))
+ 		rep_nop();
+ 	setup_secondary_APIC_clock();
++	if (nmi_watchdog == NMI_IO_APIC) {
++		disable_8259A_irq(0);
++		enable_NMI_through_LVT0(NULL);
++		enable_8259A_irq(0);
++	}
+ 	enable_APIC_timer();
+ 	/*
+ 	 * low-memory mappings have been cleared, flush them from
+--- linux/include/asm-i386/apic.h.orig	Mon Sep  9 21:37:43 2002
++++ linux/include/asm-i386/apic.h	Mon Sep  9 21:37:51 2002
+@@ -89,6 +89,7 @@
+ 
+ extern unsigned int apic_timer_irqs [NR_CPUS];
+ extern int check_nmi_watchdog (void);
++extern void enable_NMI_through_LVT0 (void * dummy);
+ 
+ extern unsigned int nmi_watchdog;
+ #define NMI_NONE	0
 
-Cheers,
-florin
-
---=20
-
-"If it's not broken, let's fix it till it is."
-
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-
---xB0nW4MQa6jZONgY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9fPf2NLPgdTuQ3+QRAuwKAJ0S+vFhlhZW8xDOYPhtrbtTPWdZVACfT/Bk
-DvyCUrrTOf55XGsmgEitI2Y=
-=R6FC
------END PGP SIGNATURE-----
-
---xB0nW4MQa6jZONgY--

@@ -1,81 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313818AbSDJVAZ>; Wed, 10 Apr 2002 17:00:25 -0400
+	id <S313545AbSDJVFi>; Wed, 10 Apr 2002 17:05:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313832AbSDJVAY>; Wed, 10 Apr 2002 17:00:24 -0400
-Received: from holomorphy.com ([66.224.33.161]:57311 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S313818AbSDJVAY>;
-	Wed, 10 Apr 2002 17:00:24 -0400
-Date: Wed, 10 Apr 2002 13:59:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Art Haas <ahaas@neosoft.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] radix-tree pagecache for 2.4.19-pre5-ac3
-Message-ID: <20020410205947.GG21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Art Haas <ahaas@neosoft.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-In-Reply-To: <20020407164439.GA5662@debian>
+	id <S313832AbSDJVFh>; Wed, 10 Apr 2002 17:05:37 -0400
+Received: from www.microgate.com ([216.30.46.105]:9488 "EHLO sol.microgate.com")
+	by vger.kernel.org with ESMTP id <S313545AbSDJVFh>;
+	Wed, 10 Apr 2002 17:05:37 -0400
+Subject: [PATCH] 2.5.8-pre3 synclink.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3.99 
+Date: 10 Apr 2002 16:03:30 -0500
+Message-Id: <1018472610.1021.7.camel@diemos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 11:44:39AM -0500, Art Haas wrote:
-> Once again the patch has been re-diffed for the latest -ac
-> kernel. It's running on my machine now. Enjoy!
-> I'm interested in hearing back from anyone using this
-> patch - I'd like to be sure that it applies cleanly (I
-> believe it does), and that the kernel built with the
-> patch runs well. The -ac kernels with rmap and the O(1)
-> scheduler are working well for me, and I'm hoping that
-> this patch adds to those kernels. At some point I'm hoping
-> the patch is included in to the -ac patchset, and the
-> eventual inclusion into the standard kernel release.
-> My thanks to everyone working on the kernel.
+patch against 2.5.8-pre3 to update virt_to_bus functions and
+remove version depedent #ifdef statements
 
-Thank you! This has saved me some effort.
-
-Burning question:
-What are the hunks changing arch/i386/kernel/setup.c there for?
-Also, there appears to be a livelock in add_to_swap(), (yes, this
-has killed my boxen dead) something to help with this follows.
-(It at least turned up a different problem I'm still working on.)
-
-
-Cheers,
-Bill
-
-
-diff -urN linux-virgin/mm/swap_state.c linux/mm/swap_state.c
---- linux-virgin/mm/swap_state.c	Tue Apr  9 18:50:48 2002
-+++ linux/mm/swap_state.c	Tue Apr  9 21:28:15 2002
-@@ -104,6 +104,7 @@
-  */
- int add_to_swap(struct page * page)
- {
-+	int error;
- 	swp_entry_t entry;
+--- linux-2.5.8-pre3/drivers/char/synclink.c	Wed Apr 10 15:35:55 2002
++++ linux-2.5.8-pre3-mg/drivers/char/synclink.c	Wed Apr 10 15:43:18 2002
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink.c
+  *
+- * $Id: synclink.c,v 3.12 2001/07/18 19:14:21 paulkf Exp $
++ * $Id: synclink.c,v 4.2 2002/04/10 20:45:13 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -60,8 +60,6 @@
+ #  define BREAKPOINT() { }
+ #endif
  
- 	if (!PageLocked(page))
-@@ -118,11 +119,15 @@
- 		 * (adding to the page cache will clear the dirty
- 		 * and uptodate bits, so we need to do it again)
- 		 */
--		if (add_to_swap_cache(page, entry) == 0) {
-+		error = add_to_swap_cache(page, entry);
-+		if (!error) {
- 			SetPageUptodate(page);
- 			set_page_dirty(page);
- 			swap_free(entry);
- 			return 1;
-+		} else if (error = -ENOMEM) {
-+			swap_free(entry);
-+			return 0;
+-#error Please convert me to Documentation/DMA-mapping.txt
+-
+ #define MAX_ISA_DEVICES 10
+ #define MAX_PCI_DEVICES 10
+ #define MAX_TOTAL_DEVICES 20
+@@ -109,12 +107,8 @@
+ #endif
+ 
+ #ifdef CONFIG_SYNCLINK_SYNCPPP
+-#if LINUX_VERSION_CODE < VERSION(2,4,3) 
+-#include "../net/wan/syncppp.h"
+-#else
+ #include <net/syncppp.h>
+ #endif
+-#endif
+ 
+ #define GET_USER(error,value,addr) error = get_user(value,addr)
+ #define COPY_FROM_USER(error,dest,src,size) error = copy_from_user(dest,src,size) ? -EFAULT : 0
+@@ -923,7 +917,7 @@
+ MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 3.12 $";
++static char *driver_version = "$Revision: 4.2 $";
+ 
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
+@@ -3985,7 +3979,7 @@
+ 		if ( info->buffer_list == NULL )
+ 			return -ENOMEM;
+ 			
+-		info->buffer_list_phys = virt_to_bus(info->buffer_list);
++		info->buffer_list_phys = isa_virt_to_bus(info->buffer_list);
+ 	}
+ 
+ 	/* We got the memory for the buffer entry lists. */
+@@ -4096,7 +4090,7 @@
+ 				kmalloc(DMABUFFERSIZE, GFP_KERNEL | GFP_DMA);
+ 			if ( BufferList[i].virt_addr == NULL )
+ 				return -ENOMEM;
+-			phys_addr = virt_to_bus(BufferList[i].virt_addr);
++			phys_addr = isa_virt_to_bus(BufferList[i].virt_addr);
  		}
- 		/* Raced with "speculative" read_swap_cache_async */
- 		swap_free(entry);
+ 		BufferList[i].phys_addr = phys_addr;
+ 	}
+@@ -7990,10 +7984,6 @@
+ 	d->get_stats = mgsl_net_stats;
+ 	d->tx_timeout = mgsl_sppp_tx_timeout;
+ 	d->watchdog_timeo = 10*HZ;
+-
+-#if LINUX_VERSION_CODE < VERSION(2,4,4) 
+-	dev_init_buffers(d);
+-#endif
+ 
+ 	if (register_netdev(d) == -1) {
+ 		printk(KERN_WARNING "%s: register_netdev failed.\n", d->name);
+
+
+

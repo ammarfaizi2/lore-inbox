@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282133AbRLHQTN>; Sat, 8 Dec 2001 11:19:13 -0500
+	id <S282129AbRLHQ2d>; Sat, 8 Dec 2001 11:28:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282147AbRLHQTD>; Sat, 8 Dec 2001 11:19:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:48135 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S282133AbRLHQSz>;
-	Sat, 8 Dec 2001 11:18:55 -0500
-Date: Sat, 8 Dec 2001 17:18:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre7 ide-cd module
-Message-ID: <20011208161847.GK11567@suse.de>
-In-Reply-To: <3C1235C4.BC20AC8E@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C1235C4.BC20AC8E@wanadoo.fr>
+	id <S282149AbRLHQ2X>; Sat, 8 Dec 2001 11:28:23 -0500
+Received: from yuha.menta.net ([212.78.128.42]:4093 "EHLO yuha.menta.net")
+	by vger.kernel.org with ESMTP id <S282129AbRLHQ2O>;
+	Sat, 8 Dec 2001 11:28:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ivanovich <ivanovich@menta.net>
+To: "Pantelis Proios" <pproios@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Memory Interleave + kernel + VIA chipsets == possible ?
+Date: Sat, 8 Dec 2001 17:27:42 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <F760JPzw2O8Z9B5un770001e64e@hotmail.com> <01120816555700.01330@localhost.localdomain>
+In-Reply-To: <01120816555700.01330@localhost.localdomain>
+MIME-Version: 1.0
+Message-Id: <01120817274200.01202@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08 2001, Pierre Rousselet wrote:
-> Attached is dmesg with 2.5.1-pre7 + devfs-patch-v203.
-> 
-> The first and second manual loading of the ide-cd module give something
-> different.
-> 
-> #modprobe ide-cd ; rmmod ide-cd ; modprobe ide-cd
-> 
-> hdc: ATAPI CD-ROM drive, 0kB Cache, DMA
-> Uniform CD-ROM driver Revision: 3.12
-> hdc: ATAPI 24X CD-ROM drive, 128kB Cache, DMA
+here is the url where these tweaks are:
+http://viahardware.com/memtweakguide1.shtm
 
-Upon first load, could you cat /proc/sys/dev/cdrom/info? It would appear
-that the drive is sending zeroed data but not reporting a failure.
-
-Is this a new problem?
-
--- 
-Jens Axboe
-
+basically to enable em registers (offsets) 50 & 51 should go to FF hex, regs 
+64 to 67 should go to 12 hex and reg 68 should go to 43 hex

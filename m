@@ -1,1139 +1,577 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTE2T7T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 15:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTE2T7T
+	id S262703AbTE2UEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbTE2UEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 15:59:19 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:61066 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262589AbTE2T6p (ORCPT
+	Thu, 29 May 2003 16:04:13 -0400
+Received: from kknd.mweb.co.za ([196.2.45.79]:54213 "EHLO kknd.mweb.co.za")
+	by vger.kernel.org with ESMTP id S262703AbTE2UD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 15:58:45 -0400
-Date: Thu, 29 May 2003 22:06:18 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, pavel@suse.cz, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Message-ID: <20030529200618.GE1454@elf.ucw.cz>
-References: <20030528144839.47efdc4f.akpm@digeo.com.suse.lists.linux.kernel> <20030528215551.GB255@elf.ucw.cz.suse.lists.linux.kernel> <p73wuga6rin.fsf@oldwotan.suse.de> <20030529.023203.41634240.davem@redhat.com>
+	Thu, 29 May 2003 16:03:58 -0400
+Date: Thu, 29 May 2003 22:16:22 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.70-mm1 Strangeness
+Message-Id: <20030529221622.542a6df5.bonganilinux@mweb.co.za>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030529.023203.41634240.davem@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.1bR8I+KRNXk0qa"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--=.1bR8I+KRNXk0qa
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
->    This part won't work on sparc64 because it has separate address spaces
->    for user/kernel.
-> 
-> Yes, in fact I happen to be working in this area hold on...
-> 
-> I'm redoing Andi's x86_64 ioctl32 bug fixes more cleanly
-> for sparc64 by instead using alloc_user_space().
-> 
-> Sorry Andi, I just couldn't bring myself to allow those bogus
-> artificial limits you added just to fix these bugs... :-)
-> 
-> This work also pointed out many bugs in this area which should
-> be fixed by my stuff. (CDROMREAD* ioctls don't take struct cdrom_read
-> they take struct cdrom_msf which is compatible, struct
-> cdrom_generic_command32 was missing some members, etc. etc.)
-> 
-> This is a 2.4.x patch but should be easy to push over to the 2.5.x
-> ioctl stuff using the appropriate compat types.
+Hi Andrew
 
-It was painfull but easy to port 2.5.X. Here it is.
+I'm experiencing a strange behaviour with 2.5.70-mm1 on my work PC, 
+Pentium IV 1.6GHZ with 512MB memory. Let me know if you need any more input.
 
-Andi, can you take uaccess.h part? Davem, does trivial copy_in_user I
-created have expected semantics?
-								Pavel
+After login in to KDE /proc/meminfo
 
---- linux.clean/include/asm-x86_64/uaccess.h	2003-03-18 08:23:12.000000000 -0800
-+++ linux/include/asm-x86_64/uaccess.h	2003-05-29 06:06:07.000000000 -0700
-@@ -298,6 +298,19 @@
- 	}
- }	
- 
-+static inline int copy_in_user(void *dst, const void *src, unsigned size) 
-+{ 
-+	int i, ret;
-+	unsigned char c;
-+	for (i=0; i<size; i++) {
-+		ret = copy_from_user(&c, src, 1);
-+		if (ret) return ret;
-+		ret = copy_to_user(dst, &c, 1);
-+		if (ret) return ret;
-+	}
-+	return ret;
-+}	
-+
- long strncpy_from_user(char *dst, const char *src, long count);
- long __strncpy_from_user(char *dst, const char *src, long count);
- long strnlen_user(const char *str, long n);
---- linux.clean/include/linux/compat_ioctl.h	2003-05-27 04:52:28.000000000 -0700
-+++ linux/include/linux/compat_ioctl.h	2003-05-29 05:35:16.000000000 -0700
-@@ -355,6 +355,15 @@
- COMPATIBLE_IOCTL(CDROM_LOCKDOOR)
- COMPATIBLE_IOCTL(CDROM_DEBUG)
- COMPATIBLE_IOCTL(CDROM_GET_CAPABILITY)
-+/* Ignore cdrom.h about these next 5 ioctls, they absolutely do
-+ * not take a struct cdrom_read, instead they take a struct cdrom_msf
-+ * which is compatible.
-+ */
-+COMPATIBLE_IOCTL(CDROMREADMODE2)
-+COMPATIBLE_IOCTL(CDROMREADMODE1)
-+COMPATIBLE_IOCTL(CDROMREADRAW)
-+COMPATIBLE_IOCTL(CDROMREADCOOKED)
-+COMPATIBLE_IOCTL(CDROMREADALL)
- /* DVD ioctls */
- COMPATIBLE_IOCTL(DVD_READ_STRUCT)
- COMPATIBLE_IOCTL(DVD_WRITE_STRUCT)
+MemTotal:       514864 kB
+MemFree:         16308 kB
+Buffers:         10780 kB
+Cached:          86268 kB
+SwapCached:          0 kB
+Active:         122096 kB
+Inactive:        31680 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       514864 kB
+LowFree:         16308 kB
+SwapTotal:      409208 kB
+SwapFree:       409208 kB
+Dirty:            4604 kB
+Writeback:           0 kB
+Mapped:          93668 kB
+Slab:           340540 kB
+Committed_AS:    83492 kB
+PageTables:       1148 kB
+VmallocTotal:   516024 kB
+VmallocUsed:     33644 kB
+VmallocChunk:   482272 kB
 
---- linux.clean/fs/compat_ioctl.c	2003-05-27 07:36:47.000000000 -0700
-+++ linux/fs/compat_ioctl.c	2003-05-29 05:55:16.000000000 -0700
-@@ -554,74 +554,27 @@
- 
- static int ethtool_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	struct ifreq ifr;
--	mm_segment_t old_fs;
--	int err, len;
--	u32 data, ethcmd;
-+	struct ifreq *ifr;
-+	struct ifreq32 *ifr32;
-+	u32 data;
-+	void *datap;
- 	
--	if (copy_from_user(&ifr, (struct ifreq32 *)arg, sizeof(struct ifreq32)))
--		return -EFAULT;
--	ifr.ifr_data = (__kernel_caddr_t)get_zeroed_page(GFP_KERNEL);
--	if (!ifr.ifr_data)
--		return -EAGAIN;
--
--	__get_user(data, &(((struct ifreq32 *)arg)->ifr_ifru.ifru_data));
--
--	if (get_user(ethcmd, (u32 *)compat_ptr(data))) {
--		err = -EFAULT;
--		goto out;
--	}
--	switch (ethcmd) {
--	case ETHTOOL_GDRVINFO:	len = sizeof(struct ethtool_drvinfo); break;
--	case ETHTOOL_GMSGLVL:
--	case ETHTOOL_SMSGLVL:
--	case ETHTOOL_GLINK:
--	case ETHTOOL_NWAY_RST:  len = sizeof(struct ethtool_value); break;
--	case ETHTOOL_GREGS: {
--		struct ethtool_regs *regaddr = compat_ptr(data);
--		/* darned variable size arguments */
--		if (get_user(len, (u32 *)&regaddr->len)) {
--			err = -EFAULT;
--			goto out;
--		}
--		if (len > PAGE_SIZE - sizeof(struct ethtool_regs)) { 
--			err = -EINVAL;
--			goto out;
--		}			
--		len += sizeof(struct ethtool_regs);
--		break;
--	}
--	case ETHTOOL_GSET:
--	case ETHTOOL_SSET:      len = sizeof(struct ethtool_cmd); break;
--	default:
--               err = -EOPNOTSUPP;
--               goto out;
--	}
-+	ifr = compat_alloc_user_space(sizeof(*ifr));
-+	ifr32 = (struct ifreq32 *) arg;
- 
--	if (copy_from_user(ifr.ifr_data, compat_ptr(data), len)) {
--		err = -EFAULT;
--		goto out;
--	}
-+	if (copy_in_user(&ifr->ifr_name, &ifr32->ifr_name, IFNAMSIZ))
-+		return -EFAULT;
- 
--	old_fs = get_fs();
--	set_fs (KERNEL_DS);
--	err = sys_ioctl (fd, cmd, (unsigned long)&ifr);
--	set_fs (old_fs);
--	if (!err) {
--		u32 data;
-+	if (get_user(data, &ifr32->ifr_ifru.ifru_data))
-+		return -EFAULT;
- 
--		__get_user(data, &(((struct ifreq32 *)arg)->ifr_ifru.ifru_data));
--		len = copy_to_user(compat_ptr(data), ifr.ifr_data, len);
--		if (len)
--			err = -EFAULT;
--	}
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, &ifr->ifr_ifru.ifru_data))
-+		return -EFAULT;
- 
--out:
--	free_page((unsigned long)ifr.ifr_data);
--	return err;
-+	return sys_ioctl(fd, cmd, (unsigned long) ifr);
- }
- 
--
- static int bond_ioctl(unsigned long fd, unsigned int cmd, unsigned long arg)
- {
- 	struct ifreq ifr;
-@@ -894,65 +847,113 @@
- 	compat_caddr_t	transp;
- };
- 
--static int fb_ioctl_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
-+static int do_cmap_ptr(__u16 **ptr64, __u32 *ptr32)
- {
--	mm_segment_t old_fs = get_fs();
--	u32 red = 0, green = 0, blue = 0, transp = 0;
-+	__u32 data;
-+	void *datap;
-+
-+	if (get_user(data, ptr32))
-+		return -EFAULT;
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, ptr64))
-+		return -EFAULT;
-+	return 0;
-+}
-+
-+static int fb_getput_cmap(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct fb_cmap *cmap;
-+	struct fb_cmap32 *cmap32;
-+	int err;
-+
-+	cmap = compat_alloc_user_space(sizeof(*cmap));
-+	cmap32 = (struct fb_cmap32 *) arg;
-+
-+	if (copy_in_user(&cmap->start, &cmap32->start, 2 * sizeof(__u32)))
-+		return -EFAULT;
-+
-+	if (do_cmap_ptr(&cmap->red, &cmap32->red) ||
-+	    do_cmap_ptr(&cmap->green, &cmap32->green) ||
-+	    do_cmap_ptr(&cmap->blue, &cmap32->blue) ||
-+	    do_cmap_ptr(&cmap->transp, &cmap32->transp))
-+		return -EFAULT;
-+
-+	err = sys_ioctl(fd, cmd, (unsigned long) cmap);
-+
-+	if (!err) {
-+		if (copy_in_user(&cmap32->start,
-+				 &cmap->start,
-+				 2 * sizeof(__u32)))
-+			err = -EFAULT;
-+	}
-+	return err;
-+}
-+
-+static int do_fscreeninfo_to_user(struct fb_fix_screeninfo *fix,
-+				  struct fb_fix_screeninfo32 *fix32)
-+{
-+	__u32 data;
-+	int err;
-+
-+	err = copy_to_user(&fix32->id, &fix->id, sizeof(fix32->id));
-+
-+	data = (__u32) (unsigned long) fix->smem_start;
-+	err |= put_user(data, &fix32->smem_start);
-+
-+	err |= put_user(fix->smem_len, &fix32->smem_len);
-+	err |= put_user(fix->type, &fix32->type);
-+	err |= put_user(fix->type_aux, &fix32->type_aux);
-+	err |= put_user(fix->visual, &fix32->visual);
-+	err |= put_user(fix->xpanstep, &fix32->xpanstep);
-+	err |= put_user(fix->ypanstep, &fix32->ypanstep);
-+	err |= put_user(fix->ywrapstep, &fix32->ywrapstep);
-+	err |= put_user(fix->line_length, &fix32->line_length);
-+
-+	data = (__u32) (unsigned long) fix->mmio_start;
-+	err |= put_user(data, &fix32->mmio_start);
-+
-+	err |= put_user(fix->mmio_len, &fix32->mmio_len);
-+	err |= put_user(fix->accel, &fix32->accel);
-+	err |= copy_to_user(fix32->reserved, fix->reserved,
-+			    sizeof(fix->reserved));
-+
-+	return err;
-+}
-+
-+static int fb_get_fscreeninfo(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	mm_segment_t old_fs;
- 	struct fb_fix_screeninfo fix;
--	struct fb_cmap cmap;
--	void *karg;
--	int err = 0;
-+	struct fb_fix_screeninfo32 *fix32;
-+	int err;
-+
-+	fix32 = (struct fb_fix_screeninfo32 *) arg;
-+
-+	old_fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	err = sys_ioctl(fd, cmd, (unsigned long) &fix);
-+	set_fs(old_fs);
-+
-+	if (!err)
-+		err = do_fscreeninfo_to_user(&fix, fix32);
-+
-+	return err;
-+}
-+
-+static int fb_ioctl_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	int err;
- 
--	memset(&cmap, 0, sizeof(cmap));
- 	switch (cmd) {
- 	case FBIOGET_FSCREENINFO:
--		karg = &fix;
-+		err = fb_get_fscreeninfo(fd,cmd, arg);
- 		break;
--	case FBIOGETCMAP:
--	case FBIOPUTCMAP:
--		karg = &cmap;
--		err = __get_user(cmap.start, &((struct fb_cmap32 *)arg)->start);
--		err |= __get_user(cmap.len, &((struct fb_cmap32 *)arg)->len);
--		err |= __get_user(red, &((struct fb_cmap32 *)arg)->red);
--		err |= __get_user(green, &((struct fb_cmap32 *)arg)->green);
--		err |= __get_user(blue, &((struct fb_cmap32 *)arg)->blue);
--		err |= __get_user(transp, &((struct fb_cmap32 *)arg)->transp);
--		if (err) {
--			err = -EFAULT;
--			goto out;
--		}
--		if (cmap.len > PAGE_SIZE/sizeof(u16)) { 
--			err = -EINVAL;
--			goto out;
--		}
--		err = -ENOMEM;
--		cmap.red = kmalloc(cmap.len * sizeof(__u16), GFP_KERNEL);
--		if (!cmap.red)
--			goto out;
--		cmap.green = kmalloc(cmap.len * sizeof(__u16), GFP_KERNEL);
--		if (!cmap.green)
--			goto out;
--		cmap.blue = kmalloc(cmap.len * sizeof(__u16), GFP_KERNEL);
--		if (!cmap.blue)
--			goto out;
--		if (transp) {
--			cmap.transp = kmalloc(cmap.len * sizeof(__u16), GFP_KERNEL);
--			if (!cmap.transp)
--				goto out;
--		}
--			
--		if (cmd == FBIOGETCMAP)
--			break;
- 
--		err = __copy_from_user(cmap.red, compat_ptr(red), cmap.len * sizeof(__u16));
--		err |= __copy_from_user(cmap.green, compat_ptr(green), cmap.len * sizeof(__u16));
--		err |= __copy_from_user(cmap.blue, compat_ptr(blue), cmap.len * sizeof(__u16));
--		if (cmap.transp) err |= __copy_from_user(cmap.transp, compat_ptr(transp), cmap.len * sizeof(__u16));
--		if (err) {
--			err = -EFAULT;
--			goto out;
--		}
-+  	case FBIOGETCMAP:
-+	case FBIOPUTCMAP:
-+		err = fb_getput_cmap(fd, cmd, arg);
- 		break;
-+
- 	default:
- 		do {
- 			static int count;
-@@ -961,47 +962,10 @@
- 				       "cmd(%08x) arg(%08lx)\n",
- 				       __FUNCTION__, fd, cmd, arg);
- 		} while(0);
--		return -ENOSYS;
--	}
--	set_fs(KERNEL_DS);
--	err = sys_ioctl(fd, cmd, (unsigned long)karg);
--	set_fs(old_fs);
--	if (err)
--		goto out;
--	switch (cmd) {
--	case FBIOGET_FSCREENINFO:
--		err = __copy_to_user((char *)((struct fb_fix_screeninfo32 *)arg)->id, (char *)fix.id, sizeof(fix.id));
--		err |= __put_user((__u32)(unsigned long)fix.smem_start, &((struct fb_fix_screeninfo32 *)arg)->smem_start);
--		err |= __put_user(fix.smem_len, &((struct fb_fix_screeninfo32 *)arg)->smem_len);
--		err |= __put_user(fix.type, &((struct fb_fix_screeninfo32 *)arg)->type);
--		err |= __put_user(fix.type_aux, &((struct fb_fix_screeninfo32 *)arg)->type_aux);
--		err |= __put_user(fix.visual, &((struct fb_fix_screeninfo32 *)arg)->visual);
--		err |= __put_user(fix.xpanstep, &((struct fb_fix_screeninfo32 *)arg)->xpanstep);
--		err |= __put_user(fix.ypanstep, &((struct fb_fix_screeninfo32 *)arg)->ypanstep);
--		err |= __put_user(fix.ywrapstep, &((struct fb_fix_screeninfo32 *)arg)->ywrapstep);
--		err |= __put_user(fix.line_length, &((struct fb_fix_screeninfo32 *)arg)->line_length);
--		err |= __put_user((__u32)(unsigned long)fix.mmio_start, &((struct fb_fix_screeninfo32 *)arg)->mmio_start);
--		err |= __put_user(fix.mmio_len, &((struct fb_fix_screeninfo32 *)arg)->mmio_len);
--		err |= __put_user(fix.accel, &((struct fb_fix_screeninfo32 *)arg)->accel);
--		err |= __copy_to_user((char *)((struct fb_fix_screeninfo32 *)arg)->reserved, (char *)fix.reserved, sizeof(fix.reserved));
--		break;
--	case FBIOGETCMAP:
--		err = __copy_to_user(compat_ptr(red), cmap.red, cmap.len * sizeof(__u16));
--		err |= __copy_to_user(compat_ptr(green), cmap.blue, cmap.len * sizeof(__u16));
--		err |= __copy_to_user(compat_ptr(blue), cmap.blue, cmap.len * sizeof(__u16));
--		if (cmap.transp)
--			err |= __copy_to_user(compat_ptr(transp), cmap.transp, cmap.len * sizeof(__u16));
-+		err = -ENOSYS;
- 		break;
--	case FBIOPUTCMAP:
--		break;
--	}
--	if (err)
--		err = -EFAULT;
-+	};
- 
--out:	if (cmap.red) kfree(cmap.red);
--	if (cmap.green) kfree(cmap.green);
--	if (cmap.blue) kfree(cmap.blue);
--	if (cmap.transp) kfree(cmap.transp);
- 	return err;
- }
- 
-@@ -1056,141 +1020,118 @@
- 	compat_uint_t iov_len;
- } sg_iovec32_t;
- 
--#define EMU_SG_MAX 128
--
--static int alloc_sg_iovec(sg_io_hdr_t *sgp, u32 uptr32)
-+static int sg_build_iovec(sg_io_hdr_t *sgio, void *dxferp, u16 iovec_count)
- {
--	sg_iovec32_t *uiov = compat_ptr(uptr32);
--	sg_iovec_t *kiov;
-+	sg_iovec_t *iov = (sg_iovec_t *) (sgio + 1);
-+	sg_iovec32_t *iov32 = dxferp;
- 	int i;
- 
--	if (sgp->iovec_count > EMU_SG_MAX)
--		return -EINVAL;
--	sgp->dxferp = kmalloc(sgp->iovec_count *
--			      sizeof(sg_iovec_t), GFP_KERNEL);
--	if (!sgp->dxferp)
--		return -ENOMEM;
--	memset(sgp->dxferp, 0,
--	       sgp->iovec_count * sizeof(sg_iovec_t));
--
--	kiov = (sg_iovec_t *) sgp->dxferp;
--	for (i = 0; i < sgp->iovec_count; i++) {
--		u32 iov_base32;
--		if (__get_user(iov_base32, &uiov->iov_base) ||
--		    __get_user(kiov->iov_len, &uiov->iov_len))
--			return -EFAULT;
--		if (verify_area(VERIFY_WRITE, compat_ptr(iov_base32), kiov->iov_len))
-+	for (i = 0; i < iovec_count; i++) {
-+		u32 base, len;
-+
-+		if (get_user(base, &iov32[i].iov_base) ||
-+		    get_user(len, &iov32[i].iov_len) ||
-+		    put_user((void *)(unsigned long)base, &iov[i].iov_base) ||
-+		    put_user(len, &iov[i].iov_len))
- 			return -EFAULT;
--		kiov->iov_base = compat_ptr(iov_base32);
--		uiov++;
--		kiov++;
- 	}
- 
- 	return 0;
- }
- 
--static void free_sg_iovec(sg_io_hdr_t *sgp)
--{
--	kfree(sgp->dxferp);
--	sgp->dxferp = NULL;
--}
--
- static int sg_ioctl_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	sg_io_hdr32_t *sg_io32;
--	sg_io_hdr_t sg_io64;
--	u32 dxferp32, cmdp32, sbp32;
--	mm_segment_t old_fs;
--	int err = 0;
-+	sg_io_hdr_t *sgio;
-+	sg_io_hdr32_t *sgio32;
-+	u16 iovec_count;
-+	u32 data;
-+	void *dxferp;
-+	int err;
- 
--	sg_io32 = (sg_io_hdr32_t *)arg;
--	err = __get_user(sg_io64.interface_id, &sg_io32->interface_id);
--	err |= __get_user(sg_io64.dxfer_direction, &sg_io32->dxfer_direction);
--	err |= __get_user(sg_io64.cmd_len, &sg_io32->cmd_len);
--	err |= __get_user(sg_io64.mx_sb_len, &sg_io32->mx_sb_len);
--	err |= __get_user(sg_io64.iovec_count, &sg_io32->iovec_count);
--	err |= __get_user(sg_io64.dxfer_len, &sg_io32->dxfer_len);
--	err |= __get_user(sg_io64.timeout, &sg_io32->timeout);
--	err |= __get_user(sg_io64.flags, &sg_io32->flags);
--	err |= __get_user(sg_io64.pack_id, &sg_io32->pack_id);
--
--	sg_io64.dxferp = NULL;
--	sg_io64.cmdp = NULL;
--	sg_io64.sbp = NULL;
--
--	err |= __get_user(cmdp32, &sg_io32->cmdp);
--	sg_io64.cmdp = kmalloc(sg_io64.cmd_len, GFP_KERNEL);
--	if (copy_from_user(sg_io64.cmdp,
--			   compat_ptr(cmdp32),
--			   sg_io64.cmd_len)) {
--		err = -EFAULT;
--		goto out;
--	}
-+	sgio32 = (sg_io_hdr32_t *) arg;
-+	if (get_user(iovec_count, &sgio32->iovec_count))
-+		return -EFAULT;
- 
--	err |= __get_user(sbp32, &sg_io32->sbp);
--	sg_io64.sbp = kmalloc(sg_io64.mx_sb_len, GFP_KERNEL);
--	if (!sg_io64.sbp) {
--		err = -ENOMEM;
--		goto out;
--	}
--	if (copy_from_user(sg_io64.sbp,
--			   compat_ptr(sbp32),
--			   sg_io64.mx_sb_len)) {
--		err = -EFAULT;
--		goto out;
-+	{
-+		void *new, *top;
-+
-+		top = compat_alloc_user_space(0);
-+		new = compat_alloc_user_space(sizeof(sg_io_hdr_t) +
-+				       (iovec_count *
-+					sizeof(sg_iovec_t)));
-+		if (new > top)
-+			return -EINVAL;
-+
-+		sgio = new;
- 	}
- 
--	err |= __get_user(dxferp32, &sg_io32->dxferp);
--	if (sg_io64.iovec_count) {
--		int ret;
--
--		if ((ret = alloc_sg_iovec(&sg_io64, dxferp32))) {
--			err = ret;
--			goto out;
--		}
-+	/* Ok, now construct.  */
-+	if (copy_in_user(&sgio->interface_id, &sgio32->interface_id,
-+			 (2 * sizeof(int)) +
-+			 (2 * sizeof(unsigned char)) +
-+			 (1 * sizeof(unsigned short)) +
-+			 (1 * sizeof(unsigned int))))
-+		return -EFAULT;
-+
-+	if (get_user(data, &sgio32->dxferp))
-+		return -EFAULT;
-+	dxferp = (void *) (unsigned long) data;
-+	if (iovec_count) {
-+		if (sg_build_iovec(sgio, dxferp, iovec_count))
-+			return -EFAULT;
- 	} else {
--		err = verify_area(VERIFY_WRITE, compat_ptr(dxferp32), sg_io64.dxfer_len);
--		if (err) 
--			goto out;
-+		if (put_user(dxferp, &sgio->dxferp))
-+			return -EFAULT;
-+	}
-+
-+	{
-+		unsigned char *cmdp, *sbp;
-+
-+		if (get_user(data, &sgio32->cmdp))
-+			return -EFAULT;
-+		cmdp = (unsigned char *) (unsigned long) data;
- 
--		sg_io64.dxferp = compat_ptr(dxferp32); 
-+		if (get_user(data, &sgio32->sbp))
-+			return -EFAULT;
-+		sbp = (unsigned char *) (unsigned long) data;
-+
-+		if (put_user(cmdp, &sgio->cmdp) ||
-+		    put_user(sbp, &sgio->sbp))
-+			return -EFAULT;
- 	}
- 
--	/* Unused internally, do not even bother to copy it over. */
--	sg_io64.usr_ptr = NULL;
-+	if (copy_in_user(&sgio->timeout, &sgio32->timeout,
-+			 3 * sizeof(int)))
-+		return -EFAULT;
- 
--	if (err)
-+	if (get_user(data, &sgio32->usr_ptr))
-+		return -EFAULT;
-+	if (put_user((void *)(unsigned long)data, &sgio->usr_ptr))
- 		return -EFAULT;
- 
--	old_fs = get_fs();
--	set_fs (KERNEL_DS);
--	err = sys_ioctl (fd, cmd, (unsigned long) &sg_io64);
--	set_fs (old_fs);
-+	if (copy_in_user(&sgio->status, &sgio32->status,
-+			 (4 * sizeof(unsigned char)) +
-+			 (2 * sizeof(unsigned (short))) +
-+			 (3 * sizeof(int))))
-+		return -EFAULT;
- 
--	if (err < 0)
--		goto out;
-+	err = sys_ioctl(fd, cmd, (unsigned long) sgio);
- 
--	err = __put_user(sg_io64.pack_id, &sg_io32->pack_id);
--	err |= __put_user(sg_io64.status, &sg_io32->status);
--	err |= __put_user(sg_io64.masked_status, &sg_io32->masked_status);
--	err |= __put_user(sg_io64.msg_status, &sg_io32->msg_status);
--	err |= __put_user(sg_io64.sb_len_wr, &sg_io32->sb_len_wr);
--	err |= __put_user(sg_io64.host_status, &sg_io32->host_status);
--	err |= __put_user(sg_io64.driver_status, &sg_io32->driver_status);
--	err |= __put_user(sg_io64.resid, &sg_io32->resid);
--	err |= __put_user(sg_io64.duration, &sg_io32->duration);
--	err |= __put_user(sg_io64.info, &sg_io32->info);
--	err |= copy_to_user(compat_ptr(sbp32), sg_io64.sbp, sg_io64.mx_sb_len);
--	if (err)
--		err = -EFAULT;
-+	if (err >= 0) {
-+		void *datap;
-+
-+		if (copy_in_user(&sgio32->pack_id, &sgio->pack_id,
-+				 sizeof(int)) ||
-+		    get_user(datap, &sgio->usr_ptr) ||
-+		    put_user((u32)(unsigned long)datap,
-+			     &sgio32->usr_ptr) ||
-+		    copy_in_user(&sgio32->status, &sgio->status,
-+				 (4 * sizeof(unsigned char)) +
-+				 (2 * sizeof(unsigned short)) +
-+				 (3 * sizeof(int))))
-+			err = -EFAULT;
-+	}
- 
--out:
--	if (sg_io64.cmdp)
--		kfree(sg_io64.cmdp);
--	if (sg_io64.sbp)
--		kfree(sg_io64.sbp);
--	if (sg_io64.dxferp && sg_io64.iovec_count)
--			free_sg_iovec(&sg_io64);
- 	return err;
- }
- 
-@@ -1241,39 +1182,65 @@
- };
- #define PPPIOCGIDLE32		_IOR('t', 63, struct ppp_idle32)
- 
-+static int ppp_gidle(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct ppp_idle *idle;
-+	struct ppp_idle32 *idle32;
-+	__kernel_time_t xmit, recv;
-+	int err;
-+
-+	idle = compat_alloc_user_space(sizeof(*idle));
-+	idle32 = (struct ppp_idle32 *) arg;
-+
-+	err = sys_ioctl(fd, PPPIOCGIDLE, (unsigned long) idle);
-+
-+	if (!err) {
-+		if (get_user(xmit, &idle->xmit_idle) ||
-+		    get_user(recv, &idle->recv_idle) ||
-+		    put_user(xmit, &idle32->xmit_idle) ||
-+		    put_user(recv, &idle32->recv_idle))
-+			err = -EFAULT;
-+	}
-+	return err;
-+}
-+
-+static int ppp_scompress(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct ppp_option_data *odata;
-+	struct ppp_option_data32 *odata32;
-+	__u32 data;
-+	void *datap;
-+
-+	odata = compat_alloc_user_space(sizeof(*odata));
-+	odata32 = (struct ppp_option_data32 *) arg;
-+
-+	if (get_user(data, &odata32->ptr))
-+		return -EFAULT;
-+
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, &odata->ptr))
-+		return -EFAULT;
-+
-+	if (copy_in_user(&odata->length, &odata32->length,
-+			 sizeof(__u32) + sizeof(int)))
-+		return -EFAULT;
-+
-+	return sys_ioctl(fd, PPPIOCSCOMPRESS, (unsigned long) odata);
-+}
-+
- static int ppp_ioctl_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	mm_segment_t old_fs = get_fs();
--	struct ppp_option_data32 data32;
--	struct ppp_option_data data;
--	struct ppp_idle32 idle32;
--	struct ppp_idle idle;
--	unsigned int kcmd;
--	void *karg;
--	int err = 0;
-+	int err;
- 
- 	switch (cmd) {
- 	case PPPIOCGIDLE32:
--		kcmd = PPPIOCGIDLE;
--		karg = &idle;
-+		err = ppp_gidle(fd, cmd, arg);
- 		break;
-+
- 	case PPPIOCSCOMPRESS32:
--		if (copy_from_user(&data32, (struct ppp_option_data32 *)arg, sizeof(struct ppp_option_data32)))
--			return -EFAULT;
--		if (data32.length > PAGE_SIZE) 
--			return -EINVAL;
--		data.ptr = kmalloc (data32.length, GFP_KERNEL);
--		if (!data.ptr)
--			return -ENOMEM;
--		if (copy_from_user(data.ptr, compat_ptr(data32.ptr), data32.length)) {
--			kfree(data.ptr);
--			return -EFAULT;
--		}
--		data.length = data32.length;
--		data.transmit = data32.transmit;
--		kcmd = PPPIOCSCOMPRESS;
--		karg = &data;
-+		err = ppp_scompress(fd, cmd, arg);
- 		break;
-+
- 	default:
- 		do {
- 			static int count;
-@@ -1282,26 +1249,10 @@
- 				       "cmd(%08x) arg(%08x)\n",
- 				       (int)fd, (unsigned int)cmd, (unsigned int)arg);
- 		} while(0);
--		return -EINVAL;
--	}
--	set_fs (KERNEL_DS);
--	err = sys_ioctl (fd, kcmd, (unsigned long)karg);
--	set_fs (old_fs);
--	switch (cmd) {
--	case PPPIOCGIDLE32:
--		if (err)
--			return err;
--		idle32.xmit_idle = idle.xmit_idle;
--		idle32.recv_idle = idle.recv_idle;
--		if (copy_to_user((struct ppp_idle32 *)arg, &idle32, sizeof(struct ppp_idle32)))
--			return -EFAULT;
--		break;
--	case PPPIOCSCOMPRESS32:
--		kfree(data.ptr);
--		break;
--	default:
-+		err = -EINVAL;
- 		break;
--	}
-+	};
-+
- 	return err;
- }
- 
-@@ -1429,12 +1380,6 @@
- 	return err ? -EFAULT: 0;
- }
- 
--struct cdrom_read32 {
--	compat_int_t	cdread_lba;
--	compat_caddr_t	cdread_bufaddr;
--	compat_int_t	cdread_buflen;
--};
--
- struct cdrom_read_audio32 {
- 	union cdrom_addr	addr;
- 	u8			addr_format;
-@@ -1448,60 +1393,94 @@
- 	compat_uint_t	buflen;
- 	compat_int_t	stat;
- 	compat_caddr_t	sense;
--	compat_caddr_t	reserved[3];	/* Oops? it has data_direction, quiet and timeout fields? */
--};
-+	unsigned char	data_direction;
-+	compat_int_t	quiet;
-+	compat_int_t	timeout;
-+	compat_caddr_t	reserved[1];
-+};
-+  
-+static int cdrom_do_read_audio(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct cdrom_read_audio *cdread_audio;
-+	struct cdrom_read_audio32 *cdread_audio32;
-+	__u32 data;
-+	void *datap;
-+
-+	cdread_audio = compat_alloc_user_space(sizeof(*cdread_audio));
-+	cdread_audio32 = (struct cdrom_read_audio32 *) arg;
-+
-+	if (copy_in_user(&cdread_audio->addr,
-+			 &cdread_audio32->addr,
-+			 (sizeof(*cdread_audio32) -
-+			  sizeof(compat_caddr_t))))
-+	 	return -EFAULT;
-+
-+	if (get_user(data, &cdread_audio32->buf))
-+		return -EFAULT;
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, &cdread_audio->buf))
-+		return -EFAULT;
-+
-+	return sys_ioctl(fd, cmd, (unsigned long) cdread_audio);
-+}
-+
-+static int __cgc_do_ptr(void **ptr64, __u32 *ptr32)
-+{
-+	u32 data;
-+	void *datap;
-+
-+	if (get_user(data, ptr32))
-+		return -EFAULT;
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, ptr64))
-+		return -EFAULT;
-+
-+	return 0;
-+}
-+
-+static int cdrom_do_generic_command(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct cdrom_generic_command *cgc;
-+	struct cdrom_generic_command32 *cgc32;
-+	unsigned char dir;
-+
-+	cgc = compat_alloc_user_space(sizeof(*cgc));
-+	cgc32 = (struct cdrom_generic_command32 *) arg;
-+
-+	if (copy_in_user(&cgc->cmd, &cgc32->cmd, sizeof(cgc->cmd)) ||
-+	    __cgc_do_ptr((void **) &cgc->buffer, &cgc32->buffer) ||
-+	    copy_in_user(&cgc->buflen, &cgc32->buflen,
-+			 (sizeof(unsigned int) + sizeof(int))) ||
-+	    __cgc_do_ptr((void **) &cgc->sense, &cgc32->sense))
-+		return -EFAULT;
-+
-+	if (get_user(dir, &cgc->data_direction) ||
-+	    put_user(dir, &cgc32->data_direction))
-+		return -EFAULT;
-+
-+	if (copy_in_user(&cgc->quiet, &cgc32->quiet,
-+			 2 * sizeof(int)))
-+		return -EFAULT;
-+
-+	if (__cgc_do_ptr(&cgc->reserved[0], &cgc32->reserved[0]))
-+		return -EFAULT;
-+
-+	return sys_ioctl(fd, cmd, (unsigned long) cgc);
-+}
- 
- static int cdrom_ioctl_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	mm_segment_t old_fs = get_fs();
--	struct cdrom_read cdread;
--	struct cdrom_read_audio cdreadaudio;
--	struct cdrom_generic_command cgc;
--	compat_caddr_t addr;
--	char *data = 0;
--	void *karg;
--	int err = 0;
-+	int err;
- 
- 	switch(cmd) {
--	case CDROMREADMODE2:
--	case CDROMREADMODE1:
--	case CDROMREADRAW:
--	case CDROMREADCOOKED:
--		karg = &cdread;
--		err = __get_user(cdread.cdread_lba, &((struct cdrom_read32 *)arg)->cdread_lba);
--		err |= __get_user(addr, &((struct cdrom_read32 *)arg)->cdread_bufaddr);
--		err |= __get_user(cdread.cdread_buflen, &((struct cdrom_read32 *)arg)->cdread_buflen);
--		if (err)
--			return -EFAULT;
--		if (verify_area(VERIFY_WRITE, compat_ptr(addr), cdread.cdread_buflen))
--			return -EFAULT;
--		cdread.cdread_bufaddr = compat_ptr(addr);
--		break;
- 	case CDROMREADAUDIO:
--		karg = &cdreadaudio;
--		err = copy_from_user(&cdreadaudio.addr, &((struct cdrom_read_audio32 *)arg)->addr, sizeof(cdreadaudio.addr));
--		err |= __get_user(cdreadaudio.addr_format, &((struct cdrom_read_audio32 *)arg)->addr_format);
--		err |= __get_user(cdreadaudio.nframes, &((struct cdrom_read_audio32 *)arg)->nframes); 
--		err |= __get_user(addr, &((struct cdrom_read_audio32 *)arg)->buf);
--		if (err)
--			return -EFAULT;
--		
--
--		if (verify_area(VERIFY_WRITE, compat_ptr(addr), cdreadaudio.nframes*2352))
--			return -EFAULT;
--		cdreadaudio.buf = compat_ptr(addr);
-+		err = cdrom_do_read_audio(fd, cmd, arg);
- 		break;
-+
- 	case CDROM_SEND_PACKET:
--		karg = &cgc;
--		err = copy_from_user(cgc.cmd, &((struct cdrom_generic_command32 *)arg)->cmd, sizeof(cgc.cmd));
--		err |= __get_user(addr, &((struct cdrom_generic_command32 *)arg)->buffer);
--		err |= __get_user(cgc.buflen, &((struct cdrom_generic_command32 *)arg)->buflen);
--		if (err)
--			return -EFAULT;
--		if (verify_area(VERIFY_WRITE, compat_ptr(addr), cgc.buflen))
--			return -EFAULT;
--		cgc.buffer = compat_ptr(addr);
-+		err = cdrom_do_generic_command(fd, cmd, arg);
- 		break;
-+
- 	default:
- 		do {
- 			static int count;
-@@ -1510,14 +1489,11 @@
- 				       "cmd(%08x) arg(%08x)\n",
- 				       (int)fd, (unsigned int)cmd, (unsigned int)arg);
- 		} while(0);
--		return -EINVAL;
--	}
--	set_fs (KERNEL_DS);
--	err = sys_ioctl (fd, cmd, (unsigned long)karg);
--	set_fs (old_fs);
--	if (data)
--		kfree(data);
--	return err ? -EFAULT : 0;
-+		err = -EINVAL;
-+		break;
-+	};
-+
-+	return err;
- }
- 
- struct loop_info32 {
-@@ -1547,7 +1523,6 @@
- 		err |= __get_user(l.lo_device, &((struct loop_info32 *)arg)->lo_device);
- 		err |= __get_user(l.lo_inode, &((struct loop_info32 *)arg)->lo_inode);
- 		err |= __get_user(l.lo_rdevice, &((struct loop_info32 *)arg)->lo_rdevice);
--		
- 		err |= __copy_from_user((char *)&l.lo_offset, (char *)&((struct loop_info32 *)arg)->lo_offset,
- 					   8 + (unsigned long)l.lo_init - (unsigned long)&l.lo_offset);
- 		if (err) {
-@@ -1792,68 +1767,62 @@
- 
- static int do_atm_iobuf(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	struct atm_iobuf32 iobuf32;
--	struct atm_iobuf   iobuf = { 0, NULL };
--	mm_segment_t old_fs;
--	int err;
-+	struct atm_iobuf   *iobuf;
-+	struct atm_iobuf32 *iobuf32;
-+	u32 data;
-+	void *datap;
-+	int len, err;
- 
--	err = copy_from_user(&iobuf32, (struct atm_iobuf32*)arg,
--	    sizeof(struct atm_iobuf32));
--	if (err)
-+	iobuf = compat_alloc_user_space(sizeof(*iobuf));
-+	iobuf32 = (struct atm_iobuf32 *) arg;
-+
-+	if (get_user(len, &iobuf32->length) ||
-+	    get_user(data, &iobuf32->buffer))
-+		return -EFAULT;
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(len, &iobuf->length) ||
-+	    put_user(datap, &iobuf->buffer))
- 		return -EFAULT;
- 
--	iobuf.length = iobuf32.length;
-+	err = sys_ioctl(fd, cmd, (unsigned long)iobuf);
- 
--	if (iobuf32.buffer == (compat_caddr_t) NULL || iobuf32.length == 0) {
--		iobuf.buffer = (void*)(unsigned long)iobuf32.buffer;
--	} else {
--		iobuf.buffer = compat_ptr(iobuf32.buffer);
--		if (verify_area(VERIFY_WRITE, iobuf.buffer, iobuf.length))
--			return -EINVAL;
-+	if (!err) {
-+		if (copy_in_user(&iobuf32->length, &iobuf->length,
-+				 sizeof(int)))
-+			err = -EFAULT;
- 	}
- 
--	old_fs = get_fs(); set_fs (KERNEL_DS);
--	err = sys_ioctl (fd, cmd, (unsigned long)&iobuf);      
--	set_fs (old_fs);
--        if(!err)
--	err = __put_user(iobuf.length, &(((struct atm_iobuf32*)arg)->length));
--
- 	return err;
- }
- 
--
- static int do_atmif_sioc(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--        struct atmif_sioc32 sioc32;
--        struct atmif_sioc   sioc = { 0, 0, NULL };
--        mm_segment_t old_fs;
--        int err;
-+        struct atmif_sioc   *sioc;
-+	struct atmif_sioc32 *sioc32;
-+	u32 data;
-+	void *datap;
-+	int err;
-         
--        err = copy_from_user(&sioc32, (struct atmif_sioc32*)arg,
--			     sizeof(struct atmif_sioc32));
--        if (err)
--                return -EFAULT;
-+	sioc = compat_alloc_user_space(sizeof(*sioc));
-+	sioc32 = (struct atmif_sioc32 *) arg;
- 
--        sioc.number = sioc32.number;
--        sioc.length = sioc32.length;
--        
--	if (sioc32.arg == (compat_caddr_t) NULL || sioc32.length == 0) {
--		sioc.arg = (void*)(unsigned long)sioc32.arg;
--        } else {
--		sioc.arg = compat_ptr(sioc32.arg);
--		if (verify_area(VERIFY_WRITE, sioc.arg, sioc32.length))
--			return -EFAULT;
--        }
--        
--        old_fs = get_fs(); set_fs (KERNEL_DS);
--        err = sys_ioctl (fd, cmd, (unsigned long)&sioc);	
--        set_fs (old_fs);
--	if (!err)
--        err = __put_user(sioc.length, &(((struct atmif_sioc32*)arg)->length));
-+	if (copy_in_user(&sioc->number, &sioc32->number, 2 * sizeof(int)) ||
-+	    get_user(data, &sioc32->arg))
-+		return -EFAULT;
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, &sioc->arg))
-+		return -EFAULT;
-+
-+	err = sys_ioctl(fd, cmd, (unsigned long) sioc);
-+
-+	if (!err) {
-+		if (copy_in_user(&sioc32->length, &sioc->length,
-+				 sizeof(int)))
-+			err = -EFAULT;
-+	}
- 	return err;
- }
- 
--
- static int do_atm_ioctl(unsigned int fd, unsigned int cmd32, unsigned long arg)
- {
-         int i;
-@@ -1871,15 +1840,14 @@
- 		return do_atmif_sioc(fd, cmd32, arg);
- 	}
- 
--		for (i = 0; i < NR_ATM_IOCTL; i++) {
--			if (cmd32 == atm_ioctl_map[i].cmd32) {
--				cmd = atm_ioctl_map[i].cmd;
--				break;
--			}
-+	for (i = 0; i < NR_ATM_IOCTL; i++) {
-+		if (cmd32 == atm_ioctl_map[i].cmd32) {
-+			cmd = atm_ioctl_map[i].cmd;
-+			break;
- 		}
--	        if (i == NR_ATM_IOCTL) {
-+	}
-+	if (i == NR_ATM_IOCTL)
- 	        return -EINVAL;
--	        }
-         
-         switch (cmd) {
- 	case ATM_GETNAMES:
-@@ -2310,36 +2278,33 @@
- 
- static int mtd_rw_oob(unsigned int fd, unsigned int cmd, unsigned long arg)
- {
--	mm_segment_t 			old_fs 	= get_fs();
--	struct mtd_oob_buf32	*uarg 	= (struct mtd_oob_buf32 *)arg;
--	struct mtd_oob_buf		karg;
--	u32 tmp;
--	int ret;
-+	struct mtd_oob_buf	*buf = compat_alloc_user_space(sizeof(*buf));
-+	struct mtd_oob_buf32	*buf32 = (struct mtd_oob_buf32 *) arg;
-+	u32 data;
-+	char *datap;
-+	unsigned int real_cmd;
-+	int err;
- 
--	if (get_user(karg.start, &uarg->start) 		||
--	    get_user(karg.length, &uarg->length)	||
--	    get_user(tmp, &uarg->ptr))
--		return -EFAULT;
-+	real_cmd = (cmd == MEMREADOOB32) ?
-+		MEMREADOOB : MEMWRITEOOB;
- 
--	karg.ptr = compat_ptr(tmp); 
--	if (verify_area(VERIFY_WRITE, karg.ptr, karg.length))
-+	if (copy_in_user(&buf->start, &buf32->start,
-+			 2 * sizeof(u32)) ||
-+	    get_user(data, &buf32->ptr))
-+		return -EFAULT;
-+	datap = (void *) (unsigned long) data;
-+	if (put_user(datap, &buf->ptr))
- 		return -EFAULT;
- 
--	set_fs(KERNEL_DS);
--	if (MEMREADOOB32 == cmd) 
--		ret = sys_ioctl(fd, MEMREADOOB, (unsigned long)&karg);
--	else if (MEMWRITEOOB32 == cmd)
--		ret = sys_ioctl(fd, MEMWRITEOOB, (unsigned long)&karg);
--	else
--		ret = -EINVAL;
--	set_fs(old_fs);
-+	err = sys_ioctl(fd, real_cmd, (unsigned long) buf);
- 
--	if (0 == ret && cmd == MEMREADOOB32) {
--		ret = put_user(karg.start, &uarg->start);
--		ret |= put_user(karg.length, &uarg->length);
-+	if (!err) {
-+		if (copy_in_user(&buf32->start, &buf->start,
-+				 2 * sizeof(u32)))
-+			err = -EFAULT;
- 	}
- 
--	return ret;
-+	return err;
- }	
- 
- #undef CODE
-@@ -2426,12 +2391,7 @@
- HANDLE_IOCTL(MTIOCPOS32, mt_ioctl_trans)
- HANDLE_IOCTL(MTIOCGETCONFIG32, mt_ioctl_trans)
- HANDLE_IOCTL(MTIOCSETCONFIG32, mt_ioctl_trans)
--HANDLE_IOCTL(CDROMREADMODE2, cdrom_ioctl_trans)
--HANDLE_IOCTL(CDROMREADMODE1, cdrom_ioctl_trans)
--HANDLE_IOCTL(CDROMREADRAW, cdrom_ioctl_trans)
--HANDLE_IOCTL(CDROMREADCOOKED, cdrom_ioctl_trans)
- HANDLE_IOCTL(CDROMREADAUDIO, cdrom_ioctl_trans)
--HANDLE_IOCTL(CDROMREADALL, cdrom_ioctl_trans)
- HANDLE_IOCTL(CDROM_SEND_PACKET, cdrom_ioctl_trans)
- HANDLE_IOCTL(LOOP_SET_STATUS, loop_status)
- HANDLE_IOCTL(LOOP_GET_STATUS, loop_status)
+Too much memory has gone to Slab. cat /proc/slabinfo follows bellow.
+
+After a while the kernel hangs, and after rebooting my /var/log/messages 
+has this as the last output:
+
+May 29 15:10:06 bongani1 last message repeated 689 times
+May 29 15:10:06 bongani1 kernel: e:0x20
+May 29 15:10:06 bongani1 kernel: lisa: page allocation failure. order:0, mode:0x20
+
+I was running a couple of applications Mozilla-mail, KDE, Some Java Application Server ...
+When I load the a application, some memory is freed from the Slabs. The PC was just 
+sitting there both times running those applications and both times I returned and found it
+ hanging.
+
+cat /proc/slabinfo looks like this
+
+slabinfo - version: 2.0 (statistics)
+# name            active_objs num_objs objsize objperslab pagesperslab
+#! tunables       batchcount limit sharedfactor
+#! slabdata       active_slabs num_slabs sharedavail
+#! globalstat     listallocs maxobjs grown reaped error maxfreeable freelimit
+#! cpustat N      allochit allocmiss freehit freemiss
+unix_sock            125    128   4096    1    1
+! tunables            24   12    0
+! slabdata           125    128      0
+! globalstat         193    133   165   37    0    0   25
+! cpustat   0       2699    186   2760      0
+ip_mrt_cache           0      0     88   43    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   75
+tcp_tw_bucket          2     29    132   29    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          48     18     2    1    0    0   61
+! cpustat   0          3      3      4      0
+tcp_bind_bucket       11    123     28  123    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          80     27     1    0    0    0  155
+! cpustat   0         10      5      4      0
+tcp_open_request       0      0     96   40    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat          48     16     3    3    0    0   72
+! cpustat   0          3      3      6      0
+inet_peer_cache        6     71     52   71    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          80     21     1    0    0    0  103
+! cpustat   0          1      5      0      0
+secpath4_cache         0      0    136   28    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   60
+xfrm_dst_cache         0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+ip_fib_hash           10    123     28  123    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          32     25     1    0    0    0  155
+! cpustat   0         17      2      9      0
+ip_dst_cache       19470  19470   4096    1    1
+! tunables            24   12    0
+! slabdata         19470  19470      0
+! globalstat       69869  32578 69655  220    0   25   25
+! cpustat   0        288  69681  46319   4181
+arp_cache            211    459    140   27    1
+! tunables            32   16    0
+! slabdata            17     17      0
+! globalstat         544    513    19    0    0    0   59
+! cpustat   0        475     41    295     10
+raw4_sock              0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+udp_sock              10     10   4096    1    1
+! tunables            24   12    0
+! slabdata            10     10      0
+! globalstat          15     12    13    3    0    0   25
+! cpustat   0         18     15     23      0
+tcp_sock              15     15   4096    1    1
+! tunables            24   12    0
+! slabdata            15     15      0
+! globalstat          50     18    41   26    0    0   25
+! cpustat   0       1899     50   1934      0
+flow_cache             0      0    104   36    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   68
+uhci_urb_priv          0      0     72   53    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   85
+udf_inode_cache        0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+smb_request            0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+smb_inode_cache        0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+devfsd_event           0      0     32  112    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat         270    128     4    3    0    0  144
+! cpustat   0        608     17    615     10
+isofs_inode_cache      0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+fat_inode_cache        0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+ext2_inode_cache       0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           7      7     7    7    0    0   25
+! cpustat   0          0      7      7      0
+ext2_xattr             0      0     56   66    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   98
+journal_handle         9     90     40   90    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat         144     16     5    4    0    0  122
+! cpustat   0      33806      9  33815      0
+journal_head        1240   1647     60   61    1
+! tunables            32   16    0
+! slabdata            27     27      0
+! globalstat       10764   1756    31    0    0    1   93
+! cpustat   0      11463    679  10348    578
+revoke_table           2    144     24  144    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          16     16     1    0    0    0  176
+! cpustat   0          1      1      0      0
+revoke_record          0      0     28  123    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat         224     89     5    5    0    0  155
+! cpustat   0        177     14    184      7
+ext3_inode_cache   26178  26179   4096    1    1
+! tunables            24   12    0
+! slabdata         26178  26179      0
+! globalstat       29765  27105 29416   21    0   25   25
+! cpustat   0       1218  29457   4199    298
+ext3_xattr             0      0     56   66    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   98
+dquot                  0      0    116   33    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   65
+eventpoll_pwq          0      0     48   77    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0  109
+eventpoll_epi          0      0     84   45    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   77
+async_poll             0      0     44   84    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0  116
+kioctx                 0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+kiocb                  0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+dnotify_cache         44    224     32  112    1
+! tunables            32   16    0
+! slabdata             2      2      0
+! globalstat         352    218     2    0    0    0  144
+! cpustat   0        330     22    298     16
+file_lock_cache       12     36    104   36    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat         208     31     1    0    0    0   68
+! cpustat   0       2066     13   2067      0
+fasync_cache           1    123     28  123    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          64     16     4    3    0    0  155
+! cpustat   0          0      4      3      0
+shmem_inode_cache      2      2   4096    1    1
+! tunables            24   12    0
+! slabdata             2      2      0
+! globalstat          10      4     8    6    0    0   25
+! cpustat   0         12      9     19      0
+idr_layer_cache        0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+posix_timers_cache      0      0     88   43    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   75
+uid_cache              5     99     36   99    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          32     20     1    0    0    0  131
+! cpustat   0          3      2      0      0
+cfq_pool              64     84     44   84    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          64     64     1    0    0    0  116
+! cpustat   0         60      4      0      0
+crq_pool               0      0     48   77    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0  109
+as_arq                39     53     72   53    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat         984    159     6    3    0    1   85
+! cpustat   0      17326     65  17327     44
+deadline_drq           0      0     60   61    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   93
+blkdev_requests       26     26   4096    1    1
+! tunables            24   12    0
+! slabdata            26     26      0
+! globalstat         881    157   547  131    0   25   25
+! cpustat   0      16804    587  17307     64
+biovec-BIO_MAX_PAGES    256    256   4096    1    1
+! tunables            24   12    0
+! slabdata           256    256      0
+! globalstat         438    306   370   91    0   25   25
+! cpustat   0        116    380    236      4
+biovec-128           256    256   4096    1    1
+! tunables            24   12    0
+! slabdata           256    256      0
+! globalstat         365    276   325   69    0    0   25
+! cpustat   0        200    333    277      0
+biovec-64            256    256   4096    1    1
+! tunables            24   12    0
+! slabdata           256    256      0
+! globalstat         397    285   365  109    0   12   25
+! cpustat   0        437    371    549      3
+biovec-16            258    260   4096    1    1
+! tunables            24   12    0
+! slabdata           258    260      0
+! globalstat         336    267   311   51    0    0   25
+! cpustat   0       1118    317   1179      0
+biovec-4             256    305     60   61    1
+! tunables            32   16    0
+! slabdata             5      5      0
+! globalstat         420    275     5    0    0    0   93
+! cpustat   0       1339     27   1110      0
+biovec-1             274    432     24  144    1
+! tunables            32   16    0
+! slabdata             3      3      0
+! globalstat        9310    864    31    3    0    1  176
+! cpustat   0      23648    585  23431    546
+bio                  274    392     68   56    1
+! tunables            32   16    0
+! slabdata             7      7      0
+! globalstat        9998    856   105    4    0    1   88
+! cpustat   0      29127    672  28954    589
+sock_inode_cache     160    160   4096    1    1
+! tunables            24   12    0
+! slabdata           160    160      0
+! globalstat         168    160   165    5    0    0   25
+! cpustat   0       3803    168   3817      0
+skbuff_head_cache    626    651   4096    1    1
+! tunables            24   12    0
+! slabdata           626    651      0
+! globalstat        8141    874  5173   97    0   25   25
+! cpustat   0     223010   5476 227246    626
+sock                   3      3   4096    1    1
+! tunables            24   12    0
+! slabdata             3      3      0
+! globalstat           4      4     4    1    0    0   25
+! cpustat   0         10      4     11      0
+proc_inode_cache     230    230   4096    1    1
+! tunables            24   12    0
+! slabdata           230    230      0
+! globalstat         370    230   369   61    0   25   25
+! cpustat   0      10687    370  10821      9
+sigqueue              17     42   4096    1    1
+! tunables            24   12    0
+! slabdata            17     42      0
+! globalstat         213    209   213    4    0   25   25
+! cpustat   0      11150    213  11347     16
+radix_tree_node     2271   2271   4096    1    1
+! tunables            24   12    0
+! slabdata          2271   2271      0
+! globalstat        2757   2271  2510   20    0   25   25
+! cpustat   0        626   2537    854     38
+bdev_cache             6     40     96   40    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat         224    192     5    0    0    0   72
+! cpustat   0        198     16    198     10
+mnt_cache             18     53     72   53    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat          32     29     1    0    0    0   85
+! cpustat   0         24      2      8      0
+inode_cache         2953   2953   4096    1    1
+! tunables            24   12    0
+! slabdata          2953   2953      0
+! globalstat        4237   4137  4197   34    0   25   25
+! cpustat   0       1158   4203   2303    105
+dentry_cache       25891  25891   4096    1    1
+! tunables            24   12    0
+! slabdata         25891  25891      0
+! globalstat       95071  33059 82069   10    0   26   25
+! cpustat   0      38623  83540  90513   5765
+filp                1341   1392    132   29    1
+! tunables            32   16    0
+! slabdata            48     48      0
+! globalstat        3821   1437    53    1    0    1   61
+! cpustat   0      50750    249  49504    155
+names_cache            8      8   4096    1    1
+! tunables            24   12    0
+! slabdata             8      8      0
+! globalstat           9      8     8    0    0    0   25
+! cpustat   0     293086      9 293095      0
+buffer_head         6327   6588     60   61    1
+! tunables            32   16    0
+! slabdata           108    108      0
+! globalstat       14121   6620   111    1    0    1   93
+! cpustat   0      13983    904   8112    467
+mm_struct             59     59   4096    1    1
+! tunables            24   12    0
+! slabdata            59     59      0
+! globalstat          95     64    84   25    0    0   25
+! cpustat   0       3451     90   3483      0
+vm_area_struct      3454   3600     76   50    1
+! tunables            32   16    0
+! slabdata            72     72      0
+! globalstat       35887   3716    92    0    0    1   82
+! cpustat   0     108028   2312 104871   2027
+fs_cache              72     84     44   84    1
+! tunables            32   16    0
+! slabdata             1      1      0
+! globalstat         224     72     1    0    0    0  116
+! cpustat   0       1985     14   1942      0
+files_cache           57     57   4096    1    1
+! tunables            24   12    0
+! slabdata            57     57      0
+! globalstat          80     62    75   18    0    0   25
+! cpustat   0       1920     79   1942      0
+signal_cache          84    132     56   66    1
+! tunables            32   16    0
+! slabdata             2      2      0
+! globalstat         239     84     2    0    0    0   98
+! cpustat   0       2004     16   1951      0
+sighand_cache         63     63   4096    1    1
+! tunables            24   12    0
+! slabdata            63     63      0
+! globalstat          89     69    81   18    0    0   25
+! cpustat   0       1919     85   1941      0
+task_struct           71     71   4084    1    1
+! tunables            24   12    0
+! slabdata            71     71      0
+! globalstat          98     77    88   17    0    0   25
+! cpustat   0       1927     93   1949      0
+pte_chain          14194  14280    128   30    1
+! tunables            32   16    0
+! slabdata           476    476      0
+! globalstat       45675  14446   815    2    0    2   62
+! cpustat   0      51527   2975  38358   1957
+pgd                   59     59   4096    1    1
+! tunables            24   12    0
+! slabdata            59     59      0
+! globalstat         100     64    83   24    0    0   25
+! cpustat   0       3452     89   3483      0
+size-131072(DMA)       0      0 131072    1   32
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0    9
+size-131072            0      0 131072    1   32
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0    9
+size-65536(DMA)        0      0  65536    1   16
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0    9
+size-65536             1      1  65536    1   16
+! tunables             8    4    0
+! slabdata             1      1      0
+! globalstat           1      1     1    0    0    0    9
+! cpustat   0          0      1      0      0
+size-32768(DMA)        0      0  32768    1    8
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0    9
+size-32768             1      1  32768    1    8
+! tunables             8    4    0
+! slabdata             1      1      0
+! globalstat           2      2     2    1    0    0    9
+! cpustat   0          1      2      2      0
+size-16384(DMA)        0      0  16384    1    4
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0    9
+size-16384             0      0  16384    1    4
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat          19      6    17   17    0    0    9
+! cpustat   0        725     19    744      0
+size-8192(DMA)         0      0   8192    1    2
+! tunables             8    4    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0    9
+size-8192             11     13   8192    1    2
+! tunables             8    4    0
+! slabdata            11     13      0
+! globalstat          36     13    29   16    0    0    9
+! cpustat   0        268     35    292      0
+size-4096(DMA)         0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+size-4096             60     60   4096    1    1
+! tunables            24   12    0
+! slabdata            60     60      0
+! globalstat         297    132   248   94    0   25   25
+! cpustat   0       6288    255   6474     17
+size-2048(DMA)         0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+size-2048             81     81   4096    1    1
+! tunables            24   12    0
+! slabdata            81     81      0
+! globalstat         103     82    96   15    0    0   25
+! cpustat   0       1112    103   1138      0
+size-1024(DMA)         0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+size-1024             76     76   4096    1    1
+! tunables            24   12    0
+! slabdata            76     76      0
+! globalstat          93     88    88   12    0   12   25
+! cpustat   0      11184     91  11217      1
+size-512(DMA)          0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+size-512             641    654   4096    1    1
+! tunables            24   12    0
+! slabdata           641    654      0
+! globalstat        7999    846  5007   92    0   25   25
+! cpustat   0     136047   5307 140123    613
+size-256(DMA)          0      0   4096    1    1
+! tunables            24   12    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   25
+size-256             252    252   4096    1    1
+! tunables            24   12    0
+! slabdata           252    252      0
+! globalstat         255    252   254    2    0    0   25
+! cpustat   0      40315    255  40320      0
+size-128(DMA)          0      0    140   27    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   59
+size-128           82705  94716    140   27    1
+! tunables            32   16    0
+! slabdata          3508   3508      0
+! globalstat      195853  94797  3511    0    0    0   59
+! cpustat   0     193572  13350 117172   7061
+size-64(DMA)           0      0     76   50    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0   82
+size-64              248    250     76   50    1
+! tunables            32   16    0
+! slabdata             5      5      0
+! globalstat         279    248     5    0    0    0   82
+! cpustat   0       4089     30   3893      0
+size-32(DMA)           0      0     44   84    1
+! tunables            32   16    0
+! slabdata             0      0      0
+! globalstat           0      0     0    0    0    0  116
+size-32             1324   1344     44   84    1
+! tunables            32   16    0
+! slabdata            16     16      0
+! globalstat        1516   1324    16    0    0    0  116
+! cpustat   0      53594    131  52405     12
+kmem_cache           112    120    160   24    1
+! tunables            32   16    0
+! slabdata             5      5      0
+! globalstat         112    112     5    0    0    0   56
+! cpustat   0         70     33      0      0
 
 
+--=.1bR8I+KRNXk0qa
+Content-Type: application/pgp-signature
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+1mqf+pvEqv8+FEMRAg+uAJ0VQ6+eLz9K+rtdDfyw/+oHaDV9RACdGCau
+VDvEIFF2npqH3ojqOMESi4I=
+=QQc9
+-----END PGP SIGNATURE-----
+
+--=.1bR8I+KRNXk0qa--

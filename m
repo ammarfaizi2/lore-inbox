@@ -1,55 +1,243 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262243AbSJOGk2>; Tue, 15 Oct 2002 02:40:28 -0400
+	id <S262791AbSJOGov>; Tue, 15 Oct 2002 02:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262782AbSJOGk2>; Tue, 15 Oct 2002 02:40:28 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36876 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262243AbSJOGk1>; Tue, 15 Oct 2002 02:40:27 -0400
-Date: Mon, 14 Oct 2002 23:48:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [patch, feature] nonlinear mappings, prefaulting support,
- 2.5.42-F8
-In-Reply-To: <20021015011807.GA27718@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0210142341450.5788-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262821AbSJOGov>; Tue, 15 Oct 2002 02:44:51 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19475
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262791AbSJOGos>; Tue, 15 Oct 2002 02:44:48 -0400
+Subject: Re: [PATCH] 2.4: variable HZ
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: high-res-timers-discourse@lists.sourceforge.net
+In-Reply-To: <1034661791.10843.9.camel@phantasy>
+References: <1034661791.10843.9.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Oct 2002 02:50:56 -0400
+Message-Id: <1034664656.718.8.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-10-15 at 02:03, Robert Love wrote:
 
-On Tue, 15 Oct 2002, Jamie Lokier wrote:
-> 
-> I like the SIGBUS.  Am I correct to assume that, when there is memory
-> pressure, some pages are evicted from memory and all accesses to those
-> pages from userspace will raise SIBUS until the mapping is
-> reastablished?  Am I correct to assume this works fine on /dev/shm files?
+> It works fine, and I have successfully used HZ=1000 on my machines.
 
-It should work fine, assuming the shm interface has a "populate" macro.
+Except processor usage output was screwy.
 
-The only real problem I think the interface has is that the nonlinear 
-mappings cannot have private pages in them - because while the MM would be 
-happy to swap them out, there is no sane way to get them back.
+Attached is an updated patch which fixes the problem.
 
-The private page information actually does exist in the page tables, but 
-the _protection_ does not. That's in the VMA, and since one of the whole 
-points with the nonlinear mapping is that the VMA is "anonymous", we're 
-kind of screwed.
+	Robert Love
 
-As it is, you cannot really even add private pages to the linear mapping: 
-all the page add interfaces are for shared pages only. But I could imagine 
-that it could be useful to have a "add private page here".
-
-(The "add private page here" interface might also have a "use previous 
-page if one existed" method, in which case the SIGBUS handler could just 
-use that one, and thus generate the protection information on the fly - 
-while generating the actual swap-in data from the page table entry itself)
-
-Ingo - what do you think? I suspect a anonymous ("swap-backed" as opposed
-to "backed by this file") interface might be quite useful.
-
-		Linus
+diff -urN linux-2.4.20-pre10-ac2/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.4.20-pre10-ac2/arch/i386/config.in	2002-10-14 01:43:05.000000000 -0400
++++ linux/arch/i386/config.in	2002-10-15 02:41:39.000000000 -0400
+@@ -244,6 +244,7 @@
+ mainmenu_option next_comment
+ comment 'General setup'
+ 
++int 'Timer frequency (HZ) (100)' CONFIG_HZ 100
+ bool 'Networking support' CONFIG_NET
+ 
+ # Visual Workstation support is utterly broken.
+diff -urN linux-2.4.20-pre10-ac2/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.20-pre10-ac2/Documentation/Configure.help	2002-10-14 01:43:06.000000000 -0400
++++ linux/Documentation/Configure.help	2002-10-15 02:41:40.000000000 -0400
+@@ -2411,6 +2411,18 @@
+   behaviour is platform-dependent, but normally the flash frequency is
+   a hyperbolic function of the 5-minute load average.
+ 
++Timer frequency
++CONFIG_HZ
++  The frequency the system timer interrupt pops.  Higher tick values provide
++  improved granularity of timers, improved select() and poll() performance,
++  and lower scheduling latency.  Higher values, however, increase interrupt
++  overhead and will allow jiffie wraparound sooner.  For compatibility, the
++  tick count is always exported as if HZ=100.
++
++  The default value, which was the value for all of eternity, is 100.  If
++  you are looking to provide better timer granularity or increased desktop
++  performance, try 500 or 1000.  In unsure, go with the default of 100.
++
+ Networking support
+ CONFIG_NET
+   Unless you really know what you are doing, you should say Y here.
+diff -urN linux-2.4.20-pre10-ac2/fs/proc/array.c linux/fs/proc/array.c
+--- linux-2.4.20-pre10-ac2/fs/proc/array.c	2002-10-14 01:43:10.000000000 -0400
++++ linux/fs/proc/array.c	2002-10-14 18:24:48.000000000 -0400
+@@ -360,15 +360,15 @@
+ 		task->cmin_flt,
+ 		task->maj_flt,
+ 		task->cmaj_flt,
+-		task->times.tms_utime,
+-		task->times.tms_stime,
+-		task->times.tms_cutime,
+-		task->times.tms_cstime,
++		jiffies_to_clock_t(task->times.tms_utime),
++		jiffies_to_clock_t(task->times.tms_stime),
++		jiffies_to_clock_t(task->times.tms_cutime),
++		jiffies_to_clock_t(task->times.tms_cstime),
+ 		priority,
+ 		nice,
+ 		0UL /* removed */,
+-		task->it_real_value,
+-		task->start_time,
++		jiffies_to_clock_t(task->it_real_value),
++		jiffies_to_clock_t(task->start_time),
+ 		vsize,
+ 		mm ? mm->rss : 0, /* you might want to shift this left 3 */
+ 		task->rlim[RLIMIT_RSS].rlim_cur,
+@@ -686,14 +686,14 @@
+ 
+ 	len = sprintf(buffer,
+ 		"cpu  %lu %lu\n",
+-		task->times.tms_utime,
+-		task->times.tms_stime);
++		jiffies_to_clock_t(task->times.tms_utime),
++		jiffies_to_clock_t(task->times.tms_stime));
+ 		
+ 	for (i = 0 ; i < smp_num_cpus; i++)
+ 		len += sprintf(buffer + len, "cpu%d %lu %lu\n",
+ 			i,
+-			task->per_cpu_utime[cpu_logical_map(i)],
+-			task->per_cpu_stime[cpu_logical_map(i)]);
++			jiffies_to_clock_t(task->per_cpu_utime[cpu_logical_map(i)]),
++			jiffies_to_clock_t(task->per_cpu_stime[cpu_logical_map(i)]));
+ 
+ 	return len;
+ }
+diff -urN linux-2.4.20-pre10-ac2/fs/proc/proc_misc.c linux/fs/proc/proc_misc.c
+--- linux-2.4.20-pre10-ac2/fs/proc/proc_misc.c	2002-10-14 01:43:10.000000000 -0400
++++ linux/fs/proc/proc_misc.c	2002-10-15 02:29:21.000000000 -0400
+@@ -317,16 +317,16 @@
+ {
+ 	int i, len = 0;
+ 	extern unsigned long total_forks;
+-	unsigned long jif = jiffies;
++	unsigned long jif = jiffies_to_clock_t(jiffies);
+ 	unsigned int sum = 0, user = 0, nice = 0, system = 0;
+ 	int major, disk;
+ 
+ 	for (i = 0 ; i < smp_num_cpus; i++) {
+ 		int cpu = cpu_logical_map(i), j;
+ 
+-		user += kstat.per_cpu_user[cpu];
+-		nice += kstat.per_cpu_nice[cpu];
+-		system += kstat.per_cpu_system[cpu];
++		user += jiffies_to_clock_t(kstat.per_cpu_user[cpu]);
++		nice += jiffies_to_clock_t(kstat.per_cpu_nice[cpu]);
++		system += jiffies_to_clock_t(kstat.per_cpu_system[cpu]);
+ #if !defined(CONFIG_ARCH_S390)
+ 		for (j = 0 ; j < NR_IRQS ; j++)
+ 			sum += kstat.irqs[cpu][j];
+@@ -340,10 +340,10 @@
+ 		proc_sprintf(page, &off, &len,
+ 			"cpu%d %u %u %u %lu\n",
+ 			i,
+-			kstat.per_cpu_user[cpu_logical_map(i)],
+-			kstat.per_cpu_nice[cpu_logical_map(i)],
+-			kstat.per_cpu_system[cpu_logical_map(i)],
+-			jif - (  kstat.per_cpu_user[cpu_logical_map(i)] \
++			jiffies_to_clock_t(kstat.per_cpu_user[cpu_logical_map(i)]),
++			jiffies_to_clock_t(kstat.per_cpu_nice[cpu_logical_map(i)]),
++			jiffies_to_clock_t(kstat.per_cpu_system[cpu_logical_map(i)]),
++			jif - jiffies_to_clock_t(kstat.per_cpu_user[cpu_logical_map(i)] \
+ 				   + kstat.per_cpu_nice[cpu_logical_map(i)] \
+ 				   + kstat.per_cpu_system[cpu_logical_map(i)]));
+ 	proc_sprintf(page, &off, &len,
+diff -urN linux-2.4.20-pre10-ac2/include/asm-i386/param.h linux/include/asm-i386/param.h
+--- linux-2.4.20-pre10-ac2/include/asm-i386/param.h	2002-10-14 01:33:16.000000000 -0400
++++ linux/include/asm-i386/param.h	2002-10-14 18:46:32.000000000 -0400
+@@ -1,8 +1,17 @@
+ #ifndef _ASMi386_PARAM_H
+ #define _ASMi386_PARAM_H
+ 
++#include <linux/config.h>
++
++#ifdef __KERNEL__
++# define HZ		CONFIG_HZ	/* internal kernel timer frequency */
++# define USER_HZ	100		/* some user interfaces are in ticks */
++# define CLOCKS_PER_SEC	(USER_HZ)	/* like times() */
++# define jiffies_to_clock_t(x)	((x) / ((HZ) / (USER_HZ)))
++#endif
++
+ #ifndef HZ
+-#define HZ 100
++#define HZ 100				/* if userspace cheats, give them 100 */
+ #endif
+ 
+ #define EXEC_PAGESIZE	4096
+@@ -17,8 +26,4 @@
+ 
+ #define MAXHOSTNAMELEN	64	/* max length of hostname */
+ 
+-#ifdef __KERNEL__
+-# define CLOCKS_PER_SEC	100	/* frequency at which times() counts */
+-#endif
+-
+ #endif
+diff -urN linux-2.4.20-pre10-ac2/kernel/signal.c linux/kernel/signal.c
+--- linux-2.4.20-pre10-ac2/kernel/signal.c	2002-10-14 01:43:11.000000000 -0400
++++ linux/kernel/signal.c	2002-10-14 18:24:49.000000000 -0400
+@@ -13,7 +13,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/init.h>
+ #include <linux/sched.h>
+-
++#include <asm/param.h>
+ #include <asm/uaccess.h>
+ 
+ /*
+@@ -775,8 +775,8 @@
+ 	info.si_uid = tsk->uid;
+ 
+ 	/* FIXME: find out whether or not this is supposed to be c*time. */
+-	info.si_utime = tsk->times.tms_utime;
+-	info.si_stime = tsk->times.tms_stime;
++	info.si_utime = jiffies_to_clock_t(tsk->times.tms_utime);
++	info.si_stime = jiffies_to_clock_t(tsk->times.tms_stime);
+ 
+ 	status = tsk->exit_code & 0x7f;
+ 	why = SI_KERNEL;	/* shouldn't happen */
+diff -urN linux-2.4.20-pre10-ac2/kernel/sys.c linux/kernel/sys.c
+--- linux-2.4.20-pre10-ac2/kernel/sys.c	2002-10-14 01:43:11.000000000 -0400
++++ linux/kernel/sys.c	2002-10-14 18:24:49.000000000 -0400
+@@ -15,7 +15,7 @@
+ #include <linux/prctl.h>
+ #include <linux/init.h>
+ #include <linux/highuid.h>
+-
++#include <asm/param.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+ 
+@@ -792,16 +792,23 @@
+ 
+ asmlinkage long sys_times(struct tms * tbuf)
+ {
++	struct tms temp;
++
+ 	/*
+ 	 *	In the SMP world we might just be unlucky and have one of
+ 	 *	the times increment as we use it. Since the value is an
+ 	 *	atomically safe type this is just fine. Conceptually its
+ 	 *	as if the syscall took an instant longer to occur.
+ 	 */
+-	if (tbuf)
+-		if (copy_to_user(tbuf, &current->times, sizeof(struct tms)))
++	if (tbuf) {
++		temp.tms_utime = jiffies_to_clock_t(current->times.tms_utime);
++		temp.tms_stime = jiffies_to_clock_t(current->times.tms_stime);
++		temp.tms_cutime = jiffies_to_clock_t(current->times.tms_cutime);
++		temp.tms_cstime = jiffies_to_clock_t(current->times.tms_cstime);
++		if (copy_to_user(tbuf, &temp, sizeof(struct tms)))
+ 			return -EFAULT;
+-	return jiffies;
++	}
++	return jiffies_to_clock_t(jiffies);
+ }
+ 
+ /*
 

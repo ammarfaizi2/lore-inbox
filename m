@@ -1,130 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVDET71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVDET74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbVDET71 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVDESar
+	id S261869AbVDET74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVDESaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:30:47 -0400
-Received: from alog0232.analogic.com ([208.224.220.247]:52958 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261848AbVDESSh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:18:37 -0400
-Date: Tue, 5 Apr 2005 14:17:58 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Josselin Mouette <joss@debian.org>
-cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-In-Reply-To: <1112723637.4878.14.camel@mirchusko.localnet>
-Message-ID: <Pine.LNX.4.61.0504051408190.17159@chaos.analogic.com>
-References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>
- <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
- <1112723637.4878.14.camel@mirchusko.localnet>
+	Tue, 5 Apr 2005 14:30:20 -0400
+Received: from mx2.suse.de ([195.135.220.15]:20125 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261885AbVDESVs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:21:48 -0400
+Message-ID: <4252D6F8.6000707@suse.de>
+Date: Tue, 05 Apr 2005 20:20:40 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-1327475389-1112725078=:17159"
+To: Jaco Kroon <jaco@kroon.co.za>
+Cc: linux-kernel@vger.kernel.org, Sebastian Piechocki <sebekpi@poczta.onet.pl>,
+       dtor_core@ameritech.net
+Subject: Re: i8042 controller on Toshiba Satellite P10 notebook - patch
+References: <425166F9.1040800@kroon.co.za>	 <d120d5000504040954354fb3fa@mail.gmail.com>	 <42517442.20602@kroon.co.za>	 <d120d500050404110374fe9deb@mail.gmail.com>	 <4251A515.8040802@kroon.co.za>	 <d120d500050404140253a77ab8@mail.gmail.com>	 <4251B6E2.3010506@kroon.co.za> <d120d50005040415506cd87287@mail.gmail.com> <4251D3CB.4010501@kroon.co.za>
+In-Reply-To: <4251D3CB.4010501@kroon.co.za>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Jaco Kroon wrote:
+> Dmitry Torokhov wrote:
 
---1879706418-1327475389-1112725078=:17159
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+>>>OT:  I think I prefer synaptics multi-finger tapping to the tapping in
+>>>specific locations to get right and middle clicking, but that is another
+>>>story that probably has nothing to do with the kernel, and quite likely
+>>>something that is configurable in the synaptics xorg driver.
+>> 
+>> You should be able to control that in xorg.conf.
+> 
+> My thoughts exactly.  The same goes for gpm.
 
-On Tue, 5 Apr 2005, Josselin Mouette wrote:
+No. AFAIK multifinger taps are handled by the touchpad firmware, but not
+on ALPS touchpads, only on synaptics.
 
-> Le mardi 05 avril 2005 =FF=FF 11:50 -0400, Richard B. Johnson a =FF=FFcri=
-t :
->>>> You are mixing apples and oranges. The fact that the GFDL sucks has
->>>> nothing to do with the firmware issue. With the current situation of
->>>> firmwares in the kernel, it is illegal to redistribute binary images o=
-f
->>>> the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may stil=
-l
->>>> be willing to distribute such binary images, but it isn't our problem.
->>>>
->>
->> Wrong! It is perfectly legal in the United States, and I'm pretty
->> sure in your country, to distribute or redistribute copyrighted
->> works. Otherwise there wouldn't be any bookstores or newspaper
->> stands.
->
-> It is not legal to distribute the mix of a GPL software (the Linux
-> kernel) and a proprietary file (the firmware). I wasn't aware of the
-> "mere aggregation" interpretation, and I'm probably a bit late to say I
-> disagree with it - mainly because you'd have a hard time convincing a
-> court this is the case.
->
->> There is nothing about firmware that is any different than any
->> other component of a product. If the product was legally obtained
->> and it requires firmware to run, then there are no special
->> considerations about how one inserts the firmware into the
->> product.
->
-> Indeed, but that's not what I'm talking about.
->
->> If you are a GPL-religious-zealot who believes that you are
->> supposed to get the technical design (i.e. the software schematics)
->> of the hardware device for free so you can copy it, then you are
->> going to have to learn something about intellectual property.
->
-> Maybe you should try to understand what people are saying before
-> teaching them anything.
->
->> The firmware, in most cases, are the bits generated by a design
->> program that creates the function of the device. It's what the
->> manufacturer paid 5-10 engineers over a period of a year or so
->> to produce. The rest of the design is just some chips you
->> can get off-the-shelf. Even if the manufacturer said; "Here you
->> are.... You can have the design....". You don't have the
->> "compilers" and other stuff necessary to turn this design
->> into the firmware unless you planned to steal the design.
->>
->> So, you either accept the firmware component, thanking the
->> manufacturer for it, or you go cry foul someplace else. This
->> whole firmware thing is a non-issue, blown way out of
->> proportion by people who don't have a clue.
->
-> You are completely missing the point. I don't care whether the firmwares
-> should be free, or whether they could be free. The fact is they are not
-> free, and Debian doesn't distribute non-free software in the "main"
-> archive. The fact is also that mixing them with a GPLed software gives
-> an result you can't redistribute - although it seems many people
-> disagree with that assertion now.
->
+Regards,
 
-As previously explained, if I buy a screen-card I get a driver
-that will allow it to run under Windows. If I extract the stuff
-from that driver that allows me to run it under Linux, that
-constitutes fair use. Otherwise there are criminal issues like
-restraint-of-trade and similar problems for the manufacturer.
-That firmware is free for use on/in the device you purchased.
-
-> Finally, you shouldn't forget that, technically speaking, using hotplug
-> for uploading the firmware is much more flexible and elegant than
-> including it in the kernel. Upgrading the firmware and the module should
-> be two independent operations. People who are advocating the current
-> situation are refusing technical improvements just because they are
-> brought by people they find convenient to call "zealots".
-
-Throwing in a bit of truth to a pile of bullshit still leaves
-the bullshit. It isn't relevant to the issue whether or not
-upgrading firmware as a separate function from loading a module
-is "good" or "bad".
-
-> --=20
-> .''`.           Josselin Mouette        /\./\
-> : :' :           josselin.mouette@ens-lyon.org
-> `. `'                        joss@debian.org
->  `-  Debian GNU/Linux -- The power of freedom
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-1327475389-1112725078=:17159--
+   Stefan

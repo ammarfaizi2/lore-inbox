@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311714AbSCNS1H>; Thu, 14 Mar 2002 13:27:07 -0500
+	id <S311716AbSCNS21>; Thu, 14 Mar 2002 13:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311716AbSCNS05>; Thu, 14 Mar 2002 13:26:57 -0500
-Received: from zero.tech9.net ([209.61.188.187]:15883 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S311714AbSCNS0q>;
-	Thu, 14 Mar 2002 13:26:46 -0500
-Subject: Re: Linux 2.4 and BitKeeper
-From: Robert Love <rml@tech9.net>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Larry McVoy <lm@bitmover.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C90E994.2030702@candelatech.com>
-In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva>
-	<3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com>
-	 <3C90E994.2030702@candelatech.com>
-Content-Type: text/plain
+	id <S311717AbSCNS2R>; Thu, 14 Mar 2002 13:28:17 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:19819 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S311716AbSCNS2K>; Thu, 14 Mar 2002 13:28:10 -0500
+Message-ID: <3C90EB9D.617F22B0@ngforever.de>
+Date: Thu, 14 Mar 2002 11:27:41 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+Organization: The LuckyNet Administration
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.8-26mdk i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andreas Dilger <adilger@clusterfs.com>, David Rees <dbr@greenhydrant.com>
+Subject: Re: mke2fs (and mkreiserfs) core dumps
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 14 Mar 2002 13:26:40 -0500
-Message-Id: <1016130404.4289.5.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-03-14 at 13:19, Ben Greear wrote:
+Hi,
 
-> I did a clone with this.  However, I see no files, only
-> directories.  The files do seem to be in the SCCS directories,
-> but I don't know how to make them appear in their normal place.
+> If you don't have any "ulimit" calls in the login, it should also be OK.
+> It's just that some vendor startup scripts set a ulimit for non-root
+> users.  Trying to set it back to "unlimited" doesn't work.
+> 
+> Cheers, Andreas
 
-Uh that is how BK works.  The files are stored.  Try
+Not exactly, there's a trap: Some models have a
+/etc/security/limits.conf which might ulimit some stuff even though you
+don't have any direct calls to ulimit. I had already encountered this
+several times and wondered if I might consider this a misbehavior.
+Anyway, these limits don't apply to root then in the model. I don't know
+if this problem is based on that.
 
-	bk -r co
-
-to get all the files.  Omit the `-r' to check out only the current
-directory.
-
-There are some decent tutorials and such on bitmovers[1] page.
-
-[1] http://www.bitmover.com
-
-	Robert Love
-
+Thunder

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129543AbQJ3Xcx>; Mon, 30 Oct 2000 18:32:53 -0500
+	id <S129609AbQJ3Xdd>; Mon, 30 Oct 2000 18:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129609AbQJ3Xcn>; Mon, 30 Oct 2000 18:32:43 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:2053 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129162AbQJ3Xc1>; Mon, 30 Oct 2000 18:32:27 -0500
-Date: Mon, 30 Oct 2000 23:32:23 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: / on ramfs, possible?
-In-Reply-To: <39FE03B2.E3E12A23@transmeta.com>
-Message-ID: <Pine.LNX.4.21.0010302329140.16675-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129517AbQJ3XdY>; Mon, 30 Oct 2000 18:33:24 -0500
+Received: from quechua.inka.de ([212.227.14.2]:5900 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S129609AbQJ3XdL>;
+	Mon, 30 Oct 2000 18:33:11 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: /proc & xml data
+In-Reply-To: <39FCDB16.B0955558@mindspring.com>
+Date: Tue, 31 Oct 2000 00:20:45 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E13qOEP-0006NC-00@hunte.bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000, H. Peter Anvin wrote:
+> "MemTotal:  %8lu kB\n"
+> to something like
+> "<memtotal>%8lu kB</memtotal>\n"
 
-> Pardon?!  This doesn't make any sense...
-> 
-> The question was: how do switch from the initrd to using the ramfs as /? 
-> Using pivot_root should do it (after the pivot, you can of course nuke
-> the initrd ramdisk.)
+The latter form offers no significant advantage over the former at
+all - there is nothing that can be expressed as
+ <name>value</name>
+which can't also be expressed as
+ name: value
+or
+ name=value
+and the latter format is significantly easier to parse.
 
-My question is: What do you want to do that for? You can nuke the initrd
-ramdisk, but you can't drop the rd.c code, or ll_rw_blk.c code, etc. So
-why not just keep your root filesystem in the initrd where it started off?
+The only situation where XML really would be useful would be
+some need of grouping, and this is done in /proc using directories.
+(Which are also much easier to parse using existing standard tools.)
 
--- 
-dwmw2
-
+Olaf
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266063AbUFDXOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266081AbUFDXT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266063AbUFDXOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 19:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266061AbUFDXOJ
+	id S266081AbUFDXT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 19:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266061AbUFDXTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 19:14:09 -0400
-Received: from mail.kroah.org ([65.200.24.183]:467 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266070AbUFDXJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 19:09:04 -0400
-Date: Fri, 4 Jun 2004 16:07:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-bk4: empty-named directory in /sys
-Message-ID: <20040604230754.GA14330@kroah.com>
-References: <fa.damn9ec.1n4co3u@ifi.uio.no> <fa.nssco73.187q0r9@ifi.uio.no> <40C0E66B.3020509@myrealbox.com>
+	Fri, 4 Jun 2004 19:19:17 -0400
+Received: from purplechoc.demon.co.uk ([80.176.224.106]:4225 "EHLO
+	skeleton-jack.localnet") by vger.kernel.org with ESMTP
+	id S266070AbUFDXQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 19:16:42 -0400
+Date: Sat, 5 Jun 2004 00:16:25 +0100
+To: Ian Abbott <abbotti@mev.co.uk>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [PATCH] Memory leak in visor.c and ftdi_sio.c
+Message-ID: <20040604231625.GC4087@skeleton-jack>
+References: <40C08E6D.8080606@infosciences.com> <c9q8a6$hga$1@sea.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40C0E66B.3020509@myrealbox.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <c9q8a6$hga$1@sea.gmane.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Peter Horton <pdh@colonel-panic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 02:15:23PM -0700, Andy Lutomirski wrote:
-> Denis Vlasenko wrote:
+On Fri, Jun 04, 2004 at 05:34:41PM +0100, Ian Abbott wrote:
 > 
-> >On Friday 04 June 2004 23:26, Greg KH wrote:
-> >
-> >>Hm, is the hostap code in the main kernel tree now?  That's the only
-> >>thing odd that I see from your messages.  Does this happen with
-> >>2.6.7-rc2 with no extra patches?
+> A related problem with the current implementation is that is easy to 
+> run out of memory by running something similar to this:
 > 
-> This happens in 2.6.7-rc1-mm1 too, both with and without hostap (I just 
-> tried it).
+>  # cat /dev/zero > /dev/ttyUSB0
+> 
 
-Again, how about a clean Linus tree?
+I got bitten by this a couple of days ago. There is effectively no write
+flow control at all, it just sucks up memory ...
 
-I can't seem to duplicate it here with his tree...
-
-thanks,
-
-greg k-h
+P.

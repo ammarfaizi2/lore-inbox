@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTEJKNC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 06:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTEJKNB
+	id S263970AbTEJKoM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 06:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTEJKoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 06:13:01 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:55201 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S263760AbTEJKNA (ORCPT
+	Sat, 10 May 2003 06:44:12 -0400
+Received: from gw.mh.interware.hu ([195.70.49.222]:11274 "EHLO gw.home")
+	by vger.kernel.org with ESMTP id S263970AbTEJKoM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 06:13:00 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 May 2003 06:44:12 -0400
+Subject: Re: 2.5.69: VIA IDE still broken
+From: Hirling Endre <endre@interware.hu>
+To: Felix von Leitner <felix-kernel@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030508220910.GA1070@codeblau.de>
+References: <20030508220910.GA1070@codeblau.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052564202.873.9.camel@bent.home>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 May 2003 12:56:42 +0200
 Content-Transfer-Encoding: 7bit
-Message-ID: <16060.54175.634093.943752@napali.hpl.hp.com>
-Date: Sat, 10 May 2003 03:25:35 -0700
-To: arjanv@redhat.com
-Cc: davidm@hpl.hp.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: qla1280 mem-mapped I/O fix
-In-Reply-To: <1052561708.1367.0.camel@laptop.fenrus.com>
-References: <200305100951.h4A9pSAD012127@napali.hpl.hp.com>
-	<1052561708.1367.0.camel@laptop.fenrus.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 10 May 2003 12:15:08 +0200, Arjan van de Ven <arjanv@redhat.com> said:
+On Fri, 2003-05-09 at 00:09, Felix von Leitner wrote:
 
-  >> @@ -2634,7 +2634,7 @@
-  >> /*
-  >> * Get memory mapped I/O address.
-  >> */
-  >> -	pci_read_config_word (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
-  >> +	pci_read_config_dword (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
-  >> mmapbase &= PCI_BASE_ADDRESS_MEM_MASK;
+> that.  Even the CPU appears to run too hot with Linux, causing the
+> system to boot spontaneously under load, and because ACPI is terminally
+> broken in Linux and has been every time I tried it, I can't do much
+> about it.  Firewire does not like me (modprobe eth1394 -> oops), IDE
+> loses interrupts (see above), my USB mouse stops working as soon as I
+> plug in my USB hard disk (which works fine on my notebook and under
+> Windows), using my IDE CD-R causes the machine to freeze while cdrecord
+> does OTP, finalizing or eject.  The nvidia graphics card takes major
 
-  Arjan> shouldn't this be pci_resource_start() ?
+These sound like you have a weak power supply, try putting in a bigger
+one and see if it cures the problems.
 
-Probably should be.  I wanted a minimal fix, because if you start
-cleaning up qla1280, it won't stop there... ;-(
+-m-
 
-	--david

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131912AbRCYB3H>; Sat, 24 Mar 2001 20:29:07 -0500
+	id <S131976AbRCYDZn>; Sat, 24 Mar 2001 22:25:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131913AbRCYB24>; Sat, 24 Mar 2001 20:28:56 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:42504 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131912AbRCYB2o>; Sat, 24 Mar 2001 20:28:44 -0500
-Date: Sat, 24 Mar 2001 22:05:18 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ben LaHaise <bcrl@redhat.com>, Christoph Rohland <cr@sap.com>
-Subject: Re: [PATCH] Fix races in 2.4.2-ac22 SysV shared memory
-In-Reply-To: <20010325001338.C11686@redhat.com>
-Message-ID: <Pine.LNX.4.21.0103242203290.1863-100000@imladris.rielhome.conectiva>
+	id <S131979AbRCYDZd>; Sat, 24 Mar 2001 22:25:33 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:778 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131976AbRCYDZ3>; Sat, 24 Mar 2001 22:25:29 -0500
+Date: Sat, 24 Mar 2001 19:24:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <Andries.Brouwer@cwi.nl>
+cc: <alan@lxorguk.ukuu.org.uk>, <hpa@transmeta.com>, <tytso@MIT.EDU>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Larger dev_t
+In-Reply-To: <UTC200103241425.PAA08694.aeb@vlet.cwi.nl>
+Message-ID: <Pine.LNX.4.31.0103241920580.6710-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Mar 2001, Stephen C. Tweedie wrote:
 
-> Rik, do you think it is really necessary to take the page lock and
-> release it inside lookup_swap_cache?  I may be overlooking something,
-> but I can't see the benefit of it ---
 
-I don't think we need to do this, except to protect us from
-using a page which isn't up-to-date yet and locked because
-of disk IO.
+On Sat, 24 Mar 2001 Andries.Brouwer@cwi.nl wrote:
+>
+> We need a size, and I am strongly in favor of sizeof(dev_t) = 8;
+> this is already true in glibc.
 
-Reclaim_page() takes the pagecache_lock before trying to
-free anything, so there's no reason to lock against that.
+The fact that glibc is a quivering mass of bloat, and total and utter crap
+makes you suggest that the Linux kernel should try to be as similar as
+possible?
 
-regards,
+Not a very strong argument.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+There is no way in HELL I will ever accept a 64-bit dev_t.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+I _will_ accept a 32-bit dev_t, with 12 bits for major numbers, and 20
+bits for minor numbers.
+
+If people cannot fit their data in that size, they have some serious
+problems. And for people who think that you should have meaningful minor
+numbers where the bit patterns get split up some way, I can only say "get
+a frigging clue". That's what you have filesystem namespaces for. Don't
+try to make binary name-spaces.
+
+And I don't care one _whit_ about the fact that Ulrich Drepper thinks that
+it's a good idea to make things too large.
+
+		Linus
 

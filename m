@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293043AbSCEANw>; Mon, 4 Mar 2002 19:13:52 -0500
+	id <S293040AbSCEAQZ>; Mon, 4 Mar 2002 19:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293040AbSCEANk>; Mon, 4 Mar 2002 19:13:40 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12305 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293043AbSCEAMh>;
-	Mon, 4 Mar 2002 19:12:37 -0500
-Date: Mon, 4 Mar 2002 21:12:25 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Stephan von Krawczynski <skraw@ithnet.com>, <phillips@bonn-fries.net>,
-        <davidsen@tmr.com>, <mfedyk@matchmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020304230603.O20606@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203042111150.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293049AbSCEAQQ>; Mon, 4 Mar 2002 19:16:16 -0500
+Received: from ns.suse.de ([213.95.15.193]:65298 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S293040AbSCEAQJ>;
+	Mon, 4 Mar 2002 19:16:09 -0500
+Date: Tue, 5 Mar 2002 01:16:04 +0100
+From: Dave Jones <davej@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: =?iso-8859-1?Q?Sebastian_Dr=F6ge?= <sebastian.droege@gmx.de>,
+        linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: [2.5.5-dj2] USB keyboard strangeness and ALSA error
+Message-ID: <20020305011604.G23524@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Greg KH <greg@kroah.com>,
+	=?iso-8859-1?Q?Sebastian_Dr=F6ge?= <sebastian.droege@gmx.de>,
+	linux-kernel@vger.kernel.org, vojtech@suse.cz
+In-Reply-To: <20020304211949.26f188ac.sebastian.droege@gmx.de> <20020304223530.GA5280@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020304223530.GA5280@kroah.com>; from greg@kroah.com on Mon, Mar 04, 2002 at 02:35:31PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
-> On Mon, Mar 04, 2002 at 10:46:54AM -0800, Martin J. Bligh wrote:
+On Mon, Mar 04, 2002 at 02:35:31PM -0800, Greg KH wrote:
+ > > I've following problems with 2.5.5-dj2:
+ > > If I try to enable numlock I get this message: hid-core.c: control queue full
+ > > and the numlock LED doesn't shine but numlock is enabled
+ > > This is on a USB keyboard (Cherry xyz... the one with included USB hub)
+ > > While booting I get this message: hid-core.c: ctrl urb status -32 received
+ > 
+ > Can you please try 2.5.6-pre2 and let us know if you still have the USB
+ > problem with that kernel?
 
-> > seems to me to be that the way we do current swap-out scanning is virtual,
-> > not physical, and thus cannot be per zone => per node.
->
-> actually if you do process bindings the pte should be all allocated
-> local to the node if numa is enabled, and if there's no binding, no
-> matter if you have rmap or not, the ptes can be spread across the whole
-> system (just like the physical pages in the inactive/active lrus,
-> because they're not per-node).
+ My money is on it being ok. -dj has vojtech's various new input layer
+ trickery, which I'm suspecting is the real cause of the problem.
 
-Think shared pages.
-
-With -rmap you'll scan all the page table entries mapping
-the pages on the current node, regardless of which node
-the page tables live.
-
-Without -rmap you'll need to scan all page table entries
-in the system, not just the ones mapping pages on the
-current node.
-
-regards,
-
-Rik
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbTJTOyX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 10:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbTJTOyW
+	id S262569AbTJTPIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbTJTPIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 10:54:22 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:59338 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S262603AbTJTOyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 10:54:18 -0400
-Date: Mon, 20 Oct 2003 16:53:16 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: Meelis Roos <mroos@linux.ee>
+	Mon, 20 Oct 2003 11:08:18 -0400
+Received: from www01.ies.inet6.fr ([62.210.153.201]:8646 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262569AbTJTPIR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 11:08:17 -0400
+Message-ID: <3F93FA5E.2020300@inet6.fr>
+Date: Mon, 20 Oct 2003 17:08:14 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: konsti@ludenkalle.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Uncorrectable Error on IDE, significant accumulation
-Message-ID: <20031020145316.GB593@synertronixx3>
-Reply-To: konsti@ludenkalle.de
-References: <20031020132705.GA1171@synertronixx3> <E1ABaqY-0000jn-NG@rhn.tartu-labor>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1ABaqY-0000jn-NG@rhn.tartu-labor>
-X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
-User-Agent: Mutt/1.5.4i
+References: <20031020132705.GA1171@synertronixx3> <3F93E728.5050908@inet6.fr> <20031020144822.GA593@synertronixx3>
+In-Reply-To: <20031020144822.GA593@synertronixx3>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 05:17:22PM +0300, Meelis Roos wrote:
+Konstantin Kletschke wrote the following on 10/20/2003 04:48 PM :
 
-> In my home computer there is a 6th hdd in 3 years. All didn't die but
-> most did. On culprit was probably the power supply - I measured its
-> voltage dropping significantly on some cdrom operations.
+>
+>Hm, I have the Board Revision whih also remembers its BIOS Settings once
+>after a while (once per month or so). Does that also belong to
+>"electrical defects"?
+>  
+>
 
-And do after this modification last longer?
+Maybe... do you mean your CMOS settings are periodically reset ? In this 
+case it usually is simply a worn-out battery.
 
-Hm, I use the cdrom very seldom in this PC, as Lionel Bouton pointed out
-some K7S5As had electrical failures... I thought about PowerSuplly
-already, threw this though away because there is only
+>So should I buy a K7S5A Pro now. It eats my old school SDRAM, thats
+>why...
+>  
+>
 
-The Motherboard
-cdrom (hardly used)
-512MB RAM
-3 HDDs
-old intel AGP Graphics Card, never used.
+K7S5A Pro are dirt cheap these days, so it might be a good idea to buy a 
+new one.
 
-connected.
+For the record, reallocated sectors are quite common with modern disks, 
+I had some (3-4) on a one-year old 120Go Maxtor but the drive worked 
+perfectly. You should install the smartmontools and run smartd 
+configured to send you an e-mail each time a new defect is found. You 
+have then one more opportunity to anticipate a drive going to fail by 
+backuping and restoring on another drive.
 
-Can a bad Powersupply or weak mainboard create Uncorrectable Errors on
-HDDs? Again only a question to experience of this community...
-
-So should I buy a new board or a new Powersupply...
-
-Konsti
+Best regards,
 
 -- 
-2.6.0-test1-mm2
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 32 min, 
+Lionel Bouton - inet6
+---------------------------------------------------------------------
+   o              Siege social: 51, rue de Verdun - 92158 Suresnes
+  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
+ / /\  /_  / /_   France
+ \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
+  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+ 
+
+

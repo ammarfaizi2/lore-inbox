@@ -1,118 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265384AbSKAJni>; Fri, 1 Nov 2002 04:43:38 -0500
+	id <S265668AbSKAJtX>; Fri, 1 Nov 2002 04:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265419AbSKAJni>; Fri, 1 Nov 2002 04:43:38 -0500
-Received: from uranus.lan-ks.de ([194.45.71.1]:60676 "EHLO uranus.lan-ks.de")
-	by vger.kernel.org with ESMTP id <S265384AbSKAJng> convert rfc822-to-8bit;
-	Fri, 1 Nov 2002 04:43:36 -0500
-X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+	id <S265671AbSKAJtX>; Fri, 1 Nov 2002 04:49:23 -0500
+Received: from uucp.cistron.nl ([62.216.30.38]:59655 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S265668AbSKAJtW>;
+	Fri, 1 Nov 2002 04:49:22 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: What's left over.
+Date: Fri, 1 Nov 2002 09:55:13 +0000 (UTC)
+Organization: A poorly-maintained Debian GNU/Linux InterNetNews site
+Message-ID: <aptj21$jhs$3@ncc1701.cistron.net>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <Pine.GSO.4.21.0210302135150.13031-100000@weyl.math.psu.edu> <20021031225729.GD4331@elf.ucw.cz> <1036103335.25512.40.camel@bip>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1036144513 20028 62.216.29.197 (1 Nov 2002 09:55:13 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Subject: [2.5] missing Config-help
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-X-No-Archive: yes
-From: Jochen Hein <jochen@jochen.org>
-Date: Fri, 01 Nov 2002 11:24:46 +0100
-Message-ID: <87lm4dvb81.fsf@gswi1164.jochen.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1036103335.25512.40.camel@bip>,
+Xavier Bestel  <xavier.bestel@free.fr> wrote:
+>Le jeu 31/10/2002 ‡ 23:57, Pavel Machek a Ècrit :
+>
+>> This seems like a pretty common situation to me, and current solutions
+>> are not nice. [I guess ~/bin/ with --x and
+>> ~/bin/my-secret-password-only-jarka-and-mj-knows/phonebook would solve
+>> the problem, but...!]
+>
+>Can't even this be spied from /proc/*/fd ?
 
-I'm running my 2.4 .config with 2.5.45 "make oldconfig" and miss the
-following help texts:
+Or ptrace, /proc/pid/mem, etc. If you can execute a binary, it
+has to be loaded into memory in a process running as you, so
+you can read it.
 
-,----
-|     Generic PCI IDE Chipset Support (BLK_DEV_GENERIC) [N/y] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   nVidia NFORCE support (BLK_DEV_NFORCE) [N/m/y] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   PROMISE PDC202{46|62|65|67} support (BLK_DEV_PDC202XX_OLD) [N/m/y]
-|   (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   PROMISE PDC202{68|69|70|71|75|76|77} support (BLK_DEV_PDC202XX_NEW)
-|   [N/m/y] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   Silicon Image chipset support (BLK_DEV_SIIMAGE) [N/m/y] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   Adaptec AIC7xxx support [Y/n/m] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   Adaptec AIC7xxx support (New driver, Old driver) [New driver] (NEW)
-|   ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|   DSCP match support (IP_NF_MATCH_DSCP) [N/m] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|     Formula-n enter:now PCI card (EXPERIMENTAL) (HISAX_ENTERNOW_PCI)
-|     [N/y] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-|     HFC PCI support (EXPERIMENTAL) (HISAX_HFCPCI) [N/m] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-| 
-| AMD 8151 support (AGP_AMD_8151) [N/y] (NEW) ?
-| 
-| Sorry, no help available for this option yet.
-`----
+Mike.
 
-
-
-And last a misleading help or broken config option.  The help talks
-about "say Y", but that is not possible.  Hm.
-
-,----
-|   Helper match support (IP_NF_MATCH_HELPER) [N/m/?] (NEW) ?
-| 
-| Helper matching allows you to match packets in dynamic connections
-| tracked by a conntrack-helper, ie. ip_conntrack_ftp
-| 
-| If you want to compile it as a module, say M here and read
-| Documentation/modules.txt.  If unsure, say `Y'.
-| 
-|   Helper match support (IP_NF_MATCH_HELPER) [N/m/?] (NEW) y
-| 
-| Helper matching allows you to match packets in dynamic connections
-| tracked by a conntrack-helper, ie. ip_conntrack_ftp
-| 
-| If you want to compile it as a module, say M here and read
-| Documentation/modules.txt.  If unsure, say `Y'.
-| 
-|     Sequencer support (SND_SEQUENCER) [N/m/?] (NEW) ?
-| 
-| Say 'Y' or 'M' to enable MIDI sequencer and router support. This
-| feature allows routing and enqueing MIDI events. Events can be
-| processed at given time.
-`----
-
-Jochen
-
--- 
-Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

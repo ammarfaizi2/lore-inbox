@@ -1,81 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTFPSXg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264115AbTFPSXg
+	id S264134AbTFPS3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTFPS3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:23:36 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:1800 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S264091AbTFPSXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:23:25 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-ppp@vger.kernel.org
-Subject: [PATCH] 2.5.71: remove MOD_{INC,DEC}_USE_COUNT from ppp_async
-Date: Mon, 16 Jun 2003 22:34:33 +0400
-User-Agent: KMail/1.5
+	Mon, 16 Jun 2003 14:29:12 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:21657 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264094AbTFPS3H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 14:29:07 -0400
+Date: Mon, 16 Jun 2003 11:42:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Margit Schubert-While <margitsw@t-online.de>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_52g7++T7qfisoTv"
-Message-Id: <200306162234.33350.arvidjaar@mail.ru>
+Subject: Re: [PATCH] More i2c driver changes for 2.5.70
+Message-ID: <20030616184202.GD25585@kroah.com>
+References: <5.1.0.14.2.20030612120959.00aec370@pop.t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030612120959.00aec370@pop.t-online.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 12:22:33PM +0200, Margit Schubert-While wrote:
+> OK Here's the patch which :
+> 1) Fixes the race conditions
+> 2) Correctly reports the temps :-)
+> 3) Removes a bit of gunk in the defines which I forgot
 
---Boundary-00=_52g7++T7qfisoTv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Applied, thanks.
 
-It compiles and runs and does not allow me to unload ppp_async while up and 
-running.
-
-regards
-
--andrey
---Boundary-00=_52g7++T7qfisoTv
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="2.5.71-ppp_async.USE_COUNT.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.5.71-ppp_async.USE_COUNT.patch"
-
---- linux-2.5.71/drivers/net/ppp_async.c.USE_COUNT	2003-06-16 20:43:03.000000000 +0400
-+++ linux-2.5.71/drivers/net/ppp_async.c	2003-06-16 21:41:07.000000000 +0400
-@@ -147,7 +147,6 @@ ppp_asynctty_open(struct tty_struct *tty
- 	struct asyncppp *ap;
- 	int err;
- 
--	MOD_INC_USE_COUNT;
- 	err = -ENOMEM;
- 	ap = kmalloc(sizeof(*ap), GFP_KERNEL);
- 	if (ap == 0)
-@@ -183,7 +182,6 @@ ppp_asynctty_open(struct tty_struct *tty
-  out_free:
- 	kfree(ap);
-  out:
--	MOD_DEC_USE_COUNT;
- 	return err;
- }
- 
-@@ -223,7 +221,6 @@ ppp_asynctty_close(struct tty_struct *tt
- 	if (ap->tpkt != 0)
- 		kfree_skb(ap->tpkt);
- 	kfree(ap);
--	MOD_DEC_USE_COUNT;
- }
- 
- /*
-@@ -351,6 +348,7 @@ ppp_asynctty_wakeup(struct tty_struct *t
- 
- 
- static struct tty_ldisc ppp_ldisc = {
-+	.owner	= THIS_MODULE,
- 	.magic	= TTY_LDISC_MAGIC,
- 	.name	= "ppp",
- 	.open	= ppp_asynctty_open,
-
---Boundary-00=_52g7++T7qfisoTv--
-
+greg k-h

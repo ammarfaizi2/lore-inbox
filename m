@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276651AbRJHA1o>; Sun, 7 Oct 2001 20:27:44 -0400
+	id <S276718AbRJHAcE>; Sun, 7 Oct 2001 20:32:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276718AbRJHA1e>; Sun, 7 Oct 2001 20:27:34 -0400
-Received: from jalon.able.es ([212.97.163.2]:46068 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S276651AbRJHA1Y>;
-	Sun, 7 Oct 2001 20:27:24 -0400
-Date: Mon, 8 Oct 2001 02:27:47 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: harri@synopsys.COM, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
-Subject: Re: CPU Temperature?
-Message-ID: <20011008022747.A26392@werewolf.able.es>
-In-Reply-To: <3BC0191F.C0085955@Synopsys.COM> <E15qAsz-0005PE-00@the-village.bc.nu>
+	id <S276719AbRJHAbq>; Sun, 7 Oct 2001 20:31:46 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:48633 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S276718AbRJHAbk>;
+	Sun, 7 Oct 2001 20:31:40 -0400
+Date: Mon, 8 Oct 2001 02:31:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <20011008023118.L726@athlon.random>
+In-Reply-To: <Pine.GSO.4.30.0110031138150.4833-100000@shell.cyberus.ca> <Pine.LNX.4.33.0110031828060.8633-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E15qAsz-0005PE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Oct 07, 2001 at 12:10:17 +0200
-X-Mailer: Balsa 1.2.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110031828060.8633-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Oct 03, 2001 at 06:51:55PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[ I hope not to reiterate the obvious, I didn't read every single email
+  of this thread ]
 
-On 20011007 Alan Cox wrote:
->> Of course I would be interested to get the lm_sensors included in the
->> kernel, too. Is this still an option for 2.4.x? 
->
->It doesnt break the machine, replace key parts of the core of the system or 
->change critical interfaces. By conventional standards its ok, by 2.4.10 
->standards its not a candidate 8)
->
+> > > In a generic computing environment i want to spend cycles doing useful
+> > > work, not polling. Even the quick kpolld hack [which i dropped, so please
+> > > dont regard it as a 'competitor' patch] i consider superior to this, as i
+> > > can renice kpolld to reduce polling. (plus kpolld sucks up available idle
+> > > cycles as well.) Unless i royally misunderstand it, i cannot stop the
+> > > above code from wasting my cycles, and if that is true i do not want to
+> > > see it in the kernel proper in this form.
+> 
+> On Wed, 3 Oct 2001, jamal wrote:
+> > The interupt just flags "i, netdev, have work to do"; [...]
+On Wed, Oct 03, 2001 at 06:51:55PM +0200, Ingo Molnar wrote:
+> (and the only thing i pointed out was that the patch as-is did not limit
+> the amount of polling done.)
 
-Latest CVS release has even changed all the malloc includes to slabs, so 
-is there any non-cosmetic problem ?
+You're perfectly right that it's not ok for a generic computing
+environment to spend lots of cpu in polling, but it is clear that in a
+dedicated router/firewall we can just shutdown the NIC interrupt forever via
+disable_irq (no matter if the nic supports hw flow control or not, and
+in turn no matter if the kid tries to spam the machine with small
+packets) and dedicate 1 cpu to the polling-work with ksoftirqd polling
+forever the NIC to deliver maximal routing performance or something like
+that.  ksoftirqd will ensure fairness with the userspace load as well.
+You probably wouldn't get a benefit with tux because you would
+potentially lose way too much cpu with true polling and you're traffic
+is mostly going from the server to the clients not the othet way around
+(plus the clients uses delayed acks etc..), but the world isn't just
+tux.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.10-ac7-bproc #1 SMP Sat Oct 6 12:38:17 CEST 2001 i686
+Of course we agree that such a "polling router/firewall" behaviour must
+not be the default but it must be enabled on demand by the admin via
+sysctl or whatever else userspace API. And I don't see any problem with
+that.
+
+Andrea

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279035AbRKVNRd>; Thu, 22 Nov 2001 08:17:33 -0500
+	id <S279190AbRKVNVx>; Thu, 22 Nov 2001 08:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279190AbRKVNRX>; Thu, 22 Nov 2001 08:17:23 -0500
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:41993 "HELO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
-	id <S279035AbRKVNRT>; Thu, 22 Nov 2001 08:17:19 -0500
-Date: Thu, 22 Nov 2001 14:17:18 +0100 (CET)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: Marcus Grando <marcus@big.univali.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Input/output error
-In-Reply-To: <5.1.0.14.1.20011122105002.00ab7678@mail.big.univali.br>
-Message-ID: <Pine.LNX.4.33.0111221415490.1518-100000@grignard.amagerkollegiet.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S279201AbRKVNVf>; Thu, 22 Nov 2001 08:21:35 -0500
+Received: from chiark.greenend.org.uk ([195.224.76.132]:15369 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S279190AbRKVNVY>; Thu, 22 Nov 2001 08:21:24 -0500
+From: Colin Watson <cjwatson@flatline.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
+In-Reply-To: <3BFBDFA5.DDA1CC98@evision-ventures.com>
+Organization: riva.ucam.org
+Message-Id: <E166tn8-00066U-00@chiark.greenend.org.uk>
+Date: Thu, 22 Nov 2001 13:21:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, Marcus Grando wrote:
+In article <3BFBDFA5.DDA1CC98@evision-ventures.com>, Martin Dalecki wrote:
+>Heinz-Ado Arnolds wrote:
+>> I have a problem with loading modules for binary formats. The
+>> reason for this problem shows up in fs/exec.c search_binary_handler().
+>> 
+>> Starting with linux-2.1.23 (and up to 2.4.14) there was a change
+>> in the format and offset of printing the magic number for requesting
+>> a handler module. Up to 2.1.22 the statement
+>
+>That is a time span of several years during which nobody realized there
+>was a problem with this. Therefore I would rather request for removal
+>of the whole binfmt-misc stuff (which is ugly anyway) rather then
+>"fixing it" ;-)
 
-> On try start syslog deamon occur this errrors "Input/output error" on many archives /var directory.
-
-Try to run fsck on the /var partition. Also you should check the disk 
-for bad blocks. What output do you get from the kernel ('dmesg', 
-/var/log/messages etc.)?
-
-It could be a bad disk developing bad sectors.
-
-Rasmus
+This report has nothing to do with binfmt_misc - it's in the main binfmt
+code.
 
 -- 
--- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
-DISCLAIMER: Microsoft, Windows, Windows 98, Bugs, Lacking features, IRQ
-conflicts, System crashes, Non-functional multitasking, the Y2K problem
-and the Blue Screen of Death are registered trademarks of
-Microsoft, Corp., Redmond, USA.
---------------------------------- [ moffe at amagerkollegiet dot dk ] --
-
+Colin Watson                                  [cjwatson@flatline.org.uk]

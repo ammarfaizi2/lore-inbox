@@ -1,89 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbTIEWBc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 18:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265811AbTIEWBb
+	id S265435AbTIEVqi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 17:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbTIEVqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 18:01:31 -0400
-Received: from rrba-bras-194-08.telkom-ipnet.co.za ([165.165.194.8]:60032 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S265753AbTIEWAm
+	Fri, 5 Sep 2003 17:46:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14731 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265435AbTIEVpx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 18:00:42 -0400
-Subject: Re: [PATCH] fix IO hangs
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Jens Axboe <axboe@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030905083106.GC6658@suse.de>
-References: <3F5833BA.5090909@cyberone.com.au>
-	 <20030905070426.GP840@suse.de> <3F583861.6070109@cyberone.com.au>
-	 <20030905071852.GQ840@suse.de>  <20030905083106.GC6658@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3sjcBvU/BI3GbNGg1VLz"
-Message-Id: <1062799434.11604.1.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 06 Sep 2003 00:03:54 +0200
+	Fri, 5 Sep 2003 17:45:53 -0400
+Message-ID: <3F590400.7050600@pobox.com>
+Date: Fri, 05 Sep 2003 17:45:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard A Nelson <kenpocowboy@bellsouth.net>
+CC: Patrick Mochel <mochel@osdl.org>, Rob Landley <rob@landley.net>,
+       Pavel Machek <pavel@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up power managment in 2.6
+References: <200309050158.36447.rob@landley.net> <Pine.LNX.4.44.0309051044470.17174-100000@cherise> <20030905180248.GB29353@gtf.org> <Pine.LNX.4.56.0309051548400.18554@onpx40.onqynaqf.bet>
+In-Reply-To: <Pine.LNX.4.56.0309051548400.18554@onpx40.onqynaqf.bet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard A Nelson wrote:
+> On Fri, 5 Sep 2003, Jeff Garzik wrote:
+> 
+> 
+>>Note that a lot of ThinkPads out in the field need a BIOS update
+>>before their ACPI is working.  (I know this because IBM was quite
+>>helpful and proactive in addressing their Linux-related ACPI BIOS
+>>issues)
+> 
+> 
+> And even that isn't always enough :(
+> 
+> I have a TP30, 2366-51U with the latest BIOS:
+>                 Version: 1IET67WW (2.06 )
+>                 Release: 07/17/2003
+>                 Processor Manufacturer: GenuineIntel
+>                 Processor Version: Pentium(R) 4
+> BIOS32 Service Directory present.
+>         Calling Interface Address: 0x000FD7E0
+> ACPI 2.0 present.
+>         OEM ID: IBM
+> RSD table at 0x0FF63195.
+> PNP 1.0 present.
+>         Event Notification: Polling
+>         Event Notification Flag Address: 0x000004B4
+>         Real Mode Code Address: F000:9D36
+>         Real Mode Data Address: 0040:0000
+>         Protected Mode Code Address: 0x000F9D54
+>         Protected Mode Data Address: 0x00000400
+> PCI Interrupt Routing 1.0 present.
+>         Table Size: 256 bytes
+>         Router ID: 00:1f.0
+>         Exclusive IRQs: None
+>         Compatible Router: 8086:122e
+> 
+> Up through 2.05, ACPI crashed the kernel during boot(2.4 and 2.6) -
+> I posted here about that...  I'm going to try this weekend with
+> the just flashed 2.06 - even though the changelog doesn't indicate
+> anything changed wrt ACPI.
+> 
+> The problem was, iirc, was scanning one of the tables - I can't find
+> the message now :(
 
---=-3sjcBvU/BI3GbNGg1VLz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2003-09-05 at 19:04, Jens Axboe wrote:
-> On Fri, Sep 05 2003, Jens Axboe wrote:
-> > > Jens, if insert_here is dead, there is no point to passing back a hin=
-t
-> > > because it can't get back to the elevator anyway.
-> > >=20
-> > > I'd very much like to kill insert_here and be done with it. If anothe=
-r
-> > > io scheduler comes along with a good use for it then the writers can
-> > > come up with an elegant solution ;) Hey, if they know a NO_MERGE retu=
-rn
-> > > means an insert will soon happen under the same lock, they could keep
-> > > it cached privately.
-> >=20
-> > Agree, lets just kill it off.
->=20
-> Here's the patch that kills it and its associated logic off completely.
-> Nick, I'm not too sure what the logic was for stopping anticipation in
-> as_insert_request() (the insert_here tests were somewhat convoluted :),
-> I've added what I think makes most sense: stop anticipating if someone
-> puts a request at the head of the dispatch list.
->=20
-> It also makes the *_insert_request strategies much easier to follow,
-> imo.
->=20
+If you are up for a little debugging and comfortable with building your 
+own kernels, then please enable the relaxed-aml-checking and debug 
+options in the ACPI kernel config.  Those, and dmidecode output, will 
+provide useful info to the ACPI folks.
 
-Hmm, do not know if its just me, but I just got two processes (cp's)
-in D state.  They did complete though, but throughput was not good.
-Any tips on getting it debugged ?
+	Jeff
 
 
-Thanks,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-3sjcBvU/BI3GbNGg1VLz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/WQhKqburzKaJYLYRAopHAJ9hL6gW2jWbg75f1/kv6czU/04ErQCfRfI8
-q0xqIy4C6Z7kMYjZfPf3s9Q=
-=I5QX
------END PGP SIGNATURE-----
-
---=-3sjcBvU/BI3GbNGg1VLz--
 

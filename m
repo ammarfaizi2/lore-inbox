@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbUCPXN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 18:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbUCPXN1
+	id S261795AbUCPXQg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 18:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUCPXQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 18:13:27 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:23489 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S261794AbUCPXN0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 18:13:26 -0500
-Subject: EHCI/BIOS issues.
-From: Plaz McMan <PlazMcMan@Softhome.net>
-To: linux-kernel@vger.kernel.org
-Message-Id: <1079479132.2169.9.camel@ansel.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 16 Mar 2004 18:16:36 -0500
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:23703 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S261795AbUCPXQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 18:16:32 -0500
+Message-ID: <40578AC3.1010708@backtobasicsmgmt.com>
+Date: Tue, 16 Mar 2004 16:16:19 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Status HPT374 (HighPoint 1540) Sata in 2.6
+References: <405786EC.5000803@matchmail.com>
+In-Reply-To: <405786EC.5000803@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Mar 2004 15:18:52 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hardware of interest:
-EPoX EP-8RDA mobo, recent BIOS (last few months)
-Misc. USB mass storage devices (dock iPod, Zip 250)
----
-Kernel 2.6.4
----
+Mike Fedyk wrote:
 
-With built-in support for EHCI and OHCI:
-When booting the computer with USB storage devices attached, I end up
-having no USB support from Linux. The BIOS detects the USB devices, so
-my dmesg contains a line such as "Can't TakeOver USB!".
+> Alternatively, are there any 4-port (alternatively I can use two 2-port 
+> SATA controllers) JBOD SATA PCI cards with good support in the 2.6 
+> kernel (or with patches) in the ~$50 US price range?
 
-With only support for EHCI, USB doesn't work at all.
-
-With built-in support for OHCI and modular support for EHCI, this is
-fixed - I just modprobe ehci-hcd, and all is well (15 MB/s for my iPod -
-slow hard drive, but too fast for USB 1.1).
-
-So, is EHCI trying to grab USB before OHCI? Everything works fine if the
-BIOS has no reason to take control of USB (e.g., USB disks).
-
-The workaround is quite acceptable in my opinion, as performance is
-ultimately not noticeably different.
-
-Thanks,
--Brannon Klopfer
-
+There is a Promise SATA150 TX4 4-port JBOD card that works fine with 
+libata; I've got a spare if you want it, I replaced it with a 3Ware 
+8506-8 :-) If you want to make a deal just email me off-list...

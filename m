@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUGGPhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGGPji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUGGPhc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 11:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUGGPhc
+	id S265212AbUGGPji (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 11:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUGGPji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 11:37:32 -0400
-Received: from moon.tuniv.szczecin.pl ([212.14.18.12]:55817 "EHLO
-	moon.tuniv.szczecin.pl") by vger.kernel.org with ESMTP
-	id S265211AbUGGPh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 11:37:29 -0400
-Date: Wed, 7 Jul 2004 16:54:01 +0200 (CEST)
-From: Adam Popik <popik@moon.tuniv.szczecin.pl>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: stupied userspace programs or kernel bug ?
-In-Reply-To: <200407071515.10625.m.watts@eris.qinetiq.com>
-Message-ID: <Pine.LNX.4.44.0407071641430.24331-100000@moon.tuniv.szczecin.pl>
+	Wed, 7 Jul 2004 11:39:38 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:42204 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265212AbUGGPj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 11:39:28 -0400
+Message-ID: <40EC1930.7010805@comcast.net>
+Date: Wed, 07 Jul 2004 11:39:28 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>
+Subject: Re: 2.6.7-ck5
+References: <40EC13C5.2000101@kolivas.org>
+In-Reply-To: <40EC13C5.2000101@kolivas.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004, Mark Watts wrote:
-That test was with 2 host network and no more hosts, routers and others...
-linux#  shold have this address for virtual use only on that 
-machine (loopback interface), 
-netmask on all linuxboxes are same, onlny on lo was /32. When I use /24 
-mask and router (routing was good until assinging ip address to loopback)
-network traffic is broken about 40 icmp requests (outside local net)...
-Is linux bugs ?
-on same test on FreeBSD and Solaris 9 no problems (loopback is and only 
-loopback)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Adam
+Very nice, Con.  I've been using ck1 and ck3 with pax applied, and
+finding performance to be exceptional.  I'll merge current 2.6.7-pax
+with this and test it out right away.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> > Hello ;
-> > That is a problem:
-> > linux#ifconfig eth0 192.168.1.1
-> 
-> Because you didn't specify a netmask, it defaulted to 255.255.255.0
-Yes it C ...
-> 
-> > linux#ifconfig lo:1 192.168.1.100 netmask 255.255.255.255 up
-> 
-> Although you specified a tighter netmask here, the routing table is such that 
-> 192.168.1.0/24 is routed out eth0, overriding the fact that 1.100 is on lo:1
-> 
-> I'll bet the kernel responds to the ICMP echo request because it knows it 
-> holds the IP for 1.100 so it should respond, yet its outbound routing tells 
-> it to respond via eth0. (somone connect me if I'm wrong)
-> 
-> This is probably a side effect of having two interfaces on the same subnet, 
-> and having the /24 subnet higher up the routing rable than the /32 host.
-> 
-> I believe the behaviour you are seeing is 'by design' although the merits of 
-> this have been discussed to death in the past (IIRC)
-> 
-> Mark.
-> 
-> - -- 
-> Mark Watts
-> Senior Systems Engineer
-> QinetiQ Trusted Information Management
-> Trusted Solutions and Services group
-> GPG Public Key ID: 455420ED
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.4 (GNU/Linux)
-> 
-> iD8DBQFA7AVuBn4EFUVUIO0RAlXpAJ9I1FBUhqDDgV3Tvs53NjSM9BQq9QCeIVeu
-> f4Jzs0L/LlvjOsm8CcMNoJs=
-> =/jLZ
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+When do you think the staircase, batch, and isometric scheduling will
+reach mainline-quality?  Do you think you'll be ready to ask Andrew to
+merge it soon, or will it be a while before it's quite ready for that?
+How about autoregulated swappiness, which seems to be very efficient at
+its job?
 
+Con Kolivas wrote:
+| Patchset update:
+|
+| These are patches designed to improve system responsiveness with
+| specific emphasis on the desktop, but suitable/configurable to any
+| workload. Read details and FAQ on my web page.
+|
+| http://kernel.kolivas.org
+|
+
+|
+| Please feel free to send comments, queries, suggestions, patches.
+| Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA7BkuhDd4aOud5P8RAitcAJ9OvOI9LlWlujyl3JzuQazQbzV9SQCfX7m/
+oYrphGbkeT89fao/n0Y3eUA=
+=i8eI
+-----END PGP SIGNATURE-----

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264703AbSJOU2Z>; Tue, 15 Oct 2002 16:28:25 -0400
+	id <S261745AbSJOUV2>; Tue, 15 Oct 2002 16:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264706AbSJOU2Z>; Tue, 15 Oct 2002 16:28:25 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:18185 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264703AbSJOU2Y>;
-	Tue, 15 Oct 2002 16:28:24 -0400
-Date: Tue, 15 Oct 2002 13:34:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Steven Dake <sdake@mvista.com>
-Cc: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
-Message-ID: <20021015203423.GI15864@kroah.com>
-References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com> <3DAC6C7B.1080205@mvista.com>
+	id <S264648AbSJOUV2>; Tue, 15 Oct 2002 16:21:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13992 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261745AbSJOUVZ>;
+	Tue, 15 Oct 2002 16:21:25 -0400
+Date: Tue, 15 Oct 2002 13:19:29 -0700 (PDT)
+Message-Id: <20021015.131929.103080718.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: kuznet@ms2.inr.ac.ru, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Rename _bh to _softirq
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20021015131839.01c1a008@mail1.qualcomm.com>
+References: <5.1.0.14.2.20021015121958.01b4acd8@mail1.qualcomm.com>
+	<20021015.124204.108190832.davem@redhat.com>
+	<5.1.0.14.2.20021015131839.01c1a008@mail1.qualcomm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DAC6C7B.1080205@mvista.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 12:28:59PM -0700, Steven Dake wrote:
-> 
-> 
-> Safte polling in the kernel isn't inherently bad and could be tied into 
-> the hotplug mechanism.
-> 
-> Making SAFTE hotswap available via SG would also work but system 
-> performance would be bad at small poll intervals (like 100 msec).
+   From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+   Date: Tue, 15 Oct 2002 13:23:28 -0700
 
-Is there a real nead to get hotplug notification any faster than that?
+   _bh is not a "base handler" it stands for "bottom half".
+   
+All of these phrases mean the same thing to me.
 
-And yes, it should all be done in userspace, whenever possible :)
+Do you want to know what is different?  "tasklets",
+they are a totally different abstraction, as are
+"work queues".
 
-thanks,
+"base handler" and "bottom half" all refer to an execution
+context, and these days that means softirq.
 
-greg k-h
+   
+   
+   
+   

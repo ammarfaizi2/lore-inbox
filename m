@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131116AbRBMOQj>; Tue, 13 Feb 2001 09:16:39 -0500
+	id <S130573AbRBMOQJ>; Tue, 13 Feb 2001 09:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRBMOQT>; Tue, 13 Feb 2001 09:16:19 -0500
-Received: from relay.dera.gov.uk ([192.5.29.49]:11076 "HELO relay.dera.gov.uk")
-	by vger.kernel.org with SMTP id <S131116AbRBMOQP>;
-	Tue, 13 Feb 2001 09:16:15 -0500
-Message-ID: <XFMail.20010213141110.gale@syntax.dera.gov.uk>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S131116AbRBMOP6>; Tue, 13 Feb 2001 09:15:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:39808 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S130573AbRBMOPx>; Tue, 13 Feb 2001 09:15:53 -0500
+Date: Tue, 13 Feb 2001 09:15:06 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Marcus Ramos <marcus@ansp.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with kernel-module version mismatch
+In-Reply-To: <3A892AC4.1BE7B4F1@ansp.br>
+Message-ID: <Pine.LNX.3.95.1010213090905.17758A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-In-Reply-To: <E14SfKk-0001kl-00@the-village.bc.nu>
-Date: Tue, 13 Feb 2001 14:11:10 -0000 (GMT)
-From: Tony Gale <gale@syntax.dera.gov.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.x SMP blamed for Xfree 4.0 crashes
-Cc: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Feb 2001, Marcus Ramos wrote:
 
-On 13-Feb-2001 Alan Cox wrote:
->> Having experienced a number of crashes with Xfree 4.0 with 2.4
->> kernels, that I wasn't getting with 2.2 kernels, a quick search on
->> the xfree Xpert mailing list reveals this:
+> Hello,
 > 
-> Yeah I've seen this claim repeatedly. XFree 4.0.2 crashes for me in
-> similar
-> ways on 3dfx and matrox cards and it happens with 2.2 kernels as
-> well.
-
-Mine's rock solid with 2.2 though. I have two Matrox Millennium IIs
-multi-headed, on SMP - asking for trouble :-)
-
+> After compiling files "ttime.c" and "ttime.h", I try to load them into
+> the kernel using the command /sbin/insmod ttime.o. However, the
+> following message suggests that a version conflict  has prevented the
+> loading to be performed correctly:
 > 
-> I believe it to be Xfree or glibc problems.  So I'm not. Since I
-> can't get
-> XFree 4 stable on 2.2 I dont have a useful setup to study this.
+> "kernel-module version mismatch. ttime.o was compiled for kernel
+> 2.4.0-0.26 while this kernel is version 2.2.16-22".
+> 
+> My question is: since the source has been compiled on the same kernel as
+> it is going to be loaded into, how come this message ? What do I have to
+> do in order to avoid such problem ? Change the source code ? Where did
+> it learn about 2.4.0-0.26 if I am using 2.2.16-22 (Red Hat 7.0) ?
+> 
+> Thanks in advance,
+> Marcus.
 > 
 
-I've had a report that 2.4.2pre3 has sorted out the problem, so am
-trying that. Grabs straw: maybe the VM accounting changes have helped?
+`uname -r` shows the currently executing kernel version. The version
+of the kernel you compiled is in the top of the Makefile (first 3 lines).
 
--tony
+To see if you are lucky, you can "force" the module loading with
+`insmod -f ttime.o`.
+
+FYI, it looks like you thought you installed a new kernel after you
+compiled it, but didn't. 
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
----
-E-Mail: Tony Gale <gale@syntax.dera.gov.uk>
-Q:	What's the difference between a dead dog in the road and a dead
-	lawyer in the road?
-A:	There are skid marks in front of the dog.
-
-The views expressed above are entirely those of the writer
-and do not represent the views, policy or understanding of
-any other person or official body.

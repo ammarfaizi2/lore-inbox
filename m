@@ -1,48 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266088AbUBCUpE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 15:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266100AbUBCUpE
+	id S266143AbUBCUvU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 15:51:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUBCUvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 15:45:04 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:36360 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S266088AbUBCUpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 15:45:00 -0500
-Message-ID: <4020096B.7000408@techsource.com>
-Date: Tue, 03 Feb 2004 15:49:47 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Auto-regulated swappiness
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Feb 2004 15:51:20 -0500
+Received: from main.gmane.org ([80.91.224.249]:64426 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266143AbUBCUuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 15:50:50 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Juergen Stuber <stuber@loria.fr>
+Subject: [PROBLEM] 2.6.2-rc1-bk1 Synaptics touchpad on IBM T30 not detected
+Date: Tue, 03 Feb 2004 21:49:00 +0100
+Message-ID: <86u127khxf.fsf@loria.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: berthelemy-1-81-56-4-123.fbx.proxad.net
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/20.7 (gnu/linux)
+Cancel-Lock: sha1:DiT62QB8hLpvIcz7bvMSln2vwXA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just noticed the kerneltrap article about Con's new patchset.  In 
-particular, I am curious about the auto-regulated swappiness.
+Hi,
 
-I've done a little searching through the archives, but I can't seem to 
-find the lkml posts I'm thinking about.  In any event, I vaguely 
-remember two things:
+the touchpad works fine in 2.6.2-rc1 with the Synaptics XFree86 driver,
+it isn't detected and doesn't show up in /proc/bus/input/devices
+for 2.6.2-rc1-bk1 and later, psmouse is loaded in all cases.
 
-- auto-regulation was developed because the kernel seemed to swap too 
-much or too little under certain circumstances.
+The machine is an IBM Thinkpad T30 (2366-085G) with stick & touchpad,
+both are set on automatic in the BIOS.
 
-- Someone said that auto-regulating swappiness didn't make sense, 
-because there was some constant value that should have had the desired 
-effect.
+For 2.6.2-rc1 I see
 
-I don't remember there being a resolution to this discussion.
+Feb  3 19:55:48 freitag kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+Feb  3 19:55:48 freitag kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+Feb  3 19:55:48 freitag kernel: input: AT Translated Set 2 keyboard on isa0060/s
+[...]
+Feb  3 19:55:48 freitag kernel: Synaptics Touchpad, model: 1
+Feb  3 19:55:48 freitag kernel:  Firmware: 5.9
+Feb  3 19:55:48 freitag kernel:  Sensor: 44
+Feb  3 19:55:48 freitag kernel:  new absolute packet format
+Feb  3 19:55:48 freitag kernel:  Touchpad has extended capability bits
+Feb  3 19:55:48 freitag kernel:  -> multifinger detection
+Feb  3 19:55:48 freitag kernel:  -> palm detection
+Feb  3 19:55:48 freitag kernel:  -> pass-through port
+Feb  3 19:55:48 freitag kernel: input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+Feb  3 19:55:48 freitag kernel: serio: Synaptics pass-through port at isa0060/serio1/input0
 
-For my own curiosity, what happens if swappiness is too high but there 
-isn't any pressure to swap from memory usage?  Do user pages get swapped 
-out in favor of making room for potential buffer pages?
 
-What happens if it's too low and there's lots of pressure to swap?
+For 2.6.2-rc1-bk1 I see
 
-How does the auto-regulator fix this?
+Feb  3 20:34:12 freitag kernel: i8042.c: Detected active multiplexing controller, rev 10.12.
+Feb  3 20:34:12 freitag kernel: serio: i8042 AUX0 port at 0x60,0x64 irq 12
+Feb  3 20:34:12 freitag kernel: serio: i8042 AUX1 port at 0x60,0x64 irq 12
+Feb  3 20:34:12 freitag kernel: serio: i8042 AUX2 port at 0x60,0x64 irq 12
+Feb  3 20:34:12 freitag kernel: serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Feb  3 20:34:12 freitag kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+Feb  3 20:34:12 freitag kernel: input: AT Translated Set 2 keyboard on isa0060/serio0
 
-Thanks.
+and later, supposedly when psmouse is loaded, 4 times
+
+Feb  3 20:34:12 freitag kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+Feb  3 20:34:12 freitag kernel: atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+
+
+Unloading psmouse kills the keyboard and produces four ß (0xdf)
+and 8 unknown-key-messages.
+Then loading the module produces another four 0xdf
+and 4 unknown-key-messages and the keyboard works normally again.
+
+% cat /proc/bus/input/devices 
+I: Bus=0011 Vendor=0001 Product=0001 Version=ab54
+N: Name="AT Translated Set 2 keyboard"
+P: Phys=isa0060/serio0/input0
+H: Handlers=kbd event0 
+B: EV=120003 
+B: KEY=4 2000000 3802078 38405001 f2ffffdf ffefffff ffffffff fffffffe 
+B: LED=7 
+
+I: Bus=0003 Vendor=046d Product=c506 Version=1600
+N: Name="Logitech USB Receiver"
+P: Phys=usb-0000:00:1d.1-2.2/input0
+H: Handlers=mouse0 event1 
+B: EV=20007 
+B: KEY=ffff0000 0 0 0 0 0 0 0 0 
+B: REL=103 
+B: LED=400 
+
+% cat /proc/bus/input/handlers 
+N: Number=0 Name=kbd
+N: Number=1 Name=mousedev Minor=32
+N: Number=2 Name=evdev Minor=64
+
+
+Hope this helps
+
+Jürgen
+
+-- 
+Jürgen Stuber <stuber@loria.fr>
+http://www.loria.fr/~stuber/
 

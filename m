@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVAUKgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVAUKgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbVAUKgP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 05:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVAUKgP
+	id S262326AbVAUKgz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 05:36:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbVAUKgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 05:36:15 -0500
-Received: from hs-grafik.net ([80.237.205.72]:50394 "EHLO
-	ds80-237-205-72.dedicated.hosteurope.de") by vger.kernel.org
-	with ESMTP id S262288AbVAUKgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 05:36:14 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Lost in translation
-Date: Fri, 21 Jan 2005 11:36:11 +0100
-User-Agent: KMail/1.7.1
-X-Need-Girlfriend: always
-X-Ignorant-User: yes
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 05:36:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60433 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262326AbVAUKgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 05:36:45 -0500
+Date: Fri, 21 Jan 2005 11:36:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: dri-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drm_memory.h doesn't need to #include tlbflush.h
+Message-ID: <20050121103642.GI3209@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501211136.11488@zodiac.zodiac.dnsalias.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+The flush_tlb_kernel_range call in drm_memory.h was removed in 2003, so 
+there's no more reason for this #include.
 
-something esspecially for our german speakers:
-http://translate.google.com/translate?hl=de&sl=en&u=http://members.optusnet.com.au/ckolivas/kernel/&prev=/search%3Fq%3Dlinux%2Bkernel%2Bhighmem%2B1Gb%26hl%3Dde%26lr%3D%26ie%3DUTF-8%26c2coff%3D1
 
-SCNR
-Alex
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+--- linux-2.6.11-rc1-mm2-full/drivers/char/drm/drm_memory.h.old	2005-01-21 11:21:15.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/drivers/char/drm/drm_memory.h	2005-01-21 11:21:20.000000000 +0100
+@@ -57,8 +57,6 @@
+ # endif
+ #endif
+ 
+-#include <asm/tlbflush.h>
+-
+ /*
+  * Find the drm_map that covers the range [offset, offset+size).
+  */
+

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293516AbSBZEpe>; Mon, 25 Feb 2002 23:45:34 -0500
+	id <S293513AbSBZEro>; Mon, 25 Feb 2002 23:47:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293513AbSBZEpZ>; Mon, 25 Feb 2002 23:45:25 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:32517 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S293511AbSBZEpS>; Mon, 25 Feb 2002 23:45:18 -0500
-Message-ID: <3C7B12DD.264A7AE4@delusion.de>
-Date: Tue, 26 Feb 2002 05:45:17 +0100
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        linux-net <linux-net@vger.kernel.org>
-Subject: Re: mmapped packet socket queueing tcp packets twice?
-In-Reply-To: <3C7B06ED.8EC55523@delusion.de>
+	id <S293517AbSBZEre>; Mon, 25 Feb 2002 23:47:34 -0500
+Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:51952 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S293513AbSBZErZ>;
+	Mon, 25 Feb 2002 23:47:25 -0500
+Date: Mon, 25 Feb 2002 20:06:28 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Eric Krout <ekrout@bucknell.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18
+Message-ID: <20020225200628.T12832@lynx.adilger.int>
+Mail-Followup-To: Eric Krout <ekrout@bucknell.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E16fU2W-0002CO-00@sites.inka.de> <87it8lum5i.fsf@basilikum.skogtun.org> <1014683308.2238.36.camel@ekrout.resnet.bucknell.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1014683308.2238.36.camel@ekrout.resnet.bucknell.edu>; from ekrout@bucknell.edu on Mon, Feb 25, 2002 at 07:28:28PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
+On Feb 25, 2002  19:28 -0500, Eric Krout wrote:
+> > Bernd Eckenfels <ecki-news2002-02@lina.inka.de> writes:
+> > > I dont understand why it is a problem to release 2.4.19 instead.
 > 
-> Feb 26 04:41:56 Kerberos ipacctd: [Slot 4] Incoming TCP - Len:  136 Sum: 72b7 [1014694916.161277]
-> Feb 26 04:41:56 Kerberos ipacctd: [Slot 5] Incoming TCP - Len:  136 Sum: 72b7 [1014694916.161592]
+> If, hypothetically speaking of course, one were to start downloading a
+> file that was a couple dozen megabytes in size and leave it going
+> overnight on their dial-up connection only to awake and find that they
+> had an outdated file, I could imagine them being quite pissed  ;-)
 
-I think I've figured out what is happening. The first copy of the packet is of type 4 (outgoing)
-and the second copy is of type 3 (otherhost). We are using an fddi ring here, so what seems to
-happen is this:
+Well, that's what incremental patches are for.
 
-The station running the program with a packet socket sends out a network packet to some other
-host and the packet socket gets a copy of the packet with type "outgoing".
-This is what I'd expect.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-However, once the packet has been around the fddi ring, the originating host receives it again,
-and then passes it back to the packet socket as "otherhost", which is of course not wrong,
-because the destination is indeed another host, but the source host is the station itself,
-and it seems quite awkward that the packet socket regards this packet as "otherhost"
-and sees it twice. Shouldn't it look at the source address too?
-
-Comments?
-
--Udo.

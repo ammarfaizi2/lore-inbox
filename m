@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbTDFMUU (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 08:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbTDFMUU (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 08:20:20 -0400
-Received: from siaab1ab.compuserve.com ([149.174.40.2]:45199 "EHLO
-	siaab1ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S262939AbTDFMUS (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 08:20:18 -0400
-Date: Sun, 6 Apr 2003 08:28:16 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [PATCH] i386 descriptor cleanup and question
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304060831_MC3-1-333C-1546@compuserve.com>
+	id S262932AbTDFMSp (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 08:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbTDFMSp (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 08:18:45 -0400
+Received: from pat.uio.no ([129.240.130.16]:36345 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262932AbTDFMSo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 08:18:44 -0400
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Message-ID: <16016.7633.982870.860147@charged.uio.no>
+Date: Sun, 6 Apr 2003 14:30:09 +0200
+To: SteveD@RedHat.com
+Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] [PATCH] mmap corruption
+In-Reply-To: <20030405164741.GA6450@RedHat.com>
+References: <3E8DDB13.9020009@RedHat.com>
+	<shsistt7wip.fsf@charged.uio.no>
+	<20030405164741.GA6450@RedHat.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- There is no need to clear the busy bit when setting up TSS entries
-in the GDT -- __set_tss_desc() creates them that way.  This patch
-documents that and removes the unnecessary code.  It also documents
-the fixed bits in LDT entries.  Tested on uniprocessor only -- I
-dumped the GDT and it looks right, with entry 31 having flags 89
-while #16 has flags 8b (busy bit set by "ltr" instruction.)
+>>>>> " " == Steve Dickson <SteveD@RedHat.com> writes:
 
- Why is there only one TSS for doublefault handling on SMP?  Is the
-chance of multiple concurrent faults too small to be worth handling?
+     > 	filemap_fdatasync(inode->i_mapping);
+     > 	error = nfs_wb_all(inode);
+     > 	filemap_fdatawait(inode->i_mapping);
+     > 	if (error)
+     > 		goto out;
 
+     > 	/*
+     > * Every time either npages or ncommit had a value and the file
+     > 	   size is
+     > * immediately changed (with in a microsecond or two) by another
+     > * truncation, followed by a mmap read, the file would be
+     > 	   corrupted.
+     > 	 */
+     > 	if (NFS_I(inode)->npages || NFS_I(inode)->ncommit ||
+     > 	NFS_I(inode)->ndirty) {
+     > 		printk("nfs_notify_change: fid %Ld npages %d ncommit
+     > 		%d ndirty %d\n", NFS_FILEID(inode),
+     > 		NFS_I(inode)->npages, ncommit, NFS_I(inode)->ndirty);
+     > 	}
+     > }
 
+My point is that nfs_wb_all() is supposed to ensure that
+NFS_I(inode)->ncommit, and/or NFS_I(inode)->ndirty are both
+zero. i.e. you can have pending reads (in which case
+NFS_I(inode)->npages != 0), but *no* pending writes.
 
- arch/i386/kernel/cpu/common.c |    5 ++---
- include/asm-i386/desc.h       |   10 ++++++----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+Was this the case?
 
-
-diff -u --exclude-from=/home/me/.exclude -r linux-2.5.66-ref/arch/i386/kernel/cpu/common.c linux-2.5.66-uni/arch/i386/kernel/cpu/common.c
---- linux-2.5.66-ref/arch/i386/kernel/cpu/common.c	Sat Mar 29 09:16:21 2003
-+++ linux-2.5.66-uni/arch/i386/kernel/cpu/common.c	Sun Apr  6 07:13:50 2003
-@ -487,13 +487,12 @
- 
- 	load_esp0(t, thread->esp0);
- 	set_tss_desc(cpu,t);
--	cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
- 	load_TR_desc();
- 	load_LDT(&init_mm.context);
- 
--	/* Set up doublefault TSS pointer in the GDT */
-+	/* Set up doublefault TSS descriptor in the GDT
-+	 */
- 	__set_tss_desc(cpu, GDT_ENTRY_DOUBLEFAULT_TSS, &doublefault_tss);
--	cpu_gdt_table[cpu][GDT_ENTRY_DOUBLEFAULT_TSS].b &= 0xfffffdff;
- 
- 	/* Clear %fs and %gs. */
- 	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
-diff -u --exclude-from=/home/me/.exclude -r linux-2.5.66-ref/include/asm-i386/desc.h linux-2.5.66-uni/include/asm-i386/desc.h
---- linux-2.5.66-ref/include/asm-i386/desc.h	Tue Mar  4 22:28:52 2003
-+++ linux-2.5.66-uni/include/asm-i386/desc.h	Sun Apr  6 07:15:21 2003
-@ -44,6 +44,7 @
- 
- static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
- {
-+	/* type 0x89: present, not-busy TSS, DPL=0 */
- 	_set_tssldt_desc(&cpu_gdt_table[cpu][entry], (int)addr, 235, 0x89);
- }
- 
-@ -57,8 +58,9 @
- #define LDT_entry_a(info) \
- 	((((info)->base_addr & 0x0000ffff) << 16) | ((info)->limit & 0x0ffff))
- 
--#define LDT_entry_b(info) \
--	(((info)->base_addr & 0xff000000) | \
-+/* const 0x7000: DPL = 3, type = code or data */
-+#define LDT_entry_b(info) ( \
-+	((info)->base_addr & 0xff000000) | \
- 	(((info)->base_addr & 0x00ff0000) >> 16) | \
- 	((info)->limit & 0xf0000) | \
- 	(((info)->read_exec_only ^ 1) << 9) | \
-@ -67,9 +69,9 @
- 	((info)->seg_32bit << 22) | \
- 	((info)->limit_in_pages << 23) | \
- 	((info)->useable << 20) | \
--	0x7000)
-+	0x7000 )
- 
--#define LDT_empty(info) (\
-+#define LDT_empty(info) ( \
- 	(info)->base_addr	== 0	&& \
- 	(info)->limit		== 0	&& \
- 	(info)->contents	== 0	&& \
-
---
- Chuck
- I am not a number!
+Cheers,
+  Trond

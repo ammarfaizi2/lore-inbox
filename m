@@ -1,3005 +1,2392 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263608AbTDNSEh (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTDNSEg (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 14:04:36 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:26348 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S263608AbTDNRpg (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:36 -0400
+	id S263597AbTDNRya (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTDNRya (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 13:54:30 -0400
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:62407 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S263597AbTDNRpd (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:33 -0400
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (12/16): s390/s390x unification - part 3.
-Date: Mon, 14 Apr 2003 19:53:11 +0200
+Subject: [PATCH] s390 (8/16): dasd driver coding style - part 1.
+Date: Mon, 14 Apr 2003 19:50:46 +0200
 User-Agent: KMail/1.5.1
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200304141953.11975.schwidefsky@de.ibm.com>
+Message-Id: <200304141950.46676.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Merge s390x and s390 to one architecture.
+s390 dasd driver:
+ - Coding style adaptions. Removed almost all typedefs from the dasd driver.
 
 diffstat:
- compat_signal.c  |  644 +++++++++++++++++++++++++++++
- compat_wrapper.S | 1211 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- cpcmd.c          |   47 +-
- debug.c          |   14 
- entry.S          |  269 ------------
- entry64.S        |  710 ++++++++++++++++++++++++++++++++
- 6 files changed, 2613 insertions(+), 282 deletions(-)
+ dasd.c          |  314 +++++++++++++++++++++++++-------------------------------
+ dasd_3370_erp.c |    7 -
+ dasd_3990_erp.c |  258 ++++++++++++++++++++++------------------------
+ dasd_9336_erp.c |    7 -
+ dasd_9343_erp.c |    7 -
+ dasd_devmap.c   |   73 +++++--------
+ dasd_diag.c     |  135 +++++++++++-------------
+ dasd_diag.h     |   29 +----
+ 8 files changed, 385 insertions(+), 445 deletions(-)
 
-diff -urN linux-2.5.67/arch/s390/kernel/compat_signal.c linux-2.5.67-s390/arch/s390/kernel/compat_signal.c
---- linux-2.5.67/arch/s390/kernel/compat_signal.c	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.67-s390/arch/s390/kernel/compat_signal.c	Mon Apr 14 19:11:56 2003
-@@ -0,0 +1,644 @@
-+/*
-+ *  arch/s390/kernel/signal32.c
-+ *
-+ *  S390 version
-+ *    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com)
-+ *               Gerhard Tonn (ton@de.ibm.com)                  
-+ *
-+ *  Copyright (C) 1991, 1992  Linus Torvalds
-+ *
-+ *  1997-11-28  Modified for POSIX.1b signals by Richard Henderson
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/compat.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/smp.h>
-+#include <linux/smp_lock.h>
-+#include <linux/kernel.h>
-+#include <linux/signal.h>
-+#include <linux/errno.h>
-+#include <linux/wait.h>
-+#include <linux/ptrace.h>
-+#include <linux/unistd.h>
-+#include <linux/stddef.h>
-+#include <linux/tty.h>
-+#include <linux/personality.h>
-+#include <linux/binfmts.h>
-+#include <asm/ucontext.h>
-+#include <asm/uaccess.h>
-+#include <asm/lowcore.h>
-+#include "compat_linux.h"
-+#include "compat_ptrace.h"
-+
-+#define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
-+
-+typedef struct 
-+{
-+	__u8 callee_used_stack[__SIGNAL_FRAMESIZE32];
-+	struct sigcontext32 sc;
-+	_sigregs32 sregs;
-+	__u8 retcode[S390_SYSCALL_SIZE];
-+} sigframe32;
-+
-+typedef struct 
-+{
-+	__u8 callee_used_stack[__SIGNAL_FRAMESIZE32];
-+	__u8 retcode[S390_SYSCALL_SIZE];
-+	struct siginfo32 info;
-+	struct ucontext32 uc;
-+} rt_sigframe32;
-+
-+asmlinkage int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
-+
-+int do_signal32(struct pt_regs *regs, sigset_t *oldset);
-+
-+int copy_siginfo_to_user32(siginfo_t32 *to, siginfo_t *from)
-+{
-+	int err;
-+
-+	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t32)))
-+		return -EFAULT;
-+
-+	/* If you change siginfo_t structure, please be sure
-+	   this code is fixed accordingly.
-+	   It should never copy any pad contained in the structure
-+	   to avoid security leaks, but must copy the generic
-+	   3 ints plus the relevant union member.  
-+	   This routine must convert siginfo from 64bit to 32bit as well
-+	   at the same time.  */
-+	err = __put_user(from->si_signo, &to->si_signo);
-+	err |= __put_user(from->si_errno, &to->si_errno);
-+	err |= __put_user((short)from->si_code, &to->si_code);
-+	if (from->si_code < 0)
-+		err |= __copy_to_user(&to->_sifields._pad, &from->_sifields._pad, SI_PAD_SIZE);
-+	else {
-+		switch (from->si_code >> 16) {
-+		case __SI_KILL >> 16:
-+			err |= __put_user(from->si_pid, &to->si_pid);
-+			err |= __put_user(from->si_uid, &to->si_uid);
-+			break;
-+		case __SI_CHLD >> 16:
-+			err |= __put_user(from->si_pid, &to->si_pid);
-+			err |= __put_user(from->si_uid, &to->si_uid);
-+			err |= __put_user(from->si_utime, &to->si_utime);
-+			err |= __put_user(from->si_stime, &to->si_stime);
-+			err |= __put_user(from->si_status, &to->si_status);
-+			break;
-+		case __SI_FAULT >> 16:
-+			err |= __put_user((unsigned long) from->si_addr,
-+					  &to->si_addr);
-+			break;
-+		case __SI_POLL >> 16:
-+		case __SI_TIMER >> 16:
-+			err |= __put_user(from->si_band, &to->si_band);
-+			err |= __put_user(from->si_fd, &to->si_fd);
-+			break;
-+		default:
-+			break;
-+		/* case __SI_RT: This is not generated by the kernel as of now.  */
-+		}
-+	}
-+	return err;
-+}
-+
-+/*
-+ * Atomically swap in the new signal mask, and wait for a signal.
-+ */
-+asmlinkage int
-+sys32_sigsuspend(struct pt_regs * regs,int history0, int history1, old_sigset_t mask)
-+{
-+	sigset_t saveset;
-+
-+	mask &= _BLOCKABLE;
-+	spin_lock_irq(&current->sighand->siglock);
-+	saveset = current->blocked;
-+	siginitset(&current->blocked, mask);
-+	recalc_sigpending();
-+	spin_unlock_irq(&current->sighand->siglock);
-+	regs->gprs[2] = -EINTR;
-+
-+	while (1) {
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule();
-+		if (do_signal32(regs, &saveset))
-+			return -EINTR;
-+	}
-+}
-+
-+asmlinkage int
-+sys32_rt_sigsuspend(struct pt_regs * regs,compat_sigset_t *unewset, size_t sigsetsize)
-+{
-+	sigset_t saveset, newset;
-+	compat_sigset_t set32;
-+
-+	/* XXX: Don't preclude handling different sized sigset_t's.  */
-+	if (sigsetsize != sizeof(sigset_t))
-+		return -EINVAL;
-+
-+	if (copy_from_user(&set32, unewset, sizeof(set32)))
-+		return -EFAULT;
-+	switch (_NSIG_WORDS) {
-+	case 4: newset.sig[3] = set32.sig[6] + (((long)set32.sig[7]) << 32);
-+	case 3: newset.sig[2] = set32.sig[4] + (((long)set32.sig[5]) << 32);
-+	case 2: newset.sig[1] = set32.sig[2] + (((long)set32.sig[3]) << 32);
-+	case 1: newset.sig[0] = set32.sig[0] + (((long)set32.sig[1]) << 32);
-+	}
-+        sigdelsetmask(&newset, ~_BLOCKABLE);
-+
-+        spin_lock_irq(&current->sighand->siglock);
-+        saveset = current->blocked;
-+        current->blocked = newset;
-+        recalc_sigpending();
-+        spin_unlock_irq(&current->sighand->siglock);
-+        regs->gprs[2] = -EINTR;
-+
-+        while (1) {
-+                set_current_state(TASK_INTERRUPTIBLE);
-+                schedule();
-+                if (do_signal32(regs, &saveset))
-+                        return -EINTR;
-+        }
-+}                                                         
-+
-+asmlinkage int
-+sys32_sigaction(int sig, const struct old_sigaction32 *act,
-+		 struct old_sigaction32 *oact)
-+{
-+        struct k_sigaction new_ka, old_ka;
-+        int ret;
-+
-+        if (act) {
-+		compat_old_sigset_t mask;
-+		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
-+		    __get_user((unsigned long)new_ka.sa.sa_handler, &act->sa_handler) ||
-+		    __get_user((unsigned long)new_ka.sa.sa_restorer, &act->sa_restorer))
-+			return -EFAULT;
-+		__get_user(new_ka.sa.sa_flags, &act->sa_flags);
-+		__get_user(mask, &act->sa_mask);
-+		siginitset(&new_ka.sa.sa_mask, mask);
-+        }
-+
-+        ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
-+
-+	if (!ret && oact) {
-+		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
-+		    __put_user((unsigned long)old_ka.sa.sa_handler, &oact->sa_handler) ||
-+		    __put_user((unsigned long)old_ka.sa.sa_restorer, &oact->sa_restorer))
-+			return -EFAULT;
-+		__put_user(old_ka.sa.sa_flags, &oact->sa_flags);
-+		__put_user(old_ka.sa.sa_mask.sig[0], &oact->sa_mask);
-+        }
-+
-+	return ret;
-+}
-+
-+int
-+do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
-+
-+asmlinkage long 
-+sys32_rt_sigaction(int sig, const struct sigaction32 *act,
-+	   struct sigaction32 *oact,  size_t sigsetsize)
-+{
-+	struct k_sigaction new_ka, old_ka;
-+	int ret;
-+	compat_sigset_t set32;
-+
-+	/* XXX: Don't preclude handling different sized sigset_t's.  */
-+	if (sigsetsize != sizeof(compat_sigset_t))
-+		return -EINVAL;
-+
-+	if (act) {
-+		ret = get_user((unsigned long)new_ka.sa.sa_handler, &act->sa_handler);
-+		ret |= __copy_from_user(&set32, &act->sa_mask,
-+					sizeof(compat_sigset_t));
-+		switch (_NSIG_WORDS) {
-+		case 4: new_ka.sa.sa_mask.sig[3] = set32.sig[6]
-+				| (((long)set32.sig[7]) << 32);
-+		case 3: new_ka.sa.sa_mask.sig[2] = set32.sig[4]
-+				| (((long)set32.sig[5]) << 32);
-+		case 2: new_ka.sa.sa_mask.sig[1] = set32.sig[2]
-+				| (((long)set32.sig[3]) << 32);
-+		case 1: new_ka.sa.sa_mask.sig[0] = set32.sig[0]
-+				| (((long)set32.sig[1]) << 32);
-+		}
-+		ret |= __get_user(new_ka.sa.sa_flags, &act->sa_flags);
-+		
-+		if (ret)
-+			return -EFAULT;
-+	}
-+
-+	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
-+
-+	if (!ret && oact) {
-+		switch (_NSIG_WORDS) {
-+		case 4:
-+			set32.sig[7] = (old_ka.sa.sa_mask.sig[3] >> 32);
-+			set32.sig[6] = old_ka.sa.sa_mask.sig[3];
-+		case 3:
-+			set32.sig[5] = (old_ka.sa.sa_mask.sig[2] >> 32);
-+			set32.sig[4] = old_ka.sa.sa_mask.sig[2];
-+		case 2:
-+			set32.sig[3] = (old_ka.sa.sa_mask.sig[1] >> 32);
-+			set32.sig[2] = old_ka.sa.sa_mask.sig[1];
-+		case 1:
-+			set32.sig[1] = (old_ka.sa.sa_mask.sig[0] >> 32);
-+			set32.sig[0] = old_ka.sa.sa_mask.sig[0];
-+		}
-+		ret = put_user((unsigned long)old_ka.sa.sa_handler, &oact->sa_handler);
-+		ret |= __copy_to_user(&oact->sa_mask, &set32,
-+				      sizeof(compat_sigset_t));
-+		ret |= __put_user(old_ka.sa.sa_flags, &oact->sa_flags);
-+	}
-+
-+	return ret;
-+}
-+
-+asmlinkage int
-+sys32_sigaltstack(const stack_t32 *uss, stack_t32 *uoss, struct pt_regs *regs)
-+{
-+	stack_t kss, koss;
-+	int ret, err = 0;
-+	mm_segment_t old_fs = get_fs();
-+
-+	if (uss) {
-+		if (!access_ok(VERIFY_READ, uss, sizeof(*uss)))
-+			return -EFAULT;
-+		err |= __get_user((unsigned long) kss.ss_sp, &uss->ss_sp);
-+		err |= __get_user(kss.ss_size, &uss->ss_size);
-+		err |= __get_user(kss.ss_flags, &uss->ss_flags);
-+		if (err)
-+			return -EFAULT;
-+	}
-+
-+	set_fs (KERNEL_DS);
-+	ret = do_sigaltstack(uss ? &kss : NULL , uoss ? &koss : NULL, regs->gprs[15]);
-+	set_fs (old_fs);
-+
-+	if (!ret && uoss) {
-+		if (!access_ok(VERIFY_WRITE, uoss, sizeof(*uoss)))
-+			return -EFAULT;
-+		err |= __put_user((unsigned long) koss.ss_sp, &uoss->ss_sp);
-+		err |= __put_user(koss.ss_size, &uoss->ss_size);
-+		err |= __put_user(koss.ss_flags, &uoss->ss_flags);
-+		if (err)
-+			return -EFAULT;
-+	}
-+	return ret;
-+}
-+
-+static int save_sigregs32(struct pt_regs *regs,_sigregs32 *sregs)
-+{
-+	_s390_regs_common32 regs32;
-+	int err, i;
-+
-+	regs32.psw.mask = PSW32_USER_BITS |
-+		((__u32)(regs->psw.mask >> 32) & PSW32_MASK_CC);
-+	regs32.psw.addr = PSW32_ADDR_AMODE31 | (__u32) regs->psw.addr;
-+	for (i = 0; i < NUM_GPRS; i++)
-+		regs32.gprs[i] = (__u32) regs->gprs[i];
-+	memcpy(regs32.acrs, regs->acrs, sizeof(regs32.acrs));
-+	err = __copy_to_user(&sregs->regs, &regs32, sizeof(regs32));
-+	if (err)
-+		return err;
-+	save_fp_regs(&current->thread.fp_regs);
-+	/* s390_fp_regs and _s390_fp_regs32 are the same ! */
-+	return __copy_to_user(&sregs->fpregs, &current->thread.fp_regs,
-+			      sizeof(_s390_fp_regs32));
-+}
-+
-+static int restore_sigregs32(struct pt_regs *regs,_sigregs32 *sregs)
-+{
-+	_s390_regs_common32 regs32;
-+	int err, i;
-+
-+	err = __copy_from_user(&regs32, &sregs->regs, sizeof(regs32));
-+	if (err)
-+		return err;
-+	regs->psw.mask = PSW_USER32_BITS |
-+		(__u64)(regs32.psw.mask & PSW32_MASK_CC) << 32;
-+	regs->psw.addr = (__u64)(regs32.psw.addr & PSW32_ADDR_INSN);
-+	for (i = 0; i < NUM_GPRS; i++)
-+		regs->gprs[i] = (__u64) regs32.gprs[i];
-+	memcpy(regs->acrs, regs32.acrs, sizeof(regs32.acrs));
-+
-+	err = __copy_from_user(&current->thread.fp_regs, &sregs->fpregs,
-+			       sizeof(_s390_fp_regs32));
-+	current->thread.fp_regs.fpc &= FPC_VALID_MASK;
-+	if (err)
-+		return err;
-+
-+	restore_fp_regs(&current->thread.fp_regs);
-+	regs->trap = -1;	/* disable syscall checks */
-+	return 0;
-+}
-+
-+asmlinkage long sys32_sigreturn(struct pt_regs *regs)
-+{
-+	sigframe32 *frame = (sigframe32 *)regs->gprs[15];
-+	sigset_t set;
-+
-+	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
-+		goto badframe;
-+	if (__copy_from_user(&set.sig, &frame->sc.oldmask, _SIGMASK_COPY_SIZE32))
-+		goto badframe;
-+
-+	sigdelsetmask(&set, ~_BLOCKABLE);
-+	spin_lock_irq(&current->sighand->siglock);
-+	current->blocked = set;
-+	recalc_sigpending();
-+	spin_unlock_irq(&current->sighand->siglock);
-+
-+	if (restore_sigregs32(regs, &frame->sregs))
-+		goto badframe;
-+
-+	return regs->gprs[2];
-+
-+badframe:
-+	force_sig(SIGSEGV, current);
-+	return 0;
-+}	
-+
-+asmlinkage long sys32_rt_sigreturn(struct pt_regs *regs)
-+{
-+	rt_sigframe32 *frame = (rt_sigframe32 *)regs->gprs[15];
-+	sigset_t set;
-+	stack_t st;
-+	__u32 ss_sp;
-+	int err;
-+	mm_segment_t old_fs = get_fs();
-+
-+	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
-+		goto badframe;
-+	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
-+		goto badframe;
-+
-+	sigdelsetmask(&set, ~_BLOCKABLE);
-+	spin_lock_irq(&current->sighand->siglock);
-+	current->blocked = set;
-+	recalc_sigpending();
-+	spin_unlock_irq(&current->sighand->siglock);
-+
-+	if (restore_sigregs32(regs, &frame->uc.uc_mcontext))
-+		goto badframe;
-+
-+	err = __get_user(ss_sp, &frame->uc.uc_stack.ss_sp);
-+	st.ss_sp = (void *) A((unsigned long)ss_sp);
-+	err |= __get_user(st.ss_size, &frame->uc.uc_stack.ss_size);
-+	err |= __get_user(st.ss_flags, &frame->uc.uc_stack.ss_flags);
-+	if (err)
-+		goto badframe; 
-+
-+	/* It is more difficult to avoid calling this function than to
-+	   call it and ignore errors.  */
-+	set_fs (KERNEL_DS);   
-+	do_sigaltstack(&st, NULL, regs->gprs[15]);
-+	set_fs (old_fs);
-+
-+	return regs->gprs[2];
-+
-+badframe:
-+        force_sig(SIGSEGV, current);
-+        return 0;
-+}	
-+
-+/*
-+ * Set up a signal frame.
-+ */
-+
-+
-+/*
-+ * Determine which stack to use..
-+ */
-+static inline void *
-+get_sigframe(struct k_sigaction *ka, struct pt_regs * regs, size_t frame_size)
-+{
-+	unsigned long sp;
-+
-+	/* Default to using normal stack */
-+	sp = (unsigned long) A(regs->gprs[15]);
-+
-+	/* This is the X/Open sanctioned signal stack switching.  */
-+	if (ka->sa.sa_flags & SA_ONSTACK) {
-+		if (! on_sig_stack(sp))
-+			sp = current->sas_ss_sp + current->sas_ss_size;
-+	}
-+
-+	/* This is the legacy signal stack switching. */
-+	else if (!user_mode(regs) &&
-+		 !(ka->sa.sa_flags & SA_RESTORER) &&
-+		 ka->sa.sa_restorer) {
-+		sp = (unsigned long) ka->sa.sa_restorer;
-+	}
-+
-+	return (void *)((sp - frame_size) & -8ul);
-+}
-+
-+static inline int map_signal(int sig)
-+{
-+	if (current_thread_info()->exec_domain
-+	    && current_thread_info()->exec_domain->signal_invmap
-+	    && sig < 32)
-+		return current_thread_info()->exec_domain->signal_invmap[sig];
-+        else
-+		return sig;
-+}
-+
-+static void setup_frame32(int sig, struct k_sigaction *ka,
-+			sigset_t *set, struct pt_regs * regs)
-+{
-+	sigframe32 *frame = get_sigframe(ka, regs, sizeof(sigframe32));
-+	if (!access_ok(VERIFY_WRITE, frame, sizeof(sigframe32)))
-+		goto give_sigsegv;
-+
-+	if (__copy_to_user(&frame->sc.oldmask, &set->sig, _SIGMASK_COPY_SIZE32))
-+		goto give_sigsegv;
-+
-+	if (save_sigregs32(regs, &frame->sregs))
-+		goto give_sigsegv;
-+	if (__put_user((unsigned long) &frame->sregs, &frame->sc.sregs))
-+		goto give_sigsegv;
-+
-+	/* Set up to return from userspace.  If provided, use a stub
-+	   already in userspace.  */
-+	if (ka->sa.sa_flags & SA_RESTORER) {
-+		regs->gprs[14] = (__u64) ka->sa.sa_restorer;
-+	} else {
-+		regs->gprs[14] = (__u64) frame->retcode;
-+		if (__put_user(S390_SYSCALL_OPCODE | __NR_sigreturn,
-+		               (u16 *)(frame->retcode)))
-+			goto give_sigsegv;
-+        }
-+
-+	/* Set up backchain. */
-+	if (__put_user(regs->gprs[15], (unsigned int *) frame))
-+		goto give_sigsegv;
-+
-+	/* Set up registers for signal handler */
-+	regs->gprs[15] = (__u64) frame;
-+	regs->psw.addr = (__u64) ka->sa.sa_handler;
-+	regs->psw.mask = PSW_USER32_BITS;
-+
-+	regs->gprs[2] = map_signal(sig);
-+	regs->gprs[3] = (__u64) &frame->sc;
-+
-+	/* We forgot to include these in the sigcontext.
-+	   To avoid breaking binary compatibility, they are passed as args. */
-+	regs->gprs[4] = current->thread.trap_no;
-+	regs->gprs[5] = current->thread.prot_addr;
-+	return;
-+
-+give_sigsegv:
-+	if (sig == SIGSEGV)
-+		ka->sa.sa_handler = SIG_DFL;
-+	force_sig(SIGSEGV, current);
-+}
-+
-+static void setup_rt_frame32(int sig, struct k_sigaction *ka, siginfo_t *info,
-+			   sigset_t *set, struct pt_regs * regs)
-+{
-+	int err = 0;
-+	rt_sigframe32 *frame = get_sigframe(ka, regs, sizeof(rt_sigframe32));
-+	if (!access_ok(VERIFY_WRITE, frame, sizeof(rt_sigframe32)))
-+		goto give_sigsegv;
-+
-+	if (copy_siginfo_to_user32(&frame->info, info))
-+		goto give_sigsegv;
-+
-+	/* Create the ucontext.  */
-+	err |= __put_user(0, &frame->uc.uc_flags);
-+	err |= __put_user(0, &frame->uc.uc_link);
-+	err |= __put_user(current->sas_ss_sp, &frame->uc.uc_stack.ss_sp);
-+	err |= __put_user(sas_ss_flags(regs->gprs[15]),
-+	                  &frame->uc.uc_stack.ss_flags);
-+	err |= __put_user(current->sas_ss_size, &frame->uc.uc_stack.ss_size);
-+	err |= save_sigregs32(regs, &frame->uc.uc_mcontext);
-+	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
-+	if (err)
-+		goto give_sigsegv;
-+
-+	/* Set up to return from userspace.  If provided, use a stub
-+	   already in userspace.  */
-+	if (ka->sa.sa_flags & SA_RESTORER) {
-+		regs->gprs[14] = (__u64) ka->sa.sa_restorer;
-+	} else {
-+		regs->gprs[14] = (__u64) frame->retcode;
-+		err |= __put_user(S390_SYSCALL_OPCODE | __NR_rt_sigreturn,
-+		                  (u16 *)(frame->retcode));
-+	}
-+
-+	/* Set up backchain. */
-+	if (__put_user(regs->gprs[15], (unsigned int *) frame))
-+		goto give_sigsegv;
-+
-+	/* Set up registers for signal handler */
-+	regs->gprs[15] = (__u64) frame;
-+	regs->psw.addr = (__u64) ka->sa.sa_handler;
-+	regs->psw.mask = PSW_USER32_BITS;
-+
-+	regs->gprs[2] = map_signal(sig);
-+	regs->gprs[3] = (__u64) &frame->info;
-+	regs->gprs[4] = (__u64) &frame->uc;
-+	return;
-+
-+give_sigsegv:
-+	if (sig == SIGSEGV)
-+		ka->sa.sa_handler = SIG_DFL;
-+	force_sig(SIGSEGV, current);
-+}
-+
-+/*
-+ * OK, we're invoking a handler
-+ */	
-+
-+static void
-+handle_signal32(unsigned long sig, siginfo_t *info, sigset_t *oldset,
-+	struct pt_regs * regs)
-+{
-+	struct k_sigaction *ka = &current->sighand->action[sig-1];
-+
-+	/* Are we from a system call? */
-+	if (regs->trap == __LC_SVC_OLD_PSW) {
-+		/* If so, check system call restarting.. */
-+		switch (regs->gprs[2]) {
-+			case -ERESTARTNOHAND:
-+				regs->gprs[2] = -EINTR;
-+				break;
-+
-+			case -ERESTARTSYS:
-+				if (!(ka->sa.sa_flags & SA_RESTART)) {
-+					regs->gprs[2] = -EINTR;
-+					break;
-+				}
-+			/* fallthrough */
-+			case -ERESTARTNOINTR:
-+				regs->gprs[2] = regs->orig_gpr2;
-+				regs->psw.addr -= 2;
-+		}
-+	}
-+
-+	/* Set up the stack frame */
-+	if (ka->sa.sa_flags & SA_SIGINFO)
-+		setup_rt_frame32(sig, ka, info, oldset, regs);
-+	else
-+		setup_frame32(sig, ka, oldset, regs);
-+
-+	if (ka->sa.sa_flags & SA_ONESHOT)
-+		ka->sa.sa_handler = SIG_DFL;
-+
-+	if (!(ka->sa.sa_flags & SA_NODEFER)) {
-+		spin_lock_irq(&current->sighand->siglock);
-+		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
-+		sigaddset(&current->blocked,sig);
-+		recalc_sigpending();
-+		spin_unlock_irq(&current->sighand->siglock);
-+	}
-+}
-+
-+/*
-+ * Note that 'init' is a special process: it doesn't get signals it doesn't
-+ * want to handle. Thus you cannot kill init even with a SIGKILL even by
-+ * mistake.
-+ *
-+ * Note that we go through the signals twice: once to check the signals that
-+ * the kernel can handle, and then we build all the user-level signal handling
-+ * stack-frames in one go after that.
-+ */
-+int do_signal32(struct pt_regs *regs, sigset_t *oldset)
-+{
-+	siginfo_t info;
-+	int signr;
-+
-+	/*
-+	 * We want the common case to go fast, which
-+	 * is why we may in certain cases get here from
-+	 * kernel mode. Just return without doing anything
-+	 * if so.
-+	 */
-+	if (!user_mode(regs))
-+		return 1;
-+
-+	if (!oldset)
-+		oldset = &current->blocked;
-+
-+	signr = get_signal_to_deliver(&info, regs, NULL);
-+	if (signr > 0) {
-+		/* Whee!  Actually deliver the signal.  */
-+		handle_signal32(signr, &info, oldset, regs);
-+		return 1;
-+	}
-+
-+	/* Did we come from a system call? */
-+	if ( regs->trap == __LC_SVC_OLD_PSW /* System Call! */ ) {
-+		/* Restart the system call - no handlers present */
-+		if (regs->gprs[2] == -ERESTARTNOHAND ||
-+		    regs->gprs[2] == -ERESTARTSYS ||
-+		    regs->gprs[2] == -ERESTARTNOINTR) {
-+			regs->gprs[2] = regs->orig_gpr2;
-+			regs->psw.addr -= 2;
-+		}
-+	}
-+	return 0;
-+}
-diff -urN linux-2.5.67/arch/s390/kernel/compat_wrapper.S linux-2.5.67-s390/arch/s390/kernel/compat_wrapper.S
---- linux-2.5.67/arch/s390/kernel/compat_wrapper.S	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.67-s390/arch/s390/kernel/compat_wrapper.S	Mon Apr 14 19:11:56 2003
-@@ -0,0 +1,1211 @@
-+/*
-+*  arch/s390/kernel/sys_wrapper31.S
-+*    wrapper for 31 bit compatible system calls.
-+*
-+*  S390 version
-+*    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+*    Author(s): Gerhard Tonn (ton@de.ibm.com),
-+*/ 
-+
-+	.globl  sys32_exit_wrapper 
-+sys32_exit_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_exit		# branch to sys_exit
-+    
-+	.globl  sys32_read_wrapper 
-+sys32_read_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# char *
-+	llgfr	%r4,%r4			# size_t
-+	jg	sys32_read		# branch to sys_read
-+
-+	.globl  sys32_write_wrapper 
-+sys32_write_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# const char *
-+	llgfr	%r4,%r4			# size_t
-+	jg	sys32_write		# branch to system call
-+
-+	.globl  sys32_open_wrapper 
-+sys32_open_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# int
-+	lgfr	%r4,%r4			# int
-+	jg	sys_open		# branch to system call
-+
-+	.globl  sys32_close_wrapper 
-+sys32_close_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	jg	sys_close		# branch to system call
-+
-+	.globl  sys32_creat_wrapper 
-+sys32_creat_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_creat		# branch to system call
-+
-+	.globl  sys32_link_wrapper 
-+sys32_link_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# const char *
-+	jg	sys_link		# branch to system call
-+
-+	.globl  sys32_unlink_wrapper 
-+sys32_unlink_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	jg	sys_unlink		# branch to system call
-+
-+	.globl  sys32_chdir_wrapper 
-+sys32_chdir_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	jg	sys_chdir		# branch to system call
-+
-+	.globl  sys32_time_wrapper 
-+sys32_time_wrapper:
-+	llgtr	%r2,%r2			# int *
-+	jg	sys_time		# branch to system call
-+
-+	.globl  sys32_mknod_wrapper 
-+sys32_mknod_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# int 
-+	llgfr	%r4,%r4			# dev
-+	jg	sys_mknod		# branch to system call
-+
-+	.globl  sys32_chmod_wrapper 
-+sys32_chmod_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgfr	%r3,%r3			# mode_t
-+	jg	sys_chmod		# branch to system call
-+
-+	.globl  sys32_lchown16_wrapper 
-+sys32_lchown16_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
-+	llgfr	%r4,%r4			# __kernel_old_uid_emu31_t 
-+	jg	sys32_lchown16		# branch to system call
-+
-+	.globl  sys32_lseek_wrapper 
-+sys32_lseek_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	lgfr	%r3,%r3			# off_t
-+	llgfr	%r4,%r4			# unsigned int
-+	jg	sys_lseek		# branch to system call
-+
-+#sys32_getpid_wrapper				# void 
-+
-+	.globl  sys32_mount_wrapper 
-+sys32_mount_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# char *
-+	llgfr	%r5,%r5			# unsigned long
-+	llgtr	%r6,%r6			# void *
-+	jg	sys32_mount		# branch to system call
-+
-+	.globl  sys32_oldumount_wrapper 
-+sys32_oldumount_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	jg	sys_oldumount		# branch to system call
-+
-+	.globl  sys32_setuid16_wrapper 
-+sys32_setuid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
-+	jg	sys32_setuid16		# branch to system call
-+
-+#sys32_getuid16_wrapper			# void 
-+
-+	.globl  sys32_ptrace_wrapper 
-+sys32_ptrace_wrapper:
-+	lgfr	%r2,%r2			# long
-+	lgfr	%r3,%r3			# long
-+	llgtr	%r4,%r4			# long
-+	llgfr	%r5,%r5			# long
-+	jg	sys_ptrace		# branch to system call
-+
-+	.globl  sys32_alarm_wrapper 
-+sys32_alarm_wrapper:
-+	llgtr	%r2,%r2			# unsigned int
-+	jg	sys_alarm		# branch to system call
-+
-+#sys32_pause_wrapper			# void 
-+
-+	.globl  compat_sys_utime_wrapper 
-+compat_sys_utime_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# struct compat_utimbuf *
-+	jg	compat_sys_utime		# branch to system call
-+
-+	.globl  sys32_access_wrapper 
-+sys32_access_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_access		# branch to system call
-+
-+	.globl  sys32_nice_wrapper 
-+sys32_nice_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_nice		# branch to system call
-+
-+#sys32_sync_wrapper			# void 
-+
-+	.globl  sys32_kill_wrapper 
-+sys32_kill_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# int
-+	jg	sys_kill		# branch to system call
-+
-+	.globl  sys32_rename_wrapper 
-+sys32_rename_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# const char *
-+	jg	sys_rename		# branch to system call
-+
-+	.globl  sys32_mkdir_wrapper 
-+sys32_mkdir_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_mkdir		# branch to system call
-+
-+	.globl  sys32_rmdir_wrapper 
-+sys32_rmdir_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	jg	sys_rmdir		# branch to system call
-+
-+	.globl  sys32_dup_wrapper 
-+sys32_dup_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	jg	sys_dup			# branch to system call
-+
-+	.globl  sys32_pipe_wrapper 
-+sys32_pipe_wrapper:
-+	llgtr	%r2,%r2			# u32 *
-+	jg	sys_pipe		# branch to system call
-+
-+	.globl  compat_sys_times_wrapper 
-+compat_sys_times_wrapper:
-+	llgtr	%r2,%r2			# struct compat_tms *
-+	jg	compat_sys_times	# branch to system call
-+
-+	.globl  sys32_brk_wrapper 
-+sys32_brk_wrapper:
-+	llgtr	%r2,%r2			# unsigned long
-+	jg	sys_brk			# branch to system call
-+
-+	.globl  sys32_setgid16_wrapper 
-+sys32_setgid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
-+	jg	sys32_setgid16		# branch to system call
-+
-+#sys32_getgid16_wrapper			# void 
-+
-+	.globl sys32_signal_wrapper
-+sys32_signal_wrapper:
-+	lgfr	%r2,%r2			# int 
-+	llgfr	%r3,%r3			# __sighandler_t 
-+	jg	sys_signal
-+
-+#sys32_geteuid16_wrapper		# void 
-+
-+#sys32_getegid16_wrapper		# void 
-+
-+	.globl  sys32_acct_wrapper 
-+sys32_acct_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	jg	sys_acct		# branch to system call
-+
-+	.globl  sys32_umount_wrapper 
-+sys32_umount_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_umount		# branch to system call
-+
-+	.globl  sys32_ioctl_wrapper 
-+sys32_ioctl_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned int
-+	llgfr	%r4,%r4			# unsigned int
-+	jg	sys32_ioctl		# branch to system call
-+
-+	.globl  compat_sys_fcntl_wrapper 
-+compat_sys_fcntl_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned int 
-+	llgfr	%r4,%r4			# unsigned long
-+	jg	compat_sys_fcntl	# branch to system call
-+
-+	.globl  sys32_setpgid_wrapper 
-+sys32_setpgid_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	lgfr	%r3,%r3			# pid_t
-+	jg	sys_setpgid		# branch to system call
-+
-+	.globl  sys32_umask_wrapper 
-+sys32_umask_wrapper:
-+	lgfr	%r3,%r3			# int
-+	jg	sys_umask		# branch to system call
-+
-+	.globl  sys32_chroot_wrapper 
-+sys32_chroot_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	jg	sys_chroot		# branch to system call
-+
-+	.globl sys32_ustat_wrapper
-+sys32_ustat_wrapper:
-+	llgfr	%r2,%r2			# dev_t 
-+	llgtr	%r3,%r3			# struct ustat *
-+	jg	sys_ustat
-+
-+	.globl  sys32_dup2_wrapper 
-+sys32_dup2_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned int
-+	jg	sys_dup2		# branch to system call
-+
-+#sys32_getppid_wrapper			# void 
-+
-+#sys32_getpgrp_wrapper			# void 
-+
-+#sys32_setsid_wrapper			# void 
-+
-+	.globl  sys32_sigaction_wrapper
-+sys32_sigaction_wrapper:
-+	lgfr	%r2,%r2			# int 
-+	llgtr	%r3,%r3			# const struct old_sigaction *
-+	jg	sys32_sigaction		# branch to system call
-+
-+	.globl  sys32_setreuid16_wrapper 
-+sys32_setreuid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
-+	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
-+	jg	sys32_setreuid16	# branch to system call
-+
-+	.globl  sys32_setregid16_wrapper 
-+sys32_setregid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
-+	llgfr	%r3,%r3			# __kernel_old_gid_emu31_t 
-+	jg	sys32_setregid16	# branch to system call
-+
-+#sys32_sigsuspend_wrapper		# done in sigsuspend_glue 
-+
-+	.globl  compat_sys_sigpending_wrapper 
-+compat_sys_sigpending_wrapper:
-+	llgtr	%r2,%r2			# compat_old_sigset_t *
-+	jg	compat_sys_sigpending	# branch to system call
-+
-+	.globl  sys32_sethostname_wrapper 
-+sys32_sethostname_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_sethostname		# branch to system call
-+
-+	.globl  sys32_setrlimit_wrapper 
-+sys32_setrlimit_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# struct rlimit_emu31 *
-+	jg	sys32_setrlimit		# branch to system call
-+
-+	.globl  sys32_old_getrlimit_wrapper 
-+sys32_old_getrlimit_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# struct rlimit_emu31 *
-+	jg	sys32_old_getrlimit	# branch to system call
-+
-+	.globl  sys32_getrlimit_wrapper 
-+sys32_getrlimit_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# struct rlimit_emu31 *
-+	jg	sys32_getrlimit		# branch to system call
-+
-+	.globl  sys32_mmap2_wrapper 
-+sys32_mmap2_wrapper:
-+	llgtr	%r2,%r2			# struct mmap_arg_struct_emu31 *
-+	jg	sys32_mmap2			# branch to system call
-+
-+	.globl  sys32_getrusage_wrapper 
-+sys32_getrusage_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# struct rusage_emu31 *
-+	jg	sys32_getrusage		# branch to system call
-+
-+	.globl  sys32_gettimeofday_wrapper 
-+sys32_gettimeofday_wrapper:
-+	llgtr	%r2,%r2			# struct timeval_emu31 *
-+	llgtr	%r3,%r3			# struct timezone *
-+	jg	sys32_gettimeofday	# branch to system call
-+
-+	.globl  sys32_settimeofday_wrapper 
-+sys32_settimeofday_wrapper:
-+	llgtr	%r2,%r2			# struct timeval_emu31 *
-+	llgtr	%r3,%r3			# struct timezone *
-+	jg	sys32_settimeofday	# branch to system call
-+
-+	.globl  sys32_getgroups16_wrapper 
-+sys32_getgroups16_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# __kernel_old_gid_emu31_t *
-+	jg	sys32_getgroups16	# branch to system call
-+
-+	.globl  sys32_setgroups16_wrapper 
-+sys32_setgroups16_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# __kernel_old_gid_emu31_t *
-+	jg	sys32_setgroups16	# branch to system call
-+
-+	.globl  sys32_symlink_wrapper 
-+sys32_symlink_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# const char *
-+	jg	sys_symlink		# branch to system call
-+
-+	.globl  sys32_readlink_wrapper 
-+sys32_readlink_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# char *
-+	lgfr	%r4,%r4			# int
-+	jg	sys_readlink		# branch to system call
-+
-+	.globl  sys32_uselib_wrapper 
-+sys32_uselib_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	jg	sys_uselib		# branch to system call
-+
-+	.globl  sys32_swapon_wrapper 
-+sys32_swapon_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_swapon		# branch to system call
-+
-+	.globl  sys32_reboot_wrapper 
-+sys32_reboot_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# int
-+	llgfr	%r4,%r4			# unsigned int
-+	llgtr	%r5,%r5			# void *
-+	jg	sys_reboot		# branch to system call
-+
-+	.globl  old32_readdir_wrapper 
-+old32_readdir_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# void *
-+	llgfr	%r4,%r4			# unsigned int
-+	jg	old32_readdir		# branch to system call
-+
-+	.globl  old32_mmap_wrapper 
-+old32_mmap_wrapper:
-+	llgtr	%r2,%r2			# struct mmap_arg_struct_emu31 *
-+	jg	old32_mmap		# branch to system call
-+
-+	.globl  sys32_munmap_wrapper 
-+sys32_munmap_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# size_t 
-+	jg	sys_munmap		# branch to system call
-+
-+	.globl  sys32_truncate_wrapper 
-+sys32_truncate_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgfr	%r3,%r3			# unsigned long
-+	jg	sys_truncate		# branch to system call
-+
-+	.globl  sys32_ftruncate_wrapper 
-+sys32_ftruncate_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned long
-+	jg	sys_ftruncate		# branch to system call
-+
-+	.globl  sys32_fchmod_wrapper 
-+sys32_fchmod_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# mode_t
-+	jg	sys_fchmod		# branch to system call
-+
-+	.globl  sys32_fchown16_wrapper 
-+sys32_fchown16_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# __kernel_old_uid_emu31_t *
-+	llgtr	%r4,%r4			# __kernel_old_gid_emu31_t *
-+	jg	sys32_fchown16		# branch to system call
-+
-+	.globl  sys32_getpriority_wrapper 
-+sys32_getpriority_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# int
-+	jg	sys_getpriority		# branch to system call
-+
-+	.globl  sys32_setpriority_wrapper 
-+sys32_setpriority_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# int
-+	lgfr	%r4,%r4			# int
-+	jg	sys_setpriority		# branch to system call
-+
-+	.globl  compat_sys_statfs_wrapper 
-+compat_sys_statfs_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# struct compat_statfs *
-+	jg	compat_sys_statfs	# branch to system call
-+
-+	.globl  compat_sys_fstatfs_wrapper 
-+compat_sys_fstatfs_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# struct compat_statfs *
-+	jg	compat_sys_fstatfs	# branch to system call
-+
-+	.globl  compat_sys_socketcall_wrapper 
-+compat_sys_socketcall_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# u32 *
-+	jg	compat_sys_socketcall	# branch to system call
-+
-+	.globl  sys32_syslog_wrapper 
-+sys32_syslog_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# char *
-+	lgfr	%r4,%r4			# int
-+	jg	sys_syslog		# branch to system call
-+
-+	.globl  compat_sys_setitimer_wrapper 
-+compat_sys_setitimer_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# struct itimerval_emu31 *
-+	llgtr	%r4,%r4			# struct itimerval_emu31 *
-+	jg	compat_sys_setitimer	# branch to system call
-+
-+	.globl  compat_sys_getitimer_wrapper 
-+compat_sys_getitimer_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# struct itimerval_emu31 *
-+	jg	compat_sys_getitimer	# branch to system call
-+
-+	.globl  compat_sys_newstat_wrapper 
-+compat_sys_newstat_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# struct stat_emu31 *
-+	jg	compat_sys_newstat	# branch to system call
-+
-+	.globl  compat_sys_newlstat_wrapper 
-+compat_sys_newlstat_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# struct stat_emu31 *
-+	jg	compat_sys_newlstat	# branch to system call
-+
-+	.globl  compat_sys_newfstat_wrapper 
-+compat_sys_newfstat_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# struct stat_emu31 *
-+	jg	compat_sys_newfstat	# branch to system call
-+
-+#sys32_vhangup_wrapper			# void 
-+
-+	.globl  sys32_wait4_wrapper 
-+sys32_wait4_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	llgtr	%r3,%r3			# unsigned int *
-+	lgfr	%r4,%r4			# int
-+	llgtr	%r5,%r5			# struct rusage *
-+	jg	sys32_wait4		# branch to system call
-+
-+	.globl  sys32_swapoff_wrapper 
-+sys32_swapoff_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	jg	sys_swapoff		# branch to system call
-+
-+	.globl  sys32_sysinfo_wrapper 
-+sys32_sysinfo_wrapper:
-+	llgtr	%r2,%r2			# struct sysinfo_emu31 *
-+	jg	sys32_sysinfo		# branch to system call
-+
-+	.globl  sys32_ipc_wrapper 
-+sys32_ipc_wrapper:
-+	llgfr	%r2,%r2			# uint
-+	lgfr	%r3,%r3			# int
-+	lgfr	%r4,%r4			# int
-+	lgfr	%r5,%r5			# int
-+	llgtr	%r6,%r6			# void *
-+	jg	sys32_ipc		# branch to system call
-+
-+	.globl  sys32_fsync_wrapper 
-+sys32_fsync_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	jg	sys_fsync		# branch to system call
-+
-+#sys32_sigreturn_wrapper		# done in sigreturn_glue 
-+
-+#sys32_clone_wrapper			# done in clone_glue 
-+
-+	.globl  sys32_setdomainname_wrapper 
-+sys32_setdomainname_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	lgfr	%r3,%r3			# int
-+	jg	sys_setdomainname	# branch to system call
-+
-+	.globl  sys32_newuname_wrapper 
-+sys32_newuname_wrapper:
-+	llgtr	%r2,%r2			# struct new_utsname *
-+	jg	s390x_newuname		# branch to system call
-+
-+	.globl  sys32_adjtimex_wrapper 
-+sys32_adjtimex_wrapper:
-+	llgtr	%r2,%r2			# struct timex_emu31 *
-+	jg	sys32_adjtimex		# branch to system call
-+
-+	.globl  sys32_mprotect_wrapper 
-+sys32_mprotect_wrapper:
-+	llgtr	%r2,%r2			# unsigned long (actually pointer
-+	llgfr	%r3,%r3			# size_t
-+	llgfr	%r4,%r4			# unsigned long
-+	jg	sys_mprotect		# branch to system call
-+
-+	.globl  compat_sys_sigprocmask_wrapper 
-+compat_sys_sigprocmask_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# compat_old_sigset_t *
-+	llgtr	%r4,%r4			# compat_old_sigset_t *
-+	jg	compat_sys_sigprocmask		# branch to system call
-+
-+	.globl  sys32_init_module_wrapper 
-+sys32_init_module_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# struct module *
-+	jg	sys32_init_module	# branch to system call
-+
-+	.globl  sys32_delete_module_wrapper 
-+sys32_delete_module_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	jg	sys32_delete_module	# branch to system call
-+
-+	.globl  sys32_quotactl_wrapper 
-+sys32_quotactl_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# const char *
-+	lgfr	%r4,%r4			# int
-+	llgtr	%r5,%r5			# caddr_t
-+	jg	sys_quotactl		# branch to system call
-+
-+	.globl  sys32_getpgid_wrapper 
-+sys32_getpgid_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	jg	sys_getpgid		# branch to system call
-+
-+	.globl  sys32_fchdir_wrapper 
-+sys32_fchdir_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	jg	sys_fchdir		# branch to system call
-+
-+	.globl  sys32_bdflush_wrapper 
-+sys32_bdflush_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# long
-+	jg	sys_bdflush		# branch to system call
-+
-+	.globl  sys32_sysfs_wrapper 
-+sys32_sysfs_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgfr	%r3,%r3			# unsigned long
-+	llgfr	%r4,%r4			# unsigned long
-+	jg	sys_sysfs		# branch to system call
-+
-+	.globl  sys32_personality_wrapper 
-+sys32_personality_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	jg	s390x_personality	# branch to system call
-+
-+	.globl  sys32_setfsuid16_wrapper 
-+sys32_setfsuid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
-+	jg	sys32_setfsuid16	# branch to system call
-+
-+	.globl  sys32_setfsgid16_wrapper 
-+sys32_setfsgid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
-+	jg	sys32_setfsgid16	# branch to system call
-+
-+	.globl  sys32_llseek_wrapper 
-+sys32_llseek_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned long
-+	llgfr	%r4,%r4			# unsigned long
-+	llgtr	%r5,%r5			# loff_t *
-+	llgfr	%r6,%r6			# unsigned int
-+	jg	sys_llseek		# branch to system call
-+
-+	.globl  sys32_getdents_wrapper 
-+sys32_getdents_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# void *
-+	llgfr	%r4,%r4			# unsigned int
-+	jg	sys32_getdents		# branch to system call
-+
-+	.globl  sys32_select_wrapper 
-+sys32_select_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# fd_set *
-+	llgtr	%r4,%r4			# fd_set *
-+	llgtr	%r5,%r5			# fd_set *
-+	llgtr	%r6,%r6			# struct timeval_emu31 *
-+	jg	sys32_select		# branch to system call
-+
-+	.globl  sys32_flock_wrapper 
-+sys32_flock_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned int
-+	jg	sys_flock		# branch to system call
-+
-+	.globl  sys32_msync_wrapper 
-+sys32_msync_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# size_t
-+	lgfr	%r4,%r4			# int
-+	jg	sys_msync		# branch to system call
-+
-+	.globl  sys32_readv_wrapper 
-+sys32_readv_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgtr	%r3,%r3			# const struct iovec_emu31 *
-+	llgfr	%r4,%r4			# unsigned long
-+	jg	sys32_readv		# branch to system call
-+
-+	.globl  sys32_writev_wrapper 
-+sys32_writev_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgtr	%r3,%r3			# const struct iovec_emu31 *
-+	llgfr	%r4,%r4			# unsigned long
-+	jg	sys32_writev		# branch to system call
-+
-+	.globl  sys32_getsid_wrapper 
-+sys32_getsid_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	jg	sys_getsid		# branch to system call
-+
-+	.globl  sys32_fdatasync_wrapper 
-+sys32_fdatasync_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	jg	sys_fdatasync		# branch to system call
-+
-+#sys32_sysctl_wrapper			# tbd 
-+
-+	.globl  sys32_mlock_wrapper 
-+sys32_mlock_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# size_t
-+	jg	sys_mlock		# branch to system call
-+
-+	.globl  sys32_munlock_wrapper 
-+sys32_munlock_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# size_t
-+	jg	sys_munlock		# branch to system call
-+
-+	.globl  sys32_mlockall_wrapper 
-+sys32_mlockall_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_mlockall		# branch to system call
-+
-+#sys32_munlockall_wrapper		# void 
-+
-+	.globl  sys32_sched_setparam_wrapper 
-+sys32_sched_setparam_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	llgtr	%r3,%r3			# struct sched_param *
-+	jg	sys_sched_setparam	# branch to system call
-+
-+	.globl  sys32_sched_getparam_wrapper 
-+sys32_sched_getparam_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	llgtr	%r3,%r3			# struct sched_param *
-+	jg	sys_sched_getparam	# branch to system call
-+
-+	.globl  sys32_sched_setscheduler_wrapper 
-+sys32_sched_setscheduler_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	lgfr	%r3,%r3			# int
-+	llgtr	%r4,%r4			# struct sched_param *
-+	jg	sys_sched_setscheduler	# branch to system call
-+
-+	.globl  sys32_sched_getscheduler_wrapper 
-+sys32_sched_getscheduler_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	jg	sys_sched_getscheduler	# branch to system call
-+
-+#sys32_sched_yield_wrapper		# void 
-+
-+	.globl  sys32_sched_get_priority_max_wrapper 
-+sys32_sched_get_priority_max_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_sched_get_priority_max	# branch to system call
-+
-+	.globl  sys32_sched_get_priority_min_wrapper 
-+sys32_sched_get_priority_min_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_sched_get_priority_min	# branch to system call
-+
-+	.globl  sys32_sched_rr_get_interval_wrapper 
-+sys32_sched_rr_get_interval_wrapper:
-+	lgfr	%r2,%r2			# pid_t
-+	llgtr	%r3,%r3			# struct compat_timespec *
-+	jg	sys32_sched_rr_get_interval	# branch to system call
-+
-+	.globl  compat_sys_nanosleep_wrapper 
-+compat_sys_nanosleep_wrapper:
-+	llgtr	%r2,%r2			# struct compat_timespec *
-+	llgtr	%r3,%r3			# struct compat_timespec *
-+	jg	compat_sys_nanosleep		# branch to system call
-+
-+	.globl  sys32_mremap_wrapper 
-+sys32_mremap_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# unsigned long
-+	llgfr	%r4,%r4			# unsigned long
-+	llgfr	%r5,%r5			# unsigned long
-+	llgfr	%r6,%r6			# unsigned long
-+	jg	sys_mremap		# branch to system call
-+
-+	.globl  sys32_setresuid16_wrapper 
-+sys32_setresuid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
-+	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
-+	llgfr	%r4,%r4			# __kernel_old_uid_emu31_t 
-+	jg	sys32_setresuid16	# branch to system call
-+
-+	.globl  sys32_getresuid16_wrapper 
-+sys32_getresuid16_wrapper:
-+	llgtr	%r2,%r2			# __kernel_old_uid_emu31_t *
-+	llgtr	%r3,%r3			# __kernel_old_uid_emu31_t *
-+	llgtr	%r4,%r4			# __kernel_old_uid_emu31_t *
-+	jg	sys32_getresuid16	# branch to system call
-+
-+	.globl  sys32_poll_wrapper 
-+sys32_poll_wrapper:
-+	llgtr	%r2,%r2			# struct pollfd * 
-+	llgfr	%r3,%r3			# unsigned int 
-+	lgfr	%r4,%r4			# long 
-+	jg	sys_poll		# branch to system call
-+
-+	.globl  sys32_nfsservctl_wrapper 
-+sys32_nfsservctl_wrapper:
-+	lgfr	%r2,%r2			# int 
-+	llgtr	%r3,%r3			# struct nfsctl_arg_emu31 * 
-+	llgtr	%r4,%r4			# union nfsctl_res_emu31 * 
-+	jg	sys32_nfsservctl	# branch to system call
-+
-+	.globl  sys32_setresgid16_wrapper 
-+sys32_setresgid16_wrapper:
-+	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
-+	llgfr	%r3,%r3			# __kernel_old_gid_emu31_t 
-+	llgfr	%r4,%r4			# __kernel_old_gid_emu31_t 
-+	jg	sys32_setresgid16	# branch to system call
-+
-+	.globl  sys32_getresgid16_wrapper 
-+sys32_getresgid16_wrapper:
-+	llgtr	%r2,%r2			# __kernel_old_gid_emu31_t *
-+	llgtr	%r3,%r3			# __kernel_old_gid_emu31_t *
-+	llgtr	%r4,%r4			# __kernel_old_gid_emu31_t *
-+	jg	sys32_getresgid16	# branch to system call
-+
-+	.globl  sys32_prctl_wrapper 
-+sys32_prctl_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgfr	%r3,%r3			# unsigned long
-+	llgfr	%r4,%r4			# unsigned long
-+	llgfr	%r5,%r5			# unsigned long
-+	llgfr	%r6,%r6			# unsigned long
-+	jg	sys_prctl		# branch to system call
-+
-+#sys32_rt_sigreturn_wrapper		# done in rt_sigreturn_glue 
-+
-+	.globl  sys32_rt_sigaction_wrapper 
-+sys32_rt_sigaction_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# const struct sigaction_emu31 *
-+	llgtr	%r4,%r4			# const struct sigaction_emu31 *
-+	llgfr	%r5,%r5			# size_t
-+	jg	sys32_rt_sigaction	# branch to system call
-+
-+	.globl  sys32_rt_sigprocmask_wrapper 
-+sys32_rt_sigprocmask_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# old_sigset_emu31 *
-+	llgtr	%r4,%r4			# old_sigset_emu31 *
-+	jg	sys32_rt_sigprocmask	# branch to system call
-+
-+	.globl  sys32_rt_sigpending_wrapper 
-+sys32_rt_sigpending_wrapper:
-+	llgtr	%r2,%r2			# sigset_emu31 *
-+	llgfr	%r3,%r3			# size_t
-+	jg	sys32_rt_sigpending	# branch to system call
-+
-+	.globl  sys32_rt_sigtimedwait_wrapper 
-+sys32_rt_sigtimedwait_wrapper:
-+	llgtr	%r2,%r2			# const sigset_emu31_t *
-+	llgtr	%r3,%r3			# siginfo_emu31_t *
-+	llgtr	%r4,%r4			# const struct compat_timespec *
-+	llgfr	%r5,%r5			# size_t
-+	jg	sys32_rt_sigtimedwait	# branch to system call
-+
-+	.globl  sys32_rt_sigqueueinfo_wrapper 
-+sys32_rt_sigqueueinfo_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# int
-+	llgtr	%r4,%r4			# siginfo_emu31_t *
-+	jg	sys32_rt_sigqueueinfo	# branch to system call
-+
-+#sys32_rt_sigsuspend_wrapper		# done in rt_sigsuspend_glue 
-+
-+	.globl  sys32_pread64_wrapper 
-+sys32_pread64_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# char *
-+	llgfr	%r4,%r4			# size_t
-+	llgfr	%r5,%r5			# u32
-+	llgfr	%r6,%r6			# u32
-+	jg	sys32_pread64		# branch to system call
-+
-+	.globl  sys32_pwrite64_wrapper 
-+sys32_pwrite64_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# const char *
-+	llgfr	%r4,%r4			# size_t
-+	llgfr	%r5,%r5			# u32
-+	llgfr	%r6,%r6			# u32
-+	jg	sys32_pwrite64		# branch to system call
-+
-+	.globl  sys32_chown16_wrapper 
-+sys32_chown16_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
-+	llgfr	%r4,%r4			# __kernel_old_gid_emu31_t 
-+	jg	sys32_chown16		# branch to system call
-+
-+	.globl  sys32_getcwd_wrapper 
-+sys32_getcwd_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgfr	%r3,%r3			# unsigned long
-+	jg	sys_getcwd		# branch to system call
-+
-+	.globl  sys32_capget_wrapper 
-+sys32_capget_wrapper:
-+	llgtr	%r2,%r2			# cap_user_header_t
-+	llgtr	%r3,%r3			# cap_user_data_t
-+	jg	sys_capget		# branch to system call
-+
-+	.globl  sys32_capset_wrapper 
-+sys32_capset_wrapper:
-+	llgtr	%r2,%r2			# cap_user_header_t
-+	llgtr	%r3,%r3			# const cap_user_data_t
-+	jg	sys_capset		# branch to system call
-+
-+	.globl sys32_sigaltstack_wrapper
-+sys32_sigaltstack_wrapper:
-+	llgtr	%r2,%r2			# const stack_emu31_t * 
-+	llgtr	%r3,%r3			# stack_emu31_t * 
-+	jg	sys32_sigaltstack
-+
-+	.globl  sys32_sendfile_wrapper 
-+sys32_sendfile_wrapper:
-+	lgfr	%r2,%r2			# int
-+	lgfr	%r3,%r3			# int
-+	llgtr	%r4,%r4			# __kernel_off_emu31_t *
-+	llgfr	%r5,%r5			# size_t
-+	jg	sys32_sendfile		# branch to system call
-+
-+#sys32_vfork_wrapper			# done in vfork_glue 
-+
-+	.globl  sys32_truncate64_wrapper 
-+sys32_truncate64_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	lgfr	%r3,%r3			# s32 
-+	llgfr	%r4,%r4			# u32 
-+	jg	sys32_truncate64	# branch to system call
-+
-+	.globl  sys32_ftruncate64_wrapper 
-+sys32_ftruncate64_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	lgfr	%r3,%r3			# s32 
-+	llgfr	%r4,%r4			# u32 
-+	jg	sys32_ftruncate64	# branch to system call
-+
-+	.globl sys32_lchown_wrapper	
-+sys32_lchown_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgfr	%r3,%r3			# uid_t
-+	llgfr	%r4,%r4			# gid_t
-+	jg	sys_lchown		# branch to system call
-+
-+#sys32_getuid_wrapper			# void			 
-+#sys32_getgid_wrapper			# void 
-+#sys32_geteuid_wrapper			# void 
-+#sys32_getegid_wrapper			# void 
-+
-+	.globl sys32_setreuid_wrapper
-+sys32_setreuid_wrapper:
-+	llgfr	%r2,%r2			# uid_t
-+	llgfr	%r3,%r3			# uid_t
-+	jg	sys_setreuid		# branch to system call
-+
-+	.globl sys32_setregid_wrapper
-+sys32_setregid_wrapper:
-+	llgfr	%r2,%r2			# gid_t
-+	llgfr	%r3,%r3			# gid_t
-+	jg	sys_setregid		# branch to system call
-+
-+	.globl  sys32_getgroups_wrapper 
-+sys32_getgroups_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# gid_t *
-+	jg	sys_getgroups		# branch to system call
-+
-+	.globl  sys32_setgroups_wrapper 
-+sys32_setgroups_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# gid_t *
-+	jg	sys_setgroups		# branch to system call
-+
-+	.globl sys32_fchown_wrapper	
-+sys32_fchown_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# uid_t
-+	llgfr	%r4,%r4			# gid_t
-+	jg	sys_fchown		# branch to system call
-+
-+	.globl sys32_setresuid_wrapper	
-+sys32_setresuid_wrapper:
-+	llgfr	%r2,%r2			# uid_t
-+	llgfr	%r3,%r3			# uid_t
-+	llgfr	%r4,%r4			# uid_t
-+	jg	sys_setresuid		# branch to system call
-+
-+	.globl sys32_getresuid_wrapper	
-+sys32_getresuid_wrapper:
-+	llgtr	%r2,%r2			# uid_t *
-+	llgtr	%r3,%r3			# uid_t *
-+	llgtr	%r4,%r4			# uid_t *
-+	jg	sys_getresuid		# branch to system call
-+
-+	.globl sys32_setresgid_wrapper	
-+sys32_setresgid_wrapper:
-+	llgfr	%r2,%r2			# gid_t
-+	llgfr	%r3,%r3			# gid_t
-+	llgfr	%r4,%r4			# gid_t
-+	jg	sys_setresgid		# branch to system call
-+
-+	.globl sys32_getresgid_wrapper	
-+sys32_getresgid_wrapper:
-+	llgtr	%r2,%r2			# gid_t *
-+	llgtr	%r3,%r3			# gid_t *
-+	llgtr	%r4,%r4			# gid_t *
-+	jg	sys_getresgid		# branch to system call
-+
-+	.globl sys32_chown_wrapper	
-+sys32_chown_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgfr	%r3,%r3			# uid_t
-+	llgfr	%r4,%r4			# gid_t
-+	jg	sys_chown		# branch to system call
-+
-+	.globl sys32_setuid_wrapper	
-+sys32_setuid_wrapper:
-+	llgfr	%r2,%r2			# uid_t
-+	jg	sys_setuid		# branch to system call
-+
-+	.globl sys32_setgid_wrapper	
-+sys32_setgid_wrapper:
-+	llgfr	%r2,%r2			# gid_t
-+	jg	sys_setgid		# branch to system call
-+
-+	.globl sys32_setfsuid_wrapper	
-+sys32_setfsuid_wrapper:
-+	llgfr	%r2,%r2			# uid_t
-+	jg	sys_setfsuid		# branch to system call
-+
-+	.globl sys32_setfsgid_wrapper	
-+sys32_setfsgid_wrapper:
-+	llgfr	%r2,%r2			# gid_t
-+	jg	sys_setfsgid		# branch to system call
-+
-+	.globl  sys32_pivot_root_wrapper 
-+sys32_pivot_root_wrapper:
-+	llgtr	%r2,%r2			# const char *
-+	llgtr	%r3,%r3			# const char *
-+	jg	sys_pivot_root		# branch to system call
-+
-+	.globl  sys32_mincore_wrapper 
-+sys32_mincore_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# size_t
-+	llgtr	%r4,%r4			# unsigned char *
-+	jg	sys_mincore		# branch to system call
-+
-+	.globl  sys32_madvise_wrapper 
-+sys32_madvise_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgfr	%r3,%r3			# size_t
-+	lgfr	%r4,%r4			# int
-+	jg	sys_madvise		# branch to system call
-+
-+	.globl  sys32_getdents64_wrapper 
-+sys32_getdents64_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgtr	%r3,%r3			# void *
-+	llgfr	%r4,%r4			# unsigned int
-+	jg	sys_getdents64		# branch to system call
-+
-+	.globl  compat_sys_fcntl64_wrapper 
-+compat_sys_fcntl64_wrapper:
-+	llgfr	%r2,%r2			# unsigned int
-+	llgfr	%r3,%r3			# unsigned int 
-+	llgfr	%r4,%r4			# unsigned long
-+	jg	compat_sys_fcntl64	# branch to system call
-+
-+	.globl	sys32_stat64_wrapper
-+sys32_stat64_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# struct stat64 *
-+	llgfr	%r4,%r4			# long
-+	jg	sys32_stat64		# branch to system call
-+
-+	.globl	sys32_lstat64_wrapper
-+sys32_lstat64_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# struct stat64 *
-+	llgfr	%r4,%r4			# long
-+	jg	sys32_lstat64		# branch to system call
-+
-+	.globl	sys32_stime_wrapper
-+sys32_stime_wrapper:
-+	llgtr	%r2,%r2			# int *
-+	jg	sys_stime		# branch to system call
-+
-+	.globl  sys32_sysctl_wrapper
-+sys32_sysctl_wrapper:
-+	llgtr   %r2,%r2                 # struct __sysctl_args32 *
-+	jg      sys32_sysctl
-+
-+	.globl	sys32_fstat64_wrapper
-+sys32_fstat64_wrapper:
-+	llgfr	%r2,%r2			# unsigned long
-+	llgtr	%r3,%r3			# struct stat64 *
-+	llgfr	%r4,%r4			# long
-+	jg	sys32_fstat64		# branch to system call
-+
-+	.globl  compat_sys_futex_wrapper 
-+compat_sys_futex_wrapper:
-+	llgtr	%r2,%r2			# u32 *
-+	lgfr	%r3,%r3			# int
-+	lgfr	%r4,%r4			# int
-+	llgtr	%r5,%r5			# struct compat_timespec *
-+	jg	compat_sys_futex	# branch to system call
-+
-+	.globl	sys32_setxattr_wrapper
-+sys32_setxattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# void *
-+	llgfr	%r5,%r5			# size_t
-+	lgfr	%r6,%r6			# int
-+	jg	sys_setxattr
-+
-+	.globl	sys32_lsetxattr_wrapper
-+sys32_lsetxattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# void *
-+	llgfr	%r5,%r5			# size_t
-+	lgfr	%r6,%r6			# int
-+	jg	sys_lsetxattr
-+
-+	.globl	sys32_fsetxattr_wrapper
-+sys32_fsetxattr_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# void *
-+	llgfr	%r5,%r5			# size_t
-+	lgfr	%r6,%r6			# int
-+	jg	sys_fsetxattr
-+
-+	.globl	sys32_getxattr_wrapper
-+sys32_getxattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# void *
-+	llgfr	%r5,%r5			# size_t
-+	jg	sys_getxattr
-+
-+	.globl	sys32_lgetxattr_wrapper
-+sys32_lgetxattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# void *
-+	llgfr	%r5,%r5			# size_t
-+	jg	sys_lgetxattr
-+
-+	.globl	sys32_fgetxattr_wrapper
-+sys32_fgetxattr_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# char *
-+	llgtr	%r4,%r4			# void *
-+	llgfr	%r5,%r5			# size_t
-+	jg	sys_fgetxattr
-+
-+	.globl	sys32_listxattr_wrapper
-+sys32_listxattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgfr	%r4,%r4			# size_t
-+	jg	sys_listxattr
-+
-+	.globl	sys32_llistxattr_wrapper
-+sys32_llistxattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	llgfr	%r4,%r4			# size_t
-+	jg	sys_llistxattr
-+
-+	.globl	sys32_flistxattr_wrapper
-+sys32_flistxattr_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# char *
-+	llgfr	%r4,%r4			# size_t
-+	jg	sys_flistxattr
-+
-+	.globl	sys32_removexattr_wrapper
-+sys32_removexattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	jg	sys_removexattr
-+
-+	.globl	sys32_lremovexattr_wrapper
-+sys32_lremovexattr_wrapper:
-+	llgtr	%r2,%r2			# char *
-+	llgtr	%r3,%r3			# char *
-+	jg	sys_lremovexattr
-+
-+	.globl	sys32_fremovexattr_wrapper
-+sys32_fremovexattr_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# char *
-+	jg	sys_fremovexattr
-+
-+	.globl	sys32_sched_setaffinity_wrapper
-+sys32_sched_setaffinity_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgfr	%r3,%r3			# unsigned int
-+	llgtr	%r4,%r4			# unsigned long *
-+	jg	sys32_sched_setaffinity
-+
-+	.globl	sys32_sched_getaffinity_wrapper
-+sys32_sched_getaffinity_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgfr	%r3,%r3			# unsigned int
-+	llgtr	%r4,%r4			# unsigned long *
-+	jg	sys32_sched_getaffinity
-+
-+	.globl  sys32_exit_group_wrapper
-+sys32_exit_group_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_exit_group		# branch to system call
-+
-+	.globl  sys32_set_tid_address_wrapper
-+sys32_set_tid_address_wrapper:
-+	llgtr	%r2,%r2			# int *
-+	jg	sys_set_tid_address	# branch to system call
-diff -urN linux-2.5.67/arch/s390/kernel/cpcmd.c linux-2.5.67-s390/arch/s390/kernel/cpcmd.c
---- linux-2.5.67/arch/s390/kernel/cpcmd.c	Mon Apr  7 19:31:15 2003
-+++ linux-2.5.67-s390/arch/s390/kernel/cpcmd.c	Mon Apr 14 19:11:56 2003
-@@ -10,19 +10,26 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <asm/ebcdic.h>
-+#include <linux/spinlock.h>
- #include <asm/cpcmd.h>
-+#include <asm/system.h>
-+
-+static spinlock_t cpcmd_lock = SPIN_LOCK_UNLOCKED;
-+static char cpcmd_buf[128];
+diff -urN linux-2.5.67/drivers/s390/block/dasd.c linux-2.5.67-s390/drivers/s390/block/dasd.c
+--- linux-2.5.67/drivers/s390/block/dasd.c	Mon Apr 14 19:11:53 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd.c	Mon Apr 14 19:11:53 2003
+@@ -7,43 +7,12 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
+  *
+- * $Revision: 1.82 $
+- *
+- * History of changes (starts July 2000)
+- * 11/09/00 complete redesign after code review
+- * 02/01/01 added dynamic registration of ioctls
+- *	    fixed bug in registration of new majors
+- *	    fixed handling of request during dasd_end_request
+- *	    fixed handling of plugged queues
+- *	    fixed partition handling and HDIO_GETGEO
+- *	    fixed traditional naming scheme for devices beyond 702
+- *	    fixed some race conditions related to modules
+- *	    added devfs suupport
+- * 03/06/01 refined dynamic attach/detach for leaving devices which are online.
+- * 03/09/01 refined dynamic modifiaction of devices
+- * 03/12/01 moved policy in dasd_format to dasdfmt (renamed BIODASDFORMAT)
+- * 03/19/01 added BIODASDINFO-ioctl
+- *	    removed 2.2 compatibility
+- * 04/27/01 fixed PL030119COT (dasd_disciplines does not work)
+- * 04/30/01 fixed PL030146HSM (module locking with dynamic ioctls)
+- *	    fixed PL030130SBA (handling of invalid ranges)
+- * 05/02/01 fixed PL030145SBA (killing dasdmt)
+- *	    fixed PL030149SBA (status of 'accepted' devices)
+- *	    fixed PL030146SBA (BUG in ibm.c after adding device)
+- *	    added BIODASDPRRD ioctl interface
+- * 05/11/01 fixed  PL030164MVE (trap in probeonly mode)
+- * 05/15/01 fixed devfs support for unformatted devices
+- * 06/26/01 hopefully fixed PL030172SBA,PL030234SBA
+- * 07/09/01 fixed PL030324MSH (wrong statistics output)
+- * 07/16/01 merged in new fixes for handling low-mem situations
+- * 01/22/01 fixed PL030579KBE (wrong statistics)
+- * 05/04/02 code restructuring.
++ * $Revision: 1.94 $
+  */
  
- void cpcmd(char *cmd, char *response, int rlen)
- {
-         const int mask = 0x40000000L;
--        char obuffer[128];
--        int olen;
-+	unsigned long flags;
-+        int cmdlen;
+ #define LOCAL_END_REQUEST /* Don't generate end_request in blk.h */
  
--        olen = strlen(cmd);
--        strcpy(obuffer, cmd);
--        ASCEBC(obuffer,olen);
-+	spin_lock_irqsave(&cpcmd_lock, flags);
-+        cmdlen = strlen(cmd);
-+        strcpy(cpcmd_buf, cmd);
-+        ASCEBC(cpcmd_buf, cmdlen);
- 
-         if (response != NULL && rlen > 0) {
-+#ifndef CONFIG_ARCH_S390X
-                 asm volatile ("LRA   2,0(%0)\n\t"
-                               "LR    4,%1\n\t"
-                               "O     4,%4\n\t"
-@@ -30,17 +37,43 @@
-                               "LR    5,%3\n\t"
-                               ".long 0x83240008 # Diagnose 83\n\t"
-                               : /* no output */
--                              : "a" (obuffer), "d" (olen),
-+                              : "a" (cpcmd_buf), "d" (cmdlen),
-+                                "a" (response), "d" (rlen), "m" (mask)
-+                              : "2", "3", "4", "5" );
-+#else /* CONFIG_ARCH_S390X */
-+                asm volatile ("   lrag  2,0(%0)\n"
-+                              "   lgr   4,%1\n"
-+                              "   o     4,%4\n"
-+                              "   lrag  3,0(%2)\n"
-+                              "   lgr   5,%3\n"
-+                              "   sam31\n"
-+                              "   .long 0x83240008 # Diagnose 83\n"
-+                              "   sam64"
-+                              : /* no output */
-+                              : "a" (cpcmd_buf), "d" (cmdlen),
-                                 "a" (response), "d" (rlen), "m" (mask)
-                               : "2", "3", "4", "5" );
-+#endif /* CONFIG_ARCH_S390X */
-                 EBCASC(response, rlen);
-         } else {
-+#ifndef CONFIG_ARCH_S390X
-                 asm volatile ("LRA   2,0(%0)\n\t"
-                               "LR    3,%1\n\t"
-                               ".long 0x83230008 # Diagnose 83\n\t"
-                               : /* no output */
--                              : "a" (obuffer), "d" (olen)
-+                              : "a" (cpcmd_buf), "d" (cmdlen)
-+                              : "2", "3"  );
-+#else /* CONFIG_ARCH_S390X */
-+                asm volatile ("   lrag  2,0(%0)\n"
-+                              "   lgr   3,%1\n"
-+                              "   sam31\n"
-+                              "   .long 0x83230008 # Diagnose 83\n"
-+                              "   sam64"
-+                              : /* no output */
-+                              : "a" (cpcmd_buf), "d" (cmdlen)
-                               : "2", "3"  );
-+#endif /* CONFIG_ARCH_S390X */
-         }
-+	spin_unlock_irqrestore(&cpcmd_lock, flags);
- }
- 
-diff -urN linux-2.5.67/arch/s390/kernel/debug.c linux-2.5.67-s390/arch/s390/kernel/debug.c
---- linux-2.5.67/arch/s390/kernel/debug.c	Mon Apr  7 19:30:42 2003
-+++ linux-2.5.67-s390/arch/s390/kernel/debug.c	Mon Apr 14 19:11:56 2003
-@@ -16,7 +16,6 @@
- #include <linux/errno.h>
- #include <linux/slab.h>
- #include <linux/ctype.h>
+ #include <linux/config.h>
 -#include <linux/version.h>
- #include <asm/uaccess.h>
- #include <asm/semaphore.h>
+ #include <linux/kmod.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+@@ -83,12 +52,12 @@
+ /*
+  * SECTION: prototypes for static functions of dasd.c
+  */
+-static int  dasd_setup_blkdev(dasd_device_t * device);
+-static void dasd_disable_blkdev(dasd_device_t * device);
+-static void dasd_flush_request_queue(dasd_device_t *);
++static int  dasd_setup_blkdev(struct dasd_device * device);
++static void dasd_disable_blkdev(struct dasd_device * device);
++static void dasd_flush_request_queue(struct dasd_device *);
+ static void dasd_int_handler(struct ccw_device *, unsigned long, struct irb *);
+-static void dasd_flush_ccw_queue(dasd_device_t *, int);
+-static void dasd_tasklet(dasd_device_t *);
++static void dasd_flush_ccw_queue(struct dasd_device *, int);
++static void dasd_tasklet(struct dasd_device *);
+ static void do_kick_device(void *data);
+ static int  dasd_add_sysfs_files(struct ccw_device *cdev);
  
-@@ -1111,17 +1110,10 @@
- 		except_str = "*";
- 	else
- 		except_str = "-";
--	caller = (unsigned long) entry->caller;
--#if defined(CONFIG_ARCH_S390X)
--	rc += sprintf(out_buf, "%02i %011lu:%06lu %1u %1s %02i %016lx  ",
-+	caller = ((unsigned long) entry->caller) & PSW_ADDR_INSN;
-+	rc += sprintf(out_buf, "%02i %011lu:%06lu %1u %1s %02i %p  ",
- 		      area, time_val.tv_sec, time_val.tv_usec, level,
--		      except_str, entry->id.fields.cpuid, caller);
--#else
--	caller &= 0x7fffffff;
--	rc += sprintf(out_buf, "%02i %011lu:%06lu %1u %1s %02i %08lx  ",
--		      area, time_val.tv_sec, time_val.tv_usec, level,
--		      except_str, entry->id.fields.cpuid, caller);
--#endif
-+		      except_str, entry->id.fields.cpuid, (void *) caller);
- 	return rc;
+@@ -100,16 +69,16 @@
+ /*
+  * Allocate memory for a new device structure.
+  */
+-dasd_device_t *
++struct dasd_device *
+ dasd_alloc_device(unsigned int devindex)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	struct gendisk *gdp;
+ 
+-	device = kmalloc(sizeof (dasd_device_t), GFP_ATOMIC);
++	device = kmalloc(sizeof (struct dasd_device), GFP_ATOMIC);
+ 	if (device == NULL)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(device, 0, sizeof (dasd_device_t));
++	memset(device, 0, sizeof (struct dasd_device));
+ 
+ 	/* Get two pages for normal block device operations. */
+ 	device->ccw_mem = (void *) __get_free_pages(GFP_ATOMIC | GFP_DMA, 1);
+@@ -131,7 +100,7 @@
+ 		free_page((unsigned long) device->erp_mem);
+ 		free_pages((unsigned long) device->ccw_mem, 1);
+ 		kfree(device);
+-		return (dasd_device_t *) gdp;
++		return (struct dasd_device *) gdp;
+ 	}
+ 	gdp->private_data = device;
+ 	device->gdp = gdp;
+@@ -156,7 +125,7 @@
+  * Free memory of a device structure.
+  */
+ void
+-dasd_free_device(dasd_device_t *device)
++dasd_free_device(struct dasd_device *device)
+ {
+ 	if (device->private)
+ 		kfree(device->private);
+@@ -170,7 +139,7 @@
+  * Make a new device known to the system.
+  */
+ static inline int
+-dasd_state_new_to_known(dasd_device_t *device)
++dasd_state_new_to_known(struct dasd_device *device)
+ {
+ 	umode_t devfs_perm;
+ 	kdev_t kdev;
+@@ -211,7 +180,7 @@
+  * Let the system forget about a device.
+  */
+ static inline void
+-dasd_state_known_to_new(dasd_device_t * device)
++dasd_state_known_to_new(struct dasd_device * device)
+ {
+ 	/* Remove device entry and devfs directory. */
+ 	devfs_unregister(device->devfs_entry);
+@@ -229,7 +198,7 @@
+  * Request the irq line for the device.
+  */
+ static inline int
+-dasd_state_known_to_basic(dasd_device_t * device)
++dasd_state_known_to_basic(struct dasd_device * device)
+ {
+ 	/* register 'device' debug area, used for all DBF_DEV_XXX calls */
+ 	device->debug_area = debug_register(device->gdp->disk_name, 0, 2,
+@@ -246,7 +215,7 @@
+  * Release the irq line for the device. Terminate any running i/o.
+  */
+ static inline void
+-dasd_state_basic_to_known(dasd_device_t * device)
++dasd_state_basic_to_known(struct dasd_device * device)
+ {
+ 	dasd_flush_ccw_queue(device, 1);
+ 	DBF_DEV_EVENT(DBF_EMERG, device, "%p debug area deleted", device);
+@@ -268,7 +237,7 @@
+  * discipline code, see dasd_eckd.c.
+  */
+ static inline int
+-dasd_state_basic_to_accept(dasd_device_t * device)
++dasd_state_basic_to_accept(struct dasd_device * device)
+ {
+ 	int rc;
+ 
+@@ -284,7 +253,7 @@
+  * Forget everything the initial analysis found out.
+  */
+ static inline void
+-dasd_state_accept_to_basic(dasd_device_t * device)
++dasd_state_accept_to_basic(struct dasd_device * device)
+ {
+ 	device->blocks = 0;
+ 	device->bp_block = 0;
+@@ -296,7 +265,7 @@
+  * Setup block device.
+  */
+ static inline int
+-dasd_state_accept_to_ready(dasd_device_t * device)
++dasd_state_accept_to_ready(struct dasd_device * device)
+ {
+ 	int rc;
+ 
+@@ -312,7 +281,7 @@
+  * Remove device from block device layer. Destroy dirty buffers.
+  */
+ static inline void
+-dasd_state_ready_to_accept(dasd_device_t * device)
++dasd_state_ready_to_accept(struct dasd_device * device)
+ {
+ 	dasd_flush_ccw_queue(device, 0);
+ 	dasd_destroy_partitions(device);
+@@ -327,7 +296,7 @@
+  * ccw queue.
+  */
+ static inline int
+-dasd_state_ready_to_online(dasd_device_t * device)
++dasd_state_ready_to_online(struct dasd_device * device)
+ {
+ 	device->state = DASD_STATE_ONLINE;
+ 	dasd_schedule_bh(device);
+@@ -338,7 +307,7 @@
+  * Stop the requeueing of requests again.
+  */
+ static inline void
+-dasd_state_online_to_ready(dasd_device_t * device)
++dasd_state_online_to_ready(struct dasd_device * device)
+ {
+ 	device->state = DASD_STATE_READY;
+ }
+@@ -347,7 +316,7 @@
+  * Device startup state changes.
+  */
+ static inline int
+-dasd_increase_state(dasd_device_t *device)
++dasd_increase_state(struct dasd_device *device)
+ {
+ 	int rc;
+ 
+@@ -379,7 +348,7 @@
+  * Device shutdown state changes.
+  */
+ static inline int
+-dasd_decrease_state(dasd_device_t *device)
++dasd_decrease_state(struct dasd_device *device)
+ {
+ 	if (device->state == DASD_STATE_ONLINE &&
+ 	    device->target <= DASD_STATE_READY)
+@@ -408,7 +377,7 @@
+  * This is the main startup/shutdown routine.
+  */
+ static void
+-dasd_change_state(dasd_device_t *device)
++dasd_change_state(struct dasd_device *device)
+ {
+         int rc;
+ 
+@@ -440,16 +409,16 @@
+ static void
+ do_kick_device(void *data)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+-	device = (dasd_device_t *) data;
++	device = (struct dasd_device *) data;
+ 	dasd_change_state(device);
+ 	dasd_schedule_bh(device);
+ 	dasd_put_device(device);
  }
  
-diff -urN linux-2.5.67/arch/s390/kernel/entry.S linux-2.5.67-s390/arch/s390/kernel/entry.S
---- linux-2.5.67/arch/s390/kernel/entry.S	Mon Apr 14 19:11:52 2003
-+++ linux-2.5.67-s390/arch/s390/kernel/entry.S	Mon Apr 14 19:11:56 2003
-@@ -364,271 +364,12 @@
-         l       %r1,BASED(.Lsigaltstack)
-         br      %r1                   # branch to sys_sigreturn
+ void
+-dasd_kick_device(dasd_device_t *device)
++dasd_kick_device(struct dasd_device *device)
+ {
+ 	dasd_get_device(device);
+ 	/* queue call to dasd_kick_device to the kernel event daemon. */
+@@ -460,7 +429,7 @@
+  * Set the target state for a device and starts the state change.
+  */
+ void
+-dasd_set_target_state(dasd_device_t *device, int target)
++dasd_set_target_state(struct dasd_device *device, int target)
+ {
+ 	/* If we are in probeonly mode stop at DASD_STATE_ACCEPT. */
+ 	if (dasd_probeonly && target > DASD_STATE_ACCEPT)
+@@ -478,14 +447,14 @@
+  * Enable devices with device numbers in [from..to].
+  */
+ static inline int
+-_wait_for_device(dasd_device_t *device)
++_wait_for_device(struct dasd_device *device)
+ {
+ 	return (device->state == device->target);
+ }
  
--	.globl  sys_call_table	
-+
-+#define SYSCALL(esa,esame,emu)	.long esa
-+	.globl  sys_call_table
- sys_call_table:
--        .long  sys_ni_syscall            /* 0 */
--        .long  sys_exit
--        .long  sys_fork_glue
--        .long  sys_read
--        .long  sys_write
--        .long  sys_open                  /* 5 */
--        .long  sys_close
--        .long  sys_restart_syscall
--        .long  sys_creat
--        .long  sys_link
--        .long  sys_unlink                /* 10 */
--        .long  sys_execve_glue
--        .long  sys_chdir
--        .long  sys_time
--        .long  sys_mknod
--        .long  sys_chmod                /* 15 */
--        .long  sys_lchown16
--        .long  sys_ni_syscall           /* old break syscall holder */
--        .long  sys_ni_syscall           /* old stat syscall holder */
--        .long  sys_lseek
--        .long  sys_getpid               /* 20 */
--        .long  sys_mount
--        .long  sys_oldumount
--        .long  sys_setuid16
--        .long  sys_getuid16
--        .long  sys_stime                /* 25 */
--        .long  sys_ptrace
--        .long  sys_alarm
--        .long  sys_ni_syscall           /* old fstat syscall holder */
--        .long  sys_pause
--        .long  sys_utime                /* 30 */
--        .long  sys_ni_syscall           /* old stty syscall holder */
--        .long  sys_ni_syscall           /* old gtty syscall holder */
--        .long  sys_access
--        .long  sys_nice
--        .long  sys_ni_syscall           /* 35 */  /* old ftime syscall holder */
--        .long  sys_sync
--        .long  sys_kill
--        .long  sys_rename
--        .long  sys_mkdir
--        .long  sys_rmdir                /* 40 */
--        .long  sys_dup
--        .long  sys_pipe
--        .long  sys_times
--        .long  sys_ni_syscall           /* old prof syscall holder */
--        .long  sys_brk                  /* 45 */
--        .long  sys_setgid16
--        .long  sys_getgid16
--        .long  sys_signal
--        .long  sys_geteuid16
--        .long  sys_getegid16            /* 50 */
--        .long  sys_acct
--        .long  sys_umount
--        .long  sys_ni_syscall           /* old lock syscall holder */
--        .long  sys_ioctl
--        .long  sys_fcntl                /* 55 */
--        .long  sys_ni_syscall           /* old mpx syscall holder */
--        .long  sys_setpgid
--        .long  sys_ni_syscall           /* old ulimit syscall holder */
--        .long  sys_ni_syscall           /* old uname syscall holder */
--        .long  sys_umask                /* 60 */
--        .long  sys_chroot
--        .long  sys_ustat
--        .long  sys_dup2
--        .long  sys_getppid
--        .long  sys_getpgrp              /* 65 */
--        .long  sys_setsid
--        .long  sys_sigaction
--        .long  sys_ni_syscall           /* old sgetmask syscall holder */
--        .long  sys_ni_syscall           /* old ssetmask syscall holder */
--        .long  sys_setreuid16           /* 70 */
--        .long  sys_setregid16
--        .long  sys_sigsuspend_glue
--        .long  sys_sigpending
--        .long  sys_sethostname
--        .long  sys_setrlimit            /* 75 */
--        .long  sys_old_getrlimit
--        .long  sys_getrusage
--        .long  sys_gettimeofday
--        .long  sys_settimeofday
--        .long  sys_getgroups16          /* 80 */
--        .long  sys_setgroups16
--        .long  sys_ni_syscall           /* old select syscall holder */
--        .long  sys_symlink
--        .long  sys_ni_syscall           /* old lstat syscall holder */
--        .long  sys_readlink             /* 85 */
--        .long  sys_uselib
--        .long  sys_swapon
--        .long  sys_reboot
--        .long  sys_ni_syscall           /* old readdir syscall holder */
--        .long  old_mmap                 /* 90 */
--        .long  sys_munmap
--        .long  sys_truncate
--        .long  sys_ftruncate
--        .long  sys_fchmod
--        .long  sys_fchown16              /* 95 */
--        .long  sys_getpriority
--        .long  sys_setpriority
--        .long  sys_ni_syscall            /* old profil syscall holder */
--        .long  sys_statfs
--        .long  sys_fstatfs               /* 100 */
--        .long  sys_ioperm
--        .long  sys_socketcall
--        .long  sys_syslog
--        .long  sys_setitimer
--        .long  sys_getitimer             /* 105 */
--        .long  sys_newstat
--        .long  sys_newlstat
--        .long  sys_newfstat
--        .long  sys_ni_syscall            /* old uname syscall holder */
--        .long  sys_ni_syscall            /* 110 */ /* iopl for i386 */
--        .long  sys_vhangup
--        .long  sys_ni_syscall            /* old "idle" system call */
--        .long  sys_ni_syscall            /* vm86old for i386 */
--        .long  sys_wait4
--        .long  sys_swapoff               /* 115 */
--        .long  sys_sysinfo
--        .long  sys_ipc
--        .long  sys_fsync
--        .long  sys_sigreturn_glue
--        .long  sys_clone_glue            /* 120 */
--        .long  sys_setdomainname
--        .long  sys_newuname
--        .long  sys_ni_syscall            /* modify_ldt for i386 */
--        .long  sys_adjtimex
--        .long  sys_mprotect              /* 125 */
--        .long  sys_sigprocmask
--        .long  sys_ni_syscall		 /* old "create module" */
--        .long  sys_init_module
--        .long  sys_delete_module
--        .long  sys_ni_syscall		 /* 130: old get_kernel_syms */
--        .long  sys_quotactl
--        .long  sys_getpgid
--        .long  sys_fchdir
--        .long  sys_bdflush
--        .long  sys_sysfs                 /* 135 */
--        .long  sys_personality
--        .long  sys_ni_syscall            /* for afs_syscall */
--        .long  sys_setfsuid16
--        .long  sys_setfsgid16
--        .long  sys_llseek                /* 140 */
--        .long  sys_getdents
--        .long  sys_select
--        .long  sys_flock
--        .long  sys_msync
--        .long  sys_readv                 /* 145 */
--        .long  sys_writev
--        .long  sys_getsid
--        .long  sys_fdatasync
--        .long  sys_sysctl
--        .long  sys_mlock                 /* 150 */
--        .long  sys_munlock
--        .long  sys_mlockall
--        .long  sys_munlockall
--        .long  sys_sched_setparam
--        .long  sys_sched_getparam        /* 155 */
--        .long  sys_sched_setscheduler
--        .long  sys_sched_getscheduler
--        .long  sys_sched_yield
--        .long  sys_sched_get_priority_max
--        .long  sys_sched_get_priority_min  /* 160 */
--        .long  sys_sched_rr_get_interval
--        .long  sys_nanosleep
--        .long  sys_mremap
--        .long  sys_setresuid16
--        .long  sys_getresuid16           /* 165 */
--        .long  sys_ni_syscall            /* for vm86 */
--        .long  sys_ni_syscall		 /* old sys_query_module */
--        .long  sys_poll
--        .long  sys_nfsservctl
--        .long  sys_setresgid16           /* 170 */
--        .long  sys_getresgid16
--        .long  sys_prctl
--        .long  sys_rt_sigreturn_glue
--        .long  sys_rt_sigaction
--        .long  sys_rt_sigprocmask        /* 175 */
--        .long  sys_rt_sigpending
--        .long  sys_rt_sigtimedwait
--        .long  sys_rt_sigqueueinfo
--        .long  sys_rt_sigsuspend_glue
--        .long  sys_pread64               /* 180 */
--        .long  sys_pwrite64
--        .long  sys_chown16
--        .long  sys_getcwd
--        .long  sys_capget
--        .long  sys_capset                /* 185 */
--        .long  sys_sigaltstack_glue
--        .long  sys_sendfile
--        .long  sys_ni_syscall            /* streams1 */
--        .long  sys_ni_syscall            /* streams2 */
--        .long  sys_vfork_glue            /* 190 */
--        .long  sys_getrlimit
--	.long  sys_mmap2
--        .long  sys_truncate64
--        .long  sys_ftruncate64
--        .long  sys_stat64                /* 195 */
--        .long  sys_lstat64
--        .long  sys_fstat64
--	.long  sys_lchown
--	.long  sys_getuid
--	.long  sys_getgid		 /* 200 */
--	.long  sys_geteuid
--	.long  sys_getegid
--	.long  sys_setreuid
--	.long  sys_setregid
--	.long  sys_getgroups             /* 205 */
--	.long  sys_setgroups
--	.long  sys_fchown
--	.long  sys_setresuid
--	.long  sys_getresuid
--	.long  sys_setresgid             /* 210 */
--	.long  sys_getresgid
--	.long  sys_chown
--	.long  sys_setuid
--	.long  sys_setgid
--	.long  sys_setfsuid              /* 215 */
--	.long  sys_setfsgid
--        .long  sys_pivot_root
--        .long  sys_mincore
--        .long  sys_madvise
--	.long  sys_getdents64		 /* 220 */
--        .long  sys_fcntl64 
--	.long  sys_readahead
--	.long  sys_sendfile64
--	.long  sys_setxattr
--	.long  sys_lsetxattr		 /* 225 */
--	.long  sys_fsetxattr
--	.long  sys_getxattr
--	.long  sys_lgetxattr
--	.long  sys_fgetxattr
--	.long  sys_listxattr		 /* 230 */
--	.long  sys_llistxattr
--	.long  sys_flistxattr
--	.long  sys_removexattr
--	.long  sys_lremovexattr
--	.long  sys_fremovexattr		 /* 235 */
--	.long  sys_gettid
--	.long  sys_tkill
--	.long  sys_futex
--	.long  sys_sched_setaffinity
--	.long  sys_sched_getaffinity	 /* 240 */
--	.long  sys_ni_syscall
--	.long  sys_ni_syscall		 /* reserved for TUX */
--	.long  sys_io_setup
--	.long  sys_io_destroy
--	.long  sys_io_getevents		 /* 245 */
--	.long  sys_io_submit
--	.long  sys_io_cancel
--	.long  sys_exit_group
--	.long  sys_epoll_create
--	.long  sys_epoll_ctl		 /* 250 */
--	.long  sys_epoll_wait
--	.long  sys_set_tid_address
--	.long  sys_fadvise64
--	.long  sys_timer_create
--	.long  sys_timer_settime	 /* 255 */
--	.long  sys_timer_gettime
--	.long  sys_timer_getoverrun
--	.long  sys_timer_delete
--	.long  sys_clock_settime
--	.long  sys_clock_gettime
--	.long  sys_clock_getres
--	.long  sys_clock_nanosleep
-+#include "syscalls.S"
-+#undef SYSCALL
+ // FIXME: if called from dasd_devices_write discpline is not set -> oops.
+ void
+-dasd_enable_device(dasd_device_t *device)
++dasd_enable_device(struct dasd_device *device)
+ {
+ 	dasd_set_target_state(device, DASD_STATE_ONLINE);
+ 	if (device->state <= DASD_STATE_KNOWN)
+@@ -500,7 +469,7 @@
+  */
+ #ifdef CONFIG_DASD_PROFILE
+ 
+-dasd_profile_info_t dasd_global_profile;
++struct dasd_profile_info_t dasd_global_profile;
+ unsigned int dasd_profile_level = DASD_PROFILE_OFF;
  
  /*
-  * Program check handler routine
-diff -urN linux-2.5.67/arch/s390/kernel/entry64.S linux-2.5.67-s390/arch/s390/kernel/entry64.S
---- linux-2.5.67/arch/s390/kernel/entry64.S	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.67-s390/arch/s390/kernel/entry64.S	Mon Apr 14 19:11:56 2003
-@@ -0,0 +1,710 @@
-+/*
-+ *  arch/s390/kernel/entry.S
-+ *    S390 low-level entry points.
-+ *
-+ *  S390 version
-+ *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-+ *               Hartmut Penner (hp@de.ibm.com),
-+ *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
-+ */
-+
-+#include <linux/sys.h>
-+#include <linux/linkage.h>
-+#include <linux/config.h>
-+#include <asm/cache.h>
-+#include <asm/lowcore.h>
-+#include <asm/errno.h>
-+#include <asm/ptrace.h>
-+#include <asm/thread_info.h>
-+#include <asm/offsets.h>
-+#include <asm/unistd.h>
-+
-+/*
-+ * Stack layout for the system_call stack entry.
-+ * The first few entries are identical to the user_regs_struct.
-+ */
-+SP_PTREGS    =  STACK_FRAME_OVERHEAD 
-+SP_PSW       =  STACK_FRAME_OVERHEAD + PT_PSWMASK
-+SP_R0        =  STACK_FRAME_OVERHEAD + PT_GPR0
-+SP_R1        =  STACK_FRAME_OVERHEAD + PT_GPR1
-+SP_R2        =  STACK_FRAME_OVERHEAD + PT_GPR2
-+SP_R3        =  STACK_FRAME_OVERHEAD + PT_GPR3
-+SP_R4        =  STACK_FRAME_OVERHEAD + PT_GPR4
-+SP_R5        =  STACK_FRAME_OVERHEAD + PT_GPR5
-+SP_R6        =  STACK_FRAME_OVERHEAD + PT_GPR6
-+SP_R7        =  STACK_FRAME_OVERHEAD + PT_GPR7
-+SP_R8        =  STACK_FRAME_OVERHEAD + PT_GPR8
-+SP_R9        =  STACK_FRAME_OVERHEAD + PT_GPR9
-+SP_R10       =  STACK_FRAME_OVERHEAD + PT_GPR10
-+SP_R11       =  STACK_FRAME_OVERHEAD + PT_GPR11
-+SP_R12       =  STACK_FRAME_OVERHEAD + PT_GPR12
-+SP_R13       =  STACK_FRAME_OVERHEAD + PT_GPR13
-+SP_R14       =  STACK_FRAME_OVERHEAD + PT_GPR14
-+SP_R15       =  STACK_FRAME_OVERHEAD + PT_GPR15
-+SP_AREGS     =  STACK_FRAME_OVERHEAD + PT_ACR0
-+SP_ORIG_R2   =  STACK_FRAME_OVERHEAD + PT_ORIGGPR2
-+/* Now the additional entries */
-+SP_TRAP      =  (SP_ORIG_R2+GPR_SIZE)
-+SP_SIZE      =  (SP_TRAP+4)
-+
-+_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | _TIF_RESTART_SVC)
-+_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED)
-+
-+/*
-+ * Register usage in interrupt handlers:
-+ *    R9  - pointer to current task structure
-+ *    R13 - pointer to literal pool
-+ *    R14 - return register for function calls
-+ *    R15 - kernel stack pointer
-+ */
-+
-+        .macro  SAVE_ALL psworg,sync     # system entry macro
-+        stmg    %r14,%r15,__LC_SAVE_AREA
-+	stam    %a2,%a4,__LC_SAVE_AREA+16
-+	larl	%r14,.Lconst
-+        tm      \psworg+1,0x01           # test problem state bit
-+	.if	\sync
-+        jz      1f                       # skip stack setup save
-+	.else
-+	jnz	0f			 # from user -> load kernel stack
-+	lg	%r14,__LC_ASYNC_STACK	 # are we already on the async. stack ?
-+	slgr	%r14,%r15
-+	srag	%r14,%r14,14
-+	larl	%r14,.Lconst
-+	jz	1f
-+	lg	%r15,__LC_ASYNC_STACK	 # load async. stack
-+	j	1f
-+	.endif
-+0:	lg      %r15,__LC_KERNEL_STACK   # problem state -> load ksp
-+	lam	%a2,%a4,.Lc_ac-.Lconst(%r14)
-+1:      aghi    %r15,-SP_SIZE            # make room for registers & psw
-+        nill    %r15,0xfff8              # align stack pointer to 8
-+        stmg    %r0,%r13,SP_R0(%r15)     # store gprs 0-13 to kernel stack
-+        stg     %r2,SP_ORIG_R2(%r15)     # store original content of gpr 2
-+        mvc     SP_R14(16,%r15),__LC_SAVE_AREA # move r14 and r15 to stack
-+        stam    %a0,%a15,SP_AREGS(%r15)  # store access registers to kst.
-+        mvc     SP_AREGS+8(12,%r15),__LC_SAVE_AREA+16 # store ac. regs
-+        mvc     SP_PSW(16,%r15),\psworg  # move user PSW to stack
-+	mvc	SP_TRAP(4,%r15),.L\psworg-.Lconst(%r14) # store trap ind.
-+        xc      0(8,%r15),0(%r15)        # clear back chain
-+        .endm
-+
-+        .macro  RESTORE_ALL sync         # system exit macro
-+        mvc     __LC_RETURN_PSW(16),SP_PSW(%r15) # move user PSW to lowcore
-+        lam     %a0,%a15,SP_AREGS(%r15)  # load the access registers
-+        lmg     %r0,%r15,SP_R0(%r15)     # load gprs 0-15 of user
-+        ni      __LC_RETURN_PSW+1,0xfd   # clear wait state bit
-+        lpswe   __LC_RETURN_PSW          # back to caller
-+        .endm
-+
-+        .macro  GET_THREAD_INFO
-+	lg	%r9,__LC_KERNEL_STACK    # load pointer to task_struct to %r9
-+	aghi	%r9,-16384
-+        .endm
-+
-+
-+/*
-+ * Scheduler resume function, called by switch_to
-+ *  gpr2 = (task_struct *) prev
-+ *  gpr3 = (task_struct *) next
-+ * Returns:
-+ *  gpr2 = prev
-+ */
-+        .globl  resume
-+resume:
-+	tm	__THREAD_per+4(%r3),0xe8 # is the new process using per ?
-+	jz	resume_noper		# if not we're fine
-+        stctg   %c9,%c11,48(%r15)       # We are using per stuff
-+        clc     __THREAD_per(24,%r3),48(%r15)
-+        je      resume_noper            # we got away without bashing TLB's
-+        lctlg   %c9,%c11,__THREAD_per(%r3)	# Nope we didn't
-+resume_noper:
-+        stmg    %r6,%r15,48(%r15)       # store resume registers of prev task
-+	stg	%r15,__THREAD_ksp(%r2)	# store kernel stack to prev->tss.ksp
-+	lg	%r15,__THREAD_ksp(%r3)	# load kernel stack from next->tss.ksp
-+        stam    %a2,%a2,__THREAD_ar2(%r2)	# store kernel access reg. 2
-+        stam    %a4,%a4,__THREAD_ar4(%r2)	# store kernel access reg. 4
-+        lam     %a2,%a2,__THREAD_ar2(%r3)	# load kernel access reg. 2
-+        lam     %a4,%a4,__THREAD_ar4(%r3)	# load kernel access reg. 4
-+        lmg     %r6,%r15,48(%r15)       # load resume registers of next task
-+	lg	%r3,__THREAD_info(%r3)  # load thread_info from task struct
-+	aghi	%r3,16384
-+	stg	%r3,__LC_KERNEL_STACK	# __LC_KERNEL_STACK = new kernel stack
-+	br	%r14
-+
-+/*
-+ * do_softirq calling function. We want to run the softirq functions on the
-+ * asynchronous interrupt stack.
-+ */
-+	.global do_call_softirq
-+do_call_softirq:
-+	stmg	%r12,%r15,48(%r15)
-+	lgr	%r12,%r15
-+	lg	%r0,__LC_ASYNC_STACK
-+	slgr    %r0,%r15
-+	srag	%r0,%r0,14
-+	je	0f
-+	lg	%r15,__LC_ASYNC_STACK
-+0:	aghi	%r15,-STACK_FRAME_OVERHEAD
-+	stg	%r12,0(%r15)		# store back chain
-+	brasl	%r14,do_softirq
-+	lmg	%r12,%r15,48(%r12)
-+	br	%r14
-+	
-+/*
-+ * SVC interrupt handler routine. System calls are synchronous events and
-+ * are executed with interrupts enabled.
-+ */
-+
-+	.globl  system_call
-+system_call:
-+        SAVE_ALL __LC_SVC_OLD_PSW,1
-+	llgh    %r7,__LC_SVC_INT_CODE # get svc number from lowcore
-+	stosm   48(%r15),0x03     # reenable interrupts
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+        slag    %r7,%r7,2         # *4 and test for svc 0
-+	jnz	sysc_do_restart
-+	# svc 0: system call number in %r1
-+	clg	%r1,.Lnr_syscalls-.Lconst(%r14)
-+	jnl	sysc_do_restart
-+	slag    %r7,%r1,2         # svc 0: system call number in %r1
-+sysc_do_restart:
-+	larl    %r10,sys_call_table
-+#ifdef CONFIG_S390_SUPPORT
-+        tm      SP_PSW+3(%r15),0x01  # are we running in 31 bit mode ?
-+        jo      sysc_noemu
-+	larl    %r10,sys_call_table_emu  # use 31 bit emulation system calls
-+sysc_noemu:
-+#endif
-+	tm	__TI_flags+7(%r9),_TIF_SYSCALL_TRACE
-+        lgf     %r8,0(%r7,%r10)   # load address of system call routine
-+        jo      sysc_tracesys
-+        basr    %r14,%r8          # call sys_xxxx
-+        stg     %r2,SP_R2(%r15)   # store return value (change R2 on stack)
-+                                  # ATTENTION: check sys_execve_glue before
-+                                  # changing anything here !!
-+
-+sysc_return:
-+	stnsm   48(%r15),0xfc     # disable I/O and ext. interrupts
-+	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
-+	jnz	sysc_work         # there is work to do (signals etc.)
-+sysc_leave:
-+        RESTORE_ALL 1
-+
-+#
-+# recheck if there is more work to do
-+#
-+sysc_work_loop:
-+	stnsm   48(%r15),0xfc     # disable I/O and ext. interrupts
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
-+	jz	sysc_leave        # there is no work to do
-+#
-+# One of the work bits is on. Find out which one.
-+# Checked are: _TIF_SIGPENDING and _TIF_NEED_RESCHED
-+#
-+sysc_work:
-+	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
-+	jo	sysc_reschedule
-+	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
-+	jo	sysc_sigpending
-+	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
-+	jo	sysc_restart
-+	j	sysc_leave
-+
-+#
-+# _TIF_NEED_RESCHED is set, call schedule
-+#	
-+sysc_reschedule:        
-+	stosm   48(%r15),0x03     # reenable interrupts
-+	larl    %r14,sysc_work_loop
-+        jg      schedule            # return point is sysc_return
-+
-+#
-+# _TIF_SIGPENDING is set, call do_signal
-+#
-+sysc_sigpending:     
-+	stosm   48(%r15),0x03     # reenable interrupts
-+        la      %r2,SP_PTREGS(%r15) # load pt_regs
-+        sgr     %r3,%r3           # clear *oldset
-+	brasl	%r14,do_signal    # call do_signal
-+	stnsm   48(%r15),0xfc     # disable I/O and ext. interrupts
-+	j	sysc_leave        # out of here, do NOT recheck
-+
-+#
-+# _TIF_RESTART_SVC is set, set up registers and restart svc
-+#
-+sysc_restart:
-+	ni	__TI_flags+3(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
-+	stosm	48(%r15),0x03          # reenable interrupts
-+	lg	%r7,SP_R2(%r15)        # load new svc number
-+        slag    %r7,%r7,3              # *8
-+	mvc	SP_R2(8,%r15),SP_ORIG_R2(%r15) # restore first argument
-+	lmg	%r2,%r6,SP_R2(%r15)    # load svc arguments
-+	j	sysc_do_restart        # restart svc
-+
-+#
-+# call syscall_trace before and after system call
-+# special linkage: %r12 contains the return address for trace_svc
-+#
-+sysc_tracesys:
-+	srl	%r7,3
-+	stg     %r7,SP_R2(%r15)
-+        brasl   %r14,syscall_trace
-+	larl	%r1,.Lnr_syscalls
-+	clc	SP_R2(8,%r15),0(%r1)
-+	jl	sysc_tracego
-+	lg	%r7,SP_R2(%r15)   # strace might have changed the
-+	sll     %r7,3             #  system call
-+	lgf	%r8,0(%r7,%r10)
-+sysc_tracego:
-+	lmg     %r3,%r6,SP_R3(%r15)
-+	lg      %r2,SP_ORIG_R2(%r15)
-+        basr    %r14,%r8            # call sys_xxx
-+        stg     %r2,SP_R2(%r15)     # store return value
-+	tm	__TI_flags+7(%r9),_TIF_SYSCALL_TRACE
-+        jno     sysc_return
-+	larl	%r14,sysc_return    # return point is sysc_return
-+	jg	syscall_trace
-+
-+#
-+# a new process exits the kernel with ret_from_fork
-+#
-+        .globl  ret_from_fork
-+ret_from_fork:  
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+	larl    %r14,sysc_return
-+        jg      schedule_tail     # return to sysc_return
-+
-+#
-+# clone, fork, vfork, exec and sigreturn need glue,
-+# because they all expect pt_regs as parameter,
-+# but are called with different parameter.
-+# return-address is set up above
-+#
-+sys_clone_glue: 
-+        la      %r2,SP_PTREGS(%r15)    # load pt_regs
-+        jg      sys_clone              # branch to sys_clone
-+
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_clone_glue: 
-+        la      %r2,SP_PTREGS(%r15)    # load pt_regs
-+        jg      sys32_clone            # branch to sys32_clone
-+#endif
-+
-+sys_fork_glue:  
-+        la      %r2,SP_PTREGS(%r15)    # load pt_regs
-+        jg      sys_fork               # branch to sys_fork
-+
-+sys_vfork_glue: 
-+        la      %r2,SP_PTREGS(%r15)    # load pt_regs
-+        jg      sys_vfork              # branch to sys_vfork
-+
-+sys_execve_glue:        
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs
-+	lgr     %r12,%r14             # save return address
-+        brasl   %r14,sys_execve       # call sys_execve
-+        ltgr    %r2,%r2               # check if execve failed
-+        bnz     0(%r12)               # it did fail -> store result in gpr2
-+        b       6(%r12)               # SKIP STG 2,SP_R2(15) in
-+                                      # system_call/sysc_tracesys
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_execve_glue:        
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs
-+	lgr     %r12,%r14             # save return address
-+        brasl   %r14,sys32_execve     # call sys32_execve
-+        ltgr    %r2,%r2               # check if execve failed
-+        bnz     0(%r12)               # it did fail -> store result in gpr2
-+        b       6(%r12)               # SKIP STG 2,SP_R2(15) in
-+                                      # system_call/sysc_tracesys
-+#endif
-+
-+sys_sigreturn_glue:     
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
-+        jg      sys_sigreturn         # branch to sys_sigreturn
-+
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_sigreturn_glue:     
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
-+        jg      sys32_sigreturn       # branch to sys32_sigreturn
-+#endif
-+
-+sys_rt_sigreturn_glue:     
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
-+        jg      sys_rt_sigreturn      # branch to sys_sigreturn
-+
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_rt_sigreturn_glue:     
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
-+        jg      sys32_rt_sigreturn    # branch to sys32_sigreturn
-+#endif
-+
-+#
-+# sigsuspend and rt_sigsuspend need pt_regs as an additional
-+# parameter and they have to skip the store of %r2 into the
-+# user register %r2 because the return value was set in 
-+# sigsuspend and rt_sigsuspend already and must not be overwritten!
-+#
-+
-+sys_sigsuspend_glue:    
-+        lgr     %r5,%r4               # move mask back
-+        lgr     %r4,%r3               # move history1 parameter
-+        lgr     %r3,%r2               # move history0 parameter
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
-+	la      %r14,6(%r14)          # skip store of return value
-+        jg      sys_sigsuspend        # branch to sys_sigsuspend
-+
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_sigsuspend_glue:    
-+	llgfr	%r4,%r4               # unsigned long			
-+        lgr     %r5,%r4               # move mask back
-+	lgfr	%r3,%r3               # int			
-+        lgr     %r4,%r3               # move history1 parameter
-+	lgfr	%r2,%r2               # int			
-+        lgr     %r3,%r2               # move history0 parameter
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
-+	la      %r14,6(%r14)          # skip store of return value
-+        jg      sys32_sigsuspend      # branch to sys32_sigsuspend
-+#endif
-+
-+sys_rt_sigsuspend_glue: 
-+        lgr     %r4,%r3               # move sigsetsize parameter
-+        lgr     %r3,%r2               # move unewset parameter
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
-+	la      %r14,6(%r14)          # skip store of return value
-+        jg      sys_rt_sigsuspend     # branch to sys_rt_sigsuspend
-+
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_rt_sigsuspend_glue: 
-+	llgfr	%r3,%r3               # size_t			
-+        lgr     %r4,%r3               # move sigsetsize parameter
-+	llgtr	%r2,%r2               # sigset_emu31_t *
-+        lgr     %r3,%r2               # move unewset parameter
-+        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
-+	la      %r14,6(%r14)          # skip store of return value
-+        jg      sys32_rt_sigsuspend   # branch to sys32_rt_sigsuspend
-+#endif
-+
-+sys_sigaltstack_glue:
-+        la      %r4,SP_PTREGS(%r15)   # load pt_regs as parameter
-+        jg      sys_sigaltstack       # branch to sys_sigreturn
-+
-+#ifdef CONFIG_S390_SUPPORT
-+sys32_sigaltstack_glue:
-+        la      %r4,SP_PTREGS(%r15)   # load pt_regs as parameter
-+        jg      sys32_sigaltstack_wrapper # branch to sys_sigreturn
-+#endif
-+
-+#define SYSCALL(esa,esame,emu)	.long esame
-+	.globl  sys_call_table	
-+sys_call_table:
-+#include "syscalls.S"
-+#undef SYSCALL
-+
-+#ifdef CONFIG_S390_SUPPORT
-+
-+#define SYSCALL(esa,esame,emu)	.long emu
-+	.globl  sys_call_table_emu
-+sys_call_table_emu:
-+#include "syscalls.S"
-+#undef SYSCALL
-+#endif
-+
-+/*
-+ * Program check handler routine
-+ */
-+
-+        .globl  pgm_check_handler
-+pgm_check_handler:
-+/*
-+ * First we need to check for a special case:
-+ * Single stepping an instruction that disables the PER event mask will
-+ * cause a PER event AFTER the mask has been set. Example: SVC or LPSW.
-+ * For a single stepped SVC the program check handler gets control after
-+ * the SVC new PSW has been loaded. But we want to execute the SVC first and
-+ * then handle the PER event. Therefore we update the SVC old PSW to point
-+ * to the pgm_check_handler and branch to the SVC handler after we checked
-+ * if we have to load the kernel stack register.
-+ * For every other possible cause for PER event without the PER mask set
-+ * we just ignore the PER event (FIXME: is there anything we have to do
-+ * for LPSW?).
-+ */
-+        tm      __LC_PGM_INT_CODE+1,0x80 # check whether we got a per exception
-+        jnz     pgm_per                  # got per exception -> special case
-+	SAVE_ALL __LC_PGM_OLD_PSW,1
-+	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
-+	lghi	%r8,0x7f
-+	ngr	%r8,%r3
-+        sll     %r8,3
-+	GET_THREAD_INFO
-+        larl    %r1,pgm_check_table
-+        lg      %r1,0(%r8,%r1)		 # load address of handler routine
-+        la      %r2,SP_PTREGS(%r15)	 # address of register-save area
-+	larl	%r14,sysc_return
-+        br      %r1			 # branch to interrupt-handler
-+
-+#
-+# handle per exception
-+#
-+pgm_per:
-+        tm      __LC_PGM_OLD_PSW,0x40    # test if per event recording is on
-+        jnz     pgm_per_std              # ok, normal per event from user space
-+# ok its one of the special cases, now we need to find out which one
-+        clc     __LC_PGM_OLD_PSW(16),__LC_SVC_NEW_PSW
-+        je      pgm_svcper
-+# no interesting special case, ignore PER event
-+	lpswe   __LC_PGM_OLD_PSW
-+
-+#
-+# Normal per exception
-+#
-+pgm_per_std:
-+	SAVE_ALL __LC_PGM_OLD_PSW,1
-+	GET_THREAD_INFO
-+	lghi    %r4,0x7f
-+	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
-+        nr      %r4,%r3			 # clear per-event-bit and ilc
-+        je      pgm_per_only		 # only per of per+check ?
-+        sll     %r4,3
-+        larl    %r1,pgm_check_table
-+        lg      %r1,0(%r4,%r1)		 # load address of handler routine
-+        la      %r2,SP_PTREGS(%r15)	 # address of register-save area
-+        basr    %r14,%r1		 # branch to interrupt-handler
-+pgm_per_only:
-+        la      %r2,SP_PTREGS(15)	 # address of register-save area
-+        larl    %r14,sysc_return	 # load adr. of system return
-+        jg      handle_per_exception
-+
-+#
-+# it was a single stepped SVC that is causing all the trouble
-+#
-+pgm_svcper:
-+	SAVE_ALL __LC_SVC_OLD_PSW,1
-+	llgh    %r8,__LC_SVC_INT_CODE # get svc number from lowcore
-+	stosm   48(%r15),0x03     # reenable interrupts
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+	slag	%r7,%r7,2         # *4 and test for svc 0
-+	jnz	pgm_svcstd
-+	# svc 0: system call number in %r1
-+	clg	%r1,.Lnr_syscalls-.Lconst(%r14)
-+	slag	%r7,%r1,2
-+pgm_svcstd:
-+	larl    %r7,sys_call_table
-+#ifdef CONFIG_S390_SUPPORT
-+        tm      SP_PSW+3(%r15),0x01  # are we running in 31 bit mode ?
-+        jo      pgm_svcper_noemu
-+	larl    %r7,sys_call_table_emu # use 31 bit emulation system calls
-+pgm_svcper_noemu:
-+#endif
-+	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
-+        lgf     %r8,0(%r8,%r7)    # load address of system call routine
-+        jo      pgm_tracesys
-+        basr    %r14,%r8          # call sys_xxxx
-+        stg     %r2,SP_R2(%r15)   # store return value (change R2 on stack)
-+                                  # ATTENTION: check sys_execve_glue before
-+                                  # changing anything here !!
-+
-+pgm_svcret:
-+	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
-+	jo	pgm_svcper_nosig
-+        la      %r2,SP_PTREGS(%r15) # load pt_regs
-+        sgr     %r3,%r3             # clear *oldset
-+	brasl	%r14,do_signal
-+	
-+pgm_svcper_nosig:
-+	lhi     %r0,__LC_PGM_OLD_PSW     # set trap indication back to pgm_chk
-+	st      %r0,SP_TRAP(%r15)
-+        la      %r2,SP_PTREGS(15) # address of register-save area
-+        larl    %r14,sysc_return  # load adr. of system return
-+        jg      handle_per_exception
-+#
-+# call trace before and after sys_call
-+#
-+pgm_tracesys:
-+	lgfr	%r7,%r7
-+	stg	%r7,SP_R2(%r15)
-+        brasl   %r14,syscall_trace
-+	clc	SP_R2(8,%r15),.Lnr_syscalls
-+	jnl     pgm_svc_go
-+	lg      %r2,SP_R2(%r15)
-+	sllg    %r2,%r2,3           # strace wants to change the syscall
-+	lgf	%r8,0(%r2,%r7)
-+pgm_svc_go:
-+	lmg     %r3,%r6,SP_R3(%r15)
-+	lg      %r2,SP_ORIG_R2(%r15)
-+        basr    %r14,%r8            # call sys_xxx
-+        stg     %r2,SP_R2(%r15)     # store return value
-+	tm	__TI_flags+7(%r9),_TIF_SYSCALL_TRACE
-+        jno     pgm_svcret
-+	larl	%r14,pgm_svcret     # return point is sysc_return
-+	jg	syscall_trace
-+
-+/*
-+ * IO interrupt handler routine
-+ */
-+        .globl io_int_handler
-+io_int_handler:
-+        SAVE_ALL __LC_IO_OLD_PSW,0
-+        GET_THREAD_INFO                # load pointer to task_struct to R9
-+        la      %r2,SP_PTREGS(%r15)    # address of register-save area
-+	llgh    %r3,__LC_SUBCHANNEL_NR # load subchannel number
-+        llgf    %r4,__LC_IO_INT_PARM   # load interruption parm
-+        llgf    %r5,__LC_IO_INT_WORD   # load interruption word
-+	brasl   %r14,do_IRQ            # call standard irq handler
-+
-+io_return:
-+        tm      SP_PSW+1(%r15),0x01    # returning to user ?
-+#ifdef CONFIG_PREEMPT
-+	jno     io_preempt             # no -> check for preemptive scheduling
-+#else
-+        jno     io_leave               # no-> skip resched & signal
-+#endif
-+	tm	__TI_flags+7(%r9),_TIF_WORK_INT
-+	jnz	io_work                # there is work to do (signals etc.)
-+io_leave:
-+        RESTORE_ALL 0
-+
-+#ifdef CONFIG_PREEMPT
-+io_preempt:
-+	icm	%r0,15,__TI_precount(%r9)	
-+	jnz     io_leave
-+io_resume_loop:
-+	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
-+	jno	io_leave
-+	larl    %r1,.Lc_pactive
-+	mvc     __TI_precount(4,%r9),0(%r1)
-+	# hmpf, we are on the async. stack but to call schedule
-+	# we have to move the interrupt frame to the process stack
-+	lg	%r1,SP_R15(%r15)
-+	aghi	%r1,-SP_SIZE
-+	nill	%r1,0xfff8
-+	mvc	SP_PTREGS(SP_SIZE-SP_PTREGS,%r1),SP_PTREGS(%r15)
-+        xc      0(8,%r1),0(%r1)        # clear back chain
-+	lgr	%r15,%r1
-+        stosm   48(%r15),0x03          # reenable interrupts
-+	brasl   %r14,schedule          # call schedule
-+        stnsm   48(%r15),0xfc          # disable I/O and ext. interrupts
-+        GET_THREAD_INFO                # load pointer to task_struct to R9
-+	xc      __TI_precount(4,%r9),__TI_precount(%r9)
-+	j	io_resume_loop
-+#endif
-+
-+#
-+# recheck if there is more work to do
-+#
-+io_work_loop:
-+        stnsm   48(%r15),0xfc          # disable I/O and ext. interrupts
-+        GET_THREAD_INFO                # load pointer to task_struct to R9
-+	tm	__TI_flags+7(%r9),_TIF_WORK_INT
-+	jz	io_leave               # there is no work to do
-+#
-+# One of the work bits is on. Find out which one.
-+# Checked are: _TIF_SIGPENDING and _TIF_NEED_RESCHED
-+#
-+io_work:
-+	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
-+	jo	io_reschedule
-+	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
-+	jo	io_sigpending
-+	j	io_leave
-+
-+#
-+# _TIF_NEED_RESCHED is set, call schedule
-+#	
-+io_reschedule:        
-+        stosm   48(%r15),0x03       # reenable interrupts
-+	larl    %r14,io_work_loop
-+        jg      schedule            # call scheduler
-+
-+#
-+# _TIF_SIGPENDING is set, call do_signal
-+#
-+io_sigpending:     
-+        stosm   48(%r15),0x03       # reenable interrupts
-+        la      %r2,SP_PTREGS(%r15) # load pt_regs
-+        slgr    %r3,%r3             # clear *oldset
-+	brasl	%r14,do_signal      # call do_signal
-+        stnsm   48(%r15),0xfc       # disable I/O and ext. interrupts
-+	j	sysc_leave          # out of here, do NOT recheck
-+
-+/*
-+ * External interrupt handler routine
-+ */
-+        .globl  ext_int_handler
-+ext_int_handler:
-+        SAVE_ALL __LC_EXT_OLD_PSW,0
-+        GET_THREAD_INFO                # load pointer to task_struct to R9
-+	llgh	%r6,__LC_EXT_INT_CODE  # get interruption code
-+	lgr	%r1,%r6		       # calculate index = code & 0xff
-+	nill	%r1,0xff
-+	sll	%r1,3
-+	larl	%r7,ext_int_hash
-+	lg	%r7,0(%r1,%r7)	       # get first list entry for hash value
-+	ltgr	%r7,%r7		       # == NULL ?
-+	jz	io_return	       # yes, nothing to do, exit
-+ext_int_loop:
-+	ch	%r6,16(%r7)	       # compare external interrupt code
-+	jne	ext_int_next
-+	lg	%r1,8(%r7)	       # get handler address
-+	la	%r2,SP_PTREGS(%r15)    # address of register-save area
-+	lgr	%r3,%r6		       # interruption code
-+	basr	%r14,%r1	       # call handler
-+ext_int_next:
-+	lg	%r7,0(%r7)	       # next list entry
-+	ltgr	%r7,%r7
-+	jnz	ext_int_loop
-+	j	io_return
-+
-+/*
-+ * Machine check handler routines
-+ */
-+        .globl mcck_int_handler
-+mcck_int_handler:
-+        SAVE_ALL __LC_MCK_OLD_PSW,0
-+	brasl   %r14,s390_do_machine_check
-+mcck_return:
-+        RESTORE_ALL 0
-+
-+#ifdef CONFIG_SMP
-+/*
-+ * Restart interruption handler, kick starter for additional CPUs
-+ */
-+        .globl restart_int_handler
-+restart_int_handler:
-+        lg      %r15,__LC_SAVE_AREA+120 # load ksp
-+        lghi    %r10,__LC_CREGS_SAVE_AREA
-+        lctlg   %c0,%c15,0(%r10) # get new ctl regs
-+        lghi    %r10,__LC_AREGS_SAVE_AREA
-+        lam     %a0,%a15,0(%r10)
-+        stosm   0(%r15),0x04           # now we can turn dat on
-+        lmg     %r6,%r15,48(%r15)      # load registers from clone
-+	jg      start_secondary
-+#else
-+/*
-+ * If we do not run with SMP enabled, let the new CPU crash ...
-+ */
-+        .globl restart_int_handler
-+restart_int_handler:
-+        basr    %r1,0
-+restart_base:
-+        lpswe   restart_crash-restart_base(%r1)
-+        .align 8
-+restart_crash:
-+        .long  0x000a0000,0x00000000,0x00000000,0x00000000
-+restart_go:
-+#endif
-+
-+/*
-+ * Integer constants
-+ */
-+               .align 4
-+.Lconst:
-+.Lc_ac:        .long  0,0,1
-+.Lc_pactive:   .long  PREEMPT_ACTIVE
-+.L0x0130:      .long  0x0130
-+.L0x0140:      .long  0x0140
-+.L0x0150:      .long  0x0150
-+.L0x0160:      .long  0x0160
-+.L0x0170:      .long  0x0170
-+.Lnr_syscalls: .long  NR_syscalls
+@@ -518,7 +487,7 @@
+  * Add profiling information for cqr before execution.
+  */
+ static inline void
+-dasd_profile_start(dasd_device_t *device, dasd_ccw_req_t * cqr,
++dasd_profile_start(struct dasd_device *device, struct dasd_ccw_req * cqr,
+ 		   struct request *req)
+ {
+ 	struct list_head *l;
+@@ -540,7 +509,7 @@
+  * Add profiling information for cqr after execution.
+  */
+ static inline void
+-dasd_profile_end(dasd_device_t *device, dasd_ccw_req_t * cqr,
++dasd_profile_end(struct dasd_device *device, struct dasd_ccw_req * cqr,
+ 		 struct request *req)
+ {
+ 	long strtime, irqtime, endtime, tottime;	/* in microseconds */
+@@ -562,12 +531,14 @@
+ 	tottimeps = tottime / sectors;
+ 
+ 	if (!dasd_global_profile.dasd_io_reqs)
+-		memset(&dasd_global_profile, 0, sizeof (dasd_profile_info_t));
++		memset(&dasd_global_profile, 0,
++		       sizeof (struct dasd_profile_info_t));
+ 	dasd_global_profile.dasd_io_reqs++;
+ 	dasd_global_profile.dasd_io_sects += sectors;
+ 
+ 	if (!device->profile.dasd_io_reqs)
+-		memset(&device->profile, 0, sizeof (dasd_profile_info_t));
++		memset(&device->profile, 0,
++		       sizeof (struct dasd_profile_info_t));
+ 	device->profile.dasd_io_reqs++;
+ 	device->profile.dasd_io_sects += sectors;
+ 
+@@ -591,11 +562,11 @@
+  * memory and 2) dasd_smalloc_request uses the static ccw memory
+  * that gets allocated for each device.
+  */
+-dasd_ccw_req_t *
++struct dasd_ccw_req *
+ dasd_kmalloc_request(char *magic, int cplength, int datasize,
+-		   dasd_device_t * device)
++		   struct dasd_device * device)
+ {
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 
+ 	/* Sanity checks */
+ 	if ( magic == NULL || datasize > PAGE_SIZE ||
+@@ -606,10 +577,10 @@
+ 	debug_int_event ( dasd_debug_area, 1, cplength);
+ 	debug_int_event ( dasd_debug_area, 1, datasize);
+ 
+-	cqr = kmalloc(sizeof(dasd_ccw_req_t), GFP_ATOMIC);
++	cqr = kmalloc(sizeof(struct dasd_ccw_req), GFP_ATOMIC);
+ 	if (cqr == NULL)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(cqr, 0, sizeof(dasd_ccw_req_t));
++	memset(cqr, 0, sizeof(struct dasd_ccw_req));
+ 	cqr->cpaddr = NULL;
+ 	if (cplength > 0) {
+ 		cqr->cpaddr = kmalloc(cplength*sizeof(struct ccw1),
+@@ -637,12 +608,12 @@
+ 	return cqr;
+ }
+ 
+-dasd_ccw_req_t *
++struct dasd_ccw_req *
+ dasd_smalloc_request(char *magic, int cplength, int datasize,
+-		   dasd_device_t * device)
++		   struct dasd_device * device)
+ {
+ 	unsigned long flags;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 	char *data;
+ 	int size;
+ 
+@@ -655,18 +626,19 @@
+ 	debug_int_event ( dasd_debug_area, 1, cplength);
+ 	debug_int_event ( dasd_debug_area, 1, datasize);
+ 
+-	size = (sizeof(dasd_ccw_req_t) + 7L) & -8L;
++	size = (sizeof(struct dasd_ccw_req) + 7L) & -8L;
+ 	if (cplength > 0)
+ 		size += cplength * sizeof(struct ccw1);
+ 	if (datasize > 0)
+ 		size += datasize;
+ 	spin_lock_irqsave(&device->mem_lock, flags);
+-	cqr = (dasd_ccw_req_t *) dasd_alloc_chunk(&device->ccw_chunks, size);
++	cqr = (struct dasd_ccw_req *)
++		dasd_alloc_chunk(&device->ccw_chunks, size);
+ 	spin_unlock_irqrestore(&device->mem_lock, flags);
+ 	if (cqr == NULL)
+ 		return ERR_PTR(-ENOMEM);
+-	memset(cqr, 0, sizeof(dasd_ccw_req_t));
+-	data = (char *) cqr + ((sizeof(dasd_ccw_req_t) + 7L) & -8L);
++	memset(cqr, 0, sizeof(struct dasd_ccw_req));
++	data = (char *) cqr + ((sizeof(struct dasd_ccw_req) + 7L) & -8L);
+ 	cqr->cpaddr = NULL;
+ 	if (cplength > 0) {
+ 		cqr->cpaddr = (struct ccw1 *) data;
+@@ -687,10 +659,10 @@
+ /*
+  * Free memory of a channel program. This function needs to free all the
+  * idal lists that might have been created by dasd_set_cda and the
+- * dasd_ccw_req_t itself.
++ * struct dasd_ccw_req itself.
+  */
+ void
+-dasd_kfree_request(dasd_ccw_req_t * cqr, dasd_device_t * device)
++dasd_kfree_request(struct dasd_ccw_req * cqr, struct dasd_device * device)
+ {
+ #ifdef CONFIG_ARCH_S390X
+ 	struct ccw1 *ccw;
+@@ -714,7 +686,7 @@
+ }
+ 
+ void
+-dasd_sfree_request(dasd_ccw_req_t * cqr, dasd_device_t * device)
++dasd_sfree_request(struct dasd_ccw_req * cqr, struct dasd_device * device)
+ {
+ 	unsigned long flags;
+ 
+@@ -732,16 +704,16 @@
+  * Check discipline magic in cqr.
+  */
+ static inline int
+-dasd_check_cqr(dasd_ccw_req_t *cqr)
++dasd_check_cqr(struct dasd_ccw_req *cqr)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	if (cqr == NULL)
+ 		return -EINVAL;
+ 	device = cqr->device;
+ 	if (strncmp((char *) &cqr->magic, device->discipline->ebcname, 4)) {
+ 		DEV_MESSAGE(KERN_WARNING, device,
+-			    " dasd_ccw_req_t 0x%08x magic doesn't match"
++			    " dasd_ccw_req 0x%08x magic doesn't match"
+ 			    " discipline 0x%08x",
+ 			    cqr->magic,
+ 			    *(unsigned int *) device->discipline->name);
+@@ -756,9 +728,9 @@
+  * is in a bad mood.
+  */
+ int
+-dasd_term_IO(dasd_ccw_req_t * cqr)
++dasd_term_IO(struct dasd_ccw_req * cqr)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int retries, rc;
+ 
+ 	/* Check the cqr */
+@@ -766,7 +738,7 @@
+ 	if (rc)
+ 		return rc;
+ 	retries = 0;
+-	device = (dasd_device_t *) cqr->device;
++	device = (struct dasd_device *) cqr->device;
+ 	while ((retries < 5) && (cqr->status == DASD_CQR_IN_IO)) {
+ 		if (retries < 2)
+ 			rc = ccw_device_halt(device->cdev, (long) cqr);
+@@ -808,16 +780,16 @@
+  * In that case set up a timer to start the request later.
+  */
+ int
+-dasd_start_IO(dasd_ccw_req_t * cqr)
++dasd_start_IO(struct dasd_ccw_req * cqr)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc;
+ 
+ 	/* Check the cqr */
+ 	rc = dasd_check_cqr(cqr);
+ 	if (rc)
+ 		return rc;
+-	device = (dasd_device_t *) cqr->device;
++	device = (struct dasd_device *) cqr->device;
+ 	cqr->startclk = get_clock();
+ 	rc = ccw_device_start(device->cdev, cqr->cpaddr, (long) cqr,
+ 			      cqr->lpm, 0);
+@@ -860,14 +832,15 @@
+ dasd_timeout_device(unsigned long ptr)
+ {
+ 	unsigned long flags;
+-	dasd_device_t *device;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_device *device;
++	struct dasd_ccw_req *cqr;
+ 
+-	device = (dasd_device_t *) ptr;
++	device = (struct dasd_device *) ptr;
+ 	spin_lock_irqsave(get_ccwdev_lock(device->cdev), flags);
+ 	/* re-activate first request in queue */
+ 	if (!list_empty(&device->ccw_queue)) {
+-		cqr = list_entry(device->ccw_queue.next, dasd_ccw_req_t, list);
++		cqr = list_entry(device->ccw_queue.next,
++				 struct dasd_ccw_req, list);
+ 		if (cqr->status == DASD_CQR_PENDING)
+ 			cqr->status = DASD_CQR_QUEUED;
+ 	}
+@@ -879,7 +852,7 @@
+  * Setup timeout for a device.
+  */
+ void
+-dasd_set_timer(dasd_device_t *device, int expires)
++dasd_set_timer(struct dasd_device *device, int expires)
+ {
+ 	/* FIXME: timeouts are based on jiffies but the timeout
+ 	 * comparision in __dasd_check_expire is based on the
+@@ -903,7 +876,7 @@
+  * Clear timeout for a device.
+  */
+ void
+-dasd_clear_timer(dasd_device_t *device)
++dasd_clear_timer(struct dasd_device *device)
+ {
+ 	if (timer_pending(&device->timer))
+ 		del_timer(&device->timer);
+@@ -921,10 +894,10 @@
+ {
+ 	struct {
+ 		struct work_struct work;
+-		dasd_device_t *device;
++		struct dasd_device *device;
+ 	} *p;
+-	dasd_device_t *device;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_device *device;
++	struct dasd_ccw_req *cqr;
+ 
+ 	p = data;
+ 	device = p->device;
+@@ -934,7 +907,8 @@
+ 	spin_lock_irq(get_ccwdev_lock(device->cdev));
+ 	/* re-activate first request in queue */
+ 	if (!list_empty(&device->ccw_queue)) {
+-		cqr = list_entry(device->ccw_queue.next, dasd_ccw_req_t, list);
++		cqr = list_entry(device->ccw_queue.next,
++				 struct dasd_ccw_req, list);
+ 		if (cqr == NULL) {
+ 			MESSAGE (KERN_DEBUG,
+ 				 "got state change pending interrupt on"
+@@ -954,10 +928,10 @@
+ static void
+ dasd_handle_killed_request(struct ccw_device *cdev, unsigned long intparm)
+ {
+-	dasd_ccw_req_t *cqr;
+-	dasd_device_t *device;
++	struct dasd_ccw_req *cqr;
++	struct dasd_device *device;
+ 
+-	cqr = (dasd_ccw_req_t *) intparm;
++	cqr = (struct dasd_ccw_req *) intparm;
+ 	if (cqr->status != DASD_CQR_IN_IO) {
+ 		MESSAGE(KERN_DEBUG,
+ 			"invalid status: bus_id %s, status %02x",
+@@ -965,7 +939,7 @@
+ 		return;
+ 	}
+ 
+-	device = (dasd_device_t *) cqr->device;
++	device = (struct dasd_device *) cqr->device;
+ 	if (device == NULL ||
+ 	    device != cdev->dev.driver_data ||
+ 	    strncmp(device->discipline->ebcname, (char *) &cqr->magic, 4)) {
+@@ -982,11 +956,11 @@
+ }
+ 
+ static void
+-dasd_handle_state_change_pending(dasd_device_t *device)
++dasd_handle_state_change_pending(struct dasd_device *device)
+ {
+ 	struct {
+ 		struct work_struct work;
+-		dasd_device_t *device;
++		struct dasd_device *device;
+ 	} *p;
+ 
+ 	p = kmalloc(sizeof(*p), GFP_ATOMIC);
+@@ -1006,8 +980,8 @@
+ dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
+ 		 struct irb *irb)
+ {
+-	dasd_ccw_req_t *cqr, *next;
+-	dasd_device_t *device;
++	struct dasd_ccw_req *cqr, *next;
++	struct dasd_device *device;
+ 	unsigned long long now;
+ 	int expires;
+ 	dasd_era_t era;
+@@ -1042,7 +1016,7 @@
+ 		return;
+ 	}
+ 
+-	cqr = (dasd_ccw_req_t *) intparm;
++	cqr = (struct dasd_ccw_req *) intparm;
+ 	/*
+ 	 * check status - the request might have been killed
+ 	 * because of dyn detach
+@@ -1054,7 +1028,7 @@
+ 		return;
+ 	}
+ 
+-	device = (dasd_device_t *) cqr->device;
++	device = (struct dasd_device *) cqr->device;
+ 	if (device == NULL ||
+ 	    device != cdev->dev.driver_data ||
+ 	    strncmp(device->discipline->ebcname, (char *) &cqr->magic, 4)) {
+@@ -1084,7 +1058,7 @@
+ 		/* Start first request on queue if possible -> fast_io. */
+ 		if (cqr->list.next != &device->ccw_queue) {
+ 			next = list_entry(cqr->list.next,
+-					  dasd_ccw_req_t, list);
++					  struct dasd_ccw_req, list);
+ 			if (next->status == DASD_CQR_QUEUED) {
+ 				if (device->discipline->start_IO(next) == 0)
+ 					expires = next->expires;
+@@ -1141,7 +1115,7 @@
+  * Process finished error recovery ccw.
+  */
+ static inline void
+-__dasd_process_erp(dasd_device_t *device, dasd_ccw_req_t *cqr)
++__dasd_process_erp(struct dasd_device *device, struct dasd_ccw_req *cqr)
+ {
+ 	dasd_erp_fn_t erp_fn;
+ 
+@@ -1157,16 +1131,17 @@
+  * Process ccw request queue.
+  */
+ static inline void
+-__dasd_process_ccw_queue(dasd_device_t * device, struct list_head *final_queue)
++__dasd_process_ccw_queue(struct dasd_device * device,
++			 struct list_head *final_queue)
+ {
+ 	struct list_head *l, *n;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 	dasd_erp_fn_t erp_fn;
+ 
+ restart:
+ 	/* Process request with final status. */
+ 	list_for_each_safe(l, n, &device->ccw_queue) {
+-		cqr = list_entry(l, dasd_ccw_req_t, list);
++		cqr = list_entry(l, struct dasd_ccw_req, list);
+ 		/* Stop list processing at the first non-final request. */
+ 		if (cqr->status != DASD_CQR_DONE &&
+ 		    cqr->status != DASD_CQR_FAILED &&
+@@ -1197,7 +1172,7 @@
+ }
+ 
+ static void
+-dasd_end_request_cb(dasd_ccw_req_t * cqr, void *data)
++dasd_end_request_cb(struct dasd_ccw_req * cqr, void *data)
+ {
+ 	struct request *req;
+ 
+@@ -1214,11 +1189,11 @@
+  * Fetch requests from the block device queue.
+  */
+ static inline void
+-__dasd_process_blk_queue(dasd_device_t * device)
++__dasd_process_blk_queue(struct dasd_device * device)
+ {
+ 	request_queue_t *queue;
+ 	struct request *req;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 	int nr_queued;
+ 
+ 	queue = device->request_queue;
+@@ -1281,14 +1256,14 @@
+  * if it reached its expire time. If so, terminate the IO.
+  */
+ static inline void
+-__dasd_check_expire(dasd_device_t * device)
++__dasd_check_expire(struct dasd_device * device)
+ {
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 	unsigned long long now;
+ 
+ 	if (list_empty(&device->ccw_queue))
+ 		return;
+-	cqr = list_entry(device->ccw_queue.next, dasd_ccw_req_t, list);
++	cqr = list_entry(device->ccw_queue.next, struct dasd_ccw_req, list);
+ 	if (cqr->status == DASD_CQR_IN_IO && cqr->expires != 0) {
+ 		now = get_clock();
+ 		if (cqr->expires * (TOD_SEC / HZ) + cqr->startclk < now) {
+@@ -1304,14 +1279,14 @@
+  * if it needs to be started.
+  */
+ static inline void
+-__dasd_start_head(dasd_device_t * device)
++__dasd_start_head(struct dasd_device * device)
+ {
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 	int rc;
+ 
+ 	if (list_empty(&device->ccw_queue))
+ 		return;
+-	cqr = list_entry(device->ccw_queue.next, dasd_ccw_req_t, list);
++	cqr = list_entry(device->ccw_queue.next, struct dasd_ccw_req, list);
+ 	if (cqr->status == DASD_CQR_QUEUED) {
+ 		/* try to start the first I/O that can be started */
+ 		rc = device->discipline->start_IO(cqr);
+@@ -1327,16 +1302,16 @@
+  * Remove requests from the ccw queue. 
+  */
+ static void
+-dasd_flush_ccw_queue(dasd_device_t * device, int all)
++dasd_flush_ccw_queue(struct dasd_device * device, int all)
+ {
+ 	struct list_head flush_queue;
+ 	struct list_head *l, *n;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 
+ 	INIT_LIST_HEAD(&flush_queue);
+ 	spin_lock_irq(get_ccwdev_lock(device->cdev));
+ 	list_for_each_safe(l, n, &device->ccw_queue) {
+-		cqr = list_entry(l, dasd_ccw_req_t, list);
++		cqr = list_entry(l, struct dasd_ccw_req, list);
+ 		/* Flush all request or only block device requests? */
+ 		if (all == 0 && cqr->callback == dasd_end_request_cb)
+ 			continue;
+@@ -1359,7 +1334,7 @@
+ 	spin_unlock_irq(get_ccwdev_lock(device->cdev));
+ 	/* Now call the callback function of flushed requests */
+ 	list_for_each_safe(l, n, &flush_queue) {
+-		cqr = list_entry(l, dasd_ccw_req_t, list);
++		cqr = list_entry(l, struct dasd_ccw_req, list);
+ 		if (cqr->callback != NULL)
+ 			(cqr->callback)(cqr, cqr->callback_data);
+ 	}
+@@ -1369,11 +1344,11 @@
+  * Acquire the device lock and process queues for the device.
+  */
+ static void
+-dasd_tasklet(dasd_device_t * device)
++dasd_tasklet(struct dasd_device * device)
+ {
+ 	struct list_head final_queue;
+ 	struct list_head *l, *n;
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 
+ 	atomic_set (&device->tasklet_scheduled, 0);
+ 	INIT_LIST_HEAD(&final_queue);
+@@ -1385,7 +1360,7 @@
+ 	spin_unlock_irq(get_ccwdev_lock(device->cdev));
+ 	/* Now call the callback function of requests with final status */
+ 	list_for_each_safe(l, n, &final_queue) {
+-		cqr = list_entry(l, dasd_ccw_req_t, list);
++		cqr = list_entry(l, struct dasd_ccw_req, list);
+ 		list_del(&cqr->list);
+ 		if (cqr->callback != NULL)
+ 			(cqr->callback)(cqr, cqr->callback_data);
+@@ -1405,7 +1380,7 @@
+  * Schedules a call to dasd_tasklet over the device tasklet.
+  */
+ void
+-dasd_schedule_bh(dasd_device_t * device)
++dasd_schedule_bh(struct dasd_device * device)
+ {
+ 	/* Protect against rescheduling. */
+ 	if (atomic_compare_and_swap (0, 1, &device->tasklet_scheduled))
+@@ -1419,9 +1394,9 @@
+  * possible.
+  */
+ void
+-dasd_add_request_head(dasd_ccw_req_t *req)
++dasd_add_request_head(struct dasd_ccw_req *req)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	unsigned long flags;
+ 
+ 	device = req->device;
+@@ -1439,9 +1414,9 @@
+  * possible.
+  */
+ void
+-dasd_add_request_tail(dasd_ccw_req_t *req)
++dasd_add_request_tail(struct dasd_ccw_req *req)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	unsigned long flags;
+ 
+ 	device = req->device;
+@@ -1458,15 +1433,15 @@
+  * Wakeup callback.
+  */
+ static void
+-dasd_wakeup_cb(dasd_ccw_req_t *cqr, void *data)
++dasd_wakeup_cb(struct dasd_ccw_req *cqr, void *data)
+ {
+ 	wake_up((wait_queue_head_t *) data);
+ }
+ 
+ static inline int
+-_wait_for_wakeup(dasd_ccw_req_t *cqr)
++_wait_for_wakeup(struct dasd_ccw_req *cqr)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc;
+ 
+ 	device = cqr->device;
+@@ -1480,10 +1455,10 @@
+  * Attempts to start a special ccw queue and waits for its completion.
+  */
+ int
+-dasd_sleep_on(dasd_ccw_req_t * cqr)
++dasd_sleep_on(struct dasd_ccw_req * cqr)
+ {
+ 	wait_queue_head_t wait_q;
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc;
+ 	
+ 	device = cqr->device;
+@@ -1512,10 +1487,10 @@
+  * for its completion.
+  */
+ int
+-dasd_sleep_on_interruptible(dasd_ccw_req_t * cqr)
++dasd_sleep_on_interruptible(struct dasd_ccw_req * cqr)
+ {
+ 	wait_queue_head_t wait_q;
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc, finished;
+ 
+ 	device = cqr->device;
+@@ -1557,14 +1532,14 @@
+  * to the head of the queue. Then the special request is waited on normally.
+  */
+ static inline int
+-_dasd_term_running_cqr(dasd_device_t *device)
++_dasd_term_running_cqr(struct dasd_device *device)
+ {
+-	dasd_ccw_req_t *cqr;
++	struct dasd_ccw_req *cqr;
+ 	int rc;
+ 
+ 	if (list_empty(&device->ccw_queue))
+ 		return 0;
+-	cqr = list_entry(device->ccw_queue.next, dasd_ccw_req_t, list);
++	cqr = list_entry(device->ccw_queue.next, struct dasd_ccw_req, list);
+ 	rc = device->discipline->term_IO(cqr);
+ 	if (rc == 0) {
+ 		/* termination successful */
+@@ -1575,10 +1550,10 @@
+ }
+ 
+ int
+-dasd_sleep_on_immediatly(dasd_ccw_req_t * cqr)
++dasd_sleep_on_immediatly(struct dasd_ccw_req * cqr)
+ {
+ 	wait_queue_head_t wait_q;
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc;
+ 	
+ 	device = cqr->device;
+@@ -1613,9 +1588,9 @@
+  * terminated if it is currently in i/o.
+  * Returns 1 if the request has been terminated.
+  */
+-int dasd_cancel_req(dasd_ccw_req_t *cqr)
++int dasd_cancel_req(struct dasd_ccw_req *cqr)
+ {
+-	dasd_device_t *device = cqr->device;
++	struct dasd_device *device = cqr->device;
+ 	unsigned long flags;
+ 	int rc;
+ 
+@@ -1661,9 +1636,9 @@
+ static void
+ do_dasd_request(request_queue_t * queue)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+-	device = (dasd_device_t *) queue->queuedata;
++	device = (struct dasd_device *) queue->queuedata;
+ 	spin_lock(get_ccwdev_lock(device->cdev));
+ 	/* Get new request from the block device request queue */
+ 	__dasd_process_blk_queue(device);
+@@ -1676,7 +1651,7 @@
+  * Allocate request queue and initialize gendisk info for device.
+  */
+ static int
+-dasd_setup_blkdev(dasd_device_t * device)
++dasd_setup_blkdev(struct dasd_device * device)
+ {
+ 	int max, rc;
+ 
+@@ -1711,7 +1686,7 @@
+  * Deactivate and free request queue.
+  */
+ static void
+-dasd_disable_blkdev(dasd_device_t * device)
++dasd_disable_blkdev(struct dasd_device * device)
+ {
+ 	if (device->request_queue) {
+ 		blk_cleanup_queue(device->request_queue);
+@@ -1724,7 +1699,7 @@
+  * Flush request on the request queue.
+  */
+ static void
+-dasd_flush_request_queue(dasd_device_t * device)
++dasd_flush_request_queue(struct dasd_device * device)
+ {
+ 	struct request *req;
+ 
+@@ -1745,7 +1720,7 @@
+ static int
+ dasd_open(struct inode *inp, struct file *filp)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc;
+ 	
+ 	if (dasd_probeonly) {
+@@ -1776,7 +1751,7 @@
+ static int
+ dasd_release(struct inode *inp, struct file *filp)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	device = inp->i_bdev->bd_disk->private_data;
+ 
+@@ -1824,7 +1799,8 @@
+ /* initial attempt at a probe function. this can be simplified once
+  * the other detection code is gone */
+ int
+-dasd_generic_probe (struct ccw_device *cdev, dasd_discipline_t *discipline)
++dasd_generic_probe (struct ccw_device *cdev,
++		    struct dasd_discipline *discipline)
+ {
+ 	int devno;
+ 	int ret = 0;
+@@ -1857,7 +1833,7 @@
+ int
+ dasd_generic_remove (struct ccw_device *cdev)
+ {
+-	struct dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	device = cdev->dev.driver_data;
+ 	cdev->dev.driver_data = NULL;
+@@ -1871,10 +1847,10 @@
+  * or the user has started activation through sysfs */
+ int
+ dasd_generic_set_online (struct ccw_device *cdev,
+-			 dasd_discipline_t *discipline)
++			 struct dasd_discipline *discipline)
+ 
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	int rc;
+ 
+ 	device = dasd_create_device(cdev);
+@@ -1928,7 +1904,7 @@
+ int
+ dasd_generic_set_offline (struct ccw_device *cdev)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	device = cdev->dev.driver_data;
+ 	if (atomic_read(&device->open_count) > 0) {
+@@ -1984,7 +1960,7 @@
+ static ssize_t
+ dasd_ro_show(struct device *dev, char *buf)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	device = dev->driver_data;
+ 	if (!device)
+@@ -1996,7 +1972,7 @@
+ static ssize_t
+ dasd_ro_store(struct device *dev, const char *buf, size_t count)
+ {
+-	dasd_device_t *device = dev->driver_data;
++	struct dasd_device *device = dev->driver_data;
+ 
+ 	if (device)
+ 		device->ro_flag = (buf[0] == '1') ? 1 : 0;
+@@ -2013,7 +1989,7 @@
+ static ssize_t 
+ dasd_use_diag_show(struct device *dev, char *buf)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	device = dev->driver_data;
+ 	if (!device)
+@@ -2025,7 +2001,7 @@
+ static ssize_t
+ dasd_use_diag_store(struct device *dev, const char *buf, size_t count)
+ {
+-	dasd_device_t *device = dev->driver_data;
++	struct dasd_device *device = dev->driver_data;
+ 
+ 	if (device)
+ 		device->use_diag_flag = (buf[0] == '1') ? 1 : 0;
+@@ -2043,7 +2019,7 @@
+ dasd_devices_show(struct device *dev, char *buf)
+ {
+ 	
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 	dasd_devmap_t *devmap;
+ 
+ 	devmap = NULL;
+@@ -2063,7 +2039,7 @@
+ static ssize_t
+ dasd_discipline_show(struct device *dev, char *buf)
+ {
+-	dasd_device_t *device;
++	struct dasd_device *device;
+ 
+ 	device = dev->driver_data;
+ 	if (!device || !device->discipline)
+diff -urN linux-2.5.67/drivers/s390/block/dasd_3370_erp.c linux-2.5.67-s390/drivers/s390/block/dasd_3370_erp.c
+--- linux-2.5.67/drivers/s390/block/dasd_3370_erp.c	Mon Apr  7 19:31:50 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_3370_erp.c	Mon Apr 14 19:11:53 2003
+@@ -4,10 +4,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000
+  *
+- * $Revision: 1.7 $
+- *
+- * History of changes 
+- *
++ * $Revision: 1.9 $
+  */
+ 
+ #define PRINTK_HEADER "dasd_erp(3370)"
+@@ -32,7 +29,7 @@
+  *   dasd_era_recover	for all others.
+  */
+ dasd_era_t
+-dasd_3370_erp_examine(dasd_ccw_req_t * cqr, struct irb * irb)
++dasd_3370_erp_examine(struct dasd_ccw_req * cqr, struct irb * irb)
+ {
+ 	char *sense = irb->ecw;
+ 
+diff -urN linux-2.5.67/drivers/s390/block/dasd_3990_erp.c linux-2.5.67-s390/drivers/s390/block/dasd_3990_erp.c
+--- linux-2.5.67/drivers/s390/block/dasd_3990_erp.c	Mon Apr  7 19:32:27 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_3990_erp.c	Mon Apr 14 19:11:53 2003
+@@ -5,11 +5,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000, 2001
+  *
+- * $Revision: 1.20 $
+- *
+- * History of changes:
+- * 05/14/01 fixed PL030160GTO (BUG() in erp_action_5)
+- * 05/04/02 code restructuring.
++ * $Revision: 1.24 $
+  */
+ 
+ #include <linux/timer.h>
+@@ -23,11 +19,11 @@
+ #include "dasd_eckd.h"
+ 
+ 
+-typedef struct DCTL_data_t {
++struct DCTL_data {
+ 	unsigned char subcommand;	/* e.g Inhibit Write, Enable Write,... */
+ 	unsigned char modifier;	/* Subcommand modifier		       */
+ 	unsigned short res;	/* reserved */
+-} __attribute__ ((packed)) DCTL_data_t;
++} __attribute__ ((packed));
+ 
+ /*
+  ***************************************************************************** 
+@@ -54,10 +50,10 @@
+  *   dasd_era_recover	for all others.
+  */
+ static dasd_era_t
+-dasd_3990_erp_examine_24(dasd_ccw_req_t * cqr, char *sense)
++dasd_3990_erp_examine_24(struct dasd_ccw_req * cqr, char *sense)
+ {
+ 
+-	dasd_device_t *device = cqr->device;
++	struct dasd_device *device = cqr->device;
+ 
+ 	/* check for 'Command Reject' */
+ 	if ((sense[0] & SNS0_CMD_REJECT) &&
+@@ -111,10 +107,10 @@
+  *   dasd_era_recover	for recoverable others.
+  */
+ static dasd_era_t
+-dasd_3990_erp_examine_32(dasd_ccw_req_t * cqr, char *sense)
++dasd_3990_erp_examine_32(struct dasd_ccw_req * cqr, char *sense)
+ {
+ 
+-	dasd_device_t *device = cqr->device;
++	struct dasd_device *device = cqr->device;
+ 
+ 	switch (sense[25]) {
+ 	case 0x00:
+@@ -149,12 +145,12 @@
+  *   dasd_era_recover	for all others.
+  */
+ dasd_era_t
+-dasd_3990_erp_examine(dasd_ccw_req_t * cqr, struct irb * irb)
++dasd_3990_erp_examine(struct dasd_ccw_req * cqr, struct irb * irb)
+ {
+ 
+ 	char *sense = irb->ecw;
+ 	dasd_era_t era = dasd_era_recover;
+-	dasd_device_t *device = cqr->device;
++	struct dasd_device *device = cqr->device;
+ 
+ 	/* check for successful execution first */
+ 	if (irb->scsw.cstat == 0x00 &&
+@@ -207,10 +203,10 @@
+  * RETURN VALUES
+  *   cqr		original cqr		   
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_cleanup(dasd_ccw_req_t * erp, char final_status)
++static struct dasd_ccw_req *
++dasd_3990_erp_cleanup(struct dasd_ccw_req * erp, char final_status)
+ {
+-	dasd_ccw_req_t *cqr = erp->refers;
++	struct dasd_ccw_req *cqr = erp->refers;
+ 
+ 	dasd_free_erp_request(erp, erp->device);
+ 	cqr->status = final_status;
+@@ -234,10 +230,10 @@
+  *   void		
+  */
+ static void
+-dasd_3990_erp_block_queue(dasd_ccw_req_t * erp, int expires)
++dasd_3990_erp_block_queue(struct dasd_ccw_req * erp, int expires)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	DEV_MESSAGE(KERN_INFO, device,
+ 		    "blocking request queue for %is", expires);
+@@ -258,11 +254,11 @@
+  * RETURN VALUES
+  *   erp		modified erp
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_int_req(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_int_req(struct dasd_ccw_req * erp)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	/* first time set initial retry counter and erp_function */
+ 	/* and retry once without blocking queue		 */
+@@ -301,9 +297,9 @@
+  *   erp		modified pointer to the ERP
+  */
+ static void
+-dasd_3990_erp_alternate_path(dasd_ccw_req_t * erp)
++dasd_3990_erp_alternate_path(struct dasd_ccw_req * erp)
+ {
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 	__u8 opm;
+ 
+ 	/* try alternate valid path */
+@@ -349,17 +345,18 @@
+  *   dctl_cqr		pointer to NEW dctl_cqr 
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_DCTL(dasd_ccw_req_t * erp, char modifier)
++static struct dasd_ccw_req *
++dasd_3990_erp_DCTL(struct dasd_ccw_req * erp, char modifier)
+ {
+ 
+-	dasd_device_t *device = erp->device;
+-	DCTL_data_t *DCTL_data;
++	struct dasd_device *device = erp->device;
++	struct DCTL_data *DCTL_data;
+ 	struct ccw1 *ccw;
+-	dasd_ccw_req_t *dctl_cqr;
++	struct dasd_ccw_req *dctl_cqr;
+ 
+ 	dctl_cqr = dasd_alloc_erp_request((char *) &erp->magic, 1,
+-					  sizeof (DCTL_data_t), erp->device);
++					  sizeof (struct DCTL_data),
++					  erp->device);
+ 	if (IS_ERR(dctl_cqr)) {
+ 		DEV_MESSAGE(KERN_ERR, device, "%s",
+ 			    "Unable to allocate DCTL-CQR");
+@@ -409,8 +406,8 @@
+  *   erp		pointer to the ERP
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_action_1(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_action_1(struct dasd_ccw_req * erp)
+ {
+ 
+ 	erp->function = dasd_3990_erp_action_1;
+@@ -438,11 +435,11 @@
+  *   erp		pointer to the ERP
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_action_4(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_action_4(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	/* first time set initial retry counter and erp_function    */
+ 	/* and retry once without waiting for state change pending  */
+@@ -496,8 +493,8 @@
+  *   erp		pointer to the ERP
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_action_5(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_action_5(struct dasd_ccw_req * erp)
+ {
+ 
+ 	/* first of all retry */
+@@ -523,10 +520,10 @@
+  *   void
+  */
+ static void
+-dasd_3990_handle_env_data(dasd_ccw_req_t * erp, char *sense)
++dasd_3990_handle_env_data(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 	char msg_format = (sense[7] & 0xF0);
+ 	char msg_no = (sense[7] & 0x0F);
+ 
+@@ -1146,11 +1143,11 @@
+  * RETURN VALUES
+  *   erp		'new' erp_head - pointer to new ERP 
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_com_rej(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_com_rej(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_com_rej;
+ 
+@@ -1187,11 +1184,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_bus_out(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_bus_out(struct dasd_ccw_req * erp)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	/* first time set initial retry counter and erp_function */
+ 	/* and retry once without blocking queue		 */
+@@ -1226,11 +1223,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_equip_check(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_equip_check(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_equip_check;
+ 
+@@ -1288,11 +1285,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_data_check(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_data_check(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_data_check;
+ 
+@@ -1347,11 +1344,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_overrun(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_overrun(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_overrun;
+ 
+@@ -1376,11 +1373,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_inv_format(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_inv_format(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_inv_format;
+ 
+@@ -1417,11 +1414,11 @@
+  * RETURN VALUES
+  *   erp		pointer to original (failed) cqr.
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_EOC(dasd_ccw_req_t * default_erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_EOC(struct dasd_ccw_req * default_erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = default_erp->device;
++	struct dasd_device *device = default_erp->device;
+ 
+ 	DEV_MESSAGE(KERN_ERR, device, "%s",
+ 		    "End-of-Cylinder - must never happen");
+@@ -1442,11 +1439,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_env_data(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_env_data(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_env_data;
+ 
+@@ -1479,11 +1476,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_no_rec(dasd_ccw_req_t * default_erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_no_rec(struct dasd_ccw_req * default_erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = default_erp->device;
++	struct dasd_device *device = default_erp->device;
+ 
+ 	DEV_MESSAGE(KERN_ERR, device, "%s",
+ 		    "No Record Found - Fatal error should "
+@@ -1506,11 +1503,11 @@
+  * RETURN VALUES
+  *   erp		new erp_head - pointer to new ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_file_prot(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_file_prot(struct dasd_ccw_req * erp)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	DEV_MESSAGE(KERN_ERR, device, "%s", "File Protected");
+ 
+@@ -1532,11 +1529,11 @@
+  * RETURN VALUES
+  *   erp		pointer to the (addtitional) ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_inspect_24(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_inspect_24(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_ccw_req_t *erp_filled = NULL;
++	struct dasd_ccw_req *erp_filled = NULL;
+ 
+ 	/* Check sense for ....	   */
+ 	/* 'Command Reject'	   */
+@@ -1612,11 +1609,11 @@
+  * RETURN VALUES
+  *   erp		modified erp_head
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_action_10_32(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_action_10_32(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->retries = 256;
+ 	erp->function = dasd_3990_erp_action_10_32;
+@@ -1646,15 +1643,15 @@
+  *   erp		new erp or 
+  *			default_erp in case of imprecise ending or error
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_action_1B_32(dasd_ccw_req_t * default_erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_action_1B_32(struct dasd_ccw_req * default_erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = default_erp->device;
++	struct dasd_device *device = default_erp->device;
+ 	__u32 cpa = 0;
+-	dasd_ccw_req_t *cqr;
+-	dasd_ccw_req_t *erp;
+-	DE_eckd_data_t *DE_data;
++	struct dasd_ccw_req *cqr;
++	struct dasd_ccw_req *erp;
++	struct DE_eckd_data *DE_data;
+ 	char *LO_data;		/* LO_eckd_data_t */
+ 	struct ccw1 *ccw;
+ 
+@@ -1695,8 +1692,8 @@
+ 	/* Build new ERP request including DE/LO */
+ 	erp = dasd_alloc_erp_request((char *) &cqr->magic,
+ 				     2 + 1,/* DE/LO + TIC */
+-				     sizeof (DE_eckd_data_t) +
+-				     sizeof (LO_eckd_data_t), device);
++				     sizeof (struct DE_eckd_data) +
++				     sizeof (struct LO_eckd_data), device);
+ 
+ 	if (IS_ERR(erp)) {
+ 		DEV_MESSAGE(KERN_ERR, device, "%s", "Unable to allocate ERP");
+@@ -1705,10 +1702,10 @@
+ 
+ 	/* use original DE */
+ 	DE_data = erp->data;
+-	memcpy(DE_data, cqr->data, sizeof (DE_eckd_data_t));
++	memcpy(DE_data, cqr->data, sizeof (struct DE_eckd_data));
+ 
+ 	/* create LO */
+-	LO_data = erp->data + sizeof (DE_eckd_data_t);
++	LO_data = erp->data + sizeof (struct DE_eckd_data);
+ 
+ 	if ((sense[3] == 0x01) && (LO_data[1] & 0x01)) {
+ 
+@@ -1791,15 +1788,15 @@
+  * RETURN VALUES
+  *   erp		modified erp 
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_update_1B(dasd_ccw_req_t * previous_erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_update_1B(struct dasd_ccw_req * previous_erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = previous_erp->device;
++	struct dasd_device *device = previous_erp->device;
+ 	__u32 cpa = 0;
+-	dasd_ccw_req_t *cqr;
+-	dasd_ccw_req_t *erp;
+-	char *LO_data;		/* LO_eckd_data_t */
++	struct dasd_ccw_req *cqr;
++	struct dasd_ccw_req *erp;
++	char *LO_data;		/* struct LO_eckd_data */
+ 	struct ccw1 *ccw;
+ 
+ 	DEV_MESSAGE(KERN_DEBUG, device, "%s",
+@@ -1842,7 +1839,7 @@
+ 	erp = previous_erp;
+ 
+ 	/* update the LO with the new returned sense data  */
+-	LO_data = erp->data + sizeof (DE_eckd_data_t);
++	LO_data = erp->data + sizeof (struct DE_eckd_data);
+ 
+ 	if ((sense[3] == 0x01) && (LO_data[1] & 0x01)) {
+ 
+@@ -1905,7 +1902,7 @@
+  *
+  */
+ static void
+-dasd_3990_erp_compound_retry(dasd_ccw_req_t * erp, char *sense)
++dasd_3990_erp_compound_retry(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+ 	switch (sense[25] & 0x03) {
+@@ -1949,7 +1946,7 @@
+  *
+  */
+ static void
+-dasd_3990_erp_compound_path(dasd_ccw_req_t * erp, char *sense)
++dasd_3990_erp_compound_path(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+ 	if (sense[25] & DASD_SENSE_BIT_3) {
+@@ -1984,8 +1981,8 @@
+  *   erp		NEW ERP pointer
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_compound_code(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_compound_code(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+ 	if (sense[25] & DASD_SENSE_BIT_2) {
+@@ -2033,13 +2030,13 @@
+  *
+  */
+ static void
+-dasd_3990_erp_compound_config(dasd_ccw_req_t * erp, char *sense)
++dasd_3990_erp_compound_config(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+ 	if ((sense[25] & DASD_SENSE_BIT_1) && (sense[26] & DASD_SENSE_BIT_2)) {
+ 
+ 		/* set to suspended duplex state then restart */
+-		dasd_device_t *device = erp->device;
++		struct dasd_device *device = erp->device;
+ 
+ 		DEV_MESSAGE(KERN_ERR, device, "%s",
+ 			    "Set device to suspended duplex state should be "
+@@ -2068,8 +2065,8 @@
+  *   erp		(additional) ERP pointer
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_compound(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_compound(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+ 	if ((erp->function == dasd_3990_erp_compound_retry) &&
+@@ -2115,11 +2112,11 @@
+  *   erp_filled		pointer to the ERP
+  *
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_inspect_32(dasd_ccw_req_t * erp, char *sense)
++static struct dasd_ccw_req *
++dasd_3990_erp_inspect_32(struct dasd_ccw_req * erp, char *sense)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 
+ 	erp->function = dasd_3990_erp_inspect_32;
+ 
+@@ -2232,11 +2229,11 @@
+  * RETURN VALUES
+  *   erp_new		contens was possibly modified 
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_inspect(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_inspect(struct dasd_ccw_req * erp)
+ {
+ 
+-	dasd_ccw_req_t *erp_new = NULL;
++	struct dasd_ccw_req *erp_new = NULL;
+ 	/* sense data are located in the refers record of the */
+ 	/* already set up new ERP !			      */
+ 	char *sense = erp->refers->dstat->ecw;
+@@ -2272,15 +2269,15 @@
+  * RETURN VALUES
+  *   erp		pointer to new ERP-chain head
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_add_erp(dasd_ccw_req_t * cqr)
++static struct dasd_ccw_req *
++dasd_3990_erp_add_erp(struct dasd_ccw_req * cqr)
+ {
+ 
+-	dasd_device_t *device = cqr->device;
++	struct dasd_device *device = cqr->device;
+ 	struct ccw1 *ccw;
+ 
+ 	/* allocate additional request block */
+-	dasd_ccw_req_t *erp;
++	struct dasd_ccw_req *erp;
+ 
+ 	erp = dasd_alloc_erp_request((char *) &cqr->magic, 2, 0, cqr->device);
+ 	if (IS_ERR(erp)) {
+@@ -2333,11 +2330,11 @@
+  * RETURN VALUES
+  *   erp		pointer to new ERP-chain head
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_additional_erp(dasd_ccw_req_t * cqr)
++static struct dasd_ccw_req *
++dasd_3990_erp_additional_erp(struct dasd_ccw_req * cqr)
+ {
+ 
+-	dasd_ccw_req_t *erp = NULL;
++	struct dasd_ccw_req *erp = NULL;
+ 
+ 	/* add erp and initialize with default TIC */
+ 	erp = dasd_3990_erp_add_erp(cqr);
+@@ -2371,7 +2368,7 @@
+  *			returns 1 if match found, otherwise 0.
+  */
+ static int
+-dasd_3990_erp_error_match(dasd_ccw_req_t * cqr1, dasd_ccw_req_t * cqr2)
++dasd_3990_erp_error_match(struct dasd_ccw_req *cqr1, struct dasd_ccw_req *cqr2)
+ {
+ 
+ 	/* check failed CCW */
+@@ -2406,11 +2403,11 @@
+  *			recovery procedure OR
+  *			NULL if a 'new' error occurred.
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_in_erp(dasd_ccw_req_t * cqr)
++static struct dasd_ccw_req *
++dasd_3990_erp_in_erp(struct dasd_ccw_req *cqr)
+ {
+ 
+-	dasd_ccw_req_t *erp_head = cqr,	/* save erp chain head */
++	struct dasd_ccw_req *erp_head = cqr,	/* save erp chain head */
+ 	*erp_match = NULL;	/* save erp chain head */
+ 	int match = 0;		/* 'boolean' for matching error found */
+ 
+@@ -2450,11 +2447,11 @@
+  * RETURN VALUES
+  *   erp		modified/additional ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_further_erp(dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_further_erp(struct dasd_ccw_req *erp)
+ {
+ 
+-	dasd_device_t *device = erp->device;
++	struct dasd_device *device = erp->device;
+ 	char *sense = erp->dstat->ecw;
+ 
+ 	/* check for 24 byte sense ERP */
+@@ -2539,13 +2536,14 @@
+  * RETURN VALUES
+  *   erp		modified/additional ERP
+  */
+-static dasd_ccw_req_t *
+-dasd_3990_erp_handle_match_erp(dasd_ccw_req_t * erp_head, dasd_ccw_req_t * erp)
++static struct dasd_ccw_req *
++dasd_3990_erp_handle_match_erp(struct dasd_ccw_req *erp_head,
++			       struct dasd_ccw_req *erp)
+ {
+ 
+-	dasd_device_t *device = erp_head->device;
+-	dasd_ccw_req_t *erp_done = erp_head;	/* finished req */
+-	dasd_ccw_req_t *erp_free = NULL;	/* req to be freed */
++	struct dasd_device *device = erp_head->device;
++	struct dasd_ccw_req *erp_done = erp_head;	/* finished req */
++	struct dasd_ccw_req *erp_free = NULL;	/* req to be freed */
+ 
+ 	/* loop over successful ERPs and remove them from chanq */
+ 	while (erp_done != erp) {
+@@ -2619,12 +2617,12 @@
+  *			 - the original given cqr (which's status might 
+  *			   be modified)
+  */
+-dasd_ccw_req_t *
+-dasd_3990_erp_action(dasd_ccw_req_t * cqr)
++struct dasd_ccw_req *
++dasd_3990_erp_action(struct dasd_ccw_req * cqr)
+ {
+ 
+-	dasd_ccw_req_t *erp = NULL;
+-	dasd_device_t *device = cqr->device;
++	struct dasd_ccw_req *erp = NULL;
++	struct dasd_device *device = cqr->device;
+ 	__u32 cpa = cqr->dstat->scsw.cpa;
+ 
+ #ifdef ERP_DEBUG
+@@ -2632,7 +2630,7 @@
+ 	DEV_MESSAGE(KERN_DEBUG, device, "%s",
+ 		    "ERP chain at BEGINNING of ERP-ACTION");
+ 	{
+-		dasd_ccw_req_t *temp_erp = NULL;
++		struct dasd_ccw_req *temp_erp = NULL;
+ 
+ 		for (temp_erp = cqr;
+ 		     temp_erp != NULL; temp_erp = temp_erp->refers) {
+@@ -2683,7 +2681,7 @@
+ 	/* print current erp_chain */
+ 	DEV_MESSAGE(KERN_DEBUG, device, "%s", "ERP chain at END of ERP-ACTION");
+ 	{
+-		dasd_ccw_req_t *temp_erp = NULL;
++		struct dasd_ccw_req *temp_erp = NULL;
+ 		for (temp_erp = erp;
+ 		     temp_erp != NULL; temp_erp = temp_erp->refers) {
+ 
+diff -urN linux-2.5.67/drivers/s390/block/dasd_9336_erp.c linux-2.5.67-s390/drivers/s390/block/dasd_9336_erp.c
+--- linux-2.5.67/drivers/s390/block/dasd_9336_erp.c	Mon Apr  7 19:32:16 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_9336_erp.c	Mon Apr 14 19:11:53 2003
+@@ -4,10 +4,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000
+  *
+- * $Revision: 1.6 $
+- *
+- * History of changes 
+- *
++ * $Revision: 1.8 $
+  */
+ 
+ #define PRINTK_HEADER "dasd_erp(9336)"
+@@ -32,7 +29,7 @@
+  *   dasd_era_recover	for all others.
+  */
+ dasd_era_t
+-dasd_9336_erp_examine(dasd_ccw_req_t * cqr, struct irb * irb)
++dasd_9336_erp_examine(struct dasd_ccw_req * cqr, struct irb * irb)
+ {
+ 	/* check for successful execution first */
+ 	if (irb->scsw.cstat == 0x00 &&
+diff -urN linux-2.5.67/drivers/s390/block/dasd_9343_erp.c linux-2.5.67-s390/drivers/s390/block/dasd_9343_erp.c
+--- linux-2.5.67/drivers/s390/block/dasd_9343_erp.c	Mon Apr  7 19:33:03 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_9343_erp.c	Mon Apr 14 19:11:53 2003
+@@ -4,10 +4,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000
+  *
+- * $Revision: 1.11 $
+- *
+- * History of changes 
+- * 
++ * $Revision: 1.13 $
+  */
+ 
+ #define PRINTK_HEADER "dasd_erp(9343)"
+@@ -15,7 +12,7 @@
+ #include "dasd_int.h"
+ 
+ dasd_era_t
+-dasd_9343_erp_examine(dasd_ccw_req_t * cqr, struct irb * irb)
++dasd_9343_erp_examine(struct dasd_ccw_req * cqr, struct irb * irb)
+ {
+ 	if (irb->scsw.cstat == 0x00 &&
+ 	    irb->scsw.dstat == (DEV_STAT_CHN_END | DEV_STAT_DEV_END))
+diff -urN linux-2.5.67/drivers/s390/block/dasd_devmap.c linux-2.5.67-s390/drivers/s390/block/dasd_devmap.c
+--- linux-2.5.67/drivers/s390/block/dasd_devmap.c	Mon Apr 14 19:11:53 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_devmap.c	Mon Apr 14 19:11:53 2003
+@@ -11,14 +11,10 @@
+  * functions may not be called from interrupt context. In particular
+  * dasd_get_device is a no-no from interrupt context.
+  *
+- * $Revision: 1.12 $
+- *
+- * History of changes 
+- * 05/04/02 split from dasd.c, code restructuring.
++ * $Revision: 1.15 $
+  */
+ 
+ #include <linux/config.h>
+-#include <linux/version.h>
+ #include <linux/ctype.h>
+ #include <linux/init.h>
+ 
+@@ -40,14 +36,14 @@
+  * can be removed since the device number will then be identical
+  * to the device index.
+  */
+-typedef struct {
++struct dasd_devmap {
+ 	struct list_head devindex_list;
+ 	struct list_head devno_list;
+         unsigned int devindex;
+         unsigned short devno;
+         unsigned short features;
+-	dasd_device_t *device;
+-} dasd_devmap_t;
++	struct dasd_device *device;
++};
+ 
+ /*
+  * Parameter parsing functions for dasd= parameter. The syntax is:
+@@ -264,13 +260,12 @@
+ 	}
+ 	spin_lock(&dasd_devmap_lock);
+ 	for (devno = from; devno <= to; devno++) {
+-		dasd_devmap_t *devmap, *tmp;
+-		struct list_head *l;
++		struct dasd_devmap *devmap, *tmp;
+ 
+ 		devmap = NULL;
+ 		/* Find previous devmap for device number i */
+-		list_for_each(l, &dasd_devno_hashlists[devno & 255]) {
+-			tmp = list_entry(l, dasd_devmap_t, devno_list);
++		list_for_each_entry(tmp, &dasd_devno_hashlists[devno & 255],
++				    devno_list) {
+ 			if (tmp->devno == devno) {
+ 				devmap = tmp;
+ 				break;
+@@ -278,8 +273,8 @@
+ 		}
+ 		if (devmap == NULL) {
+ 			/* This devno is new. */
+-			devmap = (dasd_devmap_t *)
+-				kmalloc(sizeof(dasd_devmap_t), GFP_KERNEL);
++			devmap = (struct dasd_devmap *)
++				kmalloc(sizeof(struct dasd_devmap),GFP_KERNEL);
+ 			if (devmap == NULL)
+ 				return -ENOMEM;
+ 			devindex = dasd_max_devindex++;
+@@ -303,14 +298,15 @@
+ int
+ dasd_devno_in_range(int devno)
+ {
+-	struct list_head *l;
++	struct dasd_devmap *devmap;
+ 	int ret;
+ 		
+ 	ret = -ENOENT;
+ 	spin_lock(&dasd_devmap_lock);
+ 	/* Find devmap for device with device number devno */
+-	list_for_each(l, &dasd_devno_hashlists[devno&255]) {
+-		if (list_entry(l, dasd_devmap_t, devno_list)->devno == devno) {
++	list_for_each_entry(devmap, &dasd_devno_hashlists[devno&255],
++			    devno_list) {
++		if (devmap->devno == devno) {
+ 			/* Found the device. */
+ 			ret = 0;
+ 			break;
+@@ -332,9 +328,9 @@
+ 	spin_lock(&dasd_devmap_lock);
+ 	for (i = 0; i < 256; i++) {
+ 		struct list_head *l, *next;
+-		dasd_devmap_t *devmap;
++		struct dasd_devmap *devmap;
+ 		list_for_each_safe(l, next, &dasd_devno_hashlists[i]) {
+-			devmap = list_entry(l, dasd_devmap_t, devno_list);
++			devmap = list_entry(l, struct dasd_devmap, devno_list);
+ 			if (devmap->device != NULL)
+ 				BUG();
+ 			list_del(&devmap->devindex_list);
+@@ -349,17 +345,15 @@
+  * Find the devmap structure from a devno. Can be removed as soon
+  * as big minors are available.
+  */
+-static dasd_devmap_t *
++static struct dasd_devmap *
+ dasd_devmap_from_devno(int devno)
+ {
+-	struct list_head *l;
+-	dasd_devmap_t *devmap, *tmp;
++	struct dasd_devmap *devmap, *tmp;
+ 		
+ 	devmap = NULL;
+ 	spin_lock(&dasd_devmap_lock);
+ 	/* Find devmap for device with device number devno */
+-	list_for_each(l, &dasd_devno_hashlists[devno&255]) {
+-		tmp = list_entry(l, dasd_devmap_t, devno_list);
++	list_for_each_entry(tmp, &dasd_devno_hashlists[devno&255], devno_list) {
+ 		if (tmp->devno == devno) {
+ 			/* Found the device, return devmap */
+ 			devmap = tmp;
+@@ -374,17 +368,16 @@
+  * Find the devmap for a device by its device index. Can be removed
+  * as soon as big minors are available.
+  */
+-static dasd_devmap_t *
++static struct dasd_devmap *
+ dasd_devmap_from_devindex(int devindex)
+ {
+-	struct list_head *l;
+-	dasd_devmap_t *devmap, *tmp;
++	struct dasd_devmap *devmap, *tmp;
+ 		
+ 	devmap = NULL;
+ 	spin_lock(&dasd_devmap_lock);
+ 	/* Find devmap for device with device index devindex */
+-	list_for_each(l, &dasd_devindex_hashlists[devindex & 255]) {
+-		tmp = list_entry(l, dasd_devmap_t, devindex_list);
++	list_for_each_entry(tmp, &dasd_devindex_hashlists[devindex & 255],
++			    devindex_list) {
+ 		if (tmp->devindex == devindex) {
+ 			/* Found the device, return devno */
+ 			devmap = tmp;
+@@ -395,11 +388,11 @@
+ 	return devmap;
+ }
+ 
+-dasd_device_t *
++struct dasd_device *
+ dasd_device_from_devindex(int devindex)
+ {
+-	dasd_devmap_t *devmap;
+-	dasd_device_t *device;
++	struct dasd_devmap *devmap;
++	struct dasd_device *device;
+ 
+ 	devmap = dasd_devmap_from_devindex(devindex);
+ 	spin_lock(&dasd_devmap_lock);
+@@ -416,9 +409,9 @@
+  * Return kdev for a dasd device.
+  */
+ kdev_t
+-dasd_get_kdev(dasd_device_t *device)
++dasd_get_kdev(struct dasd_device *device)
+ {
+-	dasd_devmap_t *devmap;
++	struct dasd_devmap *devmap;
+ 	int major, minor;
+ 	int devno;
+ 
+@@ -436,11 +429,11 @@
+ /*
+  * Create a dasd device structure for cdev.
+  */
+-dasd_device_t *
++struct dasd_device *
+ dasd_create_device(struct ccw_device *cdev)
+ {
+-	dasd_devmap_t *devmap;
+-	dasd_device_t *device;
++	struct dasd_devmap *devmap;
++	struct dasd_device *device;
+ 	int devno;
+ 	int rc;
+ 
+@@ -491,10 +484,10 @@
+  * Remove a dasd device structure.
+  */
+ void
+-dasd_delete_device(dasd_device_t *device)
++dasd_delete_device(struct dasd_device *device)
+ {
+ 	struct ccw_device *cdev;
+-	dasd_devmap_t *devmap;
++	struct dasd_devmap *devmap;
+ 	int devno;
+ 
+ 	/* First remove device pointer from devmap. */
+@@ -526,7 +519,7 @@
+  * in dasd_delete_device.
+  */
+ void
+-dasd_put_device_wake(dasd_device_t *device)
++dasd_put_device_wake(struct dasd_device *device)
+ {
+ 	wake_up(&dasd_delete_wq);
+ }
+diff -urN linux-2.5.67/drivers/s390/block/dasd_diag.c linux-2.5.67-s390/drivers/s390/block/dasd_diag.c
+--- linux-2.5.67/drivers/s390/block/dasd_diag.c	Mon Apr 14 19:11:53 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_diag.c	Mon Apr 14 19:11:53 2003
+@@ -6,16 +6,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
+  *
+- * $Revision: 1.28 $
+- *
+- * History of changes
+- * 07/13/00 Added fixup sections for diagnoses ans saved some registers
+- * 07/14/00 fixed constraints in newly generated inline asm
+- * 10/05/00 adapted to 'new' DASD driver
+- *	    fixed return codes of dia250()
+- *	    fixed partition handling and HDIO_GETGEO
+- * 2002/01/04 Created 2.4-2.5 compatibility mode
+- * 05/04/02 code restructuring.
++ * $Revision: 1.31 $
+  */
+ 
+ #include <linux/config.h>
+@@ -44,17 +35,17 @@
+ 
+ MODULE_LICENSE("GPL");
+ 
+-typedef struct dasd_diag_private_t {
+-	dasd_diag_characteristics_t rdc_data;
+-	diag_rw_io_t iob;
+-	diag_init_io_t iib;
++struct dasd_diag_private {
++	struct dasd_diag_characteristics rdc_data;
++	struct dasd_diag_rw_io iob;
++	struct dasd_diag_init_io iib;
+ 	unsigned int pt_block;
+-} dasd_diag_private_t;
++};
+ 
+-typedef struct dasd_diag_req_t {
++struct dasd_diag_req {
+ 	int block_count;
+-	diag_bio_t bio[0];
+-} dasd_diag_req_t;
++	struct dasd_diag_bio bio[0];
++};
+ 
+ static __inline__ int
+ dia250(void *iob, int cmd)
+@@ -86,15 +77,15 @@
+ }
+ 
+ static __inline__ int
+-mdsk_init_io(dasd_device_t * device, int blocksize, int offset, int size)
++mdsk_init_io(struct dasd_device * device, int blocksize, int offset, int size)
+ {
+-	dasd_diag_private_t *private;
+-	diag_init_io_t *iib;
++	struct dasd_diag_private *private;
++	struct dasd_diag_init_io *iib;
+ 	int rc;
+ 
+-	private = (dasd_diag_private_t *) device->private;
++	private = (struct dasd_diag_private *) device->private;
+ 	iib = &private->iib;
+-	memset(iib, 0, sizeof (diag_init_io_t));
++	memset(iib, 0, sizeof (struct dasd_diag_init_io));
+ 
+ 	iib->dev_nr = _ccw_device_get_device_number(device->cdev);
+ 	iib->block_size = blocksize;
+@@ -108,31 +99,31 @@
+ }
+ 
+ static __inline__ int
+-mdsk_term_io(dasd_device_t * device)
++mdsk_term_io(struct dasd_device * device)
+ {
+-	dasd_diag_private_t *private;
+-	diag_init_io_t *iib;
++	struct dasd_diag_private *private;
++	struct dasd_diag_init_io *iib;
+ 	int rc;
+ 
+-	private = (dasd_diag_private_t *) device->private;
++	private = (struct dasd_diag_private *) device->private;
+ 	iib = &private->iib;
+-	memset(iib, 0, sizeof (diag_init_io_t));
++	memset(iib, 0, sizeof (struct dasd_diag_init_io));
+ 	iib->dev_nr = _ccw_device_get_device_number(device->cdev);
+ 	rc = dia250(iib, TERM_BIO);
+ 	return rc & 3;
+ }
+ 
+ static int
+-dasd_start_diag(dasd_ccw_req_t * cqr)
++dasd_start_diag(struct dasd_ccw_req * cqr)
+ {
+-	dasd_device_t *device;
+-	dasd_diag_private_t *private;
+-	dasd_diag_req_t *dreq;
++	struct dasd_device *device;
++	struct dasd_diag_private *private;
++	struct dasd_diag_req *dreq;
+ 	int rc;
+ 
+ 	device = cqr->device;
+-	private = (dasd_diag_private_t *) device->private;
+-	dreq = (dasd_diag_req_t *) cqr->data;
++	private = (struct dasd_diag_private *) device->private;
++	dreq = (struct dasd_diag_req *) cqr->data;
+ 
+ 	private->iob.dev_nr = _ccw_device_get_device_number(device->cdev);
+ 	private->iob.key = 0;
+@@ -160,8 +151,8 @@
+ static void
+ dasd_ext_handler(struct pt_regs *regs, __u16 code)
+ {
+-	dasd_ccw_req_t *cqr, *next;
+-	dasd_device_t *device;
++	struct dasd_ccw_req *cqr, *next;
++	struct dasd_device *device;
+ 	unsigned long long expires;
+ 	unsigned long flags;
+ 	char status;
+@@ -186,11 +177,11 @@
+ 		irq_exit();
+ 		return;
+ 	}
+-	cqr = (dasd_ccw_req_t *)(addr_t) ip;
+-	device = (dasd_device_t *) cqr->device;
++	cqr = (struct dasd_ccw_req *)(addr_t) ip;
++	device = (struct dasd_device *) cqr->device;
+ 	if (strncmp(device->discipline->ebcname, (char *) &cqr->magic, 4)) {
+ 		DEV_MESSAGE(KERN_WARNING, device,
+-			    " magic number of dasd_ccw_req_t 0x%08X doesn't"
++			    " magic number of dasd_ccw_req 0x%08X doesn't"
+ 			    " match discipline 0x%08X",
+ 			    cqr->magic, *(int *) (&device->discipline->name));
+ 		irq_exit();
+@@ -208,7 +199,7 @@
+ 		/* Start first request on queue if possible -> fast_io. */
+ 		if (!list_empty(&device->ccw_queue)) {
+ 			next = list_entry(device->ccw_queue.next,
+-					  dasd_ccw_req_t, list);
++					  struct dasd_ccw_req, list);
+ 			if (next->status == DASD_CQR_QUEUED) {
+ 				if (dasd_start_diag(next) == 0)
+ 					expires = next->expires;
+@@ -231,18 +222,18 @@
+ }
+ 
+ static int
+-dasd_diag_check_device(dasd_device_t *device)
++dasd_diag_check_device(struct dasd_device *device)
+ {
+-	dasd_diag_private_t *private;
+-	dasd_diag_characteristics_t *rdc_data;
+-	diag_bio_t bio;
++	struct dasd_diag_private *private;
++	struct dasd_diag_characteristics *rdc_data;
++	struct dasd_diag_bio bio;
+ 	long *label;
+ 	int sb, bsize;
+ 	int rc;
+ 
+-	private = (dasd_diag_private_t *) device->private;
++	private = (struct dasd_diag_private *) device->private;
+ 	if (private == NULL) {
+-		private = kmalloc(sizeof(dasd_diag_private_t), GFP_KERNEL);
++		private = kmalloc(sizeof(struct dasd_diag_private),GFP_KERNEL);
+ 		if (private == NULL) {
+ 			MESSAGE(KERN_WARNING, "%s",
+ 				"memory allocation failed for private data");
+@@ -253,7 +244,7 @@
+ 	/* Read Device Characteristics */
+ 	rdc_data = (void *) &(private->rdc_data);
+ 	rdc_data->dev_nr = _ccw_device_get_device_number(device->cdev);
+-	rdc_data->rdc_len = sizeof (dasd_diag_characteristics_t);
++	rdc_data->rdc_len = sizeof (struct dasd_diag_characteristics);
+ 
+ 	rc = diag210((struct diag210 *) rdc_data);
+ 	if (rc)
+@@ -289,11 +280,11 @@
+ 	}
+ 	for (bsize = 512; bsize <= PAGE_SIZE; bsize <<= 1) {
+ 		mdsk_init_io(device, bsize, 0, 64);
+-		memset(&bio, 0, sizeof (diag_bio_t));
++		memset(&bio, 0, sizeof (struct dasd_diag_bio));
+ 		bio.type = MDSK_READ_REQ;
+ 		bio.block_number = private->pt_block + 1;
+ 		bio.buffer = __pa(label);
+-		memset(&private->iob, 0, sizeof (diag_rw_io_t));
++		memset(&private->iob, 0, sizeof (struct dasd_diag_rw_io));
+ 		private->iob.dev_nr = rdc_data->dev_nr;
+ 		private->iob.key = 0;
+ 		private->iob.flags = 0;	/* do synchronous io */
+@@ -324,7 +315,7 @@
+ }
+ 
+ static int
+-dasd_diag_fill_geometry(dasd_device_t *device, struct hd_geometry *geo)
++dasd_diag_fill_geometry(struct dasd_device *device, struct hd_geometry *geo)
+ {
+ 	if (dasd_check_blocksize(device->bp_block) != 0)
+ 		return -EINVAL;
+@@ -335,29 +326,29 @@
+ }
+ 
+ static dasd_era_t
+-dasd_diag_examine_error(dasd_ccw_req_t * cqr, struct irb * stat)
++dasd_diag_examine_error(struct dasd_ccw_req * cqr, struct irb * stat)
+ {
+ 	return dasd_era_fatal;
+ }
+ 
+ static dasd_erp_fn_t
+-dasd_diag_erp_action(dasd_ccw_req_t * cqr)
++dasd_diag_erp_action(struct dasd_ccw_req * cqr)
+ {
+ 	return dasd_default_erp_action;
+ }
+ 
+ static dasd_erp_fn_t
+-dasd_diag_erp_postaction(dasd_ccw_req_t * cqr)
++dasd_diag_erp_postaction(struct dasd_ccw_req * cqr)
+ {
+ 	return dasd_default_erp_postaction;
+ }
+ 
+-static dasd_ccw_req_t *
+-dasd_diag_build_cp(dasd_device_t * device, struct request *req)
++static struct dasd_ccw_req *
++dasd_diag_build_cp(struct dasd_device * device, struct request *req)
+ {
+-	dasd_ccw_req_t *cqr;
+-	dasd_diag_req_t *dreq;
+-	diag_bio_t *dbio;
++	struct dasd_ccw_req *cqr;
++	struct dasd_diag_req *dreq;
++	struct dasd_diag_bio *dbio;
+ 	struct bio *bio;
+ 	struct bio_vec *bv;
+ 	char *dst;
+@@ -391,13 +382,14 @@
+ 	if (count != last_rec - first_rec + 1)
+ 		return ERR_PTR(-EINVAL);
+ 	/* Build the request */
+-	datasize = sizeof(dasd_diag_req_t) + count*sizeof(diag_bio_t);
++	datasize = sizeof(struct dasd_diag_req) +
++		count*sizeof(struct dasd_diag_bio);
+ 	cqr = dasd_smalloc_request(dasd_diag_discipline.name, 0,
+ 				   datasize, device);
+ 	if (IS_ERR(cqr))
+ 		return cqr;
+ 	
+-	dreq = (dasd_diag_req_t *) cqr->data;
++	dreq = (struct dasd_diag_req *) cqr->data;
+ 	dreq->block_count = count;
+ 	dbio = dreq->bio;
+ 	recid = first_rec;
+@@ -405,7 +397,7 @@
+ 		bio_for_each_segment(bv, bio, i) {
+ 			dst = kmap(bv->bv_page) + bv->bv_offset;
+ 			for (off = 0; off < bv->bv_len; off += blksize) {
+-				memset(dbio, 0, sizeof (diag_bio_t));
++				memset(dbio, 0, sizeof (struct dasd_diag_bio));
+ 				dbio->type = rw_cmd;
+ 				dbio->block_number = recid + 1;
+ 				dbio->buffer = __pa(dst);
+@@ -423,24 +415,25 @@
+ }
+ 
+ static int
+-dasd_diag_fill_info(dasd_device_t * device, dasd_information2_t * info)
++dasd_diag_fill_info(struct dasd_device * device,
++		    struct dasd_information2_t * info)
+ {
+-	dasd_diag_private_t *private;
++	struct dasd_diag_private *private;
+ 
+-	private = (dasd_diag_private_t *) device->private;
++	private = (struct dasd_diag_private *) device->private;
+ 	info->label_block = private->pt_block;
+ 	info->FBA_layout = 1;
+ 	info->format = DASD_FORMAT_LDL;
+-	info->characteristics_size = sizeof (dasd_diag_characteristics_t);
++	info->characteristics_size = sizeof (struct dasd_diag_characteristics);
+ 	memcpy(info->characteristics,
+-	       &((dasd_diag_private_t *) device->private)->rdc_data,
+-	       sizeof (dasd_diag_characteristics_t));
++	       &((struct dasd_diag_private *) device->private)->rdc_data,
++	       sizeof (struct dasd_diag_characteristics));
+ 	info->confdata_size = 0;
+ 	return 0;
+ }
+ 
+ static void
+-dasd_diag_dump_sense(dasd_device_t *device, dasd_ccw_req_t * req,
++dasd_diag_dump_sense(struct dasd_device *device, struct dasd_ccw_req * req,
+ 		     struct irb *stat)
+ {
+ 	char *page;
+@@ -463,15 +456,15 @@
+  * max_blocks is dependent on the amount of storage that is available
+  * in the static io buffer for each device. Currently each device has
+  * 8192 bytes (=2 pages). dasd diag is only relevant for 31 bit.
+- * The dasd_ccw_req_t has 96 bytes, the dasd_diag_req_t has 8 bytes and
+- * the diag_bio_t for each block has 16 bytes. 
++ * The struct dasd_ccw_req has 96 bytes, the struct dasd_diag_req has
++ * 8 bytes and the struct dasd_diag_bio for each block has 16 bytes. 
+  * That makes:
+  * (8192 - 96 - 8) / 16 = 505.5 blocks at maximum.
+  * We want to fit two into the available memory so that we can immediately
+  * start the next request if one finishes off. That makes 252.75 blocks
+  * for one request. Give a little safety and the result is 240.
+  */
+-dasd_discipline_t dasd_diag_discipline = {
++struct dasd_discipline dasd_diag_discipline = {
+ 	.owner = THIS_MODULE,
+ 	.name = "DIAG",
+ 	.ebcname = "DIAG",
+diff -urN linux-2.5.67/drivers/s390/block/dasd_diag.h linux-2.5.67-s390/drivers/s390/block/dasd_diag.h
+--- linux-2.5.67/drivers/s390/block/dasd_diag.h	Mon Apr  7 19:31:05 2003
++++ linux-2.5.67-s390/drivers/s390/block/dasd_diag.h	Mon Apr 14 19:11:53 2003
+@@ -6,10 +6,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
+  *
+- * $Revision: 1.4 $
+- *
+- * History of changes
+- *
++ * $Revision: 1.6 $
+  */
+ 
+ #define MDSK_WRITE_REQ 0x01
+@@ -22,7 +19,7 @@
+ #define DEV_CLASS_FBA	0x01
+ #define DEV_CLASS_ECKD	0x04
+ 
+-typedef struct dasd_diag_characteristics_t {
++struct dasd_diag_characteristics {
+ 	u16 dev_nr;
+ 	u16 rdc_len;
+ 	u8 vdev_class;
+@@ -33,22 +30,18 @@
+ 	u8 rdev_type;
+ 	u8 rdev_model;
+ 	u8 rdev_features;
+-} __attribute__ ((packed, aligned(4)))
+-
+-    dasd_diag_characteristics_t;
++} __attribute__ ((packed, aligned(4)));
+ 
+-typedef struct diag_bio_t {
++struct dasd_diag_bio {
+ 	u8 type;
+ 	u8 status;
+ 	u16 spare1;
+ 	u32 block_number;
+ 	u32 alet;
+ 	u32 buffer;
+-} __attribute__ ((packed, aligned(8)))
++} __attribute__ ((packed, aligned(8)));
+ 
+-    diag_bio_t;
+-
+-typedef struct diag_init_io_t {
++struct dasd_diag_init_io {
+ 	u16 dev_nr;
+ 	u16 spare1[11];
+ 	u32 block_size;
+@@ -56,11 +49,9 @@
+ 	u32 start_block;
+ 	u32 end_block;
+ 	u32 spare2[6];
+-} __attribute__ ((packed, aligned(8)))
+-
+-    diag_init_io_t;
++} __attribute__ ((packed, aligned(8)));
+ 
+-typedef struct diag_rw_io_t {
++struct dasd_diag_rw_io {
+ 	u16 dev_nr;
+ 	u16 spare1[11];
+ 	u8 key;
+@@ -71,7 +62,5 @@
+ 	u32 bio_list;
+ 	u32 interrupt_params;
+ 	u32 spare3[5];
+-} __attribute__ ((packed, aligned(8)))
+-
+-    diag_rw_io_t;
++} __attribute__ ((packed, aligned(8)));
+ 
 

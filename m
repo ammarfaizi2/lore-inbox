@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311068AbSCMT03>; Wed, 13 Mar 2002 14:26:29 -0500
+	id <S311079AbSCMT3J>; Wed, 13 Mar 2002 14:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311059AbSCMT0U>; Wed, 13 Mar 2002 14:26:20 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25354
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311068AbSCMT0I>; Wed, 13 Mar 2002 14:26:08 -0500
-Date: Wed, 13 Mar 2002 11:11:32 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Bill Davidsen <davidsen@tmr.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7 
-In-Reply-To: <200203131842.g2DIgjtb024607@pincoya.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.10.10203131053550.19703-100000@master.linux-ide.org>
+	id <S311072AbSCMT2x>; Wed, 13 Mar 2002 14:28:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60677 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310990AbSCMT22>; Wed, 13 Mar 2002 14:28:28 -0500
+Subject: Re: your mail
+To: rlievin@free.fr (=?ISO-8859-1?Q?Romain_Li=E9vin?=)
+Date: Wed, 13 Mar 2002 19:43:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Kernel List),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), tim@cyberelk.net (Tim Waugh)
+In-Reply-To: <1016047267.3c8fa6a3660e3@imp3-1.free.fr> from "=?ISO-8859-1?Q?Romain_Li=E9vin?=" at Mar 13, 2002 08:21:07 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lEeq-0007F3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Mar 2002, Horst von Brand wrote:
+> It has been tested on x86 for almost 2 years and on Alpha & Sparc too with 
+> various calculators.
 
-> Jeff Garzik <jgarzik@mandrakesoft.com>
-> 
-> [...]
-> 
-> > I -do- know the distrinction between hosts and devices.  I think there 
-> > should be -some- way, I don't care how, to filter out those unknown 
-> > commands (which may be perfectly valid for a small subset of special IBM 
-> > drives).  The net stack lets me do filtering, I want to sell you on the 
-> > idea of letting the ATA stack do the same thing.
-> 
-> The net stack does filtering for handling traffic from _untrusted_ external
-> sources, either for local consumtion or as a service for dumb machines
-> downstream, and as a way of limiting outward access to _untrusted_
-> users. Here we are talking of the ultimate _trusted_ user (root,
-> CAP_SYS_RAWIO, whatever). It makes no sense for the _kernel_ to get in the
-> way. Create a userland proggie for prodding IDE drives, and give it ways to
-> check (as far as terminal paranoia demands, a little, or not at all) as
-> desired. Unix ultimate simplicity is all about giving root enough rope to
-> shoot at his own feet.
+One oddity - some other comments
+
+> +static int tipar_open(struct inode *inode, struct file *file)
+> +{
+> +       unsigned int minor = minor(inode->i_rdev) - TIPAR_MINOR_0;
+> +
+> +       if (minor >= PP_NO)
+> +               return -ENXIO;  
+> +       
+> +       init_ti_parallel(minor);
+> +
+> +       MOD_INC_USE_COUNT;
+
+You should remove these and use in 2.4 + . Also what stops multiple
+simultaneous runs of init_ti_parallel if two people open it at once ?
 
 
-Greetings Dr. von Brand,
+> +static unsigned int tipar_poll(struct file *file, poll_table * wait)
+> +{
+> +       unsigned int mask=0;
+> +       return mask;
+> +}
 
-One of the issues that has been confused in the stack is the command
-parser and/or sequencer.  It is used internally to allow quick and rapid
-command additions as needed.  Most are not clear how the IOCTL works and
-thinks it runs via the command parser, this is totally wrong.  The sad
-part is the lenght of the rope does not hit the feet, it hits the head.
+That seems unfinished ??
 
-Regards,
+> +static int tipar_ioctl(struct inode *inode, struct file *file,
+> +                      unsigned int cmd, unsigned long arg)
+> +       case O_NONBLOCK:
+> +               file->f_flags |= O_NONBLOCK;
+> +               return 0;
 
-Andre Hedrick
+O_NDELAY is set by fcntl - your driver never needs this.
 
+> +       default:
+> +               retval = -EINVAL;
+
+SuS says -ENOTTY here (lots of drivers get this wrong still)
+
+> +static long long tipar_lseek(struct file * file, long long offset, int origin)
+> +{
+> +       return -ESPIPE;
+> +}
+
+There is a generic no_llseek function
+
+> +/* Major & minor number for character devices */
+> +#define TIPAR_MAJOR   61
+
+These don't appear to be officially assigned via lanana ?

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133029AbRDZW0Q>; Thu, 26 Apr 2001 18:26:16 -0400
+	id <S135201AbRDZWjt>; Thu, 26 Apr 2001 18:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135201AbRDZW0H>; Thu, 26 Apr 2001 18:26:07 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:26241 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S133029AbRDZWZ4>; Thu, 26 Apr 2001 18:25:56 -0400
-Date: Fri, 27 Apr 2001 00:25:54 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ramdisk/tmpfs/ramfs/memfs ?
-Message-ID: <20010427002554.D679@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3AE879AE.387D3B78@antefacto.com> <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se> <9ca1k1$4ap$1@cesium.transmeta.com>
+	id <S135247AbRDZWjk>; Thu, 26 Apr 2001 18:39:40 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:13317 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135201AbRDZWjc>; Thu, 26 Apr 2001 18:39:32 -0400
+Date: Fri, 27 Apr 2001 00:39:54 +0200
+From: Waldemar Brodkorb <waldemar.brodkorb@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Pcmcia-Updates for Xircomcards?
+Message-ID: <20010427003953.A11787@web.de>
+Reply-To: Waldemar Brodkorb <waldemar.brodkorb@web.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010422230930.A11882@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <9ca1k1$4ap$1@cesium.transmeta.com>; from hpa@zytor.com on Thu, Apr 26, 2001 at 01:49:05PM -0700
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010422230930.A11882@web.de>; from waldemar.brodkorb@web.de on Sun, Apr 22, 2001 at 11:09:30PM +0200
+X-Operating-System: Linux 2.4.3 i686
+X-Editor: VIM - Vi IMproved 5.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26, 2001 at 01:49:05PM -0700, H. Peter Anvin wrote:
-> > > 5. Can you set size limits on ramfs/tmpfs/memfs?
+Hello all,
 
-Yes, there is a patch for this.
+* I wrote:
 
-> > i don't think you can set a limit in the current ramfs implementation but
-> > it would not be particularly difficult to make it work I think
-> It's a little more painful than you'd think for the simple reason that
-> ramfs currently contains no space accounting whatsoever, which
-> probably is a bad thing.  It definitely gave me some serious pause
-> when I was working on SuperRescue 1.3, since I had no way of
-> reasonably judging how big my ramfs actually was.  The only way I
-> could get a reasonable idea was rebooting with various mem=
-> parameters.
+> My Hardware: 
+> Toshiba Satellite Pro 4280 
+> PCMCIA: Xircom RBEM56G-100 
+>
+> Linus said serial_cs is for both, old serial_cb & serial_cs.
 
-The patched variant gives to all of it. Even several kinds of
-limits (inodes, dentries, ram pages).
+Sorry, that was wrong. He said serial.o is the correct driver.
 
-I use this patch in production. 
+Thanks for all help, especially from Arjan van de Ven. 
+Another script/program is necessary. 
+Hotplug --> http://linux-hotplug.sourceforge.net
 
-The ac-Kernels all have this patch included, which are sometimes
-more stable anyway these day. ;-)
+thanks a lot.
+Waldemar
 
-HTH
-
-Regards
-
-Ingo Oeser
 -- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+* Ein gutes Kryptographieprogramm:     |      (o_      *
+*       http://www.gnupg.org           |      //\      *        
+*           Linux rulez!    ;-)        |      V_/_     *
+* GnuPG-Key: 0xBE21BD90 | Tux: #155220 | ICQ: 64035650 *

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261968AbRE3Tvk>; Wed, 30 May 2001 15:51:40 -0400
+	id <S261902AbRE3Tla>; Wed, 30 May 2001 15:41:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261948AbRE3Tva>; Wed, 30 May 2001 15:51:30 -0400
-Received: from [192.48.153.1] ([192.48.153.1]:45636 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S261942AbRE3TvY>;
-	Wed, 30 May 2001 15:51:24 -0400
-Message-ID: <3B154E43.3CFF2618@sgi.com>
-Date: Wed, 30 May 2001 12:47:15 -0700
-From: LA Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S261936AbRE3TlJ>; Wed, 30 May 2001 15:41:09 -0400
+Received: from moline.gci.com ([205.140.80.106]:41989 "EHLO moline.gci.com")
+	by vger.kernel.org with ESMTP id <S261902AbRE3TlA>;
+	Wed, 30 May 2001 15:41:00 -0400
+Message-ID: <BF9651D8732ED311A61D00105A9CA3150446E15A@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: RE: 2.4.5 -ac series broken on Sparc64
+Date: Wed, 30 May 2001 11:40:48 -0800
 MIME-Version: 1.0
-To: Marcus Meissner <mm@ns.caldera.de>
-CC: Edsel Adap <edsel@adap.org>, linux-kernel@vger.kernel.org
-Subject: Re: ln -s broken on 2.4.5
-In-Reply-To: <200105301923.f4UJNl815303@ns.caldera.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Meissner wrote:
+Alan Cox responded to:
+> Leif Sawyer, who wrote:
+>> include/linux/irq.h:61: asm/hw_irq.h: No such file or directory
+>> *** [sched.o] Error 1
+>> 
+>> a find . -name 'hw_irq.h' shows appropriate versions
+>> in i386, ia64, mips, mips64, alpha, ppc, parisc, um, and sh
+>> 
+> The sparc64 tree isnt very well integrated with -ac. What I 
+> have I merge but where -ac varies from the Linus tree or the
+> Linus tree  requires new files tends to break it.
+> 
+> It can probably be an empty file
 
-> $ ln -s fupp/bar bar
-> $ ls -la bar
+This worked for me:
 
----
-    Is it peculiar to a specific architecture?
-    What does strace show for args to the symlink cmd?
--l
---
-The above thoughts and           | They may have nothing to do with
-writings are my own.             | the opinions of my employer. :-)
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+sed 's/_SH_/_SPARC64_/g' include/asm-sh/hw_irq.h >
+include/asm-sparc64/hw_irq.h
 
+make mrproper
+cp ../.config .
+make oldconfig
+make dep && make
 
+In file included from /usr/src/linux-2.4.5-ac4/include/linux/sched.h:9
+/usr/src/linux-2.4.5-ac4/include/linux/binfmts.h:45: warning: `struct
+mm_struct' declared inside parameter list
+/usr/src/linux-2.4.5-ac4/include/linux/binfmts.h:45: warning: its scope is
+only this definition or declaration,
+/usr/src/linux-2.4.5-ac4/include/linux/binfmts.h:45: warning: which is
+probably not what you want.
+
+This warning is repeated for quite a good portion of the source files during
+the make process, however the kernel seems to build correctly.  Haven't
+tried a reboot though.. :-\

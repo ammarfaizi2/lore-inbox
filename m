@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVDAAJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVCaXpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbVDAAJA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 19:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVCaXuS
+	id S262113AbVCaXpo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 18:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVCaXkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:50:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45024 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262543AbVCaXYO convert rfc822-to-8bit
+	Thu, 31 Mar 2005 18:40:14 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37344 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262113AbVCaXYK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:14 -0500
+	Thu, 31 Mar 2005 18:24:10 -0500
 Cc: khali@linux-fr.org
-Subject: [PATCH] i2c: add adt7461 chip support to lm90 driver's Kconfig entry
-In-Reply-To: <11123113952683@kroah.com>
+Subject: [PATCH] I2C: Cleanup adm1021 unused defines
+In-Reply-To: <11123113902683@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:15 -0800
-Message-Id: <11123113951873@kroah.com>
+Date: Thu, 31 Mar 2005 15:23:10 -0800
+Message-Id: <11123113902974@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,41 +24,41 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2347, 2005/03/31 14:31:59-08:00, khali@linux-fr.org
+ChangeSet 1.2325, 2005/03/31 14:06:09-08:00, khali@linux-fr.org
 
-[PATCH] i2c: add adt7461 chip support to lm90 driver's Kconfig entry
+[PATCH] I2C: Cleanup adm1021 unused defines
 
-Hi Greg, James, all,
-
-> > > Attached is another version of my adt7461 patch, for inclusion in
-> > > the 2.6 tree. Reviewed by Jean.
->
-> May we have an additional patch to Kconfig for this one?
-
-Here it finally comes.
-
-This simple patch adds a mention to the ADT7461 chip in Kconfig, now
-that the lm90 driver supports it.
+While working on the adm1021 driver, I found that this driver has a
+number of unused (and useless) defines we could get rid of.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/chips/Kconfig |    3 +++
- 1 files changed, 3 insertions(+)
+ drivers/i2c/chips/adm1021.c |   12 ------------
+ 1 files changed, 12 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/Kconfig b/drivers/i2c/chips/Kconfig
---- a/drivers/i2c/chips/Kconfig	2005-03-31 15:16:17 -08:00
-+++ b/drivers/i2c/chips/Kconfig	2005-03-31 15:16:17 -08:00
-@@ -233,6 +233,9 @@
- 	  LM86, LM89 and LM99, Analog Devices ADM1032 and Maxim MAX6657 and
- 	  MAX6658 sensor chips.
+diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
+--- a/drivers/i2c/chips/adm1021.c	2005-03-31 15:19:00 -08:00
++++ b/drivers/i2c/chips/adm1021.c	2005-03-31 15:19:00 -08:00
+@@ -28,18 +28,6 @@
+ #include <linux/i2c-sensor.h>
  
-+	  The Analog Devices ADT7461 sensor chip is also supported, but only
-+	  if found in ADM1032 compatibility mode.
-+
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called lm90.
  
+-/* Registers */
+-#define ADM1021_SYSCTL_TEMP		1200
+-#define ADM1021_SYSCTL_REMOTE_TEMP	1201
+-#define ADM1021_SYSCTL_DIE_CODE		1202
+-#define ADM1021_SYSCTL_ALARMS		1203
+-
+-#define ADM1021_ALARM_TEMP_HIGH		0x40
+-#define ADM1021_ALARM_TEMP_LOW		0x20
+-#define ADM1021_ALARM_RTEMP_HIGH	0x10
+-#define ADM1021_ALARM_RTEMP_LOW		0x08
+-#define ADM1021_ALARM_RTEMP_NA		0x04
+-
+ /* Addresses to scan */
+ static unsigned short normal_i2c[] = { 0x18, 0x19, 0x1a,
+ 					0x29, 0x2a, 0x2b,
 

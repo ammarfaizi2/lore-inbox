@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbUCZPxU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 10:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264065AbUCZPxU
+	id S264069AbUCZP7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 10:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264070AbUCZP7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 10:53:20 -0500
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:64130 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S264068AbUCZPxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 10:53:16 -0500
-Date: Fri, 26 Mar 2004 16:53:15 +0100
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-Message-ID: <20040326155315.GA8724@boogie.lpds.sztaki.hu>
-References: <20040325225423.GT9248@cheney.cx> <MDEHLPKNGKAHNMBLJOLKCEEOLEAA.davids@webmaster.com> <20040326131629.GB26910@zombie.inka.de> <40643BFA.1000302@stesmi.com> <20040326142917.GB30664@zombie.inka.de> <40644071.9090900@stesmi.com> <20040326145506.GA31759@zombie.inka.de> <40644629.9090602@stesmi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40644629.9090602@stesmi.com>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+	Fri, 26 Mar 2004 10:59:24 -0500
+Received: from [198.247.175.96] ([198.247.175.96]:34752 "EHLO jethro.hick.org")
+	by vger.kernel.org with ESMTP id S264069AbUCZP7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 10:59:21 -0500
+Date: Fri, 26 Mar 2004 09:56:49 -0600 (CST)
+From: Matt Miller <mmiller@hick.org>
+To: linux-kernel@vger.kernel.org
+cc: viro@parcelfarce.linux.theplanet.co.uk, mmiller@hick.org
+Subject: Re: [PATCH] 2.6: improved fdmap
+In-Reply-To: <200403261524.56694@WOLK>
+Message-ID: <Pine.LNX.4.58.0403260951080.9588@jethro.hick.org>
+References: <Pine.LNX.4.58.0403252228420.20049@jethro.hick.org>
+ <200403261524.56694@WOLK>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 04:03:05PM +0100, Stefan Smietanowski wrote:
+On Fri, 26 Mar 2004, Marc-Christian Petersen wrote:
+> hmm, fdmap == 265 and fadvise64_64 also 265? I think you can leave
+> fadvise64_64 at 264 ;)
 
-> To draw a parallel between a WAV or PNG file (a well-known standard)
-> to a firmware for a specific card (a closed standard) is thin.
-> 
-> Even though I can modify a PNG or WAV file using a hex editor it
-> is _NOT_ preferred form, and neither is modifying the firmware
-> using a hex editor, neither to me nor to the people doing the cards.
+Doh!  I should have read the patch more closely.  Please apply this second
+patch if you are on s390.  It depends on the first patch.  I will wait to
+see if there are any more problems before posting a new complete patch.
+Thanks for pointing it out!
 
-You are mixing the preferred form with the editor. If you do not have
-the GIMP (or other similar tool) then you _do_ have to edit the PNG file
-with a hex editor, but the binary PNG file is still the preferred form
-for editing.
+Matt
 
-If a firmware author uses a proprietary tool that reads the binary
-firmware image, let's the user edit it, and again writes out a binary
-image, then that binary image _is_ the preferred form simply because no
-other form exists. And it is completely irrelevant if the proprietaty
-editor represented the firmware image on the screen in a high-level
-language or as assembler code or as graphics or as anything else.
+-------
 
-So unless you can _prove_ that the author of the firmware image does
-indeed use some other form as the source of the image (guessing is not
-enough), this whole thread is meaningless.
+Patch for s390 (depends on first patch):
 
-Gabor
+--- linux-2.6.4/include/asm-s390/unistd.h	Fri Mar 26 09:43:50 2004
++++ linux-2.6.4-fdmap-orig/include/asm-s390/unistd.h	Fri Mar 26 09:47:52 2004
+@@ -256,11 +256,11 @@
+ #define __NR_clock_gettime	(__NR_timer_create+6)
+ #define __NR_clock_getres	(__NR_timer_create+7)
+ #define __NR_clock_nanosleep	(__NR_timer_create+8)
+-#define __NR_fdmap		265
+ /*
+  * Number 263 is reserved for vserver
+  */
+-#define __NR_fadvise64_64	265
++#define __NR_fadvise64_64	264
++#define __NR_fdmap		265
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+ #define NR_syscalls 266
+

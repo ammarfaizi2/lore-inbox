@@ -1,41 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbVAFUjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbVAFUnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbVAFUjn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVAFUfh
+	id S263024AbVAFUnz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbVAFUkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:35:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51389 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263014AbVAFUdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:33:01 -0500
-Date: Thu, 6 Jan 2005 20:32:59 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, greghk@us.ibm.com
+	Thu, 6 Jan 2005 15:40:47 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:25081 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S263039AbVAFUfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 15:35:42 -0500
+Date: Thu, 06 Jan 2005 15:35:27 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
 Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
-References: <20050106190538.GB1618@us.ibm.com> <1105039259.4468.9.camel@laptopd505.fenrus.org> <20050106201531.GJ1292@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106201531.GJ1292@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-reply-to: <20050106191355.GA23345@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+       pbadari@us.ibm.com, markv@us.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
+Message-id: <41DDA10F.6010805@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <20050106190538.GB1618@us.ibm.com>
+ <20050106191355.GA23345@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 12:15:31PM -0800, Paul E. McKenney wrote:
-> Yep, you win the prize, it is MVFS.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Christoph Hellwig wrote:
+> On Thu, Jan 06, 2005 at 11:05:38AM -0800, Paul E. McKenney wrote:
 > 
-> This is the usual port of an existing body of code to the Linux kernel.
-> It is not asking for a new export, only restoration of a previously existing
-> export.
+>>Hello, Andrew,
+>>
+>>Some export-removal work causes breakage for an out-of-tree filesystem.
+>>Could you please apply the attached patch to restore the exports for
+>>files_lock and set_fs_root?
+> 
+> 
+> What out of tree filesystem, and what the heck is it doing?
+> 
+> Without proper explanation it's vetoed.
+> 
+> btw, any reason you put half the world in the Cc list?  Al and Andrew I
+> see, but do the other people on the Cc list have to do with it?  And you
+> forgot the person that killed the export.
 
-Sorry, but "our code is badly misdesigned" does not make a valid excuse
-when you have been told, repeatedly, by many people, for at least a year
-that you needed to sanitize your design.
+Well, autofsng patches (new set forthcoming) use set_fs_root/set_fs_pwd
+to pivot a call_usermodehelper process into the triggering process's
+namespace.
 
-Request denied.  And no, it never had been intended to be exported
-or, indeed, used by filesystems.
+It has no need however for files_lock.
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB3aEPdQs4kOxk3/MRAlvmAJ4sXcg0Cx8+00WrNEkXW4T7Ji3tKwCfVYPO
+43IFyNGeDo85sqDJCprLR8I=
+=Vbec
+-----END PGP SIGNATURE-----

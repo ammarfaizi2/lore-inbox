@@ -1,134 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264400AbRF1VMN>; Thu, 28 Jun 2001 17:12:13 -0400
+	id <S264432AbRF1VNd>; Thu, 28 Jun 2001 17:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264415AbRF1VME>; Thu, 28 Jun 2001 17:12:04 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:3090 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264400AbRF1VLv>; Thu, 28 Jun 2001 17:11:51 -0400
-X-Apparently-From: <slamaya@yahoo.com>
-Message-ID: <3B3B9DD2.1030103@yahoo.com>
-Date: Fri, 29 Jun 2001 00:12:50 +0300
-From: Yaacov Akiba Slama <slamaya@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010625
-X-Accept-Language: en, fr
+	id <S264423AbRF1VNU>; Thu, 28 Jun 2001 17:13:20 -0400
+Received: from ns2.cypress.com ([157.95.67.5]:662 "EHLO ns2.cypress.com")
+	by vger.kernel.org with ESMTP id <S264424AbRF1VM6>;
+	Thu, 28 Jun 2001 17:12:58 -0400
+Message-ID: <3B3B9D95.655F6C08@cypress.com>
+Date: Thu, 28 Jun 2001 16:11:49 -0500
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor Southeast Design Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Kai Henningsen <kaih@khms.westfalen.de>
+CC: linux-kernel@vger.kernel.org, penguicon-comphist@lists.sourceforge.net
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <E15DZbq-0008D8-00@roo.home> <E15DZbq-0008D8-00@roo.home> <01062310075401.00696@localhost.localdomain> <83WVxfbXw-B@khms.westfalen.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- From what I understand from Linus's mail to lkml, there is a difference 
-between JFS and XFS:
-JFS doesn't require any modifications to existing code, its only an 
-addition.
-XFS on the contrary is far more intrusive.
-So it seems that even if JFS is less complete than XFS (no ACL, quotas 
-for instance), and even if it is less robust (I don't know if it is, I 
-only used so far XFS and ext3 -with success), its inclusion in current 
-kernel is a lot easier and I don't see any (technical) reason for not 
-including it.
-I don't think ext3 will have difficulties to be included in the kernel 
-because a) the guys working on it are lk veterans and b) Redhat (VA 
-also) is already including it in its kernels (rawhide AND 7.1 update).
-So I only hope that the smart guys at SGI find a way to prepare the 
-patches the way Linus loves because now the file 
-"patch-2.4.5-xfs-1.0.1-core" (which contains the modifs to the kernel 
-and not the new files) is about 174090 bytes which is a lot.
+Kai Henningsen wrote:
+> No. GEM, I believe, originally came from CP/M. Most popular as the
+> windowing system of the Atari ST; given that someone did a quick-hack MS-
+> DOS clone to support it on the 68K, it seems fairly obvious that by that
+> time, it had already been ported to MS-DOS. (GEM-DOS is the only os I know
+> of that was actually worse than MS-DOS.)
 
-YA
+And ATARI goofed by not including more than GEM in the ST(e).
+Should have used the whole system like the TT and Falcon did.
 
+> Friends of mine (Gereon Steffens and Stefan Eissing) wrote a command-line
 
-*Kervin Pierre* (/ kpierre@fit.edu/ <mailto:kpierre@fit.edu> ) wrote :
+If you see them, tell them an old STe user thanks them for there
+work. Without them I might never have headed to Unix :)
 
-Hello,
+Vielen Dank Herren.
 
-Question.
+> shell and desktop replacement for the Atari that was fairly successful
+> shareware for a while ... now how was it called? The CLI was Mupfel
+> (German for shell is Muschel, and there was a kid's TV character who
+> pronounced Muschel as Mupfel), and I think the desktop was Gemini. Another
 
-Are there plans to include JFS and XFS in the kernel?
+I still have Gemini on a Disk for my STe. The SCSI adaptor died,
+so I don't know if the data is still good though.
 
-Both those projects have been declared stable by their development
-teams, and I'm guessing they can now be included as experimental, just
-as reiser has been.
+Then I tried the Minix port MinT (Mint is not TOS :)
+and was hooked on Unix. If I could get my SCSI adaptor
+fixed/replaced I'd still have my STe running, maybe
+even get a memory card (for > 4Meg) and a CPU upgrade
+(68000 is slow, get 68030 or 40 like the Falcon)
 
-Just curious,
--Kervin
+Then I could run Linux on it (it need that math co-proc)
 
-Steve Best wrote:
-/> /
-/> June 28, 2001:/
-/> /
-/> IBM is pleased to announce the v 1.0.0 release of the open source/
-/> Journaled File System (JFS), a high-performance, and scalable file/
-/> system for Linux./
-/> /
-/> http://oss.software.ibm.com/jfs /
-/> /
-/> JFS is widely recognized as an industry-leading high-performance file/
-/> system, providing rapid recovery from a system power outage or crash/
-/> and the ability to support extremely large disk configurations. The/
-/> open source JFS is based on proven journaled file system technology/
-/> that is available in a variety of operating systems such as AIX and/
-/> OS/2./
-/> /
-/> JFS was open sourced under the GNU General Public License with release/
-/> v 0.0.1 on February 2. 2000 and has matured with help and support of the/
-/> open source community and its "Enterprise ready" release today is due/
-/> to joint work between the JFS team and the community. Following the/
-/> development style of "Release Early, Release Often" the JFS open source/
-/> project has seen 37 interim releases as part of the process./
-/> /
-/> The open source JFS for Linux v 1.0.0 is released for the Linux 2.4.x/
-/> kernel and offers the following advanced features:/
-/> /
-/> * Fast recovery after a system crash or power outage/
-/> /
-/> * Journaling for file system integrity/
-/> /
-/> * Journaling of meta-data only/
-/> /
-/> * Extent-based allocation/
-/> /
-/> * Excellent overall performance/
-/> /
-/> * 64 bit file system/
-/> /
-/> * Built to scale. In memory and on-disk data structures are designed to/
-/> scale beyond practical limit/
-/> /
-/> * Designed to operate on SMP hardware and also a great file system for/
-/> your workstation/
-/> /
-/> * Completely free of prerequisite kernel changes (easy integration path/
-/> into the kernel source tree)/
-/> /
-/> * Detailed Howto for creating a system with JFS as the /boot and /root/
-/> file system using lilo/
-/> /
-/> * Complete set of file system utilities/
-/> /
-/> * On-disk compatibility with OS/2 JFS file systems/
-/> /
-/> The JFS Team (Barry Arndt, Steve Best, Dave Kleikamp)/
-/> /
-/> -/
-/> To unsubscribe from this list: send the line "unsubscribe 
-linux-kernel" in/
-/> the body of a message to majordomo@vger.kernel.org/
-/> More majordomo info at http://vger.kernel.org/majordomo-info.html /
-/> Please read the FAQ at http://www.tux.org/lkml/ /
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at http://www.tux.org/lkml/
-------------------------------------------------------------------------
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+	-Thomas

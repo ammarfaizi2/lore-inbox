@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVCWGIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVCWGT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVCWGIK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 01:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbVCWGIK
+	id S261442AbVCWGT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 01:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVCWGT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 01:08:10 -0500
-Received: from bay10-f59.bay10.hotmail.com ([64.4.37.59]:20127 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262803AbVCWGIA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 01:08:00 -0500
-Message-ID: <BAY10-F5987CA2A1E1D6C406F5371D94F0@phx.gbl>
-X-Originating-IP: [146.229.160.228]
-X-Originating-Email: [getarunsri@hotmail.com]
-In-Reply-To: <4240A744.1000306@yahoo.com.au>
-From: "Arun Srinivas" <getarunsri@hotmail.com>
-To: nickpiggin@yahoo.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: help needed pls. scheduler(kernel 2.6) + hyperthreaded related questions?
-Date: Wed, 23 Mar 2005 11:37:58 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 23 Mar 2005 06:07:59.0281 (UTC) FILETIME=[A9DF2A10:01C52F6E]
+	Wed, 23 Mar 2005 01:19:27 -0500
+Received: from harlech.math.ucla.edu ([128.97.4.250]:42625 "EHLO
+	harlech.math.ucla.edu") by vger.kernel.org with ESMTP
+	id S261442AbVCWGTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 01:19:14 -0500
+Date: Tue, 22 Mar 2005 22:19:10 -0800 (PST)
+From: Jim Carter <jimc@math.ucla.edu>
+To: linux-kernel@vger.kernel.org
+Cc: pavel@suse.cz
+Subject: Disc driver is module, software suspend fails
+Message-ID: <Pine.LNX.4.61.0503222212210.7671@xena.cft.ca.us>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the SMT (apart from SMP) support is enabled in the  .config file, does 
-the kernel recogonize the 2 logical processor as 2 logical or 2 physical 
-processors?
+Distro:		SuSE Linux 9.2
+Kernel:		2.6.8 (kernel-default-2.6.8-24.11), also 2.6.11.5
+Hardware:	Dell Inspiron 6000d, Intel Pentium-M, 915PM chipset,
+		disc is Fujitsu MHT2040AH, SATA via ata_piix driver
+Kernel cmdline:	root=/dev/sda3 vga=0x317 selinux=0 resume=/dev/sda5 \
+		desktop elevator=as showopts
 
-Also, as the hyperthreaded processor may schedule 2 threads in the 2 logical 
-cpu's, and it may not necessarily be form the same process i.e., the 2 
-thread it schedules may be from the same or from the different process.
+I have the same symptoms as seen in numerous complaints on the web: I do
+"echo disk > /sys/power/state" or run /sbin/swsusp or powersave -U. The
+kernel suspends all the way, then immediately wakes up, having
+accomplished nothing.  On 2.6.11.5 I can read an error message: "swsusp:
+FATAL: cannot find swap device, try swapon -a!"  Yes, the swap device is
+recognized in /proc/swaps.
 
-So, is there any way I can tell the scheduler (assuming I make the scheduler 
-recogonize my 2 threads..i.e., it knows their pid) to schedule always my 2 
-threads @ the same time? How do I go abt it?
+I put some printk's into 2.6.11.5 and found out the reason for this
+behavior: in kernel/power/swsusp.c, static resume_device == 0.  The
+reason it's 0 is that swsusp_read uses name_to_dev_t to interpret
+resume=/dev/sda5, a bogus block device name.  The reason it's bogus is
+that its driver is modular and will be loaded in the future from the
+initrd.  Thus if the image were written there, it could not be read
+by swsusp_read, and swsusp_swap_check correctly aborts.
 
-Pls. help.Thanks in Advance.
+Formerly I had a laptop on which software suspend worked.  It
+had an IDE disc, and in this distro the ide modules are hardwired in the
+kernel; hence /dev/hda2 was not bogus and could be resumed from and
+(therefore) suspended to.
 
->From: Nick Piggin <nickpiggin@yahoo.com.au>
->To: Arun Srinivas <getarunsri@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: help needed pls. scheduler(kernel 2.6) + hyperthreaded related 
->questions?
->Date: Wed, 23 Mar 2005 10:16:20 +1100
->
->Arun Srinivas wrote:
->>Pls. help me.  I went through the sched.c for kernel 2.6 and saw that it 
->>supports
->>hyperthreading.I would be glad if someone could answer this 
->>question....(if
->>am not wrong a HT processor has 2 architectural states and one execution
->>unit...i.e., two pipeline streams)
->>
->>1)when there are 2 processes a parent and child(created by fork()) do they
->>get scheduled @ the same time...ie., when the parent process is put into 
->>one
->>pipeline, do the child also gets scheduled the same time?
->>
->
->No.
->
->>2) what abt in the case of threads(I read tht as opposed to 
->>kernel2.4,where
->>threads are treated as processes) ..kernel 2.6 treats threads as threads.
->>So, when two paired threads get into execution are they always scheduled 
->>at
->>the same time?
->>
->
->No.
->
->>Also, it would be helpful if someone could suggest which part of sched.c
->>shud i look into to find out how threads are scheduled for a normal
->>processor and for a hyperthreaded processor
->>
->
->It is pretty tricky. Basically processes on different CPUs are
->scheduled completely independently of one another. The only time
->when they may get moved from one CPU to another is with
->load_balance, load_balance_newidle, active_load_balance,
->try_to_wake_up, sched_exec, wake_up_new_task.
->
+Obvious workaround: recompile the kernel myself and hardwire ata_piix
+and its scsi friends.  I'll bet we actually see SuSE do this in version
+9.3, to shut up the expensive customer support calls from frustrated
+users with new laptops (all the new Dell laptops and desktops use SATA
+discs).  But this is not a general solution, since the next
+technological advance (infiniband?) will require yet another driver, and
+you're now defeating the whole purpose of modules.  Also, if I go to my
+own kernel I cut myself off from my distro's security patches.
 
-_________________________________________________________________
-News, views and gossip. http://www.msn.co.in/Cinema/ Get it all at MSN 
-Cinema!
+So I'm hoping someone has an idea how to make software_resume happen
+_after_ the initrd has been run and its modules are in place, which
+might make it into whatever kernel is being used in SuSE 9.3.
 
+James F. Carter          Voice 310 825 2897    FAX 310 206 6673
+UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA 90095-1555
+Email: jimc@math.ucla.edu  http://www.math.ucla.edu/~jimc (q.v. for PGP key)

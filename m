@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUI0GMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUI0GXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUI0GMj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 02:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUI0GMj
+	id S266173AbUI0GXr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 02:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266181AbUI0GXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 02:12:39 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:57003 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266155AbUI0GMe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 02:12:34 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject interface support
-Date: Mon, 27 Sep 2004 01:12:28 -0500
-User-Agent: KMail/1.6.2
-Cc: Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
-       LHNS list <lhns-devel@lists.sourceforge.net>,
-       Linux IA64 <linux-ia64@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040920092520.A14208@unix-os.sc.intel.com> <200409201812.45933.dtor_core@ameritech.net> <20040924162823.B27778@unix-os.sc.intel.com>
-In-Reply-To: <20040924162823.B27778@unix-os.sc.intel.com>
+	Mon, 27 Sep 2004 02:23:47 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:3024 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S266173AbUI0GXp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 02:23:45 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200409270112.29422.dtor_core@ameritech.net>
+Subject: RE: suspend/resume support for driver requires an external firmware
+Date: Mon, 27 Sep 2004 14:23:35 +0800
+Message-ID: <16A54BF5D6E14E4D916CE26C9AD305753457F2@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: suspend/resume support for driver requires an external firmware
+Thread-Index: AcSiNAK1VRp8i1DnThKkovYWxZUSyACJTZig
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Oliver Neukum" <oliver@neukum.org>
+Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
+       "Patrick Mochel" <mochel@digitalimplant.org>,
+       "Zhu, Yi" <yi.zhu@intel.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Sep 2004 06:23:38.0364 (UTC) FILETIME=[867E1BC0:01C4A45A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 September 2004 06:28 pm, Keshavamurthy Anil S wrote:
-> +typedef void acpi_device_sysfs_files(struct kobject *,
-> +                               const struct attribute *);
-> +
-> +static void setup_sys_fs_device_files(struct acpi_device *dev,
-> +               acpi_device_sysfs_files *func);
-> +
-> +#define create_sysfs_device_files(dev) \
-> +       setup_sys_fs_device_files(dev, (acpi_device_sysfs_files *)&sysfs_create_file)
-> +#define remove_sysfs_device_files(dev) \
-> +       setup_sys_fs_device_files(dev, (acpi_device_sysfs_files *)&sysfs_remove_file)
+>> I somewhat think choice 2 is better. The pre-load can be invoked in
+any
+>> order instead of in the device tree hierarchy order. And currently
+only
+>> few devices need it, is it worth adding it in the device core?
+>
+>If order doesn't matter, the device tree order is as good as any
+>other order.
+>
+>> In addition, the notifiers have better flexibility. We can easily add
+>> more notifier types if needed, such as adding a callback between the
+>> sysdev resume and regular devices resume. To tell the truth, we
+actually
+>> have the case. An ACPI link device must resume before regular devices
+>> but must be with IRQ enabled. I'm considering add a call back between
+>> sysdev and regular devices resume for the issue. I guess the MTRR
+driver
+>> in SMP has the same requirement. Anyway, notifier solution sounds
+like
+>> easier to extend, but we can't extend device core casually.
+>
+>If you add this stuff to anything but the device core, you have to
+teach
+>the drivers about the various notifier chains. Why would adding methods
+>to the device core be harder than adding notifier chains? If drivers do
+>not need the method they don't need to implement it. If they do need
+>it, using a notifier chain isn't easier.
+Adding methods to the device core requires changes the device core every
+time when you add a new call back. The notifier chain method can keep
+the device core stable.
+Considering another case, we might want to add some call backs between
+sysdevs resume and regular devices resume (the case is the above). It
+might not be for a device. How can the device core call back do this? 
 
-
-Hi Anil,
-
-It looks very nice except for the part above. I am really confused what the
-purpose of this code is... It looks like it just complicates things?
-
--- 
-Dmitry
+Thanks,
+Shaohua

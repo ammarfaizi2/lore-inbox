@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310637AbSCXRV5>; Sun, 24 Mar 2002 12:21:57 -0500
+	id <S310606AbSCXRWR>; Sun, 24 Mar 2002 12:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311314AbSCXRVr>; Sun, 24 Mar 2002 12:21:47 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:10504 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S310606AbSCXRVk> convert rfc822-to-8bit; Sun, 24 Mar 2002 12:21:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Asam <Christian.Asam@chasam.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem with serial.c introduced in 2.4.15
-Date: Sun, 24 Mar 2002 18:21:38 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S311035AbSCXRV5>; Sun, 24 Mar 2002 12:21:57 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:37542 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S310606AbSCXRVv>;
+	Sun, 24 Mar 2002 12:21:51 -0500
+Message-ID: <3C9E0BBC.4030406@freenet.de>
+Date: Sun, 24 Mar 2002 18:24:12 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020323
+X-Accept-Language: de, en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16pBgZ-0000v2-00@mrvdom00.kundenserver.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
+In-Reply-To: <E16pBJE-0006hU-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After having found out that a too old kernel caused my problem with 
-writing to slow devices I had the problem that my serial digitizer 
-(Genius using gpm/genitizer) didn't work with 2.4.18. I tracked it down 
-to a change made in 1.4.15:
-drivers/char/serial.c:
-#if 0   /*
-         * !!! ignore all characters if CREAD is not set
-         */
-        if ((cflag & CREAD) == 0)
-                info->ignore_status_mask |= UART_LSR_DR;
-#endif
+Alan Cox wrote:
+>>I've got a basic question:
+>>Would it be possible to kill only the process which consumes the most 
+>>memory in the last delta t?
+>>Or does somebody have a better idea?
+> 
+> 
+> At the point you hit OOM every possible heuristic is simply handwaving that
+> will work for a subset of the user base. Fix the real problem and it goes
+> away.
 
-In 2.4.15 the #if 0 and #endif was removed and somehow that manages to 
-break gpm/genitizer. I then added the #if 0/#endif to "remove" that 
-statement in 2.4.18 and the tablet works with 2.4.18 too.
+This would and must be the first solution. I agree with you.
 
-cu
+On the other hand - nobody is perfect and there can be such situations. 
+Why shouldn't the kernel be the ultimate checkpoint to prevent greater 
+damage? That's what I'm thinking.
+
+It's not easy and it takes probably ressources (processor and RAM) to do 
+some
+checks. The idea would be, to do such checks only when the memory-usage is
+over a defined value, e.g. 60% or later. Best would be, if it would be
+free configurable (to have the checks at all and at which point beginning).
+
+I suggested a heuristic. Maybe, there are better ones. What I want to 
+say is, that I think that there should be a mechanism to detect and kill 
+a process as good as possible, which wants to have all the memory and 
+even more - before the memory is used to 100%.
+
+
+Regards,
+Andreas Hartmann
+

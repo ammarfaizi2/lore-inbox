@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265897AbUGMVDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUGMVDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265897AbUGMVDL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUGMVDL
+	id S265910AbUGMVDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUGMVDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:03:11 -0400
-Received: from thunk.org ([140.239.227.29]:64904 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S265897AbUGMVDI (ORCPT
+	Tue, 13 Jul 2004 17:03:22 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:14504 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265910AbUGMVDR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:03:08 -0400
-Date: Tue, 13 Jul 2004 17:02:54 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Waldo Bastian <bastian@kde.org>
-Cc: kde-core-devel@kde.org, Tim Connors <tconnors@astro.swin.edu.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kconfig's file handling (was: XFS: how to NOT null files on fsck?)
-Message-ID: <20040713210254.GG10783@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Waldo Bastian <bastian@kde.org>, kde-core-devel@kde.org,
-	Tim Connors <tconnors@astro.swin.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <20040713110520.GB8930@ugly.local> <200407131431.43478.bastian@kde.org>
+	Tue, 13 Jul 2004 17:03:17 -0400
+Date: Tue, 13 Jul 2004 22:01:23 +0200
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: suspend/resume success and failure report and questions
+Message-ID: <20040713200123.GA13091@gamma.logic.tuwien.ac.at>
+References: <20040710083027.GB27827@gamma.logic.tuwien.ac.at> <20040713193640.GG3654@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <200407131431.43478.bastian@kde.org>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040713193640.GG3654@openzaurus.ucw.cz>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 02:31:43PM +0200, Waldo Bastian wrote:
+Hi Pavel!
+
+On Die, 13 Jul 2004, Pavel Machek wrote:
+> > 	Only thing I am missing is some way of post-resume script.
 > 
-> The sentiment among filesystem developers seem to be that they don't care if 
-> they trash files as long as the filesystem itself remains in a consistent 
-> state. This kind of dataloss is the result of that attitude, either go 
-> complain with them if it bothers you, or use a filesystem that does it right.
+> echo 4 > /proc/acpi/sleep; post_resume_script
+
+Thanks for this, I realized it after playing around a bit.
+
+> > - partial Suspend2Ram via mem > /sys/power/state
 > 
+> See video.txt. Perhaps usb & radeon need some more
+> suspend/resume support?
 
-Ext3 with ordered writes (the default) gets this right. 
+Ok, I have to get this patched video driver to work, means recompiling
+debian/sid package with this fix.
 
-Unfortunately, cheating can give you better benchmark resuls, and some
-people seem to care more about better benchmark results than silly
-things like user's files not getting wiped.  For many workloads,
-especially for user desktops, the disk bandwidth isn't saturated, and
-given that most writes are asynchronous in nature, a faster write
-benchmark for a particular filesystem or filesystme mode may not
-translate into a user-visible difference.  So focusing on improved
-write speeds at the cost of data robustness can very often be false
-economy.
+For usb, no idea, but I can live with /etc/init.d/hotplug stop ; sleep ;
+... start.
 
-							- Ted
+> > - network drivers (b44)
+> 
+> Should work ok.
+
+They do, meanwhile I have tested them.
+
+And orinoco from cvs also works.
+
+Thanks a lot and best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+TYNE and WEAR (nouns)
+The 'Tyne' is the small priceless or vital object accidentally dropped
+on the floor (e.g. diamond tie clip, contact lens) and the 'wear' is
+the large immovable object (e.g. Welsh dresser, car-crusher) that it
+shelters under.
+			--- Douglas Adams, The Meaning of Liff

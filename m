@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbTBAOWc>; Sat, 1 Feb 2003 09:22:32 -0500
+	id <S264697AbTBAOrt>; Sat, 1 Feb 2003 09:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbTBAOWb>; Sat, 1 Feb 2003 09:22:31 -0500
-Received: from kunde0416.oslo-asen.alfanett.no ([62.249.189.163]:17681 "EHLO
-	kunde0416.oslo-asen.alfanett.no") by vger.kernel.org with ESMTP
-	id <S264711AbTBAOWb>; Sat, 1 Feb 2003 09:22:31 -0500
-Date: Sat, 1 Feb 2003 15:31:53 +0100 (CET)
-From: Peter Karlsson <peter@softwolves.pp.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 kernel crashes while scanning partition list
-In-Reply-To: <200302011343.h11DhEYt000710@darkstar.example.net>
-Message-ID: <Pine.LNX.4.43.0302011530230.11635-100000@perkele>
-Mail-Copies-To: Peter Karlsson <peter@softwolves.pp.se>
-X-Warning: Junk / bulk email will be reported
-X-Rating: This message is not to be eaten by humans
-Organization: /universe/earth/europe/norway/oslo
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264853AbTBAOrs>; Sat, 1 Feb 2003 09:47:48 -0500
+Received: from n1114ber.planetcomm.net ([64.4.122.114]:45497 "EHLO
+	paul.wright.house") by vger.kernel.org with ESMTP
+	id <S264697AbTBAOrs>; Sat, 1 Feb 2003 09:47:48 -0500
+Subject: Re: [PATCH] USB HardDisk Booting 2.4.20
+From: Wesley Wright <wewright@verizonmail.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Samuel Flory <sflory@rackable.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030131022151.GA25068@alpha.home.local>
+References: <1043947657.7725.32.camel@steven>
+	<1043952432.31674.22.camel@irongate.swansea.linux.org.uk>
+	<3E39A895.9000602@rackable.com>  <20030131022151.GA25068@alpha.home.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Feb 2003 10:00:51 -0500
+Message-Id: <1044111651.1965.7.camel@steven>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford:
+> I'm personnaly using this simple patch with success with an usb disk on
+> key. It adds an option "setuptime" which waits the requested amount of ms
+> before booting. I use it with "setuptime=2500" and my USB works fine.
+> 
+> I think it could be of a more general use, and perhaps it could be
+> accepted into mainstream if it doesn't break anything ?
 
-> As you've tested all these different kernels, why not submit this as a
-> bug in my bug database, http://grabjohn.com/kernelbugdatabase/ ,
+The reason I took the other approach is that I didn't want to introduce
+an arbitrary delay into my startup.  I have varying speed machines
+(ranging from P90 up to Athlon 1800) and wanted a solution consistent
+across all of them.  I think that you can accomplish the delay startup
+through initrd without a kernel change.
 
-Done. It is reported as bug 33 in your database. However, I was a bit
-uncertain about what to status to set for 2.4.18, but I set it to
-"working" as the crash itself does not occur once I specify things
-manually.
+Delay solutions don't directly deal with the race between mounting and
+detecting the USB device though.  If I select a value to small then I
+still don't get a successful mount.
 
--- 
-\\//
-Peter - http://www.softwolves.pp.se/
+Maybe this isn't a major concern for this area of the kernel though... 
+at this point there really aren't any other tasks so the delay should
+have very consistent results.
 
-  I do not read or respond to mail with HTML attachments.
+Thanks,
+-- Wes
 

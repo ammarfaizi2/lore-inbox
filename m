@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbTEOR6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 13:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEOR6z
+	id S264139AbTEOSDt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 14:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTEOSDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 13:58:55 -0400
-Received: from ida.rowland.org ([192.131.102.52]:31492 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264138AbTEOR6y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 13:58:54 -0400
-Date: Thu, 15 May 2003 14:11:44 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Paul Fulghum <paulkf@microgate.com>
-cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd@arndb.de>, <johannes@erdfelt.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: Test Patch: 2.5.69 Interrupt Latency
-In-Reply-To: <1053012368.2026.6.camel@diemos>
-Message-ID: <Pine.LNX.4.44L0.0305151355290.1139-100000@ida.rowland.org>
+	Thu, 15 May 2003 14:03:49 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:6331 "EHLO
+	myware.akkadia.org") by vger.kernel.org with ESMTP id S264139AbTEOSDs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 14:03:48 -0400
+Message-ID: <3EC3D96C.3030905@redhat.com>
+Date: Thu, 15 May 2003 11:16:12 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030513
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+References: <Pine.LNX.3.96.1030515135628.30631A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1030515135628.30631A-100000@gatekeeper.tmr.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 May 2003, Paul Fulghum wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I think I found the key to this whole problem:
-> 
-> Note:I mistakenly referred to the chipset as PIIX3
-> in previous messages, in fact it is the PIIX4 (BX)
-> 
-> The PIIX4 errata states that false resume indications
-> can be generated if CLK48 is active during an
-> overcondition indication (OC[1..0]).
-> 
-> Sure enough, the USBPORTSC[12] registers constantly
-> report a status of 0C80 which shows that both
-> ports are showing overcurrent condition (which
-> disables the associated port).
-> 
-> My guess is that HP deliberately tied the OC[1..0]
-> inputs active to force the ports to a disabled state.
-> 
-> So checking for the case of both ports constantly
-> in OC condition and disabled may be a reasonable
-> way to either disable the controller altogether or 
-> at least not do the wakeup/suspend shuffle.
-> 
-> Any comments?
+Bill Davidsen wrote:
 
-That sounds like a believable explanation.  My copy of the generic UHCI
-specification does not include the OC port status bits.  I'm guessing from
-your mail they are either bit 10 or bit 11 of the PORTSC registers, can't
-tell which.  Maybe they are an Intel-specific addition?  Or perhaps a more 
-recent version of the spec has more information -- the one I've got is 1.1 
-(March 1996).
+> He didn't say static linking he said static library. I assume he meant a
+> .a lib instead of a .so lib. One which has elements which are made part of
+> the executable instead of being part of a shared library.
 
-Can you suggest a good way of detecting whether or not a controller is
-part of a PIIX4 chipset, to indicate whether or not the OC bits are valid?  
-Maybe the PCI vendor and product codes will have that information?  I'm
-not sure it's safe to assume that any old host controller will have
-meaningful values there; the spec just says "reserved" and doesn't
-stipulate that they will always read as 0's.
+And in what way does this not match what I say?  The content of the DSO
+and the archive is identical functionality-wise and therefore none of
+this ever has any influence on whether futexes are used or not.
 
-Alan Stern
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+w9ls2ijCOnn/RHQRAsfAAJ9sSbudcXdNSHYAB6ICm/fXWRhuQQCgqmMD
+cwxSzwuFEeeS6ACGonakUy8=
+=+/L9
+-----END PGP SIGNATURE-----
 

@@ -1,137 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTKLNxD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 08:53:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTKLNxD
+	id S262070AbTKLOTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 09:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTKLOTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 08:53:03 -0500
-Received: from [195.67.90.253] ([195.67.90.253]:14505 "EHLO
-	knant27.kna.flextronics.com") by vger.kernel.org with ESMTP
-	id S262069AbTKLNw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 08:52:58 -0500
-Message-ID: <3FB23B36.1020203@se.flextronics.com>
-Date: Wed, 12 Nov 2003 14:52:54 +0100
-From: Martin Johansson <martin.b.johansson@se.flextronics.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9 Oops
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Nov 2003 09:19:19 -0500
+Received: from cumeil2.prima.com.ar ([200.42.0.157]:57109 "HELO
+	cumeils.prima.com.ar") by vger.kernel.org with SMTP id S262070AbTKLOTO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 09:19:14 -0500
+Message-ID: <20031112111910.17B6E433.85DD4504@172.16.1.68>
+From: <curso_2@fullzero.com.ar>
+Reply-To: <curso_2@fullzero.com.ar>
+To: <mails@cursogis.com.ar>
+Date: Wed, 12 Nov 2003 11:19:10 -0300
+Subject: =?iso-8859-1?Q?Curso=20GIS=20y=20Teledeteccion?=
+X-Priority: 3
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+X-SenderIP: 24.232.63.54
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by alpha id hACERhKD024145
 
-I had bittorrent segfaulting on me today and went checking the log.
-According to the log I apparently had this in_atomic() + oops yesterday 
-without noticing:
+Curso GIS y Teledeteccion
 
-in_atomic():0, irqs_disabled():1
-Call Trace:
-  [__might_sleep+145/176] __might_sleep+0x91/0xb0
-  [do_page_fault+112/1344] do_page_fault+0x70/0x540
-  [ide_dma_intr+0/176] ide_dma_intr+0x0/0xb0
-  [dma_timer_expiry+0/128] dma_timer_expiry+0x0/0x80
-  [__ide_do_rw_disk+412/1712] __ide_do_rw_disk+0x19c/0x6b0
-  [__delay+18/32] __delay+0x12/0x20
-  [as_move_to_dispatch+241/496] as_move_to_dispatch+0xf1/0x1f0
-  [start_request+385/656] start_request+0x181/0x290
-  [schedule+726/1344] schedule+0x2d6/0x540
-  [do_page_fault+0/1344] do_page_fault+0x0/0x540
-  [error_code+45/56] error_code+0x2d/0x38
-  [prepare_to_wait+37/64] prepare_to_wait+0x25/0x40
-  [__lock_page+126/208] __lock_page+0x7e/0xd0
-  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
-  [do_page_cache_readahead+190/272] do_page_cache_readahead+0xbe/0x110
-  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
-  [filemap_nopage+648/720] filemap_nopage+0x288/0x2d0
-  [filemap_nopage+0/720] filemap_nopage+0x0/0x2d0
-  [do_no_page+173/800] do_no_page+0xad/0x320
-  [handle_mm_fault+224/336] handle_mm_fault+0xe0/0x150
-  [do_page_fault+316/1344] do_page_fault+0x13c/0x540
-  [update_process_times+68/80] update_process_times+0x44/0x50
-  [update_wall_time+22/64] update_wall_time+0x16/0x40
-  [do_timer+224/240] do_timer+0xe0/0xf0
-  [do_IRQ+197/240] do_IRQ+0xc5/0xf0
-  [do_page_fault+0/1344] do_page_fault+0x0/0x540
-  [error_code+45/56] error_code+0x2d/0x38
+No responda a este mail. Para solicitar información mandar mail a ubateledeteccion@argentina.com
+
+CENTRO DE TRANSFERENCIA TECNOLÓGICA EN SISTEMAS DE INFORMACIÓN GEOGRÁFICA Y TELEDETECCIÓN
+
+---TUTORIAL GRATUITO
+Entendiendo la proyección de los mapas - SISTEMA Gauss-Krüger
+
+---CURSOS 2003-4
+> ArcView 8.2: 
+- 9 al 12 de Diciembre 2003 de 17 a 22hs 
+- 15 al 19 de Marzo 2004 de 19 a 22hs
+> ArcView 3.2: 
+- 16 al 20 de Febrero 2004 de 19 a 22hs.
+> ENVI 3.6: 
+- 15 al 19 de Marzo 2004 de 19 a 22hs.
 
 
-  printing eip:
-c0117c15
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[prepare_to_wait+37/64]    Not tainted
-EFLAGS: 00010046
-EIP is at prepare_to_wait+0x25/0x40
-eax: c2e71960   ebx: 00000246   ecx: c2ab7e40   edx: c2ab7e34
-esi: 99fa5db8   edi: c2ab7e34   ebp: c6164ae0   esp: c2ab7e04
-ds: 007b   es: 007b   ss: 0068
-Process mozilla-bin (pid: 24130, threadinfo=c2ab6000 task=c2e71960)
-Stack: c1000640 99fa5db8 c01311de c1000640 00000000 c2e71960 c0117cc0 
-c2ab7e40
-        c2ab7e40 d3a24760 00000010 c0136c3e 00000000 c2e71960 c0117cc0 
-c2ab7e40
-        c2ab7e40 00000000 cfdaebe8 0000000c c1000640 cfdaebe8 0000000c 
-c0132318
-Call Trace:
-  [__lock_page+126/208] __lock_page+0x7e/0xd0
-  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
-  [do_page_cache_readahead+190/272] do_page_cache_readahead+0xbe/0x110
-  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
-  [filemap_nopage+648/720] filemap_nopage+0x288/0x2d0
-  [filemap_nopage+0/720] filemap_nopage+0x0/0x2d0
-  [do_no_page+173/800] do_no_page+0xad/0x320
-  [handle_mm_fault+224/336] handle_mm_fault+0xe0/0x150
-  [do_page_fault+316/1344] do_page_fault+0x13c/0x540
-  [update_process_times+68/80] update_process_times+0x44/0x50
-  [update_wall_time+22/64] update_wall_time+0x16/0x40
-  [do_timer+224/240] do_timer+0xe0/0xf0
-  [do_IRQ+197/240] do_IRQ+0xc5/0xf0
-  [do_page_fault+0/1344] do_page_fault+0x0/0x540
-  [error_code+45/56] error_code+0x2d/0x38
+---CURSOS DISTANCIA:
+Sistemas de Información Geográfica (Certificado Universidad de Buenos Aires) 
+ArcView 3.2
+ArcView 8.2
+Teledetección (Certificado Universidad de Buenos Aires)
+ENVI 3.6
+Bases de Datos para Todos (Certificado Universidad de Buenos Aires)
 
-Code: 8b 06 89 48 04 89 42 0c 89 71 04 89 0e 53 9d 8b 1c 24 8b 74
+Fecha: Una de las características que hacen a nuestros cursos a distancia únicos y una alternativa atractiva para mejorar la formación profesional, se inician en el momento que se realiza la inscripción. 
 
-And this today ~24 hours later, which probably eventually caused the 
-bittorrent segfault. This one was followed by a bunch of kernel BUG's in 
-vmscan:
+* Ud. puede descargar gratuitamente la primer clase de cada curso.
 
-printing eip:
-c0130f9a
-Oops: 0000 [#2]
-CPU:    0
-EIP:    0060:[page_waitqueue+26/48]    Not tainted
-EFLAGS: 00010a97
-EIP is at page_waitqueue+0x1a/0x30
-eax: e0280618   ebx: c1000618   ecx: 00000020   edx: 4b87ad6e
-esi: 4d2bfc64   edi: 00000000   ebp: d3e48000   esp: d3e49dd0
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 7, threadinfo=d3e48000 task=d3e4d2c0)
-Stack: c0131095 c1000618 c1000618 4d2bfc64 c0139a97 d3e49df8 c9c34f00 
-00000000
-	00000010 00000000 00000002 00000000 c1000618 c10005f0 d3ff8460 00000292
-	c34410c0 c039c540 00000292 d3e79bc0 d3ff8460 c9c534b4 d3e49e4c c0115928
-Call Trace:
-  [unlock_page+21/96] unlock_page+0x15/0x60
-  [invalidate_mapping_pages+231/256] invalidate_mapping_pages+0xe7/0x100
-  [recalc_task_prio+168/464] recalc_task_prio+0xa8/0x1d0
-  [invalidate_inode_pages+30/48] invalidate_inode_pages+0x1e/0x30
-  [prune_icache+451/464] prune_icache+0x1c3/0x1d0
-  [shrink_icache_memory+40/48] shrink_icache_memory+0x28/0x30
-  [shrink_slab+286/368] shrink_slab+0x11e/0x170
-  [balance_pgdat+507/544] balance_pgdat+0x1fb/0x220
-  [kswapd+277/304] kswapd+0x115/0x130
-  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
-  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
-  [kswapd+0/304] kswapd+0x0/0x130
-  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+---LISTADO DE PARTICIPANTES   
+ 
+- UNIVERSIDADES
+Ancash (Perú), Bahía Blanca, Belgrano, Bologna, Buenos Aires, Católica, Centro de la Provincia de Buenos Aires, Chiba (Japón), Córdoba, Comahue, Cuyo, Fraternidad de Agrupaciones Santo Tomás de Aquino (F.A.S.T.A), Flores, Formosa, General Sarmiento, Guanajuato (México), Jujuy, La Plata, Latinoamericana de Ciencias Ambientales, La Pampa, La Patagonia Austral, La Republica (Uruguay), La Rioja, Litoral, Lomas de Zamora, Lujan, Mar del Plata, Mayor de San Andres (Bolivia), Misiones, Nacional (Colombia), Nacional Autonoma de Mexico (Mexico), Nordeste, Pilar (Paraguay), Quilmes, Rosario, Salta, Salvador, San Juan, Santa Fe, San Juan Bosco, Sur, Tecnológica Nacional, Torcuato Di Tella, Tucumán, Valladolid (España), Veracruzana (México), etc.
+ 
+-MUNICIPALIDADES
+ 
+3 de Febrero, Bahía Blanca, Benito Juárez, Bragado, Campana, Cañuelas, Castelli, Chascomús, Coronel Suárez, Coronel Rosales, Despeñaderos, Escobar, Florencio Varela, General Alear, General Pueyrredón, Gobierno de la Ciudad de Buenos Aires, Jesús María, Junín, La Plata, Laboulaye, Laprida, Lincoln, Lomas de Zamora, Malvinas Argentinas, Moreno, Morón, Necochea, Pehuajo, Pergamino, Posadas, Quilmes, Ramallo, Río Gallegos, Rosario, Saladillo, Salta, San Fernando, San Isidro, San Martín, San Nicolás, San Salvador de Jujuy, Santa Fe, Santo Tomé, Suipacha, Tigre, Venado Tuerto, Vicente López, Viedma, Villa Allende, Villa Constitución, Villa de Merlo, Villa María, etc. 
+ 
+-ONG
+ACEN - Asociación para la Conservación y el Estudio de la Naturaleza, ANIMA Arquelogia Submarina (Chile),  Asociación Demosvida, Asociación Guyra (Paraguay), Aves Argentinas, Conservación Argentina, CIAC Centro de Investigación y Apoyo Campesino (Bolivia), DEFOR - Asociacion Civil para la Investigación y Desarrollo Forestal (Perú), Estación Científica Charles Darwin (Ecuador), Fundación Amigos para la Naturaleza Noel Kempff (Bolivia), Fundación Cethus, Fundación CEPA / FLACAM, Fundación Green Cross, Fundación Moisés Bertoni (Paraguay), Fundación Pro Vivienda Social, Fundación Vida Silvestre Argentina, Instituto de Investigaciones Ambientales del Pacífico (Colombia), Plus Radio (Paraguay).
+ 
+-EMPRESAS
+ 
+ACA - Automóvil Club Argentino, Aeromapa, Agrimax, Agrosat Ambiental SA, Agroservicios SRL, Ambiente OnLine, Analogías - Empresa dedicada a la investigación de mercado y marketing político , ASTECNA SA, BA&H BOOZ ALLEN & HAMILTON Consultora, BellSouth, Boston Geomática SRL (Paraguay), Buffarini & Buffarini - Agrimensura, Cableuropa SAU (España), CADEB S.A. - Compañía Administradora de Empresas (Bolivia), Chevron Petrolera, CNEA - Comisión Nacional de Energía Atómica, Consultora Ambiental Echechuri, Consultora de Ingeniería Cooprogetti, ComTrad SA, Cooperativa "16 de Octubre" de Servicios Públicos, Cooperativa "16 de Octubre" de Servicios Públicos de Esquel, Cooperativa Eléctrica de Venado Tuerto, Copygraph, Cybermapa, Diario La Nación, Econat SA, Energicon SA, Epson Argentina, Estudio EGA, Euroflores SA (Uruguay), Fomicruz SE, Franklin Consultora SA, Fusion Sudamericana SA, GARJO Ingenieros Contratistas SRL (Perú), GEA Geólogos Asociados, GMS SA, Grant Geophysical Inc (Colombia), Guías FILCAR, Halcrow (Ingeniería Hidráulica), Hewlett Packard, HIDRA Servicios de Ingeniería, Hidroblan SA, HYTEC, IATASA - Ingeniería y Asistencia Técnica Argentina SA, ITG Consultores SA, IDEGEPP - Instituto de Desarrollo y Gestión de Obras Públicas, JMB SA Ingeniería Ambiental, Kiskali SA, K.K.L. KEREN KAYEMET LEISRAEL (Israel), La Dulce Seguros, Minera Alumbrera Limited, Nordelta SA, Nostromo Consultora SRL, Novartis Argentina SA - Protección de Cultivos, OCA Correos, Oroplata Limited SA, Palma y Asociados, Pampa Byte, Papel Prensa SA, PECOM - Perez Companc, Pedro L Martinez SA, Petro Imagen, Petrolera Pan American Energy, Petrolera Quintana Minerals, Phoenix Oil & Gas, PlusPetrol, Profertil SA, Recovery SA - Planeamiento y Catastro, Sistemas Catastrales, Sir William Halcrow LTD, SERVICOOP - Cooperativa de Servicios Públicos de Madryn, SEINCO SRL (Uruguay), Serrater SL (España), Solurban SA, SRK Consultores SA (Chile), Tack Training SA, TRANSBA SA - Transporte de Energía Eléctrica de la Provincia de Buenos Aires, Transpetrol SA, Trico Latinoamericana, URBI - Concesionario del Catastro de la Ciudad de Posadas, WMC - Water Management Consultants (Chile), YPF-REPSOL, ZYZ Consultores - Servicios en Medioambiente, Estructuras, Estudios de suelos.
+ 
+-OTROS ORGANISMOS
+Administración de Parques Nacionales, Armada Argentina, Asociación Civil para la Investigación y Desarrollo Forestal (Perú), Auditoria General de la Nación, AIC - Autoridad Interjurisdiccional de las Cuencas de los Ríos Limay, Neuquén y Negro, Autoridad Regulatoria Nuclear, Banco de la Provincia de Buenos Aires, CEAMSE - Coordinación Ecológica Área Metropolitana Sociedad del Estado, CDPAP - Centro de Desarrollo de Proyectos Avanzados en Pediatría, Centro de Geología de Costas y del Cuaternario, Centro de Sensores Remotos De la FAA, CABA - Programa Reforma Política, CEPED - Instituto de Investigaciones Económicas, CITEFA - Instituto de Investigación Científica y Técnica de la Fuerzas Armadas, CNEA - Comisión Nacional de Energía Atómica, Colegio de Agrimensores - Distrito 1, CIC - Comisión de Investigaciones Provincia de Bs. As, CONAE - Comisión Nacional de Actividades Espaciales, CONICET - Consejo Nacional de Investigaciones Científicas y Técnicas, CONIDA - Comisión Nacional de Investigación y Desarrollo Aeroespacial (Peru), CFI - Consejo Federal de Inversiones, Consejo Provincial de Educación - Neuquén, COREBE - Comisión Regional del Río Bermejo, CORFO - Corporación de Desarrollo Valle Bonaerense del Río Colorado, Defensoría del Pueblo, Dirección General de Escuelas de la Provincia de Bueno Aires, Dirección General de Minería - Neuquen, Dirección Nacional de Desarrollo Urbano de la Subsecretaria de Desarrollo Urbano y Vivienda de La Nación, Dirección Provincial de Desarrollo Industrial Minero y Comercial - Catamarca, Entidad Binacional Yaciretá, EPEN - Ente Provincial de Energía del Neuquen, Escuela de Ingeniería de Caminos de Montaña, Escuela de Prefectura Nacional, Fuerza Aérea Argentina, Gobierno Provincial de Córdoba, IGM - Instituto Geográfico Militar, INA - Instituto Nacional del Agua, INDEC - Instituto Nacional de Estadística y Censos, INREMI - Instituto de Recursos Minerales de la Facultad de Ciencias Naturales y Museo UNLP, Instituto Antártico Argentino, Instituto Provincial de la Vivienda de Formosa, Instituto Argentino de Oceanografía, Instituto de Agricultura Sostenible (España), INTA - Instituto Nacional de Tecnología Agropecuaria, Laboratorio Tecnológico del Uruguay - LATU (Uruguay), Ministerio de Bienes Nacionales (Chile), Ministerio de Desarrollo Social y Medio Ambiente, Ministerio de Economía, Ministerio de Economía de la Provincia de Neuquen, Ministerio de Economía del Chaco, Ministerio de Economía de la Ciudad de La Plata, Ministerio de Infraestructura y Vivienda de la Subsecretaria de Recursos Hídricos, Ministerio de Infraestructura y Vivienda, Ministerio de Justicia y Seguridad de la Provincia de Buenos Aires, Ministerio de la Producción de la Provincia de Chaco, Ministerio de Servicios y Obras Públicas de la Provincia de Buenos Aires, Ministerio del Agro y la Producción de la Provincia de Misiones, Ministerio del Agro y La Producción de la Provincia de Misiones, Ministerio del Interior - Unidad ejecutora Central Catastro, Museo de Ciencias Naturales, Museo Nacional de Costa Rica, OCRABA - Órgano de Control de los Accesos a la Ciudad de Buenos Aires, ORSEP - Organismo Regulador de Seguridad de Presas, Secretaria de Agricultura de la Nación, Secretaria de Minería de la Nación, Secretaría de Obras y Servicios Públicos Provincia de Río Negro, Secretaria de Turismo de la Nación, Secretaría de Ambiente y Desarrollo Sustentable, SEGEMAR - Servicio Geológico Minero Argentino, SENASA - Servicio Nacional de Sanidad Animal y Calidad Agroalimentaria, Servicio Agrícola Ganadero (Chile), Servicio Nacional de Áreas Protegidas (Bolivia), Servicio de Hidrografía Naval, Servicio de Vivienda y Urbanismo (Chile), SIFEM - Sistema Federal de Emergencias del Estado Nacional, Servicio Agrícola Ganadero AG (Chile), Sociedad Rural de Rivadavia, SUNARP Superintendencia Nacional de los Registros Públicos (Perú), Vialidad de la Provincia de Buenos Aires, Vialidad de la Provincia de La Rioja, Vialidad Nacional, etc. 
 
-Code: 2b 8a c8 00 00 00 8b 92 c0 00 00 00 d3 e8 8d 04 c2 c3 8d 74
+__________________________________________________
 
-Tell me if you want more info. The machine is still up although not very 
-stable. Processes are segfaulting left and right.
-
-/Martin
+Internet gratis. Siempre.
+http://www.fullzero.com.ar
 
 

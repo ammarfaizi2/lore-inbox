@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUFAVkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265243AbUFAVlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265241AbUFAVkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 17:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUFAVkt
+	id S265243AbUFAVlE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 17:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUFAVlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 17:40:49 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:42923 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265241AbUFAVkq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 17:40:46 -0400
-Message-Id: <200406012140.i51LejKu020988@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: FabF <fabian.frederick@skynet.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all? 
-In-Reply-To: Your message of "Tue, 01 Jun 2004 23:15:36 +0200."
-             <1086124536.2278.52.camel@localhost.localdomain> 
-From: Valdis.Kletnieks@vt.edu
-References: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net> <1086114982.2278.5.camel@localhost.localdomain> <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu> <1086119611.2278.16.camel@localhost.localdomain> <200406012000.i51K0vor019011@turing-police.cc.vt.edu> <1086120865.2278.27.camel@localhost.localdomain> <200406012022.i51KMFEB002660@turing-police.cc.vt.edu>
-            <1086124536.2278.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_847561081P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 1 Jun 2004 17:41:04 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:25426 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S265243AbUFAVlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 17:41:00 -0400
+From: Dimitri Sivanich <sivanich@sgi.com>
+Message-Id: <200406012140.i51LeGjV043356@fsgi142.americas.sgi.com>
+Subject: Re: Slab cache reap and CPU availability
+To: akpm@osdl.org (Andrew Morton)
+Date: Tue, 1 Jun 2004 16:40:16 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20040524145303.45c8f8a6.akpm@osdl.org> from "Andrew Morton" at May 24, 2004 02:53:03 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Jun 2004 17:40:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_847561081P
-Content-Type: text/plain; charset=us-ascii
+> 
+> Dimitri Sivanich <sivanich@sgi.com> wrote:
+> >
+> > The IA/64 backtrace with all the cruft removed looks as follows:
+> > 
+> > 0xa000000100149ac0 reap_timer_fnc+0x100
+> > 0xa0000001000f4d70 run_timer_softirq+0x2d0
+> > 0xa0000001000e9440 __do_softirq+0x200
+> > 0xa0000001000e94e0 do_softirq+0x80
+> > 0xa000000100017f50 ia64_handle_irq+0x190
+> > 
+> > The system is running mostly AIM7, but I've seen holdoffs > 30 usec with
+> > virtually no load on the system.
+> 
+> They're pretty low latencies you're talking about there.
+> 
+> You should be able to reduce the amount of work in that timer handler by
+> limiting the size of the per-cpu caches in the slab allocator.  You can do
+> that by writing a magic incantation to /proc/slabinfo or:
+> 
+> --- 25/mm/slab.c~a	Mon May 24 14:51:32 2004
+> +++ 25-akpm/mm/slab.c	Mon May 24 14:51:37 2004
+> @@ -2642,6 +2642,7 @@ static void enable_cpucache (kmem_cache_
+>  	if (limit > 32)
+>  		limit = 32;
+>  #endif
+> +	limit = 8;
 
-On Tue, 01 Jun 2004 23:15:36 +0200, FabF said:
-
-> 	1.Global inactivity (what you're talking about)
-> 	2.Application isolation (what we're talking about).
-
-Again, be careful there - I wasn't the one who said inactive boxes should be in RL3. ;)
-
-And just because I may not be typing on the keyboard doesn't mean that things
-are in fact globally inactive - gkrellm is still running, and it has a plugin
-monitoring the CPU temperature and adjusting the fan speed as needed, and new
-mail is arriving in the background and causing status changes in my MUA.
-
-And yes, said activity tends to keep the gkrellm and MUA pages "hot" and prevent
-their swapping out.  The problem is that other processes are also doing stuff
-in the background for me - but there's no really good way for the system to
-know that I consider the gkrellm lages to be "more important" than those
-pages taken up by xclock....
-
-> Geek or not, someone backgrounding an application doesn't want it to
-> down the box for X seconds some minutes later when it comes back and
-> such things arrive many times a day.
-
-Yes, but a solution to that really *should* take into account that some things
-will only down the *app* (if OpenOffice is paging in, I can still interact with
-the system if X and my window manager and an xterm aren't paged out), whereas
-other things will effectively down the *system* as far as the user is concerned (if
-X and/or my window manager are paged out, I'm *stuck* till they come back in).
-
-> Maybe you've got an idea about a
-> better rule(s) then ? (I mean for the 2 cases)
-
-I admit I have slacked and haven't tried Nick Piggin's MM patches - others have
-commented that those work well.  I am however quite sure that the Really Right
-Answer will require much greater subtlety than a rule like "if it uses libX it
-shouldn't be swapped out"....
-
-
---==_Exmh_847561081P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAvPfbcC3lWbTT17ARAn31AJ9OQcm0W7ve95ANafIJwlSH//MY5wCfRGiE
-3gsVYV2r5piz53IZNglovnE=
-=1wb6
------END PGP SIGNATURE-----
-
---==_Exmh_847561081P--
+I tried several values for this limit, but these had little effect.

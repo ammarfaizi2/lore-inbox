@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUHPMqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267594AbUHPMrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUHPMqL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267593AbUHPMpu
+	id S267594AbUHPMrL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUHPMrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:45:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:31658 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267584AbUHPMpr (ORCPT
+	Mon, 16 Aug 2004 08:47:10 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:29366 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S267593AbUHPMrD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:45:47 -0400
-Message-ID: <d577e56904081605452822715c@mail.gmail.com>
-Date: Mon, 16 Aug 2004 08:45:46 -0400
-From: Patrick McFarland <diablod3@gmail.com>
-Reply-To: Patrick McFarland <diablod3@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.8-rc4 [RESEND] via-rhine: Really call rhine_power_init()
-Cc: Lee Revell <rlrevell@joe-job.com>, Roger Luethi <rl@hellgate.ch>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408130834010.1839@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org> 
- <20040810083350.GA23771@k3.hellgate.ch> <1092372311.3450.5.camel@mindpipe> <Pine.LNX.4.58.0408130834010.1839@ppc970.osdl.org>
+	Mon, 16 Aug 2004 08:47:03 -0400
+Date: Mon, 16 Aug 2004 14:47:00 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Patrick McFarland <diablod3@gmail.com>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+In-Reply-To: <d577e569040816054135f2f418@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44.0408161444460.22623-100000@hubble.stokkie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004 08:34:27 -0700 (PDT), Linus Torvalds
-<torvalds@osdl.org> wrote:
-> How about checking the snapshots instead of whining?
+On Mon, 16 Aug 2004, Patrick McFarland wrote:
 
-But what is the fun in that? If we didn't have whiners, the lkml could
-be under a meg a day in traffic....
+> On Fri, 13 Aug 2004 04:39:46 +0200 (CEST), Robert M. Stockmann
+> <stock@stokkie.net> wrote:
+> > On Thu, 12 Aug 2004, Jens Axboe wrote:
+> > 
+> > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
+> > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
+> > > >
+> > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
+> > > > > > On Thu, 12 Aug 2004, Jens Axboe wrote:
+> > > > > >
+> > > > > > > On Thu, Aug 12 2004, Robert M. Stockmann wrote:
+> > > > > > > > On Thu, 12 Aug 2004, Frank Steiner wrote:
+> > > > > > > >
+> > > > > > > > > Robert M. Stockmann wrote:
+> 
+> Have you ever heard of trimming replies?
+> 
+> 
+Yes i do, in important matters, i explicit do not.
+
+regards,
+
+Robert
 -- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 198
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
+

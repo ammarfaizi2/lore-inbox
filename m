@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbQKFROE>; Mon, 6 Nov 2000 12:14:04 -0500
+	id <S129104AbQKFQ7d>; Mon, 6 Nov 2000 11:59:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129685AbQKFRNz>; Mon, 6 Nov 2000 12:13:55 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:6551 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129572AbQKFRNp>; Mon, 6 Nov 2000 12:13:45 -0500
-From: Christoph Rohland <cr@sap.com>
-To: aprasad@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: to resize shared memory segment by using shmctl
-In-Reply-To: <CA25698F.005C921F.00@d73mta05.au.ibm.com>
-Organisation: SAP LinuxLab
-Date: 06 Nov 2000 18:13:20 +0100
-In-Reply-To: aprasad@in.ibm.com's message of "Mon, 6 Nov 2000 16:04:53 +0530"
-Message-ID: <qwwbsvt81n3.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129090AbQKFQ7Y>; Mon, 6 Nov 2000 11:59:24 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:43527 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129043AbQKFQ7L>; Mon, 6 Nov 2000 11:59:11 -0500
+Message-Id: <200011061657.eA6Gv0w08964@pincoya.inf.utfsm.cl>
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+cc: David Woodhouse <dwmw2@infradead.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+In-Reply-To: Message from "James A. Sutherland" <jas88@cam.ac.uk> 
+   of "Mon, 06 Nov 2000 16:42:12 -0000." <00110616471600.01646@dax.joh.cam.ac.uk> 
+Date: Mon, 06 Nov 2000 13:57:00 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[Chopped down Cc: list]
+"James A. Sutherland" <jas88@cam.ac.uk> said:
+> On Mon, 06 Nov 2000, David Woodhouse wrote:
 
-On Mon, 6 Nov 2000, aprasad@in.ibm.com wrote:
-> Hi, is it possible to change the size of a preexisting shared memory
-> segment by using shmctl?
-> 
-> AIX has comand SHM_SIZE to shmctl to resize any existing shared
-> memory segment.  can it be done without recreating the whole thing
-> in linux?
+[...]
 
-No that's not possible in Linux. With 2.4 you can use posix shm and
-use ftruncate to resize it.
+> > It does not know them. Correct. But with persistent module storage, it 
+> > _could_ know them.
 
-Greetings
-		Christoph
+> No it cannot. The desired levels have not been defined: there are no
+> desired levels to determine! Don't tamper with settings you don't need
+> to. 
 
+The problem (AFAIU) is that if the levels aren't set on startup, they are
+random in some cases. So you'd have to save (at least) the fact that they
+have been initalized. Just that would be easy: Set aside a word in the
+kernel, which is set to 0 when booting, and which then gets the value 1
+when the hardware is initialized. For more fancy stuff, splitting the
+module into data/code (as I suggested) should do the trick with minimal
+impact on the rest.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

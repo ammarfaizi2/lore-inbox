@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTJNVjY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTJNVjY
+	id S262040AbTJNVmj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTJNVmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:39:24 -0400
-Received: from sea2-dav3.sea2.hotmail.com ([207.68.164.107]:17937 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262108AbTJNVjS
+	Tue, 14 Oct 2003 17:42:39 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:16659 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262040AbTJNVmh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:39:18 -0400
-X-Originating-IP: [12.145.34.101]
-X-Originating-Email: [san_madhav@hotmail.com]
-From: "sankar" <san_madhav@hotmail.com>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       <linux-kernel@vger.kernel.org>
-References: <A20D5638D741DD4DBAAB80A95012C0AED78649@orsmsx409.jf.intel.com>
-Subject: Re: Question on atomic_inc/dec
-Date: Tue, 14 Oct 2003 14:34:55 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-ID: <Sea2-DAV3c098V4p7Jl00002e3e@hotmail.com>
-X-OriginalArrivalTime: 14 Oct 2003 21:39:13.0680 (UTC) FILETIME=[9C535900:01C3929B]
+	Tue, 14 Oct 2003 17:42:37 -0400
+Date: Tue, 14 Oct 2003 23:42:31 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Javier Govea <jgovea@magma.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Source ports at the  IP layer
+Message-ID: <20031014214231.GC16761@alpha.home.local>
+References: <200310142113.h9ELDsAp002223@webmail1.magma.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310142113.h9ELDsAp002223@webmail1.magma.ca>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thx for the reply...
-The definition for atomic_inc() used to be there in asm/atomic.h on redhat
-versions 7.2..
-But on redhat ver 9.0 asm/atomic.h does not have the definition for
-atomic_inc().
-Is it moved to anyother file on redhat 9.0??
+ 
+> I also tried  
+> struct tcphdr *th = (struct tcphdf *)skb->h.th;
+> and then printing out th->source...but i'm still getting 17664...any suggestion on how I
+> can get the ports??? All ideas are very very welcome...
 
-Pls reply...
------ Original Message -----
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "sankar" <san_madhav@hotmail.com>; <linux-kernel@vger.kernel.org>
-Sent: Tuesday, October 14, 2003 2:17 PM
-Subject: RE: Question on atomic_inc/dec
+I think you forgot to add the IP header length somewhere, because 17664 is
+0x4500 = the start of your IP header, and not the TCP header.
 
+Cheers,
+Willy
 
-> From: sankar
->
-> Hi,
-> I have a question concerning the macro atomic_inc on REDHAT 9.0. I had
-used
-> atomic_inc on REDHAT 7.2 earlier. I installed redhat 9.0 and tried to run
-my
-> old code on this. I got the error saying atomic_inc not declared.
->
-> I tried to search the header file in which this is defined but with
-failure.
-
-Seems you were using a kernel definition of a function (this
-normally happens only because it was out there by mistake,
-or because you had __KERNEL__ #defined).
-
-It will be in include/asm/atomic.h; however, it is not wise to
-use directly the kernel stuff unless you are coding kernel stuff.
-
-You can always strip them, of course :)
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)

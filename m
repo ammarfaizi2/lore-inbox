@@ -1,113 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVANXBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVANXDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVANXBm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVANXAZ
+	id S261416AbVANXDT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVANXCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 18:00:25 -0500
-Received: from igw2.watson.ibm.com ([129.34.20.6]:24819 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261917AbVANW6N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:58:13 -0500
+	Fri, 14 Jan 2005 18:02:44 -0500
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:56979 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S261917AbVANXA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 18:00:28 -0500
+Message-ID: <41E84E9E.1000907@am.sony.com>
+Date: Fri, 14 Jan 2005 14:58:38 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: karim@opersys.com
+CC: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
+       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev <ltt-dev@listserv.shafik.org>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com>
+In-Reply-To: <41E8358A.4030908@opersys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Fri, 14 Jan 2005 17:57:21 -0500 (EST)
-To: greg@kroah.com
-Cc: trz@us.ibm.com, karim@opersys.com, richardj_moore@uk.ibm.com,
-       michel.dagenais@polymtl.ca, linux-kernel@vger.kernel.org,
-       ltt-dev@shafik.org
-Subject: Re: [PATCH 3/4] relayfs for 2.6.10: locking/lockless implementation
-X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
-Message-ID: <16872.19899.179380.51583@kix.watson.ibm.com>
-From: Robert Wisniewski <bob@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
-     There are a couple variables used throughout relayfs code that could
-be modified at any point "simultaneously" by different processes.  These
-variables were not declared volatile, thus when we modify them we need to
-tell the compiler to refetch from memory as another process could have
-changed out from under the current stream of execution since the last time
-there were accessed in the function.  An alternative would be to mark the
-variables that we care about as volatile.  I am not sure how best to make
-that tradeoff (i.e., always forcing a refetch by marking a variable
-volatile or only at points were we know we need to by memory clobbering) or
-on what side the Linux community comes down on.  We certainly would be
-happy to go either way with the relayfs code, i.e., mark them variable and
-used the standard atomic operations.  That explains compare_and_store,
-atomic_add, and atomic_sub.  It does not explain the memory clobbering
-around the atomic set operation, which I'm guessing was there just to be
-consistent with the other operations, and could, I believe, be removed.
-Hopefully that helps answer the question.  If it doesn't please feel free
-to ask more.  Thanks.
+Karim Yaghmour wrote:
+> Roman Zippel wrote: 
+>>You don't think that's a little overkill?
+>
+>Based on the descriptions below, I think Roman is right.  There's
+too much going on here for the average user.  I haven't looked closely,
+but some of the stuff seems to be for esoteric use cases.  There are
+two ways to approach it:
+ - add a simplified API for the most common usage
+ - strip out the stuff that's not really needed, and figure out
+ workarounds for things (like tracing initialization) that need
+ special assistance.
 
--bob
+Some of these options (e.g. bufsize) are available to the user
+via tracedaemon. I can honestly say I haven't got a clue what
+to use for some of them, and so always leave them at defaults.
 
-Robert Wisniewski
-The K42 MP OS Project
-Advanced Operating Systems
-Scalable Parallel Systems
-IBM T.J. Watson Research Center
-914-945-3181
-http://www.research.ibm.com/K42/
-bob@watson.ibm.com
+> I can see why you'd say this as a first impression, but really it isn't.
+> 
+> Here's a simple primer to this call's parameters:
+> channel_path, mode:
+> 	Where does this appear in relayfs and what rights do
+> 	user-space apps have over it (rwx).
+> bufsize, nbufs:
+> 	Usually things have to be subdivided in sub-buffers to make
+> 	both writing and reading simple. LTT uses this to allow,
+> 	among other things, random trace access.
+Could these be simplified to a few enumerated modes?
 
-----
+> channel_flags, channel_callbacks:
+> start_reserve, end_reserve, rchan_start_reserve:
+> resize_min, resize_max:
+> init_buf, init_buf_size:
 
-On Thu, Jan 13, 2005 at 10:04:33PM -0500, Karim Yaghmour wrote:
-> +/**
-> + *	compare_and_store_volatile - self-explicit
-> + *	@ptr: ptr to the word that will receive the new value
-> + *	@oval: the value we think is currently in *ptr
-> + *	@nval: the value *ptr will get if we were right
-> + */
-> +inline int
-> +compare_and_store_volatile(volatile u32 *ptr,
-> +			   u32 oval,
-> +			   u32 nval)
-> +{
-> +	u32 prev;
-> +
-> +	barrier();
-> +	prev = cmpxchg(ptr, oval, nval);
-> +	barrier();
-> +
-> +	return (prev == oval);
-> +}
+It seems like you could remove these from relay_open() and move them to
+get()/set() operations if you wanted to simplify the open API.
+Or, you could create other (separate) APIs to pre-fill the buffer or
+reserve space.  Do you want me to take a look at this and propose
+some specific changes?  (I won't get to this until Monday, though).
 
-Why is this function needed?  What's wrong with the "normal" cmpxchg?
-
-
-
-
-> +/**
-> + *	atomic_set_volatile - atomically set the value in ptr to nval.
-> + *	@ptr: ptr to the word that will receive the new value
-> + *	@nval: the new value
-> + */
-> +inline void
-> +atomic_set_volatile(atomic_t *ptr,
-> +		    u32 nval)
-> +{
-> +	barrier();
-> +	atomic_set(ptr, (int)nval);
-> +	barrier();
-> +}
-
-Same here, what's wrong with the normal atomic_set()?
-
-Same question also goes for the other functions like this in this file.
-
-thanks,
-
-greg k-h
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
---------------080309080704060007080707--
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

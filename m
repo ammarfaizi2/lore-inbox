@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318878AbSG1BnS>; Sat, 27 Jul 2002 21:43:18 -0400
+	id <S318881AbSG1BxN>; Sat, 27 Jul 2002 21:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318879AbSG1BnS>; Sat, 27 Jul 2002 21:43:18 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:46604 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S318878AbSG1BnR>; Sat, 27 Jul 2002 21:43:17 -0400
-Message-ID: <3D434CD3.7010807@namesys.com>
-Date: Sun, 28 Jul 2002 05:45:55 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S318882AbSG1BxM>; Sat, 27 Jul 2002 21:53:12 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53259 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318881AbSG1BxM>; Sat, 27 Jul 2002 21:53:12 -0400
+Date: Sat, 27 Jul 2002 22:56:08 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Robert Love <rml@tech9.net>,
+       Russell Lewis <spamhole-2001-07-16@deming-os.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+In-Reply-To: <20020728014813.GH2907@holomorphy.com>
+Message-ID: <Pine.LNX.4.44L.0207272254090.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Daniel Mose <imcol@unicyclist.com>
-CC: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org.gilby.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to start on new db-based FS?
-References: <20020726160742.GA951@ksu.edu> <20020726190520.GA3192@localhost> <3D41ADD3.9010509@namesys.com> <20020727220826.A31431@unicyclist.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Mose wrote:
+On Sat, 27 Jul 2002, William Lee Irwin III wrote:
 
->Hans Reiser wrote:
->  
->
->>We would be happy to cooperate with persons interested in implementing 
->>LDAP optimizing plugins for reiser4.
->>    
->>
-> 
->I'm doing a scan on the web for disk storage layout documentation on
->different file systems. I have I think, downloaded just about all 
->there is to download on www.namesys.com, but I fail to find anything
->that does describe the reiserfs storage layout in any detail.
->Is there such documentation available? 
->I would be very happy for directions to it in this case.
->
->Reason? I want to know if the root file system that I my self is 
->about to develop perhaps is already implemented to some extent in
->any existing root FS:s ? 
->
+> Feasible database workloads on 32-bit machines running mainline kernels
+> seem to run with between 50% and 90% of physical memory consumed by
+> process pagetables and severe restrictions on the number of clients
+> that attempt to connect. When larger proportions of memory are consumed
+> by process pagetables, kernel deadlock often ensues.
 
-What is a root filesystem? (I am accustomed to the term as describing 
-what the OS uses for storing the semantic layer's root directory).
+Even with 50% of memory in pagetables, I wouldn't be happy.
 
->No need to re-invent the wheel. =)
->
->I now know for sure that neither the JFS or the XFS does work in the 
->same ways as my drafts from reading their on disk storage scheemes.
->
->kind regards
->Daniel Mose.
->
->
->  
->
+If I fork out the money for a machine with 16 GB of RAM, I'd
+expect the thing to be able to at least cache 12 GB of my
+database.  Wasting all of memory in page tables just isn't
+allright ;)
 
+Gerrit told me some people within IBM are working on large
+page support for shared memory segments and mmap()d areas,
+I hope it'll be good enough to get accepted into 2.5 soon...
 
+regards,
+
+Rik
 -- 
-Hans
+Bravely reimplemented by the knights who say "NIH".
 
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

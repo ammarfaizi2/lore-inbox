@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315980AbSEWL6m>; Thu, 23 May 2002 07:58:42 -0400
+	id <S316456AbSEWMJm>; Thu, 23 May 2002 08:09:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316075AbSEWL6l>; Thu, 23 May 2002 07:58:41 -0400
-Received: from webmail.freedom2surf.net ([194.106.55.142]:9998 "EHLO
-	server0054.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S315980AbSEWL6l>; Thu, 23 May 2002 07:58:41 -0400
-Message-ID: <1022154900.3cecd894c6f95@webmail.freedom2surf.net>
-Date: Thu, 23 May 2002 13:55:00 +0200
-From: hilbert@hjb-design.com
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.19-pre8 reboots instead of halt and 3com messages
+	id <S316463AbSEWMJl>; Thu, 23 May 2002 08:09:41 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:33147 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S316456AbSEWMJk>; Thu, 23 May 2002 08:09:40 -0400
+Date: Thu, 23 May 2002 13:12:35 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Mike Black <mblack@csihq.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: page_alloc bug in 2.4.17-pre8
+In-Reply-To: <00ec01c2024f$9809db90$f6de11cc@black>
+Message-ID: <Pine.LNX.4.21.0205231301100.1049-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 2.3.7-cvs
-X-Originating-IP: 144.44.35.21
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 23 May 2002, Mike Black wrote:
+> This machine had been up for 2-1/2 days and had run this backup (afio) twice successfully.
+> 
+> Here's line 108 of page_alloc.c:
+>         if (PageLRU(page))
+>                 BUG();
+> 
+> Hopefully this doesn't indicate a CPU problem?  The power supply on this thing blew Saturday but has run OK until now.
+> 
+> May 22 00:51:01 picard kernel: kernel BUG at page_alloc.c:108!
+> May 22 00:51:01 picard kernel: invalid operand: 0000
+> May 22 00:51:01 picard kernel: CPU:    1
+> May 22 00:51:01 picard kernel: EIP:    0010:[swap_duplicate+82/192]    Not tainted
 
-Since I installed the 2.4.19-pre8 kernel on my Athlon 1,3 GHz machine.
-The machine wont halt and poweroff any more it just reboots.
-Systemhardware
-AMD Irongate chipset
-NVidia 2MX (nvidia drivers 2880)
-SB 64-gold - oss drivers (4front)
-SCSI Adaptec 2940UW with A7880 (reproted by kernel)
-3COM 3C509 (combo)
+There were quite a number of reports of those PageLRU BUGs on 2.4.17.
+No idea what fixed them, but 2.4.18 (and 2.4.19-pre) has seemed free
+of them (Ben LaHaise made a plausible change, but closer analysis
+suggested it couldn't really be the fix).  Suggest you upgrade.
 
-RH7.1 with Ximian Gnome 1.4
+Your oops report, by the way, must have been using the wrong System.map:
+page_alloc.c:108 is in __free_pages_ok(), swap_duplicate() is over in
+swapfile.c.  But no matter, page_alloc.c:108 identifies it well enough.
 
-What could be the problem?
+Hugh 
 
-I am currently at work so I cannot answer specific answers because I have that
-system not available right now.
-
-For more info, just ask.
-
-Hilbert
-
-PS The 3com card complains about a "transpoder" x times.
-
-------------------------------------------------- 
-Everyone should have http://www.freedom2surf.net/ 

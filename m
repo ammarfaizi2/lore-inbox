@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264898AbUFVPZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264886AbUFVPaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbUFVPZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 11:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUFVPQ2
+	id S264886AbUFVPaP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 11:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUFVP3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 11:16:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2790 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264629AbUFVPFW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 11:05:22 -0400
-Message-ID: <40D84A9B.8010503@pobox.com>
-Date: Tue, 22 Jun 2004 11:04:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, kernel@nn7.de,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       netdev@oss.sgi.com
-Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
-References: <20040621141144.119be627.davem@redhat.com> <40D847E3.2080109@nortelnetworks.com>
-In-Reply-To: <40D847E3.2080109@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 11:29:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:38019 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264886AbUFVPRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 11:17:11 -0400
+To: linux-kernel@vger.kernel.org
+From: William Lee Irwin III <wli@holomorphy.com>
+Subject: [profile]: [11/23] alpha profiling cleanups
+Message-ID: <0406220817.3a5aKbLb3aXa0aYa0aKb4aMbYaIbKbIb3aMb0aLbLbJbKb1aYaJbKbXa5a3a0a5a15250@holomorphy.com>
+In-Reply-To: <0406220816.Mb0a5a5a5a1a5a3aKbKb0a3a4a0aHbZaIbJbLb5a3aJbHbXaWaMb2aHb0a1aKbWa15250@holomorphy.com>
+CC: rddunlap@osdl.org
+Date: Tue, 22 Jun 2004 08:17:09 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
-> Just a quick question.  Does the sungem chip support jumbo frames?  I'd 
-> like to use MTU of 9000 to make large local transfers more efficient, 
-> but it didn't seem to work last time I checked.
+Convert alpha to use profiling_on() and profile_tick().
 
-
-Are you 100% certain you configured the other side to support jumbo?
-
-Jumbo frames are non-standard, and sometimes require configuring MTU on 
-the switch or remote network card (if directly connected).
-
-	Jeff
-
-
+Index: prof-2.6.7/arch/alpha/kernel/irq_impl.h
+===================================================================
+--- prof-2.6.7.orig/arch/alpha/kernel/irq_impl.h	2004-06-15 22:20:26.000000000 -0700
++++ prof-2.6.7/arch/alpha/kernel/irq_impl.h	2004-06-22 07:25:52.346205336 -0700
+@@ -46,26 +46,13 @@
+ static inline void
+ alpha_do_profile(unsigned long pc)
+ {
+-	extern char _stext;
+-
+-	if (!prof_buffer)
++	if (!profiling_on())
+ 		return;
+ 
+ 	/*
+ 	 * Only measure the CPUs specified by /proc/irq/prof_cpu_mask.
+ 	 * (default is all CPUs.)
+ 	 */
+-	if (!((1<<smp_processor_id()) & prof_cpu_mask))
+-		return;
+-
+-	pc -= (unsigned long) &_stext;
+-	pc >>= prof_shift;
+-	/*
+-	 * Don't ignore out-of-bounds PC values silently,
+-	 * put them into the last histogram slot, so if
+-	 * present, they will show up as a sharp peak.
+-	 */
+-	if (pc > prof_len - 1)
+-		pc = prof_len - 1;
+-	atomic_inc((atomic_t *)&prof_buffer[pc]);
++	if ((1<<smp_processor_id()) & prof_cpu_mask)
++		profile_tick(pc);
+ }

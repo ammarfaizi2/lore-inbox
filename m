@@ -1,80 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTEVO4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 10:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTEVO4K
+	id S261923AbTEVPHU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 11:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTEVPHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 10:56:10 -0400
-Received: from isp247n.hispeed.ch ([62.2.95.247]:61352 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S261916AbTEVO4I convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 10:56:08 -0400
-From: Fabiano Sidler <fabianosidler@swissonline.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel unable to load modules
-Date: Thu, 22 May 2003 17:09:09 +0200
-User-Agent: KMail/1.5
-PGP-key: Chaibs
+	Thu, 22 May 2003 11:07:19 -0400
+Received: from mail.uptime.at ([62.116.87.11]:3298 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id S261923AbTEVPHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 11:07:17 -0400
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Sven Krohlas'" <darkshadow@web.de>, <marcelo@conectiva.com.br>,
+       <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+Date: Thu, 22 May 2003 17:19:08 +0200
+Organization: UPtime system solutions
+Message-ID: <004a01c32075$7e2a7500$020b10ac@pitzeier.priv.at>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305221709.11147.fabianosidler@swissonline.ch>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <3EBE9FB1.7040102@web.de>
+X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
+X-MailScanner: clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-6.6, required 4.8,
+	BAYES_01, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
+	REPLY_WITH_QUOTES)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all folks!
+Sven Krohlas <darkshadow@web.de> wrote:
+> > Here goes release canditate 2. The aic7xxx problems should be fixed.
+> 
+> I've still got the same stability problems as with rc1.
+> I booted rc2 and it was working fine for two or three hours. 
+> Then I thought "Hey, while I go to work I could rip and 
+> encode a CD". Well, so did I, and just as it started to rip 
+> the 2nd track (and to encode the first one with oggenc) the 
+> system froze. Sound stopped playing, the mouse froze, nothing 
+> worked.
 
-I hope I'm posting this to the right list:
-Recently, I wanted to set up my box to kernel 2.4.20 and I built a kernel as I 
-made it many times before. But from now on, my kernels are not longer able to 
-load modules. Meanwhile I' ve built kernels with most of gcc versions (2.95.3 
-- 3.3) and linux versions 2.4.18 - 20, but without any success. The modutils 
-are up to date (gentoo .ebuild) and I removed the modules dir and ran 'make 
-mrproper'.
+You didn't see a kernel panic as well? I'm asking, because I have the same
+problems with one of my machines...
 
-This error I get trying to load a module:
-***
-root@tinagrar:~ $ modprobe 3c59x
-/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: unresolved symbol 
-del_timer_sync
-/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: unresolved symbol 
-xquad_portio
-/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: insmod 
-/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o failed
-/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: insmod 3c59x failed
-***
+When was this problem introduced? Does 2.4.19, or 2.4.20 work well?
 
-While booting the kernel, following problems ocurr:
-***...
-Ps_execute: method failed - \_SB_.PCI0.SBRG.PS2M._STA (c7f5cee8)
-evregion-0302 [-13] Ev_address_space_dispa: Region handler: AE_ERROR 
-[PCIConfig]
- dswexec-0392 [-22] Ds_exec_end_op        : [LNot]: Could not resolve 
-operands, AE_ERROR
-Ps_execute: method failed - \_SB_.PCI0.SBRG.FDC0._STA (c7f5af48)
-  uteval-0337 [-29] Ut_execute_STA        : _STA on FDC0 failed AE_ERROR
-evregion-0302 [-11] Ev_address_space_dispa: Region handler: AE_ERROR 
-[PCIConfig]
- dswexec-0392 [-20] Ds_exec_end_op        : [LNot]: Could not resolve 
-operands, AE_ERROR
-[10000... times]
-...
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 94M
-agpgart: no supported devices found.
-[drm] Initialized tdfx 1.0.0 20010216 on minor 0
-[drm] Initialized radeon 1.1.1 20010405 on minor 1
-[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
-SCSI subsystem driver Revision: 1.00
-kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
-...
-***
+> As before I found nothing in the logs.
 
-That's all I can report, if you need my .config file for autopsy, please ask! 
-;) (But I don't think that something is wrong there)
+Me too. The system freezes completly. I believed it's a problem with the
+temperature at our server housing location, but it seems it is not (mounted
+additional fans during the night and now the system is dead again).
 
-Thank you for helping people!
-fps
+[ ... ] 
+
+> My system is a AMD K6-2+, Asus P5A, SB AWE 64 ISA PnP (I used 
+> Alsa 0.9.2, but in rc1 I also had problems without it), 
+> nVidia TNT, two cheap network cards and a few disks.
+
+My one is a Dual-P III 1GHz... I have no USB, Sound or that stuff enabled...
+It's also a SCSI-only system if this does matter...
+
+Best regards,
+ Oliver
 

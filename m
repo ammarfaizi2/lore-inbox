@@ -1,117 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132347AbQK3Abv>; Wed, 29 Nov 2000 19:31:51 -0500
+        id <S132276AbQK3Ael>; Wed, 29 Nov 2000 19:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132369AbQK3Abl>; Wed, 29 Nov 2000 19:31:41 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:10023 "EHLO
-        nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-        id <S132347AbQK3Abc>; Wed, 29 Nov 2000 19:31:32 -0500
-Message-ID: <3A255CEB.A598A811@linux.com>
-Date: Wed, 29 Nov 2000 11:45:47 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+        id <S132369AbQK3Aeb>; Wed, 29 Nov 2000 19:34:31 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:25107 "HELO hermes.mixx.net")
+        by vger.kernel.org with SMTP id <S132276AbQK3AeV>;
+        Wed, 29 Nov 2000 19:34:21 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: [PATCH] Re: 2.4.0-test11 ext2 fs corruption
+Date: Thu, 30 Nov 2000 01:03:37 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A259959.89EAD4DE@innominate.de>
+In-Reply-To: <E2BA5DE1AE9@vcnet.vc.cvut.cz> <Pine.GSO.4.21.0011281520100.11331-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 975542631 1618 10.0.0.90 (30 Nov 2000 00:03:51 GMT)
+X-Complaints-To: news@innominate.de
+To: Alexander Viro <viro@math.psu.edu>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
 X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [oops] test12-2, yet another apm related oops
-Content-Type: multipart/mixed;
- boundary="------------0CC8B5F9752F43CD50B4658F"
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------0CC8B5F9752F43CD50B4658F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Alexander Viro wrote:
+> Bloody hell...
 
-Unable to handle kernel NULL pointer dereference at virtual address
-000000fc
-c02b3527
-*pde = 02253067
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c02b3527>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010293
-eax: 00000000   ebx: c90cb800   ecx: c03826a8   edx: 00000001
-esi: 00000003   edi: c13a4400   ebp: 00000000   esp: cbf7bf00
-ds: 0018   es: 0018   ss: 0018
-Process kapm-idled (pid: 2, stackpage=cbf7b000)
-Stack: bcbc2507 00000000 c90cb800 c02b7894 bcbc2507 c90cb800 00000001
-c13a4200
-       c0253c9a c90cb800 c13a4200 00000003 00000000 c0253e61 c0253e79
-c13a4400
-       cbf07be0 c0253f06 c13a4200 c0115d71 cbf07be0 00000000 00000003
-cbf07bfc
-Call Trace: [<c02b7894>] [<c0253c9a>] [<c0253e61>] [<c0253e79>]
-[<c0253f06>] [<c0115d71>] [<c0115e05>]
-       [<c0110d19>] [<c0110f6b>] [<c011108b>] [<c0111155>] [<c02e603c>]
-[<c0111a5a>] [<c01095db>] [<c01095e4>]
-Code: 8b 80 fc 00 00 00 50 e8 b1 b9 00 00 89 c3 83 c4 0c 85 db 74
->>EIP; c02b3527 <irlmp_unregister_link+23/98>   <=====
-Trace; c02b7894 <irlap_close+78/c0>
-Trace; c0253c9a <nsc_ircc_net_close+92/100>
-Trace; c0253e61 <nsc_ircc_suspend+15/3c>
-Trace; c0253e79 <nsc_ircc_suspend+2d/3c>
-Trace; c0253f06 <nsc_ircc_pmproc+22/30>
-Trace; c0115d71 <pm_send+2d/58>
-Trace; c0115e05 <pm_send_all+2d/5c>
-Trace; c0110d19 <send_event+21/70>
-Trace; c0110f6b <check_events+f7/19c>
-Trace; c011108b <apm_event_handler+7b/7c>
-Trace; c0111155 <apm_mainloop+c9/100>
-Trace; c02e603c <error_table+4f8/39a4>
-Trace; c0111a5a <apm+28a/29c>
-Trace; c01095db <kernel_thread+1f/38>
-Trace; c01095e4 <kernel_thread+28/38>
-Code;  c02b3527 <irlmp_unregister_link+23/98>
-00000000 <_EIP>:
-Code;  c02b3527 <irlmp_unregister_link+23/98>   <=====
-   0:   8b 80 fc 00 00 00         mov    0xfc(%eax),%eax   <=====
-Code;  c02b352d <irlmp_unregister_link+29/98>
-   6:   50                        push   %eax
-Code;  c02b352e <irlmp_unregister_link+2a/98>
-   7:   e8 b1 b9 00 00            call   b9bd <_EIP+0xb9bd> c02beee4
-<hashbin_remove+0/17c>
-Code;  c02b3533 <irlmp_unregister_link+2f/98>
-   c:   89 c3                     mov    %eax,%ebx
-Code;  c02b3535 <irlmp_unregister_link+31/98>
-   e:   83 c4 0c                  add    $0xc,%esp
-Code;  c02b3538 <irlmp_unregister_link+34/98>
-  11:   85 db                     test   %ebx,%ebx
-Code;  c02b353a <irlmp_unregister_link+36/98>
-  13:   74 00                     je     15 <_EIP+0x15> c02b353c
-<irlmp_unregister_link+38/98>
+I don't know if this is the bug he's got, in fact I doubt it, but it's a
+bug and it needs fixing.  The problem is, ext2_get_group_desc
+effectively returns two results; one of them is being assigned from on
+conditional paths and the other isn't.  This bug will cause - on very
+rare occasions - the wrong group descriptor block to be marked dirty,
+and changes might be lost.  I think what we'd see as a result is wrong
+block, inode and directory counts.
 
--d
+The fix below is kind of gross.  The way I really want to do the fix is
+to remove one parameter from ext2_get_group_desc and thereby get rid of
+the troublesome side effect for good, but that kind of change isn't
+compatible with 'code freeze'.
 
+(linux.2.4.0-test11)
 
---------------0CC8B5F9752F43CD50B4658F
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
+--- fs/ext2/ialloc.c.old	Thu Nov 30 00:36:02 2000
++++ fs/ext2/ialloc.c	Thu Nov 30 00:36:39 2000
+@@ -260,7 +260,7 @@
+ {
+ 	struct super_block * sb;
+ 	struct buffer_head * bh;
+-	struct buffer_head * bh2;
++	struct buffer_head * bh2, * tmpbh2;
+ 	int i, j, avefreei;
+ 	struct inode * inode;
+ 	int bitmap_nr;
+@@ -293,10 +293,11 @@
+ /* I am not yet convinced that this next bit is necessary.
+ 		i = dir->u.ext2_i.i_block_group;
+ 		for (j = 0; j < sb->u.ext2_sb.s_groups_count; j++) {
+-			tmp = ext2_get_group_desc (sb, i, &bh2);
++			tmp = ext2_get_group_desc (sb, i, &tmpbh2);
+ 			if (tmp &&
+ 			    (le16_to_cpu(tmp->bg_used_dirs_count) << 8) < 
+ 			     le16_to_cpu(tmp->bg_free_inodes_count)) {
++				bh2 = tmpbh2;
+ 				gdp = tmp;
+ 				break;
+ 			}
+@@ -306,7 +307,7 @@
+ */
+ 		if (!gdp) {
+ 			for (j = 0; j < sb->u.ext2_sb.s_groups_count; j++) {
+-				tmp = ext2_get_group_desc (sb, j, &bh2);
++				tmp = ext2_get_group_desc (sb, j, &tmpbh2);
+ 				if (tmp &&
+ 				    le16_to_cpu(tmp->bg_free_inodes_count) &&
+ 				    le16_to_cpu(tmp->bg_free_inodes_count) >= avefreei) {
+@@ -314,6 +315,7 @@
+ 					    (le16_to_cpu(tmp->bg_free_blocks_count) >
+ 					     le16_to_cpu(gdp->bg_free_blocks_count))) {
+ 						i = j;
++						bh2 = tmpbh2;
+ 						gdp = tmp;
+ 					}
+ 				}
+@@ -326,11 +328,11 @@
+ 		 * Try to place the inode in its parent directory
+ 		 */
+ 		i = dir->u.ext2_i.i_block_group;
+-		tmp = ext2_get_group_desc (sb, i, &bh2);
+-		if (tmp && le16_to_cpu(tmp->bg_free_inodes_count))
++		tmp = ext2_get_group_desc (sb, i, &tmpbh2);
++		if (tmp && le16_to_cpu(tmp->bg_free_inodes_count)) {
++			bh2 = tmpbh2;
+ 			gdp = tmp;
+-		else
+-		{
++		} else {
+ 			/*
+ 			 * Use a quadratic hash to find a group with a
+ 			 * free inode
+@@ -339,9 +341,10 @@
+ 				i += j;
+ 				if (i >= sb->u.ext2_sb.s_groups_count)
+ 					i -= sb->u.ext2_sb.s_groups_count;
+-				tmp = ext2_get_group_desc (sb, i, &bh2);
++				tmp = ext2_get_group_desc (sb, i, &tmpbh2);
+ 				if (tmp &&
+ 				    le16_to_cpu(tmp->bg_free_inodes_count)) {
++					bh2 = tmpbh2;
+ 					gdp = tmp;
+ 					break;
+ 				}
+@@ -355,9 +358,10 @@
+ 			for (j = 2; j < sb->u.ext2_sb.s_groups_count; j++) {
+ 				if (++i >= sb->u.ext2_sb.s_groups_count)
+ 					i = 0;
+-				tmp = ext2_get_group_desc (sb, i, &bh2);
++				tmp = ext2_get_group_desc (sb, i, &tmpbh2);
+ 				if (tmp &&
+ 				    le16_to_cpu(tmp->bg_free_inodes_count)) {
++					bh2 = tmpbh2;
+ 					gdp = tmp;
+ 					break;
+ 				}
 
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-url:www.blue-labs.org
-adr:;;;;;;
-version:2.1
-email;internet:david@blue-labs.org
-title:Blue Labs Developer
-note;quoted-printable:GPG key: http://www.blue-labs.org/david@nifty.key=0D=0A
-x-mozilla-cpt:;9952
-fn:David Ford
-end:vcard
-
---------------0CC8B5F9752F43CD50B4658F--
-
-
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

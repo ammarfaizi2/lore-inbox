@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSJTR2g>; Sun, 20 Oct 2002 13:28:36 -0400
+	id <S263310AbSJTRbm>; Sun, 20 Oct 2002 13:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263319AbSJTR2g>; Sun, 20 Oct 2002 13:28:36 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:56076 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S263313AbSJTR2f>; Sun, 20 Oct 2002 13:28:35 -0400
-Date: Sun, 20 Oct 2002 13:34:38 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021020173438.GK696@phunnypharm.org>
-References: <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org> <20021019161201.A26017@work.bitmover.com> <3DB1EAAB.30401@pobox.com> <20021020154609.GD696@phunnypharm.org> <3DB2E661.8070802@pobox.com>
+	id <S263319AbSJTRbm>; Sun, 20 Oct 2002 13:31:42 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:39716 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263310AbSJTRbl>;
+	Sun, 20 Oct 2002 13:31:41 -0400
+Message-Id: <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 20 Oct 2002 19:34:49 +0200
+To: Thomas Molina <tmolina@cox.net>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: loadlin with 2.5.?? kernels
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0210200814210.6555-100000@dad.molina>
+References: <5.1.0.14.2.20021020144138.00b40438@wen-online.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB2E661.8070802@pobox.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> The whole point of the copyright assignment is that FSF becomes 
-> copyright owner.
-> 
-> This is so that Jeff Garzik cannot be strongarmed into changing the 
-> license on his code, or some other anti-software-freedom tactic levied 
-> against me in the future.  In theory, the FSF as an organization will 
-> protect the rights of the software when I might weaken and give in.
-> 
-> But in exchange for that protection, you are willingly giving up your 
-> rights as copyright owner...  Less freedom for [hopefully] better 
-> protection.  Just like everything in life, it's a tradeoff... :)
-> 
+At 08:17 AM 10/20/2002 -0500, Thomas Molina wrote:
+>On Sun, 20 Oct 2002, Mike Galbraith wrote:
+>
+> > Greetings,
+> >
+> > I hadn't had time to build/test kernels since 2.5.8-pre3.  I now find that
+> > loadlin doesn't work on my box any more.  Is this a known problem?  If so,
+> > when did it quit working?  (loadlin obsolete?  other?)
+>
+>I'm carrying an open problem report from Rene Blokland on this issue.
+>What version of the kernel did you try?
 
-I disagree. I don't see anything in the copyright assignment (and I have
-signed a few for the FSF) that says I don't retain original copyright
-for my work.
+Only 2.5.42.virgin, 2.5.42-mm, 2.5.43-mm and 2.5.44.virgin.  Binary search 
+pending.
+
+         -Mike
 
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

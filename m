@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271841AbRIQQQv>; Mon, 17 Sep 2001 12:16:51 -0400
+	id <S271787AbRIQQVb>; Mon, 17 Sep 2001 12:21:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271777AbRIQQQc>; Mon, 17 Sep 2001 12:16:32 -0400
-Received: from mailhost.opengroup.fr ([62.160.165.1]:5514 "EHLO
-	mailhost.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S271809AbRIQQQ0>; Mon, 17 Sep 2001 12:16:26 -0400
-Date: Mon, 17 Sep 2001 18:16:48 +0200 (CEST)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
-Subject: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
-Message-ID: <Pine.LNX.4.31.0109171725140.26090-100000@sisley.ri.silicomp.fr>
+	id <S271777AbRIQQVV>; Mon, 17 Sep 2001 12:21:21 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:47460 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S271798AbRIQQVP> convert rfc822-to-8bit; Mon, 17 Sep 2001 12:21:15 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: Juan <piernas@ditec.um.es>, linux-kernel@vger.kernel.org
+Subject: Re: Ext3 journal on its own device?
+Date: Mon, 17 Sep 2001 18:20:41 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es>
+In-Reply-To: <3BA61CC0.C9ECC8A0@ditec.um.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E15j19N-0006Gh-00@mrvdom03.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> I have been browsing the Ext3 source (version 0.0.7a), and it seems
+> impossible to use a block device as an Ext3 journal. Is that true?.
 
-One of my coworkers directed my attention to the implementation of
-spinlocks on IA-32. In spin_lock_string, we can read:
+As the actual version of ext3 is 0.99 you should consider an update....
+It is possible to have the ext3 journal on a second device with ext3 0.95 or 
+higher.
 
-	"cmpb $0,%0\n\t" \
-	"rep;nop\n\t" \
-	"jle 2b\n\t" \
+Check out http://www.uow.edu.au/~andrewm/linux/ext3/ext3-usage.html
 
-The "rep;nop" line looks dubious, since the IA-32 programmer's manual from
-Intel (year 2001) mentions that the behaviour of REP is undefined when it
-is not used with string opcodes. BTW, according to the same manual, REP is
-supposed to modify ecx, but it looks like is is not the case here... which
-is fortunate, since ecx is never saved. :-)
+greetings 
 
-What is the intent behind this "rep;nop" ? Does it really rely on an
-undocumented behaviour ?
-
-
-Regards,
-
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:saffroy@ri.silicomp.fr
-
+Christian Bornträger

@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUIOQiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUIOQKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUIOQiA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUIOQLI
+	id S266657AbUIOQKf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUIOQJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:11:08 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40633 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266708AbUIOQGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:06:42 -0400
-Subject: Re: 2.6.9 rc2 freezing
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Ricky Beam <jfbeam@bluetronic.net>,
-       Zilvinas Valinskas <zilvinas@gemtek.lt>,
-       Erik Tews <erik@debian.franken.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <41486691.3080202@pobox.com>
-References: <Pine.GSO.4.33.0409151047560.10693-100000@sweetums.bluetronic.net>
-	 <1095263296.2406.141.camel@krustophenia.net>  <41486691.3080202@pobox.com>
-Content-Type: text/plain
-Message-Id: <1095264408.2406.148.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 15 Sep 2004 12:06:48 -0400
+	Wed, 15 Sep 2004 12:09:25 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:3739 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S266650AbUIOQIy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 12:08:54 -0400
+Message-ID: <4148691F.8050701@tmr.com>
+Date: Wed, 15 Sep 2004 12:09:03 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+CC: Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
+Subject: Re: Latest microcode data from Intel.
+References: <Pine.LNX.4.44.0409151641430.3504-100000@einstein.homenet><Pine.LNX.4.44.0409151641430.3504-100000@einstein.homenet> <20040915155215.GB24892@redhat.com>
+In-Reply-To: <20040915155215.GB24892@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 11:58, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > On Wed, 2004-09-15 at 10:55, Ricky Beam wrote:
-> > 
-> >>On Wed, 15 Sep 2004, Zilvinas Valinskas wrote:
-> >>
-> >>>Perhaps that is mixture of PREEMPT=y and ipsec ? dunno ...
-> >>
-> >>No mixture necessary.  PREEMPT is uber-screwed up.  Try rebuilding your
-> >>kernel/modules with it disabled. (make clean first; the kernel deps don't
-> >>track CONFIG_PREEMPT correctly.)
-> > 
-> > 
-> > Um, PREEMPT works just fine.  Anything that breaks on PREEMPT will also
-> > break on SMP.  And the kernel deps do track CONFIG_PREEMPT correctly.
+Dave Jones wrote:
+> On Wed, Sep 15, 2004 at 04:43:59PM +0100, Tigran Aivazian wrote:
 > 
+>  > The microcode driver handles the case of different types of CPUs in an SMP 
+>  > system internally. Namely, it selects the appropriate microcode data 
+>  > chunks for each CPU and then uploads them correctly to each one. Anyway, 
+>  > it only works for Intel processors, so AMD is not in the equation anyway 
+>  > (unless I discover that AMD processors support similar feature and enhance 
+>  > the driver to support it).
+
+Okay, then there was no need to patch the load program other than "it 
+makes me feel better" to use the per-CPU loader if present ;-) I've 
+spent more time for less benefit on other software, so I don't feel bad.
 > 
-> PREEMPT is a hack.  I do not recommend using it on production servers.
+> They do support the feature, but AMD folks have stated on this list that they
+> don't intend to release any updates other than through their
+> conventional means (Ie, BIOS updates).
+
+That's fine as long as you run some approved BIOS, your vendor provides 
+timely updates, etc. Having been on the wrong end of a few cases where a 
+BIOS "upgrade" broke something, I confess to liking the separation of 
+functionality.
 > 
+> There was a post just 2-3 weeks ago where someone patched microcode.c to
+> work on AMD64s.
 
-Not every Linux machine is a server.  Just because you can't bang a
-square peg through a round hole does not mean the peg is defective.
-
-Anyway, if you are running anything on your server that breaks under
-PREEMPT, it will break anyway as soon as you add another processor.
-
-Lee
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

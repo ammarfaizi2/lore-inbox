@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSAITsE>; Wed, 9 Jan 2002 14:48:04 -0500
+	id <S288978AbSAITse>; Wed, 9 Jan 2002 14:48:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288979AbSAITro>; Wed, 9 Jan 2002 14:47:44 -0500
-Received: from [216.151.155.108] ([216.151.155.108]:17419 "EHLO
-	varsoon.denali.to") by vger.kernel.org with ESMTP
-	id <S288978AbSAITri>; Wed, 9 Jan 2002 14:47:38 -0500
-To: Rob Landley <landley@trommello.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: can we make anonymous memory non-EXECUTABLE?
-In-Reply-To: <Pine.LNX.4.33L.0201090049390.2985-100000@imladris.surriel.com>
-	<3C3BB05D.1040501@zytor.com>
-	<200201091919.g09JJtA26375@snark.thyrsus.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 09 Jan 2002 14:47:32 -0500
-In-Reply-To: Rob Landley's message of "Wed, 9 Jan 2002 06:32:39 -0500"
-Message-ID: <m3666b8fxn.fsf@varsoon.denali.to>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
+	id <S288979AbSAITs1>; Wed, 9 Jan 2002 14:48:27 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4759
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288978AbSAITsP>; Wed, 9 Jan 2002 14:48:15 -0500
+Message-Id: <200201091932.g09JW9A27178@snark.thyrsus.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@zip.com.au (Andrew Morton)
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Wed, 9 Jan 2002 06:44:52 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16OM59-0001hQ-00@the-village.bc.nu>
+In-Reply-To: <E16OM59-0001hQ-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@trommello.org> writes:
+On Wednesday 09 January 2002 12:00 pm, Alan Cox wrote:
+> > The high-end audio synth guys claim that two milliseconds is getting
+> > to be too much.  They are generating real-time audio and they do
+> > have more than one round-trip through the software.  It adds up.
+>
+> Most of the stuff I've seen from high end audio people consists of
+> overthreaded, chains of code written without any consideration for the
+> actual cost of execution. There are exceptions - including
+> people dynamically compiling filters to get ideal cache and latency
+> behaviour, but not enough.
+>
+> Alan
 
-> Glibc does mmap instead of brk because theoretically brk can leave wasted 
-> memory between fragments, although apparently nobody's ever seen more than 
-> 10% waste in a live program, and the speed penality of taking a soft page 
-> fault at access time to muck about with the page tables is a LOT bigger than 
-> 10%...
+News flash: people are writing sub-optimal apps in user space.
 
-The other reason glibc uses mmap() is because your shared libraries
-are (usually) mapped smack dab in the middle of your address space.
-brk() assumes a contiguous heap, so when it hits your libraries, it
-has to stop, even if there is a gig of VM above the libs.  mmap() can
-give you an arbitrary chunk of the address space, so glibc uses it for
-'large' allocations.
+Do you want an operating system capable of running real-world code written by 
+people who know more about their specific problem domain (audio) than about 
+optimal coding in general, or do you want an operating system intended to 
+only run well-behaved applications designed and implemented by experts?
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+Rob

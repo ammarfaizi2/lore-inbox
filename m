@@ -1,67 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262172AbSJFUX3>; Sun, 6 Oct 2002 16:23:29 -0400
+	id <S262178AbSJFUas>; Sun, 6 Oct 2002 16:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262177AbSJFUX3>; Sun, 6 Oct 2002 16:23:29 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:49497 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S262172AbSJFUX2>;
-	Sun, 6 Oct 2002 16:23:28 -0400
-Date: Sun, 6 Oct 2002 22:28:59 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: scheduling while atomic! (bk-curr)
-Message-ID: <20021006202858.GC2455@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+JUInw4efm7IfTNU"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S262181AbSJFUas>; Sun, 6 Oct 2002 16:30:48 -0400
+Received: from daimi.au.dk ([130.225.16.1]:54193 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S262178AbSJFUar>;
+	Sun, 6 Oct 2002 16:30:47 -0400
+Message-ID: <3DA09EBE.D9E2E148@daimi.au.dk>
+Date: Sun, 06 Oct 2002 22:36:14 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-10smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4: introduce get_cpu() and put_cpu()
+References: <1033933547.743.4472.camel@phantasy>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love wrote:
+> 
+> diff -urN linux-2.4.20-pre9/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
+> --- linux-2.4.20-pre9/arch/i386/kernel/ioport.c 2002-10-06 14:58:01.000000000 -0400
+> +++ linux/arch/i386/kernel/ioport.c     2002-10-06 15:21:04.000000000 -0400
+> @@ -55,12 +55,15 @@
+>  asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
+>  {
+>         struct thread_struct * t = &current->thread;
+> -       struct tss_struct * tss = init_tss + smp_processor_id();
+> +       struct tss_struct * tss;
+> 
+>         if ((from + num <= from) || (from + num > IO_BITMAP_SIZE*32))
+>                 return -EINVAL;
+>         if (turn_on && !capable(CAP_SYS_RAWIO))
+>                 return -EPERM;
+> +
+> +       tss = init_tss + get_cpu();
+> +
+>         /*
+>          * If it's the first ioperm() call in this thread's lifetime, set the
+>          * IO bitmap up. ioperm() is much less timing critical than clone(),
 
---+JUInw4efm7IfTNU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To me it really looks like you are missing a put_cpu() call somewhere.
+I know it is a no-op, but since you intend to show how to use it, I
+it really ought to be there.
 
-Hi,
+Does this look right?
 
-Alopogies if this has been reported before but I get the
-following booting a dual P100 on a preemp SMP BK-curr (2 hours
-ago) kernel:
+diff -Nur linux.old/arch/i386/kernel/ioport.c linux.new/arch/i386/kernel/ioport.c
+--- linux.old/arch/i386/kernel/ioport.c	Sun Oct  6 22:33:22 2002
++++ linux.new/arch/i386/kernel/ioport.c	Sun Oct  6 22:33:53 2002
+@@ -87,6 +87,8 @@
+ 	set_bitmap(t->io_bitmap, from, num, !turn_on);
+ 	set_bitmap(tss->io_bitmap, from, num, !turn_on);
+ 
++	put_cpu();
++
+ 	return 0;
+ }
+ 
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0118cee>] E schedule+0x3e/0x4a0
- [<c011b6a7>] E __might_sleep+0x57/0x1d8838
- [<c011958c>] E wait_for_completion+0x11c/0xffffff50
- [<c01191a0>] E default_wake_function+0x0/0x90
- [<c0117f28>] E global_flush_tlb+0x698/0x6190
- [<c01191a0>] E default_wake_function+0x0/0x90
- [<c011b031>] E GPLONLY_set_cpus_allowed+0x251/0x23e6a0
- [<c012f6b7>] E GPLONLY_queue_delayed_work+0x177/0x570
- [<c01191a0>] E default_wake_function+0x0/0x90
- [<c011820d>] E wake_up_process+0x2cd/0x1980
- [<c01191a0>] E default_wake_function+0x0/0x90
- [<c012f5e0>] E GPLONLY_queue_delayed_work+0xa0/0x570
- [<c0107169>] E enable_hlt+0x1f9/0x1e280
-
-Regards,
-  Rasmus
-
---+JUInw4efm7IfTNU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9oJ0KlZJASZ6eJs4RAlw0AJ0YFRfnL1cm215hObJqf7nNQsw38QCfTvZV
-0RoSSG2Rz2K8v9or5vcB34E=
-=58PO
------END PGP SIGNATURE-----
-
---+JUInw4efm7IfTNU--
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

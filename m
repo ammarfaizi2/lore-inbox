@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVC3B4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVC3CII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVC3B4y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 20:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVC3B4y
+	id S261716AbVC3CII (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 21:08:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVC3CII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 20:56:54 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:62805 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261418AbVC3B4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 20:56:47 -0500
-Message-ID: <424A075E.6080100@yahoo.com.au>
-Date: Wed, 30 Mar 2005 11:56:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: Linus Torvalds <torvalds@osdl.org>, "'Andrew Morton'" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-References: <200503300138.j2U1cJg03717@unix-os.sc.intel.com>
-In-Reply-To: <200503300138.j2U1cJg03717@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Mar 2005 21:08:08 -0500
+Received: from main.gmane.org ([80.91.229.2]:26845 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261716AbVC3CID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 21:08:03 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [PATCH] embarassing typo
+Date: Wed, 30 Mar 2005 04:07:39 +0200
+Message-ID: <yw1xu0mtzy1g.fsf@ford.inprovide.com>
+References: <1112128584.25954.6.camel@tux.lan> <yw1xd5ti17z6.fsf@ford.inprovide.com>
+ <4249CFA1.7050907@tls.msk.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:RIVdTBfWsaSM0A4DFuoDp8Rw0mk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Nick Piggin wrote on Tuesday, March 29, 2005 5:32 PM
-> 
->>If it is doing a lot of mapping/unmapping (or fork/exit), then that
->>might explain why 2.6.11 is worse.
+Michael Tokarev <mjt@tls.msk.ru> writes:
+
+> Måns Rullgård wrote:
+>> "Ronald S. Bultje" <rbultje@ronald.bitfreak.net> writes:
 >>
->>Fortunately there are more patches to improve this on the way.
-> 
-> 
-> Once benchmark reaches steady state, there is no mapping/unmapping
-> going on.  Actually, the virtual address space for all the processes
-> are so stable at steady state that we don't even see it grow or shrink.
-> 
+>>>--- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
+>>>+++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
+>>>@@ -419,7 +419,7 @@
+>>> 	dri_data[2] = 0x00;
+>>> 	dri_data[3] = 0x04;
+>>> 	dri_data[4] = ptr->dri >> 8;
+>>>-	dri_data[5] = ptr->dri * 0xff;
+>>>+	dri_data[5] = ptr->dri & 0xff;
+>> Hey, that's a nice obfuscation of a simple negation.
+>
+> It's not a negation.  This statement always assigns zero to
+> dri_data[5] if dri_data is char[].
 
-Oh, well there goes that theory ;)
+Sure about that?
 
-The only other thing I can think of is the CPU scheduler changes
-that went into 2.6.11 (but there are obviously a lot that I can't
-think of).
+__u16 i;
+char c;
+i = 1; c = i * 255; /* c = 255 = -1 */
+i = 2; c = i * 255; /* c = 510 & 0xff = 254 = -2 */
+...
 
-I'm sure I don't need to tell you it would be nice to track down
-the source of these problems rather than papering over them with
-improvements to the block layer... any indication of what has gone
-wrong?
+Looks like negation to me.
 
-Typically if the CPU scheduler has gone bad and is moving too many
-tasks around (and hurting caches), you'll see things like copy_*_user
-increase in cost for the same units of work performed. Wheras if it
-is too reluctant to move tasks, you'll see increased idle time.
-
+-- 
+Måns Rullgård
+mru@inprovide.com
 

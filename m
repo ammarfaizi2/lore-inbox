@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUK0RRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbUK0RTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbUK0RRF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 12:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbUK0RQI
+	id S261282AbUK0RTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 12:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUK0RRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 12:16:08 -0500
-Received: from gprs214-89.eurotel.cz ([160.218.214.89]:49793 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261269AbUK0ROT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 12:14:19 -0500
-Date: Sat, 27 Nov 2004 18:13:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rik van Riel <riel@redhat.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, akpm@osdl.org, torvalds@osdl.org,
-       hbryan@us.ibm.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041127171318.GA1319@elf.ucw.cz>
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org> <E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu> <20041118130601.6ee8bd97.akpm@osdl.org> <E1CV6vf-0006q1-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.61.0411271200580.12575@chimarrao.boston.redhat.com>
+	Sat, 27 Nov 2004 12:17:17 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:43444 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261275AbUK0RQ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 12:16:56 -0500
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, Tonnerre <tonnerre@thundrix.ch>,
+       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+In-Reply-To: <41A8AF8F.8060005@osdl.org>
+References: <19865.1101395592@redhat.com>
+	 <20041127042942.GA10774@pauli.thundrix.ch>
+	 <20041127035113.GK29035@parcelfarce.linux.theplanet.co.uk>
+	 <41A8AF8F.8060005@osdl.org>
+Content-Type: text/plain
+Message-Id: <1101575782.21273.5347.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411271200580.12575@chimarrao.boston.redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 27 Nov 2004 17:16:22 +0000
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 2004-11-27 at 08:47 -0800, Randy.Dunlap wrote:
+> Speaking of more explicit, there are various asm-ARCH header
+> files that do or do not hide (via __KERNEL__) interfaces
+> such as:	get_unaligned()
+> and the atomic operations.
+> 
+> So are these Linux kernel exported APIs, or do they belong
+> in some library?
 
-> >The solution I'm thinking is along the lines of accounting the number
-> >of writable pages assigned to FUSE filesystems.  Limiting this should
-> >solve the deadlock problem.  This would only impact performance for
-> >shared writable mappings, which are rare anyway.
-> 
-> Note that NFS, and any filesystems on iSCSI or g/e/ndb block
-> devices have the exact same problem.  To explain why this is
-> the case, lets start with the VM allocation and pageout
-> thresholds:
-> 
->   pages_min ------------------
-> 
->  GFP_ATOMIC ------------------
-> 
-> PF_MEMALLOC ------------------
-> 
-> 	  0 ------------------
-> 
-> When writing out a dirty page, the pageout code is allowed
-> to allocate network buffers down to the PF_MEMALLOC boundary.
-> 
-> However, when receiving the ACK network packets from the server,
-> the network stack is only allowed to allocate memory down to the
-> GFP_ATOMIC watermark.
+Both of those are kernel-private and should not be visible.
 
-Ouch... Shame on me, I never realized that this is a problem. I knew
-that swapping over nbd does not work, but I did not realize that
-writeout is as critical as swapping...
-
-:-(. This means that read/write nbd is pretty bad idea. I wonder why
-it is not broken for people? Probably noone uses so big ammount of
-data over nbd...
-
-Can you describe that solution? You can do it anonymously if you want
-to ;-)))).
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+dwmw2
+
+

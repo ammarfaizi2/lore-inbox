@@ -1,90 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288977AbSAZBEt>; Fri, 25 Jan 2002 20:04:49 -0500
+	id <S288980AbSAZBIQ>; Fri, 25 Jan 2002 20:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288978AbSAZBEh>; Fri, 25 Jan 2002 20:04:37 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:45830 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288977AbSAZBET>; Fri, 25 Jan 2002 20:04:19 -0500
-Message-ID: <3C51FF0C.D3B1E2F7@zip.com.au>
-Date: Fri, 25 Jan 2002 16:57:48 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall latency improvement #1
-In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com> <Pine.LNX.4.33.0201251626490.2042-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288981AbSAZBIG>; Fri, 25 Jan 2002 20:08:06 -0500
+Received: from ww.olm.fr ([212.43.237.40]:16644 "EHLO www.olm.fr")
+	by vger.kernel.org with ESMTP id <S288978AbSAZBH4>;
+	Fri, 25 Jan 2002 20:07:56 -0500
+Date: Sat, 26 Jan 2002 02:07:45 +0100
+Message-Id: <200201260107.CAA29212@www.olm.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Nouvelles acquisitions / New online
+From: "AaZbooks.com" <aazmace@aazbooks.com>
+Reply-To: <aazmace@aazbooks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 25 Jan 2002, David Howells wrote:
-> >
-> >  * improves base syscall latency by approximately 5.4% (dual PIII) or 3.6%
-> >    (dual Athlon) as measured by lmbench's "lat_syscall null" command against
-> >    the vanilla kernel.
-> 
-> Looking at the code, I suspect that 99.9% of this "improvement" comes from
-> one thing, and one thing only: you removed the "cli" in the system call
-> return path.
 
-Before the cli was in the stock kernel, I had added it in the
-low-latency patch.  Careful testing showed that it added
-13 machine cycles to a system call on a P3.
 
-> ...
-> 
->  - this "atomically return to user mode and test flags" thing needs to be
->    discussed. I'm personally inclined to think that that "cli" is really
->    needed, but 5% on simple system calls is a strong argument.
+Chers bibliophiles,
 
-Correctness first, please.  I bet there are many ways in
-which we can speed the kernel up by more than 13*n_syscalls.
+Cette semaine nous vous proposons nos nouvelles acquisitions (plus de 500). Vous y trouverez par exemple:
 
-<thinks of one>
+SAINTE BEUVE C.A.
+MADAME DESBORDES VALMORE SA VIE ET SA CORRESPONDANCE
+Edition originale (rare). Ouvrage contenant un catalogue de Michl Lévy, libraire éditeur, de 36 p.Broché.IN8. LEVY Paris 1870 
+Réf.: 18337 (107,00 €)
 
-On Intel hardware an open-coded duff-device memcpy is faster
-than copy_to_user for all alignments except mod32->mod32.
-Sometimes up to 25% faster.  
+ou bien encore:
 
-<thinks of another>
+FALLET RENE
+BANLIEUE SUD EST
+Roman. Edition originale (rare). DOMAT Paris 1947
+Réf.: 18313 (45,00 €)
 
-	p = malloc(4096)
-	read(fd, p, 4096)
+En vous souhaitant bonne lecture
 
-the kernel memsets the faulted-in page to zero and then
-immediately copies the pagecache data onto it.  Removal
-of the memset speeds up read() by ~10%.
+Toute l'équipe de AaZbooks.com
 
-<thinks of another>
+-------------------------------------------------------
+Dear bibliophiles,
 
-	s/inline//g
+This week new online 500 books, for example:
 
-<thinks of another>
+SAINTE BEUVE C.A.
+MADAME DESBORDES VALMORE SA VIE ET SA CORRESPONDANCE
+Edition originale (rare). Ouvrage contenant un catalogue de Michl Lévy, libraire éditeur, de 36 p.Broché.IN8. LEVY Paris 1870 
+Réf.: 18337 (107,00 €)
 
-	ext[23] directory inode allocation policy (aargh
-	it's horrid)
+FALLET RENE
+BANLIEUE SUD EST
+Roman. Edition originale (rare). DOMAT Paris 1947
+Réf.: 18313 (45,00 €)
 
-<thinks of another>
+Regards
 
-	page pre-zeroing in the idle thread.
+AaZbooks' Team
 
-There are many ways of speeding up the kernel.  Let's
-concentrate on the biggies.
-
-> NOTE! There are potentially other ways to do all of this, _without_ losing
-> atomicity. For example, you can move the "flags" value into the slot saved
-> for the CS segment (which, modulo vm86, will always be at a constant
-> offset on the stack), and make CS=0 be the work flag. That will cause the
-> CPU to trap atomically at the "iret".
-
-Ingo's low-latency patch put markers around the critical code section,
-and inspected the return EIP on the way back out of the interrupt.
-If it falls inside the racy region, do special stuff.
-
--
+ ----------------------------------------------------------
+AaZbooks.com - BP N°1 - La grande Bruyère - F72320 St-Maixent
+Tel.: +33 (0)2 43 71 00 70  - Fax: +33 (0)2 43 71 29 16 
+http://www.aazbooks.com 
+ ----------------------------------------------------------
+Pour vous désinscrire cliquez ci-dessous 
+http://www.aazbooks.com\lnews\desinscription.php

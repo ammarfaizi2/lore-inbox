@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVC3FiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVC3FkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVC3FiV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 00:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVC3FiU
+	id S261286AbVC3FkP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 00:40:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVC3FkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 00:38:20 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:26510 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261231AbVC3FiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 00:38:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=pCBjISvngdwaTc2obZ3T3TkS9QNt3b4BxBMlJUHYI850hND7xNwUFxNwOZqU2LNQxtJd2oZgZ1ZFZuoME6TV6Hyeg6bT5TUYrJHeSYJ+OtPHOwd88gbkHe3qTKy256aNd9brg6uAXgVCpMDgbGMLyZpszdnYbIJ2SOzX7uzF2CA=
-Message-ID: <69304d110503292138620d4587@mail.gmail.com>
-Date: Wed, 30 Mar 2005 07:38:10 +0200
-From: Antonio Vargas <windenntw@gmail.com>
-Reply-To: Antonio Vargas <windenntw@gmail.com>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: prefetch on ppc64
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-In-Reply-To: <16970.9005.721117.942549@cargo.ozlabs.ibm.com>
+	Wed, 30 Mar 2005 00:40:14 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:39405 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261289AbVC3Fj4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 00:39:56 -0500
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
+       Jay Lan <jlan@engr.sgi.com>, Erich Focht <efocht@hpce.nec.com>,
+       Ram <linuxram@us.ibm.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <20050329072335.52b06462.pj@engr.sgi.com>
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
+	 <20050328134242.4c6f7583.pj@engr.sgi.com> <1112079856.5243.24.camel@uganda>
+	 <20050329004915.27cd0edf.pj@engr.sgi.com>
+	 <1112087822.8426.46.camel@frecb000711.frec.bull.fr>
+	 <20050329072335.52b06462.pj@engr.sgi.com>
+Date: Wed, 30 Mar 2005 07:39:43 +0200
+Message-Id: <1112161183.20919.84.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 30/03/2005 07:49:29,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 30/03/2005 07:49:32,
+	Serialize complete at 30/03/2005 07:49:32
 Content-Transfer-Encoding: 7bit
-References: <20050330034034.GA1752@IBM-BWN8ZTBWA01.austin.ibm.com>
-	 <16970.9005.721117.942549@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005 13:55:25 +1000, Paul Mackerras <paulus@samba.org> wrote:
-> Serge E. Hallyn writes:
+On Tue, 2005-03-29 at 07:23 -0800, Paul Jackson wrote:
+> Guillaume wrote:
+> >   The goal of the fork connector is to inform a user space application
+> > that a fork occurs in the kernel. This information (cpu ID, parent PID
+> > and child PID) can be used by several user space applications. It's not
+> > only for accounting. Accounting and fork_connector are two different
+> > things and thus, fork_connector doesn't do the merge of any kinds of
+> > data (and it will never do). 
 > 
-> > While investigating the inordinate performance impact one of my patches
-> > seemed to be having, we tracked it down to two hlist_for_each_entry
-> > loops, and finally to the prefetch instruction in the loop.
+> Yes - it is clear that the fork_connector does this - inform user space
+> of fork information <cpu, parent, child>.  I'm not saying that
+> fork_connector should merge data; I'm observing that it doesn't, and
+> that this would seem to serve the needs of accounting poorly.
 > 
-> I would be interested to know what results you get if you leave the
-> loops using hlist_for_each_entry but change prefetch() and prefetchw()
-> to do the dcbt or dcbtst instruction only if the address is non-zero,
-> like this:
-> 
-> static inline void prefetch(const void *x)
-> {
->         if (x)
->                 __asm__ __volatile__ ("dcbt 0,%0" : : "r" (x));
-> }
-> 
-> static inline void prefetchw(const void *x)
-> {
->         if (x)
->                 __asm__ __volatile__ ("dcbtst 0,%0" : : "r" (x));
-> }
-> 
-> It seems that doing a prefetch on a NULL pointer, while it doesn't
-> cause a fault, does waste time looking for a translation of the zero
-> address.
-> 
-> Paul.
+> Out of curiosity, what are these 'several user space applications?'  The
+> only one I know of is this extension to bsd accounting to include
+> capturing parent and child pid at fork.  Probably you've mentioned some
+> other uses of fork_connector before here, but I missed it.
 
-Don't know exactly about power5, but G5 processor is described on IBM
-docs as doing automatic whole-page prefetch read-ahead when detecting
-linear accesses.
+During the discussion some people like Erich Focht and Ram mentioned
+that this information can be useful for them. I remember that Erich had
+in mind something like cluster-wide pid tracking in user space. 
 
--- 
-Greetz, Antonio Vargas aka winden of network
+When I wrote "several user space applications" it was just to say that
+this fork connector is not designed only for ELSA and fork information
+is available to every listeners.
 
-http://wind.codepixel.com/
+Regards,
+Guillaume
 
-Las cosas no son lo que parecen, excepto cuando parecen lo que si son.

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbSJAPN4>; Tue, 1 Oct 2002 11:13:56 -0400
+	id <S261660AbSJAP1N>; Tue, 1 Oct 2002 11:27:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261703AbSJAPN4>; Tue, 1 Oct 2002 11:13:56 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:52611 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261701AbSJAPNy>;
-	Tue, 1 Oct 2002 11:13:54 -0400
-Date: Tue, 1 Oct 2002 16:21:48 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Martin Bligh <mjbligh@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch][rfc] xquad_portio cleanup
-Message-ID: <20021001152148.GA126@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Matthew Dobson <colpatch@us.ibm.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Martin Bligh <mjbligh@us.ibm.com>,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <3D98DFA0.6020908@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D98DFA0.6020908@us.ibm.com>
-User-Agent: Mutt/1.4i
+	id <S261651AbSJAP1M>; Tue, 1 Oct 2002 11:27:12 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36236 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S261852AbSJAP0W>; Tue, 1 Oct 2002 11:26:22 -0400
+Date: Tue, 1 Oct 2002 16:32:35 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@digeo.com>, Zlatko Clausic <zlatko.calusic@iskon.hr>,
+       Alessandro Suardi <alessandro.suardi@oracle.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Oracle startup split_vma fix
+In-Reply-To: <dny99icwp0.fsf@magla.zg.iskon.hr>
+Message-ID: <Pine.LNX.4.44.0210011621490.1203-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 04:34:56PM -0700, Matthew Dobson wrote:
+Alessandro Suardi and Zlatko Calusic independently reported that
+Oracle cannot start on recent 2.5: excellent research by Zlatko
+quickly pointed to vm_pgoff buglet in the new split_vma.
 
- > diff -Nur linux-2.5.31-vanilla/arch/i386/boot/compressed/misc.c linux-2.5.31-xquad/arch/i386/boot/compressed/misc.c
- > --- linux-2.5.31-vanilla/arch/i386/boot/compressed/misc.c	Sat Aug 10 18:41:40 2002
- > +++ linux-2.5.31-xquad/arch/i386/boot/compressed/misc.c	Thu Aug 15 14:28:33 2002
- > @@ -9,6 +9,8 @@
- >   * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
- >   */
- >  
- > +#define STANDALONE
- ...
- > diff -Nur linux-2.5.31-vanilla/include/asm-i386/io.h linux-2.5.31-xquad/include/asm-i386/io.h
- > --- linux-2.5.31-vanilla/include/asm-i386/io.h	Sat Aug 10 18:41:28 2002
- > +++ linux-2.5.31-xquad/include/asm-i386/io.h	Thu Aug 15 15:17:31 2002
- > @@ -298,7 +298,11 @@
- >  #endif
- >  
- >  #ifdef CONFIG_MULTIQUAD
- > -extern void *xquad_portio;    /* Where the IO area was mapped */
- > + #ifdef STANDALONE
- > +  #define xquad_portio 0
- > + #else /* !STANDALONE */
- > +  extern void *xquad_portio;    /* Where the IO area was mapped */
- > + #endif /* STANDALONE */
- >  #endif /* CONFIG_MULTIQUAD */
+Patch below against 2.5.40 or 2.5.40-mm1: please apply.
 
-STANDALONE seems to be a very namespace-polluting choice of define.
-MULTIQUAD_STANDALONE, MQ_STANDALONE... anything would be better imo.
+--- 2.5.40/mm/mmap.c	Tue Oct  1 15:33:04 2002
++++ linux/mm/mmap.c	Tue Oct  1 15:53:06 2002
+@@ -1058,7 +1058,7 @@
+ 	if (new_below) {
+ 		new->vm_end = addr;
+ 		vma->vm_start = addr;
+-		vma->vm_pgoff += ((addr - vma->vm_start) >> PAGE_SHIFT);
++		vma->vm_pgoff += ((addr - new->vm_start) >> PAGE_SHIFT);
+ 	} else {
+ 		vma->vm_end = addr;
+ 		new->vm_start = addr;
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVBRTdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVBRTf3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261455AbVBRTdq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 14:33:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVBRTdp
+	id S261467AbVBRTf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 14:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVBRTf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 14:33:45 -0500
-Received: from simmts12.bellnexxia.net ([206.47.199.141]:33252 "EHLO
-	simmts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261452AbVBRTdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 14:33:44 -0500
-Message-ID: <3369.10.10.10.24.1108755080.squirrel@linux1>
-In-Reply-To: <d120d50005021811263c40f683@mail.gmail.com>
-References: <seanlkml@sympatico.ca><4912.10.10.10.24.1108675441.squirrel@linux1><200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl><1451.10.10.10.24.1108713140.squirrel@linux1><20050218162729.GA5839@thunk.org><4075.10.10.10.24.1108751663.squirrel@linux1>
-    <d120d50005021811263c40f683@mail.gmail.com>
-Date: Fri, 18 Feb 2005 14:31:20 -0500 (EST)
-Subject: Re: [BK] upgrade will be needed
-From: "Sean" <seanlkml@sympatico.ca>
-To: dtor_core@ameritech.net
-Cc: "Theodore Ts'o" <tytso@mit.edu>, "Horst von Brand" <vonbrand@inf.utfsm.cl>,
-       "Chris Friesen" <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
-       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-7
-X-Mailer: SquirrelMail/1.4.3a-7
+	Fri, 18 Feb 2005 14:35:29 -0500
+Received: from mail.siemenscom.com ([12.146.131.10]:23515 "EHLO
+	mail.siemenscom.com") by vger.kernel.org with ESMTP id S261466AbVBRTfR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 14:35:17 -0500
+Message-ID: <13272676F5725D4397BD0E6A11C84968054DE792@stca208a.bus.sc.rolm.com>
+From: "Bloch, Jack" <jack.bloch@siemens.com>
+To: linux-kernel@vger.kernel.org
+Subject: Spinlock and cache coherency
+Date: Fri, 18 Feb 2005 11:34:44 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, February 18, 2005 2:26 pm, Dmitry Torokhov said:
-
-> What is bk2cvs gateway that is maintained by Larry then? Just call it
-> your "head" that Linus feeds from his BK repository and you are all
-> set.
->
-> I can see  that Roman and Stellian want something different, but we
-> alerady have what you have just described.
->
-
-Bitkeeper isn't motivated to raise the bar in terms of implementation, nor
-is cvs the best choice in terms of which free tool to use.   Once a free
-SCM is actually used at the head, there are opportunities to implement
-updating too, not just pulling.
-
-Cheers,
-Sean
+I am running a SuSE 2.4.19 Kernel. We have a quad CPU system (actually two
+physical CPU's with hyperthreading. We have encountered a problem where
+three of four CPU's are locked in the NET_RX_ACTION waiting for the
+BR_NETPROTO_LOCK spinlock. The fourth is spiinning on another internal
+driver spinlock (spinlock_irqsave). The author of this driver points out to
+us the cache coherency issues related to spinlock specifically with the
+Intel errata G40 "Potential Loss of Data Coherency During MP Data Ownership
+Transfer". Anyone seen any of these issues?
 
 
+Please CC me directly on any responses.
+
+
+Regards,
+
+
+Jack

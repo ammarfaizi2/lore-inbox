@@ -1,111 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbUJZPG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbUJZPOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbUJZPG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbUJZPG4
+	id S262290AbUJZPOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUJZPOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:06:56 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:12957 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262288AbUJZPGi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:06:38 -0400
-Date: Tue, 26 Oct 2004 11:06:40 -0400
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       trond.myklebust@fys.uio.no, neilb@cse.unsw.edu.au, torvalds@osdl.org
-Subject: Re: [PATCH] NFS mount hang fix
-Message-ID: <20041026150640.GA24881@fieldses.org>
-References: <20041026141148.GM6408@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041026141148.GM6408@fi.muni.cz>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Tue, 26 Oct 2004 11:14:46 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:1803 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S262290AbUJZPOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:14:44 -0400
+Message-ID: <417E6CF3.503@techsource.com>
+Date: Tue, 26 Oct 2004 11:27:47 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Some discussion points open source friendly graphics [was: HARDWARE:
+   Open-Source-Friendly Graphics Cards -- Viable?]
+References: <417D21C8.30709@techsource.com> <417D6365.3020609@pobox.com> <MPG.1be854649d4829f8989704@news.gmane.org>
+In-Reply-To: <MPG.1be854649d4829f8989704@news.gmane.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 26, 2004 at 04:11:48PM +0200, Jan Kasprzak wrote:
-> I am sorry to repost this, but I have got no feedback from NFS maintainers,
-> while I've got postitive feedback from three people whose problems
-> was fixed by this patch. NFS maintaners - are you alive? If not,
-> Linus, please apply this patch. Thanks,
-
-Hm.  For some reason, your message never made it into my mailbox, though
-I can see it in the marc.theaimsgroup.com archives of the nfs list.
-
-Changing those buffers to static strikes me as potentially dangerous--we
-currently call the ->parse() methods under a semaphore, so it's safe for
-now, but that might change some day and then there'll be an ugly race
-condition.
-
-Could you check whether the following fixes your problem?--b.
 
 
-Problem identified by Jan Kasprzak.
+Giuseppe Bilotta wrote:
+> Timothy Miller wrote:
+> 
+>>>The reprogramability of the FPGA has many advantages, but 
+>>>reprogramability is not its primary purpose.  The primary reason to use 
+>>>an FPGA is to minimize NRE for manufacturing.  However, as a result, 
+>>>users will be able to download updates.  Additionally, those who are 
+> 
+> 
+> Jeff Garzik wrote:
+> 
+>>Will the capability to apply these updates be included with the base card?
+>>Will users need to purchase additional "update FPGA" hardware to do the 
+>>reprogramming?
+> 
+> 
+> Also, what if the reprogramming goes wrong? Do I just throw the 
+> card away or will there be some form of recovery possible?
+> 
 
-Limit on domainname size (currently 50) is too small.
 
-Just use the beginning of input buffer as scratch space for it, and
-save a little stack space while we're at it.
+For those who are taking the risk of reprogramming it completely, 
+they'll already have read the schematics and instructions for using an 
+external device to program the PROM.
 
-Signed-off-by: J. Bruce Fields
----
+For everyone else, it's the same problem you get when programming a 
+motherboard goes awry.  When the BIOS is hosed, you can't use the MB 
+until you replace the chip.
 
- linux-2.6.10-rc1-bfields/net/sunrpc/svcauth_unix.c      |   14 
- linux-2.6.10-rc1-bfields/net/sunrpc/svcauth_unix.c.orig |  511 ++++++++++++++++
- 2 files changed, 518 insertions(+), 7 deletions(-)
+For cost reasons, we likely wouldn't socket the chip, so you'd probably 
+have to send it in for an RMA.  We'd reprogram it, and send it back.  Or 
+if you have a friend with the right tools, they can do it.
 
-diff -puN net/sunrpc/svcauth_unix.c~fqdn_length_fix net/sunrpc/svcauth_unix.c
---- linux-2.6.10-rc1/net/sunrpc/svcauth_unix.c~fqdn_length_fix	2004-10-22 23:36:50.000000000 -0400
-+++ linux-2.6.10-rc1-bfields/net/sunrpc/svcauth_unix.c	2004-10-22 23:37:47.000000000 -0400
-@@ -150,11 +150,14 @@ static void ip_map_request(struct cache_
- }
- 
- static struct ip_map *ip_map_lookup(struct ip_map *, int);
-+
- static int ip_map_parse(struct cache_detail *cd,
- 			  char *mesg, int mlen)
- {
- 	/* class ipaddress [domainname] */
--	char class[50], buf[50];
-+	/* should be safe just to use the start of the input buffer
-+	 * for scratch: */
-+	char *buf = mesg;
- 	int len;
- 	int b1,b2,b3,b4;
- 	char c;
-@@ -167,13 +170,11 @@ static int ip_map_parse(struct cache_det
- 	mesg[mlen-1] = 0;
- 
- 	/* class */
--	len = qword_get(&mesg, class, 50);
-+	len = qword_get(&mesg, ipm.m_class, sizeof(ipm.m_class));
- 	if (len <= 0) return -EINVAL;
--	if (len >= sizeof(ipm.m_class))
--		return -EINVAL;
- 
- 	/* ip address */
--	len = qword_get(&mesg, buf, 50);
-+	len = qword_get(&mesg, buf, mlen);
- 	if (len <= 0) return -EINVAL;
- 
- 	if (sscanf(buf, "%u.%u.%u.%u%c", &b1, &b2, &b3, &b4, &c) != 4)
-@@ -184,7 +185,7 @@ static int ip_map_parse(struct cache_det
- 		return -EINVAL;
- 
- 	/* domainname, or empty for NEGATIVE */
--	len = qword_get(&mesg, buf, 50);
-+	len = qword_get(&mesg, buf, mlen);
- 	if (len < 0) return -EINVAL;
- 
- 	if (len) {
-@@ -194,7 +195,6 @@ static int ip_map_parse(struct cache_det
- 	} else
- 		dom = NULL;
- 
--	strcpy(ipm.m_class, class);
- 	ipm.m_addr.s_addr =
- 		htonl((((((b1<<8)|b2)<<8)|b3)<<8)|b4);
- 	ipm.h.flags = 0;
-_

@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVBQVeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVBQVd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVBQVeR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 16:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVBQVeQ
+	id S261186AbVBQVd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 16:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVBQVd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 16:34:16 -0500
-Received: from imap.gmx.net ([213.165.64.20]:15764 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261200AbVBQVdx (ORCPT
+	Thu, 17 Feb 2005 16:33:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:55172 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261186AbVBQVbk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 16:33:53 -0500
-X-Authenticated: #20450766
-Date: Thu, 17 Feb 2005 22:19:38 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: 20050217125028.GK21077@m.safari.iki.fi
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.6.10, ReiserFS errors, preempt
-In-Reply-To: <20050217134623.GA2236@linux.ensimag.fr>
-Message-ID: <Pine.LNX.4.60.0502172211510.6851@poirot.grange>
-References: <20050217134623.GA2236@linux.ensimag.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Thu, 17 Feb 2005 16:31:40 -0500
+Date: Thu, 17 Feb 2005 13:31:27 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: lm@bitmover.com, linux-os <linux-os@analogic.com>,
+       Jeff Sipek <jeffpc@optonline.net>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+Message-ID: <20050217213127.GB21662@shell0.pdx.osdl.net>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <Pine.LNX.4.61.0502141113200.4019@chaos.analogic.com> <20050214171219.GA8846@bitmover.com> <20050217203308.GG19998@khan.acc.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050217203308.GG19998@khan.acc.umu.se>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+* David Weinehall (tao@debian.org) wrote:
+> BTW: Wishlist request.  Would you consider adding -p (--show-c-function)
+> to the set of flags used for the diffs created by BitKeeper?
 
-On Thu, 17 Feb 2005 castet.matthieu@free.fr wrote:
+It's already there.
 
-> > I believe there's unresolved memory corruption bug in bttv...
-> yes I think so, other have also similar problem :
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110820804010204&w=2
-> http://marc.theaimsgroup.com/?t=110531543900002&r=1&w=2
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0412.3/0881.html
-
-Ahh... /me stops the memory test after 18 hours without a single error, 
-pulls the card out of my desktop and inserts it back into the experimantal 
-machine. Unfortunately, unlike in other posts you quoted above, I cannot 
-reproduce my Oops. Is anybody working on this?
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

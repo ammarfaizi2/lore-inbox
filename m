@@ -1,201 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbTEKKjY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 06:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTEKKWN
+	id S261294AbTEKKc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 06:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTEKKcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 06:22:13 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:36177 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261221AbTEKKVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 06:21:32 -0400
-Date: Sun, 11 May 2003 12:30:59 +0200
-Message-Id: <200305111030.h4BAUxrT019670@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Amifb updates
+	Sun, 11 May 2003 06:32:20 -0400
+Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.90]:544 "HELO
+	email04.aon.at") by vger.kernel.org with SMTP id S261294AbTEKK13
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 06:27:29 -0400
+Message-ID: <3EBE2895.1C7C89B9@net4you.at>
+Date: Sun, 11 May 2003 12:40:21 +0200
+From: Wolfgang Scherr <scherr@net4you.at>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-4GB i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mjpeg-developer@lists.sourceforge.net
+CC: support@suse.de
+Subject: SAA7110 VCR bug (kernel 2.4.x and older)
+References: <E18WuHZ-0002gL-00@config17.schlund.de> <200302221941.53088.christian@celindir.de> <3E6114D1.CC45BECE@net4you.at> <200305042250.30861.christian@celindir.de>
+Content-Type: multipart/mixed;
+ boundary="------------079E91D75DDE4C76A70E113E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amifb: Updates for fbdev changes in 2.5.66 and 2.5.68:
-  - Last parameter of fb_{fillrect,copyarea,imageblit}() became const
+This is a multi-part message in MIME format.
+--------------079E91D75DDE4C76A70E113E
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
---- linux-2.5.x/drivers/video/amifb.c	Tue Mar 25 10:06:58 2003
-+++ linux-m68k-2.5.x/drivers/video/amifb.c	Wed Mar 26 12:54:31 2003
-@@ -1123,9 +1123,12 @@
- static int amifb_blank(int blank, struct fb_info *info);
- static int amifb_pan_display(struct fb_var_screeninfo *var,
- 			     struct fb_info *info);
--static void amifb_fillrect(struct fb_info *info, struct fb_fillrect *rect);
--static void amifb_copyarea(struct fb_info *info, struct fb_copyarea *region);
--static void amifb_imageblit(struct fb_info *info, struct fb_image *image);
-+static void amifb_fillrect(struct fb_info *info,
-+			   const struct fb_fillrect *rect);
-+static void amifb_copyarea(struct fb_info *info,
-+			   const struct fb_copyarea *region);
-+static void amifb_imageblit(struct fb_info *info,
-+			    const struct fb_image *image);
- static int amifb_ioctl(struct inode *inode, struct file *file,
- 		       unsigned int cmd, unsigned long arg,
- 		       struct fb_info *info);
-@@ -1949,11 +1952,13 @@
- }
- 
- 
--static void amifb_fillrect(struct fb_info *info, struct fb_fillrect *rect)
-+static void amifb_fillrect(struct fb_info *info,
-+			   const struct fb_fillrect *rect)
- {
- 	struct amifb_par *par = (struct amifb_par *)info->par;
- 	int dst_idx, x2, y2;
- 	unsigned long *dst;
-+	u32 width, height;
- 
- 	if (!rect->width || !rect->height)
- 		return;
-@@ -1966,25 +1971,24 @@
- 	y2 = rect->dy + rect->height;
- 	x2 = x2 < info->var.xres_virtual ? x2 : info->var.xres_virtual;
- 	y2 = y2 < info->var.yres_virtual ? y2 : info->var.yres_virtual;
--	rect->width = x2 - rect->dx;
--	rect->height = y2 - rect->dy;
-+	width = x2 - rect->dx;
-+	height = y2 - rect->dy;
- 
- 	dst = (unsigned long *)
- 		((unsigned long)info->screen_base & ~(BYTES_PER_LONG-1));
- 	dst_idx = ((unsigned long)info->screen_base & (BYTES_PER_LONG-1))*8;
- 	dst_idx += rect->dy*par->next_line*8+rect->dx;
--	while (rect->height--) {
-+	while (height--) {
- 		switch (rect->rop) {
- 		    case ROP_COPY:
- 			fill_one_line(info->var.bits_per_pixel,
--				      par->next_plane, dst, dst_idx,
--				      rect->width, rect->color);
-+				      par->next_plane, dst, dst_idx, width,
-+				      rect->color);
- 			break;
- 
- 		    case ROP_XOR:
--			xor_one_line(info->var.bits_per_pixel,
--				     par->next_plane, dst, dst_idx,
--				     rect->width, rect->color);
-+			xor_one_line(info->var.bits_per_pixel, par->next_plane,
-+				     dst, dst_idx, width, rect->color);
- 			break;
- 		}
- 		dst_idx += par->next_line*8;
-@@ -2026,47 +2030,38 @@
- }
- 
- 
--static void amifb_copyarea(struct fb_info *info, struct fb_copyarea *area)
-+static void amifb_copyarea(struct fb_info *info,
-+			   const struct fb_copyarea *area)
- {
- 	struct amifb_par *par = (struct amifb_par *)info->par;
--	int x2, y2, old_dx, old_dy;
-+	int x2, y2;
-+	u32 dx, dy, sx, sy, width, height;
- 	unsigned long *dst, *src;
--	int dst_idx, src_idx, height;
-+	int dst_idx, src_idx;
- 	int rev_copy = 0;
- 
- 	/* clip the destination */
--	old_dx = area->dx;
--	old_dy = area->dy;
--
--	/*
--	 * We could use hardware clipping but on many cards you get around
--	 * hardware clipping by writing to framebuffer directly.
--	 */
- 	x2 = area->dx + area->width;
- 	y2 = area->dy + area->height;
--	area->dx = area->dx > 0 ? area->dx : 0;
--	area->dy = area->dy > 0 ? area->dy : 0;
-+	dx = area->dx > 0 ? area->dx : 0;
-+	dy = area->dy > 0 ? area->dy : 0;
- 	x2 = x2 < info->var.xres_virtual ? x2 : info->var.xres_virtual;
- 	y2 = y2 < info->var.yres_virtual ? y2 : info->var.yres_virtual;
--	area->width = x2 - area->dx;
--	area->height = y2 - area->dy;
--
--	/* update sx1,sy1 */
--	area->sx += (area->dx - old_dx);
--	area->sy += (area->dy - old_dy);
-+	width = x2 - dx;
-+	height = y2 - dy;
- 
--	height = area->height;
-+	/* update sx,sy */
-+	sx = area->sx + (dx - area->dx);
-+	sy = area->sy + (dy - area->dy);
- 
- 	/* the source must be completely inside the virtual screen */
--	if (area->sx < 0 || area->sy < 0 ||
--	    (area->sx + area->width) > info->var.xres_virtual ||
--	    (area->sy + area->height) > info->var.yres_virtual)
-+	if (sx < 0 || sy < 0 || (sx + width) > info->var.xres_virtual ||
-+	    (sy + height) > info->var.yres_virtual)
- 		return;
- 
--	if (area->dy > area->sy ||
--	    (area->dy == area->sy && area->dx > area->sx)) {
--		area->dy += area->height;
--		area->sy += area->height;
-+	if (dy > sy || (dy == sy && dx > sx)) {
-+		dy += height;
-+		sy += height;
- 		rev_copy = 1;
- 	}
- 	dst = (unsigned long *)
-@@ -2074,21 +2071,21 @@
- 	src = dst;
- 	dst_idx = ((unsigned long)info->screen_base & (BYTES_PER_LONG-1))*8;
- 	src_idx = dst_idx;
--	dst_idx += area->dy*par->next_line*8+area->dx;
--	src_idx += area->sy*par->next_line*8+area->sx;
-+	dst_idx += dy*par->next_line*8+dx;
-+	src_idx += sy*par->next_line*8+sx;
- 	if (rev_copy) {
- 		while (height--) {
- 			dst_idx -= par->next_line*8;
- 			src_idx -= par->next_line*8;
- 			copy_one_line_rev(info->var.bits_per_pixel,
- 					  par->next_plane, dst, dst_idx, src,
--					  src_idx, area->width);
-+					  src_idx, width);
- 		}
- 	} else {
- 		while (height--) {
- 			copy_one_line(info->var.bits_per_pixel,
- 				      par->next_plane, dst, dst_idx, src,
--				      src_idx, area->width);
-+				      src_idx, width);
- 			dst_idx += par->next_line*8;
- 			src_idx += par->next_line*8;
- 		}
-@@ -2125,7 +2122,7 @@
- }
- 
- 
--static void amifb_imageblit(struct fb_info *info, struct fb_image *image)
-+static void amifb_imageblit(struct fb_info *info, const struct fb_image *image)
- {
- 	struct amifb_par *par = (struct amifb_par *)info->par;
- 	int x2, y2;
+Hello all,
 
-Gr{oetje,eeting}s,
+there is a problem in the SAA7110 driver in the 2.4.x releases (seen
+with 2.4.19,2.4.20 in combination with DC10) regarding the VCR-Mode. As
+I don't know who is maintaining the v4l stuff currently, I hope the
+recipient list is sufficient. Otherwise I apologize for the
+inconvinience and would like to ask to forward the problem to the
+maintainer....
 
-						Geert
+Problem: With some video source (camcorders, VCRs, ...), it might happen
+that the grabber card gets out of sync (result is an instable picture on
+the screen due to weak sync quality of the signal).
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+This problem was reported by several users.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Solution: Switching on the VCR mode of the SAA7110 video frontend
+improves frame synchronisation. Simple patch (successfully tested)
+added, no other impact on functionality noted. Optionally this bit could
+be set/cleared by a module parameter - especially in future releases,
+should be trivial - a patch can be provided by me if needed.
+
+Such a functionality may be also available with other video codec
+hardware and should be checked/implemented there accordingly.
+
+Best regards,
+
+Wolfgang
+
+
+[Re: DC 10+ Verwackeltes Bild bei VHS]
+Christian von Eichel-Streiber wrote:
+> =
+
+> Hallo Wolfgang,
+> =
+
+> leider muss ich Dich schon wieder "nerven".
+> =
+
+> Ich hatte gehofft, dass mit einer neuen Suse nicht alte Probleme wieder=
+
+> auftreten w=FCrden. Jetzt habe ich die aktuelle SuSE 8.2 und der Zoran =
+treiber
+> ist schlechter als vorher.
+> =
+
+> Leider kann ich aber auch dne Patch, den Du mir das letzte mal gesendet=
+ hast
+> nicht einsetzen, da sich der Kernel dann beschwert, dass das Ding f=FCr=
+ den
+> 2.4.19 kompiliert w=E4re unbd jetzt ist ja der 2.4.20 drauf.
+> =
+
+> Was kann ich machen, umm wieder an die gepatchte Version zu kommen?
+> Auf der Suse-Seite habe ich keinen Hinweis zu einer Fehlerbereinigten V=
+ersion
+> gefunden.
+> =
+
+> Es w=E4re super nett, wenn Du mir noch mal helfen k=F6nntest.
+> =
+
+> Vielen Dank
+> =
+
+> Christian von Eichel-Streiber
+--------------079E91D75DDE4C76A70E113E
+Content-Type: application/octet-stream;
+ name="saa7110.c.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="saa7110.c.patch"
+
+MTY3YzE2Nwo8IAkJc2FhNzExMF93cml0ZShkZWNvZGVyLDB4MEQsMHg4Nik7Ci0tLQo+IAkJ
+c2FhNzExMF93cml0ZShkZWNvZGVyLDB4MEQsMHgwNik7CjE3NGMxNzQKPCAJc2FhNzExMF93
+cml0ZShkZWNvZGVyLDB4MEQsMHg4Nik7Ci0tLQo+IAlzYWE3MTEwX3dyaXRlKGRlY29kZXIs
+MHgwRCwweDA2KTsKMTgzYzE4Mwo8IAkJc2FhNzExMF93cml0ZShkZWNvZGVyLDB4MEQsMHg4
+Nyk7Ci0tLQo+IAkJc2FhNzExMF93cml0ZShkZWNvZGVyLDB4MEQsMHgwNyk7CjE5NWMxOTUK
+PCAJCTB4RjgsIDB4RjgsIDB4NjAsIDB4NjAsIDB4MDAsIDB4ODYsIDB4MTgsIDB4OTAsCi0t
+LQo+IAkJMHhGOCwgMHhGOCwgMHg2MCwgMHg2MCwgMHgwMCwgMHgwNiwgMHgxOCwgMHg5MCwK
+MjI5LDIzMGMyMjksMjMwCjwgCQlwcmludGsoS0VSTl9JTkZPICIlc19hdHRhY2g6IGNoaXAg
+dmVyc2lvbiAleCwgVkNSIG1vZGVcbiIsIGRldmljZS0+bmFtZSwgc2FhNzExMF9yZWFkKGRl
+Y29kZXIpKTsKPCAJCXNhYTcxMTBfd3JpdGUoZGVjb2RlciwweDBELDB4ODYpOwotLS0KPiAJ
+CURFQlVHKHByaW50ayhLRVJOX0lORk8gIiVzX2F0dGFjaDogY2hpcCB2ZXJzaW9uICV4XG4i
+LCBkZXZpY2UtPm5hbWUsIHNhYTcxMTBfcmVhZChkZWNvZGVyKSkpOwo+IAkJc2FhNzExMF93
+cml0ZShkZWNvZGVyLDB4MEQsMHgwNik7CjMwN2MzMDcKPCAJCQkJc2FhNzExMF93cml0ZShk
+ZWNvZGVyLCAweDBELCAweDg2KTsKLS0tCj4gCQkJCXNhYTcxMTBfd3JpdGUoZGVjb2Rlciwg
+MHgwRCwgMHgwNik7CjMxM2MzMTMKPCAJCQkJc2FhNzExMF93cml0ZShkZWNvZGVyLCAweDBE
+LCAweDg2KTsKLS0tCj4gCQkJCXNhYTcxMTBfd3JpdGUoZGVjb2RlciwgMHgwRCwgMHgwNik7
+CjMxOGMzMTgKPCAJCQkJc2FhNzExMF93cml0ZShkZWNvZGVyLCAweDBELCAweDg3KTsKLS0t
+Cj4gCQkJCXNhYTcxMTBfd3JpdGUoZGVjb2RlciwgMHgwRCwgMHgwNyk7Cg==
+--------------079E91D75DDE4C76A70E113E--
+

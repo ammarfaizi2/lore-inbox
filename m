@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317503AbSHCIja>; Sat, 3 Aug 2002 04:39:30 -0400
+	id <S317497AbSHCKXg>; Sat, 3 Aug 2002 06:23:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317498AbSHCIja>; Sat, 3 Aug 2002 04:39:30 -0400
-Received: from h-64-105-35-105.SNVACAID.covad.net ([64.105.35.105]:43924 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317497AbSHCIj3>; Sat, 3 Aug 2002 04:39:29 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 3 Aug 2002 01:42:30 -0700
-Message-Id: <200208030842.BAA01491@adam.yggdrasil.com>
-To: rmk@arm.linux.org.uk
-Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
-Cc: axel@hh59.org, linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
-       tytso@mit.edu
+	id <S317498AbSHCKXg>; Sat, 3 Aug 2002 06:23:36 -0400
+Received: from linux.kappa.ro ([194.102.255.131]:20927 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S317497AbSHCKXg>;
+	Sat, 3 Aug 2002 06:23:36 -0400
+Date: Sat, 3 Aug 2002 13:28:54 +0300
+From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.19
+Message-ID: <20020803102854.GA23440@linux.kappa.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Aug 2002 09:05:23 +0100, Russell King wrote:
->On Fri, Aug 02, 2002 at 05:20:28PM -0700, Adam J. Richter wrote:
->> On Sat, 3 Aug 2002 01:12:10 +0100, Russell King wrote:
->> >Ok, here's a fix for the 8250.c build problem (please don't send it
->> >to Linus; I've other changes that'll be going via BK and patch to
->> >lkml pending):
->> >
->> >--- orig/drivers/serial/8250.c  Fri Aug  2 21:13:31 2002
->> >+++ linux/drivers/serial/8250.c Sat Aug  3 00:28:47 2002
->> >@@ -31,7 +31,8 @@
->> > #include <linux/console.h>
->> > #include <linux/sysrq.h>
->> > #include <linux/serial_reg.h>
->> >-#include <linux/serialP.h>
->> >+#include <linux/circ_buf.h>
->> >+#include <linux/serial.h>
->> > #include <linux/delay.h>
->> > 
->> > #include <asm/io.h>
->> 
->> 	Your patch still results in a compilation error for me.
->> It looks like 8250.c needs <linux/serialP.h> for ALPHA_KLUDGE_MCR:
+I tried to compile 2.4.19 with Sis driver suport in drm and I get this:
 
->Your quote above didn't include the patch for 8250.h which was in my
->mail directly after 8250.c.  Did you specifically miss it for a reason?
+ld -m elf_i386 -T /usr/src/linux-2.4.19/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o \
+        net/network.o \
+        /usr/src/linux-2.4.19/arch/i386/lib/lib.a /usr/src/linux-2.4.19/lib/lib.a /usr/src/linux-2.4.19/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/char/drm/drm.o: In function `sis_fb_alloc':
+drivers/char/drm/drm.o(.text+0x6a46): undefined reference to `sis_malloc'
+drivers/char/drm/drm.o(.text+0x6a8d): undefined reference to `sis_free'
+drivers/char/drm/drm.o: In function `sis_fb_free':
+drivers/char/drm/drm.o(.text+0x6bd2): undefined reference to `sis_free'
+drivers/char/drm/drm.o: In function `sis_final_context':
+drivers/char/drm/drm.o(.text+0x7086): undefined reference to `sis_free'
+make: *** [vmlinux] Error 1
 
-	Doh!  Sorry, my mistake.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Teo

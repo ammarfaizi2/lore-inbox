@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317500AbSFRRKW>; Tue, 18 Jun 2002 13:10:22 -0400
+	id <S317498AbSFRRID>; Tue, 18 Jun 2002 13:08:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317501AbSFRRKV>; Tue, 18 Jun 2002 13:10:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3201 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S317500AbSFRRKU>; Tue, 18 Jun 2002 13:10:20 -0400
-Date: Tue, 18 Jun 2002 13:12:44 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: David Schwartz <davids@webmaster.com>, rml@tech9.net, mgix@mgix.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Question about sched_yield()
-In-Reply-To: <3D0F669C.89596EC0@nortelnetworks.com>
-Message-ID: <Pine.LNX.3.95.1020618130733.7442A-100000@chaos.analogic.com>
+	id <S317500AbSFRRIC>; Tue, 18 Jun 2002 13:08:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6922 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317498AbSFRRIC>; Tue, 18 Jun 2002 13:08:02 -0400
+Date: Tue, 18 Jun 2002 10:08:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 4/19] stack space reduction (remove MAX_BUF_PER_PAGE)
+In-Reply-To: <3D0DAD69.5C667D63@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206181006200.2347-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Chris Friesen wrote:
 
-> David Schwartz wrote:
-> > 
-> > >And you seem to have a misconception about sched_yield, too.  If a
-> > >machine has n tasks, half of which are doing CPU-intense work and the
-> > >other half of which are just yielding... why on Earth would the yielding
-> > >tasks get any noticeable amount of CPU use?
-> > 
-> >         Because they are not blocking. They are in an endless CPU burning loop. They
-> > should get CPU use for the same reason they should get CPU use if they're the
-> > only threads running. They are always ready-to-run.
-> > 
-> > >Quite frankly, even if the supposed standard says nothing of this... I
-> > >do not care: calling sched_yield in a loop should not show up as a CPU
-> > >hog.
-> > 
-> >         It has to. What if the only task running is:
-> > 
-> >         while(1) sched_yield();
-> > 
-> >         What would you expect?
-> 
-> If there is only the one task, then sure it's going to be 100% cpu on that task.
-> 
-> However, if there is anything else other than the idle task that wants to run,
-> then it should run until it exhausts its timeslice.
-> 
-> One process looping on sched_yield() and another one doing calculations should
-> result in almost the entire system being devoted to calculations.
-> 
-> Chris
-> 
 
-It's all in the accounting. Use usleep(0) if you want it to "look good".
+On Mon, 17 Jun 2002, Andrew Morton wrote:
+> Andrew Morton wrote:
+> >
+> > ..
+> > +               do {
+> > +                       if (buffer_async_read(bh))
+> > +                               submit_bh(READ, bh);
+> > +               } while ((bh = bh->b_this_page) != head);
+>
+> That's a bug.
 
-Cheers,
-Dick Johnson
+I'm just not going to apply this patch.
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Right now MAX_BUFFERS_PER_PAGE is 8 or 16, and the array of buffer heads
+is thus 32 bytes on an x86. I'd much rather get a nice tight loop without
+callbacks in the middle, and then submit 8 pre-approved buffers in one go,
+than have issues like this.
 
-                 Windows-2000/Professional isn't.
+If we have 64kB pages, such architectures will have to have a bigger
+kernel stack. Which they will have, simply by virtue of having the very
+same bigger page. So that problem kind of solves itself.
+
+		Linus
 

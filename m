@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132041AbRAPQgV>; Tue, 16 Jan 2001 11:36:21 -0500
+	id <S132087AbRAPQkU>; Tue, 16 Jan 2001 11:40:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRAPQgG>; Tue, 16 Jan 2001 11:36:06 -0500
-Received: from mail2.megatrends.com ([155.229.80.11]:26382 "EHLO
+	id <S132084AbRAPQkL>; Tue, 16 Jan 2001 11:40:11 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:60686 "EHLO
 	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S131974AbRAPQfu>; Tue, 16 Jan 2001 11:35:50 -0500
-Message-ID: <1355693A51C0D211B55A00105ACCFE64E9518F@ATL_MS1>
+	id <S131094AbRAPQkG>; Tue, 16 Jan 2001 11:40:06 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E95190@ATL_MS1>
 From: Venkatesh Ramamurthy <Venkateshr@ami.com>
-To: "'arjan@fenrus.demon.nl'" <arjan@fenrus.demon.nl>,
+To: "'Brian Gerst'" <bgerst@didntduck.org>,
         Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: linux-kernel@vger.kernel.org,
-        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Cc: "'David Woodhouse'" <dwmw2@infradead.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
 Subject: RE: Linux not adhering to BIOS Drive boot order?
-Date: Tue, 16 Jan 2001 11:31:25 -0500
+Date: Tue, 16 Jan 2001 11:35:36 -0500
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2448.0)
 Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In article <1355693A51C0D211B55A00105ACCFE64E9518C@ATL_MS1> you wrote:
-> 
-> > we need some kind of signature being written in the drive, which the
-> kernel
-> > will use for determining the boot drive and later re-order drives, if
-> > required.
-> 
-> Like the ext2 labels? (man e2label)
-	[Venkatesh Ramamurthy]  This re-ordering of the scsi drives should
-be done by SCSI ML , so is incorporating ext2 fs data structure knowledge on
-the SCSI ML a good idea?. 
+> When the cards are of different make the order is solely dependent on
+> the order that the drivers are initialized in the kernel.  If you have
+> modules enabled, only build the driver for your root device into the
+> kernel image and have the other modular.  This lets you control the
+> initialization order to your liking.
+	[Venkatesh Ramamurthy]  I think there should be a better way to
+handle this , compiling is one of the options, but an end-user should not
+think of compiling. The end user needs to put an another card and connect
+drives and get his system up and running. He should not think of compiling
+the drivers, if it is already part of the kernel / initrd to get his system
+running.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284576AbRLETVG>; Wed, 5 Dec 2001 14:21:06 -0500
+	id <S284588AbRLET2Q>; Wed, 5 Dec 2001 14:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284586AbRLETU5>; Wed, 5 Dec 2001 14:20:57 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13308
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S284576AbRLETUt>; Wed, 5 Dec 2001 14:20:49 -0500
-Date: Wed, 5 Dec 2001 11:20:41 -0800
-To: Sven Heinicke <sven@research.nj.nec.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: hints at modifying kswapd params in 2.4.16
-Message-ID: <20011205192041.GA9050@mikef-linux.matchmail.com>
-Mail-Followup-To: Sven Heinicke <sven@research.nj.nec.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <15373.13379.382015.406274@abasin.nj.nec.com> <E16BMqa-0003V2-00@the-village.bc.nu> <15374.13775.921872.835210@abasin.nj.nec.com>
-Mime-Version: 1.0
+	id <S284586AbRLET2G>; Wed, 5 Dec 2001 14:28:06 -0500
+Received: from mail022.mail.bellsouth.net ([205.152.58.62]:51763 "EHLO
+	imf22bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S284598AbRLET1y>; Wed, 5 Dec 2001 14:27:54 -0500
+Message-ID: <3C0E7534.3EC4B202@mandrakesoft.com>
+Date: Wed, 05 Dec 2001 14:27:48 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Larson <plars@austin.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: compile fails on 2.4.17-pre3
+In-Reply-To: <1007558606.14970.11.camel@plars.austin.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15374.13775.921872.835210@abasin.nj.nec.com>
-User-Agent: Mutt/1.3.24i
-From: Mike Fedyk <mfedyk@matchmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 09:57:19AM -0500, Sven Heinicke wrote:
+Paul Larson wrote:
 > 
-> I'm not sure if I was understood here.  On both Mandrake 8.0 and Red
-> Hat 7.1 I'm running the 2.4.16 kernel with the same .confg file, and
-> built on there respective kernel.  And I'm getting the below different
-> memory usage patterns with the same processes running.  Seems
-> something external to the kernel is causing the differences.
+> Is everybody seeing this and it's obvious, or do I need to send my
+> .config?
 > 
-> As of this morning, December 5th, the Mandrake systems has run longer
-> then the same kernel ever did on Red Hat.  I say again, with the same
-> kernel source and same .confg file.
-> 
+> ld -m elf_i386  -r -o ipv4.o utils.o route.o inetpeer.o proc.o
+> protocol.o ip_input.o ip_fragment.o ip_forward.o ip_options.o
+> ip_output.o ip_sockglue.o tcp.o tcp_input.o tcp_output.o tcp_timer.o
+> tcp_ipv4.o tcp_minisocks.o tcp_diag.o raw.o udp.o arp.o icmp.o devinet.o
+> af_inet.o igmp.o sysctl_net_ipv4.o fib_frontend.o fib_semantics.o
+> fib_hash.o
+> ld: cannot open tcp_diag.o: No such file or directory
+> make[3]: *** [ipv4.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux/net/ipv4'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory `/usr/src/linux/net/ipv4'
+> make[1]: *** [_subdir_ipv4] Error 2
+> make[1]: Leaving directory `/usr/src/linux/net'
+> make: *** [_dir_net] Error 2
 
-What about compiler version, glibc version, and hardware revision (think
-lspci) differences?
+fix:
+
+1) remove "tcp_diag.o" from net/ipv4/Makefile
+2) remove two lines from net/ipv4/tcp.c which reference tcpdiag_init
+
+The file is in vger so I assume it's easily fixed by adding that file as
+well.  http://vger.kernel.org/
+
+	Jeff
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

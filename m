@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313628AbSH0TYc>; Tue, 27 Aug 2002 15:24:32 -0400
+	id <S314149AbSH0TXZ>; Tue, 27 Aug 2002 15:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316838AbSH0TYc>; Tue, 27 Aug 2002 15:24:32 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:52234 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S313628AbSH0TYa>;
-	Tue, 27 Aug 2002 15:24:30 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200208271928.g7RJSgu12515@oboe.it.uc3m.es>
-Subject: Re: block device/VM question
-In-Reply-To: <Pine.LNX.4.44.0208271308190.3234-100000@hawkeye.luckynet.adm> from
- Thunder from the hill at "Aug 27, 2002 01:13:37 pm"
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Date: Tue, 27 Aug 2002 21:28:42 +0200 (MET DST)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S317072AbSH0TXZ>; Tue, 27 Aug 2002 15:23:25 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:38922 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S314149AbSH0TXY>;
+	Tue, 27 Aug 2002 15:23:24 -0400
+Date: Tue, 27 Aug 2002 21:27:38 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Steffen Persvold <sp@scali.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20020827192738.GB28513@alpha.home.local>
+References: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Thunder from the hill wrote:"
-> > And for the O_DIRECT flag we seem to do alloc_kiovec(1, &f->f_iobuf).
-> 
-> Perhaps we should go biovec here?
-> 
-> For you, if you can stand it you can even go directly into the dio stuff 
-> from direct-io.c. You'll just need to know what to do. Or you fill your 
-> information into some underway function.
+On Tue, Aug 27, 2002 at 08:22:03PM +0200, Steffen Persvold wrote:
+ 
+> I have an idea that this happens because the packets are comming out of 
+> order into the receiving node (i.e the bonding device is alternating 
+> between each interface when sending, and when the receiving node gets the 
+> packets it is possible that the first interface get packets number 0, 2, 
+> 4 and 6 in one interrupt and queues it to the network stack before packet 
+> 1, 3, 5 is handled on the other interface).
 
-Yes, the 2.5.31 code looks much much simpler. But you encouraged me to
-look at 2.4.19 by pointing out that there has been support since 2.4.10,
-so that's what I'm looking at!
+You pointed your finger on this exact common problem.
+You can use the XOR bonding mode (modprobe bonding mode=2), which uses a
+hash of mac addresses to select the outgoing interface. This is interesting
+if you have lots of L2 hosts on the same network switch.
 
-I'm sure I'm just missing a couple of methods in some struct.  I'll test
-a few on the way home in the train.  Things look good, just no methods to
-do the work when the O_DIRECT flag is set. So I get EINVAL on every
-read/write access.
+Or if you have a few hosts on the same switch, you'd better use the "nexthop"
+parameter of "ip route". IIRC, it should be something like :
+  ip route add <destination> nexthop dev eth0 nexthop dev eth1
+but read the help, I'm not certain.
 
-I'm getting the hang of it. At every open of the device I look at the
-file pointer that they're opening and check to see if it has an iobuff
-field set. If not, I set it (and the O_DIRECT flag if necessary).
-At every release of the device, I look at the file they're releasing
-and if it has an iobuff field, I free it. I guess I should set a
-flag to say "I did it", but for the moment, I guess it's only me
-in the driver doing it. Kernel programming would be so much easier
-if there were an explanation of what things were for :-).
+Cheers,
+Willy
 
-I'll trace what happens in the generic_read() /write() stuff. They'll
-be usiing the iobuf there.
-
-Thanks.
-
-Peter

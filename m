@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUELMtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263544AbUELM6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264931AbUELMtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 08:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUELMtm
+	id S263544AbUELM6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 08:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbUELM6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 08:49:42 -0400
-Received: from zork.zork.net ([64.81.246.102]:23239 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S264931AbUELMtl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 08:49:41 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, vojtech@suse.cz,
- linux-kernel@vger.kernel.org
-Date: Wed, 12 May 2004 13:49:36 +0100
-In-Reply-To: <20040510024506.1a9023b6.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 10 May 2004 02:45:06 -0700")
-Message-ID: <6ufza5yfmn.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 12 May 2004 08:58:19 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:62213 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S263544AbUELM6S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 08:58:18 -0400
+Date: Wed, 12 May 2004 14:58:13 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: andrea.fracasso@infoware-srl.com, lkml <linux-kernel@vger.kernel.org>,
+       ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>
+Subject: Re: ffs() (was: [Linux-NTFS-Dev] SOLVED - Re: PROBLEM: compiling
+ NTFS write support)
+In-Reply-To: <1084364605.16624.22.camel@imp.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.21.0405121449120.12270-100000@mlf.linux.rulez.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> psmouse-fix-mouse-hotplugging.patch
->   psmouse: fix mouse hotplugging
+On Wed, 12 May 2004, Anton Altaparmakov wrote:
+> On Wed, 2004-05-12 at 12:56, andrea.fracasso@infoware-srl.com wrote:
+> > > On Wed, 2004-05-12 at 11:14, andrea.fracasso@infoware-srl.com wrote:
+> > >> Hi, I have found a problem compiling te source of kernel 2.6.6, if I
+> > >> enable NTFS write support when i run "make" i get this error:
+> > >>
+> > >> ....
+> > >>   CC      fs/ntfs/inode.o
+> > >>   CC      fs/ntfs/logfile.o
+> > >> {standard input}: Assembler messages:
+> > >> {standard input}:683: Error: suffix or operands invalid for `bsf'
+> > >> make[2]: *** [fs/ntfs/logfile.o] Error 1
+> > >> make[1]: *** [fs/ntfs] Error 2
+> > >> make: *** [fs] Error 2
+> > >>
+> > >> my kernel version is:
+> > >> Linux version 2.6.5-AS1500 (root@ntb-gozzolox) (gcc version 3.3.2
+> > >> 20031022
+> > >> (Red Hat Linux 3.3.2-1)) #3 Thu Apr 15 10:13:11 CEST 2004
+> > 
+> > The binutils ver is:
+> > binutils-2.14.90.0.6-4
+> 
+> This happens because gcc (wrongly!) optimizes a variable into a constant
+> and then ffs() fails to assemble because the bsfl instruction is only
+> allowed with memory operands and not constants.
 
-This change seems to cause psmouse.proto=bare to no longer work as a
-way of disabling the passthrough port on my laptop's Synaptics touchpad.
-However, the effect is not the same as omitting it entirely; I don't
-see a separate entry for the trackpoint[1] in /proc/bus/input/devices.
+IMHO this should be worked around (fixed) in the inlined __asm__ ffs. Does
+it happen only on Opteron or on other platforms as well?
 
-
-[1] Faulty trackpoint, in my case.
+	Szaka
 

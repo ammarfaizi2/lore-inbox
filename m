@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315693AbSEIK4O>; Thu, 9 May 2002 06:56:14 -0400
+	id <S315699AbSEILSJ>; Thu, 9 May 2002 07:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315695AbSEIK4N>; Thu, 9 May 2002 06:56:13 -0400
-Received: from cm108.omega109.scvmaxonline.com.sg ([218.186.109.108]:24303
-	"EHLO lal.cablix.com") by vger.kernel.org with ESMTP
-	id <S315693AbSEIK4M>; Thu, 9 May 2002 06:56:12 -0400
-Date: Thu, 9 May 2002 19:02:08 +0800 (SGT)
-From: Ng Pek Yong <npy@mailhost.net>
-To: DervishD <raul@viadomus.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Slow harddisk
-In-Reply-To: <3CDA50CE.mail6SA113L7B@viadomus.com>
-Message-ID: <Pine.LNX.4.33.0205091900410.3354-100000@lal.cablix.com>
+	id <S315701AbSEILSJ>; Thu, 9 May 2002 07:18:09 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28164 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S315699AbSEILSH>; Thu, 9 May 2002 07:18:07 -0400
+Message-Id: <200205091114.g49BEOX25910@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: kill task in TASK_UNINTERRUPTIBLE
+Date: Thu, 9 May 2002 13:21:19 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: dal_loma@yahoo.com (Amol Lad), linux-kernel@vger.kernel.org
+In-Reply-To: <E175WFn-000265-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 May 2002, DervishD wrote:
+On 8 May 2002 16:33, Alan Cox wrote:
+> > > TASK_UNINTERRUPTIBLE state ?
+> >
+> > No. Everytime you see hung task in this state
+> > you see kernel bug.
+>
+> Or waiting on a resource that isnt available - that can occur for example
+> with NFS for long periods, or for a few minutes when burning a CD and the
+> IDE bus is locked
 
->     Hi, Ng :))
-> 
-> > I/O support  =  3 (32-bit w/sync)
-> 
->     Try w/o sync
-> 
-> > using_dma    =  0 (off)
-> 
->     Enable dma
-> 
->     This should increase the speed to normal levels.
-> 
->     Raúl
-> 
+I really prefer interruptible NFS mode (without timeout).
 
-It got worse ;)
-
-(note: I can;t get dma to work; see below)
-
-# hdparm -X69 -d1 -u1 -c1 -m16 /dev/hde
-
-/dev/hde:
- setting 32-bit I/O support flag to 1
- setting multcount to 16
- setting unmaskirq to 1 (on)
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- setting xfermode to 69 (UltraDMA mode5)
- multcount    = 16 (on)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  0 (off)
-[root@lal root]# hdparm  -Tt /dev/hde
-
-/dev/hde:
- Timing buffer-cache reads:   128 MB in  2.12 seconds = 60.38 MB/sec
- Timing buffered disk reads:  64 MB in 24.37 seconds =  2.63 MB/sec
-
+If CD burner needs to completely lock IDE, well, that is less than wonderful 
+piece of hardware. I won't blame kernel for this.
+--
+vda
 

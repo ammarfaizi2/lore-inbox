@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTENUzX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 16:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbTENUzX
+	id S262827AbTENUxT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 16:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbTENUxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 16:55:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47625 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262737AbTENUzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 16:55:22 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: The disappearing sys_call_table export.
-Date: 14 May 2003 14:08:02 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b9ub7i$1a0$1@cesium.transmeta.com>
-References: <1052689591.30506.9.camel@dhcp22.swansea.linux.org.uk> <MDEHLPKNGKAHNMBLJOLKEEFFCOAA.davids@webmaster.com>
+	Wed, 14 May 2003 16:53:18 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:62366 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262827AbTENUxR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 16:53:17 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 14 May 2003 14:05:07 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+In-Reply-To: <b9uadh$16e$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.55.0305141404100.4539@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0305141246180.27329-100000@home.transmeta.com>
+ <Pine.LNX.4.55.0305141342030.4539@bigblue.dev.mcafeelabs.com>
+ <b9uadh$16e$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <MDEHLPKNGKAHNMBLJOLKEEFFCOAA.davids@webmaster.com>
-By author:    "David Schwartz" <davids@webmaster.com>
-In newsgroup: linux.dev.kernel
-> 
-> 	I pointed out to them that any software mechanism I devised for shutting
-> the system down would require that they had control over the system in order
-> to invoke the mechanism.
-> 
-> 	They thought about that for a moment and were about to find that the system
-> did not meet the requirements. I pointed out that anyone could pull the plug
-> or network cable if needed or shut the system down at the switch and that
-> this could be accomplished even if they lost control over the system and
-> would certainly stop it from sending any information. They then agreed that
-> the system met that requirement.
-> 
+On Wed, 14 May 2003, H. Peter Anvin wrote:
 
-"Sometimes it's possible to do in hardware what's impossible to do in
-software."  Physical access is a powerful discriminator :)
+> Followup to:  <Pine.LNX.4.55.0305141342030.4539@bigblue.dev.mcafeelabs.com>
+> By author:    Davide Libenzi <davidel@xmailserver.org>
+> In newsgroup: linux.dev.kernel
+> >
+> > Not only. Like Ulrich was saying, the config documentation should heavily
+> > warn the wild config guy about the consequences of a 'NO' over there.
+> >
+>
+> How about creating a master option like we have for experimental?
+> Something like "Allow removal of essential components?" (CONFIG_EMBEDDED)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+I'd agree. Not showing them at all for std configurations is even better.
+
+
+- Davide
+

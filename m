@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSG1S43>; Sun, 28 Jul 2002 14:56:29 -0400
+	id <S317306AbSG1S62>; Sun, 28 Jul 2002 14:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317278AbSG1S42>; Sun, 28 Jul 2002 14:56:28 -0400
-Received: from waste.org ([209.173.204.2]:14229 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317261AbSG1S41>;
-	Sun, 28 Jul 2002 14:56:27 -0400
-Date: Sun, 28 Jul 2002 13:59:12 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH] automatic initcalls
-In-Reply-To: <Pine.LNX.4.44.0207272145050.6125-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0207281223570.17906-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317308AbSG1S62>; Sun, 28 Jul 2002 14:58:28 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:50448 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317306AbSG1S60>;
+	Sun, 28 Jul 2002 14:58:26 -0400
+Date: Sun, 28 Jul 2002 12:00:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Tommy Faasen <faasen@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
+Message-ID: <20020728190049.GA5959@kroah.com>
+References: <20020711230222.GA5143@kroah.com> <32918.192.168.0.100.1027865196.squirrel@thuis.zwanebloem.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32918.192.168.0.100.1027865196.squirrel@thuis.zwanebloem.nl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Sun, 30 Jun 2002 17:54:50 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jul 2002, Linus Torvalds wrote:
+On Sun, Jul 28, 2002 at 04:06:36PM +0200, Tommy Faasen wrote:
+> Hi,
+> 
+> I just tried to compile 2.5.29, haven't tried dev kernels since 2.5.24 and
+> it seems that although the nvidia kernel module builds ok when I try to
+> start X I get a freeze or a reboot. Any chance it has something to do with
+> this?
 
-> On Sat, 27 Jul 2002, Jeff Garzik wrote:
-> >
-> > I've always preferred a system where one simply lists dependencies [as
-> > you describe above], and some program actually does the hard work of
-> > chasing down all the initcall dependency checking and ordering.
-> >
-> > Linus has traditionally poo-pooed this so I haven't put any work towards
-> > it...
->
-> I don't hate the notion, but at the same time every time it comes up I
-> feel that there are reasonably simple ways to just avoid the ordering
-> problems.
+No, I do not.  Without the nvidia kernel module, does everything work
+just fine?
 
-The 'simple ways' are only simpler because they're taking advantage of
-pre-existing (and undocumented) implicit ordering. The explicit
-dependencies are probably less complex on the whole as it lets you take
-out a ton of per-subsystem conditional cruft and replace it with a couple
-lines of dependency info.
+thanks,
 
-Given that sizeof(dependency info)==sizeof(missing documentation of
-dependencies), it's clear that sizeof(dependency info + support + script)
-< sizeof(current ordering code + conditional cruft + missing
-documentation).
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+greg k-h

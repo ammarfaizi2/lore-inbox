@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263858AbTJ1FLm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 00:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTJ1FLm
+	id S261678AbTJ1Gp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 01:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTJ1Gp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 00:11:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46430 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263858AbTJ1FLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 00:11:40 -0500
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: fastboot@lists.osdl.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] [announce] kexec for 2.6.0-test9
-References: <20031027140745.1a5ddc3a.rddunlap@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 27 Oct 2003 22:09:37 -0700
-In-Reply-To: <20031027140745.1a5ddc3a.rddunlap@osdl.org>
-Message-ID: <m1ekwy54oe.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 28 Oct 2003 01:45:57 -0500
+Received: from LION.SEAS.UPENN.EDU ([158.130.12.194]:62618 "EHLO
+	lion.seas.upenn.edu") by vger.kernel.org with ESMTP id S261678AbTJ1Gpz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 01:45:55 -0500
+Date: Tue, 28 Oct 2003 01:45:54 -0500
+From: Peng Li <lipeng@acm.org>
+To: linux-kernel@vger.kernel.org
+Subject: 512MB/1GB RAM & Wireless Card
+Message-ID: <20031028064554.GA20596@seas.upenn.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+If you are impatient to read this message, please jump to the middle
+to see the exciting part.
 
-> Updated kexec patch for 2.6.0-test9 is now available at:
->   http://developer.osdl.org/rddunlap/kexec/2.6.0-test9/
-> 
-> Testing, feedback, results, etc. to fastboot@lists.osdl.org, please.
+Machine: IBM X31 2672E4U, P-M 1.4GHz, BIOS 2.01a, 1GB RAM(512MB DIMMx2)
+OS:      Linux 2.6.0-test9, Gentoo Linux
 
-If the testing reveals a general bug LKML is fine.
+Problem: I installed an Dell Truemobile 1150 MINI PCI wireless card (a
+rebranded orinoco gold) on this machine and it didn't work.  The card
+worked perfectly in Windows, but when I use it in Linux, the PCMCIA
+driver could not find the device.
 
-Randy Looking at the code and what it took to merge with the 4G
-patch.  identity_map_pages needs to be removed from the generic path.
-There needs to be call into the machine specific code to allocate page
-tables or whatever it needs.
+The card bus seemed to work well: it was recogonized as a PCI device,
+and yenta_socket was loaded without any problem.  However, cardctl
+reported that there was no card in the slots. Here are the info:
 
-That piece of code has caused more problems, and has broken more often
-than any of the rest of the generic code.  So it looks to me like it should
-not be generic.  In particular the ppc people had trouble with it as well,
-as various times it has broken on x86.
+http://www.seas.upenn.edu/~lipeng/x31info/1G.NOHIMEM.cardctl.txt
+http://www.seas.upenn.edu/~lipeng/x31info/1G.NOHIMEM.lspci.txt
+http://www.seas.upenn.edu/~lipeng/x31info/1G.NOHIMEM.dmesg.txt
+http://www.seas.upenn.edu/~lipeng/x31info/
 
-One property that should be preserved is that the code should not allocate
-any memory in machine_kexec.  It is very hard to cope with memory
-failures at that point, and in a lot of ways we have already passed
-the point of no return.
+I exhausted the combination of (bios_version, kernel_version,
+kernel_param) and spent several days trying to get it to work.
+Totally frustrated.  All the options such as CONFIG_NOHIGHMEM,
+CONFIG_HIGHIO, ... were attempted.  Finally I opened the my laptop
+trying to reprogram the wireless card with my screwdrivers and
+hammers...
 
-I will look at more as I get time, and thanks for keeping a working
-version around. 
+ *********** EXCITING PART HERE ************
 
-Eric
+IT WORKED!!  When I unplugged one DIMM of the memory and boot it
+with 512MB of memory, it worked perfectly without any problem:
+
+http://www.seas.upenn.edu/~lipeng/x31info/512M.NOHIMEM.cardctl.txt
+http://www.seas.upenn.edu/~lipeng/x31info/512M.NOHIMEM.dmesg.txt
+http://www.seas.upenn.edu/~lipeng/x31info/512M.NOHIMEM.lspci.txt
+
+But when I used it with 1GB RAM again, the card mysteriously
+dissappeared.  All the kernel options doesn't seem to help.  Even I
+boot the kernel with mem=256m, the card still didn't work unless I
+physically unplug one DIMM of memory. Compiling the kernel with 4GB
+support doesn't seem to make a difference.
+
+So what's the problem?  Is it a bug in the kernel or am I doing
+something stupid?  Any suggestions are greatly appreciated.
+
+  -- Peng
+
+
+

@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135440AbRBERLR>; Mon, 5 Feb 2001 12:11:17 -0500
+	id <S130005AbRBERQS>; Mon, 5 Feb 2001 12:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130005AbRBERLH>; Mon, 5 Feb 2001 12:11:07 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41225 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135440AbRBERKx>;
-	Mon, 5 Feb 2001 12:10:53 -0500
-Date: Mon, 5 Feb 2001 18:10:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: patch: loop-4
-Message-ID: <20010205181046.O5285@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130444AbRBERQI>; Mon, 5 Feb 2001 12:16:08 -0500
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:42503 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S130005AbRBERPy>; Mon, 5 Feb 2001 12:15:54 -0500
+Date: Mon, 5 Feb 2001 09:15:52 -0800 (PST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Linux2.4.1-pre1, Kernel is too big for standalone boot from floppy
+In-Reply-To: <E14PoSf-0003dV-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.32.0102050908380.8640-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I just put up a (hopefully) final version of the loop patch,
-this time against 2.4.2-pre1. I'd like people to give this
-a good beating again, and also _please_ test if you have
-crypto loop stuff from 2.2. If nothing bad shows up, I'll
-be submitting this shortly.
+	Hello All ,  I like the warning Ladies & Gents .  But when did it
+	first appear ?  I seem to have missed the announcement in the
+	change logs .  Tia ,  JimL
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.2-pre1/loop-4
+make[2]: Leaving directory
+`/usr/src/linux-2.4.2-pre1/arch/i386/boot/compressed'
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o tools/build
+tools/build.c -I/usr/src/linux/include
+objcopy -O binary -R .note -R .comment -S compressed/bvmlinux
+compressed/bvmlinux.out
+tools/build -b bbootsect bsetup compressed/bvmlinux.out CURRENT > bzImage
+Root device is (8, 1)
+Boot sector 512 bytes.
+Setup is 4512 bytes.
+System is 1418 kB
+warning: kernel is too big for standalone boot from floppy
 
--- 
-Jens Axboe
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

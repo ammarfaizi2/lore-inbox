@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTFIRxC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 13:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTFIRxC
+	id S261328AbTFIRz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 13:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTFIRz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 13:53:02 -0400
-Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:44195 "EHLO
-	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S261188AbTFIRxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 13:53:00 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.70-mm6
-Date: Mon, 9 Jun 2003 19:06:34 +0100
-User-Agent: KMail/1.5.9
-References: <20030607151440.6982d8c6.akpm@digeo.com> <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-In-Reply-To: <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Mon, 9 Jun 2003 13:55:56 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:37763 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261328AbTFIRzz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 13:55:55 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 9 Jun 2003 11:07:32 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Coding standards.  (Was: Re: [PATCH] [2.5] Non-blocking write
+ can block)
+In-Reply-To: <Pine.LNX.4.53.0306091346150.226@chaos>
+Message-ID: <Pine.LNX.4.55.0306091101260.3614@bigblue.dev.mcafeelabs.com>
+References: <Pine.HPX.4.33L.0306040144400.8930-100000@punch.eng.cam.ac.uk>
+ <20030604065336.A7755@infradead.org> <3EDE0E85.7090601@techsource.com>
+ <20030607001202.GB14475@kroah.com> <3EE4B4C3.80902@techsource.com>
+ <20030609163959.GA13811@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.55.0306091001270.3614@bigblue.dev.mcafeelabs.com>
+ <3EE4C4CD.1050809@inet.com> <Pine.LNX.4.53.0306091346150.226@chaos>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200306091906.34155.alistair@devzero.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 June 2003 18:45, Maciej Soltysiak wrote:
-> > . -mm kernels will be running at HZ=100 for a while.  This is because
-> >   the anticipatory scheduler's behaviour may be altered by the lower
-> >   resolution.  Some architectures continue to use 100Hz and we need the
-> >   testing coverage which x86 provides.
->
-> The interactivity seems to have dropped. Again, with common desktop
-> applications: xmms playing with ALSA, when choosing navigating through
-> evolution options or browsing with opera, music skipps.
-> X is running with nice -10, but with mm5 it ran smoothly.
+yOn Mon, 9 Jun 2003, Richard B. Johnson wrote:
 
-[alistair] 07:02 PM [~] uname -r
-2.5.70-mm6
+> Last I looked, we had a good example in the Buslogic SCSI driver.
+> However, just in case it's been changed, I submit herewith an
+> example of real code written by a "professional".
 
-For what it's worth, I'm running an LFS base system with very few packages 
-installed over the top. X is as packaged, it is not reniced. I am, however, 
-running setiathome constantly in the background, which seems to pound the 
-scheduler.
+You know why the code you reported is *wrong* (besides from how
+techincally do things) ? Mixing lower and upper case, using long variable
+and function names, etc... are simply a matter of personal taste and you
+cannot say that such code is "absolutely" wrong. The code is damn wrong
+because it violates about 25 sections of the project's defined CodingStyle
+document, that's why it is wrong.
 
-As Maciej reported, this seems to be significantly better with -mm5 (HZ = 
-1000?). Amusingly, doing a renice -20 `pidof xmms` seems to make absolutely 
-no difference to the scheduler in 2.5-mm.
 
-This kernel does not have preempt enabled.
 
-Cheers,
-Alistair.
+- Davide
+

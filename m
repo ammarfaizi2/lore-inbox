@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133118AbRAVTli>; Mon, 22 Jan 2001 14:41:38 -0500
+	id <S133004AbRAVTyu>; Mon, 22 Jan 2001 14:54:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135220AbRAVTl2>; Mon, 22 Jan 2001 14:41:28 -0500
-Received: from egghead.curl.com ([216.230.83.4]:25604 "HELO egghead.curl.com")
-	by vger.kernel.org with SMTP id <S133118AbRAVTlS>;
-	Mon, 22 Jan 2001 14:41:18 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] Help: 2.2.18 NFS is corrupting our files
-In-Reply-To: <s5gvgr71xao.fsf@egghead.curl.com>
-	<shsbsszqus5.fsf@charged.uio.no>
-From: patl@curl.com (Patrick J. LoPresti)
-Date: 22 Jan 2001 14:41:16 -0500
-In-Reply-To: Trond Myklebust's message of "22 Jan 2001 19:57:46 +0100"
-Message-ID: <s5g66j7tlwj.fsf@egghead.curl.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
-MIME-Version: 1.0
+	id <S133096AbRAVTyl>; Mon, 22 Jan 2001 14:54:41 -0500
+Received: from monza.monza.org ([209.102.105.34]:54544 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S133004AbRAVTy0>;
+	Mon, 22 Jan 2001 14:54:26 -0500
+Date: Mon, 22 Jan 2001 11:54:10 -0800
+From: Tim Wright <timw@splhi.com>
+To: Matthias Schniedermeyer <ms@citd.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mainboard with Serverworks HE Chipset
+Message-ID: <20010122115410.A9425@scutter.sequent.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Matthias Schniedermeyer <ms@citd.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.20.0101170020001.811-100000@citd.owl.de> <20010118145001.B7612@scutter.sequent.com> <20010120122637.A11826@citd.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010120122637.A11826@citd.de>; from ms@citd.de on Sat, Jan 20, 2001 at 12:26:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+Thanks,
+this seems to confirm my suspicion that there's some incompatibility between
+the NMI watchdog code and the Serverworks chipset. Still trying to find out
+exactly what's wrong...
 
-> What filesystem are you exporting?
+Tim
 
-Just ext2; all of our file systems are ext2.
+On Sat, Jan 20, 2001 at 12:26:37PM +0100, Matthias Schniedermeyer wrote:
+> > You could try booting with 'nmi_watchdog=0' and see what happens.
+> 
+> Since i "append"ed it into the lilo-confi i haven't had a lockup. :-))
+> 
+> 
+> 
+> Bis denn
+> 
+> -- 
+> Real Programmers consider "what you see is what you get" to be just as 
+> bad a concept in Text Editors as it is in women. No, the Real Programmer
+> wants a "you asked for it, you got it" text editor -- complicated, 
+> cryptic, powerful, unforgiving, dangerous.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-The disks here are a mixture of IDE, SCSI (aic7xxx and sym53c8xx), and
-Mylex DAC960 RAID.  In this case, the machine running 2.2.18 has
-aic7xxx SCSI.  I suspect I could reproduce the problem on other
-configurations; let me know if that would be useful.
-
- - Pat
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

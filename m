@@ -1,52 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQL1AMZ>; Wed, 27 Dec 2000 19:12:25 -0500
+	id <S129210AbQL1ATh>; Wed, 27 Dec 2000 19:19:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQL1AMO>; Wed, 27 Dec 2000 19:12:14 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:28684 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129267AbQL1AMA>; Wed, 27 Dec 2000 19:12:00 -0500
-Date: Wed, 27 Dec 2000 15:41:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Dan Aloni <karrde@callisto.yi.org>, Zlatko Calusic <zlatko@iskon.hr>,
-        "Marco d'Itri" <md@Linux.IT>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <Pine.LNX.4.21.0012271717230.14052-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10012271537260.10485-100000@penguin.transmeta.com>
+	id <S129507AbQL1AT1>; Wed, 27 Dec 2000 19:19:27 -0500
+Received: from paloma15.e0k.nbg-hannover.de ([62.159.219.15]:44943 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S129210AbQL1ATM>; Wed, 27 Dec 2000 19:19:12 -0500
+From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Nils Philippsen <nils@fht-esslingen.de>
+Subject: Re: test13-preX: DRM (tdfx.o) unresolved symbols fixed?
+Date: Thu, 28 Dec 2000 00:50:32 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="ISO-8859-15"
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Rik Faith <faith@valinux.com>,
+        Dri-devel <Dri-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.30.0012270951360.21331-100000@rhlx01.fht-esslingen.de>
+In-Reply-To: <Pine.LNX.4.30.0012270951360.21331-100000@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00122800503201.00902@SunWave1>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 27. Dezember 2000 11:07 schrieb Nils Philippsen:
+> Hi all,
+>
+> On Wed, 27 Dec 2000, Dieter [iso-8859-1] Nützel wrote:
+> > I got this since test13-pre1 (pre4, now):
+> >
+> > SunWave1>depmod -e
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/tdfx.o
+>
+> [snipped]
+>
+> > Something missing in the 'new' drm/Makefile?
+>
+> From the test13-pre4 patch, the only difference I can see is that shared
+> code is now in drmlib.a instead of the object files being linked
+> individually for each drm module.
 
+Yep, I saw this, too.
 
-On Wed, 27 Dec 2000, Rik van Riel wrote:
-> 
-> The (trivial) patch below should fix this problem.
+> If I do `nm tdfx.o|grep printk`, with test12 I get only this:
+>
+>          U printk_R1b7d4074
 
-It must be wrong.
+dito
+SunWave1>cd ../../../../../2.4.0-test12-pre7/kernel/drivers/char/drm/
+SunWave1>nm tdfx.o | grep printk
+         U printk_R1b7d4074
 
-If we have a dirty page on the LRU lists, that page _must_ have a mapping.
+> with test13-pre4 on my home machine, I get the mangled symbol name plus a
+> non-mangled one, both unresolved, maybe that causes problems.
 
-What semantics would you say a non-mapped page has? What are the LRU
-routines supposed to do with such a page? 
+SunWave1>cd ../../../../../2.4.0-test13-pre4/kernel/drivers/char/drm/
+SunWave1>nm tdfx.o | grep printk
+         U printk
+         U printk_R1b7d4074
 
-The bug is somewhere else, and your patch is just papering it over. We
-should not have a page without a mapping on the LRU lists in the first
-place, except if the page has anonymous buffers (and such a page cannot
-legally be dirty as things are in the standard kernel - Chris Mason has
-been working on stuff that would make that a normal thing, but it would
-also make the page have a mapping).
+But the strange thing is this:
 
-We'd better add a debug check that makes sure that we don't have
-non-mapped non-buffer pages on the LRU lists, and figure out how such a
-thing could happen.
+SunWave1>depmod -e
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/tdfx.o
+depmod:         remap_page_range
+depmod:         _mmx_memcpy
+depmod:         __wake_up
+depmod:         mtrr_add
+depmod:         __generic_copy_from_user
+depmod:         schedule
+[snip]
 
-		Linus
+-Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kölln-Straße 30
+D-22527 Hamburg, Germany
+
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

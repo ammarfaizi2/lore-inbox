@@ -1,106 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315690AbSHGXS0>; Wed, 7 Aug 2002 19:18:26 -0400
+	id <S316491AbSHGXU0>; Wed, 7 Aug 2002 19:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSHGXS0>; Wed, 7 Aug 2002 19:18:26 -0400
-Received: from ppp-217-133-222-186.dialup.tiscali.it ([217.133.222.186]:58002
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S315690AbSHGXSY>; Wed, 7 Aug 2002 19:18:24 -0400
-Subject: Re: [patch] tls-2.5.30-A1
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0208080050300.7410-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208080050300.7410-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-pOHaf857a+rQkv3iFWOG"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 08 Aug 2002 01:21:48 +0200
-Message-Id: <1028762508.1992.309.camel@ldb>
-Mime-Version: 1.0
+	id <S316582AbSHGXU0>; Wed, 7 Aug 2002 19:20:26 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47632 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316491AbSHGXUZ>; Wed, 7 Aug 2002 19:20:25 -0400
+Date: Wed, 7 Aug 2002 19:04:24 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
+       nick.orlov@mail.ru
+Subject: Re: [PATCH] pdc20265 problem.
+In-Reply-To: <1528932608D@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.3.96.1020807184958.14463D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Aug 2002, Petr Vandrovec wrote:
 
---=-pOHaf857a+rQkv3iFWOG
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> On  7 Aug 02 at 0:54, Adam J. Richter wrote:
 
-> your patch looks good to me - as long as we want to keep those 2 TLS
-> entries and nothing more. (which i believe we want.) If even more TLS
-> entries are to be made possible then a cleaner TLS enumeration interface
-> has to be used like Christoph mentioned - although i dont think we really
-> want that, 3 or more entries would be a stretch i think.
-I think that 2 are enough.
-Flat 32-bit programs set ds=es=ss=__USER_DS and cs=__USER_CS so they
-only have fs and gs left.
-16-bit programs and other odd ones can use the LDT support.
+> >     Linux users in the "I'm not a sysadmin" crowd (?) probably
+> > don't care about the scan order of the pdc20265 IDE controller,
+> > but people in the "I'm a sysadmin, not a programmer" crowd
+> > may have legitimiate reasons to.
+> 
+> But such "I'm not a sysadmin" people will be very surprised that their
+> promise was IDE2 in 2.2.x, it was IDE2 in 2.4.18, it is IDE2 in 2.5.30,
+> and now - oops - it is IDE0 in 2.4.19. Broken, I'd say.
 
-As for the interface I would suggest replacing the current one with a
-single interface for LDT and GDT modifications that would provide the
-following parameters:
+And on that one I really do agree. A change like that in 2.5 wouldn't
+bother me beyond usual ten minutes of consigning whoever did it to the
+darkest level of hell ;-) I would think that distributions would ship with
+a kernel which follows Plauger's "law of least astonishment," so it may
+not matter unless you roll your own. Kind of violates the idea of "stable"
+IMHO, but I have other design decisions which bother me far more.
+ 
+> There is an CONFIG_BLK_DEV_OFFBOARD option (apparently unused...),
+> so use this one, if some distribution must force ide0= to promise 
+> if their installer cannot find master disk on /dev/hde. But changing
+> behavior for no reason - especially in the middle of stable series -
+> is IMHO unacceptable. 
 
-unsigned table
-- LDT
-- GDTAVAIL: GDT starting from first TLS
-- GDTABS: GDT starting from 0
-- AUTO: starts with the 2 TLS entries and proceeds with LDT
+I disagree with "no reason," there was a reason, but I do think it was a
+bad idea. There just aren't that many people with an onboard controller to
+justify a change. My opinion, of course.
+ 
+> Fortunately I use 2.5.30's IDE for real work ;-)
 
-unsigned operation
-- set: copy to kernel space (enlarge table if necessary). If root, don't
-check validity for speed, otherwise check to ensure the user is not e.g.
-putting call gates to CPL 0 code.
-- set1: like set, but passes a single entry directly in the num and ptr
-parameters
-- get: copy from kernel space
-- free: free memory and lower limits. If entry = 0 and num = ~0,
-completely frees table.
-- map: only for LDT and for root, allows to directly point to a user
-memory range 
-- movekern: when support for per-task GDT is implemented, this would
-allow to change the entries used for kernel entries. This would be
-implemented with per-CPU IDTs and maybe dynamically generated code.
-Useful for virtualization programs.
+I use 2.5 kernels to test my backups :-( The last one I ran drooled
+spillage in every attached drive, including my BSD drive which is on an
+offboard controller. I would tell you the version, but it gone. Somewhere
+in the 2.5.24..27 range.
 
-unsigned entry
-- first entry affected. ~0 for first unused entry.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-unsigned num
-- number of entries affected
-
-void* ptr
-- pointer to read/write entries from
-
-(table and operations may be merged)
-
-Return value: first entry changed
-
-e.g. libpthread would use table = AUTO, operation = set1, entry = ~0.
-
-For the LDT things would be implemented as usual. For the GDT the
-initial implementation would just modify TLS entries.
-In future, support for dynamically allocated per-task GDTs could be
-added.
-
-I would implement this by adding ops to sys_modify_ldt.
-
-BTW, tls_desc1/tls_desc2 would IMHO be better as gdt_desc[2].
-
-I don't plan to implement this myself.
-
-
---=-pOHaf857a+rQkv3iFWOG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9UauMdjkty3ft5+cRAi2ZAKCB+BTIw3QSS8dlbff/AV7L1DkG4ACg3XyV
-6YYTVvyOAahEhGrqmAy3+pg=
-=JoAq
------END PGP SIGNATURE-----
-
---=-pOHaf857a+rQkv3iFWOG--

@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268342AbUJTItn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269883AbUJTIYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268342AbUJTItn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 04:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270026AbUJTIrs
+	id S269883AbUJTIYv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 04:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269967AbUJTIXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 04:47:48 -0400
-Received: from gate.crashing.org ([63.228.1.57]:31902 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S270067AbUJTIoN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 04:44:13 -0400
-Subject: New consolidate irqs vs . probe_irq_*()
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Anton Blanchard <anton@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20041020083358.GB23396@elte.hu>
-References: <16758.3807.954319.110353@cargo.ozlabs.ibm.com>
-	 <20041020083358.GB23396@elte.hu>
-Content-Type: text/plain
-Message-Id: <1098261745.6263.9.camel@gaston>
+	Wed, 20 Oct 2004 04:23:39 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50694 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270163AbUJTIK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 04:10:58 -0400
+Date: Wed, 20 Oct 2004 09:10:45 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+Message-ID: <20041020091045.D1047@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <10982257353682@kroah.com> <10982257352301@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 18:42:26 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <10982257352301@kroah.com>; from greg@kroah.com on Tue, Oct 19, 2004 at 03:42:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo, while we are at it,
+On Tue, Oct 19, 2004 at 03:42:15PM -0700, Greg KH wrote:
+> ChangeSet 1.1997.37.29, 2004/10/06 12:50:32-07:00, kaneshige.kenji@jp.fujitsu.com
+> 
+> [PATCH] PCI: warn of missing pci_disable_device()
+> 
+> As mentioned in Documentaion/pci.txt, pci device driver should call
+> pci_disable_device() when it decides to stop using the device. But
+> there are some drivers that don't use pci_disable_device() so far.
 
-Do you have any objection if I send a patch making the whole probe_irq_*
-stuff optional on a CONFIG_ option ? (turning it into nops like we used
-to have on ppc until now, if the option isn't set).
+No.  This is wrong.  There are some classes of devices, notably
+PCMCIA Cardbus drivers where buggy BIOS means this should _NOT_
+be done.
 
-I really don't want to mess with that racy mecanism that makes sense for
-ISA only afaik, and it seems some drivers are trying to use it now that
-it's there (/me looks toward yenta_socket) and I'm afraid of the
-consequences since I cannot see how that thing can work properly in the
-first place ;)
+There are BIOSen out there which refuse to suspend/resume if the
+Cardbus bridge is disabled.
 
-Ben.
+It's not that the driver is buggy.  It's that the driver has far
+more information than the PCI layer could ever have.
 
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

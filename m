@@ -1,103 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUEKA36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbUEKAix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUEKA36 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 20:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUEKA27
+	id S262850AbUEKAix (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 20:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUEKAix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 20:28:59 -0400
-Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:1839
-	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
-	id S261862AbUEKA1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 20:27:19 -0400
-thread-index: AcQ27yUjzxrCIWJUSbWTskJ/QAH1pQ==
-X-Sieve: Server Sieve 2.2
-Date: Tue, 11 May 2004 01:30:22 +0100
-From: "Matt Porter" <mporter@kernel.crashing.org>
-To: <Administrator@vger.kernel.org>
-Message-ID: <000001c436ef$252630c0$d100000a@sbs2003.local>
-Cc: <paulus@samba.org>, <linux-kernel@vger.kernel.org>,
-       <linuxppc-dev@lists.linuxppc.org>
+	Mon, 10 May 2004 20:38:53 -0400
+Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:50589 "HELO
+	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262850AbUEKAio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 20:38:44 -0400
+Subject: Re: ptrace in 2.6.5
+From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040510225818.GA24796@nevyn.them.org>
+References: <1UlcA-6lq-9@gated-at.bofh.it>
+	 <m365b4kth8.fsf@averell.firstfloor.org>
+	 <1084220684.1798.3.camel@slack.domain.invalid>
+	 <877jvkx88r.fsf@devron.myhome.or.jp> <873c67yk5v.fsf@devron.myhome.or.jp>
+	 <20040510225818.GA24796@nevyn.them.org>
+Content-Type: text/plain
+Message-Id: <1084236054.1763.25.camel@slack.domain.invalid>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 10 May 2004 21:40:54 -0300
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH] PPC32: Fix __flush_dcache_icache_phys() for Book E
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-X-Mailer: Microsoft CDO for Exchange 2000
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
-X-Loop: linuxppc-dev@lists.linuxppc.org
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-X-me-spamlevel: not-spam
-Content-Class: urn:content-classes:message
-Importance: normal
-X-me-spamrating: 46.777916
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
-X-OriginalArrivalTime: 11 May 2004 00:30:22.0359 (UTC) FILETIME=[25452A70:01C436EF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch implements/uses __flush_dcache_icache_page() which
-kmaps on a Book E part, but keeps the existing behavior on other
-PowerPCs which can disable the MMU. Please apply.
+On Mon, 2004-05-10 at 19:58, Daniel Jacobowitz wrote:
+> On Tue, May 11, 2004 at 07:47:08AM +0900, OGAWA Hirofumi wrote:
+> > OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+> > 
+> > > So single-step exception happen *after* executed the "mov ...".
+> > > Probably you need to use the breakpoint instead of single-step.
+> > 
+> > Ah, sorry. Just use PTRACE_SYSCALL instead of PTRACE_SINGLESTEP.
+> > It's will stop before/after does syscall.
+> 
+> Doing it this way is pretty lousy - you have to inspect the code after
+> every step to see if it's an int $0x80.  Is there some reason not to
+> report a trap on the syscall return path if single-stepping?
 
--Matt
+Strange thing. When entering a syscall, the int 0x80 does clear the
+trap, but first it is saved into the stack. When the iret is executed,
+the eflags is restored from the stack, thus single stepping is
+re-enabled.
 
-diff -Nru a/arch/ppc/mm/fault.c b/arch/ppc/mm/fault.c
---- a/arch/ppc/mm/fault.c	Mon May 10 15:25:17 2004
-+++ b/arch/ppc/mm/fault.c	Mon May 10 15:25:17 2004
-@@ -227,8 +227,7 @@
- 			struct page *page = pte_page(*ptep);
+The question is: the int 0x80 can be seen as complex instructions that
+is only completed after the iret. This way, I do not see why a debug
+trap is not generated afer the int 0x80 and BEFORE the mov.
 
- 			if (! test_bit(PG_arch_1, &page->flags)) {
--				unsigned long phys = page_to_pfn(page) << PAGE_SHIFT;
--				__flush_dcache_icache_phys(phys);
-+				flush_dcache_icache_page(page);
- 				set_bit(PG_arch_1, &page->flags);
- 			}
- 			pte_update(ptep, 0, _PAGE_HWEXEC);
-diff -Nru a/arch/ppc/mm/init.c b/arch/ppc/mm/init.c
---- a/arch/ppc/mm/init.c	Mon May 10 15:25:17 2004
-+++ b/arch/ppc/mm/init.c	Mon May 10 15:25:17 2004
-@@ -572,6 +572,16 @@
- 	clear_bit(PG_arch_1, &page->flags);
- }
+I reinvented the wheel and built a module that did the same thing as
+a singlestep ptrace, and a the trap WAS generated after the int 0x80
+completed, before the mov. 
 
-+void flush_dcache_icache_page(struct page *page)
-+{
-+#ifdef CONFIG_BOOKE
-+	__flush_dcache_icache(kmap(page));
-+	kunmap(page);
-+#else
-+	__flush_dcache_icache_phys(page_to_pfn(page) << PAGE_SHIFT);
-+#endif
-+
-+}
- void clear_user_page(void *page, unsigned long vaddr, struct page *pg)
- {
- 	clear_page(page);
-@@ -614,7 +624,7 @@
- 			if (vma->vm_mm == current->active_mm)
- 				__flush_dcache_icache((void *) address);
- 			else
--				__flush_dcache_icache_phys(pfn << PAGE_SHIFT);
-+				flush_dcache_icache_page(page);
- 			set_bit(PG_arch_1, &page->flags);
- 		}
- 	}
-diff -Nru a/include/asm-ppc/cacheflush.h b/include/asm-ppc/cacheflush.h
---- a/include/asm-ppc/cacheflush.h	Mon May 10 15:25:17 2004
-+++ b/include/asm-ppc/cacheflush.h	Mon May 10 15:25:17 2004
-@@ -41,6 +41,6 @@
+So I think it has sth to do with the debug trap handler. 
 
- extern void __flush_dcache_icache(void *page_va);
- extern void __flush_dcache_icache_phys(unsigned long physaddr);
--
-+extern void flush_dcache_icache_page(struct page *page);
- #endif /* _PPC_CACHEFLUSH_H */
- #endif /* __KERNEL__ */
-
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
+I DO NOT BELIEVE THIS BEAVIOUR is right, since if it is not stopping
+after the int 0x80, ptrace is not TRULLY singlestepping.
 
 

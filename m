@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277362AbRJEL7b>; Fri, 5 Oct 2001 07:59:31 -0400
+	id <S277366AbRJEMGm>; Fri, 5 Oct 2001 08:06:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277365AbRJEL7W>; Fri, 5 Oct 2001 07:59:22 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:19987 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277362AbRJEL7G>;
-	Fri, 5 Oct 2001 07:59:06 -0400
-Date: Fri, 5 Oct 2001 08:59:19 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>
-Cc: <linux-xfs@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: %u-order allocation failed
-In-Reply-To: <20011005130722.A6570@main.braxis.co.uk>
-Message-ID: <Pine.LNX.4.33L.0110050857080.4835-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277365AbRJEMGb>; Fri, 5 Oct 2001 08:06:31 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:20718 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S277363AbRJEMGP>;
+	Fri, 5 Oct 2001 08:06:15 -0400
+Date: Fri, 5 Oct 2001 14:06:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: 2.4.11pre4 and oom
+Message-ID: <20011005140600.G724@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Krzysztof Rusocki wrote:
+as far I can tell the oom patch you included in pre4 can deadlock the
+machine during oom. Obviously, think if the oom-selected task is looping
+trying to free memory, it won't care about the signal you sent to it.
+This ignoring the fact it can be in D state and the fact oom() cannot
+know know when we're oom or not by only looking at the incomplete stats
+anyways.
 
-> After simple bash fork bombing (about 200 forks) on my UP Celeron/96MB
-> I get quite a lot %u-allocations failed, but only when swap is turned
-> off.
+Now it's obvious you don't care and that most people won't notice the
+problem (and the problem is always been in -ac VM too most probably for
+ages and again nobody is complaining) and that it is going to cure the
+oom faliures and that we could just ignore any seldom oom deadlock
+bugreport with Ben's argument that people shouldn't run oom in first
+place, but despite of this I prefer not to take that route in -aa
+because I strongly believe that people is allowed to run oom without
+turning down the machine, infact I also dislike the PF_MEMALLOC logic
+that doesn't mathematically "guarantee" that there's enough memory to
+"release memory", there should be proper reservation done by each
+filesystem that can be involved in the ram freeing (like we do with
+highmem), but ok, that's invasive change so I'm living with PF_MEMALLOC
+for now, let's assume there's really enough memory in the pf_memalloc
+reserved pool.
 
-> I'm not familiar with LinuxVM.. so... is it normal behaviour ? or (if not)
-> what's happening when such messages are printed my kernel ?
-
-This is perfectly normal behaviour:
-
-1) on your system, you have no process limit configured for
-   yourself so you can start processes until all resources
-   (memory, file descriptors, ...) are used
-
-2) when all processes are used, there really is no way the
-   kernel can buy you more hardware on ebay and install it
-   on the fly ... all it can do is start failing allocations
-
-On production systems, good admins setup per-user limits for
-the various resources so no single user is able to run the
-system into the ground.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Andrea

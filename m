@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265063AbSJaBDy>; Wed, 30 Oct 2002 20:03:54 -0500
+	id <S265083AbSJaBP4>; Wed, 30 Oct 2002 20:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbSJaBDy>; Wed, 30 Oct 2002 20:03:54 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:43944 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S265063AbSJaBDx>; Wed, 30 Oct 2002 20:03:53 -0500
-Date: Wed, 30 Oct 2002 18:10:02 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031011002.GB28191@opus.bloom.county>
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S265084AbSJaBP4>; Wed, 30 Oct 2002 20:15:56 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:8577 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S265083AbSJaBPx>; Wed, 30 Oct 2002 20:15:53 -0500
+Date: Thu, 31 Oct 2002 02:22:18 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.45
+Message-Id: <20021031022218.2cb81b2e.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=./.dC9g5P_sXkx1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 01:53:14AM +0100, Adrian Bunk wrote:
-> On Wed, 30 Oct 2002, Rasmus Andersen wrote:
-> 
-> > Hi,
-> 
-> Hi Rasmus,
-> 
-> >...
-> > As before, your comments and suggestions will be
-> > appreciated.
-> 
-> could you try to use "-Os" instead of "-O2" as gcc optimization option
-> when CONFIG_TINY is enabled? Something like the following (completely
-> untested) patch:
+--=./.dC9g5P_sXkx1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
--Os can produce larger binaries, keep in mind.  If we're going to go
-this route, how about something generally useful, and allow for general
-optimization level / additional CFLAGS to be added.
+On Wed, 30 Oct 2002 16:56:29 -0800 (PST) Linus Torvalds (LT) wrote:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+LT> Summary of changes from v2.5.44 to v2.5.45
+LT> ============================================
+
+[...]
+
+fs/nfsd/nfs4proc.c: In function `nfsd4_write':
+fs/nfsd/nfs4proc.c:484: warning: passing arg 4 of `nfsd_write' from incompatible pointer type
+fs/nfsd/nfs4proc.c:484: warning: passing arg 6 of `nfsd_write' makes integer from pointer without a cast
+fs/nfsd/nfs4proc.c:484: too few arguments to function `nfsd_write'
+fs/nfsd/nfs4proc.c: In function `nfsd4_proc_compound':
+fs/nfsd/nfs4proc.c:568: structure has no member named `rq_resbuf'
+fs/nfsd/nfs4proc.c:569: structure has no member named `rq_resbuf'
+fs/nfsd/nfs4proc.c:569: structure has no member named `rq_resbuf'
+make[3]: *** [fs/nfsd/nfs4proc.o] Error 1
+
+Regards,
+-Udo.
+
+--=./.dC9g5P_sXkx1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9wIXKnhRzXSM7nSkRAkIKAJ97nMxRIGxG28DRLY6r7kBxbN1J+wCfdIhI
+aWLo6NJJMrvsyEzpcTwy9AI=
+=ED+F
+-----END PGP SIGNATURE-----
+
+--=./.dC9g5P_sXkx1--

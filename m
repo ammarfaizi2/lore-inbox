@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275381AbRIZRte>; Wed, 26 Sep 2001 13:49:34 -0400
+	id <S275385AbRIZRtd>; Wed, 26 Sep 2001 13:49:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275383AbRIZRtZ>; Wed, 26 Sep 2001 13:49:25 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20742 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275386AbRIZRtH>; Wed, 26 Sep 2001 13:49:07 -0400
-Subject: Re: Locking comment on shrink_caches()
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 26 Sep 2001 18:40:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        bcrl@redhat.com, marcelo@conectiva.com.br, andrea@suse.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com> from "Linus Torvalds" at Sep 26, 2001 10:25:18 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S275381AbRIZRtU>; Wed, 26 Sep 2001 13:49:20 -0400
+Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:18304 "EHLO
+	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
+	id <S275383AbRIZRsI>; Wed, 26 Sep 2001 13:48:08 -0400
+Date: Wed, 26 Sep 2001 13:48:26 -0400 (EDT)
+From: Stephen Torri <storri@ameritech.net>
+X-X-Sender: <torri@base.torri.linux>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.9-ac15 (double entries for DRI cards)
+Message-ID: <Pine.LNX.4.33.0109261340560.1820-100000@base.torri.linux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15mIfQ-0001E5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	PIII:
-> 		nothing: 32 cycles
-> 		locked add: 50 cycles
-> 		cpuid: 170 cycles
-> 
-> 	P4:
-> 		nothing: 80 cycles
-> 		locked add: 184 cycles
-> 		cpuid: 652 cycles
+In "Character Devices" when configuring the kernel using xconfig there are
+double entries for video cards under Direct Rendering Manager.  The
+following cards are reported twice:
 
+3dfx Banshee/Voodoo3+
+3dlabs GMX 2000
+ATI Rage 128
+ATI Radeon
+Intel I810
+Matrox G200/G400/G450
 
-Original core Athlon (step 2 and earlier)
+They menu is correct when doing menuconfig. They are only reported once.
+The bug is repeatable.
 
-nothing: 11 cycles
-locked add: 22 cycles
-cpuid: 67 cycles
+kernel: 2.4.9 patched with 2.4.9-ac15.
+gcc: 3.0.2 (snapshot)
 
-generic Athlon is
+Stephen
 
-nothing: 11 cycles
-locked add: 11 cycles
-cpuid: 64 cycles
-
-
-I don't currently have a palomino core to test
-
-Wait for AMD to publish graphs of CPUid performance for PIV versus Athlon 8)
-
-
-Alan

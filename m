@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKHW6U>; Wed, 8 Nov 2000 17:58:20 -0500
+	id <S129650AbQKHXA7>; Wed, 8 Nov 2000 18:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129211AbQKHW6J>; Wed, 8 Nov 2000 17:58:09 -0500
-Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:1789 "HELO
-	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S129183AbQKHW6C>; Wed, 8 Nov 2000 17:58:02 -0500
-Message-ID: <FEEBE78C8360D411ACFD00D0B74779718808E5@xsj02.sjs.agilent.com>
-From: hiren_mehta@agilent.com
-To: jgarzik@mandrakesoft.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: accessing on-card ram/rom
-Date: Wed, 8 Nov 2000 15:57:59 -0700 
+	id <S129265AbQKHXAt>; Wed, 8 Nov 2000 18:00:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23612 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129650AbQKHXAq>; Wed, 8 Nov 2000 18:00:46 -0500
+Subject: Linux 2.4.0test11pre1ac1
+To: linux-kernel@vger.kernel.org
+Date: Wed, 8 Nov 2000 23:01:50 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13teE4-0000XI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked at the IO-mapping.txt file. It says that
-on x86 architecture it should not make any difference.
-It also says that "on x86 it _is_ the same memory space. So
-on x86 it actually works to just dereference a pointer".
+This is the patches I have in my pending/twiddled with pile at the moment.
+I'll also send bits of this off to Linus
 
-Any inputs on this ?
+Whats different
 
-Thanks and regards,
--hiren
+o	Ramfs allows size limiting (very handy when fiddling with PDA's)
+o	Knows the 'kgcc' convention for conectiva/mandrake/red hat
+o	Build ACPI if you have ACPI but no interpreter
+o	Tidy up naming on machine check code
+o	36bit MTRR
+o	Fix PIV ident bug
+o	Fix K6 CPU on dual board crash
+o	Much faster block copy functions on the Athlon
+o	Fix daemonize to do exit_files. All callers do this or should do
+	anyway
+o	Cpqarray procfs fix
+o	Fix build bug with old hard disk driver
+o	Fix free then reference with pcbit isdn
+o	Check/requestion region clean for radio drivers
+o	Cleaner version of the PnP cadet radio patch
+o	Seperate tx timeout code for 8390
+o	Network driver request region fixes
+o	de4x5 user space copy in spinlock fix
+o	epic100 delay fixes
+o	Avoid crash on iph5526 on out of memory
+o	Fix locking bugs on roadrunner
+o	Fix crash on insmod risk with many scsi drivers
+o	Fix incorrect runtime panics in some scsi drivers
+o	Fix HZ in the aha152x driver
+o	Remove escaped and dead check for I2O in megaraid
+o	Fix i810 audio driver
+o	Fix cramfs initrd data loss bug
+o	Fix power management locking
+o	Fix resource printks that only print 4 digits
+o	Fix missing return value in atm pvc
+o	Disable SPX (doesnt work, no maintainer etc)
 
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-> Sent: Wednesday, November 08, 2000 2:53 PM
-> To: MEHTA,HIREN (A-SanJose,ex1)
-> Cc: 'linux-kernel@vger.kernel.org'
-> Subject: Re: accessing on-card ram/rom
-> 
-> 
-> "MEHTA,HIREN (A-SanJose,ex1)" wrote:
-> > I have a PCI card which has on-card ram/rom which gets mapped
-> > into pci address space and there is a separate base register
-> > for this memory. Now the question is : can I access this on-card
-> > memory by converting the pci base address into the virtual address
-> > using bus_to_virt and adding the required offset ? Or do I need
-> > to use ioremap function to map the physical address space starting
-> > from the pci base address into the kernel virtual address space ?
-> > Or is there any other interface to access the on-card memory ?
-> > Is it that bus_to_virt can be used only for the normal RAM ?
-> 
-> Use ioremap.
-> 
-> For more details, read linux/Documentation/IO-mapping.txt.
-> 
-> 	Jeff
-> 
-> 
-> -- 
-> Jeff Garzik             | "When I do this, my computer freezes."
-> Building 1024           |          -user
-> MandrakeSoft            | "Don't do that."
->                         |          -level 1
-> 
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUFLUn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264918AbUFLUxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbUFLUn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 16:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUFLUn4
+	id S264918AbUFLUxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 16:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUFLUxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 16:43:56 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:31955 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264919AbUFLUnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 16:43:55 -0400
-Date: Sat, 12 Jun 2004 13:43:52 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Egmont Koblinger <egmont@uhulinux.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: information leak in vga console scrollback buffer
-Message-ID: <20040612204352.GA22347@taniwha.stupidest.org>
-References: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu>
+	Sat, 12 Jun 2004 16:53:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59847 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264918AbUFLUxE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 16:53:04 -0400
+Date: Sat, 12 Jun 2004 13:53:02 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+Message-ID: <20040612135302.Y22989@build.pdx.osdl.net>
+References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com> <20040611201523.X22989@build.pdx.osdl.net> <C636D44C-BC2B-11D8-888F-000393ACC76E@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <C636D44C-BC2B-11D8-888F-000393ACC76E@mac.com>; from mrmacman_g4@mac.com on Sat, Jun 12, 2004 at 12:48:40AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 12, 2004 at 10:01:43PM +0200, Egmont Koblinger wrote:
+* Kyle Moffett (mrmacman_g4@mac.com) wrote:
+> On Jun 11, 2004, at 23:15, Chris Wright wrote:
+> > Hrm.  Wouldn't it be possible that two processes with same uid have
+> > authenticated in different domains, and as such shouldn't be allowed to
+> > touch each other's PAGs?  Or is this not allowed?
+> 
+> Linux doesn't really support the idea that a process should not be able 
+> to
+> affect another process in the same UID.  There's too many things that
 
-> Using the standard vga console, it is easily possible to read some
-> random pieces of texts that were scrolled out a long time ago (often
-> you can see your boot messages or similar stuff even after switcing
-> to another console or even to X. All you need is a local user access
-> to the console.
+Actually that's not the case.  The UID is currently insufficient to
+describe the security domain that a process is running in.  The whole
+of the LSM infrastructure is designed with this in mind.  So somehting
+like SELinux may enforce a security domain change (w/out a UID change)
+across an execve() of pagsh.  I was simply trying to ascertain if you
+were storing this within task->user which I think would be wrong.
 
-Feature not bug.
-
-
-
-  --cw
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,62 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbTJIHAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 03:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTJIHAn
+	id S261905AbTJIHJS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 03:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbTJIHJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 03:00:43 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15891
+	Thu, 9 Oct 2003 03:09:18 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16915
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261901AbTJIHAk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 03:00:40 -0400
-Date: Wed, 8 Oct 2003 23:57:44 -0700 (PDT)
+	id S261905AbTJIHJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 03:09:03 -0400
+Date: Thu, 9 Oct 2003 00:06:04 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Dave Jones <davej@redhat.com>
-cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkcd-devel@lists.sourceforge.net,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: vatsa@in.ibm.com, lkcd-devel@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-ide@vger.kernel.org
 Subject: Re: [PATCH] Poll-based IDE driver
-In-Reply-To: <20031008164851.GT29736@redhat.com>
-Message-ID: <Pine.LNX.4.10.10310082355530.12324-100000@master.linux-ide.org>
+In-Reply-To: <1065649641.10565.21.camel@dhcp23.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10310082359510.12324-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The rules are different in POLLing.
+Hardware reset and stomping all over the drive.
+Force jam the do_request caller to fail with error_buffer.
+All drives have to honor polling or they fail POST on x86.
+nIEN is used to signal the HBA to pass the drive interrupt to the host
+cpu, other wise delivery does not happen period.
+Assume nothing about PIO, because the drive will default to normal state
+and the HBA will magically match.
+Sleep is not suspend, and these two are confused many times.
+Flush, who cares you disable write cache upon entry after the rest.
 
-Totally different state machine, and nothing seen here to date.
-You can not call any kernel services you can not depend upon.
-
-Using altstat is actually required but that is another day.
+Cheers,
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Wed, 8 Oct 2003, Dave Jones wrote:
+On Wed, 8 Oct 2003, Alan Cox wrote:
 
-> On Wed, Oct 08, 2003 at 09:36:36AM -0700, Andre Hedrick wrote:
->  > 
->  > Does not matter, priority is to get content to platter and the hell with
->  > everything else.
+> On Mer, 2003-10-08 at 10:43, Srivatsa Vaddagiri wrote:
+> > 1. Taking control of the drive
+> > 	It is possible that the kernel IDE driver was very _actively_
+> > 	using the dump drive when my driver takes over. For ex, there
+> > 	may be active DMA requests pending with the drive when 
+> > 	my driver takes control ..
 > 
-> I don't buy this. Without correct udelay()'s, how is code like this..
+> In 2.4 we issue one command at a time in 2.6 we may have several TCQ 
+> commands queued. You may need to test if the drive is busy, wait and if
+> neccessary reset and recover it. If possible avoid the reset because
+> that means the drive will need some reconfiguration (see specs)
 > 
->         for (i = 0; i < 10; i++) {
->                 dump_udelay(1);
->                 if (OK_STAT((stat = hwif->INB(IDE_STATUS_REG)), good, bad))
->                         return 0;
->         } 
+> > 	Currently all my drive does to take control of the drive
+> > 	is to disable drive interrupts (set nIEN bit). It then
+> > 	starts issuing PIO WRITE commands to write data to disk.
 > 
-> expected to work ? It won't wait for 10usec at all, but be over almost instantly.
-> Ramming commands at the drive before its status has settled doesn't strike
-> me as a particularly safe thing to do.
+> Make sure you disable interrupts before using nIEN. Not all older
+> devices honour nIEN so you can get suprises
 > 
-> 		Dave
+> > 	Do I need to do anything else in order to take 
+> > 	control of the drive?
+> > 	
+> > 	Do I need to explicitly program the drive for PIO transfer
+> > 	mode before I start issuing it PIO write commands?
 > 
-> -- 
->  Dave Jones     http://www.codemonkey.org.uk
+> The PIO mode on the controller and drive should have been set correctly
+> by the base IDE driver at boot time.
+> 
+> > 2. Power Management
+> > 	Tackling Sleep state may involve a drive reset followed by 
+> > 	reinitializing drive parameters which will make my driver 
+> > 	more complex (as I may have to take care of reset sequence of 
+> > 	various chipsets separately). For now, I would like my driver 
+> > 	not supporting the sleep state.
+> 
+> Makes sense. Many drives seem to come out of sleep state themselves
+> anyway. 
+>  
+> > 3. Shutdown sequence
+> > 	You mentioned that I need to follow proper shutdown sequence
+> > 	when I am done writing to the drive. Apart from 
+> > 	flushing (if the drive supports it) is there anything
+> > 	more to the shutdown sequence?
+> 
+> Flush the cache, and place the drive in a suitable standby/sleep state -
+> follow the code in ide-disk.c for the way we do it in the main code. 
+> 
+> > 4. Relinquishing control of the drive
+> > 	Currently all I am doing to give control back to
+> > 	the kernel IDE driver is to re-enable the drive
+> > 	interrupts (clear nIEN). 
+> > 		
+> > 	Is there anything more I need to be taking care of?
+> 
+> Hard question. I think that providing you mark the drive busy, wait
+> for the IDE layer to complete any pending commands and restore the state
+> afterwards it ought to be possible. Would need a lot of thought and more
+> time than I have right now to think about it since getting it wrong
+> might lose requests and generate very hard to pin down errors.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
 

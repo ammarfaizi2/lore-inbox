@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131958AbRDDTX1>; Wed, 4 Apr 2001 15:23:27 -0400
+	id <S131973AbRDDT0s>; Wed, 4 Apr 2001 15:26:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131973AbRDDTXR>; Wed, 4 Apr 2001 15:23:17 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:14606 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S131958AbRDDTXN>; Wed, 4 Apr 2001 15:23:13 -0400
-Message-ID: <3ACB7438.D1A233A7@didntduck.org>
-Date: Wed, 04 Apr 2001 15:21:28 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S131974AbRDDT0j>; Wed, 4 Apr 2001 15:26:39 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:54534 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131973AbRDDT00>; Wed, 4 Apr 2001 15:26:26 -0400
+X-Apparently-From: <nietzel@yahoo.com>
+Message-ID: <005101c0bd88$a0fcd520$1401a8c0@nietzel>
+Reply-To: "Earle Nietzel" <nietzel@yahoo.com>
+From: "Earle Nietzel" <nietzel@yahoo.com>
+To: "Giuliano Pochini" <pochini@denise.shiny.it>
+Cc: <linux-kernel@vger.kernel.org>, "Ben Ford" <ben@kalifornia.com>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Justin T. Gibbs" <gibbs@scsiguy.com>
+In-Reply-To: <003001c0ba23$217f81c0$1401a8c0@nietzel> <3AC8BEC7.CC5AA019@denise.shiny.it>
+Subject: Re: Minor 2.4.3 Adaptec Driver Problems
+Date: Wed, 4 Apr 2001 21:26:43 -0700
 MIME-Version: 1.0
-To: Frank Cornelis <Frank.Cornelis@rug.ac.be>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.3 crashed my hard disk
-In-Reply-To: <Pine.GSO.4.10.10104042028270.13922-100000@eduserv2.rug.ac.be>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Cornelis wrote:
-> 
-> Hey,
-> 
-> After I did put in /etc/sysconfig/harddisks
->         USE_DMA=1
-> my system did crash very badly, I guess after my hard disks did wake up
-> again. For I while I though I'd lose some sectors because of this, I had
-> to re-install my RedHat 7.0, had a not so productive day :) But, hard
-> disks are OK now.
-> I thought I should report this.
-> Below there is a copy of my dmesg log.
-> 
-> BTW: my motherboard runs at 112 Mhz, overclocked, was 100 Mhz.
-> Been running this configuration over more than 2 years now without such
-> major problems.
-> Could this be the cause?
-> 
-> Frank.
+>
+> That's what ext2 volume labels are for.
+>
 
-http://www.tux.org/lkml/#s13-3
+That is really not a great solution although it's half OK.
 
---
+Here's why?
 
-				Brian Gerst
+You can put labels on all your ext2 partitons but what happens on:
+    cdroms
+    zip drives
+and probably most important:
+    swap
+but lets just say anything other than ext2 partition.
+
+Also you can't put a LABEL in LILO either.
+
+This is probably great for those people who use ide only, but then again
+people who had ide only machines were not affected by v2.4.3!
+
+Good try though!!!
+
+Earle
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137059AbREKHEE>; Fri, 11 May 2001 03:04:04 -0400
+	id <S137062AbREKHFF>; Fri, 11 May 2001 03:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137058AbREKHDy>; Fri, 11 May 2001 03:03:54 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S136913AbREKHDh>;
-	Fri, 11 May 2001 03:03:37 -0400
-Date: Mon, 7 May 2001 19:07:27 +0000
+	id <S137061AbREKHEy>; Fri, 11 May 2001 03:04:54 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:2564 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S137060AbREKHEo>;
+	Fri, 11 May 2001 03:04:44 -0400
+Date: Mon, 7 May 2001 19:03:22 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: agrawal@ais.org
-Cc: linux-kernel@vger.kernel.org
-Subject: vsyscallRe: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <20010507190726.C45@(none)>
-In-Reply-To: <20010503210904.B9715@bug.ucw.cz> <Pine.LNX.4.10.10105031541190.32369-100000@SLASH.REM.CMU.EDU>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: vsyscalls [was Re: X15 alpha release: as fast as TUX but in user space (fwd)]
+Message-ID: <20010507190320.A45@(none)>
+In-Reply-To: <80BTbB7Hw-B@khms.westfalen.de> <E14vFXu-0005FC-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10105031541190.32369-100000@SLASH.REM.CMU.EDU>; from agrawal@ais.org on Thu, May 03, 2001 at 03:50:07PM -0400
+In-Reply-To: <E14vFXu-0005FC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 03, 2001 at 10:37:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > That means that for fooling closed-source statically-linked binary,
-> > you now need to patch kernel. That's regression; subterfugue.org could
-> > do this with normal user rights in 2.4.0.
+> > > PS: Hmm, how do you do timewarp for just one userland appliation with
+> > > this installed?
+> > 
+> > 1. What on earth for?
 > 
-> This is particularly pretty, but something that might work:
+> Y2K testing was one previous example.
 > 
-> 1. a "deceiver" process creates a shared memory page, populates shared
->    page with appropriate magic (perhaps copying from its own magic page?)
-> 2. have subterfuge unmap the magic page for the fooled process, and map in
->    the shared page in its place (assumes subterfuge can insert system
->    calls, instead of just modifying them)
+> > 2. How do you do it today, and why wouldn't that work?
+> 
+> LD_PRELOAD and providing its still using a lib call it would. I dont see the
+> original posters problem
 
-subterfugue can insert calls just fine; just I'm not sure if vsyscall
-implementation will let you unmap magic page.
+LD_PRELOAD is not reliable: application may do syscall itself and find
+out true time. But ptrace works currently and *is* reliable.
 
-> 3. deceiver periodically updates magic page
-
-This is going to be the hard part.
-
+Problem is that vsyscalls ay take ability to use ptrace to fool apps away.
+								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

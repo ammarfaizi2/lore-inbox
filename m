@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263621AbTCUOFZ>; Fri, 21 Mar 2003 09:05:25 -0500
+	id <S263619AbTCUOEQ>; Fri, 21 Mar 2003 09:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263622AbTCUOFZ>; Fri, 21 Mar 2003 09:05:25 -0500
-Received: from bitmover.com ([192.132.92.2]:42155 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S263621AbTCUOFY>;
-	Fri, 21 Mar 2003 09:05:24 -0500
-Date: Fri, 21 Mar 2003 06:16:20 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Pavel Machek <pavel@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
-       Nicolas Pitre <nico@cam.org>, Ben Collins <bcollins@debian.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030321141620.GA25142@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
-	Roman Zippel <zippel@linux-m68k.org>, Nicolas Pitre <nico@cam.org>,
-	Ben Collins <bcollins@debian.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303162014090.12110-100000@serv> <20030316215219.GX1252@dualathlon.random> <20030317215639.GG15658@atrey.karlin.mff.cuni.cz> <20030317220830.GM1324@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263621AbTCUOEQ>; Fri, 21 Mar 2003 09:04:16 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:38325 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S263619AbTCUOEP>; Fri, 21 Mar 2003 09:04:15 -0500
+Message-ID: <20030321141454.18751.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20030317220830.GM1324@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: alexh@ihatent.com, akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Date: Fri, 21 Mar 2003 15:14:54 +0100
+Subject: Re: 2.5.65-mm3
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 11:08:30PM +0100, Andrea Arcangeli wrote:
-> > Actually, fact that "longest path" algorithm may well choose
-> > non-mainline branch because it likes it more worries me a bit.
-> 
-> AFIK it's supposed to be the "longest path" of Linus's and Marcelo's
-> branches which means it'll reproduce all the modifcations of the
-> mainline trees only.
-
-By the way, we've been incrementally updating both trees and while in 
-theory the incremental could result in shorter paths with less detail,
-so far the incremental export and the one pass export result in exactly
-the same path:
-
-    slovax $ bk _eventpath 1.0 + | wc -l
-       8498
-    slovax $ cd ../linux-2.5-cvs/linux-2.5
-    slovax $ rlog -r -N ChangeSet | grep revision
-    revision 1.8498
-
-I've actually reimported the data in one pass and diffed the RCS files,
-it's the same.
-
-HPA, should we be mirroring the CVS tarballs to kernel.org?
+----- Original Message ----- 
+From: Alexander Hoogerhuis <alexh@ihatent.com> 
+Date: 	21 Mar 2003 11:58:18 +0100 
+To: Andrew Morton <akpm@digeo.com> 
+Subject: Re: 2.5.65-mm3 
+ 
+> Andrew Morton <akpm@digeo.com> writes: 
+> > 
+> > [SNIP] 
+> > 
+>  
+>   gcc -Wp,-MD,net/ipv4/netfilter/.ip_conntrack_core.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4 
+-Iinclude/asm-i386/mach-default 
+> -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=ip_conntrack_core  -c -o 
+net/ipv4/netfilter/.tmp_ip_conntrack_core.o net/ipv4/netfilter/ip_conntrack_core.c 
+> net/ipv4/netfilter/ip_conntrack_core.c: In function `remove_expectations': 
+> net/ipv4/netfilter/ip_conntrack_core.c:276: invalid suffix on integer constant 
+> net/ipv4/netfilter/ip_conntrack_core.c:276: called object is not a function 
+> make[4]: *** [net/ipv4/netfilter/ip_conntrack_core.o] Error 1 
+> make[3]: *** [net/ipv4/netfilter] Error 2 
+> make[2]: *** [net/ipv4] Error 2 
+> make[1]: *** [net] Error 2 
+> make: *** [modules] Error 2 
+>  
+ 
+Edit line 276 of net/ipv4/netfilter/ip_conntrack_core and simply 
+remove the '3D' sequence of characters after the equal (=) 
+sign. 
+ 
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

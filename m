@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277532AbRKVLxj>; Thu, 22 Nov 2001 06:53:39 -0500
+	id <S277541AbRKVMDu>; Thu, 22 Nov 2001 07:03:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRKVLxT>; Thu, 22 Nov 2001 06:53:19 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:30468 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S277532AbRKVLxI>; Thu, 22 Nov 2001 06:53:08 -0500
-Date: Thu, 22 Nov 2001 12:46:13 +0100
-From: Jurriaan on Alpha <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: SYM2 driver: warnings about linux/malloc.h in 2.4.15-pre9
-Message-ID: <20011122124613.A5067@alpha.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+	id <S277564AbRKVMDk>; Thu, 22 Nov 2001 07:03:40 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40129 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S277541AbRKVMDa>;
+	Thu, 22 Nov 2001 07:03:30 -0500
+Date: Thu, 22 Nov 2001 07:03:28 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: Stevie O <stevie@qrpff.net>, Vincent Sweeney <v.sweeney@dexterus.com>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Bad #define, nonportable C, missing {} 
+In-Reply-To: <200111221146.fAMBk8XF006908@pincoya.inf.utfsm.cl>
+Message-ID: <Pine.GSO.4.21.0111220655040.29272-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[3]: Entering directory `/usr/src/linux-2.4.15pre9/drivers/scsi/sym53c8xx_2'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.15pre9/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-al
-iasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6  -I.  -c -o sym_fw.o sym_fw.c
-In file included from sym_glue.h:80,
-                 from sym_fw.c:56:
-/usr/src/linux-2.4.15pre9/include/linux/malloc.h:4: warning: #warning linux/malloc.h is deprecated, use linux/slab.h instead.
 
-there's more of these, and they may have been in earlier kernels as
-well. This is when compiling on an Alpha, btw.
 
-Good luck,
-Jurriaan
--- 
-"Oh", he said finally.
-"And what's that supposed to mean?"
-"It means he's thinking", said the unicorn. "Always a bad sign."
-	Simon R Green - Blue Moon Rising
-GNU/Linux 2.4.15-pre7 on Debian/Alpha 64-bits 988 bogomips load:0.13 0.24 0.24
+On Thu, 22 Nov 2001, Horst von Brand wrote:
+
+> Stevie O <stevie@qrpff.net> said:
+
+> > But x++ is postincrement though. That means the value of 'x' is inserted, 
+> > and after the expression is evaluated, x is incremented. Right?
+> 
+> Nope. x++ increments x sometime (not defined when) after taking the value. 
+> 
+>    x = x++ % y
+> 
+> is wrong: There is just one sequence point at the end of the expression,
+> and x is modified twice in between (++ and =).
+
+Or look at it that way: both
+	tmp = x % y; x++; x = tmp;
+and
+	tmp = x % y; x = tmp; x++;
+are possible interpretations with different results.  And as usual, compiler
+is allowed to do literally anything whenever it sees such beast.
+

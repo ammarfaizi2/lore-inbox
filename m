@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292815AbSBVGRP>; Fri, 22 Feb 2002 01:17:15 -0500
+	id <S288919AbSBVGie>; Fri, 22 Feb 2002 01:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292811AbSBVGRF>; Fri, 22 Feb 2002 01:17:05 -0500
-Received: from [210.0.172.57] ([210.0.172.57]:42757 "EHLO dog.ima.net")
-	by vger.kernel.org with ESMTP id <S292815AbSBVGQu>;
-	Fri, 22 Feb 2002 01:16:50 -0500
-Date: Fri, 22 Feb 2002 14:16:44 +0800 (HKT)
-From: Joe Wong <joewong@tkodog.no-ip.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: detect memory leak tools?
-In-Reply-To: <Pine.LNX.4.10.10202211902290.842-100000@mikeg.wen-online.de>
-Message-ID: <Pine.LNX.4.21.0202221416300.18868-100000@dog.ima.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292814AbSBVGiO>; Fri, 22 Feb 2002 01:38:14 -0500
+Received: from think.faceprint.com ([166.90.149.11]:50567 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S288919AbSBVGiH>; Fri, 22 Feb 2002 01:38:07 -0500
+Date: Fri, 22 Feb 2002 01:37:24 -0500
+To: Dave Jones <davej@suse.de>, Benjamin Pharr <ben@benpharr.com>,
+        linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Linux 2.5.5-dj1 - Bug Reports
+Message-ID: <20020222063721.GA8879@faceprint.com>
+In-Reply-To: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu> <20020222022149.N5583@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <20020222022149.N5583@suse.de>
+User-Agent: Mutt/1.3.27i
+From: faceprint@faceprint.com (Nathan Walp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike,
 
-  Thanks for the suggestions. :)
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-- Joe
+On Fri, Feb 22, 2002 at 02:21:49AM +0100, Dave Jones wrote:
+>  > It compiled fine. When I booted up everything looked normal with the
+>  > exception of a=20
+>  > eth1: going OOM=20
+>  > message that kept scrolling down the screen. My eth1 is a natsemi card.
+>=20
+>  That's interesting. Probably moreso for Manfred. I'll double check
+>  I didn't goof merging the oom-handling patch tomorrow.
 
-On Thu, 21 Feb 2002, Mike Galbraith wrote:
-
-> On Thu, 21 Feb 2002, Richard B. Johnson wrote:
-> 
-> > On Thu, 21 Feb 2002, Joe Wong wrote:
-> > 
-> > > Hi,
-> > > 
-> > >   Is there any tools that can detect memory leak in kernel loadable 
-> > > module?
-> > > 
-> > > TIA.
-> > > 
-> > > - Joe
-> > 
-> > How would it know? If you can answer that question, you have made
-> > the tool. It would be specific to your module. FYI, in designing
-> > such a tool, you often the find the leak, which means you don't
-> > need the tool anymore.
-> > 
-> > I would start by temporarily putting a wrapper around whatever you
-> > use for memory allocation and deallocation. The wrapper code keeps
-> > track of pointer values and outstanding allocations. If the outstanding
-> > allocations grow or if the pointers to whatever_free() are different
-> > than the pointers to whatever_alloc(), you have a leak. You can read
-> > the results from a private ioctl().
-> 
-> Close to how memleak works.  Wrap all allocators, and maintain a 1/32
-> scale model of memory consisting of tags showing who allocated that
-> ram-clod when.  Read allocation array via proc.
-> 
-> For most leaks, you're right.. the tool is too much horsepower for
-> the problem.  Memleak has found some very non-trivial leaks though.
-> It found one that was irritating Ingo quite a bit, and he designed
-> memleak :)
-> 
-> 	-Mike
-> 
-> 
-
--- 
+Ditto here on my natsemi.  It hasn't really spit out the error since
+boot, about 12 hours ago.  Card has been mainly idle, only used to
+connect via crossover cable to my laptop, which hasn't been used much in
+that time.
 
 
+--=20
+Nathan Walp             || faceprint@faceprint.com
+GPG Fingerprint:        ||   http://faceprint.com/
+5509 6EF3 928B 2363 9B2B  DA17 3E46 2CDC 492D DB7E
+
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8dechPkYs3Ekt234RAvodAKC86wa39HPGi3l7krwZbCLxYvKO9QCfW6oh
+X6U2+M3QnhJwfQeGe/eel6M=
+=uOf+
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--

@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUFKFqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUFKFrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUFKFqS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 01:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUFKFqS
+	id S261862AbUFKFrv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 01:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbUFKFru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 01:46:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46555 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261802AbUFKFqQ (ORCPT
+	Fri, 11 Jun 2004 01:47:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43934 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261862AbUFKFrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 01:46:16 -0400
-Date: Thu, 10 Jun 2004 22:40:45 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: clameter@sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Unaligned accesses in net/ipv4/netfilter/arp_tables.c:184
-Message-Id: <20040610224045.612b0ffe.davem@redhat.com>
-In-Reply-To: <20040611054111.GV24042@schnapps.adilger.int>
-References: <Pine.LNX.4.58.0406091106210.21291@schroedinger.engr.sgi.com>
-	<20040610220445.2116457b.davem@redhat.com>
-	<20040611054111.GV24042@schnapps.adilger.int>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 11 Jun 2004 01:47:48 -0400
+Date: Thu, 10 Jun 2004 22:47:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc3-mm1
+Message-Id: <20040610224700.71986a92.akpm@osdl.org>
+In-Reply-To: <20040610213659.0fd93039.pj@sgi.com>
+References: <20040609015001.31d249ca.akpm@osdl.org>
+	<20040610213659.0fd93039.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jun 2004 23:41:11 -0600
-Andreas Dilger <adilger@clusterfs.com> wrote:
+Paul Jackson <pj@sgi.com> wrote:
+>
+> Do you recall why your i386-uninline-bitops.patch moves i386
+>  find_next_bit() and find_next_zero_bit() out of line, but not
+>  find_first_zero_bit() nor find_first_bit()?
 
-> - 	for (i = 0, ret = 0; i < IFNAMSIZ/sizeof(unsigned long); i++) {
-> + 	for (i = 0, ret = 0; i < IFNAMSIZ; i++) {
-> 
-> Shouldn't your change include the above?
+They're the two non-leaf functions - they expand other inlines and end up
+quite big.
 
-Yes, I'm retarted, thanks for catching that.
+>  Perhaps someone else has further insight to the tradeoffs here, such as
+>  a 'recommended size', above which most routines should be not inlined,
+>  except in special cases.
+
+Hard call.  Lots of hand-waving is involved.
+
+Yes, an aggregate reduction in kernel text size is a good thing, but the
+main reason for uninlining things is for performance: reduction of icache
+footprint.
+
+If an inline function is expanded several times in, say, fs/dcache.c then
+it's a good candidate for uninlining, because it's probably the case that
+all the expanded versions are in icache simultaneously.  But if a function
+is expanded once in ext2 and once in ext3 then it's less useful to uninline
+it, because it is rare that two different filesystem drivers are in use
+simultaneously.

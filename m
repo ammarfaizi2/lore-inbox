@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263234AbTESTmB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 15:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTESTmB
+	id S263258AbTESTib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 15:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbTESTib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 15:42:01 -0400
-Received: from mcomail02.maxtor.com ([134.6.76.16]:53009 "EHLO
-	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
-	id S263234AbTESTmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 15:42:00 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D3AA@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@maxtor.com>
-To: "'azarah@gentoo.org'" <azarah@gentoo.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Cc: David Ford <david+cert@blue-labs.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       KML <linux-kernel@vger.kernel.org>
-Subject: RE: Recent changes to sysctl.h breaks glibc
-Date: Mon, 19 May 2003 13:54:34 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Mon, 19 May 2003 15:38:31 -0400
+Received: from smtp01.uc3m.es ([163.117.136.121]:21517 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id S263258AbTESTi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 15:38:29 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200305191951.h4JJpKc14036@oboe.it.uc3m.es>
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <Pine.LNX.4.55.0305190957520.4379@bigblue.dev.mcafeelabs.com> from
+ Davide Libenzi at "May 19, 2003 10:15:54 am"
+To: Davide Libenzi <davidel@xmailserver.org>
+Date: Mon, 19 May 2003 21:51:20 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Davide Libenzi wrote:"
+> On Mon, 19 May 2003, Peter T. Breuer wrote:
+> > > >     .
+> > > >     .
+> > > >     .
+> > > > if ((snl)->uniq == current) {
+> > > > atomic_inc(&(snl)->count); 		.
+> > > > } else { 				.
+> > > > spin_lock(&(snl)->lock);		.
+> > > > atomic_inc(&(snl)->count);		.
+> > > > (snl)->uniq = current; 	  <->	if ((snl)->uniq == current) {
+> > > > 				atomic_inc(&(snl)->count);
+> > > > 				} else {
+> > > > 				spin_lock(&(snl)->lock);
+> > > > 				atomic_inc(&(snl)->count);
+> > > > 				(snl)->uniq = current;
 
-On Monday, May 19, 2003 1:44 PM, Martin Schlemmer wrote:
-> I think on the one hand the question is also ... how far
-> will a developer of one distro go to help another.  I
-> cannot say that I have had much success in the past to
-> get a response from one of the 'big guys' to help me/us
-> (the 'small guys') =)
+> > > So, what's bang for you ? The second task (the one that reads "uniq")
+> > > will either see "uniq" as NULL or as (task1)->current. And it'll go
+> > > acquiring the lock, as expected. Check it again ...
 
-AFAIK, it doesn't matter if a distro helps another or not.  As per Arjan van
-de Ven's comment, I would think any code they release in terms of header
-files based on original GPL source is itself GPL, and therefore
-includable/usable/modifyable/redistributable by any distro.
+Let's take that as hypothetically true. 
 
-Red Hat (or insert other large distro vendor here) might not want to
-explicitly "help" their little competitors, but they have appeared to solve
-this problem (according to other posts) and there's no reason you can't base
-your own work off of that...
+> > (3) even if one gets either one or the other answer, one of them would
+> > be the wrong answer, and you clearly intend the atomic_inc of the
+> > counter to be done in the same atomic region as the setting to current,
+> > which would be a programming hypothesis that is broken when the wrong
+> > answer comes up.
 
---eric
+> either 1 or -1. Going back to the (doubtfully useful) code, you still have
+> to point out were it does bang ...
 
+The "unexpected" sutuation is when the RH process reads the old value
+of uniq, just before the LH process sets it. Let's suppose that it
+erroneously reads NULL, since that's what was set last, at the unlock
+that lets the LH spinlock open up. That's OK, because it's not equal to
+its own task identifier either, and that's the only special thing it's
+looking for.
 
+Umm ...  actually, the RH process could read uniq before the LH process
+entered the spinlock.  If it were at that time equal to its own task
+identifier, then chaos would ensue. But if it were so equal, then
+the RH process would have the spinlock, since it's taken before setting
+uniq. OK, I agree, there's no problem if the read doesn't blow up.
+
+Peter

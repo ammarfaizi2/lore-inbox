@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261407AbTCGHGM>; Fri, 7 Mar 2003 02:06:12 -0500
+	id <S261400AbTCGHEZ>; Fri, 7 Mar 2003 02:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261412AbTCGHGM>; Fri, 7 Mar 2003 02:06:12 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:13753 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S261407AbTCGHGI> convert rfc822-to-8bit; Fri, 7 Mar 2003 02:06:08 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
+	id <S261401AbTCGHEY>; Fri, 7 Mar 2003 02:04:24 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:5072 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S261400AbTCGHET>; Fri, 7 Mar 2003 02:04:19 -0500
+Message-ID: <3E684737.7080704@kegel.com>
+Date: Thu, 06 Mar 2003 23:16:07 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BENCHMARK] TIObench performance of 2.5.64
-Date: Fri, 7 Mar 2003 12:46:29 +0530
-Message-ID: <94F20261551DC141B6B559DC4910867223AAE4@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BENCHMARK] TIObench performance of 2.5.64
-Thread-Index: AcLkeXhpqovmHmm+QH+yxScpW+KPxg==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Mar 2003 07:16:30.0277 (UTC) FILETIME=[79A41F50:01C2E479]
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Those ruddy punctuation fixes
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Performance figures have not varied by more than 5% as compared to 2.5.63 performance
+The current hubub was caused by a build breakage, right?
+And that build breakage was caused by a spellfix
+outside of a comment.
 
-					KERNEL 2.5.64
-No size specified, using 252 MB
+Simple rules to avoid that problem:
+1. don't fix anything not in a comment.  (spell-fix.pl doesn't.)
+2. build after you fix
+3. don't fix any comments in code you can't build
+4. don't fix any punctuation at all
 
-Unit information
-================
-File size = megabytes
-Blk Size  = bytes
-Rate      = megabytes per second
-CPU%      = percentage of CPU used during the test
-Latency   = milliseconds
-Lat%      = percent of requests that took longer than X seconds
-CPU Eff   = Rate divided by CPU% - throughput per cpu load
+The earlier hubub was caused by people worried about
+improper fixes (removing puns, changing meaning, etc.)
+The simple expedient of having several literate people
+(sensitized to all the concerns raised in this thread)
+review the change should get rid of most of that risk.
 
-Sequential Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.64                        252   4096   10    8.21 4.347%    12.487     1742.45   0.00000  0.00000   189
+So I don't think the spelling police have to beat a
+total retreat.  They just have to follow the above
+rules of thumb.
 
-Random Reads
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.64                        252   4096   10    0.43 0.538%   254.222     1645.46   0.00000  0.00000    79
+Or is the hubub really about something else?  Like people
+just hate the whole idea, and wish it would go away,
+and don't really want to discuss it rationally?
+- Dan
 
-Sequential Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.64                        252   4096   10   13.93 22.92%     5.356    26320.44   0.09220  0.00000    61
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-Random Writes
-                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
-2.5.64                        252   4096   10    0.74 0.888%     1.491     1937.15   0.00000  0.00000    83
-
-Thanks,
-Aniruddha Marathe
-WIPRO Technologies, India

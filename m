@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287471AbSAHAgT>; Mon, 7 Jan 2002 19:36:19 -0500
+	id <S287508AbSAHAhK>; Mon, 7 Jan 2002 19:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287508AbSAHAgJ>; Mon, 7 Jan 2002 19:36:09 -0500
-Received: from quattro-eth.sventech.com ([205.252.89.20]:54792 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S287471AbSAHAgA>; Mon, 7 Jan 2002 19:36:00 -0500
-Date: Mon, 7 Jan 2002 19:36:00 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Michael Cohen <lkml@ohdarn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Lockups
-Message-ID: <20020107193600.S10145@sventech.com>
-In-Reply-To: <1010449229.4069.6.camel@ohdarn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1010449229.4069.6.camel@ohdarn.net>; from lkml@ohdarn.net on Mon, Jan 07, 2002 at 07:20:29PM -0500
+	id <S287513AbSAHAhC>; Mon, 7 Jan 2002 19:37:02 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53254 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287508AbSAHAgt>;
+	Mon, 7 Jan 2002 19:36:49 -0500
+Date: Mon, 7 Jan 2002 22:36:29 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: <brownfld@irridia.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020107152020.6e8d07a4.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.33L.0201072211440.872-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002, Michael Cohen <lkml@ohdarn.net> wrote:
-> More experience with USB lockups here.
-> 
-> I have an Apollo Pro (694x) and an Apollo Super South (686b),
-> and it's interesting how quickly this machine freezes under 2.4.18-pre1.
-> All I have to do is send about 100KiB/second over my NIC and the USB
-> (moving the mouse and tapping on the keys on my USB HID devices causes
-> a hard lock with no messages of any kind.  Can't even get a serial
-> console.)
-> Tried with UHCI and JE driver. JE doesn't recognize the USB controller
-> half the time.  It seems to me that this is similar to the problem
-> with a saturated PCI bus that someone posted a latency fix for.
-> I'd appreciate any input.  A similar machine does this on windows as
-> well, too.  BIOS is as late as it gets.
+On Mon, 7 Jan 2002, Stephan von Krawczynski wrote:
 
-Doesn't recognize the USB controller half the time? This is something I
-would expect to either work all of the time, or none of the time.
+> > To be clear ... -aa and -rmap should of course also work
+> > nicely without swap, no excuses for the bad behaviour
+> > shown in Martin's test, but at the moment they simply
+> > don't seem tuned for it.
+>
+> Good to hear we agree it _should_ work. When does it (rmap)?
+> ;-)
 
-Do you get any error messages?
+I integrated Ed Tomlinson's patch today and have made
+one more small change. In the patches I ran here things
+worked fine, the system avoids OOM now.
 
-JE
+Problem is, it doesn't seem to want to run the OOM
+killer when needed, at least not any time soon. I need
+to check out this code again later.
+
+Anyway, rmap-11 should work fine for your test. ;)
+
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

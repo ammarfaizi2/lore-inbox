@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267533AbRGXNsn>; Tue, 24 Jul 2001 09:48:43 -0400
+	id <S267537AbRGXN5E>; Tue, 24 Jul 2001 09:57:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267534AbRGXNse>; Tue, 24 Jul 2001 09:48:34 -0400
-Received: from [202.54.26.202] ([202.54.26.202]:25594 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S267533AbRGXNsU>;
-	Tue, 24 Jul 2001 09:48:20 -0400
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: linux-kernel@vger.kernel.org
-cc: rshekhar@hss.hns.com
-Message-ID: <65256A93.004BE747.00@sandesh.hss.hns.com>
-Date: Tue, 24 Jul 2001 18:07:47 +0530
-Subject: /boot partition creation
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S267536AbRGXN4y>; Tue, 24 Jul 2001 09:56:54 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:14865 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S267539AbRGXN4q>; Tue, 24 Jul 2001 09:56:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rusty Russell <rusty@rustcorp.com.au>, Larry McVoy <lm@bitmover.com>
+Subject: Re: Common hash table implementation
+Date: Tue, 24 Jul 2001 14:28:43 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <m15O8ta-000CFtC@localhost>
+In-Reply-To: <m15O8ta-000CFtC@localhost>
+MIME-Version: 1.0
+Message-Id: <01072414284307.00301@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Sunday 22 July 2001 04:23, Rusty Russell wrote:
+> Interestingly, there's an unused, undocumented hash table interface
+> in include/linux/ghash.h.
 
+Yikes:
 
-Hi,
-     I am trying to install redhat 7.1 on my m/c that already has an 8.5gb win
-NT partition.
-During partition configuration, I cannot create /boot as it says that "/boot
-cannot be created after 8.5G"
-I know the reason.. but don't know the remedy
+#define DEF_HASH(LINKAGE,NAME,HASHSIZE,TYPE,PTRS,KEYTYPE,KEY,KEYCMP,KEYEQ,HASHFN)\
 
 --
-Amol
-
-
+Daniel

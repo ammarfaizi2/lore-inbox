@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265574AbRFVX3R>; Fri, 22 Jun 2001 19:29:17 -0400
+	id <S265576AbRFVXaJ>; Fri, 22 Jun 2001 19:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265575AbRFVX3H>; Fri, 22 Jun 2001 19:29:07 -0400
-Received: from mx01.uni-tuebingen.de ([134.2.3.11]:274 "EHLO
+	id <S265577AbRFVX36>; Fri, 22 Jun 2001 19:29:58 -0400
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:5394 "EHLO
 	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S265574AbRFVX26>; Fri, 22 Jun 2001 19:28:58 -0400
-Date: Sat, 23 Jun 2001 00:09:12 +0200
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Pavel Machek <pavel@suse.cz>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spindown
-Message-ID: <20010623000912.A415@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	Pavel Machek <pavel@suse.cz>,
+	id <S265575AbRFVX3r>; Fri, 22 Jun 2001 19:29:47 -0400
+Date: Sat, 23 Jun 2001 01:25:50 +0200
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@suse.cz>,
+        John Stoffel <stoffel@casc.com>,
+        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Early flush (was: spindown)
+Message-ID: <20010623012550.B415@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Mike Galbraith <mikeg@wen-online.de>,
+	Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@suse.cz>,
+	John Stoffel <stoffel@casc.com>,
+	Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
 	Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010615152306.B37@toy.ucw.cz> <20010618222131.A26018@paranoidfreak.co.uk> <20010619124627.A202@bug.ucw.cz> <20010621180701.B4523@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <01062003503300.00439@starship> <200106200439.f5K4d4501462@vindaloo.ras.ucalgary.ca> <01062016294903.00439@starship> <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.1.12i
-In-Reply-To: <20010621180701.B4523@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Thu, Jun 21, 2001 at 06:07:01PM +0200
+In-Reply-To: <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Wed, Jun 20, 2001 at 10:12:38AM -0600
 From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 21, 2001 at 06:07:01PM +0200, Jamie Lokier wrote:
-> Pavel Machek wrote:
-> > > Isn't this why noflushd exists or is this an evil thing that shouldn't
-> > > ever be used and will eventually eat my disks for breakfast?
-> > 
-> > It would eat your flash for breakfast. You know, flash memories have
-> > no spinning parts, so there's nothing to spin down.
+On Wed, Jun 20, 2001 at 10:12:38AM -0600, Richard Gooch wrote:
+> Daniel Phillips writes:
+> > I'd like that too, but what about sync writes?  As things stand now,
+> > there is no option but to spin the disk back up.  To get around this
+> > we'd have to change the basic behavior of the block device and
+> > that's doable, but it's an entirely different proposition than the
+> > little patch above.
 > 
-> Btw Pavel, does noflushd work with 2.4.4?  The noflushd version 2.4 I
-> tried said it couldn't find some kernel process (kflushd?  I don't
-> remember) and that I should use bdflush.  The manual says that's
-> appropriate for older kernels, but not 2.4.4 surely.
+> I don't care as much about sync writes. They don't seem to happen very
+> often on my boxes.
 
-That's because of my favourite change from the 2.4.3 patch:
+syslog and some editors are the most common users of sync writes. vim, e.g.,
+per default keeps fsync()ing its swapfile. Tweaking the configuration of
+these apps, this can be prevented fairly easy though. Changing sync semantics
+for this matter on the other hand seems pretty awkward to me. I'd expect an
+application calling fsync() to have good reason for having its data flushed
+to disk _now_, no matter what state the disk happens to be in. If it hasn't,
+fix the app, not the kernel. 
 
--       strcpy(tsk->comm, "kupdate");
-+       strcpy(tsk->comm, "kupdated");
+> > You know about this project no doubt:
+> > 
+> >    http://noflushd.sourceforge.net/
+> 
+> Only vaguely. It's huge. Over 2300 lines of C code and >560 lines in
+> .h files! As you say, not really lightweight. There must be a better
+> way.
 
-noflushd 2.4 fixed this issue in the daemon itself, but I had forgotten about 
-the generic startup skript. (Rpms and debs run their customized versions.)
+noflushd would benefit a lot from being able to set bdflush parameters per
+device or per disk. So I'm really eager to see what Daniel comes up with.
+Currently, we can only turn kupdate either on or off as a whole, which means
+that noflushd implements a crude replacement for the benefit of multi-disk
+setups. A lot of the cruft stems from there.
 
-Either the current version from CVS, or
+> Also, I suspect (without having looked at the code) that it
+> doesn't handle memory pressure well. Things may get nasty when we run
+> low on free pages.
 
-ed /your/init.d/location/noflushd << EOF
-%s/kupdate/kupdated/g
-w
-q
-EOF
-
-should get you going.
+It doesn't handle memory pressure at all. It doesn't have to. noflushd only
+messes with kupdate{,d} but leaves bdflush (formerly known as kflushd) alone.
+If memory gets tight, bdflush starts writing out dirty buffers, which makes the
+disk spin up, and we're back to normal.
 
 Regards,
 

@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265283AbUAGSmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 13:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUAGSmN
+	id S264934AbUAGSf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 13:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUAGSf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 13:42:13 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8660 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265283AbUAGSmJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 13:42:09 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] 2.6.1-rc2 ide barrier support
-Date: Wed, 7 Jan 2004 19:45:04 +0100
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040107134323.GB16720@suse.de>
-In-Reply-To: <20040107134323.GB16720@suse.de>
+	Wed, 7 Jan 2004 13:35:29 -0500
+Received: from twin.jikos.cz ([213.151.79.26]:37273 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S264934AbUAGSfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 13:35:23 -0500
+Date: Wed, 7 Jan 2004 19:35:16 +0100 (CET)
+From: Jirka Kosina <jikos@jikos.cz>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: XFS over 7.7TB LVM partition through NFS
+In-Reply-To: <20040107182052.GO1882@matchmail.com>
+Message-ID: <Pine.LNX.4.58.0401071932180.31032@twin.jikos.cz>
+References: <Pine.LNX.4.58.0401071824120.31032@twin.jikos.cz>
+ <Pine.LNX.4.58.0401071907460.31032@twin.jikos.cz> <20040107182052.GO1882@matchmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401071945.04649.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 of January 2004 14:43, Jens Axboe wrote:
-> Bart, would you care to review the ide bits for sanity?
+On Wed, 7 Jan 2004, Mike Fedyk wrote:
 
-Yep, here is just a first sight...
+> > > I am experiencing problems with LVM2 XFS partition in 2.6.0 being accessed 
+> > > over NFS. After exporting the filesystem clients start writing files to 
+> > > this partition over NFS, and after a short while we get this call trace, 
+> > > repeating indefinitely on the screen and the machine stops responding 
+> > > (keyboard, network):
+> > Jan  8 01:38:35 storage2 kernel: 0x0: 94 38 73 54 cc 8c c9 be 0c 3e 6b 30 
+> > 4c 9f 54 c5
+> > Jan  8 01:38:35 storage2 kernel: Filesystem "dm-0": XFS internal error 
+> > xfs_alloc_read_agf at line 2208 of file fs/xfs/xfs_alloc.c.  Caller 0xc01fab06
+> Try a fsck on your xfs partitions.
 
-> +	struct request *flush_rq = &HWGROUP(drive)->wrq;
+storage2:~# fsck -V /dev/mapper/lvol1-lv1
+fsck 1.35-WIP (07-Dec-2003)
+[/sbin/fsck.xfs (1) -- /dev/mapper/lvol1-lv1] fsck.xfs 
+/dev/mapper/lvol1-lv1
 
-I want to remove drive->wrq in the future.
+Seems perfectly clean. This is brand new filesystem, bug occurs shortly 
+after mkfs when clients start writing files a little bit intensively.
 
-> +	memset(drive->special_buf, 0, sizeof(drive->special_buf));
-> +
-> +	ide_init_drive_cmd(flush_rq);
-> +
-> +	flush_rq->flags = REQ_DRIVE_TASK;
-> +	flush_rq->buffer = drive->special_buf;
-> +	flush_rq->special = rq;
-> +	flush_rq->buffer[0] = WIN_FLUSH_CACHE;
-> +	flush_rq->nr_sectors = rq->nr_sectors;
-
-I think you should try use REQ_DRIVE_TASKFILE,
-instead of adding drive->special_buf.
-
-> +/*
-> + * FIXME: probably move this somewhere else, name is bad too :)
-> + */
-> +static sector_t ide_get_error_location(ide_drive_t *drive, char *args)
-
-This is probably useful in few other places.
-
---bart
-
+-- 
+JiKos.

@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264536AbTE1FcX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 01:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTE1FcX
+	id S264531AbTE1Fa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 01:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTE1Fa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 01:32:23 -0400
-Received: from main.gmane.org ([80.91.224.249]:7656 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264536AbTE1FcV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 01:32:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Andres Salomon" <dilinger@voxel.net>
-Subject: [PATCH] register_ioctl32_conversion symbol exports fix
-Date: Wed, 28 May 2003 01:45:33 -0400
-Message-ID: <bb1i9v$t9b$1@main.gmane.org>
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
+	Wed, 28 May 2003 01:30:56 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:30482 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S264531AbTE1Faz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 01:30:55 -0400
+Date: Wed, 28 May 2003 07:46:41 +0200
+From: Jerome Chantelauze <jerome.chantelauze@finix.eu.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc5: [RESENT PATCH] kernel with Old ide hard disk only support doesn't build.
+Message-ID: <20030528054641.GA28230@i486X33>
+References: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.0 (The whole remains beautiful (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following error when compiling 2.5.70 for sparc64, using
-gcc-3.3:
-
-
- CC      init/version.o
-scripts/fixdep init/.version.o.d init/version.o 'gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs -finline-limit=100000 -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version -DKBUILD_MODNAME=version -c -o init/.tmp_version.o init/version.c' > init/.version.o.tmp; rm -f init/.version.o.d; mv -f init/.version.o.tmp init/.version.o.cmd
-  LD      init/built-in.o
-  LD      vmlinux
-fs/built-in.o(*ABS*+0xb766971): In function `__crc_register_ioctl32_conversion':util.c: multiple definition of `__crc_register_ioctl32_conversion'
-make: *** [vmlinux] Error 1
-
-
-The problem is apparently register_ioctl32_conversion() is exported twice
-for a few architectures:
-
-./fs/compat.c:int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
-./fs/compat.c:EXPORT_SYMBOL(register_ioctl32_conversion);
-./arch/ppc64/kernel/ppc_ksyms.c:EXPORT_SYMBOL(register_ioctl32_conversion);
-./arch/sparc64/kernel/sparc64_ksyms.c:EXPORT_SYMBOL(register_ioctl32_conversion);
-
-Since compat.c is only built if CONFIG_COMPAT is defined, the entries in
-${arch}_ksyms.c are incorrect (at the very least, they need to test for
-this sort of thing).  I don't see the harm in removing the exports
-altogether from the arch-specific stuff; so, that's what this patch does
-(to both {,un}register_ioctl32_conversion).  Please apply (or correct me
-;)
-
-
-
-
-On Mon, 26 May 2003 19:08:45 -0700, Linus Torvalds wrote:
+On Tue, May 27, 2003 at 04:41:16PM -0300, Marcelo Tosatti wrote:
 > 
-> Ok, 
->  there's been too much delay between 69 and 70, but I was hoping to make 
-> 70 the last "Linus only" release before getting together with Andrew and 
-> figuring out how to start the "pre-2.6" series and more of a code slush. 
+> Hi,
 > 
-[...]
->   o I2C: And another it87 patch
->   o I2C: And yet another it87 patch
+> Mainly due to a IDE DMA problem which would happen on boxes with lots of
+> RAM, here is -rc5.
+> 
+> As I always ask, please test.
+
+Hi,
+
+Kernel 2.4.21-rc5 with CONFIG_BLK_DEV_HD_ONLY=y still doen't build (it
+doesn't build since 2.4.21-rc3).
+
+I resend this patch which shoud fix the problem.
+
+*** drivers/ide/Makefile.orig   Wed May 28 07:33:33 2003
+--- drivers/ide/Makefile        Wed May 28 07:34:03 2003
+***************
+*** 19,24 ****
+--- 19,26 ----
+  obj-m         :=
+  ide-obj-y     :=
+  
++ subdir-$(CONFIG_BLK_DEV_HD_ONLY) += legacy
++ 
+  subdir-$(CONFIG_BLK_DEV_IDE) += legacy ppc arm raid pci
+  
+  # First come modules that register themselves with the core
 
 
+FYI, here is the error message:
+
+make -C ide
+make[2]: Entering directory `/usr/src/linux-2.4.21-rc5/drivers/ide'
+make all_targets
+make[3]: Entering directory `/usr/src/linux-2.4.21-rc5/drivers/ide'
+rm -f idedriver.o
+ld -m elf_i386  -r -o idedriver.o legacy/idedriver-legacy.o
+ld: cannot open legacy/idedriver-legacy.o: No such file or directory
+make[3]: *** [idedriver.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.21-rc5/drivers/ide'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.21-rc5/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.21-rc5/drivers'
+make: *** [_dir_drivers] Error 2
+
+Best regards.
+--
+Jerome Chantelauze

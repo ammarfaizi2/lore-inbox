@@ -1,51 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265132AbTLFMYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 07:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbTLFMYh
+	id S265130AbTLFMRO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 07:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTLFMRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 07:24:37 -0500
-Received: from pop.gmx.net ([213.165.64.20]:30429 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265132AbTLFMYg (ORCPT
+	Sat, 6 Dec 2003 07:17:14 -0500
+Received: from falka.mfa.kfki.hu ([148.6.72.6]:36992 "EHLO falka.mfa.kfki.hu")
+	by vger.kernel.org with ESMTP id S265130AbTLFMRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 07:24:36 -0500
-X-Authenticated: #4512188
-Message-ID: <3FD1CA81.9010708@gmx.de>
-Date: Sat, 06 Dec 2003 13:24:33 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
-MIME-Version: 1.0
-To: cheuche+lkml@free.fr
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com> <3FD1199E.2030402@gmx.de> <20031206081848.GA4023@localnet>
-In-Reply-To: <20031206081848.GA4023@localnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Dec 2003 07:17:10 -0500
+Date: Sat, 6 Dec 2003 13:17:06 +0100
+From: Gergely Tamas <dice@mfa.kfki.hu>
+To: linux-kernel@vger.kernel.org
+Subject: PDC20265 problems with 2.4.23
+Message-ID: <20031206121706.GB6171@mfa.kfki.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cheuche+lkml@free.fr wrote:
-> On Sat, Dec 06, 2003 at 12:49:50AM +0100, Prakash K. Cheemplavam wrote:
-> 
->>So gals and guys, try disabling cpu disconnect in bios and see whether 
->>aopic now runs stable.
->>
-> 
-> Yes that fix it. Well time will tell but I cannot make it crash with
-> hdparm -tT or cat /dev/hda so far. I'm dumping hda to /dev/null right
-> now.
-> 
-> After testing to make it crash, I used athcool to reenable CPU
-> disconnect, and guess what, test after that just crashed the box.
-> You found the problem, congratulations.
+Hi,
 
-:-)
+I get the following with kernel 2.4.23...
 
-Isn't it possible to ad athcool's code into the kernel, maybe into the 
-pm section or even make it an kernel option. It seems to be a nice 
-workaround for the time-being.
+| [...]
+|  PDC20265: IDE controller at PCI slot 00:0c.0
+|  PDC20265: chipset revision 2
+|  PDC20265: not 100%% native mode: will probe irqs later
+|  PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+|      ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:DMA, hdf:pio
+|      ide3: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdg:DMA, hdh:DMA
+| [...]
+|  hde: Maxtor 5T040H4, ATA DISK drive
+|  hdg: ST3120022A, ATA DISK drive
+|  hdh: ST3120022A, ATA DISK drive
+| [...]
+|  ide2 at 0xcc00-0xcc07,0xd002 on irq 18
+|  ide3 at 0xd400-0xd407,0xd802 on irq 18
+|  hde: attached ide-disk driver.
+|  hde: host protected area => 1
+|  hde: 80043264 sectors (40982 MB) w/2048KiB Cache, CHS=79408/16/63
+|  hdg: attached ide-disk driver.
+|  hdg: host protected area => 1
+|  hdg: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=14593/255/63
+|  hdh: attached ide-disk driver.
+|  hdh: host protected area => 1
+|  hdh: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=14593/255/63
+|  Partition check:
+|   hde: [PTBL] [4982/255/63] hde1
+|   hdg: hdg1 hdg2
+|   hdh: hdh1
+| [...]
+|  hdg: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+|  
+|  hdg: drive not ready for command
+|  hdg: status error: status=0x50 { DriveReady SeekComplete }
+|  
+|  hdg: no DRQ after issuing MULTWRITE
+|  hdg: status timeout: status=0xd0 { Busy }
+|  
+|  PDC202XX: Secondary channel reset.
+|  PDC202XX: Primary channel reset.
+|  hdg: no DRQ after issuing WRITE
+|  ide3: reset: master: error (0x00?)
+| [...]
+|  hde: status error: status=0x51 { DriveReady SeekComplete Error }
+|  hde: status error: error=0x04 { DriveStatusError }
+|  hde: no DRQ after issuing MULTWRITE
+|  hde: status error: status=0x51 { DriveReady SeekComplete Error }
+|  hde: status error: error=0x04 { DriveStatusError }
+|  hde: no DRQ after issuing MULTWRITE
+|  hde: status error: status=0x51 { DriveReady SeekComplete Error }
+|  hde: status error: error=0x04 { DriveStatusError }
+|  hde: no DRQ after issuing MULTWRITE
+|  hde: status error: status=0x51 { DriveReady SeekComplete Error }
+|  hde: status error: error=0x04 { DriveStatusError }
+|  PDC202XX: Primary channel reset.
+|  PDC202XX: Secondary channel reset.
+|  hde: no DRQ after issuing WRITE
+| [...]
+|  ide2: reset: master: error (0x00?)
+| [...]
+|  hdg: lost interrupt
+|  hdg: lost interrupt
+|  hdg: lost interrupt
+| .
+| .
+| .
 
-Prakash
+$ grep PDC .config
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_PDC202XX_BURST=y
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_PDC202XX_FORCE is not set
+CONFIG_BLK_DEV_PDC202XX=y
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
 
+
+Thanks in advance,
+Gergely

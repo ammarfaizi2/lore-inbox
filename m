@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266788AbRGOR7X>; Sun, 15 Jul 2001 13:59:23 -0400
+	id <S266781AbRGOSAx>; Sun, 15 Jul 2001 14:00:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266757AbRGOR7D>; Sun, 15 Jul 2001 13:59:03 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:53009 "EHLO
-	anduin.hitnet.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id <S266754AbRGOR7B>; Sun, 15 Jul 2001 13:59:01 -0400
-Date: Sun, 15 Jul 2001 19:59:03 +0200
-From: Jan Niehusmann <jan@gondor.com>
+	id <S266757AbRGOSAn>; Sun, 15 Jul 2001 14:00:43 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:26639 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S266754AbRGOSAf>; Sun, 15 Jul 2001 14:00:35 -0400
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+Date: Sun, 15 Jul 2001 19:58:49 +0200
+Organization: Cistron Internet Services B.V.
+Message-ID: <9islo5$na2$1@ncc1701.cistron.net>
+In-Reply-To: <E15LopT-0004Cm-00@the-village.bc.nu> <3B51C864.C98B61DE@namesys.com>
+X-Trace: ncc1701.cistron.net 995220037 23874 213.46.44.164 (15 Jul 2001 18:00:37 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.6-ac2: "uart401: bad devc"
-Message-ID: <20010715195903.A5982@gondor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.4.6-ac2 with CONFIG_MIDI_VIA82CXXX set does cause a 
-kernel hang on my setup. On the first sound I play (ie cat >/dev/dsp)
-an endless stream of "uart401: bad devc" messages shows up on the 
-console - everything else hangs.
 
-Related config details:
+"Hans Reiser" <reiser@namesys.com> wrote in message
+news:cistron.3B51C864.C98B61DE@namesys.com...
+>
+> The limits for reiserfs and ext2 for kernels 2.4.x are the same (and they
+are 2Tb not 1Tb).  The
+> limits are not in the individual filesystems.  We need to have Linux go to
+64 bit blocknumbers in
+> 2.5.x, I am seeing a lot of customer demand for it.  (Or we could use
+scalable integers, which would
+> be better.)
+>
+> Hans
+> -
 
-/dev/dsp is on a sound blaster live, via82cxxx_audio is the second 
-sound card (not really used). Both are loaded as modules.
+It appears to be 1TB. Just last week I tried a 1.1TB fibre RAID array, and
+found several signed/unsigned issues. Fdisk was unable to work with the
+array. This on Slackware 8.0 distribution with 2.4.6 kernel.
 
-emu10k1 and via82cxxx share the same interrupt (5). I assume that 
-the via midi driver gets confused by the interrupt that was meant
-for the sound blaster live.
+Rob
 
-If I try a kernel without CONFIG_MIDI_VIA82CXXX defined, the problem
-disappears.
 
-Jan
+
 

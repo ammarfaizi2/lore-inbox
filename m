@@ -1,37 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291263AbSBGUMO>; Thu, 7 Feb 2002 15:12:14 -0500
+	id <S291261AbSBGUME>; Thu, 7 Feb 2002 15:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291262AbSBGUL5>; Thu, 7 Feb 2002 15:11:57 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:19987 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S291261AbSBGULf>;
-	Thu, 7 Feb 2002 15:11:35 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Patrick Mochel <mochel@osdl.org>
-Date: Thu, 7 Feb 2002 21:11:10 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] read() from driverfs files can read more bytes 
-CC: <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <1126CC346B32@vcnet.vc.cvut.cz>
+	id <S291263AbSBGUL5>; Thu, 7 Feb 2002 15:11:57 -0500
+Received: from webmail.mty.itesm.mx ([131.178.2.83]:32288 "EHLO
+	webmail.mty.itesm.mx") by vger.kernel.org with ESMTP
+	id <S291262AbSBGULj>; Thu, 7 Feb 2002 15:11:39 -0500
+Date: Thu, 7 Feb 2002 13:57:49 +0000
+From: Felipe Contreras <al593181@mail.mty.itesm.mx>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Weird bug in linux, glibc, gcc or what?
+Message-ID: <20020207135749.GA4545@sion.mty.itesm.mx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Feb 02 at 10:27, Patrick Mochel wrote:
+Hi,
 
-> Concerning reading/writing from offsets, it's up to the drivers for them 
-> to either support it or not. In the files I've done so far, I return 0 if 
-> show() is called with an offset. Which will give different results if you 
-> read byte-by-byte or an entire chunk. 
-> 
-> It makes the callbacks simpler, but it is not technically correct. 
+I've found a weird problem in linuxthreads. When I get out of a thread it
+happends one of three, the new thread get's defuct and the proccess never
+ends, it segfaults, or it works.
 
-What about extremelly nice stuff Al Viro made for us in
-fs/seq_file.c ? It made putting stuff into procfs really easy...
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
- 
+The most weird is that it depends on the kernel, and also when I run the
+test trought gdb there is no problem.
+
+Here is the test:
+
+#include <pthread.h>
+
+void *test(void *arg) {
+	puts("Thread2");
+	return 0;
+}
+
+int main() {
+	pthread_t tt;
+	puts("Before Thread2");
+	pthread_create(&tt,NULL,test,NULL);
+	puts("After Thread2");
+	return 0;
+}
+
+The output:
+
+1:src# ./test
+Before Thread2
+After Thread2
+Thread2
+
+This time it just kept waiting:
+
+ 8957 vc/1     00:00:00 test
+ 8958 ?        00:00:00 test <defunct>
+
+I run it again:
+
+1:src# ./test
+Before Thread2
+After Thread2
+
+And again:
+
+1:src# ./test
+Before Thread2
+Thread2
+Segmentation fault
+
+Now with gdb-5.1.1:
+
+Starting program: /usr/src/./test
+(no debugging symbols found)...[New Thread 1024 (LWP 9168)]
+Before Thread2
+[New Thread 2049 (LWP 9169)]
+[New Thread 1026 (LWP 9170)]
+Thread2
+After Thread2
+
+Program exited normally.
+
+As I said the results vary from system to system, here are some
+convinations:
+
+* linux-2.4.10+glibc+2.2.4+gcc-2.95.3: Runs fine, but once in a while it
+	keeps waiting for the defunct thread.
+
+* linux-2.4.17+glibc+2.2.4+gcc-2.95.3: The same, but the defunct problem
+	happends much more often.
+
+* linux-2.4.10+glibc+2.2.5+gcc-3.0.3: Segfaults or waits for defuncts.
+
+* linux-2.4.17+glibc+2.2.5+gcc-3.0.3: The same.
+
+I'm lost on this, I supose it's a convination of glibc-linux problem.
+
+Any ideas?
+
+-- 
+Felipe Contreras

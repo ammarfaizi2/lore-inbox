@@ -1,92 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264507AbTFTTgL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 15:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTFTTgL
+	id S264537AbTFTTnH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 15:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbTFTTnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 15:36:11 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:21668 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S264507AbTFTTgH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 15:36:07 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       jmorris@intercode.com.au, davem@redhat.com,
-       David Woodhouse <dwmw2@infradead.org>
-Date: Fri, 20 Jun 2003 12:48:51 -0700 (PDT)
+	Fri, 20 Jun 2003 15:43:07 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:29648 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264537AbTFTTnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 15:43:04 -0400
+Date: Fri, 20 Jun 2003 21:56:58 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, jmorris@intercode.com.au,
+       dwmw2@infradead.org
 Subject: Re: [RFC] Breaking data compatibility with userspace bzlib
-In-Reply-To: <20030620194517.GA22732@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0306201247560.28021-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-ID: <20030620195658.GB22732@wohnheim.fh-wedel.de>
+References: <20030620185915.GD28711@wohnheim.fh-wedel.de> <20030620.124510.28800472.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030620.124510.28800472.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-he is saying that the memory and CPU requirements to do the bzip
-uncompression are so much larger then what is nessasary to do the gzip
-uncompression that the small amount of space saved is almost never worth
-the cost.
+On Fri, 20 June 2003 12:45:10 -0700, David S. Miller wrote:
+>    From: Jörn Engel <joern@wohnheim.fh-wedel.de>
+>    Date: Fri, 20 Jun 2003 20:59:15 +0200
+>    
+>    The whole interface of the bzlib was modelled after the zlib
+>    interface.
+> 
+> The zlib interface is actually problematic, it doesn't allow
+> handling of scatter-gather lists on input or output for example.
+> 
+> Therefore we couldn't make the compress cryptolib interface
+> take scatterlists elements either, which is a huge problem.
 
-David Lang
+Is there a reason to use the zlib and nothing but the zlib for the
+cryptolib?  RFCs 1950 - 1952?  Or would any form of compression do, in
+principle at least?
 
+In the worst case, I consider it not too hard to add a wrapper
+interface to the zlib to do the scatter-gather handling.  Actually
+going deeply into the guts of the zlib is not good for a kernel
+hackers sanity though.  The massive use of macros with magic knowledge
+of the surrounding functions is - well - interesting.
 
- On Fri, 20 Jun 2003, Jörn Engel wrote:
+Jörn
 
-> Date: Fri, 20 Jun 2003 21:45:17 +0200
-> From: Jörn Engel <joern@wohnheim.fh-wedel.de>
-> To: Jeff Garzik <jgarzik@pobox.com>
-> Cc: linux-kernel@vger.kernel.org, jmorris@intercode.com.au, davem@redhat.com,
->      David Woodhouse <dwmw2@infradead.org>
-> Subject: Re: [RFC] Breaking data compatibility with userspace bzlib
->
-> On Fri, 20 June 2003 15:09:57 -0400, Jeff Garzik wrote:
-> >
-> > The big question is whether the bzip2 better compression is actually
-> > useful in a kernel context?  Patches to do bzip2 for initrd, for
-> > example, have been around for ages:
-> >
-> > 	http://gtf.org/garzik/kernel/files/initrd-bzip2-2.2.13-2.patch.gz
-> >
-> > But the compression and decompression overhead is _much_ larger
-> > than gzip.  It was so huge for maximal compression that dialing back
-> > compression reaching a point of diminishing returns rather quickly,
-> > when compared to gzip memory usage and compression.
-> >
-> > I talked a bit with the bzip2 author a while ago about memory usage.
-> > He eventually added the capability to only require small blocks
-> > for decompression (64K IIRC?), but there was a significant loss in
-> > compression factor.
->
-> You are puzzling me a bit.  What exactly do you consider to be the
-> overhead?  Code size?  Memory consumption?  CPU time?
->
-> When it comes to compression, the combination of compressed data and
-> decompression code should be larger than uncompressed data, everything
-> else is secondary.  The secondary stuff might still affect some users,
-> but it is not a general problem.
->
-> > So... even in 2003, I really don't know of many (any?) tasks which
-> > would benefit from bzip2, considering the additional memory and
-> > cpu overhead.
->
-> That overhead will become less important with time.  And if we will
-> merge bzlib anyway, we may as well do it today.
->
-> But I do agree with you that some choices made by the maintainer were
-> rather stupid.  And one of them is the reason for this thread and
-> appears to be the whole point behind your argument.
->
-> Jörn
->
-> --
-> The cost of changing business rules is much more expensive for software
-> than for a secretaty.
-> -- unknown
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+If you're willing to restrict the flexibility of your approach,
+you can almost always do something better.
+-- John Carmack

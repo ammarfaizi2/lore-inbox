@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264266AbUFUPPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264276AbUFUPRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbUFUPPT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 11:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266261AbUFUPPT
+	id S264276AbUFUPRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 11:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266261AbUFUPRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 11:15:19 -0400
-Received: from [213.200.103.80] ([213.200.103.80]:62727 "EHLO
-	Hommer.netway.org") by vger.kernel.org with ESMTP id S264266AbUFUPPP
+	Mon, 21 Jun 2004 11:17:09 -0400
+Received: from gprs187-64.eurotel.cz ([160.218.187.64]:1152 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S264276AbUFUPRA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 11:15:15 -0400
-Message-ID: <01bb01c457a2$8cad42a0$bd01a8c0@oops>
-From: "Pablo Ruiz Garcia" <pruiz@netway.org>
-To: penguinppc-team@lists.penguinppc.org
-Cc: paulus@samba.org, linuxppc-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: MPC8272ADS and MPc8260ADS Boards support (kernel 2.6)
-Date: Mon, 21 Jun 2004 17:15:10 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 21 Jun 2004 11:17:00 -0400
+Date: Mon, 21 Jun 2004 17:17:39 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-bk way too fast
+Message-ID: <20040621151738.GA1351@ucw.cz>
+References: <xb7r7s9nj2c.fsf@savona.informatik.uni-freiburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <xb7r7s9nj2c.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 21, 2004 at 03:20:59PM +0200, Sau Dan Lee wrote:
 
-Hi,
+>     Vojtech> It's possible that X does it's own autorepeat, though
+>     Vojtech> that'd rather surprise me.
+> 
+> Why?  XFree86 has been doing its own autorepeat, I think.
+> 
+>         $ xset q
+>         Keyboard Control:
+>           auto repeat:  on    key click percent:  0    LED mask:  00000000
+>           auto repeat delay:  660    repeat rate:  25
+>           auto repeating keys:  00ffffffdffffbbf
+>                                 fa9fffffffdfe5ff
+>                                 ffffffffffffffff
+>                                 ffffffffffffffff
+>           bell percent:  50    bell pitch:  400    bell duration:  100
+> 
+> And I  can change it via "xset  r rate [delay [rate  ]]", according to
+> "xset help".  Indeed,  you can use 'xset' to  change the rate/delay to
+> very  extreme values,  which  exceed the  hardware  allowed on  AT/PS2
+> keyboards (e.g. rates > 30  cps), adjusted with the 'kbdrate' command.
+> So, the only  possibility for these hardware limits  to be transcended
+> is s/w based autorepeat.
+ 
+Indeed, X does its own autorepeat.
 
-Here is attached a patch to support mpc8272 and mpc8260 (ADS) reference boards with kernel 2.6 (2.6.6)
-
-This code is working right now, but with a stupid bugs if you use both serial ports at the same time (it will be fixed in the near
-time). KGDB support must be fixed if used within main kernel console. USB (and probably UTOPIA) support is also planed based on
-existing mpc860 code.
-
-http://www.netway.org/linux-2.6.6-mpc82xxads.diff
-
-Any problem or working reports will be apreciated.
-
-Att. Pablo
-
---
-Pablo Ruiz Garcia (Pci)
-Enterasys ESE/CISSP Certified
-Security Consultancy - Tiger Team
-Meet just your security needs <pruiz@netway.org>
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

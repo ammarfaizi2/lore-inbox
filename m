@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291321AbSBSL6j>; Tue, 19 Feb 2002 06:58:39 -0500
+	id <S291324AbSBSMBT>; Tue, 19 Feb 2002 07:01:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291309AbSBSL6Y>; Tue, 19 Feb 2002 06:58:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42765 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291321AbSBSL6E>; Tue, 19 Feb 2002 06:58:04 -0500
-Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
-To: kristian.peters@korseby.net (Kristian)
-Date: Tue, 19 Feb 2002 12:12:14 +0000 (GMT)
-Cc: michal@harddata.com (Michal Jaegermann), linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <20020219125211.10f80f4e.kristian.peters@korseby.net> from "Kristian" at Feb 19, 2002 12:52:11 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S291327AbSBSMBJ>; Tue, 19 Feb 2002 07:01:09 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:62216 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S291324AbSBSMA4>;
+	Tue, 19 Feb 2002 07:00:56 -0500
+Date: Tue, 19 Feb 2002 12:55:47 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: wpeter@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Encountered a Null Pointer Problem on the SCSI Layer
+Message-Id: <20020219125547.2aebebba.skraw@ithnet.com>
+In-Reply-To: <20020218190407.A16616@devserv.devel.redhat.com>
+In-Reply-To: <OFC7A42817.7DD2C3FB-ON85256B64.00725D00@raleigh.ibm.com>
+	<200202182301.AAA23425@webserver.ithnet.com>
+	<20020218190407.A16616@devserv.devel.redhat.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16d982-0000LP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've seen filesystem corruption using -ac4 with ext2 although I'm not using
-> a SIS chipset. So I really recommend using not this patch.
+On Mon, 18 Feb 2002 19:04:07 -0500
+Pete Zaitcev <zaitcev@redhat.com> wrote:
 
-The SiS patch is only changing anything if the SiS vode is in use.
+> > Date: Tue, 19 Feb 2002 00:01:39 +0100
+> > From: Stephan von Krawczynski <skraw@ithnet.com>
+> 
+> > Are you 100% sure, that there is no case where                        
+> > dpnt==NULL? Because if there is such a possibility, your patch will   
+> > blow up.                                                              
+> 
+> If there is such a possibility, everything will blow up.
 
-Precisely what chipset, what IDE, what ide cable (40/80 pin) and drives
-do you have. What hdparm commands are you using if any ?
+Re-reading the code, you are right. This patch is fine.
 
-Alan
+Regards,
+Stephan
+
+

@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbTILX0U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 19:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbTILX0T
+	id S261941AbTILXTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 19:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTILXTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 19:26:19 -0400
-Received: from [65.248.4.67] ([65.248.4.67]:8632 "EHLO verdesmares.com")
-	by vger.kernel.org with ESMTP id S261970AbTILX0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 19:26:05 -0400
-Message-ID: <011301c37963$858dece0$f8e4a7c8@bsb.virtua.com.br>
-From: "Breno" <brenosp@brasilsec.com.br>
-To: "William Lee Irwin III" <wli@holomorphy.com>,
-       "Kernel List" <linux-kernel@vger.kernel.org>
-References: <002b01c37956$d88d67c0$f8e4a7c8@bsb.virtua.com.br> <20030912165047.Z18851@schatzie.adilger.int> <20030912230601.GU4306@holomorphy.com>
-Subject: Re: stack overflow
-Date: Fri, 12 Sep 2003 20:23:14 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 12 Sep 2003 19:19:12 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:9114 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261951AbTILXSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 19:18:14 -0400
+Subject: Re: SII SATA request size limit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Penna Guerra <eu@marcelopenna.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309122007.35542.eu@marcelopenna.org>
+References: <200309122007.35542.eu@marcelopenna.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-XTmail: http://www.verdesmares.com
+Message-Id: <1063408612.6740.2.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Sat, 13 Sep 2003 00:16:52 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wli,
+On Sad, 2003-09-13 at 00:07, Marcelo Penna Guerra wrote:
+> And I still don't know how to set this limit back to 128 with 2.6.x kernels. 
+> It can't be done the same way as in 2.4.x, can it?
 
-Exactly that stack users are demand paged , you can calculate the size of
-stack. This is will impossible or more difficult to do if you have more that
-one mm->start_stack  :)
+I dont really track 2.6, if someone took reconfiguring it out of 2.6
+that would be unfortunate and suprising.
 
-att
-Breno
-
------ Original Message -----
-From: "William Lee Irwin III" <wli@holomorphy.com>
-To: "Breno" <brenosp@brasilsec.com.br>; "Kernel List"
-<linux-kernel@vger.kernel.org>
-Sent: Saturday, September 13, 2003 12:06 AM
-Subject: Re: stack overflow
-
-
-> On Fri, Sep 12, 2003 at 04:50:47PM -0600, Andreas Dilger wrote:
-> > Well, with the exception of the fact that STACK_LIMIT is 8MB, and kernel
-> > stacks are only 8kB (on i386)...
-> > Also, see "do_IRQ()" (i386) for CONFIG_DEBUG_STACKOVERFLOW to see this
-already.
->
-> What he actually wants is in-kernel user stack overflow checking, which
-> is basically impossible since user stacks are demand paged. He's been
-> told this before and failed to absorb it.
->
-> There have been attempts to use i386 segmentation for stack limit
-> checks written but they should probably not be confused with this.
->
->
-> -- wli
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

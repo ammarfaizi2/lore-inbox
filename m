@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263145AbUKTScw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbUKTSmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263145AbUKTScw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbUKTScv
+	id S263142AbUKTSmT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:42:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbUKTSmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:32:51 -0500
-Received: from holomorphy.com ([207.189.100.168]:3720 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263145AbUKTSbd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:31:33 -0500
-Date: Sat, 20 Nov 2004 10:31:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm2
-Message-ID: <20041120183128.GW2714@holomorphy.com>
-References: <20041118021538.5764d58c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Nov 2004 13:42:19 -0500
+Received: from 82-43-72-5.cable.ubr06.croy.blueyonder.co.uk ([82.43.72.5]:56303
+	"EHLO home.chandlerfamily.org.uk") by vger.kernel.org with ESMTP
+	id S263142AbUKTSmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 13:42:15 -0500
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: ide-cd problem
+Date: Sat, 20 Nov 2004 18:42:14 +0000
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041118021538.5764d58c.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200411201842.15091.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 02:15:38AM -0800, Andrew Morton wrote:
-> +frv-kill-off-highmem_start_page.patch
-> +frv-remove-obsolete-hardirq-stuff-from-includes.patch
-> +further-nommu-changes.patch
-> +further-nommu-proc-changes.patch
-> +frv-arch-nommu-changes.patch
+I have been trying to track down why all attempts to burn a cd on my ide cdrw 
+fails (see bug #3741 on bugzilla ), with a subprocess of cdrecord ending up 
+hanging in uninterruptable sleep state.
 
-This patch converts FRV to use remap_pfn_range() in its
-io_remap_page_range() function.
+I think I understand what is happening, I just don't know what to do about it.
 
+Inside drivers/ide/ide-cd.c
 
-Index: mm2-2.6.10-rc2/include/asm-frv/pgtable.h
-===================================================================
---- mm2-2.6.10-rc2.orig/include/asm-frv/pgtable.h	2004-11-20 00:57:54.000000000 -0800
-+++ mm2-2.6.10-rc2/include/asm-frv/pgtable.h	2004-11-20 10:27:32.173203883 -0800
-@@ -442,7 +442,8 @@
- #define PageSkip(page)		(0)
- #define kern_addr_valid(addr)	(1)
- 
--#define io_remap_page_range	remap_page_range
-+#define io_remap_page_range(vma, vaddr, paddr, size, prot)		\
-+		remap_pfn_range(vma, vaddr, (paddr) >> PAGE_SHIFT, size, prot)
- 
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
+the ide_do_rw_cdrom routine has been called via a request with the request 
+flags having the REQ_BLOCK_PC flag set.  The request->data_len of this 
+request is set to 0.
+
+This request is sent to the device and it generates interrupts to eventually 
+land it up inside the routine cdrom_newpc_intr.
+
+At this point the status register on the hardware is set to 0x58 - implying, I 
+think that the DRQ_STAT bit is set and that something should be sent to the 
+device.
+
+Normally, because the requested data_len is not zero, the data is sent.  In 
+this case however, because the original request had nothing to send, the 
+while/if clauses to initiate a new transfer are skipped and the routine ends 
+up setting a new interrupt handler address and returning to await an 
+interrupt that will never come.
+
+Question: should something validate that the request length is not zero 
+earlier, or should there be a check in ide-cd.c, or is it my hardware (its a 
+generic cd read/rewriter which announces itself as 'CW078D CD-R/RW')
+-- 
+Alan Chandler
+alan@chandlerfamily.org.uk
+First they ignore you, then they laugh at you,
+ then they fight you, then you win. --Gandhi

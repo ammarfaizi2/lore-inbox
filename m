@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270453AbRHHLHy>; Wed, 8 Aug 2001 07:07:54 -0400
+	id <S270454AbRHHL14>; Wed, 8 Aug 2001 07:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270454AbRHHLHo>; Wed, 8 Aug 2001 07:07:44 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:63238 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S270453AbRHHLHk>;
-	Wed, 8 Aug 2001 07:07:40 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: john slee <indigoid@higherplane.net>
-cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1 is available. 
-In-Reply-To: Your message of "Wed, 08 Aug 2001 17:38:00 +1000."
-             <20010808173800.C2770@higherplane.net> 
+	id <S270455AbRHHL1r>; Wed, 8 Aug 2001 07:27:47 -0400
+Received: from elin.scali.no ([195.139.250.10]:5130 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S270454AbRHHL1e>;
+	Wed, 8 Aug 2001 07:27:34 -0400
+Subject: Telling the difference between threads and processes
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 08 Aug 2001 13:27:23 +0200
+Message-Id: <997270043.11431.9.camel@pc-16>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 08 Aug 2001 21:07:45 +1000
-Message-ID: <906.997268865@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Aug 2001 17:38:00 +1000, 
-john slee <indigoid@higherplane.net> wrote:
->On Wed, Aug 08, 2001 at 04:58:01PM +1000, Keith Owens wrote:
->>   Multiple targets can be specified on the same make command.  You
->>   cannot mix clean or mrproper with other targets but everything else
->>   can be put on one command.
->>     make -j oldconfig installable && sudo make -j install
->>   works beautifully.
->
->'make dep bzImage modules modules_install' has worked for me for a long
->long time...  am i just lucky?
 
-make dep and modules_install could not be parallel run.  make bzImage
-and make modules could parallel run using make -j.
+It started when I got annoyed with gtop's report on resident sizes
+and that the sum of resident sizes can be twice that of physical mem.
+
+Turns out that gtop adds the RS of threads and it should be a simple
+fix to gtop. 
+
+The trouble is that I can't see a proof way from /proc/<pids> to figure
+out if the process was clone()'ed with CLONE_VM or not. Is there???
+
+-- 
+_________________________________________________________________________
+
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

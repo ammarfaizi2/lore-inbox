@@ -1,1129 +1,899 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261950AbSJ2Qo4>; Tue, 29 Oct 2002 11:44:56 -0500
+	id <S262240AbSJ2Q6l>; Tue, 29 Oct 2002 11:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262038AbSJ2Qox>; Tue, 29 Oct 2002 11:44:53 -0500
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:47072 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S261996AbSJ2QgM>;
-	Tue, 29 Oct 2002 11:36:12 -0500
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: [PATCH] 10/11  Ext2/3 Updates: Extended attributes, ACL, etc.
-From: tytso@mit.edu
-Message-Id: <E186ZRm-0006ti-00@snap.thunk.org>
-Date: Tue, 29 Oct 2002 11:42:30 -0500
+	id <S262209AbSJ2Q6k>; Tue, 29 Oct 2002 11:58:40 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:37910 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S262240AbSJ2Q6R>; Tue, 29 Oct 2002 11:58:17 -0500
+Date: Wed, 30 Oct 2002 02:04:15 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCHSET 17/23] add support for PC-9800 architecture (SCSI)
+Message-ID: <20021030020415.A4772@precia.cinet.co.jp>
+References: <20021029023017.A2319@precia.cinet.co.jp> <1035844431.1945.81.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: =?iso-8859-1?Q?=3C1035844431=2E1945=2E81?=
+	=?iso-8859-1?B?LmNhbWVsQGlyb25nYXRlLnN3YW5zZWEubGludXgub3JnLnVrPjsgZnJv?=
+	=?iso-8859-1?B?bSBhbGFuQGx4b3JndWsudWt1dS5vcmcudWsgb24gstAsIDEwtw==?=
+	=?iso-8859-1?Q?=EE?= 29, 2002 at 07:33:51 +0900
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2002.10.29 07:33, Alan Cox wrote:
+> On Mon, 2002-10-28 at 17:30, Osamu Tomita wrote:
+> > This is a part 17/23 of patchset for add support NEC PC-9800
+> architecture,
+> > against 2.5.44.
+> 
+> If all the BIOS mapping for the PC9800 is the same then intead of
+> patching the drivers add an
+> 
+> 	if(pc98)
+> 		pci98_bios_param(...)
+> 	else
+> 		host->bios_param()
+> 
+> change in the scsi core code not in each driver
+> 
+Thanks. I've re-written patch. And I found some missing EXPORT_SYMBOL
+in wd33c93.c. This patch include them. Here is a patch.
 
-Port of (bugfixed) 0.8.50 acl-ext3 to 2.5.
-
-This patch adds ACL support to the ext3 filesystem.
-
-fs/Config.help            |   11 
-fs/Config.in              |    1 
-fs/ext3/Makefile          |    4 
-fs/ext3/acl.c             |  590 ++++++++++++++++++++++++++++++++++++++++++++++
-fs/ext3/acl.h             |   87 ++++++
-fs/ext3/file.c            |    2 
-fs/ext3/ialloc.c          |   32 +-
-fs/ext3/inode.c           |   21 +
-fs/ext3/namei.c           |   11 
-fs/ext3/super.c           |   41 +++
-fs/ext3/xattr.c           |   23 +
-include/linux/ext3_fs.h   |    1 
-include/linux/ext3_fs_i.h |    4 
-13 files changed, 805 insertions(+), 23 deletions(-)
-
-diff -Nru a/fs/Config.help b/fs/Config.help
---- a/fs/Config.help	Tue Oct 29 09:56:01 2002
-+++ b/fs/Config.help	Tue Oct 29 09:56:01 2002
-@@ -166,7 +166,18 @@
-   the kernel or by users (see the attr(5) manual page, or visit
-   <http://acl.bestbits.at/> for details).
- 
-+  You need this for POSIX ACL support on ext3.
-+
-   If unsure, say N.
-+
-+CONFIG_EXT3_FS_POSIX_ACL
-+  Posix Access Control Lists (ACLs) support permissions for users and
-+  groups beyond the owner/group/world scheme.
-+
-+  To learn more about Access Control Lists, visit the Posix ACLs for
-+  Linux website <http://acl.bestbits.at/>.
-+
-+  If you don't know what Access Control Lists are, say N.
- 
- CONFIG_JBD
-   This is a generic journaling layer for block devices.  It is
-diff -Nru a/fs/Config.in b/fs/Config.in
---- a/fs/Config.in	Tue Oct 29 09:56:01 2002
-+++ b/fs/Config.in	Tue Oct 29 09:56:01 2002
-@@ -31,6 +31,7 @@
- 
- tristate 'Ext3 journalling file system support' CONFIG_EXT3_FS
- dep_mbool '  Ext3 extended attributes' CONFIG_EXT3_FS_XATTR $CONFIG_EXT3_FS
-+dep_mbool '  Ext3 POSIX Access Control Lists' CONFIG_EXT3_FS_POSIX_ACL $CONFIG_EXT3_FS_XATTR
- # CONFIG_JBD could be its own option (even modular), but until there are
- # other users than ext3, we will simply make it be the same as CONFIG_EXT3_FS
- # dep_tristate '  Journal Block Device support (JBD for ext3)' CONFIG_JBD $CONFIG_EXT3_FS
-diff -Nru a/fs/ext3/Makefile b/fs/ext3/Makefile
---- a/fs/ext3/Makefile	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/Makefile	Tue Oct 29 09:56:01 2002
-@@ -13,4 +13,8 @@
- ext3-objs += xattr.o xattr_user.o
- endif
- 
-+ifeq ($(CONFIG_EXT3_FS_POSIX_ACL),y)
-+ext3-objs += acl.o
-+endif
-+
- include $(TOPDIR)/Rules.make
-diff -Nru a/fs/ext3/acl.c b/fs/ext3/acl.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/acl.c	Tue Oct 29 09:56:01 2002
-@@ -0,0 +1,590 @@
-+/*
-+ * linux/fs/ext3/acl.c
-+ *
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
+diff -urN linux/drivers/scsi/Config.in linux98/drivers/scsi/Config.in
+--- linux/drivers/scsi/Config.in	Sat Oct 12 13:22:05 2002
++++ linux98/drivers/scsi/Config.in	Sun Oct 13 18:26:42 2002
+@@ -258,6 +258,9 @@
+  #      bool 'GVP Turbo 040/060 SCSI support (EXPERIMENTAL)' 
+CONFIG_GVP_TURBO_SCSI
+     fi
+  fi
++if [ "$CONFIG_PC9800" = "y" ]; then
++   dep_tristate 'NEC PC-9801-55 SCSI support' CONFIG_SCSI_PC980155 
+$CONFIG_SCSI
++fi
+   endmenu
+  diff -urN linux/drivers/scsi/Makefile linux98/drivers/scsi/Makefile
+--- linux/drivers/scsi/Makefile	Sat Oct 19 13:02:28 2002
++++ linux98/drivers/scsi/Makefile	Tue Oct 29 15:45:44 2002
+@@ -18,7 +18,7 @@
+  CFLAGS_gdth.o    = # -DDEBUG_GDTH=2 -D__SERIAL__ -D__COM2__ 
+-DGDTH_STATISTICS
+  CFLAGS_seagate.o =   -DARBITRATE -DPARITY -DSEAGATE_USE_ASM
+  -export-objs	:= scsi_syms.o 53c700.o
++export-objs	:= scsi_syms.o 53c700.o wd33c93.o
+   subdir-$(CONFIG_PCMCIA)		+= pcmcia
+  @@ -31,6 +31,7 @@
+  obj-$(CONFIG_A3000_SCSI)	+= a3000.o	wd33c93.o
+  obj-$(CONFIG_A2091_SCSI)	+= a2091.o	wd33c93.o
+  obj-$(CONFIG_GVP11_SCSI)	+= gvp11.o	wd33c93.o
++obj-$(CONFIG_SCSI_PC980155)	+= pc980155.o	wd33c93.o
+  obj-$(CONFIG_MVME147_SCSI)	+= mvme147.o	wd33c93.o
+  obj-$(CONFIG_SGIWD93_SCSI)	+= sgiwd93.o	wd33c93.o
+  obj-$(CONFIG_CYBERSTORM_SCSI)	+= NCR53C9x.o	cyberstorm.o
+diff -urN linux/drivers/scsi/pc980155.c linux98/drivers/scsi/pc980155.c
+--- linux/drivers/scsi/pc980155.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/scsi/pc980155.c	Sun Feb  3 12:08:14 2002
+@@ -0,0 +1,262 @@
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/mm.h>
++#include <linux/blk.h>
++#include <linux/sched.h>
++#include <linux/version.h>
 +#include <linux/init.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/ext3_jbd.h>
-+#include <linux/ext3_fs.h>
-+#include "xattr.h"
-+#include "acl.h"
++#include <linux/ioport.h>
 +
-+/*
-+ * Convert from filesystem to in-memory representation.
-+ */
-+static struct posix_acl *
-+ext3_acl_from_disk(const void *value, size_t size)
-+{
-+	const char *end = (char *)value + size;
-+	int n, count;
-+	struct posix_acl *acl;
++#include <asm/page.h>
++#include <asm/pgtable.h>
++#include <asm/irq.h>
++#include <asm/dma.h>
++#include <linux/module.h>
 +
-+	if (!value)
-+		return NULL;
-+	if (size < sizeof(ext3_acl_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (((ext3_acl_header *)value)->a_version !=
-+	    cpu_to_le32(EXT3_ACL_VERSION))
-+		return ERR_PTR(-EINVAL);
-+	value = (char *)value + sizeof(ext3_acl_header);
-+	count = ext3_acl_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
-+	if (!acl)
-+		return ERR_PTR(-ENOMEM);
-+	for (n=0; n < count; n++) {
-+		ext3_acl_entry *entry =
-+			(ext3_acl_entry *)value;
-+		if ((char *)value + sizeof(ext3_acl_entry_short) > end)
-+			goto fail;
-+		acl->a_entries[n].e_tag  = le16_to_cpu(entry->e_tag);
-+		acl->a_entries[n].e_perm = le16_to_cpu(entry->e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				value = (char *)value +
-+					sizeof(ext3_acl_entry_short);
-+				acl->a_entries[n].e_id = ACL_UNDEFINED_ID;
-+				break;
++#include "scsi.h"
++#include "hosts.h"
++#include "wd33c93.h"
++#include "pc980155.h"
++#include "pc980155regs.h"
 +
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				value = (char *)value + sizeof(ext3_acl_entry);
-+				if ((char *)value > end)
-+					goto fail;
-+				acl->a_entries[n].e_id =
-+					le32_to_cpu(entry->e_id);
-+				break;
++#define DEBUG
 +
-+			default:
-+				goto fail;
-+		}
-+	}
-+	if (value != end)
-+		goto fail;
-+	return acl;
++#include<linux/stat.h>
 +
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
++static inline void __print_debug_info(unsigned int);
++static inline void __print_debug_info(unsigned int a){}
++#define print_debug_info() __print_debug_info(base_io);
++
++#define NR_BASE_IOS 4
++static int nr_base_ios = NR_BASE_IOS;
++static unsigned int base_ios[NR_BASE_IOS] = {0xcc0, 0xcd0, 0xce0, 
+0xcf0};
++static unsigned int  SASR;
++static unsigned int  SCMD;
++static wd33c93_regs regs = {&SASR, &SCMD};
++
++static struct Scsi_Host *pc980155_host = NULL;
++
++static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs 
+*regp);
++
++inline void pc980155_dma_enable(unsigned int base_io){
++  outb(0x01, REG_CWRITE);
++  WAIT();
++}
++inline void pc980155_dma_disable(unsigned int base_io){
++  outb(0x02, REG_CWRITE);
++  WAIT();
 +}
 +
-+/*
-+ * Convert from in-memory to filesystem representation.
-+ */
-+static void *
-+ext3_acl_to_disk(const struct posix_acl *acl, size_t *size)
++
++static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs 
+*regp)
 +{
-+	ext3_acl_header *ext_acl;
-+	char *e;
-+	int n;
-+
-+	*size = ext3_acl_size(acl->a_count);
-+	ext_acl = (ext3_acl_header *)kmalloc(sizeof(ext3_acl_header) +
-+		acl->a_count * sizeof(ext3_acl_entry), GFP_KERNEL);
-+	if (!ext_acl)
-+		return ERR_PTR(-ENOMEM);
-+	ext_acl->a_version = cpu_to_le32(EXT3_ACL_VERSION);
-+	e = (char *)ext_acl + sizeof(ext3_acl_header);
-+	for (n=0; n < acl->a_count; n++) {
-+		ext3_acl_entry *entry = (ext3_acl_entry *)e;
-+		entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				entry->e_id =
-+					cpu_to_le32(acl->a_entries[n].e_id);
-+				e += sizeof(ext3_acl_entry);
-+				break;
-+
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				e += sizeof(ext3_acl_entry_short);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	return (char *)ext_acl;
-+
-+fail:
-+	kfree(ext_acl);
-+	return ERR_PTR(-EINVAL);
++  wd33c93_intr(pc980155_host);
 +}
 +
-+/*
-+ * Inode operation get_posix_acl().
-+ *
-+ * inode->i_sem: down
-+ */
-+static struct posix_acl *
-+ext3_get_acl(struct inode *inode, int type)
-+{
-+	int name_index;
-+	char *value;
-+	struct posix_acl *acl, **p_acl;
-+	const size_t size = ext3_acl_size(EXT3_ACL_MAX_ENTRIES);
-+	int retval;
++static int dma_setup(Scsi_Cmnd *sc, int dir_in){
++  /*
++   * sc->SCp.this_residual : transfer count
++   * sc->SCp.ptr : distination address (virtual address)
++   * dir_in : data direction (DATA_OUT_DIR:0 or DATA_IN_DIR:1)
++   *
++   * if success return 0
++   */
 +
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
++   /*
++    * DMA WRITE MODE
++    * bit 7,6 01b single mode (this mode only)
++    * bit 5   inc/dec (default:0 = inc)
++    * bit 4   auto initialize (normaly:0 = off)
++    * bit 3,2 01b memory -> io
++    *         10b io -> memory
++    *         00b verify
++    * bit 1,0 channel
++    */
++  disable_dma(sc->host->dma_channel);
++  set_dma_mode(sc->host->dma_channel, 0x40 | (dir_in ? 0x04 : 0x08));
++  clear_dma_ff(sc->host->dma_channel);
++  set_dma_addr(sc->host->dma_channel, virt_to_phys(sc->SCp.ptr));
++  set_dma_count(sc->host->dma_channel, sc->SCp.this_residual);
++#if 0
++#ifdef DEBUG
++  printk("D%d(%x)D", sc->SCp.this_residual);
++#endif
++#endif
++  enable_dma(sc->host->dma_channel);
++
++  pc980155_dma_enable(sc->host->io_port);
++
++  return 0;
++}
++
++static void dma_stop(struct Scsi_Host *instance, Scsi_Cmnd *sc, int 
+status){
++  /*
++   * instance: Hostadapter's instance
++   * sc: scsi command
++   * status: True if success
++   */
++
++  pc980155_dma_disable(sc->host->io_port);
++
++  disable_dma(sc->host->dma_channel);
++}  +
++/* return non-zero on detection */
++static inline int pc980155_test_port(wd33c93_regs regs)
++{
++	/* Quick and dirty test for presence of the card. */
++	if (READ_AUX_STAT() == 0xff)
 +		return 0;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			p_acl = &EXT3_I(inode)->i_acl;
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			p_acl = &EXT3_I(inode)->i_default_acl;
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			break;
-+
-+		default:
-+			return ERR_PTR(-EINVAL);
-+	}
-+	if (*p_acl != EXT3_ACL_NOT_CACHED)
-+		return posix_acl_dup(*p_acl);
-+	value = kmalloc(size, GFP_KERNEL);
-+	if (!value)
-+		return ERR_PTR(-ENOMEM);
-+
-+	retval = ext3_xattr_get(inode, name_index, "", value, size);
-+
-+	if (retval == -ENODATA || retval == -ENOSYS)
-+		*p_acl = acl = NULL;
-+	else if (retval < 0)
-+		acl = ERR_PTR(retval);
-+	else {
-+		acl = ext3_acl_from_disk(value, retval);
-+		if (!IS_ERR(acl))
-+			*p_acl = posix_acl_dup(acl);
-+	}
-+	kfree(value);
-+	return acl;
++	return 1;
 +}
 +
-+/*
-+ * Set the access or default ACL of an inode.
-+ *
-+ * inode->i_sem: down unless called from ext3_new_inode
-+ */
-+static int
-+ext3_set_acl(handle_t *handle, struct inode *inode, int type,
-+	     struct posix_acl *acl)
++static inline int
++pc980155_getconfig(unsigned int base_io, wd33c93_regs regs,
++		    unsigned char* irq, unsigned char* dma,
++		    unsigned char* scsi_id)
 +{
-+	int name_index;
-+	void *value = NULL;
-+	struct posix_acl **p_acl;
-+	size_t size;
-+	int error;
-+
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			p_acl = &EXT3_I(inode)->i_acl;
-+			if (acl) {
-+				mode_t mode = inode->i_mode;
-+				error = posix_acl_equiv_mode(acl, &mode);
-+				if (error < 0)
-+					return error;
-+				else {
-+					inode->i_mode = mode;
-+					ext3_mark_inode_dirty(handle, inode);
-+					if (error == 0)
-+						acl = NULL;
-+				}
-+			}
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			name_index = EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			p_acl = &EXT3_I(inode)->i_default_acl;
-+			if (!S_ISDIR(inode->i_mode))
-+				return acl ? -EACCES : 0;
-+			break;
-+
-+		default:
-+			return -EINVAL;
-+	}
-+ 	if (acl) {
-+		if (acl->a_count > EXT3_ACL_MAX_ENTRIES)
-+			return -EINVAL;
-+		value = ext3_acl_to_disk(acl, &size);
-+		if (IS_ERR(value))
-+			return (int)PTR_ERR(value);
-+	}
-+
-+	error = ext3_xattr_set(handle, inode, name_index, "", value, size, 0);
-+
-+	if (value)
-+		kfree(value);
-+	if (!error) {
-+		if (*p_acl && *p_acl != EXT3_ACL_NOT_CACHED)
-+			posix_acl_release(*p_acl);
-+		*p_acl = posix_acl_dup(acl);
-+	}
-+	return error;
-+}
-+
-+static int
-+__ext3_permission(struct inode *inode, int mask, int lock)
-+{
-+	int mode = inode->i_mode;
-+
-+	/* Nobody gets write access to a read-only fs */
-+	if ((mask & MAY_WRITE) && IS_RDONLY(inode) &&
-+	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
-+		return -EROFS;
-+	/* Nobody gets write access to an immutable file */
-+	if ((mask & MAY_WRITE) && IS_IMMUTABLE(inode))
-+	    return -EACCES;
-+	if (current->fsuid == inode->i_uid) {
-+		mode >>= 6;
-+	} else if (test_opt(inode->i_sb, POSIX_ACL)) {
-+		/* ACL can't contain additional permissions if
-+		   the ACL_MASK entry is 0 */
-+		if (!(mode & S_IRWXG))
-+			goto check_groups;
-+		if (EXT3_I(inode)->i_acl == EXT3_ACL_NOT_CACHED) {
-+			struct posix_acl *acl;
-+
-+			if (lock) {
-+				down(&inode->i_sem);
-+				acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
-+				up(&inode->i_sem);
-+			} else
-+				acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
-+
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+			posix_acl_release(acl);
-+			if (EXT3_I(inode)->i_acl == EXT3_ACL_NOT_CACHED)
-+				return -EIO;
-+		}
-+		if (EXT3_I(inode)->i_acl) {
-+			int error = posix_acl_permission(inode,
-+				EXT3_I(inode)->i_acl, mask);
-+			if (error == -EACCES)
-+				goto check_capabilities;
-+			return error;
-+		} else
-+			goto check_groups;
-+	} else {
-+check_groups:
-+		if (in_group_p(inode->i_gid))
-+			mode >>= 3;
-+	}
-+	if ((mode & mask & S_IRWXO) == mask)
++	static unsigned char irqs[] = { 3, 5, 6, 9, 12, 13 };
++	unsigned char result;
++  +	printk(KERN_DEBUG "PC-9801-55: base_io=%x SASR=%x SCMD=%x\n",
++		base_io, *regs.SASR, *regs.SCMD);
++	result = read_wd33c93(regs, WD_RESETINT);
++	printk(KERN_DEBUG "PC-9801-55: getting config (%x)\n", result);
++	*scsi_id = result & 0x07;
++	*irq = (result >> 3) & 0x07;
++	if (*irq > 5) {
++		printk(KERN_ERR "PC-9801-55 (base %#x): impossible IRQ 
+(%d)"
++			" - other device here?\n", base_io, *irq);
 +		return 0;
-+
-+check_capabilities:
-+	/* Allowed to override Discretionary Access Control? */
-+	if ((mask & (MAY_READ|MAY_WRITE)) || (inode->i_mode & S_IXUGO))
-+		if (capable(CAP_DAC_OVERRIDE))
-+			return 0;
-+	/* Read and search granted if capable(CAP_DAC_READ_SEARCH) */
-+	if (capable(CAP_DAC_READ_SEARCH) && ((mask == MAY_READ) ||
-+	    (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE))))
-+		return 0;
-+	return -EACCES;
-+}
-+
-+/*
-+ * Inode operation permission().
-+ *
-+ * inode->i_sem: up
-+ */
-+int
-+ext3_permission(struct inode *inode, int mask)
-+{
-+	return __ext3_permission(inode, mask, 1);
-+}
-+
-+/*
-+ * Used internally if i_sem is already down.
-+ */
-+int
-+ext3_permission_locked(struct inode *inode, int mask)
-+{
-+	return __ext3_permission(inode, mask, 0);
-+}
-+
-+/*
-+ * Initialize the ACLs of a new inode. Called from ext3_new_inode.
-+ *
-+ * dir->i_sem: down
-+ * inode->i_sem: up (access to inode is still exclusive)
-+ */
-+int
-+ext3_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
-+{
-+	struct posix_acl *acl = NULL;
-+	int error = 0;
-+
-+	if (!S_ISLNK(inode->i_mode)) {
-+		if (test_opt(dir->i_sb, POSIX_ACL)) {
-+			acl = ext3_get_acl(dir, ACL_TYPE_DEFAULT);
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+		}
-+		if (!acl)
-+			inode->i_mode &= ~current->fs->umask;
 +	}
-+	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
-+		struct posix_acl *clone;
-+		mode_t mode;
 +
-+		if (S_ISDIR(inode->i_mode)) {
-+			error = ext3_set_acl(handle, inode,
-+					     ACL_TYPE_DEFAULT, acl);
-+			if (error)
-+				goto cleanup;
-+		}
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!clone)
-+			goto cleanup;
-+		
-+		mode = inode->i_mode;
-+		error = posix_acl_create_masq(clone, &mode);
-+		if (error >= 0) {
-+			inode->i_mode = mode;
-+			if (error > 0) {
-+				/* This is an extended ACL */
-+				error = ext3_set_acl(handle, inode,
-+						     ACL_TYPE_ACCESS, clone);
-+			}
-+		}
-+		posix_acl_release(clone);
++	*irq = irqs[*irq];
++	result = inb(REG_STATRD);
++	WAIT();
++	*dma = result & 0x03;
++	if (*dma == 1) {
++		printk(KERN_ERR
++			"PC-9801-55 (base %#x): impossible DMA channl 
+(%d)"
++			" - other device here?\n", base_io, *dma);
++		return 0;
 +	}
-+cleanup:
-+	posix_acl_release(acl);
-+	return error;
++#ifdef DEBUG
++	printk("PC-9801-55: end of getconfig\n");
++#endif
++	return 1;
 +}
 +
-+/*
-+ * Does chmod for an inode that may have an Access Control List. The
-+ * inode->i_mode field must be updated to the desired value by the caller
-+ * before calling this function.
-+ * Returns 0 on success, or a negative error number.
-+ *
-+ * We change the ACL rather than storing some ACL entries in the file
-+ * mode permission bits (which would be more efficient), because that
-+ * would break once additional permissions (like  ACL_APPEND, ACL_DELETE
-+ * for directories) are added. There are no more bits available in the
-+ * file mode.
-+ *
-+ * inode->i_sem: down
-+ */
-+int
-+ext3_acl_chmod(struct inode *inode)
++/* return non-zero on detection */
++int scsi_pc980155_detect(Scsi_Host_Template* tpnt)
 +{
-+	struct posix_acl *acl, *clone;
-+        int error;
++	unsigned int base_io;
++	unsigned char irq, dma, scsi_id;
++	int i;
++#ifdef DEBUG
++	unsigned char debug;
++#endif
++  +	for (i = 0; i < nr_base_ios; i++) {
++		base_io = base_ios[i];
++		SASR = REG_ADDRST;
++		SCMD = REG_CONTRL;
 +
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
-+	if (IS_ERR(acl) || !acl)
-+		return PTR_ERR(acl);
-+	clone = posix_acl_clone(acl, GFP_KERNEL);
-+	posix_acl_release(acl);
-+	if (!clone)
-+		return -ENOMEM;
-+	error = posix_acl_chmod_masq(clone, inode->i_mode);
-+	if (!error) {
-+		handle_t *handle;
++    /*    printk("PC-9801-55: SASR(%x = %x)\n", SASR, REG_ADDRST); */
++		if (check_region(base_io, 6))
++			continue;
++		if (! pc980155_test_port(regs))
++			continue;
 +
-+		handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-+		if (IS_ERR(handle)) {
-+			ext3_std_error(inode->i_sb, error);
-+			return PTR_ERR(handle);
++		if (!pc980155_getconfig(base_io, regs, &irq, &dma, 
+&scsi_id))
++			continue;
++#ifdef DEBUG
++		printk("PC-9801-55: config: base io = %x, irq = %d, dma 
+channel = %d, scsi id = %d\n",
++			base_io, irq, dma, scsi_id);
++#endif
++		if (request_irq(irq, pc980155_intr_handle, 0, 
+"PC-9801-55",
++				 NULL)) {
++			printk(KERN_ERR
++				"PC-9801-55: unable to allocate IRQ 
+%d\n",
++				irq);
++			continue;
 +		}
-+		error = ext3_set_acl(handle, inode, ACL_TYPE_ACCESS, clone);
-+		ext3_journal_stop(handle, inode);
++		if (request_dma(dma, "PC-9801-55")) {
++			printk(KERN_ERR "PC-9801-55: "
++				"unable to allocate DMA channel %d\n", 
+dma);
++			free_irq(irq, NULL);
++			continue;
++		}
++
++		request_region(base_io, 6, "PC-9801-55");
++		pc980155_host = scsi_register(tpnt, sizeof(struct 
+WD33C93_hostdata));
++		pc980155_host->this_id = scsi_id;
++		pc980155_host->io_port = base_io;
++		pc980155_host->n_io_port = 6;
++		pc980155_host->irq = irq;
++		pc980155_host->dma_channel = dma;
++
++#ifdef DEBUG
++		printk("PC-9801-55: scsi host found at %x irq = %d, use 
+dma channel %d.\n", base_io, irq, dma);
++		debug = read_aux_stat(regs);
++		printk("PC-9801-55: aux: %x ", debug);
++		debug = read_wd33c93(regs, 0x17);
++		printk("status: %x\n", debug);
++#endif
++
++		pc980155_int_enable(regs);
++  +		wd33c93_init(pc980155_host, regs, dma_setup, dma_stop,
++			      WD33C93_FS_12_15);
++    +		return 1;
 +	}
-+	posix_acl_release(clone);
-+	return error;
++
++	printk("PC-9801-55: not found\n");
++	return 0;
 +}
 +
-+/*
-+ * Extended attribute handlers
-+ */
-+static size_t
-+ext3_xattr_list_acl_access(char *list, struct inode *inode,
-+			   const char *name, int name_len)
++int pc980155_proc_info(char *buf, char **start, off_t off, int len,
++			int hostno, int in)
 +{
-+	const size_t len = sizeof(XATTR_NAME_ACL_ACCESS)-1;
++	/* NOT SUPPORTED YET! */
 +
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_ACCESS, len);
-+	return len;
-+}
-+
-+static size_t
-+ext3_xattr_list_acl_default(char *list, struct inode *inode,
-+			    const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_DEFAULT)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_DEFAULT, len);
-+	return len;
-+}
-+
-+static int
-+ext3_xattr_get_acl(struct inode *inode, int type, void *buffer, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+
-+	acl = ext3_get_acl(inode, type);
-+	if (IS_ERR(acl))
-+		return PTR_ERR(acl);
-+	if (acl == NULL)
-+		return -ENODATA;
-+	error = posix_acl_to_xattr(acl, buffer, size);
-+	posix_acl_release(acl);
-+
-+	return error;
-+}
-+
-+static int
-+ext3_xattr_get_acl_access(struct inode *inode, const char *name,
-+			  void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_get_acl(inode, ACL_TYPE_ACCESS, buffer, size);
-+}
-+
-+static int
-+ext3_xattr_get_acl_default(struct inode *inode, const char *name,
-+			   void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_get_acl(inode, ACL_TYPE_DEFAULT, buffer, size);
-+}
-+
-+static int
-+ext3_xattr_set_acl(struct inode *inode, int type, const void *value, size_t size)
-+{
-+	handle_t *handle;
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
++	if (in) {
 +		return -EPERM;
-+
-+	if (value) {
-+		acl = posix_acl_from_xattr(value, size);
-+		if (IS_ERR(acl))
-+			return PTR_ERR(acl);
-+		else if (acl) {
-+			error = posix_acl_valid(acl);
-+			if (error)
-+				goto release_and_out;
-+		}
-+	} else
-+		acl = NULL;
-+
-+	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-+	if (IS_ERR(handle))
-+		return PTR_ERR(handle);
-+	error = ext3_set_acl(handle, inode, type, acl);
-+	ext3_journal_stop(handle, inode);
-+
-+release_and_out:
-+	posix_acl_release(acl);
-+	return error;
++	}
++	*start = buf;
++	return sprintf(buf, "Sorry, not supported yet.\n");
 +}
 +
-+static int
-+ext3_xattr_set_acl_access(struct inode *inode, const char *name,
-+			  const void *value, size_t size, int flags)
++int pc980155_setup(char *str)
 +{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_set_acl(inode, ACL_TYPE_ACCESS, value, size);
++next:
++  if (!strncmp(str, "io:", 3)){
++    base_ios[0] = simple_strtoul(str+3,NULL,0);
++    nr_base_ios = 1;
++    while (*str > ' ' && *str != ',')
++      str++;
++    if (*str == ','){
++      str++;
++      goto next;
++    }
++  }
++  return 0;
 +}
 +
-+static int
-+ext3_xattr_set_acl_default(struct inode *inode, const char *name,
-+			   const void *value, size_t size, int flags)
++int scsi_pc980155_release(struct Scsi_Host *pc980155_host)
 +{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext3_xattr_set_acl(inode, ACL_TYPE_DEFAULT, value, size);
++#ifdef MODULE
++        pc980155_int_disable(regs);
++        release_region(pc980155_host->io_port, 
+pc980155_host->n_io_port);
++        free_irq(pc980155_host->irq, NULL);
++        free_dma(pc980155_host->dma_channel);
++        wd33c93_release();
++#endif
++    return 1;
 +}
 +
-+struct ext3_xattr_handler ext3_xattr_acl_access_handler = {
-+	prefix:	XATTR_NAME_ACL_ACCESS,
-+	list:	ext3_xattr_list_acl_access,
-+	get:	ext3_xattr_get_acl_access,
-+	set:	ext3_xattr_set_acl_access,
-+};
++__setup("pc980155=", pc980155_setup);
 +
-+struct ext3_xattr_handler ext3_xattr_acl_default_handler = {
-+	prefix:	XATTR_NAME_ACL_DEFAULT,
-+	list:	ext3_xattr_list_acl_default,
-+	get:	ext3_xattr_get_acl_default,
-+	set:	ext3_xattr_set_acl_default,
-+};
++Scsi_Host_Template driver_template = SCSI_PC980155;
 +
-+void
-+exit_ext3_acl(void)
-+{
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
-+			      &ext3_xattr_acl_access_handler);
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+			      &ext3_xattr_acl_default_handler);
-+}
-+
-+int __init
-+init_ext3_acl(void)
-+{
-+	int error;
-+
-+	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_ACCESS,
-+				    &ext3_xattr_acl_access_handler);
-+	if (error)
-+		goto fail;
-+	error = ext3_xattr_register(EXT3_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+				    &ext3_xattr_acl_default_handler);
-+	if (error)
-+		goto fail;
-+	return 0;
-+
-+fail:
-+	exit_ext3_acl();
-+	return error;
-+}
-diff -Nru a/fs/ext3/acl.h b/fs/ext3/acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext3/acl.h	Tue Oct 29 09:56:01 2002
-@@ -0,0 +1,87 @@
++#include "scsi_module.c"
+diff -urN linux/drivers/scsi/pc980155.h linux98/drivers/scsi/pc980155.h
+--- linux/drivers/scsi/pc980155.h	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/scsi/pc980155.h	Sun Feb  3 12:08:14 2002
+@@ -0,0 +1,47 @@
 +/*
-+  File: fs/ext3/acl.h
++ *  PC-9801-55 SCSI host adapter driver
++ *
++ *  Copyright (C) 1997-2000  Kyoto University Microcomputer Club
++ *			     (Linux/98 project)
++ */
 +
-+  (C) 2001 Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+*/
++#ifndef _SCSI_PC9801_55_H
++#define _SCSI_PC9801_55_H
 +
-+#include <linux/xattr_acl.h>
++#include <linux/types.h>
++#include <linux/kdev_t.h>
++#include <scsi/scsicam.h>
 +
-+#define EXT3_ACL_VERSION	0x0001
-+#define EXT3_ACL_MAX_ENTRIES	32
++int wd33c93_queuecommand(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
++int wd33c93_abort(Scsi_Cmnd *);
++int wd33c93_reset(Scsi_Cmnd *, unsigned int);
++int scsi_pc980155_detect(Scsi_Host_Template *);
++int scsi_pc980155_release(struct Scsi_Host *);
++int pc980155_proc_info(char *, char **, off_t, int, int, int);
 +
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} ext3_acl_entry;
-+
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+} ext3_acl_entry_short;
-+
-+typedef struct {
-+	__u32		a_version;
-+} ext3_acl_header;
-+
-+static inline size_t ext3_acl_size(int count)
-+{
-+	if (count <= 4) {
-+		return sizeof(ext3_acl_header) +
-+		       count * sizeof(ext3_acl_entry_short);
-+	} else {
-+		return sizeof(ext3_acl_header) +
-+		       4 * sizeof(ext3_acl_entry_short) +
-+		       (count - 4) * sizeof(ext3_acl_entry);
-+	}
-+}
-+
-+static inline int ext3_acl_count(size_t size)
-+{
-+	ssize_t s;
-+	size -= sizeof(ext3_acl_header);
-+	s = size - 4 * sizeof(ext3_acl_entry_short);
-+	if (s < 0) {
-+		if (size % sizeof(ext3_acl_entry_short))
-+			return -1;
-+		return size / sizeof(ext3_acl_entry_short);
-+	} else {
-+		if (s % sizeof(ext3_acl_entry))
-+			return -1;
-+		return s / sizeof(ext3_acl_entry) + 4;
-+	}
-+}
-+
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+
-+/* Value for inode->u.ext3_i.i_acl and inode->u.ext3_i.i_default_acl
-+   if the ACL has not been cached */
-+#define EXT3_ACL_NOT_CACHED ((void *)-1)
-+
-+/* acl.c */
-+extern int ext3_permission (struct inode *, int);
-+extern int ext3_permission_locked (struct inode *, int);
-+extern int ext3_acl_chmod (struct inode *);
-+extern int ext3_init_acl (handle_t *, struct inode *, struct inode *);
-+
-+extern int init_ext3_acl(void);
-+extern void exit_ext3_acl(void);
-+
-+#else  /* CONFIG_EXT3_FS_POSIX_ACL */
-+#include <linux/sched.h>
-+#define ext3_permission NULL
-+
-+static inline int
-+ext3_acl_chmod(struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static inline int
-+ext3_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
-+{
-+	inode->i_mode &= ~current->fs->umask;
-+	return 0;
-+}
-+#endif  /* CONFIG_EXT3_FS_POSIX_ACL */
-+
-diff -Nru a/fs/ext3/file.c b/fs/ext3/file.c
---- a/fs/ext3/file.c	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/file.c	Tue Oct 29 09:56:01 2002
-@@ -24,6 +24,7 @@
- #include <linux/ext3_fs.h>
- #include <linux/ext3_jbd.h>
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * Called when an inode is released. Note that this is different
-@@ -102,5 +103,6 @@
- 	.getxattr	= ext3_getxattr,
- 	.listxattr	= ext3_listxattr,
- 	.removexattr	= ext3_removexattr,
-+	.permission	= ext3_permission,
- };
- 
-diff -Nru a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
---- a/fs/ext3/ialloc.c	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/ialloc.c	Tue Oct 29 09:56:01 2002
-@@ -26,6 +26,7 @@
- #include <asm/byteorder.h>
- 
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * ialloc.c contains the inodes allocation and deallocation routines
-@@ -423,20 +424,27 @@
- 	inode->i_generation = EXT3_SB(sb)->s_next_generation++;
- 
- 	ei->i_state = EXT3_STATE_NEW;
--	err = ext3_mark_inode_dirty(handle, inode);
--	if (err) goto fail;
--	
-+
- 	unlock_super(sb);
- 	ret = inode;
- 	if(DQUOT_ALLOC_INODE(inode)) {
- 		DQUOT_DROP(inode);
--		inode->i_flags |= S_NOQUOTA;
--		inode->i_nlink = 0;
--		iput(inode);
--		ret = ERR_PTR(-EDQUOT);
--	} else {
--		ext3_debug("allocating inode %lu\n", inode->i_ino);
-+		err = -EDQUOT;
-+		goto fail2;
- 	}
-+	err = ext3_init_acl(handle, inode, dir);
-+	if (err) {
-+		DQUOT_FREE_INODE(inode);
-+		goto fail2;
-+  	}
-+	err = ext3_mark_inode_dirty(handle, inode);
-+	if (err) {
-+		ext3_std_error(sb, err);
-+		DQUOT_FREE_INODE(inode);
-+		goto fail2;
-+	}
-+
-+	ext3_debug("allocating inode %lu\n", inode->i_ino);
- 	goto really_out;
- fail:
- 	ext3_std_error(sb, err);
-@@ -447,6 +455,12 @@
- really_out:
- 	brelse(bitmap_bh);
- 	return ret;
-+
-+fail2:
-+	inode->i_flags |= S_NOQUOTA;
-+	inode->i_nlink = 0;
-+	iput(inode);
-+	return ERR_PTR(err);
- }
- 
- /* Verify that we are loading a valid orphan from disk */
-diff -Nru a/fs/ext3/inode.c b/fs/ext3/inode.c
---- a/fs/ext3/inode.c	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/inode.c	Tue Oct 29 09:56:01 2002
-@@ -34,6 +34,8 @@
- #include <linux/string.h>
- #include <linux/buffer_head.h>
- #include <linux/mpage.h>
-+#include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * SEARCH_FROM_ZERO forces each block allocation to search from the start
-@@ -2199,7 +2201,11 @@
- 	struct buffer_head *bh;
- 	int block;
- 	
--	if(ext3_get_inode_loc(inode, &iloc))
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	ei->i_acl = EXT3_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
++#ifndef CMD_PER_LUN
++#define CMD_PER_LUN 2
 +#endif
-+	if (ext3_get_inode_loc(inode, &iloc))
- 		goto bad_inode;
- 	bh = iloc.bh;
- 	raw_inode = iloc.raw_inode;
-@@ -2491,13 +2497,8 @@
-  * be freed, so we have a strong guarantee that no future commit will
-  * leave these blocks visible to the user.)  
-  *
-- * This is only needed for regular files.  rmdir() has its own path, and
-- * we can never truncate a direcory except on final unlink (at which
-- * point i_nlink is zero so recovery is easy.)
-- *
-- * Called with the BKL.  
-+ * Called with inode->sem down.
-  */
--
- int ext3_setattr(struct dentry *dentry, struct iattr *attr)
- {
- 	struct inode *inode = dentry->d_inode;
-@@ -2517,7 +2518,8 @@
- 
- 	lock_kernel();
- 
--	if (attr->ia_valid & ATTR_SIZE && attr->ia_size < inode->i_size) {
-+	if (S_ISREG(inode->i_mode) &&
-+	    attr->ia_valid & ATTR_SIZE && attr->ia_size < inode->i_size) {
- 		handle_t *handle;
- 
- 		handle = ext3_journal_start(inode, 3);
-@@ -2541,6 +2543,9 @@
- 	 * orphan list manually. */
- 	if (inode->i_nlink)
- 		ext3_orphan_del(NULL, inode);
 +
-+	if (!rc && (ia_valid & ATTR_MODE))
-+		rc = ext3_acl_chmod(inode);
- 
- err_out:
- 	ext3_std_error(inode->i_sb, error);
-diff -Nru a/fs/ext3/namei.c b/fs/ext3/namei.c
---- a/fs/ext3/namei.c	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/namei.c	Tue Oct 29 09:56:01 2002
-@@ -37,7 +37,7 @@
- #include <linux/buffer_head.h>
- #include <linux/smp_lock.h>
- #include "xattr.h"
--
-+#include "acl.h"
- 
- /*
-  * define how far ahead to read directories while searching them.
-@@ -1624,7 +1624,10 @@
- 	inode = ext3_new_inode (handle, dir, mode);
- 	err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
--		init_special_inode(inode, mode, rdev);
-+		init_special_inode(inode, inode->i_mode, rdev);
-+#ifdef CONFIG_EXT3_FS_XATTR
-+		inode->i_op = &ext3_special_inode_operations;
++#ifndef CAN_QUEUE
++#define CAN_QUEUE 16
 +#endif
- 		err = ext3_add_nondir(handle, dentry, inode);
- 		ext3_mark_inode_dirty(handle, inode);
- 	}
-@@ -2281,17 +2284,21 @@
- 	.rmdir		= ext3_rmdir,
- 	.mknod		= ext3_mknod,
- 	.rename		= ext3_rename,
-+	.setattr	= ext3_setattr,
- 	.setxattr	= ext3_setxattr,	
- 	.getxattr	= ext3_getxattr,	
- 	.listxattr	= ext3_listxattr,	
- 	.removexattr	= ext3_removexattr,
-+	.permission	= ext3_permission,
- };
- 
- struct inode_operations ext3_special_inode_operations = {
-+	.setattr	= ext3_setattr,
- 	.setxattr	= ext3_setxattr,
- 	.getxattr	= ext3_getxattr,
- 	.listxattr	= ext3_listxattr,
- 	.removexattr	= ext3_removexattr,
-+	.permission	= ext3_permission,
- };
- 
-  
-diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
---- a/fs/ext3/super.c	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/super.c	Tue Oct 29 09:56:01 2002
-@@ -31,6 +31,7 @@
- #include <linux/buffer_head.h>
- #include <asm/uaccess.h>
- #include "xattr.h"
-+#include "acl.h"
- 
- #ifdef CONFIG_JBD_DEBUG
- static int ext3_ro_after; /* Make fs read-only after this many jiffies */
-@@ -428,6 +429,10 @@
- 	ei = kmem_cache_alloc(ext3_inode_cachep, SLAB_NOFS);
- 	if (!ei)
- 		return NULL;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	ei->i_acl = EXT3_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT3_ACL_NOT_CACHED;
-+#endif
- 	return &ei->vfs_inode;
- }
- 
-@@ -465,6 +470,26 @@
- 		printk(KERN_INFO "ext3_inode_cache: not all structures were freed\n");
- }
- 
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
 +
-+static void ext3_clear_inode(struct inode *inode)
-+{
-+       if (EXT3_I(inode)->i_acl &&
-+           EXT3_I(inode)->i_acl != EXT3_ACL_NOT_CACHED) {
-+               posix_acl_release(EXT3_I(inode)->i_acl);
-+               EXT3_I(inode)->i_acl = EXT3_ACL_NOT_CACHED;
-+       }
-+       if (EXT3_I(inode)->i_default_acl &&
-+           EXT3_I(inode)->i_default_acl != EXT3_ACL_NOT_CACHED) {
-+               posix_acl_release(EXT3_I(inode)->i_default_acl);
-+               EXT3_I(inode)->i_default_acl = EXT3_ACL_NOT_CACHED;
-+       }
-+}
++#define SCSI_PC980155 {	proc_name:		 
+"PC-9801-55",		\
++  			name:			"SCSI PC-9801-55",	 
+\
++			proc_info:		pc980155_proc_info,	 
+\
++			detect:			scsi_pc980155_detect,	 
+\
++			release:		scsi_pc980155_release,	 
+\
++			/* command: use queue command */		 
+\
++			queuecommand:		wd33c93_queuecommand,	 
+\
++			abort:			wd33c93_abort,		 
+\
++			reset:			wd33c93_reset,		 
+\
++			bios_param:		pc9800_scsi_bios_param,	 
+\
++			can_queue:		CAN_QUEUE,		 
+\
++			this_id:		7,			 
+\
++			sg_tablesize:		 
+SG_ALL,			 \
++			cmd_per_lun:		CMD_PER_LUN, /* dont 
+use link command */ \
++			unchecked_isa_dma:	1, /* use dma 
+**XXXX***/ \
++			use_clustering:		ENABLE_CLUSTERING }
 +
++#endif /* _SCSI_PC9801_55_H */
+diff -urN linux/drivers/scsi/pc980155regs.h 
+linux98/drivers/scsi/pc980155regs.h
+--- linux/drivers/scsi/pc980155regs.h	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/scsi/pc980155regs.h	Mon Dec  3 18:44:10 2001
+@@ -0,0 +1,89 @@
++#ifndef __PC980155REGS_H
++#define __PC980155REGS_H
++
++#include "wd33c93.h"
++
++#define REG_ADDRST (base_io+0)
++#define REG_CONTRL (base_io+2)
++#define REG_CWRITE (base_io+4)
++#define REG_STATRD (base_io+4)
++
++#define WD_MEMORYBANK 0x30
++#define WD_RESETINT   0x33
++
++#if 0
++#define WAIT() outb(0x00,0x5f)
 +#else
-+# define ext3_clear_inode NULL
++#define WAIT() do{}while(0)
 +#endif
 +
- static struct super_operations ext3_sops = {
- 	.alloc_inode	= ext3_alloc_inode,
- 	.destroy_inode	= ext3_destroy_inode,
-@@ -479,6 +504,7 @@
- 	.unlockfs	= ext3_unlockfs,		/* BKL not held.  We take it */
- 	.statfs		= ext3_statfs,		/* BKL not held. */
- 	.remount_fs	= ext3_remount,		/* BKL held */
-+	.clear_inode	= ext3_clear_inode,	/* BKL not needed. */
- };
- 
- struct dentry *ext3_get_parent(struct dentry *child);
-@@ -560,6 +586,13 @@
- 			clear_opt (sbi->s_mount_opt, XATTR_USER);
- 		else
- #endif
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+		if (!strcmp(this_char, "acl"))
-+			set_opt (sbi->s_mount_opt, POSIX_ACL);
-+		else if (!strcmp(this_char, "noacl"))
-+			clear_opt (sbi->s_mount_opt, POSIX_ACL);
-+		else
-+#endif
- 		if (!strcmp (this_char, "bsddf"))
- 			clear_opt (sbi->s_mount_opt, MINIX_DF);
- 		else if (!strcmp (this_char, "nouid32")) {
-@@ -1035,6 +1068,8 @@
- 		set_opt(sbi->s_mount_opt, NO_UID32);
- 	if (def_mount_opts & EXT3_DEFM_XATTR_USER)
- 		set_opt(sbi->s_mount_opt, XATTR_USER);
-+	if (def_mount_opts & EXT3_DEFM_ACL)
-+		set_opt(sbi->s_mount_opt, POSIX_ACL);
- 	if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_DATA)
- 		sbi->s_mount_opt |= EXT3_MOUNT_JOURNAL_DATA;
- 	else if ((def_mount_opts & EXT3_DEFM_JMODE) == EXT3_DEFM_JMODE_ORDERED)
-@@ -1053,6 +1088,9 @@
- 	if (!parse_options ((char *) data, sbi, &journal_inum, 0))
- 		goto failed_mount;
- 
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((sbi->s_mount_opt & EXT3_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
++static inline uchar read_wd33c93(const wd33c93_regs regs, uchar 
+reg_num)
++{
++  uchar data;
++  outb(reg_num, *regs.SASR);
++  WAIT();
++  data = inb(*regs.SCMD);
++  WAIT();
++  return data;
++}
 +
- 	if (le32_to_cpu(es->s_rev_level) == EXT3_GOOD_OLD_REV &&
- 	    (EXT3_HAS_COMPAT_FEATURE(sb, ~0U) ||
- 	     EXT3_HAS_RO_COMPAT_FEATURE(sb, ~0U) ||
-@@ -1741,6 +1779,9 @@
- 
- 	if (sbi->s_mount_opt & EXT3_MOUNT_ABORT)
- 		ext3_abort(sb, __FUNCTION__, "Abort forced by user");
++static inline uchar read_aux_stat(const wd33c93_regs regs)
++{
++  uchar result;
++  result = inb(*regs.SASR);
++  WAIT();
++  /*  printk("PC-9801-55: regp->SASR(%x) = %x\n", regp->SASR, result); 
+*/
++  return result;
++}
++#define READ_AUX_STAT() read_aux_stat(regs)
 +
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((sbi->s_mount_opt & EXT3_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
- 
- 	es = sbi->s_es;
- 
-diff -Nru a/fs/ext3/xattr.c b/fs/ext3/xattr.c
---- a/fs/ext3/xattr.c	Tue Oct 29 09:56:01 2002
-+++ b/fs/ext3/xattr.c	Tue Oct 29 09:56:01 2002
-@@ -61,6 +61,7 @@
- #include <linux/quotaops.h>
- #include <asm/semaphore.h>
- #include "xattr.h"
-+#include "acl.h"
- 
- #define EXT3_EA_USER "user."
- 
-@@ -1105,15 +1106,27 @@
- 	err = ext3_xattr_register(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
- 	if (err)
- 		return err;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	err = init_ext3_acl();
-+	if (err)
-+		goto out;
++static inline void write_wd33c93(const wd33c93_regs regs, uchar 
+reg_num,
++				 uchar value)
++{
++  outb(reg_num, *regs.SASR);
++  WAIT();
++  outb(value, *regs.SCMD);
++  WAIT();
++}
++
++
++#define write_wd33c93_cmd(regs,cmd) write_wd33c93(regs,WD_COMMAND,cmd)
++
++static inline void write_wd33c93_count(const wd33c93_regs regs,
++					unsigned long value)
++{
++   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
++   WAIT();
++   outb((value >> 16) & 0xff, *regs.SCMD);
++   WAIT();
++   outb((value >> 8)  & 0xff, *regs.SCMD);
++   WAIT();
++   outb( value        & 0xff, *regs.SCMD);
++   WAIT();
++}
++
++
++static inline unsigned long read_wd33c93_count(const wd33c93_regs regs)
++{
++unsigned long value;
++
++   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
++   value = inb(*regs.SCMD) << 16;
++   value |= inb(*regs.SCMD) << 8;
++   value |= inb(*regs.SCMD);
++   return value;
++}
++
++static inline void write_wd33c93_cdb(const wd33c93_regs regs, unsigned 
+int len,
++					unsigned char cmnd[])
++{
++  int i;
++  outb(WD_CDB_1, *regs.SASR);
++  for (i=0; i<len; i++)
++    outb(cmnd[i], *regs.SCMD);
++}
++
++#define pc980155_int_enable(regs)  write_wd33c93(regs, WD_MEMORYBANK, 
+read_wd33c93(regs, WD_MEMORYBANK) | 0x04)
++#define pc980155_int_disable(regs) write_wd33c93(regs, WD_MEMORYBANK, 
+read_wd33c93(regs, WD_MEMORYBANK) & ~0x04)
++
 +#endif
- 	ext3_xattr_cache = mb_cache_create("ext3_xattr", NULL,
- 		sizeof(struct mb_cache_entry) +
- 		sizeof(struct mb_cache_entry_index), 1, 6);
- 	if (!ext3_xattr_cache) {
--		ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto out1;
- 	}
--
- 	return 0;
-+out1:
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	exit_ext3_acl();
-+out:
+diff -urN linux/drivers/scsi/scsi_scan.c 
+linux98/drivers/scsi/scsi_scan.c
+--- linux/drivers/scsi/scsi_scan.c	Wed Aug 28 09:52:26 2002
++++ linux98/drivers/scsi/scsi_scan.c	Wed Aug 28 13:09:39 2002
+@@ -131,6 +131,7 @@
+  	{"MITSUMI", "CD-R CR-2201CS", "6119", BLIST_NOLUN},	/* 
+locks up */
+  	{"RELISYS", "Scorpio", NULL, BLIST_NOLUN},	/* responds to 
+all lun */
+  	{"MICROTEK", "ScanMaker II", "5.61", BLIST_NOLUN},	/* 
+responds to all lun */
++	{"NEC", "D3856", "0009", BLIST_NOLUN},
+   	/*
+  	 * Other types of devices that have special flags.
+diff -urN linux/drivers/scsi/scsi_syms.c 
+linux98/drivers/scsi/scsi_syms.c
+--- linux/drivers/scsi/scsi_syms.c	Sat Oct 19 13:01:53 2002
++++ linux98/drivers/scsi/scsi_syms.c	Tue Oct 29 15:45:15 2002
+@@ -97,6 +97,13 @@
+  EXPORT_SYMBOL(scsi_devicelist);
+  EXPORT_SYMBOL(scsi_device_types);
+  +/* For PC-9800 architecture support */
++EXPORT_SYMBOL(pc9800_scsi_bios_param);
++#ifdef CONFIG_PC9800
++extern Scsi_Disk * sd_get_sdisk(int);
++EXPORT_SYMBOL(sd_get_sdisk);
 +#endif
-+	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER,
-+			      &ext3_xattr_user_handler);
-+	return err;
- }
- 
- void
-@@ -1122,6 +1135,8 @@
- 	if (ext3_xattr_cache)
- 		mb_cache_destroy(ext3_xattr_cache);
- 	ext3_xattr_cache = NULL;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	exit_ext3_acl();
++
+  /*
+   * Externalize timers so that HBAs can safely start/restart commands.
+   */
+diff -urN linux/drivers/scsi/scsicam.c linux98/drivers/scsi/scsicam.c
+--- linux/drivers/scsi/scsicam.c	Sat Oct 19 13:01:59 2002
++++ linux98/drivers/scsi/scsicam.c	Tue Oct 29 14:43:29 2002
+@@ -61,7 +61,14 @@
+  	int ret_code;
+  	int size = disk->capacity;
+  	unsigned long temp_cyl;
+-	unsigned char *p = scsi_bios_ptable(bdev);
++	unsigned char *p;
++	extern int pc98;
++
++	if (pc98)
++		if (!pc9800_scsi_bios_param(disk, bdev, ip))
++			return 0;
++
++	p = scsi_bios_ptable(bdev);
+   	if (!p)
+  		return -1;
+@@ -238,3 +245,80 @@
+  	*hds = (unsigned int) heads;
+  	return (rv);
+  }
++
++#include <asm/pc9800.h>
++
++/* XXX - For now, we assume the first (i.e. having the least host_no)
++   real (i.e. non-emulated) host adapter shall be BIOS-controlled one.
++   We *SHOULD* invent another way.  */
++
++static inline struct Scsi_Host *first_real_host(void)
++{
++	struct Scsi_Host *h = NULL;
++
++	while ((h = scsi_host_get_next(h)))
++		if (!h->hostt->emulated)
++			break;
++
++	return h;
++}
++
++/* There is no standard device-to-name translation function. Sigh.  */
++static inline void sd_devname(char *buf, kdev_t dev)
++{
++	int diskno = (major(dev) & SD_MAJOR_MASK) * 16 + (minor(dev) >> 
+4);
++
++	buf[0] = 'a' + diskno;
++	buf[1] = '\0';
++	if (diskno >= 26) {
++		buf[0] = 'a' + (diskno / 26 - 1);
++		buf[1] = 'a' + (diskno % 26);
++		buf[2] = '\0';
++	}
++}
++
++int pc9800_scsi_bios_param(Disk *disk, struct block_device *bdev, int 
+*ip)
++{
++	char namebuf[4];
++
++	sd_devname(namebuf, to_kdev_t(bdev->bd_dev));
++
++	if (first_real_host () == disk->device->host
++	    && disk->device->id < 7
++	    && __PC9800SCA_TEST_BIT(PC9800SCA_DISK_EQUIPS, 
+disk->device->id))
++	{
++		const u8 *p = (&__PC9800SCA(u8, PC9800SCA_SCSI_PARAMS)
++			       + disk->device->id * 4);
++
++		ip[0] = p[1];	/* # of heads */
++		ip[1] = p[0];	/* # of sectors/track */
++		ip[2] = *(u16 *)&p[2] & 0x0FFF;	/* # of cylinders */
++		if (p[3] & (1 << 6)) { /* #-of-cylinders is 16-bit */
++			ip[2] |= (ip[0] & 0xF0) << 8;
++			ip[0] &= 0x0F;
++		}
++		printk(KERN_INFO "sd%s: "
++			"BIOS parameters CHS:%d/%d/%d, %u bytes %s 
+sector\n",
++			namebuf, ip[2], ip[0], ip[1], 256 << ((p[3] >> 
+4) & 3),
++			p[3] & 0x80 ? "hard" : "soft");
++		return 0;
++	}
++
++	/* Assume PC-9801-92 compatible parameters for HAs without 
+BIOS.  */
++	ip[0] = 8;
++	ip[1] = 32;
++	ip[2] = disk->capacity / (8 * 32);
++	if (ip[2] > 65535) {	/* if capacity >= 8GB */
++		/* Recent on-board adapters seem to use this 
+parameter.  */
++		ip[1] = 128;
++		ip[2] = disk->capacity / (8 * 128);
++		if (ip[2] > 65535) { /* if capacity >= 32GB  */
++			/* Clip the number of cylinders.  Currently this
++			   is the limit that we deal with.  */
++			ip[2] = 65535;
++		}
++	}
++	printk(KERN_INFO "sd%s: BIOS parameters CHS:%d/%d/%d 
+(assumed)\n",
++		namebuf, ip[2], ip[0], ip[1]);
++	return 0;
++}
+diff -urN linux/drivers/scsi/sd.c linux98/drivers/scsi/sd.c
+--- linux/drivers/scsi/sd.c	Sat Oct 19 13:02:27 2002
++++ linux98/drivers/scsi/sd.c	Tue Oct 29 14:35:02 2002
+@@ -124,7 +124,11 @@
+   static void sd_rw_intr(Scsi_Cmnd * SCpnt);
+  +#ifndef CONFIG_PC9800
+  static Scsi_Disk * sd_get_sdisk(int index);
++#else
++Scsi_Disk * sd_get_sdisk(int index);
 +#endif
- 	ext3_xattr_unregister(EXT3_XATTR_INDEX_USER, &ext3_xattr_user_handler);
- }
--
-diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
---- a/include/linux/ext3_fs.h	Tue Oct 29 09:56:01 2002
-+++ b/include/linux/ext3_fs.h	Tue Oct 29 09:56:01 2002
-@@ -323,6 +323,7 @@
- #define EXT3_MOUNT_UPDATE_JOURNAL	0x1000	/* Update the journal format */
- #define EXT3_MOUNT_NO_UID32		0x2000  /* Disable 32-bit UIDs */
- #define EXT3_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
-+#define EXT3_MOUNT_POSIX_ACL		0x8000	/* POSIX Access Control Lists */
- 
- /* Compatibility, for having both ext2_fs.h and ext3_fs.h included at once */
- #ifndef _LINUX_EXT2_FS_H
-diff -Nru a/include/linux/ext3_fs_i.h b/include/linux/ext3_fs_i.h
---- a/include/linux/ext3_fs_i.h	Tue Oct 29 09:56:01 2002
-+++ b/include/linux/ext3_fs_i.h	Tue Oct 29 09:56:01 2002
-@@ -41,6 +41,10 @@
- 	__u32	i_prealloc_count;
- #endif
- 	__u32	i_dir_start_lookup;
-+#ifdef CONFIG_EXT3_FS_POSIX_ACL
-+	struct posix_acl	*i_acl;
-+	struct posix_acl	*i_default_acl;
+   #if defined(CONFIG_PPC32)
+  /**
+@@ -216,6 +220,7 @@
+  		case HDIO_GETGEO:   /* Return BIOS disk parameters */
+  		{
+  			struct hd_geometry *loc = (struct hd_geometry 
+*) arg;
++			extern int pc98;
+  			if(!loc)
+  				return -EINVAL;
+  @@ -230,7 +235,7 @@
+  			/* override with calculated, extended 
+default,  			   or driver values */
+  	 
+-			if(host->hostt->bios_param != NULL)
++			if(host->hostt->bios_param != NULL && !pc98)
+  				host->hostt->bios_param(sdkp, 
+inode->i_bdev,
+  							&diskinfo[0]);
+  			else
+@@ -1613,7 +1618,11 @@
+  	return (the_result == 0);
+  }
+  +#ifndef CONFIG_PC9800
+  static Scsi_Disk * sd_get_sdisk(int index)
++#else
++Scsi_Disk * sd_get_sdisk(int index)
 +#endif
- 	
- 	struct list_head i_orphan;	/* unlinked but open inodes */
- 
+  {
+  	Scsi_Disk * sdkp = NULL;
+  	unsigned long iflags;
+diff -urN linux/drivers/scsi/wd33c93.c linux98/drivers/scsi/wd33c93.c
+--- linux/drivers/scsi/wd33c93.c	Sat Oct 19 13:02:24 2002
++++ linux98/drivers/scsi/wd33c93.c	Tue Oct 29 15:44:15 2002
+@@ -84,6 +84,7 @@
+  #include <linux/init.h>
+  #include <asm/irq.h>
+  #include <linux/blk.h>
++#include <linux/spinlock.h>
+   #include "scsi.h"
+  #include "hosts.h"
+@@ -173,7 +174,11 @@
+  MODULE_PARM(setup_strings, "s");
+  #endif
+  +static spinlock_t wd_lock = SPIN_LOCK_UNLOCKED;
+  +#if defined(CONFIG_SCSI_PC980155) || 
+defined(CONFIG_SCSI_PC980155_MODULE)
++#include "pc980155regs.h"
++#else /* !CONFIG_SCSI_PC980155 */
+   static inline uchar read_wd33c93(const wd33c93_regs regs, uchar 
+reg_num)
+  {
+@@ -203,6 +208,7 @@
+     *regs.SCMD = cmd;
+     mb();
+  }
++#endif /* CONFIG_SCSI_PC980155 */
+    static inline uchar read_1_byte(const wd33c93_regs regs)
+@@ -220,6 +226,7 @@
+     return x;
+  }
+  +#if !defined(CONFIG_SCSI_PC980155) && 
+!defined(CONFIG_SCSI_PC980155_MODULE)
+   static void write_wd33c93_count(const wd33c93_regs regs, unsigned 
+long value)
+  {
+@@ -244,6 +251,7 @@
+     mb();
+     return value;
+  }
++#endif /* !CONFIG_SCSI_PC980155 */
+    /* The 33c93 needs to be told which direction a command transfers 
+its
+@@ -385,8 +393,7 @@
+      * sense data is not lost before REQUEST_SENSE executes.
+      */
+  -   save_flags(flags);
+-   cli();
++   spin_lock_irqsave(&wd_lock, flags);
+      if (!(hostdata->input_Q) || (cmd->cmnd[0] == REQUEST_SENSE)) {
+        cmd->host_scribble = (uchar *)hostdata->input_Q;
+@@ -407,7 +414,7 @@
+   DB(DB_QUEUE_COMMAND,printk(")Q-%ld ",cmd->pid))
+  -   restore_flags(flags);
++   spin_unlock_irqrestore(&wd_lock, flags);
+     return 0;
+  }
+  @@ -428,7 +435,6 @@
+  struct WD33C93_hostdata *hostdata = (struct WD33C93_hostdata 
+*)instance->hostdata;
+  const wd33c93_regs regs = hostdata->regs;
+  Scsi_Cmnd *cmd, *prev;
+-int i;
+   DB(DB_EXECUTE,printk("EX("))
+  @@ -591,9 +597,16 @@
+      * (take advantage of auto-incrementing)
+      */
+  -      *regs.SASR = WD_CDB_1;
+-      for (i=0; i<cmd->cmd_len; i++)
+-         *regs.SCMD = cmd->cmnd[i];
++#if defined(CONFIG_SCSI_PC980155) || 
+defined(CONFIG_SCSI_PC980155_MODULE)
++      write_wd33c93_cdb(regs, cmd->cmd_len, cmd->cmnd);
++#else /* !CONFIG_SCSI_PC980155 */
++      {
++         int i;
++         *regs.SASR = WD_CDB_1;
++         for (i = 0; i < cmd->cmd_len; i++)
++            *regs.SCMD = cmd->cmnd[i];
++      }
++#endif /* CONFIG_SCSI_PC980155 */
+      /* The wd33c93 only knows about Group 0, 1, and 5 commands when
+      * it's doing a 'select-and-transfer'. To be safe, we write the
+@@ -765,7 +778,7 @@
+     if (!(asr & ASR_INT) || (asr & ASR_BSY))
+        return;
+  -   save_flags(flags);
++   local_save_flags(flags);
+   #ifdef PROC_STATISTICS
+     hostdata->int_cnt++;
+@@ -831,7 +844,7 @@
+       * is here...
+       */
+  -    restore_flags(flags);
++    local_irq_restore(flags);
+   /* We are not connected to a target - check to see if there
+   * are commands waiting to be executed.
+@@ -1085,7 +1098,7 @@
+                 write_wd33c93_cmd(regs, WD_CMD_NEGATE_ACK);
+                 hostdata->state = S_CONNECTED;
+              }
+-         restore_flags(flags);
++         local_irq_restore(flags);
+           break;
+   @@ -1117,7 +1130,7 @@
+  /* We are no longer  connected to a target - check to see if
+   * there are commands waiting to be executed.
+   */
+-       restore_flags(flags);
++            local_irq_restore(flags);
+              wd33c93_execute(instance);
+              }
+           else {
+@@ -1200,7 +1213,7 @@
+   * there are commands waiting to be executed.
+   */
+      /* look above for comments on scsi_done() */
+-    restore_flags(flags);
++         local_irq_restore(flags);
+           wd33c93_execute(instance);
+           break;
+  @@ -1228,7 +1241,7 @@
+                 else
+                    cmd->result = cmd->SCp.Status | (cmd->SCp.Message 
+<< 8);
+                 cmd->scsi_done(cmd);
+-          restore_flags(flags);
++               local_irq_restore(flags);
+                 break;
+              case S_PRE_TMP_DISC:
+              case S_RUNNING_LEVEL2:
+@@ -1693,7 +1706,7 @@
+     return 1;
+  }
+  -__setup("wd33c93", wd33c93_setup);
++__setup("wd33c93=", wd33c93_setup);
+    /* check_setup_args() returns index if key found, 0 if not
+@@ -1831,10 +1844,9 @@
+       { unsigned long flags;
+-     save_flags(flags);
+-     cli();
++     spin_lock_irqsave(&wd_lock, flags);
+       reset_wd33c93(instance);
+-     restore_flags(flags);
++     spin_unlock_irqrestore(&wd_lock, flags);
+     }
+      printk("wd33c93-%d: chip=%s/%d no_sync=0x%x 
+no_dma=%d",instance->host_no,
+@@ -1929,8 +1941,7 @@
+        return len;
+        }
+  -   save_flags(flags);
+-   cli();
++   spin_lock_irqsave(&wd_lock, flags);
+     bp = buf;
+     *bp = '\0';
+     if (hd->proc & PR_VERSION) {
+@@ -2005,7 +2016,7 @@
+           }
+        }
+     strcat(bp,"\n");
+-   restore_flags(flags);
++   spin_unlock_irqrestore(&wd_lock, flags);
+     *start = buf;
+     if (stop) {
+        stop = 0;
+@@ -2034,4 +2045,10 @@
+     MOD_DEC_USE_COUNT;
+  }
+  +EXPORT_SYMBOL(wd33c93_reset);
++EXPORT_SYMBOL(wd33c93_init);
++EXPORT_SYMBOL(wd33c93_release);
++EXPORT_SYMBOL(wd33c93_abort);
++EXPORT_SYMBOL(wd33c93_queuecommand);
++EXPORT_SYMBOL(wd33c93_intr);
+  MODULE_LICENSE("GPL");
+diff -urN linux/drivers/scsi/wd33c93.h linux98/drivers/scsi/wd33c93.h
+--- linux/drivers/scsi/wd33c93.h	Sat Oct 12 13:21:35 2002
++++ linux98/drivers/scsi/wd33c93.h	Sat Oct 12 14:18:53 2002
+@@ -186,8 +186,13 @@
+      /* This is what the 3393 chip looks like to us */
+  typedef struct {
++#if defined(CONFIG_SCSI_PC980155) || 
+defined(CONFIG_SCSI_PC980155_MODULE)
++   volatile unsigned int   *SASR;
++   volatile unsigned int   *SCMD;
++#else
+     volatile unsigned char  *SASR;
+     volatile unsigned char  *SCMD;
++#endif
+  } wd33c93_regs;
+   diff -urN linux/include/scsi/scsicam.h linux98/include/scsi/scsicam.h
+--- linux/include/scsi/scsicam.h	Sat Oct 19 13:01:49 2002
++++ linux98/include/scsi/scsicam.h	Tue Oct 29 15:58:00 2002
+@@ -16,4 +16,6 @@
+  extern int scsi_partsize(unsigned char *buf, unsigned long capacity,
+             unsigned int  *cyls, unsigned int *hds, unsigned int 
+*secs);
+  extern unsigned char *scsi_bios_ptable(struct block_device *bdev);
++extern int pc9800_scsi_bios_param(Disk *disk, struct block_device 
+*bdev,
++					int *ip);
+  #endif /* def SCSICAM_H */

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSKMU0a>; Wed, 13 Nov 2002 15:26:30 -0500
+	id <S263366AbSKMUbY>; Wed, 13 Nov 2002 15:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263135AbSKMU03>; Wed, 13 Nov 2002 15:26:29 -0500
-Received: from dsl2.external.hp.com ([192.25.206.7]:34575 "EHLO
-	dsl2.external.hp.com") by vger.kernel.org with ESMTP
-	id <S263105AbSKMU02>; Wed, 13 Nov 2002 15:26:28 -0500
-To: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Bjorn Helgaas <bjorn_helgaas@hp.com>, Greg KH <greg@kroah.com>,
-       Miles Bader <miles@gnu.org>,
-       "J.E.J. Bottomley" <James.Bottomley@steeleye.com>,
-       Matthew Wilcox <willy@debian.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, andmike@us.ibm.com, hch@lst.de,
-       linux-kernel@vger.kernel.org, mochel@osdl.org,
-       parisc-linux@lists.parisc-linux.org
-Subject: Re: [parisc-linux] Untested port of parisc_device to generic device interface 
-In-Reply-To: Message from "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com> 
-   of "Wed, 13 Nov 2002 12:23:48 EST." <200211131723.gADHNmp02426@localhost.localdomain> 
-References: <200211131723.gADHNmp02426@localhost.localdomain> 
-Date: Wed, 13 Nov 2002 13:33:21 -0700
-From: Grant Grundler <grundler@dsl2.external.hp.com>
-Message-Id: <20021113203321.DCF174829@dsl2.external.hp.com>
+	id <S263342AbSKMUbY>; Wed, 13 Nov 2002 15:31:24 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:28553 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S263333AbSKMUbA>; Wed, 13 Nov 2002 15:31:00 -0500
+Date: Wed, 13 Nov 2002 12:40:51 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: 2.5.47bk2 + current modutils == broken hotplug
+To: Greg KH <greg@kroah.com>
+Cc: rusty@rustcorp.com.au, kaos <kaos@ocs.com.au>,
+       linux-kernel@vger.kernel.org
+Message-id: <3DD2B8D3.6060106@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <3DD2B1D5.7020903@pacbell.net> <20021113201710.GB7238@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.E.J. Bottomley" wrote:
-> We should also allow devices to do all the setup through bus generic 
-> functions, but leave open the possibility that the driver may (once it knows 
-> the bus type) obtain the pci_dev (or whatever) from the struct device if it 
-> really, really has to muck with bus specific registers.
-
-For device discovery and initialization, the generic PCI code has to muck
-with PCI specific resources (IO Port, MMIO, and IRQ related stuff primarily).
-
-> As far as the SCSI mid layer goes, all we really need from struct device is 
-> the dma_mask for setting up the I/O bounce buffers.
+Greg KH wrote:
+> On Wed, Nov 13, 2002 at 12:11:01PM -0800, David Brownell wrote:
 > 
-> The simplest way to do all of this is probably to add a pointer to the 
-> dma_mask in struct device and make it point to the same thing in pci_dev.
-> If we find we need more than this per device, it could become a pointer
-> to a generic dma information structure later on.
+>>The module-init-tools-0.6.tar.gz utilities (or something
+>>related -- kbuild changes?) break hotplug since they no
+>>longer produce the /lib/modules/$(uname -r)/modules.*map
+>>files as output ... so the hotplug agents don't have the
+>>pre-built database mapping device info to drivers.
+> 
+> 
+> Last I heard, Rusty's still working on this.  He's also going to be
+> changing the format so we don't expose kernel structures to userspace,
+> which would be a good thing.
 
-uhmm...If we are going to touch dma_mask in pci_dev, then just move it
-to struct device and be done with it. Then fixup pci_set_dma_mask()
-to do the right thing.
+So long as the _information_ in those structures stays available, good.
+And it'd be handy if the text format for that information didn't change;
+how it's stored in object modules doesn't matter.
 
-...
-> Since the 53c700 is also used by parisc (including some machines with 
-> IOMMUs---which, unfortunately, I don't have access to), it probably makes an 
-> ideal conversion test case.
 
-Duck! (that's going to get fixed it seems) ;^)
+> In short, he knows this is a requirement, and shouldn't be broken for
+> long.
 
-thanks,
-grant
+Good, that's important.
+
+- Dave
+
+
+> thanks,
+> 
+> greg k-h
+> 
+
+
+
+

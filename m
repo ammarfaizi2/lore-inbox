@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132587AbRDKObt>; Wed, 11 Apr 2001 10:31:49 -0400
+	id <S132589AbRDKOoK>; Wed, 11 Apr 2001 10:44:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132579AbRDKObk>; Wed, 11 Apr 2001 10:31:40 -0400
-Received: from mx3out.umbc.edu ([130.85.253.53]:20668 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S132590AbRDKOba>;
-	Wed, 11 Apr 2001 10:31:30 -0400
-Date: Wed, 11 Apr 2001 10:31:28 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Marcin Kowalski <kowalski@datrix.co.za>
-cc: <hahn@coffee.psychology.mcmaster.ca>, <tomlins@cam.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: memory usage - continued - iCache/Dentry cacheing bug???
-In-Reply-To: <0104111623060I.25951@webman>
-Message-ID: <Pine.SGI.4.31L.02.0104111030180.3516411-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132590AbRDKOoB>; Wed, 11 Apr 2001 10:44:01 -0400
+Received: from t2.redhat.com ([199.183.24.243]:22267 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S132589AbRDKOnu>; Wed, 11 Apr 2001 10:43:50 -0400
+To: Andreas Franck <afranck@gmx.de>
+Cc: David Howells <dhowells@cambridge.redhat.com>, torvalds@transmeta.com,
+        andrewm@uow.edu.au, bcrl@redhat.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2nd try: i386 rw_semaphores fix 
+In-Reply-To: Your message of "Wed, 11 Apr 2001 16:32:25 +0200."
+             <1098.986999545@www17.gmx.net> 
+Date: Wed, 11 Apr 2001 15:43:48 +0100
+Message-ID: <16847.987000228@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Apr 2001, Marcin Kowalski wrote:
+I've been discussing it with some other kernel and GCC people, and they think
+that only "memory" is required.
 
-> I then do a swapoff /dev/sda3 (250mb used), this completely locks the machine
-> for 50 seconds and pushes the load to 31 when I can log back in. Then
-> micraculously I am using only 170mb of physical ram. I turn swap back on and
-> all is well....
-> Can anyone please explain this odd behaviour.. ???
-> Below is a free after this whole debacle..:::
+> What are the reasons against mentioning sem->count directly as a "=m" 
+> reference? This makes the whole thing less fragile and no more dependent
+> on the memory layout of the structure.
 
-another cute way of clearing memory is to do a:
+Apart from the risk of breaking it, you mean? Well, "=m" seems to reserve an
+extra register to hold a second copy of the semaphore address, probably since
+it thinks EAX might get clobbered.
 
-dd if=/dev/hda of=/dev/null bs=<total memory> count=1
+Also, as a minor point, it probably ought to be "+m" not "=m".
 
-
-this will push some stuff into swap; but ...
-
-
+David

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130111AbQKCAUW>; Thu, 2 Nov 2000 19:20:22 -0500
+	id <S130097AbQKCAUn>; Thu, 2 Nov 2000 19:20:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130066AbQKCAUM>; Thu, 2 Nov 2000 19:20:12 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39835 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130137AbQKCAT5>;
-	Thu, 2 Nov 2000 19:19:57 -0500
-Date: Thu, 2 Nov 2000 16:05:23 -0800
-Message-Id: <200011030005.QAA03942@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: hpa@transmeta.com
-CC: hpa@zytor.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3A020319.3384D4FF@transmeta.com> (hpa@transmeta.com)
-Subject: Re: select() bug
-In-Reply-To: <E13rTfB-00023L-00@the-village.bc.nu> <3A01FC44.8A43FE8B@iname.com> <8tsupp$gh8$1@cesium.transmeta.com> <200011022346.PAA01451@pizda.ninka.net> <3A0200F5.2D6F4F70@transmeta.com> <200011022352.PAA02403@pizda.ninka.net> <3A020319.3384D4FF@transmeta.com>
+	id <S130066AbQKCAUe>; Thu, 2 Nov 2000 19:20:34 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:35588 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S130101AbQKCAUX>;
+	Thu, 2 Nov 2000 19:20:23 -0500
+Date: Thu, 2 Nov 2000 23:20:47 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Adam Huuva <sventon@easter-eggs.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Several concurrent terminals.
+In-Reply-To: <3A01508E.A992B792@easter-eggs.com>
+Message-ID: <Pine.LNX.4.21.0011022319131.14650-100000@euclid.oak.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 02 Nov 2000 16:13:13 -0800
-   From: "H. Peter Anvin" <hpa@transmeta.com>
 
-   Oh.  What do you do if there isn't... link up the contents of the
-   write() in a kiovec and hold the writer?
+> We'd like to have two sets of keyboard/mouse/screen connected to the
+> same computer with each set having the control and output of an
+> independent X
+> session each, concurrently. There might for instance be the ps/2
+> keyboard and mouse and
+> USB dittos. After attempting (and failing) we believe the problem is
+> really one of the kernel only allowing one virtual terminal to be active
+> at one time. Is this so and what can be done?
 
-Right, the writer blocks.
+Yes it is :-( I'm actually working on this problem. See
+http://linuxconsole.sourceforge.net
 
-I've already posted the patches here within the past week, I'll send
-them to you under seperate cover so you can see for yourself how it
-works.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

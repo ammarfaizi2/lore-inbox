@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267747AbTATBL1>; Sun, 19 Jan 2003 20:11:27 -0500
+	id <S267738AbTATBIe>; Sun, 19 Jan 2003 20:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267748AbTATBL1>; Sun, 19 Jan 2003 20:11:27 -0500
-Received: from pat.uio.no ([129.240.130.16]:14727 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S267747AbTATBL0>;
-	Sun, 19 Jan 2003 20:11:26 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15915.20185.976523.595180@charged.uio.no>
-Date: Mon, 20 Jan 2003 02:20:25 +0100
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: linux-kernel@vger.kernel.org
+	id <S267739AbTATBIe>; Sun, 19 Jan 2003 20:08:34 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:27264 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S267738AbTATBId>;
+	Sun, 19 Jan 2003 20:08:33 -0500
 Subject: Re: problems with nfs-server in 2.5 bk as of 030115
-In-Reply-To: <1043025455.657.1.camel@tux.rsn.bth.se>
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15915.18967.933150.49658@charged.uio.no>
 References: <1043012373.7986.94.camel@tux.rsn.bth.se>
-	<15915.8496.899499.957528@charged.uio.no>
-	<1043016608.727.0.camel@tux.rsn.bth.se>
-	<15915.13242.291976.585239@charged.uio.no>
-	<1043021842.679.1.camel@tux.rsn.bth.se>
-	<15915.18967.933150.49658@charged.uio.no>
-	<1043025455.657.1.camel@tux.rsn.bth.se>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	 <15915.8496.899499.957528@charged.uio.no>
+	 <1043016608.727.0.camel@tux.rsn.bth.se>
+	 <15915.13242.291976.585239@charged.uio.no>
+	 <1043021842.679.1.camel@tux.rsn.bth.se>
+	 <15915.18967.933150.49658@charged.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043025455.657.1.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 20 Jan 2003 02:17:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
+On Mon, 2003-01-20 at 02:00, Trond Myklebust wrote:
+> >>>>> " " == Martin Josefsson <gandalf@wlug.westbo.se> writes:
+> 
+>      > With two added ; the patch compiled and produced this output:
+> 
+>      > Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+>      > rpc_destroy_client: rpc_rmdir(/portmap/clnteb10c63c) failed
+>      > with error -39 RPC: Couldn't create pipefs entry
+>      > /portmap/clnteb10c63c, error -17 RPC: Couldn't create pipefs
+>      > entry /portmap/clnteb10c63c, error -17 RPC: Couldn't create
+>      > pipefs entry /portmap/clnteb10c63c, error -17
+> 
+> Hmm... Does the following help?
 
-     > Do you have working nfs-server?
+I'm afraid not, I get the exact same errormessage as without this patch.
+(the one above)
 
-Yes (and I see no messages such as the ones you describe)...
+Do you have working nfs-server?
 
-Cheers,
-  Trond
+-- 
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

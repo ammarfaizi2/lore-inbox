@@ -1,151 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267439AbTACIus>; Fri, 3 Jan 2003 03:50:48 -0500
+	id <S267468AbTACJAv>; Fri, 3 Jan 2003 04:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267468AbTACIus>; Fri, 3 Jan 2003 03:50:48 -0500
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:9702 "EHLO
+	id <S267469AbTACJAv>; Fri, 3 Jan 2003 04:00:51 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:17642 "EHLO
 	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S267439AbTACIuq> convert rfc822-to-8bit; Fri, 3 Jan 2003 03:50:46 -0500
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
-Date: Fri, 3 Jan 2003 14:29:04 +0530
-Message-ID: <94F20261551DC141B6B559DC4910867204491F@blr-m3-msg.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
-Thread-Index: AcKzBl1UO225yeCRQZ2gL7kD8rTCVQ==
-From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+	id <S267468AbTACJAt>; Fri, 3 Jan 2003 04:00:49 -0500
+From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
 To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Jan 2003 08:59:04.0683 (UTC) FILETIME=[5DEDB3B0:01C2B306]
+Subject: [BENCHMARK]unixbench result for kernel 2.5.54mm2
+Date: Fri, 3 Jan 2003 14:39:07 +0530
+Message-ID: <003d01c2b307$c5496620$6009720a@wipro.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
+X-OriginalArrivalTime: 03 Jan 2003 09:09:07.0595 (UTC) FILETIME=[C54AC5B0:01C2B307]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a comparison of results of 2.5.54 with mm2 and 2.5.54. 
-There are many improvements with mm2. Please see the short summary below.
-The figures in the table below indicate median of 5 repetitions of tests. 
-This result doesn't have many 
-Differences than the previous one.
+Hi,
+
+Here are the unixbench result for kernel 2.5.54mm2. Kernel 2.5.54mm2
+when compared with kernel 2.5.54 showed difference of performance in
+following tests:- 
+we can find that 2.5.54mm2 had a drop in performance
+in file copy operation
+========================================================================
+====
+File Copy 1024 bufsize 2000 maxblocks[2.5.54mm2]     66095.0KBps 
+File Copy 1024 bufsize 2000 maxblocks[2.5.54]        69507.0KBps
+     
+File Copy 256 bufsize 500 maxblocks[2.5.54mm2]       32065.0KBps 
+File Copy 1024 bufsize 2000 maxblocks[2.5.54]        35402.0KBps
+
+File Copy 4096 bufsize 8000 maxblocks[2.5.54mm2]     88297.0KBps 
+File Copy 1024 bufsize 2000 maxblocks[2.5.54]        90025.0KBps 
+    
+========================================================================
+====
+*There is no significant difference in other test result.
+
+------------------------------------------------------------------------
+----
+					kernel 2.5.54mm2
+------------------------------------------------------------------------
+----
+BYTE UNIX Benchmarks (Version 4.1.0)
+System -- Linux access1 2.5.54 #10 Fri Jan 3 09:18:32 IST 2003 i686
+unknown
+Start Benchmark Run: Fri Jan  3 10:39:33 IST 2003
+1 interactive users.
+10:39am  up 1 min,  1 user,  load average: 0.15, 0.08, 0.03
+lrwxrwxrwx    1 root     root            4 Oct 22 00:35 /bin/sh -> bash
+/bin/sh: symbolic link to bash
+/dev/hda2              8262068   4576280   3266092  59% /data
+
+Dhrystone 2 using register variables     1804686.3lps (10.0 secs,10
+samples)
+Double-Precision Whetstone               476.6MWIPS   (10.0 secs,10
+samples)
+System Call Overhead                     449293.5 lps (10.0 secs,10
+samples)
+Pipe Throughput                          437334.0 lps (10.0 secs,10
+samples)
+Pipe-based Context Switching             192422.0 lps (10.0 secs,10
+samples)
+Process Creation                         3795.2 lps   (30.0 secs, 3
+samples)
+Execl Throughput                         881.4 lps    (30.0 secs, 3
+samples)
+File Read 1024 bufsize 2000 maxblocks    242924.0KBps (30.0 secs, 3
+samples)
+File Write 1024 bufsize 2000 maxblocks   93954.0KBps  (30.0 secs, 3
+samples)
+File Copy 1024 bufsize 2000 maxblocks    66095.0KBps  (30.0 secs, 3
+samples)
+File Read 256 bufsize 500 maxblocks      111993.0KBps (30.0 secs, 3
+samples)
+File Write 256 bufsize 500 maxblocks     49555.0 KBps (30.0 secs, 3
+samples)
+File Copy 256 bufsize 500 maxblocks      32065.0 KBps (30.0 secs, 3
+samples)
+File Read 4096 bufsize 8000 maxblocks    336507.0KBps (30.0 secs, 3
+samples)
+File Write 4096 bufsize 8000 maxblocks   124444.0KBps (30.0 secs, 3
+samples)
+File Copy 4096 bufsize 8000 maxblocks    88297.0 KBps (30.0 secs, 3
+samples)
+Shell Scripts (1 concurrent)             882.4 lpm    (60.0 secs, 3
+samples)
+Shell Scripts (8 concurrent)             116.0 lpm    (60.0 secs, 3
+samples)
+Shell Scripts (16 concurrent)            57.0 lpm     (60.0 secs, 3
+samples)
+Arithmetic Test (type = short)           208190.1 lps (10.0 secs, 3
+samples)
+Arithmetic Test (type = int)             225131.2 lps (10.0 secs, 3
+samples)
+Arithmetic Test (type = long)            225136.4 lps (10.0 secs, 3
+samples)
+Arithmetic Test (type = float)           227408.6 lps (10.0 secs, 3
+samples)
+Arithmetic Test (type = double)          227410.0 lps (10.0 secs, 3
+samples)
+Arithoh                                  3996455.5 lps(10.0 secs, 3
+samples)
+C Compiler Throughput                    406.0 lpm    (60.0 secs, 3
+samples)
+Dc: sqrt(2) to 99 decimal places         32513.2 lpm  (30.0 secs, 3
+samples)
+Recursion Test--Tower of Hanoi           28918.3 lps  (20.0 secs, 3
+samples)
 
 
-						2.5.54mm2	2.5.54
-==============================================================================
-Processor, Processes - times in microseconds - smaller is better
+                     INDEX VALUES            
+TEST                                      BASELINE     RESULT     INDEX
 
-1. sig handle				3.59		5.38
-2. proc fs					1212		1534
-3. sh proc					6606		7872
-------------------------------------------------------------------------------
-Context switching - times in microseconds - smaller is better
+Dhrystone 2 using register variables      116700.0    1804686.3   154.6
+Double-Precision Whetstone                55.0        476.6       86.7
+Execl Throughput                          43.0        881.4       205.0
+File Copy 1024 bufsize 2000 maxblocks     3960.0      66095.0     166.9
+File Copy 256 bufsize 500 maxblocks       1655.0      32065.0     193.7
+File Copy 4096 bufsize 8000 maxblocks     5800.0      88297.0     152.2
+Pipe Throughput                           12440.0     437334.0    351.6
+Process Creation                          126.0       3795.2      301.2
+Shell Scripts (8 concurrent)              6.0         116.0       193.3
+System Call Overhead                      15000.0     449293.5    299.5
+ 
+=========
+     FINAL SCORE                                                  195.8
+------------------------------------------------------------------------
+----
+Regards
+ 
+Sowmya Adiga
+Project Engineer
+Wipro Technologies
+53/1,Hosur Road,Madivala
+Bangalore-560 068,INDIA
+Tel: +91-80-5502001 Extn.5086
+sowmya.adiga@wipro.com
 
-1. 2p/0K ctxsw				1.370		1.560
-------------------------------------------------------------------------------
-*Local* Communication latencies in microseconds - smaller is better
-1.AF UNIX					13		19
-2.UDP						24		30
-3.TCP						58		75 
-------------------------------------------------------------------------------
-File & VM system latencies in microseconds - smaller is better
-1. 0K create				90		118
-2. 0k delete				28		55
-3. 10K create				313		375
-4. 10 K delete				79		126
-------------------------------------------------------------------------------
-*Local* Communication bandwidths in MB/s - bigger is better
-1. AF UNIX					277		109
-2. TCP					51		25
-==============================================================================
-
-
-*****************************************************************************
-				Lmbench result
-				kernel 2.5.54-mm2
-****************************************************************************
-L M B E N C H  2 . 0   S U M M A R Y
-                 ------------------------------------
-		 (Alpha software, do not distribute)
-
-Basic system parameters
-----------------------------------------------------
-Host                 OS Description              Mhz
-                                                    
---------- ------------- ----------------------- ----
-benchtest  Linux 2.5.54       i686-pc-linux-gnu  790
-benchtest  Linux 2.5.54       i686-pc-linux-gnu  790
-benchtest  Linux 2.5.54       i686-pc-linux-gnu  790
-benchtest  Linux 2.5.54       i686-pc-linux-gnu  790
-benchtest  Linux 2.5.54       i686-pc-linux-gnu  790
-
-Processor, Processes - times in microseconds - smaller is better
-----------------------------------------------------------------
-Host                 	OS  Mhz null null      open selct sig  sig  fork exec sh  
-                             	call  I/O stat clos TCP   inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
-benchtest  Linux 2.5.54  790 0.44 0.81 6.28 7.58       1.27 3.63  282 1212 6618
-benchtest  Linux 2.5.54  790 0.46 0.83 6.42 7.71    33 1.27 3.59  304 1217 6569
-benchtest  Linux 2.5.54  790 0.46 0.82 6.39 7.68    30 1.24 3.59  337 1211 6609
-benchtest  Linux 2.5.54  790 0.46 0.82 6.40 7.61    30 1.27 3.63  318 1212 6588
-benchtest  Linux 2.5.54  790 0.46 0.80 6.41 7.72    32 1.24 3.59  274 1232 6606
-
-Context switching - times in microseconds - smaller is better
--------------------------------------------------------------
-Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
---------- ------------- ----- ------ ------ ------ ------ ------- -------
-benchtest  Linux 2.5.54 1.350 4.8700     71 6.8600    176      41     180
-benchtest  Linux 2.5.54 1.410 4.8200     18 8.3300    180      41     180
-benchtest  Linux 2.5.54 1.390 4.7400     17 7.8600    179      43     180
-benchtest  Linux 2.5.54 1.370 4.8200     18 8.0500    178      39     180
-benchtest  Linux 2.5.54 1.370 4.7900     73     10    178      39     181
-
-*Local* Communication latencies in microseconds - smaller is better
--------------------------------------------------------------------
-Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
-                        ctxsw       UNIX         UDP         TCP conn
---------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
-benchtest  Linux 2.5.54 1.350 8.273   13    23    45    32    58  104
-benchtest  Linux 2.5.54 1.410 8.174   13    24    45    28    58  104
-benchtest  Linux 2.5.54 1.390 8.221   13    24    45    32    58  104
-benchtest  Linux 2.5.54 1.370 8.279   13    24    45    32    58  104
-benchtest  Linux 2.5.54 1.370 8.143   13    21    45    32    58  104
-
-File & VM system latencies in microseconds - smaller is better
---------------------------------------------------------------
-Host                 OS   0K File      10K File      Mmap    Prot    Page	
-                        Create Delete Create Delete  Latency Fault   Fault 
---------- ------------- ------ ------ ------ ------  ------- -----   ----- 
-benchtest  Linux 2.5.54     90     28    311     72      640 0.962 4.00000
-benchtest  Linux 2.5.54     91     29    316     79      637 0.963 5.00000
-benchtest  Linux 2.5.54     90     28    313     79      635 0.971 4.00000
-benchtest  Linux 2.5.54     90     28    315     77      643 0.969 4.00000
-benchtest  Linux 2.5.54     90     28    312     79      636 0.965 4.00000
-
-*Local* Communication bandwidths in MB/s - bigger is better
------------------------------------------------------------
-Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
-                             UNIX      reread reread (libc) (hand) read write
---------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
-benchtest  Linux 2.5.54  581  230   51    299    355    125    114  354   170
-benchtest  Linux 2.5.54  595  454   52    294    352    123    112  352   169
-benchtest  Linux 2.5.54  582  277   51    294    352    123    112  351   168
-benchtest  Linux 2.5.54  589  238   53    281    352    123    112  351   168
-benchtest  Linux 2.5.54  566  397   51    294    351    123    112  351   168
-
-Memory latencies in nanoseconds - smaller is better
-    (WARNING - may not be correct, check graphs)
----------------------------------------------------
-Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
---------- -------------  ---- ----- ------    --------    -------
-benchtest  Linux 2.5.54   790 3.799 8.8810    175
-benchtest  Linux 2.5.54   790 3.798 8.8810    176
-benchtest  Linux 2.5.54   790 3.797 8.8810    176
-benchtest  Linux 2.5.54   790 3.808 8.8800    176
-benchtest  Linux 2.5.54   790 3.798 8.8710    176
-
-Aniruddha Marathe
-WIPRO Technologies, India
-aniruddha.marathe@wipro.com
-+91-80-5502001 to 2008 extn 5092 

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVCAMDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVCAMDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVCAMDK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 07:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVCAMDK
+	id S261885AbVCAMDN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 07:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbVCAMDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 07:03:10 -0500
-Received: from cantor.suse.de ([195.135.220.2]:18826 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261884AbVCAMC1 (ORCPT
+	Tue, 1 Mar 2005 07:03:13 -0500
+Received: from gprs215-195.eurotel.cz ([160.218.215.195]:45788 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261885AbVCAMC7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 07:02:27 -0500
-Date: Tue, 1 Mar 2005 13:02:21 +0100
-From: Olaf Hering <olh@suse.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-nvidia@lists.surfsouth.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5, rivafb i2c oops, bogus error handling
-Message-ID: <20050301120221.GA10091@suse.de>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050227203214.GA15572@suse.de> <200502282241.55815.adaplas@hotpop.com>
+	Tue, 1 Mar 2005 07:02:59 -0500
+Date: Tue, 1 Mar 2005 13:02:46 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       barryn@pobox.com, marado@student.dei.uc.pt,
+       acpi-devel@lists.sourceforge.net, Len Brown <len.brown@intel.com>
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+Message-ID: <20050301120246.GM1345@elf.ucw.cz>
+References: <20050228231721.GA1326@elf.ucw.cz> <20050301015231.091b5329.akpm@osdl.org> <20050301105448.GG1345@elf.ucw.cz> <m1psyjr559.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502282241.55815.adaplas@hotpop.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <m1psyjr559.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Feb 28, Antonino A. Daplas wrote:
+Hi!
 
-> On Monday 28 February 2005 04:32, Olaf Hering wrote:
-> >  On Wed, Feb 23, Linus Torvalds wrote:
-> > > This time it's really supposed to be a quickie, so people who can, please
-> > > check it out, and we'll make the real 2.6.11 asap.
-> >
-> > Here is another one, probably not new.
-> > Is riva_get_EDID_i2c a bit too optimistic by not having a $i2cadapter_ok
-> > member in riva_par->riva_i2c_chan? It calls riva_probe_i2c_connector
-> > even if riva_create_i2c_busses fails to register all 3 busses.
-> >
+> > Yes, the patch is very ugly. If something like this needs to be done,
+> > then perhaps acpi should properly register into driver model and do
+> > the work there. This will also mean code will be called consistently.
 > 
-> Thanks,
+> I totally agree.  Do you have an example of how a non-device
+> can do this?
 > 
-> Can you try this?
+> In particular something that gets as close to shutting down
+> the system devices as possible.  But gets called before that.
 > 
-> Fixed error handling in rivafb-i2c.c if bus registration fails.
+> Or perhaps acpi should simply be setup to be the first system device?
 
-I havent heard back from the reporter, yet.
+I believe that's the prefered solution.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

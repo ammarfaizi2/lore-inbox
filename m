@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCGVZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVCGWLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVCGVZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVCGVYi
+	id S261801AbVCGWLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 17:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVCGWFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:24:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56728 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261755AbVCGU21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 15:28:27 -0500
-Date: Sun, 6 Mar 2005 17:51:14 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4.30-pre2] fix undefined behaviour in cistpl.c
-Message-ID: <20050306205114.GA2543@logos.cnet>
-References: <200503051517.j25FHI2U001419@harpo.it.uu.se>
+	Mon, 7 Mar 2005 17:05:17 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:53546 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261265AbVCGVgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 16:36:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=lMydeRGEWUgMpEsXwSHyNfUHYypFncG1tiUMQGjI+l6R5p9g9FMrgLwmsqkokf2j/gRSUEZTVrmr/p1Fu/oHD3xbhc2/3b0Dqo6Rk2dplZeZp4kd85Um2PZ85GN7tJE7ETrzL+k1G9TnfN+r/KxUc062racl25RH4T/iRmTW/fc=
+Message-ID: <d120d50005030713366626691e@mail.gmail.com>
+Date: Mon, 7 Mar 2005 16:36:04 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Peter Osterlund <petero2@telia.com>
+Subject: Re: Touchpad "tapping" changes in 2.6.11?
+Cc: Henrik Persson <root@fulhack.info>, linux-kernel@vger.kernel.org
+In-Reply-To: <m37jkjdu15.fsf@telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503051517.j25FHI2U001419@harpo.it.uu.se>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <422C539A.4040407@fulhack.info>
+	 <d120d500050307055522415fb3@mail.gmail.com>
+	 <422C7CF3.9080609@fulhack.info>
+	 <d120d50005030708365a4917c5@mail.gmail.com> <m37jkjdu15.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 05, 2005 at 04:17:18PM +0100, Mikael Pettersson wrote:
-> Compiling drivers/pcmcia/cistpl.c with gcc-4.0 generates this warning:
+On 07 Mar 2005 22:29:26 +0100, Peter Osterlund <petero2@telia.com> wrote:
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+> > Still I think having Synaptics driver installed is the best way in the
+> > end simply because it has a lot of knobs so one can adjust tpouchpad's
+> > behavior to his/her liking. Maybe once distibutions start packaging
+> > and activating it by default it will be less of an issue.
 > 
-> cistpl.c: In function 'read_cis_mem':
-> cistpl.c:143: warning: 'sys' is used uninitialized in this function
+> Fedora Core 3 already does that if I remember correctly.
 > 
-> Note 'is' not 'may be'. And there is indeed a control flow path in
-> which 'sys' is updated with '+=' even though it has no initial value.
-> Luckily 'sys' is reassigned later before being used, making this
-> assignment redundant, so the fix is to simply remove it.
 
-Indeed - applied, thanks Mikael.
+It does have synaptics driver packaged but if I remember correctly it
+is not automatically selected during installation.
 
-> This problem is not present in the 2.6 kernel.
-> 
-> Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
-> 
-> --- linux-2.4.30-pre2/drivers/pcmcia/cistpl.c.~1~	2004-02-18 15:16:23.000000000 +0100
-> +++ linux-2.4.30-pre2/drivers/pcmcia/cistpl.c	2005-03-05 15:51:37.000000000 +0100
-> @@ -140,7 +140,6 @@ int read_cis_mem(socket_info_t *s, int a
->      } else {
->  	u_int inc = 1;
->  	if (attr) { mem->flags |= MAP_ATTRIB; inc++; addr *= 2; }
-> -	sys += (addr & (s->cap.map_size-1));
->  	mem->card_start = addr & ~(s->cap.map_size-1);
->  	while (len) {
->  	    set_cis_map(s, mem);
+-- 
+Dmitry

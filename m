@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264862AbUE0QI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264871AbUE0QKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbUE0QI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 12:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264866AbUE0QI3
+	id S264871AbUE0QKS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 12:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264872AbUE0QKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 12:08:29 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:35001 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264862AbUE0QIE
+	Thu, 27 May 2004 12:10:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53189 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264871AbUE0QKD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 12:08:04 -0400
-Date: Thu, 27 May 2004 18:08:02 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [patch] io-apic cleanup #3, BK-curr
-In-Reply-To: <20040527133105.GA17046@elte.hu>
-Message-ID: <Pine.LNX.4.55.0405271807080.10917@jurand.ds.pg.gda.pl>
-References: <20040527132119.GA13185@elte.hu> <20040527133105.GA17046@elte.hu>
-Organization: Technical University of Gdansk
+	Thu, 27 May 2004 12:10:03 -0400
+Message-ID: <40B612C7.8020502@pobox.com>
+Date: Thu, 27 May 2004 12:09:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Zhu, Yi" <yi.zhu@intel.com>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Auzanneau Gregory <mls@reolight.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: idebus setup problem (2.6.7-rc1)
+References: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 May 2004, Ingo Molnar wrote:
+Zhu, Yi wrote:
+> --- linux-2.6.7-rc1-mm1.orig/drivers/ide/ide.c      2004-05-27
+> 23:07:59.405138992 +0800
+> +++ linux-2.6.7-rc1-mm1/drivers/ide/ide.c   2004-05-27
+> 23:09:47.529701560 +0800
+> @@ -2459,7 +2459,8 @@ void cleanup_module (void)
+> 
+>  #else /* !MODULE */
+> 
+> -__setup("", ide_setup);
+> +__setup("hd", ide_setup);
+> +__setup("ide", ide_setup);
+> 
+>  module_init(ide_init);
 
-> io_apic_sync() was introduced in 2.1.104 and it was originally done for
-> masking and unmasking as well. Later the unmasking use got removed but
-> the masking use lingered around. I dont think it was ever justified to
-> do it and clearly since the lack of io_apic_sync() didnt break some of
-> the other writes we do to the IO-APIC registers, it must be unnecessary
-> in the masking case too. Maciej?
 
- Go ahead, sure.
+module_param() works for both the built-in case (where __setup is used), 
+and also the modular case.  If this is getting changed, might as well do 
+the right change...
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+	Jeff
+
+

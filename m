@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264893AbSJVUM1>; Tue, 22 Oct 2002 16:12:27 -0400
+	id <S264857AbSJVUIx>; Tue, 22 Oct 2002 16:08:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264890AbSJVULU>; Tue, 22 Oct 2002 16:11:20 -0400
-Received: from rztsun.rz.tu-harburg.de ([134.28.200.14]:64415 "EHLO
-	rztsun.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id <S264887AbSJVUKP> convert rfc822-to-8bit; Tue, 22 Oct 2002 16:10:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jan Dittmer <jan@jandittmer.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
-Date: Tue, 22 Oct 2002 22:16:56 +0200
-User-Agent: KMail/1.4.3
-References: <200210190241.49618.jan@jandittmer.de> <20021020104601.C8606@ucw.cz> <20021020093818.GC24484@suse.de>
-In-Reply-To: <20021020093818.GC24484@suse.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+	id <S264852AbSJVUH5>; Tue, 22 Oct 2002 16:07:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:7095 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S264829AbSJVUHp>;
+	Tue, 22 Oct 2002 16:07:45 -0400
+Date: Tue, 22 Oct 2002 22:27:00 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+In-Reply-To: <3DB5A5BD.D3E00B4A@digeo.com>
+Message-ID: <Pine.LNX.4.44.0210222220480.22282-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210222216.56633.jan@jandittmer.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > There _may_ be issues with changing depth on the fly. So if you could
-> > > just test without fiddling with changing depths that would be great.
-> >
-> > Ok. No changes in /proc using_tcq after boot, assuming it's enabled
-> > automatically (checked that in kernel config0, it works perfectly fine.
->
-> Thanks for verifying that! Jan, you appeared to have problems even with
-> tcq-per-default enabled and not touching the depth while running io, is
-> that correct?
 
-Okay tested it for roughly a day, doing some heavy I/O. Seems to work fine. 
-Didn't dare to change setting though. Had yet no time to test it with an 
-older kernel.
+On Tue, 22 Oct 2002, Andrew Morton wrote:
 
-ds666:/nfshome/jdittmer# cat /proc/ide/hda/settings | grep -i tcq
-using_tcq               1               0               32              rw
+> We seem to have lost a pte_page_unlock() from fremap.c:zap_pte()? I
+> fixed up the ifdef tangle in there within the shpte-ng patch and then
+> put the pte_page_unlock() back.
 
-jan
+ok. I too fixed up the shpte #ifdef tangle in there as well, and it was
+complex for no good reason, so i suspected that it was missing a line or
+two.
+
+> I also added a page_cache_release() to the error path in
+> filemap_populate(), if install_page() failed.
+
+hm, i somehow missed to add this, this was reported once already.
+
+> The 2TB file size limit for mmap on non-PAE is a little worrisome. [...]
+
+the limit is only there for 32-bit ptes on 32-bit platforms. 64-bit ptes
+(both true 64-bit architectures and x86-PAE) has a ~64 zetabyte filesize
+limit. I do not realistically believe that any 32-bit x86 box that is
+connected to a larger than 2 TB disk array cannot possibly run a PAE
+kernel. Just like you need PAE for more than 4 GB physical RAM. I find it
+a bit worrisome that 32-bit x86 ptes can only support up to 4 GB of
+physical RAM, but such is life :-)
+
+	Ingo
+

@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317623AbSGFIdU>; Sat, 6 Jul 2002 04:33:20 -0400
+	id <S317625AbSGFJN6>; Sat, 6 Jul 2002 05:13:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317624AbSGFIdT>; Sat, 6 Jul 2002 04:33:19 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:58120 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317623AbSGFIdT>;
-	Sat, 6 Jul 2002 04:33:19 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: [Bug] 2.5.25 build as one user and install as root
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 06 Jul 2002 18:35:46 +1000
-Message-ID: <29475.1025944546@ocs3.intra.ocs.com.au>
+	id <S317626AbSGFJN5>; Sat, 6 Jul 2002 05:13:57 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:53777 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S317625AbSGFJN5>;
+	Sat, 6 Jul 2002 05:13:57 -0400
+Message-ID: <003201c224cd$e25df820$0201a8c0@witek>
+From: =?iso-8859-2?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: [OT] /proc/cpuinfo output from some arch
+Date: Sat, 6 Jul 2002 11:16:49 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.25 existing build system has a nasty bug.  Build as one user then
-make install as root.  It does supurious recompiles of some files and
-leaves them owned as root.  All of these files are now owned by root
-and cause problems when the build user wants to rebuild.
+I'm looking for /proc/cpuinfo output from following architectures: arm m68k
+mips s390 sparc.
+I need it but I don't have access to any of them :/
+TIA
+Witek Krecicki
 
-arch/i386/boot/compressed/vmlinux.bin
-arch/i386/boot/compressed/piggy.o
-arch/i386/boot/compressed/vmlinux
-arch/i386/boot/.setup.o.cmd
-arch/i386/boot/setup.o
-arch/i386/boot/setup
-arch/i386/boot/vmlinux.bin
-include/linux/compile.h
-init/.version.o.cmd
-init/version.o
-init/init.o
-.version
-vmlinux
-
-Not a problem for kbuild 2.5 of course, it checks and aborts if
-installing as root would require recompiles.
 

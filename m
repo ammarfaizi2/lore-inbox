@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264090AbRFETss>; Tue, 5 Jun 2001 15:48:48 -0400
+	id <S264091AbRFETq2>; Tue, 5 Jun 2001 15:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264092AbRFETsi>; Tue, 5 Jun 2001 15:48:38 -0400
-Received: from [216.156.138.34] ([216.156.138.34]:1042 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S264090AbRFETs1>;
-	Tue, 5 Jun 2001 15:48:27 -0400
-Message-ID: <3B1D3770.FB726B17@colorfullife.com>
-Date: Tue, 05 Jun 2001 21:48:00 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac6 i686)
-X-Accept-Language: en, de
+	id <S264090AbRFETqS>; Tue, 5 Jun 2001 15:46:18 -0400
+Received: from pille1.addcom.de ([62.96.128.35]:40976 "HELO pille1.addcom.de")
+	by vger.kernel.org with SMTP id <S264089AbRFETqM>;
+	Tue, 5 Jun 2001 15:46:12 -0400
+Date: Tue, 5 Jun 2001 21:45:48 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: "W. Michael Petullo" <mike@flyn.org>
+cc: Ivan <pivo@pobox.sk>, <linux-kernel@vger.kernel.org>
+Subject: Re: PID of init != 1 when initrd with pivot_root
+In-Reply-To: <20010605175618.A2884@dragon.flyn.org>
+Message-ID: <Pine.LNX.4.33.0106051939540.9711-100000@vaio>
 MIME-Version: 1.0
-To: jalaja devi <jala_74@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: smp errors in 2.4!!
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I encounter this compilation error:
-> /usr/x.c:2112: struct has no member named
-> "event_Rsmp_7b16c344"
+On Tue, 5 Jun 2001, W. Michael Petullo wrote:
 
-I assume you have a variable called 'event', and that name got replaced
-by a versioned symbol.
-Yes, 'event' is a global variable in the kernel ;-)
+> > But the problem still remains. How do I make my /sbin/init run with PID 1
+> > using initial ramdisk under the new root change mechanism? I don't want to
+> > use the old change_root mechanism...
+>
+> I had the same problem when doing some development for mkCDrec.
+> This project uses busybox, whose init does not run if its PID != 1.
+> I asked the busybox folks same question you did and never got a response.
 
-Do you include <linux/modversions.h> in that file?
+Maybe I'm wrong here, but I had the same problem at some point and my
+solution was to rename /linuxrc (to /linux, and booting with init=/linux).
+I believe the code which special cases /linuxrc might be in the way here.
 
-I usually use 'gcc -E' to find such problems.
+Maybe you want to try this, if it helps I think Documentation/initrd.txt
+needs to be updated.
 
---
-	Manfred
+--Kai
+
+
+

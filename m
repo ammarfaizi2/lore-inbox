@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287252AbRL2Xes>; Sat, 29 Dec 2001 18:34:48 -0500
+	id <S287258AbRL2Xi2>; Sat, 29 Dec 2001 18:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287250AbRL2Xek>; Sat, 29 Dec 2001 18:34:40 -0500
-Received: from waste.org ([209.173.204.2]:5848 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S287252AbRL2XeE>;
-	Sat, 29 Dec 2001 18:34:04 -0500
-Date: Sat, 29 Dec 2001 17:33:57 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Dave Jones <davej@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <Pine.LNX.4.33.0112300021090.1336-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.43.0112291730130.18183-100000@waste.org>
+	id <S287250AbRL2XiL>; Sat, 29 Dec 2001 18:38:11 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:30736 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S287263AbRL2Xh5>; Sat, 29 Dec 2001 18:37:57 -0500
+Date: Sat, 29 Dec 2001 15:39:03 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
+In-Reply-To: <3C2E4875.9D0F4BC6@zip.com.au>
+Message-ID: <Pine.LNX.4.40.0112291538270.1580-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Dec 2001, Dave Jones wrote:
+On Sat, 29 Dec 2001, Andrew Morton wrote:
 
-> On Sat, 29 Dec 2001, Alan Cox wrote:
+> > It'd be nice to have inside local_irq_disable()/enable() a cycle counter
+> > sampler to see what is the worst case path with disabled irqs.
+> >
 >
-> > > The 'kill trailing spaces on each line' bug ? That has been fixed since
-> > > 4.31 or so.  Or are there other evils lurking ?
-> > Thats the beast. Last time I looked it was fixed in some vendor trees
+> http://www.zip.com.au/~akpm/linux/#intlat
 >
-> Ah, explains why I've not seen it happen for a while.
->
-> > but the official pine people were refusing to take it
+> This tool needs a bit of maintenance work, but it can measure and identify
+> the source of worst-case interrupt latencies quite successfully.
 
-The vendors shouldn't even have their own trees according to the license.
+Thx, i'll take a look.
 
-> *sigh*
-> Another reason to be a mutt advocate I suppose 8)
 
-Don't kid yourself, Mutt's a pile of crap too. And not an alternative for
-99% of Pine users.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+- Davide
+
 

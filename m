@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264900AbRFYRcL>; Mon, 25 Jun 2001 13:32:11 -0400
+	id <S265726AbRFYRjV>; Mon, 25 Jun 2001 13:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265878AbRFYRcB>; Mon, 25 Jun 2001 13:32:01 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:62725 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S264900AbRFYRbn>; Mon, 25 Jun 2001 13:31:43 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: asmith@14inverleith.freeserve.co.uk
-cc: William T Wilson <fluffy@snurgle.org>,
-        Rob Landley <landley@webofficenow.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Alan Chandler <alan@chandlerfamily.org.uk>,
+	id <S265878AbRFYRjL>; Mon, 25 Jun 2001 13:39:11 -0400
+Received: from jffdns02.or.intel.com ([134.134.248.4]:16095 "EHLO
+	hebe.or.intel.com") by vger.kernel.org with ESMTP
+	id <S265726AbRFYRi6>; Mon, 25 Jun 2001 13:38:58 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDEF5@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Chris Wedgwood'" <cw@f00f.org>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, proski@gnu.org,
         linux-kernel@vger.kernel.org
-Message-ID: <86256A76.00603920.00@smtpnotes.altec.com>
-Date: Mon, 25 Jun 2001 12:29:35 -0500
-Subject: Re: Microsoft and Xenix.
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Subject: RE: ACPI + Promise IDE = disk corruption :-(((
+Date: Mon, 25 Jun 2001 10:38:12 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Their processor power state code looks dormant at the moment, so they
+haven't hit this particular issue.
 
+They have in the past run into a number of problems, and submitted fixes.
+The Linux version is getting much wider testing right now.
 
-Beehive -- there's a name I haven't heard in a long time!  The ones I remember
-had dual floppy drives and ran CP/M.  I last saw one in about 1985.
+-- Andy
 
-Wayne
+PS Just FreeBSD, no Net or OpenBSD just yet.
 
-
-
-
-asmith@14inverleith.freeserve.co.uk on 06/25/2001 12:11:01 PM
-
-To:   William T Wilson <fluffy@snurgle.org>
-cc:   Rob Landley <landley@webofficenow.com>, "Eric W. Biederman"
-      <ebiederm@xmission.com>, Alan Chandler <alan@chandlerfamily.org.uk>,
-      linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Microsoft and Xenix.
-
-
-
-Hi,
-
-I first used  Unix on a PDP11/44 whilst studying for my Computer Engineering
-degree at Heriot-Watt University in Edinburgh.  I think they and Queen
-Margaret
-College, London were the first folk running Unix version 6 outside Bell Labs.
-If anyone knows where Patrick O'Callaghan is now (ask him).
-
-Another Unix like OS was Cromemco Cromix running on  bank switched Z80 S-100
-kit.(later 68000).
-
-I then used SCO Xenix 286 on early Compaq 286 PC's.   Companies like Chase,
-Specialix and Stallion grew up as suppliers of intelligent RS-232 boards.  As
-a result of all these Xenix machines, Wyse sold a hell of a lot of WY50
-terminals.
-
-Who remembers terminals from Lear Siegler and Beehive.   All this was before
-networking came about.  Then the Chase Iolan to connect these same Wyse
-terminals to the SCO box but through one bit of co-ax instead of multi-core
-cables.  Also you could get 100m  away from your SCO box  with co-ax.
-
---
-Andrew Smith in Edinburgh
-
+> From: Chris Wedgwood [mailto:cw@f00f.org]
+>>     It's just *one* issue that has generated all the disk corruption
+>>     reports.
+> 
+> The same code is used for FreeBSD and friends too right? Are they
+> seeing anywhere near the same number of types of poroblems Linux is?
 

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbUKSQll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbUKSQny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbUKSQll (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 11:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUKSQll
+	id S261472AbUKSQny (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 11:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUKSQny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 11:41:41 -0500
-Received: from mail.timesys.com ([65.117.135.102]:5021 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261478AbUKSQlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 11:41:39 -0500
-Subject: Re: [PATCH] MII bus API for PHY devices
-From: Jason McMullan <jason.mcmullan@timesys.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andy Fleming <afleming@freescale.com>, netdev@oss.sgi.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1100820391.25521.14.camel@gaston>
-References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com>
-	 <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com>
-	 <1100820391.25521.14.camel@gaston>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 19 Nov 2004 11:41:38 -0500
-Message-Id: <1100882498.14467.58.camel@jmcmullan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
+	Fri, 19 Nov 2004 11:43:54 -0500
+Received: from math.ut.ee ([193.40.5.125]:29616 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261472AbUKSQnx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 11:43:53 -0500
+Date: Fri, 19 Nov 2004 18:15:44 +0200 (EET)
+From: Meelis Roos <mroos@ut.ee>
+To: matthieu castet <castet.matthieu@free.fr>
+cc: linux-kernel@vger.kernel.org, Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+In-Reply-To: <419E17FF.1000503@free.fr>
+Message-ID: <Pine.SOC.4.61.0411191813310.12562@math.ut.ee>
+References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr>
+ <419E17FF.1000503@free.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-19 at 10:26 +1100, Benjamin Herrenschmidt wrote:
-> The ethernet driver can instanciate the PHYs at it's childs, though the
-> case of several MACs sharing PHYs will be difficult to represent...
+>> that's very strange : you must have 2 io entries, 1 dma entry and an irq 
+>> entry.
+>> Could you try pnpacpi from mm series ?
+> no need : it is in rc2.
+> So do you use pnpacpi ?
+> If so, could you send your dsdt and try with pnpbios?
 
-I think *requiring* a binding to ethernet devices is a bad idea. 
+# CONFIG_ISAPNP is not set
+CONFIG_PNPBIOS=y
+CONFIG_PNPBIOS_PROC_FS=y
+CONFIG_PNPACPI=y
 
-For example, on many MPC8260 embedded systems, the MII bus is controlled
-by GPIO pins, not an ethernet MDIO system.
+dmesg tells
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 13 devices
+PnPBIOS: Disabled by ACPI
 
-Some applications may use the MII bus to control non-PHY devices, such
-as Broadcom ethernet switches. I'm working for a general MII bus that
-ethernet PHYs and other devices can all use.
+Will try disabling pnpacpi today.
+
+How do I extract DSDT?
 
 -- 
-Jason McMullan <jason.mcmullan@timesys.com>
+Meelis Roos (mroos@ut.ee)      http://www.cs.ut.ee/~mroos/

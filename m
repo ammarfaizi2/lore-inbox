@@ -1,93 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291020AbSBLUBY>; Tue, 12 Feb 2002 15:01:24 -0500
+	id <S291049AbSBLUEo>; Tue, 12 Feb 2002 15:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291040AbSBLUBP>; Tue, 12 Feb 2002 15:01:15 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:2176 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S291020AbSBLUBB>;
-	Tue, 12 Feb 2002 15:01:01 -0500
-Date: Tue, 12 Feb 2002 12:01:00 -0800
-From: Bob Miller <rem@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.4 Can't use spin_lock_* with wait_queue_head_t object.
-Message-ID: <20020212120100.A7619@doc.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S291061AbSBLUEf>; Tue, 12 Feb 2002 15:04:35 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53521 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291049AbSBLUES>;
+	Tue, 12 Feb 2002 15:04:18 -0500
+Message-ID: <3C69750E.8BA2C6AB@zip.com.au>
+Date: Tue, 12 Feb 2002 12:03:26 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is code in sched.c that uses the spin_lock_* interfaces to acquire and
-release the lock in the wait_queue_head_t embedded in the struct completion.
+Martin Dalecki wrote:
+> 
+> If you are already at it, I would like to ask to you consider seriously
+> the removal of the
+> following entries in the ide drivers /proc control files:
+> 
+>     ide_add_setting(drive,    "breada_readahead",    ...         1,
+> 2,    &read_ahead[major],        NULL);
+>     ide_add_setting(drive,    "file_readahead",   ...
+> &max_readahead[major][minor],    NULL);
+>
+> Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
 
-This is wrong and causes the system to OPPs on startup when compiled with
-wait.h:USE_RW_WAIT_QUEUE_SPINLOCK set to 1.  The patch below changes the
-spin_lock_* calls to wq_write_lock_*.
+I suspect that if we remove these, we'll one day end up putting them back.
+It is appropriate that we be able to control readahead characteristics
+on a per-device and per-technology basis.
 
+> The second of them is trying to control a file-system level constant
+> inside the actual block device driver.
+> This is a blatant violation of the layering principle in software
+> design, and should go as soon as
+> possible.
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Software Development Lab			Phone: 503.626.2455 Ext. 17
+Well, the whole design of filesystems and the VM are a blatant
+layering violation: all the stuff we do at all levels to try to
+perform block-contiguous reads and writes, and to keep related
+data at related LBAs is making implicit assumptions about the
+underlying physical storage technology.  We've been doing that
+for 30 years - if a constant access time storage technology
+takes over from rotating and seeking disks, we have a lot of stuff
+to toss out.
 
+That being said, it is a horrid user interface wart that IDE readhead
+is controlled from /proc/ide/hda/settings:file_readhead, and that IDE
+ignores /proc/sys/vm/max-readahead, whereas devices which forget to
+set up their max_readhead entries are controlled by /proc/sys/vm/max-readhead.
 
+My vote would be to remove both of them.  Move the readhead controls
+into the filemap level, but implement per-device controls.  Say,
+/proc/sys/vm/readhead/hda, /proc/sys/vm/readhead/sdc, etc.
 
-diff -ru linux.2.5.4-orig/include/linux/wait.h linux.2.5.4/include/linux/wait.h
---- linux.2.5.4-orig/include/linux/wait.h	Sun Feb 10 17:50:07 2002
-+++ linux.2.5.4/include/linux/wait.h	Mon Feb 11 11:22:21 2002
-@@ -45,6 +45,7 @@
- # define wq_read_unlock read_unlock
- # define wq_write_lock_irq write_lock_irq
- # define wq_write_lock_irqsave write_lock_irqsave
-+# define wq_write_unlock_irq write_unlock_irq
- # define wq_write_unlock_irqrestore write_unlock_irqrestore
- # define wq_write_unlock write_unlock
- #else
-@@ -57,6 +58,7 @@
- # define wq_read_unlock_irqrestore spin_unlock_irqrestore
- # define wq_write_lock_irq spin_lock_irq
- # define wq_write_lock_irqsave spin_lock_irqsave
-+# define wq_write_unlock_irq spin_unlock_irq
- # define wq_write_unlock_irqrestore spin_unlock_irqrestore
- # define wq_write_unlock spin_unlock
- #endif
-diff -ru linux.2.5.4-orig/kernel/sched.c linux.2.5.4/kernel/sched.c
---- linux.2.5.4-orig/kernel/sched.c	Sun Feb 10 17:50:12 2002
-+++ linux.2.5.4/kernel/sched.c	Mon Feb 11 11:22:21 2002
-@@ -806,15 +806,15 @@
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&x->wait.lock, flags);
-+	wq_write_lock_irqsave(&x->wait.lock, flags);
- 	x->done++;
- 	__wake_up_common(&x->wait, TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE, 1, 0);
--	spin_unlock_irqrestore(&x->wait.lock, flags);
-+	wq_write_unlock_irqrestore(&x->wait.lock, flags);
- }
- 
- void wait_for_completion(struct completion *x)
- {
--	spin_lock_irq(&x->wait.lock);
-+	wq_write_lock_irq(&x->wait.lock);
- 	if (!x->done) {
- 		DECLARE_WAITQUEUE(wait, current);
- 
-@@ -822,14 +822,14 @@
- 		__add_wait_queue_tail(&x->wait, &wait);
- 		do {
- 			__set_current_state(TASK_UNINTERRUPTIBLE);
--			spin_unlock_irq(&x->wait.lock);
-+			wq_write_unlock_irq(&x->wait.lock);
- 			schedule();
--			spin_lock_irq(&x->wait.lock);
-+			wq_write_lock_irq(&x->wait.lock);
- 		} while (!x->done);
- 		__remove_wait_queue(&x->wait, &wait);
- 	}
- 	x->done--;
--	spin_unlock_irq(&x->wait.lock);
-+	wq_write_unlock_irq(&x->wait.lock);
- }
- 
- #define	SLEEP_ON_VAR				\
+-

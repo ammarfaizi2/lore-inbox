@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130949AbRCFFph>; Tue, 6 Mar 2001 00:45:37 -0500
+	id <S130950AbRCFFqH>; Tue, 6 Mar 2001 00:46:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130950AbRCFFp1>; Tue, 6 Mar 2001 00:45:27 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37649 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130949AbRCFFpS>; Tue, 6 Mar 2001 00:45:18 -0500
-Date: Mon, 5 Mar 2001 21:45:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Douglas Gilbert <dougg@torque.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's 	
-In-Reply-To: <3AA47557.1DC03D6@torque.net>
-Message-ID: <Pine.LNX.4.10.10103052136580.1011-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130952AbRCFFp6>; Tue, 6 Mar 2001 00:45:58 -0500
+Received: from [199.183.24.200] ([199.183.24.200]:28489 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130950AbRCFFpy>; Tue, 6 Mar 2001 00:45:54 -0500
+Date: Tue, 6 Mar 2001 00:44:54 -0500
+From: Peter Zaitcev <zaitcev@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Russell King <rmk@arm.linux.org.uk>, David Brownell <david-b@pacbell.net>,
+        Manfred Spraul <manfred@colorfullife.com>, zaitcev@redhat.com,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch
+Message-ID: <20010306004454.A12846@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: "David S. Miller" <davem@redhat.com>
+> Date: Mon, 5 Mar 2001 20:53:21 -0800 (PST)
 
+>[...]
+> Gerard Roudier wrote for the sym53c8xx driver the exact thing
+> UHCI/OHCI need for this.
 
-On Tue, 6 Mar 2001, Douglas Gilbert wrote:
-> 
-> > On the other hand, it's also entirely possible that IDE is just a lot
-> > better than what the SCSI-bigots tend to claim. It's not all that
-> > surprising, considering that the PC industry has pushed untold billions of
-> > dollars into improving IDE, with SCSI as nary a consideration. The above
-> > may just simply be the Truth, with a capital T.
-> 
-> What exactly do you think fsync() and fdatasync() should
-> do? If they need to wait for dirty buffers to get flushed
-> to the disk oxide then multiple reported IDE results to
-> this thread are defying physics.
+Thanks for the hint.
 
-Well, it's fairly hard for the kernel to do much about that - it's almost
-certainly just IDE doing write buffering on the disk itself. No OS
-involved.
+***
 
-The kernel VFS and controller layers certainly wait for the disk to tell
-us that the data has been written, there's no question about that. But
-it's also not at all unlikely that the disk itself just lies.
+Anyways, is this the end of the discussion regarding my patch?
+If it goes in, then fine. If not, fine too... Just
+let me know so that I can close the bug properly.
+Manfred said plainly "usb-uhci is broken", Alan kinda
+manuevered around my small problem, Dave Brownell looks
+unconvinced. So?
 
-I don't know if there is any way to turn of a write buffer on an IDE disk.
-
-I do remember that there were some reports of filesystem corruption with
-some version of Windows that turned off the machine at shutdown (using
-software power-off as supported by most modern motherboards), and shut
-down so fast that the drives had not actually written out all data.
-Whether the reports were true or not I do not know, but I think we can
-take for granted that write buffers exist.
-
-Now, if you really care about your data integrity with a write-buffering
-disk, I suspect that you'd better have an UPS. At which point write
-buffering is a valid optimization, as long as you trust the harddisk
-itself not to crash even if the OS were to crash.
-
-Of course, whether you should even trust the harddisk is another question.
-
-			Linus
-
+-- Pete

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264900AbTFTVmp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 17:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTFTVmo
+	id S264916AbTFTVq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 17:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbTFTVq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 17:42:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10419 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264893AbTFTVlh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 17:41:37 -0400
-Message-ID: <3EF382CF.2020800@pobox.com>
-Date: Fri, 20 Jun 2003 17:55:27 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Fri, 20 Jun 2003 17:46:58 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:12208 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S264916AbTFTVqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 17:46:55 -0400
+Date: Fri, 20 Jun 2003 17:00:54 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Benoit Beauchamp <benoit.beauchamp@sbcglobal.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.72 fixdep / cant make *config
+In-Reply-To: <000701c33763$7afe1df0$0201a8c0@WIRE>
+Message-ID: <Pine.LNX.4.44.0306201659370.26860-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       David Lang <david.lang@digitalinsight.com>, jmorris@intercode.com.au,
-       davem@redhat.com, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [RFC] Breaking data compatibility with userspace bzlib
-References: <20030620194517.GA22732@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0306201247560.28021-100000@dlang.diginsite.com> <20030620200554.GC22732@wohnheim.fh-wedel.de> <3EF38248.2070807@pobox.com>
-In-Reply-To: <3EF38248.2070807@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> If you drop that down to 280k with much better compression than zlib, 
-> that's fantastic and useful, and people won't mind the slower algorithm :)
+On Fri, 20 Jun 2003, Benoit Beauchamp wrote:
 
-Just so people don't misinterpret this, I'm just talking about the 
-_addition_ of bzlib as an option.  zlib isn't going anywhere.
+>   HOSTCC  scripts/fixdep
+> In file included from /usr/include/netinet/in.h:212,
+>                  from scripts/fixdep.c:107:
+> /usr/include/bits/socket.h:305:24: asm/socket.h: No such file or directory
+> scripts/fixdep.c: In function `use_config':
+> scripts/fixdep.c:193: `PATH_MAX' undeclared (first use in this function)
+> scripts/fixdep.c:193: (Each undeclared identifier is reported only once
+> scripts/fixdep.c:193: for each function it appears in.)
+> scripts/fixdep.c:193: warning: unused variable `s'
+> scripts/fixdep.c: In function `parse_dep_file':
+> scripts/fixdep.c:289: `PATH_MAX' undeclared (first use in this function)
+> scripts/fixdep.c:289: warning: unused variable `s'
+> make[1]: *** [scripts/fixdep] Error 1
+> make: *** [scripts] Error 2
 
-	Jeff
+Make sure that /usr/include/asm has a proper set of headers, i.e. it's not 
+just a symlink pointing to your current kernel source. google.com will get 
+you more information ;)
 
+--Kai
 
 

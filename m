@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUKJGb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbUKJG5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbUKJGb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 01:31:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUKJGb6
+	id S261283AbUKJG5E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 01:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUKJG5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 01:31:58 -0500
-Received: from mail.gmx.net ([213.165.64.20]:39646 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261904AbUKJGb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 01:31:56 -0500
-X-Authenticated: #21910825
-Message-ID: <4191B5D8.3090700@gmx.net>
-Date: Wed, 10 Nov 2004 07:31:52 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Robert Love <rml@novell.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc and	vmalloc)
-References: <4191A4E2.7040502@gmx.net> <1100066597.18601.124.camel@localhost>
-In-Reply-To: <1100066597.18601.124.camel@localhost>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Nov 2004 01:57:04 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:3036 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261283AbUKJG5B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 01:57:01 -0500
+Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc
+	and	vmalloc)
+From: Robert Love <rml@novell.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4191B5D8.3090700@gmx.net>
+References: <4191A4E2.7040502@gmx.net>
+	 <1100066597.18601.124.camel@localhost>  <4191B5D8.3090700@gmx.net>
+Content-Type: text/plain
+Date: Wed, 10 Nov 2004 01:57:44 -0500
+Message-Id: <1100069864.18601.128.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love schrieb:
-> On Wed, 2004-11-10 at 06:19 +0100, Carl-Daniel Hailfinger wrote:
+On Wed, 2004-11-10 at 07:31 +0100, Carl-Daniel Hailfinger wrote:
+
+> Yes, but what do you suggest for the following problem:
+> alloc(max_loop*sizeof(struct loop_device))
 > 
->>Hi,
->>
->>it seems there is a bunch of drivers which want to allocate memory as
->>efficiently as possible in a wide range of allocation sizes. XFS and
->>NTFS seem to be examples. Implement a generic wrapper to reduce code
->>duplication.
->>Functions have the my_ prefixes to avoid name clash with XFS.
+> where sizeof(struct loop_device)==304 and 1<=max_loop<=16384
 > 
-> 
-> No, no, no.  A good patch would be fixing places where you see this.
-> 
-> Code needs to conscientiously decide to use vmalloc over kmalloc.  The
-> behavior is different and the choice needs to be explicit.
+> For the smallest allocation (304 bytes) vmalloc is clearly wasteful
+> and for the largest allocation (~ 5 MBytes) kmalloc doesn't work.
 
-Yes, but what do you suggest for the following problem:
-alloc(max_loop*sizeof(struct loop_device))
+Stab in the dark: Break it into two separate loops?
 
-where sizeof(struct loop_device)==304 and 1<=max_loop<=16384
+Two loops would be faster than the branch on each alloc, too.
 
-For the smallest allocation (304 bytes) vmalloc is clearly wasteful
-and for the largest allocation (~ 5 MBytes) kmalloc doesn't work.
+Even better: Re-architect so as not to need that mess at all?
+
+	Robert Love
 
 
-Regards,
-Carl-Daniel

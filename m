@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263098AbTJPQ3K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 12:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTJPQ3K
+	id S263057AbTJPQb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 12:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbTJPQb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 12:29:10 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8585
-	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
-	id S263098AbTJPQ3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 12:29:07 -0400
-Date: Thu, 16 Oct 2003 18:29:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, Josh Litherland <josh@temp123.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Transparent compression in the FS
-Message-ID: <20031016162926.GF1663@velociraptor.random>
-References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F8D6417.8050409@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 16 Oct 2003 12:31:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21153 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263057AbTJPQb1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 12:31:27 -0400
+Message-ID: <3F8EC7D0.5000003@pobox.com>
+Date: Thu, 16 Oct 2003 12:31:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Eli Billauer <eli_billauer@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [RFC] frandom - fast random generator module
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int>
+In-Reply-To: <20031016102020.A7000@schatzie.adilger.int>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+Andreas Dilger wrote:
+> Actually, there are several applications of low-cost RNG inside the kernel.
+> 
+> For Lustre we need a low-cost RNG for generating opaque 64-bit handles in
+> the kernel.  The use of get_random_bytes() showed up near the top of
+> our profiles and we had to invent our own low-cost crappy PRNG instead (it's
+> good enough for the time being, but when we start working on real security
+> it won't be enough).
+> 
+> The tcp sequence numbers probably do not need to be crypto-secure (I could
+> of course be wrong on that ;-) and with GigE or 10GigE I imagine the number
+> of packets being sent would put a strain on the current random pool.
 
-On Wed, Oct 15, 2003 at 11:13:27AM -0400, Jeff Garzik wrote:
-> Josh and others should take a look at Plan9's venti file storage method 
-> -- archival storage is a series of unordered blocks, all of which are 
-> indexed by the sha1 hash of their contents.  This magically coalesces 
-> all duplicate blocks by its very nature, including the loooooong runs of 
-> zeroes that you'll find in many filesystems.  I bet savings on "all 
-> bytes in this block are zero" are worth a bunch right there.
 
-I had a few ideas on the above.
+We don't need "low cost RNG" and "high cost RNG" in the same kernel. 
+That just begs a "reduce RNG cost" solution...  I think security experts 
+can easily come up with arguments as to why creating your own "low-cost 
+crappy PRNG" isn't needed -- you either need crypto-secure, or you 
+don't.  If you don't, then you could just as easily create an ascending 
+64-bit number for your opaque filehandle, or use a hash value, or some 
+other solution that doesn't require an additional PRNG in the kernel.
 
-if the zero blocks are the problem, there's a tool called zum that nukes
-them and replaces them with holes. I use it sometime, example:
+For VIA CPUs, life is easy.  Use xstore insn and "You've got bytes!"  :)
 
-andrea@velociraptor:~> dd if=/dev/zero of=zero bs=1M count=100
-100+0 records in
-100+0 records out
-andrea@velociraptor:~> ls -ls zero
-102504 -rw-r--r--    1 andrea   andrea   104857600 2003-10-16 18:24 zero
-andrea@velociraptor:~> ~/bin/i686/zum zero
-zero [820032K]  [1 link]
-andrea@velociraptor:~> ls -ls zero
-   0 -rw-r--r--    1 andrea   andrea   104857600 2003-10-16 18:24 zero
-andrea@velociraptor:~> 
+	Jeff
 
-if you can't find it ask and I'll send it by email (it's GPL btw).
 
-the hash to the data is interesting, but 1) you lose the zerocopy
-behaviour for the I/O, it's like doing a checksum for all the data going to
-disk that you normally would never do (except for the tiny files in reiserfs
-with tail packing enabled, but that's not bulk I/O), 2) I wonder how much data
-is really duplicate besides the "zero" holes trivially fixable in userspace
-(modulo bzImage or similar where I'm unsure if the fs code in the bootloader
-can handle holes ;).
+

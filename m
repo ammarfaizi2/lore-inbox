@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264328AbTEZImu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 04:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTEZImu
+	id S264308AbTEZJIa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 05:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTEZJIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 04:42:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59913 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264328AbTEZImt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 04:42:49 -0400
-Date: Mon, 26 May 2003 09:55:51 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
-       LW@KARO-electronics.de, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at least))
-Message-ID: <20030526095551.C4417@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
-	LW@KARO-electronics.de, linux-kernel@vger.kernel.org,
-	Jens Axboe <axboe@suse.de>
-References: <20030523175413.A4584@flint.arm.linux.org.uk> <Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain> <20030523112926.7c864263.akpm@digeo.com> <20030523193458.B4584@flint.arm.linux.org.uk> <1053919171.14018.2.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1053919171.14018.2.camel@rth.ninka.net>; from davem@redhat.com on Sun, May 25, 2003 at 08:19:32PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 26 May 2003 05:08:30 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:41452 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264308AbTEZJI3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 05:08:29 -0400
+Date: Mon, 26 May 2003 11:21:38 +0200 (MEST)
+Message-Id: <200305260921.h4Q9LcNr022536@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: linux-kernel@vger.kernel.org, lkml@sigkill.net
+Subject: Re: [RFC] Fix NMI watchdog documentation
+Cc: Valdis.Kletnieks@vt.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 25, 2003 at 08:19:32PM -0700, David S. Miller wrote:
-> Oh yes, this part is.  If you don't ensure this, everything
-> breaks.
-> 
-> At the end of an I/O operation, say to a page cache page, that
-> data ought to be visible equally to a userspace vs. a kernel
-> space mapping to that page.
-> 
-> For example, this is why we use language about "cpu visibility" in the
-> DMA api documentation and not "kernel cpu visibility" :-)  And because
-> PIO transfers are basically pseudo-DMA they need to make the same exact
-> guarentees.
-> 
-> If you've been living in a world where you didn't think this is
-> necessary, I certainly feel bad for you :-)
+On 26 May 2003 01:31:41 -0400, Disconnect <lkml@sigkill.net> wrote:
+>> OK, I put together a kernel that had the Latitude blacklist commented out,
+>> and it comes up with:
+>> 
+>> No local APIC present or hardware disabled
+>> Initializing CPU#0
+>> 
+>> So add the Latitude C840 to the "known b0rken" list.
+>
+>Ditto the Inspiron 8500 - no apic at all (which is different from
+>known-broken, since nothing bad happened.)  
+...
+>Perhaps just a comment above those entries:
+>/* Latitude C840 and Inspiron 8500 have no APIC support in hardware */
 
-Ok, so the flush_dcache_page() interface looses this; the original
-placement of the flush_page_to_ram() ensured that data written by
-device drivers was visible to user space.
+If these machines are P4-based, then I bet they do have local APICs.
+However, if the BIOS boots the kernel with the local APIC disabled
+on a P4, we (apic.c) don't try to enable it. The logic behind that
+is that "modern" BIOSen _should_ boot with it enabled, unless they're
+horribly broken.
 
-Maybe the BIO layer can handle this - the same problem exists when
-(and if) BIO uses a bounce buffer, so it would have to be handled
-there.  Jens?
+So apply the patch below and try the "can we get the machine to hang"
+checklist again.
 
-Lothar - can you confirm that your problem vanishes when you turn off
-write allocation on the caches please?  (cachepolicy=writeback)
+/Mikael
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+--- linux-2.5.69/arch/i386/kernel/apic.c.~1~	2003-04-20 13:08:15.000000000 +0200
++++ linux-2.5.69/arch/i386/kernel/apic.c	2003-05-26 11:11:19.000000000 +0200
+@@ -617,7 +617,7 @@
+ 		goto no_apic;
+ 	case X86_VENDOR_INTEL:
+ 		if (boot_cpu_data.x86 == 6 ||
+-		    (boot_cpu_data.x86 == 15 && cpu_has_apic) ||
++		    (boot_cpu_data.x86 == 15) ||
+ 		    (boot_cpu_data.x86 == 5 && cpu_has_apic))
+ 			break;
+ 		goto no_apic;

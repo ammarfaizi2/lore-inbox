@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262186AbTCHT77>; Sat, 8 Mar 2003 14:59:59 -0500
+	id <S262204AbTCHUPn>; Sat, 8 Mar 2003 15:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262187AbTCHT77>; Sat, 8 Mar 2003 14:59:59 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:39950 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262186AbTCHT7y>;
-	Sat, 8 Mar 2003 14:59:54 -0500
-Date: Sat, 8 Mar 2003 12:00:16 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@digeo.com>, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
+	id <S262205AbTCHUPn>; Sat, 8 Mar 2003 15:15:43 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:18897 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262204AbTCHUPl>;
+	Sat, 8 Mar 2003 15:15:41 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 8 Mar 2003 21:26:15 +0100 (MET)
+Message-Id: <UTC200303082026.h28KQFN04439.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, akpm@digeo.com, alan@lxorguk.ukuu.org.uk,
+       greg@kroah.com, hch@infradead.org, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
 Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308200016.GF26374@kroah.com>
-References: <20030307193644.A14196@infradead.org> <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com> <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com> <1047086062.24215.14.camel@irongate.swansea.linux.org.uk> <20030308005018.GE23071@kroah.com> <1047136302.25932.28.camel@irongate.swansea.linux.org.uk> <20030308193722.GD26374@kroah.com> <20030308195028.A31394@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030308195028.A31394@infradead.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 07:50:28PM +0000, Christoph Hellwig wrote:
-> On Sat, Mar 08, 2003 at 11:37:22AM -0800, Greg KH wrote:
-> > That's a good start, but why not change that to a simple,
-> > HOW_MANY_MINORS_I_WANT, which will work the same way now, but allow us
-> > to change to a pure dynamic major/minor allocation scheme in the future
-> > by only modifying the register_chr_device() code.  Same thing for
-> > register_blkdev().
-> 
-> register_blkdev() _IS_ totally meaningless in 2.5.  I said this about three
-> times in this thread already, when will people actually take a look at
-> the code they look at?
+>> That's why the character device code should get a similar massaging
 
-I've looked at it, and right now it keeps drivers from registering the
-same major number, and provides a pretty string for the requested major,
-when the kernel wants to print it out.
+> I agree, I thought this was a 2.7 change, but it's looking like people
+> want this change sooner :)
 
-Yes, most of the old code and logic is now gone, but can you just remove
-the call altogether now?  If so, great :)
+There is no need to do all of that. Going to 32-bit dev_t
+is trivial, not a major restructuring.
 
-greg k-h
+Three minutes editing of kdev_t.h and posix_types.h and you have it.
+Boot the kernel and it runs fine.
+
+However, it can be crashed from userspace, so before we do
+the three minutes editing the audit is needed.
+Look at the patch for raw.c I posted a few hours ago.
+One trivial test.
+
+If we do it as Alan suggested even this one test can be
+avoided in most places.
+
+> If people really think they need a 32bit dev_t
+> we should just introduce it and use it only for block devices
+> and stay with the old 8+8 split for character devices.
+
+Of course discussing the future and how the cake should
+be divided once we have it may be of interest - but let
+us bake the cake first. The work required is entirely
+independent of the size and structure of dev_t.
+
+Andries - curious whether 2.5.65 will show progress
+
+
+[not that the road isn't long - once the kernel is happy
+there are some glibc details - strange enough glibc uses
+a gigantic dev_t but simultaneously assumes that major and
+minor only have a few bits]

@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129074AbQKAQN1>; Wed, 1 Nov 2000 11:13:27 -0500
+	id <S129102AbQKAQP1>; Wed, 1 Nov 2000 11:15:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129102AbQKAQNR>; Wed, 1 Nov 2000 11:13:17 -0500
-Received: from fairway.oup.co.uk ([194.80.1.20]:29828 "EHLO fairway.oup.co.uk")
-	by vger.kernel.org with ESMTP id <S129074AbQKAQNE>;
-	Wed, 1 Nov 2000 11:13:04 -0500
-Message-ID: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk>
-From: "CRADOCK, Christopher" <cradockc@oup.co.uk>
-To: "'M.H.VanLeeuwen'" <vanl@megsinet.net>, linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: RE: Linux-2.4.0-test10
-Date: Wed, 1 Nov 2000 16:12:57 -0000 
+	id <S129756AbQKAQPR>; Wed, 1 Nov 2000 11:15:17 -0500
+Received: from penguin.scsinternet.com ([216.129.11.4]:23312 "EHLO
+	penguin.scsinternet.com") by vger.kernel.org with ESMTP
+	id <S129102AbQKAQPG>; Wed, 1 Nov 2000 11:15:06 -0500
+To: Jonathan George <Jonathan.George@trcinc.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: KernelWiki for November: Dia de Muertos
+In-Reply-To: <790BC7A85246D41195770000D11C56F21C847B@trc-tpaexc01.trcinc.com>
+From: Gary Lawrence Murphy <garym@canada.com>
+X-Home-Page: http://www.teledyn.com
+Organization: T(c)Inc Business Innovation through Open Source Computing
+Date: 01 Nov 2000 11:15:00 -0500
+Message-ID: <m3y9z37jp7.fsf@maya.dyndns.org>
+Reply-To: Gary Lawrence Murphy <garym@canada.com>
+X-Url: http://www.teledyn.com/
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a similar hardware list and I don't observe any of these problems on
-2.4.0-test10x. Is it possibly a hardware conflict somewhere?
 
-What I do see occasionally is if X was ever heavy on the memory usage (say
-I've run GIMP for a couple of hours) then the text console's font set gets
-trashed until the next reboot. Console driver failing to reset something?
+Thank you for your thoughtful commments.  I'd recommend you send such
+comments directly to the author that offends you as posting to the
+wide list in a vain attempt to gain yourself some status points is
+only going to result in some comment that further offends you and
+locks you into a flame war that will certainly consume more of your
+time than simple contributing to the KernelWiki project.  Of course,
+some people are not concerned about spending their time
+constructively.
 
-Chris Cradock
+Ooops, did I post that publically?  Well, it can always serve as a
+bad example ;)
 
-> -----Original Message-----
-> From:	M.H.VanLeeuwen [SMTP:vanl@megsinet.net]
-> Sent:	Wednesday, November 01, 2000 6:03 AM
-> To:	linux-kernel@vger.kernel.org
-> Cc:	torvalds@transmeta.com
-> Subject:	Re: Linux-2.4.0-test10
-> 
-> FYI,
-> 
-> My list of 2.4.0-testX problems
-> 
-> Further details, .config, etc...available if needed
-> 
-> Martin
-> 
-> 2.4.0-test10 and earlier problem list:
->  
-> Problem |       UP              UP-APIC         SMP
-> --------|------------------------------------------------
-> 1       |       OK              OK              HARDLOCK
-> 2       |       OK              FAILS           OK
-> 3       |       HARDLOCK        HARDLOCK        HARDLOCK
-> 4       |       BROKEN          BROKEN          BROKEN
-> 
-> Problem description:
->  
-> 1.  kernel compiled w/o FB support.  When attempting to switch
->     back to X from VC1-6 system locks hard for SMP.  Nada thing
->     fixes this except hard reset... no Alt-SysRq-B, nothing
->     DRI not enabled.  Video card has r128 chipset.
->  
-> 2.  System is a NFS root machine, after a period of heavy ntwk
->     activity, eg. "make clean" in /usr/src/linux ETH0 no longer
->     works or sometimes just ntwk activity during system boot is
->     enough to cause the ETH activity to cease.
->     The only recourse is to Alt-SysRq-B the system.
->     NIC = NE2K ISA
->  
-> 3. Enabling PIIX4, kernel locks hard when printing the partition
->    tables for hdc.   hdc has no partitions.
->    I think this problem is on Ted's problem list???
->  
-> 4. ISAPNP assigns an invalid/unusable IRQ to NE2K NIC card.
->    Previously reported to Linux & Ingo, they asked for an MPTABLE
->    dump, haven't heard back since providing said data.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+-- 
+Gary Lawrence Murphy <garym@linux.ca>: office voice/fax: 01 519 4222723
+T(!c)Inc Business Innovation through Open Source http://www.teledyn.com
+M:I-3 - Documenting the Linux kernel: http://kernelbook.sourceforge.net
+"You don't play what you know; you play what you hear." --- Miles Davis
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

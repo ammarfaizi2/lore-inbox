@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263434AbTL2MwK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 07:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTL2MwK
+	id S263453AbTL2Mx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 07:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTL2MxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 07:52:10 -0500
-Received: from 195.88.95.62.host.songnetworks.se ([62.95.88.195]:21536 "EHLO
-	www.6521000.com") by vger.kernel.org with ESMTP id S263434AbTL2MwI
+	Mon, 29 Dec 2003 07:53:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51934 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263453AbTL2MxQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 07:52:08 -0500
-User-Agent: Microsoft-Entourage/10.1.4.030702.0
-Date: Mon, 29 Dec 2003 13:51:04 +0100
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-From: Johan Sjoholm <js@phs.se>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
-CC: Linux Kernel List Vger <linux-kernel@vger.kernel.org>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>
-Message-ID: <BC15E1C8.2253%js@phs.se>
-In-Reply-To: <20031229115513.A27636@infradead.org>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	Mon, 29 Dec 2003 07:53:16 -0500
+Date: Mon, 29 Dec 2003 12:53:14 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Reminder: PCI discussions
+Message-ID: <20031229125314.GG12479@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps this discussion would be better suited to be kept on the linux-pci
-mailing list ? Or at the very least, cc'd to it.
+
+Due to ussg now stripping email addresses, I can't send this email to
+the people who need to know it.  I can only send this to linux-kernel
+and hope it does not get lost in the noise.
+
+There is a list for discussing Linux's PCI implementation, and it is
+called linux-pci.  To quote from the webpage:
+
+"You can ask questions and report bugs on the linux-pci mailing list. Ask
+majordomo@atrey.karlin.mff.cuni.cz to subscribe."
+
+ie the list is called linux-pci@atrey.karlin.mff.cuni.cz.  Discussion
+about PCI Express in particular NEEDS to go to this list.  You can cc l-k
+too if you like.  But by not cc'ing that list, you do not draw attention
+from the right people.
+
+Not all of us can drink from the firehose that is linux-kernel.
+Particularly when it's full of random political / pseudo-legal shit.
 
 -- 
-Johan Sjoholm
-CEO and Head of Development
-Building 31 Clustering  -   http://www.phs.se
-js@phs.se   ~   www.phs.se  ~   +46 520 48 87 17
-
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,73 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133071AbRARKFS>; Thu, 18 Jan 2001 05:05:18 -0500
+	id <S132734AbRARKPk>; Thu, 18 Jan 2001 05:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133059AbRARKFI>; Thu, 18 Jan 2001 05:05:08 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:44048
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132734AbRARKFD>; Thu, 18 Jan 2001 05:05:03 -0500
-Date: Thu, 18 Jan 2001 02:01:45 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Dan Hollis <goemon@sasami.anime.net>, Martin Mares <mj@suse.cz>,
-        Adam Lackorzynski <al10@inf.tu-dresden.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
-In-Reply-To: <Pine.GSO.3.96.1010118092306.8140D-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.10.10101180133460.20569-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132774AbRARKPa>; Thu, 18 Jan 2001 05:15:30 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:25096 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S132734AbRARKPW>;
+	Thu, 18 Jan 2001 05:15:22 -0500
+Date: Thu, 18 Jan 2001 11:14:59 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <3A66C223.F9144139@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <200101172323.f0HNNt529625@webber.adilger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Maciej W. Rozycki wrote:
 
-> On Wed, 17 Jan 2001, Dan Hollis wrote:
+
+Andreas Dilger wrote:
 > 
-> > They require not only an NDA, but that you also do all development on-site
-> > at their santa clara HQ under their direct supervision.
+> David Balazic writes:
+> > Andreas Dilger <adilger@turbolinux.com> wrote :
+> > > In the end I re-wrote most of the patch, so
+> > > that we resolve ROOT_DEV before calling mount_root(), just to be a bit
+> > > more consistent. I will release a new patch for 2.2.18 and 2.4.0 after
+> > > David Balazic has a look at it.
+> >
+> > Cool, send it to me !
 > 
->  I haven't went that far -- I'm not going to sign any NDA anytime soon, so
-> I haven't asked them for details.  I recall someone writing here it's
-> restrictive, indeed. 
+> Need to test it a bit first (i.e. at least compile it)...
+
+I will just throw a quick look into it , nothing more , as my setup is
+a mess right now. I no kernel guru either, I just wrote the patch :-)
+
+ > > > I know a bit about LILO, so I should be able to get the
+"root=LABEL=" to
+> > > work there as well.
+> >
+> > There were no problems with the original patch with LILO.
+> > You just must use append="root=xxxxx" instead of simply
+> > root=xxx , because LILO tries to be "smart" .... at least the
+> > version I used then did.
 > 
-> > The only people who have ever got info out of serverworks are the lm78
-> > guys and (i think) andre hedrick.
-
-I can get any info needed, you just have to define the scope.
-Then will not can and will not give out details on a generic form.
-In short no one person can see the entire design docs or will they get
-them without a NDA.  I have seen why this is the case, cause the toy are
-cool.
-
->  I was asking for a few I/O APIC details -- apparently there are problems
-> with 8254 interoperability and we have to use the awkward through-8259A
-> mode for the timer tick.
-
-Narrow the point.
-
-> > What magic incantations they chanted, or which mafia thugs they hired to
-> > manage this, I don't know...
+> Actually, there are 2 ways to go about this: LILO could do the UUID/LABEL
+> resolution at the time lilo is run (to store root dev into kernel), and
+> _also_ append "root=LABEL=X" to kernel options, so that if the kernel
+> can't resolve the UUID/LABEL (i.e. no support for this option) we can fall
+> back to the root dev from when LILO was run.
 > 
->  And I don't actually care.  If they want to lose in the Linux area, it's
-> their own choice. 
+> > > One reason why this may NOT ever make it into the kernel is that I know
+> > > "kernel poking at devices" is really frowned upon.
+> >
+> > This an ugly hack , if you ask me. The identificators ( be it labels ,
+> > UUIDs or whatever ) should be outside the partitions. Otherwise cases with
+> > swap partitions , <any FS that doesn't support labels/UUIDs> unformatted
+> > partitions etc. can not be handled.
+> 
+> LVM now has UUID-like identifiers for all "partitions" (Logical Volumes),
+> although they are not really accessible by any tools right now. The "LABEL"
+> is actually the LV name, so it is used directly all the time:
+> 
+> /dev/vgroot/lvroot      /       ext3    defaults        1       1
+> /dev/vgroot/lvswap      none    swap    sw,pri=100      0       0
 
-You don't get it, they OEM board designs for Compaq and Dell.
-These guys will work with you on-site but in their sand-box not yours.
-I wish I could say more, but I have something more powerfully than any NDA
-ever written.  I have given my word and a handshake, and that has more
-value to me than any stupid NDA.  The very fact that I value this so much
-and so many in the industry know this about me, I have been shown things
-without NDA's that you never see otherwise.
+Is /dev/vgroot some kind of pseudo filesystem ?
+With plain device files you have the same problems as with the "old"
+partitions , I think. ( they have to be mapped to minors and nodes for
+them must be created somehow ). I didn't try it yet and with devfs
+it should work OK.
 
-They are very friendly to Linux, but can we be friendly to them?
-You just can not barge in and demand to see their IP.
+> This obviates most of the reason for the UUID/LABEL support, but not
+> everyone runs LVM (yet ;-) and ext2 UUID/LABELs are still useful.
 
-Regards,
+And LVM is not windows compatible , AFAIK, is it ?
 
-Andre Hedrick
-Linux ATA Development
-
+ 
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbTHYKe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbTHYKe1
+	id S261609AbTHYK1h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTHYK1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:34:27 -0400
-Received: from vaxjo.synopsys.com ([198.182.60.75]:57057 "EHLO
-	vaxjo.synopsys.com") by vger.kernel.org with ESMTP id S261674AbTHYKe0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:34:26 -0400
-Date: Mon, 25 Aug 2003 12:34:20 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+	Mon, 25 Aug 2003 06:27:37 -0400
+Received: from smtp7.wanadoo.fr ([193.252.22.29]:42001 "EHLO
+	mwinf0204.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261609AbTHYK1e convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:27:34 -0400
+From: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: Personnal line discipline difficulties
+Date: Mon, 25 Aug 2003 12:27:30 +0200
+User-Agent: KMail/1.5.2
+References: <200308251018.58127.laurent.huge@wanadoo.fr> <200308251054.48574.laurent.huge@wanadoo.fr> <20030825102923.A30952@flint.arm.linux.org.uk>
+In-Reply-To: <20030825102923.A30952@flint.arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]O18.1int
-Message-ID: <20030825103420.GL16080@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <200308231555.24530.kernel@kolivas.org> <yw1xr83accpa.fsf@users.sourceforge.net> <20030825094240.GJ16080@Synopsys.COM> <yw1xad9yca8j.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xad9yca8j.fsf@users.sourceforge.net>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308251227.30250.laurent.huge@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård, Mon, Aug 25, 2003 12:17:16 +0200:
-> Alex Riesen <alexander.riesen@synopsys.COM> writes:
-> 
-> >> XEmacs still spins after running a background job like make or grep.
-> >> It's fine if I reverse patch-O16.2-O16.3. The spinning doesn't happen
-> >> as often, or as long time as with O16.3, but it's there and it's
-> >> irritating.
-> >
-> > another example is RXVT (an X terminal emulator). Starts spinnig after
-> > it's child has exited. Not always, but annoyingly often. System is
-> > almost locked while it spins (calling select).
-> 
-> It sounds like the same bug.  IMHO, it's rather bad, since a
-> non-privileged process can make the system unusable for a non-zero
-> amount of time.
-
-the source of RXVT looks more like the bug: it does not check for
-errors, even though it is a bit tricky to get portably.
-It is still a problem, though: "_almost_ locked" does not make it nice.
-
-> How should I do to capture some information about this thing?
-
-Use "top" and look at the dynamic priority.
-
+Le Lundi 25 Août 2003 11:29, vous avez écrit :
+> > As I've told before, I've got no other way to know
+> > it, so it's necessary to me (moreover, I'm trying to port an existing
+> > driver from Windows to Linux, and the Windows serial driver gives
+> > accurately the size of each PDU, so there must be a way).
+> Maybe its embedded in the PDU somewhere, or maybe it requires knowledge
+> of the protocol at driver level?
+No, I'm sure there's no way to find that size but through the serial port 
+reception.
+I've already tried to totally replace the serial driver (by using inb and outb 
+in the serial adress map) but it proves to be not fast enought (it worked à 
+9600 bauds, but not at 115200 : I miss some PDU) ; so I've turned to use the 
+kernel serial driver. Do you think I have to go way back and try to 
+accelerate my treatment (I thought the kernel driver would be the fastest and 
+most accurate) ?
+> One thing bothers me though - why are you trying to deliver these
+> characters into the network stack?  Wouldn't it be easier for your
+> application to talk to the printer port via your custom driver and
+> a serial port directly?
+Because there's no application ! In fact, there are two flow through that 
+driver : one is IP and the other is CCSDS (spatial protocols) ; I have to be 
+_totally_ transparent to IP flow, and add CCSDS above. That's the reason why 
+I've chosen to use the network stack.
+-- 
+Laurent Hugé.
 

@@ -1,113 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVCaD6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVCaD7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbVCaD6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 22:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCaD6l
+	id S262508AbVCaD7z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 22:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCaD7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 22:58:41 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:18307 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262490AbVCaD6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 22:58:36 -0500
-Date: Wed, 30 Mar 2005 19:51:23 -0500
-From: Christopher Li <chrisl@vmware.com>
-To: linux kernel mail list <linux-kernel@vger.kernel.org>
-Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Greg K-H <greg@kroah.com>
-Subject: [patch] bug fix in usbdevfs
-Message-ID: <20050331005123.GA541@64m.dyndns.org>
+	Wed, 30 Mar 2005 22:59:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21419 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262499AbVCaD7Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 22:59:16 -0500
+Date: Wed, 30 Mar 2005 22:58:59 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: sean <seandarcy2@gmail.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: BK snapshots removed from kernel.org?
+Message-ID: <20050331035859.GA23124@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, sean <seandarcy2@gmail.com>,
+	linux-kernel@vger.kernel.org, jgarzik@pobox.com
+References: <200503271414.33415.nbensa@gmx.net> <20050327210218.GA1236@ip68-4-98-123.oc.oc.cox.net> <200503281226.48146.nbensa@gmx.net> <4248258A.1060604@osdl.org> <d2fr2e$lvo$1@sea.gmane.org> <424B72CC.8030801@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <424B72CC.8030801@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 30, 2005 at 07:47:24PM -0800, Randy.Dunlap wrote:
+ > sean wrote:
+ > >Randy.Dunlap wrote:
+ > >
+ > >>
+ > >>Did you look in
+ > >>http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/old/ ?
+ > >>
+ > >
+ > >Yes I did.
+ > >
+ > >Latest is 2.6.12-rc1-bk2, March 26.
+ > >
+ > >None since then?
+ > 
+ > I can't explain it other than "the snapshots are broken."
+ > All I do is look around for them, and behold, just look in
+ > 
+ > http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
+ > 
+ > for the 2.6.11.6-bk snapshots.
 
-I am sorry that the last patch about 32 bit compat ioctl on
-64 bit kernel actually breaks the usbdevfs. That is on the current
-BK tree. I am retarded. 
+This madness ensues each time Linus pulls GregKH's tree
+into his. The script stops snapshotting against Linus'
+tree, and opts to produce -bk's against GregKH's for
+some bizarre reason.
 
-Here is the patch to fix it. Tested with USB hard disk and webcam
-in both 32bit compatible mode and native 64bit mode.
+		Dave
 
-Again, sorry about that.
-
-Chris
-
-
-Index: linux-2.5/drivers/usb/core/devio.c
-===================================================================
---- linux-2.5.orig/drivers/usb/core/devio.c	2005-03-30 18:19:50.000000000 -0800
-+++ linux-2.5/drivers/usb/core/devio.c	2005-03-30 19:35:31.000000000 -0800
-@@ -1032,15 +1032,15 @@
- 	if (put_user(urb->error_count, &userurb->error_count))
- 		return -EFAULT;
- 
--	if (!(usb_pipeisoc(urb->pipe)))
--		return 0;
--	for (i = 0; i < urb->number_of_packets; i++) {
--		if (put_user(urb->iso_frame_desc[i].actual_length,
--			     &userurb->iso_frame_desc[i].actual_length))
--			return -EFAULT;
--		if (put_user(urb->iso_frame_desc[i].status,
--			     &userurb->iso_frame_desc[i].status))
--			return -EFAULT;
-+	if (usb_pipeisoc(urb->pipe)) {
-+		for (i = 0; i < urb->number_of_packets; i++) {
-+			if (put_user(urb->iso_frame_desc[i].actual_length,
-+				     &userurb->iso_frame_desc[i].actual_length))
-+				return -EFAULT;
-+			if (put_user(urb->iso_frame_desc[i].status,
-+				     &userurb->iso_frame_desc[i].status))
-+				return -EFAULT;
-+		}
- 	}
- 
- 	free_async(as);
-@@ -1126,7 +1126,7 @@
- 	if (get_urb32(&uurb,(struct usbdevfs_urb32 *)arg))
- 		return -EFAULT;
- 
--	return proc_do_submiturb(ps, &uurb, ((struct usbdevfs_urb __user *)arg)->iso_frame_desc, arg);
-+	return proc_do_submiturb(ps, &uurb, ((struct usbdevfs_urb32 __user *)arg)->iso_frame_desc, arg);
- }
- 
- static int processcompl_compat(struct async *as, void __user * __user *arg)
-@@ -1146,15 +1146,15 @@
- 	if (put_user(urb->error_count, &userurb->error_count))
- 		return -EFAULT;
- 
--	if (!(usb_pipeisoc(urb->pipe)))
--		return 0;
--	for (i = 0; i < urb->number_of_packets; i++) {
--		if (put_user(urb->iso_frame_desc[i].actual_length,
--			     &userurb->iso_frame_desc[i].actual_length))
--			return -EFAULT;
--		if (put_user(urb->iso_frame_desc[i].status,
--			     &userurb->iso_frame_desc[i].status))
--			return -EFAULT;
-+	if (usb_pipeisoc(urb->pipe)) {
-+		for (i = 0; i < urb->number_of_packets; i++) {
-+			if (put_user(urb->iso_frame_desc[i].actual_length,
-+				     &userurb->iso_frame_desc[i].actual_length))
-+				return -EFAULT;
-+			if (put_user(urb->iso_frame_desc[i].status,
-+				     &userurb->iso_frame_desc[i].status))
-+				return -EFAULT;
-+		}
- 	}
- 
- 	free_async(as);
-@@ -1177,10 +1177,8 @@
- {
- 	struct async *as;
- 
--	printk("reapurbnblock\n");
- 	if (!(as = async_getcompleted(ps)))
- 		return -EAGAIN;
--	printk("reap got as %p\n", as);
- 	return processcompl_compat(as, (void __user * __user *)arg);
- }
- 

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbRCLK1s>; Mon, 12 Mar 2001 05:27:48 -0500
+	id <S129733AbRCLKq3>; Mon, 12 Mar 2001 05:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129706AbRCLK1i>; Mon, 12 Mar 2001 05:27:38 -0500
-Received: from sun1.udg.es ([130.206.45.89]:24244 "EHLO sun1.udg.es")
-	by vger.kernel.org with ESMTP id <S129679AbRCLK13>;
-	Mon, 12 Mar 2001 05:27:29 -0500
-Date: Mon, 12 Mar 2001 11:26:52 +0000 (WET)
-From: Tania Gomes Ramos <tgomesr@silver.udg.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: problems with snmpd
-Message-ID: <Pine.GSO.4.31.0103121124010.15159-100000@silver.udg.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129740AbRCLKqT>; Mon, 12 Mar 2001 05:46:19 -0500
+Received: from nas11-222.wms.club-internet.fr ([213.44.38.222]:61679 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S129733AbRCLKqJ>;
+	Mon, 12 Mar 2001 05:46:09 -0500
+Message-Id: <200103121043.LAA01204@microsoft.com>
+Subject: Re: Hashing and directories
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <200103121005.f2CA5wg29762@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution (0.9/+cvs.2001.03.06.23.22 - Preview Release)
+Date: 12 Mar 2001 11:43:13 +0100
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le 12 Mar 2001 21:05:58 +1100, Herbert Xu a écrit :
+> Pavel Machek <pavel@suse.cz> wrote:
+> 
+> > xargs is very ugly. I want to rm 12*. Just plain "rm 12*". *Not* "find
+> > . -name "12*" | xargs rm, which has terrible issues with files names
+> 
+> Try
+> 
+> printf "%s\0" 12* | xargs -0 rm
 
-       Hello,
+Or find -print0 ... | xargs -0 ...
 
-   I am having a  big problem: when my kernel is beggining
-my system, it just stops when it is testing the snmpd protocol. Then
-I have to make a manual reset and I cant enter into my SO. What do I have
-to do to solve this problem???
-
-Thanks,
-Tania Ramos
-
-
-
+Xav
 

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130024AbRARAkI>; Wed, 17 Jan 2001 19:40:08 -0500
+	id <S130287AbRARAkJ>; Wed, 17 Jan 2001 19:40:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130287AbRARAj7>; Wed, 17 Jan 2001 19:39:59 -0500
-Received: from [129.94.172.186] ([129.94.172.186]:18671 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130024AbRARAjs>; Wed, 17 Jan 2001 19:39:48 -0500
-Date: Thu, 18 Jan 2001 01:28:13 +1100 (EST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@localhost.localdomain>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrea Arcangeli <andrea@suse.de>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Zlatko Calusic <zlatko@iskon.hr>, <linux-kernel@vger.kernel.org>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.31.0101180126240.31432-100000@localhost.localdomain>
+	id <S131104AbRARAjv>; Wed, 17 Jan 2001 19:39:51 -0500
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:7431 "EHLO
+	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
+	id <S130287AbRARAjf>; Wed, 17 Jan 2001 19:39:35 -0500
+Date: Thu, 18 Jan 2001 00:39:31 +0000 (GMT)
+From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Terrence Martin <tmartin@cal.montage.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: File System Corruption with 2.2.18
+In-Reply-To: <Pine.LNX.4.10.10101171630000.19441-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0101180035080.28099-100000@pine.parrswood.manchester.sch.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Linus Torvalds wrote:
+> > > maybe but why?
+> >
+> > Because it stores no data, hence the wiping out of it is no problem?
+>
+> Well that is useless test them because you can not test things completely.
 
-> I looked at it a year or two ago myself, and came to the
-> conclusion that I don't want to blow up our page table size by a
-> factor of three or more, so I'm not personally interested any
-> more. Maybe somebody else comes up with a better way to do it,
-> or with a really compelling reason to.
+I ment that if the partiton has no persient data on it then the test can
+be run (the test wipes all data on the partition out during the test,
+right?) with no loss of data on the machine. The partition is still on the
+same disk so the test data is valid?
 
-OTOH, it _would_ get rid of all the balancing issues in one
-blow. And it would fix the aliasing issues and possibly the
-memory fragmentation problem too.
+I am thinking that the test is somewhat like badblocks -w or have I got
+the wrong end of the stick?
 
-And using something like Davem's lower-overhead reverse
-mapping layer, we might just be able to pull off all (or most)
-of the advantages with lower overhead ;)
+-- 
+   Tim Fletcher - Network manager   .~.
+                                    /V\      L   I   N   U   X
+     nightshade@solanum.net        // \\  >Don't fear the penguin<
+tim@parrswood.manchester.sch.uk   /(   )\
+ irc: Night-Shade on quakenet      ^^-^^
 
-[this is something I will be looking into for 2.5]
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+"I love the way Microsoft follows standards.  In much the
+same manner that fish follow migrating caribou."
+                                            Paul Tomblin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

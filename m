@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbTKBWKm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 17:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTKBWKm
+	id S261758AbTKBXHT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 18:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTKBXHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 17:10:42 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:519 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261868AbTKBWKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 17:10:41 -0500
-Date: Mon, 3 Nov 2003 09:10:26 +1100
-To: "David S. Miller" <davem@redhat.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [BLOCK] phys_contig implies hw_contig
-Message-ID: <20031102221026.GA9976@gondor.apana.org.au>
-References: <20031101023127.GA14438@gondor.apana.org.au> <20031101204547.1c861c42.davem@redhat.com> <20031102044734.GA2150@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 2 Nov 2003 18:07:19 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:30989 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S261758AbTKBXHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 18:07:18 -0500
+From: Chris Vine <chris@cvine.freeserve.co.uk>
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Date: Sun, 2 Nov 2003 23:06:20 +0000
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031102044734.GA2150@gondor.apana.org.au>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Message-Id: <200311022306.20825.chris@cvine.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 02, 2003 at 03:47:34PM +1100, herbert wrote:
-> On Sat, Nov 01, 2003 at 08:45:47PM -0800, David S. Miller wrote:
+On Friday 31 October 2003 3:57 am, Rik van Riel wrote:
+> On Wed, 29 Oct 2003, Chris Vine wrote:
+> > However, on a low end machine (200MHz Pentium MMX uniprocessor with only
+> > 32MB of RAM and 70MB of swap) I get poor performance once extensive use
+> > is made of the swap space.
 >
-> > Your analysis assumes that phys contig implies hw contig, I
-> > believe it does not.  There may be limitations in the VMERGE
-> > mechanism a platform implements that causes this situation to
-> > arise.
-> 
-> OK, if that's the case, then we better change blk_recount_segments
-> as it assumes this.
+> Could you try the patch Con Kolivas posted on the 25th ?
+>
+> Subject: [PATCH] Autoregulate vm swappiness cleanup
 
-Bug David that can't be right.  If two segments are physically contiguous,
-then they don't need to be remapped to be virtually continguous, right?
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+OK.  I have now done some testing.
+
+The default swappiness in the kernel (without Con's patch) is 60.  This gives 
+hopeless swapping results on a 200MHz Pentium with 32MB of RAM once the 
+amount of memory swapped out exceeds about 15 to 20MB.  A static swappiness 
+of 10 gives results which work under load, with up to 40MB swapped out (I 
+haven't tested beyond that).  Compile times with a test file requiring about 
+35MB of swap and with everything else the same are:
+
+2.4.22 - average of 1 minute 35 seconds
+2.6.0-test9 (swappiness 10) - average of 5 minutes 56 seconds
+
+A swappiness of 5 on the test compile causes the machine to hang in some kind 
+of "won't swap/can't continue without more memory" stand-off, and a 
+swappiness of 20 starts the machine thrashing to the point where I stopped 
+the compile.  A swappiness of 10 would complete anything I threw at it and 
+without excessive thrashing, but more slowly (and using a little more swap 
+space) than 2.4.22.
+
+With Con's dynamic swappiness patch things were worse, rather than better.  
+With no load, the swappiness (now read only) was around 37.  Under load with 
+the test compile, swappiness went up to around 62, thrashing began, and after 
+30 minutes the compile still had not completed, swappiness had reached 70, 
+and I abandoned it.
+
+Chris.
+

@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279937AbRKGKZB>; Wed, 7 Nov 2001 05:25:01 -0500
+	id <S280387AbRKGK2V>; Wed, 7 Nov 2001 05:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280357AbRKGKYv>; Wed, 7 Nov 2001 05:24:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55313 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279937AbRKGKYl>; Wed, 7 Nov 2001 05:24:41 -0500
-Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition
-To: linux@hazard.jcu.cz (Jan Marek)
-Date: Wed, 7 Nov 2001 10:30:39 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <20011107111056.E11351@hazard.jcu.cz> from "Jan Marek" at Nov 07, 2001 11:10:56 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280419AbRKGK2L>; Wed, 7 Nov 2001 05:28:11 -0500
+Received: from fandango.cs.unitn.it ([193.205.199.228]:32773 "EHLO
+	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
+	id <S280387AbRKGK14> convert rfc822-to-8bit; Wed, 7 Nov 2001 05:27:56 -0500
+From: Massimo Dal Zotto <dz@cs.unitn.it>
+Message-Id: <200111071027.LAA24296@fandango.cs.unitn.it>
+Subject: Re: [PATCH] SMM BIOS on Dell i8100
+In-Reply-To: <20011107104405.A3168@emeraude.kwisatz.net> from Stephane Jourdois
+ at "Nov 7, 2001 10:44:05 am"
+To: stephane@tuxfinder.org
+Date: Wed, 7 Nov 2001 11:27:46 +0100 (MET)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E161Pyh-0003hb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 00:09.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
-> 	Subsystem: Compaq Computer Corporation 56k V.90 Modem
-> 	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-> 	Interrupt: pin A routed to IRQ 11
-> 	Region 0: Memory at 40000000 (32-bit, non-prefetchable) [size=256]
-> 	Region 1: I/O ports at 2400 [size=8]
-> 	Region 2: I/O ports at 2000 [size=256]
-> 	Capabilities: [f8] Power Management version 2
-> 		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
-> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Can you disable the winmodem in the BIOS at all. I've seen similar reports
-of audio hangs where the IRQ was shared by a lucent winmodem - no idea
-why since it ought to be passive and minding its own business.
+> Now a fundamental question :
+> Does the load of the i8k module inhibits the fans start ? I can see my
+> processor temp increasing (I saw 80°C ...) without the fans start. Then
+> I started i8kmon to avoid an explosion. If the modules inhibits material
+> protections, then if that can be modified, it would be great ; if not,
+> i8kmon needs to get included in the kernel as a daemon. The i8kmon
+> should be a funny tool, not a system critical tool.
+
+The i8k module itself doesn't interfere with the BIOS fan control.
+It just adds some ioctl to allow fan control from user-space. The
+real problem is that the BIOS fan control is broken, as everybody
+who own an I8K knows very well. If you run i8kmon with the --noauto
+option you will just see the temperature and fan status as managed
+by the BIOS. The i8kmon does the same job as the BIOS but uses lower
+thresholds. The only difference is is that my program works.
+
+> Also, I couldn't understand why sometimes the left fan is printed on red
+> color in i8kmon...
+
+If it becomes red for a short time it may be that the fan is slow at
+turning on. If the button stays red for long time it means that your fan
+is broken or stuck. Try starting it manually with a bent paper clip and
+see if the red disappears. This is explained in the i8kmon manpage.
+
+-- 
+Massimo Dal Zotto
+
++----------------------------------------------------------------------+
+|  Massimo Dal Zotto               email: massimo.dalzotto@libero.it   |
+|  Via Marconi, 141                phone: ++39-461534251               |
+|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
+|  Italy                                  http://www.debian.org/~dz/   |
+|  gpg:   2DB65596  3CED BDC6 4F23 BEDA F489 2445 147F 1AEA 2DB6 5596  |
++----------------------------------------------------------------------+

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbVCQPKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263087AbVCQPQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbVCQPKs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 10:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbVCQPKs
+	id S263087AbVCQPQm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 10:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbVCQPQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 10:10:48 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:28586 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S263088AbVCQPKU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 10:10:20 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Nate Lawson <nate@root.org>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <423518E7.3030300@root.org>
-References: <1110741241.8136.46.camel@tyrosine>  <423518E7.3030300@root.org>
-Date: Thu, 17 Mar 2005 15:10:21 +0000
-Message-Id: <1111072221.8136.171.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [ACPI] IDE failure on ACPI resume
-Content-Type: text/plain
+	Thu, 17 Mar 2005 10:16:42 -0500
+Received: from gandalf.light-speed.de ([82.165.28.152]:50118 "EHLO
+	gandalf.light-speed.de") by vger.kernel.org with ESMTP
+	id S263087AbVCQPQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 10:16:39 -0500
+Message-ID: <42399F54.1010108@light-speed.de>
+Date: Thu, 17 Mar 2005 16:16:36 +0100
+From: Jens Langner <Jens.Langner@light-speed.de>
+User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20050206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11.4 1/1] fs: new filesystem implementation VXEXT1.0 
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-13 at 20:53 -0800, Nate Lawson wrote:
+Hi,
 
-> Sounds like PCI not being completely restored.  We had to work around 
-> some weird ATA issues in FreeBSD with the status register being invalid 
-> for quite a while after resume.  A retry loop was the solution.
+The following URL is link to a large patch for a possible integration of 
+a new filesystem implementation in the misc section of the kernel tree. 
+It features a reverse engineered implementation of the so called 
+VXEXT1.0 DOS filesystem which is commonly used on VxWorks RTOS systems 
+from Wind River Inc., where the "extended DOS filesystem" mode is enabled.
 
-FreeBSD seems to fail in the same way on the same hardware,
-unfortunately. I'm leaning towards suspecting that we need to be doing
-something with the contents of the _GTF method, but by the looks of that
-that requires us to be able to work out which methods correspond to
-which hardware. Is anyone working on implementing this?
+The VXEXT filesystem is more or less a FAT16 based filesystem which was 
+slightly modified by Wind River to allow the storage of more than 2GB 
+data on a partition, as well as storing filenames with a maximum of 40 
+characters length. To achieve that, VxWorks uses a dynamic cluster size 
+calculation which is based on the partition size where clusters can be 
+larger than 32K. In addition, it uses a slightly modified directroy
+entry structure to allow to store filenames larger than 8+3 characters.
 
+Please find the patch file accessible through the following URL:
+http://www.jens-langner.de/vxext_fs/vxext_fs_1_0-linux-2.6.11.4.patch
+
+In addition, refer the detailed technical documentation on my 
+implementation and the root directory of my distribution as well:
+http://www.jens-langner.de/vxext_fs/Documentation/vxext.txt
+http://www.jens-langner.de/vxext_fs/
+
+Please note that large portions of the implementation are based on the 
+already existing FAT16 (msdos) implementation in the kernel tree. 
+However, instead of patching/drilling the original FAT16 implementation, 
+an "outsourced" rework for developing the VEXT implementation was 
+considered.
+
+cheers,
+jens
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+Jens Langner                                         Ph: +49-351-4716545
+Lannerstrasse 1
+01219 Dresden                                Jens.Langner@light-speed.de
+Germany                                      http://www.jens-langner.de/

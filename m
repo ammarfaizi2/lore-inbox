@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287158AbSABXAO>; Wed, 2 Jan 2002 18:00:14 -0500
+	id <S287155AbSABXCY>; Wed, 2 Jan 2002 18:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287155AbSABXAE>; Wed, 2 Jan 2002 18:00:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5903 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287158AbSABW76>; Wed, 2 Jan 2002 17:59:58 -0500
+	id <S287160AbSABXCF>; Wed, 2 Jan 2002 18:02:05 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4228
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S287163AbSABXBw>; Wed, 2 Jan 2002 18:01:52 -0500
+Date: Wed, 2 Jan 2002 17:48:24 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>
+Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: ISA slot detection on PCI systems?
-To: esr@thyrsus.com
-Date: Wed, 2 Jan 2002 23:09:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20020102173419.A21165@thyrsus.com> from "Eric S. Raymond" at Jan 02, 2002 05:34:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20020102174824.A21408@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C338DCC.3020707@free.fr> <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LuW5-0005w3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de>; from davej@suse.de on Wed, Jan 02, 2002 at 11:51:17PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What?  Perhaps we're talking at cross-prorposes here.  What I'm proposing
-> is that /proc/dmi should be a world-readable /proc file with the property
-> that 
-> 	cat /proc/dmi
+Dave Jones <davej@suse.de>:
+> > Just took a quick look at dmidecode.c and auditing this code doesn't
+> > seem out of reach.
 > 
-> gives you a DMI report.  No root privileges or SUID programs needed.
-> Surely that would be an improvement on having to run Arjan's dmidecode as
-> root or requiring it to be SUID.
+> Exactly. And 90% of it can be ditched.
 
-Of course it isnt. cat /proc/dmi executes kernel mode code which is totally
-priviledged. /sbin/dmidecode executes slightly priviledged code which will
-core dump not crash the box if it misparses the mapped table.
+But a setuid program *will not solve my problem*.
 
-Also you might want to restrict or lie about DMI access. It may include serial
-numbers or other info considered private.
+The person running the autoconfigurator is not and should not be doing so 
+as root.  Requiring the person to stop and sun sudo just so the 
+autoconfigurator can proceed is exactly the sort of pointless 
+obstacle we should *not* be putting in front of users!
+
+(Telling me to rely on dmidecode already being installed SUID is not
+a good answer either.  No prizes for figuring out why.)
+
+Ay caramba...please guys, try get your heads out of the internals
+and start thinking from the *useability* angle for once!
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"The power to tax involves the power to destroy;...the power to
+destroy may defeat and render useless the power to create...."
+	-- Chief Justice John Marshall, 1819.

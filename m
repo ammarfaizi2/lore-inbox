@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbULBXxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbULBXzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbULBXxm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 18:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbULBXxm
+	id S261804AbULBXzp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 18:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbULBXzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 18:53:42 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:37562 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261806AbULBXxH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 18:53:07 -0500
-Date: Fri, 3 Dec 2004 00:18:37 +0100
-From: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stefan Schmidt <zaphodb@zaphods.net>, marcelo.tosatti@cyclades.com,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041202231837.GB15185@mail.muni.cz>
-References: <20041113144743.GL20754@zaphods.net> <20041116093311.GD11482@logos.cnet> <20041116170527.GA3525@mail.muni.cz> <20041121014350.GJ4999@zaphods.net> <20041121024226.GK4999@zaphods.net> <20041202195422.GA20771@mail.muni.cz> <20041202122546.59ff814f.akpm@osdl.org> <20041202210348.GD20771@mail.muni.cz> <20041202223146.GA31508@zaphods.net> <20041202145610.49e27b49.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041202145610.49e27b49.akpm@osdl.org>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 2 Dec 2004 18:55:44 -0500
+Received: from vena.lwn.net ([206.168.112.25]:20614 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S261804AbULBXze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 18:55:34 -0500
+Message-ID: <20041202235532.18899.qmail@lwn.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: A new home for LDD2 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Thu, 02 Dec 2004 18:09:17 EST."
+             <41AFA09D.3090702@opersys.com> 
+Date: Thu, 02 Dec 2004 16:55:32 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 02:56:10PM -0800, Andrew Morton wrote:
-> It's quite possible that XFS is performing rather too many GFP_ATOMIC
-> allocations and is depleting the page reserves.  Although increasing
-> /proc/sys/vm/min_free_kbytes should help there.
+[Oops dropped the CC on my original reply]
 
-Btw, how the min_free_kbytes works?
+Karim wrote:
 
-I have up to 1MB TCP windows. If I'm running out of memory then kswapd should
-try to free some memory (or bdflush). But on GE I can receive data faster then
-disk is able to swap or flush buffers. So I should keep min_free big enough to
-give time to disk to flush/swap data?
+> > P.S.  LDD3?  Februaryish.
+> 
+> Very much looking forward to get my hands on one of these.
+> Meanwhile, I was wondering whether it would have similar
+> licensing/availability as LDD2.
 
+Yes, LDD3 will be made available under the Creative Commons
+"Attribution-Sharealike" license:
 
--- 
-Luká¹ Hejtmánek
+	http://creativecommons.org/licenses/by-sa/2.0/
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

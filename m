@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSDUEiO>; Sun, 21 Apr 2002 00:38:14 -0400
+	id <S310224AbSDUEtY>; Sun, 21 Apr 2002 00:49:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310224AbSDUEiN>; Sun, 21 Apr 2002 00:38:13 -0400
-Received: from out020pub.verizon.net ([206.46.170.176]:50430 "EHLO
-	out020.verizon.net") by vger.kernel.org with ESMTP
-	id <S310190AbSDUEiM>; Sun, 21 Apr 2002 00:38:12 -0400
-Date: Sun, 21 Apr 2002 00:40:11 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
+	id <S310258AbSDUEtS>; Sun, 21 Apr 2002 00:49:18 -0400
+Received: from ip68-3-16-134.ph.ph.cox.net ([68.3.16.134]:16587 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S310224AbSDUEtS>;
+	Sun, 21 Apr 2002 00:49:18 -0400
+Message-ID: <3CC244CB.5050900@candelatech.com>
+Date: Sat, 20 Apr 2002 21:49:15 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: spyro@armlinux.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-Message-Id: <20020421043811.BHIC5495.out020.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org>	<Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu>	<20020421053143.4ef9f810.spyro@armlinux.org>	<20020420.212017.22963738.davem@redhat.com> <20020421054253.4803852a.spyro@armlinux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+
+
+Ian Molton wrote:
+
+> what I /do/ appreciate is that by including directions to proprietary tools
+> in the docs, we are heading down a greased incline, so to speak.
 > 
-> As long as "I've got a bunch of patches affecting <area>. Seeing that you've
-> merged stuff touching <area> since the last -pre, resync point would be
-> a Good Thing(tm)" works I couldn't care less about BK vs. diff+mail.  So
-> far it seems to be working fine.
+> Extreme example:
+> 
+> Include docs on 'how to avoid a pesky kernel compile' that teach how to
+> install windows, not linux because its an 'all in one' install with 'no
+> hassle'...
 
-That's only 1 aspect.  The frustrating part is bug reports mailed to the
-list getting a response of "oh, that's fixed in the latest bk tree."
 
-That's happened a dozen times in the last week...no wonder non-bk users
-feel out of the loop.  I've been staring at the code for a lot of years
-and it's finally just starting to make sense to me, now by the time I see
-it the core hackers have moved on to something else.
+Come on, it's not like suddenly all the people who contribute to linux
+are going to become blind and fall down the slippery slope.  Slippery
+slope arguments only work in academic debates, the real world is much too
+complex and robust to be susceptible, especially in the long term.
 
-Daily snapshots would be great.
+There's bugs to fix and features to add.  The day they are not accepted
+because of your patch format, then we can take appropriate action.
+
+Ben
 
 -- 
-Skip
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

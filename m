@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUBWP3p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 10:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUBWP3p
+	id S261927AbUBWPaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 10:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUBWP3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 10:29:45 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12152 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261928AbUBWP1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 10:27:49 -0500
-Date: Mon, 23 Feb 2004 07:27:48 -0800 (PST)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-cc: Ryan Underwood <nemesis@icequake.net>, <224355@bugs.debian.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: microcode, devfs: Wrong interface change in 2.4.25
-In-Reply-To: <403A15E5.6010705@debian.org>
-Message-ID: <Pine.GSO.4.44.0402230725590.8603-100000@south.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 23 Feb 2004 10:29:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57808 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261927AbUBWP1l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 10:27:41 -0500
+Date: Mon, 23 Feb 2004 07:19:36 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Max Payne <"max..payne"@freemail.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 vs. ibm xseries 445 (4 way)
+Message-Id: <20040223071936.7e49a664.rddunlap@osdl.org>
+In-Reply-To: <freemail.20040123144654.89434@fm1.freemail.hu>
+References: <freemail.20040123144654.89434@fm1.freemail.hu>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Giacomo,
+On Mon, 23 Feb 2004 14:46:54 +0100 (CET) Max Payne <"max..payne"@freemail.hu> wrote:
 
-Thank you. Leave it with me and I'll verify what's going on in the
-2.4.25 version thereof and correct it.
+| Hi!
+| 
+| Hardware:
+| 
+| ibm xseries 445, 4 way intel pentium xeon 3GHz, 8GB RAM
+| 
+| with SuSE Linux SLES8 (2.4.19-64GB-SMP kernel) everything is
+| OK, i have 4 CPU (reported by "cat /proc/cpuinfo" and "top") 
+| 
+| with vanilla 2.6.3 i have only one CPU. Yes, SMP kernel. Any
+| idea?
+| 
+| .config attached
 
-Kind regards
-Tigran
+Try changing
+CONFIG_NR_CPUS=32
+to see if that works.
 
-On Mon, 23 Feb 2004, Giacomo A. Catenazzi wrote:
+There have been some issues with CPU number assignments (by
+BIOS) being rather sparse.
 
-> Hello!
->
->  From the 2.4.25, devfs doesn't create anymore the microcode
-> device in /dev/cpu/microcode (as expected from in devices.txt
-> and LANANA) but in /dev/misc/microcode. The /dev/cpu/microcode
-> path is also hardcoded also in microcode_ctl and distributions
-> create only /dev/cpu/microcode.
->
-> So last microcode patch (in 2.4.25) is wrong.
-> You should add again the /dev/cpu/microcode support in devfs, so
-> that the normal and stable interface is maintained (in stable
-> kernel serie)
->
-> ciao
-> 	giacomo
->
->
->
-> Ryan Underwood wrote:
->
-> > On Mon, Feb 23, 2004 at 09:47:58AM +0100, Giacomo A. Catenazzi wrote:
-> >
-> >>>What I meant is that the name "/dev/misc/microcode" must be used instead
-> >>>of "/dev/cpu/microcode", because the microcode driver in 2.4.25 no
-> >>>longer registers with devfs.
-> >>
-> >>I don't undestand.
-> >>Do you say that devfs will register only /dev/misc/microcode ?
-> >
-> >
-> > No, the microcode driver only registers with misc.
-> >
-> >
-> >>So if devfs will register misc/microcode, it is probably
-> >>a kernel bug (interface should not change!) or a problem
-> >>with LANANA (in this case I should change misc microcode
-> >> in drivers, but after an update to 'makedev' package.
-> >
-> >
-> > Examine microcode.c driver diff between 2.4.23 and 2.4.25 in the init
-> > function.  The removed code is obvious.
-> >
->
-
+--
+~Randy

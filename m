@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319068AbSIJHlz>; Tue, 10 Sep 2002 03:41:55 -0400
+	id <S319067AbSIJHlv>; Tue, 10 Sep 2002 03:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319069AbSIJHlz>; Tue, 10 Sep 2002 03:41:55 -0400
-Received: from users.linvision.com ([62.58.92.114]:24726 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S319068AbSIJHlx>; Tue, 10 Sep 2002 03:41:53 -0400
-Date: Tue, 10 Sep 2002 09:46:16 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Zwane Mwaikambo <zwane@mwaikambo.name>,
-       Robert Love <rml@tech9.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-Message-ID: <20020910094616.B21776@bitwizard.nl>
-References: <Pine.LNX.4.44.0209092041300.30411-100000@localhost.localdomain> <Pine.LNX.4.33.0209091151200.14841-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S319068AbSIJHlv>; Tue, 10 Sep 2002 03:41:51 -0400
+Received: from packet.digeo.com ([12.110.80.53]:2788 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319067AbSIJHlu>;
+	Tue, 10 Sep 2002 03:41:50 -0400
+Message-ID: <3D7DA6E0.4F9B3068@digeo.com>
+Date: Tue, 10 Sep 2002 01:01:36 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       Suparna Bhattacharya <suparna@in.ibm.com>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: One more bio for for floppy users in 2.5.33..
+References: <3D77A58F.B35779A1@zip.com.au> <Pine.LNX.4.33.0209051155091.1307-100000@penguin.transmeta.com> <20020910092545.A21776@bitwizard.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0209091151200.14841-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Sep 2002 07:46:27.0975 (UTC) FILETIME=[2B9F9170:01C2589E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 09, 2002 at 11:53:40AM -0700, Linus Torvalds wrote:
+Rogier Wolff wrote:
 > 
-> (Btw, if there is, that would also allow us to notice the "constantly
-> screaming PCI interrupt" without help from the low-level isrs)
+> ...
+> 
+> Ehmm. I'm in the data-recovery business, and we seem to have lost
+> the ability to recover the other 3k of a 4k page if one of the blocks
+> is bad.
+>
+> And we're annoyed about the read-ahead trying to read blocks past
+> a bad block without returning to the application.
+> 
 
-OH! That'd be nice: instead of a lockup if a PCI device's interrupt
-isn't serviced, you get a nice message and a machine that might
-still work!
-
-On the other hand, you have a possibility for disaster if the 
-threshold isn't set right. 
-
-I have written serial drivers where the card will limit the interrupt
-rate to max 100 per second. I then build in a detection: if my IRQ 
-handler gets called more than 10 times in a jiffy, we're in trouble.
-
-Turns out that I left this in "in the field" and some people put the
-serial card on the same interrupt line as a SCSI controller. The
-scsi controller can generate more than 1000 interrupts per second ->
-my driver shuts down.... 
-
-Something similar may happen if say you net-spray a sligtly 
-under-powered machine with a Gigabit ethernet card: The GBE card may
-indeed have a new packet ready by the time the interrupt tries to 
-return. Leads to an interesting DOS: just send a bunch of packets
-in quick succession and the machine drops off the internet... 
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+You can use the raw driver, or O_DIRECT against /dev/hdXX.  That
+will give 512-byte granularity and no readahead.

@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbSIPVKB>; Mon, 16 Sep 2002 17:10:01 -0400
+	id <S263067AbSIPVL3>; Mon, 16 Sep 2002 17:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263067AbSIPVKB>; Mon, 16 Sep 2002 17:10:01 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:21262
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263062AbSIPVKA>; Mon, 16 Sep 2002 17:10:00 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0209161157300.1352-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0209161157300.1352-100000@penguin.transmeta.com>
-Content-Type: text/plain
+	id <S263070AbSIPVL2>; Mon, 16 Sep 2002 17:11:28 -0400
+Received: from smtpout.mac.com ([204.179.120.87]:23546 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S263067AbSIPVL1>;
+	Mon, 16 Sep 2002 17:11:27 -0400
+Date: Mon, 16 Sep 2002 23:16:20 +0200
+Subject: Re: Oops in sched.c on PPro SMP
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+From: Peter Waechtler <pwaechtler@mac.com>
+In-Reply-To: <20020916154446.GI11605@dualathlon.random>
+Message-Id: <8BA3FD1E-C9B9-11D6-8873-00039387C942@mac.com>
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Sep 2002 17:14:56 -0400
-Message-Id: <1032210898.1010.32.camel@phantasy>
-Mime-Version: 1.0
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-16 at 15:01, Linus Torvalds wrote:
+Am Montag den, 16. September 2002, um 17:44, schrieb Andrea Arcangeli:
 
-> Would it not be a lot better to just mask off PREEMPT_ACTIVE() instead of 
-> checking for it explicitly.
-> 
-> The in_interrupt() etc stuff already effectively do this by masking off
-> the HARDIRQ_MASK etc. I would prefer a patch to hardirq.h that just adds a
-> #define to make preempt_count() not contain PREEMPT_ACTIVE - and make the
-> PREEMPT_ACTIVE checks be a totally separate check (logic: it's not a
-> count, so it shouldn't show up in preempt_count())
+> On Mon, Sep 16, 2002 at 03:49:27PM +0100, Alan Cox wrote:
+>> Also does turning off the nmi watchdog junk make the box stable ?
+>
+> good idea, I didn't though about this one since I only heard the nmi to
+> lockup hard boxes after hours of load, never to generate any
+> malfunction, but certainly the nmi handling isn't probably one of the
+> most exercised hardware paths in the cpus, so it's a good idea to
+> reproduce with it turned off (OTOH I guess you probably turned it on
+> explicitly only after you got these troubles, in order to debug them).
+>
 
-I liked this idea, and was working on implementing it when I ran into a
-few roadblocks.  Your ideas are welcome.
+I only turned the nmi watchdog on, on the one "unknown" version Oops.
 
-First, "preempt_count()" is used as an l-value in a lot of places, i.e.
-look at all the "preempt_count() += foo" in the IRQ code.  We cannot
-mask things out of it.
+This box was running fine with 2.4.18-SuSE with uptimes 40+days. _Now_
+I am almost sure, that it's _not_ a hardware problem (FENCE counting
+here as software - since there is a software workaround).
 
-Thus, I then looked into doing a separate function for the raw value,
-say an "atomic_count()" ... the code just looked ugly mixing
-"atomic_count()" and "preempt_count()" for no apparent reason.
+I had 3 lockups in 2 days, when I switched to 2.4.19 - and even lower
+room temperature. No, there _must_ be a bug :)
 
-Third, PREEMPT_ACTIVE actually _is_ part of the count.  It helps assure
-us a task is not preempted repeatedly.  If we did not have it, we would
-have to bump preempt_count on preemption.  So we still need it in the
-preempt_count().
+With the relocation you are right - I thought it would test against 
+NULL :-(
 
-Simplest solution is to:
+I think that the tasklist is broken inbetween - either due to broken
+readlocks (no working EFENCE on PPRO)
 
-	#define in_atomic() \
-		(preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+Can someone explain me the difference for label 1 and 2?
+Why is the "js 2f" there? This I don't understand fully -
+it looks broken to me.
 
-although I still dislike the masking just to make the schedule()
-code-path cleaner.
+include/asm-i386/rwlock.h
 
-Oh, and there is another problem: printk() from schedule() implicitly
-calls wake_up().  My machine dies even with just a printk() and not a
-BUG()... I suspect there may be some SMP issue in that whole mess too,
-because setting oops_in_progress prior did not help.
-
-Comments?
-
-	Robert Love
+#define __build_read_lock_ptr(rw, helper)   \
+     asm volatile(LOCK "subl $1,(%0)\n\t" \
+              "js 2f\n" \
+              "1:\n" \
+              LOCK_SECTION_START("") \
+              "2:\tcall " helper "\n\t" \
+              "jmp 1b\n" \
+              LOCK_SECTION_END \
+              ::"a" (rw) : "memory")
 

@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270483AbTHLROI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 13:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271041AbTHLROI
+	id S270642AbTHLRPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 13:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270816AbTHLRPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 13:14:08 -0400
-Received: from pwmail.portoweb.com.br ([200.248.222.108]:22749 "EHLO
-	portoweb.com.br") by vger.kernel.org with ESMTP id S270483AbTHLROE
+	Tue, 12 Aug 2003 13:15:25 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:42390 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270642AbTHLRPV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 13:14:04 -0400
-Date: Tue, 12 Aug 2003 14:16:20 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: "Gabor Z. Papp" <gzp@papp.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PPPoE Oops with 2.4.22-rc
-In-Reply-To: <5ff3.3f388c4b.4453f@gzp1.gzp.hu>
-Message-ID: <Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Aug 2003 13:15:21 -0400
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: maney@pobox.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephan von Krawczynski <skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44.0308121358100.5995-100000@logos.cnet>
+References: <Pine.LNX.4.44.0308121358100.5995-100000@logos.cnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060708269.21159.54.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Aug 2003 18:11:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 12 Aug 2003, Gabor Z. Papp wrote:
-
-> I'm getting Oopses at reboots while pppoe module loaded.
+On Maw, 2003-08-12 at 17:58, Marcelo Tosatti wrote:
+> Okey so its probably the Promise driver. 
 > 
-> Linux 2.4.22-pre* and -rc*
-> pppd version 2.4.2b3
-> 
-> The ksymoops output attached, more details at
-> http://gzp.odpn.net/tmp/linux-pppoe-oops/
-> 
-> ksymoops 2.4.9 on i686 2.4.22-rc2-gzp1.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.22-rc2-gzp1/ (default)
->      -m /usr/src/linux/System.map (default)
-> 
-> Warning: You did not tell me where to find symbol information.  I will
-> assume that the log matches the kernel and modules that are running
-> right now and I'll use the default options above for symbol resolution.
-> If the current kernel and/or modules do not match the log, you can get
-> more accurate output by telling me the kernel version and where to find
-> map, modules, ksyms etc.  ksymoops -h explains the options.
-> 
-> Oops: 0002
-> CPU:    0
-> EIP:    0010:[<e0ed9bce>]    Tainted: PF
+> Alan, have you ever heard of corruption with the newer Promise driver?
 
-Why is your kernel tainted?
-
-Are you using stock 2.4.22-rc2 or do you have any additional 
-patches/modules running? 
+Other than people who've had promise problems for aeons - no
 

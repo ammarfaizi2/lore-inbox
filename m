@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261781AbTCQQxA>; Mon, 17 Mar 2003 11:53:00 -0500
+	id <S261807AbTCQRAo>; Mon, 17 Mar 2003 12:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261783AbTCQQxA>; Mon, 17 Mar 2003 11:53:00 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:53751 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261781AbTCQQw6>; Mon, 17 Mar 2003 11:52:58 -0500
-Date: Mon, 17 Mar 2003 12:03:44 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: BOEBLINGEN LINUX390 <LINUX390@de.ibm.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [s390x] Patch for execve with a mode switch
-Message-ID: <20030317120344.A10911@devserv.devel.redhat.com>
-References: <OF4DCC5C2B.C044EACC-ONC1256CEC.004CE000@de.ibm.com>
+	id <S261809AbTCQRAo>; Mon, 17 Mar 2003 12:00:44 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:16369 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S261807AbTCQRAn>;
+	Mon, 17 Mar 2003 12:00:43 -0500
+Date: Mon, 17 Mar 2003 18:12:46 +0100
+From: wind-lkml@cocodriloo.com
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: riel@surriel.com, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vm, program load, page faulting, ...
+Message-ID: <20030317171246.GB11526@wind.cocodriloo.com>
+References: <20030317151004.GR20188@holomorphy.com> <Pine.LNX.4.44.0303171100300.2571-100000@chimarrao.boston.redhat.com> <20030317165223.GA11526@wind.cocodriloo.com> <m3hea2gcoz.fsf@lexa.home.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OF4DCC5C2B.C044EACC-ONC1256CEC.004CE000@de.ibm.com>; from LINUX390@de.ibm.com on Mon, Mar 17, 2003 at 04:20:37PM +0100
+In-Reply-To: <m3hea2gcoz.fsf@lexa.home.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: "BOEBLINGEN LINUX390" <LINUX390@de.ibm.com>
-> Date: Mon, 17 Mar 2003 16:20:37 +0100
+On Mon, Mar 17, 2003 at 07:50:04PM +0300, Alex Tomas wrote:
+> >>>>> wind  (w) writes:
+> 
+>  w> On Mon, Mar 17, 2003 at 11:01:31AM -0500, Rik van Riel wrote:
+>  >> On Mon, 17 Mar 2003, William Lee Irwin III wrote:
+>  >> > On Sat, 15 Mar 2003, Paul Albrecht wrote:
+>  >> > >> ... Why does the kernel page fault on text pages, present in
+>  >> the page > >> cache, when a program starts? Couldn't the pte's for
+>  >> text present in the > >> page cache be resolved when they're
+>  >> mapped to memory?
+>  >> > 
+> 
+>  w> You should ask Andrew about his patch to do exactly that: he
+>  w> forced all PROC_EXEC mmaps to be nonlinear-mapped and this forced
+>  w> all programs to suck entire binaries into memory...  I recall he
+>  w> saw at least 25% improvement at launching gnome.
+> 
+> they talked about pages _already present_ in pagecache.
 
-> mm->free_area_cache can't cause any problems on s390x because it isn't
-> used. [...]
-> This patch is severly broken. It wouldn't even compile.
-
-I am sorry, yes, please don't apply to 2.5. It is only needed
-on later 2.4, which use the mm->free_area_cache (our old 2.4.9
-works ok, but 2.4.20 doesn't).
-
-I still think you are making a mistake defininig your own
-arch_get_unmapped_area(), because: 1. sparc64 does it correctly
-with the common code, so it can be done; 2. architecture
-specific duplicates of common code may bitrot. But have it
-your way, I won't resubmit, for the sake of staying aligned
-with upstream.
-
--- Pete
+I wonder if this could be done by walking and faulting
+all pages at fs/binfmt_elf.c::elf_map just after do_mmap...
+will try it just now :)

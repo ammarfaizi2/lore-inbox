@@ -1,44 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264653AbUFGOJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUFGOJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264653AbUFGOJs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 10:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUFGOJs
+	id S264656AbUFGOJp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 10:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUFGOJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 10:09:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51133 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264653AbUFGOFy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 10:05:54 -0400
-Message-ID: <40C47635.4090302@pobox.com>
-Date: Mon, 07 Jun 2004 10:05:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
-       perex@suse.cz, torvalds@osdl.org
-Subject: Re: [RFC] ASLA design, depth of code review and lack thereof
-References: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>	<40C107D2.9030301@pobox.com>	<s5hekor4i2c.wl@alsa2.suse.de>	<40C471FC.3000802@pobox.com> <s5h7juj4gio.wl@alsa2.suse.de>
-In-Reply-To: <s5h7juj4gio.wl@alsa2.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 10:09:45 -0400
+Received: from gprs214-178.eurotel.cz ([160.218.214.178]:896 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264656AbUFGOFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 10:05:23 -0400
+Date: Mon, 7 Jun 2004 16:05:11 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Sebastian Kloska <kloska@scienion.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APM realy sucks on 2.6.x
+Message-ID: <20040607140511.GA1467@elf.ucw.cz>
+References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40C46F7F.7060703@scienion.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
-> They're nice but they don't provide "cast checking", no?
-> The main purpose of the magic_* stuffs in ALSA is to check the cast of
-> the void pointer back to the original data type, which the compiler
-> can't check.
+Hi!
 
-Sure -- and that magic cast stuff is horribly bloated, and not needed in 
-good code.
+> >>I'm really willing  to help the APM developers to track down this bug
+> >>but don't have a clue how to debug this kind stuff.
+> >
+> >
+> >What APM developers? There are none as far as I know.
+> 
+> 
+>   Hmmm ... So once again the Tooth Fairy and Santa Claus :-) ?
+> 
+>   At least a
+> 
+>   grep '<.*@' /usr/src/linux-2.6.6/arch/i386/kernel/apm.c | sed 's/.*<//' | 
+>   sed 's/>.*//'
+> 
+>   gives me:
+> 
+> <snip>
+> Ulrich.Windl@rz.uni-regensburg.de
+...
+> chen@ctpa04.mit.edu
+> </snip>
+> 
+> This is pretty much for no one. And I guess you knew since you're on
+> the list yourself. But I think you're right when meaning
+> that there is not much of active maintenance anymore. Which at
+> least I find a little bit discouraging when looking of the state
+> of the ACPI support.
 
-No other code in Linux does this -- therefore it should be removed.
+Yes, that's pretty much what I meant. ACPI has ~5 people actively
+working on it, some of them probably full-time. That's a lot of
+manpower, compared to APM.
 
-	Jeff
+And ACPI is in pretty good state, btw, unless you want
+suspend-to-RAM. Unfortunately you want suspend-to-RAM.
 
+> >Try removing calls to device_* in apm.c. Better yet become APM
+> >developer.
+> 
+>   It seems like I'm on my way to do so (still reluctantly). As I stated
+>  in my previous mails I'm not born as a hardware/BIOS hacker (more the
+>  application C++/Java stuff) but I'm willing to learn. When I'm
+>  grown up I definitely want to be linux kernel hacker :-) ...
+> 
+>   Currently I ripped down the 2.6.6 kernel to almost nothing
+>  and add one module after the other checking for proper
+>  suspend/resume behavior....
+> 
+>   The most suspicious candidates on my list are currently  the
+>  USB-UHCI driver and the ALSA sound system, which is my #1 candidate
+>  since it has not been an integral part of the 2.4.x (x<=20) kernels.
+> 
+> 
+>  So if anybody out there could give me guidance on how the apm code
+>  might interact with the ALSA sound system it would be highly
+>  appreciated....
 
-
-
+device_suspend() will propagate all the way to alsa.
+								Pavel
+-- 
+934a471f20d6580d5aad759bf0d97ddc

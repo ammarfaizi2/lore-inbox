@@ -1,55 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270464AbRH1Iq7>; Tue, 28 Aug 2001 04:46:59 -0400
+	id <S270467AbRH1I5u>; Tue, 28 Aug 2001 04:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270467AbRH1Iqu>; Tue, 28 Aug 2001 04:46:50 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:4871 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S270464AbRH1Iqk>; Tue, 28 Aug 2001 04:46:40 -0400
-Message-ID: <3B8B5A73.258A3A0E@namesys.com>
-Date: Tue, 28 Aug 2001 12:46:43 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S270469AbRH1I5k>; Tue, 28 Aug 2001 04:57:40 -0400
+Received: from nella-b0-a.infonet.cz ([212.71.188.65]:23304 "EHLO
+	mite.infonet.cz") by vger.kernel.org with ESMTP id <S270467AbRH1I5e>;
+	Tue, 28 Aug 2001 04:57:34 -0400
+Message-ID: <3B8B5D08.3020005@infonet.cz>
+Date: Tue, 28 Aug 2001 10:57:44 +0200
+From: Marian Jancar <marian.jancar@infonet.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.7 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: cs, en-us
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: Dieter N|tzel <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        ReiserFS List <reiserfs-list@namesys.com>,
-        "Gryaznova E." <grev@namesys.botik.ru>
-Subject: Re: [reiserfs-list] Re: [resent PATCH] Re: very slow parallel read 
- performance
-In-Reply-To: <Pine.LNX.4.33.0108280645130.607-100000@mikeg.weiden.de>
-Content-Type: text/plain; charset=koi8-r
+To: linux-kernel@vger.kernel.org
+Subject: spin_lock_bh for 2.2
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> 
-> On Tue, 28 Aug 2001, Dieter N|tzel wrote:
-> 
-> > * readahead do not show dramatic differences
-> > * killall -STOP kupdated DO
-> >
-> > Yes, I know it is dangerous to stop kupdated but my disk show heavy thrashing
-> > (seeks like mad) since 2.4.7ac4. killall -STOP kupdated make it smooth and
-> > fast, again.
-> 
-> Interesting.
-> 
-> A while back, I twiddled the flush logic in buffer.c a little and made
-> kupdated only handle light flushing.. stay out of the way when bdflush
-> is running.  This and some dynamic adjustment of bdflush flushsize and
-> not stopping flushing right _at_ (biggie) the trigger level produced
-> very interesting improvements.  (very marked reduction in system time
-> for heavy IO jobs, and large improvement in file rewrite throughput)
-> 
->         -Mike
+Hi,
 
+Im trying to port orinoco_cs driver to 2.2, using kcompat24 from bttv it is 
+pretty easy except it doesnt contain spin_lock_bh emulation. Could someone 
+give some hints or pointers to information how to do that?
 
-Can you send us the patch, and Elena will run some tests on it?
+Marian Jancar
 
-Hans

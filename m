@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbTAEXHg>; Sun, 5 Jan 2003 18:07:36 -0500
+	id <S265484AbTAEXGY>; Sun, 5 Jan 2003 18:06:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbTAEXHg>; Sun, 5 Jan 2003 18:07:36 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:9988 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265409AbTAEXHe>;
-	Sun, 5 Jan 2003 18:07:34 -0500
-Date: Mon, 6 Jan 2003 00:13:49 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: include order for i2c-amd8111
-Message-ID: <20030105231349.GA8714@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S265506AbTAEXGY>; Sun, 5 Jan 2003 18:06:24 -0500
+Received: from mail.hometree.net ([212.34.181.120]:54935 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265484AbTAEXGX>; Sun, 5 Jan 2003 18:06:23 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Honest does not pay here ...
+Date: Sun, 5 Jan 2003 23:14:58 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <avae9i$gv1$1@forge.intermeta.de>
+References: <200301041809.KAA06893@adam.yggdrasil.com> <avaa2r$ggr$1@forge.intermeta.de> <3E18B76B.8050803@cox.net>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1041808498 28486 212.34.181.4 (5 Jan 2003 23:14:58 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 5 Jan 2003 23:14:58 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+David van Hoose <davidvh@cox.net> writes:
 
-It seems all linux then all asm is prefered order...
-								Pavel
+>Binary-only drivers are great as long as they work. Every such driver I 
+>have used so far has worked perfectly.
+>I have only one problem with NVidia's driver: It refuses to compile 
+>under 2.5.54 which requires me use X's nv driver or use 2.4.21 for KDE.
+>Anyone know how to get around that? :-)
 
---- clean/drivers/i2c/busses/i2c-amd8111.c	2003-01-05 22:58:27.000000000 +0100
-+++ linux-sensors/drivers/i2c/busses/i2c-amd8111.c	2003-01-05 21:13:25.000000000 +0100
-@@ -11,7 +11,6 @@
- #include <linux/version.h>
- #include <linux/module.h>
- #include <linux/pci.h>
--#include <asm/io.h>
- #include <linux/kernel.h>
- #include <linux/stddef.h>
- #include <linux/sched.h>
-@@ -19,6 +18,7 @@
- #include <linux/init.h>
- #include <linux/i2c.h>
- #include <linux/delay.h>
-+#include <asm/io.h>
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR ("Vojtech Pavlik <vojtech@suse.cz>");
+You get what you paid for. Go to the nVidia support forum and complain
+loudly. That's what it is there for. I'd probably say that they tell
+you to stick to the "released versions of Linux". If you consider this
+support policy sucky, well there is the ATI Radeon chip...
+
+	Regards
+		Henning
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

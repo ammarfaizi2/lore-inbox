@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265269AbUAYUqf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 15:46:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUAYUqf
+	id S264903AbUAYVNV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 16:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUAYVNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 15:46:35 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:19168 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265269AbUAYUqd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 15:46:33 -0500
-Date: Sun, 25 Jan 2004 18:36:15 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Joe Schmo <joe619017@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with IDE CF
-In-Reply-To: <20040122185646.93559.qmail@web20723.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58L.0401251834410.1311@logos.cnet>
-References: <20040122185646.93559.qmail@web20723.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Jan 2004 16:13:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9630 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264903AbUAYVNU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 16:13:20 -0500
+Date: Sun, 25 Jan 2004 13:11:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: bunk@fs.tum.de, cova@ferrara.linux.it, eric@cisu.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-Id: <20040125131153.16bb662b.akpm@osdl.org>
+In-Reply-To: <20040125174837.GB16962@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net>
+	<200401251639.56799.cova@ferrara.linux.it>
+	<20040125162122.GJ513@fs.tum.de>
+	<200401251811.27890.cova@ferrara.linux.it>
+	<20040125173048.GL513@fs.tum.de>
+	<20040125174837.GB16962@colin2.muc.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 22 Jan 2004, Joe Schmo wrote:
-
-> Hi,
-> We recently encountered a problem very similar to an
-> old post in majordomo forum. We boot up a linux image
-> written on a RiData 128mb CF card on IDE interface
-> (hda), the kernel dumps these error messages on the
-> screen:
+Andi Kleen <ak@muc.de> wrote:
 >
-> hda: CF-ATA, ATA Disk drive
-> ide: Assuming 33 MHz system bus speed for PIO modes,
-> override with idebus=xx
-> hda: set_drive_speed_status status=0x51 { DriveReady
-> SeekComplete Error }
-> hda: set_drive_speed_status error=0x04 { Drive Status
-> Error }
-> ...
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete
-> Error }
-> hda: dma_intr: error=0x04 { Drive Status Error }
-> ...
-> hda: DMA disabled
-> ...
-> hda: lost interrupt
-> hda: lost interrupt
-> hda: lost interrupt
+> > It seems use-funit-at-a-time breaks with distributions shipping a gcc
+> > 3.3 that supports -funit-at-a-time.
+> 
+> It works for me with the hammer branch gcc 3.3 with -funit-at-a-time.
+> 
+> Are you sure the exception table sorting patch was properly applied?
 
-Turn off DMA. SanDisk's SDCFB are known to have problems with DMA.
+I'd say so.  There are no extable patches in current -mm.
+
+> > Th patch below replaces use-funit-at-a-time.patch and uses 
+> > scripts/gcc-version.sh from add-config-for-mregparm-3-ng* to use 
+> > -funit-at-a-time only with gcc >= 3.4 .
+> 
+> I disagree with that change.
+
+Well there doesn't seem much doubt that -funit-at-a-time causes Fabio's
+kernel to fail.  Do we know exactly which compiler he is using?
+

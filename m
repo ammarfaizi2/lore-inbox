@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263006AbUDEU67 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 16:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUDEU67
+	id S263195AbUDEVEr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 17:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUDEVEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 16:58:59 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9600 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263195AbUDEU6n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 16:58:43 -0400
-Date: Mon, 5 Apr 2004 16:59:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>, bero@arklinux.org,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Catching SIGSEGV with signal() in 2.6
-In-Reply-To: <20040405204028.GA21649@mail.shareable.org>
-Message-ID: <Pine.LNX.4.53.0404051644440.2948@chaos>
-References: <Pine.LNX.4.58.0404050824310.13367@build.arklinux.oregonstate.edu>
- <20040405181707.GA21245@mail.shareable.org> <4071B093.9030601@nortelnetworks.com>
- <20040405204028.GA21649@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Apr 2004 17:04:47 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:31872 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263195AbUDEVD5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:03:57 -0400
+Date: Mon, 5 Apr 2004 23:03:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Cleanup & (partly?) support swsusp for aic7xxx
+Message-ID: <20040405210346.GA3520@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Apr 2004, Jamie Lokier wrote:
+Hi!
 
-> Chris Friesen wrote:
-> > SA_SIGINFO implies sigaction().  The original poster was talking about
-> > signal().
-> >
-> > That said, it seems to work with 2.6.4 on ppc32.
->
-> Just tried it with 2.6.3, x86 and signal().  Works fine.
->
-> -- Jamie
+This kills checks for kernels older than 2.5.60, and marks threads as
+needed for suspend (which they probably are).
 
-Are you using a longjump to get out of the signal handler?
-You may find that you can trap SIGSEGV, but you can't exit
-from it because it will return to the instruction that
-caused the trap!!!
+								Pavel
 
-#include <stdio.h>
-#include <signal.h>
-void handler(int sig) {
-    fprintf(stderr, "Caught %d\n", sig);
-}
-int main() {
-    char *foo = NULL;
-    signal(SIGSEGV, handler);
-    fprintf(stderr, "Send a signal....\n");
-    kill(0, SIGSEGV);
-    fprintf(stderr, "Okay! That worked!\n");
-//    *foo = 0;
-    return 0;
-}
+--- tmp/linux/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-03-11 18:11:12.000000000 +0100
++++ linux/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-04-01 19:01:29.000000000 +0200
+@@ -2581,17 +2581,8 @@
+ 	 * Complete thread creation.
+ 	 */
+ 	lock_kernel();
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,60)
+-	/*
+-	 * Don't care about any signals.
+-	 */
+-	siginitsetinv(&current->blocked, 0);
+-
+-	daemonize();
+-	sprintf(current->comm, "ahd_dv_%d", ahd->unit);
+-#else
+ 	daemonize("ahd_dv_%d", ahd->unit);
+-#endif
++	current->flags |= PF_IOTHREAD;
+ 	unlock_kernel();
+ 
+ 	while (1) {
+--- tmp/linux/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-03-11 18:11:12.000000000 +0100
++++ linux/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-04-01 19:01:08.000000000 +0200
+@@ -2286,17 +2286,8 @@
+ 	 * Complete thread creation.
+ 	 */
+ 	lock_kernel();
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+-	/*
+-	 * Don't care about any signals.
+-	 */
+-	siginitsetinv(&current->blocked, 0);
+-
+-	daemonize();
+-	sprintf(current->comm, "ahc_dv_%d", ahc->unit);
+-#else
+ 	daemonize("ahc_dv_%d", ahc->unit);
+-#endif
++	current->flags |= PF_IOTHREAD;
+ 	unlock_kernel();
+ 
+ 	while (1) {
 
-Just un-comment the null-pointer de-reference and watch!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

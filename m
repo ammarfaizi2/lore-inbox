@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274603AbRIYVg0>; Tue, 25 Sep 2001 17:36:26 -0400
+	id <S274590AbRIYVef>; Tue, 25 Sep 2001 17:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRIYVgQ>; Tue, 25 Sep 2001 17:36:16 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:53520 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S274603AbRIYVgE>; Tue, 25 Sep 2001 17:36:04 -0400
-Message-ID: <3BB0F8DF.21FC75F0@zip.com.au>
-Date: Tue, 25 Sep 2001 14:36:31 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
-X-Accept-Language: en
+	id <S274631AbRIYVeZ>; Tue, 25 Sep 2001 17:34:25 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:13842 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S274603AbRIYVeL>; Tue, 25 Sep 2001 17:34:11 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jim Potter <jrp@wvi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: question from linuxppc group
+Date: Tue, 25 Sep 2001 23:36:19 +0200
+Message-Id: <20010925213619.29454@smtp.adsl.oleane.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-Subject: Re: 2.4.10 still slow compared to 2.4.5pre1
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D549@xfc01.fc.hp.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"DICKENS,CARY (HP-Loveland,ex2)" wrote:
-> 
-> We have run 2.4.10 under a heavy nfs load and kswapd now appears to be under
-> control ( never went above 88.5%cpu and then only for a short time), but the
-> nfs performance is about 45% of what it had been for the 2.4.5pre1 kernel.
-> The response time grows steadily throughout the test until the test goes
-> invalid.
-> 
-> Hardware:
-> 4 processors, 4GB ram
-> 45 fibre channel drives, set up in hardware RAID 0/1
-> 2 direct Gigabit Ethernet connections between SPEC SFS prime client and
-> system under test
-> reiserfs
-> all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes to
-> storage
-> NFS v3 UDP
-> 
-> I can provide top logs if anyone would like to see what is happening at any
-> particular time.  Also, if you would like to see some results from a
-> particular test, please let me know what test it would be.
-> 
+>We have  a host bridge (plus PIC, mem ctlr, etc.) that is essentially
+>identical
+>for ppc and mips.  Where is the best place to put the code since we
+>don't want to
+>duplicate it for both architectures?
 
-With a synchronous NFS export, I'd expect the disk throughput
-to be lowered to such an extent that VM issues were not
-significant in throughput.  But you have been seeing kswapd
-problems so hmmm...
+Well, most of the PCI & interrupt frameworks are mostly arch specific.
+I can't tell for MIPS, but the way you setup a PCI host bridge on PPC
+was written by Paulus and me without looking at MIPS. 
 
-Conceivably this is a networking problem, and not an FS/VM
-problem.  There were significant changes to the softirq
-handling between 2.4.5 and 2.4.10, for example.
+I don't think there is real need to have common code here. Maybe some
+common definitions (register defs for example) could go into a linux/*.h
+file.
 
-Could I suggest that you split these variables apart?  Perform
-some comparative FS/VM testing between the kernels, and then
-some comparative network testing?
+Ben.
 
-Is it possible to run the SFS clients on the same machine,
-over loopback?

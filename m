@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUJ0Pll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbUJ0Pqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUJ0Pll (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 11:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUJ0PhZ
+	id S262477AbUJ0Pqk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 11:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUJ0Pmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 11:37:25 -0400
-Received: from zamok.crans.org ([138.231.136.6]:5099 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S262492AbUJ0PgS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 11:36:18 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, jfannin1@columbus.rr.com, agk@redhat.com,
-       christophe@saout.de, linux-kernel@vger.kernel.org, bzolnier@gmail.com
-Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
-References: <87oeitdogw.fsf@barad-dur.crans.org>
-	<1098731002.14877.3.camel@leto.cs.pocnet.net>
-	<20041026123651.GA2987@zion.rivenstone.net>
-	<20041026135955.GA9937@agk.surrey.redhat.com>
-	<20041026213703.GA6174@rivenstone.net>
-	<20041026151559.041088f1.akpm@osdl.org>
-	<87hdogvku7.fsf@barad-dur.crans.org>
-	<20041026222650.596eddd8.akpm@osdl.org>
-	<20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Wed, 27 Oct 2004 17:36:14 +0200
-In-Reply-To: <20041027064146.GG15910@suse.de> (Jens Axboe's message of "Wed,
-	27 Oct 2004 08:41:46 +0200")
-Message-ID: <877jpcgolt.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Wed, 27 Oct 2004 11:42:54 -0400
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:33959 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S262494AbUJ0Pkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 11:40:36 -0400
+Date: Wed, 27 Oct 2004 17:39:50 +0200 (CEST)
+From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+X-X-Sender: gc1007@fb07-2go.math.uni-giessen.de
+To: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
+Cc: Andi Kleen <ak@muc.de>, Andrew Walrond <andrew@walrond.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: solution Re: lost memory on a 4GB amd64
+In-Reply-To: <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
+Message-Id: <Pine.LNX.4.58.0410271718050.10573@fb07-2go.math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+ <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
+ <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
+ <Pine.LNX.4.58.0410231220400.17491@fb07-2go.math.uni-giessen.de>
+ <20041023164902.GB52982@muc.de> <Pine.LNX.4.58.0410241133400.17491@fb07-2go.math.uni-giessen.de>
+ <Pine.LNX.4.58.0410271704050.3903@pluto.physik.uni-wuerzburg.de>
+Organization: University of Giessen * Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> disait dernièrement que :
+On Wed, 27 Oct 2004, Andreas Klein (AK) wrote:
+
+AK> Hello,
+AK> 
+AK> the problem has been verified by Tyan. It is definately a hardware issue.
+AK> The Tyan and AMD engineers are developing a solution (BIOS) for the 
+AK> problem.
+AK> They will fix the problem for the S2885, as weel as for the S2875 boards.
+
+Are you sure this is the same problem, that I have? You discovered
+Problems with memtest86:
+
+> Memtest sees 0-2GB mem usable and 4-6GB unusable (complains 
+> about each memory address).
+
+I didn't:
+
+> memtest86 is happy with the memory.
+
+The next difference: 
+You have the S2885 (thunder K8W) and S2875S (tiger K8W single processor) 
+boards and I have a S2875 (tiger K8W double processor)
 
 
-> This feels pretty icky, but should suffice for testing. Does it make a
-> difference?
->
-> --- /opt/kernel/linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:29:51.866931262 +0200
-> +++ linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:41:20.292172299 +0200
-> @@ -987,8 +987,8 @@
->  	isize = i_size_read(inode);
->  	if (bytes_todo > (isize - offset))
->  		bytes_todo = isize - offset;
-> -	if (!bytes_todo)
-> -		return 0;
-> +	if (bytes_todo < PAGE_SIZE)
-> +		bytes_todo = PAGE_SIZE;
->  
->  	for (seg = 0; seg < nr_segs && bytes_todo; seg++) {
->  		user_addr = (unsigned long)iov[seg].iov_base;
+I summarize (again) my problems:
 
-As 2.6.10-rc1-mm1 failed (as expected), I tried tour fix applied upon
-2.6.10-rc1-mm1. This did not make any difference.
-The only workaround for now is backing out dio-handle-eof-fix.patch and
-dio-handle-eof.patch
-I am willing to test anything you could send :)
+Independantly of the memory settings in the BIOS:
+ - non-SMP Kernel is stable
+ - memtest86 does not report any errors
 
-Best regards,
+If the memory (4GB) is set up in one block (0-4GB) in the BIOS, then
+ - SMP Kernel is stable 
 
-Mathieu
+If the memory (4GB) is set up in two blocks (eg. 0-3GB, 4-5GB) in the
+BIOS, then
+ - SMP Kernel is stable _if_and_only_if_ NUMA is _disabled_.
 
+
+BTW.: I won't be able to flash a new BIOS to our machine, since it is in 
+production use and runs _rock_stable_ with _full_memory_ after we
+_disabled_ NUMA support in the kernel. (see the two small programs posted 
+by me and by Andi Kleen)
+
+What I COULD do is running some tests if needed. (e.g. to check if the 
+Board/BIOS is lying about its capabilities)
+
+
+        Sergei
 -- 
-panic("esp_handle: current_SC == penguin within interrupt!");
-        linux-2.2.16/drivers/scsi/esp.c
-
+--------------------------------------------------------------------  -?)
+         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
+-------------------------------------------------------------------- _\_V
+Be careful of reading health books, you might die of a misprint.
+                -- Mark Twain

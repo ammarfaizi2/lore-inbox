@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbUKRIR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbUKRITD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262663AbUKRIR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 03:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbUKRIR0
+	id S262199AbUKRITD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 03:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUKRITC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 03:17:26 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:27285 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S261868AbUKRIRV (ORCPT
+	Thu, 18 Nov 2004 03:19:02 -0500
+Received: from colino.net ([213.41.131.56]:42995 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262199AbUKRISA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 03:17:21 -0500
-To: pavel@ucw.cz
-CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <20041117204424.GC11439@elf.ucw.cz> (message from Pavel Machek on
-	Wed, 17 Nov 2004 21:44:24 +0100)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu> <20041117204424.GC11439@elf.ucw.cz>
-Message-Id: <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 18 Nov 2004 09:17:13 +0100
+	Thu, 18 Nov 2004 03:18:00 -0500
+Date: Thu, 18 Nov 2004 09:17:31 +0100
+From: Colin Leroy <colin.lkml@colino.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotplug_path no longer exported
+Message-ID: <20041118091731.44590d84.colin.lkml@colino.net>
+In-Reply-To: <20041117222340.GA4494@kroah.com>
+References: <20041117203139.7c9f5e95.colin@colino.net>
+	<20041117214824.GA1291@kroah.com>
+	<20041117231253.1ec92e6f.colin@colino.net>
+	<20041117222340.GA4494@kroah.com>
+X-Mailer: Sylpheed-Claws 0.9.12cvs151.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know I've asked before... but how is the "fuse-userspace-part
-> swapped out and memory full of dirty data on fuse" deadlock solved?
+On 17 Nov 2004 at 14h11, Greg KH wrote:
 
-By either
+Hi, 
 
-  1) not allowing share writable mappings 
+> > Dunno. This driver has a reputation of being the worse wlan driver for
+> > prism2 chipsets out there, but it's the only one supporting USB devices.
+> 
+> Hm, I've heard that rumor before too.  If only someone would get me such
+> a usb device, maybe that problem could be fixed :)
 
-  2) doing non-blocking asynchronous writepage
+What's your address ? :)
 
-In the first case there will never be dirty data, since normal writes
-go synchronously through the page cache.
+> Anyway, the proper fix is to use kobject_hotplug().  They will have to
+> change their code.  Just one of the many joys of trying to keep a driver
+> outside of the main kernel tree...
 
-In the second case there is no deadlock, because the memory subsystem
-doesn't wait for data to be written.  If the filesystem refuses to
-write back data in a timely manner, memory will get full and OOM
-killer will go to work.  Deadlock simply cannot happen.
+I also just noticed they do their hotplug stuff in p80211.c, which knows 
+nothing of USB. What a hack :-/
 
-Miklos
+-- 
+Colin

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263451AbTGATJo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 15:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTGATJo
+	id S262336AbTGATJB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTGATJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 15:09:44 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:7553 "EHLO gatekeeper.slim")
-	by vger.kernel.org with ESMTP id S263451AbTGATJi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 15:09:38 -0400
-Subject: ICH5 SATA causes high interrupt/system load?
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
+	Tue, 1 Jul 2003 15:09:01 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20115
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262336AbTGATI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:08:59 -0400
+Subject: Re: [Execve race condition] Patch ??
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Breno <brenosp@brasilsec.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <000501c33fff$b82a5be0$19dfa7c8@bsb.virtua.com.br>
+References: <000501c33fff$b82a5be0$19dfa7c8@bsb.virtua.com.br>
 Content-Type: text/plain
-Message-Id: <1057087443.3373.4.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
-Date: 01 Jul 2003 21:24:04 +0200
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057087229.18956.32.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Jul 2003 20:20:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Maw, 2003-07-01 at 19:36, Breno wrote:
+> There is a patch ?
 
-After reading about problems with ICH5 SATA (Intel 875P) I've
-set my BIOS back to normal mode for the SATA controller. So now the SATA
-drive appears as hdc instead of hde.
-
-The SATA drive was working in both situations (enhanced/normal) the only
-difference is that with normal mode there no high system load caused by
-the SATA controller (As I reported in a previous mail).
-
-What's causing the high interrupt count in 'enhanced' mode?
-
-Nb I have seen this on both 2.4.21 and 2.5.73.
-
-Cheers,
-
-Jurgen
+2.4.21-ac4 has a test patch. I don't know if Linus or anyone has tackled
+the bug in 2.5 yet however
 

@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136353AbRDWDCC>; Sun, 22 Apr 2001 23:02:02 -0400
+	id <S136354AbRDWDAM>; Sun, 22 Apr 2001 23:00:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136355AbRDWDBw>; Sun, 22 Apr 2001 23:01:52 -0400
-Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:42508 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S136353AbRDWDBk>; Sun, 22 Apr 2001 23:01:40 -0400
-Message-ID: <3AE39B0D.9BA4413F@damncats.org>
-Date: Sun, 22 Apr 2001 23:01:33 -0400
-From: John Cavan <johnc@damncats.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac11 i686)
+	id <S136353AbRDWDAC>; Sun, 22 Apr 2001 23:00:02 -0400
+Received: from gear.torque.net ([204.138.244.1]:10509 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S136351AbRDWC7u>;
+	Sun, 22 Apr 2001 22:59:50 -0400
+Message-ID: <3AE39A86.8AB3FB30@torque.net>
+Date: Sun, 22 Apr 2001 22:59:18 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac11 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Manuel McLure <manuel@mclure.org>
-CC: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
-In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> <200104222138.XAA00666@kufel.dom> <20010422192520.A3618@ulthar.internal.mclure.org>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: MO drives (2048 byte block vfat fs) in lk 2.4
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manuel McLure wrote:
-> Did you try nesting more than one "su -"? The first one after a boot works
-> for me - every other one fails.
+The "MO" bug (also 2048 byte block vfat problem) has been
+reported several times in the lk 2.4 series. Since the
+finger was being pointed at the SCSI subsystem I decided
+to investigate. As far as I can see the sd driver offers
+the same physical block (other than 512 byte) capabilities
+in lk 2.4 as it did in lk 2.2 .
 
-I tried it with about a half-dozen nested and no problem. Mandrake
-cooker here...
+One error report stated that a MO drive with a vfat
+fs based on 2048 byte sectors can be mounted and read
+but any significant write causes a system lockup. I
+have been able to replicate this behaviour. Luckily
+Alt-SysRq-P did work. Pressing this sequence multiple
+times gave similar addresses. Rebooting the machine
+and rerunning the experiment multiple time gave 
+addresses in the same area.
 
-uname -a
-Linux lion 2.4.3-ac11 #5 SMP Fri Apr 20 22:10:41 EDT 2001 i686 unknown
+The EIP resolved most often to cont_prepare_write() in
+fs/buffer. A disassembly suggests line 1802 in buffer.c
+[2.4.3ac11]. That is around a memset() between
+__block_prepare_write() and __block_commit_write() calls
+within the while loop. Most other addresses were within
+the same while loop. Perhaps someone with expertize
+in this area may like to examine that loop.
 
-gcc --version 
-2.96
 
-ls -l /lib/libc-*
--rwxr-xr-x    1 root     root      1216268 Feb 21 05:38
-/lib/libc-2.2.2.so
+Details: I modified the "scsi_debug" adapter driver to look
+like it had one 2048 byte block MO drive connected to it.
+The driver uses 8 MB of RAM to simulate a storage device.
+[For anyone who wants to run similar experiments, I have
+placed the driver at www.torque.net/sg/p/scsi_debug_mo.tgz ].
+The sequence of commands that lead up to the failure was:
+ $ modprobe scsi_debug
+ $ cat /proc/scsi/scsi        # "optical" device should be there
+ $ fdisk -ul /dev/sdb         # should see 3 partitions
+ $ mkdosfs -S 2048 /dev/sdb3
+ $ mount /dev/sdb3 /mnt/extra
+ $ cd /mnt/extra
+ $ touch t                    # worked ok
+ $ cp /boot/vml-2.2.18 u      # system locks up
 
-su --version
-su (GNU sh-utils) 2.0
-
-I don't think libc is the problem, unless it is in conjunction with the
-compiler choice. Have you tried building the kernel with the updated Red
-Hat gcc version? I know Mandrake has kept theirs current to Red Hat and
-it works fine for me.
-
-John
+Doug Gilbert

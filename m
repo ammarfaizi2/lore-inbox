@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263700AbUCUS66 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 13:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbUCUS66
+	id S261181AbUCUTGU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 14:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbUCUTGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 13:58:58 -0500
-Received: from main.gmane.org ([80.91.224.249]:5573 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263700AbUCUS65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 13:58:57 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 21 Mar 2004 14:06:20 -0500
+Received: from calvin.stupendous.org ([213.84.70.4]:59408 "HELO
+	quadpro.stupendous.org") by vger.kernel.org with SMTP
+	id S261181AbUCUTGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 14:06:19 -0500
+Date: Sun, 21 Mar 2004 20:06:17 +0100
+From: Jurjen Oskam <jurjen@stupendous.org>
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
-Date: Sun, 21 Mar 2004 19:58:46 +0100
-Message-ID: <yw1xsmg2f2mx.fsf@kth.se>
-References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com>
- <405CFC85.70004@backtobasicsmgmt.com> <405DD9E2.4030308@pobox.com>
- <405DE18B.7090505@gmx.net>
+Subject: Re: ACPI Shutdown 2.6.3
+Message-ID: <20040321190617.GA5650@quadpro.stupendous.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <405DADAC.9010601@dolda2000.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-2480.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:bNBN45q3LkXGVQkDDM45/3vwCKs=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <405DADAC.9010601@dolda2000.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net> writes:
+On Sun, Mar 21, 2004 at 09:58:52AM -0500, Bruce Park wrote:
 
-> IIRC, even a RAID-5 dm target is on its way to mainline and it was called
-> something like "the last step to obsolete md". So the userspace approach
-> seems the way to go.
+> I'm experiencing a problem with ACPI and it's ability to shutdown the 
+> machine. I'm currently using Debian GNU/Linux with the 2.6.3 kernel. Before 
 
-RAID6 was recently added to md.  Hmm...
+If you boot with the "nolapic" option, does the machine poweroff correctly
+then?
+
+(This is the case on my Thinkpad T41 - 2.6.x doesn't powerdown unless I
+boot with "nolapic")
 
 -- 
-Måns Rullgård
-mru@kth.se
+Jurjen Oskam
 
+"Avoid putting a paging file on a fault-tolerant drive, such as a mirrored
+volume or a RAID-5 volume. Paging files do not need fault-tolerance." - 308417

@@ -1,87 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268985AbUIMV4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268989AbUIMV53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268985AbUIMV4z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUIMV4z
+	id S268989AbUIMV53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268992AbUIMV53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:56:55 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19612 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268985AbUIMV4v (ORCPT
+	Mon, 13 Sep 2004 17:57:29 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:39449 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268989AbUIMV5W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:56:51 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc1-mm5 bug in tcp_recvmsg?
-Date: Mon, 13 Sep 2004 14:56:31 -0700
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040913015003.5406abae.akpm@osdl.org>
-In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 13 Sep 2004 17:57:22 -0400
+Message-ID: <a728f9f9040913145764a82a02@mail.gmail.com>
+Date: Mon, 13 Sep 2004 17:57:13 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: David Bronaugh <dbronaugh@linuxboxen.org>
+Subject: Re: radeon-pre-2
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4146062B.8040603@linuxboxen.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409131456.31265.jbarnes@engr.sgi.com>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <1094912726.21157.52.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409122319550.20080@skynet>
+	 <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
+	 <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com>
+	 <1095036743.22137.48.camel@admin.tel.thor.asgaard.local>
+	 <Pine.LNX.4.61.0409131047060.4885@node2.an-vo.com>
+	 <Pine.LNX.4.58.0409130803340.2378@ppc970.osdl.org>
+	 <a728f9f9040913122160dd0134@mail.gmail.com>
+	 <4146062B.8040603@linuxboxen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shortly after the backtrace I've already posted, I got one panic that looked 
-like this:
+On Mon, 13 Sep 2004 13:42:19 -0700, David Bronaugh
+<dbronaugh@linuxboxen.org> wrote:
+> Alex Deucher wrote:
+> 
+> >How would any of these plans handle power management and ACPI events?
+> >I'd like to be able to suspect my laptop with the DRI enabled, or have
+> >the DDX (or whatever) handle acpi lid and button events or put the
+> >chip into various power modes.
+> >
+> >Alex
+> >
+> >
+> Since I've been doing a little bit of ACPI hacking (and gained a bit of
+> understanding of it), I think I should probably speak on this one.
+> 
+> With the current ACPI infrastructure, you don't have the DDX or whatever
+> catching ACPI events -- acpid catches ACPI events, and does appropriate
+> things via scripts. So lid and button events can do things, but -- X
+> doesn't handle them. Scripts called by acpid do.
+> 
+> As to putting chips into various power modes -- wouldn't this be better
+> off in kernel, not in X? My impression is that this wouldn't be a large
+> amount of code. It could also abstract away some details of chip power
+> management -- it could (potentially) not matter if it's done via ACPI or
+> via a custom bit of code for a chip. And it could expose a file in sysfs
+> to adjust power settings for the graphics chip. Then the system that
+> exists for handling ACPI events can happily keep being how it is.
+> 
+> Yu, Luming has been doing a lot of work in the area of a generic ACPI
+> "video features" driver -- such a driver could do such things as change
+> which heads are enabled, set backlight power, and generally muck with
+> graphics state. I suspect some possible nasty interaction could happen,
+> since ACPI could affect graphics state in some pretty hairy ways. It
+> might be a good idea to get in contact with him before the user emails
+> show up...
 
-Warning: kfree_skb on hard IRQ a0000001006443d0
-Unable to handle kernel paging request at virtual address 600000000001e8e0
-Warning: kfree_skb on hard IRQ a0000001006443d0
-Unable to handle kernel paging request at virtual address 600000000001e8e0
-sshd[8790]: Oops 8804682956800 [1]
-Modules linked in:
+It seems to be that this kind of necessitates some sort of kernel mode
+driver to handle everything (albeit perhaps with lots of userspace
+libs).  I can't see how a generic video acpi driver would play nice
+with a userspace X, fbdev, and whever else my be using the hardware. 
+It's not that I don't like the idea of letting everyone play I just
+want to use my hardware to its fully functionality wihtout a million
+kludges everywhere.  OTOH, maybe it'll all just work.  I'm not too
+familiar with the ins and outs of ACPI and what's need on the chip
+side vs. generic vs. machine specific.  Stuff like enabling outputs
+and changine power states is chip specific though and it would need to
+play nice.
 
-Pid: 8790, CPU 1, comm:                 sshd
-psr : 0000101308526030 ifs : 80000028b0815428 ip  : [<2000000000573670>]    
-Not tainted
-ip is at 0x2000000000573670
-unat: 0000000000000000 pfs : c000000000000288 rsc : 000000000000000f
-rnat: 0000000000000000 bsps: 60000fff7fffc418 pr  : 000000000001a529
-ldrs: 0000000002100000 ccv : 0000000000000000 fpsr: 0009804c8a74433f
-csd : 0000000000000000 ssd : 0000000000000000
-b0  : 4000000000042010 b6  : 2000000000573520 b7  : 0000000000000000
-f6  : 000000000000000000000 f7  : 000000000000000000000
-f8  : 000000000000000000000 f9  : 000000000000000000000
-f10 : 000000000000000000000 f11 : 000000000000000000000
-r1  : 2000000000684200 r2  : c000000000000288 r3  : 0000000000000001
-r8  : 600000000001e8e0 r9  : 0000000000000000 r10 : 0000000000000000
-r11 : 60000fffffffafa0 r12 : 60000fffffff7020 r13 : 20000000007392e0
-r14 : 0000000000000000 r15 : 0000000000000006 r16 : 0000000005a6a5a9
-r17 : 0000000000000000 r18 : 600000000001e8f0 r19 : 600000000001e8e0
-r20 : 60000fffffff7040 r21 : 60000fffffff7050 r22 : 0000000000000010
-r23 : 60000fff7fffc418 r24 : 0000000000000000 r25 : 0000000000000000
-r26 : c00000000000038a r27 : 000000000000000f r28 : 2000000000617e20
-r29 : 00001213085a6010 r30 : 60000fffffff7244 r31 : 600000000001eaf4
-r32 : 0000000000000002 r33 : 0000000000000000 r34 : 200000000009ae00
-r35 : 6000000000024b28 r36 : 6000000000024c10 r37 : 2000000000086610
-r38 : c000000000000288 r39 : 6000000000024b20 r40 : 0000000000000002
-r41 : 600000000001dcd0 r42 : 200000000009ae00 r43 : 0000000000000001
-r44 : 0000000000000000 r45 : 0000000000000000 r46 : 0000000000000006
-r47 : 0000000000000000 r48 : 2000000000083060 r49 : c00000000000048e
-r50 : 6000000000024b20 r51 : 0000000000000002 r52 : 6000000000027db0
-r53 : 6000000000024c38 r54 : 0000000000000002 r55 : 0000000000000000
-r56 : 2000000000a647c0 r57 : 0000000000000000 r58 : 60000000000349d0
-r59 : 2000000000a540d8 r60 : 60000fffffffaff8 r61 : 0000000000000000
-r62 : 6000000000024b70 r63 : 2000000000082d90 r64 : c00000000000058f
-r65 : 0000000005a5a969 r66 : 6000000000027e60 r67 : 0000000000000002
-r68 : 0000000000000002 r69 : 0000000000000000 r70 : 200000000009ae00
-r71 : 6000000000027e68
-Kernel panic - not syncing: Aiee, killing interrupt handler!
-Rebooting in 5 seconds..
+Alex
 
-The ip above is in sshd presumably, and the warning message corresponds to 
-somewhere in tcp_recvmsg:
-
-a0000001006434e0 T tcp_recvmsg
-a000000100644760 t tcp_close_state
-
-Is this a known problem?
-
-Thanks,
-Jesse
-
+> 
+> David Bronaugh
+> 
+> ps: I kinda trimmed the CC: list on this
+>

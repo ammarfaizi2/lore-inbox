@@ -1,74 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266748AbUHIQ6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266743AbUHIQ6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266748AbUHIQ6g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUHIQ6g
+	id S266743AbUHIQ6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUHIQ6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:58:36 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:40111 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S266749AbUHIQ4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:56:54 -0400
-Date: Mon, 9 Aug 2004 09:56:50 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Greg Weeks <greg.weeks@timesys.com>
-Cc: Dan Malek <dan@embeddededge.com>, Kumar Gala <kumar.gala@freescale.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [BUG] PPC math-emu multiply problem
-Message-ID: <20040809165650.GA22109@smtp.west.cox.net>
-References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com> <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com> <410A5F08.90103@timesys.com> <410A67EA.80705@timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Aug 2004 12:58:30 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:46732 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S266743AbUHIQzJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 12:55:09 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Albert Cahalan <albert@users.sf.net>, Greg KH <greg@kroah.com>
+Subject: Re: dynamic /dev security hole?
+Date: Mon, 9 Aug 2004 18:54:24 +0200
+User-Agent: KMail/1.6.2
+References: <20040808162115.GA7597@kroah.com> <200408091530.55244.mbuesch@freenet.de> <1092057570.5761.215.camel@cube>
+In-Reply-To: <1092057570.5761.215.camel@cube>
+Cc: Eric Lammerts <eric@lammerts.org>, Marc Ballarin <Ballarin.Marc@gmx.de>,
+       albert@users.sourceforge.net,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <410A67EA.80705@timesys.com>
-User-Agent: Mutt/1.5.6+20040803i
+Message-Id: <200408091854.27019.mbuesch@freenet.de>
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 11:23:22AM -0400, Greg Weeks wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Greg Weeks wrote:
-> 
-> >Dan Malek wrote:
-> >
-> >>
-> >>On Jul 29, 2004, at 10:06 AM, Kumar Gala wrote:
-> >>
-> >>>
-> >>>On Jul 29, 2004, at 8:14 AM, Greg Weeks wrote:
-> >>>
-> >>>>I'm seeing what appears to be a bug in the ppc kernel trap math
-> >>>>emulator. An extreme case for multiplies isn't working the way gcc
-> >>>>soft-float or hardware floating point is.
-> >>>
-> >>>
-> >>
-> >>I'm not surprised.  I lifted this code from Sparc, glibc, and adapted
-> >>it as best I could for PPC years ago for the 8xx.  I was happy when
-> >>it appeared to work for the general cases. :-)
-> >>
-> >>Due to its overhead, I never expected it to be _the_ solution for
-> >>processors that don't have floating point hardware.  Recompiling
-> >>the libraries with soft-float and using that option when compiling
-> >>is the way to go.
-> >
-> >
-> >OK, this patch fixes my multiply problem with the LSB test. I still 
-> >need to test to make sure I didn't break anything else, but it appears 
-> >the rounding is only used when converting back to IEEE format. Is 
-> >there some reason this is something really dumb to do?
-> >
-> When I actually built a kernel rather than just my test code the 
-> FP_ROUNDMODE is picked up from the linux/math-emu/soft-fp.h. I don't 
-> want to change the common definition unless I'm sure this is the correct 
-> solution.
-> 
-> Signed-off-by: Greg Weeks <greg.weeks@timesys.com> under TS0087
+Quoting Albert Cahalan <albert@users.sf.net>:
+> Pretty much, but you must change ownership first to
+> keep the user from changing the mode back. There are
+> ways for an evildoer to win this race if you don't
+> change the ownership first.
+>
+> Now all we need is revoke() and we're all set.
+> Ordering: chown, chmod, revoke, unlink
+>
+> BTW, I'm make revoke() just force re-verification
+> of file access.
 
-Has anyone had a problem with this?  If not, I'll go and pass it
-along...
+So what about this updated patch?
+I'm running latest udev with klibc and my patch.
+It seems to work. At least with my USB stick. :)
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Greg? Any comments?
+
+
+===== udev-remove.c 1.31 vs edited =====
+- --- 1.31/udev-remove.c	2004-04-01 04:12:56 +02:00
++++ edited/udev-remove.c	2004-08-09 18:42:08 +02:00
+@@ -65,6 +65,41 @@
+ 	return 0;
+ }
+
++/** Remove all permissions on the device node, before
++  * unlinking it. This fixes a security issue.
++  * If the user created a hard-link to the device node,
++  * he can't use it any longer, because he lost permission
++  * to do so.
++  */
++static int secure_unlink(const char *filename)
++{
++	int retval;
++
++	retval = chown(filename, 0, 0);
++	if (retval) {
++		dbg("chown(%s, 0, 0) failed with error '%s'",
++		    filename, strerror(errno));
++		/* We continue nevertheless.
++		 * I think it's very unlikely for chown
++		 * to fail here, if the file exists.
++		 */
++	}
++	retval = chmod(filename, 0000);
++	if (retval) {
++		dbg("chmod(%s, 0000) failed with error '%s'",
++		    filename, strerror(errno));
++		/* We continue nevertheless. */
++	}
++	retval = unlink(filename);
++	if (errno == ENOENT)
++		retval = 0;
++	if (retval) {
++		dbg("unlink(%s) failed with error '%s'",
++			filename, strerror(errno));
++	}
++	return retval;
++}
++
+ static int delete_node(struct udevice *dev)
+ {
+ 	char filename[NAME_SIZE];
+@@ -79,14 +114,9 @@
+ 	strfieldcat(filename, dev->name);
+
+ 	info("removing device node '%s'", filename);
+- -	retval = unlink(filename);
+- -	if (errno == ENOENT)
+- -		retval = 0;
+- -	if (retval) {
+- -		dbg("unlink(%s) failed with error '%s'",
+- -			filename, strerror(errno));
++	retval = secure_unlink(filename);
++	if (retval)
+ 		return retval;
+- -	}
+
+ 	/* remove partition nodes */
+ 	if (dev->partitions > 0) {
+@@ -94,7 +124,7 @@
+ 		for (i = 1; i <= dev->partitions; i++) {
+ 			strfieldcpy(partitionname, filename);
+ 			strintcat(partitionname, i);
+- -			unlink(partitionname);
++			secure_unlink(partitionname);
+ 		}
+ 	}
+
+@@ -108,14 +138,9 @@
+ 		strfieldcat(filename, linkname);
+
+ 		dbg("unlinking symlink '%s'", filename);
+- -		retval = unlink(filename);
+- -		if (errno == ENOENT)
+- -			retval = 0;
+- -		if (retval) {
+- -			dbg("unlink(%s) failed with error '%s'",
+- -				filename, strerror(errno));
++		retval = secure_unlink(filename);
++		if (retval)
+ 			return retval;
+- -		}
+ 		if (strchr(dev->symlink, '/')) {
+ 			delete_path(filename);
+ 		}
+
+- --
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBF6xAFGK1OIvVOP4RArfvAJwNf/CnIZTnEvUSNu3N4WI3tkqBOwCfe4B8
+sM+KFpEX2PuDKsqcjTO9pV8=
+=rd9Y
+-----END PGP SIGNATURE-----

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbUK2KuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbUK2K62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbUK2KuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 05:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbUK2Kta
+	id S261665AbUK2K62 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 05:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUK2K4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 05:49:30 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:24483 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261658AbUK2Kpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 05:45:44 -0500
-Date: Mon, 29 Nov 2004 19:47:18 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: [ANNOUNCE 6/7] Diskdump 1.0 Release
-In-reply-to: <3AC4D5FF1413D5indou.takao@soft.fujitsu.com>
-To: linux-kernel@vger.kernel.org, lkdump-develop@lists.sourceforge.net
-Message-id: <40C4D600CC314Dindou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.71
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <3AC4D5FF1413D5indou.takao@soft.fujitsu.com>
+	Mon, 29 Nov 2004 05:56:31 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:19640
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261666AbUK2K4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 05:56:08 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: ncunningham@linuxmail.org
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+Date: Mon, 29 Nov 2004 04:55:09 -0500
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101300589.5805.392.camel@desktop.cunninghams>
+In-Reply-To: <1101300589.5805.392.camel@desktop.cunninghams>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411290455.10318.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch for sym53c8xx driver.
+On Wednesday 24 November 2004 08:02 am, Nigel Cunningham wrote:
+> A plugin for verifying the consistency of an image. Working with kdb, it
+> can look up the locations of variations. There will always be some
+> variations shown, simply because we're touching memory before we get
+> here and as we check the image.
 
+A while back I suggested checking the last mount time of the mounted local 
+filesystems as a quick and dirty sanity check between loading the image and 
+unfreezing all the processes.  (Since a read-only mount shouldn't touch this, 
+triggering swsusp resume from userspace after prodding various hardware 
+shouldn't cause a major problem either...)  Does that sound like a good idea?
 
-diff -Nur linux-2.6.9.org/drivers/scsi/sym53c8xx_2/sym_glue.c linux-2.6.9/drivers/scsi/sym53c8xx_2/sym_glue.c
---- linux-2.6.9.org/drivers/scsi/sym53c8xx_2/sym_glue.c	2004-10-19 06:55:36.000000000 +0900
-+++ linux-2.6.9/drivers/scsi/sym53c8xx_2/sym_glue.c	2004-11-24 19:24:09.903045793 +0900
-@@ -956,6 +956,28 @@
- 	return sym_eh_handler(SYM_EH_HOST_RESET, "HOST RESET", cmd);
- }
- 
-+#if defined(CONFIG_SCSI_DUMP) || defined(CONFIG_SCSI_DUMP_MODULE)
-+static int sym53c8xx_sanity_check_handler(struct scsi_device *sd)
-+{
-+	struct sym_hcb *np = ((struct host_data *)sd->host->hostdata)->ncb;
-+
-+	if (np == NULL)
-+		return -ENXIO;
-+
-+	del_timer(&np->s.timer);
-+	add_timer_on(&np->s.timer, smp_processor_id());
-+
-+	return 0;
-+}
-+
-+static void sym53c8xx_poll_handler(struct scsi_device *sd)
-+{
-+	struct sym_hcb *np = ((struct host_data *)sd->host->hostdata)->ncb;
-+
-+	sym_interrupt(np);
-+}
-+#endif
-+
- /*
-  *  Tune device queuing depth, according to various limits.
-  */
-@@ -2231,6 +2253,10 @@
- 	.eh_device_reset_handler = sym53c8xx_eh_device_reset_handler,
- 	.eh_bus_reset_handler	= sym53c8xx_eh_bus_reset_handler,
- 	.eh_host_reset_handler	= sym53c8xx_eh_host_reset_handler,
-+#if defined(CONFIG_SCSI_DUMP) || defined(CONFIG_SCSI_DUMP_MODULE)
-+	.dump_sanity_check	= sym53c8xx_sanity_check_handler,
-+	.dump_poll		= sym53c8xx_poll_handler,
-+#endif
- 	.this_id		= 7,
- 	.use_clustering		= DISABLE_CLUSTERING,
- #ifdef SYM_LINUX_PROC_INFO_SUPPORT
+Haven't had time to look into it myself, though.  (Just recently got time 
+enough to bang on busybox again.  Somewhere around 2.6.7, software suspend 
+stopped working for me and I haven't even had a chance to track _that_ down 
+yet.  Hopefully fixed in 2.6.9 or 2.6.10, I haven't played with it 
+recently...)
+
+Rob

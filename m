@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbUL0LtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbUL0L7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUL0LtA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 06:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbUL0Ls7
+	id S261876AbUL0L7v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 06:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUL0L7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 06:48:59 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:47785 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261879AbUL0Lss convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 06:48:48 -0500
-Date: Mon, 27 Dec 2004 13:49:21 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: discuss@x86-64.org, Chris Wedgwood <cw@f00f.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, pavel@suse.cz, gordon.jin@intel.com
-Subject: Re: [discuss] Re: unregister_ioctl32_conversion and modules. ioct l32 revisited.
-Message-ID: <20041227114921.GD9233@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <200412262349.24856.arnd@arndb.de>
+	Mon, 27 Dec 2004 06:59:51 -0500
+Received: from h80ad24f8.async.vt.edu ([128.173.36.248]:57497 "EHLO
+	h80ad24f8.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261876AbUL0L7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 06:59:49 -0500
+Message-Id: <200412271159.iBRBxbZD021538@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Alexander Prokoshev <ap@insysnet.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 and time drift 
+In-Reply-To: Your message of "Mon, 27 Dec 2004 14:28:25 +0300."
+             <41CFF1D9.6030104@insysnet.ru> 
+From: Valdis.Kletnieks@vt.edu
+References: <41CFF1D9.6030104@insysnet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <200412262349.24856.arnd@arndb.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1019532240P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Dec 2004 06:59:37 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Arnd Bergmann (arnd@arndb.de) "Re: [discuss] Re: unregister_ioctl32_conversion and modules. ioct l32 revisited.":
-> On Sünndag 26 Dezember 2004 23:26, Chris Wedgwood wrote:
-> > > It's an internal error code as Arnd pointed out.
-> > 
-> > can we be sure this will never escape to userspace?  i can think of
-> > somewhere else we already do this (EFSCORRUPTED) and it does (somewhat
-> > deliberately escape to userspace) and this causes confusion from time
-> > to time when applications see 'errno == 990'
-> 
-> It's safe for the compat ioctl case. If someone wants to use the
-> same function for the compat and native handler, it would be a bug
-> to return -ENOIOCTLCMD from that handler with the current code.
-> 
-> To work around this, we could either convert -ENOIOCTLCMD to -EINVAL
-> when returning from sys_ioctl().
+--==_Exmh_1019532240P
+Content-Type: text/plain; charset=us-ascii
 
-That would be -ENOTTY, I think.
+On Mon, 27 Dec 2004 14:28:25 +0300, Alexander Prokoshev said:
 
-> Or we could WARN_ON(err ==
-> -ENOIOCTLCMD)
-> for the native path in order to make the intention clear.
-> 
->  Arnd <><
+>   after installation of 2.6.10 kernel I've noticed time drift, which
+> (according to ntpdc's dmpeer command) is about 10-15 seconds per hour.
+> Downgrade to 2.6.9 solves this problem. I can send any additional
+> information which may be helpful.
+
+For starters, the output of 'uname -a', the architecture/hardware you're
+running on, and if your dmesg has any hints about which time source it's
+using. On my Dell laptop, I see:
+
+Dec 26 19:11:22 turing-police kernel: PID hash table entries: 1024 (order: 10, 16384 bytes)
+Dec 26 19:11:22 turing-police kernel: Detected 1595.344 MHz processor.
+Dec 26 19:11:22 turing-police kernel: Using pmtmr for high-res timesource
+Dec 26 19:11:22 turing-police kernel: Console: colour dummy device 80x25
+Dec 26 19:11:22 turing-police kernel: Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
+Dec 26 19:11:22 turing-police kernel: Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
+
+Most x86 systems should have a similar note of the timesource right
+around that point of the dmesg.
+
+--==_Exmh_1019532240P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBz/kocC3lWbTT17ARAqvgAKCXEEUCDcFsPd8iDYuZ8Nwpt1lSZACghIRl
+n/i87aaFopjGyr/jHWleyG0=
+=SShO
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1019532240P--

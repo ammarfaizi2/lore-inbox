@@ -1,99 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263846AbUDFOvP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 10:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbUDFOvP
+	id S263851AbUDFOxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 10:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbUDFOxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 10:51:15 -0400
-Received: from m244.net81-65-141.noos.fr ([81.65.141.244]:49069 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263846AbUDFOvF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 10:51:05 -0400
-Date: Tue, 6 Apr 2004 16:51:02 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: kgdb-bugreport@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>, ganzinger@mvista.com
-Subject: Re: [Kgdb-bugreport] [KGDB] Make kgdb get in sync with it's I/O drivers for the breakpoint
-Message-ID: <20040406145102.GQ2718@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Tom Rini <trini@kernel.crashing.org>,
-	kgdb-bugreport@lists.sourceforge.net,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"Amit S. Kale" <amitkale@emsyssoft.com>, ganzinger@mvista.com
-References: <20040405233058.GV31152@smtp.west.cox.net>
+	Tue, 6 Apr 2004 10:53:34 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:5032 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263851AbUDFOx1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 10:53:27 -0400
+Date: Tue, 6 Apr 2004 20:23:48 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rusty@au1.ibm.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
+Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
+Message-ID: <20040406145348.GA8516@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040405121824.GA8497@in.ibm.com> <20040406072543.GA21626@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040405233058.GV31152@smtp.west.cox.net>
+In-Reply-To: <20040406072543.GA21626@elte.hu>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 04:30:58PM -0700, Tom Rini wrote:
+On Tue, Apr 06, 2004 at 09:25:43AM +0200, Ingo Molnar wrote:
+> the question is, how much actual latency does the current 'freeze
+> everything' solution cause?   We should prefer simplicity and debuggability 
+> over cleverness of implementation - it's not like we'll have hotplug systems 
+> on everyone's desk in the next year or so.
+> 
+> also, even assuming a hotplug CPU system, CPU replacement events are not
+> that common, so the performance of the CPU-down op should not be a big
+> issue. The function depends on the # of tasks only linearly, and we have
+> tons of other code that is linear on the # of tasks - in fact we just
+> finished removing all the quadratic functions.
 
-> Hello.  The following interdiff, vs current kgdb-2 CVS makes kgdb core
-> and I/O drivers get in sync in order to cause a breakpoint.  This kills
-> off the init/main.c change, and makes way for doing things much earlier,
-> if other support exists. 
+Ingo,
+	I obtained some latency measurements of migrate_all_tasks() on 
+a 4-way 1.2 GHz Power4 PPC64 (p630) box. They are as below:
 
-And it works perfectly for me too (with the pcmcia net card, debug
-started by sysrq+g).
+Number of Tasks		Cycles (get_cycles) spent in migrate_all_tasks (ms)
+===========================================================================
 
-There are however a couple of cleanups and a compile fix attached.
-
-> What would be left, tangentally, is some sort
-> of queue to register with, so we can handle the case of KGDBOE on a
-> pcmcia card.  George? Amit? Comments ?
-
-Maybe this could be done in a more kgdb-independent way in the
-netpoll layer. There is already some code there who waits for
-the carrier on a net card. Maybe this could be extended to also
-wait for the network card to appear...
-
-Stelian.
+     10536 			803244 (5.3 ms)
+     30072  			2587940 (17 ms)
 
 
---- drivers/serial/kgdb_8250.c.ORIG	2004-04-06 12:44:01.000000000 +0200
-+++ drivers/serial/kgdb_8250.c	2004-04-06 12:50:13.000000000 +0200
-@@ -63,6 +63,9 @@
- static atomic_t kgdb8250_buf_in_cnt;
- static int kgdb8250_buf_out_inx;
- 
-+/* forward decl */
-+struct kgdb_serial kgdb8250_serial_driver;
-+
- /* Determine serial information. */
- static struct serial_state state = {
- 	.magic = SSTATE_MAGIC,
-@@ -131,7 +134,7 @@
- /*
-  * Wait until the interface can accept a char, then write it.
-  */
--void
-+static void
- kgdb_put_debug_char(int chr)
- {
- 	while (!(serial_inb(kgdb8250_port + (UART_LSR << reg_shift)) &
-@@ -170,7 +173,7 @@
-  * Empty the receive buffer first, then look at the interface hardware.
-  */
- 
--int
-+static int
- kgdb_get_debug_char(void)
- {
- 	int retchr;
-@@ -393,7 +396,7 @@
- }
- module_init(kgdb8250_hookup_irq);
- 
--int
-+static int
- kgdb_hook_io(void)
- {
- 	/* If we've already been initialized, return. */
+	Extending this to 100000 tasks makes the stoppage time to be for
+8 million cycles (~50 ms).
+
+	My main concern of stopping the machine for so much time
+was not performance, rather the effect it may have on functioning of the 
+system.  The fact that we freeze the machine for (possibly) tons of 
+cycles doing nothing but migration made me uncomfortable.  _and_ the fact that 
+it can very well be avoided :)
+
+Can we rule out any side effects because of this stoppage? Watchdog timers, 
+cluster heartbeats, jiffies, ..?  Not sure ..
+
+It just felt much more "safe" and efficient to delegate migration to more 
+safer time in CPU_DEAD notification, when rest of the machine is running.
+Plus this avoids the cpu_is_offline check in the more hotter path 
+(load_balance/try_to_wake_up)!!
+
+
 -- 
-Stelian Pop <stelian@popies.net>
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

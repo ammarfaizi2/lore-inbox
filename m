@@ -1,73 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277359AbRJELvL>; Fri, 5 Oct 2001 07:51:11 -0400
+	id <S277361AbRJEL6M>; Fri, 5 Oct 2001 07:58:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277362AbRJELvA>; Fri, 5 Oct 2001 07:51:00 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:22592 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S277359AbRJELus>; Fri, 5 Oct 2001 07:50:48 -0400
-Date: Fri, 5 Oct 2001 12:51:16 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: User-level USB device drivers, and permissions
-Message-ID: <20011005125116.K7197@redhat.com>
+	id <S277364AbRJEL6B>; Fri, 5 Oct 2001 07:58:01 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:4877 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S277362AbRJEL5w>;
+	Fri, 5 Oct 2001 07:57:52 -0400
+Date: Fri, 5 Oct 2001 13:58:20 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Problem compiling aic7xxx_old.c in 2.4.11-pre4
+Message-Id: <20011005135820.0ba7d93e.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="5mZBmBd1ZkdwT1ny"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Still the same:
 
---5mZBmBd1ZkdwT1ny
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.11-pre4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=i686    -c -o aic7xxx_old.o aic7xxx_old.c
+aic7xxx_old.c:11966: parse error before string constant
+aic7xxx_old.c:11966: warning: type defaults to `int' in declaration of
+`MODULE_LICENSE'
+aic7xxx_old.c:11966: warning: function declaration isn't a prototype
+aic7xxx_old.c:11966: warning: data definition has no type or storage class
+make[3]: *** [aic7xxx_old.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.11-pre4/drivers/scsi'
 
-I have a question regarding user-level USB device drivers.  The
-project I'm thinking about is gphoto2.  I'm posting it here because at
-least part of the solution lies in usbdevfs I think.
-
-The problem is this:
-
-How can a user-level USB device driver do its job while running as a
-non-root 'console' user, with minimal (preferrably no) intervention
-from the sysadmin?
-
-By 'console' user, I am talking about the users that pam_console will
-recognise as being on the console.
-
-The closest solution at the moment seems to be: mount /proc/bus/usb
-group-writable and group-owned by 'usb', and add users that can use
-USB devices to group 'usb'.  This has the following problems:
-
-- sysadmin needs to add any potential console users to the 'usb' group
-  first,
-- those users are then in the usb group even when not at the console.
-
-An idea in my head is to have a pam module that, for console users,
-mounts -tusbdevfs none /somewhere/usb-bus/$LOGNAME with user ownership
-on login and dismounts it on logout, but I don't know if that is
-feasible.
-
-Does anyone know if this problem has already been solved, or else can
-they think of a solution?
-
-Thanks,
-Tim.
-*/
-
---5mZBmBd1ZkdwT1ny
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7vZ60yaXy9qA00+cRAst4AJ9zyT6dpvRtN59zlpWXa6nGqCjmAACghSu6
-stYJO0k1PL+BXgH5y0poSQU=
-=8Ieh
------END PGP SIGNATURE-----
-
---5mZBmBd1ZkdwT1ny--
+Regards,
+Stephan

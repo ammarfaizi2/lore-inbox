@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315547AbSGANLm>; Mon, 1 Jul 2002 09:11:42 -0400
+	id <S315528AbSGANTl>; Mon, 1 Jul 2002 09:19:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315593AbSGANLl>; Mon, 1 Jul 2002 09:11:41 -0400
-Received: from unthought.net ([212.97.129.24]:21471 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S315547AbSGANLl>;
-	Mon, 1 Jul 2002 09:11:41 -0400
-Date: Mon, 1 Jul 2002 15:14:07 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Subject: NFS-root NFS mouting problem
-Message-ID: <20020701131407.GA19843@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	id <S315529AbSGANTk>; Mon, 1 Jul 2002 09:19:40 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59918 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S315528AbSGANTj>; Mon, 1 Jul 2002 09:19:39 -0400
+Message-Id: <200207011316.g61DGxT18808@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: willy tarreau <wtarreau@yahoo.fr>, Willy TARREAU <willy@w.ods.org>,
+       willy@meta-x.org, linux-kernel@vger.kernel.org,
+       Ronald.Wahl@informatik.tu-chemnitz.de
+Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
+Date: Mon, 1 Jul 2002 16:16:44 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020701130327.38962.qmail@web20506.mail.yahoo.com>
+In-Reply-To: <20020701130327.38962.qmail@web20506.mail.yahoo.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 1 July 2002 11:03, willy tarreau wrote:
+> Hello Denis,
+>
+> > This code is performance critical.
+> > With this in mind,
+>
+> Yes and no. In fact, I first wanted to code some
+> parts in assembler because GCC is sub-optimal
+> on bit-fields calculations. But then, I realized that
+> I could save, say 10 cycles, while the trap costs
+> about 400 cycles.
 
-Hi,
-
-I'm trying to net-boot a system (root NFS) here, but I run into trouble
-mounting NFS filesystems *after* the root filesystem has been mounted
-(over NFS).
-
-Both server and client are 2.4.18 on i686 - everything works great if I
-boot from a disk and mount the home filesystem via. NFS.
-
-Booting the client via. pxelinux, the following happens:
-*) Kernel loads, gets IP, ...
-*) / is mounted (rw) via NFS
-*) Init-scripts start running, brings up eth0, lo, portmapper, syslog,
-NFS locking services, all is ok...
-*) Init-scripts attempt to mount the home filesystem from the server,
-just like it would if booting from the disk. This fails with the
-following errors:
---------------------------
-Mounting NFS filesystems:  exec: Stale NFS handle
-mount: Stale NFS handle
-exec: Stale NFS handle
-
-touch: creating '/var/lock/subsys/netfs': Stale NFS handle
-
-Mounting other filesystems:  exec: Stale NFS handle
-dup2: Bad file descriptor
-exec: Stale NFS handle
---------------------------
-
-I tried net-booting to single-user mode, which works perfectly well.
-Then, mounting *any* NFS filesystem will lock the system with stale NFS
-handles again.
-
-The *really* interesting thing is, that after one such failed attempt, I
-must re-start the NFS *server*, otherwise the client gets a "Root-NFS
-server returned error -13 while mounting /netboot/falcon"...  But I
-suppose this problem will go away with the first one.
-
-Anything I can try ?   Any ideas ?  Need more information ?
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Can you code up a "dummy" emulator (which just ignores
+any invalid opcode by doing eip+=3) and compare trap times
+of your emulator and dummy one for, say, CMOVC AL,AL?
+(with carry flag cleared)
+--
+vda

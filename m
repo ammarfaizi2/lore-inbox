@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbTENM6e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 08:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTENM6Z
+	id S262090AbTENNGx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTENNGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 08:58:25 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:7342 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S262174AbTENM6E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 08:58:04 -0400
-Subject: Re: 2.6 must-fix list, v2
-From: Steven Cole <elenstev@mesatop.com>
-To: "Shaheed R. Haque" <srhaque@iee.org>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1052912961.3ec22d4114bd0@netmail.pipex.net>
-References: <1050146434.3e97f68300fff@netmail.pipex.net>
-	 <1050177383.3e986f67b7f68@netmail.pipex.net>
-	 <1050177751.2291.468.camel@localhost>
-	 <1050222609.3e992011e4f54@netmail.pipex.net>
-	 <1050244136.733.3.camel@localhost>
-	 <1052826556.3ec0dbbc1d993@netmail.pipex.net>
-	 <20030513130257.78ab1a2e.akpm@digeo.com>
-	 <1052865981.3ec175bd59bc9@netmail.pipex.net>
-	 <1052880133.21270.131.camel@spc>
-	 <1052912961.3ec22d4114bd0@netmail.pipex.net>
-Content-Type: text/plain; charset=iso-8859-7
-Organization: 
-Message-Id: <1052917722.8088.67.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 14 May 2003 07:08:43 -0600
-Content-Transfer-Encoding: 8bit
+	Wed, 14 May 2003 09:06:52 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:61361 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262090AbTENNGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:06:51 -0400
+Message-ID: <3EC2426D.9060606@myrealbox.com>
+Date: Wed, 14 May 2003 06:19:41 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.4a) Gecko/20030415
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pau Aliagas <linuxnow@newtral.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: cannot boot 2.5.69
+References: <fa.jcpkvvc.1h32u9k@ifi.uio.no>
+In-Reply-To: <fa.jcpkvvc.1h32u9k@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-05-14 at 05:49, Shaheed R. Haque wrote:
-> Quoting Steven Cole <elenstev@mesatop.com>:
+Pau Aliagas wrote:
+> I still find no way to boot a 2.5.69 kernel.
+> It reports: "no console found, specify init= option"
+> But the console is specified and the messages appear till this point:
 > 
-> > Is this related or not to processor shielding used by RedHawk Linux?
-> > Here is a link to their page:
-> > 
-> > http://www.ccur.com/realtime/sys_rdhwklnx.html
-> > 
-> > I saw a presentation by these guys over a year ago.  I'm not sure what
-> > they're up to now.
-> 
-> Yes, if I correctly read the description of this feature, it seems to be the 
-> same thing.
-> 
-Thanks, that is what I suspected.
+> This is the relevant part of my config:
 
-There seemed to be quite a bit of interest in this from the other
-customers, although our facility doesn't presently need this
-functionality.  In the spirit of the "squeaky wheel", I'll squeak softly
-for them.  
 
->From the above web page, thus quoth the RedHawk:
+I have CONFIG_VT=y at this spot in 'character devices'.
 
-"In tightly-coupled symmetric multiprocessing systems such as
-Concurrent¢s iHawk real-time systems, RedHawk Linux allows individual
-CPUs to be shielded from interrupt processing, daemons, bottom halves,
-and other Linux tasks. Processor shielding provides a highly
-deterministic execution environment where interrupt response is
-guaranteed. RedHawk implements shielding via the industry-accepted
-shield(1) command."
-
-Steven
+> CONFIG_VT_CONSOLE=y
+> CONFIG_HW_CONSOLE=y
+> # CONFIG_LP_CONSOLE is not set
+> CONFIG_VGA_CONSOLE=y
+> # CONFIG_MDA_CONSOLE is not set
+> CONFIG_DUMMY_CONSOLE=y
 

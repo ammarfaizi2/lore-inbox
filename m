@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281586AbRKMKeH>; Tue, 13 Nov 2001 05:34:07 -0500
+	id <S281576AbRKMKaI>; Tue, 13 Nov 2001 05:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281587AbRKMKd5>; Tue, 13 Nov 2001 05:33:57 -0500
-Received: from sunfish.linuxis.net ([64.71.162.66]:18338 "HELO
-	sunfish.linuxis.net") by vger.kernel.org with SMTP
-	id <S281586AbRKMKdr>; Tue, 13 Nov 2001 05:33:47 -0500
-From: "Adam McKenna" <adam-dated-1006079431.a988a6@flounder.net>
-Date: Tue, 13 Nov 2001 02:30:29 -0800
+	id <S281583AbRKMK35>; Tue, 13 Nov 2001 05:29:57 -0500
+Received: from mail128.mail.bellsouth.net ([205.152.58.88]:1751 "EHLO
+	imf28bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281578AbRKMK3o>; Tue, 13 Nov 2001 05:29:44 -0500
+Message-ID: <3BF0F603.925167E3@mandrakesoft.com>
+Date: Tue, 13 Nov 2001 05:29:23 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DMA problem (?) w/ 2.4.6-xfs and ServerWorks OSB4 Chipset
-Message-ID: <20011113023029.A15075@flounder.net>
-In-Reply-To: <20011112234604.C29675@flounder.net> <E163aDx-0000aQ-00@the-village.bc.nu>
-Mime-Version: 1.0
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPLONLY kernel symbols???
+In-Reply-To: <E163aNp-0000cm-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E163aDx-0000aQ-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.21i
-Mail-Copies-To: never
-X-Delivery-Agent: TMDA v0.32/Python 2.1.1 (sunos5)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 13, 2001 at 09:51:21AM +0000, Alan Cox wrote:
-> > I ask because I'm still having major problems with the OSB4 chipset on
-> > 2.4.14.  I've had to disable DMA completely on my boxes to avoid IDE errors
-> > and fs corruption.  Does anyone know of a patch that addresses the issues
-> > with this chipset?
+Alan Cox wrote:
 > 
-> No. I spent some time digging into this problem with both Serverworks and
-> Red Hat customers. With certain disks, certain OSB4 revisions and UDMA 
-> the controller occasionally gets "stuck", the next DMA it issues starts
-> by reissuing the last 4 bytes of the previous request and the entire thing
-> goes totally to crap.
+> > If and when I step down as maintainer (if I do so, I'll publically
+> > pass the baton to the new maintainer), the new maintainer can indent
+> > to their preference. Until that time, *I'm* the maintainer, and *I*
+> > need to be able to read the code efficiently. It's the part of the
+> > kernel I spend the most time in, after all.
 > 
-> The -ac tree will detect this case and panic and hang the machine solid to
-> avoid actual disk corruption. The real fix appears to be "dont do UDMA on
-> the OSB4". The CSB5 seems fine.
+> I wasnt aware mtrr.c had an active maintainer.
 
-I am having problems with both UDMA and Multiword DMA.  The problem doesn't
-go away unless I disable CONFIG_IDEDMA_PCI_AUTO.
+According to changelog nothing substantive since March 1999.
 
-I don't know if there is actual FS corruption with MWord DMA, but there is
-definitely a "hang" for a few seconds accompanied by a DMA error.
 
---Adam
+> > "He who writes the code gets to choose".
+> 
+> How about he who has to decipher the whole mess to add things...
+
+At least one person actually Lindent's mtrr.c, modifies, tests, and then
+backports changes into un-Lindent'd mtrr.c.  Ug.
+
+	Jeff
+
 
 -- 
-Adam McKenna <adam@flounder.net>   | GPG: 17A4 11F7 5E7E C2E7 08AA
-http://flounder.net/publickey.html |      38B0 05D0 8BF7 2C6D 110A
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281864AbRKSAZn>; Sun, 18 Nov 2001 19:25:43 -0500
+	id <S281591AbRKSApJ>; Sun, 18 Nov 2001 19:45:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281861AbRKSAZd>; Sun, 18 Nov 2001 19:25:33 -0500
-Received: from gedeon.silesia.pik-net.pl ([213.186.64.2]:27653 "EHLO
-	gedeon.silesia.pik-net.pl") by vger.kernel.org with ESMTP
-	id <S281866AbRKSAZT>; Sun, 18 Nov 2001 19:25:19 -0500
-Date: Mon, 19 Nov 2001 01:25:16 +0100
-From: Grzegorz Paszka <Grzegor@Paszka.com>
-To: linux-kernel@vger.kernel.org
-Subject: 1.5 GB memory problem with 2.4.x
-Message-ID: <20011119012515.A27753@pik-net.pl>
+	id <S281861AbRKSApA>; Sun, 18 Nov 2001 19:45:00 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:517 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S281591AbRKSAoq>;
+	Sun, 18 Nov 2001 19:44:46 -0500
+Message-Id: <5.1.0.14.0.20011119113205.01eb7dc0@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 19 Nov 2001 11:44:42 +1100
+To: <linux-kernel@vger.kernel.org>
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+Cc: John Jasen <jjasen1@umbc.edu>, Anders Peter Fugmann <afu@fugmann.dhs.org>
+In-Reply-To: <Pine.SGI.4.31L.02.0111181650580.12243284-100000@irix2.gl.u
+ mbc.edu>
+In-Reply-To: <3BF82B1E.8090305@fugmann.dhs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+At 04:55 PM 18/11/01 -0500, John Jasen wrote:
+>labrat5+linux2.2.19 = decent response times
+>labrat6+linux2.2.19 = decent response times
+>firewall system + linux2.2.19 = decent response time
+>
+>labrat5+linux2.4.x, where X=4,7,12 = painfully slow
+>labrat6+linux2.4.x, where X=4,7,12 = painfully slow
+>firewall system + linux2.4.x, where X=7 = painfully slow
 
-I've RH7.1 with updates and kernel 2.4.14 from tgz, root filesystem is on
-software raid1.
-Hardware: 1.5 GB RAM, asus cuv4x-e, via chipset (host bridge: VT82C693A/694x).
-Kernel is compiled with support for more then 1GB memory. (4GB).
+Have you tried going through with hdparm enabling/disabling the options in 
+turn? eg: DMA, Unmasq IRQ, Multi-Count, etc.
 
-I've tested this hardware with memtest86 (ver. 2.8) and everything looks good.
+I would not be surprised if what was happening was related to DMA causing 
+huge locks of the IDE subsystem, and dragging out the disk times, therefore 
+throwing the system out the window. Out of your previous posts, I saw you 
+mention you fiddled with Unmasq IRQ and 32 bit, but not DMA.
 
-But linux is unstable. Mysql reports corrupted databases. I get crc
-errors when I try ungzip zipped files. Programs dump cores from time to
-time. And my linux box hanged one time.
+Also are these systems per chance running the same brand/model of h/drive? 
+While I doubt it, could this be a problem with these drives and these 
+boards only in certain modes?
 
-I've tryed 2.4.7 kernel with no support for more then 1GB memory (linux see
-about 900MB memory) but problems still appear.
+Good luck!
 
-Finally I've only 512MB RAM and linux looks stable with 2.4.7 and 2.4.14.
 
-What I should do to have stable linux with 1.5GB RAM ?
+AMC Enterprises P/L    - Stuart Young
+First Floor            - Network and Systems Admin
+3 Chesterville Rd      - sgy@amc.com.au
+Cheltenham Vic 3192    - Ph:  (03) 9584-2700
+http://www.amc.com.au/ - Fax: (03) 9584-2755
 
-Should I try to redhat kernel-2.4.9-enterprise ? (My / is on raid1 so I don't
-know is it possible)
-
-I'm not subscribed on this list.
--- 
-Grzegorz

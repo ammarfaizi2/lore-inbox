@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315417AbSEGLsP>; Tue, 7 May 2002 07:48:15 -0400
+	id <S315420AbSEGLyM>; Tue, 7 May 2002 07:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315420AbSEGLsO>; Tue, 7 May 2002 07:48:14 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:27654 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315417AbSEGLsM>; Tue, 7 May 2002 07:48:12 -0400
-Date: Tue, 7 May 2002 13:48:08 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 55
-In-Reply-To: <3CD7ADD1.5080404@evision-ventures.com>
-Message-ID: <Pine.LNX.4.21.0205071345110.32715-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315421AbSEGLyL>; Tue, 7 May 2002 07:54:11 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:45323 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S315420AbSEGLyK>;
+	Tue, 7 May 2002 07:54:10 -0400
+Date: Tue, 7 May 2002 15:58:54 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [Q] get_ma_area() function
+Message-ID: <20020507115854.GB620@pazke.ipt>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/e2eDi0V/xtL+Mc8"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Uname: Linux pazke 2.5.10 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--/e2eDi0V/xtL+Mc8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
 Hi,
 
-On Tue, 7 May 2002, Martin Dalecki wrote:
+looking at mm/vmalloc.c i found one strange (for me) line of code.
 
-> >> Then ide-pci.c is still compiled into the kernel. Why?
-> > 
-> > Becouse the big tables there are subject to go.
-> 
-> And at some point in time it will check whatever there is
-> request for any host chip support.
+=46rom mm/vmalloc.c:
 
-Could you please then do the above change _after_ you have done this?
+struct vm_struct * get_vm_area(unsigned long size, unsigned long flags)
+{
+	unsigned long addr;
+	struct vm_struct **p, *tmp, *area;
 
-bye, Roman
+	area =3D (struct vm_struct *) kmalloc(sizeof(*area), GFP_KERNEL);
+	if (!area)
+		return NULL;
+	size +=3D PAGE_SIZE;
+	^^^^^^^^^^^^^^^^^^
+Why ? Maybe size =3D PAGE_ALIGN(size); is more correct here ?
 
+Best regards.
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--/e2eDi0V/xtL+Mc8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE818F+Bm4rlNOo3YgRAp77AJ9s+2G2DUgieX5Bzg85nih65NpXmACfYjC4
+l7Yz0VBbZ658/9l0+TFCy98=
+=jz9v
+-----END PGP SIGNATURE-----
+
+--/e2eDi0V/xtL+Mc8--

@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUC1ThM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 14:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbUC1ThM
+	id S262356AbUC1Tpk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 14:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUC1Tpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 14:37:12 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:28691 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S262389AbUC1ThH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 14:37:07 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6]: suspend to disk only available if non-modular IDE
-Date: Sun, 28 Mar 2004 21:36:55 +0200
-User-Agent: KMail/1.6.1
-Cc: swsusp-devel@lists.sourceforge.net
-MIME-Version: 1.0
+	Sun, 28 Mar 2004 14:45:40 -0500
+Received: from gprs214-54.eurotel.cz ([160.218.214.54]:42113 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262356AbUC1Tpi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 14:45:38 -0500
+Date: Sun, 28 Mar 2004 21:45:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Martin Wilke <werwolf@unixfreunde.de>, linux-kernel@vger.kernel.org
+Subject: Re: Temp problems amd xp
+Message-ID: <20040328194527.GB1003@elf.ucw.cz>
+References: <pan.2004.03.18.16.06.57.166680@unixfreunde.de> <20040319224243.GG14537@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200403282136.55435.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+In-Reply-To: <20040319224243.GG14537@alpha.home.local>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-resume from disk doesn't work when using modular IDE so this patch disables
-this in config:
+> > just wanna know if somebody has the same problem as me.
+> > 
+> > i' m running an amd xp 3000+ on an epox board with nforce2-chipset. everything 
+> > was alright til i changeed from kernbel 2.6.3 to 2.6.4 3 days ago. since then 
+> > my cpu-temperature rised to 60-65 degrees, sometimes 73 degrees (while 
+> > compiling) and pc powered himself down then.
+> 
+> Is it really a problem ? Simply raise the bios temperature limit and it's
+> OK. My dual XP is between 65 and 75 degrees idle, and goes up to 93 during
+> intensive compilations, and it's doing very well. Admittedly, you have to
+> wait a *very* long time after power down to touch the heatsinks, but I don't
+> need to do that anyway, and I prefer the sound of silence ;-)
 
---- kernel/power/Kconfig~       2004-03-28 21:32:03.198944320 +0200
-+++ kernel/power/Kconfig        2004-03-28 21:32:25.988479784 +0200
-@@ -44,7 +44,7 @@
+So you raised thermal limit and disconnected fans? :-).
 
- config PM_DISK
-        bool "Suspend-to-Disk Support"
--       depends on PM && SWAP
-+       depends on PM && SWAP && IDE=y && BLK_DEV_IDEDISK=y
-        ---help---
-          Suspend-to-disk is a power management state in which the contents
-          of memory are stored on disk and the entire system is shut down or
+									Pavel
+PS: [With proper passive cooling, you might get away with that. I've
+one athlon 900, whose fan now produces noise but not cooling. With
+strategically placed piece of paper it produces no noise, but no
+cooling either. ACPI thermal managment turns it into +/- usable
+machine.
 
-Info here:
-http://groups.google.com/groups?selm=1BdIH-5WB-17%40gated-at.bofh.it&oe=UTF-8&output=gplain
 -- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

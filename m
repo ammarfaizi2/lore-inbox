@@ -1,36 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266016AbRF1QST>; Thu, 28 Jun 2001 12:18:19 -0400
+	id <S266014AbRF1QUa>; Thu, 28 Jun 2001 12:20:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266012AbRF1QSK>; Thu, 28 Jun 2001 12:18:10 -0400
-Received: from AMontpellier-201-1-2-148.abo.wanadoo.fr ([193.253.215.148]:38149
-	"EHLO awak") by vger.kernel.org with ESMTP id <S266013AbRF1QR5>;
-	Thu, 28 Jun 2001 12:17:57 -0400
-Subject: 2.4.5-ac19: hang on IDE DVD read error
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 28 Jun 2001 18:13:38 +0200
-Message-Id: <993744819.9219.12.camel@nomade>
-Mime-Version: 1.0
+	id <S266015AbRF1QUU>; Thu, 28 Jun 2001 12:20:20 -0400
+Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:22174 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S266014AbRF1QUI>; Thu, 28 Jun 2001 12:20:08 -0400
+Date: Thu, 28 Jun 2001 12:19:48 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: <wstearns@sparrow.websense.net>
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Alan Cox <laughing@shared-source.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.5-ac20
+In-Reply-To: <20010628164212.A27412@lightning.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0106281210030.3807-100000@sparrow.websense.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Good day, all,
+	I also get an "Error in tcl script":
 
-I retested my scratched DVD on 2.4.5-ac19, and the machine still hangs
-(when using drip) after spitting a few errors in the log:
-Jun 28 00:32:55 bip kernel: Info fld=0x1f49e0, Current sd0b:00: sense key Medium Error
-Jun 28 00:32:55 bip kernel: Additional sense indicates Unrecovered read error
-Jun 28 00:32:55 bip kernel:  I/O error: dev 0b:00, sector 8202112
+Error: can't read "CONFIG_DRM_AGP": no such variable.
 
-As I'm under X, I had no chance to try Magic Sysreq. But machine doesn't
-respond on pings.
-A have a Dual PIII, via686b, Hitachi DVD-ROM GD-7500 on builtin IDE
-controler.
-I'm booting with 'noapic acpi=no-idle', more info on demand.
+	The stack trace is:
 
-Xav
+can't read "CONFIG_DRM_AGP": no such variable
+    while executing
+"list $CONFIG_DRM_AGP"
+    (procedure "writeconfig" line 2351)
+    invoked from within
+"writeconfig .config include/linux/autoconf.h"
+    invoked from within
+".f0.right.save invoke"
+    ("uplevel" body line 1)
+    invoked from within
+"uplevel #0 [list $w invoke]"
+    (procedure "tkButtonUp" line 7)
+    invoked from within
+"tkButtonUp .f0.right.save
+"
+    (command bound to event)
+
+	scripts/kconfig.tk has this:
+
+set CONFIG_DRM_AGP 4
+	and
+write_tristate $cfg $autocfg CONFIG_AGP $CONFIG_AGP [list $CONFIG_DRM_AGP] 2
+
+	ac20 itself doesn't seem to have any references to CONFIG_DRM_AGP
+at all.  Hmmm.
+
+	If it makes a difference, the .config I used as a base has no
+variables with either DRM or AGP in them.
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+	"That vulnerability is completely theoretical."  -- Microsoft
+	L0pht, Making the theoretical practical since 1992.
+(Courtesy of "Deliduka, Bennet" <bennet.deliduka@state.vt.us>)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
+and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+--------------------------------------------------------------------------
 

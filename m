@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293195AbSBWUTI>; Sat, 23 Feb 2002 15:19:08 -0500
+	id <S293198AbSBWU3U>; Sat, 23 Feb 2002 15:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293196AbSBWUSr>; Sat, 23 Feb 2002 15:18:47 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:3603 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293195AbSBWUSh>;
-	Sat, 23 Feb 2002 15:18:37 -0500
-Date: Sat, 23 Feb 2002 12:12:48 -0800
-From: Greg KH <greg@kroah.com>
-To: David Stroupe <dstroupe@keyed-upsoftware.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Q:Resetting driver from within
-Message-ID: <20020223201248.GA13779@kroah.com>
-In-Reply-To: <3C766728.1050702@keyed-upsoftware.com>
-Mime-Version: 1.0
+	id <S293199AbSBWU3K>; Sat, 23 Feb 2002 15:29:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30226 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293198AbSBWU3D>;
+	Sat, 23 Feb 2002 15:29:03 -0500
+Message-ID: <3C77FB35.16844FE7@zip.com.au>
+Date: Sat, 23 Feb 2002 12:27:33 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Lord <lord@sgi.com>
+CC: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+In-Reply-To: <3C773C02.93C7753E@zip.com.au>,		<1014444810.1003.53.camel@phantasy> 		<3C773C02.93C7753E@zip.com.au> <1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au> <3C77F503.1060005@sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C766728.1050702@keyed-upsoftware.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 26 Jan 2002 18:08:32 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 09:43:36AM -0600, David Stroupe wrote:
+Stephen Lord wrote:
 > 
-> If I need to reset my driver and have it reprobe the pci bus under 
-> software control, can I call the init and exit functions directly?
+> Andrew Morton wrote:
+> 
+> >Robert Love wrote:
+> >
+> >>...
+> >>
+> >>Question: if (from below) you are going to use atomic operations, why
+> >>make it per-CPU at all?  Just have one counter and atomic_inc and
+> >>atomic_read it.  You won't need a spin lock.
+> >>
+> >
+> >Oh that works fine.   But then it's a global counter, so each time
+> >a CPU marks a page dirty, the counter needs to be pulled out of
+> >another CPU's cache.   Which is not a thing I *need* to do.
+> >
+> >As I said, it's a micro-issue.  But it's a requirement which
+> >may pop up elsewhere.
+> >
+> >
+> I can tell you that Irix has just such a global counter for the amount of
+> delayed allocate pages - and it gets to be a major point of cache contention
+> once you get to larger cpu counts. So avoiding that from the start would
+> be good.
 
-"reprobe" as in rescan the whole bus and add or remove devices?
-If so, see the driver that I posted a week or so ago to the
-linux-hotplug-devel mailing list.
+Ah, good info.  Thanks.  I'll fix it with a big "FIXME" comment for now,
+fix it for real when Rusty's per-CPU infrastructure appears.
 
-If not, can you describe what you want to do in more detail?
-
-thanks,
-
-greg k-h
+-

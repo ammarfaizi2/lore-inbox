@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTIHV1U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 17:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTIHV1U
+	id S263584AbTIHVuT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 17:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTIHVuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 17:27:20 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:4482
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263572AbTIHV1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 17:27:19 -0400
-Date: Mon, 8 Sep 2003 17:27:10 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Greg KH <greg@kroah.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
-In-Reply-To: <20030908155048.GA10879@kroah.com>
-Message-ID: <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
- <20030908155048.GA10879@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Sep 2003 17:50:19 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32270 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263584AbTIHVuQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 17:50:16 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: BUG: in 2.6.0-test4-bk8 and bk9 involving handling of ethernet interfaces
+Date: 8 Sep 2003 21:41:26 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bjit26$a3c$1@gatekeeper.tmr.com>
+References: <3F5B87E2.6040501@open.org>
+X-Trace: gatekeeper.tmr.com 1063057286 10348 192.168.12.62 (8 Sep 2003 21:41:26 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Sep 2003, Greg KH wrote:
+In article <3F5B87E2.6040501@open.org>, Hal  <pshbro@open.org> wrote:
+| When i was finishing up using a cross over cable to transfer data from 
+| my desktop to my labtop I notied an odd thing. After I ifconfig eth0 
+| down to close the interface on my desktop runing 2.6.0-test4-bk8 it 
+| froze all my ttys and ptys. I upgraded to bk9 and got the same thing.
+| 
+| To repeat the bug one will need two computers and a cross over cable. 
+| Connect the two computers, ifconfig the interfaces on each computer. 
+| Give them both an ip and then ifconfig up them both. Now to get the bug 
+| ifconfig the interface on the computer runing a 2.6 kernel down and 
+| hopefully there will be a system freeze.
+| 
+| For more information im using a Net Gear fa311 ethernet NIC with the 
+| Natsemi ethernet drivers.
 
-> Ick, no, I do not want to see this function get added, sorry.
-
-Well i was expecting that.
-
-> What happens if someone grabs the struct device reference by opening a
-> sysfs file and then you unload the module?  Yeah, not nice.  Please do
-
-Doesn't this all get taken care of by the platform_device_unregister?
-
-> _not_ create "empty" release() functions, unless you _really_ know what
-> you are doing (and providing a "default" one like this is just ripe for
-> abuse, that warning message in the kernel is there for a reason.)
-
-I know it's begging for abuse, but i don't want to sprinkle empty 
-release() functions everywhere, e.g. looking at the floppy driver, i'm 
-not quite sure what i'm supposed to do with a release() function there, 
-the struct platform_device_struct is statically allocated. Basically i'd 
-like a pointer as to what to do with these release() functions..
-
-Thanks,
-	Zwane
+Did you config as nodes on a whole network or use point-to-point config?
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

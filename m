@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312790AbSDYAmK>; Wed, 24 Apr 2002 20:42:10 -0400
+	id <S312853AbSDYBqD>; Wed, 24 Apr 2002 21:46:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312853AbSDYAmJ>; Wed, 24 Apr 2002 20:42:09 -0400
-Received: from 12-225-96-71.client.attbi.com ([12.225.96.71]:56193 "EHLO
-	p3.coop.hom") by vger.kernel.org with ESMTP id <S312790AbSDYAmJ>;
-	Wed, 24 Apr 2002 20:42:09 -0400
-Date: Wed, 24 Apr 2002 17:42:31 -0700
-From: Jerry Cooperstein <coop@axian.com>
-To: il boba <il_boba@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: what`s wrong?
-Message-ID: <20020424174231.A19184@p3.attbi.com>
-In-Reply-To: <F218eE3VsX7PVTdAMDm0000842f@hotmail.com> <20020424164056.GA15812@turbolinux.com>
+	id <S312855AbSDYBqC>; Wed, 24 Apr 2002 21:46:02 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:27270 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S312853AbSDYBqC>;
+	Wed, 24 Apr 2002 21:46:02 -0400
+Date: Thu, 25 Apr 2002 11:43:25 +1000
+From: Anton Blanchard <anton@samba.org>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [PATCH] gcc 3.1 breaks wchan
+Message-ID: <20020425014325.GA22384@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 24, 2002 at 10:40:56AM -0600, Andreas Dilger wrote:
-> On Apr 24, 2002  18:06 +0200, il boba wrote:
-> > Is there anybody that can help me understand what`s wrong with this code?
-......
 
-Even with all this he's going to have trouble since his buffer is in
-kernel space and the read is going to expect it to be in user-context...
+Hi,
 
-Reading and writing files from within the kernel is almost never a good
-idea and has been made difficult by design.  He should look at what
-he is trying to do and perhaps look for another interface, such as
-use of ioctls, proc, seq_file, etc..  He probably doesn't need to
-do this I/O from within the kernel and should rethink it.
+I noticed on a ppc64 kernel compiled with gcc 3.1 that context_switch
+was left out of line. It ended up outside of the
+scheduling_functions_start_here/end_here placeholders which breaks
+wchan.
 
- Jerry Cooperstein  <coop@axian.com>
- Senior Consultant
- Axian, Inc.   <info@axian.com>
- 4800 SW Griffith Dr., Ste. 202, Beaverton, OR  97005 USA
- http://www.axian.com/               Software Consulting and Training
+This is one place where we require the code to be inline, so we should use
+extern.
 
+Anton
+
+
+--- linux-2.5/kernel/sched.c	Tue Apr 23 16:00:33 2002
++++ linux-2.5_work/kernel/sched.c	Thu Apr 25 11:38:45 2002
+@@ -405,7 +405,8 @@
+ }
+ #endif
+ 
+-static inline void context_switch(task_t *prev, task_t *next)
++/* This must end up inline or our wchan handling will break, so use extern */
++extern inline void context_switch(task_t *prev, task_t *next)
+ {
+ 	struct mm_struct *mm = next->mm;
+ 	struct mm_struct *oldmm = prev->active_mm;

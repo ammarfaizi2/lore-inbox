@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135726AbRDYNG7>; Wed, 25 Apr 2001 09:06:59 -0400
+	id <S131317AbRDYNH3>; Wed, 25 Apr 2001 09:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135545AbRDYNGt>; Wed, 25 Apr 2001 09:06:49 -0400
-Received: from node10dfe.a2000.nl ([24.132.13.254]:58641 "EHLO
-	roswell.home.intercept.cx") by vger.kernel.org with ESMTP
-	id <S131317AbRDYNGs>; Wed, 25 Apr 2001 09:06:48 -0400
-From: "Jeroen Geusebroek" <Jeroen.Geusebroek@intellit.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: IDE Raid supported with the HPT370?
-Date: Wed, 25 Apr 2001 15:07:07 +0200
-Message-ID: <NCBBJKHJIKHIFECNNOAMIECEEDAA.Jeroen.Geusebroek@intellit.nl>
+	id <S135737AbRDYNHU>; Wed, 25 Apr 2001 09:07:20 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:17931 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S133009AbRDYNHI>;
+	Wed, 25 Apr 2001 09:07:08 -0400
+Date: Wed, 25 Apr 2001 06:07:52 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: imel96@trustix.co.id
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <20010425120319Z135634-682+3531@vger.kernel.org>
+Message-ID: <Pine.LNX.4.10.10104250552460.9854-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+On Wed, 25 Apr 2001 imel96@trustix.co.id wrote:
 
-I have ordered a ABIT VP6 motherboard with the HPT370 controller
-and would like to know if raid0 is supported with linux?
+[snip]
+> so i guess i deserve opinions instead of flames. the
+> approach is from personal use, not the usual server use.
+> if you think a server setup is best for all use just say so,
+> i'm listening.
+> 
 
-If not, will i be able to work without raid then? (maybe using
-software raid)
+Heres one.. most of the time I spend cleaning up windows machines is not
+because of software problems.  Usually it's the user acidentally erasing
+something or installing some program that just modified the boot files by
+accident.
 
-Thanks,
+Protection makes the system easier not harder.  You can add SUID
+aplications to preform administrative tasks such as upgrading / config and
+be sure that the user won't accidentally erase the system.  
 
-Jeroen Geusebroek
+I've had users absolutely paranoid of breaking something on my systems
+it's very reasuring for me to be able to point at the power switch and say
+"see that? don't touch it and the sustem will be fine"
 
-P.s. Please CC me in your reply, since i'm not subscribed to this
-list.
+	Gerhard
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

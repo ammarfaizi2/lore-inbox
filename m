@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319218AbSHUV1O>; Wed, 21 Aug 2002 17:27:14 -0400
+	id <S319221AbSHUVkd>; Wed, 21 Aug 2002 17:40:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319220AbSHUV1O>; Wed, 21 Aug 2002 17:27:14 -0400
-Received: from quechua.inka.de ([212.227.14.2]:36464 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S319218AbSHUV1N>;
-	Wed, 21 Aug 2002 17:27:13 -0400
-From: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
-To: linux-kernel@vger.kernel.org
+	id <S319222AbSHUVkd>; Wed, 21 Aug 2002 17:40:33 -0400
+Received: from pD9E231E8.dip.t-dialin.net ([217.226.49.232]:33679 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319221AbSHUVkc>; Wed, 21 Aug 2002 17:40:32 -0400
+Date: Wed, 21 Aug 2002 15:44:41 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Bernd Eckenfels <ecki-news2002-08@lina.inka.de>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.4 and full ipv6 - will it happen?
-In-Reply-To: <Pine.LNX.4.44.0208211316480.6621-100000@betelgeuse.compendium-tech.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E17hd4T-00050z-00@sites.inka.de>
-Date: Wed, 21 Aug 2002 23:31:21 +0200
+In-Reply-To: <E17hd4T-00050z-00@sites.inka.de>
+Message-ID: <Pine.LNX.4.44.0208211536320.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0208211316480.6621-100000@betelgeuse.compendium-tech.com> you wrote:
-> it. There are people who want to see it mainstreamed. Face it, IPv4 is 
-> inadequate for today's needs. What happens when the entire IPv4 addressing 
-> space is exhausted? Move to NAT? I don't think so.
+Hi,
 
-Well, I think the worlds oil ressources will be exhausted before the IPv4
-Space is exhausted. There are a lot of possible ways.
+On Wed, 21 Aug 2002, Bernd Eckenfels wrote:
+> well.. another option is, to write sane applications.
 
-> requirement. NAT destroys that, and therefore makes those applications 
-> either unusable, or difficult to use without special configurations.
+When you'll have to connect through a NAT wall to a server, you'll be damn 
+ot of luck. And the possibility to achieve something in a weird way 
+through a ten thousand of backdoors does not justify the dismissal of a 
+cool technology that would make it just too easy to handle. Not to 
+mention IPv4 is far too dangerous. I've had to write heaps of reports 
+saying that you can spoof a personality using IPv4 security holes, just 
+because some person was under accusation of things he's never done. 
+Remember Rubin Carter, 1976?
 
-well.. another option is, to write sane applications.
+> Hell, even there is no accepted DNS standard, yet.
 
-> No, IPv6 may not be mainstream yet, but there *are* people who want to use 
-> it. Just because you don't, doesn't mean that nobody else should. I, for 
-> one, will welcome IPv6's adoption with open arms.
+I'm getting through with bind9 pretty well, actually.
 
-i am using it on my personal family lan and to connect to irc servers, but I
-dont see it becoming mainstream this decade. Hell, even there is no accepted
-DNS standard, yet.
+Well, one can argue about the advantages of extended technology, but as 
+long as they can save lifes (philosophically speaking), no way to argue 
+with me. I'd never let people get arrested because I don't have ganas to 
+introduce newer technologies! Do you understand my point?
 
-Greetings
-Bernd
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

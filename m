@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVCHEnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVCHEnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVCHEnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 23:43:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVCHEm7
+	id S261434AbVCHEnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 23:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVCHEnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 23:42:59 -0500
-Received: from gate.crashing.org ([63.228.1.57]:1448 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261446AbVCHEmn (ORCPT
+	Mon, 7 Mar 2005 23:43:10 -0500
+Received: from fire.osdl.org ([65.172.181.4]:12008 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261434AbVCHEll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 23:42:43 -0500
-Subject: pci_fixup_video() bogosity
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: Jon Smirl <jonsmirl@yahoo.com>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 15:38:29 +1100
-Message-Id: <1110256709.13607.248.camel@gaston>
+	Mon, 7 Mar 2005 23:41:41 -0500
+Date: Mon, 7 Mar 2005 20:40:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: paul@linuxaudiosystems.com, joq@io.com, cfriesen@nortelnetworks.com,
+       chrisw@osdl.org, hch@infradead.org, rlrevell@joe-job.com,
+       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-Id: <20050307204044.23e34019.akpm@osdl.org>
+In-Reply-To: <20050308043349.GG3120@waste.org>
+References: <20050112185258.GG2940@waste.org>
+	<200501122116.j0CLGK3K022477@localhost.localdomain>
+	<20050307195020.510a1ceb.akpm@osdl.org>
+	<20050308043349.GG3120@waste.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Matt Mackall <mpm@selenic.com> wrote:
+>
+> I think Chris Wright's last rlimit patch is more sensible and ready to
+>  go.
 
-While working on writing a VGA access arbiter for kernel & userland,
-I wondered how to properly get my "initial" state at boot. For that,
-I looked at how the new PCI ROM stuff does to find out who owns the
-memory shadow at c0000, and found it quite bogus.
+I must say that I like rlimits - very straightforward, although somewhat
+awkward to use from userspace due to shortsighted shell design.
 
->From what I see, the code is only based on looking at what bridges
-have VGA forwarding enabled. It doesn't test the actual IO and Memory
-enable bits of the VGA cards themselves.
-
-What if you have 2 cards under the same bridge ?
-
-Ben.
-
-
+Does anyone have serious objections to this approach?

@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVCROp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCROuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVCROp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 09:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVCROp6
+	id S261619AbVCROuj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 09:50:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVCROuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 09:45:58 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:29355 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261617AbVCROpt (ORCPT
+	Fri, 18 Mar 2005 09:50:39 -0500
+Received: from upco.es ([130.206.70.227]:48320 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261619AbVCROub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 09:45:49 -0500
-Date: Fri, 18 Mar 2005 15:45:46 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11: CDROM_SEND_PACKET as non-root?
-Message-ID: <20050318154546.41b18776@phoebee>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Fri, 18 Mar 2005 09:50:31 -0500
+Date: Fri, 18 Mar 2005 15:50:28 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Maximilian Engelhardt <maxi@daemonizer.de>
+Subject: Re: Call for help: list of machines with working S3
+Message-ID: <20050318145028.GA22887@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Maximilian Engelhardt <maxi@daemonizer.de>
+References: <3xVNA-Qn-43@gated-at.bofh.it> <1111089912.9802.26.camel@mobile>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary="Signature_Fri__18_Mar_2005_15_45_46_+0100_O.Ec9sh_EGkJwP/r";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <1111089912.9802.26.camel@mobile>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Fri__18_Mar_2005_15_45_46_+0100_O.Ec9sh_EGkJwP/r
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Thu, Mar 17, 2005 at 09:05:12PM +0100, Maximilian Engelhardt wrote:
+> On Mon, 2005-02-14 at 22:20 +0100, Pavel Machek wrote:
 
-Hi all!
+> > 		Video issues with S3 resume
+> > 		~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > 		  2003-2005, Pavel Machek
+> > 
 
-I have a small question:
-What do I have to do, to let the ioctl CDROM_SEND_PACKET work as a
-non-root user under 2.6.11?
+> Tried all this on my Laptop but nothing seems to work for me. 
+> I do "echo 3 > /proc/acpi/sleep" and the systems seems to go into S3.
+> When I press some key to wake it up again it powers up but I get nothing
+> than a black screen. It's not only the video card that's not working,
+> because the only thing it reacts to is Sysrq (without screen of course).
+> One additional thing I found is that in this state the HDD led keeps
+> lighting all the time untill I reboot my system. After rebooting I
+> couldn't find anything interesting in my logs.
+> 
+> Is there any way I could get S3 working on my laptop?
+> 
+> some data:
+> Acer Travel Mate 661lci
+> Gentoo Base System version 1.6.10
+> kernel 2.6.11
+> 
+> I did all this testing with a minimal kernel that only had the
+> absolutely necessary drivers.
 
-I try to burn a DVD with growisofs as a non-root user without success.
+It happens exactly the same on my laptop, sony vaio whose configuration is 
 
-I know that there were some changes about access restriction (since
-2.6.8), but I haven't found anything to get a clue about the current
-status.
+http://www.dea.icai.upco.es/romano/linux/vaio-conf/laptop-config.html
 
-So is it just impossible to send a packet to the DVD burner without root
-access? Do I have to use a wrapper that sets the effective user id to
-root and then runs growisofs?
+Next week is Easter holyday here, I will try to connect my Psion casio as
+serial terminal and see if I can catch something. 
 
-
-It's friday, so sorry for that stupid question, but a comment on that
-would be fine :)
-
-Regards,
-Martin
-
---=20
-MyExcuse:
-Recursive traversal of loopback mount points
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature_Fri__18_Mar_2005_15_45_46_+0100_O.Ec9sh_EGkJwP/r
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCOumcmjLYGS7fcG0RApuTAKCufMVhT1OzJ1yL2CqLRyLP8IPRoACgjaoI
-QtISUm6olzobQ+8cOyasP+M=
-=phI3
------END PGP SIGNATURE-----
-
---Signature_Fri__18_Mar_2005_15_45_46_+0100_O.Ec9sh_EGkJwP/r--
+       Romano 
+       
+       
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

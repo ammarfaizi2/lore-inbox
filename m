@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUEWEid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUEWEoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUEWEid (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 00:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUEWEid
+	id S262238AbUEWEoo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 00:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUEWEon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 00:38:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39558 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262215AbUEWEic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 00:38:32 -0400
-Date: Sat, 22 May 2004 21:35:25 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Mike Houston <mikeserv@bmts.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-bk9 - compile failure if sysfs disabled
-Message-Id: <20040522213525.31be9c82.rddunlap@osdl.org>
-In-Reply-To: <20040522232628.7599ae93.mikeserv@bmts.com>
-References: <20040522232628.7599ae93.mikeserv@bmts.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 May 2004 00:44:43 -0400
+Received: from lakermmtao06.cox.net ([68.230.240.33]:7105 "EHLO
+	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S262238AbUEWEol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 00:44:41 -0400
+Mime-Version: 1.0 (Apple Message framework v613)
 Content-Transfer-Encoding: 7bit
+Message-Id: <E71ABE1E-AC73-11D8-AD98-000393ACC76E@mac.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: [PATCH 2.6][REPOST] Missing _raw_write_trylock for PPC/SMP
+Date: Sun, 23 May 2004 00:44:40 -0400
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 May 2004 23:26:28 -0400 Mike Houston <mikeserv@bmts.com> wrote:
+I just implemented _raw_write_trylock for PPC32  There are probably 
+bugs in it as
+I'm a little rusty on my PPC assembly.  It needs someone skilled in PPC 
+asm to look
+at it, but hopefully it will work.  It compiles, but nothing currently 
+in the kernel proper
+uses it aside from write_trylock which is also currently unused.
 
-| If sysfs is disabled in the config under pseudo filesystems,
-| 
-| lib/kobject.c: In function `kobject_rename':
-| lib/kobject.c:395: error: void value not ignored as it ought to be
-| make[1]: *** [lib/kobject.o] Error 1
-| make: *** [lib] Error 2
-| 
-| Line 395 is this:
-| error = sysfs_rename_dir(kobj, new_name);
+Cheers,
+Kyle Moffett
 
-Fix was posted Friday 2004-05-21 at 14:55 by Maneesh Soni.
-Please check your favorite lkml archive for the patch.
 
-| Now, before anyone chides me for blindly disabling sysfs, I only came across this in helping someone else, who erroneously disabled it, solve this build failure :-)
-| 
-| My apologies if this is already known or expected. It just seems to me that it ought not to end in a build failure and is possibly something you folks would like to know about.
-| 
-| Note that I'm not saying this started in -bk9 because I've never previously compiled one without sysfs. This is, however, what the original user was building.
+--- linux-2.6.6/include/asm-ppc/spinlock.h	2004-05-09 
+22:32:28.000000000 -0400
++++ linux/include/asm-ppc/spinlock.h	2004-05-20 20:12:44.000000000 -0400
+@@ -135,6 +135,28 @@
+  	: "cr0", "memory");
+  }
 
-BTW, please tell your sylpheed client to wrap lines around 70 characters
-each instead of flowing them longer.
++static __inline__ int _raw_write_trylock(rwlock_t *rw)
++{
++	unsigned int tmp;
++	unsigned int ret;
++	
++	__asm__ __volatile__(
++"1:     lwarx           %0,0,%2         # write_trylock\n\
++	cmpwi           0,%0,0\n\
++	li              %1,0\n\
++	bne-            2f\n"
++	PPC405_ERR77(0,%1)
++"       stwcx.          %3,0,%2\n\
++	bne-            1b\n\
++	li              %1,1\n\
++	isync\n\
++2:"     : "=&r"(tmp), "=&r"(ret)
++	: "r"(&rw->lock), "r"(-1)
++	: "cr0", "memory");
++	
++	return ret;
++}
++
+  static __inline__ void _raw_write_lock(rwlock_t *rw)
+  {
+  	unsigned int tmp;
 
---
-~Randy
+Cheers,
+Kyle Moffett
+

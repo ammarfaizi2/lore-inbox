@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVCONlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVCONoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVCONlP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 08:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVCONlL
+	id S261223AbVCONoI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 08:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVCONle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 08:41:11 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:14997 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S261221AbVCONhA
+	Tue, 15 Mar 2005 08:41:34 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:48808 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261223AbVCONkx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 08:37:00 -0500
-Date: Tue, 15 Mar 2005 23:36:44 +1000
-From: David McCullough <davidm@snapgear.com>
-To: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: ocf-linux-20050315 - Asynchronous Crypto support for linux
-Message-ID: <20050315133644.GA25903@beast>
+	Tue, 15 Mar 2005 08:40:53 -0500
+Subject: Re: 2.6.11-mm3 breaks compile of drivers/char/esp.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bernhard Rosenkraenzer <bero@arklinux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050314203357.75aacaaf.akpm@osdl.org>
+References: <200503121839.36970.bero@arklinux.org>
+	 <20050314203357.75aacaaf.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110893915.15943.180.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Mar 2005 13:38:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2005-03-15 at 04:33, Andrew Morton wrote:
+> --- 25/include/linux/hayesesp.h~esp-build-fix	2005-03-14 20:31:18.000000000 -0800
+> +++ 25-akpm/include/linux/hayesesp.h	2005-03-14 20:31:30.000000000 -0800
+> @@ -77,6 +77,7 @@ struct hayes_esp_config {
+>  
+>  struct esp_struct {
+>  	int			magic;
+> +	spinlock_t		lock;
+>  	int			port;
+>  	int			irq;
+>  	int			flags; 		/* defined in tty.h */
 
-Hi all,
+> I didn't pick this up because ESPSERIAL is still BROKEN_ON_SMP.  Alan,
+> should we remove that now?
 
-The latest release of ocf-linux (20050315) is available for download
-from the project page:
+I think so yes. Needs a bit more testing to be totally sure
 
-	http://ocf-linux.sourceforge.net/
-
-This release includes the following changes:
-
-	* Hifn PLL bug fixes
-	* Makefile fixes for 2.6 builds
-	* 2.6.11 and 2.4.29 patches
-	* cleanups for x86 builds
-
-OCF-Linux is a Linux port of the OpenBSD/FreeBSD Cryptographic Framework
-(OCF). This port aims to bring full asynchronous HW/SW crypto
-acceleration to the Linux kernel and applications running under Linux.
-Results have shown improvements of up to 7 times that of software crypto
-for bulk crypto throughput using OpenSSL.
-
-At this point in time OCF-Linux provides acceleration for OpenSSL,
-OpenSSH (scp, ssh, ...) and also supports the BSD crypto testing
-applications. It can accelerate DES, 3DES, AES, MD5, SHA, and Public Key
-operations with plans to include Random Number generators and more. This
-project is being actively developed as a high performance crypto
-solution for embedded devices but also applies equally well to any linux
-based server or desktop.
-
-Cheers,
-Davidm
-
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

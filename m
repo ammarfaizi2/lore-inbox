@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSLMInE>; Fri, 13 Dec 2002 03:43:04 -0500
+	id <S261600AbSLMInJ>; Fri, 13 Dec 2002 03:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbSLMInE>; Fri, 13 Dec 2002 03:43:04 -0500
-Received: from rth.ninka.net ([216.101.162.244]:34954 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S261599AbSLMInD>;
-	Fri, 13 Dec 2002 03:43:03 -0500
-Subject: Re: pci-skeleton duplex check
-From: "David S. Miller" <davem@redhat.com>
-To: Donald Becker <becker@scyld.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Roger Luethi <rl@hellgate.ch>,
-       netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0212121743500.10674-100000@beohost.scyld.com>
-References: <Pine.LNX.4.44.0212121743500.10674-100000@beohost.scyld.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Dec 2002 01:17:16 -0800
-Message-Id: <1039771036.1509.5.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S261640AbSLMInI>; Fri, 13 Dec 2002 03:43:08 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:52984 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261600AbSLMInH>;
+	Fri, 13 Dec 2002 03:43:07 -0500
+Date: Fri, 13 Dec 2002 09:49:30 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: James Simmons <jsimmons@infradead.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: atyfb in 2.5.51
+In-Reply-To: <1039596149.24691.2.camel@rth.ninka.net>
+Message-ID: <Pine.GSO.4.21.0212130946100.6939-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 17:18, Donald Becker wrote:
-> Or perhaps recognizing that when someone that has been a significant,
-> continuous contributer since the early days of Linux
+On 11 Dec 2002, David S. Miller wrote:
+> On Tue, 2002-12-10 at 22:18, James Simmons wrote:
+> > > AFAIK, the X "mach64" driver in XF 4.* doesn't care about UseFBDev.
+> > > Marc Aurele La France (maintainer of this driver) is basically allergic
+> > > to kernel fbdev support.
+> > 
+> > :-(
+> 
+> I've always stated that the whole fbdev model was flawed, it makes
+> basic assumptions about how a video card's memory and registers are
+> accessed (ie. the programming model) and many popular cards absolutely
+> do not fit into that model.
 
-Until you learn to play nice with people and mesh within the
-fabric of Linux development, I adamently do not classify you
-as you appear to self-classify yourself.  You don't contribute,
-you sit in your sandbox and then point fingers at the people who
-do know how to work with other human beings and say "see how much
-that stuff sucks?  well my stuff works, nyah!"
+Could you please elaborate so we have a chance to improve the model? Thanks!
 
-I fear you will hold a grudge about this forever.
+In case you just mean graphics hardware (e.g. Creator) where you don't want to
+provide direct access to the frame buffer, but do everything through the
+acceleration engine, just set smem_start and smem_len both to 0.
 
-If Linux itself is worse off and went backwards in time for a while, it
-is because of your inability to work together with people.
+Gr{oetje,eeting}s,
 
-I know it may be hard for you to accept this fact, but I can tell you
-that continuing to point the fingers elsewhere is going to be a repeated
-dead end.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

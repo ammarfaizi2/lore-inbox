@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUHaE7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUHaFE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUHaE7L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 00:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUHaE7L
+	id S266572AbUHaFE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 01:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUHaFE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 00:59:11 -0400
-Received: from nevyn.them.org ([66.93.172.17]:9152 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S266582AbUHaE7J (ORCPT
+	Tue, 31 Aug 2004 01:04:56 -0400
+Received: from mproxy.gmail.com ([216.239.56.249]:34109 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266572AbUHaFEy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 00:59:09 -0400
-Date: Tue, 31 Aug 2004 00:59:08 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
-Message-ID: <20040831045908.GA11845@nevyn.them.org>
-Mail-Followup-To: Roland McGrath <roland@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040831042206.GA10577@nevyn.them.org> <200408310455.i7V4tUPk001916@magilla.sf.frob.com>
+	Tue, 31 Aug 2004 01:04:54 -0400
+Message-ID: <54b5dbf5040830220435b14550@mail.gmail.com>
+Date: Mon, 30 Aug 2004 22:04:51 -0700
+From: asterix the gual <asterixthegaul@gmail.com>
+Reply-To: asterix the gual <asterixthegaul@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Re: [linux-usb-devel] Re: Summarizing the PWC driver questions/answers
+In-Reply-To: <1093786799.27934.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408310455.i7V4tUPk001916@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
+	 <Pine.LNX.4.61.0408272259450.2771@dragon.hygekrogen.localhost>
+	 <6.1.2.0.2.20040827233253.01c36210@inet.uni2.dk>
+	 <200408280113.27530.oliver@neukum.org> <1093786799.27934.28.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 09:55:30PM -0700, Roland McGrath wrote:
-> > Unless it's been changed since I last pulled, you should also fix up
-> > has_stopped_jobs.  I think it's broken by the introduction of
-> > TASK_TRACED.
+One more to Gregkh's Q&A
+
+Q. Is there anyother way to support the binary only driver?
+A. Yes. You can maintain a separate linux-pwc tree with the necessary hooks :)
+
+
+
+
+On Sun, 29 Aug 2004 14:40:00 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Sad, 2004-08-28 at 00:13, Oliver Neukum wrote:
+> > Keeping drivers against the wishes of the authors in the tree would
+> > be very troubling for the future. I can assure you that no maintainer
+> > will lightly pull a driver in this way.
 > 
-> Actually, I don't think it was broken at all.  It has an old kludge to
-> avoid considering trace-stopped threads as stopped for purposes of deciding
-> to generate signals for an orphaned process group.  I think that the useful
-> thing is for it not to consider any TASK_TRACED thread as stopped here either.
-> That's what it will already do, and the old kludge can go now:
-
-[The kludge isn't all that old.  I added it about a year and a half
-ago.]
-
-You're right.  I misread the loop.  It's still only an approximation,
-in that we don't know what the debugger's intention towards resuming
-the program is, but I think we err on the correct side now.
-
--- 
-Daniel Jacobowitz
+> Then the kernel community is no longer fit to use my code. So you should
+> remove everything I've written from Linus kernel too. I'll maintain my
+> own kernel.
+> 
+> Oh gosh, look I've just crippled Linus tree and stolen his project.
+> Thats *WHY* you can't just rip drivers out. A license was granted, for
+> ever. You can certainly remove him from maintainers, and if he insists
+> from the author credits.
+> 
+> Alan
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

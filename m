@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281016AbRKMCes>; Mon, 12 Nov 2001 21:34:48 -0500
+	id <S281434AbRKMCei>; Mon, 12 Nov 2001 21:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281052AbRKMCei>; Mon, 12 Nov 2001 21:34:38 -0500
-Received: from rj.sgi.com ([204.94.215.100]:59867 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S281016AbRKMCeX>;
-	Mon, 12 Nov 2001 21:34:23 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: lobo@polbox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I'm sorry [it was: Nazi Kernels] 
-In-Reply-To: Your message of "Tue, 13 Nov 2001 02:48:06 BST."
-             <20011113024806.A13176@chello062179017166.chello.pl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Nov 2001 13:34:03 +1100
-Message-ID: <9823.1005618843@kao2.melbourne.sgi.com>
+	id <S281052AbRKMCeT>; Mon, 12 Nov 2001 21:34:19 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:63213 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S281016AbRKMCeA>; Mon, 12 Nov 2001 21:34:00 -0500
+Message-ID: <01b401c16beb$792d40e0$0a00a8c0@intranet.mp3s.com>
+Reply-To: "Sean Elble" <S_Elble@yahoo.com>
+From: "Sean Elble" <S_Elble@yahoo.com>
+To: =?iso-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
+Cc: <joeja@mindspring.com>, "John Alvord" <jalvo@mbay.net>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Springmail.105.1005596822.0.40719200@www.springmail.com> <00c701c16bd2$e4b11800$0a00a8c0@intranet.mp3s.com> <3BF06B44.1040709@wanadoo.fr> <015101c16bdc$e633dbe0$0a00a8c0@intranet.mp3s.com> <3BF07147.5050503@wanadoo.fr>
+Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop back broken in 2.2.14)
+Date: Mon, 12 Nov 2001 21:32:19 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001 02:48:06 +0100, 
-lobo@polbox.com wrote:
->Now after this introduction, I try to explain whats my problem with
->the new driver policy. When I try to load NVdriver to the kernel
->2.1.14, the modprobe (modutils 2.4.10) writes following line
->"Note: modules without a GPL compatible license cannot use \
->GPLONLY_ symbols".
+The feature freeze certainly seems to be an important part of things . . .
+now we just need to determine what we want to happen during and after the
+feature freeze. :-) I certainly think Linus' Linux should be in a CVS tree,
+and he should patch to that; in addition, other developers, like Alan Cox,
+should have commit access to the tree, but Linus has already shown that he
+doesn't want that. Either way, I say "testing, testing, testing!". :-)
 
-If you had given the error message the first time instead of
-complaining about Nazi kernels then you would have got a decent
-response!
+-----------------------------------------------
+Sean P. Elble
+Editor, Writer, Co-Webmaster
+ReactiveLinux.com (Formerly MaximumLinux.org)
+http://www.reactivelinux.com/
+elbles@reactivelinux.com
+-----------------------------------------------
 
-insmod issues that message when two conditions are both satisfied:
-
-(1) The module has unresolved references *and*
-(2) The module does not have a GPL license.
-
-modprobe does not check if the unresolved references are exported as
-GPLONLY or not, the message is jsut a hint about why the load /might/
-have failed.  I should change the insmod text to make it more explicit
-that this is only a possible explanation.
-
-Since kernel 2.4.14 does not have any GPLONLY exports, your problem is
-not that the kernel is restricting access to symbols.  Instead your
-problem is that the binary only NVdriver does not match your kernel.
-Ask NVidia for help.
-
-Keith [Not a Nazi] Owens, modutils maintainer.
-
+----- Original Message -----
+From: "François Cami" <stilgar2k@wanadoo.fr>
+To: "Sean Elble" <S_Elble@yahoo.com>
+Cc: <joeja@mindspring.com>; "John Alvord" <jalvo@mbay.net>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, November 12, 2001 8:03 PM

@@ -1,176 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVBJRkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVBJRwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVBJRkB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 12:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVBJRkB
+	id S262177AbVBJRwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 12:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVBJRwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 12:40:01 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:35241 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262173AbVBJRjw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 12:39:52 -0500
-Date: Thu, 10 Feb 2005 09:39:48 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: david-b@pacbell.net
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] add wait_event_*_lock() functions
-Message-ID: <20050210173948.GE2364@us.ibm.com>
+	Thu, 10 Feb 2005 12:52:06 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:2726 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262176AbVBJRv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 12:51:59 -0500
+Subject: [BK PATCH] SCSI bug fixes for 2.6.11-rc3
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 10 Feb 2005 12:51:45 -0500
+Message-Id: <1108057905.7361.21.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David, LKML,
+This is a set of four bug fixes each with a corresponding user oops
+report and one well tested driver update.
 
-It came up on IRC that the wait_cond*() functions from
-usb/serial/gadget.c could be useful in other parts of the kernel. Does
-the following patch make sense towards this? I did not add corresponding
-wait_event_exclusive() macros, as I don't think they would be used, but
-that is a simple addition, if it would be desired for completeness.
-I would greatly appreciate any input. If the patch (in this form or in a
-later one) is acceptable, then we can remove the definitions from
-usb/serial/gadget.c.
+The patch is available at
 
-Description: The following patch attempts to make the wait_cond*()
-functions from usb/serial/gadget.c, which are basically the same
-as wait_event*() but with locks, globally available via wait.h.
+bk://linux-scsi.bkbits.net/scsi-rc-fixes-2.6
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+The short changelog is
 
---- 2.6.11-rc3-v/include/linux/wait.h	2004-12-24 13:34:57.000000000 -0800
-+++ 2.6.11-rc3/include/linux/wait.h	2005-02-09 11:02:08.000000000 -0800
-@@ -176,6 +176,28 @@
- 	__wait_event(wq, condition);					\
- } while (0)
- 
-+#define __wait_event_lock(wq, condition, lock, flags)			\
-+do {									\
-+	DEFINE_WAIT(__wait);						\
-+									\
-+	for (;;) {							\
-+		prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);	\
-+		if (condition)						\
-+			break;						\
-+		spin_unlock_irqrestore(lock, flags);			\
-+		schedule();						\
-+		spin_lock_irqsave(lock, flags);				\
-+	}								\
-+	finish_wait(&wq, &__wait);					\
-+} while (0)
-+
-+#define wait_event_lock(wq, condition, lock, flags)			\
-+do {									\
-+	if (condition)							\
-+		break;							\
-+	__wait_event_lock(wq, condition, lock, flags);			\
-+} while (0)
-+
- #define __wait_event_timeout(wq, condition, ret)			\
- do {									\
- 	DEFINE_WAIT(__wait);						\
-@@ -199,6 +221,31 @@
- 	__ret;								\
- })
- 
-+#define __wait_event_timeout_lock(wq, condition, lock, flags, ret)	\
-+do {									\
-+	DEFINE_WAIT(__wait);						\
-+									\
-+	for (;;) {							\
-+		prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);	\
-+		if (condition)						\
-+			break;						\
-+		spin_unlock_irqrestore(lock, flags);			\
-+		ret = schedule_timeout(ret);				\
-+		spin_lock_irqsave(lock, flags);				\
-+		if (!ret)						\
-+			break;						\
-+	}								\
-+	finish_wait(&wq, &__wait);					\
-+} while (0)
-+
-+#define wait_event_timeout_lock(wq, condition, lock, flags, timeout)	\
-+({									\
-+	long __ret = timeout;						\
-+	if (!(condition)) 						\
-+		__wait_event_timeout_lock(wq, condition, lock, flags, __ret); \
-+	__ret;								\
-+})
-+
- #define __wait_event_interruptible(wq, condition, ret)			\
- do {									\
- 	DEFINE_WAIT(__wait);						\
-@@ -225,6 +272,34 @@
- 	__ret;								\
- })
- 
-+#define __wait_event_interruptible_lock(wq, condition, lock, flags, ret) \
-+do {									\
-+	DEFINE_WAIT(__wait);						\
-+									\
-+	for (;;) {							\
-+		prepare_to_wait(&wq, &__wait, TASK_INTERRUPTIBLE);	\
-+		if (condition)						\
-+			break;						\
-+		if (!signal_pending(current)) {				\
-+			spin_unlock_irqrestore(lock, flags)		\
-+			schedule();					\
-+			spin_lock_irqsave(lock, flags)			\
-+			continue;					\
-+		}							\
-+		ret = -ERESTARTSYS;					\
-+		break;							\
-+	}								\
-+	finish_wait(&wq, &__wait);					\
-+} while (0)
-+
-+#define wait_event_interruptible_lock(wq, condition, lock, flags)	\
-+({									\
-+	int __ret = 0;							\
-+	if (!(condition))						\
-+		__wait_event_interruptible_lock(wq, condition, lock, flags, __ret); \
-+	__ret;								\
-+})
-+
- #define __wait_event_interruptible_timeout(wq, condition, ret)		\
- do {									\
- 	DEFINE_WAIT(__wait);						\
-@@ -253,6 +328,36 @@
- 	__ret;								\
- })
- 
-+#define __wait_event_interruptible_timeout_lock(wq, condition, lock, flags, ret) \
-+do {									\
-+	DEFINE_WAIT(__wait);						\
-+									\
-+	for (;;) {							\
-+		prepare_to_wait(&wq, &__wait, TASK_INTERRUPTIBLE);	\
-+		if (condition)						\
-+			break;						\
-+		if (!signal_pending(current)) {				\
-+			spin_unlock_irqrestore(lock, flags);		\
-+			ret = schedule_timeout(ret);			\
-+			spin_lock_irqsave(lock, flags);			\
-+			if (!ret)					\
-+				break;					\
-+			continue;					\
-+		}							\
-+		ret = -ERESTARTSYS;					\
-+		break;							\
-+	}								\
-+	finish_wait(&wq, &__wait);					\
-+} while (0)
-+
-+#define wait_event_interruptible_timeout_lock(wq, condition, lock, flags, timeout) \
-+({									\
-+	long __ret = timeout;						\
-+	if (!(condition))						\
-+		__wait_event_interruptible_timeout_lock(wq, condition, lock, flags, __ret); \
-+	__ret;								\
-+})
-+
- #define __wait_event_interruptible_exclusive(wq, condition, ret)	\
- do {									\
- 	DEFINE_WAIT(__wait);						\
+Andreas Herrmann:
+  o zfcp: bugfixes (without kfree) for -bk
+
+Andrew Vasquez:
+  o qla2xxx: fix BUG's for smp_processor_id() on interrupt
+
+Christoph Hellwig:
+  o cciss: handle scsi_add_host failure
+
+James Bottomley:
+  o SCSI: fix HBA removal problem with transport classes
+
+Seokmann Ju:
+  o megaraid_mbox 2.20.4.3 patch
+
+and the diffstat is:
+
+ Documentation/scsi/ChangeLog.megaraid  |  104 ++++++++
+ drivers/block/cciss_scsi.c             |   15 -
+ drivers/s390/scsi/zfcp_erp.c           |    6 
+ drivers/s390/scsi/zfcp_fsf.c           |   37 +--
+ drivers/scsi/megaraid/Kconfig.megaraid |    1 
+ drivers/scsi/megaraid/mega_common.h    |    3 
+ drivers/scsi/megaraid/megaraid_ioctl.h |    1 
+ drivers/scsi/megaraid/megaraid_mbox.c  |  403 ++++++++++++++++++++++++++++++++-
+ drivers/scsi/megaraid/megaraid_mbox.h  |   24 +
+ drivers/scsi/megaraid/megaraid_mm.c    |   39 +++
+ drivers/scsi/megaraid/megaraid_mm.h    |    5 
+ drivers/scsi/qla2xxx/qla_isr.c         |    4 
+ drivers/scsi/scsi_transport_fc.c       |    3 
+ drivers/scsi/scsi_transport_iscsi.c    |    4 
+ drivers/scsi/scsi_transport_spi.c      |    3 
+ 15 files changed, 604 insertions(+), 48 deletions(-)
+
+James
+
+

@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269966AbUJHOOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUJHOZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269966AbUJHOOA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269987AbUJHOOA
+	id S268185AbUJHOZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269801AbUJHOZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:14:00 -0400
-Received: from ex-nihilo-llc.com ([206.114.147.90]:35337 "EHLO
-	ex-nihilo-llc.com") by vger.kernel.org with ESMTP id S269966AbUJHONy
+	Fri, 8 Oct 2004 10:25:57 -0400
+Received: from jade.aracnet.com ([216.99.193.136]:39326 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S268185AbUJHOZz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:13:54 -0400
-Subject: Re: Maximum block dev size / filesystem size
-From: Aaron Peterson <aaron@alpete.com>
-Reply-To: aaron@alpete.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097177960.31547.132.camel@localhost.localdomain>
-References: <1097180361.491.25.camel@main>
-	 <1097177960.31547.132.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NRBJLMw8Vk/UxQGgKxLl"
-Message-Id: <1097244833.491.31.camel@main>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 10:13:53 -0400
+	Fri, 8 Oct 2004 10:25:55 -0400
+Date: Fri, 08 Oct 2004 07:24:37 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@hpce.nec.com>
+cc: Paul Jackson <pj@sgi.com>, Simon.Derr@bull.net, colpatch@us.ibm.com,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-ID: <1382270000.1097245476@[10.10.2.4]>
+In-Reply-To: <200410081123.45762.efocht@hpce.nec.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20041007105425.02e26dd8.pj@sgi.com> <1344740000.1097172805@[10.10.2.4]> <200410081123.45762.efocht@hpce.nec.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Thursday 07 October 2004 20:13, Martin J. Bligh wrote:
+>> It all just seems like a lot of complexity for a fairly obscure set of
+>> requirements for a very limited group of users, to be honest. Some bits
+>> (eg partitioning system resources hard in exclusive sets) would seem likely
+>> to be used by a much broader audience, and thus are rather more attractive.
+> 
+> May I translate the first sentence to: the requirements and usage
+> models described by Paul (SGI), Simon (Bull) and myself (NEC) are
+> "fairly obscure" and the group of users addressed (those mainly
+> running high performance computing (AKA HPC) applications) is "very
+> limited"? If this is what you want to say then it's you whose view is
+> very limited. Maybe I'm wrong with what you really wanted to say but I
+> remember similar arguing from your side when discussing benchmark
+> results in the context of the node affine scheduler.
 
---=-NRBJLMw8Vk/UxQGgKxLl
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+No, I was talking about the non-exclusive part of cpusets that wouldn't
+fit inside another mechanism. The basic partitioning I have no problem
+with, and that seemed to cover most of the requirements, AFAICS.
 
-On Thu, 2004-10-07 at 15:39, Alan Cox wrote:
-> On Iau, 2004-10-07 at 21:19, Aaron Peterson wrote:
-> > I work for a company with a 15 TB SAN.  All opinions about the
-> > disadvantages of creating really large filesystems aside, I'm trying to
-> > find out what is the maximum filesystem size we can allocate on our SAN
-> > that a linux box (x86) can really use.
->=20
-> For 2.4.x 1Tb (2Tb works for some devices but its a bit variable)
->=20
-> > What I can't seem to find anywhere is whether the 2 TB block device
-> > limit has improved/grown with 2.6 kernels (on x86 hardware).  Perhaps
-> > I've looked in the wrong places, but I haven't found anything.
->=20
-> 2.6 fixed this problem although it appears not for some specialist
-> cases. Last time I checked LVM logical volumes over 2Tb were reported
-> problematic.
+As I've said before, the exclusive stuff makes sense, and is useful to
+a wider audience, I think. Having non-exclusive stuff whilst still 
+requiring physical partioning is what I think is obscure, won't work
+well (cpus_allowed is problematic) and could be done in userspace anyway.
 
-I've read that the other main difficulty besides block device size
-limits is problems with the ext2 management tools themselves.  So, how
-would you rate my chances of using a 2.6 kernel with XFS (and xfs
-management tools of course) with a 5 TB filesystem?  Probably not a well
-tested scenerio to say the least...
-
-Aaron
-
---=-NRBJLMw8Vk/UxQGgKxLl
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (FreeBSD)
-
-iD8DBQBBZqCgeJcyAiXpNL8RAny5AJ972ej3GzHQhbxlbrcda8Ps0HybdwCdEqBN
-foeCyR6m0GlrcAsQQynSoy8=
-=32Rd
------END PGP SIGNATURE-----
-
---=-NRBJLMw8Vk/UxQGgKxLl--
-
+M.

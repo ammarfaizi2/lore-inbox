@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbTAaRfz>; Fri, 31 Jan 2003 12:35:55 -0500
+	id <S261855AbTAaRqn>; Fri, 31 Jan 2003 12:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261733AbTAaRfz>; Fri, 31 Jan 2003 12:35:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63495 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261724AbTAaRfy>; Fri, 31 Jan 2003 12:35:54 -0500
-Date: Fri, 31 Jan 2003 18:45:19 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: =?iso-8859-2?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Pavel Machek <pavel@ucw.cz>, Xavier Bestel <xavier.bestel@free.fr>,
-       Raphael Schmid <Raphael_Schmid@CUBUS.COM>,
-       "'John Bradford'" <john@grabjohn.com>, rob@r-morris.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bootscreen
-Message-ID: <20030131174519.GA26929@atrey.karlin.mff.cuni.cz>
-References: <398E93A81CC5D311901600A0C9F2928946937F@cubuss2> <1043764502.24813.16.camel@bip.localdomain.fake> <20030130072521.GA559@zaurus> <20030131174036.GA9694@wohnheim.fh-wedel.de>
+	id <S261868AbTAaRqn>; Fri, 31 Jan 2003 12:46:43 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:58824 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261855AbTAaRqn>;
+	Fri, 31 Jan 2003 12:46:43 -0500
+Date: Fri, 31 Jan 2003 18:55:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: drivers/char/keyboard.c now unused?
+Message-ID: <20030131185558.A25927@ucw.cz>
+References: <1043894474.1623.6.camel@laptop-linux.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030131174036.GA9694@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1043894474.1623.6.camel@laptop-linux.cunninghams>; from ncunningham@clear.net.nz on Thu, Jan 30, 2003 at 03:41:15PM +1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Well, with right scripts you can probably boot
-> > faster than do resume (and you can certainly
-> > shutdown faster than suspend). OTOH, if you
-> > turn off ide-scsi in 2.5.59, swsusp should just
-> > work.
+On Thu, Jan 30, 2003 at 03:41:15PM +1300, Nigel Cunningham wrote:
+> Hi all.
 > 
-> But it takes quite a while to open all those editor windows again, let
-> alone remembering, where you were when you closed them. This is the
-> real benefit I see in software suspend.
+> I've been doing some work on porting my patches to the 2.4 version of
+> software suspend to 2.5. Under 2.4, I use the shift_state variable from
+> drivers/char/keyboard.c to provide interactive, step-by-step progression
+> through the process. That is, there is an option for you to be able to
+> press and release shift before the next stage starts. With the new input
+> layer, drivers/char/keyboard.c still exists, but seems to be unused. Can
+> I get confirmation that my understand is correct, and (if possible) a
+> pointer to information on how I can reimplement the functionality under
+> 2.5?
 
-Hey, I'm developing swsusp, no need to tell *me* its usefull. Primary
-application here will be to be able to do long-running computation
-(lingvistic experiments) and *still* sleep at night ;-).
+Your understanding is not correct, and drivers/char/keyboard.c is very
+much used for all keyboard input in 2.5.
 
-								Pavel
+> Oh and before anyone has a hernia, I'm not intending to leave this
+> functionality in the final version - its just for debugging purposes.
+> 
+> Thanks in advance,
+> 
+> Nigel
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Vojtech Pavlik
+SuSE Labs

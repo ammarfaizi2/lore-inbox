@@ -1,105 +1,298 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270625AbTGZXNg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 19:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270626AbTGZXNg
+	id S270626AbTGZXRT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 19:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270629AbTGZXRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 19:13:36 -0400
-Received: from diale221.ppp.lrz-muenchen.de ([129.187.28.221]:26603 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S270625AbTGZXNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 19:13:34 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Daniel Egger <degger@fhm.edu>
-To: Yury Umanets <umka@namesys.com>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <1059231274.28094.40.camel@haron.namesys.com>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-	 <1059142851.6962.18.camel@sonja>
-	 <1059143985.19594.3.camel@haron.namesys.com>
-	 <1059181687.10059.5.camel@sonja>
-	 <1059203990.21910.13.camel@haron.namesys.com>
-	 <1059228808.10692.7.camel@sonja>
-	 <1059231274.28094.40.camel@haron.namesys.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4Llnxx98VMlh9NY1CLNH"
-Message-Id: <1059232897.10692.37.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Jul 2003 17:21:37 +0200
+	Sat, 26 Jul 2003 19:17:19 -0400
+Received: from [207.44.242.120] ([207.44.242.120]:16045 "EHLO
+	lucy.aventurehost.co.uk") by vger.kernel.org with ESMTP
+	id S270626AbTGZXRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 19:17:12 -0400
+Message-ID: <1059262346.3f230f8aef43b@www.thoughtcriminal.co.uk>
+Date: Sun, 27 Jul 2003 00:32:26 +0100
+From: paul@thoughtcriminal.co.uk
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide problem - is this a known problem, or is the disk dead?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 80.47.196.134
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - lucy.aventurehost.co.uk
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32001 502] / [47 12]
+X-AntiAbuse: Sender Address Domain - thoughtcriminal.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am having similar problems with a disk. I have ext3, reiser and ntfs
+partitions on this disk and all are failing with messages such as those in the
+rest of this thread and as below.
 
---=-4Llnxx98VMlh9NY1CLNH
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I am running Mandrake 9.1 (2.4.21-0.13) on an Asus A7N8X deluxe
 
-Am Sam, 2003-07-26 um 16.54 schrieb Yury Umanets:
+Is this due to hardware failure or should I try a different kernel?
 
-Now we're talking. :)
+Please CC to me as I only have webmail because of this problem.
 
-> Reiserfs cannot be used efficiently with flash, as it uses block size 4K
-> (by default) and usual flash block size is in range 64K - 256K.
 
-Don't confuse block size with erase size. The former is the layout of
-the fs' data on the medium while the latter is the granulariy of the
-erase command which is important insofar that flash has to be erased (in
-most cases) before one can write new data on it.
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:51 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:52 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:52 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:52 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:52 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:53 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:53 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:53 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:53 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:53 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:53 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:53 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:53 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:53 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:53 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: zam-7001: io error in reiserfs_find_entry
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
 
-However since you said that one can plug in a different block allocation
-scheme, I think it might be possible to work around that limitation by
-writing a block allocator which works around the limitations of the
-erase size.
-
-> Also reiserfs does not use compression, that would be very nice of it
-> :), because flash has limited number of erase cycles per block (in range
-> 100.000)
-
-I don't see what the compression has to do with the limited number of
-erase/write cycles.
-
->  and it is about three times as expensive as SDRAM.
-
-That's true but not important to us. The system right now fits nicely on
-a 128MB CF card when using ext2 or on 64MB when using JFFS2. The latter
-is far more stable and reliable but dogslow. Since the price difference
-between 128MB and 64CF is rather small and the cost of the overall
-system relatively high this is no argument for us.
-
-> So, it is better to use something more convenient. For instance jffs2.
-
-Convenient only insofar that it's more reliable. It's a pain in the neck
-to setup for non hardwired flash chips and to boot, it also takes
-forever to mount and to write on it.
-
-> (1) Make the journal substantial smaller of size.
-> (2) Don't turn tails off. This is useful to prolong flash live.
-
-Thanks. But first I'll have a look at your plugin architecture to see
-how feasible a different implementation of block allocation especially
-for flash devices would be.
-
---=20
-Servus,
-       Daniel
-
---=-4Llnxx98VMlh9NY1CLNH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/IpyBchlzsq9KoIYRAlF+AKDUk/SLYoFmESbW9H9zLigW/Q5kigCfcqaF
-uFAF6dMHjG79LYbl3CFk/Tg=
-=GgTC
------END PGP SIGNATURE-----
-
---=-4Llnxx98VMlh9NY1CLNH--
-
+Message from syslogd@monkey at Sun Jul 27 00:15:54 2003 ...
+monkey kernel: journal-601, buffer write failed
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector 1288
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector 1296
+Jul 27 00:15:54 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector 1304
+Jul 27 00:15:54 monkey kernel: journal-601, buffer write failed
+Jul 27 00:15:54 monkey kernel: kernel BUG at prints.c:334!
+Jul 27 00:15:54 monkey kernel: invalid operand: 0000
+Jul 27 00:15:54 monkey kernel: ppp_deflate zlib_deflate bsd_comp ppp_async
+ppp_generic slhc sd_mod isofs zlib_inflate udf ide-cd cdrom i810_audio soundcore
+ac97_codec af_packet floppy 3c90x ohci1394 ieee1394 nls_cp850 vfat fat
+nls_iso8859-15 ntfs reiserfs supermount usb-storage scsi_mod usbmouse keybdev
+mousedev hid input ehci-hcd usb-ohci usbcore rtc ext3 jbd
+Jul 27 00:15:54 monkey kernel: CPU:    0
+Jul 27 00:15:54 monkey kernel: EIP:   
+0010:[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1325544/96]
+   Not tainted
+Jul 27 00:15:54 monkey kernel: EIP:    0010:[<e49f9618>]    Not tainted
+Jul 27 00:15:54 monkey kernel: EFLAGS: 00210286
+Jul 27 00:15:54 monkey kernel: EIP is at reiserfs_panic+0x28/0x60 [reiserfs]
+Jul 27 00:15:54 monkey kernel: eax: 00000024   ebx: df424c00   ecx: 00000001  
+edx: dd940000
+Jul 27 00:15:54 monkey kernel: esi: 00000000   edi: 00000012   ebp: c1591eb4  
+esp: c1591ea0
+Jul 27 00:15:54 monkey kernel: ds: 0018   es: 0018   ss: 0018
+Jul 27 00:15:54 monkey kernel: Process kupdated (pid: 7, stackpage=c1591000)
+Jul 27 00:15:54 monkey kernel: Stack: e4a107f1 e4a14f60 e4a0dfe0 c1591ec4
+e4a18ba0 c1591ee0 e4a03c7a df424c00
+Jul 27 00:15:54 monkey kernel:        e4a0dfe0 00000006 00000004 00000000
+cf85c1e0 e4a1808c 00000029 00000013
+Jul 27 00:15:54 monkey kernel:        c1591f44 e4a076be df424c00 e4a18ba0
+00000001 e4a18000 e4a62414 00000820
+Jul 27 00:15:54 monkey kernel: Call Trace:
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1230863/96]
+.rodata.str1.1+0x4af/0xa1a [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a107f1>] .rodata.str1.1+0x4af/0xa1a [reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1212576/96]
+error_buf+0x0/0x400 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a14f60>] error_buf+0x0/0x400 [reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1241120/96]
+.rodata.str1.32+0x3440/0x57a2 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a0dfe0>] .rodata.str1.32+0x3440/0x57a2
+[reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1282950/96]
+flush_commit_list+0x29a/0x410 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a03c7a>] flush_commit_list+0x29a/0x410
+[reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1241120/96]
+.rodata.str1.32+0x3440/0x57a2 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a0dfe0>] .rodata.str1.32+0x3440/0x57a2
+[reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1268034/96]
+do_journal_end+0x60e/0xb10 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a076be>] do_journal_end+0x60e/0xb10 [reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1271342/96]
+flush_old_commits+0xf2/0x170 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a069d2>] flush_old_commits+0xf2/0x170 [reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1230131/96]
+.rodata.str1.1+0x78b/0xa1a [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e4a10acd>] .rodata.str1.1+0x78b/0xa1a [reiserfs]
+Jul 27 00:15:54 monkey kernel: 
+[af_packet:__insmod_af_packet_O/lib/modules/2.4.21-0.13mdk/kernel/net/+-1337384/96]
+reiserfs_write_super+0x28/0x30 [reiserfs]
+Jul 27 00:15:54 monkey kernel:  [<e49f67d8>] reiserfs_write_super+0x28/0x30
+[reiserfs]
+Jul 27 00:15:54 monkey kernel:  [sync_supers+175/304] sync_supers+0xaf/0x130
+[kernel]
+Jul 27 00:15:54 monkey kernel:  [<c01448df>] sync_supers+0xaf/0x130 [kernel]
+Jul 27 00:15:54 monkey kernel:  [sync_old_buffers+17/64]
+sync_old_buffers+0x11/0x40 [kernel]
+Jul 27 00:15:54 monkey kernel:  [<c0143d51>] sync_old_buffers+0x11/0x40 [kernel]
+Jul 27 00:15:54 monkey kernel:  [kupdate+272/336] kupdate+0x110/0x150 [kernel]
+Jul 27 00:15:54 monkey kernel:  [<c0144050>] kupdate+0x110/0x150 [kernel]
+Jul 27 00:15:54 monkey kernel:  [rest_init+0/48] stext+0x0/0x30 [kernel]
+Jul 27 00:15:54 monkey kernel:  [<c0105000>] stext+0x0/0x30 [kernel]
+Jul 27 00:15:54 monkey kernel:  [arch_kernel_thread+38/64]
+arch_kernel_thread+0x26/0x40 [kernel]
+Jul 27 00:15:54 monkey kernel:  [<c0107526>] arch_kernel_thread+0x26/0x40 [kernel]
+Jul 27 00:15:54 monkey kernel:  [kupdate+0/336] kupdate+0x0/0x150 [kernel]
+Jul 27 00:15:54 monkey kernel:  [<c0143f40>] kupdate+0x0/0x150 [kernel]
+Jul 27 00:15:54 monkey kernel:
+Jul 27 00:15:54 monkey kernel: Code: 0f 0b 4e 01 f7 07 a1 e4 68 60 4f a1 e4 85
+db 74 17 66 8b 43
+Jul 27 00:15:57 monkey kernel:  <6>end_request: I/O error, dev 16:06 (hdc),
+sector 15079456
+Jul 27 00:15:57 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:03 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:03 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:09 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:09 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:15 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:15 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:21 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:21 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:27 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:27 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:33 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:33 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:39 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:39 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:45 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:45 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:51 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:51 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:16:57 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:16:57 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]
+Jul 27 00:17:03 monkey kernel: end_request: I/O error, dev 16:06 (hdc), sector
+15079456
+Jul 27 00:17:03 monkey kernel: vs-13070: reiserfs_read_inode2: i/o failure
+occurred trying to find stat data of [2 14773 0x0 SD]

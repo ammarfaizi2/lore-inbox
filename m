@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317814AbSGPMvK>; Tue, 16 Jul 2002 08:51:10 -0400
+	id <S317830AbSGPMxD>; Tue, 16 Jul 2002 08:53:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317830AbSGPMvI>; Tue, 16 Jul 2002 08:51:08 -0400
-Received: from [80.94.224.242] ([80.94.224.242]:1801 "EHLO babbler.csp.org.by")
-	by vger.kernel.org with ESMTP id <S317814AbSGPMuS>;
-	Tue, 16 Jul 2002 08:50:18 -0400
-Message-Id: <200207161312.g6GDC7B20891@babbler.csp.org.by>
-From: Svetlana Savitskaya <svs@atwss.com>
-To: linux-kernel@vger.kernel.org
-Subject: business proposal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-Reply-To: svs@atwss.com
-Date: Tue, 16 Jul 2002 14:52:42 +0200
+	id <S317831AbSGPMxD>; Tue, 16 Jul 2002 08:53:03 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24303 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317830AbSGPMw7>; Tue, 16 Jul 2002 08:52:59 -0400
+Subject: Re: Tyan s2466 stability
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: SCoTT SMeDLeY <ss@aaoepp.aao.gov.au>, linux-kernel@vger.kernel.org,
+       ss@aao.gov.au
+In-Reply-To: <Pine.LNX.3.95.1020716073755.7363A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1020716073755.7363A-100000@chaos.analogic.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 16 Jul 2002 15:05:45 +0100
+Message-Id: <1026828345.1688.52.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-07-16 at 12:58, Richard B. Johnson wrote:
+> We got one here about two weeks ago. It had 2 AMD processors plus
+> 2 'sticks' of RAM (Don't know how much). It was originally tested
+> on an IDE drive booting Windows/2000. It worked, but a CPU had to
+> be removed because W$ trashes drives when using two CPUs.
 
-Dear Sir/Madame,
+More likely your set up was faulty
 
-My name is Svetlana Savitskaya. I work for Arch/Web Space Station, a
-web and software development. We have a business proposal that may be
-of interest to you. It is about outsourcing development of IT systems.
-Please let me know if you are interested and I'll send you more details.
+> I got to play with it for an hour. I put one of my BusLogic SCSI
+> controllers in one of the 33MHz slots and booted Linux off an existing
 
-You can get more information about us at www.web-space-station.com.
-Our portfolio: www.web-space-station.com/portfolio/index.html
+Sounds like hardware/PSU stuff to me
 
-Testimonials: http://www.web-space-station.com/cgi-bin/pub/testimonials/testimonials.cgi
+> Nevertheless, I was entirely unimpressed with this "MPX" board. It
+> didn't have built-in SCSI like older Tyan boards that I currently use
+> and it didn't work very well. My AGP graphics card (G-Force) didn't
+> work either (in graphics) although I'm told that 'newer' ones do.
 
-Thank you for your time and considerations,
+I'm very happy with my MPX based board. The docs sucked, the BIOS
+socked, the lack of onboard USB sucked, but the rest is very nice and it
+seems stable enough.
 
-Svetlana Savitskaya
-Business Development Department
-Email: svs@atwss.com
-Tel.: +375 172 840792
+Power (430W PSU or bigger - and the right ones to get sufficient current
+on low voltage lines) and heat are big problems. I'm very happy with
+mine as a server box. As a desktop, or living in the same room as me I'd
+say definitely not.
 
-PS We are highly concerned about ethical business. We
-found you as a result of our targeted on-line search. It's a
-business-to-business proposal and you are not placed in
-any mailing list. There is no necessity to unsubscribe. If
-you don't reply to this message we will assume that you
-are not interested in our proposal and never contact you
-again.
-
-Arch Ltd./Web Space Station
-Podebradova 697/16,
-Prague, 182 00
-Czech Republic
-
-
+As to the lack of SCSI. I have an Adaptec/Dell Obsidian 4 port 64bit PCI
+SCSI controller plugged into it. It outperforms onboard scsi controllers
+so I don't feel the need for an onboard scsi controller to chain CD-ROMS
+too.
 

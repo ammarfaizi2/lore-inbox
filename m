@@ -1,129 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264285AbTKLTom (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 14:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTKLTom
+	id S264290AbTKLUB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 15:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264287AbTKLUB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 14:44:42 -0500
-Received: from mail2-116.ewetel.de ([212.6.122.116]:21247 "EHLO
-	mail2.ewetel.de") by vger.kernel.org with ESMTP id S264285AbTKLTof
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 14:44:35 -0500
-Date: Wed, 12 Nov 2003 20:44:24 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <20031112183105.GR21141@suse.de>
-Message-ID: <Pine.LNX.4.44.0311122031290.928-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Wed, 12 Nov 2003 15:01:58 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:59836 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S264286AbTKLUBw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 15:01:52 -0500
+Date: Wed, 12 Nov 2003 14:01:19 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: davidm@hpl.hp.com
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Inefficient TLB flushing 
+Message-ID: <20031112200119.GA22429@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Nov 2003, Jens Axboe wrote:
-
-> Great! Can you please send a diff for review? It speaks more clearly
-> than 1000 descriptions of what a patch does :)
-
-Included at the end of the mail. I found one little problem. If I do
-
-mke2fs -b 2048 /dev/hde
-mount -t ext2 /dev/hde /mnt/mo
-copy 10mbfile /mnt/mo/
-umount /mnt/mo
-e2fsck -f /dev/hde
-
-I get complaints from e2fsck that the free blocks and free inodes counts
-are wrong. However, if I do 
-
-eject -r /dev/hde
-
-and then reinsert the disk before the e2fsck, there are no errors
-reported. Checking on 2.4 confirms the filesystem on disk is okay. This
-look to me like the data makes it to disk in any case, but in the first
-case e2fsck is somehow getting stale data from somewhere.
-
-> > Now, assuming there is a reason that the cdrom_read_capacity() function
-> > is only used as a fallback for normal ide-cd devices, my change might
-> Fall back?
-
-Yes, the code in cdrom_read_toc does only use cdrom_read_capacity if the
-cdrom_get_last_written call fails or returns a 0 capacity. For the MO,
-we never get that far because cdrom_read_toc exits a lot earlier because
-the first cdrom_get_tocentry it tries fails and causes the function to
-exit, never setting the capacity.
- 
->> Jens, what do you think?
-> Do what it currently does, set it to some high value? Then we'll just
-> rely on the drive properly failing read requests. Better than not being
-> able to reach the files.
-
-Sounds reasonable. I rearranged what I did a little so that non-MO
-drives should be handled almost the same as before. The 
-cdrom_read_capacity is now attempted at the start of cdrom_read_toc and
-the cdrom_get_last_written at the end can override the capacity if
-needed. I don't fix up toc->capacity in that case, however, that
-would need to be added, I think.
 
 
---- linux-2.6.0-test9/drivers/ide/ide-cd.c.orig	Tue Nov 11 22:21:38 2003
-+++ linux-2.6.0-test9/drivers/ide/ide-cd.c	Wed Nov 12 20:12:31 2003
-@@ -2257,6 +2257,13 @@
- 	if (CDROM_STATE_FLAGS(drive)->toc_valid)
- 		return 0;
- 
-+	/* Try to get the total cdrom capacity. */
-+	stat = cdrom_read_capacity(drive, &toc->capacity, sense);
-+	if (stat)
-+		toc->capacity = 0x1fffff;
-+
-+	set_capacity(drive->disk, toc->capacity * SECTORS_PER_FRAME);
-+
- 	/* First read just the header, so we know how long the TOC is. */
- 	stat = cdrom_read_tocentry(drive, 0, 1, 0, (char *) &toc->hdr,
- 				    sizeof(struct atapi_toc_header), sense);
-@@ -2365,12 +2372,8 @@
- 
- 	/* Now try to get the total cdrom capacity. */
- 	stat = cdrom_get_last_written(cdi, (long *) &toc->capacity);
--	if (stat || !toc->capacity)
--		stat = cdrom_read_capacity(drive, &toc->capacity, sense);
--	if (stat)
--		toc->capacity = 0x1fffff;
--
--	set_capacity(drive->disk, toc->capacity * SECTORS_PER_FRAME);
-+	if (!stat && toc->capacity)
-+		set_capacity(drive->disk, toc->capacity * SECTORS_PER_FRAME);
- 
- 	/* Remember that we've read this stuff. */
- 	CDROM_STATE_FLAGS(drive)->toc_valid = 1;
-@@ -3211,7 +3214,8 @@
- 
- 	nslots = ide_cdrom_probe_capabilities (drive);
- 
--	if (CDROM_CONFIG_FLAGS(drive)->dvd_ram)
-+	if (CDROM_CONFIG_FLAGS(drive)->dvd_ram ||
-+	    CDROM_CONFIG_FLAGS(drive)->mo_drive)
- 		set_disk_ro(drive->disk, 0);
- 
- #if 0
---- linux-2.6.0-test9/drivers/cdrom/cdrom.c.orig	Tue Nov 11 22:21:25 2003
-+++ linux-2.6.0-test9/drivers/cdrom/cdrom.c	Wed Nov 12 20:13:33 2003
-@@ -426,7 +426,8 @@
- 	if ((fp->f_flags & O_NONBLOCK) && (cdi->options & CDO_USE_FFLAGS))
- 		ret = cdi->ops->open(cdi, 1);
- 	else {
--		if ((fp->f_mode & FMODE_WRITE) && !CDROM_CAN(CDC_DVD_RAM))
-+		if ((fp->f_mode & FMODE_WRITE) &&
-+		    !(CDROM_CAN(CDC_DVD_RAM) || CDROM_CAN(CDC_MO_DRIVE)))
- 			return -EROFS;
- 
- 		ret = open_for_data(cdi);
+Something appears broken in TLB flushing on IA64 (& possibly other
+architectures). Functionally, it works but performance is bad on 
+systems with large cpu counts. 
+
+The result is that TLB flushing in exit_mmap() is frequently being done via
+IPIs to all cpus rather than with a "ptc" instruction or with a new context..
 
 
+
+Take a look at exit_mmap()  (in mm/mmap.c):
+
+	void exit_mmap(struct mm_struct *mm)
+	{
+  (1)		tlb = tlb_gather_mmu(mm, 1);
+  		unmap_vmas(&tlb,...
+		...
+  (2)		tlb_finish_mmu(tlb, 0, MM_VM_SIZE(mm));
+		...
+	}
+
+
+	static inline void
+	tlb_finish_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
+	{
+		...
+		ia64_tlb_flush_mmu(tlb, start, end);
+		...
+	}
+
+
+	static inline void
+	ia64_tlb_flush_mmu (struct mmu_gather *tlb, unsigned long start, unsigned long end)
+	{
+		...
+   (3)		if (tlb->fullmm) {
+			flush_tlb_mm(tlb->mm);
+   (4)		} else if (unlikely (end - start >= 1TB ...
+			/* This should be very rare and is not worth optimizing for.
+   (5)			flush_tlb_all();
+		...
+
+	flush_tlb_all() flushes with IPI to every cpu
+
+
+<start> & <end> are passed from exit_mmap at line (2) as 0..MM_VM_SIZE which is
+0..0xa000000000000000 (on IA64) & the expression at (4) is always TRUE. If tlb->fullmm is 
+false, the code in ia64_tlb_flush_mmu calls flush_tlb_all. flush_tlb_all uses IPIs to 
+do the TLB flushing.
+
+
+Normally, tlb->fullmm at line (3) is 1 since it is initialized to 1 at line (1). However, in 
+unmap_vmas(), if a resched interrupt occurs during VMA teardown, the tlb flushing
+is reinitialized & tlb_gather_mmu() is called with tlb_gather_mmu(mm, 0). When the
+call to tlb_finish_mmu() is made at line (2), TLB flushing is done with an IPI
+
+
+Does this analysis look correct??  AFAICT, this bug (inefficiency) may apply to other
+architectures although I cant access it's peformance impact.
+
+
+Here is the patch that I am currently testing:
+
+
+--- /usr/tmp/TmpDir.19957-0/linux/mm/memory.c_1.79	Wed Nov 12 13:56:25 2003
++++ linux/mm/memory.c	Wed Nov 12 12:57:25 2003
+@@ -574,9 +574,10 @@
+ 			if ((long)zap_bytes > 0)
+ 				continue;
+ 			if (need_resched()) {
++				int fullmm = (*tlbp)->fullmm;
+ 				tlb_finish_mmu(*tlbp, tlb_start, start);
+ 				cond_resched_lock(&mm->page_table_lock);
+-				*tlbp = tlb_gather_mmu(mm, 0);
++				*tlbp = tlb_gather_mmu(mm, fullmm);
+ 				tlb_start_valid = 0;
+ 			}
+ 			zap_bytes = ZAP_BLOCK_SIZE;
 -- 
-Ciao,
-Pascal
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
 

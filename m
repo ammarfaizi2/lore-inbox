@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267810AbTBRM6v>; Tue, 18 Feb 2003 07:58:51 -0500
+	id <S267802AbTBRNEa>; Tue, 18 Feb 2003 08:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267809AbTBRM5o>; Tue, 18 Feb 2003 07:57:44 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:12195 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id <S267810AbTBRM5g>; Tue, 18 Feb 2003 07:57:36 -0500
-Subject: Re: Help !! calling function in module from a user program
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Sudharsan Vijayaraghavan <svijayar@cisco.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4.3.2.7.2.20030218181634.01fb5428@desh>
-References: <4.3.2.7.2.20030218181634.01fb5428@desh>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1045573251.2505.108.camel@cambridge.braddahead>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1-1mdk 
-Date: 18 Feb 2003 13:00:51 +0000
+	id <S267805AbTBRNEa>; Tue, 18 Feb 2003 08:04:30 -0500
+Received: from mail.uptime.at ([62.116.87.11]:42919 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id <S267802AbTBRNE3>;
+	Tue, 18 Feb 2003 08:04:29 -0500
+Received-Date: Tue, 18 Feb 2003 13:56:52 +0100
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: <axp-kernel-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Module problems (WAS: RE: 2.5.62 on Alpha SUCCESS (2.6 release soon!?))
+Date: Tue, 18 Feb 2003 14:12:58 +0100
+Organization: UPtime system solutions
+Message-ID: <001401c2d74f$785bb720$020b10ac@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <000f01c2d73d$6314ce40$020b10ac@pitzeier.priv.at>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+X-MailScanner: clean
+X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.6, required 5.3,
+	AWL, IN_REP_TO, NOSPAM_INC, PLING_QUERY, QUOTED_EMAIL_TEXT,
+	SPAM_PHRASE_00_01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-18 at 12:50, Sudharsan Vijayaraghavan wrote:
-> Hi,
-> 
-> Am a new bee to linux internals.
-> I am trying to make a simple program witch will call a function from a 
-> module. I made a module compiled it and INSMOD-it into kernel, that works 
-> fine. I would like to call from my user program a function defined in my 
-> kernel module.
+Oliver Pitzeier wrote:
+> I just wanted to tell everybody that 2.5.62 works great for 
+> me on Alpha... Thanks a lot to the alpha kernel developers!!! 
+> You did a great job...
+[ ... ]
 
-You never call functions directly from user-mode. You generally use a
-syscall to interface between user-mode and kernel-mode. Most drivers
-implement operations that map via these syscalls (i.e.
-open/close/read/write etc). 
+OK... Make modules_install still has problems:
 
-What exactly are you trying to achieve?
--- 
-Alex, homepage: http://www.bennee.com/~alex/
+[root@track linux]# make modules_install
+make -rR -f scripts/Makefile.modinst
+  mkdir -p /lib/modules/2.5.62/kernel/net/8021q; cp net/8021q/8021q.ko
+/lib/modules/2.5.62/kernel/net/8021q
+  mkdir -p /lib/modules/2.5.62/kernel/fs/autofs4; cp fs/autofs4/autofs4.ko
+/lib/modules/2.5.62/kernel/fs/autofs4
+  mkdir -p /lib/modules/2.5.62/kernel/drivers/net; cp drivers/net/bonding.ko
+/lib/modules/2.5.62/kernel/drivers/net
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.62; fi
+depmod: Unhandled relocation of type 10 for .text
+depmod: Unhandled relocation of type 10 for .text
+depmod: Unhandled relocation of type 10 for .text
+depmod: Unhandled relocation of type 10 for .text
+depmod: depmod obj_relocate failed
 
-How much does it cost to entice a dope-smoking UNIX system guru to Dayton?
-		-- Brian Boyle, UNIX/WORLD's First Annual Salary Survey
+make: *** [_modinst_post] Error 1
+
+Best regards,
+ Oliver
+
 

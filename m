@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbTLBU2a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBUQ2
+	id S264370AbTLBUTm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:19:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTLBUTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:16:28 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:8086 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264358AbTLBUOM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:14:12 -0500
-Date: Tue, 2 Dec 2003 15:13:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+	Tue, 2 Dec 2003 15:19:03 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:41255 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264353AbTLBUSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:18:55 -0500
+Date: Tue, 2 Dec 2003 21:18:00 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Peter C. Norton" <spacey-linux-kernel@lenin.nu>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, Ian Kent <raven@themaw.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4 future
-Message-ID: <20031202201309.GA17779@gtf.org>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <20031202184513.GU16507@lug-owl.de> <Pine.LNX.4.58.0312021101440.1519@home.osdl.org> <200312021439.52933.gene.heskett@verizon.net>
+Message-ID: <20031202201800.GB2030@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <20031201213651.GK18176@lenin.nu> <1070322894.5260.5.camel@laptop.fenrus.com> <20031202201040.GX18176@lenin.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312021439.52933.gene.heskett@verizon.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20031202201040.GX18176@lenin.nu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 02:39:52PM -0500, Gene Heskett wrote:
-> the reasons behind the reasoning.  However, that doesn't help us pour 
-> schmucks out here in la-la land trying to make the most recent nvidia 
-> module work with the latest kernel on our now elderly gforce2's.  I'd 
-> like to have some OpenGL support for instance, but for everything 
-> else, nv is probably 100x more stable than the nvidia binary.  So we 
-> run nv.  Maybe someday nvidia will get baptised, but *I'm* not 
-> counting on it.
+On Tue, Dec 02, 2003 at 12:10:40PM -0800, Peter C. Norton wrote:
+> On Tue, Dec 02, 2003 at 12:54:54AM +0100, Arjan van de Ven wrote:
+> > On Mon, 2003-12-01 at 22:36, Peter C. Norton wrote:
+> > `
+> > > encouraging the distros to get behind autofs4 (hint hint, redhat,
+> > > hint).
+> > 
+> > I suspect you'll have a really hard time finding ANY distro that still
+> > wants to actively develop new products on a 2.4 codebase.
 > 
-> Its not your emails (as Linus) to nvidia that will fix that, but a 
-> concerted effort, emailing them for a resolution from everyone who 
-> owns one of their products _might_ eventually make a difference.
-> OTOH, they're going to listen to their IP lawyers & not us. so...
+> Perhaps, but some rather large customers of AS2.1, would like it if
+> redhat could deliver the large outstanding automounting features for
+> their (mainly sun) environments.  Since these environments resist
+> change, upgrading a kernel to include a newer autofs4 is more likely
+> than upgrading the whole system.
 
-Well, the easiest way to convince nVidia is to own someone else's
-product, that does support Linux ;-)
-
-Right now -- for the bleeding edge 3D hardware -- hardware makers
-are across-the-board closed source AFAIK.  ATI used to be open source,
-but their new "microcode JIT" stuff for the latest h/w isn't
-
-Until a volume 3D h/w maker goes open source and gives Linux users a
-market to buy into, it's pretty much closed source moving forward :(
-
-	Jeff
-
-
-
+and putting a feature into 2.4.23 is going to help/change that... how ?

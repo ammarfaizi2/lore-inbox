@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131665AbRC3Vyt>; Fri, 30 Mar 2001 16:54:49 -0500
+	id <S131672AbRC3Whw>; Fri, 30 Mar 2001 17:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131678AbRC3Vy3>; Fri, 30 Mar 2001 16:54:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53771 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131665AbRC3Vy0>;
-	Fri, 30 Mar 2001 16:54:26 -0500
-Date: Fri, 30 Mar 2001 22:53:28 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Summit info?
-Message-ID: <20010330225328.A17407@flint.arm.linux.org.uk>
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B67@mail0.myrio.com>
+	id <S131676AbRC3Whn>; Fri, 30 Mar 2001 17:37:43 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64263 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S131672AbRC3Whb>; Fri, 30 Mar 2001 17:37:31 -0500
+Date: Sat, 31 Mar 2001 00:36:45 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: geirt@powertech.no, linux-kernel@vger.kernel.org
+Subject: Re: Serial port latency
+Message-ID: <20010331003645.F1579@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <000401c0b319517fea9@local> <20010325231013.A34@(none)> <000401c0b828$bbdf7380$5517fea9@local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B67@mail0.myrio.com>; from torrey.hoffman@myrio.com on Fri, Mar 30, 2001 at 01:01:09PM -0800
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <000401c0b828$bbdf7380$5517fea9@local>; from manfred@colorfullife.com on Thu, Mar 29, 2001 at 09:58:31AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 30, 2001 at 01:01:09PM -0800, Torrey Hoffman wrote:
-> However...  for those of us who are curious, is there a web site somewhere
-> with information about the goings-on? What would be really nice is web cams,
-> or a RealAudio feed from the meetings.
+Hi!
 
-There isn't anything being broadcast on the web at the moment, but after
-the meeting, webcasts should be available on the net.  I believe that
-they'll be up around 10th April.
+> > > Is the computer otherwise idle?
+> > > I've seen one unexplainable report with atm problems that
+> disappeared
+> > > (!) if a kernel compile was running.
+> >
+> > I've seen similar bugs. If you hook something on schedule_tq and
+> forget
+> > to set current->need_resched, this is exactly what you get.
+> >
+> I'm running with a patch that printk's if cpu_idle() is called while a
+> softirq is pending.
+> If I access the floppy on my K6/200 every track triggers the check, and
+> sometimes the console blanking code triggers it.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Seems floppy and console is buggy, then.
 
+> What about creating a special cpu_is_idle() function that the idle
+> functions must call before sleeping?
+
+I'd say just fix all the bugs.
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

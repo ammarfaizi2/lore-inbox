@@ -1,102 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265821AbSKAXPR>; Fri, 1 Nov 2002 18:15:17 -0500
+	id <S265818AbSKAXVT>; Fri, 1 Nov 2002 18:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265823AbSKAXPR>; Fri, 1 Nov 2002 18:15:17 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:42055 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S265821AbSKAXPQ>; Fri, 1 Nov 2002 18:15:16 -0500
-Date: Fri, 1 Nov 2002 15:28:10 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: "Donepudi, Suneeta" <sdonepudi@3eti.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel Panic during memcpy_toio to PCI card
-In-Reply-To: <EF5625F9F795C94BA28B150706A215480DF84D@MAIL>
-Message-ID: <Pine.LNX.4.44.0211011527460.27345-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265819AbSKAXVT>; Fri, 1 Nov 2002 18:21:19 -0500
+Received: from mtao-m01.ehs.aol.com ([64.12.52.73]:52874 "EHLO
+	mtao-m01.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S265818AbSKAXVQ>; Fri, 1 Nov 2002 18:21:16 -0500
+Date: Fri, 01 Nov 2002 15:27:41 -0800
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+In-reply-to: <20021031230215.GA29671@bjl1.asuk.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Message-id: <3DC30DED.6040207@netscape.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
+ Gecko/20021016
+References: <20021031230215.GA29671@bjl1.asuk.net>
+ <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com>
+ <20021101020119.GC30865@bjl1.asuk.net>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, grab the 4.1.1 stuff from lkcd.sourceforge.net.  Let the
-lkcd-general list know if you're having problems, one of us
-should be able to help.
+Jamie Lokier wrote:
 
---Matt
+>You avoid the extra CPU cycles like this:
+>
+>    1. EP_CTL_ADD adds the listener to the file's wait queue using
+>       ->poll(), and gets a free test of the object readiness [;)]
+>
+>    2. When the transition happens, the wakeup will call your function,
+>       epoll_wakeup_function.  That removes the listener from the file's
+>       wait queue.  Note, you won't see any more wakeups from that file.
+>
+>    3. When you report the event user space, _then_ you automatically
+>       add the listener back to the file's wait queue by calling ->poll().
+>  
+>
+The cost of removing and readding the listener to the file's wait queue 
+is part of what epoll is amortizing.
 
-On Fri, 1 Nov 2002, Donepudi, Suneeta wrote:
-|>Matt,
-|>
-|>Thanks for the response, I am using a 2.4.18 kernel with
-|>a busybox. This is an embedded system with the file system
-|>laid out by an 'initrd.gz'. I am new to Linux. Can LKCD
-|>still be used in our case ?
-|>
-|>
-|>Suneeta
-|>
-|>-----Original Message-----
-|>From: Matt D. Robinson [mailto:yakker@aparity.com]
-|>Sent: Friday, November 01, 2002 3:26 PM
-|>To: Donepudi, Suneeta; Matt D. Robinson
-|>Subject: Re: Kernel Panic during memcpy_toio to PCI card
-|>
-|>
-|>Hey, Suneeta.  Can you try LKCD and see if you can get
-|>a crash dump with it?  Also, is this 2.4 or 2.5?
-|>
-|>--Matt
-|>
-|>On Fri, 1 Nov 2002, Donepudi, Suneeta wrote:
-|>|>Hi,
-|>|>
-|>|>I would like help in diagnosing a kernel panic while accessing a PCI
-|>device.
-|>|>
-|>|>Everything runs fine for sometime and in about 1/2 hour I get a Kernel
-|>Panic
-|>|>message saying :
-|>|>
-|>|>"Unable to handle kernel paging request at virtual address 0xc2821000"
-|>|>
-|>|>Analysis with Ksymoops shows that it is happening during a memcpy_toio()
-|>|>with the PCI card. The PCI card uses three Base Address Registers with
-|>|>virtual addresses mapped as follows (after ioremap has been issued):
-|>|>
-|>|>BAR0 = 0xc280f000
-|>|>BAR1 = 0xc2811000
-|>|>BAR2 = 0xc2822000
-|>|>
-|>|>It seems like the kernel panic is complaining about an address which is a
-|>|>combination of BAR1 (lower bytes) and BAR2 (upper bytes). It should really
-|>|>be accessing the BAR1 address at the point the crash occurred.
-|>|>
-|>|>I put the following if-statement just before the memcpy_toio():
-|>|>-----------------------------------------------------------
-|>|>if (((long int)pci_bar1) == 0xc2821000)
-|>|>{
-|>|>	printk (KERN_ERR "Illegal address for BAR1\n");
-|>|>	return -1;
-|>|>}
-|>|>memcpy_toio (pci_bar1, in_ptr, len);
-|>|>------------------------------------------------------------
-|>|>
-|>|>It still caused the crash in the same manner and at the same location.
-|>|>Could someone help me with pointers to where I should start looking ?
-|>|>Disabling interrupts around the memcpy_toio() did not make any
-|>|>difference. Is this a hardware problem with the PCI card ? We are using
-|>|>a Xilinx core with out FPGA build into it.
-|>|>Is there a book I could read to learn more about debugging this in the 
-|>|>Kernel ?
-|>|>
-|>|>Thanks a bunch,
-|>|>Suneeta
-|>-
-|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-|>the body of a message to majordomo@vger.kernel.org
-|>More majordomo info at  http://vger.kernel.org/majordomo-info.html
-|>Please read the FAQ at  http://www.tux.org/lkml/
-|>
+There's also the oddity that I noticed this week: pipes don't report 
+POLLOUT readiness through the classic poll interface until the pipe's 
+buffer is completely empty.  Changing this to report POLLOUT readiness 
+when the pipe's buffer is not full apparently causes NIS to break.
 
--- 
 

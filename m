@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbUJ0MRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbUJ0MVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262402AbUJ0MRX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 08:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0MRW
+	id S262407AbUJ0MVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 08:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbUJ0MVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 08:17:22 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:54533 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262402AbUJ0MQD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 08:16:03 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: grove@fsr.ku.dk (Henrik Christian Grove)
-Subject: Re: /proc/net/tcp not updated fast enough?
-Cc: linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <7gekjkpilo.fsf@serena.fsr.ku.dk>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CMmht-0000vK-00@gondolin.me.apana.org.au>
-Date: Wed, 27 Oct 2004 22:15:13 +1000
+	Wed, 27 Oct 2004 08:21:20 -0400
+Received: from mailsc1.simcon-mt.com ([195.27.129.236]:47944 "EHLO
+	mailsc1.simcon-mt.com") by vger.kernel.org with ESMTP
+	id S262407AbUJ0MU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 08:20:28 -0400
+Date: Wed, 27 Oct 2004 14:24:17 +0200
+From: "Andrei A. Voropaev" <av@simcon-mt.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9 byteorder/little_endian.h __le64 type not defined for iproute2
+Message-ID: <20041027122417.GB10280@avorop.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henrik Christian Grove <grove@fsr.ku.dk> wrote:
- 
-> I have it running on 11[1] machines and since midnight (it's 11:47 here
-> now) I have 2397 succesfull connections, but in 31 cases (that's 1,29%
-> of the connections - and thus not totally ignorable) I had to read
-> through /proc/net/tcp twice to find the uid. Does that sound plausible,
-> or more like I'm doing something wrong?
+Hi!
 
-/proc/net/tcp in 2.4 is inherently unreliable since it doesn't use
-the seqfile interface.  Your best bet is to use the tcp_diag interface
-instead.  You can either do that by using the ss command from the
-iproute2 suite, or you can query tcp_diag directly from C through
-netlink.
+Compilation of iproute2 package fails on iptunnel.c because it includes
+asm/byteorder.h which in turn includes linux/byteorder/little_endian.h
+and in new 2.6.9 headers that declares function
 
-The latter should be 100% reliable if you do a get instead of a dump.
+static inline __le64 __cpu_to_le64p(const __u64 *p)
 
-> If it's plausible, how long can it take for /proc/net/tcp to get the
-> info? I'm asking because I see one connection (again since midnight)
-> where I don't find any uid in the 5 attempts I do as a max.
+The __le64 type is not defined here. This happens because linux/types.h
+defines this type only if __KERNEL_STRICT_NAMES is not defined. And by
+default it is defined in features.h
 
-It's not that it takes a long time to update /proc/net/tcp, it's
-the fact that you have to read /proc/net/tcp in pieces, and when
-the underlying data is changing, the 2.4 code is much more prone to
-returning things twice or missing entries altogether.
+I've tried to define it, but this creates conflicts for dev_t and other
+types that are defined in sys/types.h
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+So, what should be the work around in this case?
+
+Specifically the error is
+
+make[1]: Entering directory `/tools/src/iproute2-2.6.9/ip'
+gcc -D_GNU_SOURCE -O2 -Wstrict-prototypes -Wall -g -I../include -DRESOLVE_HOSTNAMES   -c -o iptunnel.o iptunnel.c
+In file included from /usr/include/asm/byteorder.h:31,
+                 from iptunnel.c:29:
+/usr/include/linux/byteorder/little_endian.h:43: error: parse error before "__cpu_to_le64p"
+/usr/include/linux/byteorder/little_endian.h: In function `__cpu_to_le64p':
+/usr/include/linux/byteorder/little_endian.h:45: error: `__le64' undeclared (first use in this function)
+....
+
+Andrei

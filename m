@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312975AbSDKV2n>; Thu, 11 Apr 2002 17:28:43 -0400
+	id <S312980AbSDKWFs>; Thu, 11 Apr 2002 18:05:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312977AbSDKV2m>; Thu, 11 Apr 2002 17:28:42 -0400
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:24071
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S312975AbSDKV2m>; Thu, 11 Apr 2002 17:28:42 -0400
-Subject: ANNOUNCEMENT: 2.4.19-pre6-rmap-12i-xfs-shawn11 released
-From: Shawn Starr <spstarr@sh0n.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S312986AbSDKWFr>; Thu, 11 Apr 2002 18:05:47 -0400
+Received: from borg.kabelfoon.nl ([62.45.45.66]:33043 "HELO borg.kabelfoon.nl")
+	by vger.kernel.org with SMTP id <S312980AbSDKWFq>;
+	Thu, 11 Apr 2002 18:05:46 -0400
+Message-ID: <3CB5F98C.7010206@kabelfoon.nl>
+Date: Thu, 11 Apr 2002 23:01:00 +0200
+From: Nick Martens <nickm@kabelfoon.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020404
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 Boot problem
+In-Reply-To: <3CB1B505.2010505@kabelfoon.nl> <200204090939.g399dlX02029@Port.imtp.ilyichevsk.odessa.ua> <3CB30E53.8020905@kabelfoon.nl> <200204100517.g3A5HhX04634@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 11 Apr 2002 17:28:20 -0400
-Message-Id: <1018560530.356.0.camel@unaropia>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not a stable release. Please test: 
+I've tried to do the break thing and then boot after 2 minutes, but the 
+problem remains. Is it passible that due to the HW-reset some device 
+gets resetted too and works fine afterwards ???
 
-xfs-2.4.19-pre6-rmap-12i-shawn11 against 2.4.18 vanilla, (April 10th,
-2002) 
-
-Contains: 
-
-2.4.19-pre6                     (Marcelo Tosatti) 
-rmap-12i                        (Rik van Riel 
-                                 William Lee Irwin III) 
-
-April 10th, XFS CVS             (me) 
-
-*NOTE: 2.4.19-pre5-ac3 does *NOT* boot my system I get swapper kernel
-panic. -ac is out for now. 
-
-*IDE taskfile IO was merged into the later 2.4.19 pre kernels. 
-
-* There are significant Quota problems with current -ac patch and XFS
-quota. I should hopefully have this working in -shawn12 but I need a
-working -ac patch to boot from ;) 
-
-You can find all my patches at http://xfs.sh0n.net/2.4
-
+Denis Vlasenko wrote:
+> On 9 April 2002 13:52, Nick Martens wrote:
+> 
+>>Yes much longer, more like for ever... Is there a way to find out what
+>>is causing it other then removing each piece of hardware one by one ??
+> 
+> 
+> Removing hardware is a good idea.
+> 
+> You may verify heat problem:
+> * Turn on your box, press <pause> to freeze boot before it loads OS.
+> * Keep it in this state for a minute or two.
+> * Power off, wait five second
+> * Power on
+> 
+> If it works flawlweesly after that, it's definitely hw problem.
+> --
+> vda
+> 
 
 
 

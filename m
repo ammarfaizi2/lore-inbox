@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289104AbSAJA7j>; Wed, 9 Jan 2002 19:59:39 -0500
+	id <S289108AbSAJBEj>; Wed, 9 Jan 2002 20:04:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289105AbSAJA7U>; Wed, 9 Jan 2002 19:59:20 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:61454 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289104AbSAJA7I>; Wed, 9 Jan 2002 19:59:08 -0500
-Message-ID: <3C3CE5D6.2204BD27@zip.com.au>
-Date: Wed, 09 Jan 2002 16:52:38 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
+	id <S289107AbSAJBE3>; Wed, 9 Jan 2002 20:04:29 -0500
+Received: from carbon.btinternet.com ([194.73.73.92]:3286 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S289106AbSAJBEV>; Wed, 9 Jan 2002 20:04:21 -0500
+From: "Daniel J Blueman" <daniel.blueman@btinternet.com>
+To: "'Martin Josefsson'" <gandalf@wlug.westbo.se>
+Cc: "'Ville Herva'" <vherva@niksula.hut.fi>,
+        "'Andrew Morton'" <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+        "'Jani Forssell'" <jani.forssell@viasys.com>
+Subject: RE: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
+Date: Thu, 10 Jan 2002 01:04:17 -0000
+Message-ID: <000001c19972$ba959050$0100a8c0@icarus>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, Dave Jones <davej@suse.de>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pagecache lock ordering
-In-Reply-To: <Pine.LNX.4.21.0201100007350.1080-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <Pine.LNX.4.21.0201100139080.14829-100000@tux.rsn.bth.se>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+> On Thu, 10 Jan 2002, Daniel J Blueman wrote:
 > 
-> There's two places, do_buffer_fdatasync
+> > There are known issues with the VIA 82C686A/B chipset 
+> south-bridge and 
+> > IDE in particular. Make sure you have the latest BIOS and 
+> latest VIA 
+> > 4in1 drivers to workaround the IDE corruption and other 
+> known issues 
+> > (sound problems with certain soundcards).
+> 
+> Yes I'm aware of these problems, I thought that the VIA 4in1 
+> driver where wintendo drivers. And I also thought that there 
+> are workarounds for these bugs in the kernel. 
 
-generic_buffer_fdatasync() and hence do_buffer_fdatasync()
-are completely unused.  It may be simpler to just trash
-them.
+Yep, the VIA 4in1 drivers are purely for windows.
 
-> and __find_lock_page_helper,
+In linux, if the chipset-fixup code is being trigged on boot (and
+appears in your dmesg?), then it looks like the problem maybe
+elsewhere...
 
-Yeah.  The code can't deadlock because:
+On the other hand, perhaps that fixup code isn't complete (or relies on
+certain chipset features being on/off by default, vendor specific
+defaults?)
 
-	page_cache_get();
-	spin_lock(&pagecache_lock);
-	page_cache_release();
+Dan
+___________________
+Daniel J Blueman
 
-we implicitly *know* that page_cache_release won't try
-to acquire pagemap_lru_lock, because the page is in the
-pagecache and has count=2 or more.  Which is a bit, umm,
-subtle.
-
-I get the feeling that a lot of this would be cleaned up
-if presence on an LRU contributed to page->count.  It
-seems strange, kludgy and probably racy that this is not
-the case.
-
--

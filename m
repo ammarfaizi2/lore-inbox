@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285128AbRLQNUN>; Mon, 17 Dec 2001 08:20:13 -0500
+	id <S279277AbRLQN03>; Mon, 17 Dec 2001 08:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280027AbRLQNUD>; Mon, 17 Dec 2001 08:20:03 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:6149 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S279798AbRLQNTu>;
-	Mon, 17 Dec 2001 08:19:50 -0500
-To: Jan-Benedict Glaw <jbglaw@microdata-pos.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xchg and GCC's optimisation:-(
-In-Reply-To: <20011217134526.A31801@microdata-pos.de>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20011217134526.A31801@microdata-pos.de>
-Date: 17 Dec 2001 15:18:45 +0200
-Message-ID: <87wuzmq91m.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S279981AbRLQN0V>; Mon, 17 Dec 2001 08:26:21 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4227 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S279313AbRLQNYt>; Mon, 17 Dec 2001 08:24:49 -0500
+Date: Mon, 17 Dec 2001 08:24:42 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dominik Kubla <kubla@sciobyte.de>
+cc: "Bradley D. LaRonde" <brad@ltc.com>, Thomas Capricelli <orzel@kde.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Mounting a in-ROM filesystem efficiently
+In-Reply-To: <20011214072540.D7457@duron.intern.kubla.de>
+Message-ID: <Pine.LNX.3.95.1011217081551.19476A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jan-Benedict" == Jan-Benedict Glaw <jbglaw@microdata-pos.de> writes:
-Jan-Benedict> I've looked at ./include/asm-i386/system.h which does some black
-Jan-Benedict> magic with it, and I don't really understand that. However, the
-Jan-Benedict> result is that the xchg gets optimized away, rendering at least
+On Fri, 14 Dec 2001, Dominik Kubla wrote:
 
-Can you try with this patch ...
+> On Thu, Dec 13, 2001 at 01:34:45PM -0500, Richard B. Johnson wrote:
+> > 
+> > Well RAM is a hell of a lot cheaper than NVRAM. If you don't have
+> > the required RAM on your box, the hardware engineers screwed up
+> > and have to be "educated" preferably with an axe in the parking-lot.
+> > 
+> 
+> What about security issues?  I can imagine quite a few scenarios where
+> you would want to insure that you run untampered binaries. (eg. use
+> ROM instead of the usual CD-ROM or read-only FD to run your security
+> critical application.)
+> 
 
---- system.h.orig.0	Mon Dec 17 15:03:38 2001
-+++ system.h	Mon Dec 17 15:16:58 2001
-@@ -205,21 +205,15 @@ static inline unsigned long __xchg(unsig
- 	switch (size) {
- 		case 1:
- 			__asm__ __volatile__("xchgb %b0,%1"
--				:"=q" (x)
--				:"m" (*__xg(ptr)), "0" (x)
--				:"memory");
-+				     :"+q" (x),"=m" (*__xg(ptr)));
- 			break;
- 		case 2:
- 			__asm__ __volatile__("xchgw %w0,%1"
--				:"=r" (x)
--				:"m" (*__xg(ptr)), "0" (x)
--				:"memory");
-+				     :"+r" (x),"=m" (*__xg(ptr)));
- 			break;
- 		case 4:
- 			__asm__ __volatile__("xchgl %0,%1"
--				:"=r" (x)
--				:"m" (*__xg(ptr)), "0" (x)
--				:"memory");
-+				     :"+r" (x), "=m" (*__xg(ptr)));
- 			break;
- 	}
- 	return x;
+I never even implied that you would run CD-ROM or FD in embedded
+applications. The stuff that runs comes-from ROM, actually NVRAM so
+in can be written/updated in production. However, EIP software
+(Execute In Place) has always been a dog and, even Ethernet switches
+3COM, Cisco, etc., don't run that way. You need to get the stuff
+that runs into RAM.
+
+Security isn't a problem with embedded systems because everything
+that could possibly be done is handled with a "monitor". There is
+no shell. If there is no way to execute some foreign executable,
+you don't have a security issue unless some dumb alleged software
+engineer added some back-doors to the monitor.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+ Santa Claus is coming to town...
+          He knows if you've been sleeping,
+             He knows if you're awake;
+          He knows if you've been bad or good,
+             So he must be Attorney General Ashcroft.
+
+

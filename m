@@ -1,92 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbUDTMnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbUDTMv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbUDTMnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 08:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUDTMnH
+	id S262810AbUDTMv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 08:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDTMv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 08:43:07 -0400
-Received: from mail.gmx.de ([213.165.64.20]:50826 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262873AbUDTMlM (ORCPT
+	Tue, 20 Apr 2004 08:51:59 -0400
+Received: from mail.cyclades.com ([64.186.161.6]:59350 "EHLO mail.cyclades.com")
+	by vger.kernel.org with ESMTP id S262810AbUDTMv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 08:41:12 -0400
-X-Authenticated: #4512188
-Message-ID: <40851A6E.8050409@gmx.de>
-Date: Tue, 20 Apr 2004 14:41:18 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040413)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Konstantin Sobolev <kos@supportwizard.com>,
-       Justin Cormack <justin@street-vision.com>,
-       Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: poor sata performance on 2.6
-References: <200404150236.05894.kos@supportwizard.com> <1082039593.19568.75.camel@lotte.street-vision.com> <200404151848.05857.kos@supportwizard.com> <200404152030.51052.vda@port.imtp.ilyichevsk.odessa.ua> <407F315E.2000809@pobox.com>
-In-Reply-To: <407F315E.2000809@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Apr 2004 08:51:57 -0400
+Date: Tue, 20 Apr 2004 09:53:08 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: ann_pearlstein@mysunrise.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: libata and the 2.4 kernel
+Message-ID: <20040420125308.GB12478@logos.cnet>
+References: <11962398.1082463710160.JavaMail.tomcat4@webmail-be-05.sunrise.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11962398.1082463710160.JavaMail.tomcat4@webmail-be-05.sunrise.ch>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Denis Vlasenko wrote:
+On Tue, Apr 20, 2004 at 02:21:50PM +0200, ann_pearlstein@mysunrise.ch wrote:
+> Hello,
 > 
->> On Thursday 15 April 2004 17:48, Konstantin Sobolev wrote:
->>
->>> On Thursday 15 April 2004 18:33, Justin Cormack wrote:
->>>
->>>> On Thu, 2004-04-15 at 15:26, Konstantin Sobolev wrote:
->>>>
->>>>> On Thursday 15 April 2004 18:00, Justin Cormack wrote:
->>>>>
->>>>>> hmm, odd. I get 50MB/s or so from normal (7200, 8MB cache) WD disks,
->>>>>> and Seagate from the same controller. Can you send lspci,
->>>>>> /proc/interrupts and dmesg...
->>>>>
->>>>>
->>>>> Attached are files for 2.6.5-mm5 with highmem, ACPI and APIC turned
->>>>> off.
->>>>
->>>>
->>>> ah. Make a filesystem on it and mount it and try again. I see you have
->>>> no partition table and so probably no filesystem. This means the block
->>>> size is set to default 512byte not 4k which makes disk operations slow.
->>>> Any filesystem should default to block size of 4k, eg ext2.
->>>
-[snip]
->>> So first time it gave the same loosy 27 MB/s and subsequent tests give
->>> pretty good 68 MB/s! Why?
->>
->>
->>
->> Time to CC ide/libata/block layer folks
->>
->> Jeff Garzik <jgarzik@pobox.com>
->>     libata man
+> Does anyone know when (or even if) the libata patch will be native to the 2.4 kernel (e.g., no patch needed)?  
 > 
+> If there are plans to add it to the 2.4 kernel, when (approximately :-)  ) will it be a part of this kernel?
 > 
+> I know it's supported natively in the 2.6 kernel.
 > 
-> It seems like the situation is already resolved, to me.
+> The libata patch (2.4.25 kernel and 2.4.25 libata patch) works well for the serial ATA drive I use (in a Dell PowerEdge 750), but I'd like to have a non-patched kernel for this particular project.  
 > 
-> When you mount a filesystem, it changes the default block size (512 or 
-> 1024) to the filesystem block size, normally 4096.  This would certainly 
-> increase the throughput.
+> Thank you in advance for any and all info.
 
+Ann, 
 
-Hi Jeff,
+libata has been included in the 2.4 BK tree.
 
-it is NOT resolved: I just tried libata again, and I can  observe the 
-same behaviour: I just did a "cat /dev/sda >/dev/null" and watched 
-gkrellm2 showing the throughoutput. The first tiem I do the cat I only 
-got about 27mb/s, no matter how ong I waited, but all subsequent cat 
-gave me about >60mb/s. So there is a tiny bug in libata, I guess, as 
-when using the siimage.c ide driver, already the first cat gives me 
-maximum throughoutput. I am using 2.6.5-mm4 based kernel. Filesystems 
-were mounted/ I didn't change anything between first and secound cat.
-
-bye,
-
-Prakash
+You can try 2.4.26-bk patches (www.kernel.org)

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSFIQqQ>; Sun, 9 Jun 2002 12:46:16 -0400
+	id <S313492AbSFIQ6K>; Sun, 9 Jun 2002 12:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313558AbSFIQqP>; Sun, 9 Jun 2002 12:46:15 -0400
-Received: from relay.muni.cz ([147.251.4.35]:23204 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S313508AbSFIQqP>;
-	Sun, 9 Jun 2002 12:46:15 -0400
-Date: Sun, 9 Jun 2002 18:44:35 +0200
-From: Jan Pazdziora <adelton@informatics.muni.cz>
-To: christoph@lameter.com
-Cc: linux-kernel@vger.rutgers.edu, adelton@fi.muni.cz
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-Message-ID: <20020609184435.A27442@anxur.fi.muni.cz>
-In-Reply-To: <Pine.LNX.4.33.0206081849010.5464-100000@melchi.fuller.edu>
+	id <S313558AbSFIQ6J>; Sun, 9 Jun 2002 12:58:09 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:23047 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313492AbSFIQ6J>; Sun, 9 Jun 2002 12:58:09 -0400
+Date: Sun, 9 Jun 2002 17:58:04 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.21: kbuild changes broke filenames with commas
+Message-ID: <20020609175804.B8761@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 08, 2002 at 06:53:49PM -0700, christoph@lameter.com wrote:
-> I just tried the patch adding symlinks to the vfat fs. It was submitted
-> back at the end of last year but it does not seem to have made it into the
-> kernel sources. I was unable to find a discussion on this. Symlink support
-> in vfat is really useful when you are sharing a vfat volume on a dual
-> booted system. I tried patching a 2.5.X kernel but the page cache changes
-> mean that the patch needs reworking.
-> 
-> Do you have any updates to the patch Jan?
+With the latest kbuild version in 2.5.21, we are unable to build the
+following files:
 
-No, I don't. I did not receive any feedback since I sent in the patch
-to linux-kernel, so I concluded that people do not consider lack
-of shortcut/symlink support a problem. For me it's something that
-would be nice to have but I don't feel like pushing it in.
+linux/drivers/block/smart1,2.h
+linux/drivers/scsi/53c7,8xx.c
+linux/drivers/scsi/53c7,8xx.h
+linux/drivers/scsi/53c7,8xx.scr
+linux/arch/arm/mm/proc-arm6,7.S
+linux/arch/arm/mm/proc-arm2,3.S
 
-I might be able to upgrade the patch for the 2.5 kernal line, but
-I'd like to hear some comments about the code in general. 
+This is because we end up passing gcc the following argument:
 
-Yours,
+	-Wp,-MD,.proc-arm6,7.o.d
+
+which gets passed to cpp0 as:
+
+	-MD .proc-arm6 7.o.d
+	              ^ space, not comma
+
+and therefore cpp0 sees "-MD", ".proc-arm6" and "7.o.d" as separate
+arguments.
+
+There seems to be two solutions:
+
+1. renaming all the above files to contain '_' instead of ','.
+2. see if kbuild can use the DEPENDENCIES_OUTPUT environment variable
+
+Kai pointed out that we've already got one exception in kbuild to fixup
+the filename for KBUILD_BASENAME (, -> _ and that's not a weird smilie!)
+so (1) is probably going to be better, and we can get rid of the special
+"comma" handling.
+
+Either way, I plan to rename the two ARM files.  That leaves the 53c7,8xx
+driver and that block header file.
 
 -- 
-------------------------------------------------------------------------
-  Jan Pazdziora | adelton@fi.muni.cz | http://www.fi.muni.cz/~adelton/
-      ... all of these signs saying sorry but we're closed ...
-------------------------------------------------------------------------
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264076AbTKJTZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 14:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTKJTZt
+	id S264095AbTKJTd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 14:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTKJTd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 14:25:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40373 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264076AbTKJTZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 14:25:46 -0500
-Date: Mon, 10 Nov 2003 11:25:38 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-In-Reply-To: <Pine.LNX.3.96.1031110135419.6278B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0311101118490.31529-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Nov 2003 14:33:57 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:1036 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S264095AbTKJTcx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 14:32:53 -0500
+Date: Mon, 10 Nov 2003 20:31:47 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: David Hinds <dahinds@users.sourceforge.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] pcmcia/sa1100_stork.c doesn't need i2c
+Message-Id: <20031110203147.4ddbe9f2.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David, hi all,
 
-On Mon, 10 Nov 2003, Bill Davidsen wrote:
-> 
-> I take it that if the IDE maintainer and you don't use a device it will
-> not be supported in the future?
+The 2.6 version of the 2.4 patch I just posted (very similar).
 
-You take it wrong.
+--- linux-2.6.0-test9/drivers/pcmcia/sa1100_stork.c.orig	Mon May  5 01:53:31 2003
++++ linux-2.6.0-test9/drivers/pcmcia/sa1100_stork.c	Mon Nov 10 20:02:37 2003
+@@ -23,7 +23,6 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/device.h>
+-#include <linux/i2c.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/mach-types.h>
 
-However, I'll spell this out in small words, since you don't seem to be 
-getting it:
+Please apply.
 
-	open source is not about me and the IDE maintainer doing all the 
-	work.
-
-	Nobody seems to be sending patches either to fix ide-scsi _or_ 
-	those other devices you claim you're so interested in.
-
-	I fixed the IDE CD driver to work. I care. The fact that nobody 
-	else seems to care about anything else is the final word.
-
-Do you get it? It's all about technology. I don't hate you. Really. I'm 
-not here to try to make things difficult for you. But also, I'm not here 
-to be your personal slave, and if you think I am, you're just WRONG and 
-you should just realize that I don't care about what you think.
-
-> I admit I can't understand why 2.6 supports old NICs and motherboard
-> chipsets which haven't been made in five years, and then deliberately
-> desupports devices which did work and which are available at computer
-> stores and mail order today.
-
-Those other devices have people MAINTAINING THEM AND CARING!
-
-What's so horribly hard to understand about this? You're barking up the 
-wrong tree.
-
-Again, I tell you once more:
-
- - for burning IDE CD-ROM's you should use the IDE driver. Not ide-scsi. 
-   End of discussion. It's a supported and _improved_ situation from where 
-   it was in 2.4.x.
-
- - For all those devices you claim exists, show me the patches. Nobody 
-   broke ide-scsi on purpose - but the fact is that nobody also ever came 
-   forward and _fixed_ it. 
-
-Get it now? 
-
-So come back to me when you find somebody who cares enough about the 
-devices you claim exists enough that he actually _does_ something about 
-it. Until then, there's just no point in bothering me. Comprende?
-
-		Linus
-
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

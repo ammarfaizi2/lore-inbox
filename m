@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbTIYRhl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbTIYRgp
+	id S261551AbTIYRhm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTIYRg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:36:45 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:4760 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261429AbTIYReq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:34:46 -0400
-Message-Id: <200309251733.h8PHXWpV013559@death.ibm.com>
-To: shmulik.hen@intel.com
-cc: "Chad N. Tindel" <chad@tindel.net>, bonding-devel@lists.sourceforge.net,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       "Noam, Amir" <amir.noam@intel.com>,
-       "Mendelson, Tsippy" <tsippy.mendelson@intel.com>,
-       "Noam, Marom" <noam.marom@intel.com>
-Subject: Re: [Bonding-announce] [PATCH SET][bonding] cleanup 
-In-Reply-To: Message from Shmulik Hen <shmulik.hen@intel.com> 
-   of "Thu, 25 Sep 2003 20:11:53 +0300." <200309252011.53960.shmulik.hen@intel.com> 
-Date: Thu, 25 Sep 2003 10:33:31 -0700
-From: Jay Vosburgh <fubar@us.ibm.com>
+	Thu, 25 Sep 2003 13:36:29 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57095 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261551AbTIYRbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:31:52 -0400
+Date: Thu, 25 Sep 2003 18:31:49 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+Message-ID: <20030925183149.A19774@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Larry McVoy <lm@bitmover.com>
+References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org> <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>; from ebiederm@xmission.com on Thu, Sep 25, 2003 at 11:15:33AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 25, 2003 at 11:15:33AM -0600, Eric W. Biederman wrote:
+> And for the core kernel development this is true.  There are subprojects
+> that are currently using BK that you can't even get the code without
+> BK.  And the only reason they are using BK is they are attempting to
+> following how Linux is managed.  So having the Linux kernel
+> development use BK does have some down sides.
 
-	[removed bonding-announce from cc:]
+Stupid argument.  E.g. the ppc folks used BK much longer than Linus.
+And there are kernel projects using svn (ieee1394) or cvs that you
+can't access without installing svn or cvs.
 
->On Thursday 25 September 2003 07:47 pm, Chad N. Tindel wrote:
->> > patch 4 - remove dead code, old compatibility stuff and redundant
->> >           checks.
->>
->> I'm a bit concerned about doing some of this stuff in the 2.4
->> series.  That compatibility stuff is there for a reason, and was
->> set to be removed in 2.6.  Perhaps we shouldn't be doing stuff this
->> drastic until 2.6 because of the risk of breaking users.
->
->That's the word I got from Jay in response to the " [Kernel-janitors] 
->old ioctl definitions in 2.5" thread.
->
->>Jay Vosburgh <fubar@us.ibm.com> wrote:
->>	I was going to add it on to the end of the clean up set, but
->> if you want to do it, go ahead.  Nobody seems to have objected to
->> removing the _OLD stuff, which I view as a good thing.
+> In addition there are some major gains to be had in standardizing on a
+> distributed version control system that everyone can use, and
+> unfortunately BK does not fill that position.  So I think it is good
+> that there is enough general discontent it the air that people
+> continue to look for alternatives. 
 
-	My thinking here is that any ifenslave old enough (two years
-or more) to still be using the OLD ioctl values is unlikely to work
-with the current kernel driver, and if somebody did try it, it's
-better to have the call fail outright than perform weird and
-mysterious rituals in kernel memory.  I have trouble envisioning an
-scenario where a user would be using the latest 2.4.23 kernel, but an
-ifenslave from, what, 2.2.15? 2.4.5? or so.
+Why should we standardize on one SCM?  That's like we standadize
+on Windows for all computers..
 
-	Separately, recent ifenslaves have compatibility code within
-them to cover the great "ifenslave calling sequence change" from April
-or so.  As much as I love the sleek new slimmed down ifenslave, I'm
-not absolutely sure we can nuke that compatibility stuff within
-ifenslave.  I really, really wanna, but I'm not sure if it will cause
-problems for end users.  This is the upgrade scenario that prompted
-the creation of the whole "ABI version" and compat stuff in the first
-place; if we don't have to worry about that, then the simpler
-ifenslave can be used, and I think the ethtool ABI version hack can go
-away (since we wouldn't need an ABI version if there's only one).
-
-	Comments?
-
-	-J
-
----
-	-Jay Vosburgh, IBM Linux Technology Center, fubar@us.ibm.com

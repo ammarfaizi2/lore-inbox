@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271915AbRHVCEv>; Tue, 21 Aug 2001 22:04:51 -0400
+	id <S271846AbRHVCju>; Tue, 21 Aug 2001 22:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271920AbRHVCEm>; Tue, 21 Aug 2001 22:04:42 -0400
-Received: from ns1.crl.go.jp ([133.243.3.1]:58366 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S271915AbRHVCEc>;
-	Tue, 21 Aug 2001 22:04:32 -0400
-Date: Wed, 22 Aug 2001 11:04:44 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.9 pc_keyb.c compile fails with gcc 3.0 on alpha
-Message-ID: <Pine.LNX.4.30.0108221103420.11775-100000@holly.crl.go.jp>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271917AbRHVCjb>; Tue, 21 Aug 2001 22:39:31 -0400
+Received: from sub.sonic.net ([208.201.224.8]:11828 "EHLO sub.sonic.net")
+	by vger.kernel.org with ESMTP id <S271846AbRHVCjX>;
+	Tue, 21 Aug 2001 22:39:23 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Tue, 21 Aug 2001 19:39:37 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install 'isdn')
+Message-ID: <20010821193937.A26871@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010821092020.B968@thune.mrc-home.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In file included from pc_keyb.c:36:
-/usr/src/linux-2.4.9/include/asm/keyboard.h:25: warning: `struct
-kbd_repeat' declared inside parameter list
-/usr/src/linux-2.4.9/include/asm/keyboard.h:25: warning: its scope is only
-this definition or declaration, which is probably not what you want.
-pc_keyb.c:545: variable `kbdrate' has initializer but incomplete type
-pc_keyb.c:546: warning: excess elements in struct initializer
-pc_keyb.c:546: warning: (near initialization for `kbdrate')
-pc_keyb.c:548: warning: excess elements in struct initializer
-pc_keyb.c:548: warning: (near initialization for `kbdrate')
-pc_keyb.c: In function `parse_kbd_rate':
-pc_keyb.c:574: dereferencing pointer to incomplete type
-pc_keyb.c:575: dereferencing pointer to incomplete type
-pc_keyb.c:575: invalid use of undefined type `struct kbd_repeat'
-pc_keyb.c:576: dereferencing pointer to incomplete type
-pc_keyb.c:577: dereferencing pointer to incomplete type
-pc_keyb.c:577: invalid use of undefined type `struct kbd_repeat'
-pc_keyb.c:579: dereferencing pointer to incomplete type
-pc_keyb.c:585: dereferencing pointer to incomplete type
-pc_keyb.c:590: dereferencing pointer to incomplete type
-pc_keyb.c:591: dereferencing pointer to incomplete type
-pc_keyb.c: At top level:
-pc_keyb.c:606: conflicting types for `pckbd_rate'
-/usr/src/linux-2.4.9/include/asm/keyboard.h:25: previous declaration of
-`pckbd_rate'
-pc_keyb.c: In function `pckbd_rate':
-pc_keyb.c:611: storage size of `old_rep' isn't known
-pc_keyb.c:612: sizeof applied to an incomplete type
-pc_keyb.c:614: sizeof applied to an incomplete type
-pc_keyb.c:615: sizeof applied to an incomplete type
-pc_keyb.c:611: warning: unused variable `old_rep'
-pc_keyb.c: At top level:
-pc_keyb.c:545: storage size of `kbdrate' isn't known
-make[3]: *** [pc_keyb.o] Error 1
+On Tue, Aug 21, 2001 at 09:20:20AM -0700, Mike Castle wrote:
+> On Tue, Aug 21, 2001 at 05:47:01PM +0200, Kai Germaschewski wrote:
+> > Well, I said should ;-) Maybe I should have tried...
+> > 
+> > Next try: (still untested)
+> 
+> Closer.
+> 
+> Had to add #include <linux/types.h> to the header file too.
 
 
+That finally worked.
+
+Yay.
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

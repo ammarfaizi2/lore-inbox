@@ -1,133 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277322AbRJZC0G>; Thu, 25 Oct 2001 22:26:06 -0400
+	id <S277330AbRJZCg1>; Thu, 25 Oct 2001 22:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277330AbRJZCZ5>; Thu, 25 Oct 2001 22:25:57 -0400
-Received: from astcc-166.astound.net ([24.219.123.215]:2052 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S277322AbRJZCZv>; Thu, 25 Oct 2001 22:25:51 -0400
-Date: Thu, 25 Oct 2001 19:26:50 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: dan <lung@theuw.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Repeatable File Corruption (ECS K7S5A w/SIS735)
-In-Reply-To: <Pine.LNX.4.33.0110252048260.1388-100000@narboza.theuw.net>
-Message-ID: <Pine.LNX.4.10.10110251924180.456-100000@master.linux-ide.org>
+	id <S277347AbRJZCgT>; Thu, 25 Oct 2001 22:36:19 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:14740 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S277330AbRJZCgF>; Thu, 25 Oct 2001 22:36:05 -0400
+Date: Fri, 26 Oct 2001 11:36:34 +0900
+Message-ID: <g087jff1.wl@nisaaru.dvs.cs.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Robert Love <rml@tech9.net>
+Cc: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
+        "Michael F. Robbins" <compumike@compumike.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SiS/Trident 4DWave sound driver oops
+In-Reply-To: <1004061741.11366.32.camel@phantasy>
+In-Reply-To: <1004016263.1384.15.camel@tbird.robbins>
+	<7ktjw58u.wl@nisaaru.dvs.cs.fujitsu.co.jp>
+	<1004060759.11258.12.camel@phantasy>
+	<6693w4ds.wl@nisaaru.dvs.cs.fujitsu.co.jp>
+	<1004061741.11366.32.camel@phantasy>
+User-Agent: Wanderlust/2.7.5 (Too Funky) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.7 () APEL/10.3 MULE XEmacs/21.1 (patch 14) (Cuyahoga Valley) (i586-kondara-linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 25 Oct 2001 22:02:20 -0400,
+Robert Love wrote:
+> 
+> On Thu, 2001-10-25 at 21:56, Tachino Nobuhiro wrote:
+> > Robert Love wrote:
+> > > Hm, I don't think so.  The last area is marked zero so code can know
+> > > when it ends.  This is common practice.
+> > 
+> > But the code does not use the last area. this is the code in
+> > ac97_probe_codec().
+> 
+> ARRAY_SIZE(x) returns the number of elements in x, but since everything
+> is 0-referenced going from 0 to i < ARRAY_SIZE isn't a problem.
+> 
+> ie int x[3];
+> ARRAY_SIZE(x) = 3;
+> but x[2] is last element... so no issue here.
 
-Greetings dan,
+  No. {0, } is the last elemnet of ac97_codec_ids[] and that index is
+ARRAY_SIZE(ac97_code_ids) - 1. So this element which should be used as
+a loop terminator is used as a valid entry in for loop incorrectly. 
 
-Well no kidding !!!
-Just maybe it is the VM layer getting it wrong again.
-Please try an -ac kernel and see if it still exist.
-
-As most know that there are corrections there that have not been accepted
-into the main tree ..... OUCH that hurts ....
-
-Cheers,
-
-On Thu, 25 Oct 2001, dan wrote:
-
-> 
-> ===== SUMMARY
-> 
-> I have found a file corruption issue when writing files seemingly related
-> to my new motherboard.
-> 
-> 
-> ===== HARDWARE
-> 
->   It is repeatable and verified on other boards of the same model.  This
-> just started happening when I upgraded the system.  The following is a
-> link to the ECS K7S5A board in question, the SIS735 chipset, and a
-> hardware description:
-> 
->   http://www.ecsusa.com/ecsusa/www.ecs.com.tw/products/k7s5a.htm
->   http://www.sis.com/products/chipsets/oa/socketa/735.htm
-> 
->   ECS K7S5A motherboard
->   AMD 1.4Ghz Tbird
->   2x256Mb Micron DDR PC2100
->   hda: ST36421A, ATA DISK drive
->   hdb: QUANTUM FIREBALLP LM10.2, ATA DISK drive
->   hdc: IC35L060AVER07-0, ATA DISK drive
-> 
-> 
-> ===== DESCRIPTION
-> 
-> The bug was first noticed when running a game server that verifies client
-> map files with the server map files.  Some of the maps, no matter what I
-> did, were always different, causing the server to reject clients.  Using
-> the commands md5sum and cmp, I noticed that each time I copied a new file
-> into place, it was slightly different:
-> 
->   $ cp de_aztec.bsp de_aztec.bsp2
->   $ cmp de_aztec.bsp de_aztec.bsp2
->   de_aztec.bsp de_aztec.bsp2 differ: char 2287174, line 6590
->   $ md5sum de_aztec.bsp de_aztec.bsp2
->   c138a969edf84abcfc5fe4b4b2a2c5ed  de_aztec.bsp
->   36b5bdd244d69a8d0fb3c81ba25e1df1  de_aztec.bsp2
-> 
-> Not only that, every copy is different from every other copy:
-> 
->   $ cp de_aztec.bsp de_aztec.bsp3
->   $ cp de_aztec.bsp de_aztec.bsp4
->   $ cp de_aztec.bsp de_aztec.bsp5
->   $ md5sum de_aztec.bsp de_aztec.bsp?
->   c138a969edf84abcfc5fe4b4b2a2c5ed  de_aztec.bsp
->   fe858630be18e37eba8ea73a6be941c9  de_aztec.bsp2
->   87bd1ad8b0ff2c58ebff5372f865fa35  de_aztec.bsp3
->   7cffbffca0600c80e6cae336f52c885b  de_aztec.bsp4
->   91287ef7c8eb047d8f305315b4e0ce55  de_aztec.bsp5
-> 
-> It does not seem to be an issue with reading from the drive because the
-> md5sum of the original file is always the same.
-> 
-> This is repeatable with any command that will write a file out including
-> tar, rsync, and ftp.  If I move the file within the partition, there is no
-> corruption.  Copying the file one character at a time works.
-> 
-> This does not happen with every file on the drive.  In fact, out of the
-> 1400 files related to the server, I only found a few dozen that I could
-> repeat this issue with.  I also have complaints from other users of the
-> system of files being corrupt and have found a number myself.
-> 
-> I have repeated this with the following:
-> 
->   Duplicate systems (I have 5)
->   Multiple hard drives (IBM, Quantum, Seagate)
->   Different filesystems on multiple drives (reiserfs, ext2)
->   With and without different drivers in the kernel (IDE chipset support)
->   Kernels 2.4.10 through 2.4.13
->   Drives running at different speeds  (ATA-100, 66, 33)
->   Slow processor (AMD 1.2GHz Tbird)
-> 
-> 
-> ===== WORKAROUND
-> 
-> The problem only went away when I replaced the motherboard.  I also
-> haven't had any file corruption issues running Windows2000 on the same
-> hardware with the same files.  I moved all of the hardware in the original
-> system to a new motherboard (ASUS A7A266)  and the problem went away.
-> 
-> I have CC'd the IDE chipset maintainer because I can only assume it might
-> be related.
-> 
-> Thank you for fighting through this email, I know it was long and boring.
-> 
-> 
-> dan
-> 
-
-Andre Hedrick
-CTO ASL, Inc.
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Tel: (510) 857-0055 x103
-38875 Cherry Street                           Fax: (510) 857-0010
-Newark, CA 94560                              Web: www.aslab.com
-
+Please read ac97_codec.c

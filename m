@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262434AbSJaOpi>; Thu, 31 Oct 2002 09:45:38 -0500
+	id <S262181AbSJaOzg>; Thu, 31 Oct 2002 09:55:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262457AbSJaOpi>; Thu, 31 Oct 2002 09:45:38 -0500
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:7619 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S262434AbSJaOph>; Thu, 31 Oct 2002 09:45:37 -0500
-Subject: Re: What's left over.
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, n2m1@ltc-eth1000.torolab.ibm.com,
-       Rusty Russell <rusty@rustcorp.com.au>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF6C80F3C5.070C630E-ON80256C63.00502DC2@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Thu, 31 Oct 2002 14:46:33 +0000
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 31/10/2002 14:51:31
+	id <S262187AbSJaOzg>; Thu, 31 Oct 2002 09:55:36 -0500
+Received: from mta04bw.bigpond.com ([139.134.6.87]:50133 "EHLO
+	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262181AbSJaOze>; Thu, 31 Oct 2002 09:55:34 -0500
+Message-ID: <3DC14635.1000308@snapgear.com>
+Date: Fri, 01 Nov 2002 01:03:17 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.45-uc1 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
+
+Heres another go at a linux-2.5.45 patch for MMU-less support :-)
+This time not using the bogus 2.5.45 tar ball.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1.patch.gz
+
+Changelog:
+
+1. patch against 2.5.45    (me)
+2. m68knommu Kconfig       (me)
+    (Miles: you will need to do the v850 Kconfig changes...)
 
 
->> Linux Trace Toolkit (LTT)
->
->I don't know what this buys us.
+Smaller specific patches:
 
-If you consider developer productivity useful then LTT has definite
-benefits especially when combined with kprobes. With the two it is possible
-to implant tracepoints without having to code up specific printks: kprobes
-can be used to implant a probe, the probe handler can call LTT to record
-the event.
+. FEC ColdFire 5272 and 68360 ethernet drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-fec.patch.gz
 
-Why call LTT instead of having a printk in the probe handler? - for
-performance reasons, for latency reasons, because kprobes can implant
-probes absolutely anywhere in the system, for analysis reasons - LTT trace
-data can be post processed and massaged in a number of ways using the
-visualizer tools. Yes you can do some of this using printk directly, but
-you can be into a whole heap more work and it will certainly take longer to
-implant a temporary tracepoint, recompile, run, remove, recompile the using
-the dynamic trace technique of LTT+kprobes.
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.44-uc1-serial.patch.gz
+
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-fb.patch.gz
+
+. binfmt_flat loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-binflat.patch.gz
+
+. m68knommu architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-m68knommu.patch.gz
+
+. v850 architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-v850.patch.gz
+
+. mm (MMU-less) only patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc1-mm.patch.gz
+
+Regards
+Greg
 
 
-Richard
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
 

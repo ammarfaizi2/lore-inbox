@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285414AbRLNQyf>; Fri, 14 Dec 2001 11:54:35 -0500
+	id <S285415AbRLNRC5>; Fri, 14 Dec 2001 12:02:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285415AbRLNQy0>; Fri, 14 Dec 2001 11:54:26 -0500
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:50073
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S285414AbRLNQyN>; Fri, 14 Dec 2001 11:54:13 -0500
-Date: Fri, 14 Dec 2001 11:49:28 -0500
-From: Chris Mason <mason@suse.com>
-To: Johan Ekenberg <johan@ekenberg.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        akpm@zip.com.au, jack@suse.cz
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Lockups with 2.4.14 and 2.4.16
-Message-ID: <3825380000.1008348567@tiny>
-In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>
-In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S285417AbRLNRCi>; Fri, 14 Dec 2001 12:02:38 -0500
+Received: from vsat-148-63-243-254.c3.sb4.mrt.starband.net ([148.63.243.254]:260
+	"HELO ns1.ltc.com") by vger.kernel.org with SMTP id <S285415AbRLNRC3>;
+	Fri, 14 Dec 2001 12:02:29 -0500
+Message-ID: <0e8901c184c1$248476a0$5601010a@prefect>
+From: "Bradley D. LaRonde" <brad@ltc.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Cc: "Thomas Capricelli" <orzel@kde.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <0ddd01c184b3$ce15c470$5601010a@prefect>  <066801c183f2$53f90ec0$5601010a@prefect> <20011213160007.D998D23CCB@persephone.dmz.logatique.fr> <25867.1008323156@redhat.com>  <13988.1008348675@redhat.com>
+Subject: Re: Mounting a in-ROM filesystem efficiently 
+Date: Fri, 14 Dec 2001 12:02:41 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message ----- 
+From: "David Woodhouse" <dwmw2@infradead.org>
+To: "Bradley D. LaRonde" <brad@ltc.com>
+Cc: "Thomas Capricelli" <orzel@kde.org>; <linux-kernel@vger.kernel.org>
+Sent: Friday, December 14, 2001 11:51 AM
+Subject: Re: Mounting a in-ROM filesystem efficiently 
 
-Ok, Johan sent along stack traces, and the deadlock works a little like this:
+> >  Actually, I've used that patch on a system that had a cramfs/xip and
+> > a jffs partition on the same flash chip where the kernel was running
+> > xip out of flash.  :-) 
+> 
+> S'OK if you have the right type of flash chips, I suppose :)
 
-linux-2.4.16 + reiserfs + quota v2
+128 Mbit Intel StrataFlash.
 
-kswapd ->
-prune_icache->dispose_list->dquot_drop->commit_dquot->generic_file_write->
-mark_inode_dirty->journal_begin-> wait for trans to end
-
-Some process in the transaction is waiting on kswapd to free ram.
-
-So, this will hit any journaled FS that uses quotas and logs inodes under
-during a write.  ext3 doesn't seem to do special things for quota anymore, so
-it should be affected too.
-
-The only fix I see is to make sure kswapd doesn't run shrink_icache, and to
-have it done via a dedicated daemon instead.  Does anyone have a better idea?
-
--chris
+Regards,
+Brad
 

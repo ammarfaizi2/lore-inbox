@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264010AbTEWK3s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 06:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbTEWK3s
+	id S264012AbTEWKmE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 06:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTEWKmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 06:29:48 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:35869 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264010AbTEWK3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 06:29:47 -0400
-Date: Fri, 23 May 2003 03:45:51 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Lothar Wassmann" <LW@KARO-electronics.de>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-Message-Id: <20030523034551.0f80b17f.akpm@digeo.com>
-In-Reply-To: <16077.61981.684846.221686@ipc1.karo>
-References: <16076.50160.67366.435042@ipc1.karo>
-	<20030522151156.C12171@flint.arm.linux.org.uk>
-	<16077.55787.797668.329213@ipc1.karo>
-	<20030523022454.61a180dd.akpm@digeo.com>
-	<16077.61981.684846.221686@ipc1.karo>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 May 2003 10:42:53.0179 (UTC) FILETIME=[103BC4B0:01C32118]
+	Fri, 23 May 2003 06:42:04 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:11933 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S264012AbTEWKmD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 06:42:03 -0400
+Date: Fri, 23 May 2003 12:55:03 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: davem@caip.rutgers.edu
+Cc: Eric.Schenk@dna.lth.se, linux-kernel@vger.kernel.org
+Subject: [PATCH] make icmp.c be more verbose on broadcast icmp errors
+Message-ID: <Pine.LNX.4.51.0305231222450.8169@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lothar Wassmann" <LW@KARO-electronics.de> wrote:
->
-> Andrew Morton writes:
-> > "Lothar Wassmann" <LW@KARO-electronics.de> wrote:
-> > >
-> > > And maybe because *every* other call to flush_page_to_ram() has been
-> > >  replaced by one of the new interface macros except that one in
-> > >  filemap_nopage() in 'mm/filemap.c'.
-> > > 
-> > 
-> > flush_page_to_ram() has been deleted from the kernel.
-> > 
-> Yes, I know. But did you even read, what I have written?
+Hi,
 
-Vaguely.  It never hurts to repeat things ;)
+I noticed today in my logs something like:
+1.2.3.4 sent an invalid ICMP error to a broadcast address.
 
-> Is 2.5.68 current enough?
+And i though that it would be nice to make it report what code/type was
+it. So here goes:
 
-yes.
+2.5 version:
 
-filemap_nopage isn't the right place to be doing these things though.
+diff -Nru linux-2.5.69.bak/net/ipv4/icmp.c linux-2.5.68/net/ipv4/icmp.c
+--- linux-2.5.69.bak/net/ipv4/icmp.c	2003-05-17 14:56:11.000000000 +0200
++++ linux-2.5.69/net/ipv4/icmp.c	2003-05-23 12:15:45.000000000 +0200
+@@ -663,8 +659,10 @@
+ 	    inet_addr_type(iph->daddr) == RTN_BROADCAST) {
+ 		if (net_ratelimit())
+ 			printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP "
++					    "type %u, code %u "
+ 					    "error to a broadcast.\n",
+-			       NIPQUAD(skb->nh.iph->saddr));
++			       NIPQUAD(skb->nh.iph->saddr),
++			       icmph->type, icmph->code);
+ 		goto out;
+ 	}
 
-Given that there was no page at the virtual address before filemap_nopage
-was called I don't think any CPU cache writeback or invalidation need be
-performed.  Perhaps a writeback or invalidate is missing somewhere in the
-unmap paths, or there is a problem in arch/arm somewhere.
 
-We have a no-op flush_icache_page() in do_no_page(), but I don't know what
-that thing ever did, not what it's doing in there.  (What happens if you
-replace it with a flush_cache_page(vma, address)?)
-
-Someone who understands these things better than I is going to have to work
-out where the bug really is, I'm afraid.
-
+2.4 Version:
+diff -Nru linux.bak/net/ipv4/icmp.c linux/net/ipv4/icmp.c
+--- linux.bak/net/ipv4/icmp.c	2003-04-30 15:57:40.000000000 +0200
++++ linux/net/ipv4/icmp.c	2003-05-23 12:20:46.000000000 +0200
+@@ -625,8 +595,9 @@
+ 		if (inet_addr_type(iph->daddr) == RTN_BROADCAST)
+ 		{
+ 			if (net_ratelimit())
+-				printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP error to a broadcast.\n",
+-			       	NIPQUAD(skb->nh.iph->saddr));
++				printk(KERN_WARNING "%u.%u.%u.%u sent an invalid ICMP type %u, code %u error to a broadcast.\n",
++			       	NIPQUAD(skb->nh.iph->saddr),
++			       	icmph->type, icmph->code);
+ 			goto out;
+ 		}
+ 	}

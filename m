@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262774AbUCPKqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 05:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbUCPKqY
+	id S262697AbUCPKxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 05:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbUCPKxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 05:46:24 -0500
-Received: from zwering.adsl.utwente.nl ([130.89.225.193]:2193 "EHLO
-	arzie-2.adsl.utwente.nl") by vger.kernel.org with ESMTP
-	id S262774AbUCPKqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 05:46:22 -0500
-Message-ID: <4056DAFD.6020902@dds.nl>
-Date: Tue, 16 Mar 2004 11:46:21 +0100
-From: Robert Zwerus <arzie@dds.nl>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040308)
-X-Accept-Language: en-us, en
+	Tue, 16 Mar 2004 05:53:51 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:45549 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262697AbUCPKxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 05:53:50 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 16 Mar 2004 21:53:38 +1100
 MIME-Version: 1.0
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Trivial spelling corrections to arch/i386/Kconfig
-Content-Type: multipart/mixed;
- boundary="------------020007030500040701020105"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16470.56498.623319.681892@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.5-rc1-mm1 - looks better
+In-Reply-To: message from Andrew Morton on Tuesday March 16
+References: <20040316015338.39e2c48e.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020007030500040701020105
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tuesday March 16, akpm@osdl.org wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/
+> 
+> 
+> - A small update, mainly trying to get things stabilised after some
+>   problems with the disk unplugging and early x86 boot code.  We may still
+>   have a problem with the latter.
 
-Hi Linus and kernel folks,
+I tried on my server that wasn't booting 2.6.4-mm1.
 
-Attached a patch with some spelling corrections. Please merge, thanks!
--- 
-A Dieu,
-  Robert Zwerus - e-mail: arzie@dds.nl
-  ICQ UIN: 3943443 - MSN: robert_zwerus@hotmail.com
+It is much happier.
 
---------------020007030500040701020105
-Content-Type: text/x-patch;
- name="arch_i386_Kconfig.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="arch_i386_Kconfig.patch"
+I noticed that rc1-mm1 causes 4KSTACKS to be forced =y, where as in
+2.6.4-mm1, it defaulted to =n.
+So I retested 2.6.4-mm1 with 4KSTACKS=y and it still fails.
 
---- Kconfig.orig	2004-03-16 11:39:00.953920334 +0100
-+++ Kconfig	2004-03-16 11:35:58.698807155 +0100
-@@ -837,12 +837,12 @@ config EFI
- 	kernel should continue to boot on existing non-EFI platforms.
- 
- config IRQBALANCE
-- 	bool "Enable kernel irq balancing"
-+ 	bool "Enable kernel IRQ balancing"
- 	depends on SMP && X86_IO_APIC
- 	default y
- 	help
-- 	  The defalut yes will allow the kernel to do irq load balancing.
--	  Saying no will keep the kernel from doing irq load balancing.
-+ 	  The default yes will allow the kernel to do IRQ load balancing.
-+	  Saying no will keep the kernel from doing IRQ load balancing.
- 
- config HAVE_DEC_LOCK
- 	bool
-@@ -861,7 +861,7 @@ config REGPARM
- 	depends on EXPERIMENTAL
- 	default n
- 	help
--	Compile the kernel with -mregparm=3. This uses an different ABI
-+	Compile the kernel with -mregparm=3. This uses a different ABI
- 	and passes the first three arguments of a function call in registers.
- 	This will probably break binary only modules.
- 
+So: 2.6.5-rc1-mm1 seems to have fixed the problem I was having.
 
---------------020007030500040701020105--
+Thanks,
+NeilBrown
+

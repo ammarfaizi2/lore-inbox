@@ -1,81 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262042AbTCLWNA>; Wed, 12 Mar 2003 17:13:00 -0500
+	id <S262048AbTCLWYq>; Wed, 12 Mar 2003 17:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262044AbTCLWNA>; Wed, 12 Mar 2003 17:13:00 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:40435 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S262042AbTCLWM5>; Wed, 12 Mar 2003 17:12:57 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Date: Wed, 12 Mar 2003 14:21:49 -0800 (PST)
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-In-Reply-To: <20030312220156.GE30788@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0303121409300.11045-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262000AbTCLWYq>; Wed, 12 Mar 2003 17:24:46 -0500
+Received: from smtp07.iddeo.es ([62.81.186.17]:28124 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id <S262083AbTCLWYl>;
+	Wed, 12 Mar 2003 17:24:41 -0500
+Date: Wed, 12 Mar 2003 23:35:16 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: drastically low perform. - quad, 4G ram, 2.4.20
+Message-ID: <20030312223516.GA3069@werewolf.able.es>
+References: <Pine.LNX.4.44.0303120915410.3827-100000@mydns2.compustrat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.44.0303120915410.3827-100000@mydns2.compustrat.com>; from thelittleprince-lists@asteroid-b612.org on Wed, Mar 12, 2003 at 18:33:00 +0100
+X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-and if you did real-time updates but once a month or so redid the
-'longest-path' thing that would change the CVS version info, correct?
 
-David Lang
+On 03.12, Mailing Lists wrote:
+> 
+> ok, so here's my comparison tests per Martin's earlier post. (if anyone
+> has suggestions on comparison tests i SHOULD be doing or things i should 
+> be checking, let me know).
+> 
+> 
+> mem=3072M BOOT
+> 
+> * hdparm -t /dev/sda
+> 
+> /dev/sda:
+>  Timing buffered disk reads:  64 MB in  3.78 seconds = 16.93 MB/sec
+> 
+> 
+> * hdparm -t /dev/sdb
+> 
+> /dev/sdb:
+>  Timing buffered disk reads:  64 MB in  2.75 seconds = 23.27 MB/sec
+> 
+> 
 
-On Wed, 12 Mar 2003, Larry McVoy wrote:
+Don't know about the rest, but this SCSI performance looks pretty low:
 
-> Date: Wed, 12 Mar 2003 14:01:56 -0800
-> From: Larry McVoy <lm@bitmover.com>
-> To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-> Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-> Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
->
-> On Wed, Mar 12, 2003 at 03:45:39PM -0600, Kai Germaschewski wrote:
-> > On Wed, 12 Mar 2003, Larry McVoy wrote:
-> >
-> > > > Larry, this brings up something I was meaning to ask you before this
-> > > > thread exploded.  What happens to those "logical change" numbers over
-> > > > time?
-> > >
-> > > They are stable in the CVS tree because the CVS tree isn't distributed.
-> > > So "Logical change 1.900" in the context of the exported CVS tree is
-> > > always the same thing.  That's one advantage centralized has, things
-> > > don't shift around on you.
-> >
-> > Isn't there a more general problem, though? (I hope I'm wrong)
-> >
-> > You want to update the CVS tree near-realtime. However, the longest-path
-> > through your graph may change with new merges, but CVS of course cannot
-> > cope with already committed data changing (already committed csets may
-> > all of a sudden not be in the longest path anymore)? This is a CVS
-> > limitation, of course, but still a problem AFAICS.
->
-> Yup, you're right, there is a tradeoff between real time updates and
-> best path.  We've already seen it in incremental updates.
->
-> We were talking about this internally when your mail came in.  I suspect
-> it isn't really a problem in practice because we can always redo the
-> entire export from scratch and get an optimal path.
->
-> Wayne pointed out that in the cases where it collapses a pile of csets
-> that is usually because Linus pulled some wad from somebody and one could
-> argue the collapse is a good thing.  But it depends, sometimes it is and
-> sometimes it isn't.  Our commercial users have frequently asked for a
-> way to "collapse the tree and clean up the noise in the graphs", in fact,
-> one called this morning and said "that BK to CVS thing, could that be a BK
-> to cleaner-BK thing?" so opinions vary on what is the perfect granularity.
->
-> My belief is that the real time updates is something that people value
-> more than the granularity.  You guys can vote and if you reach agreement
-> we'll do what you want.
-> --
-> ---
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+annwn:~# hdparm -tT /dev/sda
+
+/dev/sda:
+ Timing buffer-cache reads:   128 MB in  0.24 seconds =533.33 MB/sec
+ Timing buffered disk reads:  64 MB in  1.56 seconds = 41.03 MB/sec
+
+Relevant parts of dmesg:
+
+SCSI subsystem driver Revision: 1.00
+PCI: Setting latency timer of device 03:02.0 to 64
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.29
+        <Adaptec 29160 Ultra160 SCSI adapter>
+        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+
+blk: queue f7e77a18, I/O limit 4095Mb (mask 0xffffffff)
+(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
+(scsi0:A:1): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
+(scsi0:A:2): 10.000MB/s transfers (10.000MHz, offset 16)
+  Vendor: FUJITSU   Model: MAJ3364MP         Rev: 0115
+  Type:   Direct-Access                      ANSI SCSI revision: 04
+blk: queue f7e77818, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: FUJITSU   Model: MAJ3364MP         Rev: 0115
+  Type:   Direct-Access                      ANSI SCSI revision: 04
+blk: queue f7e77618, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: TOSHIBA   Model: CD-ROM XM-6201TA  Rev: 1030
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+blk: queue f7e77418, I/O limit 4095Mb (mask 0xffffffff)
+  Vendor: IOMEGA    Model: ZIP 100           Rev: E.08
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

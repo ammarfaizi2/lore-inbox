@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVAQVpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbVAQVth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVAQVpm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 16:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVAQVpm
+	id S262886AbVAQVth (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 16:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbVAQVtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 16:45:42 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:24846 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261364AbVAQVpf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 16:45:35 -0500
-Date: Mon, 17 Jan 2005 16:44:22 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [rfc] i810_audio: offset LVI from CIV to avoid stalled start
-Message-ID: <20050117214420.GH4348@tuxdriver.com>
-Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-kernel@vger.kernel.org, jgarzik@pobox.com
-References: <20050117183708.GD4348@tuxdriver.com> <20050117203930.GA9605@gondor.apana.org.au>
+	Mon, 17 Jan 2005 16:49:36 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:10400 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262886AbVAQVtP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 16:49:15 -0500
+Date: Mon, 17 Jan 2005 13:47:27 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] W1 patch for 2.6.11-rc1
+Message-ID: <20050117214727.GC28400@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050117203930.GA9605@gondor.apana.org.au>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 07:39:30AM +1100, Herbert Xu wrote:
-> On Mon, Jan 17, 2005 at 01:37:08PM -0500, John W. Linville wrote:
-> > "Some" OSS applications have trouble with later versions of the
-> > i810_audio driver.  Wolfenstein Enemy Territory from idSoftware is
-> > one such application.
-> 
-> Would it be possible to create a minimal program (something that triggers
-> a start through __i810_update_lvi) that reproduces this problem?
+Hi,
 
-Possible is, of course, somewhat relative... :-)  I'm not immediately
-equipped to produce such a program.
+Here is a single drivers/w1 patch against the latest 2.6.11-rc1 tree.
+This was included in the last -mm release.
 
-Enemy Territory is available for free (as in beer) download from
-www.enemy-territory.com.  Sound plays almost immediately once the
-game is started.
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/w1-2.6
 
-Is this sufficient?
+thanks,
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+greg k-h
+
+ drivers/w1/w1.c    |  210 ++++++++++++++++++++++++++++++++++-------------------
+ drivers/w1/w1.h    |    5 +
+ drivers/w1/w1_io.c |   10 ++
+ drivers/w1/w1_io.h |    1 
+ 4 files changed, 154 insertions(+), 72 deletions(-)
+-----
+
+
+Evgeniy Polyakov:
+  o w1: add ->search() method
+

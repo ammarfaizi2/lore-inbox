@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317859AbSHDPGM>; Sun, 4 Aug 2002 11:06:12 -0400
+	id <S317860AbSHDPNR>; Sun, 4 Aug 2002 11:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317860AbSHDPGM>; Sun, 4 Aug 2002 11:06:12 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:21574 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S317859AbSHDPGL>; Sun, 4 Aug 2002 11:06:11 -0400
-To: linux-kernel@vger.kernel.org
-From: Jonathan Hudson <jonathan@daria.co.uk>
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-x-no-productlinks: yes
-X-Comment-To: Oliver Feiler
-References: <fa.egf7e0v.kk5a2@ifi.uio.no>
-Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
-X-Newsgroups: fa.linux.kernel
-Content-Type: text/plain; charset=iso-8859-1
-NNTP-Posting-Host: daria.co.uk
-Message-ID: <60bc.3d4d4347.5dd06@trespassersw.daria.co.uk>
-Date: Sun, 04 Aug 2002 15:07:51 GMT
+	id <S317862AbSHDPNQ>; Sun, 4 Aug 2002 11:13:16 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:54439 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S317860AbSHDPNQ>; Sun, 4 Aug 2002 11:13:16 -0400
+Message-ID: <3D4D4544.4045B5D3@ntlworld.com>
+Date: Sun, 04 Aug 2002 16:16:20 +0100
+From: alien.ant@ntlworld.com
+X-Mailer: Mozilla 4.7 [en-gb] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 IDE Partition Check issue
+References: <20020804054239.62923.qmail@web9203.mail.yahoo.com> <1028470037.14195.24.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <fa.egf7e0v.kk5a2@ifi.uio.no>,
-	Oliver Feiler <kiza@gmx.net> writes:
-OF> Hi,
-OF> 
-OF> Since 2.4.19 a usb mouse does not work anymore if
-OF> 
-OF> CONFIG_USB_HID=m
-OF> and
-OF> CONFIG_INPUT_MOUSEDEV=m
-OF> 
-OF> is set. It only works if both are compiled into the kernel. Yes, I have set
-OF> CONFIG_USB_HIDINPUT=y.
-OF> 
-OF> I've also seen other complaints about usb mice not working in 2.4.19, I guess 
-OF> that's the problem?
-OF> 
-OF> If the stuff is compiled as modules, everything seems to be fine. The kernel 
-OF> messages are the same, everything is detected fine. Except that 'cat 
-OF> /dev/input/mice' does not give any output if the driver is compiled as 
-OF> module.
-OF> 
+Alan Cox wrote:
+ 
+> On Sun, 2002-08-04 at 06:42, Alex Davis wrote:
+> > What is UDMA44????
+>
+> There are several actual speed steppings other than UDMA 33/66. The
+> 33/66 are the top end for the control/cable. The drive may actually
+> choose a speed in between
 
-Not so. USB Mouse works just fine here on 2.4.19.
+I actually forced it to UDMA 44 as there were issues with the IBM drive
+and the highpoint controller at one time (they may have been resolved
+now but I have no need to increase to 66 - and wonder if in fact there
+is any benefit in doing so, anyway).
 
-$ lsmod
-....
-mousedev                4352   1
-hid                    14112   0 (unused)
-input                   3328   0 [mousedev hid]
-....
-
-CONFIG_INPUT=m
-# CONFIG_INPUT_KEYBDEV is not set
-CONFIG_INPUT_MOUSEDEV=m
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
-
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-# CONFIG_USB_HIDDEV is not set
-
-'cat /dev/input/mice' (a cat and mouse game?) gives output as well.
-
-So there appears to be no generic 2.4.19 problem.
-
+Alan - I'm wondering if this issue is related to Maxtor drives? All the
+reports I have seen of this problem have featured drives from this
+manufacturer.

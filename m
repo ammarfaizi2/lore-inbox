@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264767AbSKRUqb>; Mon, 18 Nov 2002 15:46:31 -0500
+	id <S264790AbSKRUsC>; Mon, 18 Nov 2002 15:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264779AbSKRUqb>; Mon, 18 Nov 2002 15:46:31 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:61444
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264767AbSKRUq0>; Mon, 18 Nov 2002 15:46:26 -0500
-Subject: [patch] ALSA compiler warnings fixes
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037652811.8374.138.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 (1.2.0-1) 
-Date: 18 Nov 2002 15:53:31 -0500
-Content-Transfer-Encoding: 7bit
+	id <S264795AbSKRUsC>; Mon, 18 Nov 2002 15:48:02 -0500
+Received: from 015.atlasinternet.net ([212.9.93.15]:27847 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id <S264790AbSKRUsA>; Mon, 18 Nov 2002 15:48:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
+Date: Mon, 18 Nov 2002 21:54:52 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+References: <200211171549.gAHFnSrE021923@mnm.uib.es> <20021118190200.GA20936@suse.de>
+In-Reply-To: <20021118190200.GA20936@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211182154.52081.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Monday 18 November 2002 20:02, Dave Jones shaped the electrons to shout:
+> On Sun, Nov 17, 2002 at 04:55:22PM +0100, Ricardo Galli wrote:
+>  > Marcelo,
+>  > 	please attach this patch to recognise the Tualatin processors'
+>  > cache.
+>  >
+>  > I think this has been already discussed in the list, and DaveJ
+>  > also applied it in his tree and/or 2.5.x. It is documented by
+>  > Intel.
+>
+> I sent Marcelo a patch containing this and other IDs.
+> He wants to take it for .21pre1
+>
+> It's purely cosmetic, so that's fine with me..
 
-Attached patch fixes numerous warnings in ALSA core of the type "unused
-variable foo" due to defined-away functions.
+It's very cosmetic but very annoying for P3 > 1GHz, where Linux <= 2.4.20-preX 
+only reports 32 KB of cache and it also seems to ignore the "cachesize" 
+parameter. Perhaps it really uses 256KB, but not sure.
 
-Usual solution applied.
+I tested it in a Compaq Proliant 330ML-G2 (P3 1.4) and a kernel compilation is 
+100% faster if the patch is applied.
 
-Patch is against current BK, please apply.
+Regards, 
 
-	Robert Love
+PS: Dave, see you in Mallorca in 20 days :-)
 
-
-Fix numerous ALSA core compiler warnings of the type "unused variable foo"
-
- include/sound/core.h |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-
-diff -urN linux-2.5.48/include/sound/core.h linux/include/sound/core.h
---- linux-2.5.48/include/sound/core.h	2002-11-17 23:29:57.000000000 -0500
-+++ linux/include/sound/core.h	2002-11-18 15:51:59.000000000 -0500
-@@ -177,11 +177,11 @@
- 	wake_up(&card->power_sleep);
- }
- #else
--#define snd_power_lock(card) do { ; } while (0)
--#define snd_power_unlock(card) do { ; } while (0)
--#define snd_power_wait(card) do { ; } while (0)
--#define snd_power_get_state(card) SNDRV_CTL_POWER_D0
--#define snd_power_change_state(card, state) do { ; } while (0)
-+#define snd_power_lock(card)		do { (void)(card); } while (0)
-+#define snd_power_unlock(card)		do { (void)(card); } while (0)
-+#define snd_power_wait(card)		do { (void)(card); } while (0)
-+#define snd_power_get_state(card)	SNDRV_CTL_POWER_D0
-+#define snd_power_change_state(card, state)	do { (void)(card); } while (0)
- #endif
- 
- /* device.c */
-
-
+-- 
+  ricardo galli       GPG id C8114D34
 

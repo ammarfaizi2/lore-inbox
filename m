@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136524AbRD3WYa>; Mon, 30 Apr 2001 18:24:30 -0400
+	id <S136526AbRD3WZl>; Mon, 30 Apr 2001 18:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136526AbRD3WYW>; Mon, 30 Apr 2001 18:24:22 -0400
-Received: from adsl-63-206-198-42.dsl.snfc21.pacbell.net ([63.206.198.42]:17869
-	"EHLO adsl-63-206-198-42.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S136524AbRD3WYG>; Mon, 30 Apr 2001 18:24:06 -0400
-Date: Mon, 30 Apr 2001 15:21:45 -0700 (PDT)
-From: Francois Gouget <fgouget@free.fr>
-To: "Michael H. Warfield" <mhw@wittsend.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Elmer Joandi <elmer@linking.ee>,
-        Ookhoi <ookhoi@dds.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Aironet doesn't work
-In-Reply-To: <20010430181056.A10487@alcove.wittsend.com>
-Message-ID: <Pine.LNX.4.21.0104301518330.32730-100000@amboise.dolphin>
+	id <S136527AbRD3WZU>; Mon, 30 Apr 2001 18:25:20 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21509 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136526AbRD3WZI>; Mon, 30 Apr 2001 18:25:08 -0400
+Subject: Re: [patch] linux likes to kill bad inodes
+To: pavel@suse.cz (Pavel Machek)
+Date: Mon, 30 Apr 2001 23:28:41 +0100 (BST)
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org (kernel list),
+        torvalds@transmeta.com
+In-Reply-To: <20010422141042.A1354@bug.ucw.cz> from "Pavel Machek" at Apr 22, 2001 02:10:42 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uM9r-0000Wn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Michael H. Warfield wrote:
-[...]
-> >    But now I get the same missing symbols I initially had in 2.4.3:
-> 
-> > Apr 30 13:19:34 oleron cardmgr[148]: initializing socket 0
-> > Apr 30 13:19:34 oleron cardmgr[148]: socket 0: Aironet PC4800
-> > Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_core'
-> > Apr 30 13:19:34 oleron cardmgr[148]: + Warning: /lib/modules/2.4.4/kernel/drivers/net/aironet4500_core.o 
-> > symbol for parameter rx_queue_len not found
-> > Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_proc'
-> > Apr 30 13:19:34 oleron cardmgr[148]: executing: 'modprobe aironet4500_cs'
-> > Apr 30 13:19:35 oleron cardmgr[148]: get dev info on socket 0
-> > failed: Resource temporarily unavailable
-> 
-> 	Seen this before.  What version are your modutils at?  Latest are
-> 2.4.5 on kernel.org and there have been several times where I've had
-> them slip out of rev and ended up with missing symbols.
+>  {
+> -	if (inode->i_sb && inode->i_sb->s_op && inode->i_sb->s_op->write_inode)
+> +	if (inode->i_sb && inode->i_sb->s_op && inode->i_sb->s_op->write_inode && !is_bad_inode(inode))
+>  		inode->i_sb->s_op->write_inode(inode, sync);
+>  }
 
-   Here I have modutils 2.4.2.
-
-
---
-Francois Gouget         fgouget@free.fr        http://fgouget.free.fr/
-        War doesn't determine who's right.  War determines who's left.
-
+Any reason a bad inode can't have its i_sb changed to a bad_inode_fs ?

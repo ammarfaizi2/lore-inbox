@@ -1,27 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282180AbRK1XbX>; Wed, 28 Nov 2001 18:31:23 -0500
+	id <S282176AbRK1Xbd>; Wed, 28 Nov 2001 18:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282179AbRK1XbD>; Wed, 28 Nov 2001 18:31:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54801 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282176AbRK1XbB>; Wed, 28 Nov 2001 18:31:01 -0500
-Subject: Re: Linux 2.4.17-pre1
-To: mikpe@csd.uu.se (Mikael Pettersson)
-Date: Wed, 28 Nov 2001 23:39:26 +0000 (GMT)
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <200111282200.XAA02802@harpo.it.uu.se> from "Mikael Pettersson" at Nov 28, 2001 11:00:23 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169EIY-0006UI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S282179AbRK1XbY>; Wed, 28 Nov 2001 18:31:24 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:23481 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S282176AbRK1XbN>;
+	Wed, 28 Nov 2001 18:31:13 -0500
+Message-Id: <5.1.0.14.2.20011128232246.00aea8f0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 28 Nov 2001 23:31:14 +0000
+To: Jens Axboe <axboe@suse.de>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: 2.5.1-pre2 bio offset by one error in VIA IDE
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011128132000.T23858@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com>
+ <15364.3457.368582.994067@gargle.gargle.HOWL>
+ <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> use "BSD without advertising clause", which causes the kernel to be
-> tainted. Shouldn't fs/nls/*.c use "Dual BSD/GPL" or "GPL" instead?
+Jens,
 
-Dual BSD/GPL is the correct one.  Not a big issue. Since the GPL allows
-stuff to be freer than GPL but still GPL its arguably correct too I suspect
+I just booted my Athlon VIA KT133 chipset box with 2.5.1-pre2 only to 
+discover it dropped me into single user mode because /dev/hda2 could not be 
+mounted. (Rebooting into 2.5.0+viro patch everything is ok, back into 
+2.5.1-pre2 is broken...)
+
+Looking with hexedit /dev/hda2 when booted into 2.5.1-pre2 the first sector 
+contains junk, the second sector contains the real data that I see as the 
+first sector when booted into 2.5.0+viro fix.
+
+That suggests to me there is an off by one error in the VIA IDE driver in 
+the 2.5.10pre2 kernel causing the partition to start one sector earlier 
+than it should.
+
+If you would like any further information / patch testing / whatever let me 
+know.
+
+Best regards,
+
+         Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

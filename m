@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318469AbSGSIZW>; Fri, 19 Jul 2002 04:25:22 -0400
+	id <S318470AbSGSIVW>; Fri, 19 Jul 2002 04:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318471AbSGSIZW>; Fri, 19 Jul 2002 04:25:22 -0400
-Received: from divine.city.tvnet.hu ([195.38.100.154]:23839 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S318469AbSGSIZV>; Fri, 19 Jul 2002 04:25:21 -0400
-Date: Fri, 19 Jul 2002 09:30:32 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Robert Love <rml@tech9.net>
-cc: <root@chaos.analogic.com>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-In-Reply-To: <1027019414.1085.143.camel@sinai>
-Message-ID: <Pine.LNX.4.30.0207190843200.30902-100000@divine.city.tvnet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318464AbSGSIVU>; Fri, 19 Jul 2002 04:21:20 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:40079 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S318471AbSGSIVS>; Fri, 19 Jul 2002 04:21:18 -0400
+Date: Fri, 19 Jul 2002 10:24:12 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Yann Dirson <ydirson@altern.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Generic modules documentation is outdated
+Message-ID: <20020719082412.GA6490@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Yann Dirson <ydirson@altern.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020704212240.GB659@bylbo.nowhere.earth> <20020718210259.GJ19580@bylbo.nowhere.earth>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020718210259.GJ19580@bylbo.nowhere.earth>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 18, 2002 at 11:02:59PM +0200, Yann Dirson wrote:
 
-On 18 Jul 2002, Robert Love wrote:
-> Btw, without this it is possible to OOM any machine.  OOM is a
-> by-product of allowing overcommit and poor accounting (and perhaps
-> poor software/users), not an incorrectly configured machine.
+> I dicovered that I could "echo 0 >
+> /proc/sys/kernel/tainted"
+> 
+>  => is this reasonable ?
 
-Very well said, now I try to explain again what's missing from the
-patch: livelock is a by-product of allowing strict VM overcommit and
-poor accounting (and perhaps poor software/users), not an incorrectly
-configured machine.
+Yes, if you are smart enough to do this you could also edit the oops
+report or even patch nvidia licence tag etc. It's just a help to
+the kernel developers to sort out newbie bug reports, nothing more.
 
-So where is the solution for "poor accounting (and perhaps poor
-software/users), not an incorrectly configured machine" users? These
-are part of life and please don't claim all your work was perfect at
-first shoot and automatically adapted in all changing environments
-whitout ever touching it again on a general purpose system. Even if
-it would be true, not everybody supergenius.
+>  => isn't there a mechanism that triggers a kernel log when "tainted" is set ?  
+>     Any reason for not having one ?
 
-So which one is better? OOM killer that considers root owned processes
-to make his decision or strict VM overcommit that doesn't distinguish
-root and non-root users and potentially will livelock [if you don't
-have some custom solution, like "trigger OOM handler through sysrq"
-patch posted here a year ago].
+There is no internal kernel function being called in order to 
+initialise this flag. insmod just sets the value of the symbol, it
+doesn't call a kernel function which could make an entry into the logs.
 
-For embedded systems the later, for general purpose systems the first
-is better in average however this is not linux-embedded and later on
-people using Linux for general purpose could get the impression strict
-VM overcommit is useful for them and potentially would end up in a
-worse situation than without it (see my example sent, default kernel
-OOM killed the bad process, with your patch reset the box).
+However, insmod can and should IMHO syslog this. 
 
-*However* distinguishing root and non-root users also in strict VM
-overcommit would make a significant difference for general purpose
-systems, this was always my point.
+> - In 2.4.18 I can't find any information about the modules licencing issues
+> in Documentation/modules.txt (nor in Documentation/kmod.txt, but I don't
+> feel this one would be the place for this, correct me if I'm wrong)
 
-Can you see the non-orthogonality now?
+See Documentation/oops-tracing.txt and Documentation/sysctl/kernel.txt
+(in 2.4.19-rc2 at least).
 
-	Szaka
-
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

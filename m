@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272375AbTHIOjE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 10:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272383AbTHIOjE
+	id S272366AbTHIOeV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 10:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272367AbTHIOeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 10:39:04 -0400
-Received: from filesrv1.system-techniques.com ([199.33.245.55]:55521 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S272375AbTHIOjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 10:39:01 -0400
-Date: Sat, 9 Aug 2003 10:38:58 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: gaxt <gaxt@rogers.com>
-cc: preining@logic.at, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 cannot mount root fs
-In-Reply-To: <3F3509C0.9050403@rogers.com>
-Message-ID: <Pine.LNX.4.56.0308091036190.16795@filesrv1.baby-dragons.com>
-References: <3F34D0EA.8040006@rogers.com> <Pine.LNX.4.56.0308091030590.16795@filesrv1.baby-dragons.com>
- <3F3509C0.9050403@rogers.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Aug 2003 10:34:21 -0400
+Received: from waste.org ([209.173.204.2]:16066 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S272366AbTHIOeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 10:34:20 -0400
+Date: Sat, 9 Aug 2003 09:33:14 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au, davem@redhat.com
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030809143314.GT31810@waste.org>
+References: <20030809074459.GQ31810@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030809074459.GQ31810@waste.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Gaxt ,  I take it that there is no documentation of the
-	change to the 'Kernel's 'root' parameter syntax ?  Tia ,  JimL
+On Sat, Aug 09, 2003 at 02:44:59AM -0500, Matt Mackall wrote:
+> The attached (lightly tested) patch gets rid of the SHA in the
+> /dev/random code and replaces it with cryptoapi, leaving us with just
+> one SHA implementation. It also updates syncookies. This code is
+> already at about 125% of baseline throughput, and can probably reach
+> 250% with some tweaking of cryptoapi's redundant padding (in case
+> anyone else cares about being able to get 120Mb/s of cryptographically
+> strong random data).
+> 
+> The potentially controversial part is that the random driver is
+> currently non-optional and this patch would make cryptoapi
+> non-optional as well. I plan to cryptoapi-ify the outstanding
+> MD5 instance as well.
 
-On Sat, 9 Aug 2003, gaxt wrote:
-> It's not a lilo issue (ie. I use grub) I ran into the issue when I first
-> started with the 2.6.0 series test kernels.
+Some details I left out at 3am:
 
-> Mr. James W. Laferriere wrote:
-> > 	He3llo Gaxt ,  Is this change to the lilo.conf funtionality
-> > 	documented someplace ?  It is not in the halloween-2.5 document .
-> > 		Tia ,  JimL
+- this code is just a proof of concept
+- the random number generator is non-optional because it's used
+  various things from filesystems to networking
+- the cryptoapi layer is itself quite thin (the .o is about 2.8k
+  stripped on my box)
 
-> > On Sat, 9 Aug 2003, gaxt wrote:
-> >> > I am trying 2.6.0-test3 but cannot get the kernel to mount /dev/hdb1
-> >> > which is the root fs.
-> >>Try changing in your bootloader root=/dev/hdb1 to root=341
+An alternative approach is to subvert cryptoapi by pulling the core
+transform out of the SHA1 module and putting it in the core with hooks
+so /dev/random can get at it directly. Downsides are subverting the
+api and losing pluggability. Upsides are avoiding api overhead and
+potential sleeping.
+
 -- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Matt Mackall : http://www.selenic.com : of or relating to the moon

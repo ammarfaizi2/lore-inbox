@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318161AbSHIGLK>; Fri, 9 Aug 2002 02:11:10 -0400
+	id <S318165AbSHIG2T>; Fri, 9 Aug 2002 02:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318162AbSHIGLK>; Fri, 9 Aug 2002 02:11:10 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:42678 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S318161AbSHIGLK>; Fri, 9 Aug 2002 02:11:10 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roberto Gordo Saez <rgs@linalco.com>, <linux-kernel@vger.kernel.org>
-Cc: <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [PATCH] GMAC ethernet controller (Apple PowerPC)
-Date: Fri, 9 Aug 2002 08:14:07 +0200
-Message-Id: <20020809061407.6599@smtp.wanadoo.fr>
-In-Reply-To: <20020808100402.GA7953@filemon>
-References: <20020808100402.GA7953@filemon>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+	id <S318166AbSHIG2T>; Fri, 9 Aug 2002 02:28:19 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:39181 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318165AbSHIG2T>; Fri, 9 Aug 2002 02:28:19 -0400
+Message-ID: <3D536077.5010505@evision.ag>
+Date: Fri, 09 Aug 2002 08:25:59 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: martin@dalecki.de, Ingo Molnar <mingo@elte.hu>,
+       "Adam J. Richter" <adam@yggdrasil.com>, Andries.Brouwer@cwi.nl,
+       johninsd@san.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>		<3D523B25.5 <20020808181100Z315277-685+26763@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Small fix for the link status (carrier) on PowerPC GMAC net driver.
->
->Now ifconfig reports correctly the "RUNNING" flag, the same way that it
->is reported with other network cards i've tested (intel eepro100 on i386).
+U¿ytkownik Alan Cox napisa³:
 
-Thanks. However, the gmac driver is obsolete now (and will be removed
-from 2.5), you should really use sungem instead.
+> And btw lots of people still use < 512Mb and < 4G disks. No doubt you'd
+> prefer your kernel only ran on a pentiumII or higher
 
-Ben.
+They still work.
 
 

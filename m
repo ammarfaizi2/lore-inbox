@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262979AbTIRFs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 01:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTIRFs1
+	id S262973AbTIRGLM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 02:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbTIRGLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 01:48:27 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:24847 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S262973AbTIRFsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 01:48:25 -0400
-Subject: Re: [PATCH] 2.4 force_successful_syscall()
-From: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: "Helgaas, Bjorn (HP)" <bjorn.helgaas@hp.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, linux-ia64@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1063863741.1801.34.camel@satan.xko.dec.com>
-References: <1063863741.1801.34.camel@satan.xko.dec.com>
-Content-Type: text/plain
-Organization: Digital India
-Message-Id: <1063864899.1802.36.camel@satan.xko.dec.com>
+	Thu, 18 Sep 2003 02:11:12 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:24767 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262973AbTIRGLL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 02:11:11 -0400
+Date: Thu, 18 Sep 2003 08:11:10 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Chris Wright <chrisw@osdl.org>
+Cc: John R Moser <jmoser5@student.ccbc.cc.md.us>, linux-kernel@vger.kernel.org
+Subject: Re: Small security option
+Message-ID: <20030918061110.GA20363@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Chris Wright <chrisw@osdl.org>,
+	John R Moser <jmoser5@student.ccbc.cc.md.us>,
+	linux-kernel@vger.kernel.org
+References: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us> <20030917182543.A17202@osdlab.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 18 Sep 2003 11:31:39 +0530
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030917182543.A17202@osdlab.pdx.osdl.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-18 at 11:12, Kumar, Aneesh wrote:
-> On Thu, 2003-09-18 at 01:30, Marcelo Tosatti wrote:
-> > On Wed, 10 Sep 2003, Bjorn Helgaas wrote:
+On Wed, Sep 17, 2003 at 06:25:43PM -0700, Chris Wright wrote:
+> * John R Moser (jmoser5@student.ccbc.cc.md.us) wrote:
+> > Why wasn't this done in the first place anyway? 
 > > 
-> > > Here's a 2.4 backport of this change to 2.5:
-> > > 
-> > >
-> >
-> http://linux.bkbits.net:8080/linux-2.5/cset@1.1046.238.7?nav=index.html
-> > > 
-> > > Alpha, ppc, and sparc64 define force_successful_syscall_return() in
-> > 2.5,
-> > > but since it's not obvious to me how to do it correctly in 2.4, I
-> left
-> > > them unchanged.
+> > Some sysadmins like to disable the other boot devices and password-protect
+> > the bios.  Good, but if the person can pass init=, you're screwed. 
 > > 
-> > Whats the reasoning behing this patch?
+> > Here's a small patch that does a very simple thing: Disables "init=" and
+> > using /bin/sh for init. That'll stop people from rooting the box from grub. 
 > 
-> IIRC those changes were added to 2.5 by David. Architecture like Ia64
-> and Alpha support error return via a different register set ( $19 for
-> Alpha ). But syscalls like ptrace can have negative return value for
-> successful returns. So in that particular case $19 is forced to be zero
-> to indicate it is a successful return. IIUC
-> force_successful_syscall_return  is a wrapper around doing that. On
-> alpha actually r0 in the stack (regs.r0 ) is made zero which is  read in
-> entry.S and put in $19. 
+> If you have this access, you already own the box.
+> -chris
 
+Not *entirely* true. I know of hardware that would scream if it were opened
+and refuse to boot the next time, unless a bios password would be entered.
+Sure, it can be circumvented, but allowing software to bypass such measures
+seems silly.
 
-For IA64 I guess it is r10 and regs.r8. May be other can correct me if i
-am wrong. 
+However, in this case, lilo or grub or whatever should prevent the user from
+entering kernel parameters if they aren't authorized, not the kernel.
 
--aneesh 
+	Bert.
 
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,89 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263263AbTHVWMm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 18:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTHVWMm
+	id S263241AbTHVW16 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 18:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTHVW16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 18:12:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62420 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263263AbTHVWMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 18:12:31 -0400
-Date: Fri, 22 Aug 2003 15:05:15 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Pavel Machek <pavel@suse.cz>
-cc: <torvalds@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs
- explaining to you?
-In-Reply-To: <20030822215315.GD2306@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0308221454420.2310-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Aug 2003 18:27:58 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:46853 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263488AbTHVW1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 18:27:45 -0400
+Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
+	tst-mmap-eofsync in glibc on parisc)
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: hugh@veritas.com, willy@debian.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
+In-Reply-To: <20030822121955.619a14eb.davem@redhat.com>
+References: <20030822110144.5f7b83c5.davem@redhat.com>
+	<Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
+	<20030822113106.0503a665.davem@redhat.com>
+	<1061578568.2053.313.camel@mulgrave> 
+	<20030822121955.619a14eb.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 22 Aug 2003 17:27:33 -0500
+Message-Id: <1061591255.1784.636.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> This is stable series, and /proc/acpi/sleep was fine for at least
-> entering S3 and swsusp. Anyway, if you killed sleep, you should kill
-> alarm as well. Its only usefull for sleeping, and IIRC it never worked
-> properly, anyway.
-
-I will fix alarm. I will also update Nigel's suspend scripts (or release 
-others) that abstract the mechanism for entering sleep away from the user. 
-
-> If you want to help, take a look at drivers/pci/power.c. That file
-> should not need to exist, but if I kill it bad stuff happens after
-> resume. Killing pm_register() and friends would be nice.
-
-I'll get there. Give me a couple of weeks.. 
-
-> what about enum action { }; extern int (*pm_power_down)(enum action
-> state)?
-
-That's doable. 
-
-> > Secondly, you can actually remove the second command line parameter 
-> > ("noresume") by simply specifying a NULL partition to this parameter. It 
-> > requires about a 5-line change, and makes things simpler. 
+On Fri, 2003-08-22 at 14:19, David S. Miller wrote:
+> Sparc64's alias'able caches are 1) write-through and 2) quite small.
 > 
-> You'd better not. You are expected to have one "resume=/foo/bar"
-> specified as append in lilo. You want to able to say noresume and do
-> one boot without resuming. Turning resume with
-> "resume=/dev/nonexistent" would be playing roulete with command line
-> argument order.
-
-AFAIK, you could have
-
-resume=/dev/hda3 always appended to your command line. Should you suspend 
-and not want to resume, you should be able to manually add
-
-"resume=" on the command line after the above, and have the setup function 
-called again, which would reset it to NULL, thereby keeping the same 
-semantics as "noresume", but with less namespace pollution. Anyway, I'm 
-not going to do this now. I'll send you a patch if I do.
-
-> > -EAGAIN allows the drivers/devices that really need special care to 
-> > specify it. Otherwise, we'll end up calling ->suspend() twice for power 
-> > down for each device (those that can do w/ interrupts enabled and those 
-> > that need interrupts disabled), which also requires every single driver to 
-> > check whether or not interrupts are enabled, instead of just those that 
-> > need it. 
+> I think I begin to see the issue clearly now.
 > 
-> No, you should have simply let it alone and pass "level" parameter
-> telling driver if interrupts were disabled or not. No need to
-> constantly change API while trying to stabilise the code.
+> But you cannot do the VM_SHARED change without an audit first.
+> Lots of code thinks that VM_SHARED means someone maybe wrote
+> to the page through a mmap().  For example look at how filemap
+> sync interprets this flag bit.
 
-...and modify each driver to check for it? 
+Yes, the issue seems to be that the flush_dcache_page() was implemented
+with the thought that the caches of the shared mappings may contain
+modified data that needs to be flushed to the aliased page.
 
-The decision to kill the level parameter came from extensive discussions
-with Benh, who convinced me that we only need to call ->suspend() once for
-any device; though we still need to somehow provide for those that need to
-power down with interrupts disabled. I suggested -EAGAIN, since it allows
-us to special case those that need it, with the minimum amount of impact.
-Ben agreed with me.
+The opposite property: that the caches of the aliased page need to be
+invalidated because someone else changed data in the aliased page seems
+to work as a byproduct of the above implementation.
 
+But some of the checks for !list_empty(&mapping->i_shared) are going to
+prevent the necessary invalidations on read only shared mappings...which
+was the initial problem.
 
+The only issue I can see with not dropping VM_SHARED for read only
+shared mappings is that we do spurious (but harmless)
+flushe_dcache_page() on reads.
 
-	Pat
+There also appears to be a lurking prob lem in do_mremap, where it keys
+off the VM_SHARED flag to set the MAP_SHARED flag for
+get_unmapped_area.  That's going to cause us a problem on parisc because
+SHARED pages need to obey slightly stricter alignment constraints
+
+All in all, I think not dropping VM_SHARED on read only shared mappings
+is the right thing to do.
+
+Do you need a more detailed audit?
+
+James
+
 

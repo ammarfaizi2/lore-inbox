@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317979AbSFSTKI>; Wed, 19 Jun 2002 15:10:08 -0400
+	id <S317980AbSFSTOc>; Wed, 19 Jun 2002 15:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317980AbSFSTKH>; Wed, 19 Jun 2002 15:10:07 -0400
-Received: from rj.sgi.com ([192.82.208.96]:35733 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S317979AbSFSTKE>;
-	Wed, 19 Jun 2002 15:10:04 -0400
-Message-ID: <D93B36D3895ED51183870004AC38ABA7AD88B9@mtv-atc-006e--n.corp.sgi.com>
-From: Gene Yee <gyee@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: SMBFS Problems: smb_proc_readdir_long: name=, result=-2, rcls=1, 
-	err=123
-Date: Wed, 19 Jun 2002 12:10:02 -0700
+	id <S317981AbSFSTOb>; Wed, 19 Jun 2002 15:14:31 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:17628 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317980AbSFSTO3>;
+	Wed, 19 Jun 2002 15:14:29 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15632.55289.204683.26908@napali.hpl.hp.com>
+Date: Wed, 19 Jun 2002 12:14:01 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       Daniel Phillips <phillips@bonn-fries.net>, <Andries.Brouwer@cwi.nl>,
+       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH+discussion] symlink recursion
+In-Reply-To: <Pine.LNX.4.44.0206191136200.2889-100000@home.transmeta.com>
+References: <20020619181814.GA16548@win.tue.nl>
+	<Pine.LNX.4.44.0206191136200.2889-100000@home.transmeta.com>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Wed, 19 Jun 2002 11:55:23 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> said:
 
-Here is a quick overview:
+  Linus> Yes. But did you look at the stack frames of those things?
+  Linus> It's something like 16 bytes for ext2_follow_link (it just
+  Linus> calls directly back to the VFS layer), 20 bytes for
+  Linus> vfs_follow_link(), and 56 for link_path_walk.
 
-I am able to make a connection to a Win2K share and access all the
-directories and files, except one.  It is rather large also...  When I
-access try to access the directory, it will leave the error:
-smb_proc_readdir_long: name=, result=-2, rcls=1, err=123 in the
-/var/messages.  It normally shows 0 files in the directory, but if I enter
-'ls' enough times it will give me roughly half the files in the directory.
-I am listing the properties of the directory below.
+  Linux> ...
 
-Size: 225GB (241,700,612,216 bytes)
-Size on disk: 225GB (241,760,051,200 bytes)
-Contains: 17,466 Files, 1,215 Folders
+  Linus> But there are other numbers, like performance (sometimes
+  Linus> linearizing recursion loses, sometimes it wins), or somebody
+  Linus> doing the math on ia-64 and showing that the 100 bytes/level
+  Linus> on x86 is actually more like 2kB on ia-64 and totally
+  Linus> unacceptable.
 
-I was running 2.4.18 with the Hendrick patch to support a 160GB HD.  I have
-since moved up to 2.4.19pre10 hoping the fix the samba problem, I have also
-upgraded to the latest Samba on the server, thinking a new smbmount might
-help. None of this made a difference. 
+Just to avoid starting false rumours: on ia-64, I see the following
+(2.4.18, with gcc3.1):
 
-Let me know if there is any other information I can provide.
+	- ext2_follow_link():	 16 bytes/frame
+	- vfs_follow_link():	 56 bytes/frame
+	- link_path_walk():	128 bytes/frame
+	---------------------	---------------
+	total:			200 bytes/frame
 
-Any suggestion will be appreciated...
+Just about in line with what you'd expect given that registers are 64 bits.
+
+	--david

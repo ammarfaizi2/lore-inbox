@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265293AbTFRPpH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 11:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbTFRPpH
+	id S265295AbTFRPpS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 11:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbTFRPpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 11:45:07 -0400
-Received: from [213.229.38.66] ([213.229.38.66]:50586 "HELO mail.falke.at")
-	by vger.kernel.org with SMTP id S265293AbTFRPpF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 11:45:05 -0400
-Message-ID: <3EF08C15.1090406@winischhofer.net>
-Date: Wed, 18 Jun 2003 17:58:13 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en, de, de-de, de-at, sv
+	Wed, 18 Jun 2003 11:45:18 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9411 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265295AbTFRPpO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 11:45:14 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: O(1) scheduler starvation
+Date: Thu, 19 Jun 2003 01:59:13 +1000
+User-Agent: KMail/1.5.2
+Cc: davidm@hpl.hp.com, LKML <linux-kernel@vger.kernel.org>
+References: <5.2.0.9.2.20030618113653.0277d780@pop.gmx.net> <5.2.0.9.2.20030618163055.02758e18@pop.gmx.net>
+In-Reply-To: <5.2.0.9.2.20030618163055.02758e18@pop.gmx.net>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5 patch] fix for drivers/video/sis/init301.c
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306190159.13337.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 19 Jun 2003 01:54, Mike Galbraith wrote:
+> At 04:22 PM 6/18/2003 +0200, Felipe Alfaro Solana wrote:
+> >On Wed, 2003-06-18 at 14:04, Mike Galbraith wrote:
+> > > At 09:53 AM 6/18/2003 +0200, Felipe Alfaro Solana wrote:
+> > > >Hi!
+> > > >
+> > > >I've been poking around and found the following link on O(1) scheduler
+> > > >starvation problems:
+> > > >
+> > > >http://www.hpl.hp.com/research/linux/kernel/o1-starve.php
+<BIG SNIP>
 
-James has a much newer version of sisfb in his fbdev tree, waiting to be 
-included in the main line.
+Have you seen this email I just posted to lkml?
 
-Thomas
+[PATCH] 2.5.72 O(1) interactivity bugfix
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
-twini AT xfree86 DOT org
+It may be affecting the scheduler in all sorts of ways.
 
-
+Con
 

@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271973AbRHVSb1>; Wed, 22 Aug 2001 14:31:27 -0400
+	id <S272076AbRHVSc5>; Wed, 22 Aug 2001 14:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271975AbRHVSbR>; Wed, 22 Aug 2001 14:31:17 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:21261 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S271973AbRHVSbO>; Wed, 22 Aug 2001 14:31:14 -0400
-Message-ID: <3B83FAC7.1B727294@t-online.de>
-Date: Wed, 22 Aug 2001 20:32:39 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
-In-Reply-To: <E15Zca4-0001z2-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271975AbRHVScs>; Wed, 22 Aug 2001 14:32:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32428 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271638AbRHVSce>;
+	Wed, 22 Aug 2001 14:32:34 -0400
+Date: Wed, 22 Aug 2001 11:32:36 -0700 (PDT)
+Message-Id: <20010822.113236.48384121.davem@redhat.com>
+To: groudier@free.fr
+Cc: gibbs@scsiguy.com, axboe@suse.de, skraw@ithnet.com,
+        phillips@bonn-fries.net, linux-kernel@vger.kernel.org
+Subject: Re: With Daniel Phillips Patch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010822195804.R610-100000@gerard>
+In-Reply-To: <20010822.080540.35030343.davem@redhat.com>
+	<20010822195804.R610-100000@gerard>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=big5
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Try -ac Kernels with integrated PNPBIOS and "lspnp -v",
-> > then you will see your "motherboard resources". No magic.
-> 
-> Except on the intel boards where your machine crashes, the vaio's where
-> some queries corrupt memory, the boxes where an interrupt during a pnpbios
-> call crashes the box, the machines where pnpbios called from both cpus at
-> the same time is a crash case, the wonderful weird tiny races on some boxes
-> that use smm traps and fail if random undefined things occur between the
-> two out instructions...
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Wed, 22 Aug 2001 20:21:50 +0200 (CEST)
+   
+   First, let me thank you a LLLOOOOOOTTTTT, David, for you PCI 64 bit
+   addressing DMA-mapping. I didn't have looked yet into your patch and
+   documentation update, but I will do so ASAP.
+   
+You're very welcome. :-)
 
-So call it only once early on boot (in real mode) and save the table
-for later use (we don't need the fancy features ...) ?
+   OTOH, it is a great pleasure for me to hear that you didn't forget what I
+   told you about the current limitation of the SYM53C8XX driver. For now,
+   the driver would be only able to use 40 bit addresses with all upper bits
+   set to zero. This doesn't fit PCI 64 bit implementation of the Alpha
+   Monster window for example, and probably doesn't fit most other non-Intel
+   PCI 64 bit implementations.
+   
+It is fully known, in fact, I converted the sym53c8xx.c driver as
+one of the examples in the patch.
 
-> > Alan, 2.4 would largely benefit from PNPBIOS, do you plan
-> > to submit this to LT (probably with the proposed life saver fix) ?
-> 
-> Experience is that PnpBIOS services are so astoundingly buggy in many
-> bioses that they are probably not worth the risk. Ie more boxes break by
-> calling pnpbios than by assuming the vendor used a sane resource layout.
+Alpha can use it, in cases where memory in the system is less than
+the addressing limitation of device.
 
-How are these bugs handled by Windows ?
-Must we only mimick the Windows call layout to
-enter bios-writer's well tested code path ?
+Such logic would reside for Alpha port in pci_dac_cycles_ok()
+definition.  IA64 and x86 could act similarly.  This was in fact
+how I intended ports to implement pci_dac_cycles_ok().
 
-> Before PnPBIOS can go mainstream we'd have to generate a detailed list
-> of buggy bios signatures
+   But there is an alternate solution for the SYM53C8XX driver by using up to
+   16 x 32 bit segment registers. This would (will) allow to address for DMA
+   16 x 4GB segments with all upper bits being settable for each 4GB segment.
+
+Note, it relies on no 4GB crossing every occuring.  Jens and I have
+decided that we will make this guarentee for devices always.  I know
+of 2 devices already which have problems with this (Qlogic,FC and some
+buggy variants of Tigon3 chips).
+
+   I have this in my todo-list since months, but haven't had strong reasons
+   for implementing it. The strongest reasons would be that I had access to
+   64 bit machines with 64 bit PCI, but this isn't possible.
+
+Look for someone to borrow a sparc64 system from.  Or, alternatively
+send the patch to me for testing.
+
+On sparc64, you will always be "testing all the bits" since each
+DAC address to physical memory has:
+
+	0xfffc000000000000
+
+on the top bits.
+
+Later,
+David S. Miller
+davem@redhat.com

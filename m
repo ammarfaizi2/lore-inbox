@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130758AbQLJQzL>; Sun, 10 Dec 2000 11:55:11 -0500
+	id <S131264AbQLJQ5L>; Sun, 10 Dec 2000 11:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130842AbQLJQzC>; Sun, 10 Dec 2000 11:55:02 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44562 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130758AbQLJQys>;
-	Sun, 10 Dec 2000 11:54:48 -0500
-Message-ID: <3A33AE2D.A8E6053@mandrakesoft.com>
-Date: Sun, 10 Dec 2000 11:24:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S130842AbQLJQ5B>; Sun, 10 Dec 2000 11:57:01 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:34567 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S130580AbQLJQ4n>; Sun, 10 Dec 2000 11:56:43 -0500
+Date: Sun, 10 Dec 2000 16:25:28 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Hakan Lennestal <hakanl@cdt.luth.se>
+cc: <torvalds@transmeta.com>, <sharp@ihug.co.nz>,
+        Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11 
+In-Reply-To: <20001210121512.A08BD418A@tuttifrutti.cdt.luth.se>
+Message-ID: <Pine.LNX.4.30.0012101622100.25294-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>, rgooch@ras.ucalgary.ca,
-        jgarzik@mandrakesoft.mandrakesoft.com, dhinds@valinux.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Serial cardbus code.... for testing, please.....
-In-Reply-To: <Pine.LNX.4.10.10012100814230.2635-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Oh, serial_cb shouldn't work anyway, I think.
+On Sun, 10 Dec 2000, Hakan Lennestal wrote:
 
-As soon as the serial.c hotplug patch appear, you'll be receiving a
-patch that eliminates serial_cb.
+> The problem being that the kernel hangs after a dma timeout in the
+> partition detection phase during bootup for speeds higher than udma 44.
+> This is an IBM-DTLA-307030 connected to a hpt366 pci card on a BH6
+> motherboard.
 
-	Jeff
+Until we manage to get a response from HPT on what they changed in the
+1.26 version of their BIOS to accomodate these drives, we shouldn't
+attempt to run them at that speed on the HPT366.
+
+Linus, please apply.
+
+--- linux-test/drivers/ide/hpt366.c	Tue Dec  5 13:30:40 2000
++++ linux-2.4/drivers/ide/hpt366.c	Tue Nov 21 13:42:40 2000
+@@ -55,6 +55,9 @@
+ };
+
+ const char *bad_ata66_4[] = {
++	"IBM-DTLA-307075",
++	"IBM-DTLA-307045",
++	"IBM-DTLA-307030",
+ 	"WDC AC310200R",
+ 	NULL
+ };
 
 
 -- 
-Jeff Garzik         |
-Building 1024       | These are not the J's you're lookin' for.
-MandrakeSoft        | It's an old Jedi mind trick.
+dwmw2
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

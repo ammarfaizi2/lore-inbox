@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278218AbRJWUfQ>; Tue, 23 Oct 2001 16:35:16 -0400
+	id <S278222AbRJWUgg>; Tue, 23 Oct 2001 16:36:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278221AbRJWUfG>; Tue, 23 Oct 2001 16:35:06 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:26292 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S278218AbRJWUfA>;
-	Tue, 23 Oct 2001 16:35:00 -0400
-Message-ID: <3BD5D496.3FEA316@candelatech.com>
-Date: Tue, 23 Oct 2001 13:35:34 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
-X-Accept-Language: en
+	id <S278221AbRJWUg0>; Tue, 23 Oct 2001 16:36:26 -0400
+Received: from zero.aec.at ([195.3.98.22]:2566 "HELO zero.aec.at")
+	by vger.kernel.org with SMTP id <S278242AbRJWUgS>;
+	Tue, 23 Oct 2001 16:36:18 -0400
+To: Dave McCracken <dmccr@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Issue with max_threads (and other resources) and highmem
+In-Reply-To: <72940000.1003868385@baldur>
+From: Andi Kleen <ak@muc.de>
+Date: 23 Oct 2001 22:36:51 +0200
+In-Reply-To: Dave McCracken's message of "Tue, 23 Oct 2001 15:19:45 -0500"
+Message-ID: <k28ze2drfg.fsf@zero.aec.at>
+User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        Tulip Mailing List <tulip@scyld.com>
-Subject: Small bug with ZYNX 4-Port NIC (Tulip driver)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Regarding the tulip driver that comes default with 2.4.13-pre5:
+In article <72940000.1003868385@baldur>,
+Dave McCracken <dmccr@us.ibm.com> writes:
 
-There seems to be a problem with the ZYNX 4-port NIC.
-It auto-negotiates and brings it's link up, but it's
-advertise bits are set to (only) 10bt-FD.  If I force the
-bits to 10/100 FD/HD (all 4 set, in other words), then the
-NIC briefly reports this setting (while LINK is DOWN), but
-as soon as it completes it's autonegotiation, the advert
-bits are once again set to 10bt-FD.
+> What's the best approach here?
 
-I do NOT see this problem on the D-LINK 4-port NIC or the
-EEPRO NICs I've been testing with....
+I would just limit it to a reasonable max value; e.g. 10000
+if someone needs more than 10000 threads/processes he/she can set sysctls
+manually. The current scheduler would choke anyways if only a small
+fraction of 10000 threads are runnable.
 
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+-Andi

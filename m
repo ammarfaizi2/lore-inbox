@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274097AbRI0X3D>; Thu, 27 Sep 2001 19:29:03 -0400
+	id <S274100AbRI0XbD>; Thu, 27 Sep 2001 19:31:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274100AbRI0X2x>; Thu, 27 Sep 2001 19:28:53 -0400
-Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:57873 "EHLO
-	mail.tv-sign.ru") by vger.kernel.org with ESMTP id <S274097AbRI0X2s>;
-	Thu, 27 Sep 2001 19:28:48 -0400
-To: linux-kernel@vger.kernel.org, mingo@elte.hu
+	id <S274105AbRI0Xax>; Thu, 27 Sep 2001 19:30:53 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:8700 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274100AbRI0Xap>;
+	Thu, 27 Sep 2001 19:30:45 -0400
+Date: Fri, 28 Sep 2001 01:31:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>
 Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-Message-Id: <E15mkaf-0000ms-00@mail.tv-sign.ru>
-From: Oleg Nesterov <oleg@tv-sign.ru>
-Date: Fri, 28 Sep 2001 03:29:13 +0400
+Message-ID: <20010928013106.W14277@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 26, 2001 at 06:44:03PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Wed, Sep 26, 2001 at 06:44:03PM +0200, Ingo Molnar wrote:
 
-I am trying to understand the basics of softirq handling.
+some comment after reading your softirq-2.4.10-A7.
 
-It seems to me that ksoftirqd()'s loop can be cleanuped a bit
-with following (untested) patch on top of 2.4.10-softirq-A7.
+>  - softirq handling can now be restarted N times within do_softirq(), if a
+>    softirq gets reactivated while it's being handled.
 
-It also removes	the 'mask' variable in do_softirq().
+is this really necessary after introducing the unwakeup logic? What do
+you get if you allow at max 1 softirq pass as before?
 
-	Oleg
+>  - '[ksoftirqd_CPU0]' is confusing on UP systems, changed it to
+>    '[ksoftirqd]' instead.
 
---- 2.4.10-softirq-A7/kernel/softirq.c.orig	Thu Sep 27 22:31:06 2001
-+++ 2.4.10-softirq-A7/kernel/softirq.c	Thu Sep 27 22:54:37 2001
-@@ -85,7 +85,7 @@
- {
- 	int max_restart = MAX_SOFTIRQ_RESTART;
- 	int cpu = smp_processor_id();
--	__u32 pending, mask;
-+	__u32 pending;
- 	long flags;
- 
- 	if (in_interrupt())
-@@ -98,7 +98,6 @@
- 	if (pending) {
- 		struct softirq_action *h;
- 
--		mask = ~pending;
- 		local_bh_disable();
- restart:
- 		/* Reset the pending bitmask before enabling irqs */
-@@ -381,26 +380,22 @@
- #endif
- 
- 	current->nice = 19;
--	schedule();
--	__set_current_state(TASK_INTERRUPTIBLE);
- 	ksoftirqd_task(cpu) = current;
- 
- 	for (;;) {
--back:
-+		schedule();
-+		__set_current_state(TASK_INTERRUPTIBLE);
-+
- 		do {
- 			do_softirq();
- 			if (current->need_resched)
- 				goto preempt;
- 		} while (softirq_pending(cpu));
--		schedule();
--		__set_current_state(TASK_INTERRUPTIBLE);
--	}
- 
-+		continue;
- preempt:
--	__set_current_state(TASK_RUNNING);
--	schedule();
--	__set_current_state(TASK_INTERRUPTIBLE);
--	goto back;
-+		__set_current_state(TASK_RUNNING);
-+	}
- }
- 
- static __init int spawn_ksoftirqd(void)
+"confusing" for you maybe, not for me, but I don't care about this one
+anyways :).
+
+>  - simplified ksoftirqd()'s loop, it's both shorter and faster by a few
+>    instructions now.
+
+only detail: ksoftirqd can show up as sleeping from /proc while it's
+runnable but I don't think it's a problem and saving the state
+clobbering is probably more sensible.
+
+no other obvious issue, except I preferred to wait each ksoftirqd to
+startup succesfully to be strictier and I'd also put an assert after
+the schedule() to verify ksoftirqd is running in the right cpu.
+
+Andrea

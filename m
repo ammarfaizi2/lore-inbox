@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136612AbREGSyV>; Mon, 7 May 2001 14:54:21 -0400
+	id <S135931AbREGSzW>; Mon, 7 May 2001 14:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136606AbREGSyB>; Mon, 7 May 2001 14:54:01 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:3078 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S135931AbREGSxw>; Mon, 7 May 2001 14:53:52 -0400
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: Bohdan Vlasyuk <Bohdan@kivc.vstu.vinnica.ua>, linux-kernel@vger.kernel.org
-Subject: Re: linux + Compaq Presario Laptop
-In-Reply-To: <16736206722.20010507200652@kivc.vstu.vinnica.ua>
-	<20010507193123.F5208@arthur.ubicom.tudelft.nl>
-From: Doug McNaught <doug@wireboard.com>
-Date: 07 May 2001 14:53:37 -0400
-In-Reply-To: Erik Mouw's message of "Mon, 7 May 2001 19:31:23 +0200"
-Message-ID: <m33dahdm8e.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S136606AbREGSzM>; Mon, 7 May 2001 14:55:12 -0400
+Received: from cs140085.pp.htv.fi ([213.243.140.85]:53679 "EHLO
+	porkkala.cs140085.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S135931AbREGSy4>; Mon, 7 May 2001 14:54:56 -0400
+Message-ID: <3AF6EF65.3271A59E@pp.htv.fi>
+Date: Mon, 07 May 2001 21:54:29 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon possible fixes
+In-Reply-To: <200105051626.SAA16651@cave.bitwizard.nl> <3AF4824F.8964E53B@home.com> <3AF57F63.9900089E@pp.htv.fi> <000b01c0d658$a19163a0$3303a8c0@pnetz>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> writes:
+Christian Bornträger wrote:
+> 
+> Can you try and mail me if the Kernel 2.4.3 (without any ac patch) is 
+> stable with your system even if you use autotune? "Downgrade" to this 
+> kernel works fine for me.
 
-> Try linux-2.2.19, it contains BIOS e820 support. If you don't want to
-> compile a kernel, check if Red Hat has RPMs available somewhere on
-> their site. 
+At least RedHat's 2.4.2-2 doesn't seem to lockup. I'll compile and try 2.4.3
+tomorrow.
 
-They do; there was a kernel errata release of 2.2.19 for security
-reasons.  On updates.redhat.com or a mirror.
+ - Jussi Laako
 
--Doug
 -- 
-The rain man gave me two cures; he said jump right in,
-The first was Texas medicine--the second was just railroad gin,
-And like a fool I mixed them, and it strangled up my mind,
-Now people just get uglier, and I got no sense of time...          --Dylan
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

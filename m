@@ -1,43 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129595AbRCPRY7>; Fri, 16 Mar 2001 12:24:59 -0500
+	id <S130673AbRCPRi7>; Fri, 16 Mar 2001 12:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130618AbRCPRYt>; Fri, 16 Mar 2001 12:24:49 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:20233 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S129595AbRCPRYf>; Fri, 16 Mar 2001 12:24:35 -0500
-To: Sane_Purushottam@emc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fork and pthreads
-In-Reply-To: <93F527C91A6ED411AFE10050040665D0560664@corpusmx1.us.dg.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 16 Mar 2001 12:23:15 -0500
-In-Reply-To: Sane_Purushottam@emc.com's message of "Fri, 16 Mar 2001 11:34:04 -0500"
-Message-ID: <m3r8zxfx18.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
+	id <S130723AbRCPRit>; Fri, 16 Mar 2001 12:38:49 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:51268 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S130673AbRCPRib>;
+	Fri, 16 Mar 2001 12:38:31 -0500
+Message-ID: <20010316183750.A11156@win.tue.nl>
+Date: Fri, 16 Mar 2001 18:37:50 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Art Boulatov <art@ksu.ru>, linux-kernel@vger.kernel.org
+Cc: Russell King <rmk@arm.linux.org.uk>, Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: union mounts WAS: pivot_root & linuxrc problem
+In-Reply-To: <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de> <3AB21DB5.7030105@ksu.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3AB21DB5.7030105@ksu.ru>; from Art Boulatov on Fri, Mar 16, 2001 at 05:05:41PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sane_Purushottam@emc.com writes:
+On Fri, Mar 16, 2001 at 05:05:41PM +0300, Art Boulatov wrote:
 
-> I am having a strange problem.
-> 
-> I have a big daemon program to which I am trying to add multi-threading.
-> 
-> At the begining, after some sanity check, this program does a double fork to
-> create a deamon.
-> 
-> After that it listens for the client on the port. Whenever the client
-> connects, it creates a new thread using
-> pthread-create.
-> 
-> The problem is, the thread (main thread) calling pthread-create hangs
-> indefinetely in __sigsuspend. The newly created thread however, runs
-> normally to completion.
+> I've seen new options for "mount" like --bind, --over, but didn't really 
+> get how they work or are they implemented at all.
 
-Just a guess--are you calling setsid() to establish a new session?
-Omitting this *might* cause signal-delivery problems in pthreads.
-
--Doug
+"mount --bind" works on vanilla 2.4. The others don't.

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318282AbSIKCOg>; Tue, 10 Sep 2002 22:14:36 -0400
+	id <S318285AbSIKCQl>; Tue, 10 Sep 2002 22:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318283AbSIKCOg>; Tue, 10 Sep 2002 22:14:36 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:1028 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318282AbSIKCOg>;
-	Tue, 10 Sep 2002 22:14:36 -0400
-Date: Tue, 10 Sep 2002 19:16:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Nicholas Miell <nmiell@attbi.com>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: the userspace side of driverfs
-Message-ID: <20020911021610.GA24844@kroah.com>
-References: <1031707119.1396.30.camel@entropy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031707119.1396.30.camel@entropy>
-User-Agent: Mutt/1.4i
+	id <S318286AbSIKCQl>; Tue, 10 Sep 2002 22:16:41 -0400
+Received: from dsl-213-023-020-046.arcor-ip.net ([213.23.20.46]:61150 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318285AbSIKCQi>;
+	Tue, 10 Sep 2002 22:16:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Wed, 11 Sep 2002 04:14:05 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Chuck Lever <cel@citi.umich.edu>, Rik van Riel <riel@conectiva.com.br>,
+       trond.myklebust@fys.uio.no,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu> <E17ovlW-0007Jd-00@starship> <3D7EA125.5959085D@digeo.com>
+In-Reply-To: <3D7EA125.5959085D@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ox13-0007Ki-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 06:18:37PM -0700, Nicholas Miell wrote:
-> - "name" isn't particularly consistent. Sometimes it requires parsing to
-> be useful ("PCI device 1234:1234", "USB device 1234:1234", etc.",
-> sometimes it's the actual device name, sometimes it's something strange
-> like "Hub/Port Status Changes".
+On Wednesday 11 September 2002 03:49, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > So we just quietly drop any dirty memory mapped to a file if the user doesn't
+> > run msync?  Is that correct behaviour?  It sure sounds wrong.
+> 
+> If the page is truncated then yes.  (indirectly: the pte dirty
+> state gets flushed into PG_dirty which is then invalidated).
+> 
+> Otherwise, no.  The pte dirtiness is propagated into PG_dirty when
+> the pte is detached from the page.  See try_to_unmap_one() - it is
+> quite straightforward.
 
-The "Hub/Port..." thing will change, I have a large "struct
-device_driver" patch for the USB code that is still being worked on
-before going into the kernel, and this is changed in that patch..  For
-all other "name" files, it's something that makes sense for the device,
-and can be parsed by a human.  For some USB devices, they provide device
-and manufacturer strings, so that information is provided.  Other
-devices do not, so we guess the best that we can.
+Yep, that's what I meant the first time round.  Had me worried for a moment
+there...
 
-thanks,
+The specific path I was refering to is:
 
-greg k-h
+  sys_munmap->
+     unmap_region->
+         unmap_page_range->
+            zap_pmd_range->
+               zap_pte_range->
+
+                      if (pte_dirty(pte))
+                               set_page_dirty(page);
+
+Which is the definitive way of getting the data onto disk.  It's weird that
+msync has to be different from fsync, or that fsync does not imply msync,
+but that's the posix folks for ya, I'm sure they threw a dart blindfolded
+at a list of reasons and came up with one.
+
+-- 
+Daniel

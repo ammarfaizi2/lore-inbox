@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290088AbSAQR5S>; Thu, 17 Jan 2002 12:57:18 -0500
+	id <S290102AbSAQSJb>; Thu, 17 Jan 2002 13:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290094AbSAQR5J>; Thu, 17 Jan 2002 12:57:09 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:9557 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S290088AbSAQR4v>; Thu, 17 Jan 2002 12:56:51 -0500
-Date: Thu, 17 Jan 2002 17:57:15 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: pte-highmem-5
-In-Reply-To: <20020116185814.I22791@athlon.random>
-Message-ID: <Pine.LNX.4.21.0201171752520.2304-100000@localhost.localdomain>
+	id <S290103AbSAQSJW>; Thu, 17 Jan 2002 13:09:22 -0500
+Received: from hirogen.kabelfoon.nl ([62.45.45.69]:9489 "HELO
+	hirogen.kabelfoon.nl") by vger.kernel.org with SMTP
+	id <S290102AbSAQSJH>; Thu, 17 Jan 2002 13:09:07 -0500
+Message-ID: <3C4712DB.6090201@kabelfoon.nl>
+Date: Thu, 17 Jan 2002 19:07:23 +0100
+From: Nick Martens <nickm@kabelfoon.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: hangs using opengl
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
-> 
-> This patch in short will move pagetables into highmem, obviously it
-> breaks all the archs out there. This should fix the problem completly
-> allowing linux to effectively support all the 64G possibly available in
-> the ia32 boxes (currently, without this patch, you risk to be able to
-> use only a few gigabytes).
+Hi,
+I'm having some trouble with my box, at the time that i start an opengl 
+game in X sometimes the load of my machine gets really high (not in all 
+games Quake III runs just fine). when i try to move my mouse it won't 
+move, when i press CTRL-ALT-BACKSPACE nothing happens and I have to 
+reset my system. Is this kernel related or just an opengl problen ? if 
+it's kernel related I am running kernel 2.4.5 And my video-card is an 
+NVIDIA geforce 2 pro 450 from gainward. before this card i had a diamond 
+viper 770 ultra and the same problem occured. If this is not a kernel 
+issue: where can i go to solve this ????
 
-Several random points on the patch, I've not studied it as long as
-I'd like: so may well be making a fool of myself on some of these,
-and you may quickly say so!
+Greets Nick
 
-1.  Yes, this has to come sooner or later, but it is a significant step,
-    as I've said in other mail - may unmap some useful debugging info.
-
-2.  More complicated than I'd like: too many pte_offset variants!
-    I'd prefer it without the different SERIEs, I don't understand why
-    those.  I assume it's to prevent kmaps of data flushing away "more
-    valuable" kmaps of page tables, but wouldn't it be better to keep
-    just one "serie" of kmap for now, add cleverer decision on what
-    and when to throw away later on, localized within mm/highmem.c?
-
-3.  KM_SERIE_PAGETABLE2 kmap_pagetable2 pmd_page2 pte_offset2 all just
-    for copy_page_range src?  Why distinguished from KM_SERIE_PAGETABLE?
-    Often it will already be KM_SERIE_PAGETABLE.  I can imagine you might
-    want an atomic at that point (holding spinlock), but I don't see what
-    the PAGETABLE2 distinction gives you.
-
-4.  You've lifted the PAE restriction to LAST_PKMAP 512 in i386/highmem.h,
-    and use pkmap_page_table as one long array in mm/highmem.c, but I
-    don't see where you enforce the contiguity of page table pages in
-    i386/mm/init.c.  (I do already have a patch for lifting the 1024,512
-    kmaps limit, simplifying i386/mm/init.c, we've been using for months:
-    I can update that from 2.4.9 if you'd like it.)
-
-5.  Shouldn't mm/vmscan.c be in the patch?
-
-Hugh
 

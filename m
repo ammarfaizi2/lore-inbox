@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263160AbTEBUeF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 16:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTEBUeF
+	id S263029AbTEBU3A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 16:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTEBU3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 16:34:05 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:47791 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263160AbTEBUeE (ORCPT
+	Fri, 2 May 2003 16:29:00 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:14732 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id S263029AbTEBU27 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 16:34:04 -0400
-Date: Fri, 2 May 2003 13:43:58 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Location of latest block-highmem patch?
-Message-Id: <20030502134358.514f0566.rddunlap@osdl.org>
-In-Reply-To: <1051907847.1969.8.camel@laptop-linux>
-References: <1051907847.1969.8.camel@laptop-linux>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 2 May 2003 16:28:59 -0400
+Date: Fri, 2 May 2003 13:41:22 -0700
+From: Bob Miller <rem@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH 2.5.68] Convert ipmi_kcs_intf.c to remove check_region().
+Message-ID: <20030502204122.GA25713@doc.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 03 May 2003 08:37:27 +1200 Nigel Cunningham <ncunningham@clear.net.nz> wrote:
+Removed the now defunct check_mem_region() and check_region() calls.
+The driver doesn't use the memory/ioport address between the check_region()
+and request_region() calls so it is safe to just remove the check_region()
+call.
 
-| Hi.
-| 
-| I'm wondering whether the version 19 patch I've found by Googling is the
-| latest. Can anyone provide a pointer to a newer version?
 
-For what kernel version?
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
-It's already merged in 2.4.20 and 2.5  (if we are talking about
-the same thing).
 
---
-~Randy
+diff -Nru a/drivers/char/ipmi/ipmi_kcs_intf.c b/drivers/char/ipmi/ipmi_kcs_intf.c
+--- a/drivers/char/ipmi/ipmi_kcs_intf.c	Fri May  2 09:52:22 2003
++++ b/drivers/char/ipmi/ipmi_kcs_intf.c	Fri May  2 09:52:22 2003
+@@ -1118,24 +1118,14 @@
+ 	if (kcs_trydefaults) {
+ #ifdef CONFIG_ACPI
+ 		if ((physaddr = acpi_find_bmc())) {
+-			if (!check_mem_region(physaddr, 2)) {
+-				rv = init_one_kcs(0, 
+-						  0, 
+-						  physaddr, 
+-						  &(kcs_infos[pos]));
+-				if (rv == 0)
+-					pos++;
+-			}
+-		}
+-#endif
+-		if (!check_region(DEFAULT_IO_PORT, 2)) {
+-			rv = init_one_kcs(DEFAULT_IO_PORT, 
+-					  0, 
+-					  0, 
+-					  &(kcs_infos[pos]));
++			rv = init_one_kcs(0, 0, physaddr, &(kcs_infos[pos]));
+ 			if (rv == 0)
+ 				pos++;
+ 		}
++#endif
++		rv = init_one_kcs(DEFAULT_IO_PORT, 0, 0, &(kcs_infos[pos]));
++		if (rv == 0)
++			pos++;
+ 	}
+ 
+ 	if (kcs_infos[0] == NULL) {

@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUHTIMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUHTINR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267721AbUHTIMk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHTIJz
+	id S264538AbUHTINR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUHTIM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:09:55 -0400
-Received: from imap.gmx.net ([213.165.64.20]:6318 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264278AbUHTII5 (ORCPT
+	Fri, 20 Aug 2004 04:12:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:13024 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264538AbUHTILu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:08:57 -0400
-Date: Fri, 20 Aug 2004 10:08:56 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: Possible dcache BUG
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <19800.1092989336@www41.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 04:11:50 -0400
+Date: Fri, 20 Aug 2004 10:13:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
+Message-ID: <20040820081319.GA4321@elte.hu>
+References: <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <1092972918.10063.11.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092972918.10063.11.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I find that memtest86 [1] does a great job of checking memory, especially
-since you can boot the available ISO image.
 
-Perhaps worth a try here?
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
---- [1]
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P4
+> 
+> I think I am seeing those weird ~1 ms latencies still (actually I am not
+> sure I saw before now):
+> 
+> http://krustophenia.net/testresults.php?dataset=2.6.8.1-P4#/var/www/2.6.8.1-P4/kswapd_latency_trace.txt
 
-http://www.memtest86.com/
+this is a 9 msec latency in fact. I know what's going on - it's the
+get_swap_page() locking - i looked at it once already but there's no
+immediate silver arrow. As we allocate more and more swap entries the
+longer the scan gets.
 
----
-
-There is still that possibility Marcelo.  Someone recommended I get 
-cpuburn and memburn, and before fixing the scanf statement (it was 
-broken) in memburn, I had compiled it for a 512 meg test the first 
-time, and a 768 meg test the next couple of runs.
-
-All exited with errors like this:
-Passed round 133, elapsed 4827.19.
-FAILED at round 134/14208927: got ff00, expected 0!!!
-
-REREAD: ff00, ff00, ff00!!!
-
-[root@coyote memburn]# vim memburn.c
-[root@coyote memburn]# gcc -o memburn memburn.c
-[root@coyote memburn]# ./memburn
-Starting test with size 768 megs..
-
-Passed round 0, elapsed 44.36.
-Passed round 1, elapsed 74.13.
-Passed round 2, elapsed 105.12.
-FAILED at round 3/25777183: got 2b00, expected 0!!!
-
-REREAD: 2b00, 2b00, 2b00!!!
-
-I've now rebuilt it with a better printf format string, and its 
-running over 768 megs again.  But this time the round counter is up 
-to 90 and still going...
-
-Interesting too is that memburn has now allocated a 768 meg wide block 
-5 times, and still no Oops.  Over a hundred megs in swap, but its 
-still running.
-
-I lost the BUG_ON patches in fs/buffer.c, this is now 2.6.8.1-mm2 (but 
-I can go back if this fails of course)
-
-Or can I just copy that 2.6.8-rc4/fs/buffer.c file over this one?
-
--- 
-Daniel J Blueman
-
-NEU: Bis zu 10 GB Speicher für e-mails & Dateien!
-1 GB bereits bei GMX FreeMail http://www.gmx.net/de/go/mail
-
+	Ingo

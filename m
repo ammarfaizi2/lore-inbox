@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131542AbQK0Ex3>; Sun, 26 Nov 2000 23:53:29 -0500
+        id <S132325AbQK0E4J>; Sun, 26 Nov 2000 23:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132485AbQK0ExT>; Sun, 26 Nov 2000 23:53:19 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13316 "EHLO
+        id <S132476AbQK0Ez7>; Sun, 26 Nov 2000 23:55:59 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18692 "EHLO
         neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S131542AbQK0ExL>; Sun, 26 Nov 2000 23:53:11 -0500
+        id <S132325AbQK0Ezl>; Sun, 26 Nov 2000 23:55:41 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: syslinux and 2.4.0 initrd size problems
-Date: 26 Nov 2000 20:22:54 -0800
+Subject: Re: Universal debug macros.
+Date: 26 Nov 2000 20:25:38 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vsniu$pb9$1@cesium.transmeta.com>
-In-Reply-To: <20001126211642.A2763@vger.timpanogas.org>
+Message-ID: <8vsno2$pc6$1@cesium.transmeta.com>
+In-Reply-To: <200011270045.BAA13121@cave.bitwizard.nl> <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,24 +21,19 @@ Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001126211642.A2763@vger.timpanogas.org>
-By author:    "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Followup to:  <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
+By author:    Elmer Joandi <elmer@ylenurme.ee>
 In newsgroup: linux.dev.kernel
 > 
-> I am having trouble getting a 2.4 vmlinuz (bzImage) and initrd 
-> image onto a 1.44 floppy with all the new stuff.  Even a stipped 
-> down kernel compiled under 2.4 is @ 600K compressed, and I need 
-> about 800K for the initrd image.  I noticed that syslinux 
-> has some comments about not allowing initrd to span media.  
-> 
-> I there something more current that does or will allow me to
-> load the inittrd off a CD-ROM device (with vmlinuz and syslinux
-> on the floppy).   I know how to do this with GRUB (Grand 
-> Unified Boot Loader), but I want to use syslinux if possible. 
+> Red Hat will ship two kernels. Well, they actually ship now about 4 ones
+> or something. So they will ship 8.
 > 
 
-Why are you posting this to the kernel list?  See the SYSLINUX
-documentation for the SYSLINUX mailing list address.
+Something RedHat & co may want to consider doing is providing a basic
+kernel and have, as part of the install procedure or later, an
+automatic recompile and install kernel procedure.  It could be
+automated very easily, and on all but the very slowest of machines, it
+really doesn't take that long.
 
 	-hpa
 -- 

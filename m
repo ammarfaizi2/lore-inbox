@@ -1,53 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262906AbREWADp>; Tue, 22 May 2001 20:03:45 -0400
+	id <S262911AbREWADB>; Tue, 22 May 2001 20:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbREWADc>; Tue, 22 May 2001 20:03:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6284 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262910AbREWADW>;
-	Tue, 22 May 2001 20:03:22 -0400
-Date: Tue, 22 May 2001 20:03:20 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S262910AbREWACv>; Tue, 22 May 2001 20:02:51 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:29377 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262903AbREWACd>;
+	Tue, 22 May 2001 20:02:33 -0400
+Date: Wed, 23 May 2001 02:01:46 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105230001.CAA70296.aeb@vlet.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
 Subject: Re: [PATCH] struct char_device
-In-Reply-To: <UTC200105222333.BAA77751.aeb@vlet.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0105221952110.17373-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Do we really want a separate queue for each partition?
 
+No.
 
-On Wed, 23 May 2001 Andries.Brouwer@cwi.nl wrote:
+> I have a half-baked patch
 
-> I am not sure whether we agree or differ in opinion. I wouldn't mind
-> 
-> /* pairing for dev_t to bd_op/cd_op */
-> struct bc_device {
->         struct list_head        bd_hash;
->         atomic_t                bd_count;
->         dev_t                   bd_dev;
->         atomic_t                bd_openers;
->         union {
-> 		struct block_device_operations_and_data *bd_op;
-> 		struct char_device_operations_and_data *cd_op;
-> 	}
->         struct semaphore        bd_sem;
-> };
-> 
-> typedef struct bc_device *kdev_t;
+Me too. (Not half-baked but brewed.) In principle the change
+is trivial, but there are a few IDE issues that are presently
+solved in a very low-level way (and incorrectly).
+This makes the patch larger than expected at first sight.
 
-What for? What part of the kernel needs a device and doesn't know apriory
-whether it's block or character one?
-
-> and in an inode
-> 
-> 	kdev_t dev;
-Useless. If you hope that block_device will help to solve rmmod races -
-sorry, it won't. Wrong layer.
-
-> 	dev_t rdev;
-Reasonable.
+Andries
 

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261476AbTCaIia>; Mon, 31 Mar 2003 03:38:30 -0500
+	id <S261483AbTCaIll>; Mon, 31 Mar 2003 03:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261479AbTCaIia>; Mon, 31 Mar 2003 03:38:30 -0500
-Received: from k101-11.bas1.dbn.dublin.eircom.net ([159.134.101.11]:13324 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S261476AbTCaIi3>;
-	Mon, 31 Mar 2003 03:38:29 -0500
-Message-ID: <3E880020.1060607@draigBrady.com>
-Date: Mon, 31 Mar 2003 09:45:20 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
+	id <S261480AbTCaIll>; Mon, 31 Mar 2003 03:41:41 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:4369 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261483AbTCaIlk>; Mon, 31 Mar 2003 03:41:40 -0500
+Date: Mon, 31 Mar 2003 10:52:53 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: bert hubert <ahu@ds9a.nl>
+cc: Joel Becker <Joel.Becker@oracle.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit kdev_t - just for playing
+In-Reply-To: <20030331083157.GA29029@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.44.0303311039190.5042-100000@serv>
+References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
+ <Pine.LNX.4.44.0303272245490.5042-100000@serv> <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk>
+ <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com>
+ <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com>
+ <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl>
 MIME-Version: 1.0
-To: David Mansfield <lkml@dm.cobite.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: very poor performance in 2.5.66[-mm1]
-References: <Pine.LNX.4.44.0303281247480.11928-100000@admin>
-In-Reply-To: <Pine.LNX.4.44.0303281247480.11928-100000@admin>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mansfield wrote:
-> Hi list.
-> 
-> After all of the rave reviews about the interactivity fixes (both regular 
-> and I/O scheduler related), I decided to give the 2.5.latest a try on my 
-> desktop machine (system described below)
-> 
-> I started X, everything seemed fine, maybe a bit faster.  I opened a 
-> 'gnome-terminal' and typed 'ls -ltr'.  Wow, it was 20x slower.
-> 
-> Here are the timings for 'ls -ltr':
-> 
-> 2.5.66-mm1:      'ls -ltr'         31 seconds
-> 2.5.66-mm1:      'ls -ltr | cat'   2 seconds
-> 2.4.18-rhlatest: 'ls -ltr'         1.14 seconds
+Hi,
 
-I've noticed this on all kernels and it seems scheduling related
-hence why the latest triggers it for you. As far as I can see
-most times writing data to gnome-terminal WHICH CAUSES IT TO SCROLL
-it takes a ridiculous amount of time. If I take some CPU time away
-from gnome-terminal by the official "window wiggling" method it
-runs much faster. Note it's not rendering (antialiasing) related
-as I turned that off with the same effect.
+On Mon, 31 Mar 2003, bert hubert wrote:
 
-Pádraig.
+> > If Andries would actually explain, what he wants to do with the larger 
+> > dev_t, it would be a lot easier to help him, so that we can at least avoid 
+> > the biggest mistakes.
+> 
+> Can you envision solutions based on 16 bit kdev_t infrastructure? 
+
+I know that 16bit is getting small (but with dynamic assignment even 
+that is still enough for most people), but OTOH I don't understand the 
+obsession for 64bit. 32bit is more than enough on a 32bit system.
+Somehow it sounds that we just have to introduce a huge dev_t and all our 
+problems are magically solved and I doubt that. If people want to encode 
+random information into dev_t, then even 64bit will be soon not enough 
+anymore, so I want to know how people actually want to use that large 
+dev_t number. Is that really too much to ask?
+(Slowly I'm getting the feeling that there is some sort of 64bit dev_t 
+conspiracy going on here, with the amount of answers I'm (not) getting 
+here.)
+
+bye, Roman
 

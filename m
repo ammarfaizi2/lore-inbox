@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUI0S37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUI0Sa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266912AbUI0S37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 14:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUI0S37
+	id S266193AbUI0Sa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 14:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUI0Saz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 14:29:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60070 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267176AbUI0S21
+	Mon, 27 Sep 2004 14:30:55 -0400
+Received: from 64.221.211.203.ptr.us.xo.net ([64.221.211.203]:1937 "EHLO
+	mail.pathscale.com") by vger.kernel.org with ESMTP id S266193AbUI0SaN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 14:28:27 -0400
-Date: Mon, 27 Sep 2004 13:42:19 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: jonathan@jonmasters.org, Lars Marowsky-Bree <lmb@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Thomas Habets <thomas@habets.pp.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-Message-ID: <20040927164219.GA31645@logos.cnet>
-References: <200409230123.30858.thomas@habets.pp.se> <20040923234520.GA7303@pclin040.win.tue.nl> <1096031971.9791.26.camel@localhost.localdomain> <200409242158.40054.thomas@habets.pp.se> <1096060549.10797.10.camel@localhost.localdomain> <20040927104120.GA30364@logos.cnet> <20040927125441.GG3934@marowsky-bree.de> <35fb2e590409270612524c5fb9@mail.gmail.com> <20040927133554.GD30956@logos.cnet> <20040927171253.GA9728@MAIL.13thfloor.at>
+	Mon, 27 Sep 2004 14:30:13 -0400
+Subject: Re: AMD64 and NFORCE3 250GB very slow and USB hungs
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Michael Thonke <tk-shockwave@web.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41569DE5.4080206@web.de>
+References: <41569DE5.4080206@web.de>
+Content-Type: text/plain
+Date: Mon, 27 Sep 2004 11:30:12 -0700
+Message-Id: <1096309812.26765.7.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040927171253.GA9728@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 07:12:53PM +0200, Herbert Poetzl wrote:
-> On Mon, Sep 27, 2004 at 10:35:54AM -0300, Marcelo Tosatti wrote:
-> > On Mon, Sep 27, 2004 at 02:12:26PM +0100, Jon Masters wrote:
-> > > Hi all,
-> > > 
-> > > Just out of interest then...suppose we've got a loopback swap device
-> > > and that we can extend this by creating a new file or extending
-> > > somehow the existing one.
-> > > 
-> > > What would be wrong with having the page reclaim algorithms use one of
-> > > the low memory watermarks as a trigger to call in to userspace to
-> > > extend the swap available if possible? This is probably what Microsoft
-> > > et al do with their "Windows is extending your virtual memory, yada
-> > > yada blah blah". Comments? Already done?
-> > 
-> > You dont to change kernel code for that - make a script to monitor 
-> > swap usage, as soon as it gets below a given watermark, you swapon 
-> > whatever swapfile you want.
-> 
-> hmm, sounds good, but what if next 'burst' of
-> swapped out data is larger than the watermark?
+On Sun, 2004-09-26 at 12:45 +0200, Michael Thonke wrote:
 
-Give the watermark a large enough value.
+> I bought just a new AMD64 system with an NForce 3 based mainboard (MSI 
+> K8N Neo2 Platinum).
 
-> I'm no friend of the 'extend swap idea' so don't
-> get me wrong, but userspace can just reduce the
-> cases where you get out-of-swap, without support
-> from the kernel side (via some userspace helper).
+There's a known problem with NForce2 and NForce3 chipsets that affects
+at least IDE interrupt handling, the effect being that the system hangs
+if there's "too much" disk activity.  I've verified that this occurs
+with 2.6.8.1, but haven't tried more recent snapshots.
+
+The symptom is that the system hangs hard during boot.
+
+A tolerable workaround appears to be to drop the IDE UDMA level down to
+3 using hdparm.  If you're using a Fedora Core distro and edit /etc/
+sysconfig/harddisks to do this, it gets set up early enough during boot
+that the system rarely hangs.
+
+I haven't had time to look into this deeper, but I did file a bug
+against it: http://bugzilla.kernel.org/show_bug.cgi?id=3398
+
+It should probably be owned by Jens, since it seems to be IDE-specific,
+but Andi has it for now.
+
+	<b
 

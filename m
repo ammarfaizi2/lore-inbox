@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289971AbSAWTFy>; Wed, 23 Jan 2002 14:05:54 -0500
+	id <S289973AbSAWTIE>; Wed, 23 Jan 2002 14:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289973AbSAWTFo>; Wed, 23 Jan 2002 14:05:44 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:38924 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289971AbSAWTFd>;
-	Wed, 23 Jan 2002 14:05:33 -0500
-Date: Wed, 23 Jan 2002 17:05:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Badari Pulavarty <badari@us.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+	id <S289974AbSAWTHy>; Wed, 23 Jan 2002 14:07:54 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:9600 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S289973AbSAWTHj>;
+	Wed, 23 Jan 2002 14:07:39 -0500
+Date: Wed, 23 Jan 2002 11:06:24 -0800 (PST)
+Message-Id: <20020123.110624.93021436.davem@redhat.com>
+To: riel@conectiva.com.br
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH *] rmap VM, version 12
-In-Reply-To: <OFB07135FF.E6C5BE7E-ON88256B4A.0068CB3F@boulder.ibm.com>
-Message-ID: <Pine.LNX.4.33L.0201231704430.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0201231650450.32617-100000@imladris.surriel.com>
+In-Reply-To: <20020123.104438.71552152.davem@redhat.com>
+	<Pine.LNX.4.33L.0201231650450.32617-100000@imladris.surriel.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Badari Pulavarty wrote:
+   From: Rik van Riel <riel@conectiva.com.br>
+   Date: Wed, 23 Jan 2002 16:57:58 -0200 (BRST)
 
-> Does this explain why my SMP box does not boot with rmap12 ? It works fine
-> with rmap11c.
->
-> Machine: 4x  500MHz Pentium Pro with 3GB RAM
->
-> When I tried to boot 2.4.17+rmap12, last message I see is
->
-> uncompressing linux ...
-> booting ..
+   On Wed, 23 Jan 2002, David S. Miller wrote:
+   
+   > The problem is that when vmalloc() or whatever kernel mappings change
+   > you have to update all the quicklist page tables to match.
+   
+   Actually, this is just using the pte_free_fast() and
+   {get,free}_pgd_fast() functions on non-pae machines.
+   
+Rofl, you can't just do that.  The page tables cache caches the kernel
+mappings and if you don't update them properly on SMP you die.
 
-At this point we're not even near using pagetables yet,
-so I guess this is something else ...
-
-(I'm not 100% sure, though)
-
-kind regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+I am seeing reports of SMP failing with rmap12 but not previous
+patches.  You need to revert this I think.

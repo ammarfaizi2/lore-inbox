@@ -1,133 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVBPUC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVBPUFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVBPUC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 15:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVBPUC0
+	id S261860AbVBPUFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 15:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVBPUFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 15:02:26 -0500
-Received: from mail-ash.bigfish.com ([206.16.192.253]:30060 "EHLO
-	mail41-ash-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S261718AbVBPUCA convert rfc822-to-8bit (ORCPT
+	Wed, 16 Feb 2005 15:05:07 -0500
+Received: from mail.charite.de ([160.45.207.131]:17373 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S261860AbVBPUEt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 15:02:00 -0500
-X-BigFish: VP
-From: "Haven Skys" <hskys@frontbridge.com>
-To: "'Matthias-Christian Ott'" <matthias.christian@tiscali.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Help: kernel option root=/dev/nfs failing 2.6.10
-Date: Wed, 16 Feb 2005 12:02:08 -0800
-Message-ID: <005c01c51462$656c8b10$2401a8c0@internal.bigfish.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <42139A3D.2020202@tiscali.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+	Wed, 16 Feb 2005 15:04:49 -0500
+Date: Wed, 16 Feb 2005 21:04:41 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.6.10-ac12 in kjournald (journal_commit_transaction)
+Message-ID: <20050216200441.GH19871@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050215145618.GP24211@charite.de> <20050216153338.GA26953@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050216153338.GA26953@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  Yes I have.
-Here are a couple configuration options I have set:
+* Jan Kara <jack@suse.cz>:
 
-CONFIG_IP_PNP=y
-CONFIG_IP_PNP_DHCP=y
-CONFIG_IP_PNP_BOOTP=y
-CONFIG_IP_PNP_RARP=y
+>   I guess the system is SMP...
 
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFS_DIRECTIO=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_ROOT_NFS=y
+Indeed it is. Dual Xeon with SMP.
 
-Everything is textbook really.  I followed several different examples and
-still nothing works.
+>   Sadly a few lines in the beginning of the
+> report are missing (probably scrolled off the screen)
 
+Yes, this sucks. I rebooted with vesafb active, no I do have 50 lines :)
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Matthias-Christian
-Ott
-Sent: Wednesday, February 16, 2005 11:09 AM
-To: Haven Skys
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Help: kernel option root=/dev/nfs failing 2.6.10
+> but it seems similar like a several other oopses I've seen reported
+> recently. Is this the first time you hit this bug?
 
-Haven Skys wrote:
+It's actually the second time. The first time it hit the SAME box but
+with kernel-2.6.10 (vanilla) after 30 days of uptime. Nobody had a
+camera at hand, so I couldn't take a photo.
 
->I am attempting to create network bootable system with 2.6.10 and nfs and
-am
->having trouble.
->
->I am using grub and the boot goes without a hitch until the kernel attempts
->to use the commands I've sent.
->
-><SNIP from grub.conf>
->bootp
->root (nd)
->kernel (nd)/redhat-2.6.10/kernel root=/dev/nfs ip=bootp
->nfsroot=10.0.120.1:/diskless/redhat-2.6.10/
->baseos
-></SNIP>
->
->Network booting machine X does fine until. It attempts to open the root
->device.
->
-><SNIP>
->VFS: Cannot open root device "nfs" or unknown-block(0,255) Please append a
->correct "root=" boot option Kernel panic - not syncing: VFS: Unable to
-mount
->root fs on unknown-block(0,255) </SNIP>
->
->It looks like the kernel isn't recognizing the virtual device /dev/nfs but
->I've enabled all the NFS options and everything is compiled into the
-kernel.
->
->Any ideas?
->
->
->Thanks
->Haven
-> 
-> 
->
->
->
->
->FrontBridge introduces Message Archive and Secure Email. Get leading
-Enterprise Message Security services from FrontBridge. www.frontbridge.com.
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-I did you follow the "tutorial" in Documentation/nfsroot.txt?
+Any suggestions? I'm open to suggestions. One difference between the
+2.6.10 and 2.6.10-ac12 was that 2.6.10 has no in-kernel irq
+balancing, while in 2.6.10-ac12 I acivated that.
 
-Matthias-Christian Ott
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-FrontBridge introduces Message Archive and Secure Email. Get leading Enterprise Message Security services from FrontBridge. www.frontbridge.com.
-
-
-
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

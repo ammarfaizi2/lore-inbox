@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265514AbSJSFid>; Sat, 19 Oct 2002 01:38:33 -0400
+	id <S265555AbSJSIhg>; Sat, 19 Oct 2002 04:37:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbSJSFid>; Sat, 19 Oct 2002 01:38:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:4047 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265514AbSJSFic>;
-	Sat, 19 Oct 2002 01:38:32 -0400
-Date: Fri, 18 Oct 2002 22:36:52 -0700 (PDT)
-Message-Id: <20021018.223652.16894430.davem@redhat.com>
-To: skip.ford@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.44 net/ipv4/raw.c NF_IP_LOCAL_OUT undefined
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200210190459.g9J4x8vk008923@pool-141-150-241-241.delv.east.verizon.net>
-References: <200210190459.g9J4x8vk008923@pool-141-150-241-241.delv.east.verizon.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265556AbSJSIhg>; Sat, 19 Oct 2002 04:37:36 -0400
+Received: from 19.2.237.216.globalpac.com ([216.237.2.19]:23782 "HELO
+	mail.tuluc.com") by vger.kernel.org with SMTP id <S265555AbSJSIhf>;
+	Sat, 19 Oct 2002 04:37:35 -0400
+Message-ID: <33182.24.130.42.133.1035014240.squirrel@mail.tuluc.com>
+Date: Sat, 19 Oct 2002 00:57:20 -0700 (PDT)
+Subject: 2.5.44 compilation errors
+From: <haoviet@tuluc.com>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-Mailer: SquirrelMail (version 1.2.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso_8859_1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Skip Ford <skip.ford@verizon.net>
-   Date: Sat, 19 Oct 2002 00:59:08 -0400
+--------------------------------------------------------------------------
+drivers/scsi/qla1280.c:5932: unknown field `next' specified in initializer
+drivers/scsi/qla1280.c:5932: warning: missing braces around initializer
+drivers/scsi/qla1280.c:5932: warning: (near initialization for
+`driver_template.shtp_list')make[2]: *** [drivers/scsi/qla1280.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+----------------------------------------------------------------------------
 
-   net/ipv4/raw.c needs to include netfilter_ipv4.h instead of just
-   netfilter.h
 
-Thanks for the fix, applied.
+

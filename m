@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291531AbSCMBHf>; Tue, 12 Mar 2002 20:07:35 -0500
+	id <S291477AbSCMBHP>; Tue, 12 Mar 2002 20:07:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291547AbSCMBH2>; Tue, 12 Mar 2002 20:07:28 -0500
-Received: from [217.79.102.244] ([217.79.102.244]:64253 "EHLO
-	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S291531AbSCMBHS>; Tue, 12 Mar 2002 20:07:18 -0500
-Subject: Re: Dropped packets on SUN GEM
-From: Beezly <beezly@beezly.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020312.165609.18574402.davem@redhat.com>
-In-Reply-To: <1015978127.2653.49.camel@monkey>
-	<20020312.161057.18308390.davem@redhat.com>
-	<1015979767.2652.77.camel@monkey> 
-	<20020312.165609.18574402.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-GT5uIuF59S4cV6gyxVRa"
-X-Mailer: Evolution/1.0.2 
-Date: 13 Mar 2002 01:07:14 +0000
-Message-Id: <1015981634.2652.82.camel@monkey>
+	id <S291531AbSCMBHF>; Tue, 12 Mar 2002 20:07:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1553 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291477AbSCMBGx>;
+	Tue, 12 Mar 2002 20:06:53 -0500
+Date: Wed, 13 Mar 2002 01:06:52 +0000
+From: wli@holomorphy.com
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+Message-ID: <20020313010652.F14628@holomorphy.com>
+Mail-Followup-To: wli@holomorphy.com, Andrew Morton <akpm@zip.com.au>,
+	Andrea Arcangeli <andrea@suse.de>,
+	wli@parcelfarce.linux.theplanet.co.uk,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
+	phillips@bonn-fries.net
+In-Reply-To: <20020312041958.C687@holomorphy.com> <20020312070645.X10413@dualathlon.random> <20020312112900.A14628@holomorphy.com> <20020312135605.P25226@dualathlon.random> <20020312141439.C14628@holomorphy.com> <20020312160430.W25226@dualathlon.random>, <20020312160430.W25226@dualathlon.random>; <20020312233117.E14628@holomorphy.com> <3C8E98B2.159FA546@zip.com.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C8E98B2.159FA546@zip.com.au>; from akpm@zip.com.au on Tue, Mar 12, 2002 at 04:09:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+wli@holomorphy.com wrote:
+>> Also, these changes to the hashing scheme were not separated out
+>> from the rest of the VM patch, so the usual "break this up
+>> into a separate patch please" applies.
 
---=-GT5uIuF59S4cV6gyxVRa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, Mar 12, 2002 at 04:09:22PM -0800, Andrew Morton wrote:
+> FYI, I am doing that at present.  It look like Andrea's 10_vm-30
+> patch will end up as twenty or thirty separate patches.  I won't
+> be testing every darn patch individually - I'll batch them up into
+> maybe four groups for testing and merging.
 
-Hi David,
+There are some okay parts to aa's hashing changes but we need to
+work together to get the patch to perform those and drop the rest,
+and also address some style issues. Some of the constants are
+adjustable (though it's not clear how they should be adjusted) and the
+wait_table_t ADT is fine. The hash function change is not and moving
+the table from per-zone to per-node is questionable, as its effects are
+not well-understood.
 
-On Wed, 2002-03-13 at 00:56, David S. Miller wrote:
-> No problem.  If you add this patch below does it make Pause get
-> negotiated on?  Please print everything the driver says from module
-> load to the time the link comes up.
+Perhaps understandably so, I'd like to take a hands-on role in
+guiding this patch into a form suitable for the mainline kernel.
 
-It doesn't appear to :(
 
-sungem.c:v0.96 11/17/01 David S. Miller (davem@redhat.com)
-PCI: Found IRQ 5 for device 00:0a.0
-PCI: Sharing IRQ 5 with 00:0b.1
-eth0: Sun GEM (PCI) 10/100/1000BaseT Ethernet 00:00:00:00:00:00=20
-eth0: Link is up at 1000 Mbps, full-duplex.
-eth0: Pause is disabled
-eth0: PCS AutoNEG complete.
-eth0: PCS link is now up.
-eth0: Link is up at 1000 Mbps, full-duplex.
-eth0: Pause is disabled
-eth0: Link is up at 1000 Mbps, full-duplex.
-eth0: Pause is disabled
-eth0: Link is up at 1000 Mbps, full-duplex.
-eth0: Pause is disabled
+On Tue, Mar 12, 2002 at 04:09:22PM -0800, Andrew Morton wrote:
+> Andrea introduced some subtly changed buffer locking rules, and
+> this causes ext3 to deadlock under heavy load.  Until we sort
+> this out, I'm afraid that the -aa VM is not suitable for production
+> use with ext3.
+> ext2 is OK and I *assume* it's OK with reiserfs.  The problem occurs
+> when a filesystem performs:
+> 	lock_buffer(dirty_bh);
+> 	allocate_something(GFP_NOFS);
+> without having locked the buffer's page.  sync_page_buffers()
+> can perform a wait_on_buffer() against dirty_bh.  (I think.
+> I'm not quite up-to-speed with the new buffer state bits yet).
 
---=-GT5uIuF59S4cV6gyxVRa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+This looks like a change of invariants that could generate a fair
+amount of audit work. Ugh...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQA8jqZCXu4ZFsMQjPgRAoQYAJ9A3i9258BeJp5XwndWgQKs5DEJrACeIzUa
-oZ2mmn7XJqOH71zN+p4zBO0=
-=G4eJ
------END PGP SIGNATURE-----
-
---=-GT5uIuF59S4cV6gyxVRa--
+Cheers,
+Bill

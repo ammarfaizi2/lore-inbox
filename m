@@ -1,107 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbTKOSg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 13:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTKOSg7
+	id S261898AbTKOSuf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 13:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTKOSuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 13:36:59 -0500
-Received: from [200.57.38.4] ([200.57.38.4]:5315 "EHLO gateway.mailvault.com")
-	by vger.kernel.org with ESMTP id S261890AbTKOSg5 (ORCPT
+	Sat, 15 Nov 2003 13:50:35 -0500
+Received: from main.gmane.org ([80.91.224.249]:20706 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261898AbTKOSue (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 13:36:57 -0500
-Date: Sat, 15 Nov 2003 19:36:52 00100 (CET)
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-From: "Job 317" <job317@mailvault.com>
-Subject: Re: 2.4.22 SMP kernel build for hyper threading P4
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary = "=_d08afc3bf0a478b35f08c90cc29f30a7"
-Message-Id: <20031115183625.1BAA7840597@gateway.mailvault.com>
+	Sat, 15 Nov 2003 13:50:34 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Parick Beard <patrick@p-beard.com>
+Subject: Re: 2.6.0-test9 VFAT problem
+Date: Sat, 15 Nov 2003 18:06:22 +0000
+Message-ID: <pan.2003.11.15.18.06.22.23429@p-beard.com>
+References: <20031114113224.GR21265@home.bofhlet.net> <bp2mab$sts$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encoded message.
+> I'd like to put this thread on hold
+> until I take stock of the steps I've taken just to make sure I've not been a
+> right 'plum'.
 
---=_d08afc3bf0a478b35f08c90cc29f30a7
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hi,
+Right, I'm not sure if I've been a 'plum' or not. In fact I'm not sure
+about anything now.
+Friday when I got home I tried to mount my belkin reader with sda in the
+fstab. I got 'no media found'. I then tried to mount my Olympus camera and
+got 'wrong fs...'. I changed my fstab to sda1 and tried again. This gave
+the same two errors. I rebooted the pc and this time I could mount the
+camera, but the belkin usb reader still gave 'no media found'. I then put
+the original inode.c back into my source and recompiled. And to my
+complete surprise the camera mounted. The belkin however gave 'no media
+found'.
+All the above would suggest I've been a 'plum' - however I've done this
+before with 2.4.  I do tend to be able to get things working by reading
+and not bothering good people like yourselves.
 
-On 15-Nov-2003 17:30:11 +0100, you wrote:
-> > I have a new P4 Hyperthreading PC that I have installed RedHat9 on.
-I am
-> 
-> I presume you realize that anyone who understands HT has mostly scorn
-for it.
+Now I have done some further tests and I have found something strange. I
+can mount my camera with a 64mb and 16mb smart media. The belkin reader,
+if I put the 64mb card in, I get 'no media found'. If I then put the 16mb
+card in I also get 'no media found'. If I disconnect and reconnect the
+belkin I can mount the 16mb card. If I then put the 64mb in I get 'no
+media found'. Putting the 16mb back in gives 'no media found'.
+disconnecting and reconnecting the reader allows me to mount the 16mb card.
 
-I had no idea but it is still a huge improvement over my HP 755MHz
-Celleron that I am replacing ;) Might I as why so and am I wasting my
-time when a non-SMP kernel builds and works just fine?
+What I'm trying to say is the reader won't mount the 64mb card. I could
+mount it with no problems under 2.4 with this reader. 
+The other strange thing is that prior to me patching inode.c both the
+camera and reader gave the same 'wrong fs...' errors with the 64mb card.
+Yet as I've said I put the original inode.c back and recompiled. yet the
+reader with the 64mb card will only give 'no media found'.
 
-> 
-> > api, etc.) but when I build my new 2.4.22 kernel with CONFIG_SMP=y
-set
-> > then reboot, I am seeing only one processor in /proc/cpuinfo. When
-I
-> > boot with my stock RH9 2.4.20-20.9smp kernel I see two virtual
-> > processors show up in /proc/cpuinfo.
-> 
-> I'm guessing you don't have acpi enabled.
+with the 64mb card mounted in the camera fdisk -l /dev/sda give me this;
 
-Hmm... Let's have a look. I started by loading the
-kernel-2.4.20-i686-smp.config file that came with the RH9 distro into
-xconfig. I just turned on ntfs and a couple of other things and saved.
-The comparision is strange. My new config file has:
+/dev/sda1	*	1	500	63972+	1	FAT12
 
-# CONFIG_ACPI is not set
+Any advice would be appreciated.
 
-however the RH9 config file has:
-
-# CONFIG_ACPI is not set
-# CONFIG_ACPI_DEBUG is not set
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-# CONFIG_ACPI_HT_ONLY is not s
-CONFIG_ACPI_BUSMGR=m
-CONFIG_ACPI_SYS=m
-CONFIG_ACPI_CPU=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_EC=m
-CONFIG_ACPI_CMBATT=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_RELAXED_AML=y
-
-So should I have all this or no?
-
-> 
-> > I've even build a 2.4.22 kernel with the config-2.4.20-20.9smp
-> > configuration that came with RH9.
-> 
-> RH doesn't ship kernel.org sources, of course.  hence the -20.
-
-Rgr. I got this.
-
-> 
-> > I build with the straightforward 'make dep clean bzImage modules
-> > modules_install' command. Is this correct?
-> 
-> sure.  obviously, you need to verify that you're booting the kernel
-> that you just made, etc.
-
-It does boot and everything else "seems" fine. Just that I still only
-get one virtual CPU showing up in /proc/cpuinfo.
-
-> 
-> > Am I missing a step to build a smp kernel for hyper threading?
-> 
-> HT is a non-feature; it requires nothing from the kernel.  I'm
-> guessing your problem is bios or acpi.
-> 
-
-I still don't understand. So am I wasting my time with HT?
-
-Thanks,
-
-Job
---=_d08afc3bf0a478b35f08c90cc29f30a7--
-
+__
+Patrick
 

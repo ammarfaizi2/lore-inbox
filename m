@@ -1,74 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265433AbUAFWtY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 17:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265443AbUAFWtX
+	id S265894AbUAFWv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 17:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265952AbUAFWv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 17:49:23 -0500
-Received: from gizmo13ps.bigpond.com ([144.140.71.23]:59067 "HELO
-	gizmo13ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265433AbUAFWtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 17:49:18 -0500
-Message-ID: <3FFB3B6A.C294D7F3@eyal.emu.id.au>
-Date: Wed, 07 Jan 2004 09:49:14 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.24-pre3 i686)
-X-Accept-Language: en
+	Tue, 6 Jan 2004 17:51:59 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4978 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265894AbUAFWvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 17:51:51 -0500
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+References: <1aJdi-7TH-25@gated-at.bofh.it>
+	<m37k054uqu.fsf@averell.firstfloor.org>
+	<Pine.LNX.4.58.0401051937510.2653@home.osdl.org>
+	<20040106040546.GA77287@colin2.muc.de>
+	<Pine.LNX.4.58.0401052100380.2653@home.osdl.org>
+	<20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi>
+	<20040106094442.GB44540@colin2.muc.de>
+	<Pine.LNX.4.58.0401060726450.2653@home.osdl.org>
+	<20040106153706.GA63471@colin2.muc.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 06 Jan 2004 15:45:16 -0700
+In-Reply-To: <20040106153706.GA63471@colin2.muc.de>
+Message-ID: <m1brpgn1c3.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>,
-       valgrind-developers list 
-	<valgrind-developers@lists.sourceforge.net>
-Subject: 2.4.24 asm/timex.h
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part of the current patch:
+Andi Kleen <ak@colin2.muc.de> writes:
 
---- linux-2.4.24/include/asm-i386/timex.h       2002-11-28
-23:53:15.000000000 +0000
-+++ linux-2.4.25-pre4/include/asm-i386/timex.h  2004-01-06
-12:43:33.000000000 +0000
-@@ -40,14 +40,10 @@
- 
- static inline cycles_t get_cycles (void)
- {
--#ifndef CONFIG_X86_TSC
--       return 0;
--#else
--       unsigned long long ret;
--
--       rdtscll(ret);
-+       unsigned long long ret = 0;
-+       if(cpu_has_tsc)
-+               rdtscll(ret);
-        return ret;
--#endif
- }
- 
- extern unsigned long cpu_khz;
+> On Tue, Jan 06, 2004 at 07:27:33AM -0800, Linus Torvalds wrote:
+> > 
+> > 
+> > On Tue, 6 Jan 2004, Andi Kleen wrote:
+> > > 
+> > > In my opinion it would have been cleaner if the aperture had always
+> > > an reserved entry in the e820 map.
+> > 
+> > That does sound like a bug in the AGP drivers. It shouldn't be hard at all 
+> > to make them reserve their aperture.
+> > 
+> > Hint hint.
+> 
+> No, it's a bug in the BIOS that they're not marked. But I've actually
+> seen a BIOS that marked it and it lead to the Linux AGP driver failing
+> (due to some interaction with how setup.c sets up resources). So the Linux
+> driver currently even relies on the broken state.
 
-Building valgrind, it includes <linux/timex.h> and then tries
-to use the adjtimex syscall. This ends up with an undefined
-error for 'cpu_has_tsc'. This did not happen with earlier
-kernels.
+And mtd map drivers for rom chips run into the same problem except in
+that case regions is almost always reserved by the BIOS.
 
-In file included from /usr/include/linux/timex.h:152,
-                 from vg_unsafe.h:66,
-                 from vg_syscalls.c:35:
-/usr/include/asm/timex.h: In function `get_cycles':
-/usr/include/asm/timex.h:44: `cpu_has_tsc' undeclared (first use in this
-function)
+Which means it's just silly for the drivers to fail when request_mem_region
+fails.  They are looking at the hardware and know where the regions are, and
+there is not a parent device we can request a subregion from when it is the
+BIOS that reserves the region.
 
-
-Is this a problem with 2.4-pre or is valgrind inappropriately
-messing with kernel headers?
-
-For the moment I hacked it badly in coregrind/vg_unsafe.h:
-	#define cpu_has_tsc 1
-	#include <linux/timex.h>
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Eric

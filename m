@@ -1,53 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318895AbSICUMn>; Tue, 3 Sep 2002 16:12:43 -0400
+	id <S318898AbSICUNg>; Tue, 3 Sep 2002 16:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318896AbSICUMn>; Tue, 3 Sep 2002 16:12:43 -0400
-Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:37270 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318895AbSICUMn>;
-	Tue, 3 Sep 2002 16:12:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: Large block device patch, part 1 of 9
-Date: Tue, 3 Sep 2002 22:19:29 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Pavel Machek <pavel@suse.cz>,
-       Peter Chubb <peter@chubb.wattle.id.au>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-References: <15717.52317.654149.636236@wombat.chubb.wattle.id.au> <E17mJsl-0005k6-00@starship> <20020903160414.K21268@redhat.com>
-In-Reply-To: <20020903160414.K21268@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mK94-0005kU-00@starship>
+	id <S318899AbSICUNf>; Tue, 3 Sep 2002 16:13:35 -0400
+Received: from hacksaw.org ([216.41.5.170]:12957 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S318898AbSICUN2>; Tue, 3 Sep 2002 16:13:28 -0400
+Message-Id: <200209032020.g83KKWj4019180@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
+To: Thunder from the hill <thunder@lightweight.ods.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-reply-to: Your message of "Tue, 03 Sep 2002 13:38:47 MDT."
+             <Pine.LNX.4.44.0209031324340.3373-100000@hawkeye.luckynet.adm> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Sep 2002 16:20:32 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 September 2002 22:04, Benjamin LaHaise wrote:
-> On Tue, Sep 03, 2002 at 10:02:38PM +0200, Daniel Phillips wrote:
-> > If you must have a clever macro:
-> > 
-> >    #define lli(foo) (long long int) (foo)
-> >    #define llu(foo) (long long unsigned) (foo)
-> > 
-> > The %lli/%llu have to be there in the format string (modulo as-yet-uninvented
-> > printk hackery) so the cast might as well be there as well.
+ 
+> Possibly, but you can even put together smaller arrays then (at least on a 
+> sane controller). That's what the disk size setup is for. And that's, 
+> after all, nothing the OS needs to take care of. It just gets to see say 
+> 16 disks of 1 TiB size each. Nothing mad.
+>
+> But why have a partition table on each of these 16 pseudo disks?
+
+If not a partition table, then some positive indication that there is nothing 
+more.
+
+> > More importantly, The hardware should be considered largely immutable.
 > 
-> Do you not read the messages in a thread before posting?
+> Why? There's a reason why raid is mutable.
+
+Because changing hardware is often quite annoying, and proprietary, and hard 
+or impossible to script. I had one RAID that could only be set up by changing 
+things using four buttons on the front panel.
+
+But more importantly, I want controllers that survive total power down. No 
+battery backed RAM, not for the setup. The cache can and should be, but the 
+set up needs to survive user stupidity as well as hardware defects. And flash 
+RAM still has a limited number of cycles, and can sometimes have *very* 
+limited cycles, despite the best efforts of the manufacturer.
+
+> > One reason for this: what if the controller dies?
 > 
-> 	static inline long long llsect(sector_t sect) { return sect; }
+> I plug another in here and restore.
+
+Restoring a 4TiB RAID is not what I want to be doing with a department of idle 
+developers, especially if the problem is strictly with the controller. I want 
+the controller to be able to get it's information from the disks. That way I 
+plug in the new controller, and it says "Ready to go."
+
+> > In fact, I'd like the controller to store its RAID setup on the disk as
+> > well. Maybe even on all of them.
 > 
-> was the suggestion.
+> I don't see how partitioning could help you out here.
 
-I didn't like it, I thought it was awkward.  This is better:
+It was an aside.
 
-   printk("%lli ", llu(sect));
+Another factor is usage. I've had users who were assigned a slice of a RAID 
+who asked me to divide the slice up, so that one experiment couldn't hose 
+another by filling the whole logical disk.
 
-and
+> > Of course, if the partition equals the entire disk, great. The table
+> > will be really short.
+> 
+> ...and pointless.
 
-   printk("%lli ", (long long unsigned) sect);
+Admittedly. But it's important to indicate the lack of a partition table, so 
+the software can get on with life, rather than trying to determine if the 
+partition table got scribbled on.
 
-is probably better yet.  Why get fancy.
+> 
+> > If you've ever had 70 people waiting to be able to do any work while you
+> > try and restore a disk that had the partition table scribbled on, you
+> > appreciate what I am saying.
+> 
+> Well, there's absolutely no need to do that. There are tools which can
+> scribble together the old table, and these could even kick automagically.  
+> (Who else thinks the BIOS shall always be replaced with something sane?)
+> Once your table is restored, good luck.
+
+Again, searching a huge RAID to determine the old partition is not something I 
+want to spend an afternoon doing, not when I can spend a few blocks out of 
+millions and have backups.
 
 -- 
-Daniel
+We perceive our perceptions.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

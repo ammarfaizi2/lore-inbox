@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVATDpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVATDvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVATDpe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 22:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVATDpe
+	id S262035AbVATDvd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 22:51:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVATDvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 22:45:34 -0500
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:43667 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262024AbVATDpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 22:45:30 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: segfault@club-internet.fr
-Subject: Re: [PATCH] Alps touchpad probing failure
-Date: Wed, 19 Jan 2005 22:45:28 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200501200024.01963.segfault@club-internet.fr>
-In-Reply-To: <200501200024.01963.segfault@club-internet.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jan 2005 22:51:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46737 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262035AbVATDvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 22:51:31 -0500
+Date: Wed, 19 Jan 2005 22:51:24 -0500
+From: Dave Jones <davej@redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH RFC] agp_backend: remove drm_agp_t & inter_module_<foo> V1 [1/1]
+Message-ID: <20050120035124.GA15621@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
+References: <20050120023832.GA3758@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501192245.28544.dtor_core@ameritech.net>
+In-Reply-To: <20050120023832.GA3758@taniwha.stupidest.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 January 2005 18:23, Daniel Caujolle-Bert wrote:
-> Hi,
-> 
->  With 2.6.11-rc1 bk6 and bk7 (didn't tried with < bk6), my alps touchpad is no 
-> more correctly probed, it's recognised as a standard PS/2 mouse.
->  So, with this trivial two line patch, everything is working again.
-> 
-> Cheers.
+On Wed, Jan 19, 2005 at 06:38:32PM -0800, Chris Wedgwood wrote:
+ > What extremely obvious thing am I missing which prevents up from
+ > kill drm_agp_t and the inter_module_register, etc. code that goes with
+ > it?
 
-Hi,
+Gar, this is the 3rd copy of this patch I've got.
+I wanted the dust to settle on the agp carnage in -mm before
+merging anything else, but tbh, I'm so sick of the sight
+of this patch coming around every few days I'm going to merge
+it and let Andrew deal with any resulting breakage when he
+cuts the next -mm
 
-I think Peter Osterlund has send similar patch recently - the breakage
-appears to be caused by Kensington mouse detection. It looks like these
-two don't like each other.
+		Dave
 
--- 
-Dmitry

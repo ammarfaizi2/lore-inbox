@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318794AbSIITav>; Mon, 9 Sep 2002 15:30:51 -0400
+	id <S318804AbSIITdQ>; Mon, 9 Sep 2002 15:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318852AbSIITav>; Mon, 9 Sep 2002 15:30:51 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15094 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318794AbSIITau>; Mon, 9 Sep 2002 15:30:50 -0400
-Subject: New failures in nightly LTP test
-From: Paul Larson <plars@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Sep 2002 14:22:55 -0500
-Message-Id: <1031599375.30394.43.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S318790AbSIITdQ>; Mon, 9 Sep 2002 15:33:16 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:57275 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S318804AbSIITdP>; Mon, 9 Sep 2002 15:33:15 -0400
+Date: Mon, 9 Sep 2002 21:38:20 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@mwaikambo.name>
+cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+       Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+In-Reply-To: <Pine.LNX.4.44.0209092120310.1096-100000@linux-box.realnet.co.sz>
+Message-ID: <Pine.GSO.3.96.1020909212526.28323M-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The nightly LTP test against the 2.5 kernel bk tree last night turned up
-some test failures we don't normally see.  These failures did not show
-up in the run from the previous night.
+On Mon, 9 Sep 2002, Zwane Mwaikambo wrote:
 
-execve06    0  INFO  :  Test FAILED
-getpgid01    0  INFO  :  getpgid01 FAILED
-mprotect03    1  FAIL  :  child returned unexpected status
+> > Which is kind of sad. Is there some fast way to read the status of a 
+> > level-trigger irq off the IO-APIC in case it is still pending, and to do 
+> > the mitigation even for level-triggered?
+> 
+> perhaps Remote IRR might help there?
 
-All three are showing warnings that look like this before the failure:
-mprotect03    0  WARN  :  signal() failed for signal 41. error:22
-Invalid argument.
-mprotect03    0  WARN  :  signal() failed for signal 51. error:22
-Invalid argument.
+ I don't think so.  As far as I understand the I/O APIC operation, you
+can't really know the state of an interrupt input when Remote IRR is set
+(i.e. an interrupt from the input is being processed).  You can only read
+a sort of state of an input from the Delivery Status bit when Remote IRR
+is cleared.
 
-The beginning changeset was:
-ChangeSet@1.632, 2002-09-08 08:23:34-07:00, ink@jurassic.park.msu.ru
-  [PATCH] pci bus resources, transparent bridges
+ For the i82489DX you could have read the state of an individual interrupt
+request from the IRR register of the local unit handling the IRQ. 
 
-The ending changeset was:
-ChangeSet@1.641, 2002-09-08 20:04:56-07:00, mingo@elte.hu
-  [PATCH] Re: pinpointed: PANIC caused by dequeue_signal() in current
-Linus
- 
-Any ideas on what may be causing this?
-
-Thanks,
-Paul Larson
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

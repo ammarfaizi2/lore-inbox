@@ -1,56 +1,170 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283231AbRLDSTL>; Tue, 4 Dec 2001 13:19:11 -0500
+	id <S283119AbRLDSXU>; Tue, 4 Dec 2001 13:23:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281158AbRLDSTB>; Tue, 4 Dec 2001 13:19:01 -0500
-Received: from mail12.svr.pol.co.uk ([195.92.193.215]:45644 "EHLO
-	mail12.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S283231AbRLDSRR>; Tue, 4 Dec 2001 13:17:17 -0500
-From: Paul Cook <paul@anville.co.uk>
-Reply-To: paul@anville.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Small X25 IOCTL Fix
-Date: Tue, 4 Dec 2001 18:17:46 +0000
-X-Mailer: KMail [version 1.3.1]
+	id <S283203AbRLDSWL>; Tue, 4 Dec 2001 13:22:11 -0500
+Received: from web20206.mail.yahoo.com ([216.136.226.61]:13830 "HELO
+	web20206.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S281547AbRLDSUZ>; Tue, 4 Dec 2001 13:20:25 -0500
+Message-ID: <20011204182023.87068.qmail@web20206.mail.yahoo.com>
+Date: Tue, 4 Dec 2001 13:20:23 -0500 (EST)
+From: Michael Zhu <apiggyjj@yahoo.ca>
+Reply-To: apiggyjj@yahoo.ca
+Subject: Re: Insmod problems
+To: Tyler BIRD <BIRDTY@uvsc.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <sc0ca5e8.017@mail-smtp.uvsc.edu>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_M50UCS184FYRLSIV3W2C"
-Message-Id: <E16BK82-0006RP-00.2001-12-04-18-17-14@mail12.svr.pol.co.uk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've changed my source file like this:
+#define MODULE
 
---------------Boundary-00=_M50UCS184FYRLSIV3W2C
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+#include <linux/module.h>
+
+int init_module(void)  { printk("<1>Hello, world\n");
+return 0; }
+void cleanup_module(void) { printk("<1>Goodbye cruel
+world\n"); }
+
+And I use the following command line to build the
+module.
+
+gcc -c -D__KERNEL__ hello.c
+
+But when I use insmod to load the module I got the
+following error message:
+
+hello.o : kernel-module version mismatch
+         hello.o was compiled for kernel version
+2.4.12
+         while this kernel is version 2.4.8
+
+What is wrong? My kernel version is 2.4.8. Is there
+something wrong with the gcc compilier? My gcc
+compilier is gcc-2.95.
+
+Thanks to everyone. Your help is very beneficial to
+me.
+
+Michael
 
 
-Hi,
-
-without the following small patch, it is impossible, using the ioctl 
-interface, to disable the throughput facility without patching /include/x25.h 
-and re-compiling.
-
-This is made against a 2.2.19, but looks equally relevant for 2.4.x
 
 
+--- Tyler BIRD <BIRDTY@uvsc.edu> wrote:
+> Try this
+> 
+> ¯--------
+> 
+> #define MODULE
+> 
+> #include <linux/module.h>
+> int init_module(void) { printk("<1>Hello World");
+> return 0;}
+> void cleanup_module(void) {printk("<1>Goodbye cruel
+> world\n"); }
+> ¯---
+> 
+> gcc -c -D__KERNEL__ hello.c
+> 
+> compiled and loaded fine on my system
+> 
+> I think linux/module.h defines
+> the kernel version. Make sure that you have the
+> kernel source headers installed under /usr/include
+> which is a link to /usr/src/linux/include.
+> 
+> you oughta put the above include/module.h at the
+> begining of your source.
+> 
+> 
+> 
+> Also there has been a macro lately to
+> delate which routines will be init_module,
+> cleanup_module22
+> 
+> >>> Michael Zhu <apiggyjj@yahoo.ca> 12/04/01 10:06AM
+> >>>
+> I've define these two when I compile the module. The
+> command line is:
+> 
+> gcc -D_KERNEL_ -DMODULE -c hello.c
+> 
+> 
+> --- Tyler BIRD <BIRDTY@uvsc.edu> wrote:
+> > You need to define the __KERNEL__ and MODULE
+> symbols
+> > 
+> > #define __KERNEL__
+> > #define MODULE
+> > 
+> > 
+> > >>> Nav Mundi <nmundi@karthika.com> 12/04/01
+> 09:33AM
+> > >>>
+> > What are we doing wrong? - Nav & Michael
+> > **************************************************
+> > 
+> > hello.c Source:
+> > 
+> > #include "/home/mzhu/linux/include/linux/config.h"
+> 
+> > /*retrieve the CONFIG_* macros */
+> > #if defined(CONFIG_MODVERSIONS) &&
+> > !defined(MODVERSIONS)
+> > #define MODVERSIONS  /* force it on */
+> > #endif
+> > 
+> > #ifdef MODVERSIONS
+> > #include
+> > "/home/mzhu/linux/include/linux/modversions.h"
+> > #endif
+> > 
+> > #include "/home/mzhu/linux/include/linux/module.h"
+> > 
+> > int init_module(void)  { printk("<1>Hello,
+> > world\n");  return 0; }
+> > void cleanup_module(void) { printk("<1>Goodbye
+> cruel
+> > world\n"); }
+> > 
+> > Output:
+> > 
+> > #>gcc -D_KERNEL_ -DMODULE -c hello.c
+> > 
+> > [This builds the hello.o file. ]
+> > 
+> > #>insmod hello.o
+> > 
+> > hello.o : unresolved symbol printk
+> > hello.o : Note: modules without a GPL compatible
+> > license cannot use 
+> > GPONLY_symbols
+> > 
+> > 
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> 
+> > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html 
+> > Please read the FAQ at  http://www.tux.org/lkml/ 
+> > 
+> 
+> 
+>
+______________________________________________________
+> 
+> Send your holiday cheer with
+> http://greetings.yahoo.ca
+> 
 
---------------Boundary-00=_M50UCS184FYRLSIV3W2C
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="x25_ioctl.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="x25_ioctl.diff"
 
-LS0tIG5ldC94MjUvb2xkX2FmX3gyNS5jCVdlZCBOb3YgMjggMTg6Mzc6MTUgMjAwMQorKysgbmV0
-L3gyNS9hZl94MjUuYwlUaHUgTm92IDI5IDEyOjMzOjUwIDIwMDEKQEAgLTExNTAsNyArMTE1MCw3
-IEBACiAJCQkJcmV0dXJuIC1FSU5WQUw7CiAJCQlpZiAoZmFjaWxpdGllcy53aW5zaXplX2luIDwg
-MSB8fCBmYWNpbGl0aWVzLndpbnNpemVfaW4gPiAxMjcpCiAJCQkJcmV0dXJuIC1FSU5WQUw7Ci0J
-CQlpZiAoZmFjaWxpdGllcy50aHJvdWdocHV0IDwgMHgwMyB8fCBmYWNpbGl0aWVzLnRocm91Z2hw
-dXQgPiAweDJDKQorCQkJaWYgKGZhY2lsaXRpZXMudGhyb3VnaHB1dCAmJiAoZmFjaWxpdGllcy50
-aHJvdWdocHV0IDwgMHgwMyB8fCBmYWNpbGl0aWVzLnRocm91Z2hwdXQgPiAweDJDKSkKIAkJCQly
-ZXR1cm4gLUVJTlZBTDsKIAkJCWlmIChmYWNpbGl0aWVzLnJldmVyc2UgIT0gMCAmJiBmYWNpbGl0
-aWVzLnJldmVyc2UgIT0gMSkKIAkJCQlyZXR1cm4gLUVJTlZBTDsK
-
---------------Boundary-00=_M50UCS184FYRLSIV3W2C--
+______________________________________________________ 
+Send your holiday cheer with http://greetings.yahoo.ca

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267992AbRG3VNR>; Mon, 30 Jul 2001 17:13:17 -0400
+	id <S268022AbRG3VOr>; Mon, 30 Jul 2001 17:14:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268003AbRG3VM6>; Mon, 30 Jul 2001 17:12:58 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:59889 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267992AbRG3VMi>; Mon, 30 Jul 2001 17:12:38 -0400
-Message-ID: <3B65CDC8.7ECE387A@yahoo.co.uk>
-Date: Mon, 30 Jul 2001 17:12:40 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: "serial" does not show up in /proc/interrupts
+	id <S268025AbRG3VO2>; Mon, 30 Jul 2001 17:14:28 -0400
+Received: from barbados.bluemug.com ([63.195.182.101]:64773 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S268001AbRG3VOU>; Mon, 30 Jul 2001 17:14:20 -0400
+Date: Mon, 30 Jul 2001 14:14:27 -0700
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] initramfs patch
+Message-ID: <20010730141427.E20284@bluemug.com>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0107301646050.19391-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0107301646050.19391-100000@weyl.math.psu.edu>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I am looking for the cause of an oops (more info
-to come in another message) and I noticed the following
-anomaly.  I am using a modular serial driver on /dev/ttyS0
-and /dev/ttyS1 (actually /dev/tts/0 and /dev/tts/1 under
-devfs).  See the listing of my /proc/interrupts below.
-I am not using /dev/ttyS0 at the moment, so IRQ4 isn't listed
-as used.  I assume that's normal.  But I do have /dev/ttyS1
-open; it uses IRQ3.  But note that the name of the serial
-driver is not printed in the list.  Why not?
+On Mon, Jul 30, 2001 at 04:49:15PM -0400, Alexander Viro wrote:
+> 
+> On Mon, 30 Jul 2001, Mike Touloumtzis wrote:
+> 
+> > One thing that would make embedded systems developers very happy
+> > is the ability to map a romfs or cramfs filesystem directly from
+> > the kernel image, avoiding the extra copy necessitated by the cpio
+> > archive.  Are there problems with this approach?
+> 
+> a) IIRC, both are read-only.
 
-root@thanatos:~# cat /proc/interrupts
-           CPU0       
-  0:      65078          XT-PIC  timer
-  1:       1546          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:       1979          XT-PIC  
-  5:       3324          XT-PIC  CS4231
-  7:          4          XT-PIC  parport0
-  8:          1          XT-PIC  rtc
- 10:         27          XT-PIC  mwave_3780i
- 11:       5021          XT-PIC  usb-uhci, Texas Instruments PCI1250, Texas Instruments PCI1250 (#2)
- 12:       3268          XT-PIC  PS/2 Mouse
- 14:       8807          XT-PIC  ide0
- 15:          4          XT-PIC  ide1
-NMI:          0 
-ERR:          0
+Hmmm, maybe we need ramfs-backed-by-romfs :-).  But a lot of people
+in the embedded/consumer electronics space could get by just fine
+with a read-only / and a ramfs or ramdisk on /tmp.
 
-Fishy!
+> b) what stops you from doing initramfs + romfs-on-initrd? It works.
 
---
-Thomas Hood
-jdthood_AT_yahoo.co.uk
+-- Having the FS image compiled into the kernel allows a linker script
+   to specify the alignment requirements for the FS.
+
+-- initrd is a yucky special case.  What I'm advocating is just a
+   standard way of addressing compiled-in filesystems using the normal
+   /dev namespace.
+
+miket

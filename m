@@ -1,84 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVCIKgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVCIKds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbVCIKgD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:36:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVCIKeX
+	id S262290AbVCIKds (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVCIKak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:34:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:7050 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262296AbVCIKa7 (ORCPT
+	Wed, 9 Mar 2005 05:30:40 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:27563 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262283AbVCIK3a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:30:59 -0500
-Date: Wed, 9 Mar 2005 11:30:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug: ll_rw_blk.c, elevator.c and displaying "default" IO Schedule r at boot-time (Cosmetic only)
-Message-ID: <20050309103053.GK28855@suse.de>
-References: <40BC5D4C2DD333449FBDE8AE961E0C330360F8E3@psexc03.nbnz.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40BC5D4C2DD333449FBDE8AE961E0C330360F8E3@psexc03.nbnz.co.nz>
+	Wed, 9 Mar 2005 05:29:30 -0500
+Date: Wed, 9 Mar 2005 10:28:32 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Dominik Karall <dominik.karall@gmx.net>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       chrisw@osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.11.2
+In-Reply-To: <200503091121.16801.dominik.karall@gmx.net>
+Message-ID: <Pine.LNX.4.61.0503091023410.7496@student.dei.uc.pt>
+References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
+ <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be>
+ <200503091121.16801.dominik.karall@gmx.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCT-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09 2005, Roberts-Thomson, James wrote:
-> Hi,
-> 
-> I've been trying to investigate an IO performance issue on my machine, as
-> part of this I've noticed what is (presumably only a cosmetic) issue with
-> the messages displayed at kernel boot-time.
-> 
-> In the "good old days" (i.e. older 2.6.x kernel versions), one of the many
-> messages displayed at kernel boot-time was "elevator: using XXX as default
-> io scheduler", where XXX was one of the IO schedulers (cfq, anticipatory,
-> deadline, etc) depending on kernel .config at compile time.
-> 
-> I noticed in 2.6.11, this message has vanished (although this may have
-> happened in an earlier kernel), and I now get some messages "io scheduler
-> XXX registered".  Unfortunately, the "default" scheduler is no longer
-> tagged.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Does this work?
+On Wed, 9 Mar 2005, Dominik Karall wrote:
 
---- 2.6.11/drivers/block/elevator.c	2005-01-22 15:22:55.000000000 +1100
-+++ test/drivers/block/elevator.c	2005-01-31 22:38:36.000000000 +1100
-@@ -180,6 +180,8 @@
- 
- __setup("elevator=", elevator_setup);
- 
-+static int default_msg = 0;
-+
- int elevator_init(request_queue_t *q, char *name)
- {
- 	struct elevator_type *e = NULL;
-@@ -195,6 +197,12 @@
- 	if (!e)
- 		return -EINVAL;
- 
-+	if (!default_msg && !strcmp(e->elevator_name, chosen_elevator)) {
-+		printk(KERN_INFO "using %s as default io scheduler\n",
-+						chosen_elevator);
-+		default_msg = 1;
-+	}
-+
- 	eq = kmalloc(sizeof(struct elevator_queue), GFP_KERNEL);
- 	if (!eq) {
- 		elevator_put(e->elevator_type);
-@@ -513,10 +521,7 @@
- 	list_add_tail(&e->list, &elv_list);
- 	spin_unlock_irq(&elv_list_lock);
- 
--	printk(KERN_INFO "io scheduler %s registered", e->elevator_name);
--	if (!strcmp(e->elevator_name, chosen_elevator))
--		printk(" (default)");
--	printk("\n");
-+	printk(KERN_INFO "io scheduler %s registered\n", e->elevator_name);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(elv_register);
+>>>> which is a patch against the 2.6.11.1 release.  If consensus arrives
+>>>> that this patch should be against the 2.6.11 tree, it will be done that
+>>>> way in the future.
+>>>
+>>> IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt
+>>> againt
+>>> the last -rc but against 2.6.x.
+>>
+>> It's a stable release, not a pre/rc, so against 2.6.11.1 sounds most
+>> logical to me.
+>
+> I don't think so. The latest patch (2.6.11.2 now) is on the frontpage of
+> kernel.org, so IMHO the user should not need to search the kernel.org/pub
+> archives to get 2.6.11.1 patch before he can start working with 2.6.11.2.
+>
+> I think it's a small problem too, that 2.6.11 source isn't directly accessable
+> through the kernel.org frontpage while there is no "full tarball" of 2.6.11.X
+> trees.
 
--- 
-Jens Axboe
+With that "full tarball" for 2.6.11.X the issues would be over.
+I think there should be one.
+
+Marado
+
+- -- 
+/* *********************************************************** */
+    Marcos Daniel Marado Torres     AKA      Mind Booster Noori
+    http://student.dei.uc.pt/~marado  -	 marado@magicbrain.biz
+    () 	Join the ASCII ribbon campaign against HTML e-mail and
+    /\ 	Microsoft attachments.        They endanger the World.
+/* *********************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFCLs/gmNlq8m+oD34RAnu6AJwOvkvet1kLLGzLQ5EGuiVxtNbeEQCg7Ar9
+Stnv4wmM74a5mX3fFrAh34Y=
+=fCVH
+-----END PGP SIGNATURE-----
 

@@ -1,80 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266308AbTAONBS>; Wed, 15 Jan 2003 08:01:18 -0500
+	id <S266353AbTAONHZ>; Wed, 15 Jan 2003 08:07:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266353AbTAONBS>; Wed, 15 Jan 2003 08:01:18 -0500
-Received: from holomorphy.com ([66.224.33.161]:4747 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266308AbTAONBR>;
-	Wed, 15 Jan 2003 08:01:17 -0500
-Date: Wed, 15 Jan 2003 05:10:05 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
-Message-ID: <20030115131005.GJ919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
-References: <20030115105802.GQ940@holomorphy.com> <20030115112412.GA5062@krispykreme> <20030115115525.GI919@holomorphy.com> <20030115123209.GA6588@krispykreme>
+	id <S266354AbTAONHZ>; Wed, 15 Jan 2003 08:07:25 -0500
+Received: from unthought.net ([212.97.129.24]:65164 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S266353AbTAONHY>;
+	Wed, 15 Jan 2003 08:07:24 -0500
+Date: Wed, 15 Jan 2003 14:16:17 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: DervishD <raul@pleyades.net>
+Cc: jw schultz <jw@pegasys.ws>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030115131617.GA8621@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	DervishD <raul@pleyades.net>, jw schultz <jw@pegasys.ws>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws> <20030115114130.GD66@DervishD>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030115123209.GA6588@krispykreme>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030115114130.GD66@DervishD>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> PCI config cycles must be qualified by segment here just to get the
->> right address, so there's definitely a requirement for stuff. One
->> "advantage" of NUMA-Q (if it can be called that) is that firmware/BIOS
->> and hardware pushes a bus number mangling scheme that is more or less
->> mandatory, so things can at largely implicitly taken care of with the
->> bus number and the firmware's mapping of the mangled bus numbers to the
->> cross-quad portio area. But this scheme does not have cooperation from
->> PCI-PCI bridges, where NUMA-Q mangling scheme -noncompliant physical
->> bus ID's are kept in the bus number registers.
+On Wed, Jan 15, 2003 at 12:41:30PM +0100, DervishD wrote:
+>     Hi JW :)
+> 
+> > > > right after your envp.  So, writing more info there would blow away
+> > > > your stack.
+> > > I can smell the next hack... memmove() the stack down to make room... :-)
+> > No need.  You can memcpy the environment.  See setenv(3),
+> > putenv(3) and related library routines.
+> 
+>     I'm afraid that the best solution, well, the one which involves
+> less code and less problems (no need to relocate the environment or
+> things like that) is to write to argv[0] a shorter string that the
+> existing one, and overwrite with nulls the rest of arguments, just in
+> case the stack layout is not what expected.
+> 
+>     Really, I'm thinking seriously about not rewritting argv[0] at
+> all. The problem is that may confuse the user when issuing 'ps' or
+> looking at /proc :((
 
-On Wed, Jan 15, 2003 at 11:32:09PM +1100, Anton Blanchard wrote:
-> Can you store the segment in pci_bus->sysdata and then use that in
-> your config read/write macros? What do you mean by the mangling?
-> Does each host bridge have a separate segment identifier? If so why
-> would the PCI-PCI bridges below it need to have incorrect IDs?
+What about
 
-That is precisely what I tried when I attempted to liberate the code
-from the BIOS-imposed bus number mangling, but it ended up being
-brutally invasive into arch/i386/ and even worse, I couldn't get it to
-work. I'm not actually sure what the host bridges have in their bus
-number registers; it's possible we get away with it because of either
-advance knowledge of the bus numbers divined from the MP config table
-or otherwise the ability to decode its bus numbers ourselves. The only
-real limit wrt.  how much we can second-guess the firmware is (of course)
-the code impact and chances of destabilization, which both look large
-for removing the bus number mangling scheme the BIOS hands to us.
+int main(int argc, char **argv) {
+ if (argc != 2 || (argv == 2 && !strcmp(argv[1], "--very-magic"))) {
+  char argv0[512];
+  memcpy(argv0, 'a', 511);
+  argv0[511] = 0;
+  char *const args[] = { argv0, "--very-magic", 0 };
+  execv(argv[0], args);
+ }
+ strcpy(argv[0], "my proggy");
 
+ /* your code here */
+}
 
-At some point in the past, I wrote:
->> I have no idea what to do about these; I just sort of hope and pray the
->> backward-compatibility constraints won't hurt me. At the level of things
->> exported to userspace my main concern is largely that things like disk
->> arrays will actually be accessible as raw devices or mountable as fs's,
->> cooperation with userspace drivers and accurate reporting is kind of
->> secondary to me aside from satisfying backward-compatibility concerns
->> from Pee Cee -centric sides of things.
+This should ensure that you have 511 bytes of argv[0] storage available,
+if I read the previous posts correctly.
 
-On Wed, Jan 15, 2003 at 11:32:09PM +1100, Anton Blanchard wrote:
-> Its possible customers will run X on their server, thats when getting
-> things like /proc/bus/pci/* right becomes important :) In fact on
-> sparc64 and ppc64 X should work with domains fairly easily because
-> they are already use /proc/bus/pci/* to mmap PCI BARs.
-> I think X should always use this method, reading PCI BARs and mmap'ing
-> /dev/mem is just awful.
+For the same effect without the --very-magic argument, you could simply
+do an "if (argc != 2 || strlen(argv[0]) != 511)" instead.
 
-It was relatively atypical for these particular boxen to ship with VGA
-except as a method of satisfying NT's requirement for a graphics adapter.
-I suspect it's very unlikely there will ever be demand for this on NUMA-Q,
-though the backward-compatibility bits are more or less requirements for
-other reasons (Pee Cee backward compatibility etc.).
+Am I smoking crack, or could the above work?
 
-
-Bill
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

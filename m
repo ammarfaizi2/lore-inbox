@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290620AbSBLARb>; Mon, 11 Feb 2002 19:17:31 -0500
+	id <S290629AbSBLAUl>; Mon, 11 Feb 2002 19:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290634AbSBLARR>; Mon, 11 Feb 2002 19:17:17 -0500
-Received: from codepoet.org ([166.70.14.212]:11473 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S290629AbSBLAPr>;
-	Mon, 11 Feb 2002 19:15:47 -0500
-Date: Mon, 11 Feb 2002 17:15:47 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre9-ac1
-Message-ID: <20020212001547.GA22586@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200202112301.g1BN1Th00942@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S290634AbSBLAUb>; Mon, 11 Feb 2002 19:20:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42512 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290629AbSBLAUN>;
+	Mon, 11 Feb 2002 19:20:13 -0500
+Message-ID: <3C685FBA.A9D60B3A@mandrakesoft.com>
+Date: Mon, 11 Feb 2002 19:20:10 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: Robert Love <rml@tech9.net>, Luigi Genoni <kernel@Expansa.sns.it>,
+        Arkadiy Chapkis - Arc <achapkis@mail.dls.net>,
+        LINUX-KERNEL@vger.kernel.org
+Subject: Re: thread_info implementation
+In-Reply-To: <Pine.LNX.4.44.0202112140280.6590-100000@Expansa.sns.it> <1013460534.6784.477.camel@phantasy> <3C6855A2.4721DDD3@mandrakesoft.com> <20020211154917.A19367@are.twiddle.net> <20020212010911.O4285@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200202112301.g1BN1Th00942@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Feb 11, 2002 at 06:01:29PM -0500, Alan Cox wrote:
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out]
+Dave Jones wrote:
 > 
-> Linux 2.4.18pre9-ac1
+> On Mon, Feb 11, 2002 at 03:49:17PM -0800, Richard Henderson wrote:
+> 
+>  > Though I seem to be having some problems with NFS.  Mount goes into D
+>  > state for quite some time and the portmapper complains about timeouts
+>  > connecting to localhost.  Anyone else see anything like that?  I suppose
+>  > I'll build an x86 kernel from the same source and see what I can find...
+> 
+>  Yes. I saw this start happening in my tree when I merged 2.5.4pre2
+>  When I tried a 2.5.4pre2 vanilla, the problem was gone, so I put it
+>  down to a problem in my tree. When I rebooted back into it, the problem
+>  was gone. Aren't heisenbugs fun?
+>  Exactly the same symptoms, portmap borken, NIS/NFS subsequently fail.
 
-I notice that in linux/drivers/scsi/scsi_merge.c you seem to
-be reverting the MO drive clustering fix from Jens:
-    http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.0/1321.html
+/etc/nsswitch.conf set up correctly?  /etc/host.conf?
 
-Was this intentional?  If so, why?
+I notice that newer RH and MDK initscripts require a bunch of stuff like
+netlink devices and ipv6 support, make sure you have those enabled
+too...
 
- -Erik
+	Jeff
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+
+
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

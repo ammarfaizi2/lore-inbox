@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131515AbQKJXsZ>; Fri, 10 Nov 2000 18:48:25 -0500
+	id <S131714AbQKJXuZ>; Fri, 10 Nov 2000 18:50:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131714AbQKJXsQ>; Fri, 10 Nov 2000 18:48:16 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1034 "EHLO
+	id <S132174AbQKJXuP>; Fri, 10 Nov 2000 18:50:15 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5642 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131515AbQKJXr7>; Fri, 10 Nov 2000 18:47:59 -0500
+	id <S131714AbQKJXt6>; Fri, 10 Nov 2000 18:49:58 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-Date: 10 Nov 2000 15:47:21 -0800
+Subject: Re: Where is it written?
+Date: 10 Nov 2000 15:49:54 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8ui1e9$bj7$1@cesium.transmeta.com>
-In-Reply-To: <3A0C86B3.62DA04A2@best.com>
+Message-ID: <8ui1j2$bm2$1@cesium.transmeta.com>
+In-Reply-To: <3A0C2464.A7CDEFAB@mvista.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,32 +21,20 @@ Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A0C86B3.62DA04A2@best.com>
-By author:    Robert Lynch <rmlynch@best.com>
+Followup to:  <3A0C2464.A7CDEFAB@mvista.com>
+By author:    George Anzinger <george@mvista.com>
 In newsgroup: linux.dev.kernel
 >
-> I've been regularly building kernels in the testXX series, and
-> they have been coming out ~ 600K; test10-final and test11-pre1:
+> I thought this would be simple, but...
 > 
-> -rw-r--r--    1 root     root       610503 Oct 31 18:39
-> vmlinuz-t10
-> -rw-r--r--    1 root     root       610568 Nov  7 20:26
-> vmlinuz-t11p01
-> 
-> test11-pre2 comes out ~ 900K:
-> 
-> -rw-r--r--    1 root     root       926345 Nov 10 10:16
-> vmlinuz-t11p02
-> 
-> and is thus unusable.
-> 
-> I believe I am following all the same steps, nothing new, make
-> dep bzImage modules modules_install.
-> 
+> Could someone point me at the info on calling conventions to be used
+> with x86 processors.  I need this to write asm code correctly and I
+> suspect that it is a bit more formal than the various comments I
+> have found in the sources.  Is it, perhaps an Intel doc?  Or a gcc
+> thing?
+>  
 
-Different compile options?
-
-Why is a 900K kernel unusable?
+http://www.sco.com/developer/devspecs/abi386-4.pdf
 
 	-hpa
 -- 

@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265649AbTFSAnd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbTFSAnd
+	id S265658AbTFSAtF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbTFSAtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:43:33 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:39413 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S265649AbTFSAnb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:43:31 -0400
-Date: Wed, 18 Jun 2003 20:36:53 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Dave Bentham <dave.bentham@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.21 crash
-Message-ID: <20030618203653.A17687@mail.kroptech.com>
-References: <200306162148.h5GLmXsN002578@telekon.davesnet> <20030618234020.18252c84.dave@telekon>
-Mime-Version: 1.0
+	Wed, 18 Jun 2003 20:49:05 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:7634 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S265658AbTFSAtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:49:02 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030618234020.18252c84.dave@telekon>; from dave.bentham@ntlworld.com on Wed, Jun 18, 2003 at 11:40:20PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <16113.2972.194003.930280@napali.hpl.hp.com>
+Date: Wed, 18 Jun 2003 18:02:20 -0700
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: missing bit for thread_info-next-to-task_struct patch
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 18, 2003 at 11:40:20PM +0100, Dave Bentham wrote:
-> However, I think I need some advice on setting up the serial console. I
-> have attached another PC (WinXP with HyperTerminal) serially to my panic
-> Linux PC. Following the Remote Terminal HOWTO I have achieved some
-> success... but all I see on HyperTerminal is:
-> 
->    LILO 22.3.2 boot:
->    Loading Linux_2.4.21................
->    BIOS data check successful
+The attached patch is needed to really allow the thread_info to live
+in the same chunk of memory as task structure.  I missed it in my last
+patch because the fix was originally keyed on INIT_THREAD_SIZE, which
+was wrong but resulted in a one-liner patch which was easy to miss.
+The patch below is cleaner.  I suppose it would be nice if we could
+get rid of INIT_THREAD_SIZE entirely, but it looks like user-mode
+Linux still relies on it.
 
-That output is from LILO...
+	--david
 
->    Mandrake Linux release 9.0 (dolphin) for i586
->    Kernel 2.4.21 on an i686 / ttyS0
->    telekon.davesnet login:
-
-...and that bit is from the getty launched in /etc/inittab.
-
-> a few progress-dots: I'm missing the main kernel blurb (its all on the
-> attached monitor), and also the panic stuff appears only on the attached
-> monitor.
-
-Yeah, the kernel's serial console isn't kicking in.
-
-> Excerpt of butchered lilo.conf
-
-<snip>
-
-> image = /boot/vmlinuz-2.4.21
-> 	root = /dev/hda3
-> 	label = Linux_2.4.21
-> 	read-only
-> #	vga=788
-> 	append = "devfs=mount hdd=ide-scsi console=tty0 console=ttyS0,9600n8"
-
-That looks basically right. The kernel you're running may not be
-compiled with serial console support. Also, you might want to swap the
-order of the two console= options so that /dev/console refers to your
-real virtual console, but that shouldn't keep the serial console from
-working. You might try dropping the 'n8'...I don't use it here although
-it is documented. I vaguely recall having problems that went away when 
-I stopped (redundantly) specifying the character format --but that could
-be hogwash. My bet is the kernel not being built with serial console
-support.
-
---Adam
-
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	Wed Jun 18 18:01:04 2003
++++ b/include/linux/sched.h	Wed Jun 18 18:01:04 2003
+@@ -504,9 +509,10 @@
+  */
+ extern struct exec_domain	default_exec_domain;
+ 
+-#ifndef INIT_THREAD_SIZE
+-# define INIT_THREAD_SIZE	2048*sizeof(long)
+-#endif
++#ifndef __HAVE_ARCH_TASK_STRUCT_ALLOCATOR
++# ifndef INIT_THREAD_SIZE
++#  define INIT_THREAD_SIZE	2048*sizeof(long)
++# endif
+ 
+ union thread_union {
+ 	struct thread_info thread_info;
+@@ -514,6 +520,9 @@
+ };
+ 
+ extern union thread_union init_thread_union;
++
++#endif /* !__HAVE_ARCH_TASK_STRUCT_ALLOCATOR */
++
+ extern struct task_struct init_task;
+ 
+ extern struct   mm_struct init_mm;

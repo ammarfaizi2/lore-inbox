@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSGXTmm>; Wed, 24 Jul 2002 15:42:42 -0400
+	id <S317493AbSGXTxS>; Wed, 24 Jul 2002 15:53:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318191AbSGXTmm>; Wed, 24 Jul 2002 15:42:42 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:58564 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S318184AbSGXTml>;
-	Wed, 24 Jul 2002 15:42:41 -0400
-Date: Wed, 24 Jul 2002 14:40:15 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: 2.5 Problem Reports Status 
-Message-ID: <Pine.LNX.4.44.0207241401570.26254-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317544AbSGXTxS>; Wed, 24 Jul 2002 15:53:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:38919 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317493AbSGXTxR>;
+	Wed, 24 Jul 2002 15:53:17 -0400
+Date: Wed, 24 Jul 2002 12:56:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [BK PATCH] LSM changes for 2.5.27
+Message-ID: <20020724195617.GD11384@kroah.com>
+References: <Pine.LNX.4.44.0207231012240.8911-100000@serv> <1027430194.31782.125.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1027430194.31782.125.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 26 Jun 2002 18:46:00 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a followup on a little project I've been playing around with for 
-the past few days.  This project is to track problem reports, oops, bugs, 
-etc for the devleopment kernel.  Hopefully it will prove useful.  Several 
-points about this:
+On Tue, Jul 23, 2002 at 02:16:34PM +0100, Alan Cox wrote:
+> On Tue, 2002-07-23 at 09:16, Roman Zippel wrote:
+> > Hi,
+> > 
+> > On Mon, 22 Jul 2002, Greg KH wrote:
+> > 
+> > > +		error = security_ops->inode_setattr(dentry, attr);
+> > 
+> > Am I the only one who'd like to see this as an inline function?
+> > 1. It can be optimized away.
+> > 2. It's easier to read.
 
-- I'm NOT going to track the various typos, thinkos, and minor syntax 
-errors.  I'm aiming more for things such as the IDE problem, the broken 
-flock, and odd memory corruption problems which entail more extended 
-discussion than a simple one-line code fix.  It's going to be more of a 
-judgement call as to what is included and what isn't.
+Yes, I've considered it.  I might still wrap them in a inline function
+if people _really_ don't like the look of them.
 
-- In the extended discussions I plan on omitting various bits I consider 
-flamage not pertinent to the subject.  If anyone has a gripe with my 
-editing, please contact me off-list.
+> You are not the only one. At the kernel summit there were discussions
+> about both wrapping the few performance impacting ones in ifdefs, and/or
+> using dynamic patching.
 
-- I received some feedback saying that I ought to merely point at archived 
-threads for fixes, etc.  I considered that, but it seems that an edited 
-discussion might be more useful.  This is especially evident in cases 
-where the flow of messages go from point to point.  In this case editing 
-out headers and superfluous attributions makes it look better to my eyes.
+Yes, for the hooks that might affect performance (like the network ones)
+they will probably be wrapped in inline functions, and controlled by a
+config option.
 
-- It was also suggested that I'm merely duplicating existing TODO lists 
-and other material.  Maybe.  One thing it has done was make me think more 
-than superficially about some issues I hadn't paid attention to before.  
+thanks,
 
-- To keep the list "clean" I plan on archiving previously fixed issues, 
-only brining forward to a new kernel release report those issues which 
-haven't been "closed."  An item's status can be open (discussion 
-continues, no generally agreed upon solution available), proposed fix (a 
-patch is available and is being tested and discussed),  tested fix 
-(generally agreed upon and in a major maintaners -- aa,ac,dj -- patchset 
-and ready for merging), and closed when it is integrated into the next 
-Linus-blessed version.
-
-The following list can be found at http://members.cox.net/tmolina
-
-Kernel Problem Reports as of 24 Jul 1900 Zulu
-
-Software Suspend Failure -- open
-big IRQ lock removal     -- proposed fix 
-CPU Detection            -- proposed fix
-Swapper oops             -- open
-Time jump/kernel freeze  -- open
-IDE problem              -- open
-RAID initialization      -- open
-free_pages_ok            -- proposed fix
-console lockup           -- open
-slab page problem        -- proposed fix 
-tcp_v6_get_port          -- proposed fix
-RAID shutdown            -- open
-Broken flock             -- proposed fix 
-odd memory corruption    -- proposed fix
-Broken Floppy            -- open
-
-
+greg k-h

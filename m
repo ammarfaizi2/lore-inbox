@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUBAMM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 07:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUBAMM6
+	id S265279AbUBAMVi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 07:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUBAMVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 07:12:58 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:64435 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S265277AbUBAMM5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 07:12:57 -0500
-Message-ID: <401CEDAD.70601@bluewin.ch>
-Date: Sun, 01 Feb 2004 13:14:37 +0100
-From: Julien Rebetez <julien.r@bluewin.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux-2.4.22  memory overwriting 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Feb 2004 07:21:38 -0500
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:57988 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S265279AbUBAMVh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 07:21:37 -0500
+Date: Sun, 1 Feb 2004 12:21:34 +0000
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Julien Rebetez <julien.r@bluewin.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.22  memory overwriting
+Message-ID: <20040201122134.GC3183@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Julien Rebetez <julien.r@bluewin.ch>, linux-kernel@vger.kernel.org
+References: <401CEDAD.70601@bluewin.ch>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HG+GLK89HZ1zG0kk"
+Content-Disposition: inline
+In-Reply-To: <401CEDAD.70601@bluewin.ch>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
-I've writen the following program :
 
+--HG+GLK89HZ1zG0kk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-#include <stdio.h>
+On Sun, Feb 01, 2004 at 01:14:37PM +0100, Julien Rebetez wrote:
+> Hi !
+> I've writen the following program :
+[snip]
+> Should I not get a SIGSEV from the system ? Isn't it dangerous to allow 
+> the user to put 5 elements in a 4 elements tab?
 
-int main ()
-{
-        int p[4];
-        p[0]=1;
-        p[1]=2;
-        p[2]=3;
-        p[3]=4;
-        p[4]=5;
+   This is nothing to do the the kernel. It's to do with C.
 
-        printf ("%i, %i, %i, %i, %i\n", p[0], p[1], p[2], p[3],
-p[4]);
-        return 0;
-}
+   Yes, it is dangerous to allow this behaviour. However, C doesn't
+perform bounds checking on arrays -- this is left to the programmer to
+ensure that an array is never accessed outside its bounds. The effects
+of accessing (reading or writing) an array outside its bounds are
+undefined. In this case, it's worked. In other situations, with
+different arrays, it may not work.
 
-I compile it with :
+   Nothing to see here. Move along.
 
- gcc -o test test.c -Wall
+   Hugo.
 
-and when i launch it, the output is :
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+   --- Well, you don't get to be a kernel hacker simply by looking ---   
+                    good in Speedos. -- Rusty Russell                    
 
- julien:$> ./test
-1, 2, 3, 4, 5
+--HG+GLK89HZ1zG0kk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Should I not get a SIGSEV from the system ? Isn't it dangerous to allow 
-the user to put 5 elements in a 4 elements tab?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-(tested on Linux 2.4.22 on a i686)
+iD8DBQFAHO9OssJ7whwzWGARAi1hAKCjsgvr0G0FERUTq1veXMdRMvTelACdGE46
+F6uADFFfOFfgKDidfqxcZ+U=
+=CD1d
+-----END PGP SIGNATURE-----
 
-Thanks
-
+--HG+GLK89HZ1zG0kk--

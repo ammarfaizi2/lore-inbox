@@ -1,58 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262510AbTC0MZv>; Thu, 27 Mar 2003 07:25:51 -0500
+	id <S262103AbTC0MYX>; Thu, 27 Mar 2003 07:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262526AbTC0MZv>; Thu, 27 Mar 2003 07:25:51 -0500
-Received: from [196.41.29.142] ([196.41.29.142]:64507 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id <S262510AbTC0MZt>; Thu, 27 Mar 2003 07:25:49 -0500
-Subject: Re: lm sensors sysfs file structure
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Greg KH <greg@kroah.com>, Mark Studebaker <mds@paradyne.com>,
-       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
-       sensors@Stimpy.netroedge.com
-In-Reply-To: <3E82EE25.3070308@portrix.net>
-References: <1048582394.4774.7.camel@workshop.saharact.lan>
-	 <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan>
-	 <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com>
-	 <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com>
-	 <3E82D678.9000807@portrix.net>
-	 <1048762244.4773.1258.camel@workshop.saharact.lan>
-	 <3E82EE25.3070308@portrix.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048768432.4774.1263.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2- 
-Date: 27 Mar 2003 14:33:52 +0200
-Content-Transfer-Encoding: 7bit
+	id <S262509AbTC0MYX>; Thu, 27 Mar 2003 07:24:23 -0500
+Received: from port-212-202-184-205.reverse.qdsl-home.de ([212.202.184.205]:59833
+	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
+	id <S262103AbTC0MYV>; Thu, 27 Mar 2003 07:24:21 -0500
+Message-ID: <3E82F00F.7@trash.net>
+Date: Thu, 27 Mar 2003 13:35:27 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030319 Debian/1.3-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: Chris Sykes <chris@sigsegv.plus.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
+References: <20030326162538.GG2695@spackhandychoptubes.co.uk>	<20030326185236.GE24689@kroah.com>	<20030326192520.GH2695@spackhandychoptubes.co.uk>	<20030326193437.GI24689@kroah.com>	<20030327111600.GI2695@spackhandychoptubes.co.uk> <20030327131214.1dae4005.skraw@ithnet.com>
+In-Reply-To: <20030327131214.1dae4005.skraw@ithnet.com>
+Content-Type: multipart/mixed;
+ boundary="------------060109030303090507030305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-27 at 14:27, Jan Dittmer wrote:
+This is a multi-part message in MIME format.
+--------------060109030303090507030305
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Btw., why is temperature conversion done twice? First time in kernel 
-> space and then with the help of sensors.conf again in user space?
-> Wouldn't it be much nicer to move this to the drivers? So there would be 
-> no need anymore to do this in userspace and one could rely on the values
-> found in sysfs?!
-> 
+The ISDN bug is fixed, i sent a patch to LKML and the Maintainer last week.
+I've attached the fix again, the one in isdn_ppp.c is responsible for 
+the BUG()s.
 
-I guess for stuff like fan_div, etc at least, is that not all the
-chips are on spec, the sensors are located on different places,
-and the why the manufacturer of the board did things could all
-influence things.  Thus you need to be able to tweak fan_dev,
-etc for each board individually to get the most precise reading.
-
-For instance, what my bios say, and what the raw reading from 
-/proc is, is two different things.  I also had to slightly adjust
-things between some models of Asus boards I had.
+Patrick
 
 
-Regards, 
+Stephan von Krawczynski wrote:
 
--- 
-Martin Schlemmer
+>Hello all,
+>
+>I just wanted to hint that this very same BUG message appears on channel
+>bundling of ISDN, too. Greg, can you give a short description for this race
+>please, as I would like to find it in the ISDN-code, maybe your ideas help...
+>
+>Thanks,
+>Stephan
+>
+>  
+>
+>  
+>
 
+--------------060109030303090507030305
+Content-Type: text/plain;
+ name="isdn-locking-fixes.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="isdn-locking-fixes.diff"
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1055  -> 1.1056 
+#	drivers/isdn/isdn_net.c	1.15    -> 1.16   
+#	drivers/isdn/isdn_ppp.c	1.20    -> 1.21   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/03/27	kaber@trash.net	1.1056
+# [ISDN]: locking fixes
+# --------------------------------------------
+#
+diff -Nru a/drivers/isdn/isdn_net.c b/drivers/isdn/isdn_net.c
+--- a/drivers/isdn/isdn_net.c	Thu Mar 27 02:00:21 2003
++++ b/drivers/isdn/isdn_net.c	Thu Mar 27 02:00:21 2003
+@@ -2831,6 +2831,7 @@
+ 
+ 			/* If binding is exclusive, try to grab the channel */
+ 			save_flags(flags);
++			cli();
+ 			if ((i = isdn_get_free_channel(ISDN_USAGE_NET,
+ 				lp->l2_proto, lp->l3_proto, drvidx,
+ 				chidx, lp->msn)) < 0) {
+diff -Nru a/drivers/isdn/isdn_ppp.c b/drivers/isdn/isdn_ppp.c
+--- a/drivers/isdn/isdn_ppp.c	Thu Mar 27 02:00:21 2003
++++ b/drivers/isdn/isdn_ppp.c	Thu Mar 27 02:00:21 2003
+@@ -1176,7 +1176,7 @@
+ 	if (!lp) {
+ 		printk(KERN_WARNING "%s: all channels busy - requeuing!\n", netdev->name);
+ 		retval = 1;
+-		goto unlock;
++		goto out;
+ 	}
+ 	/* we have our lp locked from now on */
+ 
+
+--------------060109030303090507030305--
 

@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUHIIUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUHIIY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266213AbUHIIUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUHIIUR
+	id S266204AbUHIIY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUHIIY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:20:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:16865 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266213AbUHIIUM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:20:12 -0400
-Message-Id: <200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, mjbligh@us.ibm.com
-Subject: Re: 2.6.8-rc3-mm2 
-In-reply-to: Your message of "Sun, 08 Aug 2004 15:29:36 PDT."
-             <20040808152936.1ce2eab8.akpm@osdl.org> 
-Date: Mon, 09 Aug 2004 01:20:37 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Mon, 9 Aug 2004 04:24:26 -0400
+Received: from be.zoznam.sk ([62.65.179.8]:58075 "EHLO be1.mail.zoznam.sk")
+	by vger.kernel.org with ESMTP id S266204AbUHIIYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 04:24:25 -0400
+Message-ID: <411734E1.5070508@lmxmail.sk>
+Date: Mon, 09 Aug 2004 10:25:05 +0200
+From: =?ISO-8859-2?Q?Mari=E1n_Tomko?= <macros@lmxmail.sk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; sk-SK; rv:1.7) Gecko/20040630
+X-Accept-Language: sk, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: howto apply supermount patch only....
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got complaints from arch/i386/mm/discontig.c:
+Hello
 
-arch/i386/mm/discontig.c: In function `zone_sizes_init':
-arch/i386/mm/discontig.c:422: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
-arch/i386/mm/discontig.c:422: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
-arch/i386/mm/discontig.c:422: too many arguments to function `free_area_init_node'
-arch/i386/mm/discontig.c:430: warning: passing arg 3 of `free_area_init_node' from incompatible pointer type
-arch/i386/mm/discontig.c:430: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
-arch/i386/mm/discontig.c:430: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
-arch/i386/mm/discontig.c:430: too many arguments to function `free_area_init_node'
+I have 2.6.7 kernel and I want only apply supermount patch. I downloaded 
+supermount-ng204.diff from ck6 splitout.  I copied it into /usr/src.  
+Here I  cd linux-2.6.7. From linux-2.6.7 I run patch -p1 < 
+../supermount-ng204.diff
 
-Looks like I can't get by with just deleting the third argument in the
-second case.
+And I got this:
+patch unexpectedly ends in middle of line
+patch: **** Only garbage was found in the patch input.
 
-Rick
+What is the problem here? How to cerrectly applied this patch?
+
+Thanx
+
+Marian Tomko
+
+
+PS - I am new in this... So please if it is trivial correct me.
+

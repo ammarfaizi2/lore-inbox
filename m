@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130303AbRCBC2e>; Thu, 1 Mar 2001 21:28:34 -0500
+	id <S130262AbRCBCnc>; Thu, 1 Mar 2001 21:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130292AbRCBC20>; Thu, 1 Mar 2001 21:28:26 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:772 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130290AbRCBC2O>;
-	Thu, 1 Mar 2001 21:28:14 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S130267AbRCBCnX>; Thu, 1 Mar 2001 21:43:23 -0500
+Received: from [209.102.105.34] ([209.102.105.34]:46345 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S130262AbRCBCnQ>;
+	Thu, 1 Mar 2001 21:43:16 -0500
+Date: Thu, 1 Mar 2001 18:43:03 -0800
+From: Tim Wright <timw@splhi.com>
+To: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>
+Cc: ext Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x very unstable on 8-way IBM 8500R
+Message-ID: <20010301184303.A5065@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: "Matilainen Panu (NRC/Helsinki)" <panu.matilainen@nokia.com>,
+	ext Andrew Morton <andrewm@uow.edu.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A9E3F00.E5667AAC@uow.edu.au> <Pine.LNX.4.30.0103011523200.23756-100000@godzilla.research.nokia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15007.825.483003.106274@pizda.ninka.net>
-Date: Thu, 1 Mar 2001 18:19:37 -0800 (PST)
-To: Grant Grundler <grundler@cup.hp.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The IO problem on multiple PCI busses
-In-Reply-To: <200103020122.RAA28985@milano.cup.hp.com>
-In-Reply-To: <200103020122.RAA28985@milano.cup.hp.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0103011523200.23756-100000@godzilla.research.nokia.com>; from panu.matilainen@nokia.com on Thu, Mar 01, 2001 at 03:30:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just FYI,
+I am chasing this problem. There appears to be an unpleasant interaction between
+the Advanced Systems Management card and the NMI watchdog code. Ripping the card
+out of the machine also eradicates the problem, but is less desirable. 
+I'll let people know when there's a better solution.
 
-Grant Grundler writes:
- > A nice side effect of this bloat is it will discourage use of I/O
- > Port space. That's good for everyone, AFAICT. (I know some devices
- > *only* support I/O port space and I personnally don't care about
- > them. If someone who does care about one wants to talk to me about
- > it...fine...I'll help)
+Tim
 
-There is another case you are ignoring.  Some devices support memory
-space as well as I/O space, but only operate reliably when their
-I/O space window is used to access it.
+On Thu, Mar 01, 2001 at 03:30:56PM +0200, Matilainen Panu (NRC/Helsinki) wrote:
+> On Thu, 1 Mar 2001, ext Andrew Morton wrote:
+> > "Matilainen Panu (NRC/Helsinki)" wrote:
+> > > On Thu, 1 Mar 2001, ext Andrew Morton wrote:
+> > > >
+> > > > Is it stable with `nmi_watchdog=0'?
+> > >
+> > > If the default value for nmi_watchdog is 0 then no - I added the
+> > > nmi_watchdog=1 just to see if that makes any difference. If it's on by
+> > > default then I'll need to test it that way.
+> >
+> > Default for nmi_watchdog is `enabled'.
+> >
+> > Several people have reported that turning it off with
+> > the `nmi_watchdog=0' LILO option makes systems stable.
+> > Nobody knows why.
+> >
+> > (If nmi_watchdog _does_ make the achine stable, please
+> >  tell linux-kernel.).
+> 
+> It's too early to say for sure but that seems to have fixed it. Uptime now
+> nearly an hour under loads of 20-30 which is way more than it has been
+> able to stay up before. I'll let you know whether its still up tomorrow.
+> 
+> Million thanks for the tip!
+> 
+> 	- Panu -
+> 
 
-It just sounds to me like the hppa pci controllers are crap,
-especially the GSC one.  At least the rope one does something
-reasonable when you have a 64-bit kernel.  The horrors you've told me
-about the IOMMUs and stream-caches on these chips further confirms my
-theory :-)
-
-Later,
-David S. Miller
-davem@redhat.com
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

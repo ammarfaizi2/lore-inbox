@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261406AbTC0WCh>; Thu, 27 Mar 2003 17:02:37 -0500
+	id <S261413AbTC0WEQ>; Thu, 27 Mar 2003 17:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbTC0WCh>; Thu, 27 Mar 2003 17:02:37 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53733 "HELO
+	id <S261412AbTC0WEF>; Thu, 27 Mar 2003 17:04:05 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49381 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261406AbTC0WCf>; Thu, 27 Mar 2003 17:02:35 -0500
-Date: Thu, 27 Mar 2003 23:13:42 +0100
+	id <S261413AbTC0WDK>; Thu, 27 Mar 2003 17:03:10 -0500
+Date: Thu, 27 Mar 2003 23:14:18 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>
+To: Randolph Chung <tausq@debian.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] fix .text.exit error in drivers/net/r8169.c
-Message-ID: <20030327221342.GC24744@fs.tum.de>
+Subject: [2.4 patch] fix ad1889.c .text.exit error
+Message-ID: <20030327221418.GF24744@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,28 +20,26 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In 2,4,21-pre6 the function ad1889_remove in drivers/sound/ad1889.c is 
+__devexit but the pointer to it doesn't use __devexit_p resulting in a 
+.text.exit error if !CONFIG_HOTPLUG.
 
-In drivers/net/r8169.c the function rtl8169_remove_one is __devexit but 
-the pointer to it didn't use __devexit_p resulting in a.text.exit 
-compile error when !CONFIG_HOTPLUG.
+The following patch is needed:
 
-The fix is simple:
-
---- linux-2.4.21-pre6-full-nohotplug/drivers/net/r8169.c.old	2003-03-27 22:17:09.000000000 +0100
-+++ linux-2.4.21-pre6-full-nohotplug/drivers/net/r8169.c	2003-03-27 22:19:18.000000000 +0100
-@@ -1110,7 +1110,7 @@
- 	.name		= MODULENAME,
- 	.id_table	= rtl8169_pci_tbl,
- 	.probe		= rtl8169_init_one,
--	.remove		= rtl8169_remove_one,
-+	.remove		= __devexit_p(rtl8169_remove_one),
- 	.suspend	= NULL,
- 	.resume		= NULL,
+--- linux-2.4.21-pre6-full-nohotplug/drivers/sound/ad1889.c.old	2003-03-27 22:40:12.000000000 +0100
++++ linux-2.4.21-pre6-full-nohotplug/drivers/sound/ad1889.c	2003-03-27 22:42:39.000000000 +0100
+@@ -1059,7 +1059,7 @@
+ 	name:		DEVNAME,
+ 	id_table:	ad1889_id_tbl,
+ 	probe:		ad1889_probe,
+-	remove:		ad1889_remove,
++	remove:		__devexit_p(ad1889_remove),
  };
+ 
+ static int __init ad1889_init_module(void)
 
 
-The patch applies against 2.4.21-pre6 and 2.5.66. I've tested the 
-compilation with 2.4.21-pre6.
+I've tested the compilation with 2.4.21-pre6.
 
 
 Please apply

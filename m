@@ -1,24 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUJFExP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266793AbUJFE55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUJFExP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUJFExP
+	id S266793AbUJFE55 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 00:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJFE55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:53:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50647 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267254AbUJFExN (ORCPT
+	Wed, 6 Oct 2004 00:57:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51419 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266793AbUJFE54 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:53:13 -0400
-Date: Tue, 5 Oct 2004 21:51:16 -0700
+	Wed, 6 Oct 2004 00:57:56 -0400
+Date: Tue, 5 Oct 2004 21:46:05 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kenneth.w.chen@intel.com, mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Default cache_hot_time value back to 10ms
-Message-Id: <20041005215116.3b0bd028.akpm@osdl.org>
-In-Reply-To: <416374D5.50200@yahoo.com.au>
-References: <200410060042.i960gn631637@unix-os.sc.intel.com>
-	<20041005205511.7746625f.akpm@osdl.org>
-	<416374D5.50200@yahoo.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: andrea@novell.com, nickpiggin@yahoo.com.au, rml@novell.com,
+       roland@topspin.com, linux-kernel@vger.kernel.org
+Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive
+ (SCSI-libsata, VIA SATA))
+Message-Id: <20041005214605.5ec397ab.akpm@osdl.org>
+In-Reply-To: <41636FCF.3060600@pobox.com>
+References: <52is9or78f.fsf_-_@topspin.com>
+	<4163465F.6070309@pobox.com>
+	<41634A34.20500@yahoo.com.au>
+	<41634CF3.5040807@pobox.com>
+	<1097027575.5062.100.camel@localhost>
+	<20041006015515.GA28536@havoc.gtf.org>
+	<41635248.5090903@yahoo.com.au>
+	<20041006020734.GA29383@havoc.gtf.org>
+	<20041006031726.GK26820@dualathlon.random>
+	<4163660A.4010804@pobox.com>
+	<20041006040323.GL26820@dualathlon.random>
+	<41636FCF.3060600@pobox.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,29 +37,13 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
 >
->  Andrew Morton wrote:
->  > "Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->  > 
->  >>This value was default to 10ms before domain scheduler, why does domain
->  >> scheduler need to change it to 2.5ms? And on what bases does that decision
->  >> take place?  We are proposing change that number back to 10ms.
->  > 
->  > 
->  > It sounds like this needs to be runtime tunable?
->  > 
-> 
->  I'd say it is probably too low level to be a useful tunable (although
->  for testing I guess so... but then you could have *lots* of parameters
->  tunable).
+> Preempt will always be something I ask people to turn off when reporting 
+>  driver bugs; it just adds too much complicated mess for zero gain.
 
-This tunable caused an 11% performance difference in (I assume) TPCx. 
-That's a big deal, and people will want to diddle it.
+What driver bugs are apparent with preemption which are not already SMP bugs?
 
-If one number works optimally for all machines and workloads then fine.
+Only thing I can think of is unguarded use of per-cpu data, and we have
+runtime debug checks for that now.
 
-But yes, avoiding a tunable would be nice, but we need a tunable to work
-out whether we can avoid making it tunable ;)
-
-Not that I'm soliciting patches or anything.  I'll duck this one for now.

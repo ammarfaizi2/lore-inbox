@@ -1,229 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbTIMQhs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 12:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbTIMQhs
+	id S261473AbTIMQwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 12:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTIMQwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 12:37:48 -0400
-Received: from fed1mtao08.cox.net ([68.6.19.123]:45752 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S261316AbTIMQhm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 12:37:42 -0400
-Message-ID: <3F6347D4.9070802@cox.net>
-Date: Sat, 13 Sep 2003 09:37:40 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test5 boot hang with no PS/2 mouse
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Sep 2003 12:52:39 -0400
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:37530 "EHLO
+	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261473AbTIMQwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 12:52:36 -0400
+X-Mailer: exmh version 2.5+CL 07/13/2001 with nmh-1.0.4
+From: Jon Fairbairn <Jon.Fairbairn@cl.cam.ac.uk>
+X-emacs-edited: yes
+To: Martin Diehl <lists@mdiehl.de>
+cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Omnibook PCMCIA slots unusable after suspend. 
+In-reply-to: Your message of "Thu, 11 Sep 2003 23:18:43 +0200."
+             <Pine.LNX.4.44.0309110828490.16165-100000@notebook.home.mdiehl.de> 
+X-Face: H#SM:U1U-/6#NN83s6?Die557~]Dfifz~-|V:wSKGL6T-|!qk{U4/M7+k5Py!-{q=2Q/%0@
+        E29yc_kQC&^
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Sat, 13 Sep 2003 17:52:09 +0100
+Message-ID: <7839.1063471929@cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Booting a kernel the config below, with only a USB keyboard and USB 
-mouse attached, hangs at:
+[please cc me as not subscribed]
+On 2003-09-11 at 23:18+0200 Martin Diehl wrote:
+> On Wed, 10 Sep 2003, Russell King wrote:
+> 
+> > On Wed, Sep 10, 2003 at 10:22:32PM +0100, Jon Fairbairn wrote:
+> > > In short: I'm using an HP Ombibook 800CT, have started using
+> > > a Carbus PCMCIA network card and am losing the card after
+> > > suspends.
+> 
+> I had a similar problem with my OB800. It turned out the
+> problem is the BIOS maps the yenta memory window into
+> legacy address range below 1MB.
 
-mice: PS/2 mouse device common for all mice
+This appears to be the correct diagnosis. I applied your
+patch to 2.4.22 and the Omnibook now correctly restarts the
+network after a suspend. Vielen dank!
 
-I let it sit for two minutes, and there was no change. Rebooting with 
-a PS/2 mouse plugged in allowed the boot to complete normally. Turning 
-the SERIO-related options back off (so only the USB input drivers are 
-selected) makes the kernel boot without a PS/2 mouse plugged in.
+What's the status of a patch like this? It's obviously of
+use to more than one person, and it took me a great deal of
+time to find you and your solution -- I suspect fainter
+hearted folk might just have given up and said "Linux
+doesn't work with this combination of hardware" which would
+have been a shame.
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_STANDALONE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_EMBEDDED=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_X86_PC=y
-CONFIG_MK7=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_ACPI_HT=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GODIRECT=y
-CONFIG_PCI_DIRECT=y
-CONFIG_HOTPLUG=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEFLOPPY=y
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_SIS5513=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-CONFIG_BLK_DEV_3W_XXXX_RAID=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_DM=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_NETFILTER=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_NETDEVICES=y
-CONFIG_TUN=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_TULIP=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MMIO=y
-CONFIG_NET_PCI=y
-CONFIG_NATSEMI=y
-CONFIG_SIS900=y
-CONFIG_NS83820=y
-# Token Ring devices (depends on LLC=y)
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_8250_ACPI=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_VIAPRO=y
-CONFIG_SENSORS_W83781D=y
-CONFIG_I2C_SENSOR=y
-CONFIG_AGP=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_R128=y
-CONFIG_EXT2_FS=y
-CONFIG_XFS_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_ATY128=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_VIA82XX=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_DYNAMIC_MINORS=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_UHCI_HCD=y
-CONFIG_USB_PRINTER=y
-CONFIG_USB_STORAGE=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_USBNET=y
-CONFIG_USB_CDCETHER=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_X86_BIOS_REBOOT=y
+I haven't tried it with 2.6 yet; I don't normally get into
+test kernels, but I might try out of curiosity. I'll post
+the result if anyone indicates that it's a worthwhile thing
+to do.
+
+> Yep, this is what happens fo me in the sitation above. And
+> the next time one inserts/ejects any card the box dies in
+> interrupt storm because the irq cannot be acknoledged.
+
+I think I got that too, at least, reinserting the card caused
+a lockup.  With the patch applied I can eject and reinsert,
+which is fortunate because there seems to be another problem
+where the card switches off when I switch VCs, but it's hard
+to reproduce. (and inconvenient because /usr is on nfs on
+this machine)
+
+  Thanks again,
+
+   Jón
+
+
+-- 
+Jón Fairbairn
+
 

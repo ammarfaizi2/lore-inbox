@@ -1,147 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266650AbUITPFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUITPMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266650AbUITPFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 11:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266657AbUITPFi
+	id S266663AbUITPMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 11:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUITPMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 11:05:38 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:52714 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266650AbUITPFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 11:05:16 -0400
-Subject: Re: 2.6.9-rc2-mm1
-From: Albert Cahalan <albert@users.sf.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton OSDL <akpm@osdl.org>, Craig Small <csmall@debian.org>,
-       Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040920074731.GS9106@holomorphy.com>
-References: <20040916024020.0c88586d.akpm@osdl.org>
-	 <20040920023452.GR9106@holomorphy.com> <1095653925.4969.100.camel@cube>
-	 <20040920074731.GS9106@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095692447.4969.174.camel@cube>
+	Mon, 20 Sep 2004 11:12:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43977 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266663AbUITPMC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 11:12:02 -0400
+Date: Mon, 20 Sep 2004 10:48:35 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Ingo Freund <Ingo.Freund@e-dict.net>
+Cc: linux-kernel@vger.kernel.org, achim_leubner@adaptec.com
+Subject: Re: three days running fine, then memory allocation errors
+Message-ID: <20040920134835.GE3459@logos.cnet>
+References: <20040920130228.GB3459@logos.cnet> <NEBBILBHKLDLOMLDGKGNIEKMCIAA.Ingo.Freund@e-dict.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Sep 2004 11:00:47 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <NEBBILBHKLDLOMLDGKGNIEKMCIAA.Ingo.Freund@e-dict.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-20 at 03:47, William Lee Irwin III wrote: 
-> On Sun, 2004-09-19 at 22:34, William Lee Irwin III wrote:
-> >> top(1) shows no tasks on sparc64.
+On Mon, Sep 20, 2004 at 04:58:02PM +0200, Ingo Freund wrote:
+> Thank you for the answer.
+> Well, I'll stop my requests to the drivers output immediatly.
 > 
-> On Mon, Sep 20, 2004 at 12:18:45AM -0400, Albert Cahalan wrote:
-> > It would be nice if I had such a box. I can't even
-> > find a user account on one. I have 32-bit ppc, plus
-> > non-root accounts on alpha, i386, and x86_64 boxes
-> > with obsolete kernels.
+> The problem is, that I only get the errors on one machine.
+> Others (with less memory) don't react this way. 
 
-> On Mon, Sep 20, 2004 at 12:18:45AM -0400, Albert Cahalan wrote:
-> > In no place does procps itself care about ino_t.
-> > Perhaps your 32-bit glibc chokes on 64-bit inode numbers.
-> > If so, yuck. It's really sad that we have a zillion
-> > versions of stat(), many with oversize dev_t, and still
-> > we use 32-bit ino_t in many places.
-> > Whether or not that's the problem...
-> > 1. install a 64-bit or bi-arch gcc
-> > 2. install a 64-bit libc
-> > 3. install a 64-bit ncurses
-> > 4. install a 64-bit procps
-> > (suggestion: keep going until /bin is done)
-> > That's pretty much it. The procps package goes to
-> > great lengths to compile itself 64-bit, even passing
-> > the -m64 option and installing to /lib64 as needed.
-> > If you've broken this, you get to keep the pieces.
+The others also have same gdth controllers? Are the disk configuration similar?
+Numbers of disks, etc.
+
+> It will take some time to include the patch and inform about 
+> the output. I have to reboot the machine after installing the 
+> patch and the new kernel build. This can only happen in certain
+> time windows.
+
+Understood.
+
+> Is it neccessary to wait until the error occurs or do you only
+> want some outputs?
+
+Only some outputs - it will show us if the /proc handling function
+is freeing correctly some of the memory it allocates.
+
+I forgot to CC Achim in the first message, done now.
+
 > 
-> I didn't touch this. Also, procps FTBFS on sparc64; I see no evidence
-> of passing -m64 or whatever to either the compilation or linking phase
-> in virgin procps.
-
-Debian compiles sparc and sparc64 on the same box,
-and fails to distinguish them. Therefore, Debian
-disables -m64 during the build. The package itself
-will disable -m64 if it is unable to successfully
-link a dummy.c file with ncurses when using it.
-
-If you compile from the *.tar.gz file and have a
-working 64-bit ncurses, you should get a 64-bit
-executable. If you don't, please tell me what I
-need to do to make it work.
-
-> It gets better, though. On SuSE's x86-64 userspace,
-> procps and stat(1) are compiled 64-bit yet the inode numbers overflow,
-> as all /proc/$PID entries have identical inode numbers as reported.
-
-Hmmm... who cares about the inode numbers?
-
-If the answer is "glibc readdir", then the numbers
-should be taken from distinct number spaces for the
-/proc, /proc/*/task, and /proc/*/fd directories.
-Re-use within a directory may be the most trouble.
-
-If it's not even that, then the fake_ino() macro
-shouldn't pretend that the numbers matter. Simply
-make it be a constant.
-
-> x86-64 and ia64 are highly unusual in that 64-bit compilation is
-> useful for basic apps, and alpha an exception in that it has no 32-bit
-> ABI; for most 64-bit architectures making such large fractions of
-> userspace 64-bit applictions is undesirable.
-
-MIPS at least has N32, which is a distinct ABI for
-the ILP32 model on 64-bit hardware. This offers the
-best performance while not making 32-bit users suffer.
-
-> On Mon, Sep 20, 2004 at 12:18:45AM -0400, Albert Cahalan wrote:
-> > In other words: seriously unsupported
-> > I see no reason why 32-bit SPARC users should have
-> > to suffer the pain of running code bloated up to
-> > handle 64-bit SPARC. The 32-bit SPARC hardware is
-> > slow enough already. Just try to look a 32-bit SPARC
-> > user in the eye and tell him "Your system should run
-> > even slower now, so that my hot new hardware can keep
-> > running old 32-bit executables meant for you"
+> Bye - Ingo.
 > 
-> It's UltraSPARC. 32-bit userspace is used there. Recompiling top(1) as
-> a 64-bit app produces nonempty process lists.
 > 
-> And telling sparc32 users that has already been done for far more
-> severe slowdowns, in particular udiv emulation.
-
-You mean it traps instead of directly calling
-a routine in libgcc?
-
-Admittedly on x86, profiling has shown that handling
-64-bit values with a 32-bit ABI is truly horrible.
-So both sparc and sparc64 are being hurt if 32-bit
-sparc binaries have to support 64-bit kernels.
-
-If 32-bit is so good, you'll want to get a 32-bit
-kernel on your hardware ASAP.
-
-> Proper use of
-> O_LARGEFILE etc. is actually unlikely to hurt sparc32 in any
-> significant way, as it has a decent number of registers,
-
-More than O_LARGEFILE would be involved.
-
-All the /proc parsing code would have to be 64-bit.
-The overhead of strtoull() and the libgcc division
-functions is really bad. It can show up at the top
-of a profile.
-
-Here's just a small amount of 64-bit usage:
-
-Each sample counts as 0.01 seconds.
-  %   cumulative   self              self     total           
- time   seconds   seconds    calls  ns/call  ns/call  name    
- 16.26      0.20     0.20                             __udivdi3
-
-That was merely an accidental 64-bit usage. It gets
-far, far worse when trying to support a 64-bit kernel
-from a 32-bit app.
-
-
+> > -----Original Message-----
+> > From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
+> > Sent: Monday, September 20, 2004 3:02 PM
+> > To: Ingo Freund
+> > Cc: linux-kernel@vger.kernel.org
+> > Subject: Re: three days running fine, then memory allocation errors
+> > 
+> > 
+> > 
+> > Achim, I believe there is a memory leak (maybe several) in gdth's proc handling 
+> > code, can you please take a look at it?
+> > 
+> > Ingo, can you give the attached patch a test a show us the result 
+> > (you should get "gdth_alloc:x gdth_free:y" on /var/log/messages
+> > at each read of /proc/gdth/xx
+> > 
+> > On normal server operation just dont "cat /proc/scsi/gdth/.." and your server
+> > should be stable.
+> > 
+> > On Mon, Sep 20, 2004 at 01:07:54PM +0200, Ingo Freund wrote:
+> > > Hello,
+> > > 
+> > > I hope you guys can help, I cannot use any kernel 2.4 >23 without
+> > > the here described problem.
+> > > 
+> > > Searching the web for solutions to my problem I have already found 
+> > > a thread in a mailing list but no solution was mentioned, also the 
+> > > guys who talked about the error didn't answer to my direct mail.
+> > > 
+> > > The machine is a two xeon cpu database server without any other service 
+> > > except sshd running. I do some tests on the ICP-Vortex GDT controller 
+> > > every 2 minutes by using 
+> > > # cat /proc/scsi/gdt/2
+> > > but the output of cat stops without beeing completed.
+> > > 
+> > > This is what I see in the syslog file every time when I use the cat
+> > > command (the messages beginn after 3 days uptime):
+> > > --> /var/log/messages
+> > > kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
+> > > 
+> > > What do you propose to do for I can get the information I need for 
+> > > longer than three days without reboot? This is a highly used database
+> > > server in production environment.
+> > > 
+> > > Kernel version (from /proc/version):
+> > > Linux version 2.4.27 (root@widbrz01) (gcc version 3.3.1 
+> > > 
+> > > 
+> > > # cat /proc/meminfo 
+> > >         total:    used:    free:  shared: buffers:  cached:
+> > > Mem:  2118139904 2074345472 43794432        0 151343104 1742090240
+> > > Swap: 6407458816 48291840 6359166976
+> > > MemTotal:      2068496 kB
+> > > MemFree:         42768 kB
+> > > MemShared:           0 kB
+> > > Buffers:        147796 kB
+> > > Cached:        1694548 kB
+> > > SwapCached:       6712 kB
+> > > Active:         223620 kB
+> > > Inactive:      1709760 kB
+> > > HighTotal:     1179628 kB
+> > > HighFree:         2080 kB
+> > > LowTotal:       888868 kB
+> > > LowFree:         40688 kB
+> > > SwapTotal:     6257284 kB
+> > > SwapFree:      6210124 kB
+> > > 
+> > > # cat /proc/sys/kernel/shmmax 
+> > > 1069547520
+> > > 
+> > > # cat /proc/sys/kernel/shmall 
+> > > 1073741824
+> > > 
+> > > Please let me know if there are any informations you need.
+> > > Thanks in advance for your answer,
+> > > regards
+> > > ingo.
+> > > -- 
+> > > // ---------------------------------------------------------------------
+> > > // e-dict GmbH & Co. KG
+> > > // Ingo Freund         
+> > > // Alter Steinweg 3    
+> > > // D-20459 Hamburg/Germany                E-Mail: Ingo.Freund@e-dict.net
+> > > // ---------------------------------------------------------------------
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

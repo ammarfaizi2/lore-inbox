@@ -1,66 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261771AbRFGPwn>; Thu, 7 Jun 2001 11:52:43 -0400
+	id <S261679AbRFGP7X>; Thu, 7 Jun 2001 11:59:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261783AbRFGPwd>; Thu, 7 Jun 2001 11:52:33 -0400
-Received: from www.wen-online.de ([212.223.88.39]:19473 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261771AbRFGPwX>;
-	Thu, 7 Jun 2001 11:52:23 -0400
-Date: Thu, 7 Jun 2001 17:51:58 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: watermodem <aquamodem@ameritech.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister
- table
-In-Reply-To: <3B1F9B5A.42BF726D@ameritech.net>
-Message-ID: <Pine.LNX.4.33.0106071747460.463-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261837AbRFGP7O>; Thu, 7 Jun 2001 11:59:14 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:36046 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261679AbRFGP7F>;
+	Thu, 7 Jun 2001 11:59:05 -0400
+Date: Thu, 7 Jun 2001 17:59:02 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106071559.RAA212142.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, olh@suse.de
+Subject: Re: 2.4.5-ac9 console NULL pointer pointer dereference
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jun 2001, watermodem wrote:
+>> INIT: Id "1" respawning too fast: disabled for 5 minutes
 
-> "David S. Miller" wrote:
-> >
-> > George Bonser writes:
-> >  > There is, of course, one basic problem with that argument. While you can say
-> >  > (and probably rightly so) that such a change would not be included in Linus'
-> >  > kernel, I think anyone is allowed to post a patch that might make it
-> >  > possible to add protocols as modules. If anyone chooses to use it is each
-> >  > individual's decision but you could not prevent ACME from creating a patch
-> >  > that allows protocol modules as long as they distributed the patch. Also,  I
-> >  > know that you are allowed to distribute proprietary modules in binary form
-> >  > but are there any restrictions on what function these modules can perform?
-> >  > I don't remember seeing any such restrictions.
-> >
-> > People can post whatever patches which do whatever, sure.
-> > But this isn't what matters.
-> >
-> > What matters is the API under which a binary-only module may interface
-> > to the kernel.  Linus specifies that only the module exports in his
-> > tree fall into this API.
-> >
-> > As I stated in another email, the allowance of binary-only kernel
-> > modules is a special exception to the licensing of the kernel made by
-> > Linus.  The GPL by itself, does not allow this at all.
-> >
-> > Later,
-> > David S. Miller
-> > davem@redhat.com
->
-> David,
->
->    What is your real problem with La Monte's Code.
->    I don't buy your more "blessed than thou" argument.
->    It is a typical response one normally sees in large
->    organizations from folk with "empires" to protect.
->    Coming from the "land of warring tribes" firm it is
->    a attitude I have seen often.  My response is take
->    a vacation, chill out and reassess.
+> Any ideas?
 
-What words would you like to put in his mouth to replace those he used?
+Instead of asking the world, why not read the man page?
+If inittab has mingetty, then the man page says:
 
-	-Mike
+  Unlike agetty(8), mingetty  is  not  suitable  for  serial lines.
 
+Andries

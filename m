@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUA3TJv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 14:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUA3TJv
+	id S263448AbUA3TS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 14:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbUA3TS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 14:09:51 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:21705 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263107AbUA3TJt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 14:09:49 -0500
-Date: Fri, 30 Jan 2004 20:09:47 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Timothy Miller <miller@techsource.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, John Bradford <john@grabjohn.com>,
-       chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-In-Reply-To: <401AA08F.6020507@techsource.com>
-Message-ID: <Pine.LNX.4.55.0401301953270.10311@jurand.ds.pg.gda.pl>
-References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au>
- <40193136.4070607@techsource.com> <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk>
- <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk>
- <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
- <40195AE0.2010006@techsource.com> <401A33CA.4050104@aitel.hist.no>
- <401A8E0E.6090004@techsource.com> <Pine.LNX.4.55.0401301812380.10311@jurand.ds.pg.gda.pl>
- <401A9716.3040607@techsource.com> <Pine.LNX.4.55.0401301858070.10311@jurand.ds.pg.gda.pl>
- <401AA08F.6020507@techsource.com>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 30 Jan 2004 14:18:58 -0500
+Received: from mail.kroah.org ([65.200.24.183]:41625 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263448AbUA3TS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 14:18:56 -0500
+Date: Fri, 30 Jan 2004 11:18:53 -0800
+From: Greg KH <greg@kroah.com>
+To: Markus Schaber <schabios@logi-track.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Errors with USB Disk
+Message-ID: <20040130191853.GB7173@kroah.com>
+References: <20040130122324.7ac7ef34.schabios@logi-track.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040130122324.7ac7ef34.schabios@logi-track.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jan 2004, Timothy Miller wrote:
-
-> >  Of course, but DOS is not BIOS and the assumption is we want to use the
-> > adapter as a boot console and with Linux.  The former is handled with
-> > appropriate firmware and the latter with a driver.
+On Fri, Jan 30, 2004 at 12:23:24PM +0100, Markus Schaber wrote:
+> Hi,
 > 
-> Perhaps someone can tell us what the Linux kernel does before the 
-> console driver gets loaded.
+> I'm trying to use an USB Disk (IDE Disk in external USB Case), but
+> strange file system errors occurend and tools as dosfsck reproducably
+> hang.
+> 
+> kingfisher:/home/schabi# uname -a
+> Linux kingfisher 2.6.0 #1 Wed Dec 24 19:16:00 CET 2003 i686 GNU/Linux
 
- The kernel does lot of activities, but if you mean console output, then
-it doesn't start before the console driver is initialized, unless a
-so-called initial console with a suitable driver is present, which may be
-firmware-driven (so the driver may be a trivial redirector to appropriate
-firmware callbacks).
+Please try 2.6.1 at the least, and if you can 2.6.2-rc2.  There's been a
+lot of cleanups and minor fixes in the USB and scsi area in those
+kernels.
 
-> If the console driver is a module, then all kernel init messages that 
-> appear before the module is loaded have nowhere to go.
+thanks,
 
- If there's no better console available, e.g. because there's no suitable
-hardware present in the system or no drivers have been loaded, then the
-dummy console is used -> drivers/video/console/dummycon.c.
-
- And if you worry of the messages being lost, then you can always retrieve
-them from the kernel log buffer -- use `dmesg' for example. ;-)
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+greg k-h

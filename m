@@ -1,177 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPBqr>; Wed, 15 Nov 2000 20:46:47 -0500
+	id <S129091AbQKPBq5>; Wed, 15 Nov 2000 20:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129150AbQKPBqh>; Wed, 15 Nov 2000 20:46:37 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36103 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129069AbQKPBqW>; Wed, 15 Nov 2000 20:46:22 -0500
-Date: Wed, 15 Nov 2000 17:16:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries Brouwer <aeb@veritas.com>
-cc: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>, emoenke@gwdg.de,
-        eric@andante.org, linux-kernel@vger.kernel.org
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-In-Reply-To: <20001116011138.A27272@veritas.com>
-Message-ID: <Pine.LNX.4.10.10011151709380.3216-100000@penguin.transmeta.com>
+	id <S129279AbQKPBqr>; Wed, 15 Nov 2000 20:46:47 -0500
+Received: from web1106.mail.yahoo.com ([128.11.23.126]:47620 "HELO
+	web1106.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129091AbQKPBqe>; Wed, 15 Nov 2000 20:46:34 -0500
+Message-ID: <20001116011632.23521.qmail@web1106.mail.yahoo.com>
+Date: Thu, 16 Nov 2000 02:16:32 +0100 (CET)
+From: willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: 2.4.0-test11-pre5/drivers/net/sunhme.c compile failure on x86
+To: "David S. Miller" <davem@redhat.com>, adam@yggdrasil.com
+Cc: willy@meta-x.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello !
+
+(thanks Dave for the quick patch)
+
+I also had to move the #include <asm/uaccess.h>
+out of the #ifdef __sparc__/#endif because
+copy_{from|to}_user were left undefined (see
+simple patch below).
+
+Regards,
+Willy
 
 
-Does this patch fix it for you?
+--- drivers/net/sunhme.c-orig   Wed Nov 15 12:56:33
+2000
++++ drivers/net/sunhme.c        Wed Nov 15 12:59:35
+2000
+@@ -48,8 +48,8 @@
+ #ifndef __sparc_v9__
+ #include <asm/io-unit.h>
+ #endif
+-#include <asm/uaccess.h>
+ #endif
++#include <asm/uaccess.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/irq.h>
 
-Warning: TOTALLY UNTESTED!!! Please test carefully.
 
-Also, I'd be interested to know whether somebody really knows if the zero
-length handling is correct. Should we really round up to 2048, or should
-we perhaps round up only to the next bufsize?
-
-		Linus
-
------
---- v2.4.0-test10/linux/fs/isofs/dir.c	Fri Aug 11 14:29:01 2000
-+++ linux/fs/isofs/dir.c	Wed Nov 15 17:14:26 2000
-@@ -94,6 +94,14 @@
- 	return retnamlen;
- }
- 
-+static struct buffer_head *isofs_bread(struct inode *inode, unsigned int bufsize, unsigned int block)
-+{
-+	unsigned int blknr = isofs_bmap(inode, block);
-+	if (!blknr)
-+		return NULL;
-+	return bread(inode->i_dev, blknr, bufsize);
-+}
-+
- /*
-  * This should _really_ be cleaned up some day..
-  */
-@@ -105,7 +113,7 @@
- 	unsigned char bufbits = ISOFS_BUFFER_BITS(inode);
- 	unsigned int block, offset;
- 	int inode_number = 0;	/* Quiet GCC */
--	struct buffer_head *bh;
-+	struct buffer_head *bh = NULL;
- 	int len;
- 	int map;
- 	int high_sierra;
-@@ -117,46 +125,25 @@
- 		return 0;
-  
- 	offset = filp->f_pos & (bufsize - 1);
--	block = isofs_bmap(inode, filp->f_pos >> bufbits);
-+	block = filp->f_pos >> bufbits;
- 	high_sierra = inode->i_sb->u.isofs_sb.s_high_sierra;
- 
--	if (!block)
--		return 0;
--
--	if (!(bh = breada(inode->i_dev, block, bufsize, filp->f_pos, inode->i_size)))
--		return 0;
--
- 	while (filp->f_pos < inode->i_size) {
- 		int de_len;
--#ifdef DEBUG
--		printk("Block, offset, f_pos: %x %x %x\n",
--		       block, offset, filp->f_pos);
--	        printk("inode->i_size = %x\n",inode->i_size);
--#endif
--		/* Next directory_record on next CDROM sector */
--		if (offset >= bufsize) {
--#ifdef DEBUG
--			printk("offset >= bufsize\n");
--#endif
--			brelse(bh);
--			offset = 0;
--			block = isofs_bmap(inode, (filp->f_pos) >> bufbits);
--			if (!block)
--				return 0;
--			bh = breada(inode->i_dev, block, bufsize, filp->f_pos, inode->i_size);
-+
-+		if (!bh) {
-+			bh = isofs_bread(inode, bufsize, block);
- 			if (!bh)
- 				return 0;
--			continue;
- 		}
- 
- 		de = (struct iso_directory_record *) (bh->b_data + offset);
--		if(first_de) inode_number = (block << bufbits) + (offset & (bufsize - 1));
-+		if (first_de) inode_number = (block << bufbits) + (offset & (bufsize - 1));
- 
- 		de_len = *(unsigned char *) de;
- #ifdef DEBUG
- 		printk("de_len = %d\n", de_len);
--#endif
--	    
-+#endif	    
- 
- 		/* If the length byte is zero, we should move on to the next
- 		   CDROM sector.  If we are at the end of the directory, we
-@@ -164,36 +151,36 @@
- 
- 		if (de_len == 0) {
- 			brelse(bh);
--			filp->f_pos = ((filp->f_pos & ~(ISOFS_BLOCK_SIZE - 1))
--				       + ISOFS_BLOCK_SIZE);
-+			bh = NULL;
-+			filp->f_pos = ((filp->f_pos & ~(ISOFS_BLOCK_SIZE - 1)) + ISOFS_BLOCK_SIZE);
-+			block = filp->f_pos >> bufbits;
- 			offset = 0;
--
--			if (filp->f_pos >= inode->i_size)
--				return 0;
--
--			block = isofs_bmap(inode, (filp->f_pos) >> bufbits);
--			if (!block)
--				return 0;
--			bh = breada(inode->i_dev, block, bufsize, filp->f_pos, inode->i_size);
--			if (!bh)
--				return 0;
- 			continue;
- 		}
- 
--		offset +=  de_len;
-+		offset += de_len;
-+		if (offset == bufsize) {
-+			offset = 0;
-+			block++;
-+			brelse(bh);
-+			bh = NULL;
-+		}
-+
-+		/* Make sure we have a full directory entry */
- 		if (offset > bufsize) {
--			/*
--			 * This would only normally happen if we had
--			 * a buggy cdrom image.  All directory
--			 * entries should terminate with a null size
--			 * or end exactly at the end of the sector.
--			 */
--		        printk("next_offset (%x) > bufsize (%lx)\n",
--			       offset,bufsize);
--			break;
-+			int slop = bufsize - offset + de_len;
-+			memcpy(tmpde, de, slop);
-+			offset &= bufsize - 1;
-+			block++;
-+			brelse(bh);
-+			bh = isofs_bread(inode, bufsize, block);
-+			if (!bh)
-+				return 0;
-+			memcpy((void *) tmpde + slop, bh->b_data, de_len - slop);
-+			de = tmpde;
- 		}
- 
--		if(de->flags[-high_sierra] & 0x80) {
-+		if (de->flags[-high_sierra] & 0x80) {
- 			first_de = 0;
- 			filp->f_pos += de_len;
- 			continue;
-
+___________________________________________________________
+Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
+Yahoo! Messenger : http://fr.messenger.yahoo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

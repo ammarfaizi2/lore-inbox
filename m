@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317145AbSEXOrr>; Fri, 24 May 2002 10:47:47 -0400
+	id <S317148AbSEXOt3>; Fri, 24 May 2002 10:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317146AbSEXOrq>; Fri, 24 May 2002 10:47:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7436 "EHLO
+	id <S317149AbSEXOt2>; Fri, 24 May 2002 10:49:28 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8460 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317145AbSEXOro>; Fri, 24 May 2002 10:47:44 -0400
-Subject: Re: Quota patches
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 24 May 2002 16:07:41 +0100 (BST)
-Cc: jack@suse.cz (Jan Kara), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        nathans@sgi.com (Nathan Scott),
-        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205231002460.1006-100000@home.transmeta.com> from "Linus Torvalds" at May 23, 2002 10:03:50 AM
+	id <S317148AbSEXOt1>; Fri, 24 May 2002 10:49:27 -0400
+Subject: Re: ppp_deflate.o taints the kernel?
+To: mulix@actcom.co.il (Muli Ben-Yehuda)
+Date: Fri, 24 May 2002 16:10:00 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020523193502.H15025@actcom.co.il> from "Muli Ben-Yehuda" at May 23, 2002 07:35:02 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17BGfN-0006Ub-00@the-village.bc.nu>
+Message-Id: <E17BGhc-0006V7-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This makes me pretty certain we just do not want to have the backwards-
-> compatibility layer in 2.5.x
-> 
-> Are there _any_ reasons to use the old stuff, if the fix is just to
-> upgrade to a newer quota tool?
+> I plead an utter lack of clue in regards to licenses, but assume that
+> it's GPL compatible if it's distributed with the kernel. In that case,
+> shouldn't it be added to the license list?
 
-Most people use 2.4 with quota tools and 32bit uid quota already, so its
-not much of a breakage at all. The 2.4 quota base code is unusable in the
-real world so the problem got settled by the vendor trees
+FAQ item - BSD license doesnt guarantee we have source. If its GPL 
+compatible someone should slap a GPL header on our copy and be done with
+it

@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbTCYBDM>; Mon, 24 Mar 2003 20:03:12 -0500
+	id <S261314AbTCYBH0>; Mon, 24 Mar 2003 20:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261308AbTCYBDM>; Mon, 24 Mar 2003 20:03:12 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:17335 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261307AbTCYBDK>;
-	Mon, 24 Mar 2003 20:03:10 -0500
-Subject: [PATCH 2.5.66] md/linear oops fix
-From: Daniel McNeil <daniel@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: NeilBrown <neilb@cse.unsw.edu.au>, linux-raid <linux-raid@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>
-Content-Type: multipart/mixed; boundary="=-rPoZXeS65NOp4GXSO0ZG"
-Organization: 
-Message-Id: <1048554851.31398.7.camel@ibm-c.pdx.osdl.net>
+	id <S261313AbTCYBH0>; Mon, 24 Mar 2003 20:07:26 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:26008 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S261314AbTCYBHY>; Mon, 24 Mar 2003 20:07:24 -0500
+Date: Tue, 25 Mar 2003 02:18:25 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Gerd Knorr <kraxel@bytesex.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.66
+Message-Id: <20030325021825.4f0e67e4.us15@os.inf.tu-dresden.de>
+In-Reply-To: <20030325003048.GC10505@kroah.com>
+References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
+	<20030325012252.7aafee8c.us15@os.inf.tu-dresden.de>
+	<20030325003048.GC10505@kroah.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.11claws41 (GTK+ 1.2.10; Linux 2.5.66)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 24 Mar 2003 17:14:11 -0800
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.7RH,/2WLBPq2ei"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-rPoZXeS65NOp4GXSO0ZG
-Content-Type: text/plain
+--=.7RH,/2WLBPq2ei
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-This fixes an oops caused by incorrect usage of sector_div()
-in which_dev() in md/linear.c.  It was dereferencing an non-existent
-hash table entry.
+On Mon, 24 Mar 2003 16:30:48 -0800 Greg KH (GK) wrote:
 
+Hello,
 
--- 
-Daniel McNeil <daniel@osdl.org>
+GK> Yes, I sent out some patches a few evenings ago to lkml that should fix
+GK> this problem.  I'm resyncing them with 2.5.66 right now and will send
+GK> them to Linus in a bit.
 
---=-rPoZXeS65NOp4GXSO0ZG
-Content-Disposition: attachment; filename=patch-2.5.66-linear
-Content-Type: text/x-patch; name=patch-2.5.66-linear; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+I've found all 13 patches and applied them here.
 
-diff -urNp -X /home/daniel/dontdiff linux-2.5.66/drivers/md/linear.c linux-2.5.66-md/drivers/md/linear.c
---- linux-2.5.66/drivers/md/linear.c	Mon Mar 24 14:00:20 2003
-+++ linux-2.5.66-md/drivers/md/linear.c	Mon Mar 24 16:53:50 2003
-@@ -37,7 +37,11 @@ static inline dev_info_t *which_dev(mdde
- 	linear_conf_t *conf = mddev_to_conf(mddev);
- 	sector_t block = sector >> 1;
- 
--	hash = conf->hash_table + sector_div(block, conf->smallest->size);
-+	/*
-+	 * sector_div(a,b) returns the remainer and sets a to a/b
-+	 */
-+	(void)sector_div(block, conf->smallest->size);
-+	hash = conf->hash_table + block;
- 
- 	if ((sector>>1) >= (hash->dev0->size + hash->dev0->offset))
- 		return hash->dev1;
+GK> If you want to get around this for now, in the bttv driver, memset the
+GK> i2c_client structure to 0 after it is initialized.  That will solve the
+GK> problem.
 
---=-rPoZXeS65NOp4GXSO0ZG--
+Yes, the oops is cured now.
 
+Thanks.
+
+-Udo.
+
+--=.7RH,/2WLBPq2ei
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
+
+iD8DBQE+f65jnhRzXSM7nSkRAjXsAJ9PXChf4Y4goIo2/pVi5v9XMzugZwCeOHec
+p/kNKMRA1ilfkZfjLiOCgWg=
+=G+1P
+-----END PGP SIGNATURE-----
+
+--=.7RH,/2WLBPq2ei--

@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318217AbSGPVKR>; Tue, 16 Jul 2002 17:10:17 -0400
+	id <S318220AbSGPVMU>; Tue, 16 Jul 2002 17:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318219AbSGPVKQ>; Tue, 16 Jul 2002 17:10:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:18175 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318217AbSGPVKO>; Tue, 16 Jul 2002 17:10:14 -0400
-Date: Tue, 16 Jul 2002 23:13:00 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Daiki Ueno <ueno@unixuser.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] orinoco_pci.c build fix
-In-Reply-To: <44a4b565-6a1b-420d-9729-378868991c76@deisui.org>
-Message-ID: <Pine.NEB.4.44.0207162025010.16056-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318221AbSGPVMT>; Tue, 16 Jul 2002 17:12:19 -0400
+Received: from holomorphy.com ([66.224.33.161]:24196 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318220AbSGPVMS>;
+	Tue, 16 Jul 2002 17:12:18 -0400
+Date: Tue, 16 Jul 2002 14:14:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: Jens Axboe <axboe@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] loop.c oopses
+Message-ID: <20020716211455.GE1096@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jari Ruusu <jari.ruusu@pp.inet.fi>, Jens Axboe <axboe@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+References: <20020716163636.GW811@suse.de> <Pine.LNX.4.44L.0207161349100.3009-100000@duckman.distro.conectiva> <20020716170921.GX811@suse.de> <3D34773C.F61E7C0F@pp.inet.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D34773C.F61E7C0F@pp.inet.fi>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Daiki Ueno wrote:
+On Tue, Jul 16, 2002 at 10:42:52PM +0300, Jari Ruusu wrote:
+> The patch below fixes that remap issue, plus uncounted number of other loop
+> issues. For example, device backed loops use pre-allocated pages for zero VM
+> pressure.
 
-> Hi,
+I'd like to understand this (and possibly even use it) as I tend to use
+the loopback block driver often. Any chance you could break this up into
+a blow-by-blow series of bugfixes? As it is here, it's a bit much for me
+to digest as a newbie to bio.
 
-Hi,
-
-> While I've tried to get drivers/net/wireless/orinoco_pci.c compiled in,
-> I happened to get an error:
->
-> >drivers/net/wireless/wireless_net.o(.data+0x534): undefined reference to `local symbols in discarded section .text.exit'
->
-> Is there a missing __devexit_p?  Here is the patch to 2.4.19-rc1.
->
-> --- drivers/net/wireless/orinoco_pci.c~	Wed Jul 17 02:37:33 2002
-> +++ drivers/net/wireless/orinoco_pci.c	Wed Jul 17 02:38:22 2002
-> @@ -364,9 +364,11 @@
->  	name:"orinoco_pci",
->  	id_table:orinoco_pci_pci_id_table,
->  	probe:orinoco_pci_init_one,
-> -	remove:orinoco_pci_remove_one,
-> +	remove:__devexit_p(orinoco_pci_remove_one),
-> +#ifdef CONFIG_PM
->  	suspend:0,
->  	resume:0
-> +#endif /* CONFIG_PM */
->  };
->
->  static int __init orinoco_pci_init(void)
+My needs for explanation are perhaps greater than others on the cc: list,
+so it's really optional, but I'd be much obliged if you could do so.
 
 
-a similar __devexit_p-patch is already in in Marcelo's BK repository (and
-it will therefore be in -rc2). Why do you think the #ifdef CONFIG_PM is
-needed?
-
-
-> Regards,
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
-
+Thanks,
+Bill

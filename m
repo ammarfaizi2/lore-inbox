@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUGKFxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUGKGIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266244AbUGKFxz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 01:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUGKFxz
+	id S266242AbUGKGIn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 02:08:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUGKGIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 01:53:55 -0400
-Received: from colin2.muc.de ([193.149.48.15]:3089 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266244AbUGKFxx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 01:53:53 -0400
-Date: 11 Jul 2004 07:53:52 +0200
-Date: Sun, 11 Jul 2004 07:53:52 +0200
-From: Andi Kleen <ak@muc.de>
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040711055352.GB87770@muc.de>
-References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <orvfgvo8pr.fsf@livre.redhat.lsd.ic.unicamp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 11 Jul 2004 02:08:43 -0400
+Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:38049 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266242AbUGKGIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 02:08:41 -0400
+Message-Id: <200407110608.i6B68Y621201@mail011.syd.optusnet.com.au>
+Content-Type: text/plain
 Content-Disposition: inline
-In-Reply-To: <orvfgvo8pr.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+From: Robert Lowery <rlowery@optusnet.com.au>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Robert Lowery <rlowery@optusnet.com.au>, linux-kernel@vger.kernel.org
+Date: Sun, 11 Jul 2004 16:08:34 +1000
+Subject: Re: Re: [OT] Belkin Bluetooth Access Point GPL violation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 06:25:52PM -0300, Alexandre Oliva wrote:
-> > And then just mark the function you know needs to be inlined
-> > as __always_inline__.
+Hi Denis
+
+> > Looking at the running system, it is not running any kernel modules, 
+> so
+> > I would expect the bluetooth stack to be compiled into the kernel
+> > proper, which in my understanding would mean they have to release the
+> > source.
 > 
-> It's probably a good idea to define such functions as `extern inline'
-> (another GCC extension), such that a definition of the function is
-> never emitted, and you get a linker error if the compiler somehow
-> fails to emit an error on a failure to inline the function.
+> This means that their bluetooth stack is a derivative work of the 
+> kernel
+> and they _must_ give you source free of charge.
+> Did you say that to Mike? What was the reply?
+I did, but he either did not understand me or chose to ignore this.  I will try again, 
+making this clear.
 
-That used to be done in the past for all functions, but it was 
-stopped because gcc suddenly stopped inlining functions it did previously 
-and it caused a lot of spurious linker errors.
+> > Would any one on the list be interested in taking this further?
+> 
+> Only owners of said hardware have right to request full source code
+> of the modified Linux kernel and other GPLed software (uClibc?).
+> If they do not give away source after many requests, owners may
+> actually sue 'em.
+I assume the copyyright holders also have this right (even if they don't own the 
+hardware)
 
-I guess it could be readded if the inlining heuristics were fixed,
-but even in gcc 3.5 it still looks quite bleak.
-
--Andi
+-Robert

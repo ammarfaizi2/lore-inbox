@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbUK3DIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbUK3DNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbUK3DIq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 22:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbUK3DIq
+	id S261952AbUK3DNe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 22:13:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUK3DNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 22:08:46 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:40926 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261933AbUK3DIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 22:08:42 -0500
-Date: Tue, 30 Nov 2004 04:08:12 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       "David S. Miller" <davem@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
-Message-ID: <20041130030812.GN4365@dualathlon.random>
-References: <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> <E1CVI5c-0004bf-00@mta1.cl.cam.ac.uk>
+	Mon, 29 Nov 2004 22:13:32 -0500
+Received: from ems.hclinsys.com ([203.90.70.242]:27666 "EHLO ems.hclinsys.com")
+	by vger.kernel.org with ESMTP id S261936AbUK3DN1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 22:13:27 -0500
+Subject: Re: usage of WIN_SMART
+From: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
+To: Edward Falk <efalk@google.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <41ABB93F.8060206@google.com>
+References: <1101290068.3787.26.camel@myLinux>
+	 <8783be6604112611137bcbfb61@mail.gmail.com>  <41ABB93F.8060206@google.com>
+Content-Type: text/plain
+Message-Id: <1101784239.3789.7.camel@myLinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CVI5c-0004bf-00@mta1.cl.cam.ac.uk>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 30 Nov 2004 08:40:40 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 11:22:51PM +0000, Ian Pratt wrote:
-> 
-> This patch modifies /dev/mem to call io_remap_page_range rather than
-> remap_pfn_range under CONFIG_XEN.  This is required because in arch
+Dear Edward,
+	I am grateful for such a descriptive reply. I was exploring through the
+ide-disk driver interface, which provides the SMART readings through the
+ioctl, using WIN_SMART. At the end its calling an inb and an outb to the
+regs, like u said, feature regs and all. Is it possible to do it
+directly with an inb and outb from a C program, avoiding the
+complexities involved in the WIN_SMART command.
 
-Why don't we change /dev/mem to use io_remap_page_range unconditionally
-for ranges above high_memory? Clearly io_remap_page_range can map device
-space, and I guess that's what io_remap_page_range is there for. sparc
-and sparc64 are the only two ones implementing io_remap_page_range, so
-maybe Dave or Wli can tell us if there's any penalty in using
-io_remap_page_range in mmap(/dev/mmap) for phys ranges above
-high_memory. I don't know the sparc architectural details of mk_pte_io
-invoked by io_remap_page_range of the sparc arch.
+And, can u help me out with the syntax of WIN_SMART class of ioctl?
+I know that a buffer like
 
-There's also an issue with io_remap_page_range where sparc has 6 args
-while everyone else has 5 args. It's perfectly fine that sparc will be
-the only one parsing the last value, but we should pass that last value
-to all archs, so that people can avoid writing code like the below
-(drivers/char/drm):
+	buffer = {WIN_SMART, 0, SMART_READ_VALUES, 1};
+and it is passed to the ioctl.
 
-#ifdef __sparc__
-		if (io_remap_page_range(DRM_RPR_ARG(vma) vma->vm_start,
-					VM_OFFSET(vma) + offset,
-					vma->vm_end - vma->vm_start,
-					vma->vm_page_prot, 0))
-#else
-		if (remap_pfn_range(DRM_RPR_ARG(vma) vma->vm_start,
-				     (VM_OFFSET(vma) + offset) >> PAGE_SHIFT,
-				     vma->vm_end - vma->vm_start,
-				     vma->vm_page_prot))
-#endif
+I have seen the significance of 1st element(WIN_SMART) and 3rd element
+(SMART_READ_VALUES) in the ide-disk module's code.
 
-Thanks.
+What does the second argument and the fourth argument signify?
+
+
+Can u help me with this also, coz I've been digging for this a long
+time, and haven't been that successfull!!
+
+
+
+
+-- 
+Thanks & Regards,
+
+Jagadeesh Bhaskar P
+R&D Engineer
+HCL Infosystems Ltd
+Pondicherry
+INDIA
+

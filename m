@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbUDUAMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUDUANC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262733AbUDUAMp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 20:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUDUAMp
+	id S263775AbUDUANC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 20:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUDUANC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 20:12:45 -0400
-Received: from dsl081-240-014.sfo1.dsl.speakeasy.net ([64.81.240.14]:45522
-	"EHLO tumblerings.org") by vger.kernel.org with ESMTP
-	id S262733AbUDUAMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 20:12:43 -0400
-Date: Tue, 20 Apr 2004 17:12:36 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: matching "Cset exclude" changelog entries to the changelog entries they revert.
-Message-ID: <20040421001236.GA16901@tumblerings.org>
-Mime-Version: 1.0
+	Tue, 20 Apr 2004 20:13:02 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:51908 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263775AbUDUAM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 20:12:59 -0400
+To: Adam Litke <agl@us.ibm.com>
+Cc: Eli Cohen <mlxk@mellanox.co.il>, linux-kernel@vger.kernel.org
+Subject: Re: stack dumps, CONFIG_FRAME_POINTER and i386 (was Re: sysrq shows impossible call stack)
+References: <408545AA.6030807@mellanox.co.il> <52ekqizkd2.fsf@topspin.com>
+	<40855F95.7080003@mellanox.co.il> <5265buzgfn.fsf_-_@topspin.com>
+	<1082492730.716.76.camel@agtpad>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 20 Apr 2004 17:12:57 -0700
+In-Reply-To: <1082492730.716.76.camel@agtpad>
+Message-ID: <52llkqw5me.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-OriginalArrivalTime: 21 Apr 2004 00:12:58.0079 (UTC) FILETIME=[6691AEF0:01C42735]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+    Adam> This problem was annoying me a few months ago so I coded up
+    Adam> a stack trace patch that actually uses the frame pointer.
+    Adam> It is currently maintained in -mjb but I have pasted below.
+    Adam> Hope this helps.
 
-I count 79 "Cset exclude" changelog entries since 2.5.4-pre1. Is there any
-way to identify the changelog entry they revert?
+Thanks, that looks really useful.  What is the chance of this moving
+from -mjb to mainline?
 
-for instance, "Cset exclude: davej@suse.de|ChangeSet|20020403195622" is in
-2.5.8-pre2, as the full text of the changelog entry.
-
-Without a way to identify the particular entry being reverted, I can't rely
-on the fact that a particular changelog entry represents what actually went
-into the kernel.
-
-I realize there is almost certainly no way to directly deduce which changelog
-entry is referenced by a particular 'Cset exclude' entry. But maybe there
-is some *indirect* way, perhaps a website somewhere that tracks this info?
-
-If this information isn't provided anywhere, what would be involved in
-making it available? Maybe something can be done for the future.
-
-Many thanks,
-Zack
-
--- 
-Zack Brown
+ - R.

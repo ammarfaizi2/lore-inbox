@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbUKUAPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263189AbUKUA0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbUKUAPH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 19:15:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbUKUAN4
+	id S263189AbUKUA0m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 19:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbUKUAYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 19:13:56 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:41744 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S261683AbUKUANK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 19:13:10 -0500
-Date: Sat, 20 Nov 2004 19:13:05 -0500
-From: Jeffrey Mahoney <jeffm@novell.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: ReiserFS List <reiserfs-list@namesys.com>
-Subject: [PATCH 0/5] reiserfs/selinux: patches to allow reiserfs and selinux to work together
-Message-ID: <20041121001305.GA979@locomotive.unixthugs.org>
-Mime-Version: 1.0
+	Sat, 20 Nov 2004 19:24:24 -0500
+Received: from dp.samba.org ([66.70.73.150]:40605 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263203AbUKUAW6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 19:22:58 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.111-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16799.57253.861765.512175@samba.org>
+Date: Sun, 21 Nov 2004 11:21:57 +1100
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: performance of filesystem xattrs with Samba4
+In-Reply-To: <419F6D1F.10001@namesys.com>
+References: <16797.41728.984065.479474@samba.org>
+	<419E1297.4080400@namesys.com>
+	<16798.31565.306237.930372@samba.org>
+	<419ECAB5.10203@namesys.com>
+	<16798.59519.63931.494579@samba.org>
+	<419F6D1F.10001@namesys.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hans,
 
-Hey all -
+A bit more information about the slowdown between runs (and eventual
+lockup) with reiser4 that I reported in my last email.
 
-The following 5 patches allow reiserfs and selinux to work together.
+I found that a umount/mount between runs solved the problem, leading
+to a fairly consistent result and no lockup. I also found that running
+a simple /bin/sync between runs solved the problem.
 
-01-selinux-load_policy.diff
-  - Allows load_policy to fail and to not BUG on the second attempt.
+This implies to me that it is some in-memory structure that is the
+culprit. I can't see anything obvious in /proc/slabinfo, but its been
+a while since I've done any serious kernel development so maybe I just
+don't know what to look for.
 
-02-selinux-private-inode.diff
-  - Allows "private" inodes that aren't tracked by selinux xattrs
+I also tried enabling the "strict sync" option in Samba4. This makes
+the 1% flush operations in the load file map to fsync() instead of a
+noop. This caused reiser4 to lockup almost immediately, with the same
+symptoms as the previous lockups I reported (all smbd processes stuck
+in D state). No oops messages or anything unusual in dmesg.
 
-03-reiserfs-private-inode.diff
-  - Abstracts the private inode implementation in reiserfs to a static inline
-
-04-reiserfs-selinux.diff
-  - Uses the selinux private inode implementation to allow reiserfs to mark
-    inodes as private. Also works around the checks in vfs_rmdir.
-
-05-reiserfs-const-fixes.diff
-  - Cleans up warnings introduced by 04-reiserfs-selinux.diff
-
-
-Take a look, I'm interested in feedback. 
-
--Jeff
-
--- 
-Jeff Mahoney
-SuSE Labs
+Cheers, Tridge

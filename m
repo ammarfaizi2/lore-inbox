@@ -1,80 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312972AbSC0C2C>; Tue, 26 Mar 2002 21:28:02 -0500
+	id <S312970AbSC0C2W>; Tue, 26 Mar 2002 21:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312971AbSC0C1x>; Tue, 26 Mar 2002 21:27:53 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:8239 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S312970AbSC0C1j>; Tue, 26 Mar 2002 21:27:39 -0500
-Date: Wed, 27 Mar 2002 03:27:37 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: linux-2.4.18-rpc_tweaks.dif
-Message-ID: <20020327032736.G15481@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
+	id <S312971AbSC0C2C>; Tue, 26 Mar 2002 21:28:02 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:17135
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S312970AbSC0C1z>; Tue, 26 Mar 2002 21:27:55 -0500
+Date: Tue, 26 Mar 2002 18:29:06 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Anders Peter Fugmann <afu@fugmann.dhs.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre4-ac1
+Message-ID: <20020327022906.GG3536@matchmail.com>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	Anders Peter Fugmann <afu@fugmann.dhs.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16pvYV-0003cD-00@the-village.bc.nu> <3CA0EAAA.8000400@fugmann.dhs.org> <15520.61687.962869.841296@notabene.cse.unsw.edu.au> <3CA1081D.7040101@fugmann.dhs.org> <15521.10564.475227.372522@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="N8NGGaQn1mzfvaPg"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 27, 2002 at 01:07:00PM +1100, Neil Brown wrote:
+> On Wednesday March 27, afu@fugmann.dhs.org wrote:
+> > Thanks.
+> > 
+> > It seems that there is some more problems.
+> > I have not verified the lookup (since I just booted right away with the patch), but
+> > I have found that:
+> > 
+> > Mar 26 23:56:58 gw kernel: nfsd: LOOKUP(3)   24: 03000001 03000900 00000002 0000106d 0000106c 0000070d WMRootMenu
+> > Mar 26 23:56:58 gw kernel: RPC request reserved 240 but used 244
+> > 
+> > Mar 27 00:30:09 gw kernel: nfsd: CREATE(3)   24: 03000001 03000900 00000002 00000003 00000002 00000000 test
+> > Mar 27 00:30:09 gw kernel: RPC request reserved 272 but used 276
+> > 
+> > Mar 27 00:30:21 gw kernel: nfsd: SYMLINK(3)  24: 03000001 03000900 00000002 00000003 00000002 00000000 test1 -> test
+> > Mar 27 00:30:21 gw kernel: RPC request reserved 272 but used 276
+> > 
+> > And there might be others.
+> 
+> I bet you're using reisferfs ???
+> 
+> It occasionaly uses filehandles longer than 32 bytes (the max for
+> NFSv2) and my calculations forgot that nfsv3 allows for 64 bytes.
+> So "9" (8 longs and a count) should be "17" (16 longs and a count).
+>
 
---N8NGGaQn1mzfvaPg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Trond,
-
-http://www.fys.uio.no/~trondmy/src/2.4.18/linux-2.4.18-rpc_tweaks.dif
-contains a change that causes devastating NFS client performance: My NFS
-read performance on a switched 100BaseT went down from >9MB/s to 500kB/s.
-(NFSv3, rsize=3D8192, 2.4.16 AXP kernel nfsd server)
-
-The reason is that
-xprt_adjust_cwnd()
-does no longer do what the comment above says it should do:
-_slowly_ increase cwnd until we start to hit the limit (which we see from
-timed out requests). Instead cwnd gets bumped very fast resulting in lots of
-timed out requests. This way you get fast oscillations in cwnd.
-
-Putting the old code back for xprt_adjust_cwnd() gave me back the old
-performance.
-
-Except for the missing damping, comparing the functionality with the old
-code, e.g. this snippet
-+	if (xprt->cong > cwnd)
-+		goto out;
-also makes me wonder whether it could be correct.=20
-Please have a look at it again!
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
- (See mail header or public key servers for PGP2 and GPG public keys.)
-
---N8NGGaQn1mzfvaPg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8oS4YxmLh6hyYd04RAoc8AKDO9xdbWIu4sHcH/VuLz7OCUDOgAACgqtqg
-0vLVr/V058f/ObbzypqXsNU=
-=7J7i
------END PGP SIGNATURE-----
-
---N8NGGaQn1mzfvaPg--
+Why aren't you using defines with comments in effect to the above?

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280628AbRKSTMh>; Mon, 19 Nov 2001 14:12:37 -0500
+	id <S276988AbRKSTT5>; Mon, 19 Nov 2001 14:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280629AbRKSTM2>; Mon, 19 Nov 2001 14:12:28 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:18145 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280628AbRKSTMP>; Mon, 19 Nov 2001 14:12:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: ebiederm@xmission.com (Eric W. Biederman),
-        Erik Gustavsson <cyrano@algonet.se>
-Subject: Re: Swap
-Date: Mon, 19 Nov 2001 19:12:15 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BF82443.5D3E2E11@starband.net> <1006124602.3890.0.camel@bettan> <m1snba7hpw.fsf@frodo.biederman.org>
-In-Reply-To: <m1snba7hpw.fsf@frodo.biederman.org>
+	id <S280634AbRKSTTr>; Mon, 19 Nov 2001 14:19:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36878 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276988AbRKSTT1>; Mon, 19 Nov 2001 14:19:27 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: more fun with procfs (netfilter)
+Date: 19 Nov 2001 11:18:46 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tblum$8p6$1@cesium.transmeta.com>
+In-Reply-To: <E165kY1-0000Se-00@gondolin.me.apana.org.au> <Pine.GSO.4.21.0111190419250.17210-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E165tpy-0002Dm-00@mauve.csi.cam.ac.uk>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 November 2001 6:12 pm, Eric W. Biederman wrote:
-> Erik Gustavsson <cyrano@algonet.se> writes:
-> > I agree...   After a while it always seems that 80% or more of my RAM is
-> > used for cache and buffers while my open, but not currently used apps
-> > get pushed onto disk. Then when I decide to switch to that mozilla
-> > window of emacs session I have to wait for it to be loaded from disk
-> > again. Also considering the kind of disk activity this box has, the data
-> > in the cache is mostly the last few hour's MP3's, in other words utterly
-> > useless as that data will not be used again. I'd rather my apps stayed
-> > in RAM...
-> >
-> >
-> > Is there a way to limit the size of the cache?
->
-> Reasonable.  It looks like the use once heuristics are failing for your
-> mp3 files.   Find out why that is happening and they should push the
-> rest of your system into swap.
+Followup to:  <Pine.GSO.4.21.0111190419250.17210-100000@weyl.math.psu.edu>
+By author:    Alexander Viro <viro@math.psu.edu>
+In newsgroup: linux.dev.kernel
+> 
+> Some shells (pdksh 5.2.14-1, bash 2.04 as shipped by SuSE) are trying to be
+> smart if stdin is from regular file - they hope that third argument of
+> lseek() is in bytes and is consistent with read() return value.
+> 
 
-Getting clobbered by the mp3 player accessing the ID3 tag? That way, at least 
-part of the file is used twice, so use-ONCE won't matter...
+Not just hope... they have a legitimate reason to expect that
+guarantee from anything that advertises itself as S_IFREG.  I really
+think procfs files should advertise themselves as S_IFCHR if they
+can't fully obey the semantics of S_IFREG files (including having a
+working length in stat()!)
 
+Such S_IFCHR devices can return 0 in st_rdev to signal userspace that
+this is a device node keyed by special filesystem semantics rather
+than by device number.
 
-James.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

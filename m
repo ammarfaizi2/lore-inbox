@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVBWXcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVBWX2n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVBWXcy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 18:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVBWX3J
+	id S261714AbVBWX2n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 18:28:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVBWXYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:29:09 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:27823 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261670AbVBWX0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:26:47 -0500
-Date: Wed, 23 Feb 2005 17:25:12 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
-In-reply-to: <3BdkS-GS-21@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <421D10D8.4060201@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
+	Wed, 23 Feb 2005 18:24:49 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:28119 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261687AbVBWXX6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 18:23:58 -0500
+Message-ID: <421D11A9.1090708@tmr.com>
+Date: Wed, 23 Feb 2005 18:28:41 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
-References: <3Bbj7-7lG-17@gated-at.bofh.it> <3BbMe-7FP-39@gated-at.bofh.it>
- <3BdkS-GS-21@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
+References: <200502211216.35194.gene.heskett@verizon.net>
+In-Reply-To: <200502211216.35194.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Kilian wrote:
-> 	kernel: SSE: Found a DeCypher card.
-> 	kernel: ACPI: PCI interrupt 0000:13:03.0[A] -> GSI 36 (level, low) ->
-> IRQ 217
+Gene Heskett wrote:
+> Greetings;
 > 
-> 	The first message is in my driver after pci_find_device()
-> 	The second is from when I do pci_enable_device(dev);
+> Motherboard is a biostar with nforce2 chipset, 2800xp cpu, gig of ram.
 > 
-> 	Can you decode the mysterious ACPI message?
+> I've recently made the observation that while I can view 30fps video 
+> from my firewire equipt movie camera with a minimal cpu hit of 2-3%, 
+> but viewing the video from a webcam on a usb 1.1 circuit takes 30-40% 
+> of the cpu, at half the frame rate.
 
-Looks like you're requesting the wrong interrupt, 217 is the one your 
-device is actually on. You always have to request the interrupt listed 
-in the PCI device structure. If you're looking at your PCI device's 
-configuration registers to get the IRQ to request, that's wrong, since 
-that is configured by the BIOS assuming PIC IRQ routing, but APIC IRQ 
-routing is entirely different.
+You have gotten most of an answer, unless someone make a fireware to 
+USB2 adaptor you are going to have to go slow or run firewire.
+
+I would think the framerate could be quite slow and still be useful. 
+What software do you use to do the detection (curiousity only)? Of 
+course after you detect motion you probably want to up the framerate, so 
+  you can see what's really happening.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292412AbSBPQ13>; Sat, 16 Feb 2002 11:27:29 -0500
+	id <S292420AbSBPQ3q>; Sat, 16 Feb 2002 11:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292414AbSBPQZt>; Sat, 16 Feb 2002 11:25:49 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:35848
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S292416AbSBPQZf>; Sat, 16 Feb 2002 11:25:35 -0500
-Date: Sat, 16 Feb 2002 11:00:06 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020216110006.A32129@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Nicolas Pitre <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020215171952.D15406@thyrsus.com> <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0202151902070.16872-100000@xanadu.home>; from nico@cam.org on Fri, Feb 15, 2002 at 07:15:03PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S292415AbSBPQ3i>; Sat, 16 Feb 2002 11:29:38 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:41220 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S292414AbSBPQ3W>;
+	Sat, 16 Feb 2002 11:29:22 -0500
+Message-Id: <200202161629.RAA26048@webserver.ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 16 Feb 2002 17:29:11 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+In-Reply-To: <200202161519.g1GFJij3002094@cneufeld.linuxcare.com>
+Content-Transfer-Encoding: 7BIT
+Subject: Re: Reproducible oops in 2.4.17, possibly related to ipchains
+To: neufeld@linuxcare.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre <nico@cam.org>:
-> Show us that you're able to write a 1 for 1 functional correspondance
-> between CML1 and CML2 and propose that for inclusion into 2.5.
-
-This requirement is absurd.  When someone designs a new VM, we
-don't demand that it crash or lock up the system in exactly the same
-way that the old one did before it can go into the kernel.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> I have an easily reproducible oops in 2.4.17, running on an IBM     
+Thinkpad                                                              
+> 600E.  The system is quite stable until I add certain ipchains      
+rules, after                                                          
+> which time it reliably crashes within minutes.                      
+                                                                      
+This bug is fixed in later kernel releases. Try using 2.4.18-rc1.     
+                                                                      
+Regards,                                                              
+Stephan                                                               
+                                                                      
+                                                                      
+                                                                      

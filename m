@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264501AbRFJFyf>; Sun, 10 Jun 2001 01:54:35 -0400
+	id <S264011AbRFJGTk>; Sun, 10 Jun 2001 02:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264502AbRFJFyZ>; Sun, 10 Jun 2001 01:54:25 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:32533 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S264501AbRFJFyT>; Sun, 10 Jun 2001 01:54:19 -0400
-Date: Sun, 10 Jun 2001 01:54:13 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: <hofmang@ibm.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <3B22CEF9.6DEB1A66@uow.edu.au>
-Message-ID: <Pine.LNX.4.33.0106100151090.9384-100000@toomuch.toronto.redhat.com>
+	id <S264502AbRFJGTb>; Sun, 10 Jun 2001 02:19:31 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28935 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264011AbRFJGT1>; Sun, 10 Jun 2001 02:19:27 -0400
+Date: Sat, 9 Jun 2001 23:19:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dawson Engler <engler@csl.Stanford.EDU>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
+In-Reply-To: <200106100228.TAA18829@csl.Stanford.EDU>
+Message-ID: <Pine.LNX.4.21.0106092313280.27431-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Jun 2001, Andrew Morton wrote:
 
-> There's a problem in some versions of `pump' where it gets
-> confused and ends up spinning indefinitely.  If you're using
-> pump could you please try the latest RPM?
+On Sat, 9 Jun 2001, Dawson Engler wrote:
+> > 
+> > Good point. Spinlocks (with the exception of read-read locks, of course)
+> > and semaphores will deadlock on recursive use, while the BKL has this
+> > "process usage counter" recursion protection.
+> 
+> Actually, it did show up all over the place --- I'd just selected two
+> candidates to examine out of hundreds.  (Checking call chains is
+> strenous, even when you know what you're looking for.)
 
-I doubt it's related to pump: a few times I've seen the 3c59x driver drop
-the first few transmit packets.  Try loading the driver as a module and
-putting the whole modprobe ; ifconfig ; ping <somehost> set of commands
-into a script and watch what happens.  This goes for all ethernet driver
-writers.
+Sure.
 
-		-ben
+> > Dawson - the user-mode access part is probably _the_ most interesting from
+> > a lock checking standpoint, could you check doing the page fault case?
+> 
+> Sure, it's a pretty interaction.  To be sure about the rule: any *_user
+> call can be treated as an implicit invocation of do_page_fault?  
+
+As a first approximation, yes. The exception cases are certain callers
+that use kernel addresses and set_fs(KERNEL_DS) in order to "fake"
+arguments to system calls etc, but I doubt they should need any
+special-casing.
+
+		Linus
 

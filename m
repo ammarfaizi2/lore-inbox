@@ -1,77 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbTJMKi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 06:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbTJMKi4
+	id S261661AbTJMKc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 06:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTJMKc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 06:38:56 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:10427 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S261332AbTJMKiy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 06:38:54 -0400
-Date: Mon, 13 Oct 2003 11:38:18 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: Bernhard Rosenkraenzer <bero@arklinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre7-pac1
-In-Reply-To: <Pine.LNX.4.53.0310130425510.28426@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0310131136410.24397@student.dei.uc.pt>
-References: <Pine.LNX.4.56.0310122352140.16519@dot.kde.org>
- <Pine.LNX.4.58.0310130001020.29346@student.dei.uc.pt>
- <Pine.LNX.4.53.0310130425510.28426@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+	Mon, 13 Oct 2003 06:32:58 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:19840 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261661AbTJMKc3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 06:32:29 -0400
+Date: Mon, 13 Oct 2003 11:33:46 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310131033.h9DAXkHu000365@81-2-122-30.bradfords.org.uk>
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
+ <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
+ <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
+Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Oct 2003, Zwane Mwaikambo wrote:
-
-> On Mon, 13 Oct 2003, Marcos D. Marado Torres wrote:
->
-> > It doesn't compile to me...
+Quote from "Norman Diamond" <ndiamond@wta.att.ne.jp>:
+> John Bradford replied to me:
+> 
+> > > How can I tell Linux to read every sector in the partition?  Oh, I might
+> > > know this one,
+> > >   dd if=/dev/hda8 of=/dev/null
+> > > I want to make sure that the drive is now using a non-defective
+> > > replacement sector.
 > >
-> > arch/i386/kernel/kernel.o(.text.init+0x59c8): In function `acpi_parse_lapic':
-> > : undefined reference to `acpi_table_print_madt_entry'
-> > arch/i386/kernel/kernel.o(.text.init+0x5a38): In function `acpi_parse_lapic_nmi':
-> > : undefined reference to `acpi_table_print_madt_entry'
-> > arch/i386/kernel/kernel.o(.text.init+0x5b2e): In function `acpi_boot_init':
-> > : undefined reference to `acpi_table_init'
-> > arch/i386/kernel/kernel.o(.text.init+0x5b53): In function `acpi_boot_init':
-> > : undefined reference to `acpi_table_parse'
-> > arch/i386/kernel/kernel.o(.text.init+0x5b7e): In function `acpi_boot_init':
-> > : undefined reference to `acpi_table_parse_madt'
-> > arch/i386/kernel/kernel.o(.text.init+0x5bb3): In function `acpi_boot_init':
-> > : undefined reference to `acpi_table_parse_madt'
-> > arch/i386/kernel/kernel.o(.text.init+0x5bd1): In function `acpi_boot_init':
-> > : undefined reference to `acpi_table_parse_madt'
-> > make: *** [vmlinux] Error 1
-> >
-> > Any thoughts on this?
->
-> HT box, no full ACPI? You can turn ACPI completely on as a workaround, i
-> believe folks are still looking at an elegant way of doing this.
+> > A read won't necessarily do that.  You might have to write to a
+> > defective sector to force re-allocation.
+> 
+> I agree, we are not sure if a read will do that.  That is the reason why two
+> of my preceding questions were:
+> 
+>    How can I find out which file contains the bad sector?  I would like to
+>    try to recreate the file from a source of good data.
 
-Strange is that I don't have nothing about ACPI selected in the .config ...
-And I can't, since it doesn't support my ASUS M3N Laptop.
+How are you going to make sure you write it in the same location as it was before?
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>    How can I tell Linux to mark the sector as bad, knowing the LBA sector
+>    number?
 
-Best regards,
-Mind Booster Noori
+Don't.  If the drive can't fix this problem itself, throw it in the bin.
 
---
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
+> And that is also the reason why my last question, which Mr. Bradford replied
+> to, had the stated purpose of making sure that the drive is now using a
+> non-defective replacement sector after the preceding operations have been
+> carried out.
 
+Backup your data.
+Run the S.M.A.R.T. tests.
+Write over the whole disk with something like dd if=/dev/zero of=/dev/hda.
+If you still get errors, replace the disk.
+
+> Please, the important questions are important.  Doesn't anyone really know
+> what Linux does with bad blocks, how to find out which file contains them,
+> how to get Linux to force them to be marked and reallocated?
+
+John.

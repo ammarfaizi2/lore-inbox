@@ -1,78 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263507AbTH0Pw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263508AbTH0Pw2
+	id S263464AbTH0Phw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263474AbTH0Phw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:52:28 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:27910 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S263507AbTH0Pw0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:52:26 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm3 and mysql
-Date: Wed, 27 Aug 2003 19:52:29 +0400
-User-Agent: KMail/1.5
-References: <1059871132.2302.33.camel@mars.goatskin.org> <200308032258.17450.rathamahata@php4.ru> <20030804000514.GY22824@waste.org>
-In-Reply-To: <20030804000514.GY22824@waste.org>
+	Wed, 27 Aug 2003 11:37:52 -0400
+Received: from mxrelay.osnanet.de ([212.95.97.103]:10939 "EHLO
+	mxrelay.osnanet.de") by vger.kernel.org with ESMTP id S263464AbTH0Phe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:37:34 -0400
+Message-ID: <3F4CCF85.1020502@lilymarleen.de>
+Date: Wed, 27 Aug 2003 17:34:29 +0200
+From: LGW <large@lilymarleen.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030711 Thunderbird/0.1a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: porting driver to 2.6, still unknown relocs... :(
+References: <3F4CB452.2060207@lilymarleen.de> <20030827081312.7563d8f9.rddunlap@osdl.org>
+In-Reply-To: <20030827081312.7563d8f9.rddunlap@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308271952.29331.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 August 2003 04:05, Matt Mackall wrote:
-> On Sun, Aug 03, 2003 at 10:58:17PM +0400, Sergey S. Kostyliov wrote:
-> > Hello Andrew,
-> >
-> > On Sunday 03 August 2003 05:04, Andrew Morton wrote:
-> > > Shane Shrybman <shrybman@sympatico.ca> wrote:
-> > > > One last thing, I have started seeing mysql database corruption
-> > > > recently. I am not sure it is a kernel problem. And I don't know the
-> > > > exact steps to reproduce it, but I think I started seeing it with
-> > > > -test2-mm2. I haven't ever seen db corruption in the 8-12 months I
-> > > > have being playing with mysql/php.
-> > >
-> > > hm, that's a worry.  No additional info available?
-> >
-> > I also suffer from this problem (I'm speaking about heavy InnoDB
-> > corruption here), but with vanilla 2.6.0-test2. I can't blame
-> > MySQL/InnoDB because there are a lot of MySQL boxes around of me with the
-> > same (in fact the box wich failed is replication slave) or allmost the
-> > same database setup. All other boxes (2.4 kernel) works fine up to now.
+Randy.Dunlap wrote:
+
+>On Wed, 27 Aug 2003 15:38:26 +0200 LGW <large@lilymarleen.de> wrote:
 >
-> All Linux kernels prior to 2.6.0-test2-mm3-1 would silently fail to
-> complete fsync() and msync() operations if they encountered an I/O
-> error, resulting in corruption. If a particular disk subsystem was
-> producing these errors, the symptoms would likely be:
+>| Now I wonder, what would be an relocation type 0? The printk should also 
+>| print the type in clear text I think, but it just prints 0. 0 also does 
+>| not look very much like a valid value at all, or does it?
 >
-> - no error reported
-> - no messages in logs
-> - independent of kernel version, etc.
-> - suddenly appear at some point in drive life
-> - works flawlessly on other machines
+>Maybe g++ generates something different?
+>Are parts of your driver in c++?
 >
-> If you can reproduce this corruption, please try running against mm3-1
-> and seeing if it reports problems (both to fsync and in logs).
+I think the g++ is the problem, but I'm not sure what it is.
 
-I've just got another one InnoDB crash with 2.6.0-test4.
-As in previous case there was no messages in kernel log.
-You can find mysql error log here.
-http://sysadminday.org.ru/linux-2.6.0-test4_InnoDB_crash
+The driver is mostly a wrapper around a generic driver released by the 
+manufacturer, and that's written in C++. But it worked like this for the 
+2.4.x kernel series, so I think it has something todo with the new 
+module loader code. Possibly ld misses something when linking the object 
+specific stuff like constructors?
 
-It's a development server, so this isn't a big problem.
-I do understand that this can easily be a hardware problem,
-but the kernel silence is really sad in such case.
-Memory is fine (at least according to memtest 3.0).
+I don't think there are any other errors in the module (like 
+incompatible MODULE_stuff or missing statements), as it has been copied 
+from a patched alsa-0.9.6, and I diff'd the other drivers, not finding 
+much differences (if any).
 
-Any hints will be appreciated.
+Any ld parameters I could try? I already tried -Ur, but that lead to 
+nothing :(
 
--- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+thanks,
+  Lars
+
+>| // for the c++ helper files:
+>| g++ -fno-rtti -Wall -Wstrict-prototypes -Wno-trigraphs -O2 
+>| -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=athlon 
+>| -Iinclude/asm-i386/mach-default -D__KERNEL__ -Iinclude  -Wall 
+>| -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -nostdinc 
+>| -iwithprefix include -DMODULE -Isound/pci/echoaudio/DSP 
+>| -Isound/pci/echoaudio/ASIC -DGINA_20 -DECHO_LINUX -DECHOGALS_FAMILY  
+>| -DKBUILD_BASENAME=echoaudio -DKBUILD_MODNAME=snd_echoaudio 
+>| -I/usr/include -o $@.o $@.cpp
+>| 
+>| // linking echoaudio.o
+>| ld -m elf_i386  -r -o sound/pci/echoaudio/snd-echoaudio.o 
+>| sound/pci/echoaudio/echoaudio.o sound/pci/echoaudio/OsSupportLinux.o 
+>| sound/pci/echoaudio/CDaffyDuck.o sound/pci/echoaudio/CEchoGals_info.o
+>| sound/pci/echoaudio/CEchoGals_transport.o 
+>| sound/pci/echoaudio/CPipeOutCtrl.o sound/pci/echoaudio/CEchoGals_mixer.o 
+>| sound/pci/echoaudio/CMidiInQ.o sound/pci/echoaudio/CEchoGals_midi.o 
+>| sound/pci/echoaudio/CEchoGals_power.o sound/pci/echoaudio/CEchoGals.o 
+>| sound/pci/echoaudio/CLineLevel.o sound/pci/echoaudio/CMonitorCtrlL.o 
+>| sound/pci/echoaudio/CChannelMask.o 
+>| sound/pci/echoaudio/CGdDspCommObject.o 
+>| sound/pci/echoaudio/CDspCommObject.o 
+>| sound/pci/echoaudio/CGinaDspCommObject.o sound/pci/echoaudio/CGina.o
+>| 
+>| // linking snd-echoaudio.o
+>| ld -m elf_i386  -r -o sound/pci/echoaudio/snd-echoaudio.o 
+>| sound/pci/echoaudio/echoaudio.o sound/pci/echoaudio/OsSupportLinux.o 
+>| sound/pci/echoaudio/CDaffyDuck.o sound/pci/echoaudio/CEchoGals_info.o
+>| sound/pci/echoaudio/CEchoGals_transport.o 
+>| sound/pci/echoaudio/CPipeOutCtrl.o sound/pci/echoaudio/CEchoGals_mixer.o 
+>| sound/pci/echoaudio/CMidiInQ.o sound/pci/echoaudio/CEchoGals_midi.o 
+>| sound/pci/echoaudio/CEchoGals_power.o sound/pci/echoaudio/CEchoGals.o 
+>| sound/pci/echoaudio/CLineLevel.o sound/pci/echoaudio/CMonitorCtrlL.o 
+>| sound/pci/echoaudio/CChannelMask.o 
+>| sound/pci/echoaudio/CGdDspCommObject.o 
+>| sound/pci/echoaudio/CDspCommObject.o 
+>| sound/pci/echoaudio/CGinaDspCommObject.o sound/pci/echoaudio/CGina.o
+>| 
+>| // linking snd-echoaudio.ko
+>| ld -m elf_i386 -r -o sound/pci/echoaudio/snd-echoaudio.ko 
+>| sound/pci/echoaudio/snd-echoaudio.o sound/pci/echoaudio/snd-echoaudio.mod.o
+>  
+>
+

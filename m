@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281103AbRK3XHJ>; Fri, 30 Nov 2001 18:07:09 -0500
+	id <S281158AbRK3XL7>; Fri, 30 Nov 2001 18:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281160AbRK3XHC>; Fri, 30 Nov 2001 18:07:02 -0500
-Received: from [212.18.232.186] ([212.18.232.186]:53254 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S281158AbRK3XGv>; Fri, 30 Nov 2001 18:06:51 -0500
-Date: Fri, 30 Nov 2001 23:06:34 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: BALBIR SINGH <balbir.singh@wipro.com>,
-        Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch: Fix serial module use count (2.4.16 _and_ 2.5)
-Message-ID: <20011130230634.G19193@flint.arm.linux.org.uk>
-In-Reply-To: <20011129160637.50471.qmail@web13606.mail.yahoo.com> <20011129161756.D6214@flint.arm.linux.org.uk> <3C070A4D.7000708@wipro.com> <20011130141920.D504@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011130141920.D504@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Fri, Nov 30, 2001 at 02:19:20PM -0800
+	id <S281162AbRK3XLt>; Fri, 30 Nov 2001 18:11:49 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:56251 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S281158AbRK3XLd>; Fri, 30 Nov 2001 18:11:33 -0500
+Date: Fri, 30 Nov 2001 16:11:22 -0700
+Message-Id: <200111302311.fAUNBMs20243@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan and Vivian Vaughn <avvaughn@pacbell.net>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: devfs@oss.sgi.com
+Subject: Re: devfsd 1.3.20 compile error
+In-Reply-To: <5.1.0.14.0.20011130133941.009ed560@postoffice.pacbell.net>
+In-Reply-To: <5.1.0.14.0.20011130133941.009ed560@postoffice.pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 02:19:20PM -0800, Mike Fedyk wrote:
-> On Fri, Nov 30, 2001 at 09:55:49AM +0530, BALBIR SINGH wrote:
-> > As you say this fix works for 2.4, Since we are into 2.5, I hope
-> > that it will be fixed in a better manner in 2.5. I have some suggestions,
-> > ideas for the serial driver in 2.5, are u willing to discuss them?
-> > 
+Alan and Vivian Vaughn writes:
+> I got the following error message when compiling devfsd 1.3.20
 > 
-> Would it not be better if the current code in 2.5 had the fix from 2.4 until
-> the entire layer is audited?
+> cc -O2 -I. -Wall   -DLIBNSL="\"/lib/libnsl.so.1\""   -c -o devfsd.o devfsd.c
+> devfsd.c:480: `DEVFSD_NOTIFY_DELETE' undeclared here (not in a function)
+> devfsd.c:480: initializer element is not constant
+> devfsd.c:480: (near initialization for `event_types[7].type')
+> make: *** [devfsd.o] Error 1
 
-That was my original intention.  IIRC, James Simmons has said he's rewriting
-the tty layer anyway in 2.5.
+Actually, this is the wrong list for such bug reports, hence I've set
+Reply-to: devfs@oss.sgi.com
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+To answer your question: you need modern kernel headers. Something
+later than August (2.4 series) should be fine. Either unpack a new
+kernel under /usr/src/linux or point the KERNEL_DIR environment
+variable to where you've unpacked the new kernel.
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

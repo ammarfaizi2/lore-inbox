@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266649AbSKOTOc>; Fri, 15 Nov 2002 14:14:32 -0500
+	id <S266565AbSKOTQx>; Fri, 15 Nov 2002 14:16:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266660AbSKOTOc>; Fri, 15 Nov 2002 14:14:32 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:49945
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S266649AbSKOTOb>; Fri, 15 Nov 2002 14:14:31 -0500
-Message-ID: <3DD547CD.8000307@rackable.com>
-Date: Fri, 15 Nov 2002 11:15:25 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Chilton <ian@ichilton.co.uk>
-CC: Leopold Gouverneur <lgouv@pi.be>, linux-kernel@vger.kernel.org
-Subject: Re: Anyone use HPT366 + UDMA in Linux?
-References: <20021115123541.GA1889@buzz.ichilton.co.uk> <20021115162704.GA1059@gouv> <20021115162833.GA3717@buzz.ichilton.co.uk> <20021115173120.GA1152@gouv> <20021115183407.GA32543@buzz.ichilton.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 19:21:21.0987 (UTC) FILETIME=[2E746930:01C28CDC]
+	id <S266578AbSKOTQx>; Fri, 15 Nov 2002 14:16:53 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:5058 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S266565AbSKOTQw>;
+	Fri, 15 Nov 2002 14:16:52 -0500
+Date: Fri, 15 Nov 2002 11:23:38 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.47 - PCMCIA ethernet and wireless ethernet bugs
+Message-ID: <20021115192338.GB17861@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Chilton wrote:
+Joseph Pingenot wrote :
+> 
+> None of the PCMCIA wireless modules seem to work.  In addition, I get the
+>   following errors when trying to manually load the aironet modules:
+> /lib/modules/2.5.47/kernel/drivers/net/wireless/airo.o: unresolved symbol wirele
+> ss_send_event_Rdc9b8ae0
+> /lib/modules/2.5.47/kernel/drivers/net/wireless/airo.o: insmod /lib/modules/2.5.
+> 47/kernel/drivers/net/wireless/airo.o failed
+> /lib/modules/2.5.47/kernel/drivers/net/wireless/airo.o: insmod airo_cs failed
 
->[root@buzz:~/hdparm-5.2]# ./hdparm -i /dev/hda
->
->/dev/hda:
->
-> Model=IBM-DTLA-307045, FwRev=TX6OA5AA, SerialNo=YZDYZNM1366
-> Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-> RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
-> BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
-> CurCHS=65535/1/63, CurSects=4128705, LBA=yes, LBAsects=90069840
-> IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-> PIO modes:  pio0 pio1 pio2 pio3 pio4
-> DMA modes:  mdma0 mdma1 mdma2
-> UDMA modes: udma0 udma1 udma2 *udma3 udma4 udma5
-> AdvancedPM=yes: disabled (255) WriteCache=enabled
-> Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
->
->
->Does this mean it's already using udma3?
->
->
->  
->
-   Yes.  hdparm -X 69 /dev/hda attempt to enable udma5, but may crash 
-your system.  hdparm -X 67 /dev/hda should revert things.  Be carefull.
+	I personally have stayed at 2.5.46 because I depend on modules
+and will wait until the situation "settle down". So, don't expect quick
+resolution from my side.
+	I'm a bit puzzled by this error. Nothing has changed between
+2.5.46 and 2.5.47. The symbol wireless_send_event() is still properly
+exported in .../net/netsyms.c, and all uses of it are protected in #if
+WIRELESS_EXT statements.
+	Questions :
+	1) Do you have module versioning enabled ? (Called "Set
+version information on all module symbols").
+	2) Did you change the config midway through the compile,
+i.e. does a "make clean" of the kernel make it go away ?
+	But as I say, I'm mostly stabbing in the dark...
 
+	Good luck...
+
+	Jean

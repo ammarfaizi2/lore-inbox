@@ -1,91 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262875AbSKYK7h>; Mon, 25 Nov 2002 05:59:37 -0500
+	id <S262877AbSKYLGz>; Mon, 25 Nov 2002 06:06:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262876AbSKYK7h>; Mon, 25 Nov 2002 05:59:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:63142 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262875AbSKYK7g>;
-	Mon, 25 Nov 2002 05:59:36 -0500
-Message-ID: <3DE20443.FA5010C8@digeo.com>
-Date: Mon, 25 Nov 2002 03:06:43 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-CC: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Benchmark] AIM results
-References: <20021124212337.30844.qmail@linuxmail.org> <3DE1FF62.18F7071B@digeo.com> <20021125105446.GA30842@outpost.ds9a.nl>
+	id <S262884AbSKYLGz>; Mon, 25 Nov 2002 06:06:55 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:45555 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S262877AbSKYLGy>; Mon, 25 Nov 2002 06:06:54 -0500
+Date: Mon, 25 Nov 2002 12:13:50 +0100
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.48+bk: piix: undefined references
+Message-ID: <20021125111350.GA27097@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+References: <20021122135322.GE16412@riesen-pc.gr05.synopsys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Nov 2002 11:06:44.0412 (UTC) FILETIME=[BD5F57C0:01C29472]
+Content-Disposition: inline
+In-Reply-To: <20021122135322.GE16412@riesen-pc.gr05.synopsys.com>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> 
-> On Mon, Nov 25, 2002 at 02:45:54AM -0800, Andrew Morton wrote:
-> 
-> > > tcp_test 10000 805.5        72495.00 TCP/IP Messages/second
-> > > tcp_test 10000 660.7        59463.00 TCP/IP Messages/second
-> > > ^^^^^ Here 2.4.19 is faster then 2.5.49 (debug?)
-> > >
-> > > udp_test 10000 1448.6       144860.00 UDP/IP DataGrams/second
-> > > udp_test 10000 1115.7       111570.00 UDP/IP DataGrams/second
-> > > ^^^^^ Here 2.4.19 is faster then 2.5.49 (debug?)
-> >
-> > Not sure what's going on here, really.  Lots of tiny TCP and UDP
-> > copies to localhost.  The profiles are splattered all over the place.
-> > Networking just generally seems to have increased its cache footprint.
-> 
-> Dave has said there is debugging code in 2.5 that slows down traffic on
-> localhost.
+On Fri, Nov 22, 2002 at 02:53:22PM +0100, Alex Riesen wrote:
+>    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
+>         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+> drivers/built-in.o(.text+0x3f392): In function `piix_ratemask':
+> : undefined reference to `eighty_ninty_three'
 
-Yes, but that is not apparent in the profiles with this test. It
-really is just all over the map. It looks like just longer code
-paths touching more memory.
+IDE was set to compile as module. Apparently it doesn't like to be a
+module yet.
 
-Here's the uniproc profile for tcp_test.  This sends small packets
-to localhost - various sizes up to 512 bytes.  The instruction-level
-profile showed nothing obvious either.
-
-
-
-c026cc5c 81       0.952493    tcp_v4_send_check
-c011f06c 83       0.976011    mod_timer
-c02593e0 84       0.98777     ip_output
-c0248344 86       1.01129     skb_clone
-c026870c 86       1.01129     __tcp_select_window
-c026d934 88       1.03481     tcp_v4_do_rcv
-c010ef20 95       1.11712     do_gettimeofday
-c013ea2c 95       1.11712     vfs_write
-c024c13c 95       1.11712     net_rx_action
-c026bb78 97       1.14064     __tcp_v4_lookup_established
-c01cad6c 100      1.17592     __copy_user_intel
-c0247f68 106      1.24647     skb_head_to_pool
-c02480ec 106      1.24647     skb_headerinit
-c0256e90 109      1.28175     ip_local_deliver
-c011c5e0 111      1.30527     do_softirq
-c025d6b4 111      1.30527     tcp_push
-c0247fb8 118      1.38758     alloc_skb
-c01cae10 119      1.39934     __copy_user_zeroing_intel
-c0259148 119      1.39934     ip_finish_output2
-c0264288 120      1.4111      tcp_ack
-c02684d0 127      1.49341     tcp_write_xmit
-c010a99c 137      1.61101     system_call
-c024b998 137      1.61101     dev_queue_xmit
-c0247f18 151      1.77563     skb_head_from_pool
-c0250fac 151      1.77563     eth_type_trans
-c024bf14 153      1.79915     netif_receive_skb
-c01fff88 163      1.91675     loopback_xmit
-c0263d18 167      1.96378     tcp_clean_rtx_queue
-c0130b4c 178      2.09313     kmalloc
-c024bc8c 178      2.09313     netif_rx
-c024c03c 182      2.14017     process_backlog
-c0266290 203      2.38711     tcp_rcv_established
-c0256fec 239      2.81044     ip_rcv
-c026da7c 251      2.95155     tcp_v4_rcv
-c0259458 287      3.37488     ip_queue_xmit
-c025f46c 309      3.63358     tcp_recvmsg
-c025e27c 317      3.72766     tcp_sendmsg
-c02674c4 376      4.42145     tcp_transmit_skb

@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTIOGTL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 02:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTIOGTL
+	id S262466AbTIOGwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 02:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbTIOGwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 02:19:11 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:31872 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262456AbTIOGTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 02:19:08 -0400
-Date: Mon, 15 Sep 2003 07:32:49 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309150632.h8F6WnHb000589@81-2-122-30.bradfords.org.uk>
-To: davidsen@tmr.com, zwane@linuxpower.ca
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+	Mon, 15 Sep 2003 02:52:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37112 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262466AbTIOGwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 02:52:16 -0400
+Date: Mon, 15 Sep 2003 08:52:12 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Michael Neuffer <neuffer@neuffer.info>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: [1/4] [2.6 patch] better i386 CPU selection
+Message-ID: <20030915065211.GB126@fs.tum.de>
+References: <20030913222443.GN27368@fs.tum.de> <20030913222659.GO27368@fs.tum.de> <20030915064623.GA6772@neuffer.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030915064623.GA6772@neuffer.info>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We just got a start on making Linux smaller to encourage embedded use, I
-> > don't see adding 300+ bytes of wasted code so people can run
-> > misconfigured kernels.
-> > 
-> > I rather have to patch this in for my Athlon kernels than have people
-> > who aren't cutting corners trying to avoid building matching kernels
-> > have to live with the overhead.
->
-> Overhead? Really you could save more memory by cleaning up a lot of 
-> drivers. Andi already said it before, there are better places to be 
-> looking at.
+On Mon, Sep 15, 2003 at 08:46:23AM +0200, Michael Neuffer wrote:
+> Quoting Adrian Bunk (bunk@fs.tum.de):
+> > [...]
+> > - help text changes/updates
+> > [...]  
+> > -config M686
+> > +config CPU_686
+> >  	bool "Pentium-Pro"
+> >  	help
+> > -	  Select this for Intel Pentium Pro chips.  This enables the use of
+> > -	  Pentium Pro extended instructions, and disables the init-time guard
+> > -	  against the f00f bug found in earlier Pentiums.
+> > +	  Select this for Intel Pentium Pro chips.
+> > [...one example left]  
+> 
+> 
+> Hi Adrian
 
-That's a non-issue.  300 bytes matters a lot on some systems.  The
-fact that there are drivers that are bloated is nothing to do with
-it.
+Hi Michael,
 
-> Also 'patching' for Athlon kernels doesn't cut it for people who need to 
-> distribute kernels which run on various hardware (such as distros). This 
-> alone is benefit enough to justify this supposed 'bloat'.
+> Is there a valid reason why you removed most of the
+> descriptions ? I think a bit of a background on the
+> CPU selections is helpful and interesting, especially 
+> for newcommers. You've cut it down so far, that you 
+> could also put there "Read Variable Name" or 
+> "No help available"  instead.
 
-No it's not.  Most distributions heavily patch the kernel anyway.
+With the CPU selection scheme I propose this is no longer true. 
+Especially the f00f workaround is no longer disabled when configuring 
+for a Pentium Pro or above, it's only enabled when you select the older 
+Pentium - but this setting is now independend of the Pentium Pro 
+setting.
 
-It should be possible, and straightforward, to compile a kernel which:
+> Cheers
+>    Mike 
 
-1. Supports, (I.E. has workarounds for), any combination of CPUs.
-   E.G. a kernel which supports 386s, and Athlons _only_ would not
-   need the F00F bug workaround.  Currently '386' kernels include it,
-   because '386' means 'support 386 and above processors'.
+cu
+Adrian
 
-2. Has compiler optimisations for one particular CPU.
-   E.G. the 386 and Athlon supporting kernel above could have
-   alignment optimised for either 386 or Athlon.
+-- 
 
-This makes it trivial to:
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-* Make a kernel for a distribution's initial install
-  Select all CPUs as supported, and optimise for 686.
-
-* Make an optimised kernel for any system
-  Select only the target CPU as supported, and optimise for it
-
-* Make a generic kernel for PIV, and Athlon
-  Select PIV and Athlon only as supported.  Optimise for either, or
-  optimise for 386, (yes, even though it is not supported), for a
-  small kernel, on the basis that it will maximise cache usage, and be
-  fairly optimal on both systems.
-
-John.

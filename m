@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267104AbSLRCOH>; Tue, 17 Dec 2002 21:14:07 -0500
+	id <S267102AbSLRCJb>; Tue, 17 Dec 2002 21:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267107AbSLRCOH>; Tue, 17 Dec 2002 21:14:07 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:30226 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267104AbSLRCOG>; Tue, 17 Dec 2002 21:14:06 -0500
-Date: Wed, 18 Dec 2002 00:21:40 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: joe user <joe_user35@hotmail.com>
-Cc: andersg@0x63.nu, linux-kernel@vger.kernel.org
-Subject: Re: netstat and 2.5.5[12]
-Message-ID: <20021218022140.GH8824@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	joe user <joe_user35@hotmail.com>, andersg@0x63.nu,
-	linux-kernel@vger.kernel.org
-References: <F155vsq9IcVux1Zcn8T000004c6@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F155vsq9IcVux1Zcn8T000004c6@hotmail.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S267104AbSLRCJb>; Tue, 17 Dec 2002 21:09:31 -0500
+Received: from rj.SGI.COM ([192.82.208.96]:57061 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S267102AbSLRCJb>;
+	Tue, 17 Dec 2002 21:09:31 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: linux-xfs@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: XFS split patches for 2.4.20 - respin
+Date: Wed, 18 Dec 2002 13:16:00 +1100
+Message-ID: <6153.1040177760@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Dec 18, 2002 at 02:27:46AM +0100, joe user escreveu:
-> 
-> >Em Mon, Dec 16, 2002 at 01:45:53PM +0100, Anders Gustafsson escreveu:
-> >> On Mon, Dec 16, 2002 at 01:06:32PM +0100, joe user wrote:
-> >> > Is required a new net-tools package required to run 2.5.5[12]? If you 
-> >run
-> >> > netstat -t the process just hang forever, and is unkillable.
-> >>
-> >> Happens here too.
-> >> http://marc.theaimsgroup.com/?l=linux-kernel&m=103974450111945&w=2
-> >>
-> >> A cat /proc/net/tcp causes the same problem, so not tools problem.
-> >
-> >I'm looking into this, do you have ipv6 connections?
-> 
-> I have ipv6 support compiled in but no ipv6 connections at all that I'm 
-> aware of. This is a fresh install of redhat8 running X and several rpc 
-> daemons: rstatd, rusersd, rwalld. I'm running sshd and rwhod too. Not sure 
-> if any of these daemons are compiled with ipv6 support.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Probably yes, listening seems to be enough, thanks for the report.
+Content-Type: text/plain; charset=us-ascii
 
-- Arnaldo
+ftp://oss.sgi.com/projects/xfs/download/patches/2.4.20.  
+
+The xfs patches for 2.4.20 have been respun as of 2002-12-18 02:00 UTC.
+
+For some time the XFS group have been producing split patches for XFS,
+separating the core XFS changes from additional patches such as kdb,
+xattr, acl, dmapi.  The split patches are released to the world with
+the hope that developers and distributors will find them useful.
+
+Read the README in each directory very carefully, the split patch
+format has changed over a few kernel releases.  Any questions that are
+covered by the README will be ignored.  There is even a 2.4.21/README
+for the terminally impatient :).
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9/9pdi4UHNye0ZOoRAjd7AKCUGoWqZ3SJGRj2d7ssCEsiZb03vwCdFm4J
+5ymEscu9jY2EEZuwz2NwPK0=
+=0KMC
+-----END PGP SIGNATURE-----
+

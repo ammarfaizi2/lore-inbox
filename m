@@ -1,71 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUH3SKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268779AbUH3SPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268646AbUH3SKy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268752AbUH3SEq
+	id S268779AbUH3SPP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUH3SAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:04:46 -0400
-Received: from clusterfw.beeline3G.ru ([217.118.66.232]:32587 "EHLO
-	crimson.namesys.com") by vger.kernel.org with ESMTP id S268678AbUH3SDq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:03:46 -0400
-Date: Mon, 30 Aug 2004 21:37:58 +0400
-From: Alex Zarochentsev <zam@namesys.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Rik van Riel <riel@redhat.com>, Christophe Saout <christophe@saout.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040830173757.GU5108@backtop.namesys.com>
-References: <20040826154446.GG5733@mail.shareable.org> <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <20040826165351.GM5733@mail.shareable.org>
+	Mon, 30 Aug 2004 14:00:48 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42949 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268758AbUH3R6b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:58:31 -0400
+Date: Mon, 30 Aug 2004 20:00:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Charbonnel <thomas@undata.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Daniel Schmitt <pnambic@unu.nu>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+Message-ID: <20040830180011.GA7419@elte.hu>
+References: <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu> <20040830090608.GA25443@elte.hu> <1093875939.5534.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="MGYHOYXEY6WxJCY8"
 Content-Disposition: inline
-In-Reply-To: <20040826165351.GM5733@mail.shareable.org>
+In-Reply-To: <1093875939.5534.9.camel@localhost>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 05:53:51PM +0100, Jamie Lokier wrote:
-> Rik van Riel wrote:
-> > And if an unaware application reads the compound file
-> > and then writes it out again, does the filesystem
-> > interpret the contents and create the other streams ?
-> 
-> Yes, exactly that.  The streams are created on demand of course, and
-> by userspace helpers when that's appropriate which I suspect it almost
-> always is.
-> 
-> > Unless I overlook something (please tell me what), the
-> > scheme just proposed requires filesystems to look at
-> > the content of files that is being written out, in
-> > order to make the streams work.
-> 
-> Yes.  Hence the idea of coherent views between two files: writing to
-> one affects the content of the other, although the calcalation is only
-> done on demand (or when the fs wants to migrate the representation --
-> for example, creating the flat container prior to deleting the
-> regeneratable pieces in order to save space).
-> 
-> I haven't seen anything from Namesys that says they'll do that.  I
-> have the impression the streams are just generated in memory on the
-> fly, not stored on disk with a cacheing policy, but that's just an
-> impression.  (We've all seen the Namesys white papers, they're not
-> _that_ revealing). :)
 
-would it be a tautology if I say that the streams implementation depends on
-(reiser4 now, may be vfs later) plugins? All proposals including user-level
-helpers, shadow caching/indexing may be implemented, why not?
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> I'm just pointing out how to do it _right_.  I think it will turn out
-> like this eventually, either next year or some time over the next
-> decade after some iterations.  Inevitable.  Mark my words, etc. :)
+
+* Thomas Charbonnel <thomas@undata.org> wrote:
+
+> Ingo Molnar wrote :
+> > i've uploaded -Q5 to:
+> > 
+> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q5
+> > 
 > 
-> -- Jamie
+> Here are the problematic spots for me with Q5:
+> 
+> rtl8139_poll (this one was also present with previous versions of the
+> patch) :
+> http://www.undata.org/~thomas/q5_rtl8139.trace
 
--- 
-Alex.
+ok, rx processing latency again. You've set netdev_max_backlog to a low
+value, right? I think we can break this particular loop independently of
+netdev_max_backlog, could you try the attached patch ontop of -Q5, does
+it help?
+
+> =======>
+> 00000001 0.000ms (+0.000ms): resolve_symbol (simplify_symbols)
+> 00000001 0.000ms (+0.000ms): __find_symbol (resolve_symbol)
+> 00000001 0.154ms (+0.154ms): use_module (resolve_symbol)
+> 00000001 0.154ms (+0.000ms): sub_preempt_count (resolve_symbol)
+
+seems resolve_symbol() is quite expensive ... no idea how to fix this
+one right away, it seems to be pure algorithmic overhead.
+
+> and a weird one with do_timer (called from do_IRQ) taking more than 1ms
+> to complete :
+> http://www.undata.org/~thomas/do_irq.trace
+
+hm, indeed this is a weird one. 1 msec is too close to the timer 
+frequency to be accidental. According to the trace:
+
+ 00010000 0.002ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
+ 00010001 0.002ms (+0.000ms): mark_offset_tsc (timer_interrupt)
+ 00010001 1.028ms (+1.025ms): do_timer (timer_interrupt)
+ 00010001 1.028ms (+0.000ms): update_process_times (do_timer)
+
+the latency happened between the beginning of mark_offset_tsc() and the
+calling of do_timer() - i.e. the delay happened somewhere within
+mark_offset_tsc() itself. Is this an SMP system?
+
+	Ingo
+
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=2
+
+--- linux/net/core/dev.c.orig2	
++++ linux/net/core/dev.c	
+@@ -1903,7 +1903,7 @@ static void net_rx_action(struct softirq
+ {
+ 	struct softnet_data *queue = &__get_cpu_var(softnet_data);
+ 	unsigned long start_time = jiffies;
+-	int budget = netdev_max_backlog;
++	int budget = netdev_max_backlog, loops;
+ 
+ 	
+ 	local_irq_disable();
+@@ -1926,7 +1926,10 @@ static void net_rx_action(struct softirq
+ 		dev = list_entry(queue->poll_list.next,
+ 				 struct net_device, poll_list);
+ 
+-		if (dev->quota <= 0 || dev->poll(dev, &budget)) {
++		loops = 1;
++		if (dev->quota <= 0 || dev->poll(dev, &loops)) {
++			if (loops < 1)
++				budget--;
+ 			local_irq_disable();
+ 			list_del(&dev->poll_list);
+ 			list_add_tail(&dev->poll_list, &queue->poll_list);
+
+--MGYHOYXEY6WxJCY8--

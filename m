@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313419AbSFIRoo>; Sun, 9 Jun 2002 13:44:44 -0400
+	id <S314080AbSFIRpc>; Sun, 9 Jun 2002 13:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314080AbSFIRon>; Sun, 9 Jun 2002 13:44:43 -0400
-Received: from dsl-213-023-043-234.arcor-ip.net ([213.23.43.234]:13803 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313419AbSFIRon>;
-	Sun, 9 Jun 2002 13:44:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jan Pazdziora <adelton@informatics.muni.cz>, christoph@lameter.com
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-Date: Sun, 9 Jun 2002 19:44:09 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, adelton@fi.muni.cz
-In-Reply-To: <Pine.LNX.4.33.0206081849010.5464-100000@melchi.fuller.edu> <20020609184435.A27442@anxur.fi.muni.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17H6ja-0003Ye-00@starship>
+	id <S314083AbSFIRpb>; Sun, 9 Jun 2002 13:45:31 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:63918
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S314080AbSFIRp1>; Sun, 9 Jun 2002 13:45:27 -0400
+Date: Sun, 9 Jun 2002 10:45:02 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: "Skip Ford <skip.ford@verizon.net,LKML" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.21 -- emumpu401.c:309: parse error before "emu10k1_midi_init"
+Message-ID: <20020609174502.GS14252@opus.bloom.county>
+In-Reply-To: <20020609084334.HNHE24507.pop016.verizon.net@pool-141-150-239-239.delv.east.verizon.net> <3D038E60.7030105@megapathdsl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 June 2002 18:44, Jan Pazdziora wrote:
-> On Sat, Jun 08, 2002 at 06:53:49PM -0700, christoph@lameter.com wrote:
-> > I just tried the patch adding symlinks to the vfat fs. It was submitted
-> > back at the end of last year but it does not seem to have made it into the
-> > kernel sources. I was unable to find a discussion on this. Symlink support
-> > in vfat is really useful when you are sharing a vfat volume on a dual
-> > booted system. I tried patching a 2.5.X kernel but the page cache changes
-> > mean that the patch needs reworking.
-> > 
-> > Do you have any updates to the patch Jan?
+On Sun, Jun 09, 2002 at 10:20:32AM -0700, Miles Lane wrote:
+> Skip Ford wrote:
+> >
+> > I guess this file also needs init.h
+> >
+> >
+> > --- linux/sound/pci/emu10k1/emumpu401.c~        Sun Jun  9 04:30:46 2002
+> > +++ linux/sound/pci/emu10k1/emumpu401.c Sun Jun  9 04:31:51 2002
+> > @@ -22,6 +22,7 @@
+> >  #define __NO_VERSION__
+> >  #include <sound/driver.h>
+> >  #include <linux/time.h>
+> > +#include <linux/init.h>
+> >  #include <sound/core.h>
+> >  #include <sound/emu10k1.h>
 > 
-> No, I don't. I did not receive any feedback since I sent in the patch
-> to linux-kernel, so I concluded that people do not consider lack
-> of shortcut/symlink support a problem. For me it's something that
-> would be nice to have but I don't feel like pushing it in.
+> After applying your patch, I get:
+> 
+>   gcc -Wp,-MD,.emupcm.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall 
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+> -march=athlon  -nostdinc -iwithprefix include -DMODULE 
+> -DKBUILD_BASENAME=emupcm   -c -o emupcm.o emupcm.c
+> emupcm.c:964: parse error before "snd_emu10k1_pcm"
+> emupcm.c:965: warning: return type defaults to `int'
+> emupcm.c:1012: parse error before "snd_emu10k1_pcm_mic"
+> emupcm.c:1013: warning: return type defaults to `int'
+> emupcm.c:1115: parse error before "snd_emu10k1_pcm_efx"
+> emupcm.c:1116: warning: return type defaults to `int'
+> make[3]: *** [emupcm.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux/sound/pci/emu10k1'
 
-More often than not, when a post doesn't get any responses it's a good sign: 
-it means nobody disagrees.  It can of course also mean that nobody read it, 
-but that's not very likely on this list, especially if you put [RFC] in the 
-subject line.
-
-> I might be able to upgrade the patch for the 2.5 kernal line, but
-> I'd like to hear some comments about the code in general. 
-
-To increase the chance of getting comments, cc people who might be 
-interested, particularly subsystem maintainers.  For this one, cc'ing fsdevel 
-would be a good idea too.  It's a low volume list, but the traffic on it does 
-get read by many people with a clue.  If you want to be really sure of 
-getting feedback, cc Linus or Al Viro.
-
-Personally, it sounds like support for shortcuts as symlinks is a natural and 
-needed improvement, though I haven't looked at the the internal details.  
-(Shortcuts arrived in Microsoft-land at about the time I lost interest.)  I'm 
-kind of surprised the support isn't already there.  Perhaps you could briefy 
-describe how shortcuts work on vfat?
+emupcm.c needs <linux/init.h> as well.  And probably a few more files in
+there as well.
 
 -- 
-Daniel
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

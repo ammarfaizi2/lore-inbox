@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284570AbRLUOk0>; Fri, 21 Dec 2001 09:40:26 -0500
+	id <S284609AbRLUOus>; Fri, 21 Dec 2001 09:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284246AbRLUOkG>; Fri, 21 Dec 2001 09:40:06 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:44046 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S283759AbRLUOkD>; Fri, 21 Dec 2001 09:40:03 -0500
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: Rene Engelhard <mail@rene-engelhard.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <B848EEB6.406C%mail@rene-engelhard.de>
-In-Reply-To: <B848EEB6.406C%mail@rene-engelhard.de>
-Content-Type: text/plain
+	id <S284601AbRLUOud>; Fri, 21 Dec 2001 09:50:33 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:29641 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S284596AbRLUOuM>;
+	Fri, 21 Dec 2001 09:50:12 -0500
+Message-ID: <3C234C84.6050802@athlon.maya.org>
+Date: Fri, 21 Dec 2001 15:51:48 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jeronimo Pellegrini <pellegrini@mpcnet.com.br>
+CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [2.4.17rc1] fatal problem: system time suddenly changes
+In-Reply-To: <Pine.LNX.4.21.0112181509150.4456-100000@freak.distro.conectiva> <3C1F901E.6050800@athlon.maya.org> <20011218195245.GA28160@socrates>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 21 Dec 2001 08:40:25 -0600
-Message-Id: <1008945627.6599.5.camel@localhost.localdomain>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-21 at 06:50, Rene Engelhard wrote:
-> >> Why? For instance a millibyte/s might be a hearbeat across a LAN every
-> >> hour or so or it might be a control traffic requirement for a deep space
-> >> probe. You might not have an immediate use for the term but it has a
-> >> specific meaning - and certainly isn't "absurd" (see definition on
-> >> http://www.dict.org).
-> > 
-> > So, is it 1/1024 or 1/1000 bytes ?  :-)
+Hello all,
+
+Jeronimo Pellegrini wrote:
+
+> Hi.
 > 
-> 1/1024. Because we are talking about byte.
-
-What does bytes have to do with anything? Is it 
-1/(2^3 * 10^7) or 1/(2^3 * 2^7)? We're talking about expressing a number
-of "bytes"; terms of the base number system don't have any bearing --
-and that's the problem. RAM and addressing are restricted to expressions
-in terms of binary numbers, as in 2^10, 2^20, etc. Hard drive
-manufacturers feel it's neccessary to express storage in terms of base
-10 numbers of bytes, even though a sector is 2^9 bytes. In networking,
-absolute numbers of bits on the wire are whats important. Though for
-some reason telecom engineers have pinned megabit as 1,024,000 bits.
-Experienced CS people can glean the proper definition from context, but
-the terms should really lend themselves to accurate definition all the
-time. If I just say off the cuff that I'm going to send you a megabyte
-of data, do I mean 1,000,000 bytes, 1,048,576 bytes, or 1,024,000 bytes?
-With the new measures those would be a megabyte, a mebibyte, and 1,024
-kilobytes respectively.
-
-Personally I feel that "kibibyte(KiB)" and "mebibyte(MiB)" are silly,
-but they are technically unambiguous.
-
-Regards,
-Reid
---
-"Public sentiment is everything. With public sentiment, nothing can
-fail; without it nothing can succeed." -- Abraham Lincoln
-
-
-
+> That's a VIA timer bug. The patch that fixes it was inthe kernel some
+> time ago, but was removed because the workaround was being triggered
+> when it shouldn't, if I remember correctly.
 > 
-> Rene
+> Here:
+> 
+> 
+> --- linux-2.4.15-pre3/arch/i386/kernel/time.c	Sun Nov 11 21:33:31 2001
+> +++ linux-2.4.15-pre3-new/arch/i386/kernel/time.c	Mon Nov 12 14:04:20 2001
+> @@ -501,6 +501,19 @@
+>  
+>  		count = inb_p(0x40);    /* read the latched count */
+>  		count |= inb(0x40) << 8;
+> +
+> +	        /*
+> +		 * When using some via chipsets (as the vt82c686a, for example)
+> +		 * the system timer counter (i8253) should be reprogrammed in
+> +		 * this case, otherwise it may be reset to a wrong value.
+> +		 */
+> +		if (count > LATCH-1) {
+> +			outb_p(0x34, 0x43);
+> +		        outb_p(LATCH & 0xff, 0x40);
+> +			outb(LATCH >> 8, 0x40);
+> +			count = LATCH - 1;
+> +		}
+> +
+>  		spin_unlock(&i8253_lock);
+>  
+>  		count = ((LATCH-1) - count) * TICK_SIZE;
+> 
 
+I tested this patch with 2.4.17rc[1|2] - and I couldn't find any 
+problem. The systemtime has always been correct.
+
+Could you please apply this patch to the next kernelversion, maybe 
+spezifically for the VIA - chipset or with some other needed changes as 
+Jeronimo wrote?
+
+
+Thanks,
+Andreas Hartmann
 

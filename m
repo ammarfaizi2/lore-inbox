@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131459AbRDPMvm>; Mon, 16 Apr 2001 08:51:42 -0400
+	id <S131460AbRDPMxw>; Mon, 16 Apr 2001 08:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131457AbRDPMvd>; Mon, 16 Apr 2001 08:51:33 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:50437 "EHLO
-	mail.compro.net") by vger.kernel.org with ESMTP id <S131459AbRDPMvW>;
-	Mon, 16 Apr 2001 08:51:22 -0400
-Message-ID: <3ADAEA9B.D70DC130@compro.net>
-Date: Mon, 16 Apr 2001 08:50:35 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S131472AbRDPMxn>; Mon, 16 Apr 2001 08:53:43 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:19472 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131460AbRDPMxh>; Mon, 16 Apr 2001 08:53:37 -0400
+Message-ID: <3ADAEB38.44CBD71A@computer.org>
+Date: Mon, 16 Apr 2001 14:53:12 +0200
+From: k.lichtenwalder@computer.org
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac3 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: linux-kernel@vger.kernel.org, markh@compro.net
-Subject: Re: amiga affs support broken in 2.4.x kernels??
-In-Reply-To: <3AD59EB9.35F3A535@compro.net> <3AD9FEDD.2B636582@linux-m68k.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 raw devices don't do 64bit offset?
+In-Reply-To: <E14p7Fo-0008VK-00@the-village.bc.nu>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms1C2E3024DF7A227FEB160824"
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
+This is a cryptographically signed message in MIME format.
+
+--------------ms1C2E3024DF7A227FEB160824
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Alan Cox wrote:
 > 
-> Hi,
+> > sorry if this was already discussed, but I couldn't find it in the
+> > archives. I'm trying to use xine (the linux dvd player) on
+> > linux-2.4.3-ac3 and can't watch the whole dvd. The reason is that as
+> > soon as the llseek sets a value in the offset_high field for sys_llseek,
+> > I get a EINVAL back from the seek. Is this intentional? Or simply still
+> > (only) a missing feature?
 > 
-> Mark Hounschell wrote:
-> 
-> >  I'm not a list member so IF you respond to this mail please CC me.
-> > I've been looking at the archives and see some problems with the 2.3.x
-> > kernel versions and affs support.
-> 
-> I've put a new version at
-> http://www.xs4all.nl/~zippel/affs.010414.tar.gz
-> 
-> bye, Roman
+> Did you open the file with open64() ?
 
-Thanks, I can now mount affs filesystems. However when I try to write
-to it via "cp somefile /amiga/somefile" I get a segmentation fault. If
-I then do a "df -h" it hangs the system very much like the mount command
-did before I installed your tar-ball. Was write support expected from
-it.
-Are you the NEW maintainer of the affs stuff. I very much appreciate
-your
-response and if I can help in any way just let me know. I use affs quite
-a bit here at work in conjunction with UAE and real amigas.
+Sorry for being a bit clueless, but it's just the application I was
+using. I didn't check that further, because if I don't use the raw
+device, it's working fine... So let me check...
+No it's using open(), but sets -D_FILE_OFFSET_BITS=64. Looks like this
+is not enough for the raw devices?
 
-I also received a response from I guess the original
-maintainer,           Hans-Joachim Widmaier <hjw@zvw.de>.
-I quote:
+Klaus
+-- 
+------------------------------------------------------------------------- 
+ Klaus Lichtenwalder, Dipl. Inform.,       http://www.webforum.de/Klaus/
+ Fax +49-(0)89-91072699                            Lichtenwalder@ACM.org
+ NIC: KL2100, KL76-RIPE                     K.Lichtenwalder@Computer.org
+ PGP Key fingerprint = 2658 EA97 E1A1 2680 5ECA  0036 80F5 F250 3CF8
+C2C7
+--------------ms1C2E3024DF7A227FEB160824
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-"?affs is broken since somewhere in 2.3.xx. Alas, I do not have
-the time
-anymore to do anything about it, and my Amiga ran its last
-program, too,
-so I cannot test anymore. Last I know is that several guys
-wanted to
-look after affs in 2.4--at least make it run--, but it seems
-that nothing
-much has been done in that way. :-(
+MIIH8AYJKoZIhvcNAQcCoIIH4TCCB90CAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
+BcMwggKSMIIB+6ADAgECAgMET3AwDQYJKoZIhvcNAQEEBQAwgZIxCzAJBgNVBAYTAlpBMRUw
+EwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhh
+d3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwg
+RnJlZW1haWwgUlNBIDIwMDAuOC4zMDAeFw0wMTAzMDQxMzIxNDdaFw0wMjAzMDQxMzIxNDda
+ME4xHzAdBgNVBAMTFlRoYXd0ZSBGcmVlbWFpbCBNZW1iZXIxKzApBgkqhkiG9w0BCQEWHGsu
+bGljaHRlbndhbGRlckBjb21wdXRlci5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGB
+ANqA0o51D3JnYIwGN4nr0wIzJyxAyaQl/ejwy2K2/EN4QTkGdUBccnsGp4BY3T9dC2LCjC8B
+jzvH6RdiirmqcgewrAn9qs/77tEplYKQK4Fyb2fDHycar0Txe159q8D1/H952e3DD73KAdwy
+oUa1Nyys7Qb5XeABsP/8lKOEOhaHAgMBAAGjOTA3MCcGA1UdEQQgMB6BHGsubGljaHRlbndh
+bGRlckBjb21wdXRlci5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQDMT0Tv
+/mCyekubllPFpH7NAu3Meu2n4I4Vg4oBcju4LCuBfpGc0zWmgyf46wZyz5iQcwdkTCr9vWXH
+ZJyA4F0aRBsbn9OkUed8i6hZllft3Wr7enzRbNnLJRbgGNWs0NZbfeMWKi6R0o3hYVTOrjro
+uP8wud4MLPtofU9wa1/5CjCCAykwggKSoAMCAQICAQwwDQYJKoZIhvcNAQEEBQAwgdExCzAJ
+BgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEa
+MBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2Vy
+dmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAw
+MDAwMDBaFw0wMjA4MjkyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVy
+biBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMU
+Q2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAy
+MDAwLjguMzAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF
+2ogZgpcO40QpimM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWa
+NRqdknWoJ67Ycvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr
+6aFpAgMBAAGjTjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5
+NzASBgNVHRMBAf8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQBz
+G28mZYv/FTRLWWKK7US+ScfoDbuPuQ1qJipihB+4h2N0HG23zxpTkUvhzeY42e1Q9DpsNJKs
+5pKcbsEjAcIJp+9LrnLdBmf1UG8uWLi2C8FQV7XsHNfvF7bViJu3ooga7TlbOX00/LaWGCVN
+avSdxcORL6mWuAU8Uvzd6WIDSDGCAfUwggHxAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0
+ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZy
+ZWVtYWlsIFJTQSAyMDAwLjguMzACAwRPcDAJBgUrDgMCGgUAoIGxMBgGCSqGSIb3DQEJAzEL
+BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTAxMDQxNjEyNTMxM1owIwYJKoZIhvcNAQkE
+MRYEFJ5/Lg+G8n5apXLQxLoZQ63whFJbMFIGCSqGSIb3DQEJDzFFMEMwCgYIKoZIhvcNAwcw
+DgYIKoZIhvcNAwICAgCAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgFAMA0GCCqGSIb3DQMCAgEo
+MA0GCSqGSIb3DQEBAQUABIGA0b4EVY+Fok7tDpmS5R7m9mj217t6kQFFEk9QPApwt2oV5ZdO
+mpked2oeLowHNby+eTUC4cn8VjqudCaDtqUrYY0RByZOsEgd5q+NdX61THNbnB9P2hWe7Y1u
+7SmkfIgds4nr5icv1LjF/+H4BItrnAM83EE2iTTX5nu0184vDag=
+--------------ms1C2E3024DF7A227FEB160824--
 
-Sorry for not bearing better news."
-
-unquote:
-
-I was very much relieved to from you as I know have HOPE for a
-completely working affs again.
-
-Thanks
-
-Mark Hounschell
-markh@compro.net
---

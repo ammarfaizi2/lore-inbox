@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTI3Ild (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 04:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbTI3Ild
+	id S261234AbTI3IzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 04:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTI3IzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 04:41:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:17670 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261180AbTI3Ilc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 04:41:32 -0400
-Date: Tue, 30 Sep 2003 01:37:26 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Urban Widmark <Urban.Widmark@enlight.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: buggy changes to fs/smbfs/inode.c
-Message-Id: <20030930013726.592e538e.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0309262054370.13663-100000@cola.local>
-References: <20030925225116.433e1c53.davem@redhat.com>
-	<Pine.LNX.4.44.0309262054370.13663-100000@cola.local>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 Sep 2003 04:55:16 -0400
+Received: from mail-10.iinet.net.au ([203.59.3.42]:10379 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261234AbTI3IzO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 04:55:14 -0400
+Message-ID: <3F7943B5.3010705@ii.net>
+Date: Tue, 30 Sep 2003 16:49:57 +0800
+From: Wade <neroz@ii.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jani Monoses <jani@iv.ro>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bk2svn repo updatedness?
+References: <20030930111839.09934efa.jani@iv.ro>
+In-Reply-To: <20030930111839.09934efa.jani@iv.ro>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Sep 2003 21:12:16 +0200 (CEST)
-Urban Widmark <Urban.Widmark@enlight.net> wrote:
+Jani Monoses wrote:
+> How timely should the sources in the subversion repo of the 2.6 kernel
+> be? I see that right now they are almost 2 days behind linux.bkbits.net
+> 
+> thanks
+> Jani
+> 
 
-> I guess what I want is an OLD_TO_NEW_UID macro. How does this look?
+Depends if Larry is in a good mood or not.
 
-That looks great, I'll push this off to Linus.

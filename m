@@ -1,47 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbTALWb1>; Sun, 12 Jan 2003 17:31:27 -0500
+	id <S267569AbTALW1m>; Sun, 12 Jan 2003 17:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267578AbTALWaU>; Sun, 12 Jan 2003 17:30:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43278 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267577AbTALWaL>; Sun, 12 Jan 2003 17:30:11 -0500
-Date: Sun, 12 Jan 2003 22:38:57 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moderated forum for linux-kernel
-Message-ID: <20030112223857.A17825@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Walrond <andrew@walrond.org>,
-	linux-kernel@vger.kernel.org
-References: <3E21ECC2.1040404@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E21ECC2.1040404@walrond.org>; from andrew@walrond.org on Sun, Jan 12, 2003 at 10:31:30PM +0000
+	id <S267571AbTALW1h>; Sun, 12 Jan 2003 17:27:37 -0500
+Received: from matrix.roma2.infn.it ([141.108.255.2]:20141 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id <S267569AbTALW1e>; Sun, 12 Jan 2003 17:27:34 -0500
+Message-ID: <33003.62.98.226.220.1042410973.squirrel@webmail.roma2.infn.it>
+Date: Sun, 12 Jan 2003 23:36:13 +0100 (CET)
+Subject: Re: any chance of 2.6.0-test*?
+From: "Emiliano Gabrielli" <emiliano.gabrielli@roma2.infn.it>
+To: <robw@optonline.net>
+In-Reply-To: <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+        <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+        <20030112211530.GP27709@mea-ext.zmailer.org>
+        <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+        <20030112215949.GA2392@www.kroptech.com>
+        <1042410059.1208.150.camel@RobsPC.RobertWilkens.com>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <akropel1@rochester.rr.com>, <matti.aarnio@zmailer.org>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.7)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 10:31:30PM +0000, Andrew Walrond wrote:
-> Forgive if this has been discussed before, but has anyone considered 
-> hosting the linux-kernel on a web-based forum as used extensively elsewhere?
 
-Web-based - pain in the ass to use.  Especially for people who are not
-on-line all the time.
+<quote who="Rob Wilkens">
+> On Sun, 2003-01-12 at 16:59, Adam Kropelin wrote:
+>> Congratulations. You've possibly increased the speed of an error path by  an
+>> infintessimal amount at the expense of increasing the size of kernel image and
+>> making the code harder to read and maintain. (I say "possibly" since with caching
+>> effects you may have actually slowed the code down.)
+>
+> Hey, if the compiler does it's job right, I increased the speed of something in the
+> kernel.  And, as a kernel newbie, I'm proud of that.  I also did it in under 12
+> minutes (from time stamp of message received to time stamp of message sent after code
+> compiled and diff'd).
+>
+>> Harder to read: The primary code path is polluted with repetative code that has no
+>> bearing on its primary mission.
+>
+> I thought it was easier to read.  For me, I can read "ok, this condition happens, I
+> fail"... Or "if this other condition happens, I release my path, then I fail"...
+>
+> Whereas the "goto out" was very unclear.  It made me page down to figure out what was
+> going on.
+>
+> That's the whole point.. To just browse the code.. I shouldn't have to page down to
+> understand what the code right in front of me is doing.  "goto out" is unclear.
+> "retun error" is clear.  "path_release" seems like a relatively plain english function
+> name and I can guess what it does without knowing exactly what it does.
 
-Moderated linux-kernel - lots of traffic, too much to be individually
-moderated.
+goto out_path_release is finer to you ?!?  :)
 
-Certainly the second has been discussed before many many many times.
+> I can also
+> surmise that if I go beyond a certain point in the function that I need to
+> path_release() the same way a non-kernel programmer might need to free memory
+> allocated inside of a function before returning to the calling function.
+>
+> It really is that simple.
+>
+>> Harder to maintain: Add an extra resource allocation near the top and now you have
+>> to hunt out every failure case and manually update them all (with yet more duplicate
+>> code) instead of just amending the cleanup code at the end of the function.
+>
+> It took me 12 minutes from message received to message sent to update the entire block
+> of code to handle the new case.  How long do you think it would take to make a minor
+> modification that would only have to do a portion of what I did?  Is it such a burden
+> on the developer to make the code more readable?
+>
 
-People, please, if you think you have an damned obvious answer to a
-problem, at least check the many archives before posting it.
+I think you have no idea of the mole of the linux kernel and the number of daily patches
+the mantainers receive ...
 
-Let us *ALL* try to avoid linux-kernel turning into tens of trolling
-flamewars.
+
+I'm also a beginner, and me too at the very first time hated the goto (every one have
+told me they are evil !!) but after aving taken a look at the kernel and reading
+LinuxDevice Driver I think that the style the linux kernel is coded is cryptic for
+beginners, but it is perfect !
+
+It is a wonderful experience to browse the linux kernel sources .. and every time I
+didn't understand why a thing was done in such a way .. well I discover later (with
+experience) that it was done in the best way it could ever be done !!!
+
+
+
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Emiliano Gabrielli
+
+dip. di Fisica
+2° Università di Roma "Tor Vergata"
+
 

@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUGAIuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUGAIyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbUGAIuU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 04:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUGAIuU
+	id S264371AbUGAIyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 04:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbUGAIyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 04:50:20 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:3754 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264346AbUGAIuQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 04:50:16 -0400
-Date: Thu, 1 Jul 2004 10:49:38 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jens Schmalzing <j.s@lmu.de>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [patch, 2.6, ppc] some modular framebuffer support
-In-Reply-To: <hh4qosi15h.fsf@alsvidh.mathematik.uni-muenchen.de>
-Message-ID: <Pine.GSO.4.58.0407011049130.9882@waterleaf.sonytel.be>
-References: <hh4qosi15h.fsf@alsvidh.mathematik.uni-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jul 2004 04:54:12 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:64937 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S264371AbUGAIyG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 04:54:06 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: problems with SATA: 2.6.7 working, -bk12/13/-mm4 not
+Date: Thu, 1 Jul 2004 08:54:05 +0000 (UTC)
+Organization: Cistron
+Message-ID: <cc0jfd$smu$1@news.cistron.nl>
+References: <cbvgor$lgp$1@news.cistron.nl> <40E34A1F.1040406@pobox.com>
+X-Trace: ncc1701.cistron.net 1088672045 29406 62.216.30.38 (1 Jul 2004 08:54:05 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jul 2004, Jens Schmalzing wrote:
-> The first hunk suppresses a warning only, not sure about it.
+Jeff Garzik  <jgarzik@pobox.com> wrote:
+>* disabling combined mode in BIOS
 
-A different fix for that one has already been accepted upstream.
+No bios acces for another month at least.
 
-Gr{oetje,eeting}s,
+>* finding which -bk snapshot breaks your system
 
-						Geert
+bk5 = fine
+bk6 breaks 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>* acpi=off (disabling ACPI)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+bk6, bk12, bk13, mm4 suddenly work with acpi=off 
+
+>* noapic
+
+doesn't work
+
+>* copying the following files verbatim into your 2.6.7-{bk12,bk13,mm4} tree:
+>	drivers/scsi/libata*.[ch]
+>	drivers/scsi/ata_*.c
+>	drivers/scsi/sata_*.[ch]
+>	include/linux/libata.h
+>	include/linux/ata.h
+
+this indeed "fixes" it.
+I have a working 2.6.7-bk13a with above files from vanilla-2.6.7
+
+Hope this feedback helps.
+
+Danny
+
+-- 
+"If Microsoft had been the innovative company that it calls itself, it 
+would have taken the opportunity to take a radical leap beyond the Mac, 
+instead of producing a feeble, me-too implementation." - Douglas Adams -
+

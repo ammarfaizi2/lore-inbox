@@ -1,54 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315282AbSEaNeH>; Fri, 31 May 2002 09:34:07 -0400
+	id <S315287AbSEaNfp>; Fri, 31 May 2002 09:35:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315285AbSEaNeF>; Fri, 31 May 2002 09:34:05 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:42463 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S315282AbSEaNd7>; Fri, 31 May 2002 09:33:59 -0400
-Date: Fri, 31 May 2002 15:33:51 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: do_mmap
-In-Reply-To: <1022855243.12888.410.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.05.10205311527390.10681-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315293AbSEaNef>; Fri, 31 May 2002 09:34:35 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:47499 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S315287AbSEaNea>; Fri, 31 May 2002 09:34:30 -0400
+Date: Fri, 31 May 2002 15:34:29 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: USB host drivers test results (2.5.19) and problem.
+Message-ID: <20020531133429.GF8310@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan,
+Hi,
 
-> On Fri, 2002-05-31 at 14:00, Thomas 'Dent' Mirlacher wrote:
-> > and the checks in various places are really strange. - well some
-> > places check for:
-> > 	o != NULL
-> > 	o > -1024UL
-> 
-> "Not an error". Its relying as some other bits of code do actually that
-> the top mappable user address is never in the top 1K of the address
-> space
+Now that a 2.5 kernel boots again on my laptop (thanks to the ACPI
+IRQ routing problems being resolved :-) ), I tested the different
+USB host drivers available (I used to use usb-uhci before).
 
-ok, that explain the -1024UL
+lspci:
+	00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
 
-> > is it possible to have 0 as a valid address? - if not, this should
-> > be the return on errors.
-> 
-> SuS explicitly says that 0 is not a valid mmap return address.
+Results (only simple tests with a USB mouse performed):
+	ehci-hcd.o
+		does load, no output messages, does NOT work
+	ohci-hcd.o 
+		does load, no output messages, does NOT work
+	uhci-hcd.o 
+		does load, does work correctly
+	usb-uhci-hcd.o
+		does load, does work correctly.
 
-ok.
 
-so it seems the code itself is correct. it's just a little bit odd
-to read over the code, returning an unsigned int, and then find
-no comments on this "not so common usage" ;)
+1. Shouldn't the ehci/ohci drivers give some error on loading,
+since I obviously don't have the hardware ?
 
-nevertheless, functions which just check for != NULL for the return
-type needs fixing. - plus s hort comment containing your explaination
-above could help other people ...
+2 When doing a rmmod on one of the two last drivers, 
+the kernel oopses with a (hand copied trace):
 
-	tm
+	bad EIP: c784fbda <[usbcore]rh_report_status+63/143>
+	
+	c0118f34 <__run_task_queue+61/6a>
+	c784f677 <[usbcore]usb_reset_device+1d4/2df>
+	c011be58 <timer_bh+22b/27c>
+	c0118e48 <bh_action+26/74>
+	c0118d79 <tasklet_hi_action+38/59>
+	c0118bb7 <do_softirq+57/b1>
+	c01099a0 <do_IRQ+da/e5>
+	c0108656 <common_interrupt+22/28>
+	c01abd54 <acpi_processor_idle+e9/1eb>
+	c0106b54 <gunzip+45c/4bc>
+	c0106bd0 <default_idle+0/27>
+	c01abc6b <acpi_processor_idle+0/1eb>
+	c0106bd0 <default_idle+0/27>
+	c0106c5a <cpu_idle+2e/3d>
+	c0105000 <_stext+0/0>
 
+Another one:
+	bad EIP: <c78ed365> <[yenta_socket]yenta_allocate_resources+d/41>
+
+	Adhoc c011be58 <timer_bh+22b/27c>
+	Adhoc c0118e48 <bh_action+26/74>
+	Adhoc c0118d79 <tasklet_hi_action+38/59>
+	Adhoc c0118bb7 <do_softirq+57/b1>
+	Adhoc c01099a0 <do_IRQ+da/e5>
+	Adhoc c0108656 <common_interrupt+22/28>
+	Adhoc c01abd54 <acpi_processor_idle+e9/1eb>
+
+I'm not sure what this trace has to do with USB at all, but I haven't
+been able to reproduce the oops otherwise...
+
+Stelian.
 -- 
-in some way i do, and in some way i don't.
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

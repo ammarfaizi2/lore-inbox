@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQLFGhn>; Wed, 6 Dec 2000 01:37:43 -0500
+	id <S129585AbQLFHcD>; Wed, 6 Dec 2000 02:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbQLFGhe>; Wed, 6 Dec 2000 01:37:34 -0500
-Received: from out2.prserv.net ([32.97.166.32]:38843 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id <S129524AbQLFGhV>;
-	Wed, 6 Dec 2000 01:37:21 -0500
-Date: Tue, 5 Dec 2000 22:06:23 -0800
-From: Darrell A Escola <descola@attglobal.net>
-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NE2000 (ISA) not loading on test11
-Message-ID: <20001205220623.A23928@attglobal.net>
-Reply-To: descola@attglobal.net
-Mail-Followup-To: Darrell A Escola <descola@attglobal.net>,
-	Taco IJsselmuiden <taco@wep.tudelft.nl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012060257090.19232-100000@hewpac.taco.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0012060257090.19232-100000@hewpac.taco.dhs.org>; from taco@wep.tudelft.nl on Wed, Dec 06, 2000 at 03:05:59AM +0100
+	id <S129593AbQLFHbx>; Wed, 6 Dec 2000 02:31:53 -0500
+Received: from 213-120-137-209.btconnect.com ([213.120.137.209]:17412 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129585AbQLFHbj>;
+	Wed, 6 Dec 2000 02:31:39 -0500
+Date: Wed, 6 Dec 2000 07:03:11 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test12-pre5] optimized get_empty_filp()
+In-Reply-To: <14893.28991.629652.495045@wire.cadcamlab.org>
+Message-ID: <Pine.LNX.4.21.0012060658310.893-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 03:05:59AM +0100, Taco IJsselmuiden wrote:
-> Hi,
-> 
-> I just found out that I can't load the ne2000 (ne.o) module under test11.
-> test10 works fine ... Did I miss some big change between test10 and test11
-> or are the params io / irq just working different right now ??
-> 
-> Greetz,
-> Taco.
-> 
+On Tue, 5 Dec 2000, Peter Samuelson wrote:
+> The question is whether or not it is worth taking a lock again (with
+> that non-zero cost) to achieve the gain of doing the 92-byte memset and
+> the atomic_set in parallel with other CPUs.  In other words, by locking
+> and unlocking twice, you reduce the contention on the lock.  Is this,
+> however, worth the extra cycles and bus traffic?  I don't know.
 
-...
+Ok, that's a different (opposite) question and so if the answer previously
+was "Yes" then obviously the answer to this one is "No". I.e. it is not
+worth retaking the lock for the sake of reducing contention on the
+lock. And it is not just a couple of extra instructions but it is also a
+bus lock (or cache lock if you are lucky, on P6 only). And that is exactly
+what my patch does -- removes the unnecessary bus locking and at least 2
+instructions.
 
-Stock 2.4.0-test11 ne.o working fine here using Linksys ISA Ether16 LAN Card.
+Regards,
+Tigran
 
-Darrell
+PS. Your previous statement (when clarified and explained by you in this
+message) made me think that you misread the patch, i.e. saw "+" when there
+was "-" -- I removed those lines and not added them... Here is the patch
+again for you to see it clearer:
+
+--- linux/fs/file_table.c	Fri Nov 17 19:36:27 2000
++++ work/fs/file_table.c	Tue Dec  5 16:52:06 2000
+@@ -40,13 +40,11 @@
+ 		list_del(&f->f_list);
+ 		files_stat.nr_free_files--;
+ 	new_one:
+-		file_list_unlock();
+ 		memset(f, 0, sizeof(*f));
+ 		atomic_set(&f->f_count,1);
+ 		f->f_version = ++event;
+ 		f->f_uid = current->fsuid;
+ 		f->f_gid = current->fsgid;
+-		file_list_lock();
+ 		list_add(&f->f_list, &anon_list);
+ 		file_list_unlock();
+ 		return f;
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

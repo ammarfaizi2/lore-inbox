@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUEOAGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUEOAKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUEOAGw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 20:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbUENX4T
+	id S264697AbUEOAKV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 20:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUEOAIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:56:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37583 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264562AbUENXqt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:46:49 -0400
-Date: Fri, 14 May 2004 16:48:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: chrisw@osdl.org, joern@wohnheim.fh-wedel.de, arjanv@redhat.com,
-       benh@kernel.crashing.org, kronos@kronoz.cjb.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
-Message-Id: <20040514164854.4d81a349.akpm@osdl.org>
-In-Reply-To: <20040514161904.C21045@build.pdx.osdl.net>
-References: <20040513145640.GA3430@dreamland.darkstar.lan>
-	<1084488901.3021.116.camel@gaston>
-	<20040513182153.1feb488b.akpm@osdl.org>
-	<20040514094923.GB29106@devserv.devel.redhat.com>
-	<20040514114746.GB23863@wohnheim.fh-wedel.de>
-	<20040514151520.65b31f62.akpm@osdl.org>
-	<20040514155643.G22989@build.pdx.osdl.net>
-	<20040514161814.3e1f690e.akpm@osdl.org>
-	<20040514161904.C21045@build.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 14 May 2004 20:08:02 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:61435 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264660AbUEOAHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 20:07:08 -0400
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andy Lutomirski <luto@stanford.edu>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] scaled-back caps, take 4
+References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <40A4F163.6090802@stanford.edu>
+	<20040514110752.U21045@build.pdx.osdl.net>
+	<200405141548.05106.luto@myrealbox.com>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sat, 15 May 2004 02:06:57 +0200
+In-Reply-To: <200405141548.05106.luto@myrealbox.com> (Andy Lutomirski's
+ message of "Fri, 14 May 2004 15:48:04 -0700")
+Message-ID: <87hduisgda.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@osdl.org> wrote:
+Andy Lutomirski <luto@myrealbox.com> writes:
+
+> cap_2.6.6-mm2_4.patch: New stripped-back capabilities.
 >
-> * Andrew Morton (akpm@osdl.org) wrote:
-> > Well find .  -name '*.o' -a -not -name '*.mod.o' would fix that up but the
-> > dupes are coming from the intermediate .o files which the build system
-> > prepares.  sound/core/snd.o contains sound/core/snd-pcm.o contains
-> > sound/core/pcm_native.o.
-> 
-> i wonder if limiting to vmlinux and .ko's would be clean?
+>  fs/exec.c               |   15 ++++-
+>  include/linux/binfmts.h |    9 ++-
+>  security/commoncap.c    |  130 ++++++++++++++++++++++++++++++++++++++++++------
+>  3 files changed, 136 insertions(+), 18 deletions(-)
+[patch]
 
-Seems to work.
+Why don't you provide this as a configurable andycap.c module?
+I think, this is the whole point of LSM.
 
-.PHONY: checkstack
-checkstack:
-	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
-	$(PERL) scripts/checkstack.pl $(ARCH)
-
-But we still get a little bit of misparsing:
-
-0xc01e37a0 sys_semtimedop:				 sub    $0x1d4,%esp
-0xc01d1d0f do_udf_readdir:				 sub    $0x1cc,%esp
-0xc01bbc0c nfs_writepage_sync:				 sub    $0x1b8,%esp
-0xc02d79c4 snd_mixer_oss_build_input:			 sub    $0x1a4,%esp
-0xc031c7ec ip_getsockopt:				 sub    $0x194,%esp
-0xc04c5dc0 snd_seq_oss_midi_lookup_ports:		 sub    $0x190,%esp
-0xc04c5f88 snd_seq_system_client_init:			 sub    $0x190,%esp
- 4c4:	81 ec 90 01 00 00    	sub    $0x190,%esp snd_virmidi_dev_attach_seq: sub    $0x190,%esp
-0xc02c1783 snd_ctl_elem_add:				 sub    $0x190,%esp
-0xc01a715c fat_search_long:				 sub    $0x190,%esp
-0xc027c2a4 sg_ioctl:					 sub    $0x184,%esp
-0xc017843c ep_send_events:				 sub    $0x184,%esp
-
+Regards, Olaf.

@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbUDAOMm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 09:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbUDAOMm
+	id S261746AbUDAOM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 09:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbUDAOM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 09:12:42 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:7570 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S262917AbUDAOMk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 09:12:40 -0500
-Date: Thu, 1 Apr 2004 16:12:28 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-Id: <20040401161228.48b9c7a9@phoebee>
-In-Reply-To: <20040401135920.GF18585@dualathlon.random>
-References: <20040401135920.GF18585@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.10claws36 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__1_Apr_2004_16_12_28_+0200_nNEt4msAtE7/4xt0"
+	Thu, 1 Apr 2004 09:12:27 -0500
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:44682
+	"EHLO smtp.bensa.ar") by vger.kernel.org with ESMTP id S261746AbUDAOMZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 09:12:25 -0500
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.5-rc3-mm4
+Date: Thu, 1 Apr 2004 11:12:20 -0300
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <20040401020512.0db54102.akpm@osdl.org>
+In-Reply-To: <20040401020512.0db54102.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404011112.21212.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__1_Apr_2004_16_12_28_+0200_nNEt4msAtE7/4xt0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc3/2.6
+>.5-rc3-mm4/
 
-On Thu, 1 Apr 2004 15:59:20 +0200
-Andrea Arcangeli <andrea@suse.de> bubbled:
+It fails here with:
 
-> Oracle needs this sysctl, I designed it and Ken Chen implemented it. I
-> guess google also won't dislike it.
-> 
-> This is a lot simpler than the mlock rlimit and this is people really
-> need (not the rlimit). The rlimit thing can still be applied on top of
-> this. This should be more efficient too (besides its simplicity).
-> 
-> can you apply to mainline?
-> 
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc3-aa1/disable-cap-mlock-1
+	nbensa@venkman:/usr/src/linux$ sudo make
+	make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+	  CHK     include/linux/compile.h
+	Kernel: arch/i386/boot/bzImage is ready
+	  Building modules, stage 2.
+	  MODPOST
+	LANG := en_US.UTF-8
+	make: LANG: Command not found
+	make: *** [all] Error 127
 
-this is the correct link:
-http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc3/disable-cap-mlock-1
+Workaround is:
 
--- 
-MyExcuse:
-Processes running slowly due to weak power supply
+	LC_ALL= sudo make
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Thu__1_Apr_2004_16_12_28_+0200_nNEt4msAtE7/4xt0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAbCNMmjLYGS7fcG0RAoPMAJ9+XGrvH53M4uZMQ2M1Kn57eS6EHACdFpPz
-HdlwQnvNRIqynmzZbNXKhm0=
-=qTyS
------END PGP SIGNATURE-----
-
---Signature=_Thu__1_Apr_2004_16_12_28_+0200_nNEt4msAtE7/4xt0--
+Regards,
+Norberto

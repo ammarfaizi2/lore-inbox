@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274778AbRIUSqs>; Fri, 21 Sep 2001 14:46:48 -0400
+	id <S274777AbRIUSl6>; Fri, 21 Sep 2001 14:41:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274780AbRIUSqj>; Fri, 21 Sep 2001 14:46:39 -0400
-Received: from mail.scs.ch ([212.254.229.5]:31506 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id <S274778AbRIUSqX>;
-	Fri, 21 Sep 2001 14:46:23 -0400
-Message-ID: <3BAB8B11.7ED581DB@scs.ch>
-Date: Fri, 21 Sep 2001 20:46:41 +0200
-From: Thomas Sailer <sailer@scs.ch>
-Reply-To: t.sailer@alumni.ethz.ch
-Organization: SCS
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.3-13jnx i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu> <3BAB69CF.A3F9D217@kolumbus.fi>
+	id <S274778AbRIUSlt>; Fri, 21 Sep 2001 14:41:49 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:50189 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274777AbRIUSlp>;
+	Fri, 21 Sep 2001 14:41:45 -0400
+Message-ID: <XFMail.20010921114539.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3BAADC9A.EE129CF7@kegel.com>
+Date: Fri, 21 Sep 2001 11:45:39 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Dan Kegel <dank@kegel.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jussi Laako schrieb:
-> 
-> Alan Cox wrote:
-> >
-> > Sound cards have a lot of buffering, we are talking 64-128Kbytes + on
-> > card buffers. Thats 0.25-0.5 seconds at 48Khz 16bit stereo
-> 
-> Only "soundcards", that cheap crap like SoundBlaster. Professional
-> lowlatency soundcards usually have something like 128-512 samples per
-> channel for 24-bit (32-bit data) 96 kHz 8 channels...
 
-This doesn't make sense. Even professional soundcards provide hundreds
-of kBytes of buffer space. And even with most cheap PCI cards you
-need not wait until the whole buffer is full before start reading
-samples. Even with those soundcards the latency is mostly caused
-by the digital filters in the codec.
+On 21-Sep-2001 Dan Kegel wrote:
+> Davide wrote:
+>> If you need to request the current status of 
+>> a socket you've to f_ops->poll the fd.
+>> The cost of the extra read, done only for fds that are not "ready", is nothing
+>> compared to the cost of a linear scan with HUGE numbers of fds.
+> 
+> Hey, wait a sec, Davide... the whole point of the Solaris /dev/poll
+> is that you *don't* need to f_ops->poll the fd, I think.
+> And in fact, Solaris /dev/poll is insanely fast, way faster than O(N).
 
-Tom
+If the fd support hints, yes.
+
+
+> Consider this: what if we added to your patch logic to clear
+> the current read readiness bit for a fd whenever a read() on
+> that fd returned EWOULDBLOCK?  Then we're real close to having
+> the current readiness state for each fd, as the /dev/poll afficianados 
+> want.  Now, there's a lot more work that'd be needed, but maybe you
+> get the idea of where some of us are coming from.
+
+Then you'll fall down to /dev/poll and /dev/epoll designed for "state change"
+driven servers ( like rtsigs ).
+Instead of requesting /dev/epoll changes to make it something that is not born for,
+i think that the /dev/poll patch can be improved in a significant way.
+The numbers i've got from my test left me quite a bit deluded.
+
+
+
+
+- Davide
+

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288799AbSANF4k>; Mon, 14 Jan 2002 00:56:40 -0500
+	id <S288811AbSANF5Y>; Mon, 14 Jan 2002 00:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288811AbSANF4a>; Mon, 14 Jan 2002 00:56:30 -0500
-Received: from dsl081-053-223.sfo1.dsl.speakeasy.net ([64.81.53.223]:34433
-	"EHLO starship.berlin") by vger.kernel.org with ESMTP
-	id <S288810AbSANF4U>; Mon, 14 Jan 2002 00:56:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, rml@tech9.net (Robert Love)
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 06:59:35 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <E16Pn2o-0007I8-00@the-village.bc.nu>
-In-Reply-To: <E16Pn2o-0007I8-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Q09g-0000kn-00@starship.berlin>
+	id <S288802AbSANF5L>; Mon, 14 Jan 2002 00:57:11 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:8719 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S288809AbSANF46>; Mon, 14 Jan 2002 00:56:58 -0500
+Date: Mon, 14 Jan 2002 08:56:56 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] [PATCH] corrupted reiserfs may cause kernel to panic on lookup() sometimes.
+Message-ID: <20020114085656.A4491@namesys.com>
+In-Reply-To: <20020103101830.A2610@namesys.com> <147220000.1010771186@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <147220000.1010771186@tiny>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 13, 2002 04:59 pm, Alan Cox wrote:
-> > > I disable a single specific interrupt, I don't disable the timer 
-interrupt.
-> > > Your code doesn't seem to handle that.
-> > 
-> > It can if we increment the preempt_count in disable_irq_nosync and
-> > decrement it on enable_irq.
-> 
-> A driver that knows about how its irq is handled and that it is sole
-> user (eg ISA) may and some do leave it disabled for hours at a time
+Hello!
 
-Good point.  Preemption would be disabled for that thread if we mindlessly 
-shut it off for every irq_disable.  For that driver we probably just want to 
-leave preemption enabled, it can't hurt.
+On Fri, Jan 11, 2002 at 12:46:26PM -0500, Chris Mason wrote:
 
---
-Daniel
+> >     Certain disk corruptions and i/o errors may cause lookup() to panic,
+> > which is wrong.     This patch fixes the problem.
+> >     Please apply.
+> Hmmm, none of the callers of reiserfs_find_entry have been changed to check
+> for IO_ERROR.  We should at least change reiserfs_add_entry to check for
+> IO_ERROR, so it doesn't try to create a name after getting io error during
+> the lookup.
+Well, in fact reiserfs_add_entry won't do that anyway, consider this code:
+    retval = reiserfs_find_entry (dir, name, namelen, &path, &de);
+    if( retval != NAME_NOT_FOUND ) {
+        if (buffer != small_buf)
+            reiserfs_kfree (buffer, buflen, dir->i_sb);
+        pathrelse (&path);
+
+        if (retval != NAME_FOUND) {
+            reiserfs_warning ("zam-7002:" __FUNCTION__ ": \"reiserfs_find_entry\" has returned"
+                              " unexpected value (%d)\n", retval);
+       }
+
+        return -EEXIST;
+    }
+
+Though I see other places where code is not that smart. I'll come up with additional patch later today.
+Thanks for noticing.
+
+Bye,
+    Oleg

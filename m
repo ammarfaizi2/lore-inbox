@@ -1,83 +1,284 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290806AbSCFAOG>; Tue, 5 Mar 2002 19:14:06 -0500
+	id <S292505AbSCFAQk>; Tue, 5 Mar 2002 19:16:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290946AbSCFAN7>; Tue, 5 Mar 2002 19:13:59 -0500
-Received: from dsl-213-023-039-135.arcor-ip.net ([213.23.39.135]:7587 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290806AbSCFANu>;
-	Tue, 5 Mar 2002 19:13:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, arjan@fenrus.demon.nl
-Subject: Re: 2.4.19pre1aa1
-Date: Wed, 6 Mar 2002 01:09:20 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
+	id <S291043AbSCFAQ0>; Tue, 5 Mar 2002 19:16:26 -0500
+Received: from urtica.linuxnews.pl ([217.67.200.130]:29448 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S290946AbSCFAQG>; Tue, 5 Mar 2002 19:16:06 -0500
+Date: Wed, 6 Mar 2002 01:16:04 +0100 (CET)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: <linux-kernel@vger.kernel.org>, <irda-users@lists.sourceforge.net>
+Subject: SMC IrDA problem with 2.4.18
+Message-ID: <Pine.LNX.4.33.0203060106300.14638-500000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16iOzg-0002qI-00@starship.berlin>
+Content-Type: MULTIPART/MIXED; BOUNDARY="1138328264-2013857449-1015373764=:14638"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 5, 2002 01:41 pm, Rik van Riel wrote:
-> On Tue, 5 Mar 2002 arjan@fenrus.demon.nl wrote:
-> > In article <20020305005215.U20606@dualathlon.random> you wrote:
-> >
-> > > I don't see how per-zone lru lists are related to the kswapd deadlock.
-> > > as soon as the ZONE_DMA will be filled with filedescriptors or with
-> > > pagetables (or whatever non pageable/shrinkable kernel datastructure you
-> > > prefer) kswapd will go mad without classzone, period.
-> >
-> > So does it with class zone on a scsi system....
-> 
-> Furthermore, there is another problem which is present in
-> both 2.4 vanilla, -aa and -rmap.
-> 
-> Suppose that (1) we are low on memory in ZONE_NORMAL and
-> (2) we have enough free memory in ZONE_HIGHMEM and (3) the
-> memory in ZONE_NORMAL is for a large part taken by buffer
-> heads belonging to pages in ZONE_HIGHMEM.
-> 
-> In that case, none of the VMs will bother freeing the buffer
-> heads associated with the highmem pages and kswapd will have
-> to work hard trying to free something else in ZONE_NORMAL.
-> 
-> Now before you say this is a strange theoretical situation,
-> I've seen it here when using highmem emulation. Low memory
-> was limited to 30 MB (16 MB ZONE_DMA, 14 MB ZONE_NORMAL)
-> and the rest of the machine was HIGHMEM.  Buffer heads were
-> taking up 8 MB of low memory, dcache and inode cache were a
-> good second with 2 MB and 5 MB respectively.
-> 
-> 
-> How to efficiently fix this case ?   I wouldn't know right now...
-> However, I guess we might want to come up with a fix because it's
-> a quite embarassing scenario ;)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-There's the short term fix - hack the vm - and the long term fix:
-get rid of buffers.  A buffers are does three jobs at the moment:
+--1138328264-2013857449-1015373764=:14638
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-  1) cache the physical block number
-  2) io handle for a file block
-  3) data handle for a file block, including locking
+Hi,
 
-The physical block number could be moved either into the struct
-page - which desireable since it wastes space for pages that don't
-have physical blocks - or my preferred solution, move it into the
-page cache radix tree.
+I'm a happy new user of the new Dell Latitude c610 for a couple of days.
+The one of the remaining issues I try to deal with is irda device. I can't
+get it to work under linux (kernel 2.4.18). It works under windows and
+introduces as: SMS IrCC - Fast Infrared Port. So I tried it with smc
+driver, but no success:
+Mar  3 22:51:39 bzzzt kernel: found SMC SuperIO Chip (devid=0x0e rev=01 base=0x002e): LPC47N252
+Mar  3 22:51:39 bzzzt kernel: ircc_open
+Mar  3 22:51:39 bzzzt kernel: SMC IrDA Controller found
+Mar  3 22:51:39 bzzzt kernel:  IrCC version 2.0, firport 0x280, sirport 0x2f8 dma=3, irq=3
+Mar  3 22:51:39 bzzzt kernel: irport_open()
+Mar  3 22:51:39 bzzzt kernel: irport_open(), can't get iobase of 0x2f8
+The same ioports/dma and irq are reported to use under windows.
+Any ideas what to do?
 
-For (2) we have a whole flock of solutions on the way.  I guess
-bio does the job quite nicely as Andrew Morton demonstrated last
-week.
+/proc/interrupts, /proc/ioports, lspci -vvv, kernel config attached
 
-For (3), my idea is to generalize the size of the object referred
-to by struct page so that it can match the filesystem block size.
-This is still in the research stage, and there are a few issues I'm
-looking at, but the more I look the more practical it seems.  How
-nice it would be to get rid of the page->buffers->page tangle, for
-one thing.
+thanks,
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 
---
-Daniel
+--1138328264-2013857449-1015373764=:14638
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="irda.config"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0203060116040.14638@urtica.linuxnews.pl>
+Content-Description: 
+Content-Disposition: attachment; filename="irda.config"
+
+Iw0KIyBJckRBIChpbmZyYXJlZCkgc3VwcG9ydA0KIw0KQ09ORklHX0lSREE9
+bQ0KQ09ORklHX0lSTEFOPW0NCiMgQ09ORklHX0lSTkVUIGlzIG5vdCBzZXQN
+CkNPTkZJR19JUkNPTU09bQ0KIyBDT05GSUdfSVJEQV9VTFRSQSBpcyBub3Qg
+c2V0DQpDT05GSUdfSVJEQV9DQUNIRV9MQVNUX0xTQVA9eQ0KQ09ORklHX0lS
+REFfRkFTVF9SUj15DQpDT05GSUdfSVJEQV9ERUJVRz15DQoNCiMNCiMgSW5m
+cmFyZWQtcG9ydCBkZXZpY2UgZHJpdmVycw0KIw0KQ09ORklHX0lSVFRZX1NJ
+Uj1tDQpDT05GSUdfSVJQT1JUX1NJUj1tDQojIENPTkZJR19ET05HTEUgaXMg
+bm90IHNldA0KIyBDT05GSUdfVVNCX0lSREEgaXMgbm90IHNldA0KIyBDT05G
+SUdfTlNDX0ZJUiBpcyBub3Qgc2V0DQojIENPTkZJR19XSU5CT05EX0ZJUiBp
+cyBub3Qgc2V0DQojIENPTkZJR19UT1NISUJBX0ZJUiBpcyBub3Qgc2V0DQpD
+T05GSUdfU01DX0lSQ0NfRklSPW0NCiMgQ09ORklHX0FMSV9GSVIgaXMgbm90
+IHNldA0KIyBDT05GSUdfVkxTSV9GSVIgaXMgbm90IHNldA0K
+--1138328264-2013857449-1015373764=:14638
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=lspci
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0203060116041.14638@urtica.linuxnews.pl>
+Content-Description: 
+Content-Disposition: attachment; filename=lspci
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb246IFVua25v
+d24gZGV2aWNlIDM1NzUgKHJldiAwMikNCglDb250cm9sOiBJL08tIE1lbSsg
+QnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJF
+cnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwKyA2
+Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJv
+cnQtIDxUQWJvcnQtIDxNQWJvcnQrID5TRVJSLSA8UEVSUi0NCglMYXRlbmN5
+OiAwDQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkMDAwMDAwMCAoMzItYml0LCBw
+cmVmZXRjaGFibGUpIFtzaXplPTI1Nk1dDQoJQ2FwYWJpbGl0aWVzOiBbNDBd
+ICMwOSBbMDEwNV0NCglDYXBhYmlsaXRpZXM6IFthMF0gQUdQIHZlcnNpb24g
+Mi4wDQoJCVN0YXR1czogUlE9MzEgU0JBKyA2NGJpdC0gRlcrIFJhdGU9eDEs
+eDINCgkJQ29tbWFuZDogUlE9MCBTQkEtIEFHUC0gNjRiaXQtIEZXLSBSYXRl
+PXgxDQoNCjAwOjAxLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb246
+IFVua25vd24gZGV2aWNlIDM1NzYgKHJldiAwMikgKHByb2ctaWYgMDAgW05v
+cm1hbCBkZWNvZGVdKQ0KCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIr
+IFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBp
+bmctIFNFUlIrIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAtIDY2TWh6KyBVREYt
+IEZhc3RCMkItIFBhckVyci0gREVWU0VMPWZhc3QgPlRBYm9ydC0gPFRBYm9y
+dC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDMyDQoJQnVz
+OiBwcmltYXJ5PTAwLCBzZWNvbmRhcnk9MDEsIHN1Ym9yZGluYXRlPTAxLCBz
+ZWMtbGF0ZW5jeT0zMg0KCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwYzAwMC0w
+MDAwY2ZmZg0KCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmYzAwMDAwMC1mZGZm
+ZmZmZg0KCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRnZTogZTAw
+MDAwMDAtZTdmZmZmZmYNCglCcmlkZ2VDdGw6IFBhcml0eS0gU0VSUi0gTm9J
+U0ErIFZHQSsgTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItDQoNCjAwOjFkLjAg
+VVNCIENvbnRyb2xsZXI6IEludGVsIENvcnBvcmF0aW9uOiBVbmtub3duIGRl
+dmljZSAyNDgyIChyZXYgMDEpIChwcm9nLWlmIDAwIFtVSENJXSkNCglTdWJz
+eXN0ZW06IEludGVsIENvcnBvcmF0aW9uOiBVbmtub3duIGRldmljZSA0NTQx
+DQoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBN
+ZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFz
+dEIyQi0NCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFy
+RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQt
+ID5TRVJSLSA8UEVSUi0NCglMYXRlbmN5OiAwDQoJSW50ZXJydXB0OiBwaW4g
+QSByb3V0ZWQgdG8gSVJRIDExDQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBi
+ZjgwIFtzaXplPTMyXQ0KDQowMDoxZS4wIFBDSSBicmlkZ2U6IEludGVsIENv
+cnBvcmF0aW9uOiBVbmtub3duIGRldmljZSAyNDQ4IChyZXYgNDEpIChwcm9n
+LWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkNCglDb250cm9sOiBJL08rIE1lbSsg
+QnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJF
+cnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2
+Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJv
+cnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0NCglMYXRlbmN5
+OiAwDQoJQnVzOiBwcmltYXJ5PTAwLCBzZWNvbmRhcnk9MDIsIHN1Ym9yZGlu
+YXRlPTEwLCBzZWMtbGF0ZW5jeT0zMg0KCUkvTyBiZWhpbmQgYnJpZGdlOiAw
+MDAwZTAwMC0wMDAwZmZmZg0KCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmNDAw
+MDAwMC1mYmZmZmZmZg0KCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJy
+aWRnZTogZmZmMDAwMDAtMDAwZmZmZmYNCglCcmlkZ2VDdGw6IFBhcml0eS0g
+U0VSUisgTm9JU0ErIFZHQS0gTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItDQoN
+CjAwOjFmLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb246IFVua25v
+d24gZGV2aWNlIDI0OGMgKHJldiAwMSkNCglDb250cm9sOiBJL08rIE1lbSsg
+QnVzTWFzdGVyKyBTcGVjQ3ljbGUrIE1lbVdJTlYtIFZHQVNub29wLSBQYXJF
+cnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2
+Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRB
+Ym9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVu
+Y3k6IDANCg0KMDA6MWYuMSBJREUgaW50ZXJmYWNlOiBJbnRlbCBDb3Jwb3Jh
+dGlvbjogVW5rbm93biBkZXZpY2UgMjQ4YSAocmV2IDAxKSAocHJvZy1pZiA4
+YSBbTWFzdGVyIFNlY1AgUHJpUF0pDQoJU3Vic3lzdGVtOiBJbnRlbCBDb3Jw
+b3JhdGlvbjogVW5rbm93biBkZXZpY2UgNDU0MQ0KCUNvbnRyb2w6IEkvTysg
+TWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3At
+IFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBD
+YXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1
+bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJ
+TGF0ZW5jeTogMA0KCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAx
+MQ0KCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgPHVuYXNzaWduZWQ+IFtzaXpl
+PThdDQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW3Np
+emU9NF0NCglSZWdpb24gMjogSS9PIHBvcnRzIGF0IDx1bmFzc2lnbmVkPiBb
+c2l6ZT04XQ0KCVJlZ2lvbiAzOiBJL08gcG9ydHMgYXQgPHVuYXNzaWduZWQ+
+IFtzaXplPTRdDQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBiZmEwIFtzaXpl
+PTE2XQ0KCVJlZ2lvbiA1OiBNZW1vcnkgYXQgMTAwMDAwMDAgKDMyLWJpdCwg
+bm9uLXByZWZldGNoYWJsZSkgW2Rpc2FibGVkXSBbc2l6ZT0xS10NCg0KMDA6
+MWYuNSBNdWx0aW1lZGlhIGF1ZGlvIGNvbnRyb2xsZXI6IEludGVsIENvcnBv
+cmF0aW9uOiBVbmtub3duIGRldmljZSAyNDg1IChyZXYgMDEpDQoJU3Vic3lz
+dGVtOiBDaXJydXMgTG9naWM6IFVua25vd24gZGV2aWNlIDU5NTkNCglDb250
+cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYt
+IFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0K
+CVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERF
+VlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlIt
+IDxQRVJSLQ0KCUxhdGVuY3k6IDANCglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRl
+ZCB0byBJUlEgMTENCglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGQ4MDAgW3Np
+emU9MjU2XQ0KCVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQgZGM4MCBbc2l6ZT02
+NF0NCg0KMDA6MWYuNiBNb2RlbTogSW50ZWwgQ29ycG9yYXRpb246IFVua25v
+d24gZGV2aWNlIDI0ODYgKHJldiAwMSkgKHByb2ctaWYgMDAgW0dlbmVyaWNd
+KQ0KCVN1YnN5c3RlbTogUENUZWwgSW5jOiBVbmtub3duIGRldmljZSA0YzIx
+DQoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBN
+ZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFz
+dEIyQi0NCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFy
+RXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQt
+ID5TRVJSLSA8UEVSUi0NCglMYXRlbmN5OiAwDQoJSW50ZXJydXB0OiBwaW4g
+QiByb3V0ZWQgdG8gSVJRIDExDQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCBk
+NDAwIFtzaXplPTI1Nl0NCglSZWdpb24gMTogSS9PIHBvcnRzIGF0IGRjMDAg
+W3NpemU9MTI4XQ0KDQowMTowMC4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xs
+ZXI6IEFUSSBUZWNobm9sb2dpZXMgSW5jOiBVbmtub3duIGRldmljZSA0YzU5
+IChwcm9nLWlmIDAwIFtWR0FdKQ0KCVN1YnN5c3RlbTogRGVsbCBDb21wdXRl
+ciBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgMDBlMw0KCUNvbnRyb2w6
+IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdB
+U25vb3ArIFBhckVyci0gU3RlcHBpbmcrIFNFUlIrIEZhc3RCMkItDQoJU3Rh
+dHVzOiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VM
+PW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBF
+UlItDQoJTGF0ZW5jeTogMzIgKDIwMDBucyBtaW4pLCBjYWNoZSBsaW5lIHNp
+emUgMDgNCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTENCglS
+ZWdpb24gMDogTWVtb3J5IGF0IGUwMDAwMDAwICgzMi1iaXQsIHByZWZldGNo
+YWJsZSkgW3NpemU9MTI4TV0NCglSZWdpb24gMTogSS9PIHBvcnRzIGF0IGMw
+MDAgW3NpemU9MjU2XQ0KCVJlZ2lvbiAyOiBNZW1vcnkgYXQgZmNmZjAwMDAg
+KDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NjRLXQ0KCUV4cGFu
+c2lvbiBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9MTI4
+S10NCglDYXBhYmlsaXRpZXM6IFs1OF0gQUdQIHZlcnNpb24gMi4wDQoJCVN0
+YXR1czogUlE9NDcgU0JBKyA2NGJpdC0gRlctIFJhdGU9eDEseDINCgkJQ29t
+bWFuZDogUlE9MCBTQkErIEFHUC0gNjRiaXQtIEZXLSBSYXRlPTxub25lPg0K
+CUNhcGFiaWxpdGllczogWzUwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24g
+Mg0KCQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxKyBEMisgQXV4Q3VycmVudD0w
+bUEgUE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQ0KCQlTdGF0dXM6
+IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtDQoNCjAyOjAw
+LjAgRXRoZXJuZXQgY29udHJvbGxlcjogM0NvbSBDb3Jwb3JhdGlvbiAzYzkw
+NUMtVFggW0Zhc3QgRXRoZXJsaW5rXSAocmV2IDc4KQ0KCVN1YnN5c3RlbTog
+RGVsbCBDb21wdXRlciBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgMDBl
+Mw0KCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0g
+TWVtV0lOVisgVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZh
+c3RCMkItDQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBh
+ckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0
+LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5jeTogMzIgKDI1MDBucyBtaW4sIDI1
+MDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgNCglJbnRlcnJ1cHQ6IHBp
+biBBIHJvdXRlZCB0byBJUlEgMTENCglSZWdpb24gMDogSS9PIHBvcnRzIGF0
+IGVjODAgW3NpemU9MTI4XQ0KCVJlZ2lvbiAxOiBNZW1vcnkgYXQgZjhmZmZj
+MDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MTI4XQ0KCUV4
+cGFuc2lvbiBST00gYXQgZjkwMDAwMDAgW2Rpc2FibGVkXSBbc2l6ZT0xMjhL
+XQ0KCUNhcGFiaWxpdGllczogW2RjXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNp
+b24gMg0KCQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxKyBEMisgQXV4Q3VycmVu
+dD0wbUEgUE1FKEQwKyxEMSssRDIrLEQzaG90KyxEM2NvbGQrKQ0KCQlTdGF0
+dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MiBQTUUtDQoNCjAy
+OjAxLjAgQ2FyZEJ1cyBicmlkZ2U6IFRleGFzIEluc3RydW1lbnRzIFBDSTE0
+MjANCglTdWJzeXN0ZW06IERlbGwgQ29tcHV0ZXIgQ29ycG9yYXRpb246IFVu
+a25vd24gZGV2aWNlIDAwZTMNCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFz
+dGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0
+ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwKyA2Nk1oei0g
+VURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0g
+PFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDE2
+OCwgY2FjaGUgbGluZSBzaXplIDA4DQoJSW50ZXJydXB0OiBwaW4gQSByb3V0
+ZWQgdG8gSVJRIDExDQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmNDAwMDAwMCAo
+MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10NCglCdXM6IHBy
+aW1hcnk9MDIsIHNlY29uZGFyeT0wMywgc3Vib3JkaW5hdGU9MDYsIHNlYy1s
+YXRlbmN5PTE3Ng0KCU1lbW9yeSB3aW5kb3cgMDogZjQ0MDAwMDAtZjQ3ZmYw
+MDAgKHByZWZldGNoYWJsZSkNCglNZW1vcnkgd2luZG93IDE6IGY0ODAwMDAw
+LWY0YmZmMDAwDQoJSS9PIHdpbmRvdyAwOiAwMDAwZTAwMC0wMDAwZTBmZg0K
+CUkvTyB3aW5kb3cgMTogMDAwMGU0MDAtMDAwMGU0ZmYNCglCcmlkZ2VDdGw6
+IFBhcml0eS0gU0VSUi0gSVNBLSBWR0EtIE1BYm9ydC0gPlJlc2V0KyAxNmJJ
+bnQrIFBvc3RXcml0ZSsNCgkxNi1iaXQgbGVnYWN5IGludGVyZmFjZSBwb3J0
+cyBhdCAwMDAxDQoNCjAyOjAxLjEgQ2FyZEJ1cyBicmlkZ2U6IFRleGFzIElu
+c3RydW1lbnRzIFBDSTE0MjANCglTdWJzeXN0ZW06IERlbGwgQ29tcHV0ZXIg
+Q29ycG9yYXRpb246IFVua25vd24gZGV2aWNlIDAwZTMNCglDb250cm9sOiBJ
+L08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNu
+b29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0KCVN0YXR1
+czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1t
+ZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJS
+LQ0KCUxhdGVuY3k6IDE2OCwgY2FjaGUgbGluZSBzaXplIDA4DQoJSW50ZXJy
+dXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDExDQoJUmVnaW9uIDA6IE1lbW9y
+eSBhdCBmNDAwMTAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6
+ZT00S10NCglCdXM6IHByaW1hcnk9MDIsIHNlY29uZGFyeT0wNywgc3Vib3Jk
+aW5hdGU9MGEsIHNlYy1sYXRlbmN5PTE3Ng0KCU1lbW9yeSB3aW5kb3cgMDog
+ZjRjMDAwMDAtZjRmZmYwMDAgKHByZWZldGNoYWJsZSkNCglNZW1vcnkgd2lu
+ZG93IDE6IGY1MDAwMDAwLWY1M2ZmMDAwDQoJSS9PIHdpbmRvdyAwOiAwMDAw
+ZTgwMC0wMDAwZThmZg0KCUkvTyB3aW5kb3cgMTogMDAwMGYwMDAtMDAwMGYw
+ZmYNCglCcmlkZ2VDdGw6IFBhcml0eS0gU0VSUi0gSVNBLSBWR0EtIE1BYm9y
+dC0gPlJlc2V0KyAxNmJJbnQrIFBvc3RXcml0ZSsNCgkxNi1iaXQgbGVnYWN5
+IGludGVyZmFjZSBwb3J0cyBhdCAwMDAxDQoNCg==
+--1138328264-2013857449-1015373764=:14638
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="proc.interrupts"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0203060116042.14638@urtica.linuxnews.pl>
+Content-Description: 
+Content-Disposition: attachment; filename="proc.interrupts"
+
+ICAgICAgICAgICBDUFUwICAgICAgIA0KICAwOiAgICAgMjQ2Mjg3ICAgICAg
+ICAgIFhULVBJQyAgdGltZXINCiAgMTogICAgICAxNDIxNCAgICAgICAgICBY
+VC1QSUMgIGtleWJvYXJkDQogIDI6ICAgICAgICAgIDAgICAgICAgICAgWFQt
+UElDICBjYXNjYWRlDQogMTE6ICAgICAgIDUyMTEgICAgICAgICAgWFQtUElD
+ICBUZXhhcyBJbnN0cnVtZW50cyBQQ0kxNDIwLCBUZXhhcyBJbnN0cnVtZW50
+cyBQQ0kxNDIwICgjMiksIHVzYi11aGNpLCBldGgwDQogMTI6ICAgICAgIDM0
+NDEgICAgICAgICAgWFQtUElDICBQUy8yIE1vdXNlDQogMTQ6ICAgICAgNDA2
+MzggICAgICAgICAgWFQtUElDICBpZGUwDQogMTU6ICAgICAgICAgIDQgICAg
+ICAgICAgWFQtUElDICBpZGUxDQpOTUk6ICAgICAgICAgIDAgDQpFUlI6ICAg
+ICAgICAgIDANCg==
+--1138328264-2013857449-1015373764=:14638
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="proc.ioports"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0203060116043.14638@urtica.linuxnews.pl>
+Content-Description: 
+Content-Disposition: attachment; filename="proc.ioports"
+
+MDAwMC0wMDFmIDogZG1hMQ0KMDAyMC0wMDNmIDogcGljMQ0KMDA0MC0wMDVm
+IDogdGltZXINCjAwNjAtMDA2ZiA6IGtleWJvYXJkDQowMDgwLTAwOGYgOiBk
+bWEgcGFnZSByZWcNCjAwYTAtMDBiZiA6IHBpYzINCjAwYzAtMDBkZiA6IGRt
+YTINCjAwZjAtMDBmZiA6IGZwdQ0KMDE3MC0wMTc3IDogaWRlMQ0KMDFmMC0w
+MWY3IDogaWRlMA0KMDM3Ni0wMzc2IDogaWRlMQ0KMDNjMC0wM2RmIDogdmdh
+Kw0KMDNmNi0wM2Y2IDogaWRlMA0KMDNmOC0wM2ZmIDogc2VyaWFsKGF1dG8p
+DQowY2Y4LTBjZmYgOiBQQ0kgY29uZjENCmJmODAtYmY5ZiA6IFBDSSBkZXZp
+Y2UgODA4NjoyNDgyIChJbnRlbCBDb3JwLikNCiAgYmY4MC1iZjlmIDogdXNi
+LXVoY2kNCmJmYTAtYmZhZiA6IFBDSSBkZXZpY2UgODA4NjoyNDhhIChJbnRl
+bCBDb3JwLikNCiAgYmZhMC1iZmE3IDogaWRlMA0KICBiZmE4LWJmYWYgOiBp
+ZGUxDQpjMDAwLWNmZmYgOiBQQ0kgQnVzICMwMQ0KICBjMDAwLWMwZmYgOiBB
+VEkgVGVjaG5vbG9naWVzIEluYyBSYWRlb24gTW9iaWxpdHkgTTYgTFkNCmQ0
+MDAtZDRmZiA6IFBDSSBkZXZpY2UgODA4NjoyNDg2IChJbnRlbCBDb3JwLikN
+CmQ4MDAtZDhmZiA6IEludGVsIENvcnAuIEFDJzk3IEF1ZGlvIENvbnRyb2xs
+ZXINCmRjMDAtZGM3ZiA6IFBDSSBkZXZpY2UgODA4NjoyNDg2IChJbnRlbCBD
+b3JwLikNCmRjODAtZGNiZiA6IEludGVsIENvcnAuIEFDJzk3IEF1ZGlvIENv
+bnRyb2xsZXINCmUwMDAtZmZmZiA6IFBDSSBCdXMgIzAyDQogIGUwMDAtZTBm
+ZiA6IFBDSSBDYXJkQnVzICMwMw0KICBlNDAwLWU0ZmYgOiBQQ0kgQ2FyZEJ1
+cyAjMDMNCiAgZTgwMC1lOGZmIDogUENJIENhcmRCdXMgIzA3DQogIGVjODAt
+ZWNmZiA6IDNDb20gQ29ycG9yYXRpb24gM2M5MDVDLVRYIFtGYXN0IEV0aGVy
+bGlua10NCiAgICBlYzgwLWVjZmYgOiAwMjowMC4wDQogIGYwMDAtZjBmZiA6
+IFBDSSBDYXJkQnVzICMwNw0K
+--1138328264-2013857449-1015373764=:14638--

@@ -1,194 +1,445 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269005AbTCATU2>; Sat, 1 Mar 2003 14:20:28 -0500
+	id <S267300AbTCATj5>; Sat, 1 Mar 2003 14:39:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269006AbTCATU2>; Sat, 1 Mar 2003 14:20:28 -0500
-Received: from pdbn-d9bb8750.pool.mediaWays.net ([217.187.135.80]:39951 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id <S269005AbTCATUZ>;
-	Sat, 1 Mar 2003 14:20:25 -0500
-Date: Sat, 1 Mar 2003 20:30:36 +0100 (CET)
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Dan Kegel <dank@kegel.com>
-cc: Joe Perches <joe@perches.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <mike@aiinc.ca>
-Subject: Re: [PATCH] kernel source spellchecker
-In-Reply-To: <3E6101DE.5060301@kegel.com>
-Message-ID: <Pine.LNX.4.44.0303012026410.31670-101000@korben.citd.de>
+	id <S269006AbTCATj5>; Sat, 1 Mar 2003 14:39:57 -0500
+Received: from smtp.eclipse.net.uk ([212.104.129.70]:34571 "HELO
+	smtp2.ex.eclipse.net.uk") by vger.kernel.org with SMTP
+	id <S267300AbTCATju>; Sat, 1 Mar 2003 14:39:50 -0500
+Message-ID: <3E610EF2.5090202@jon-foster.co.uk>
+Date: Sat, 01 Mar 2003 19:50:10 +0000
+From: Jon Foster <jon@jon-foster.co.uk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811740-31657548-1046547036=:31670"
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.5.63] Kerneldoc for user space memory access
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
----1463811740-31657548-1046547036=:31670
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+This patch against 2.5.63 adds kerneldoc comments to the public API in these files:
+- include/asm-i386/uaccess.h
+- arch/i386/lib/usercopy.c
 
-Hi
+This patch only changes comments and one of the templates used by "make htmldocs",
+it does not change any code.
 
+Please cc me on any replies, I am not subscribed to linux-kernel.
 
+Kind regards,
 
-
-> Matthias Schniedermeyer wrote:
-> > I've no spelling knowledge, so the list of spellcorrections must be made
-> > by someone else. But i can volunteer the perl-snippet to correct the
-> > files. :-)
->
-> Smashing!  However, it should probably avoid correcting spellings
-> in anything but C comments.
-
-Here we go.
-
-Take 1.10
-
-This versions defaults to only correct words within a comment.
-
-> Perhaps my C comment parser should be converted to perl and
-
-No need to make any hasled.
-
-// Comments are easy(tm). "Everything after // until line-end".
-
-and /* ... */ are easy(tm) too because gcc doesn't support to nest them.
-
-Only a handfull of lines were needed to handle this. :-)
+Jon Foster
 
 
+diff -ur linux-2.5.63/Documentation/DocBook/kernel-api.tmpl linux-2.5.63.patched/Documentation/DocBook/kernel-api.tmpl
+--- linux-2.5.63/Documentation/DocBook/kernel-api.tmpl	2003-02-24 19:05:04.000000000 +0000
++++ linux-2.5.63.patched/Documentation/DocBook/kernel-api.tmpl	2003-03-01 13:50:59.000000000 +0000
+@@ -89,7 +89,11 @@
+      <title>Memory Management in Linux</title>
+      <sect1><title>The Slab Cache</title>
+ !Emm/slab.c
+-      </sect1>
++     </sect1>
++     <sect1><title>User Space Memory Access</title>
++!Iinclude/asm-i386/uaccess.h
++!Iarch/i386/lib/usercopy.c
++     </sect1>
+   </chapter>
+ 
+   <chapter id="proc">
+diff -ur linux-2.5.63/arch/i386/lib/usercopy.c linux-2.5.63.patched/arch/i386/lib/usercopy.c
+--- linux-2.5.63/arch/i386/lib/usercopy.c	2003-02-24 19:05:04.000000000 +0000
++++ linux-2.5.63.patched/arch/i386/lib/usercopy.c	2003-03-01 13:50:59.000000000 +0000
+@@ -50,6 +50,26 @@
+ 		: "memory");						   \
+ } while (0)
+ 
++/**
++ * __strncpy_from_user: - Copy a NUL terminated string from userspace, with less checking.
++ * @dst:   Destination address, in kernel space.  This buffer must be at
++ *         least @count bytes long.
++ * @src:   Source address, in user space.
++ * @count: Maximum number of bytes to copy, including the trailing NUL.
++ * 
++ * Copies a NUL-terminated string from userspace to kernel space.
++ * Caller must check the specified block with access_ok() before calling
++ * this function.
++ *
++ * On success, returns the length of the string (not including the trailing
++ * NUL).
++ *
++ * If access to userspace fails, returns -EFAULT (some data may have been
++ * copied).
++ *
++ * If @count is smaller than the length of the string, copies @count bytes
++ * and returns @count.
++ */
+ long
+ __strncpy_from_user(char *dst, const char *src, long count)
+ {
+@@ -58,6 +78,24 @@
+ 	return res;
+ }
+ 
++/**
++ * strncpy_from_user: - Copy a NUL terminated string from userspace.
++ * @dst:   Destination address, in kernel space.  This buffer must be at
++ *         least @count bytes long.
++ * @src:   Source address, in user space.
++ * @count: Maximum number of bytes to copy, including the trailing NUL.
++ * 
++ * Copies a NUL-terminated string from userspace to kernel space.
++ *
++ * On success, returns the length of the string (not including the trailing
++ * NUL).
++ *
++ * If access to userspace fails, returns -EFAULT (some data may have been
++ * copied).
++ *
++ * If @count is smaller than the length of the string, copies @count bytes
++ * and returns @count.
++ */
+ long
+ strncpy_from_user(char *dst, const char *src, long count)
+ {
+@@ -93,6 +131,16 @@
+ 		: "r"(size & 3), "0"(size / 4), "1"(addr), "a"(0));	\
+ } while (0)
+ 
++/**
++ * clear_user: - Zero a block of memory in user space.
++ * @to:   Destination address, in user space.
++ * @n:    Number of bytes to zero.
++ *
++ * Zero a block of memory in user space.
++ *
++ * Returns number of bytes that could not be cleared.
++ * On success, this will be zero.
++ */
+ unsigned long
+ clear_user(void *to, unsigned long n)
+ {
+@@ -101,6 +149,17 @@
+ 	return n;
+ }
+ 
++/**
++ * __clear_user: - Zero a block of memory in user space, with less checking.
++ * @to:   Destination address, in user space.
++ * @n:    Number of bytes to zero.
++ *
++ * Zero a block of memory in user space.  Caller must check
++ * the specified block with access_ok() before calling this function.
++ *
++ * Returns number of bytes that could not be cleared.
++ * On success, this will be zero.
++ */
+ unsigned long
+ __clear_user(void *to, unsigned long n)
+ {
+@@ -108,12 +167,17 @@
+ 	return n;
+ }
+ 
+-/*
+- * Return the size of a string (including the ending 0)
++/**
++ * strlen_user: - Get the size of a string in user space.
++ * @s: The string to measure.
++ * @n: The maximum valid length
+  *
+- * Return 0 on exception, a value greater than N if too long
++ * Get the size of a NUL-terminated string in user space.
++ *
++ * Returns the size of the string INCLUDING the terminating NUL.
++ * On exception, returns 0.
++ * If the string is too long, returns a value greater than @n.
+  */
+-
+ long strnlen_user(const char *s, long n)
+ {
+ 	unsigned long mask = -__addr_ok(s);
+diff -ur linux-2.5.63/include/asm-i386/uaccess.h linux-2.5.63.patched/include/asm-i386/uaccess.h
+--- linux-2.5.63/include/asm-i386/uaccess.h	2003-02-24 19:05:10.000000000 +0000
++++ linux-2.5.63.patched/include/asm-i386/uaccess.h	2003-03-01 13:55:41.000000000 +0000
+@@ -47,7 +47,13 @@
+ #define __addr_ok(addr) ((unsigned long)(addr) < (current_thread_info()->addr_limit.seg))
+ 
+ /*
+- * Uhhuh, this needs 33-bit arithmetic. We have a carry..
++ * Test whether a block of memory is a valid user space address.
++ * Returns 0 if the range is valid, nonzero otherwise.
++ *
++ * This is equivalent to the following test:
++ * (u33)addr + (u33)size >= (u33)current->addr_limit.seg
++ *
++ * This needs 33-bit arithmetic. We have a carry...
+  */
+ #define __range_ok(addr,size) ({ \
+ 	unsigned long flag,sum; \
+@@ -58,6 +64,25 @@
+ 
+ #ifdef CONFIG_X86_WP_WORKS_OK
+ 
++/**
++ * access_ok: - Checks if a user space pointer is valid
++ * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE.  Note that
++ *        %VERIFY_WRITE is a superset of %VERIFY_READ - if it is safe
++ *        to write to a block, it is always safe to read from it.
++ * @addr: User space pointer to start of block to check
++ * @size: Size of block to check
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Checks if a pointer to a block of memory in user space is valid.
++ *
++ * Returns true (nonzero) if the memory block may be valid, false (zero)
++ * if it is definitely invalid.
++ *
++ * Note that, depending on architecture, this function probably just
++ * checks that the pointer is in the user space range - after calling
++ * this function, memory access functions may still return -EFAULT.
++ */
+ #define access_ok(type,addr,size) (__range_ok(addr,size) == 0)
+ 
+ #else
+@@ -68,6 +93,23 @@
+ 
+ #endif
+ 
++/**
++ * verify_area: - Obsolete, use access_ok()
++ * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE
++ * @addr: User space pointer to start of block to check
++ * @size: Size of block to check
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * This function has been replaced by access_ok().
++ *
++ * Checks if a pointer to a block of memory in user space is valid.
++ *
++ * Returns zero if the memory block may be valid, -EFAULT
++ * if it is definitely invalid.
++ *
++ * See access_ok() for more details.
++ */
+ static inline int verify_area(int type, const void * addr, unsigned long size)
+ {
+ 	return access_ok(type,addr,size) ? 0 : -EFAULT;
+@@ -118,7 +160,25 @@
+ 		:"=a" (ret),"=d" (x) \
+ 		:"0" (ptr))
+ 
++
+ /* Careful: we have to cast the result to the type of the pointer for sign reasons */
++/**
++ * get_user: - Get a simple variable from user space.
++ * @x:   Variable to store result.
++ * @ptr: Source address, in user space.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * This macro copies a single simple variable from user space to kernel
++ * space.  It supports simple types like char and int, but not larger
++ * data types like structures or arrays.
++ *
++ * @ptr must have pointer-to-simple-variable type, and the result of
++ * dereferencing @ptr must be assignable to @x without a cast.
++ *
++ * Returns zero on success, or -EFAULT on error.
++ * On error, the variable @x is set to zero.
++ */
+ #define get_user(x,ptr)							\
+ ({	int __ret_gu,__val_gu;						\
+ 	switch(sizeof (*(ptr))) {					\
+@@ -138,11 +198,70 @@
+ 
+ extern void __put_user_bad(void);
+ 
++
++/**
++ * put_user: - Write a simple value into user space.
++ * @x:   Value to copy to user space.
++ * @ptr: Destination address, in user space.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * This macro copies a single simple value from kernel space to user
++ * space.  It supports simple types like char and int, but not larger
++ * data types like structures or arrays.
++ *
++ * @ptr must have pointer-to-simple-variable type, and @x must be assignable
++ * to the result of dereferencing @ptr.
++ *
++ * Returns zero on success, or -EFAULT on error.
++ */
+ #define put_user(x,ptr)							\
+   __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
+ 
++
++/**
++ * __get_user: - Get a simple variable from user space, with less checking.
++ * @x:   Variable to store result.
++ * @ptr: Source address, in user space.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * This macro copies a single simple variable from user space to kernel
++ * space.  It supports simple types like char and int, but not larger
++ * data types like structures or arrays.
++ *
++ * @ptr must have pointer-to-simple-variable type, and the result of
++ * dereferencing @ptr must be assignable to @x without a cast.
++ *
++ * Caller must check the pointer with access_ok() before calling this
++ * function.
++ *
++ * Returns zero on success, or -EFAULT on error.
++ * On error, the variable @x is set to zero.
++ */
+ #define __get_user(x,ptr) \
+   __get_user_nocheck((x),(ptr),sizeof(*(ptr)))
++
++
++/**
++ * __put_user: - Write a simple value into user space, with less checking.
++ * @x:   Value to copy to user space.
++ * @ptr: Destination address, in user space.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * This macro copies a single simple value from kernel space to user
++ * space.  It supports simple types like char and int, but not larger
++ * data types like structures or arrays.
++ *
++ * @ptr must have pointer-to-simple-variable type, and @x must be assignable
++ * to the result of dereferencing @ptr.
++ *
++ * Caller must check the pointer with access_ok() before calling this
++ * function.
++ *
++ * Returns zero on success, or -EFAULT on error.
++ */
+ #define __put_user(x,ptr) \
+   __put_user_nocheck((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
+ 
+@@ -263,6 +382,21 @@
+  * If a store crosses a page boundary and gets a fault, the x86 will not write
+  * anything, so this is accurate.
+  */
++
++/**
++ * __copy_to_user: - Copy a block of data into user space, with less checking.
++ * @to:   Destination address, in user space.
++ * @from: Source address, in kernel space.
++ * @n:    Number of bytes to copy.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Copy data from kernel space to user space.  Caller must check
++ * the specified block with access_ok() before calling this function.
++ *
++ * Returns number of bytes that could not be copied.
++ * On success, this will be zero.
++ */
+ static inline unsigned long
+ __copy_to_user(void *to, const void *from, unsigned long n)
+ {
+@@ -284,6 +418,23 @@
+ 	return __copy_to_user_ll(to, from, n);
+ }
+ 
++/**
++ * __copy_from_user: - Copy a block of data from user space, with less checking.
++ * @to:   Destination address, in kernel space.
++ * @from: Source address, in user space.
++ * @n:    Number of bytes to copy.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Copy data from user space to kernel space.  Caller must check
++ * the specified block with access_ok() before calling this function.
++ *
++ * Returns number of bytes that could not be copied.
++ * On success, this will be zero.
++ *
++ * If some data could not be copied, this function will pad the copied
++ * data to the requested size using zero bytes.
++ */
+ static inline unsigned long
+ __copy_from_user(void *to, const void *from, unsigned long n)
+ {
+@@ -305,6 +456,19 @@
+ 	return __copy_from_user_ll(to, from, n);
+ }
+ 
++/**
++ * copy_to_user: - Copy a block of data into user space.
++ * @to:   Destination address, in user space.
++ * @from: Source address, in kernel space.
++ * @n:    Number of bytes to copy.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Copy data from kernel space to user space.
++ *
++ * Returns number of bytes that could not be copied.
++ * On success, this will be zero.
++ */
+ static inline unsigned long
+ copy_to_user(void *to, const void *from, unsigned long n)
+ {
+@@ -313,6 +477,22 @@
+ 	return n;
+ }
+ 
++/**
++ * copy_from_user: - Copy a block of data from user space.
++ * @to:   Destination address, in kernel space.
++ * @from: Source address, in user space.
++ * @n:    Number of bytes to copy.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Copy data from user space to kernel space.
++ *
++ * Returns number of bytes that could not be copied.
++ * On success, this will be zero.
++ *
++ * If some data could not be copied, this function will pad the copied
++ * data to the requested size using zero bytes.
++ */
+ static inline unsigned long
+ copy_from_user(void *to, const void *from, unsigned long n)
+ {
+@@ -323,7 +503,23 @@
+ 
+ long strncpy_from_user(char *dst, const char *src, long count);
+ long __strncpy_from_user(char *dst, const char *src, long count);
++
++/**
++ * strlen_user: - Get the size of a string in user space.
++ * @str: The string to measure.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Get the size of a NUL-terminated string in user space.
++ *
++ * Returns the size of the string INCLUDING the terminating NUL.
++ * On exception, returns 0.
++ *
++ * If there is a limit on the length of a valid string, you may wish to
++ * consider using strnlen_user() instead.
++ */
+ #define strlen_user(str) strnlen_user(str, ~0UL >> 1)
++
+ long strnlen_user(const char *str, long n);
+ unsigned long clear_user(void *mem, unsigned long len);
+ unsigned long __clear_user(void *mem, unsigned long len);
 
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
-
-
----1463811740-31657548-1046547036=:31670
-Content-Type: APPLICATION/x-perl; name="spell-fix.pl"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0303012030360.31670@korben.citd.de>
-Content-Description: 
-Content-Disposition: attachment; filename="spell-fix.pl"
-
-IyEvdXNyL2Jpbi9wZXJsIC13Cgp1c2Ugc3RyaWN0Owp1c2UgR2V0b3B0OjpM
-b25nOwp1c2UgdmFycyBxdyAoCgkgICAgICRkZWJ1ZwoJICAgICAlc3BlbGwg
-JHNwZWxsX3JlCgkgICAgICRzcGVsbF9maWxlCgkgICAgIEBpbnB1dF9maWxl
-cyAkaW5wdXRfZmlsZQoJICAgICBAaW5wdXRfZGlycyAgJGlucHV0X2RpcgoJ
-ICAgICAkb25seWNvbW1lbnRzCgkgICAgICRkaXIgJHBhdGggJGZpeGVkCgkg
-ICAgKTsKdXNlIHN1YnMgcXcgKAoJICAgICBpbml0X2NvbW1hbmRsaW5lIHVz
-YWdlCgkgICAgKTsKc3ViIGNoZWNrX2ZpbGUoJCk7CnN1YiBjaGVja19jb250
-ZW50KCQkKTsKCmluaXRfY29tbWFuZGxpbmU7CgojIFNlZSBpZiB0aGUgc3Bl
-bGwtZmlsZSBpcyBmb3VuZCBpbiB0aGUgY3VycmVudC1kaXIKIyBvdGhlcndp
-c2UgbG9vayBpbiB0aGUgZGlyIGZyb20gd2hlcmUgd2Ugd2VyZSBzdGFydGVk
-CmlmICghIC1mICRzcGVsbF9maWxlKSB7CiAgbXkgJGRpciA9ICQwOwogICRk
-aXIgPX4gcy9cL1teXC9dKyQvXC8vOwoKICBpZiAoLWYgIiRkaXIvJHNwZWxs
-X2ZpbGUiKSB7CiAgICAkc3BlbGxfZmlsZSA9ICIkZGlyLyRzcGVsbF9maWxl
-IjsKICB9Cn0KCiMgLS0gUmVhZCBmaWxlIHdpdGggdGhlIHNwZWxsaW5ncyAt
-LQojIEZpbGUtRm9ybWF0CiMgY29ycmVjdC13b3JkPWZhbHNlLGZhbHNlLGZh
-bHNlLi4uCm9wZW4gKEZJLCAkc3BlbGxfZmlsZSkgb3IgZGllICgiQ2FuJ3Qg
-b3BlbiBcIiRzcGVsbF9maWxlXCIiKTsKd2hpbGUgKDxGST4pIHsKICBzL1wj
-LiokLy87CiAgY2hvbXA7CiAgaWYgKCRfKSB7CiAgICBwcmludCAiSW5wdXQt
-TGluZTogJF9cbiIgaWYgKCRkZWJ1Zyk7CiAgICBteSAoJGNvcnJlY3QsICRm
-YWxzZV9zKSA9IHNwbGl0ICgvXHMqPVxzKi8sICRfLCAyKTsKICAgICRjb3Jy
-ZWN0ID1+IHMvXlxzKy8vOwogICAgJGNvcnJlY3QgPX4gcy9ccyskLy87CiAg
-ICBmb3JlYWNoIG15ICRmYWxzZSAoc3BsaXQgKC9ccyosXHMqLywgJGZhbHNl
-X3MpKSB7CiAgICAgICRmYWxzZSA9fiBzL15ccysvLzsKICAgICAgJGZhbHNl
-ID1+IHMvXHMrJC8vOwogICAgICBpZiAoJGZhbHNlIG5lICRjb3JyZWN0KSB7
-CglwcmludCAiRml4OiBcIiRmYWxzZVwiIC0+IFwiY29ycmVjdFwiXG4iIGlm
-ICgkZGVidWcpOwoJJHNwZWxseyRmYWxzZX0gPSAkY29ycmVjdDsKICAgICAg
-fQogICAgICBlbHNlIHsKCXdhcm4gKCJFcnJvciBpbiBTcGVsbC1maWxlOiBc
-IiRzcGVsbF9maWxlXCIgTGluZTogJC4gXCIkY29ycmVjdFwiIGlzIHRoZSBz
-YW1lIGZvciBmYWxzZSAmIGNvcnJlY3QiKTsKICAgICAgfQogICAgfQogIH0K
-fQpjbG9zZSAoRkkpOwojIC0tIEVuZCAtLQoKIyAtLSBDcmVhdGUgdGhlIHJl
-Z3VsYXIgZXhwcmVzc2lvbiAtLQpteSBAdGVtcF9zcGVsbDsKZm9yZWFjaCBt
-eSAka2V5IChzb3J0IHskYiBjbXAgJGF9IGtleXMgJXNwZWxsKSB7CiAgIyBG
-b3Iga2V5cyBlbmRpZyB3aXRoIGEgIlx3Im9yZC1jaGFyYWN0YXIgd2UgYWRk
-IGEgIlxiIm91bmRhcnkuCiAgIyBPdGhlcndpc2Ugd2UgZ2V0IGludG8gdHJv
-dWJsZSB3aXRoIHdvcmRzIHRoYXQgYmVnaW4gdGhlIHNhbWUgYnV0IGFyZSBs
-b25nZXIKICBteSAkcG9zdGZpeCA9ICRrZXkgPX4gL1x3JC8gPyAnXGInIDog
-Jyc7CgogIHB1c2ggQHRlbXBfc3BlbGwsICJcUSRrZXlcRSRwb3N0Zml4Igp9
-CiRzcGVsbF9yZSA9IGpvaW4gKCJcfCIsIEB0ZW1wX3NwZWxsKTsKcHJpbnQg
-IlNwZWxsX3JlOiAkc3BlbGxfcmVcbiIgaWYgKCRkZWJ1Zyk7CiMgLS0gRW5k
-IC0tCgojIENoZWNrIGZpbGVzLCBpZiBzcGVjaWZpZWQKaWYgKCQjaW5wdXRf
-ZmlsZXMgPj0gMCkgewogIGZvcmVhY2ggJGlucHV0X2ZpbGUgKEBpbnB1dF9m
-aWxlcykgewogICAgcHJpbnQgIkNoZWNraW5nIGZpbGU6IFwiJGlucHV0X2Zp
-bGVcIlxuIiBpZiAoJGRlYnVnKTsKICAgIGNoZWNrX2ZpbGUgKCRpbnB1dF9m
-aWxlKTsKICB9Cn0KCiMgQ2hlY2sgZGlycywgaWYgc3BlY2lmaWVkCmlmICgk
-I2lucHV0X2RpcnMgPj0gMCkgewogIGZvcmVhY2ggJGlucHV0X2RpciAoQGlu
-cHV0X2RpcnMpIHsKICAgIHByaW50ICJDaGVja2luZyBkaXI6IFwiJGlucHV0
-X2RpclwiXG4iIGlmICgkZGVidWcpOwogICAgJnRyYXZlcnNlKCRpbnB1dF9k
-aXIpOwogIH0KfQoKIyBXaGVuIHRoZXJlIHdhcyBubyBmaWxlIGFuZC9vciBk
-aXIgYXJndW1lbnQocykgdGhlbiBwcm9jZXNzIGV2ZXJ5dGhpbmcgZnJvbSBj
-dXJyZW50IGRpcgppZiAoJCNpbnB1dF9maWxlcyA9PSAtMSAmJiAkI2lucHV0
-X2RpcnMgLTEpIHsKICBwcmludCAiTm8gZGlyL2ZpbGVzIHNwZWNpZmVkIGNo
-ZWNraW5nIGFsbCBmaWxlcyBpbiB0aGUgZGlyIGFuZCBzdWJkaXJzXG4iIGlm
-ICgkZGVidWcpOwogICZ0cmF2ZXJzZSgiLiIpOwp9CgpzdWIgaW5pdF9jb21t
-YW5kbGluZSB7CiAgbXkgJGhlbHBvcHQgICA9IDA7CiAgJGRlYnVnICAgICAg
-ICA9IDA7CiAgJHNwZWxsX2ZpbGUgICA9ICJzcGVsbC1maXgudHh0IjsKICBA
-aW5wdXRfZmlsZXMgID0gKCk7CiAgQGlucHV0X2RpcnMgICA9ICgpOwogICRv
-bmx5Y29tbWVudHMgPSAxOwoKICBteSAkcmVzdWx0ID0gR2V0T3B0aW9ucygK
-CQkJICAnaGVscCEnICAgICAgICAgID0+IFwkaGVscG9wdCwKCQkJICAnc3Bl
-bGwtZmlsZT1zJyAgID0+IFwkc3BlbGxfZmlsZSwKCQkJICAnZmlsZT1zJyAg
-ICAgICAgID0+IFxAaW5wdXRfZmlsZXMsCgkJCSAgJ2Rpcj1zJyAgICAgICAg
-ICA9PiBcQGlucHV0X2RpcnMsCgkJCSAgJ29ubHktY29tbWVudHMhJyA9PiBc
-JG9ubHljb21tZW50cywKCQkJICAnZGVidWchJyAgICAgICAgID0+IFwkZGVi
-dWcsCgkJCSApOwoKICB1c2FnZSgpIGlmICRoZWxwb3B0Owp9CgpzdWIgdXNh
-Z2UgewogIHByaW50IDw8IkVPRiI7ClVzYWdlOiAkMCA8b3B0aW9ucz4sIHdo
-ZXJlIHZhbGlkIG9wdGlvbnMgYXJlCiAgICAtLWhlbHAgICAgICAgICAgICAg
-ICMgdGhpcyBtZXNzYWdlIDotKQogICAgLS1zcGVsbC1maWxlICAgICAgICAj
-IEZpbGUgd2l0aCB0aGUgY29ycmVjdGlvbi1saXN0CiAgICAtLWZpbGUgPGZp
-bGU+ICAgICAgICMgRmlsZShzKSB0byBiZSBjaGVja2VkCiAgICAtLWRpciA8
-ZGlyPiAgICAgICAgICMgRGlyZWN0b3J5KHMpIHRvIGJlIGNoZWNrZWQgKHJl
-Y3Vyc2l2ZSEpCiAgICAtLVtub11vbmx5LWNvbW1lbnRzICMgT25seSBmaXgg
-d29yZHMgaW5zaWRlIGEgY29tbWVudAogICAgLS1kZWJ1ZyAgICAgICAgICAg
-ICAjIERlYnVnZ2luZy1NZXNzYWdlcwpFT0YKICBleGl0KDApOwp9CgpzdWIg
-dHJhdmVyc2UgewogIGxvY2FsKCRkaXIpID0gc2hpZnQ7CiAgbG9jYWwoJHBh
-dGgpOwoKICB1bmxlc3MgKG9wZW5kaXIoRElSLCAkZGlyKSkgewogICAgd2Fy
-biAiQ2FuJ3Qgb3BlbiAkZGlyXG4iOwogICAgY2xvc2VkaXIoRElSKTsKICAg
-IHJldHVybjsKICB9CiAgZm9yZWFjaCAocmVhZGRpcihESVIpKSB7CiAgICBu
-ZXh0IGlmICRfIGVxICcuJyB8fCAkXyBlcSAnLi4nOwogICAgJHBhdGggPSAi
-JGRpci8kXyI7CiAgICBpZiAoLWQgJHBhdGgpIHsgICAgICAgICAjIGEgZGly
-ZWN0b3J5CiAgICAgICZ0cmF2ZXJzZSgkcGF0aCk7CiAgICB9CiAgICBlbHNp
-ZiAoLWYgXykgeyAgICAgICAgIyBhIHBsYWluIGZpbGUKICAgICAgY2hlY2tf
-ZmlsZSAoJHBhdGgpOwogICAgfQogIH0KICBjbG9zZWRpcihESVIpOwp9Cgpz
-dWIgY2hlY2tfZmlsZSgkKSB7CiAgbXkgJGZpbGUgPSBzaGlmdDsKICBteSAk
-Y29udGVudDsKICAkZml4ZWQgPSAwOwoKICBvcGVuIChGSSwgJGZpbGUpIG9y
-IHJldHVybjsKICAkY29udGVudCA9IGpvaW4gKCIiLCA8Rkk+KTsKICBjbG9z
-ZSAoRkkpOwoKICBpZiAoJGRlYnVnKSB7CiAgICB3aGlsZSAoJGNvbnRlbnQg
-PX4gL1xiKCRzcGVsbF9yZSkvZykgewogICAgICBwcmludCAiRmFsc2UtU3Bl
-bGxpbmc6IFwiJDFcIiAtPiBcIiRzcGVsbHskMX1cIlxuIjsKICAgIH0KICB9
-CgogICMgQ29ycmVjdCBzcGVsbGluZy4gWWVzIHRoZSAiY29yZSIgaXMgb25s
-eSBhIHNpbmdsZSBzdWJzdGl0dXRpb24uIDotKQogIGlmICgkb25seWNvbW1l
-bnRzKSB7CiAgICAjIFRha2UgSSAiLy8iLUNvbW1lbnRzCiAgICAkY29udGVu
-dCA9fiBzISgvLykoLispJCFjaGVja19jb250ZW50KCQxLCQyKSFlZ207CiAg
-ICAjIFRha2UgSUkgIi8qIC4uLiAqLyItQ29tbWVudHMKICAgICRjb250ZW50
-ID1+IHMhKC9cKikoLis/KVwqLyFjaGVja19jb250ZW50KCQxLCQyKSFlZ3M7
-CiAgfQogIGVsc2UgewogICAgaWYgKCRjb250ZW50ID1+IHMvXGIoJHNwZWxs
-X3JlKS8kc3BlbGx7JDF9L2VnKSB7CiAgICAgICRmaXhlZCA9IDE7CiAgICB9
-CiAgfQoKICBpZiAoJGZpeGVkKSB7CiAgICBwcmludCAiRmFsc2Ugc3BlbGxp
-bmdzIGZvdW5kLiBGaWxlOiBcIiRmaWxlXCJcbiIgaWYgKCRkZWJ1Zyk7CiAg
-ICAjIEFuZCB3cml0ZSBiYWNrIHRoZSBmaWxlLgogICAgb3BlbiAoRk8sICI+
-JGZpbGUudG1wIikgb3IgZGllICgiQ2FuJ3Qgb3BlbiBmaWxlIFwiJGZpbGUu
-dG1wXCIgZm9yIHdyaXRpbmciKTsKICAgIHByaW50IEZPICRjb250ZW50Owog
-ICAgY2xvc2UgKEZPKTsKCiAgICByZW5hbWUgKCIkZmlsZSIsICIkZmlsZS50
-bXAyIikgb3IgZGllICgiQ2FuJ3QgcmVuYW1lIFwiJGZpbGVcIiAtPiBcIiRm
-aWxlLnRtcDJcIiIpOwogICAgcmVuYW1lICgiJGZpbGUudG1wIiwgIiRmaWxl
-Iikgb3IgZGllICgiQ2FuJ3QgcmVuYW1lIFwiJGZpbGUudG1wXCIgLT4gXCIk
-ZmlsZVwiIik7CiAgICB1bmxpbmsgKCIkZmlsZS50bXAyIikgb3IgZGllICgi
-Q2FuJ3QgdW5saW5rIFwiJGZpbGUudG1wMlwiIik7CiAgfQogIGVsc2Ugewog
-ICAgcHJpbnQgIk5vIGZhbHNlIHNwZWxsaW5ncyBmb3VuZC4gRmlsZTogXCIk
-ZmlsZVwiXG4iIGlmICgkZGVidWcpOwogIH0KfQoKc3ViIGNoZWNrX2NvbnRl
-bnQoJCQpIHsKICBteSAkY29tbWVudCA9IHNoaWZ0OwogIG15ICRjb250ZW50
-ID0gc2hpZnQ7CgogIHByaW50ICJDb21tZW50OiAkY29tbWVudFxuIjsKICBw
-cmludCAiY29udGVudDogJGNvbnRlbnRcbiI7CgogIGlmICgkY29udGVudCA9
-fiBzL1xiKCRzcGVsbF9yZSkvJHNwZWxseyQxfS9lZykgewogICAgJGZpeGVk
-ID0gMTsKICB9CgogIGlmICgkY29tbWVudCBlcSAiLy8iKSB7CiAgICByZXR1
-cm4gIi8vJGNvbnRlbnQiOwogIH0KICBlbHNlIHsKICAgIHJldHVybiAiLyok
-Y29udGVudCovIjsKICB9Cn0K
----1463811740-31657548-1046547036=:31670--

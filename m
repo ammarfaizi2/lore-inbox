@@ -1,320 +1,199 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262207AbSIZGiX>; Thu, 26 Sep 2002 02:38:23 -0400
+	id <S262208AbSIZGjv>; Thu, 26 Sep 2002 02:39:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSIZGiW>; Thu, 26 Sep 2002 02:38:22 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:10769 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S262207AbSIZGiS>;
-	Thu, 26 Sep 2002 02:38:18 -0400
-Envelope-To: <linux-kernel@vger.kernel.org>
-From: Mark Hindley <mark@hindley.uklinux.net>
-MIME-Version: 1.0
+	id <S262210AbSIZGjv>; Thu, 26 Sep 2002 02:39:51 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51904 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262208AbSIZGjs>;
+	Thu, 26 Sep 2002 02:39:48 -0400
+Date: Thu, 26 Sep 2002 08:44:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020926064455.GC12862@suse.de>
+References: <20020925172024.GH15479@suse.de> <3D92A61E.40BFF2D0@digeo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15762.44049.335196.949161@titan.home.hindley.uklinux.net>
-Date: Thu, 26 Sep 2002 07:41:21 +0100 (BST)
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: More 2.4.19 oopses
-X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <3D92A61E.40BFF2D0@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Sep 25 2002, Andrew Morton wrote:
+> 
+> This is looking good.   With a little more tuning and tweaking
+> this problem is solved.
+> 
+> The horror test was:
+> 
+> 	cd /usr/src/linux
+> 	dd if=/dev/zero of=foo bs=1M count=4000
+> 	sleep 5
+> 	time cat kernel/*.c > /dev/null
+> 
+> Testing on IDE (this matters - SCSI is very different)
 
-I am still getting multiple oopses and recurrent lockups. See below.
+Yes, SCSI specific stuff comes next.
 
-Advice please:
+> - On 2.5.38 + souped-up VM it was taking 25 seconds.
+> 
+> - My read-latency patch took 1 second-odd.
+> 
+> - Linus' rework yesterday was taking 0.3 seconds.
+> 
+> - With Linus' current tree (with the deadline scheduler) it now takes
+>   5 seconds.
+> 
+> Let's see what happens as we vary read_expire:
+> 
+> 	read_expire (ms)	time cat kernel/*.c (secs)
+> 		500			5.2
+> 		400			3.8
+> 		300			4.5
+> 		200			3.9
+> 		100			5.1
+> 		 50			5.0
+> 
+> well that was a bit of a placebo ;)
 
-Am I helping by reporting them?
+For this work load, more on that later.
 
-Are they real?
+> Let's leave read_expire at 500ms and diddle writes_starved:
+> 
+> 	writes_starved (units)	time cat kernel/*.c (secs)
+> 		 1			4.8
+> 		 2			4.4
+> 		 4			4.0
+> 		 8			4.9
+> 		16			4.9
 
-Is it more likely that I have a hardware problem? I have checked the
-memory with memtest with no errors.
+Interesting
 
-Thanks
+> Now alter fifo_batch, everything else default:
+> 
+> 	fifo_batch (units)	time cat kernel/*.c (secs)
+> 		64			5.0
+> 		32			2.0
+> 		16			0.2
+> 		 8			0.17
+> 
+> OK, that's a winner.
 
-Mark
+Cool, I'm resting benchmarks with 16 as the default now. I fear this
+might be too agressive, and that 32 will be a decent value.
 
---- working directory: /var/log/
-% ksymoops -m /boot/System.map /var/log/syslog.0
-ksymoops 2.3.7 on i586 2.4.19.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19/ (default)
-     -m /boot/System.map (specified)
+> Here's something really nice with the deadline scheduler.  I was
+> madly catting five separate kernel trees (five reading processes)
+> and then started a big `dd', tunables at default:
+> 
+>    procs                      memory      swap          io     system      cpu
+>  r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+>  0  9  0   6008   2460   8304 324716    0    0  2048     0 1102   254 13 88  0
+>  0  7  0   6008   2600   8288 324480    0    0  1800     0 1114   266  0 100  0
+>  0  6  0   6008   2452   8292 324520    0    0  2432     0 1126   287 29 71  0
+>  0  6  0   6008   3160   8292 323952    0    0  3568     0 1132   312  0 100  0
+>  0  6  0   6008   2860   8296 324148  128    0  2984     0 1119   281 17 83  0
+>  1  6  0   5984   2856   8264 323816  352    0  5240     0 1162   479  0 100  0
+>  0  7  1   5984   4152   7876 324068    0    0  1648 28192 1215  1572  1 99  0
+>  0  9  2   6016   3136   7300 328568    0  180  1232 37248 1324  1201  3 97  0
+>  0  9  2   6020   5260   5628 329212    0    4  1112 29488 1296   560  0 100  0
+>  0  9  3   6020   3548   5596 330944    0    0  1064 35240 1302   629  6 94  0
+>  0  9  3   6020   3412   5572 331352    0    0   744 31744 1298   452  6 94  0
+>  0  9  2   6020   1516   5576 333352    0    0   888 31488 1283   467  0 100  0
+>  0  9  2   6020   3528   5580 331396    0    0  1312 20768 1251   385  0 100  0
+> 
+> Note how the read rate maybe halved, and we sustained a high
+> volume of writeback.  This is excellent.
 
-Sep 25 18:56:32 titan kernel: Unable to handle kernel paging request at virtual address ffd04fec
-Sep 25 18:56:32 titan kernel: c01448ef
-Sep 25 18:56:32 titan kernel: *pde = 00001063
-Sep 25 18:56:32 titan kernel: Oops: 0000
-Sep 25 18:56:32 titan kernel: CPU:    0
-Sep 25 18:56:32 titan kernel: EIP:    0010:[proc_info_read+135/276]    Not tainted
-Sep 25 18:56:32 titan kernel: EFLAGS: 00010256
-Sep 25 18:56:32 titan kernel: eax: 0000001f   ebx: ffd04fe8   ecx: fffffff8   edx: 00000000
-Sep 25 18:56:32 titan kernel: esi: c19fc000   edi: 000001ff   ebp: c0f3bf98   esp: c0f1bf74
-Sep 25 18:56:32 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 18:56:32 titan kernel: Process top (pid: 508, stackpage=c0f1b000)
-Sep 25 18:56:32 titan kernel: Stack: 00020000 c305ab60 ffffffea 00000008 c211cce0 c10b6360 0000002a 00000286 
-Sep 25 18:56:32 titan kernel:        c281d000 c0f1bfbc c012c197 c305ab60 400297c0 000001ff c305ab80 c0f1a000 
-Sep 25 18:56:32 titan kernel:        400296e0 00000008 bffffb6c c01087c3 00000008 400297c0 000001ff 400296e0 
-Sep 25 18:56:32 titan kernel: Call Trace:    [sys_read+151/244] [system_call+51/64]
-Sep 25 18:56:32 titan kernel: Code: 8b 4b 04 39 4d f4 7f 19 75 07 8b 45 f0 3b 03 77 10 8b 45 fc 
-Using defaults from ksymoops -t elf32-i386 -a i386
+Yep
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   8b 4b 04                  mov    0x4(%ebx),%ecx
-Code;  00000003 Before first symbol
-   3:   39 4d f4                  cmp    %ecx,0xfffffff4(%ebp)
-Code;  00000006 Before first symbol
-   6:   7f 19                     jg     21 <_EIP+0x21> 00000021 Before first symbol
-Code;  00000008 Before first symbol
-   8:   75 07                     jne    11 <_EIP+0x11> 00000011 Before first symbol
-Code;  0000000a Before first symbol
-   a:   8b 45 f0                  mov    0xfffffff0(%ebp),%eax
-Code;  0000000d Before first symbol
-   d:   3b 03                     cmp    (%ebx),%eax
-Code;  0000000f Before first symbol
-   f:   77 10                     ja     21 <_EIP+0x21> 00000021 Before first symbol
-Code;  00000011 Before first symbol
-  11:   8b 45 fc                  mov    0xfffffffc(%ebp),%eax
+> Let's try it again with fifo_batch at 16:
+> 
+>  0  5  0     80 303936   3960  49288    0    0  2520     0 1092   174  0 100  0
+>  0  5  0     80 302400   3996  50776    0    0  3040     0 1094   172 20 80  0
+>  0  5  0     80 301164   4032  51988    0    0  2504     0 1082   150  0 100  0
+>  0  5  0     80 299708   4060  53412    0    0  2904     0 1084   149  0 100  0
+>  1  5  1     80 164640   4060 186784    0    0  1344 26720 1104   891  1 99  0
+>  0  6  2     80 138900   4060 212088    0    0   280  7928 1039   226  0 100  0
+>  0  6  2     80 134992   4064 215928    0    0  1512  7704 1100   226  0 100  0
+>  0  6  2     80 130880   4068 219976    0    0  1928  9688 1124   245 17 83  0
+>  0  6  2     80 123316   4084 227432    0    0  2664  8200 1125   283 11 89  0
+> 
+> That looks acceptable.  Writes took quite a bit of punishment, but
+> the VM should cope with that OK.
+> 
+> It'd be interesting to know why read_expire and writes_starved have
+> no effect, while fifo_batch has a huge effect.
+> 
+> I'd like to gain a solid understanding of what these three knobs do.
+> Could you explain that a little more?
 
-Sep 25 19:37:01 titan kernel: Unable to handle kernel paging request at virtual address 5a000004
-Sep 25 19:37:01 titan kernel: c013d906
-Sep 25 19:37:01 titan kernel: *pde = 00000000
-Sep 25 19:37:01 titan kernel: Oops: 0000
-Sep 25 19:37:01 titan kernel: CPU:    0
-Sep 25 19:37:01 titan kernel: EIP:    0010:[get_new_inode+190/360]    Not tainted
-Sep 25 19:37:01 titan kernel: EFLAGS: 00010286
-Sep 25 19:37:01 titan kernel: eax: 5a000000   ebx: 00000000   ecx: 00000000   edx: c11cae00
-Sep 25 19:37:01 titan kernel: esi: c11af080   edi: c10bb268   ebp: c3af5ec4   esp: c3af5eb8
-Sep 25 19:37:01 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 19:37:01 titan kernel: Process cron (pid: 484, stackpage=c3af5000)
-Sep 25 19:37:01 titan kernel: Stack: 00000000 c10bb268 0000e041 c3af5eec c013db33 c11cae00 0000e041 c10bb268 
-Sep 25 19:37:01 titan kernel:        00000000 00000000 c2670da0 c119b280 c2670da0 c3af5f0c c014ce02 c11cae00 
-Sep 25 19:37:01 titan kernel:        0000e041 00000000 00000000 fffffff4 c119b280 c3af5f28 c013443c c119b280 
-Sep 25 19:37:01 titan kernel: Call Trace:    [iget4+187/196] [ext2_lookup+66/104] [real_lookup+88/196] [link_path_walk+1447/2080] [path_walk+29/32]
-Sep 25 19:37:01 titan kernel: Code: 83 78 04 00 74 14 8b 55 18 52 56 8b 40 04 ff d0 83 c4 08 eb 
+Sure. The reason you are not seeing a big change with read expire, is
+that you basically only have one thread issuing reads. Once you start
+flooding the queue with more threads doing reads, then read expire just
+puts a lid on the max latency that will incur. So you are probably not
+hitting the read expire logic at all, or just slightly.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   83 78 04 00               cmpl   $0x0,0x4(%eax)
-Code;  00000004 Before first symbol
-   4:   74 14                     je     1a <_EIP+0x1a> 0000001a Before first symbol
-Code;  00000006 Before first symbol
-   6:   8b 55 18                  mov    0x18(%ebp),%edx
-Code;  00000009 Before first symbol
-   9:   52                        push   %edx
-Code;  0000000a Before first symbol
-   a:   56                        push   %esi
-Code;  0000000b Before first symbol
-   b:   8b 40 04                  mov    0x4(%eax),%eax
-Code;  0000000e Before first symbol
-   e:   ff d0                     call   *%eax
-Code;  00000010 Before first symbol
-  10:   83 c4 08                  add    $0x8,%esp
-Code;  00000013 Before first symbol
-  13:   eb 00                     jmp    15 <_EIP+0x15> 00000015 Before first symbol
+The three tunables are:
 
-Sep 25 19:37:02 titan kernel:  <1>Unable to handle kernel paging request at virtual address 5a000004
-Sep 25 19:37:02 titan kernel: c013d906
-Sep 25 19:37:02 titan kernel: *pde = 00000000
-Sep 25 19:37:02 titan kernel: Oops: 0000
-Sep 25 19:37:02 titan kernel: CPU:    0
-Sep 25 19:37:02 titan kernel: EIP:    0010:[get_new_inode+190/360]    Not tainted
-Sep 25 19:37:02 titan kernel: EFLAGS: 00010282
-Sep 25 19:37:02 titan kernel: eax: 5a000000   ebx: 00000000   ecx: 00000000   edx: c11cae00
-Sep 25 19:37:02 titan kernel: esi: c3e71820   edi: c10bf258   ebp: c3af5d64   esp: c3af5d58
-Sep 25 19:37:02 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 19:37:02 titan kernel: Process watch (pid: 15358, stackpage=c3af5000)
-Sep 25 19:37:02 titan kernel: Stack: 00000000 c10bf258 0000284b c3af5d8c c013db33 c11cae00 0000284b c10bf258 
-Sep 25 19:37:02 titan kernel:        00000000 00000000 c1471560 c11af260 c1471560 c3af5dac c014ce02 c11cae00 
-Sep 25 19:37:02 titan kernel:        0000284b 00000000 00000000 fffffff4 c11af260 c3af5dc8 c013443c c11af260 
-Sep 25 19:37:02 titan kernel: Call Trace:    [iget4+187/196] [ext2_lookup+66/104] [real_lookup+88/196] [link_path_walk+601/2080] [path_walk+29/32]
-Sep 25 19:37:02 titan kernel: Code: 83 78 04 00 74 14 8b 55 18 52 56 8b 40 04 ff d0 83 c4 08 eb 
+read_expire. This one controls how old a request can be, before we
+attempt to move it to the dispatch queue. This is the starvation logic
+for the read list. When a read expires, the other nobs control what the
+behaviour is.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   83 78 04 00               cmpl   $0x0,0x4(%eax)
-Code;  00000004 Before first symbol
-   4:   74 14                     je     1a <_EIP+0x1a> 0000001a Before first symbol
-Code;  00000006 Before first symbol
-   6:   8b 55 18                  mov    0x18(%ebp),%edx
-Code;  00000009 Before first symbol
-   9:   52                        push   %edx
-Code;  0000000a Before first symbol
-   a:   56                        push   %esi
-Code;  0000000b Before first symbol
-   b:   8b 40 04                  mov    0x4(%eax),%eax
-Code;  0000000e Before first symbol
-   e:   ff d0                     call   *%eax
-Code;  00000010 Before first symbol
-  10:   83 c4 08                  add    $0x8,%esp
-Code;  00000013 Before first symbol
-  13:   eb 00                     jmp    15 <_EIP+0x15> 00000015 Before first symbol
+fifo_batch. This one controls how big a batch of requests we move from
+the sort lists to the dispatch queue. The idea was that we don't want to
+move single requests, since that might cause seek storms. Instead we
+move a batch of request, starting at the expire head for reads if
+necessary, along the sorted list to the dispatch queue. fifo_batch is
+the total cost that can be endured, a total of seeks and non-seeky
+requests. With you fifo_batch at 16, we can only move on seeky request
+to the dispatch queue. Or we can move 16 non-seeky requests. Or a few
+non-seeky request, and a seeky one. You get the idea.
 
-Sep 25 19:44:22 titan kernel:  <1>Unable to handle kernel paging request at virtual address ffab020b
-Sep 25 19:44:22 titan kernel: c012ce32
-Sep 25 19:44:22 titan kernel: *pde = 00000000
-Sep 25 19:44:22 titan kernel: Oops: 0002
-Sep 25 19:44:22 titan kernel: CPU:    0
-Sep 25 19:44:22 titan kernel: EIP:    0010:[file_move+26/44]    Not tainted
-Sep 25 19:44:22 titan kernel: EFLAGS: 00010282
-Sep 25 19:44:22 titan kernel: eax: ffab0207   ebx: c11cae70   ecx: c1624140   edx: c1a4c420
-Sep 25 19:44:22 titan kernel: esi: c3eb29a0   edi: ffffffe9   ebp: c1831f50   esp: c1831f4c
-Sep 25 19:44:22 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 19:44:22 titan kernel: Process xscreensaver (pid: 1541, stackpage=c1831000)
-Sep 25 19:44:22 titan kernel: Stack: c1624140 c1831f6c c012ba72 c1624140 c11cae70 00000000 c3e5c000 00000001 
-Sep 25 19:44:22 titan kernel:        c1831fa0 c012b9c8 c269e1e0 c10b6320 00000000 00000008 c269e1e0 c10b6320 
-Sep 25 19:44:22 titan kernel:        00000001 00000000 c09dcdc0 00000001 00000001 c1831fbc c012bce7 c3e5c000 
-Sep 25 19:44:22 titan kernel: Call Trace:    [dentry_open+162/388] [filp_open+64/72] [sys_open+51/132] [system_call+51/64]
-Sep 25 19:44:22 titan kernel: Code: 89 48 04 89 01 89 59 04 89 0b 8d 74 26 00 5b c9 c3 90 55 89 
+writes_starved. This controls how many times reads get preferred over
+writes. The default is 2, which means that we can serve two batches of
+reads over one write batch. A value of 4 would mean that reads could
+skip ahead of writes 4 times. A value of 1 would give you 1:1
+read:write, ie no read preference. A silly value of 0 would give you
+write preference, always.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  00000003 Before first symbol
-   3:   89 01                     mov    %eax,(%ecx)
-Code;  00000005 Before first symbol
-   5:   89 59 04                  mov    %ebx,0x4(%ecx)
-Code;  00000008 Before first symbol
-   8:   89 0b                     mov    %ecx,(%ebx)
-Code;  0000000a Before first symbol
-   a:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000e Before first symbol
-   e:   5b                        pop    %ebx
-Code;  0000000f Before first symbol
-   f:   c9                        leave  
-Code;  00000010 Before first symbol
-  10:   c3                        ret    
-Code;  00000011 Before first symbol
-  11:   90                        nop    
-Code;  00000012 Before first symbol
-  12:   55                        push   %ebp
-Code;  00000013 Before first symbol
-  13:   89 00                     mov    %eax,(%eax)
+Hope this helps?
 
-Sep 25 19:44:22 titan kernel:  <1>Unable to handle kernel paging request at virtual address 00040064
-Sep 25 19:44:22 titan kernel: c013b560
-Sep 25 19:44:22 titan kernel: *pde = 00000000
-Sep 25 19:44:22 titan kernel: Oops: 0000
-Sep 25 19:44:22 titan kernel: CPU:    0
-Sep 25 19:44:22 titan kernel: EIP:    0010:[locks_remove_flock+36/76]    Not tainted
-Sep 25 19:44:22 titan kernel: EFLAGS: 00010202
-Sep 25 19:44:22 titan kernel: eax: 00040038   ebx: c11cae00   ecx: 40400000   edx: c11cae00
-Sep 25 19:44:22 titan kernel: esi: c07d49a0   edi: c10b6320   ebp: c2833e98   esp: c2833e90
-Sep 25 19:44:22 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 19:44:22 titan kernel: Process forest (pid: 15277, stackpage=c2833000)
-Sep 25 19:44:22 titan kernel: Stack: c07d49a0 c10ebdc8 c2833eb4 c012ccff c07d49a0 c12db600 c1be8820 40238000 
-Sep 25 19:44:22 titan kernel:        c10ebdc0 c2833ed0 c0120548 c1be8820 c2832000 c2832000 00004000 c12db720 
-Sep 25 19:44:22 titan kernel:        c2833ee0 c0111303 c1be8820 c1be8820 c2833ef8 c01150cd c1be8820 c2832000 
-Sep 25 19:44:22 titan kernel: Call Trace:    [fput+43/220] [exit_mmap+204/284] [mmput+59/84] [do_exit+149/568] [sig_exit+143/144]
-Sep 25 19:44:22 titan kernel: Code: f6 40 2c 22 74 12 39 70 28 75 0d 6a 00 53 e8 6d e6 ff ff 83 
+> During development I'd suggest the below patch, to add
+> /proc/sys/vm/read_expire, fifo_batch and writes_starved - it beats
+> recompiling each time.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   f6 40 2c 22               testb  $0x22,0x2c(%eax)
-Code;  00000004 Before first symbol
-   4:   74 12                     je     18 <_EIP+0x18> 00000018 Before first symbol
-Code;  00000006 Before first symbol
-   6:   39 70 28                  cmp    %esi,0x28(%eax)
-Code;  00000009 Before first symbol
-   9:   75 0d                     jne    18 <_EIP+0x18> 00000018 Before first symbol
-Code;  0000000b Before first symbol
-   b:   6a 00                     push   $0x0
-Code;  0000000d Before first symbol
-   d:   53                        push   %ebx
-Code;  0000000e Before first symbol
-   e:   e8 6d e6 ff ff            call   ffffe680 <_EIP+0xffffe680> ffffe680 <END_OF_CODE+3b6a3721/????>
-Code;  00000013 Before first symbol
-  13:   83 00 00                  addl   $0x0,(%eax)
+It sure does, I either want to talk Al into making the ioschedfs (better
+name will be selected :-) or try and do it myself so we can do this
+properly.
 
-Sep 25 20:55:25 titan kernel:  <1>Unable to handle kernel paging request at virtual address 4154535c
-Sep 25 20:55:25 titan kernel: c013d906
-Sep 25 20:55:25 titan kernel: *pde = 00000000
-Sep 25 20:55:25 titan kernel: Oops: 0000
-Sep 25 20:55:25 titan kernel: CPU:    0
-Sep 25 20:55:25 titan kernel: EIP:    0010:[get_new_inode+190/360]    Not tainted
-Sep 25 20:55:25 titan kernel: EFLAGS: 00010286
-Sep 25 20:55:25 titan kernel: eax: 41545358   ebx: 00000000   ecx: 00000000   edx: c11cae00
-Sep 25 20:55:25 titan kernel: esi: c37de060   edi: c10bcde8   ebp: c2bd3e90   esp: c2bd3e84
-Sep 25 20:55:25 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 20:55:25 titan kernel: Process gpm (pid: 375, stackpage=c2bd3000)
-Sep 25 20:55:25 titan kernel: Stack: 00000000 c10bcde8 0000f3b0 c2bd3eb8 c013db33 c11cae00 0000f3b0 c10bcde8 
-Sep 25 20:55:25 titan kernel:        00000000 00000000 c0fbbe40 c11af440 c0fbbe40 c2bd3ed8 c014ce02 c11cae00 
-Sep 25 20:55:25 titan kernel:        0000f3b0 00000000 00000000 fffffff4 c11af440 c2bd3ef4 c013443c c11af440 
-Sep 25 20:55:25 titan kernel: Call Trace:    [iget4+187/196] [ext2_lookup+66/104] [real_lookup+88/196] [link_path_walk+1447/2080] [free_pages+29/32]
-Sep 25 20:55:25 titan kernel: Code: 83 78 04 00 74 14 8b 55 18 52 56 8b 40 04 ff d0 83 c4 08 eb 
+> I'll test scsi now.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   83 78 04 00               cmpl   $0x0,0x4(%eax)
-Code;  00000004 Before first symbol
-   4:   74 14                     je     1a <_EIP+0x1a> 0000001a Before first symbol
-Code;  00000006 Before first symbol
-   6:   8b 55 18                  mov    0x18(%ebp),%edx
-Code;  00000009 Before first symbol
-   9:   52                        push   %edx
-Code;  0000000a Before first symbol
-   a:   56                        push   %esi
-Code;  0000000b Before first symbol
-   b:   8b 40 04                  mov    0x4(%eax),%eax
-Code;  0000000e Before first symbol
-   e:   ff d0                     call   *%eax
-Code;  00000010 Before first symbol
-  10:   83 c4 08                  add    $0x8,%esp
-Code;  00000013 Before first symbol
-  13:   eb 00                     jmp    15 <_EIP+0x15> 00000015 Before first symbol
+Cool. I found a buglet that causes incorrect accounting when moving
+request if the dispatch queue is not empty. Attached.
 
-Sep 25 22:46:39 titan kernel: Unable to handle kernel paging request at virtual address 0060005d
-Sep 25 22:46:39 titan kernel: c012ce32
-Sep 25 22:46:39 titan kernel: *pde = 00000000
-Sep 25 22:46:39 titan kernel: Oops: 0002
-Sep 25 22:46:39 titan kernel: CPU:    0
-Sep 25 22:46:39 titan kernel: EIP:    0010:[file_move+26/44]    Not tainted
-Sep 25 22:46:39 titan kernel: EFLAGS: 00013282
-Sep 25 22:46:39 titan kernel: eax: 00600059   ebx: c11cae70   ecx: c11a7620   edx: c11a73a0
-Sep 25 22:46:39 titan kernel: esi: c2a73620   edi: 00000000   ebp: c19fdf50   esp: c19fdf4c
-Sep 25 22:46:39 titan kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 22:46:39 titan kernel: Process X (pid: 1531, stackpage=c19fd000)
-Sep 25 22:46:39 titan kernel: Stack: c11a7620 c19fdf6c c012ba72 c11a7620 c11cae70 00000882 c3a95000 0842e1b0 
-Sep 25 22:46:39 titan kernel:        c19fdfa0 c012b9c8 c2c941a0 c10b6320 00000882 0000000e c2c941a0 c10b6320 
-Sep 25 22:46:39 titan kernel:        0842e1b0 00000000 c3af3be0 00000001 00000001 c19fdfbc c012bce7 c3a95000 
-Sep 25 22:46:39 titan kernel: Call Trace:    [dentry_open+162/388] [filp_open+64/72] [sys_open+51/132] [system_call+51/64]
-Sep 25 22:46:39 titan kernel: Code: 89 48 04 89 01 89 59 04 89 0b 8d 74 26 00 5b c9 c3 90 55 89 
+===== drivers/block/deadline-iosched.c 1.1 vs edited =====
+--- 1.1/drivers/block/deadline-iosched.c	Wed Sep 25 21:16:26 2002
++++ edited/drivers/block/deadline-iosched.c	Thu Sep 26 08:33:35 2002
+@@ -254,6 +254,15 @@
+ 	struct list_head *sort_head = &dd->sort_list[rq_data_dir(rq)];
+ 	sector_t last_sec = dd->last_sector;
+ 	int batch_count = dd->fifo_batch;
++
++	/*
++	 * if dispatch is non-empty, disregard last_sector and check last one
++	 */
++	if (!list_empty(dd->dispatch)) {
++		struct request *__rq = list_entry_rq(dd->dispatch->prev);
++
++		last_sec = __rq->sector + __rq->nr_sectors;
++	}
+ 
+ 	do {
+ 		struct list_head *nxt = rq->queuelist.next;
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   89 48 04                  mov    %ecx,0x4(%eax)
-Code;  00000003 Before first symbol
-   3:   89 01                     mov    %eax,(%ecx)
-Code;  00000005 Before first symbol
-   5:   89 59 04                  mov    %ebx,0x4(%ecx)
-Code;  00000008 Before first symbol
-   8:   89 0b                     mov    %ecx,(%ebx)
-Code;  0000000a Before first symbol
-   a:   8d 74 26 00               lea    0x0(%esi,1),%esi
-Code;  0000000e Before first symbol
-   e:   5b                        pop    %ebx
-Code;  0000000f Before first symbol
-   f:   c9                        leave  
-Code;  00000010 Before first symbol
-  10:   c3                        ret    
-Code;  00000011 Before first symbol
-  11:   90                        nop    
-Code;  00000012 Before first symbol
-  12:   55                        push   %ebp
-Code;  00000013 Before first symbol
-  13:   89 00                     mov    %eax,(%eax)
+-- 
+Jens Axboe
 
-
-Done 07:37:42

@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277807AbRJRRFw>; Thu, 18 Oct 2001 13:05:52 -0400
+	id <S277826AbRJRRFm>; Thu, 18 Oct 2001 13:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277808AbRJRRFn>; Thu, 18 Oct 2001 13:05:43 -0400
-Received: from peace.netnation.com ([204.174.223.2]:36365 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S277807AbRJRRF1>; Thu, 18 Oct 2001 13:05:27 -0400
-Date: Thu, 18 Oct 2001 10:05:56 -0700
-From: Simon Kirby <sim@netnation.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: andi@firstfloor.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: Awfully slow /proc/net/tcp, netstat, in.identd in 2.4 (updated)
-Message-ID: <20011018100556.A4814@netnation.com>
-In-Reply-To: <20011018094222.A31919@netnation.com> <20011018.094956.107683652.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20011018.094956.107683652.davem@redhat.com>; from davem@redhat.com on Thu, Oct 18, 2001 at 09:49:56AM -0700
+	id <S277808AbRJRRFX>; Thu, 18 Oct 2001 13:05:23 -0400
+Received: from linux06.unm.edu ([129.24.15.38]:22290 "HELO linux06.unm.edu")
+	by vger.kernel.org with SMTP id <S277807AbRJRRFR>;
+	Thu, 18 Oct 2001 13:05:17 -0400
+Date: Thu, 18 Oct 2001 11:05:38 -0600 (MDT)
+From: Todd <todd@unm.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: ia64 gcc compile prob
+Message-ID: <Pine.A41.4.33.0110181103240.31982-100000@aix07.unm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 18, 2001 at 09:49:56AM -0700, David S. Miller wrote:
+folx,
 
-> Let me guess, the machine exhibiting the problem has the largest
-> amount of physical memory?
+i've searched archives & the web and can't find reference to this:
 
-You're right.  I was wrong about the identical hardware -- somebody has
-recently added another 128 MB to the box, and so it has 640 MB in there
-at the moment.  Most other boxes are 512 MB, and that other inactive
-server was only 128 MB.  Ah, the one I was comparing it with was only 384
-MB, even.  So yeah, it's probably memory-size related.
+i'm getting:
 
-Simon-
+gcc -D__KERNEL__
+-I/home/jotto/Cplant/top.10-17/compute/OS/linux-patches/linux-2.4.7/linux/include
+-Wall -Wstrict-prototypes -Wno-trigraphs -g -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe  -ffixed-r13
+-mfixed-range=f10-f15,f32-f127 -falign-functions=32 -DMODULE   -c -o
+scsi_ioctl.o scsi_ioctl.c
+scsi_ioctl.c: In function `scsi_ioctl_send_command':
+scsi_ioctl.c:366: Internal compiler error in rws_access_regno, at
+config/ia64/ia64.c:3689
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+
+when trying to compile scsi_ioctl.c on ia64 using
+
+gcc -v
+Reading specs from /usr/lib/gcc-lib/ia64-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
+
+on 2.4.7 and 2.4.11 patched with the appropriate patches from ports/ia64.
+
+are there known issues with gcc 2.96 on ia64 and if so, what are the
+known slns?  thanks,
+
+=========================================================
+Todd Underwood, todd@unm.edu
+
+=========================================================
+

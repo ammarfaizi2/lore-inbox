@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbTE2S14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 14:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTE2S14
+	id S262490AbTE2SeB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 14:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTE2SeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 14:27:56 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:7609 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262488AbTE2S1z
+	Thu, 29 May 2003 14:34:01 -0400
+Received: from garnet.acns.fsu.edu ([146.201.2.25]:32750 "EHLO
+	garnet.acns.fsu.edu") by vger.kernel.org with ESMTP id S262490AbTE2Sd7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 14:27:55 -0400
-Date: Thu, 29 May 2003 11:40:08 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.70-mm1
-Message-ID: <18080000.1054233607@[10.10.2.4]>
-In-Reply-To: <1980000.1054189401@[10.10.2.4]>
-References: <20030527004255.5e32297b.akpm@digeo.com> <1980000.1054189401@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 29 May 2003 14:33:59 -0400
+Message-ID: <3ED65593.1080401@cox.net>
+Date: Thu, 29 May 2003 14:46:43 -0400
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Downing, Thomas" <Thomas.Downing@ipc.com>
+CC: Thomas Molina <tmolina@cox.net>, Florin Iucha <florin@iucha.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Is ALSA broken in 2.5.70?
+References: <170EBA504C3AD511A3FE00508BB89A920221E5F9@exnanycmbx4.ipc.com>
+In-Reply-To: <170EBA504C3AD511A3FE00508BB89A920221E5F9@exnanycmbx4.ipc.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> SDET 128  (see disclaimer)
->                            Throughput    Std. Dev
->                2.5.66-mm2       100.0%         0.6%
->           2.5.66-mm2-ext3         3.9%         0.4%
+Downing, Thomas wrote:
+> -----Original Message-----
+> From: David van Hoose [mailto:davidvh@cox.net]
+> [snip]
 > 
-> SDET 128  (see disclaimer)
->                            Throughput    Std. Dev
->           2.5.70-mm1-ext2       100.0%         0.1%
->           2.5.70-mm1-ext3        22.7%         2.0%
+>>2.4.21-rc5. ALSA on 2.5.70-bk2 reported to be 0.9.2, but everyone says
+>>it is 0.9.3c.
+> 
+> [snip]
+> 
+> Might the problem be incompatible versions of the alsa utilities and
+> libs you are using with the alsa modules in the kernel?  I don't know,
+> just a suggestion.  Feel free to flam...
 
-Andrew pointed out I should turn off extended attributes, I reran
-like this ... not much change (with error margins)
+I'm using alsa-lib 0.9.3, alsa-utils 0.9.3, alsa-tools 0.9.3 ALSA's OSS 
+compatibility library 0.9.1.
+For 2.4.21-rc5, I'm using 0.9.2 since 0.9.3 does not give me sound.
+For 2.5.70-bk3, I'm using whatever is in it. I believe it is a version 
+of 0.9.2, but I am not entirely sure.
 
- SDET 32  (see disclaimer)
-                           Throughput    Std. Dev
-          2.5.70-mm1-ext2       100.0%         0.2%
-          2.5.70-mm1-ext3        30.9%         7.8%
-          2.5.70-mm1-noxa        34.6%         6.5%
-
-SDET 128  (see disclaimer)
-                           Throughput    Std. Dev
-          2.5.70-mm1-ext2       100.0%         0.1%
-          2.5.70-mm1-ext3        22.7%         2.0%
-          2.5.70-mm1-noxa        21.4%         4.6%
-
-.text.lock.attr is still in there, so either I balls'ed it up somehow, or
-it wasn't the extd attr stuff in the first place. 
-
-CONFIG_EXT2_FS=y
-# CONFIG_EXT2_FS_XATTR is not set
-CONFIG_EXT3_FS=y
-# CONFIG_EXT3_FS_XATTR is not set
-
-   2024927   267.3% total
-   1677960   472.8% default_idle
-    116350     0.0% .text.lock.transaction
-     42783     0.0% do_get_write_access
-     40293     0.0% journal_dirty_metadata
-     34251  6414.0% __down
-     27867  9166.8% .text.lock.attr
-     20016  2619.9% __wake_up
-     19632   927.4% schedule
-     12204     0.0% .text.lock.sched
-     12128     0.0% start_this_handle
-     10011     0.0% journal_add_journal_head
+Thanks,
+David
 

@@ -1,57 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131109AbRAQKgD>; Wed, 17 Jan 2001 05:36:03 -0500
+	id <S131971AbRAQKlX>; Wed, 17 Jan 2001 05:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132342AbRAQKfy>; Wed, 17 Jan 2001 05:35:54 -0500
-Received: from mel.alcatel.fr ([212.208.74.132]:34141 "EHLO mel.alcatel.fr")
-	by vger.kernel.org with ESMTP id <S131394AbRAQKfo>;
-	Wed, 17 Jan 2001 05:35:44 -0500
-Message-ID: <3A657537.F4A64F78@vz.cit.alcatel.fr>
-Date: Wed, 17 Jan 2001 11:34:31 +0100
-From: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
-X-Mailer: Mozilla 4.7 [fr] (WinNT; I)
-X-Accept-Language: fr,en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Jeffrey Rose <Jeffrey.Rose@t-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 config breaks /dev/fd0* major/minor ? Fixed
-In-Reply-To: <3A656749.ACF3F01A@t-online.de> <3A6567CF.E10FDEBD@mandrakesoft.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S132806AbRAQKlP>; Wed, 17 Jan 2001 05:41:15 -0500
+Received: from oriloff.manu.com.au ([203.37.120.101]:32779 "EHLO manu.com.au")
+	by vger.kernel.org with ESMTP id <S131971AbRAQKk6>;
+	Wed, 17 Jan 2001 05:40:58 -0500
+From: Nathan Hand <nathanh@manu.com.au>
+Date: Wed, 17 Jan 2001 21:40:47 +1100
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ewrk3 update for 2.4
+Message-ID: <20010117214047.C10192@manu.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="cvVnyQ+4j833TQvp"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik a écrit :
 
-> Jeffrey Rose wrote:
-> > I get a wrong major/minor reported when attempting
-> > to mount /dev/fd0 ...
->
-> Sounds like it can't find the floppy driver, for whatever reason...
->
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I have seen this message, new with 2.4.0-2mdk
-(before I have 2.4.0-0.15mdk)
-but only on one PC.
-I have 2 PC, with same hardware, same PCMCIA config
 
-The first have mandrake 7.2 Odissey, and the modules
-floppy and floppy_cs are loaded, and /mnt/floppy is mounted
-modutils-2.4.1-1mdk
+Following patch updates ISA ewrk3 driver for 2.4. Still no SMP support
+sadly. Though if you're using an ewrk3 card on an SMP machine then you
+have bigger problems than a non-working driver.
 
-The second have mandrake 7.1 Helium, and the modules
-fail during init. and I have this message:
-'mount: /dev/fd0 has wrong major or minor number'
-modutils-2.3.21-2mdk (the last rpm-3)
 
-I have copied the files of modutils-2.4.1-1mdk, 
-and created 2 sym.links:
-# ls -l /lib/modules/2.4.0-2mdk/pcmcia/
-total 0
-lrwxrwxrwx    1 root     root           29 jan 10 22:09 ds.o -> ../kernel/drivers/pcmcia/ds.o
-lrwxrwxrwx    1 root     root           32 jan 17 11:30 floppy.o -> ../kernel/drivers/block/floppy.o
-lrwxrwxrwx    1 root     root           35 jan 17 11:30 floppy_cs.o -> ../kernel/drivers/block/floppy_cs.o
-and now, it works!
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ewrk3.c.diff"
+
+--- ewrk3.c.orig	Wed Jan 17 09:56:45 2001
++++ ewrk3.c	Wed Jan 17 10:05:21 2001
+@@ -819,24 +819,24 @@
+ 					}
+ 					outb(page, EWRK3_TQ);	/* Start sending pkt */
+ 				} else {
+-					writeb((char) (TCR_QMODE | TCR_PAD | TCR_IFC), (char *) buf);	/* ctrl byte */
++					isa_writeb((char) (TCR_QMODE | TCR_PAD | TCR_IFC), buf);	/* ctrl byte */
+ 					buf += 1;
+-					writeb((char) (skb->len & 0xff), (char *) buf);		/* length (16 bit xfer) */
++					isa_writeb((char) (skb->len & 0xff), buf);		/* length (16 bit xfer) */
+ 					buf += 1;
+ 					if (lp->txc) {
+-						writeb((char) (((skb->len >> 8) & 0xff) | XCT), (char *) buf);
++						isa_writeb((char) (((skb->len >> 8) & 0xff) | XCT), buf);
+ 						buf += 1;
+-						writeb(0x04, (char *) buf);	/* index byte */
++						isa_writeb(0x04, buf);	/* index byte */
+ 						buf += 1;
+-						writeb(0x00, (char *) (buf + skb->len));	/* Write the XCT flag */
++						isa_writeb(0x00, (buf + skb->len));	/* Write the XCT flag */
+ 						isa_memcpy_toio(buf, skb->data, PRELOAD);	/* Write PRELOAD bytes */
+ 						outb(page, EWRK3_TQ);	/* Start sending pkt */
+ 						isa_memcpy_toio(buf + PRELOAD, skb->data + PRELOAD, skb->len - PRELOAD);
+-						writeb(0xff, (char *) (buf + skb->len));	/* Write the XCT flag */
++						isa_writeb(0xff, (buf + skb->len));	/* Write the XCT flag */
+ 					} else {
+-						writeb((char) ((skb->len >> 8) & 0xff), (char *) buf);
++						isa_writeb((char) ((skb->len >> 8) & 0xff), buf);
+ 						buf += 1;
+-						writeb(0x04, (char *) buf);	/* index byte */
++						isa_writeb(0x04, buf);	/* index byte */
+ 						buf += 1;
+ 						isa_memcpy_toio(buf, skb->data, skb->len);		/* Write data bytes */
+ 						outb(page, EWRK3_TQ);	/* Start sending pkt */
+@@ -968,9 +968,9 @@
+ 					pkt_len = inb(EWRK3_DATA);
+ 					pkt_len |= ((u_short) inb(EWRK3_DATA) << 8);
+ 				} else {
+-					rx_status = readb(buf);
++					rx_status = isa_readb(buf);
+ 					buf += 1;
+-					pkt_len = readw(buf);
++					pkt_len = isa_readw(buf);
+ 					buf += 3;
+ 				}
+ 
+@@ -1204,7 +1204,7 @@
+ 			if (lp->shmem_length == IO_ONLY) {
+ 				outb(0xff, EWRK3_DATA);
+ 			} else {	/* memset didn't work here */
+-				writew(0xffff, p);
++				isa_writew(0xffff, (int) p);
+ 				p++;
+ 				i++;
+ 			}
+@@ -1221,8 +1221,8 @@
+ 				outb(0x00, EWRK3_DATA);
+ 			}
+ 		} else {
+-			memset_io(lp->mctbl, 0, (HASH_TABLE_LEN >> 3));
+-			writeb(0x80, (char *) (lp->mctbl + (HASH_TABLE_LEN >> 4) - 1));
++			isa_memset_io((int) lp->mctbl, 0, (HASH_TABLE_LEN >> 3));
++			isa_writeb(0x80, (int) (lp->mctbl + (HASH_TABLE_LEN >> 4) - 1));
+ 		}
+ 
+ 		/* Update table */
+@@ -1251,7 +1251,7 @@
+ 					outw((short) ((long) lp->mctbl) + byte, EWRK3_PIR1);
+ 					outb(tmp, EWRK3_DATA);
+ 				} else {
+-					writeb(readb(lp->mctbl + byte) | bit, lp->mctbl + byte);
++					isa_writeb(isa_readb((int)(lp->mctbl + byte)) | bit, (int)(lp->mctbl + byte));
+ 				}
+ 			}
+ 		}
+
+--cvVnyQ+4j833TQvp--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

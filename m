@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266221AbUGJMFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266223AbUGJMJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266221AbUGJMFR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 08:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUGJMFQ
+	id S266223AbUGJMJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 08:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266227AbUGJMJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 08:05:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59336 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266221AbUGJMFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 08:05:06 -0400
-Date: Sat, 10 Jul 2004 14:05:00 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Manjunath <manjunath.n@ap.sony.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Regarding Kernel 2.6.5
-Message-ID: <20040710120500.GJ28324@fs.tum.de>
-References: <1089087274.5155.35.camel@localhost.localdomain>
+	Sat, 10 Jul 2004 08:09:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33188 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266223AbUGJMJj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 08:09:39 -0400
+Date: Sat, 10 Jul 2004 14:05:53 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: ismail =?iso-8859-1?Q?d=F6nmez?= <ismail.donmez@gmail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Redeeman <lkml@metanurb.dk>,
+       LKML Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
+Message-ID: <20040710120553.GA24713@devserv.devel.redhat.com>
+References: <20040709182638.GA11310@elte.hu> <1089407610.10745.5.camel@localhost> <20040710080234.GA25155@elte.hu> <20040710085044.GA14262@elte.hu> <2a4f155d040710035512f21d34@mail.gmail.com> <1089458801.2704.3.camel@laptop.fenrus.com> <2a4f155d040710050166e98a7f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Content-Disposition: inline
-In-Reply-To: <1089087274.5155.35.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <2a4f155d040710050166e98a7f@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 06, 2004 at 09:44:34AM +0530, Manjunath wrote:
 
-> hi,
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Manju,
 
-> I tried to build Kernel 2.6.5 on Fedora Core 1.
-> make modules_install gives me this error
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.6.5-gcov/kernel/net/irda/irnet/irnet.ko
-> depmod:         irttp_open_tsap
-> depmod:         iriap_getvaluebyclass_request
-> depmod:         irda_notify_init
-> make: *** [_modinst_post] Error 1
-> 
-> On Fedora Core 1.
+On Sat, Jul 10, 2004 at 03:01:42PM +0300, ismail d=F6nmez wrote:
+> cartman@southpark:~$ dmesg | grep sched
+> Using anticipatory io scheduler
+>=20
+> Problem is I rarely do this copy operations like once a week or 2
+> weeks. Guess there is no scheduler that fits both desktop usage +
+> these kinds of operations?
 
-if you are able to reproduce this with an unmodified ftp.kernel.org 
-kernel (preferzble 2.6.7) please send your .config .
+CFQ seems to be quite good for desktop too in my experience...
 
-If not, please report this issue to RedHat.
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> Regards
-> Manju
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-cu
-Adrian
+iD8DBQFA79uhxULwo51rQBIRAl9KAJ4kxoCgjhx4Yfibr1JyhOqLZ1jnmQCgnKkq
+Mb1hRxDRdxuHOrJxF0rZ4yA=
+=p4xb
+-----END PGP SIGNATURE-----
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--Q68bSM7Ycu6FN28Q--

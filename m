@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUHXGP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266532AbUHXGSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266449AbUHXGP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 02:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHXGP3
+	id S266532AbUHXGSo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 02:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266527AbUHXGSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 02:15:29 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7080 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267399AbUHXGNx (ORCPT
+	Tue, 24 Aug 2004 02:18:44 -0400
+Received: from cantor.suse.de ([195.135.220.2]:32472 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266532AbUHXGRb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 02:13:53 -0400
-Date: Tue, 24 Aug 2004 08:14:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Scott Wood <scott@timesys.com>
-Cc: manas.saksena@timesys.com, linux-kernel@vger.kernel.org
-Subject: [patch] voluntary-preempt-2.6.8.1-P9
-Message-ID: <20040824061459.GA29630@elte.hu>
-References: <20040823221816.GA31671@yoda.timesys>
+	Tue, 24 Aug 2004 02:17:31 -0400
+Date: Tue, 24 Aug 2004 08:17:29 +0200
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix MTRR strings definition.
+Message-Id: <20040824081729.311ee677.ak@suse.de>
+In-Reply-To: <20040823232320.GA1875@redhat.com>
+References: <20040823232320.GA1875@redhat.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040823221816.GA31671@yoda.timesys>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 Aug 2004 00:23:20 +0100
+Dave Jones <davej@redhat.com> wrote:
 
-* Scott Wood <scott@timesys.com> wrote:
+> Instead of deleting the extern from include/asm/mtrr.h, I believe
+> the correct fix would be to move the strings back to the include file
+> where they belong.
+> The reason behind this, is that there are userspace apps (admittedly
+> few, but we even ship two in Documentation/mtrr.txt) that rely upon
+> these definitions being in that header.  This has been broken for
+> all 2.6 releases so far. Patch below fixes things back the way it
+> was in 2.4
 
-> I have attached a port of the voluntary preempt patch to PPC and
-> PPC64.  The patch is against P7, but it applies against P8 as well.
+That's rather ugly. It would be cleaner to just have a 
+macro that expands to the strings, and everybody who wants to use
+it declares an own array using that macro.
 
-thanks Scott, i've applied your patch to my tree - all the changes and
-improvements look good (except for a small compilation problem on x86,
-asm/time.h doesnt exist there - asm/rtc.h does). The resulting code
-booted fine on an SMP and on a UP x86 system. I've uploaded -P9:
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
+> Andi, I don't have gcc 3.5 to hand, I trust this fixes whatever
+> problem you saw there too ?
 
-(there are no other changes in -P9.)
+3.5 doesn't like it when something is declared both extern and static.
+Your new patch has this problem again.
 
-	Ingo
+-Andi
+

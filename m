@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284118AbRLTK6e>; Thu, 20 Dec 2001 05:58:34 -0500
+	id <S284160AbRLTLL0>; Thu, 20 Dec 2001 06:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284088AbRLTK6Y>; Thu, 20 Dec 2001 05:58:24 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:15329
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S284118AbRLTK6S>; Thu, 20 Dec 2001 05:58:18 -0500
-Date: Thu, 20 Dec 2001 11:58:10 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.17-rc2
-Message-ID: <20011220115810.N825@jaquet.dk>
-In-Reply-To: <Pine.LNX.4.21.0112181824020.4821-100000@freak.distro.conectiva>
-Mime-Version: 1.0
+	id <S284153AbRLTLLR>; Thu, 20 Dec 2001 06:11:17 -0500
+Received: from pat.uio.no ([129.240.130.16]:49568 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S284144AbRLTLLH>;
+	Thu, 20 Dec 2001 06:11:07 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0112181824020.4821-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Dec 18, 2001 at 06:26:03PM -0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15393.51009.856041.463215@charged.uio.no>
+Date: Thu, 20 Dec 2001 12:10:57 +0100
+To: Steffen Persvold <sp@scali.no>
+Cc: lkml <linux-kernel@vger.kernel.org>, nfs list <nfs@lists.sourceforge.net>,
+        Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: 2.4.8 NFS Problems
+In-Reply-To: <3C21B30D.871B6BE4@scali.no>
+In-Reply-To: <3C21B30D.871B6BE4@scali.no>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 06:26:03PM -0200, Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> So here it goes 2.4.17-rc2... as expected, bugfixes only.
+>>>>> " " == Steffen Persvold <sp@scali.no> writes:
 
+    >> I've been getting random NFS EIO errors for a few months but
+    >> now it's repeatable. Trying to copy a large file from one 2.4.8
+    >> SMP box to another is consistently failing (at different
+    >> offsets >each time).
 
-Hi.
+Please try the patch on
 
-Due to the (hideous) construct of multiple drivers in drivers/scsi
-doing #include "NCR5380.c", we need the following patch to make
-NCR5380_timer_fn static.
+  http://www.fys.uio.no/~trondmy/src/2.4.17/linux-2.4.17-fattr.dif
 
---- linux-2417r2/drivers/scsi/NCR5380.c.old	Thu Dec 20 11:50:43 2001
-+++ linux-2417r2/drivers/scsi/NCR5380.c	Thu Dec 20 11:45:48 2001
-@@ -612,7 +612,7 @@
-  *	Locks: disables irqs, takes and frees io_request_lock
-  */
-  
--void NCR5380_timer_fn(unsigned long unused)
-+static void NCR5380_timer_fn(unsigned long unused)
- {
- 	struct Scsi_Host *instance;
- 
+that fixes at least 1 such EIO error which was discovered using fsx.
 
--- 
-        Rasmus(rasmus@jaquet.dk)
-
-If at first you don't succeed, chainsaw juggling is not for you.
- -- Anonymous
+Cheers,
+   Trond

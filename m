@@ -1,96 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130562AbQL1P3j>; Thu, 28 Dec 2000 10:29:39 -0500
+	id <S129906AbQL1Pga>; Thu, 28 Dec 2000 10:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130559AbQL1P33>; Thu, 28 Dec 2000 10:29:29 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:57331 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129906AbQL1P3P>; Thu, 28 Dec 2000 10:29:15 -0500
-Date: Thu, 28 Dec 2000 12:57:08 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Daniel Phillips <phillips@innominate.de>, Ingo Molnar <mingo@elte.hu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] better drop-behind in generic_file_write
-Message-ID: <Pine.LNX.4.21.0012281238480.14052-100000@duckman.distro.conectiva>
+	id <S130555AbQL1PgU>; Thu, 28 Dec 2000 10:36:20 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:64018 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129906AbQL1PgR>;
+	Thu, 28 Dec 2000 10:36:17 -0500
+Message-ID: <3A4B563C.DAE31010@innominate.de>
+Date: Thu, 28 Dec 2000 16:03:24 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: innd mmap bug in 2.4.0-test12
+In-Reply-To: <20001227235533.T21944@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.10.10012271626040.10569-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Daniel,
+Linus Torvalds wrote:
+> 
+> On Wed, 27 Dec 2000, Philipp Rumpf wrote:
+> 
+> > On Wed, Dec 27, 2000 at 03:41:04PM -0800, Linus Torvalds wrote:
+> > > It must be wrong.
+> > >
+> > > If we have a dirty page on the LRU lists, that page _must_ have a mapping.
+> >
+> > What about pages with a mapping but without a writepage function ? or pages
+> > whose writepage function fails ?  The current code seems to simply put the
+> > page onto the active list in that case, which seems just as wrong to me.
+> 
+> ramfs. It doesn't have a writepage() function, as there is no backing
+> store.
+> 
+> > > The bug is somewhere else, and your patch is just papering it over. We
+> > > should not have a page without a mapping on the LRU lists in the first
+> > > place, except if the page has anonymous buffers (and such a page cannot
+> >
+> > So is there any legal reason we could ever get to page_active ?  Removing
+> > that code (or replacing it with BUG()) certainly would make page_launder
+> > more readable.
+> 
+> Apart from the "we have no backing store", there is no legal reason to put
+> it back on the active list that I can see.
 
-the (trivial) patch below fixes the drop-behind call in
-generic_file_write to *only* do drop-behind if we've
-written "past the end" of the page.
+It's logical that PageDirty should never be get for ramfs, and a ramfs
+page should never have buffers on it.  With this and Chris's anon_space
+mapping can we replace the check for null ->writepage with BUG?  With
+the anon_space mapping we should be able to do the same ford for
+->mapping.
 
-This way we have a better chance of still having partially
-written pages in memory when we write to them again (eg. for
-TUX logfiles). Not only will this speed up non page-aligned
-writes on loaded systems, it'll also give slower writes a
-small advantage over fast writes (which will skip page boundaries
-more often).
+Though these things aren't strictly bugs, having to check multiple paths
+for everything is slowing us down in picking off the fluff.
 
-Linus, Alan, could you please apply this patch in your next
-2.4.0-test kernel ?
-
-regards,
-
-Rik
 --
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
-
---- linux-2.4.0-test12-pre3/mm/filemap.c.orig	2000/12/21 18:20:17
-+++ linux/mm/filemap.c	2000/12/21 21:31:39
-@@ -2436,7 +2436,7 @@
- 	}
- 
- 	while (count) {
--		unsigned long bytes, index, offset;
-+		unsigned long bytes, index, offset, partial = 0;
- 		char *kaddr;
- 
- 		/*
-@@ -2446,8 +2446,10 @@
- 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
- 		index = pos >> PAGE_CACHE_SHIFT;
- 		bytes = PAGE_CACHE_SIZE - offset;
--		if (bytes > count)
-+		if (bytes > count) {
- 			bytes = count;
-+			partial = 1;
-+		}
- 
- 		status = -ENOMEM;	/* we'll assign it later anyway */
- 		page = __grab_cache_page(mapping, index, &cached_page);
-@@ -2478,9 +2480,17 @@
- 			buf += status;
- 		}
- unlock:
--		/* Mark it unlocked again and drop the page.. */
-+		/*
-+		 * Mark it unlocked again and release the page.
-+		 * In order to prevent large (fast) file writes
-+		 * from causing too much memory pressure we move
-+		 * completely written pages to the inactive list.
-+		 * We do, however, try to keep the pages that may
-+		 * still be written to (ie. partially written pages).
-+		 */
- 		UnlockPage(page);
--		deactivate_page(page);
-+		if (!partial)
-+			deactivate_page(page);
- 		page_cache_release(page);
- 
- 		if (status < 0)
-
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

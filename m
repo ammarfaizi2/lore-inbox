@@ -1,37 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317005AbSHZPyc>; Mon, 26 Aug 2002 11:54:32 -0400
+	id <S317767AbSHZP5A>; Mon, 26 Aug 2002 11:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317611AbSHZPyc>; Mon, 26 Aug 2002 11:54:32 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:31271 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S317005AbSHZPyb> convert rfc822-to-8bit; Mon, 26 Aug 2002 11:54:31 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Reinhard Moosauer <rm@moosauer.de>
-To: linux-kernel@vger.kernel.org
-Subject: Want to test a patch: H323-masquerading in Linux 2.4 (SuSE 8.0)
-Date: Mon, 26 Aug 2002 17:57:53 +0200
-User-Agent: KMail/1.4.1
+	id <S317872AbSHZP5A>; Mon, 26 Aug 2002 11:57:00 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:16768 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317767AbSHZP47>; Mon, 26 Aug 2002 11:56:59 -0400
+Date: Mon, 26 Aug 2002 12:01:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Kai-Boris Schad <kschad@correo.e-technik.uni-ulm.de>
+cc: Tony Nugent <tony@linuxworks.com.au>, linux-kernel@vger.kernel.org
+Subject: Re:Re: Q: Howto access the keyboard in a linux system without a graphics card ?
+In-Reply-To: <20020826154648.821B25CC037@mailix.e-technik.uni-ulm.de>
+Message-ID: <Pine.LNX.3.95.1020826115202.2038A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208261757.53371.rm@moosauer.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+On Mon, 26 Aug 2002, Kai-Boris Schad wrote:
 
-Unter 
+> Am Montag, 26. August 2002 13:36 schrieben Sie:
+> > On Mon Aug 26 2002 at 11:43, Kai-Boris Schad wrote:
+> > > Hi !
+> > >
+> > > I'm trying to set up a small embedded system for gps receiving with a
+> > > linux system.  I want to have the system working without a graphics card
+> > > - wich works well. The Problem I have at the moment is to access the
+> > > keyboard without a graphics card, because the console driver does not
+> > > start then ( Also a redirect doesn't work then :-( )
+> > > Is there a way to access the keyboard in this case by a user program ?
+> > > The system recognises the keyboard ( I think Kernel and init) and reacts
+> > > if ctrl-alt-del is pressed.
+> > >
+> > > Thanks for your help !
+> >
+> > Why not boot and access it through a serial port?  It is possible to
+> > get the boot loader, kernel and console access through that, totally
+> > headless and kdb-less.  The howtos tell you how to it...
+> >
+> > > Kai
+> >
+> > Cheers
+> > Tony
+> 
+> O.k. Thanks for the comment, actually I was also thinking about this. The 
+> problem is that I cannot insert any additional serial ports or interfaces 
+> (hardware). I have a small PC(PC104 Dimensions) with two serial ports, one 
+> for a gps modul and the other for a packet radio modem. On the parallel port 
+> I have a LCD monitor. And a small numberblock keyboard  connected to the 
+> keyboard connector. With the graphics card everything works fine - the 
+> problem is that I don't have any room for the card in the box and I really 
+> don't need it because of the lcd module (execept for the keyboard ;-)).  
+> 
+> Is there any way to tell the console/tty driver to start without a graphics 
+> card ? 
+> How does the system recognise the ctrl-alt-del ? (because this works anyway)
+> 
+> Ok I think my task is very special but I wondered a bit because I didn't 
+> expect the console, or tty drivers to stop without the graphics card. 
+> 
+> I hope there is a solution for this ;-)
+> 
+> Kai
+> 
+> -- 
+> Kai-Boris Schad 
+> University of Ulm, Germany
+> Dept. of Electron Devices and Circuits
+> Integrated Circuits in Communications
+> Albert Einstein Allee 45
+> 89069 ULM
+> 
 
-http://m1b.de/content/know/linux/nat_h323_suse80.html
+In an embedded system I noticed that Linux assumes that the keyboard
+is missing if it can't find a screen-card. I thought it strange, but
+since I make my own 'init' anyway, I just put "console=null" as a start
+parameter for all cases, even if there is a screen card. Within init I
+find out what I/O exists (RS-232C, etc), and set that up for I/O and
+controlling terminal. Basically, close(0,1,2), then try to open
+/dev/console, if that fails, open /dev/ttyS0, etc...
 
-habe ich einen Patch, den ich auf der Seite von
-David Hildenhagen (http://www.hildenhagen.de/netmeeting.htm) gefunden habe auf 
-den Kernel 2.4.18 von SuSE80 portiert.
-(Ich habe dazu einfach alle Rejects des Original-Patches manuell aufgelöst.)
 
-Es funktioniert für mich. Vielleicht hat jemand Interesse daran, die Sache bei 
-sich zu testen. Ich bin für Hinweise sehr dankbar.
-Schöne Grüße,
 
-Reinhard
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

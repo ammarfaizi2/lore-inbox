@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbTGKQt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTGKQt2
+	id S264377AbTGKQtN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTGKQtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:49:28 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:47857 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S264376AbTGKQtU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:49:20 -0400
-Subject: Re: Linux 2.5.75
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0307110948100.3452-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0307110948100.3452-100000@home.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yEJe6hhTxFgehup1otB6"
-Organization: Red Hat, Inc.
-Message-Id: <1057943036.5806.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 11 Jul 2003 19:03:56 +0200
+	Fri, 11 Jul 2003 12:49:13 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:59624 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264374AbTGKQtJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:49:09 -0400
+Date: Fri, 11 Jul 2003 10:03:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.75 Support dentry revalidation under open(".")
+In-Reply-To: <16142.54383.804882.881178@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0307110955180.3452-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-yEJe6hhTxFgehup1otB6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Fri, 11 Jul 2003, Trond Myklebust wrote:
+>
+>   The following patch provides a way to do such revalidation for NFS
+> without impacting other filesystems.
 
-On Fri, 2003-07-11 at 18:52, Linus Torvalds wrote:
-\
-> The same is true of x86 too, but there at least there will be test=20
-> coverage even without vendor support. Vendors making their own internal=20
-> distributions with pre-2.6 kernels will help on x86 too, of course. Hint=20
-> hint.
+I'm not sure. It may not impact other filesystems, but it impacts the
+internal consistency of the dentry tree, and can cause some really nasty
+aliasing issues.
 
+If d_invalidate() returns a failure, that means that the dentry is still
+hashed (because it was busy), and returning NULL and leaving the dentry
+there sounds very wrong, since it can never be fixed with a new lookup.
 
-fwiw there are rpms of 2.5.75 that fit in Red Hat Linux 9 (plus updated
-modutils, initscripts and mkinitrd from rawhide) on
-http://people.redhat.com/arjanv/2.5
-for people to play with.
+				Linus
 
-(the files in this location will gets updated regularly)
-
-
---=-yEJe6hhTxFgehup1otB6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/Du38xULwo51rQBIRAoXPAKCcTd5YP8fW6TnyYGa8xnRYgb8jWwCff4Fb
-//qOP8q6uYxbUQ9ttunzKNU=
-=uTMA
------END PGP SIGNATURE-----
-
---=-yEJe6hhTxFgehup1otB6--

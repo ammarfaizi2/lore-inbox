@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUL2ANz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbUL2AR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbUL2ANz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 19:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbUL2ANy
+	id S261266AbUL2AR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 19:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbUL2AR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 19:13:54 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:57745 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261254AbUL2ANq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 19:13:46 -0500
-Date: Wed, 29 Dec 2004 01:09:30 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: PATCH: 2.6.10 - Incorrect return from PCI ide controller
-Message-ID: <20041229000930.GB18525@electric-eye.fr.zoreil.com>
-References: <1104158258.20952.44.camel@localhost.localdomain> <20041228205553.GA18525@electric-eye.fr.zoreil.com> <58cb370e04122813152759d94f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e04122813152759d94f@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Tue, 28 Dec 2004 19:17:57 -0500
+Received: from lucidpixels.com ([66.45.37.187]:38300 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261266AbUL2ARz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 19:17:55 -0500
+Date: Tue, 28 Dec 2004 19:17:53 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Benchmarks With P4+SMP+SMT?
+Message-ID: <Pine.LNX.4.61.0412281914380.11816@p500>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> :
-[...]
-> Yes.  Patches welcomed.
+Has anyone performed any benchmarks with:
 
-First cut available at: 
-http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-bk1/ata/patches/
+No SMP w/HT?
+SMP w/HT?
+SMP + SMT w/HT?
 
-Modular compile seems fine. I'll rediff against Alan's patch from 2
-minutes ago, add a few comments and do some more work when the Sandman
-will be gone.
+[ ] Symmetric multi-processing support
+[ ]   SMT (Hyperthreading) scheduler support
 
---
-Ueimor
+   x SMT scheduler support improves the CPU scheduler's decision making
+   x when dealing with Intel Pentium 4 chips with HyperThreading at a
+   x cost of slightly increased overhead in some places. If unsure say
+   x N here.
+
+I'm tempted to try SMT and benchmark these sometime but I am asking the 
+list if anyone has already done this first.
+
+Question: "slightly increased overhead in some places."
+
+What type of workloads would exhibit such overhead?
+
+Would this option (SMT) be recommended for a desktop or server machine?
+
+Are there any white papers or documentation I can read about this option?
+
+Thanks.
+

@@ -1,61 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269958AbTHBRmd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 13:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269967AbTHBRmd
+	id S269967AbTHBSGM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 14:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269978AbTHBSGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 13:42:33 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:6930 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S269958AbTHBRmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 13:42:32 -0400
-Date: Sat, 2 Aug 2003 19:42:29 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>, axboe@suse.de
-Cc: Erik Andersen <andersen@codepoet.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide-disk.c rev 1.13 killed CONFIG_IDEDISK_STROKE
-Message-ID: <20030802174229.GA3741@win.tue.nl>
-References: <20030802124536.GB3689@win.tue.nl> <Pine.SOL.4.30.0308021506550.7779-100000@mion.elka.pw.edu.pl>
+	Sat, 2 Aug 2003 14:06:12 -0400
+Received: from almesberger.net ([63.105.73.239]:12557 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S269967AbTHBSGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 14:06:11 -0400
+Date: Sat, 2 Aug 2003 15:06:00 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Nivedita Singhvi <niv@us.ibm.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: TOE brain dump
+Message-ID: <20030802150600.F5798@almesberger.net>
+References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0308021506550.7779-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <3F2BF5C7.90400@us.ibm.com>; from niv@us.ibm.com on Sat, Aug 02, 2003 at 10:32:55AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 03:10:43PM +0200, Bartlomiej Zolnierkiewicz wrote:
+Nivedita Singhvi wrote:
+> Also, most profiles of networking applications show the
+> largest blip is essentially the user<->kernel transfer, and
+> that would still remain the unaddressed bottleneck.
 
-> On Sat, 2 Aug 2003, Andries Brouwer wrote:
-> 
-> > Maybe it is intended to protect against old disks that do not
-> > understand these new commands. Andre? Bart? Alan?
-> 
-> Some Samsung disks lock up.  Probably we should check if HPA
-> command set is supported instead of using IDE_STROKE_LIMIT.
+I have some hope that sendfile plus a NUMA-like approach will be
+sufficient for keeping transfers away from buses and memory they
+don't need to touch.
 
-OK, so we have to investigate. This strange test was inserted
-in 2.4 and 2.5 via Alan, and google gives me Alan's changelog:
+> The thing is, all the TOE efforts are propietary ones, to
+> my limited knowledge.
 
-Linux 2.5.66-ac1
-o Don't issue WIN_SET_MAX on older drivers (Jens Axboe)
-  (Breaks some Samsung)
+Many companies default to "closed" designs if they're not given a
+convincing reason for going "open". The approach I've described
+may provide that reason.
 
-So, now the question is to Jens: what was the situation?
-What disk, kernel, identify output?
+There are also historicial reasons, e.g. if you want to interface
+with the stack of Windows, or any proprietary Unix, you probably
+need to obtain some of their source under NDA, and use some of
+that information in your own drivers or firmware. Of course, none
+of this is an issue here.
 
-If possible we would like to remove the test and test the
-right bits instead. But if that Samsung disk claims it
-supports HPA and doesnt..
+Since we're talking about 1-2 years of development time anyway,
+legacy hardware (i.e. hardware choices influenced by information
+obtained under an NDA) will be quite obsolete by then and doesn't
+matter.
 
-Andries
+> Or is this not so needed?
 
+Exactly. The "NUMA" approach would avoid the "common TOE design"
+problem.
 
-[By the way, google also shows examples where this test
-breaks a setup, so removing it might be a good idea
-under all circumstances. The usual jumper goes from
-above 32GB to 32GB, and from below 32GB to 2GB.
-There are also examples of the latter kind solved
-by STROKE, but no longer by STROKE + faulty test.]
+All you need is a reasonably well documented "general-purpose"
+CPU (that doesn't mean it has to be an off-the-shelf design, but
+most likely, the core would be an off-the-shelf one), plus some
+NIC hardware. Now, if that NIC in turn has some hidden secrets,
+this isn't an issue as long as one can still write a GPLed driver
+for it.
 
+Of course, there would be elements in such a system that vendors
+would like to keep secret. But then, there always are, and so far,
+we've found reasonable compromises most of the time, so I don't
+see why this couldn't happen here, too.
+
+Also, if "classical TOE" patches keep getting rejected, but an
+open and maintainable approach makes it into the mainstream
+kernel, also the business aspects should become fairly clear.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

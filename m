@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318225AbSHWGuD>; Fri, 23 Aug 2002 02:50:03 -0400
+	id <S318369AbSHWHBm>; Fri, 23 Aug 2002 03:01:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318252AbSHWGuD>; Fri, 23 Aug 2002 02:50:03 -0400
-Received: from h-64-105-137-141.SNVACAID.covad.net ([64.105.137.141]:64135
-	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S318225AbSHWGuC>; Fri, 23 Aug 2002 02:50:02 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 22 Aug 2002 23:54:03 -0700
-Message-Id: <200208230654.XAA02328@adam.yggdrasil.com>
-To: jgarzik@mandrakesoft.com
-Subject: Re: IDE-flash device and hard disk on same controller
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+	id <S318447AbSHWHBm>; Fri, 23 Aug 2002 03:01:42 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:14859 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S318369AbSHWHBl>; Fri, 23 Aug 2002 03:01:41 -0400
+Message-ID: <3D65DF4D.68EEA449@aitel.hist.no>
+Date: Fri, 23 Aug 2002 09:07:57 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: Jesper Juhl <jju@dif.dk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem determining number of CPUs
+References: <20BF5713E14D5B48AA289F72BD372D6821CBA0@AUSXMPC122.aus.amer.dell.com> <1029940635.7255.185.camel@jju_lnx.backbone.dif.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->Eric W. Biederman wrote:
->>The problem is that immediately after bootup ATA devices do not respond until
->>their media has spun up.  Which is both required by the spec, and observed in
->>practice.   Which is likely a problem if this code is run a few seconds after
->>bootup.  Which makes it quite possible the drive will ignore the
->>EXECUTE DEVICEDIAGNOSTICS and your error code won't be valid when 
->>the bsy flag clears.   I don't know how serious that would be. 
->
->
->Well, this only applies if you are slack and letting the kernel init 
->your ATA from scratch, instead of doing proper ATA initialization in 
->firmware ;-)
->
->Seriously, if you are a handed an ATA device that is actually in 
->operation when the kernel boots, you are already out of spec.
+Jesper Juhl wrote:
 
-	1. Regardless of whatever specification you are referring to
-or Andre's "31 second rule of [Power On Self Test]", it is genuinely
-useful to boot faster by overlapping some other kernel work before the
-drive is.  Specifications ultimately exist only to serve this
-usefulness.  When a specification impedes usefulness, sometimes it's
-the right decision to violate it.  Of course, we're not talking about
-your IDE code violating such a specification, but rather not relying
-on this particular guarantee.
+> In the case of 4 HT capable CPU's it could be reported like
+> 
+> 8 CPUs (4 physical)
+> 
+Or 8 CPUs (4 chips) 
+2 cpus on a chip may be counterintuitive to some, but there
+isn't anything special about it.  They aren't really 
+less "physical".
 
-	2. Besides, if this code is supposed to be a generic IDE core,
-it many need to run on platforms that do not provide that guarantee or
-where the boot code is not even capable of finding where all of the
-IDE controllers.
-
-	3. In the hierarchy of upgradability, it is generally easier
-to replace the kernel than the Power On Self Test, which is more often
-in flash or ROM, and which may require help from an unenthusiastic
-hardware vendor.  So, it is better to weight trade-offs a few notches
-in favor of avoid reliance on guarantees about the Power On Self Test.
-
-	If I understand correctly, the cost of this trade off would be
-adding one or two lines that add perhaps 20 bytes and as many CPU
-cycles at initiailzation (except when this change really is necessary).
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Helge Hafting

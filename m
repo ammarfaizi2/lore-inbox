@@ -1,201 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280084AbRKHOui>; Thu, 8 Nov 2001 09:50:38 -0500
+	id <S280448AbRKHOvt>; Thu, 8 Nov 2001 09:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280110AbRKHOu3>; Thu, 8 Nov 2001 09:50:29 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:43767 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S280084AbRKHOuO>; Thu, 8 Nov 2001 09:50:14 -0500
-Date: Thu, 8 Nov 2001 15:20:38 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
-To: linux-kernel@vger.kernel.org
-Cc: Ville Herva <vherva@niksula.hut.fi>
-Subject: [patch] Re: What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011108152038.A728@zodiak.ecademix.com>
-In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com> <20011107224824.G26218@niksula.cs.hut.fi> <20011107234025.A602@zodiak.ecademix.com> <20011108081006.S1504@niksula.cs.hut.fi> <20011108094637.B615@zodiak.ecademix.com> <20011108104634.T1504@niksula.cs.hut.fi> <20011108100014.A704@zodiak.ecademix.com> <20011108111330.U1504@niksula.cs.hut.fi> <20011108111421.A612@zodiak.ecademix.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011108111421.A612@zodiak.ecademix.com>; from Peter.Seiderer@ciselant.de on Thu, Nov 08, 2001 at 11:14:21AM +0100
+	id <S280159AbRKHOvV>; Thu, 8 Nov 2001 09:51:21 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:14508 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S280110AbRKHOvJ>; Thu, 8 Nov 2001 09:51:09 -0500
+Message-ID: <3BEA9992.3080403@wipro.com>
+Date: Thu, 08 Nov 2001 20:11:22 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Balbir Singh <balbir.singh@wipro.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]Problems with compling 2.4.14 on SMP and kernel versioning on modules set.
+In-Reply-To: <3BEA7875.5000303@wipro.com> <3BEA7EF9.80604@wipro.com>
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is a multi-part message in MIME format.
 
-On Thu, Nov 08, 2001 at 11:14:21AM +0100, Peter Seiderer wrote:
-> Hello,
-> the SIGXFSZ signal is produced in the file mm/filemap.c (linx-2.4.14) in
-> line 2771:
-> 
-> 2769:	if (limit != RLIM_INFINITY) {
-> 2770:		if (pos >= limit) {
-> 2771:			send_sig(SIGXFSZ, current, 0);
-> 2772:			goto out;
-> 2773:		}
-> 
-> The valus at this point are
-> limit:         0x7fffffff
-> RLIM_INFINITY: 0xffffffff
-> pos:           0x80004000
-> 
-> where limit comes from:
-> unsigned long	limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
-> 
-> but I did not yet detected the point(s) where
-> current->rlim[RLIMIT_FSIZE].rlim_cur
-> is(are) set/changed.
-> Peter
-> 
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Investigated a litte bit in the kernel I detected there is a
-sys_getrlimit function and a sys_old_getrlimit function which is
-called in arch i386, m68k, sh, ppc, s390, cris, arm which mangles the
-RLIM_INFINITY: 0xffffffff to 0x7fffffff.
+Ignore all below
 
-The problem is that it is now impossible to set the limits to
-RLIM_INFINITY while only 0x7fffffff is given as input.
+TIA,
+Balbir
 
-Therefor I programed analog to sys_old_getrlimit the function sys_old_setrlimit
-which mangles all values >= 0x7fffffff to 0xffffffff (see attached patch).
+Balbir Singh wrote:
 
-Peter
+> Found another one in md.h
+>
+> *** md.h.org    Thu Nov  8 17:56:38 2001
+> --- md.h        Thu Nov  8 17:56:50 2001
+> ***************
+> *** 26,32 ****
+>  #include <linux/ioctl.h>
+>  #include <linux/types.h>
+>  #include <asm/bitops.h>
+> - #include <linux/module.h>
+>  #include <linux/hdreg.h>
+>  #include <linux/proc_fs.h>
+>  #include <linux/smp_lock.h>
+> --- 26,31 ----
+> ***************
+> *** 35,40 ****
+> --- 34,40 ----
+>  #include <linux/random.h>
+>  #include <linux/locks.h>
+>  #include <linux/kernel_stat.h>
+> + #include <linux/module.h>
+>  #include <asm/io.h>
+>  #include <linux/completion.h>
+>
+>
+> Balbir
+>
+>
+> BALBIR SINGH wrote:
+>
+>> I could not compile a UP (non-SMP) kernel on my system, with module
+>> versioning set, the problem was traced to ksyms.c
+>>
+>> * Herein lies all the functions/variables that are "exported" for 
+>> linkage
+>> * with dynamically loaded kernel modules.
+>> *                      Jon.
+>> *
+>>
+>> Now linux/module.h is included in ksyms.c
+>>
+>> Below is a patch for compiling a NON-SMP kernel in 2.4.14. If this is
+>> correct, please apply. In this patch, the include of linux/module.h
+>> (which redifines smp_num_cpus based on kernel versioning) has been moved
+>> below the include of linux/kernel_stat.h
+>>
+>>
+>> --- ksyms.c     Thu Nov  8 17:41:39 2001
+>> +++ ksyms.c.org Thu Nov  8 16:41:48 2001
+>> @@ -9,12 +9,12 @@
+>>  *   by Bjorn Ekwall <bj0rn@blox.se>
+>>  */
+>>
+>> -#include <linux/blkdev.h>
+>> -#include <linux/cdrom.h>
+>> -#include <linux/kernel_stat.h>
+>> #include <linux/config.h>
+>> #include <linux/slab.h>
+>> #include <linux/module.h>
+>> +#include <linux/blkdev.h>
+>> +#include <linux/cdrom.h>
+>> +#include <linux/kernel_stat.h>
+>> #include <linux/vmalloc.h>
+>> #include <linux/sys.h>
+>> #include <linux/utsname.h>
+>>
+>>
+>>
+>> ------------------------------------------------------------------------
+>>
+>> ------------------------------------------------------------------------------------------------------------------------- 
+>>
+>> Information transmitted by this E-MAIL is proprietary to Wipro and/or 
+>> its Customers and
+>> is intended for use only by the individual or entity to which it is
+>> addressed, and may contain information that is privileged, 
+>> confidential or
+>> exempt from disclosure under applicable law. If you are not the intended
+>> recipient or it appears that this mail has been forwarded to you without
+>> proper authority, you are notified that any use or dissemination of this
+>> information in any manner is strictly prohibited. In such cases, please
+>> notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+>> from your records.
+>> ---------------------------------------------------------------------------------------------------------------------- 
+>>
+>>
+>
+>
 
 
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch_RLIM_INFINITY
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="InterScan_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="InterScan_Disclaimer.txt"
 
-diff -ru linux-2.4.14_orig/arch/arm/kernel/calls.S linux-2.4.14/arch/arm/kernel/calls.S
---- linux-2.4.14_orig/arch/arm/kernel/calls.S	Mon Oct  8 19:39:18 2001
-+++ linux-2.4.14/arch/arm/kernel/calls.S	Thu Nov  8 14:48:58 2001
-@@ -89,7 +89,7 @@
- 		.long	SYMBOL_NAME(sys_sigsuspend_wrapper)
- 		.long	SYMBOL_NAME(sys_sigpending)
- 		.long	SYMBOL_NAME(sys_sethostname)
--/* 75 */	.long	SYMBOL_NAME(sys_setrlimit)
-+/* 75 */	.long	SYMBOL_NAME(sys_old_setrlimit)
- 		.long	SYMBOL_NAME(sys_old_getrlimit)
- 		.long	SYMBOL_NAME(sys_getrusage)
- 		.long	SYMBOL_NAME(sys_gettimeofday)
-diff -ru linux-2.4.14_orig/arch/cris/kernel/entry.S linux-2.4.14/arch/cris/kernel/entry.S
---- linux-2.4.14_orig/arch/cris/kernel/entry.S	Mon Oct  8 20:43:54 2001
-+++ linux-2.4.14/arch/cris/kernel/entry.S	Thu Nov  8 14:48:40 2001
-@@ -833,7 +833,7 @@
- 	.long SYMBOL_NAME(sys_sigsuspend)
- 	.long SYMBOL_NAME(sys_sigpending)
- 	.long SYMBOL_NAME(sys_sethostname)
--	.long SYMBOL_NAME(sys_setrlimit)	/* 75 */
-+	.long SYMBOL_NAME(sys_old_setrlimit)	/* 75 */
- 	.long SYMBOL_NAME(sys_old_getrlimit)
- 	.long SYMBOL_NAME(sys_getrusage)
- 	.long SYMBOL_NAME(sys_gettimeofday)
-diff -ru linux-2.4.14_orig/arch/i386/kernel/entry.S linux-2.4.14/arch/i386/kernel/entry.S
---- linux-2.4.14_orig/arch/i386/kernel/entry.S	Sat Nov  3 02:18:49 2001
-+++ linux-2.4.14/arch/i386/kernel/entry.S	Thu Nov  8 13:57:47 2001
-@@ -471,7 +471,7 @@
- 	.long SYMBOL_NAME(sys_sigsuspend)
- 	.long SYMBOL_NAME(sys_sigpending)
- 	.long SYMBOL_NAME(sys_sethostname)
--	.long SYMBOL_NAME(sys_setrlimit)	/* 75 */
-+	.long SYMBOL_NAME(sys_old_setrlimit)	/* 75 */
- 	.long SYMBOL_NAME(sys_old_getrlimit)
- 	.long SYMBOL_NAME(sys_getrusage)
- 	.long SYMBOL_NAME(sys_gettimeofday)
-diff -ru linux-2.4.14_orig/arch/m68k/kernel/entry.S linux-2.4.14/arch/m68k/kernel/entry.S
---- linux-2.4.14_orig/arch/m68k/kernel/entry.S	Mon Oct  8 19:39:18 2001
-+++ linux-2.4.14/arch/m68k/kernel/entry.S	Thu Nov  8 14:46:53 2001
-@@ -500,7 +500,7 @@
- 	.long SYMBOL_NAME(sys_sigsuspend)
- 	.long SYMBOL_NAME(sys_sigpending)
- 	.long SYMBOL_NAME(sys_sethostname)
--	.long SYMBOL_NAME(sys_setrlimit)	/* 75 */
-+	.long SYMBOL_NAME(sys_old_setrlimit)	/* 75 */
- 	.long SYMBOL_NAME(sys_old_getrlimit)
- 	.long SYMBOL_NAME(sys_getrusage)
- 	.long SYMBOL_NAME(sys_gettimeofday)
-diff -ru linux-2.4.14_orig/arch/ppc/kernel/misc.S linux-2.4.14/arch/ppc/kernel/misc.S
---- linux-2.4.14_orig/arch/ppc/kernel/misc.S	Sat Nov  3 02:43:54 2001
-+++ linux-2.4.14/arch/ppc/kernel/misc.S	Thu Nov  8 14:47:54 2001
-@@ -988,7 +988,7 @@
- 	.long sys_sigsuspend
- 	.long sys_sigpending
- 	.long sys_sethostname
--	.long sys_setrlimit	/* 75 */
-+	.long sys_old_setrlimit	/* 75 */
- 	.long sys_old_getrlimit
- 	.long sys_getrusage
- 	.long sys_gettimeofday
-diff -ru linux-2.4.14_orig/arch/s390/kernel/entry.S linux-2.4.14/arch/s390/kernel/entry.S
---- linux-2.4.14_orig/arch/s390/kernel/entry.S	Thu Oct 11 18:04:57 2001
-+++ linux-2.4.14/arch/s390/kernel/entry.S	Thu Nov  8 14:48:24 2001
-@@ -442,7 +442,7 @@
-         .long  sys_sigsuspend_glue
-         .long  sys_sigpending
-         .long  sys_sethostname
--        .long  sys_setrlimit            /* 75 */
-+        .long  sys_old_setrlimit            /* 75 */
-         .long  sys_old_getrlimit
-         .long  sys_getrusage
-         .long  sys_gettimeofday
-diff -ru linux-2.4.14_orig/arch/sh/kernel/entry.S linux-2.4.14/arch/sh/kernel/entry.S
---- linux-2.4.14_orig/arch/sh/kernel/entry.S	Mon Oct  8 19:39:18 2001
-+++ linux-2.4.14/arch/sh/kernel/entry.S	Thu Nov  8 14:47:13 2001
-@@ -1151,7 +1151,7 @@
- 	.long SYMBOL_NAME(sys_sigsuspend)
- 	.long SYMBOL_NAME(sys_sigpending)
- 	.long SYMBOL_NAME(sys_sethostname)
--	.long SYMBOL_NAME(sys_setrlimit)	/* 75 */
-+	.long SYMBOL_NAME(sys_old_setrlimit)	/* 75 */
- 	.long SYMBOL_NAME(sys_old_getrlimit)
- 	.long SYMBOL_NAME(sys_getrusage)
- 	.long SYMBOL_NAME(sys_gettimeofday)
-diff -ru linux-2.4.14_orig/kernel/sys.c linux-2.4.14/kernel/sys.c
---- linux-2.4.14_orig/kernel/sys.c	Tue Sep 18 23:10:43 2001
-+++ linux-2.4.14/kernel/sys.c	Thu Nov  8 14:54:11 2001
-@@ -1133,6 +1133,39 @@
- 	return 0;
- }
- 
-+#if !defined(__ia64__)
-+
-+/*
-+ *	Analog to sys_old_getrlimit the back compatibility for setrlimit.
-+ */
-+
-+asmlinkage long sys_old_setrlimit(unsigned int resource, struct rlimit *rlim)
-+{
-+        struct rlimit new_rlim, *old_rlim;
-+
-+        if (resource >= RLIM_NLIMITS)
-+                return -EINVAL;
-+        if(copy_from_user(&new_rlim, rlim, sizeof(*rlim)))
-+                return -EFAULT;
-+        old_rlim = current->rlim + resource;
-+        if (((new_rlim.rlim_cur > old_rlim->rlim_max) ||
-+             (new_rlim.rlim_max > old_rlim->rlim_max)) &&
-+            !capable(CAP_SYS_RESOURCE))
-+                return -EPERM;
-+        if (resource == RLIMIT_NOFILE) {
-+                if (new_rlim.rlim_cur > NR_OPEN || new_rlim.rlim_max > NR_OPEN)
-+                        return -EPERM;
-+        }
-+	if (new_rlim.rlim_cur >= 0x7FFFFFFF)
-+		new_rlim.rlim_cur = RLIM_INFINITY;
-+	if (new_rlim.rlim_max >= 0x7FFFFFFF)
-+		new_rlim.rlim_max = RLIM_INFINITY;
-+        *old_rlim = new_rlim;
-+        return 0;
-+}
-+
-+#endif
-+
- /*
-  * It would make sense to put struct rusage in the task_struct,
-  * except that would make the task_struct be *really big*.  After
+-------------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
 
---AqsLC8rIMeq19msA--
+--------------InterScan_NT_MIME_Boundary--

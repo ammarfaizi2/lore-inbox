@@ -1,34 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265269AbUF3CEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265276AbUF3ClQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265269AbUF3CEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 22:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUF3CEZ
+	id S265276AbUF3ClQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 22:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265534AbUF3ClQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 22:04:25 -0400
-Received: from web41506.mail.yahoo.com ([66.218.93.89]:24507 "HELO
-	web41506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265269AbUF3CEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 22:04:24 -0400
-Message-ID: <20040630020422.94235.qmail@web41506.mail.yahoo.com>
-Date: Tue, 29 Jun 2004 19:04:22 -0700 (PDT)
-From: Brian Gunlogson <bmg300@yahoo.com>
-Subject: Re: Kernel VM bug? (more info)
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040628025832.GM21066@holomorphy.com>
+	Tue, 29 Jun 2004 22:41:16 -0400
+Received: from vivaldi.madbase.net ([81.173.6.10]:49381 "HELO
+	vivaldi.madbase.net") by vger.kernel.org with SMTP id S265276AbUF3ClO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 22:41:14 -0400
+Date: Tue, 29 Jun 2004 22:41:12 -0400 (EDT)
+From: Eric Lammerts <eric@lammerts.org>
+To: jsimmons@infradead.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] asiliantfb fixes
+Message-ID: <Pine.LNX.4.58.0406292217520.5837@ally.lammerts.org>
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got more info, hope this helps. Sometimes the kernel panics at vmscan:388. That is in kernel
-2.4.26, function shrink_cache() on a source code line that says BUG_ON(!PageLRU(page));
 
-Brian
+Hi,
+this patch fixes the asiliantfb driver. A call to the init function
+was missing so it was never actually used. The other fix is in the
+init function writing somewhere using a physical address instead of a
+virtual address.
 
+Eric
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+--- linux-2.6.7/drivers/video/fbmem.c.orig	2004-06-23 21:53:18.000000000 -0400
++++ linux-2.6.7/drivers/video/fbmem.c	2004-06-28 22:10:45.000000000 -0400
+@@ -172,6 +172,7 @@
+ extern int kyrofb_setup(char*);
+ extern int mc68x328fb_init(void);
+ extern int mc68x328fb_setup(char *);
++extern int asiliantfb_init(void);
+
+ static struct {
+ 	const char *name;
+@@ -245,6 +246,9 @@
+ #ifdef CONFIG_FB_CT65550
+ 	{ "chipsfb", chips_init, NULL },
+ #endif
++#ifdef CONFIG_FB_ASILIANT
++	{ "asiliant", asiliantfb_init, NULL },
++#endif
+ #ifdef CONFIG_FB_IMSTT
+ 	{ "imsttfb", imsttfb_init, imsttfb_setup },
+ #endif
+--- linux-2.6.7/drivers/video/asiliantfb.c.orig	2004-06-28 22:03:38.000000000 -0400
++++ linux-2.6.7/drivers/video/asiliantfb.c	2004-06-28 22:04:28.000000000 -0400
+@@ -571,7 +571,7 @@
+ 	}
+
+ 	pci_write_config_dword(dp, 4, 0x02800083);
+-	writeb(3, addr + 0x400784);
++	writeb(3, p->screen_base + 0x400784);
+
+ 	init_asiliant(p, addr);
+

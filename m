@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131017AbRCFQ4F>; Tue, 6 Mar 2001 11:56:05 -0500
+	id <S131018AbRCFQ6l>; Tue, 6 Mar 2001 11:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131020AbRCFQzm>; Tue, 6 Mar 2001 11:55:42 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:7032 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S131018AbRCFQzI>; Tue, 6 Mar 2001 11:55:08 -0500
-Message-ID: <3AA515FB.10D46B00@sgi.com>
-Date: Tue, 06 Mar 2001 08:53:15 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: God <atm@pinky.penguinpowered.com>, linux-kernel@vger.kernel.org
-Subject: Re: Annoying CD-rom driver error messages
-In-Reply-To: <E14aKe6-00010k-00@the-village.bc.nu>
+	id <S131019AbRCFQ6c>; Tue, 6 Mar 2001 11:58:32 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:36880 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S131018AbRCFQ6Y>;
+	Tue, 6 Mar 2001 11:58:24 -0500
+Date: Tue, 6 Mar 2001 11:58:23 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Jorge David Ortiz Fuentes <jorge_ortiz@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Process vs. Threads
+Message-ID: <20010306115822.A2244@xi.linuxpower.cx>
+In-Reply-To: <20010306172843.D1283@hpspss3g.spain.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010306172843.D1283@hpspss3g.spain.hp.com>; from jorge_ortiz@hp.com on Tue, Mar 06, 2001 at 05:28:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, Mar 06, 2001 at 05:28:43PM +0100, Jorge David Ortiz Fuentes wrote:
+[snip]
+> "task" that can be run.  Using this structure makes easier to identify
+> which threads belong to the same process and tools such as ps or top
+> show the TID as a field.
 > 
-> >       Then it seems the less ideal question is what is the "approved and recommended
-> > way for a program to "poll" such devices to check for 'changes' and 'media type'
-> > without the kernel generating spurious WARNINGS/ERRORS?
+>   I understand that changing this in the Linux kernel would mean that:
+> * some tools will have to be modified.
+> * the proc filesystem should create a directory using the TID instead
+> of the PID.
+> * some features as VM handling, signaling or exec()ing from a thread
+> would be more difficult to implement.
+> * compatibility will be broken.
 > 
-> The answer to that could probably fill a book unfortunately. You need to use
-> the various mtfuji and other ata or scsi query commands intended to notify you
-> politely of media and other status changes
----
-	Taking myself out of the role of someone who knows anything about the kernel --
-and only knows application writing in the fields of GUI's and audio, what do you think
-I'm going to use to check if their has been a playable CD inserted into the CD drive?
+>   However, I miss some way to indicate that two processes are, in
+> fact, threads of the same process.  Maybe there is something I'm
+> missing.  Let me elaborate this.
+[snip]
+>   This information is missleading since there is no way to know that
+> these 9 threads are sharing memory. If you run 'ps axl' you can see
+> the hierarchy as if it was a multiprocess program, i.e. no difference
+> to show you that they are threads.  Not even reading
+> /proc/<pid>/status you get info about these being threads.
+[snip]
 
-	There is an application called 'famd' -- which says it needs some kernel 
-support to function efficiently -- perhaps that technology needs to be further developed
-on Linux so app writers don't also have to be kernel experts and experts in all the
-various bus and device types out there?
+There are no threads in Linux.
+All tasks are processes. 
+Processes can share any or none of a vast set of resources.
 
-	Just an idea...?
--linda 
--- 
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+When processes share a certain set of resources, they have the same
+characteristics as threads under other OSes (except the huge performance
+improvements, Linux processes are already as fast as threads on other OSes).
+
+Execution contexts which share resources do not have to share memory. If we
+implemented top to aggregate such processes (as you suggest), the result
+would also be potentially misleading. 
+
+If we were to break compatibility it should be actually fix the situation,
+not replace once misleading situation with another.
+
+Sometimes it is handy to view a collection of execution contexts as a
+singular object. However, such is also the case with a service implemented
+as a collection of share-none standard unix processes (like postfix). A
+better solution would be a more generalized system for service object
+management. Such a solution could likely be implemented without kernel
+intervention (though perhaps a general facility to determine what shares what
+with who might be needed).  

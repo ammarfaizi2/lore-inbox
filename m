@@ -1,44 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263697AbTI2Qhx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 12:37:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263696AbTI2Qhx
+	id S263645AbTI2Qa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 12:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263674AbTI2Qa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 12:37:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263697AbTI2Qhw (ORCPT
+	Mon, 29 Sep 2003 12:30:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28641 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263645AbTI2Qa5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 12:37:52 -0400
-Date: Mon, 29 Sep 2003 09:29:52 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Smurf <smurf@play.smurf.noris.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] No forced rebuilding of ikconfig.h
-Message-Id: <20030929092952.7ba7b1c0.rddunlap@osdl.org>
-In-Reply-To: <20030929153815.GA16685@play.smurf.noris.de>
-References: <20030929153815.GA16685@play.smurf.noris.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 29 Sep 2003 12:30:57 -0400
+Subject: Re: Linux 2.6.0-test6 (compile statistics)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 29 Sep 2003 09:30:54 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Sep 2003 17:38:15 +0200 Smurf <smurf@play.smurf.noris.de> wrote:
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+----------------------------------------
 
-| Why does ikconfig.h require forced rebuilding?
-| I can't think of a reason...
+Warnings/Errors Summary
 
-Would you describe the problem, if any?
+Kernel         bzImage    bzImage  modules  bzImage   modules
+             (defconfig)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- ---------
+2.6.0-test6    0w/0e      188w/ 1e  12w/0e   3w/0e    260w/ 2e
+2.6.0-test5    0w/0e      205w/ 9e  15w/1e   0w/0e    305w/ 5e
+2.6.0-test4    0w/0e      797w/55e  68w/1e   3w/0e   1016w/34e
+2.6.0-test3    0w/0e      755w/66e  62w/1e   7w/9e    984w/42e
+2.6.0-test2    0w/0e      952w/65e  63w/2e   7w/9e   1201w/43e
+2.6.0-test1    0w/0e     1016w/60e  75w/1e   8w/9e   1319w/38e
 
-Since I removed linux/compile.h and linux/version.h from
-kernel/configs.c (as in -test6), I don't see any rebuilding
-happening.  When does it happen?
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
-Also, what kernel version are you referring to???
+Warning Summary
+   drivers/block: 1 warnings, 0 errors
+   drivers/cdrom: 3 warnings, 0 errors
+   drivers/char: 2 warnings, 0 errors
+   drivers/ide: 30 warnings, 0 errors
+   drivers/media: 5 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/mtd: 25 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/pcmcia: 4 warnings, 0 errors
+   drivers/scsi: 43 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 5 warnings, 0 errors
+   drivers/video/aty: 3 warnings, 0 errors
+   drivers/video/console: 2 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/sis: 1 warnings, 0 errors
+   drivers/video: 8 warnings, 0 errors
+   net: 13 warnings, 0 errors
+   sound/isa: 3 warnings, 0 errors
+   sound/oss: 49 warnings, 0 errors
 
---
-~Randy
+Error Summary
+
+   drivers/net: 0 warnings, 3 errors
+   drivers/net: 57 warnings, 2 errors
+
+John
+
+
+
+

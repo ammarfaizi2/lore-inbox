@@ -1,65 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317440AbSGEMd6>; Fri, 5 Jul 2002 08:33:58 -0400
+	id <S317458AbSGEMnL>; Fri, 5 Jul 2002 08:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317443AbSGEMd5>; Fri, 5 Jul 2002 08:33:57 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:21187 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S317440AbSGEMdz>;
-	Fri, 5 Jul 2002 08:33:55 -0400
-Date: Fri, 5 Jul 2002 14:36:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: venom@sns.it, linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-Message-ID: <20020705123618.GA19690@suse.de>
-References: <Pine.LNX.4.43.0207051217160.8506-100000@cibs9.sns.it> <Pine.LNX.4.43.0207051217160.8506-100000@cibs9.sns.it> <5.1.0.14.2.20020705114704.00b06a10@pop.cus.cam.ac.uk>
+	id <S317457AbSGEMnK>; Fri, 5 Jul 2002 08:43:10 -0400
+Received: from [207.156.7.21] ([207.156.7.21]:64674 "EHLO
+	mail.hillsboroughcounty.org") by vger.kernel.org with ESMTP
+	id <S317458AbSGEMnI> convert rfc822-to-8bit; Fri, 5 Jul 2002 08:43:08 -0400
+Message-Id: <sd255cb2.030@GroupWise>
+X-Mailer: Novell GroupWise Internet Agent 5.5.6.1
+Date: Fri, 05 Jul 2002 08:45:26 -0400
+From: "Brett Simpson" <Simpsonb@hillsboroughcounty.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Bttv errors with onboard video.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20020705114704.00b06a10@pop.cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 05 2002, Anton Altaparmakov wrote:
-> At 11:40 05/07/02, Jens Axboe wrote:
-> >On Fri, Jul 05 2002, venom@sns.it wrote:
-> >>
-> >> HI,
-> >> I was trying kernel 2.5 with TCQ enabled.
-> >> I tried it on three Desktar disk (manufactured in Thailand
-> >> in february 2001) model dtla 305020.
-> >>
-> >> All three disk died after some week, without
-> >> any signal of being dying.
-> >> I was starting to suspect about an HW problem.
-> >>
-> >> With 2.4 kernels, no tcq, they could work
-> >> without any problem for almost 8 months, but now,
-> >> I moved those disk to test systems to test tcq support
-> >> and all died badly. This is not an heat problem, since
-> >> thay staty in a CED conditioned at 18C.
-> >
-> >This is a puzzling report. I wouldn't recommend that anyone use tcq in
-> >2.5 actually, since even I do not know what state it is currently in. I
-> >would seriously recommend 2.4 + tcq patches instead.
-> >
-> >That said, are your disks completely dead now? As in they do not work
-> >with a regular 2.4 kernel anymore?!
-> 
-> It is puzzling indeed, especially since I am running with TCQ enabled ever 
-> since you introduced it and my disk is still alive an kicking. It being a 
-> Deathstar, too.
+I have a problem where the bttv module will not work in combination with onboard ATI video.  The onboard ATI video card works fine but I get nothing from the encoding card. If I use a Cirrus logic PCI video card the bttv module works fine with xawtv. I see these error in my logs. Any ideas?
 
-Good to know, I'm glad it works for you :-)
-
-> On of my Deathstars actually broke (before TCQ came about though!) but 
-> after upgrading the firmware on it and powercycling it fixed itself and has 
-> been working just fine ever since.
-> 
-> Perhaps something worth trying on those broken disks, too?
-
-Might be a good idea, I did the same thing on my DTLA as well.
-
--- 
-Jens Axboe
+Jul  3 17:41:33 localhost kernel: bttv0: PLL: 28636363 => 35468950 ... ok
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765820
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765808
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765810
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765810
+Jul  3 17:41:33 localhost kernel: bttv0: irq: SCERR risc_count=2e765808
+Jul  3 17:41:33 localhost kernel: bttv0: aiee: error loops
+Jul  3 17:41:36 localhost kernel: bttv0: PLL: switching off
+Jul  3 17:41:39 localhost kernel: bttv0: resetting chip
 

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270370AbTHBVqN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 17:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHBVqN
+	id S270365AbTHBVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 17:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270370AbTHBVqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 17:46:13 -0400
-Received: from public1-brig1-3-cust85.brig.broadband.ntl.com ([80.0.159.85]:37261
-	"EHLO ppg_penguin.kenmoffat.uklinux.net") by vger.kernel.org
-	with ESMTP id S270370AbTHBVqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 17:46:10 -0400
-Date: Sat, 2 Aug 2003 22:46:09 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.22-pre10] Cleanup DRM menu and give it a submenu
-In-Reply-To: <200307312250.40474.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.56.0308022242400.18619@ppg_penguin>
-References: <200307312250.40474.m.c.p@wolk-project.de>
+	Sat, 2 Aug 2003 17:46:04 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:39183 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S270365AbTHBVqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 17:46:02 -0400
+From: "Willem Bison" <wbison@xs4all.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem installing Promise SATA150 TX2plus driver
+Date: Sat, 2 Aug 2003 23:47:03 +0200
+Message-ID: <EJEOIHAPIIOEIHNANNCEKENFKJAA.wbison@xs4all.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003, Marc-Christian Petersen wrote:
+When trying to 'insmod' the Promise SATA150 TX2plus driver mentioned
+in this message:
+http://www.van-dijk.net/linuxkernel/200330/1084.html.gz
+I get these errors:
+/lib/modules/2.4.20-8smp/kernel/drivers/scsi/pdc-ultra.o: unresolved symbol
+scsi_unregister_module
+and ...scsi_register, ...scsi_register_module, ...scsi_unregister
 
-> Hi Marcelo,
->
-> I've been getting complaints about the menu structure from the linux kernel
-> config subsystem for a _long time_. Now let's clean up the DRM menu and give
-> it a submenu. We are getting close that the menu will look more cleaner :)
->
-> More cleanups for different menu's are following.
->
-> Please apply for 2.4.22-pre10. Thank you :)
->
-> ciao, Marc
->
+The driver was built from source according to the instructions,
+*directly* after a fresh install (with kernel headers) of RedHat 9.
+(install RH, reboot, wget driver, make -C cam, make, cp, insmod)
 
- Is this really worth doing ?  `make menuconfig' seems to hide the
-options nicely until you turn drm on, and more importantly the 2.4
-kernel modules aren't exactly useful with X-4.3 so they're becoming
-increasingly redundant.
+The box is a dual Xeon 2.4
+The primary HD is a Maxtor 6Y160PO. The secondary, for which i need
+the driver, is a WDC Raptor WD360GD SATA. The controler is a Promise
+SATA150 TX2plus.
 
-Ken
--- 
-
-
+What do I need to do to fix the errors and install the driver ?
 
 

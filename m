@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUKFREB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbUKFRFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUKFREB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 12:04:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbUKFREB
+	id S261433AbUKFRFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 12:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUKFRFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 12:04:01 -0500
-Received: from [213.189.196.2] ([213.189.196.2]:12812 "HELO msn.com")
-	by vger.kernel.org with SMTP id S261423AbUKFRD6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 12:03:58 -0500
-Message-ID: <998101c4c434$76a031d0$d06facf4@DeatilsRevealed89yTwtthjvnwuoycx>
-From: "Business Consultant Group" 
-	<DeatilsRevealed89yTwtthjvnwuoycx@msn.com>
-To: "opp-list" <linux-kernel@vger.kernel.org>
-Subject: You deserve the Truth!
-Date: Sat, 06 Nov 2004 18:11:48 -0100
+	Sat, 6 Nov 2004 12:05:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35495 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261424AbUKFRFU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 12:05:20 -0500
+Message-ID: <418D043E.3090406@pobox.com>
+Date: Sat, 06 Nov 2004 12:05:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Chris Wedgwood <cw@f00f.org>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] WIN_* -> ATA_CMD_* conversion: add new entries to
+ ata.h
+References: <20041103091101.GC22469@taniwha.stupidest.org> <418AE8C0.3040205@pobox.com> <58cb370e041105051635c15281@mail.gmail.com> <20041106032305.GB6060@taniwha.stupidest.org> <418D0066.9040002@pobox.com>
+In-Reply-To: <418D0066.9040002@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why the heck did you live in restraint?
-Don't get pushed into nonsense Opport-unities all the time!... 
-Well, you tried that already!.. with a grief ending. 
-Really? ...Never have considered taking a Professional's Advice?
-One thing for sure: I know, The Right Marketing Details, the -Ins and -Outs
+Jeff Garzik wrote:
+> Chris Wedgwood wrote:
+> 
+>> ===== include/linux/ata.h 1.19 vs edited =====
+>> --- 1.19/include/linux/ata.h    2004-11-02 11:32:44 -08:00
+>> +++ edited/include/linux/ata.h    2004-11-05 19:04:41 -08:00
+>> @@ -122,6 +122,27 @@
+>>      ATA_CMD_SET_FEATURES    = 0xEF,
+>>      ATA_CMD_PACKET        = 0xA0,
+>>  
+>> +    /* ATA devices commands (used by legacy IDE code) */
+>> +    ATA_CMD_NOP        = 0x00,
+>> +    ATA_CMD_SRST        = 0x08,
+>> +    ATA_CMD_RESTORE        = 0x10,
+>> +    ATA_CMD_MULTREAD_EXT    = 0x29,
+>> +    ATA_CMD_READ_NATIVE_MAX_EXT = 0x27,
+>> +    ATA_CMD_MULTWRITE_EXT    = 0x39,
+>> +    ATA_CMD_SPECIFY        = 0x91, /* set geom */
+>> +    ATA_CMD_SMART        = 0xB0,
+>> +    ATA_CMD_MULTREAD    = 0xC4,
+>> +    ATA_CMD_MULTWRITE    = 0xC5,
+>> +    ATA_CMD_MULTSET        = 0xC6,
+>> +    ATA_CMD_DOORLOCK    = 0xDE,
+>> +    ATA_CMD_DOORUNLOCK    = 0xDF,
+>> +    ATA_CMD_STANDBYNOW1    = 0xE0,
+>> +    ATA_CMD_IDLEIMMEDIATE    = 0xE1,
+>> +    ATA_CMD_ID_ATA_DMA    = 0xEE,
+>> +    ATA_CMD_READ_NATIVE_MAX    = 0xF8,
+>> +    ATA_CMD_SET_MAX        = 0xF9,
+>> +    ATA_CMD_SET_MAX_EXT    = 0x37,
 
-have been intentionally hidden from you as You are Not hitting 200,000/YR
-yet!
+oh, also:
 
-Be Ready to experience your Life in Pros-perity.
-Send a quick message to ExperienceLife@mighty.co.za
-and put  " Show me Life " in the top line.
-Also send your PH# if you desire to receive a Professional's personal
-advice.
+Please check with ATA/ATAPI-7 command names, rather than just using the 
+WIN_xxx names with a new prefix.  Sometimes the IDE author (from ages 
+past) would pick names that suited them or the code, but diverged from 
+the common T13 command name.
 
-OR: get un-list-ed by emailing to  AwayNow@mighty.co.za with  " Away Please
-" in the sub-ject-line.
-Thanks kindly for your time.
+Examples:
+1) WIN_DIAGNOSE -> ATA_CMD_EDD
+2) WIN_QUEUED_SERVICE -> ATA_CMD_SERVICE
+3) WIN_STANDBYNOW1 -> ATA_CMD_STANDBY_IMMED
+4) WIN_SETIDLE1 -> ATA_CMD_IDLE
+5) WIN_CHECKPOWERMODE1 -> ATA_CMD_CHK_PWR_MODE
+6) WIN_SLEEPNOW1 -> ATA_CMD_SLEEP
+7) some are old ATA-2-era commands, some are vendor-specific commands. 
+Not much you can do about the naming of these.
+8) remove all xxx_ONCE that are not used
+9) hdreg.h lists commands in opcode value order
+10) Kill WIN_SRST (dups properly named WIN_DEVICE_RESET)
+
+	Jeff
 
 

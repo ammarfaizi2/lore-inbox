@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288271AbSACRXB>; Thu, 3 Jan 2002 12:23:01 -0500
+	id <S287330AbSACR2w>; Thu, 3 Jan 2002 12:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288272AbSACRWv>; Thu, 3 Jan 2002 12:22:51 -0500
-Received: from dsl-213-023-043-223.arcor-ip.net ([213.23.43.223]:31758 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288271AbSACRWf>;
-	Thu, 3 Jan 2002 12:22:35 -0500
+	id <S288272AbSACR2m>; Thu, 3 Jan 2002 12:28:42 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:50693 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S287330AbSACR20>;
+	Thu, 3 Jan 2002 12:28:26 -0500
+Date: Thu, 3 Jan 2002 18:27:56 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: alan@lxorguk.ukuu.org.uk, akpm@zip.com.au, znmeb@aracnet.com,
+        art@lsr.nei.nih.gov, linux-kernel@vger.kernel.org
+Subject: Re: kswapd etc hogging machine
+Message-Id: <20020103182756.237453bd.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33L.0201031448410.24031-100000@imladris.surriel.com>
+In-Reply-To: <E16M72b-0008B8-00@the-village.bc.nu>
+	<Pine.LNX.4.33L.0201031448410.24031-100000@imladris.surriel.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-Date: Thu, 3 Jan 2002 18:25:43 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Christoph Hellwig <hch@ns.caldera.de>, acme@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0201031145210.23312-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0201031145210.23312-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16MBch-000194-00@starship.berlin>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 3, 2002 05:47 pm, Alexander Viro wrote:
-> On Thu, 3 Jan 2002, Daniel Phillips wrote:
-> > On January 3, 2002 04:45 pm, Christoph Hellwig wrote:
-> > > In article <E16M7Gz-00015E-00@starship.berlin> you wrote:
-> > > > -	inode = get_empty_inode();
-> > > > +	inode = get_empty_inode(sb);
-> > > 
-> > > How about killing get_empty_inode completly and using new_inode() instead?
-> > > There should be no regularly allocated inode without a superblock.
-> > 
-> > There are: sock_alloc rd_load_image.  However that's a nit because the new, 
-> > improved get_empty_inode understands the concept of null sb.  (Another thing 
-> > we could do is require every inode to have a superblock - that's probably 
-> > where it will go in time.)
+On Thu, 3 Jan 2002 14:51:01 -0200 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
+
+> On Thu, 3 Jan 2002, Alan Cox wrote:
 > 
-> It's _already_ there.  RTFS, please - sock_alloc() creates inodes with
-> sockfs superblock in ->i_sb and rd_load_image() just does normal open()
-> for device nodes on rootfs.
+> > 2.4.1x VM code is performing better under light loads but its
+> > absolutely and completely hopeless under a real paging load. 2.4.17-aa
+> > is somewhat better interestingly.
+> 
+> A quick 'make -j bzImage' test I did yesterday got the system
+> to use near 70% of its CPU time in user mode and 30% in system
+> mode. This was with 2.4.17-rmap-10b, btw.
 
-Sockfs - yes, you'll see my patch already does it correctly, I was getting
-a little tired when writing the previous reply... rd_load_image in 2.4.17 is
-still using kdev_t there, however, no super_block anywhere to be seen.  I'll
-track that change if it happens before I bring the patches forward to 2.5.
+And what kind of an argument is this? This is an honest question, really. If I
+do this make I end up around 80-90% in user mode and the rest in system on a
+standard 2.4.17 SMP box (configured with too less swap btw).
 
---
-Daniel
+???
+
+Regards,
+Stephan
+

@@ -1,86 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267383AbUBSB30 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 20:29:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUBSB30
+	id S267191AbUBSBqr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 20:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267441AbUBSBqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 20:29:26 -0500
-Received: from mail-02.iinet.net.au ([203.59.3.34]:452 "HELO mail.iinet.net.au")
-	by vger.kernel.org with SMTP id S267383AbUBSB3X (ORCPT
+	Wed, 18 Feb 2004 20:46:47 -0500
+Received: from dp.samba.org ([66.70.73.150]:5060 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S267191AbUBSBqp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 20:29:23 -0500
-Message-ID: <4034104F.5040002@cyberone.com.au>
-Date: Thu, 19 Feb 2004 12:24:31 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Wed, 18 Feb 2004 20:46:45 -0500
 MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-CC: Jens Axboe <axboe@suse.de>, linux-lvm@sistina.com,
-       linux-kernel@vger.kernel.org, Joe Thornber <thornber@redhat.com>
-Subject: Re: IO scheduler, queue depth, nr_requests
-References: <20040216131609.GA21974@cistron.nl> <20040216133047.GA9330@suse.de> <20040217145716.GE30438@traveler.cistron.net> <20040218235243.GA30621@drinkel.cistron.nl>
-In-Reply-To: <20040218235243.GA30621@drinkel.cistron.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16436.5487.319115.918117@samba.org>
+Date: Thu, 19 Feb 2004 12:46:23 +1100
+To: <hzhong@cisco.com>
+Cc: "'Pascal Schmidt'" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: UTF-8 and case-insensitivity
+In-Reply-To: <011d01c3f684$d74539a0$613a47ab@amer.cisco.com>
+References: <16436.2817.900018.285167@samba.org>
+	<011d01c3f684$d74539a0$613a47ab@amer.cisco.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hua,
 
+ > Do you also require NFSD or other file daemons to do the same
+ > case-insensitivity check?
 
-Miquel van Smoorenburg wrote:
+no. That's the point of the per-process check. Only Samba needs to pay
+the price.
 
->On Tue, 17 Feb 2004 15:57:16, Miquel van Smoorenburg wrote:
->
->>For some reason, when using LVM, write requests get queued out
->>of order to the 3ware controller, which results in quite a bit
->>of seeking and thus performance loss.
->>
->[..]
->
->>Okay I repeated some earlier tests, and I added some debug code in
->>several places.
->>
->>I added logging to tw_scsi_queue() in the 3ware driver to log the
->>start sector and length of each request. It logs something like:
->>3wdbg: id 119, lba = 0x2330bc33, num_sectors = 256
->>
->>With a perl script, I can check if the requests are sent to the
->>host in order. That outputs something like this:
->>
->>Consecutive: start 1180906348, length 7936 sec (3968 KB), requests: 31
->>Consecutive: start 1180906340, length 8 sec (4 KB), requests: 1
->>Consecutive: start 1180914292, length 7936 sec (3968 KB), requests: 31
->>Consecutive: start 1180914284, length 8 sec (4 KB), requests: 1
->>Consecutive: start 1180922236, length 7936 sec (3968 KB), requests: 31
->>Consecutive: start 1180922228, length 8 sec (4 KB), requests: 1
->>Consecutive: start 1180930180, length 7936 sec (3968 KB), requests: 31
->>
->>See, 31 requests in order, then one request "backwards", then 31 in order, etc.
->>
->
->I found out what causes this. It's get_request_wait().
->
->When the request queue is full, and a new request needs to be created,
->__make_request() blocks in get_request_wait().
->
->Another process wakes up first (pdflush / process submitting I/O itself /
->xfsdatad / etc) and sends the next bio's to __make_request().
->In the mean time some free requests have become available, and the bios
->are merged into a new request. Those requests are submitted to the device.
->
->Then, get_request_wait() returns but the bio is not mergeable anymore -
->and that results in a backwards seek, severely limiting the I/O rate.
->
->Wouldn't it be better to allow the request allocation and queue the
->request, and /then/ put the process to sleep ? The queue will grow larger
->than nr_requests, but it does that anyway.
->
->
+ > Say you create a foo, how do you prevent NFSD from creating FOO?
+ > What could you do about that?
 
-The "batching" logic there should allow a process to submit
-a number of requests even above the nr_requests limit to
-prevent this interleave and context switching.
+You don't need to do anything in particular about it. I did explain
+this earlier in this thread, but here goes again:
 
-Are you using tagged command queueing? What depth?
+ * samba always tries the name exactly as given by the client. If that
+   succeeds then we are done. 
 
+ * if it doesn't find an exact match then it does a directory scan. It
+   uses the first case-insensitive matching name it finds, or if it
+   reaches the end of the directory then it concludes that the file
+   doesn't exist.
+
+So if FOO and foo both exist in the filesystem, and someone asks for
+FoO then its pretty much random which one they get (ok, not exactly
+random, but close enough for this argument). The thing is that just
+making an arbitrary choice is a perfectly fine set of semantics. You
+can't deal with this situation any more sanely, so don't even try.
+
+well, actually, there is something you could do that we don't do. We
+could have some special marker that distinguishes files created by
+windows clients and files created by unix clients, and preferentially
+return the one created by windows clients, I just don't think this is
+worth doing. Nobody has even complained (within earshot of me anyway)
+of the current "pick one" method.
+
+Cheers, Tridge

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbTHZQFK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 12:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbTHZQFK
+	id S262595AbTHZQTT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 12:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbTHZQTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 12:05:10 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:39581 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262763AbTHZQFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 12:05:04 -0400
-Subject: Re: Doubt: core not dumped when binary give up root privileges.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexandre Pereira Nunes <alex@PolesApart.wox.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F466E2A.8040905@PolesApart.wox.org>
-References: <3F466E2A.8040905@PolesApart.wox.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061913848.20910.55.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 26 Aug 2003 17:04:08 +0100
+	Tue, 26 Aug 2003 12:19:19 -0400
+Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:28291
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262595AbTHZQTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 12:19:18 -0400
+Date: Tue, 26 Aug 2003 12:18:17 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Where'd my second proc go?
+In-Reply-To: <20030826161409.GW16183@rdlg.net>
+Message-ID: <Pine.LNX.4.53.0308261217580.6876@montezuma.fsmlabs.com>
+References: <20030826151225.GT16183@rdlg.net> <Pine.LNX.4.53.0308261124200.6876@montezuma.fsmlabs.com>
+ <20030826154343.GU16183@rdlg.net> <Pine.LNX.4.53.0308261207180.6876@montezuma.fsmlabs.com>
+ <20030826161409.GW16183@rdlg.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-08-22 at 20:25, Alexandre Pereira Nunes wrote:
-> The program explicitly sets RLIMIT_CORE to RLIM_INFINITY when still 
-> running with uid 0.
+On Tue, 26 Aug 2003, Robert L. Harris wrote:
 
-The kernel assumes a core image from something that was priviledged may
-be unsafe.
+> I'll try and get a window, this is a production box so I can't keep
+> rebooting it.  just put 'append="debug"' in the lilo.conf and reboot?
+> (headless server)
 
-> If instead of calling the program as root, I call it from the non-priv 
-> uid in question, if it crashes, it dumps core on the mentioned dir. 
-> That's the desired behaviour, since I can then take the core and debug. 
-> But if I run it as root (in fact, I would have to), and it crashes (or 
-> is forced to ,by means of kill -SEGV), after it gives up root 
-> credentials, it won't leave a core dump file, which in turn means I 
-> cannot debug it later.
-> 
-> Any ideas?
-
-2.4-ac has support for enabling setuid core dumps and setting the dump
-path, so you can write such dumps to /root/dumps and the kernel will
-make them root accessible only.
-
-The 2.6 test tree and Marcelo 2.4 don't currently support this
-
+Yep, the other dmesg had missing parts..

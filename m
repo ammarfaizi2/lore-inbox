@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263807AbTEFORh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 10:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263808AbTEFORh
+	id S263825AbTEFOXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 10:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTEFOXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 10:17:37 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:40719 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263807AbTEFORO (ORCPT
+	Tue, 6 May 2003 10:23:46 -0400
+Received: from zero.aec.at ([193.170.194.10]:60426 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263825AbTEFOX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 10:17:14 -0400
-Date: Tue, 6 May 2003 16:01:53 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: kkeil@suse.de, kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
-Subject: Re: ISDN massive packet drops while DVD burn/verify
-Message-Id: <20030506160153.44ea4eee.skraw@ithnet.com>
-In-Reply-To: <1052225795.1201.11.camel@dhcp22.swansea.linux.org.uk>
-References: <20030416151221.71d099ba.skraw@ithnet.com>
-	<Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu>
-	<20030419193848.0811bd90.skraw@ithnet.com>
-	<1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk>
-	<20030505164653.GA30015@pingi3.kke.suse.de>
-	<20030505192652.7f17ea9e.skraw@ithnet.com>
-	<1052218412.28797.18.camel@dhcp22.swansea.linux.org.uk>
-	<20030506143902.2b3fcecd.skraw@ithnet.com>
-	<1052225795.1201.11.camel@dhcp22.swansea.linux.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 6 May 2003 10:23:28 -0400
+Date: Tue, 6 May 2003 16:35:33 +0200
+From: Andi Kleen <ak@muc.de>
+To: Matt Bernstein <mb--lkml@dcs.qmul.ac.uk>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@digeo.com>,
+       elenstev@mesatop.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm4
+Message-ID: <20030506143533.GA22907@averell>
+References: <1051905879.2166.34.camel@spc9.esa.lanl.gov> <20030502133405.57207c48.akpm@digeo.com> <1051908541.2166.40.camel@spc9.esa.lanl.gov> <20030502140508.02d13449.akpm@digeo.com> <1051910420.2166.55.camel@spc9.esa.lanl.gov> <Pine.LNX.4.55.0305030014130.1304@jester.mews> <20030502164159.4434e5f1.akpm@digeo.com> <20030503025307.GB1541@averell> <Pine.LNX.4.55.0305030800140.1304@jester.mews> <Pine.LNX.4.55.0305061511020.3237@r2-pc.dcs.qmul.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0305061511020.3237@r2-pc.dcs.qmul.ac.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 May 2003 13:56:37 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Tue, May 06, 2003 at 04:15:55PM +0200, Matt Bernstein wrote:
+> Is this helpful?
 
-> On Maw, 2003-05-06 at 13:39, Stephan von Krawczynski wrote:
-> >  HDIO_GET_MULTCOUNT failed: Invalid argument
-> >  IO_support   =  0 (default 16-bit)
-> >  unmaskirq    =  0 (off)
-> >  using_dma    =  1 (on)
-> >  keepsettings =  0 (off)
-> >  readonly     =  0 (off)
-> >  BLKRAGET failed: Invalid argument
-> >  HDIO_GETGEO failed: Invalid argument
-> >  
-> > 
-> > using_dma means it's using dma for transfer, right?
-> 
-> Except for certain operations like audio cd ripping
+What I really need is an probably decoded with ksymoops oops, not jpegs.
 
-Not used here.
-We are using the DVDs (DVD-R) for data backups, some dozens a month.
-And keep in mind: the problem occurs currently only while writing to DVD, not
-while reading it.
+Also you seem to be the only one with the problem so just to avoid
+any weird build problems do a make distclean and rebuild from scratch
+and reinstall the modules.
 
-Regards,
-Stephan
+-Andi

@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319392AbSH2WVT>; Thu, 29 Aug 2002 18:21:19 -0400
+	id <S319449AbSH2WWa>; Thu, 29 Aug 2002 18:22:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319435AbSH2WUZ>; Thu, 29 Aug 2002 18:20:25 -0400
-Received: from smtpout.mac.com ([204.179.120.97]:64472 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319392AbSH2VxD>;
-	Thu, 29 Aug 2002 17:53:03 -0400
-Message-Id: <200208292157.g7TLvQ72021684@smtp-relay04-en1.mac.com>
-Date: Thu, 29 Aug 2002 21:56:27 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 27/41 sound/oss/opl3sa2.c - convert cli to spinlocks
-From: pwaechtler@mac.com
-To: linux-kernel@vger.kernel.org
+	id <S319448AbSH2WV0>; Thu, 29 Aug 2002 18:21:26 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:35089 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319388AbSH2WVH>; Thu, 29 Aug 2002 18:21:07 -0400
+Message-ID: <3D6E9EDC.ED1E546C@zip.com.au>
+Date: Thu, 29 Aug 2002 15:23:24 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Patrick Mansfield <patmans@us.ibm.com>
+CC: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Gerrit Huizenga <gerrit@us.ibm.com>,
+       Hans-J Tannenberger <hjt@us.ibm.com>,
+       Janet Morgan <janetmor@us.ibm.com>, Mike Anderson <andmike@us.ibm.com>,
+       Martin Bligh <mjbligh@us.ibm.com>, linux-scsi@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: 2.5.32 IO performance issues
+References: <3D6E6B64.66203783@zip.com.au> <200208292055.g7TKte224951@eng2.beaverton.ibm.com> <20020829145342.A25892@eng2.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: torvalds@transmeta.com
-X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/opl3sa2.c	Sat Apr 20 18:25:21 2002
-+++ linux-2.5-cli-oss/sound/oss/opl3sa2.c	Tue Aug 13 15:37:21 2002
-@@ -149,6 +149,8 @@
- static struct address_info cfg_mss[OPL3SA2_CARDS_MAX];
- static struct address_info cfg_mpu[OPL3SA2_CARDS_MAX];
- 
-+static spinlock_t	lock=SPIN_LOCK_UNLOCKED;
-+
- /* Our parameters */
- static int __initdata io	= -1;
- static int __initdata mss_io	= -1;
-@@ -927,8 +929,7 @@
- 	if (!pdev)
- 		return -EINVAL;
- 
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock,flags);
- 
- 	p = (opl3sa2_mixerdata *) pdev->data;
- 	p->in_suspend = 1;
-@@ -951,7 +952,7 @@
- 	opl3sa2_read(p->cfg_port, OPL3SA2_PM, &p->reg);
- 	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg | pm_mode);
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock,flags);
- 	return 0;
- }
- 
-@@ -964,15 +965,14 @@
- 		return -EINVAL;
- 
- 	p = (opl3sa2_mixerdata *) pdev->data;
--	save_flags(flags);
--	cli();
-+	spin_lock_irqsave(&lock,flags);	
- 
- 	/* I don't think this is necessary */
- 	opl3sa2_write(p->cfg_port, OPL3SA2_PM, p->reg);
- 	opl3sa2_mixer_restore(p, p->card);
- 	p->in_suspend = 0;
- 
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock,flags);
- 	return 0;
- }
- 
+Patrick Mansfield wrote:
+> 
+> On Thu, Aug 29, 2002 at 01:55:40PM -0700, Badari Pulavarty wrote:
+> > >
+> > > block-highmem is bust for scsi. (aic7xxx at least).  Does
+> > > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.32/2.5.32-mm2/broken-out/scsi_hack.patch
+> > > fix it?
+> >
+> > Hmm !! This patch fixed it. I remember you gave me this patch for 2.5.31. But 2.5.31
+> > was doing fine without it. But 2.5.32 seem to need it.
+> >
+> 
+> The above patch works fine to get back to the previous (pre-2.5.32) state.
+> But, it makes no sense to modify the bounce_limit based on the type of
+> storage that is attached to an adapter.
 
+I agree.  Hence the name "scsi_hack" ;)
+
+> We want to allow high mem for block devices other than SCSI direct access
+> devices (TYPE_DISK), such as CD ROM (SDpnt->type TYPE_ROM), WORM devices
+> (TYPE_WORM), and optical disks (TYPE_MOD).
+> 
+> So it is better to patch scsi_initialize_merge_fn:
+> 
+> --- 1.16/drivers/scsi/scsi_merge.c      Fri Jul  5 09:43:00 2002
+> +++ edited/drivers/scsi/scsi_merge.c    Thu Aug 29 14:30:12 2002
+> @@ -140,7 +140,7 @@
+>          * Enable highmem I/O, if appropriate.
+>          */
+>         bounce_limit = BLK_BOUNCE_HIGH;
+> -       if (SHpnt->highmem_io && (SDpnt->type == TYPE_DISK)) {
+> +       if (SHpnt->highmem_io) {
+>                 if (!PCI_DMA_BUS_IS_PHYS)
+>                         /* Platforms with virtual-DMA translation
+>                          * hardware have no practical limit.
+> 
+
+That will certainly fix it.  But who added the TYPE_DISK check,
+and why???

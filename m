@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263594AbTE3MPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 08:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTE3MPQ
+	id S263597AbTE3MWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 08:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTE3MWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 08:15:16 -0400
-Received: from smtp013.mail.yahoo.com ([216.136.173.57]:51462 "HELO
-	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263594AbTE3MPP convert rfc822-to-8bit (ORCPT
+	Fri, 30 May 2003 08:22:09 -0400
+Received: from mail.uklinux.net ([80.84.72.21]:35344 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id S263597AbTE3MWI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 08:15:15 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: kupdated in 2.5
-Date: Fri, 30 May 2003 14:28:23 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Fri, 30 May 2003 08:22:08 -0400
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Fri, 30 May 2003 13:43:14 +0100
+To: David Hinds <dhinds@sonic.net>
+Cc: linux-kernel@vger.kernel.org, Junfeng Yang <yjf@stanford.edu>
+Subject: Re: [CHECKER] pcmcia user-pointer dereference
+Message-ID: <20030530124313.GA952@mrrp.telinco.co.uk>
+References: <E19LjBL-0000FS-00@mrrp.telinco.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305301428.34510.fsdeveloper@yahoo.de>
+In-Reply-To: <E19LjBL-0000FS-00@mrrp.telinco.co.uk>
+User-Agent: Mutt/1.3.28i
+From: Mike Playle <mike@newdawn.uklinux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, May 30, 2003 at 01:40:27PM +0100, David Hinds wrote:
+> On Thu, May 29, 2003 at 04:30:54PM -0500, Hollis Blanchard wrote:
+> > 
+> > That's true for pcmcia_get_mem_page. However pcmcia_map_mem_page writes 
+> > into the structure it verifies. I think pcmcia_get_first/next_window 
+> > could also be used to corrupt memory (*handle = win in 
+> > pcmcia_get_window).
+> 
+> The map_mem_page ioctl can only be used by root.  The get_*_window
+> ioctl's can't corrupt anything because they, like get_mem_page, only
+> read the target data structures.
+> 
+> -- Dave
 
-Hi.
+What about memory-mapped IO registers? Can this ioctl be used to cause
+an unwanted read from a memory mapped device?
 
-I recognized, that kupdated is no longer present (under that name?)
-in 2.5.70. (or did I misconfigure something?)
-I saw it, when i wanted to run noflushd on 2.5.
-So, what has been changed here? Where can I get more information on it?
-
-thanks!
-
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 14:26:18 up  2:56,  3 users,  load average: 1.10, 1.21, 1.10
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+105yoxoigfggmSgRApiRAJ499YHbKFk/r6TmDE3qYik2+r7LBgCfWnSd
-njXtnbnZar9VnqRCOoQCNEE=
-=0SWe
------END PGP SIGNATURE-----
-
+-- 
+Mike

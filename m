@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130382AbRAJW0f>; Wed, 10 Jan 2001 17:26:35 -0500
+	id <S132091AbRAJW2p>; Wed, 10 Jan 2001 17:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130571AbRAJW0Z>; Wed, 10 Jan 2001 17:26:25 -0500
-Received: from colorfullife.com ([216.156.138.34]:10512 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130382AbRAJW0E>;
-	Wed, 10 Jan 2001 17:26:04 -0500
-Message-ID: <3A5CE07D.BD36D71C@colorfullife.com>
-Date: Wed, 10 Jan 2001 23:21:49 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Frank de Lange <frank@unternet.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
- related?
-In-Reply-To: <20010110223015.B18085@unternet.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132676AbRAJW2f>; Wed, 10 Jan 2001 17:28:35 -0500
+Received: from jalon.able.es ([212.97.163.2]:60107 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S132658AbRAJW20>;
+	Wed, 10 Jan 2001 17:28:26 -0500
+Date: Wed, 10 Jan 2001 23:28:13 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: PIII vs FXSR
+Message-ID: <20010110232813.A984@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank de Lange wrote:
-> 
-> Hi'all,
-> 
-> Ever since I put two ethernet-cards (cheap Winbond W89C940 based PCI NE2K
-> clones) in my BP-6 system, I've been experiencing intermittent network hangs.
->
+arch/i386/Makefile:
 
-Which driver do you use? The driver in 2.4.0 contains several bugfixes.
-If that driver still hangs then I'll double check the documentation.
+--- linux-2.4.0-ac5/arch/i386/Makefile.org      Wed Jan 10 23:22:54 2001
++++ linux-2.4.0-ac5/arch/i386/Makefile  Wed Jan 10 23:23:10 2001
+@@ -50,7 +50,7 @@
+ CFLAGS += -march=i686
+ endif
+ 
+-ifdef CONFIG_M686FXSR
++ifdef CONFIG_MPENTIUMIII
+ CFLAGS += -march=i686
+ endif
 
-> A
-> hang manifests itself as a total failure to communicate through either network
-> card, and can only be solved by rebooting. Removing and reloading the modules
-> does not fix the problem, only a reboot works.
-> 
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-That's different from my problems:
-unload+reload always fixed my problems with the unpatch winbond-840
-driver.
+Linux werewolf 2.4.0-ac4 #1 SMP Mon Jan 8 22:10:06 CET 2001 i686
 
-> which should work, they are
-> NON-busmastering cards after all...),
-third line in w840_probe1():
-
-	pci_set_master().
-
-And the documentation begins with
-W89C840F
-	PCI Bus Master Fast Ethernet LAN Controller.
-
-
---
-	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

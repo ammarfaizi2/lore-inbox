@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbUCMQIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 11:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUCMQIX
+	id S263125AbUCMQKR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 11:10:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUCMQKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 11:08:23 -0500
-Received: from hera.kernel.org ([63.209.29.2]:6610 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263120AbUCMQIW (ORCPT
+	Sat, 13 Mar 2004 11:10:17 -0500
+Received: from ns.suse.de ([195.135.220.2]:16102 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263121AbUCMQKM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 11:08:22 -0500
-Date: Sat, 13 Mar 2004 13:07:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@dmt.cyclades
-To: carndt@macksrecycling.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: broken_hp_laptop
-In-Reply-To: <20040301010330.28642.qmail@webmail4.mesa1.secureserver.net>
-Message-ID: <Pine.LNX.4.44.0403131306330.19494-100000@dmt.cyclades>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 Mar 2004 11:10:12 -0500
+Date: Sat, 13 Mar 2004 17:10:10 +0100
+From: Andi Kleen <ak@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>,
+       Ray Bryant <raybry@sgi.com>, lse-tech@lists.sourceforge.net,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory machines.......
+Message-ID: <20040313161010.GB15118@wotan.suse.de>
+References: <40528383.10305@sgi.com> <20040313034840.GF4638@wotan.suse.de> <20040313054910.GA655@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040313054910.GA655@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 29 Feb 2004 carndt@macksrecycling.com wrote:
-
-> My Hp laptop is not broken!!!!
-> (well at least the routing tables get usb right!)
+> > fall back to smaller pages if possible (I was told it isn't easily
+> > possible on IA64)
 > 
-> Model == hp pavillion le4101
-> kernel == 2.4.25
-> To get usb working I have to remove the "broken_hp_laptop" patch.
+> That's not entirely true. Whether it's feasible depends on how the
+> MMU is used. The HPW (Hardware Pagetable Walker) and short mode of the
+> VHPT insist upon pagesize being a per-region attribute, where regions
+> are something like 60-bit areas of virtualspace, which is likely what
+> they're referring to. The VHPT in long mode should be capable of
+> arbitrary virtual placement (modulo alignment of course).
 
-Hi,
+Redesigning the low level TLB fault handling for this would not count as
+"easily" in my book.
 
-What "brooken_hp_laptop" patch are you talking aobut? 
-
-> 
-> The machine does get Cardbus and ethernet irq's wrong so all isn't completely good.
-> Anyone interested in  the details?
-
-I am.
-
+-Andi

@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291743AbSBNQOX>; Thu, 14 Feb 2002 11:14:23 -0500
+	id <S291750AbSBNQN4>; Thu, 14 Feb 2002 11:13:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291746AbSBNQOM>; Thu, 14 Feb 2002 11:14:12 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:3734 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S291743AbSBNQN4>; Thu, 14 Feb 2002 11:13:56 -0500
-Message-ID: <3C6BE241.20100@linuxhq.com>
-Date: Thu, 14 Feb 2002 11:13:53 -0500
-From: John Weber <john.weber@linuxhq.com>
-Organization: Linux Headquarters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020206
-X-Accept-Language: en-us
+	id <S291743AbSBNQNp>; Thu, 14 Feb 2002 11:13:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32519 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291750AbSBNQN3>;
+	Thu, 14 Feb 2002 11:13:29 -0500
+Message-ID: <3C6BE221.7F824863@mandrakesoft.com>
+Date: Thu, 14 Feb 2002 11:13:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.5-pre1 OSS YMFPCI Fix
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@transmeta.com, davidm@hpl.hp.com,
+        "David S. Miller" <davem@redhat.com>, anton@samba.org,
+        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] move task_struct allocation to arch
+In-Reply-To: <11830.1013700380@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to bring an mbool with YMFPCI's tristate, so here.
+David Howells wrote:
+> 
+> Hi Linus,
+> 
+> This patch moves task_struct allocation from kernel/fork.c into
+> arch/*/kernel/process.c.
+> 
+> David Mosberger wrote:
+> 
+> >   David.H> What might be worth doing is to move the task_struct slab
+> >   David.H> cache and (de-)allocator out of fork.c and to stick it in
+> >   David.H> the arch somewhere. Then archs aren't bound to have the two
+> >   David.H> separate. So for a system that can handle lots of memory,
+> >   David.H> you can allocate the thread_info, task_struct and
+> >   David.H> supervisor stack all on one very large chunk if you so
+> >   David.H> wish.
+> >
+> > Could you do this?  I'd prefer if task_info could be completely hidden
+> > inside the x86/sparc arch-specific code, but if things are set up such
+> > that we at least have the option to keep the stack, task_info, and
+> > task_struct in a single chunk of memory (and without pointers between
+> > them), I'd have much less of an issue with it.
 
-(o- j o h n   e   w e b e r
-//\  http://www.linuxhq.com/people/weber/
-v_/_ john.weber@linuxhq.com
+Is this the first in a multi-step patch series, or something like that?
+
+You just duplicated code in a generic location and pasted it into the
+arch.  Where's the gain in that?  I do see the gain in letting the arch
+allocate the task struct, but surely your patch should provide a generic
+mechanism for an arch to call by default, instead of duplicating code??
+
+	Jeff
 
 
-diff -Nru linux-2.5.4/sound/oss/Config.in 
-linux-2.5.5/sound/oss/Config.in > sound-2.5.4.patch
---- linux-2.5.4/sound/oss/Config.in	Thu Feb 14 11:00:32 2002
-+++ linux-2.5.5/sound/oss/Config.in	Thu Feb 14 11:01:46 2002
-@@ -103,6 +103,9 @@
-  dep_tristate '  VIA 82C686 Audio Codec' CONFIG_SOUND_VIA82CXXX $CONFIG_PCI
-  dep_mbool    '  VIA 82C686 MIDI' CONFIG_MIDI_VIA82CXXX 
-$CONFIG_SOUND_VIA82CXXX
 
-+dep_tristate '  Yamaha YMF7xx PCI audio (native mode)' 
-CONFIG_SOUND_YMFPCI $CONFIG_PCI
-+dep_mbool '    Yamaha PCI legacy ports support' 
-CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-+
-  dep_tristate '  OSS sound modules' CONFIG_SOUND_OSS $CONFIG_SOUND
-
-  if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
-@@ -164,8 +167,6 @@
-     dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' 
-CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
-     dep_tristate '    Yamaha OPL3-SA1 audio controller' 
-CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
-     dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' 
-CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
--   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' 
-CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
--   dep_mbool '      Yamaha PCI legacy ports support' 
-CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-     dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 
-$CONFIG_SOUND_OSS
-
-     dep_tristate '    Gallant Audio Cards (SC-6000 and SC-6600 based)' 
-CONFIG_SOUND_AEDSP16 $CONFIG_SOUND_OSS
-
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

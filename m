@@ -1,39 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264867AbSLMPeF>; Fri, 13 Dec 2002 10:34:05 -0500
+	id <S264875AbSLMPfi>; Fri, 13 Dec 2002 10:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbSLMPeF>; Fri, 13 Dec 2002 10:34:05 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:56734 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S264867AbSLMPeF>;
-	Fri, 13 Dec 2002 10:34:05 -0500
-Date: Fri, 13 Dec 2002 17:55:26 -0500
-From: Christoph Hellwig <hch@sgi.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.5.50-mm2
-Message-ID: <20021213175526.C2581@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-	linux-mm@kvack.org
-References: <3DF453C8.18B24E66@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DF453C8.18B24E66@digeo.com>; from akpm@digeo.com on Mon, Dec 09, 2002 at 12:26:48AM -0800
+	id <S264877AbSLMPfi>; Fri, 13 Dec 2002 10:35:38 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:15856 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S264875AbSLMPfe>;
+	Fri, 13 Dec 2002 10:35:34 -0500
+Message-ID: <F2DBA543B89AD51184B600508B68D40010F1CF8B@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: jamesclv@us.ibm.com, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH][2.5][RFC] Using xAPIC apic address space on !Summit
+Date: Fri, 13 Dec 2002 07:43:22 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 09, 2002 at 12:26:48AM -0800, Andrew Morton wrote:
-> +remove-PF_SYNC.patch
+I/O APIC? I'm talking about xAPIC, i.e. local APIC which is part of the
+chip. Also note that I/O subsystem can generate interrupts (e.g. MSI,
+Message Signaled Interrupt), bypassing I/O APICs.
+
+Jun
+
+> -----Original Message-----
+> From: James Cleverdon [mailto:jamesclv@us.ibm.com]
+> Sent: Thursday, December 12, 2002 7:22 PM
+> To: Nakajima, Jun; Zwane Mwaikambo
+> Cc: Martin Bligh; John Stultz; Linux Kernel
+> Subject: Re: [PATCH][2.5][RFC] Using xAPIC apic address space on !Summit
 > 
->  remove the current->flags:PF_SYNC abomination.  Adds a `sync' arg to
->  all writepage implementations to tell them whether they are being
->  called for memory cleansing or for data integrity.
-
-Any chance you could pass down a struct writeback_control instead of
-just the sync flag?  XFS always used ->writepage similar to the
-->vm_writeback in older kernel releases because writing out more
-than one page of delalloc space is really needed to be efficient and
-this would allow us to get a few more hints about the VM's intentions.
-
+> On Thursday 12 December 2002 07:05 pm, Nakajima, Jun wrote:
+> > BTW, we are working on a xAPIC patch that supports more than 8 CPUs in a
+> > generic fashion (don't use hardcode OEM checking). We already tested it
+> on
+> > two OEM systems with 16 CPUs.
+> > - It uses clustered mode. We don't want to use physical mode because it
+> > does not support lowest priority delivery mode.
+> > - We also check the version of the local APIC if it's xAPIC or not. It's
+> > possible that some other x86 architecture (other than P4P) uses xAPIC.
+> >
+> > Stay tuned.
+> >
+> > Jun
+> 
+> See my 2.5 summit patch for one that uses logical mode and lowest priority
+> delivery.  I haven't submitted that for 2.4 because the physical patch has
+> the most run time on it, both in Alan's tree and SuSE 8.0+.
+> 
+> The hardcoded OEM checking was necessary because the Summit I/O APICs were
+> still using the older version number.  (The HW folks claim that Intel
+> didn't
+> specify the new number soon enough for them.)
+> 
+> I'm hesitant to key xAPIC vs. flat off the local APIC version number
+> because
+> it's possible to build a flat system out of P4 CPUs.  I/O APIC version
+> numbers combined with the parallel vs. serial bit would be safer (except
+> for
+> the Summit problem above).  I've also tried checking all the CPU's
+> physical
+> APIC IDs to see if they use multiple APIC clusters.
+> 
+> > > -----Original Message-----
+> > > From: James Cleverdon [mailto:jamesclv@us.ibm.com]
+> > > Sent: Thursday, December 12, 2002 6:42 PM
+> > > To: Zwane Mwaikambo
+> > > Cc: Martin Bligh; John Stultz; Linux Kernel
+> > > Subject: Re: [PATCH][2.5][RFC] Using xAPIC apic address space on
+> !Summit
+> > >
+> > > On Thursday 12 December 2002 06:21 pm, Zwane Mwaikambo wrote:
+> > > > On Thu, 12 Dec 2002, James Cleverdon wrote:
+> > > > > On Thursday 12 December 2002 05:44 pm, Zwane Mwaikambo wrote:
+> > > > > > Hi,
+> > > > > > 	I've got an 32x SMP system which has an xAPIC but utilises
+> > >
+> > > flat
+> > >
+> > > > > > addressing. This patch is to rename what was formerly x86_summit
+> to
+> > > > > > x86_xapic (just to avoid confusion) and then select mask
+> depending
+> > >
+> > > on
+> > >
+> > > > > > that.
+> > > > > >
+> > > > > > Untested/uncompiled patch
+> > > > >
+> > > > > Hi Zwane,
+> > > > >
+> > > > > How can you have a 32-way SMP system with flat addressing?  There
+> are
+> > > > > only 8 bits in the destination address field.  Even if you work
+> > > > > around that by assigning a set of CPUs to each dest addr bit,
+> there
+> > > > > can only
+> > >
+> > > be
+> > >
+> > > > > 15 physical APIC IDs in flat mode.  To get to 32 you must switch
+> into
+> > > > > clustered mode.
+> > > > >
+> > > > > Please tell me more.  I'm intrigued how this can be done.
+> > > >
+> > > > Hi James,
+> > > > 	with the xAPIC we can use the 8bit address space everywhere
+in
+> > > > physical destination mode. For example the ICR now has an 8bit space
+> > > > for destination.
+> > > >
+> > > > "Specifies the target processor or processors. This field is only
+> used
+> > > > when the destination shorthand field is set to 00B. If the
+> destination
+> > > > mode is set to physical, then bits 56 through 59 contain the APIC ID
+> of
+> > > > the target processor for Pentium and P6 family processors and bits
+> 56
+> > > > through 63 contain the APIC ID of the target processor the for
+> Pentium
+> > > > 4 and Intel Xeon processors. If the destination mode is set to
+> logical,
+> > >
+> > > the
+> > >
+> > > > interpretation of the 8-bit destination field depends on the
+> settings
+> > > > of the DFR and LDR registers of the local APICs in all the
+> processors
+> > > > in
+> > >
+> > > the
+> > >
+> > > > system (see Section 8.6.2.,  Determining IPI Destination )."
+> > > > 	- System Developer's Manual vol3 p291
+> > > >
+> > > > Regards,
+> > > > 	Zwane
+> > >
+> > > Sure you can physically address them, if you assign IDs using Intel's
+> > > official
+> > > xAPIC numbering scheme (which must be clustered for more than 7 CPUs).
+> > > But,
+> > > you still don't have enough destination address bits to go around.  In
+> > > flat
+> > > mode, the kernel assumes you have one bit per CPU and phys IDs will be
+> <
+> > > 0xF.
+> > >
+> > > Bill tells me that you may be doing this for an emulator.  Why not
+> > > emulate clusered APIC mode, like the real hardware uses?
+> > >
+> > > I know the name x86_summit doesn't really fit.  The summit patch
+> should
+> > > work
+> > > for any xAPIC box that uses the system bus for interrupt delivery and
+> has
+> > > multiple APIC clusters.  Is that what you're working towards?
+> > >
+> > > --
+> > > James Cleverdon
+> > > IBM xSeries Linux Solutions
+> > > {jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+> 
+> 
+> --
+> James Cleverdon
+> IBM xSeries Linux Solutions
+> {jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264764AbRFXVah>; Sun, 24 Jun 2001 17:30:37 -0400
+	id <S264769AbRFXVhU>; Sun, 24 Jun 2001 17:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264771AbRFXVa1>; Sun, 24 Jun 2001 17:30:27 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:22888
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S264769AbRFXVaN>; Sun, 24 Jun 2001 17:30:13 -0400
-Date: Sun, 24 Jun 2001 23:30:06 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: philb@gnu.org
+	id <S264771AbRFXVhA>; Sun, 24 Jun 2001 17:37:00 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58888 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264769AbRFXVgs>; Sun, 24 Jun 2001 17:36:48 -0400
+Subject: Re: Thrashing WITHOUT swap.
+To: maze@druid.if.uj.edu.pl (Maciej Zenczykowski)
+Date: Sun, 24 Jun 2001 22:36:25 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kmalloc check for drivers/media/video/i2c-parport.c (245ac16)
-Message-ID: <20010624233006.I847@jaquet.dk>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33.0106242133550.19801-100000@druid.if.uj.edu.pl> from "Maciej Zenczykowski" at Jun 24, 2001 09:47:30 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15EHYP-0000VC-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> recompiled it yet).  I have a 140 mb swap partition set up but at the time
+> this happened it was OFF.  I was (still am) running X + twm + two xterms
+> 
+> top gives me:
+> mem: 62144k av, 61180k used, 956k free, 0k shrd, 76 buff, 2636 cached
+> swap: 0k av, 0k used, 0k free [as expected]
 
-The following patch tries to avoid a potential null pointer
-dereference. It applies against 245-ac16 and 246p6. The
-dereference was originally reported by the Stanford team.
+Not as expected - 0k used 0k free - you have no swap
 
+Alan
 
---- linux-245-ac16-clean/drivers/media/video/i2c-parport.c	Thu Jul 13 01:24:33 2000
-+++ linux-245-ac16/drivers/media/video/i2c-parport.c	Sun Jun 24 23:22:19 2001
-@@ -74,6 +74,10 @@
- {
-   struct parport_i2c_bus *b = kmalloc(sizeof(struct parport_i2c_bus), 
- 				      GFP_KERNEL);
-+  if (!b) {
-+	  printk(KERN_ERR __FUNCTION__ ": Memory allocation failed. Not attaching.\n");
-+	  return;
-+  }
-   b->i2c = parport_i2c_bus_template;
-   b->i2c.data = parport_get_port (port);
-   strncpy(b->i2c.name, port->name, 32);
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-"A statesman... is a dead politician. Lord knows, we need more statesmen." 
-   -- Bloom County

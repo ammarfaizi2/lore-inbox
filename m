@@ -1,49 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280332AbRKEIEe>; Mon, 5 Nov 2001 03:04:34 -0500
+	id <S280328AbRKEIJo>; Mon, 5 Nov 2001 03:09:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280329AbRKEIEX>; Mon, 5 Nov 2001 03:04:23 -0500
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:44161 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S280328AbRKEIEM>; Mon, 5 Nov 2001 03:04:12 -0500
-Date: Mon, 5 Nov 2001 13:34:00 +0530 (IST)
-From: Manik Raina <manik@cisco.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] unused function in arch/i386
-Message-ID: <Pine.GSO.4.33.0111051331400.14887-100000@cbin2-view1.cisco.com>
+	id <S280330AbRKEIJe>; Mon, 5 Nov 2001 03:09:34 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:39439 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280328AbRKEIJS>; Mon, 5 Nov 2001 03:09:18 -0500
+Message-ID: <3BE647F4.AD576FF2@zip.com.au>
+Date: Mon, 05 Nov 2001 00:04:04 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <20011104193232.A16679@mikef-linux.matchmail.com> from "Mike Fedyk" at Nov 04, 2001 07:32:32 PM <200111050554.fA55swt273156@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+"Albert D. Cahalan" wrote:
+> 
+> Mike Fedyk writes:
+> > On Sun, Nov 04, 2001 at 06:13:19PM -0800, Andrew Morton wrote:
+> 
+> >> All well and good, and still a WIP.  But by far the most dramatic
+> >> speedups come from disabling ext2's policy of placing new directories
+> >> in a different blockgroup from the parent:
+> > [snip]
+> >> A significant thing here is the improvement in read performance as well
+> >> as writes.  All of the other speedup changes only affect writes.
+> >>
+> >> We are paying an extremely heavy price for placing directories in
+> >> different block groups from their parent.  Why do we do this, and
+> >> is it worth the cost?
+> >
+> > My God!  I'm no kernel hacker, but I would think the first thing
+> > you would want to do is keep similar data (in this case similar
+> > because of proximity in the dir tree) as close as possible to
+> > reduce seeking...
+> 
+> By putting directories far apart, you leave room for regular
+> files (added at some future time) to be packed close together.
 
-The function disable_ide_dma is no longer in use in the
-codebase, and hence this patch removes it from the build ....
+OK, that's one possible reason.  Not sure I buy it though.  If
+the files are created a few days after their parent directory
+then the chance of their data or metadata being within device
+readhead scope of any of the parent dir's blocks seems small?
 
-Index: kernel/dmi_scan.c
-===================================================================
-RCS file: /vger/linux/arch/i386/kernel/dmi_scan.c,v
-retrieving revision 1.10
-diff -u -r1.10 dmi_scan.c
---- kernel/dmi_scan.c	13 Oct 2001 01:47:27 -0000	1.10
-+++ kernel/dmi_scan.c	5 Nov 2001 07:59:16 -0000
-@@ -189,7 +189,7 @@
-  *	rule needs to be improved to match specific BIOS revisions with
-  *	corruption problems
-  */
+> I'm sure your benchmark doesn't fill directories with files
+> by adding a few files every day over a period of many months.
+> Think about projects under your home directory though.
+
+OK.  I'm not really aware of a suitable benchmark for that.
+postmark only works in a single directory.  mongo hardly
+touches the disk at all, (with 3/4 of a gig of RAM, anyway).
+
+My original make-100,000-4k-files test creates the files
+in a tree - each node has 10 leafs.  For a total of 11,110
+directories and 100,000 files.  It originally did it 
+in-order, so:
+
+mkdir(00)
+mkdir(00/00)
+mkdir(00/00/00)
+mkdir(00/00/00/00)
+creat(00/00/00/00/00)
+creat(00/00/00/00/01)
+...
+mkdir(00/00/00/01)
+
+etc.
+
+So I changed it to create the 11,110 directories, and then
+to go back and create the 100,000 files.  This will ensure that the
+file's data are not contiguous with their parent directory.
+
+With the ialloc.c change, plus the other changes I mentioned
+the time to create all these directories and files and then run
+/bin/sync fell from 1:53 to 0:28.  Fourfold.
+
+But the time to read the data was remarkable.  This is purely
+due to the ialloc.c change.  The command was
+
+	time (find . -type f | xargs cat > /dev/null)
+
+stock 2.4.14-pre8:	6:32
+with ialloc.c change:	0:30
+
+And this was on an 8 gig fs.  On a 32 gig fs I'd expect to see
+a fifteen-fold difference due to the additional block groups.
+
+Can you suggest a better test?
+
 -
-+#ifdef OLDVERSION
- static __init int disable_ide_dma(struct dmi_blacklist *d)
- {
- #ifdef CONFIG_BLK_DEV_IDE
-@@ -202,6 +202,8 @@
- #endif
- 	return 0;
- }
-+
-+#endif /* OLDVERSION */
-
- /*
-  * Reboot options and system auto-detection code provided by
-

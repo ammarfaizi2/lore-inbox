@@ -1,33 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUKIFDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbUKIFEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUKIFDd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 00:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbUKIFDd
+	id S261371AbUKIFEs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 00:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbUKIFEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 00:03:33 -0500
-Received: from cantor.suse.de ([195.135.220.2]:59306 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261366AbUKIFDb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 00:03:31 -0500
-Date: Tue, 9 Nov 2004 06:01:07 +0100
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Use -ffreestanding?
-Message-ID: <20041109050107.GA5328@wotan.suse.de>
-References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de> <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <20041108175120.GB27525@wotan.suse.de> <20041108183449.GC15077@stusta.de> <20041108190130.GA2564@wotan.suse.de> <20041108233806.GM15077@stusta.de>
-Mime-Version: 1.0
+	Tue, 9 Nov 2004 00:04:47 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:53680 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261371AbUKIFEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 00:04:34 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: james4765@verizon.net
+Date: Tue, 9 Nov 2004 16:05:57 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108233806.GM15077@stusta.de>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16784.20533.56739.384864@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@redhat.com
+Subject: Re: [PATCH] md: Documentation/md.txt update
+In-Reply-To: message from james4765@verizon.net on Monday November 8
+References: <20041109042030.11446.55146.88799@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why doesn't the kernel use -ffreestanding which should prevent all such 
-> problems?
+On Monday November 8, james4765@verizon.net wrote:
+> Update status of superblock formats and fix misspellings in Documentation/md.txt
 
-Because we want most of these optimizations. Also with -ffreestanding
-you would need to supply the out of line string functions anyways 
-because gcc wouldn't inline them.
+Thanks but ....
 
--Andi
+>  
+> -The kernel does *NOT* autodetect which format superblock is being
+> -used. It must be told.
+> +The kernel will autodetect which format superblock is being used.
+
+This is an incorrect change.  The kernel does *NOT* autodetect
+superblock format.  I'm you really think it does, please point me at
+the code.
+
+>  
+> -One started with RUN_ARRAY, uninitialised spares can be added with
+> +One started with RUN_ARRAY, uninitialized spares can be added with
+
+You corrected the wrong part of this line.
+"One" at the beginning should be "Once".
+"uninitialised" is correct  - in the Locale of the author.
+
+NeilBrown

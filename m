@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266199AbTABIKK>; Thu, 2 Jan 2003 03:10:10 -0500
+	id <S264697AbTABIXh>; Thu, 2 Jan 2003 03:23:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266200AbTABIKK>; Thu, 2 Jan 2003 03:10:10 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:17055 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266199AbTABIKK>; Thu, 2 Jan 2003 03:10:10 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi CD-recorder error reading burned disks
-References: <Pine.LNX.4.44.0301012323220.3378-100000@poirot.grange>
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Thu, 02 Jan 2003 09:17:18 +0100
-In-Reply-To: <Pine.LNX.4.44.0301012323220.3378-100000@poirot.grange> (Guennadi
- Liakhovetski's message of "Wed, 1 Jan 2003 23:55:30 +0100 (CET)")
-Message-ID: <87ptrgynht.fsf@web.de>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i686-pc-linux-gnu)
+	id <S264867AbTABIXh>; Thu, 2 Jan 2003 03:23:37 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:42215 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S264697AbTABIXg>; Thu, 2 Jan 2003 03:23:36 -0500
+Message-ID: <3E13F8FF.7060704@attbi.com>
+Date: Thu, 02 Jan 2003 00:31:59 -0800
+From: Miles Lane <miles.lane@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021129
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.54 -- amd-k8-agp.ko needs unknown symbol agp_memory_reserved
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Guennadi Liakhovetski writes:
->I used -isosize (copying from another CD), which has an effect similar
->to -pad. Just tried with -pad - same. -dao, as suggested by Kasper
->Dupont <kasperd@daimi.au.dk>, doesn't help either. On the contrary, the
->latter makes the error appear in all 3 reads - ide-scsi, ide, scsi (I
->used it together with -isosize). Also strange, the number of blocks
->read by dd bs=2048 on ide and scsi from the same disk differ...
+WARNING: /lib/modules/2.5.54/kernel/drivers/char/agp/amd-k8-agp.ko needs 
+unknown symbol agp_memory_reserved
 
-Try -raw. Some drives (e.g. my acer 2010A) have - according to Joerg
-Schilling - broken firmwares, that have problems in SAO mode.
 
-regards
-Markus
+CONFIG_AGP=m
+CONFIG_AGP_AMD=m
+CONFIG_AGP_AMD_8151=m
+
+Gnu C                  3.2
+Gnu make               3.79.1
+util-linux             2.11r
+mount                  2.11r
+module-init-tools      0.9.7
+e2fsprogs              1.27
+jfsutils               1.0.17
+reiserfsprogs          3.6.2
+pcmcia-cs              3.1.31
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+Linux C Library        2.2.93
+Dynamic linker (ldd)   2.2.93
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.12
 

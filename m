@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264093AbTDWPrR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbTDWPrR
+	id S264092AbTDWPq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbTDWPq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:47:17 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:42836 "EHLO
-	VL-MS-MR004.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id S264093AbTDWPrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:47:14 -0400
-Date: Wed, 23 Apr 2003 11:59:16 -0400
-From: Stephane Ouellette <ouellettes@videotron.ca>
-Subject: Re: [PATCH]  Undefined symbol sync_dquots_dev() in quota.c
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3EA6B854.5010604@videotron.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-References: <3EA6B13A.4000408@videotron.ca> <20030423153341.GA5561@gtf.org>
+	Wed, 23 Apr 2003 11:46:59 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:57287 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264092AbTDWPq5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 11:46:57 -0400
+Date: Wed, 23 Apr 2003 09:00:40 -0700
+From: Greg KH <greg@kroah.com>
+To: "Shaheed R. Haque" <srhaque@iee.org>
+Cc: linux-kernel@vger.kernel.org, with@dsl.pipex.com
+Subject: Re: [RFC] Device class rework [0/5]
+Message-ID: <20030423160040.GA11015@kroah.com>
+References: <1051084444.3ea6469c044ef@netmail.pipex.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1051084444.3ea6469c044ef@netmail.pipex.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Wed, Apr 23, 2003 at 08:54:04AM +0100, Shaheed R. Haque wrote:
+> 
+> Hi Greg,
+> 
+> I support the intent of this patch, but would it not be a better idea to rename 
+> the struct something like "device_class"? Rationale:
 
->On Wed, Apr 23, 2003 at 11:28:58AM -0400, Stephane Ouellette wrote:
->  
->
->>Folks,
->>
->>  the following patch fixes a compile error under 2.4.21-rc1-ac1. 
->>sync_dev_dquots() is undefined if CONFIG_QUOTA is not set.
->>    
->>
->
->The right fix would be to make sure a no-op version of sync_dev_dquots
->exists for that case.
->
->	Jeff
->  
->
+Ok, if I do that, and that was what I originally did, then we end up
+with:
+	struct device_class;
+	struct device_class_device;
+	struct device_class_interface;
 
-Jeff,
+Um, I don't think "struct device_class_device" is going to be
+acceptable...
 
-   the file fs/dquot.c is compiled only if CONFIG_QUOTA is set.  That 
-would imply modifying the Makefile and #ifdeffing most of the code 
-inside dquot.c.
+So I talked to a lot of people, explaining what the structures were, and
+what they did, and in the end everyone agreed that dropping the
+beginning "device_" is probably the best.
 
-Stephane.
+Well, not everyone agreed, but they couldn't come up with a better name,
+so I took that as agreement :)
 
->  
->
+> 2. The word "class" is too generic and conveys no sense that is is to do with 
+> devices.
 
+In a way, it is generic.  It doesn't have to refer to a device (if the
+pointer to struct device is NULL, then you don't get the "device"
+symlink for free, that's it.)  So we can now move block "devices", which
+includes partitions, into this model, and also network "devices" if we
+want too.  Oh, how about filesystems, they also fit nicely into this
+model, and aren't really a "device" at all...
+
+> 3. I know that C++ is never going to make it into the kernel, but...
+
+I know, I'm a stinker, but I honestly couldn't think of a better name,
+and am open to ideas from everyone else.
+
+And, I like the way my editor highlights the code, "struct class"...
+
+thanks,
+
+greg k-h

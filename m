@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUHIHQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUHIHlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUHIHQu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 03:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUHIHQu
+	id S266196AbUHIHlj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 03:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUHIHlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 03:16:50 -0400
-Received: from wit.mht.bme.hu ([152.66.80.190]:39570 "EHLO wit.wit.mht.bme.hu")
-	by vger.kernel.org with ESMTP id S266195AbUHIHQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 03:16:48 -0400
-Date: Mon, 9 Aug 2004 09:16:47 +0200 (CEST)
-From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
-To: linux-kernel@vger.kernel.org
-Subject: IPv6-IPv6 tunnel problem
-Message-ID: <Pine.LNX.4.44.0408090904010.15626-100000@wit.wit.mht.bme.hu>
+	Mon, 9 Aug 2004 03:41:39 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:24847 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S266196AbUHIHlh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 03:41:37 -0400
+Message-ID: <B1ECE240295BB146BAF3A94E00F2DBFF09020F@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: David Balazic <david.balazic@hermes.si>,
+       "'Pat LaVarre'" <p.lavarre@ieee.org>
+Cc: "'David Burg'" <dburg@nero.com>, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: Can not read UDF CD
+Date: Mon, 9 Aug 2004 09:33:17 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-There is a strange problem with IPv6 tunnelling (at least) in kernel
-2.6.5-2.6.7.
 
-I configured a router with 4 interfaces towards 4 nets. Everithing works
-well.
-But if ip6tnl0 interface comes up, it gets eth0's link local address
-automatically. It does not cause any problem until the tunneling interface
-goes down. After it eth0 can't solicit its neighbour. Solicit messages are
-sent, advertisements are received (tcpdump). But somehow it has no result,
-so solicits are trasmitted again and again (the neighbour responds them).
-Eth0 still has its link local address.
+> ----------
+> From: 	Pat LaVarre[SMTP:p.lavarre@ieee.org]
+> Sent: 	2. avgust 2004 16:42
+> To: 	David Balazic
+> Cc: 	'David Burg'; linux_udf@hpesjro.fc.hp.com;
+> linux-kernel@vger.kernel.org
+> Subject: 	Re: Can not read UDF CD
+> 
+> > How should I make the image ?
+> > Remember, it is a multisession CD ( has two sessions ).
+> 
+> Sorry I'm not yet caught up on all the help volunteered in this thread.
+> 
+> Have you specifically confirmed you can make more than one of these 
+> discs?  In the last resort, you could send the actual disc to my 
+> mailing address.
+> 
+> Have you specifically confirmed certain forms of the session= option do 
+> not work?
+> 
+I tried session=0.
+This gives me the files form the first session, but I can only list them.
+I can not see their attributes ( size, permissions etc.. ) or read them.
+other session=x values fails to mount.
 
-If ip6tnl0 set up again (ip l s ip6tnl0 up), the solicit works.
-This can be repeated for ever.
-
-Best regards,
-Kubi
-
+> Pat LaVarre
+> 

@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVC2DVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVC2D2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbVC2DVC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 22:21:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVC2DVC
+	id S262168AbVC2D2o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 22:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVC2D2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 22:21:02 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15245 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262166AbVC2DU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 22:20:59 -0500
-Subject: Re: Problems on Apple iBook with ALSA and snd-powermac [2.6.11.5]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Martin Loschwitz <madkiss@madkiss.org>
-Cc: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050327230835.GA9006@minerva.local.lan>
-References: <20050327230835.GA9006@minerva.local.lan>
-Content-Type: text/plain
-Date: Mon, 28 Mar 2005 22:20:58 -0500
-Message-Id: <1112066458.19014.19.camel@mindpipe>
+	Mon, 28 Mar 2005 22:28:44 -0500
+Received: from bay10-f47.bay10.hotmail.com ([64.4.37.47]:18790 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262168AbVC2D2m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 22:28:42 -0500
+Message-ID: <BAY10-F472EE1F6A6F80FEA2F5568D9450@phx.gbl>
+X-Originating-IP: [68.62.238.188]
+X-Originating-Email: [getarunsri@hotmail.com]
+In-Reply-To: <42411CAC.5000808@yahoo.com.au>
+From: "Arun Srinivas" <getarunsri@hotmail.com>
+To: nickpiggin@yahoo.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: sched_setscheduler() and usage issues ....please help
+Date: Tue, 29 Mar 2005 08:58:41 +0530
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 29 Mar 2005 03:28:42.0084 (UTC) FILETIME=[67D12240:01C5340F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-28 at 01:08 +0200, Martin Loschwitz wrote:
-> Hi folks,
-> 
-> given that the alsa-user-mailinglist has some strange kind of authentication
-> mechanism, and admin-authorization and whatever, I'm writing this mail to the
-> LKML (it would have been CCed here anyway).
 
-Still off topic.  ALSA bug reports should be filed here:
+I am trying to set the SCHED_FIFO  policy for my process.I am using 
+sched_setscheduler() function to do this.
 
-https://bugtrack.alsa-project.org/alsa-bug/login_page.php
+I am following the correct syntax and running it as root process.I am using 
+the given syntax i.e.,
+int sched_setscheduler(pid_t pid, int policy, const struct sched_param *p);
+(SCHED_FIFO for the policy and priority in the range of 1 to 99 for p).
 
-Lee
+But the function returns with an value of -1. I am trying to call this 
+function from the user-space.
+
+1) Is this usage correct?
+2)How do I read the error code (i.e., text description of what kiind of 
+error occurred like for eg., ESRCH,EPERM,EINVAL).
+
+Please help.
+
+thanks
+Arun
+
+_________________________________________________________________
+Don't know where to look for your life partner? 
+http://www.bharatmatrimony.com/cgi-bin/bmclicks1.cgi?74 Trust 
+BharatMatrimony.com
 

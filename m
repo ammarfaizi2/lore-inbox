@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130337AbRAKKby>; Thu, 11 Jan 2001 05:31:54 -0500
+	id <S131153AbRAKKde>; Thu, 11 Jan 2001 05:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131085AbRAKKbp>; Thu, 11 Jan 2001 05:31:45 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13576 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S131081AbRAKKb3>; Thu, 11 Jan 2001 05:31:29 -0500
-Message-ID: <3A5D8B79.AD1E161D@Hell.WH8.TU-Dresden.De>
-Date: Thu, 11 Jan 2001 11:31:21 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>, andrea@suse.de,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
-In-Reply-To: <3A5C6417.6670FCB7@Hell.WH8.TU-Dresden.De> <20010110181516.X10035@nightmaster.csn.tu-chemnitz.de> <3A5C96BB.96B19DB@Hell.WH8.TU-Dresden.De> <200101110841.AAA01652@penguin.transmeta.com> <3A5D8583.F5F30BD2@Hell.WH8.TU-Dresden.De> <20010111111145.A19584@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131088AbRAKKdY>; Thu, 11 Jan 2001 05:33:24 -0500
+Received: from quechua.inka.de ([212.227.14.2]:19224 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S131153AbRAKKdK>;
+	Thu, 11 Jan 2001 05:33:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: The latest instance in the A20 farce
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEF6@orsmsx31.jf.intel.com> <3A5CF9C2.CE5EFF42@transmeta.com>
+Organization: private Linux site, southern Germany
+Date: Thu, 11 Jan 2001 11:32:31 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14Gf24-0002PZ-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> Did you have CONFIG_X86_FXSR or CONFIG_X86_RUNTIME_FXSR enabled when it
-> worked?
-> 
-> If not it probably means that the XServer is testing OSFXSR and the branch
-> that handles it doesn't work.
+> I also really, really, *REALLY* hate them for killing serial ports.  It's
+> a Bad Idea[TM].
 
---- linux-2.4.0/.config Thu Jan 11 11:22:11 2001
-+++ linux-2.4.1/.config Thu Jan 11 11:24:56 2001
-@@ -27,7 +27,7 @@
- # CONFIG_M586TSC is not set
- # CONFIG_M586MMX is not set
- # CONFIG_M686 is not set
--# CONFIG_M686FXSR is not set
-+# CONFIG_MPENTIUMIII is not set
- # CONFIG_MPENTIUM4 is not set
- # CONFIG_MK6 is not set
- CONFIG_MK7=y
+Why, it opens up the market for serial-ports-on-USB devices. HW
+manufactures can make significantly more money on that than on $7.95
+ISA multi I/O cards[1] ;-)
 
-The only difference between the two .config files is shown above.
-2.4.0 works, 2.4.1 doesn't. And it's not just the X server acting funny.
+Olaf
 
--Udo.
+[1] and I still dislike those, because they are only useful with lots
+and lots of jumpers for which you always can't find the description...
+but RS232 ports _are_ necessary in the real world, and more often than
+you like you need more than 2 of them.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129798AbRABBsU>; Mon, 1 Jan 2001 20:48:20 -0500
+	id <S129894AbRABCGo>; Mon, 1 Jan 2001 21:06:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130150AbRABBsL>; Mon, 1 Jan 2001 20:48:11 -0500
-Received: from w240.z209220232.was-dc.dsl.cnc.net ([209.220.232.240]:60422
-	"EHLO yendi.dmeyer.net") by vger.kernel.org with ESMTP
-	id <S129798AbRABBsA>; Mon, 1 Jan 2001 20:48:00 -0500
-Date: Mon, 1 Jan 2001 20:17:33 -0500
-From: dmeyer@dmeyer.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-testX fails to compile on my Athlon
-Message-ID: <20010101201733.A11244@jhereg.dmeyer.net>
-Reply-To: dmeyer@dmeyer.net
+	id <S129823AbRABCGe>; Mon, 1 Jan 2001 21:06:34 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:64779 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129477AbRABCGX>;
+	Mon, 1 Jan 2001 21:06:23 -0500
+Date: Tue, 2 Jan 2001 02:35:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: stewart@neuron.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sync() broken for raw devices in 2.4.x??
+Message-ID: <20010102023554.A2232@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.10.10101011925130.1859-100000@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10101011925130.1859-100000@localhost>; from stewart@neuron.com on Mon, Jan 01, 2001 at 07:50:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0101011442440.1780-100000@po.teletubbies.dhs.org> you write:
-> well.. silly me :)... I did have SMP enabled (it appears that's the
-> default option? but anyways...now I get a whole slew of other
-> errors.... which I'm not going to go into right now, cos that would
-> involve spamming everyone with about 4 pages of spam
+On Mon, Jan 01, 2001 at 07:50:31PM -0500, stewart@neuron.com wrote:
+> 
+>  I have a sync()/fdatasync() intensive application that is designed to work
+>  on both raw files and raw partitions. Today I upgraded my kernel to the
+>  new pre-release and found that my benchmark program would no longer finish
+>  when handed a raw partition. I've written a small Java program (my app is
+>  in Java) which demonstrates the bug. Make foo.dat a raw scsi partition to
+>  re-produce. In my case it's "mknod foo.dat b 8 18". 
 
-Did you do a "make mrproper" after changing to UP (be sure to save
-your .config first, though)?  I've had trouble in the past where not
-everything that needs to get regenerated does.
+Just a minor correction: this is not a raw partition, but a buffered blockdevice.
+If you want a real rawdevice (where sync is a noop because all IO goes
+synchronously to disk) you need to bind a character raw device to the
+block device first using the raw util.
 
--- 
-David M. Meyer
-dmeyer@dmeyer.net
+>From a quick look sync_buffers() [which implements fsync on block devices]
+has not changed significantly between 2.2 and 2.4 and uses the same algorithm.
+
+-Andi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

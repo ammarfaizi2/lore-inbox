@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRACXQ2>; Wed, 3 Jan 2001 18:16:28 -0500
+	id <S129267AbRACX3L>; Wed, 3 Jan 2001 18:29:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRACXQS>; Wed, 3 Jan 2001 18:16:18 -0500
-Received: from sentry.gw.tislabs.com ([192.94.214.100]:40085 "EHLO
-	sentry.gw.tislabs.com") by vger.kernel.org with ESMTP
-	id <S129267AbRACXQB>; Wed, 3 Jan 2001 18:16:01 -0500
-From: <tfraser@tislabs.com>
-Date: Wed, 3 Jan 2001 19:31:20 -0500
-Message-Id: <200101040031.TAA02262@bucky.gw.tislabs.com>
-To: linux-kernel@vger.kernel.org
-Cc: tfraser@tislabs.com
-Subject: Announce:  LOMAC v1.0 released
+	id <S129324AbRACX2w>; Wed, 3 Jan 2001 18:28:52 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:3097 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129267AbRACX2l>; Wed, 3 Jan 2001 18:28:41 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Graham Murray <graham@barnowl.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-prelease freezes on serial event 
+In-Reply-To: Your message of "03 Jan 2001 21:53:50 -0000."
+             <m2n1d8jo9d.fsf@barnowl.demon.co.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 04 Jan 2001 10:28:35 +1100
+Message-ID: <19244.978564515@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 03 Jan 2001 21:53:50 +0000, 
+Graham Murray <graham@barnowl.demon.co.uk> wrote:
+>My 2.4.0-prerelease freezes solid on certain serial port events. The
+>ones I have seen (and are both repeatable) are when powering off the
+>modem and powering it on causes the system to hang solid. Also if an
+>incoming call is received on the telephone, the system hangs ( I
+>assume that this is when the modem sends 'RING' and asserts the RI
+>hardware signal.)
 
-    I've just released LOMAC v1.0 - an LKM for Linux 2.2 kernels that
-implements a form of Low Water-Mark Mandatory Access Control (MAC) to
-protect the integrity of processes and data from viruses, Trojan
-horses, malicious remote users, and compromised root daemons.  LOMAC
-is designed for simplicity and compatibility with existing software.
-It implements kernel-space MAC at the system-call interface without
-modifying any kernel sources.
+Does your cpu have an APIC?  SMP boxes always do, most non-mobile P6 UP
+systems do.  If you have an APIC and assuming it is a software lockup,
+install the kdb patch[*].  If your box is UP, under General setup
+select APIC for UP then select NMI for UP.  Under Kernel hacking,
+select kdb.  You need a recent modutils, see Documentation/Changes.
+Ideally you should use a serial console and run a null modem to a
+second machine, see Documentation/serial-console.txt.
 
-    Although it lacks some of the advanced MAC features found in more
-complex and powerful schemes, LOMAC provides a simple and useful form
-of MAC integrity protection that requires no kernel patches, no
-modifications to existing applications, no modifications to existing
-configuration files, and no site-specific policy configuration.  A
-good number of features and fixes remain to be implemented.  However,
-LOMAC is presently functional enough to thwart script kiddies, and is
-sufficiently stable for everyday use.  (I'm using it now.)
+Boot the kdb enhanced kernel and cat /proc/interrupts to see if NMI is
+non-zero.  Only if NMI is non-zero, reproduce the problem.  Five
+seconds after the lockup, the NMI watchdog should trip and drop you
+into kdb.  The backtrace (bt) command will show where you are hung.
+Capture the backtrace on the second machine or hand copy the backtrace,
+in either case mail the backtrace to l-k.
 
-    Further information can be found via LOMAC's Freshmeat page, at
-             http://freshmeat.net/projects/lomac
-
-                   - Tim Fraser, NAI Labs
-
+[*]ftp://oss.sgi.com/projects/kdb/download/ix86/kdb-v1.7-2.4.0-prerelease.gz
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316221AbSFJU5v>; Mon, 10 Jun 2002 16:57:51 -0400
+	id <S316569AbSFJVHN>; Mon, 10 Jun 2002 17:07:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316217AbSFJU5u>; Mon, 10 Jun 2002 16:57:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61454 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315424AbSFJU5s>; Mon, 10 Jun 2002 16:57:48 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Futex Asynchronous Interface
-Date: 10 Jun 2002 13:57:22 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ae33ri$b8b$1@cesium.transmeta.com>
-In-Reply-To: <8QXHSZTXw-B@khms.westfalen.de> <Pine.LNX.4.44.0206091056550.13459-100000@home.transmeta.com>
+	id <S316339AbSFJVFg>; Mon, 10 Jun 2002 17:05:36 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35333 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316300AbSFJVCJ>; Mon, 10 Jun 2002 17:02:09 -0400
+Date: Mon, 10 Jun 2002 16:57:13 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Nick Evgeniev <nick@octet.spb.ru>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
+In-Reply-To: <Pine.LNX.4.10.10206081305390.1190-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.3.96.1020610164828.23851A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0206091056550.13459-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> But what would you _do_ with them? What would be the advantage as compared
-> to the current situation?
-> 
-> Now, to configure a device, you get a fd to the device the same way you
-> get a fd _anyway_ - with "socket()".
-> 
-> And anybody who says that "socket()" is utterly unnatural to the UNIX way
-> is quite far out to lunch. It may be unnatural to the Plan-9 way of
-> "everything is a namespace", but that was never the UNIX way. The UNIX way
-> is "everything is a file descriptor or a process", but that was never
-> about namespaces.
-> 
-> Yes, some old-timers could argue that original UNIX didn't have sockets,
-> and that the BSD interface is ugly and an abomination and that it _should_
-> have been a namespace thing, but that argument falls flat on its face when
-> you realize that the "pipe()" system call _was_ in original UNIX, and has
-> all the same issues.
-> 
+On Sat, 8 Jun 2002, Andre Hedrick wrote:
 
-The biggest problem with the socket API is that it makes it impossible
-to use in a shell script context or other context where it isn't
-practical to operate on binary data.  The second-biggest problem with
-the API is that it at least historically makes it basically impossible
-to write address-family-independent code... something like "telnet"
-shouldn't need to know if it's operating over TCP on IPv4, TCP on
-IPv6, SPX on IPX...; it should be able to resolve a string to a name and
-then create a connection, and the address family stuff should be
-encasulated in the library.
+> 
+> Because there is an entire set of new calls to deal with cfa or flash.
+> It really takes a new subdriver.
 
-The first problem a namespace-like solution would deal with... then
-one could open /dev/sock/stream/ipv4/206.189.222.9/23 using a normal
-open() call.  The second is to resolve "poetry.vogon.net","telnet" to
-the above string, but that's a user-space issue.
+Could you clarifiy that to either (a) "the kernel is now broken
+completely for CF," (b) "use the non-kernel 3.1.33 pcmcia," or (c) "use
+XXX." It's not clear to me if you are stating that CF no longer works at
+all, not longer works with taskfile, no longer works but pcmcia separate
+modules do, or that I need some other software "new subdriver" not in the
+kernel or pcmcia package.
 
-At least it would be nice if open() on a Unix domain socket would
-connect to that socket.
+I'm not matching any of those to uni laptops working with kernel plus OLD
+pcmcia support for pcmcia in kernel, and SMP not working with any
+combination of recent kernel (plain, -jam, -ac, -aa, with patches, etc)
+and any pcmcia.
+ 
+> On Tue, 4 Jun 2002, Bill Davidsen wrote:
+> 
+> > On Wed, 29 May 2002, Nick Evgeniev wrote:
 
-	-hpa
+> > > I wrote about ide problems with 2.4.19-pre8 a few days ago (it just trashed
+> > > filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was a
+> > > little bit better though every 5-8 hours I've got ide errors in log (at
+> > > least it didn't crash my reiserfs volumes yet):
+> > 
+> > I see a lot of the 0x58 with taskfile enabled, are you doing that? I even
+> > see it mounting an "IDE" compact flash! I ran out of time to try w/o
+> > taskfile_io.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
+

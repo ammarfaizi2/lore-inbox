@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135284AbRDLTm4>; Thu, 12 Apr 2001 15:42:56 -0400
+	id <S135281AbRDLTnE>; Thu, 12 Apr 2001 15:43:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135271AbRDLTmX>; Thu, 12 Apr 2001 15:42:23 -0400
-Received: from lightning.hereintown.net ([207.196.96.3]:7057 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S135281AbRDLTkX>; Thu, 12 Apr 2001 15:40:23 -0400
-Date: Thu, 12 Apr 2001 15:53:27 -0400 (EDT)
-From: Chris Meadors <clubneon@hereintown.net>
-To: "thunder7@xs4all.nl" <thunder7@xs4all.nl>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [lkml]Re: [PATCH] matroxfb and mga XF4 driver coexistence...
-In-Reply-To: <20010412205303.A20394@middle.of.nowhere>
-Message-ID: <Pine.LNX.4.31.0104121546340.15715-100000@rc.priv.hereintown.net>
+	id <S135278AbRDLTmU>; Thu, 12 Apr 2001 15:42:20 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:12241 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S135271AbRDLTkU>;
+	Thu, 12 Apr 2001 15:40:20 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+In-Reply-To: <200104121929.MAA04049@adam.yggdrasil.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 12 Apr 2001 12:40:20 -0700
+In-Reply-To: "Adam J. Richter"'s message of "Thu, 12 Apr 2001 12:29:33 -0700"
+Message-ID: <m33dbdsy8r.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, thunder7@xs4all.nl wrote:
+"Adam J. Richter" <adam@yggdrasil.com> writes:
 
-> Of course, but if we can fix the problem by making the kernel smaller,
-> what possible motive could you have for opposing it other than 'but it
-> doesn't solve _my_ problems!' ?
+> 	I am aware of a couple of cases where code relied on static
+> variables being allocated contiguously, but, in both cases, those
+> variables were either all zeros or all non-zeros, so my proposed
+> change would not break such code.
 
-Agreed.  The only thing I was thinking, was if the kernel is doing the
-right thing now, it shouldn't be forced to work around a bug in XFree.
-By not "fixing" the kernel, the XFree team would be forced to do the right
-thing.
+Continuous placement is not the only property defined by
+initialization.  There are many more.  You cannot change this since it
+will quite a few programs and libraries and subtle and hard to
+impossible to identify ways.  Simply educate programmers to not
+initialize.
 
-As for me, I'm going to see about getting the matroxfb working, so if the
-patch goes in I'll be able to use a nice 132 character wide terminal
-again.  And I'm getting addicted to dual head in X, might be fun on the
-console too.
-
--Chris
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

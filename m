@@ -1,131 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUEaWEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUEaWPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264808AbUEaWEb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 18:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbUEaWEb
+	id S264815AbUEaWPq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 18:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264818AbUEaWPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 18:04:31 -0400
-Received: from av9-2-sn1.fre.skanova.net ([81.228.11.116]:29647 "EHLO
-	av9-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S264808AbUEaWER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 18:04:17 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no
-Subject: Re: Linux 2.6.7-rc2
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
-	<m3y8n93qak.fsf@telia.com>
-	<Pine.LNX.4.58.0405310955420.4573@ppc970.osdl.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 01 Jun 2004 00:04:14 +0200
-In-Reply-To: <Pine.LNX.4.58.0405310955420.4573@ppc970.osdl.org>
-Message-ID: <m34qpw5k4h.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 May 2004 18:15:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48573 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264815AbUEaWPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 18:15:44 -0400
+Date: Mon, 31 May 2004 15:15:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: loop/highmem related 2.4.26 lockup
+Message-Id: <20040531151505.54f18f4a.akpm@osdl.org>
+In-Reply-To: <20040531143915.GA20653@logos.cnet>
+References: <20040531143915.GA20653@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> Proc;  loop2
+>  >>EIP; e5d145c0 <END_OF_CODE+2597a348/????>   <=====
+>  Trace; c0189ec8 <journal_alloc_journal_head+18/80>
+>  Trace; c0189fa2 <journal_add_journal_head+52/140>
+>  Trace; c0107b92 <__down+82/d0>
+>  Trace; c0107d2c <__down_failed+8/c>
+>  Trace; c01845fe <.text.lock.transaction+4/246>
+>  Trace; c018204a <new_handle+4a/70>
+>  Trace; c0182114 <journal_start+a4/c0>
+>  Trace; c017bc3c <ext3_writepage_trans_blocks+1c/a0>
+>  Trace; c01795ec <ext3_prepare_write+24c/260>
+>  Trace; c013349e <find_or_create_page+5e/150>
+>  Trace; c01d6f84 <lo_send+124/2e0>
+>  Trace; c01d7408 <do_bh_filebacked+b8/c0>
+>  Trace; c01d7b84 <loop_thread+224/250>
+>  Trace; c0109172 <ret_from_fork+6/20>
+>  Trace; c01d7960 <loop_thread+0/250>
+>  Trace; c010740e <arch_kernel_thread+2e/40>
+>  Trace; c01d7960 <loop_thread+0/250>
 
-> On Mon, 31 May 2004, Peter Osterlund wrote:
-> > 
-> > If I put "#if 0" around the *wdata assignment in nfs_writepage_sync,
-> > the stack usage goes down to 36, so it looks like gcc is building a
-> > temporary structure on the stack and then copies the whole thing to
-> > *wdata.
-> 
-> Yeah, that's silly. But understandable. A lot of problems go away by doing 
-> a temporary private node..
-> 
-> > Does this construct save stack space for any version of gcc? Maybe the
-> > code should be changed to do a memset() followed by explicit
-> > initialization of the non-zero member variables instead.
-> 
-> In this case, I'd agree.
-> 
-> In some other cases, it's better to create a initialized static variable, 
-> and just use that as an initial initializer. In this case that doesn't 
-> much help, since none of the fields are constant.
+You've run out of memory and the loop thread is looping in
+journal_alloc_journal_head(), waiting for memory to come free.
 
-Here is a patch that does this. I've verified that it compiles and
-that it fixes the excessive stack problem, but I failed to come up
-with a test case that exercises these code paths.
+Meanwhile, kswapd and bdflush are blocked waiting for I/O which requires
+loop thread services to complete.  Deadlock.
 
+A proper fix for this might be fairly complex.  A kludgey fix like the
+below might work though.
 
---- linux/fs/nfs/read.c.orig	2004-05-31 23:34:15.890307512 +0200
-+++ linux/fs/nfs/read.c	2004-05-31 23:29:26.077365776 +0200
-@@ -103,22 +103,16 @@
- 	if (!rdata)
- 		return -ENOMEM;
- 
--	*rdata = (struct nfs_read_data) {
--		.flags		= (IS_SWAPFILE(inode)? NFS_RPC_SWAPFLAGS : 0),
--		.cred		= NULL,
--		.inode		= inode,
--		.pages		= LIST_HEAD_INIT(rdata->pages),
--		.args		= {
--			.fh		= NFS_FH(inode),
--			.lockowner	= current->files,
--			.pages		= &page,
--			.pgbase		= 0UL,
--			.count		= rsize,
--		},
--		.res		= {
--			.fattr		= &rdata->fattr,
--		}
--	};
-+	memset(rdata, 0, sizeof(*rdata));
-+	rdata->flags = (IS_SWAPFILE(inode)? NFS_RPC_SWAPFLAGS : 0);
-+	rdata->inode = inode;
-+	INIT_LIST_HEAD(&rdata->pages);
-+	rdata->args.fh = NFS_FH(inode);
-+	rdata->args.lockowner = current->files;
-+	rdata->args.pages = &page;
-+	rdata->args.pgbase = 0UL;
-+	rdata->args.count = rsize;
-+	rdata->res.fattr = &rdata->fattr;
- 
- 	dprintk("NFS: nfs_readpage_sync(%p)\n", page);
- 
---- linux/fs/nfs/write.c.orig	2004-05-31 23:34:20.529602232 +0200
-+++ linux/fs/nfs/write.c	2004-05-31 23:29:33.165288248 +0200
-@@ -185,23 +185,17 @@
- 	if (!wdata)
- 		return -ENOMEM;
- 
--	*wdata = (struct nfs_write_data) {
--		.flags		= how,
--		.cred		= NULL,
--		.inode		= inode,
--		.args		= {
--			.fh		= NFS_FH(inode),
--			.lockowner	= current->files,
--			.pages		= &page,
--			.stable		= NFS_FILE_SYNC,
--			.pgbase		= offset,
--			.count		= wsize,
--		},
--		.res		= {
--			.fattr		= &wdata->fattr,
--			.verf		= &wdata->verf,
--		},
--	};
-+	memset(wdata, 0, sizeof(*wdata));
-+	wdata->flags = how;
-+	wdata->inode = inode;
-+	wdata->args.fh = NFS_FH(inode);
-+	wdata->args.lockowner = current->files;
-+	wdata->args.pages = &page;
-+	wdata->args.stable = NFS_FILE_SYNC;
-+	wdata->args.pgbase = offset;
-+	wdata->args.count = wsize;
-+	wdata->res.fattr = &wdata->fattr;
-+	wdata->res.verf = &wdata->verf;
- 
- 	dprintk("NFS:      nfs_writepage_sync(%s/%Ld %d@%Ld)\n",
- 		inode->i_sb->s_id,
+diff -puN fs/jbd/journal.c~a fs/jbd/journal.c
+--- 24/fs/jbd/journal.c~a	2004-05-31 15:12:47.479649360 -0700
++++ 24-akpm/fs/jbd/journal.c	2004-05-31 15:13:15.908327544 -0700
+@@ -1728,6 +1728,9 @@ static struct journal_head *journal_allo
+ 		while (ret == 0) {
+ 			yield();
+ 			ret = kmem_cache_alloc(journal_head_cache, GFP_NOFS);
++			if (!ret)
++				ret = kmem_cache_alloc(journal_head_cache,
++							GFP_ATOMIC);
+ 		}
+ 	}
+ 	return ret;
+_
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

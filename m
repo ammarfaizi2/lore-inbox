@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267175AbSLKOoq>; Wed, 11 Dec 2002 09:44:46 -0500
+	id <S267173AbSLKOp7>; Wed, 11 Dec 2002 09:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSLKOop>; Wed, 11 Dec 2002 09:44:45 -0500
-Received: from mg02.austin.ibm.com ([192.35.232.12]:59086 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S267173AbSLKOom>; Wed, 11 Dec 2002 09:44:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH] dm.c - device-mapper I/O path fixes
-Date: Wed, 11 Dec 2002 08:06:00 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, lvm-devel@sistina.com
-References: <02121016034706.02220@boiler> <20021211141820.GA21461@reti> <200212111435.gBBEYWa06788@Port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200212111435.gBBEYWa06788@Port.imtp.ilyichevsk.odessa.ua>
+	id <S267177AbSLKOp7>; Wed, 11 Dec 2002 09:45:59 -0500
+Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:36071 "EHLO
+	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id <S267174AbSLKOp4>; Wed, 11 Dec 2002 09:45:56 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Framebuffer problems, 2.4.20-rc2, 2.5.51
+Date: Wed, 11 Dec 2002 09:55:39 -0500
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Message-Id: <02121108060005.29515@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212110955.39586.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 December 2002 13:24, Denis Vlasenko wrote:
-> On 11 December 2002 12:18, Joe Thornber wrote:
-> > On Wed, Dec 11, 2002 at 07:16:53AM -0600, Kevin Corry wrote:
-> > > However, it might be a good idea to consider how bio's keep track
-> > > of errors. When a bio is created, it is marked UPTODATE. Then, if
-> > > any part of a bio takes an error, the UPTODATE flag is turned off.
-> > > When the whole bio completes, if the UPTODATE flag is still on,
-> > > there were no errors during the i/o. Perhaps the "error" field in
-> > > "struct dm_io" could be modified to use this method of error
-> > > tracking? Then we could change dec_pending() to be something like:
-> > >
-> > > if (error)
-> > > 	clear_bit(DM_IO_UPTODATE, &io->error);
-> > >
-> > > with a "set_bit(DM_IO_UPTODATE, &ci.io->error);" in __bio_split().
-> >
-> > The problem with this is you don't keep track of the specific error
-> > to later pass to bio_endio(io->bio...).  I guess it all comes down to
-> > just how expensive that spin lock is; and since locking only occurs
-> > when there's an error I'm happy with things as they are.
->
-> lock();
-> a = b;
-> unlock();
->
-> Store of ints is atomic anyway. You need locking if a is a larger entity,
-> say, a struct.
+Hardware:
+00:0a.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 215GP (rev 
+5c)
 
-Storing an int is *not* atomic unless it is declared as atomic_t and you use 
-the appropriate macros (see include/asm-*/atomic.h). Remember, we are talking 
-about a field in a data structure that can be accessed from multiple threads 
-on multiple CPUs.
+01:00.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti200] 
+(rev a3)
 
--- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+Using ATYFB with CONFIG_FB_ATY, CONFIG_FB_ATY_CT and RIVAFB
+
+2.4.20-rc2:
+	Kernel freezes upon loading the ATYFB driver.
+	No error messages.Sysrq has no effect. 
+	Riva framebuffer alone works.
+	
+
+2.5.51:
+	Kernel freezes upon loading the ATYFB driver.
+	No error messages. Sysrq has no effect.
+	
+	Riva (tested without atyfb) shows a black screen, apparently
+	followed by a kernel freeze since Sysrq has no effect.
+	
+	Kernel without boots without framebuffer, so the framebuffer causes the 
+freeze.
+
+==================================
+
+
+
+
+
+
+	
+	

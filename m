@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUCPVJG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUCPVJG
+	id S261681AbUCPVN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUCPVN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:09:06 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:3200 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S261678AbUCPVI7 (ORCPT
+	Tue, 16 Mar 2004 16:13:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42389 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261681AbUCPVNY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:08:59 -0500
-Date: Tue, 16 Mar 2004 21:09:14 +0000
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: SCSI emulation interface description
-Message-ID: <20040316210914.B606@beton.cybernet.src>
-Mime-Version: 1.0
+	Tue, 16 Mar 2004 16:13:24 -0500
+To: aoliva@redhat.com
+Subject: [patch] for the NEWS file: Larissa Garcia Oliva
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 16 Mar 2004 18:09:34 -0300
+Message-ID: <ord67c7b3l.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+This new project has been under development for quite some time, and
+the release date has finally arrived.  It's not exactly related with
+previous projects I've been involved with, but I thought you might be
+interested.  I've enclosed some snippets of the following patch; more
+details in the URL in the signature.
 
-I would like to know, if I switch on "SCSI emulation" in my
-2.4.25 kernel,
-1) Will some kind of interface be added to my kernel?
-2) If yes, where is this interface specified?
+Index: ChangeLog
+2004-03-13  Alexandre Oliva  <aoliva@redhat.com>,  Islene C. Garcia
 
-Bugreport:
-"man bootparam" mentioned in help for SCSI emulation option doesn't work
-on all systems (at least my LFS)
+	* Larissa Garcia Oliva: New.
+	* NEWS: Adjust.
 
-"see documentation of your boot loader for how to pass options
-to your kernel":
-1) proper place for kernel commandline option specification is not boot loader
-doc but kernel doc
-2) where is the "linux kernel boot time parameter interface" specified?
+Index: NEWS
+--- /dev/null	2004-02-23 18:02:56.000000000 -0300
++++ NEWS	2004-03-16 17:42:49.870247754 -0300
+@@ -0,0 +1,8 @@
++Final Release - March 13, 2004
++
++* combined features from Islene Calciolari Garcia and Alexandre Oliva
++
++* completed fork(), optimized sleep() and implemented several new I/O
++  interfaces
++
++Download size: 3.895Kg, 49.5cm
 
-Cl<
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

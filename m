@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263489AbTDMMqE (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 08:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTDMMqE (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 08:46:04 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33744 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263489AbTDMMqC (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 08:46:02 -0400
-Date: Sun, 13 Apr 2003 14:57:44 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>, bcollins@debian.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.67-mm2: ieee1394/nodemgr.c doesn't compile
-Message-ID: <20030413125744.GN9640@fs.tum.de>
-References: <20030412180852.77b6c5e8.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263488AbTDMMm5 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 08:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTDMMm5 (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 08:42:57 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:40355 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263488AbTDMMm4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 08:42:56 -0400
+Message-ID: <20030413125438.71422.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20030412180852.77b6c5e8.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Nirmala S" <nmala@mail.com>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 13 Apr 2003 07:54:37 -0500
+Subject: Clustering of Request in block layer
+X-Originating-Ip: 203.124.128.117
+X-Originating-Server: ws1-11.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 06:08:52PM -0700, Andrew Morton wrote:
->...
-> Changes since 2.5.67-mm1:
-> 
-> 
->  linus.patch
-> 
->  Latest -bk
->...
+Hi,
 
-The following compile error #ifdef CONFIG_IEEE1394_VERBOSEDEBUG seems to 
-come from Linus' tree:
+As per my understanding the block layer clusters requests for all
+block drivers.
+Clustering -
+Creating a linked list of buffer_heads using b_reqnext.
 
-<--  snip  -->
+But, when I run my block driver and try to view the number of
+clustered requests in my Request function, I do not find any
+clustering done.
 
-...
-  gcc -Wp,-MD,drivers/ieee1394/.nodemgr.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=nodemgr -DKBUILD_MODNAME=ieee1394 -c -o 
-drivers/ieee1394/nodemgr.o drivers/ieee1394/nodemgr.c
-drivers/ieee1394/nodemgr.c: In function `dump_directories':
-drivers/ieee1394/nodemgr.c:1021: structure has no member named `unit_directories'
-drivers/ieee1394/nodemgr.c:1021: warning: left-hand operand of comma expression has no effect
-drivers/ieee1394/nodemgr.c:1021: structure has no member named `unit_directories'
-drivers/ieee1394/nodemgr.c:1022: structure has no member named `node_list'
-drivers/ieee1394/nodemgr.c:1022: warning: type defaults to `int' in declaration of `__mptr'
-drivers/ieee1394/nodemgr.c:1022: warning: initialization from incompatible pointer type
-drivers/ieee1394/nodemgr.c:1022: structure has no member named `node_list'
-make[2]: *** [drivers/ieee1394/nodemgr.o] Error 1
+void own_request(request_queue_t *q)
+{
+    struct buffer_head *tmp;
+    int count;
+    while(1) {
+        INIT_REQUEST;
+        printk("<1>request %p: cmd %i sec %li (nr. %li)\n", CURRENT,
+               CURRENT->cmd,
+               CURRENT->sector,
+               CURRENT->current_nr_sectors);
+       count=0;
+       for (tmp=bh; tmp; tmp=tmp->b_reqnext)
+            count ++;
+       printk("Count = %d\n", count);
+        end_request(1); /* success */
+    }
+}
 
-<--  snip  -->
+The above always shows 'Count = 1'. dd if=/dev/mydevice of=/dev/null.
+Does this mean that no clustering is done ??
 
-cu
-Adrian
+Just read a document a "http://www.usenix.org/publications/library/proceedings/usenix2000/freenix/full_papers/gopinath/gopinath_html/node14.html" 
+which says "This clustering is performed only for the drivers compiled in the kernel and not for loadable modules."
+
+Is this the reason ??
+
+Regards,
+Mala
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 

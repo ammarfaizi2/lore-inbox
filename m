@@ -1,186 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268016AbUHPXBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUHPXDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268016AbUHPXBo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 19:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUHPXBV
+	id S268008AbUHPXDY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 19:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268019AbUHPXCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 19:01:21 -0400
-Received: from fujitsu2.fujitsu.com ([192.240.0.2]:8079 "EHLO
-	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
-	id S268014AbUHPW6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:58:09 -0400
-Date: Mon, 16 Aug 2004 15:57:42 -0700
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Fw: [Lhms-devel] Making hotremovable attribute with memory section[2/4]
-Cc: mbligh@aracnet.com
-Message-Id: <20040816155233.E6FB.YGOTO@us.fujitsu.com>
+	Mon, 16 Aug 2004 19:02:20 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:51860 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S268008AbUHPW7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 18:59:51 -0400
+From: Andreas Messer <andreas.messer@gmx.de>
+Reply-To: andreas.messer@gmx.de
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] change scsi_ioctl to allow cd-recording 2.6.8.1
+Date: Tue, 17 Aug 2004 00:59:37 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_ZxTIBZZQGtc4KNR"
+Message-Id: <200408170059.37152.satura@proton>
+X-ID: VrxG+6ZDQe5NxWYh7v6G3EcrmwQwh8mqd3NsnvRMJrrNx0WRsSv5cM@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Forwarded by Yasunori Goto <ygoto@us.fujitsu.com>
------------------------ Original Message -----------------------
- From:    Yasunori Goto <ygoto@us.fujitsu.com>
- To:      lhms-devel@lists.sourceforge.net
- Date:    Mon, 16 Aug 2004 14:36:42 -0700
- Subject: [Lhms-devel] Making hotremovable attribute with memory section[2/4]
-----
+--Boundary-00=_ZxTIBZZQGtc4KNR
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This patch is to divide per_cpu_pages into removable/un-removable
-attribute. 
+Hello,
 
-Note: 
-  The amount of pool of per_cpu_pages might not be good....
+this is my first Email to the kernel-mailing list. I hope i have understand 
+the howto-post-a-patch the right way. 
+As burning cd's as user is not possible with 2.6.8.1 without setting cdrecord 
+setuid root and burning with k3b wont work at all, i decided to change 
+driver/block/scsi_ioctl.c to allow it again. I allowed the commands listended 
+in MMC-2 paper. Burning cds with k3b works now fine again, burning dvds 
+should also work again. 
 
----
-
- hotremovable-goto/include/linux/mmzone.h |    3 +
- hotremovable-goto/mm/page_alloc.c        |   59 +++++++++++++++++--------------
- 2 files changed, 36 insertions(+), 26 deletions(-)
-
-diff -puN include/linux/mmzone.h~divide_pcp include/linux/mmzone.h
---- hotremovable/include/linux/mmzone.h~divide_pcp	Fri Aug 13 16:24:42 2004
-+++ hotremovable-goto/include/linux/mmzone.h	Fri Aug 13 16:24:42 2004
-@@ -67,7 +67,8 @@ struct per_cpu_pages {
- };
- 
- struct per_cpu_pageset {
--	struct per_cpu_pages pcp[2];	/* 0: hot.  1: cold */
-+	struct per_cpu_pages pcp[4];	/* 0: hot-unremovable.  1: cold-unremovable
-+					   2: hot-removable     3: cold-removable   */
- #ifdef CONFIG_NUMA
- 	unsigned long numa_hit;		/* allocated in intended node */
- 	unsigned long numa_miss;	/* allocated in non intended node */
-diff -puN mm/page_alloc.c~divide_pcp mm/page_alloc.c
---- hotremovable/mm/page_alloc.c~divide_pcp	Fri Aug 13 16:24:42 2004
-+++ hotremovable-goto/mm/page_alloc.c	Fri Aug 13 16:24:42 2004
-@@ -695,6 +695,7 @@ static void fastcall free_hot_cold_page(
- 	struct zone *zone = page_zone(page);
- 	struct per_cpu_pages *pcp;
- 	unsigned long flags;
-+	int removable = page_is_removable(page);
- 
- 	arch_free_page(page, 0);
- 
-@@ -707,7 +708,7 @@ static void fastcall free_hot_cold_page(
- 		capture_pages(page, 0);
- 		return;
- 	}
--	pcp = &zone->pageset[get_cpu()].pcp[cold];
-+	pcp = &zone->pageset[get_cpu()].pcp[cold | removable << 1];
- 	local_irq_save(flags);
- 	if (pcp->count >= pcp->high)
- 		pcp->count -= free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
-@@ -744,7 +745,7 @@ buffered_rmqueue(struct zone *zone, int 
- 	if (order == 0) {
- 		struct per_cpu_pages *pcp;
- 
--		pcp = &zone->pageset[get_cpu()].pcp[cold];
-+		pcp = &zone->pageset[get_cpu()].pcp[cold | at << 1];
- 		local_irq_save(flags);
- 		if (pcp->count <= pcp->low)
- 			pcp->count += rmqueue_bulk(zone, 0, gfp_flags,
-@@ -1225,7 +1226,7 @@ void si_meminfo_node(struct sysinfo *val
- void show_free_areas(void)
- {
- 	struct page_state ps;
--	int cpu, temperature;
-+	int cpu, temperature, removable;
- 	unsigned long active;
- 	unsigned long inactive;
- 	unsigned long free;
-@@ -1249,13 +1250,18 @@ void show_free_areas(void)
- 
- 			pageset = zone->pageset + cpu;
- 
--			for (temperature = 0; temperature < 2; temperature++)
--				printk("cpu %d %s: low %d, high %d, batch %d\n",
--					cpu,
--					temperature ? "cold" : "hot",
--					pageset->pcp[temperature].low,
--					pageset->pcp[temperature].high,
--					pageset->pcp[temperature].batch);
-+			for (removable = 0; removable < NUM_AREA_TYPE; removable++){
-+				for (temperature = 0; temperature < 2; temperature++){
-+					int index = removable << 1 | temperature;
-+					printk("cpu %d %s %s: low %d, high %d, batch %d\n",
-+					       cpu,
-+					       temperature ? "cold" : "hot",
-+					       removable ? "removable" : "Un-removable",
-+					       pageset->pcp[index].low,
-+					       pageset->pcp[index].high,
-+					       pageset->pcp[index].batch);
-+				}
-+			}
- 		}
- 	}
- 
-@@ -1853,21 +1859,24 @@ static void __init free_area_init_core(s
- 			batch = 1;
- 
- 		for (cpu = 0; cpu < NR_CPUS; cpu++) {
--			struct per_cpu_pages *pcp;
--
--			pcp = &zone->pageset[cpu].pcp[0];	/* hot */
--			pcp->count = 0;
--			pcp->low = 2 * batch;
--			pcp->high = 6 * batch;
--			pcp->batch = 1 * batch;
--			INIT_LIST_HEAD(&pcp->list);
--
--			pcp = &zone->pageset[cpu].pcp[1];	/* cold */
--			pcp->count = 0;
--			pcp->low = 0;
--			pcp->high = 2 * batch;
--			pcp->batch = 1 * batch;
--			INIT_LIST_HEAD(&pcp->list);
-+			int removable;
-+			for(removable = 0; removable < NUM_AREA_TYPE; removable++){
-+				struct per_cpu_pages *pcp;
-+
-+				pcp = &zone->pageset[cpu].pcp[0 | removable << 1];	/* hot */
-+				pcp->count = 0;
-+				pcp->low = 1 * batch;
-+				pcp->high = 3 * batch;
-+				pcp->batch = 1 * batch;
-+				INIT_LIST_HEAD(&pcp->list);
-+
-+				pcp = &zone->pageset[cpu].pcp[1 | removable << 1];	/* cold */
-+				pcp->count = 0;
-+				pcp->low = 0;
-+				pcp->high = 1 * batch;
-+				pcp->batch = 1 * batch;
-+				INIT_LIST_HEAD(&pcp->list);
-+			}
- 		}
- 		printk(KERN_DEBUG "  %s zone: %lu pages, LIFO batch:%lu\n",
- 				zone_names[j], realsize, batch);
-_
-
+regards
+Andreas
 -- 
-Yasunori Goto <ygoto at us.fujitsu.com>
+gnuPG keyid: 0xE94F63B7 fingerprint: D189 D5E3 FF4B 7E24 E49D 7638 07C5 924C 
+E94F 63B7
 
+--Boundary-00=_ZxTIBZZQGtc4KNR
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="patch-scsi_ioctl-cdrecord"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="patch-scsi_ioctl-cdrecord"
 
+--- linux-2.6.8.1/drivers/block/scsi_ioctl.c	2004-08-16 21:44:53.000000000 +0200
++++ linux/drivers/block/scsi_ioctl.c	2004-08-17 00:53:12.000000000 +0200
+@@ -156,6 +156,35 @@
+ 		safe_for_write(WRITE_16),
+ 		safe_for_write(WRITE_BUFFER),
+ 		safe_for_write(WRITE_LONG),
++
++                /* Some defs for recording CDs */
++
++                /* obsolete: 0x01 REZERO_UNIT, 0x5c READ_BUFFER */
++		/*           used by k3b, but also work without */
++
++
++                safe_for_read(GPCMD_GET_CONFIGURATION),
++                safe_for_read(GPCMD_MODE_SELECT_10), /* read needed by k3b */
++                safe_for_read(GPCMD_SET_SPEED), /* obsolete but often used */
++                safe_for_read(GPCMD_LOAD_UNLOAD),
++
++                safe_for_write(GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL),
++                safe_for_write(GPCMD_FLUSH_CACHE),
++                safe_for_write(GPCMD_CLOSE_TRACK),
++                safe_for_write(GPCMD_FORMAT_UNIT),
++                safe_for_write(GPCMD_BLANK),
++                safe_for_write(GPCMD_READ_FORMAT_CAPACITIES),
++                safe_for_write(GPCMD_RESERVE_RZONE_TRACK),
++                safe_for_write(GPCMD_SEND_KEY),
++                safe_for_write(GPCMD_SEND_OPC),
++                safe_for_write(GPCMD_SET_STREAMING),
++
++                /* possibly needed: 0x5d SEND_CUE_SHEET/SEND_EVENT*/
++                /*                  0xbf SEND_DVD_STRUCTURE */
++                /* but not defined yet in linux/cdrom.h */
++
++                safe_for_write(0x5d),
++                safe_for_write(0xbf),
+ 	};
+ 	unsigned char type = cmd_type[cmd[0]];
+ 
+@@ -173,6 +202,14 @@
+ 	if (capable(CAP_SYS_RAWIO))
+ 		return 0;
+ 
++        /* Added for debugging*/
++       
++	if(file->f_mode & FMODE_WRITE)
++	  printk(KERN_WARNING "SCSI-CMD Filter: 0x%x not allowed with write-mode\n",cmd[0]);
++        else
++          printk(KERN_WARNING "SCSI-CMD Filter: 0x%x not allowed with read-mode\n",cmd[0]);
++
++
+ 	/* Otherwise fail it with an "Operation not permitted" */
+ 	return -EPERM;
+ }
 
+--Boundary-00=_ZxTIBZZQGtc4KNR
+Content-Type: text/plain;
+  charset="iso-8859-15";
+  name="readme"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="readme"
 
--------------------------------------------------------
-SF.Net email is sponsored by Shop4tech.com-Lowest price on Blank Media
-100pk Sonic DVD-R 4x for only $29 -100pk Sonic DVD+R for only $33
-Save 50% off Retail on Ink & Toner - Free Shipping and Free Gift.
-http://www.shop4tech.com/z/Inkjet_Cartridges/9_108_r285
-_______________________________________________
-Lhms-devel mailing list
-Lhms-devel@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/lhms-devel
-
---------------------- Original Message Ends --------------------
-
--- 
-Yasunori Goto <ygoto at us.fujitsu.com>
-
-
+andreas.messer@gmx.de  allows users to record cd's
+--Boundary-00=_ZxTIBZZQGtc4KNR--

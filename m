@@ -1,38 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262130AbSK0KsF>; Wed, 27 Nov 2002 05:48:05 -0500
+	id <S262214AbSK0KuV>; Wed, 27 Nov 2002 05:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262201AbSK0KsF>; Wed, 27 Nov 2002 05:48:05 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:5394 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262130AbSK0KsF>;
-	Wed, 27 Nov 2002 05:48:05 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A Kernel Configuration Tale of Woe 
-In-reply-to: Your message of "Tue, 26 Nov 2002 19:45:50 -0000."
-             <200211261945.gAQJjoRe000267@darkstar.example.net> 
+	id <S262215AbSK0KuV>; Wed, 27 Nov 2002 05:50:21 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:4585 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262214AbSK0KuT>; Wed, 27 Nov 2002 05:50:19 -0500
+Date: Wed, 27 Nov 2002 02:57:52 -0800
+From: Joshua Kwan <joshk@mspencer.net>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [OOPS] 2.4.20-rc4-ac1 (also occurs 2.4.20-rc2-ac3) in radeon DRI for XFree86
+Message-Id: <20021127025752.7c44482b.joshk@mspencer.net>
+In-Reply-To: <200211270939.38410.m.c.p@wolk-project.de>
+References: <200211270939.38410.m.c.p@wolk-project.de>
+X-Mailer: Sylpheed version 0.8.6cvs7 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 27 Nov 2002 21:55:11 +1100
-Message-ID: <11412.1038394511@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Nov 2002 19:45:50 +0000 (GMT), 
-John Bradford <john@grabjohn.com> wrote:
->Why don't we introduce a make allworkingmodules config, which compiles
->everything as modules, except for the things that are broken as
->modules, (for example IDE in the current 2.5.x tree would be compiled
->in).
+Not good! Not good!
 
-cat > .force_default <<EOF
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-EOF
-make allmodconfig 
+Booted fine with no oops or DRI init errors while starting X.
 
-That used to work, until 2.5.48.  Being able to force selected options
-and have the rest of the options default to all Y or all M was
-extremely useful.  What a pity that Kconfig removed this facility.
+and the quake3 test, alas:
 
+- went into 640x480 correctly but would not display the opening movie;
+- keyboard stopped responding and I had to hard-shutdown.
+- i was wearing headphones too and I got some big static from my sound card :X
+
+Looked okay, but it seems to not work all the way.
+Compiling the driver gave me lots of warnings which I am not entirely sure appear in the kernels before those affected:
+
+In file included from radeon_drv.c:35:
+radeon_drv.h:846:2: warning: #warning PCI posting bug
+In file included from drm_dma.h:33,
+                 from radeon_drv.c:42:
+drm_os_linux.h:16:2: warning: #warning the author of this code needs to read up on list_entry
+In file included from radeon_cp.c:35:
+radeon_drv.h:846:2: warning: #warning PCI posting bug
+In file included from radeon_cp.c:36:
+drm_os_linux.h:16:2: warning: #warning the author of this code needs to read up on list_entry
+In file included from radeon_state.c:35:
+radeon_drv.h:846:2: warning: #warning PCI posting bug
+In file included from radeon_state.c:36:
+drm_os_linux.h:16:2: warning: #warning the author of this code needs to read up on list_entry
+In file included from radeon_mem.c:36:
+radeon_drv.h:846:2: warning: #warning PCI posting bug
+In file included from radeon_mem.c:37:
+drm_os_linux.h:16:2: warning: #warning the author of this code needs to read up on list_entry
+radeon_mem.c:135: warning: `print_heap' defined but not used
+In file included from radeon_irq.c:37:
+radeon_drv.h:846:2: warning: #warning PCI posting bug
+In file included from radeon_irq.c:38:
+drm_os_linux.h:16:2: warning: #warning the author of this code needs to read up on list_entry
+
+this may or may not have caused the problem. bummer. I'm back on 2.4.20-rc2-ac2 right now, old reliable... and boy i need bed...3am where I am. i still have the diff lying around for reference.
+
+night all -- josh
+
+Rabid cheeseburgers forced Marc-Christian Petersen <m.c.p@wolk-project.de> to write this on Wed, 27 Nov 2002 09:39:38 +0100:	
+
+> Hi Joshua,
+> 
+> > Ksymoops output follows.
+> > I compiled Radeon DRM stuff into the kernel -- i845 agp support from 
+> > agapgart. I am using gcc-3.2 to compile. 100% reproducible (okay, i've been
+> > spending too much time on bugzillas...) Feel the power of the oops.
+> 
+> I've posted a similar oops with latest rc2 -AC kernel. I have an ATI Rage128 
+> card and also got those oops if using DRI.
+> 
+> I hope Arjan may find the bug :)
+> 
+> ciao, Marc

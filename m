@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264404AbUGGF7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUGGGFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264404AbUGGF7J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 01:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUGGF7I
+	id S264914AbUGGGFd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 02:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264895AbUGGGFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 01:59:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42708 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264404AbUGGF7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 01:59:04 -0400
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Ray Lee <ray-lk@madrabbit.org>, tomstdenis@yahoo.com, eger@havoc.gtf.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 0xdeadbeef vs 0xdeadbeefL
-References: <1089165901.4373.175.camel@orca.madrabbit.org>
-	<20040707030227.GE12308@parcelfarce.linux.theplanet.co.uk>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 07 Jul 2004 02:58:49 -0300
-In-Reply-To: <20040707030227.GE12308@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <orisd0qrxi.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Jul 2004 02:05:33 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:51321 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264917AbUGGGF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 02:05:27 -0400
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+From: Redeeman <lkml@metanurb.dk>
+To: bert hubert <ahu@ds9a.nl>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <1089178782.10677.0.camel@localhost>
+References: <32886.63.170.215.71.1088564087.squirrel@www.osdl.org>
+	 <20040629222751.392f0a82.davem@redhat.com>
+	 <20040630152750.2d01ca51@dell_ss3.pdx.osdl.net>
+	 <20040630153049.3ca25b76.davem@redhat.com>
+	 <20040701133738.301b9e46@dell_ss3.pdx.osdl.net>
+	 <20040701140406.62dfbc2a.davem@redhat.com>
+	 <20040702013225.GA24707@conectiva.com.br>
+	 <20040706093503.GA8147@outpost.ds9a.nl>
+	 <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
+	 <1089155965.15544.9.camel@localhost>
+	 <20040706232538.GA8054@outpost.ds9a.nl>
+	 <1089178782.10677.0.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 07 Jul 2004 08:05:26 +0200
+Message-Id: <1089180326.10677.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul  7, 2004, viro@parcelfarce.linux.theplanet.co.uk wrote:
+i just got some ideas to test.. i will report back in some days
+On Wed, 2004-07-07 at 07:39 +0200, Redeeman wrote:
+> damn, just tested this patch, it does not fix my issues. i wish there
+> were a way to just get it like it was on 2.6.5
+> 
+> On Wed, 2004-07-07 at 01:25 +0200, bert hubert wrote:
+> > On Wed, Jul 07, 2004 at 01:19:25AM +0200, Redeeman wrote:
+> > 
+> > > so this should fix the issues? can you also tell me why this suddenly happend? that would make me a real happy man
+> > 
+> > It appears older linux kernels would announce window scaling capability, but
+> > not in fact scale their windows themselves, thus hiding the problem.
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> On Tue, Jul 06, 2004 at 07:05:01PM -0700, Ray Lee wrote:
->> [1] "The great thing about standards is that there are so many
->> of them to choose from."  Wish I could remember who said
->> that.
-
-> AST and in this case it actually doesn't apply - everything from K&R
-> to C99 is in agreement here.
-
-Are you sure?  I've seen K&R C compilers for 32-bit platforms in which
-0xdeadbeef had type *signed* int, as opposed to unsigned int.  I
-thought the preference for an unsigned type in this case was
-introduced in ISO C90, but it might as well have been a bug in that
-compiler.  Although I'm told other compilers display similar behavior.
-
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

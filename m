@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268553AbTANDfG>; Mon, 13 Jan 2003 22:35:06 -0500
+	id <S268565AbTANDo5>; Mon, 13 Jan 2003 22:44:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268555AbTANDfG>; Mon, 13 Jan 2003 22:35:06 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:8124 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S268553AbTANDe7>; Mon, 13 Jan 2003 22:34:59 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD8F0@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: James Cleverdon <jamesclv@us.ibm.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: RE: Question about xAPIC lowest priority delivery
-Date: Mon, 13 Jan 2003 21:43:36 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S268566AbTANDo4>; Mon, 13 Jan 2003 22:44:56 -0500
+Received: from h80ad26f3.async.vt.edu ([128.173.38.243]:22914 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S268565AbTANDoz>; Mon, 13 Jan 2003 22:44:55 -0500
+Message-Id: <200301140353.h0E3rWqZ004900@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [TRIVIAL] kstrdup 
+In-Reply-To: Your message of "Mon, 13 Jan 2003 22:38:03 EST."
+             <20030114033803.GG404@gtf.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030114025452.656612C385@lists.samba.org> <200301140328.h0E3SFqZ004587@turing-police.cc.vt.edu>
+            <20030114033803.GG404@gtf.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1507362016P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Jan 2003 22:53:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Anyway, is this a known erratum for xAPICs in parallel mode? (Namely, a bug
+--==_Exmh_1507362016P
+Content-Type: text/plain; charset=us-ascii
 
->in the XTPR arbitration logic in host bridges.)
->For that matter, does this happen on non-Summit xAPIC boxes? Anyone out
-there 
->with a >= 2 CPU P4 box that uses parallel interrupts care to comment
+On Mon, 13 Jan 2003 22:38:03 EST, Jeff Garzik said:
+> On Mon, Jan 13, 2003 at 10:28:14PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > Out of curiosity, who's job is it to avoid the race condition between when
+> > this function takes the strlen() and the other processor makes it a longer
+> > string before we return from kmalloc() and do the strcpy()?
+> 
+> The caller's.
 
-I am not sure if we fall in the parallel mode category, but I will comment
-since I was also concerned about xTPR mechanism.
+That's cool, long as everybody agrees on that - I've already filled my career
+quota of chasing down bugs due to non-threadsafe use of str*() functions. ;)
 
-We use lowest priority delivery for xAPIC-APIC case the following way: set
-the destination to the logical id of boot CPU, set the LPDM bit on the
-destination (0x01XXXX). This way, if something is wrong with xTPR mechanism,
-the interrupt goes to boot CPU. (I presume it is about IA32 case, because it
-is different for Itanium). Then, I have to increase priority entering an
-interrupt by writing to the TPRI register, and lower it on the exit from it
-to make it available for the next one... Besides this, due to some erratum
-(I wish I had my specs here) I have to read from LDR and write back to it
-after changing TPRI value:
- 
-apic_write_around(APIC_TASKPRI, pri); 
-apic_write_around(APIC_LDR, apic_read(APIC_LDR)); 
+All the same, I'd probably feel better if it used strncpy() instead - there'd
+still be the possibility of copying now-stale data, but at least you'd not be
+able to walk off the end of the *new* array's allocated space....
 
-Unfortunately, there is no single spot in the code identifying start and end
-of an interrupt, so I had to fish for all places where they were happening.
-I got it to work, and the balance is so fragile, that if I only touch any of
-those places it immediately breaks or hangs... I wish there were macros in
-place: irq_enter(), irq_exit() for IO-APIC irq's like in UnixWare, say.
+/Valdis
 
-I am sure there are people (especially from Intel, with red books newer than
-mine) who are looking into this or could shed more light on how this can be
-properly implemented.
 
---Natalie
+--==_Exmh_1507362016P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+I4m8cC3lWbTT17ARAiTKAJ97vumfkUOAplSMG2IQN7rGMQ7wrgCg8PBW
+ekSMhqHvDjTVxIw9RK+m928=
+=/7gx
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1507362016P--

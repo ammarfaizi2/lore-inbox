@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRC2Vgc>; Thu, 29 Mar 2001 16:36:32 -0500
+	id <S129116AbRC2VeC>; Thu, 29 Mar 2001 16:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRC2VgW>; Thu, 29 Mar 2001 16:36:22 -0500
-Received: from jalon.able.es ([212.97.163.2]:7621 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129166AbRC2VgO>;
-	Thu, 29 Mar 2001 16:36:14 -0500
-Date: Thu, 29 Mar 2001 23:35:21 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
+	id <S129143AbRC2Vdw>; Thu, 29 Mar 2001 16:33:52 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:59377 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S129116AbRC2Vdl>; Thu, 29 Mar 2001 16:33:41 -0500
+Date: Thu, 29 Mar 2001 13:26:50 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
 To: Fabio Riccardi <fabio@chromium.com>
-Cc: linux-kernel@vger.kernel.org
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: linux scheduler limitations?
-Message-ID: <20010329233521.C6053@werewolf.able.es>
 In-Reply-To: <3AC3A6C9.991472C0@chromium.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3AC3A6C9.991472C0@chromium.com>; from fabio@chromium.com on Thu, Mar 29, 2001 at 23:19:05 +0200
-X-Mailer: Balsa 1.1.2
+Message-ID: <Pine.LNX.4.33.0103291326110.26411-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.2 or 2.4 kernel?
 
-On 03.29 Fabio Riccardi wrote:
-> 
+the 2.4 does a MUCH better job of dealing with large numbers of processes.
+
+David Lang
+
+On Thu, 29 Mar 2001, Fabio Riccardi wrote:
+
+> Date: Thu, 29 Mar 2001 13:19:05 -0800
+> From: Fabio Riccardi <fabio@chromium.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: linux scheduler limitations?
+>
+> Hello,
+>
+> I'm working on an enhanced version of Apache and I'm hitting my head
+> against something I don't understand.
+>
 > I've found a (to me) unexplicable system behaviour when the number of
 > Apache forked instances goes somewhere beyond 1050, the machine
 > suddently slows down almost top a halt and becomes totally unresponsive,
 > until I stop the test (SpecWeb).
-> 
-
-Have you though about pthreads (when you talk about fork, I suppose you
-say literally 'fork()') ?
-
-I give a course on Parallel Programming at the university and the practical
-work was done with POSIX threads. One of my students caught the idea and
-used it to modify his assignment from one other matter on Networks, and
-changed the traditional 'fork()' in a simple ftp server he had to implement
-by 'pthread_create' and got a 10-30 speedup (conns per second).
-
-And you will get rid of some process-per-user limit. But you will fall into
-an threads-per-user limit, if there is any.
-
-And you cal also control its scheduling, to make each thread fight against
-the whole system or only its siblings.
-
--- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.2-ac28 #1 SMP Thu Mar 29 16:41:17 CEST 2001 i686
+>
+> Profiling the kernel shows that the scheduler and the interrupt handler
+> are taking most of the CPU time.
+>
+> I understand that there must be a limit to the number of processes that
+> the scheduler can efficiently handle, but I would expect some sort of
+> gradual performance degradation when increasing the number of tasks,
+> instead I observe that by increasing Apache's MaxClient linit by as
+> little as 10 can cause a sudden transition between smooth working with
+> lots (30-40%) of CPU idle to a total lock-up.
+>
+> Moreover the max number of processes is not even constant. If I increase
+> the server load gradually then I manage to have 1500 processes running
+> with no problem, but if the transition is sharp (the SpecWeb case) than
+> I end-up having a lock up.
+>
+> Anybody seen this before? Any clues?
+>
+>  - Fabio
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

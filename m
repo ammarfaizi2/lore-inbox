@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbUCaOIo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 09:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbUCaOIo
+	id S261603AbUCaOIH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 09:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUCaOIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 09:08:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17896 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261976AbUCaOIl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 09:08:41 -0500
-Subject: Re: [PATCH] barrier patch set
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Chris Mason <mason@suse.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <4069F2FC.90003@pobox.com>
-References: <20040319153554.GC2933@suse.de>
-	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
-	 <1079800362.11062.280.camel@watt.suse.com>
-	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
-	 <1080662685.1978.25.camel@sisko.scot.redhat.com>
-	 <1080674384.3548.36.camel@watt.suse.com>
-	 <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1080742105.1991.40.camel@sisko.scot.redhat.com>
+	Wed, 31 Mar 2004 09:08:07 -0500
+Received: from xizor.is.scarlet.be ([193.74.71.21]:28895 "EHLO
+	xizor.is.scarlet.be") by vger.kernel.org with ESMTP id S261603AbUCaOIE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 09:08:04 -0500
+Date: Wed, 31 Mar 2004 16:11:15 +0200
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] speedtouch and/or USB problem (2.6.4-WOLK2.3)
+Message-ID: <20040331141115.GA9792@gouv>
+References: <Pine.LNX.4.58.0403272228360.2662@alpha.polcom.net> <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 31 Mar 2004 15:08:25 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Leopold Gouverneur <gvlp@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 2004-03-30 at 23:21, Jeff Garzik wrote:
-
-> For IDE, O_DIRECT and O_SYNC can use special "FUA" commands, which don't 
-> return until the data is on the platter.
-
-fsync() is still really nasty, because that can require that we wait on
-IO that was submitted by the VM before we knew that there was a
-synchronous IO wait coming.  SCSI also has an FUA bit that can make a
-difference if you've got writeback caching enabled.  (And FUA on read
-can bypass drive writethrough caches, too, for media verification.)
-
---Stephen
-
+On Sat, Mar 27, 2004 at 06:51:36PM -0500, Alan Stern wrote:
+> On Sat, 27 Mar 2004, Grzegorz Kulewski wrote:
+> 
+> > Hi,
+> > 
+> > When running modem_run on 2.6.4-WOLK2.3 it locks in D state on one of USB 
+> > ioctls. It works at least on 2.6.2-rc2. I have no idea what causes this 
+> > bug so I sent it to all lists.
+> > 
+> > Please help if you can.
+> > 
+> > Grzegorz Kulewski
+> 
+> Try applying this patch:
+> 
+> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108016447231291&q=raw
+> 
+> Alan Stern
+> 
+This patch seems to be included in 2.6.5-rc2 bk-curent but it don't
+solve the same problem with xsane (or scanimage) which hangs in
+ioctl(n, USBDEVFS_SETCONFIGURATION) when accessing my Epson USB Sc
+anner.Not the first time I run it but each time after that.
+The process remains in D state for many hours before returning for no
+evident reason.Was working fine in 2.6.3.

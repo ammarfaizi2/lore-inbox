@@ -1,96 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265313AbUGGSyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265311AbUGGTAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265313AbUGGSyL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUGGSyK
+	id S265311AbUGGTAh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 15:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUGGTAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:54:10 -0400
-Received: from web41112.mail.yahoo.com ([66.218.93.28]:45575 "HELO
-	web41112.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265313AbUGGSxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:53:47 -0400
-Message-ID: <20040707185340.42091.qmail@web41112.mail.yahoo.com>
-Date: Wed, 7 Jul 2004 11:53:40 -0700 (PDT)
-From: tom st denis <tomstdenis@yahoo.com>
-Subject: Re: 0xdeadbeef vs 0xdeadbeefL
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040707184737.GA25357@infradead.org>
-MIME-Version: 1.0
+	Wed, 7 Jul 2004 15:00:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20202 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265311AbUGGTAd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 15:00:33 -0400
+Date: Wed, 7 Jul 2004 15:58:14 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mason@suse.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Unnecessary barrier in sync_page()?
+Message-ID: <20040707185814.GA3323@logos.cnet>
+References: <20040707175724.GB3106@logos.cnet> <20040707182025.GJ28479@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707182025.GJ28479@dualathlon.random>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Christoph Hellwig <hch@infradead.org> wrote:
-> On Wed, Jul 07, 2004 at 11:41:50AM -0700, tom st denis wrote:
-> > Um, actually "char" like "int" and "long" in C99 is signed.  So
-> while
-> > you can write 
+On Wed, Jul 07, 2004 at 08:20:25PM +0200, Andrea Arcangeli wrote:
+> On Wed, Jul 07, 2004 at 02:57:24PM -0300, Marcelo Tosatti wrote:
 > > 
-> > signed int x = -3;
+> > Hi Chris,
 > > 
-> > You don't have to.  in fact if you "have" to then your compiler is
-> > broken.  Now I know that GCC offers "unsigned chars" but that's an
-> > EXTENSION not part of the actual standard.  
+> > I was talking to Andrew about this memory barrier 
+> > 
+> > static inline int sync_page(struct page *page)
+> > {
+> >         struct address_space *mapping;
+> >                                                                                         
+> >         /*
+> >          * FIXME, fercrissake.  What is this barrier here for?
+> >          */
+> >         smp_mb();
+> >         mapping = page_mapping(page);
+> >         if (mapping && mapping->a_ops && mapping->a_ops->sync_page)
+> >                 return mapping->a_ops->sync_page(page);
+> >         return 0;
+> > }
+> > 
+> > And does not seem to be a reason for it. The callers are:
+> > 
+> > void fastcall wait_on_page_bit(struct page *page, int bit_nr)
+> > {
+> >         wait_queue_head_t *waitqueue = page_waitqueue(page);
+> >         DEFINE_PAGE_WAIT(wait, page, bit_nr);
+> >                                                                                         
+> >         do {
+> >                 prepare_to_wait(waitqueue, &wait.wait, TASK_UNINTERRUPTIBLE);
+> >                 if (test_bit(bit_nr, &page->flags)) {
+> >                         sync_page(page);
+> >                         io_schedule();
+> >                 }
+> >         } while (test_bit(bit_nr, &page->flags));
+> >         finish_wait(waitqueue, &wait.wait);
+> > } 
+> > 
+> > void fastcall __lock_page(struct page *page)
+> > {
+> >         wait_queue_head_t *wqh = page_waitqueue(page);
+> >         DEFINE_PAGE_WAIT_EXCLUSIVE(wait, page, PG_locked);
+> >                                                                                         
+> >         while (TestSetPageLocked(page)) {
+> >                 prepare_to_wait_exclusive(wqh, &wait.wait, TASK_UNINTERRUPTIBLE);
+> >                 if (PageLocked(page)) {
+> >                         sync_page(page);
+> >                         io_schedule();
+> >                 }
+> >         }
+> >         finish_wait(wqh, &wait.wait);
+> > }
+> > 
+> > Both callers call set_bit (atomic operation which cannot be reordered) before 
 > 
-> ------------------------------ snip -----------------------------
->  [#15]  The  three types char, signed char, and unsigned char
->         are   collectively   called   the   character   types.   The
->         implementation  shall  define  char  to have the same range,
-> 	representation,  and  behavior  as  either  signed  char or
-> 	unsigned char.35)
-> ------------------------------ snip -----------------------------
+> set_bit is atomic but it _can_ be reordered just fine. atomic !=
+> barrier (they're the same only in x86 due the lack of specific smp-aware
+> opcodes).
 
-Right.  Didn't know that.  Whoa.  So in essence "char" is not a safe
-type.
+Hi Andrea,
 
-> > As for writing portable code, um, jacka#!, BitKeeper, you know,
-> that
-> > thingy that hosts the Linux kernel?  Yeah it uses LibTomCrypt.  Why
-> not
-> > goto http://libtomcrypt.org and find out who the author is.  Oh
-> yeah,
-> > that would be me.  Why not email Wayne Scott [who has code in
-> > LibTomCrypt btw...] and ask him about it?
-> > 
-> > Who elses uses LibTomCrypt?  Oh yeah, Sony, Gracenote, IBM [um Joy
-> > Latten can chip in about that], Intel, various schools including
-> > Harvard, Stanford, MIT, BYU, ...
-> 
-> Tons of people use windows aswell.  You just showed that you don't
-> know
-> C well enough, so maybe someone should better do an audit for your
-> code ;-)
+OK, got it.
 
-To be honest I didn't know that above.  That's why I'm always explicit.
- [btw my code builds in MSVC, BCC and ICC as well].
+I think this comment on i386 bitops.h can lead to 
+misunderstanding and should be changed:
 
-You don't need to know such details to be able to develop in C.  I'm
-sure if you walked into [say] Redhat and gave an "on the spot C quiz"
-about obscure rules they would fail.  You have to use some common sense
-and apply the more relevant rules.  
+/**
+ * set_bit - Atomically set a bit in memory
+ * @nr: the bit to set
+ * @addr: the address to start counting from
+ *
+ * This function is atomic and may not be reordered. 
 
-Point is 0xDEADBEEFUL is just as simple to type and avoids any sort of
-ambiguitity.  It means unsigned long.  No question about it.  No having
-to refer to subsection 12 of paragraph 15 of section 23 of chapter 9 to
-figure that out.
+"This function is atomic and may not be reordered (other architectures MAY reorder it)"
 
-Why people are fighting over this is beyond me.  Fine, write it as
-0xDEADBEEF see what the hell I care.  Honestly.  Open debate or what?  
+Or something like this. The comment as it is leads people to
+write nonportable code which assumes set_bit() cant be reordered. Like naive me did.
 
-And I don't need mr. Viro coming down off his mountain saying "oh you
-fail it" because I don't know some obscure typing rule that I wouldn't
-come accross because *** I AM NOT LAZY ***.  Hey mr. Viro what have you
-contributed to the public domain lately?  Anything I can harp on in
-public and abuse?  
+> however the smp_mb() isn't needed in sync_page, simply because it's
+> perfectly ok if we start running sync_page before reading pagelocked.
+>
+> All we care about is to run sync_page _before_ io_schedule() and that we
+> read PageLocked _after_ prepare_to_wait_exclusive.
 
-Asshat.
+Ok, I see, yes.
 
-Tom
+> So the locking in between PageLocked and sync_page is _absolutely_
+> worthless and the smp_mb() can go away. 
+
+Andrew, what you think about removing that barrier from sync_page() 
+on -mm? 
+
+And what about changing the "may not reordered" comments on i386 bitops.h
+to "may not be reordered on i386 only, other arches do reorder it." ?
 
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail is new and improved - Check it out!
-http://promotions.yahoo.com/new_mail

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUFWITo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUFWIdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265237AbUFWITo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 04:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbUFWITo
+	id S265218AbUFWIdS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 04:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUFWIdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 04:19:44 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:42368 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265237AbUFWITm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 04:19:42 -0400
-Date: Wed, 23 Jun 2004 04:21:53 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Greg Kroah-Hartmann <greg@kroah.com>
-Subject: Re: Oops w/ USB serial + modular ipaq
-In-Reply-To: <Pine.LNX.4.58.0406230222090.3273@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0406230420310.3273@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0406230222090.3273@montezuma.fsmlabs.com>
+	Wed, 23 Jun 2004 04:33:18 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:7343 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265224AbUFWIdQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 04:33:16 -0400
+Date: Wed, 23 Jun 2004 10:33:12 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Juhani Pirttilahti <juhani.pirttilahti@mbnet.fi>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel problem
+In-Reply-To: <200406221954150026.009597B0@smtp.ebaana.net>
+Message-ID: <Pine.GSO.4.58.0406231032420.13111@waterleaf.sonytel.be>
+References: <200406221954150026.009597B0@smtp.ebaana.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004, Zwane Mwaikambo wrote:
-
-> Loading the ipaq module, connecting a device and then unloading ipaq.ko
-> oopses.
+On Tue, 22 Jun 2004, Juhani Pirttilahti wrote:
+> What is going on? I can't boot ANY version of kernel 2.2.x, 2.4.x or 2.6.x on this computer.
+> I was trying to install Debian to this computer...
 >
-> It's not safe to use serial->interface after that
-> usb_driver_release_interface(). The following patch works as a workaround
-> but i don't trust it as there may be a leak.
->
-> Index: linux-2.6.7/drivers/usb/serial/usb-serial.c
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.7/drivers/usb/serial/usb-serial.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 usb-serial.c
-> --- linux-2.6.7/drivers/usb/serial/usb-serial.c	16 Jun 2004 16:49:38 -0000	1.1.1.1
-> +++ linux-2.6.7/drivers/usb/serial/usb-serial.c	23 Jun 2004 06:29:56 -0000
-> @@ -1393,7 +1393,6 @@ void usb_serial_deregister(struct usb_se
->  		serial = serial_table[i];
->  		if ((serial != NULL) && (serial->type == device)) {
->  			usb_driver_release_interface (&usb_serial_driver, serial->interface);
-> -			usb_serial_disconnect (serial->interface);
->  		}
->  	}
->
+> There is nothing wrong with memory. I can also install Windows 98 to it.
 
-I'll leave this patch going in a load/unload loop overnight and check on
-slab.
+Are you sure? Care to run memtest86?
 
-Thanks,
-	Zwane
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

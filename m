@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUCOSgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 13:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbUCOSgM
+	id S262642AbUCOShV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 13:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbUCOShV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 13:36:12 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:57773 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262585AbUCOSgJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 13:36:09 -0500
-content-class: urn:content-classes:message
+	Mon, 15 Mar 2004 13:37:21 -0500
+Received: from alpha.zarz.agh.edu.pl ([149.156.122.231]:60172 "EHLO
+	alpha.zarz.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S262642AbUCOShA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 13:37:00 -0500
+Date: Mon, 15 Mar 2004 19:41:57 +0100 (CET)
+From: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org, davem@redhat.com
+Subject: Re: [SPARC64][PPC] strange error ..
+In-Reply-To: <Pine.LNX.4.58L.0403151437360.16193@alpha.zarz.agh.edu.pl>
+Message-ID: <Pine.LNX.4.58L.0403151939460.17732@alpha.zarz.agh.edu.pl>
+References: <Pine.LNX.4.58L.0403151437360.16193@alpha.zarz.agh.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: 2.6.4 & new e100 driver: module load parameters
-Date: Mon, 15 Mar 2004 10:35:30 -0800
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF5E72@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.4 & new e100 driver: module load parameters
-Thread-Index: AcQJ9V+6/q5OYiH8SkubWXeqo8HAgQAx2tDA
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Calum Mackay" <calum.mackay@cdmnet.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 Mar 2004 18:35:31.0266 (UTC) FILETIME=[4BA83220:01C40ABC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does the new driver support module-load-time configuration of 
-> these settings, or do I now need a startup script that hacks 
-> around with ethtool?
+OK. here is trivial fix:
 
-Use ethtool.
- 
-> [and perhaps the e100.txt file needs to be updated?]
+--- linux-2.6.4/init/do_mounts_initrd.c.org	2004-03-15 09:24:58.000000000 +0100
++++ linux-2.6.4/init/do_mounts_initrd.c	2004-03-15 19:35:50.186528400 +0100
+@@ -1,6 +1,6 @@
+ #define __KERNEL_SYSCALLS__
+-#include <linux/unistd.h>
+ #include <linux/kernel.h>
++#include <linux/unistd.h>
+ #include <linux/fs.h>
+ #include <linux/minix_fs.h>
+ #include <linux/ext2_fs.h>
 
-Yes, I need to do that.  Thanks for the reminder.
-
--scott
+-- 
+{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
+{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132692AbQLHVIM>; Fri, 8 Dec 2000 16:08:12 -0500
+	id <S132380AbQLHVMX>; Fri, 8 Dec 2000 16:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132834AbQLHVIC>; Fri, 8 Dec 2000 16:08:02 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:55149
+	id <S132610AbQLHVMN>; Fri, 8 Dec 2000 16:12:13 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:55661
 	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S132692AbQLHVHr>; Fri, 8 Dec 2000 16:07:47 -0500
-Date: Fri, 8 Dec 2000 21:37:15 +0100
+	id <S132380AbQLHVL7>; Fri, 8 Dec 2000 16:11:59 -0500
+Date: Fri, 8 Dec 2000 21:41:24 +0100
 From: Rasmus Andersen <rasmus@jaquet.dk>
-To: support@moxa.com.tw
+To: tytso@mit.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove warning from drivers/char/mxser.c
-Message-ID: <20001208213715.G599@jaquet.dk>
+Subject: [PATCH] remove warning from drivers/char/random.c
+Message-ID: <20001208214124.H599@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,78 +21,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-The following patch makes some 'defined but not used' warnings go
-away when compiling drivers/char/mxser.c without CONFIG_PCI (240t12p3).
-It should apply cleanly.
+The following patch makes a 'defined but not used' warning go away
+when compiling drivers/char/random.c without sysctl support (240t12p3). 
+(but should apply cleanly). I am aware that there is a sysctl section 
+of this code, but the function seems to belong where it is. I would be
+happy to move free_entropy_store to this section if you think this 
+is cleaner.
 
 
---- linux-240-t12-pre3-clean/drivers/char/mxser.c	Wed Nov 22 22:41:39 2000
-+++ linux/drivers/char/mxser.c	Wed Nov 29 18:43:46 2000
-@@ -164,11 +164,13 @@
- 	unsigned short board_type;
- } mxser_pciinfo;
- 
-+#ifdef CONFIG_PCI
- static mxser_pciinfo mxser_pcibrds[] =
- {
- 	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_C168, MXSER_BOARD_C168_PCI},
- 	{PCI_VENDOR_ID_MOXA, PCI_DEVICE_ID_C104, MXSER_BOARD_C104_PCI},
- };
-+#endif
- 
- static int ioaddr[MXSER_BOARDS];
- static int ttymajor = MXSERMAJOR;
-@@ -296,10 +298,13 @@
- void cleanup_module(void);
- #endif
- 
-+#ifdef CONFIG_PCI
-+static int mxser_get_PCI_conf(struct pci_dev *, int, struct mxser_hwconf *);
-+#endif
-+
- static void mxser_getcfg(int board, struct mxser_hwconf *hwconf);
- int mxser_init(void);
- static int mxser_get_ISA_conf(int, struct mxser_hwconf *);
--static int mxser_get_PCI_conf(struct pci_dev *, int, struct mxser_hwconf *);
- static void mxser_do_softint(void *);
- static int mxser_open(struct tty_struct *, struct file *);
- static void mxser_close(struct tty_struct *, struct file *);
-@@ -449,6 +454,7 @@
- 	mxsercfg[board] = *hwconf;
+--- linux-240-t12-pre3-clean/drivers/char/random.c	Wed Nov 22 22:41:39 2000
++++ linux/drivers/char/random.c	Wed Nov 29 18:25:31 2000
+@@ -527,12 +527,14 @@
+ 	memset(r->pool, 0, r->poolinfo.poolwords*4);
  }
  
-+#ifdef CONFIG_PCI
- static int mxser_get_PCI_conf(struct pci_dev *pdev, int board_type, struct mxser_hwconf *hwconf)
++#ifdef CONFIG_SYSCTL
+ static void free_entropy_store(struct entropy_store *r)
  {
- 	int i;
-@@ -473,11 +479,11 @@
- 	}
- 	return (0);
+ 	if (r->pool)
+ 		kfree(r->pool);
+ 	kfree(r);
  }
 +#endif
  
- int mxser_init(void)
- {
- 	int i, m, retval, b;
--	int n, index;
- 	int ret1, ret2;
- 	struct mxser_hwconf hwconf;
- 
-@@ -609,6 +615,7 @@
- #ifdef CONFIG_PCI
- 	{
- 		struct pci_dev *pdev = NULL;
-+		int n, index;
- 
- 		n = sizeof(mxser_pcibrds) / sizeof(mxser_pciinfo);
- 		index = 0;
+ /*
+  * This function adds a byte into the entropy "pool".  It does not
 
 -- 
 Regards,
         Rasmus(rasmus@jaquet.dk)
 
-You don't become a failure until you're satisfied with being one. 
-  -- Anonymous
+I have a very small mind and must live with it. -- E. Dijkstra 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269653AbUICMI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269656AbUICMMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269653AbUICMI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 08:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269667AbUICMI2
+	id S269656AbUICMMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 08:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269655AbUICMKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 08:08:28 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:49576 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269653AbUICMGl (ORCPT
+	Fri, 3 Sep 2004 08:10:08 -0400
+Received: from pD9E0EAE4.dip.t-dialin.net ([217.224.234.228]:34695 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S269643AbUICMFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 08:06:41 -0400
-Message-ID: <2c6b3ab004090305061c6f1a59@mail.gmail.com>
-Date: Fri, 3 Sep 2004 17:36:40 +0530
-From: Amit Gud <amitgud@gmail.com>
-Reply-To: Amit Gud <amitgud@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: Using filesystem blocks
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org, gud@eth.net
-In-Reply-To: <20040903091926.B2288@infradead.org>
+	Fri, 3 Sep 2004 08:05:24 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+In-Reply-To: <20040903114949.GA29493@elte.hu>
+References: <1094181447.4815.6.camel@orbiter>
+	 <1094192788.19760.47.camel@krustophenia.net>
+	 <20040903063658.GA11801@elte.hu>
+	 <1094194157.19760.71.camel@krustophenia.net>
+	 <20040903070500.GB13100@elte.hu>
+	 <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org>
+	 <1094198755.19760.133.camel@krustophenia.net>
+	 <20040903092547.GA18594@elte.hu> <1094211218.5453.3.camel@localhost>
+	 <20040903114949.GA29493@elte.hu>
+Content-Type: text/plain
+Message-Id: <1094213108.5453.10.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 03 Sep 2004 14:05:08 +0200
 Content-Transfer-Encoding: 7bit
-References: <2c6b3ab004090212293b394b41@mail.gmail.com> <20040902200743.GB6875@taniwha.stupidest.org> <2c6b3ab0040902215656704680@mail.gmail.com> <20040903091926.B2288@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > First up, why is mbcache code is written at VFS layer than being
-> > filesystem specific? Neccessarily to take away the coding overheads of
-> > maintaining block cache that any filesystem uses, even though given
-> > that only ext2 and ext3 uses it. It facilitates code reuse.
+Ingo Molnar wrote :
+> * Thomas Charbonnel <thomas@undata.org> wrote:
 > 
-> It is not written at the VFS level.  It's a library ontop of the buffercache
-> than can be reused by filesystems.
+> > I still get > 170 us latency from rtl8139 :
+> > http://www.undata.org/~thomas/R1_rtl8139.trace
+> 
+> this is a single-packet latency, we wont get much lower than this with
+> the current techniques. Disabling ip_conntrack and tracing ought to
+> lower the real latency somewhat.
 > 
 
-Nice to know this. But intent of my mail is not affected by this in a major way.
+Ok, I'll do that.
 
-AG
+> > And again this one :
+> > preemption latency trace v1.0.5 on 2.6.9-rc1-VP-R1
+> > --------------------------------------------------
+> >  latency: 597 us, entries: 12 (12)
+> >     -----------------
+> >     | task: swapper/0, uid:0 nice:0 policy:0 rt_prio:0
+> >     -----------------
+> >  => started at: smp_apic_timer_interrupt+0x32/0xd0
+> >  => ended at:   smp_apic_timer_interrupt+0x86/0xd0
+> > =======>
+> > 00010000 0.000ms (+0.000ms): smp_apic_timer_interrupt (apic_timer_interrupt)
+> > 00010000 0.000ms (+0.000ms): profile_tick (smp_apic_timer_interrupt)
+> > 00010000 0.000ms (+0.000ms): profile_hook (profile_tick)
+> > 00010001 0.000ms (+0.595ms): notifier_call_chain (profile_hook)
+> > 00010000 0.595ms (+0.000ms): do_nmi (mcount)
+> > 00020000 0.596ms (+0.000ms): profile_tick (nmi_watchdog_tick)
+> > 00020000 0.596ms (+0.000ms): profile_hook (profile_tick)
+> > 00020001 0.597ms (+0.000ms): notifier_call_chain (profile_hook)
+> > 00020000 0.597ms (+689953.444ms): profile_hit (nmi_watchdog_tick)
+> > 00010001 689954.042ms (+1.141ms): update_process_times (do_timer)
+> > 00000001 0.597ms (+0.000ms): sub_preempt_count (smp_apic_timer_interrupt)
+> > 00000001 0.598ms (+0.000ms): update_max_trace (check_preempt_timing)
+> 
+> this is a pretty weird one. First it shows an apparently non-monotonic
+> RDTSC: the jump forward and backward in time around profile_hit. I
+> suspect the real RDTSC value was lower than the previous one and caused
+> an underflow. What is your cpu_khz in /proc/cpuinfo?
+> 
+root@satellite thomas # cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III Mobile CPU      1000MHz
+stepping        : 1
+cpu MHz         : 996.879
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1966.08
+
+> the other weird one is the +0.595 usec entry at notifier_call_chain(). 
+> That code is just a couple of instructions, so no real for any overhead 
+> there.
+> 
+> could you try the attached robust-get-cycles.patch ontop of your current
+> tree and see whether it impacts these weirdnesses? The patch makes sure
+> that the cycle counter is sane: two subsequent readings of it were
+> monotonic and less than 1000 cycles apart.
+> 
+> this patch probably wont remove the +0.595 msec latency though - the
+> RDTSC value jumped forward there permanently. Maybe the RDTSC value is
+> somehow corrupted by NMIs - could you turn off the NMI watchdog to
+> check?
+> 
+> 	Ingo
+
+I precisely enabled the NMI watchdog to track those weird latencies
+down. My guess is still that when ACPI is enabled my bios does something
+funky with SMM/SMI that increments the TSC. I'll try the patch and let
+you know.
+
+Thomas
+
+

@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUIASgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUIASk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUIASgo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 14:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUIASgo
+	id S266850AbUIASk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 14:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUIASk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 14:36:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52668 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267361AbUIASgk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 14:36:40 -0400
-From: Daniel Phillips <phillips@redhat.com>
-Organization: Red Hat
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] Linux Cluster Infrastructure BOF at Linux Kongress
-Date: Wed, 1 Sep 2004 14:37:47 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-cluster@redhat.com, ssic-linux-devel@lists.sourceforge.net,
-       linux-ha@new.community.tummy.com, dcl_discussion@lists.osdl.org,
-       linux-fsdevel@vger.kernel.org
+	Wed, 1 Sep 2004 14:40:56 -0400
+Received: from av7-2-sn1.fre.skanova.net ([81.228.11.114]:26838 "EHLO
+	av7-2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S266850AbUIASku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 14:40:50 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@suse.de>, Nigel Kukard <nkukard@lbsd.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] DVD+RW support for 2.6.7-bk13
+References: <m2hdsr6du0.fsf@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 01 Sep 2004 20:40:42 +0200
+In-Reply-To: <m2hdsr6du0.fsf@telia.com>
+Message-ID: <m34qmhest1.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409011437.48032.phillips@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There will be a Linux Cluster Infrastructure BOF at Linux Kongress in 
-Erlangen, Germany, thursday 2004-09-09 or friday 2004-09-10.  The exact 
-day, time and room number to be posted here:
+Peter Osterlund <petero2@telia.com> writes:
 
-    http://www.linux-kongress.org/2004/program.html
+> This patch adds support for using DVD+RW drives as writable block
+> devices under the 2.6.7-bk13 kernel.
+> 
+> The patch is based on work from:
+> 
+>         Andy Polyakov <appro@fy.chalmers.se> - Wrote the 2.4 patch
+>         Nigel Kukard <nkukard@lbsd.net> - Initial porting to 2.6.x
+...
+>  linux-petero/drivers/cdrom/cdrom.c |   80 +++++++++++++++++++++++++++++++++++++
+>  linux-petero/drivers/ide/ide-cd.c  |    2 
+>  linux-petero/drivers/scsi/sr.c     |    1 
+>  linux-petero/include/linux/cdrom.h |    2 
 
-This will be round three of the Linux cluster infrastructure community 
-effort.  Rounds one and two were at OLS and Minneapolis, respectively.  
-A summary of the latter is available here:
+Nigel pointed out that the earlier patches contained attributions that
+are not present in this patch. The 2.4 patch contains:
 
-    http://sources.redhat.com/cluster/events/summit2004/presentations.html
+  Nov 5 2001, Aug 8 2002. Modified by Andy Polyakov
+  <appro@fy.chalmers.se> to support MMC-3 complaint DVD+RW units.
 
-The story so far: We all agree that the time has come to establish a 
-kernel infrastructure for cluster filesystems, which will also be 
-useable by user space applications.  Or at least, most of us agree 
-about that.  At Minneapolis we parted on the understanding that we 
-would all read code and find out why (or why not) the GFS kernel 
-support infrastructure can serve the needs of cluster systems beyond 
-GFS, including other cluster filesystems, user space cluster 
-applications, and the Single System Image project.
+and Nigel changed it to this in his 2.6 patch:
 
-    http://sources.redhat.com/cluster/
+  Modified by Nigel Kukard <nkukard@lbsd.net> - support DVD+RW
+  2.4.x patch by Andy Polyakov <appro@fy.chalmers.se>
 
-Last time, Red Hat engineers outnumbered Suse engineers by roughly ten 
-to one.  The Linux Kongress BOF therefore presents an opportunity to 
-redress that imbalance.
+The patch I sent you deleted most of the earlier work and moved the
+rest to cdrom.c, but the comments were not moved over, since the
+earlier authors didn't modify cdrom.c.
 
-Regards,
+Nigel wants to get credit for his work though, so were should we put
+those messages? Is this patch acceptable?
 
-Daniel
+
+ linux-petero/drivers/cdrom/cdrom.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+diff -puN drivers/cdrom/cdrom.c~packet-copyright drivers/cdrom/cdrom.c
+--- linux/drivers/cdrom/cdrom.c~packet-copyright	2004-09-01 20:03:13.075394816 +0200
++++ linux-petero/drivers/cdrom/cdrom.c	2004-09-01 20:31:57.282275528 +0200
+@@ -234,6 +234,12 @@
+   -- Mt Rainier support
+   -- DVD-RAM write open fixes
+ 
++  Nov 5 2001, Aug 8 2002. Modified by Andy Polyakov
++  <appro@fy.chalmers.se> to support MMC-3 compliant DVD+RW units.
++
++  Modified by Nigel Kukard <nkukard@lbsd.net> - support DVD+RW
++  2.4.x patch by Andy Polyakov <appro@fy.chalmers.se>
++
+ -------------------------------------------------------------------------*/
+ 
+ #define REVISION "Revision: 3.20"
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263899AbSLBVk7>; Mon, 2 Dec 2002 16:40:59 -0500
+	id <S264756AbSLBVlD>; Mon, 2 Dec 2002 16:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264756AbSLBVk7>; Mon, 2 Dec 2002 16:40:59 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:44959 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263899AbSLBVk6>; Mon, 2 Dec 2002 16:40:58 -0500
-Subject: Re: [RFC] remove IDESCSI_SG_TRANSFORM (compile fix)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021202182131.A32468@lst.de>
-References: <20021129235353.A13377@lst.de>
-	<20021130004435.GB3182@beaverton.ibm.com>  <20021202182131.A32468@lst.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Dec 2002 22:22:04 +0000
-Message-Id: <1038867724.8952.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265092AbSLBVlD>; Mon, 2 Dec 2002 16:41:03 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11524 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264756AbSLBVlB>; Mon, 2 Dec 2002 16:41:01 -0500
+Date: Mon, 2 Dec 2002 16:46:53 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org, Con Kolivas <conman@kolivas.net>
+Subject: Re: [PATCH] 2.4.20-rmap15a
+In-Reply-To: <Pine.LNX.4.44L.0212021035130.15981-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.3.96.1021202162812.1418A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-02 at 17:21, Christoph Hellwig wrote:
-> On Fri, Nov 29, 2002 at 04:44:35PM -0800, Mike Anderson wrote:
-> > Thanks for catching this Christoph I thought the only use was inside
-> > SCSI. I could make a patch to scsi-misc to add tag back in. Another
-> > option if it is still needed is to switch to "->name == "generic").
-> > 
-> > Though I have not used this interface I thought if one was using an sg
-> > device to a ide-scsi device and the flag was set that sg commands that
-> > where not 100% the same as ATAP commands where translated.
+On Mon, 2 Dec 2002, Rik van Riel wrote:
+
+> On Mon, 2 Dec 2002, Jens Axboe wrote:
+> > On Mon, Dec 02 2002, Andrew Morton wrote:
 > 
-> Well, imho IDESCSI_SG_TRANSFORM is broken in 2.5.  Now that ever block
-> driver implements the sg ioctls a sg request can come from sd or sr
-> aswell.
+> > > So rather than just keeping on calling it a "hack" could you please
+> > > describe what is actually wrong with the idea?
+> >
+> > I've never said that the idea is wrong, it's the solution that is an
+> > ugly hack.
+> 
+> OK, do you have a better idea on how to implement this thing ?
+> 
+> I could be your code monkey if you don't have the time to
+> implement something yourself.
 
-Quite possibly, but newer drivers that might used sd/sr via the new
-API's should also know about the newer standards. Older sg users are not
-always so bright.
+Clearly the patch addresses the problem. However, I have some doubt that
+it can be optimal however tuned. The more we put blocking io ahead of
+non-blocking io, the greater the chance that the system will get so low on
+memory that some of the non-blocking write may act like blocking write, or
+the system may smoothly become dead slow.
 
+Ignoring all the reasons why a major change shouldn't be put into a frozen
+development, if there were a per-device and per-pid queue, then each time
+the elevator were loaded some minimum and maximum number of requests per
+pid could be queued. This would repeat until all requests were processed
+or some max number of requests was handled. 
+
+I think the effect of this would be that under light load many requests
+from a single process would be taken, getting the benefit of sequential io
+and good throughput. If the performance gain justified the overhead the
+per-pid queue could be sorted to keep contiguous requests grouped. If
+there were a lot of processes contending for the device, it would assure
+some degree of fair scheduling without having to scan down or insert in
+one large queue.
+
+Just a thought, clearly this is too large a change to put in at the
+moment, and may have some drawback I missed, or less benefit. It has the
+advantage of not having to scan down all waiting requests for a device,
+which would clearly be too much overhead. The actual decisions aren't all
+that complex at any given point, hopefully CPU usage would reflext this.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

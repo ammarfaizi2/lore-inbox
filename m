@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbTLDWch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 17:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTLDWbz
+	id S263662AbTLDWvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 17:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLDWvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 17:31:55 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:64457 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263636AbTLDWbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 17:31:11 -0500
-Date: Thu, 4 Dec 2003 22:31:09 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
-Subject: 2.4.23-bk bogus edd changeset - Re: 2.4.23 compile error in edd
-In-Reply-To: <Pine.GSO.4.44.0312041620210.25354-100000@math.ut.ee>
-Message-ID: <Pine.SOL.4.58.0312042225300.26114@yellow.csi.cam.ac.uk>
-References: <Pine.GSO.4.44.0312041620210.25354-100000@math.ut.ee>
+	Thu, 4 Dec 2003 17:51:52 -0500
+Received: from out006pub.verizon.net ([206.46.170.106]:50572 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S263662AbTLDWvk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 17:51:40 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: "Rahsheen Porter Sr." <microrahsheen@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: HPT366 not booting with 2.6.0tests
+Date: Thu, 4 Dec 2003 17:51:35 -0500
+User-Agent: KMail/1.5.1
+References: <20031204160753.3bd3879a.microrahsheen@comcast.net>
+In-Reply-To: <20031204160753.3bd3879a.microrahsheen@comcast.net>
+Organization: None that appears to be detectable by casual observers
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312041751.35707.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.10.15] at Thu, 4 Dec 2003 16:51:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
-
-2.4.23-bk has a changeset (post 2.4.23 release TAG) that makes edd not
-compile as Meelis Roos already reported:
-
-On Thu, 4 Dec 2003, Meelis Roos wrote:
-> gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup  -DEXPORT_SYMTAB -c setup.c
-> setup.c: In function `copy_edd':
-> setup.c:734: error: `DISKSIG_BUFFER' undeclared (first use in this function)
-> setup.c:734: error: (Each undeclared identifier is reported only once
-> setup.c:734: error: for each function it appears in.)
-> make[1]: *** [setup.o] Error 1
+On Thursday 04 December 2003 16:07, Rahsheen Porter Sr. wrote:
+>I've been trying to get one of the 2.6.0-test kernels to work for a
+>while now and have been having no luck.
 >
-> DISKSIG_BUFFER is nowhere to be seen.
+>Latest attempt was that I compiled 2.6.0-test11. I compiled in
+>ext3 and HPT366/37. My root partition is /dev/hde1 and is ext3. The
+>kernel boots and recognizes the HPT366 controller just fine, but it
+>doesn't actually ackknowledge ide2 and ide3 as it should. It only
+> sees ide0 and ide1. This results in a kernel panic:
+>
+>Kernel panic: VFS: Unable to mount root fs on unknown-block(33,1)
 
-Further, looking at the header files the closest constant that does exist
-is #define DISK80_SIG_BUFFER 0x228 from include/asm-i386/edd.h.
+Been there, done that, even bought the T-shirt...
 
-However, changing DISKSIG_BUFFER to DISK80_SIG_BUFFER causes the kernel to
-reboot the computer as soon as it starts booting.  Basically I select it
-in grub and the screen changes graphics mode and by the time it has
-finished the switch the computer reboots.
+That error here has historically been a typu in the lilo.conf or 
+grub.conf, wrong pointer to the / filesystems partition.
+So check your root(hd0:0) line.  Compare it with a good boots setting.
 
-2.4.23-bk at the 2.4.23 release TAG works fine and compiles fine with the
-same .config.
+>This has been working fine with 2.4.20. I tried coping the .config
+>directly and doing "make oldconfig". I've started from scratch. I've
+>toyed with booting off-board chipsets first (which doesn't seem to
+> apply anyway), and I'm just stumped at this point. Any ideas?
+>
+>this is an Abit BP6 dual Celeron system.
+>/dev/hda is ide-cdrom (seen at boot)
+>/dev/hdb is ide-scsi zip-drive
+>/dev/hdc is ide-scsi cdwriter (seen at boot)
+>/dev/hdd is an ide-disk
+>/dev/hde is an ide-disk
+>
+>(attached is my .config)
+>
+>Thanks in advance for any help. :)
 
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

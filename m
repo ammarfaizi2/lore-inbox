@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbTJNUoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 16:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTJNUoO
+	id S262449AbTJNUt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 16:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbTJNUt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 16:44:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60171 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261869AbTJNUoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 16:44:08 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [x86] Access off the bottom of stack causes a segfault?
-Date: 14 Oct 2003 13:43:37 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bmhn5p$oba$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0310141320020.3869-100000@nondot.org> <Pine.LNX.4.53.0310141510590.2211@chaos>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Tue, 14 Oct 2003 16:49:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:43220 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262449AbTJNUtW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 16:49:22 -0400
+Date: Tue, 14 Oct 2003 13:48:39 -0700
+From: Greg KH <greg@kroah.com>
+To: "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>
+Cc: "Murray, Scott" <scott_murray@stream.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Hot Swap - Resource Allocation Problem.
+Message-ID: <20031014204839.GD17026@kroah.com>
+References: <903E17B6FF22A24C96B4E28C2C0214D70104BDD5@sr-bng-exc01.int.tsbu.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <903E17B6FF22A24C96B4E28C2C0214D70104BDD5@sr-bng-exc01.int.tsbu.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.53.0310141510590.2211@chaos>
-By author:    "Richard B. Johnson" <root@chaos.analogic.com>
-In newsgroup: linux.dev.kernel
-> 
-> > main:
-> >         mov DWORD PTR [%ESP - 16004], %EBP    # Save EBP to stack
-> 
-> BAM **INTERRUPT** writes return address below stack-pointer.
-> 
+On Tue, Oct 14, 2003 at 06:18:04PM +0530, Daheriya, Adarsh wrote:
+> > hi Scott,
+> > 
+> > i am using your hot swap driver for one of our boards here. I have
+> > back-ported the driver to 2.4.18 kernel.
 
-Since we're in user mode, interrupts don't matter, but signals have
-the same effect.
+For 2.4, I think that Scott had a patch that would require the user to
+reserve pci resources at boot time to solve this problem.
 
-Note that this is a matter of the ABI definition.  For example, in the
-x86-64 ABI there is a designated region of well-defined size below
-%rsp called the redzone, which signals aren't allowed to clobber.
+See the linux pci hotplug devel mailing list archives for the patch and
+a description of how to get this to work on 2.4.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Hope this helps,
+
+greg k-h

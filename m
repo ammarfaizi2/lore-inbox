@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269022AbUJQDVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269028AbUJQDYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269022AbUJQDVC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 23:21:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269024AbUJQDVC
+	id S269028AbUJQDYr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 23:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUJQDYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 23:21:02 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:62104 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269022AbUJQDVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 23:21:00 -0400
-Message-ID: <4171E515.20301@yahoo.com.au>
-Date: Sun, 17 Oct 2004 13:20:53 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de,
-       axboe@suse.de
-Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
-References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com> <20041016171458.4511ad8b.akpm@osdl.org> <4171C20D.1000105@pobox.com> <4171C9CD.4000303@yahoo.com.au> <4171D5F8.8050504@pobox.com> <4171D6A0.4030200@yahoo.com.au> <4171D982.10605@yahoo.com.au> <4171E28D.1030805@pobox.com>
-In-Reply-To: <4171E28D.1030805@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 16 Oct 2004 23:24:47 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:38098 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269028AbUJQDYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 23:24:45 -0400
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Pavel Machek <pavel@ucw.cz>, M <mru@mru.ath.cx>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097976283.2148.34.camel@krustophenia.net>
+References: <41650CAF.1040901@unimail.com.au>
+	 <20041007103210.GA32260@atrey.karlin.mff.cuni.cz>
+	 <yw1x7jq2n6k3.fsf@mru.ath.cx>  <20041007143245.GA1698@openzaurus.ucw.cz>
+	 <1097956343.2148.17.camel@krustophenia.net>
+	 <1097963167.13226.4.camel@localhost.localdomain>
+	 <1097976283.2148.34.camel@krustophenia.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1097979705.13269.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 17 Oct 2004 03:21:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Another thing that's been bugging me...
-> 
-> Is the variable 'all_zones_ok' initialized in all pertinent paths?  I'm 
-> too slack to check, but I worry, since the variable moved up one scope 
-> level.
-> 
+On Sul, 2004-10-17 at 02:24, Lee Revell wrote:
+> > And heavily reduced accuracy on a lot of laptops where 1000Hz
+> > is enough to make the clock slide every time the battery state is
+> > queried or an SMM event triggers.
+> Wouldn't such a laptop be horribly broken?  1ms is a LONG time to
+> disable interrupts.  That's millions of CPU cycles...
 
-Yes - the for loop is going to execute at least once so there
-is no way to avoid the first all_zones_ok = 1;
+Yes, and most laptops have this problem. They use SMM traps to talk to
+the battery including huge delay loops and during those SMM traps no
+interrupt code runs.
+
+> > Getting the best of both worlds depends on the stuff discussed at OLS
+> > being finished, then you can have 1Khz accurancy and battery life
+> I was not there but I imagine this involves a way to get 1khz accuracy
+> with a 100Hz timer interrupt rate?
+
+Think about
+
+	add_timeout(timer, when, precision_desired)
+
+

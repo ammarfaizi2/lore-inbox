@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310329AbSCKROv>; Mon, 11 Mar 2002 12:14:51 -0500
+	id <S310483AbSCKRQM>; Mon, 11 Mar 2002 12:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310443AbSCKROg>; Mon, 11 Mar 2002 12:14:36 -0500
-Received: from 99dyn73.com21.casema.net ([62.234.30.73]:22732 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S310408AbSCKROQ>; Mon, 11 Mar 2002 12:14:16 -0500
-Message-Id: <200203111714.SAA01820@cave.bitwizard.nl>
-Subject: Re: [Fwd: Re: Dog slow IDE]
-In-Reply-To: <E16kRdg-0000pi-00@the-village.bc.nu> from Alan Cox at "Mar 11,
- 2002 03:23:04 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 11 Mar 2002 18:14:06 +0100 (MET)
-CC: Lionel Bouton <Lionel.Bouton@inet6.fr>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-notice1: This Email contains my Email address. This grants you the right
-X-notice2: to communicate with me using this address, related to the subject
-X-notice3: in this message. Unsollicitated mass-mailings are explictly 
-X-notice4: forbidden here, and by Dutch law. 
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S310458AbSCKRPx>; Mon, 11 Mar 2002 12:15:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39691 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310443AbSCKRPh>; Mon, 11 Mar 2002 12:15:37 -0500
+Subject: Re: [PATCH] 2.5.6 IDE 19
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Mon, 11 Mar 2002 17:30:56 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3C8CE34B.4030800@evision-ventures.com> from "Martin Dalecki" at Mar 11, 2002 06:03:07 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16kTdQ-0001AB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > I don't know if the AMD-768 IDE is supported yet.
-> > Anyone ?
-> 
-> It works nicely in the -ac kernel tree. Its not supported in the base
-> tree.
+> OK, so there is no f*cking magic utility from IBM to do suspend
+> of MicroDrives under linux through the TASKFILE interface at all
+> as you have climed!
 
-  Bus  0, device  16, function  0:
-    PCI bridge: Advanced Micro Devices [AMD] AMD-768 [??] PCI (rev 4).
-      Master Capable.  No bursts.  Min Gnt=12.
+I wrote some bits for the PC110 to work around the APM problem.
 
-Sounds like a PCI bridge, the machine works just fine. What's "not
-supported" about it?
+> > No because Microsoft implement the bloody standard in the first place. It
+> Hack, then tell me what I'm at?
 
-I'm still running the 2.4.16, patched with an Andre-ide-patch. 
+I'd hope implementing the bloody standard. 
 
-				Roger. 
+> Andre Hedrick will may kill you... However apparently we agree that
+> there is something wrong with the current driver.
 
+Yes. There is an awful lot wrong
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+> It wasn't a claim but just a suspiction. So this is cleared.
+> But apparently there is no special IBM command using taskfile
+> to do magic things to it. So therefore it's still valid:
+> your example was indeed a mock-up.
+
+There are standard commands for power management, and for cache flush.
+
+> to them. But the application notes from IBM and actual code
+> from different operating systems gives a much better formal
+> description of what is needed anyway. Or are you going to claim
+> that narrative languaue is more precise then actual C code?
+
+That depends if the C code is right.
+
+Understand - I really appreciate the fact you are planning to tackle this
+its just the way it comes across on correctness or lack thereof I find a
+little alarming. Maybe I am misjudging you - if so I certainly apologise
+
+Alan

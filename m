@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315894AbSEGPhX>; Tue, 7 May 2002 11:37:23 -0400
+	id <S315877AbSEGPm2>; Tue, 7 May 2002 11:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315895AbSEGPhW>; Tue, 7 May 2002 11:37:22 -0400
-Received: from angband.namesys.com ([212.16.7.85]:18311 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S315894AbSEGPhU>; Tue, 7 May 2002 11:37:20 -0400
-Date: Tue, 7 May 2002 19:37:19 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Chris Mason <mason@suse.com>
-Cc: Hans Reiser <reiser@namesys.com>, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] [BK] [2.4] Reiserfs changeset 2 out of 4, please apply.
-Message-ID: <20020507193719.A28170@namesys.com>
-In-Reply-To: <200205071505.g47F5iE04039@namesys.com> <1020785252.32097.165.camel@tiny>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S315876AbSEGPm1>; Tue, 7 May 2002 11:42:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:47232 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315871AbSEGPmZ>; Tue, 7 May 2002 11:42:25 -0400
+Date: Tue, 7 May 2002 11:44:36 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Samuel Maftoul <maftoul@esrf.fr>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100: wait_for_cmd_done timeout (2.4.19-pre2/8)
+In-Reply-To: <20020507170621.A3155@pcmaftoul.esrf.fr>
+Message-ID: <Pine.LNX.3.95.1020507111647.7166A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 7 May 2002, Samuel Maftoul wrote:
 
-On Tue, May 07, 2002 at 11:27:32AM -0400, Chris Mason wrote:
-> >  You can get this changeset from bk://thebsh.namesys.com/bk/reiser3-linux-2.4
-> >  This changeset are cleaning up reiserfscode, removes stale comments, and
-> >  rewrites some "borrowed" functions so that all of the code in reiserfs subdir
-> >  should now only belong to NAMESYS.
-> It is the end of a release cycle on a stable kernel with huge changes to
-> the IDE layer, and we have at least one unconfirmed report of problems
-> with reiserfs+IDE after a crash.
+> On Tue, May 07, 2002 at 10:53:16AM -0400, Richard B. Johnson wrote:
+> > On Tue, 7 May 2002, Paul Jakma wrote:
+> > 
+> >                  Windows-2000/Professional isn't.
+[SNIPPED..]
 
-That's true.
+> I have the same message but only when I'm using my ieee-1394 devices (
+> firewire ) .
+> I copy from NFS to ieee-1394 HD and approximatively at 256 meg of copied
+> data from network I have the message (wait_for_cmd_timeout), and I'm not
+> able use the network, nor the mounted HD.
+> 
+> I need to say the system is running 2.4.18 SMP ( 2 proc ) with 2go of
+> RAM (higmeme 4-GB from suse ) ( It's a scientific data analysis and extraction system ).
+> 
+> What should I do ? 
+> Should I remove the code you told me to remove
 
-> This is not the right time to send in cleanups like this, especially
-> when they bits as useless as the stuff below.  #1, #2 and #4 look like
-> valid fixes.  #3 should probably be mixed with the iput deadlock fix
-> like Oleg did in 2.5, and should wait until after 2.4.19.
+No. I told someone to comment out a call to wait_for_cmd_timeout() in
+a procedure where this generates spurious (incorrect) warning messages.
 
-#2 and $4 are cleanups, #1 and #3 are bugfixes.
-And iput deadlock fix is too big of a change for 2.4.19, so it is not included.
-Let's see how will it behave in 2.5 first.
-And cleanups are harmless ones, so there is no risk of getting these in.
+You are probably getting real errors (the chip stops) when its interrupts
+can't be handled quickly enough.
 
-In short, these changes are not "huge", and mostly non-intrusive.
+This may be because the firewire driver may be looping in its ISR.
+Typically, when drivers don't play together very well, it's because one
+or both of the drivers were written by people who didn't learn how to play
+together as children. ^;) "It's my CPU (baseball). I'm going to keep it as
+long as I want...."   
 
-Bye,
-    Oleg
+In 100% of the cases where I have been asked to help fix these kinds of
+problems, getting rid of the loops in ISRs fixes the problems forever.
+Yes, I know about "interrupt mitigation...", but what's the use of
+maximizing driver throughput if the computer won't work?
+
+The fixes to lots of chip drivers that hang and lock-up won't
+happen until schools start teaching future software engineers to
+play together as children. Until that time, you can probably fix
+your particular drivers by getting rid of those loops in the ISRs.
+
+A quick-fix, just to prove it to yourself, is to set the loop-counter
+(max_interrupt_work in eepro100.c) to 1. You need to do this in
+the fire-wire driver also, but that's not as simple, several drivers
+do "while something()" in the interrupt routines. That something()
+may be true for a very long time, using CPU cycles that your net-card
+really needs.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129811AbRALStp>; Fri, 12 Jan 2001 13:49:45 -0500
+	id <S130069AbRALSzs>; Fri, 12 Jan 2001 13:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130072AbRALStf>; Fri, 12 Jan 2001 13:49:35 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:45582 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129811AbRALStQ>;
-	Fri, 12 Jan 2001 13:49:16 -0500
-Date: Fri, 12 Jan 2001 19:48:52 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <dwmw2@infradead.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>, <frank@unternet.org>
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-In-Reply-To: <3A5F50B0.ACD5ADB1@colorfullife.com>
-Message-ID: <Pine.LNX.4.30.0101121946120.1810-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129992AbRALSzi>; Fri, 12 Jan 2001 13:55:38 -0500
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:36543 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S129967AbRALSzY>; Fri, 12 Jan 2001 13:55:24 -0500
+Date: Fri, 12 Jan 2001 10:10:59 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: O_NONBLOCK, read(), select(), NFS, Ext2, etc.
+To: rothwell@holly-springs.nc.us, linux-kernel@vger.kernel.org
+Reply-to: dank@alumni.caltech.edu
+Message-id: <3A5F48B3.FC398B81@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Rothwell (rothwell@holly-springs.nc.us) wrote:
 
-On Fri, 12 Jan 2001, Manfred Spraul wrote:
+> How about using fcntl(), O_ASYNC and SIGIO? 
 
-> 2.4 spreads the vectors for the external (hardware, from io apic)
-> interrupts, but 5 ipi vectors have the same priority: reschedule, call
-> function, tlb invalidate, apic error, spurious interrupt.
+Don't think that's supported for disk files yet, at least by the
+kernel.  glibc does aio emulation with threads, which isn't great.
 
-my reading of the errata is that the lost APIC timer IRQ happens only if
-the APIC timer IRQ vector's priority level has more than 2 active vectors.
-It's a very limited case, which does not happen in recent CPUs anyway
-(such as the PIII).
+> Or maybe a broader question: 
+> what's the preferred/working way to do async file i/o on Linux? 
 
-> But that doesn't explain what happens with ne2k cards: neither 2.2 nor
-> 2.4 have more than 2 interrupts in class for the hardware interrupt
-> 16/19.
+SGI has done lots of work on this, using kernel threads; 
+they don't have a patch yet for 2.4.0, but they do support
+2.2.17 and 2.4.0-test10.
 
-yep.
+TUX uses async I/O, I think, but it's inside the kernel.
+I hear plans are afoot for giving userspace async I/O that
+avoids creating threads; that should be more scalable than
+SGI's approach, if it ever happens.
 
-	Ingo
-
+See http://www.kegel.com/c10k.html#aio for links and a few notes.
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,111 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270379AbTGMUhu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 16:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270380AbTGMUhu
+	id S270396AbTGMU6t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 16:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270395AbTGMU6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 16:37:50 -0400
-Received: from apate.telenet-ops.be ([195.130.132.57]:60900 "EHLO
-	apate.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S270379AbTGMUhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 16:37:45 -0400
-Date: Sun, 13 Jul 2003 22:51:42 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+	Sun, 13 Jul 2003 16:58:49 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:31180 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S270405AbTGMU5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 16:57:43 -0400
+Date: Sun, 13 Jul 2003 22:12:27 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Anthony Lichnewsky <lich@tuxfamily.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][WATCHDOG] 2.4.22 - i810-tco patch
-Message-ID: <20030713225142.A21148@infomag.infomag.iguana.be>
+Subject: Re: 2.5.75 doesn't boot at all on x86
+Message-ID: <20030713211227.GA16127@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Anthony Lichnewsky <lich@tuxfamily.org>,
+	linux-kernel@vger.kernel.org
+References: <3F1163A7.6010004@tuxfamily.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <3F1163A7.6010004@tuxfamily.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Sun, Jul 13, 2003 at 03:50:31PM +0200, Anthony Lichnewsky wrote:
+ > After lilo, the kernel is uncompressed, then the screen goes black.
+ > the traditional init message is not even displayed
+ > ( INIT version 2.85 booting ).
+ > It accepts Ctrl+Alt+Suppr for reboot. but that's it.
+ > 
+ > I checked that CONFIG_VT, CONFIG_VGA_CONSOLE are set in my .config.
+ > I suspect the initrd image is not loaded correctly, but I don't have any
+ > real clue. It was generated with mkinitrd version 3.4.43.
+ > Any Idea of what it might be ?
 
-included a patch against 2.4.22-pre5. It adds support for the 82801EB and 82801ER I/O Controller Hub's (ICH5 & ICH5R). This will add watchdog support for the i865 and i875 motherboard chipsets.
-It also removes some extra trailing spaces in the source files.
+Try CONFIG_VIDEO_SELECT=n. If that doesn't help, post your .config.
+(That config option really needs to tighten up what it does in
+ its EDID parser, see http://www.cs.helsinki.fi/linux/linux-kernel/2003-20/0572.html
+ which still isn't fixed...)
 
-Greetings,
-Wim.
-
----
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1080  -> 1.1081 
-#	drivers/char/i810-tco.c	1.13    -> 1.14   
-#	drivers/char/i810-tco.h	1.4     -> 1.5    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/07/13	wim@iguana.be	1.1081
-# [WATCHDOG] Include support for the 82801EB and 82801ER I/O Controller Hub's.
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/i810-tco.c b/drivers/char/i810-tco.c
---- a/drivers/char/i810-tco.c	Sun Jul 13 15:14:03 2003
-+++ b/drivers/char/i810-tco.c	Sun Jul 13 15:14:03 2003
-@@ -25,7 +25,8 @@
-  *	82801AA & 82801AB  chip : document number 290655-003, 290677-004,
-  *	82801BA & 82801BAM chip : document number 290687-002, 298242-005,
-  *	82801CA & 82801CAM chip : document number 290716-001, 290718-001,
-- *	82801DB & 82801E   chip : document number 290744-001, 273599-001
-+ *	82801DB & 82801E   chip : document number 290744-001, 273599-001,
-+ *	82801EB & 82801ER  chip : document number 252516-001
-  *
-  *  20000710 Nils Faerber
-  *	Initial Version 0.01
-@@ -42,9 +43,11 @@
-  *	     clean up ioctls (WDIOC_GETSTATUS, WDIOC_GETBOOTSTATUS and
-  *	     WDIOC_SETOPTIONS), made i810tco_getdevice __init,
-  *	     removed boot_status, removed tco_timer_read,
-- *	     added support for 82801DB and 82801E chipset, general cleanup.
-+ *	     added support for 82801DB and 82801E chipset,
-+ *	     added support for 82801EB and 8280ER chipset,
-+ *	     general cleanup.
-  */
-- 
-+
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
-@@ -167,7 +170,7 @@
-  * Reload (trigger) the timer. Lock is needed so we dont reload it during
-  * a reprogramming event
-  */
-- 
-+
- static void tco_timer_reload (void)
- {
- 	spin_lock(&tco_lock);
-@@ -310,6 +313,7 @@
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801E_0,	PCI_ANY_ID, PCI_ANY_ID, },
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0,	PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE (pci, i810tco_pci_tbl);
-diff -Nru a/drivers/char/i810-tco.h b/drivers/char/i810-tco.h
---- a/drivers/char/i810-tco.h	Sun Jul 13 15:14:03 2003
-+++ b/drivers/char/i810-tco.h	Sun Jul 13 15:14:03 2003
-@@ -1,5 +1,5 @@
- /*
-- *	i810-tco 0.05:	TCO timer driver for i8xx chipsets
-+ *	i810-tco:	TCO timer driver for i8xx chipsets
-  *
-  *	(c) Copyright 2000 kernel concepts <nils@kernelconcepts.de>, All Rights Reserved.
-  *				http://www.kernelconcepts.de
-@@ -8,7 +8,7 @@
-  *	modify it under the terms of the GNU General Public License
-  *	as published by the Free Software Foundation; either version
-  *	2 of the License, or (at your option) any later version.
-- *	
-+ *
-  *	Neither kernel concepts nor Nils Faerber admit liability nor provide
-  *	warranty for any of this software. This material is provided
-  *	"AS-IS" and at no charge.
-
+		Dave

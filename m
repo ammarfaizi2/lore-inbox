@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRAEHHQ>; Fri, 5 Jan 2001 02:07:16 -0500
+	id <S129267AbRAEHPc>; Fri, 5 Jan 2001 02:15:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130759AbRAEHHG>; Fri, 5 Jan 2001 02:07:06 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:60406 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S129610AbRAEHG5>;
-	Fri, 5 Jan 2001 02:06:57 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101050706.f0576lB12236@webber.adilger.net>
-Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
-In-Reply-To: <20010104232541.J1290@redhat.com> "from Stephen C. Tweedie at Jan
- 4, 2001 11:25:41 pm"
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Date: Fri, 5 Jan 2001 00:06:47 -0700 (MST)
-CC: Alexander Viro <viro@math.psu.edu>,
-        Andreas Dilger <adilger@enel.ucalgary.ca>,
-        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S129387AbRAEHPV>; Fri, 5 Jan 2001 02:15:21 -0500
+Received: from lairdtest1.internap.com ([206.253.215.67]:4103 "EHLO
+	lairdtest1.internap.com") by vger.kernel.org with ESMTP
+	id <S129267AbRAEHPM>; Fri, 5 Jan 2001 02:15:12 -0500
+Date: Thu, 4 Jan 2001 23:15:07 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+To: "Michael D. Crawford" <crawford@goingware.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: You've Been Slashdotted
+In-Reply-To: <3A5535F4.A477008@goingware.com>
+Message-ID: <Pine.LNX.4.21.0101042312390.13842-100000@lairdtest1.internap.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen, you write:
-> On Thu, Jan 04, 2001 at 05:31:12PM -0500, Alexander Viro wrote:
-> > BTW, what inumber do you want for whiteouts? IIRC, we decided to use
-> > the same entry type as UFS does (14), but I don't remember what was
-> > the decision on inumber. UFS uses 1 for them, is it OK with you?
+
+On Fri, 5 Jan 2001, Michael D. Crawford wrote:
 > 
-> 0 is used for padding, so 1 makes sense, yes.
+> You're probably not going to have much luck getting any source off any servers
+> tonight.  Might I suggest you pop over to Slashdot and give the clueless some
+> clues on getting their new kernels working?  They need help.
 
-Sorry, but what are whiteouts?  Inode 1 in ext2 is the bad blocks inode,
-so it will never be used for a valid directory entry, but depending on
-what it is we may want to make sure e2fsck is OK with it as well.
+Dunno -- my mirror (ftp-mirror.internap.com, or ftp15.us.kernel.org) is
+only seeing 1-2 Mbps worth of traffic, out of 10 Mbps available to it.  I
+suspect that a lot of mirrors are similar.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+
+Scott
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

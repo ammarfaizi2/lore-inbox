@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbUKKUkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbUKKUm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbUKKUkj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 15:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUKKUki
+	id S262362AbUKKUm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 15:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUKKUkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 15:40:38 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:20915 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262358AbUKKUjt (ORCPT
+	Thu, 11 Nov 2004 15:40:49 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:38798 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262355AbUKKUjF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 15:39:49 -0500
-Subject: [PATCH] Add pci_save_state() to ALSA
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: perex@suse.cz
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1fZhgTC89D0309YJy1ik"
-Message-Id: <1100205586.6496.31.camel@tux.rsn.bth.se>
+	Thu, 11 Nov 2004 15:39:05 -0500
+Date: Thu, 11 Nov 2004 22:41:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Remi Colinet <remi.colinet@free.fr>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
+Message-ID: <20041111214102.GB5453@elte.hu>
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <4193D21A.7010809@free.fr> <4193B2A3.8020103@cybsft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 11 Nov 2004 21:39:46 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4193B2A3.8020103@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-1fZhgTC89D0309YJy1ik
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+* K.R. Foley <kr@cybsft.com> wrote:
 
-Hi
+> +#ifdef RTC_IRQ
+>  	rtc_open_event();
+> +#endif
 
-Some time ago, a patch was merged that removed pci_save_state() and
-pci_restore_state() from various drivers. That patch also added
-pci_restore_state() to sound/core/init.c but didn't add pci_save_state()
-anywhere.
+> +#ifdef RTC_IRQ
+>  	rtc_close_event();
+> +#endif
 
-My laptop doesn't resume (gets what I assume is an ACPI timeout and
-hangs solid) without this small obvious patch.
+indeed. I fixed it a bit differently in my tree, will upload a new patch
+soon.
 
-Signed-off-by: Martin Josefsson <gandalf@wlug.westbo.se>
-
---- linux-2.6.10-rc1-bk21.orig/sound/core/init.c	2004-11-11 18:51:17.000000=
-000 +0100
-+++ linux-2.6.10-rc1-bk21/sound/core/init.c	2004-11-11 20:57:52.000000000 +=
-0100
-@@ -789,6 +789,8 @@ int snd_card_pci_suspend(struct pci_dev=20
- 		return 0;
- 	if (card->power_state =3D=3D SNDRV_CTL_POWER_D3hot)
- 		return 0;
-+	/* save the PCI config space */
-+	pci_save_state(dev);
- 	/* FIXME: correct state value? */
- 	return card->pm_suspend(card, 0);
- }
-
---=20
-/Martin
-
---=-1fZhgTC89D0309YJy1ik
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBk84SWm2vlfa207ERAtkdAKCx4Tcl3dHSJP9pyDm2ET5quTI6XwCfST0s
-Irgnmf0OtbCqauNgbJ1crnI=
-=P2oc
------END PGP SIGNATURE-----
-
---=-1fZhgTC89D0309YJy1ik--
+	Ingo

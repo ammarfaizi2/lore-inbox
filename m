@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbTIPEtV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 00:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTIPEtV
+	id S261773AbTIPF3s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 01:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbTIPF3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 00:49:21 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:55691
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261758AbTIPEtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 00:49:20 -0400
-Message-ID: <3F66960E.7010703@redhat.com>
-Date: Mon, 15 Sep 2003 21:48:14 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030913 Thunderbird/0.4a
-X-Accept-Language: en-us, en
+	Tue, 16 Sep 2003 01:29:48 -0400
+Received: from mail1.nucleus.com ([207.34.101.2]:46610 "EHLO mail.nucleus.com")
+	by vger.kernel.org with ESMTP id S261773AbTIPF3s convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 01:29:48 -0400
+Message-ID: <0e851eca491344bebdb7b1a70a1bc608.jeremyjin@nucleus.com>
+X-EM-APIVersion: 2, 0, 1, 0
+X-Priority: 3 (Normal)
+From: "" <jeremyjin@nucleus.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to know current Kernel Configuration?
+Date: Mon, 15 Sep 2003 23:29:46 -0600
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: "Hu, Boris" <boris.hu@intel.com>, Jamie Lokier <jamie@shareable.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Split futex global spinlock futex_lock
-References: <20030916010313.69E1F2C974@lists.samba.org>
-In-Reply-To: <20030916010313.69E1F2C974@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+Suppose I have redhat Linux 9.0 installed which comes with kernel 2.4.20, and I want to compile 2.4.22 by myself. And I want to keep most configuration settings because I think these settings should be pretty good, how can I know the current configuration of the current kernel? I know make has a option "make oldconfig", but seems like it is the old configuration of the last times "make", not the one of current running kernel. 
 
-> Uli, can we ask you for benchmarks with this change, too?
+Is there any command to list all current running linux kernel configuration which is used to compile that version?
 
-After these changes the code still works but I couldn't really measure
-any differences to the code without the extra attributes.  This is on a
-4p machine with 10 processes running in concurrently using mutexes and
-condvars with 250 threads each.  This might be because either the hash
-function is good or very bad (i.e., hashes all futexes in the same
-bucket or far away).  I guess the extra attributes don't hurt.
-
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+Thanks in advance!
 

@@ -1,36 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135443AbRD3PwC>; Mon, 30 Apr 2001 11:52:02 -0400
+	id <S135386AbRD3Ptm>; Mon, 30 Apr 2001 11:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135427AbRD3Pvw>; Mon, 30 Apr 2001 11:51:52 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:12287 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135413AbRD3Pvp>;
-	Mon, 30 Apr 2001 11:51:45 -0400
-Date: Mon, 30 Apr 2001 11:51:43 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ola Garstad <olag@eunet.no>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Mounting same device many times/mountpoints. Is this legal?
-In-Reply-To: <000901c0d17d$75ab1f40$01000001@pompel>
-Message-ID: <Pine.GSO.4.21.0104301148280.5737-100000@weyl.math.psu.edu>
+	id <S135397AbRD3Ptc>; Mon, 30 Apr 2001 11:49:32 -0400
+Received: from relay.freedom.net ([207.107.115.209]:5643 "HELO relay")
+	by vger.kernel.org with SMTP id <S135386AbRD3PtU>;
+	Mon, 30 Apr 2001 11:49:20 -0400
+X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQGw7uCcDcTXPG1Zu31P5bjDQjtt1SJMVa41U/179hSIcJ5heMaDt0ru
+Date: Mon, 30 Apr 2001 09:48:53 -0600
+Old-From: cacook@freedom.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Problem: Writing to Pana DVD-RAM
+Content-Type: text/plain; charset = "us-ascii" 
+Content-Transfer-Encoding: 7bit
+From: cacook@freedom.net
+Message-Id: <20010430154927Z135386-409+1693@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Originally sent this in HTML, so maybe it didn't get through:
 
 
-On Mon, 30 Apr 2001, Ola Garstad wrote:
+To recap: running Panasonic LF-D101 DVDRAM drive on SCSI (AHA2740) and
+getting segfaults.  On-disk format is UDF2.0, as 2.1 won't mount.
 
-> I am running kernel 2.4.3 on RH 7.0
-> 
-> By mistake I mounted the same device two places. Is this legal???
+Mount, ls, umount, mount, ls, umount, etc - no problem.
 
-Yes, it is.
+Mount, cp <20Mfile>, umount, mount, ls, (20Mfile), umount, mount, ls, (20Mfile),
+rpm -q 20Mfile, umount, etc - no problem.
 
-> On 2.2.x I got an error if I did this.
-> It guess thus could have destoryed the filesystem if had written to it.
+Mount, rm <20Mfile>, Segmentation Fault, umount, (device busy), umount, (device busy), etc.  Reboot without reset and bootup hangs at Running Linuxconf hooks.  Boot to Windows & try to access DVDRAM & it says "Not formatted, would you like to format?"  Power-cycle =only= the DVDRAM & then it works fine.  The Linux CD driver is messing up the controller in the drive.
 
-No (well, aside of the potential filesystem bugs, but their chances of
-fs corruption do not depend on number of mountpoints).
+Reset system & boots fine to Linux.  Mount, ls, (no files), umount, mount, ls, (no files), umount, etc.  Reboot to Win2k & access the DVDRAM, but ondisk format is destroyed.  Win2k asks if I want to reformat.
 
+(Help - Jens has been too busy)
+--
+C.
+
+The best way out is always through.
+      - Robert Frost  A Servant to Servants, 1914
+
+
+Keywords: DVDRAM DVD-RAM LF-D101 LFD101 cdrecord
+
+
+The log is:
+Apr 15 20:58:27 hydra kernel: UDF-fs INFO UDF 0.9.1 (2000/02/29) Mounting
+volume 'UDF Volume', timestamp 2001/03/02 11:55 (1e98)
+Apr 15 20:59:31 hydra kernel: UDF-fs INFO UDF 0.9.1 (2000/02/29) Mounting
+volume 'UDF Volume', timestamp 2001/03/02 11:55 (1e98)
+Apr 15 20:59:50 hydra last message repeated 3 times
+Apr 15 21:00:17 hydra mon[1258]: failure for servers http 987390017 localhost
+Apr 15 21:01:11 hydra kernel: UDF-fs INFO UDF 0.9.1 (2000/02/29) Mounting
+volume 'UDF Volume', timestamp 2001/03/02 11:55 (1e98)
+Apr 15 21:03:25 hydra last message repeated 2 times
+Apr 15 21:03:40 hydra kernel: kernel BUG at inode.c:890!
+Apr 15 21:03:40 hydra kernel: invalid operand: 0000
+Apr 15 21:03:40 hydra kernel: CPU:    0
+Apr 15 21:03:40 hydra kernel: EIP:    0010:[iput_free+216/352]
+Apr 15 21:03:40 hydra kernel: EIP:    0010:[<c01461c8>]
+Apr 15 21:03:40 hydra kernel: EFLAGS: 00010286
+Apr 15 21:03:40 hydra kernel: eax: 0000001b   ebx: cb1ad640   ecx: 00000004
+edx: c5508840
+Apr 15 21:03:40 hydra kernel: esi: c0319560   edi: cb4f2740   ebp: bffff678   esp:
+c9d5ff20
+Apr 15 21:03:40 hydra kernel: ds: 0018   es: 0018   ss: 0018
+Apr 15 21:03:40 hydra kernel: Process rm (pid: 2254, stackpage=c9d5f000)
+Apr 15 21:03:40 hydra kernel: Stack: c02a1610 c02a16f3 0000037a 00000000
+00000012 c3920000 cffb3560 cb4f2740
+Apr 15 21:03:40 hydra kernel:        cb1ad640 c0144a3c cb1ad640 00000184
+fffffff0 c39229c0 cb4f2740 00000000
+Apr 15 21:03:40 hydra kernel:        c39229c0 c013e31c cb4f2740 cfc83d40
+c9d5ff9c 00000000 ffffffeb cb4f2740
+Apr 15 21:03:40 hydra kernel: Call Trace: [error_table+39488/42452]
+[error_table+39715/42452] [d_delete+76/112] [vfs_unlink+316/368]
+[sys_unlink+150/272] [do_page_fault+0/1088] [system_call+51/56]
+Apr 15 21:03:40 hydra kernel: Call Trace: [<c02a1610>] [<c02a16f3>]
+[<c0144a3c>] [<c013e31c>] [<c013e3e6>] [<c0112de0>] [<c0108ffb>]
+Apr 15 21:03:40 hydra kernel:
+Apr 15 21:03:40 hydra kernel: Code: 0f 0b 83 c4 0c eb 69 90 39 1b 74 3c f6 83 f8
+00 00 00 07 75
+Apr 15 21:04:18 hydra mon[1258]: failure for servers http 987390258 localhost
+
+
+ver_linux
+Linux hydra.darkmatter.com 2.4.2-0.1.49 #1 Sun Apr 15 18:12:33 MDT 2001 i686
+unknown
+
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.10.91.0.2
+util-linux             2.10r
+modutils               2.4.2
+e2fsprogs              1.19
+reiserfsprogs          3.x.0b
+PPP                    2.4.0
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.2
+Dynamic linker (ldd)   2.2.2
+Procps                 2.0.7
+Net-tools              1.57
+Console-tools          0.3.3
+Sh-utils               2.0
+Modules Loaded         via82cxxx_audio ac97_codec binfmt_misc autofs
+nls_iso8859-1 nls_cp437
+cdrecord             1.9-6

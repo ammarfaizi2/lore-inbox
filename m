@@ -1,102 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVBXCEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVBXCFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVBXCEF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 21:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVBXCEE
+	id S261751AbVBXCFN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 21:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVBXCFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 21:04:04 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:23510 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261748AbVBXCDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 21:03:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=fuh5et3ka4opbCDI+RkVGDH6wq9hUGRp/10LYx49QPUnf9fiHbFnXAWYTiEuxhnT12e9xl+DTQJKvFM7iRiW7MRC92b+Z0GMmhW3Y+y4vjfgJmHwuAaq/hxz3PsoK0TiwNLdDNjI0rfsfMYuTgh+kqLhNBokYSomE1Jt8ExZ1g4=
-Message-ID: <40f323d005022318032d737779@mail.gmail.com>
-Date: Thu, 24 Feb 2005 03:03:33 +0100
-From: Benoit Boissinot <bboissin@gmail.com>
-Reply-To: Benoit Boissinot <bboissin@gmail.com>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-Cc: Andrew Morton <akpm@osdl.org>, Steven Cole <elenstev@mesatop.com>,
-       linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <20050224004159.GH3163@waste.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1321_10204631.1109210613180"
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	 <421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org>
-	 <421CFF5E.4030402@mesatop.com> <421D09AE.4090100@mesatop.com>
-	 <20050223161653.7cb966c3.akpm@osdl.org>
-	 <20050224004159.GH3163@waste.org>
+	Wed, 23 Feb 2005 21:05:13 -0500
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:32205 "EHLO
+	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261751AbVBXCE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 21:04:58 -0500
+Date: Thu, 24 Feb 2005 03:05:38 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: linux-os <linux-os@analogic.com>
+Cc: linux-kernel@vger.kernel.org, theant@nodivisions.com
+Subject: Re: uninterruptible sleep lockups
+In-Reply-To: <Pine.LNX.4.61.0502230815380.5548@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.58.0502240127500.14927@be1.lrz>
+References: <fa.duv6ag6.p5mth0@ifi.uio.no> <fa.irk349q.1c3si2o@ifi.uio.no>
+ <E1D3ksD-0001NH-MI@be1.7eggert.dyndns.org> <Pine.LNX.4.61.0502230815380.5548@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1321_10204631.1109210613180
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, 23 Feb 2005, linux-os wrote:
+> On Wed, 23 Feb 2005, Bodo Eggert wrote:
+> > linux-os <linux-os@analogic.com> wrote:
 
-On Wed, 23 Feb 2005 16:41:59 -0800, Matt Mackall <mpm@selenic.com> wrote:
-> On Wed, Feb 23, 2005 at 04:16:53PM -0800, Andrew Morton wrote:
-> > Steven Cole <elenstev@mesatop.com> wrote:
-> > >
-> > > > Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be
-> > > > missing.
+> >> You don't seem to understand. A process that's stuck in 'D' state
+> >> shows a SEVERE error, usually with a hardware driver.
 > >
-> > Looking at the IDE update in rc4-mm1:
-> >
-> > +void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
-> > +{
-> > +     ide_hwif_t *hwif = drive->hwif;
-> > +     unsigned int unit = drive->select.all & (1 << 4);
-> > +
-
-If i grep in the tree, for select.all, it looks like from the initialization
-that you can not recover the unit from select.all (ide.c line 235 and 1882)
-since the function used is not invertible.
-
-> >
-> > Could someone try this?
-> >
-> > -     unsigned int unit = drive->select.all & (1 << 4);
-> > +     unsigned int unit = (drive->select.all >> 4) & 1;
+> > Or a network filesystem mount to a no longer existing server or share.
 > 
-> Apparently there's already an 'hdb' sitting in drive->name, perhaps we
-> ought to do disk->disk_name = drive->name for the non-devfs case.
->
-init_hwif_default initialized it right.
+> But that's a whole different problem. That's a systemic problem
+> of "fail-over". Network file-systems really need to interface
+> with an intermediate virtual device that can isolate failed
+> systems and make them look "perfect" to individual machines.
+> 
+> If you don't do this, then as soon as somebody trips over a
+> wire, your database is trashed. I'm surprised that NFS, PCNFS,
+> SMB, etc., actually work as well as everybody seems to
+> think they do. Until the architectural problem is resolved,
+> there are still going to be hung processes, trashed databases,
+> etc.
 
-Could something like this work ?
+You don't run databases over a network filesystem unless you're begging
+for trouble. For the other common purposes you'll usurally get a more
+stable behaviour, since the failure on the client won't prevent the server
+from properly writing the metadata or flushing the cache.
 
-regards,
+> > How to clean up the stuck processes: (This requires a MMU)
+> > Add an error path to each syscall (or create some generic error paths) and
+> > keep the original stack frame. On errors, you can "longjump" (not exactly,
+> > but similar) to the error path after copying the memory. The semaphore will
+> > not be taken, and the code depending on the semaphore will not be executed.
+> >
+> 
+> Again, you are attacking the symptom. The problem could be resolved
+> by using a local disk (or a disk file) for the immediate I/O and
+> the I/O to the file-servers could occur whenever they are available.
 
-Benoit
+a) There are systems without local storage.
 
-------=_Part_1321_10204631.1109210613180
-Content-Type: text/x-patch; name="ide-patch.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="ide-patch.diff"
+b) It won't help while stat()ing a non-cached object.
 
---- linux/drivers/ide/ide-probe.c=092005-02-23 12:16:32.000000000 +0100
-+++ linux-test/drivers/ide/ide-probe.c=092005-02-24 03:02:06.000000000 +010=
-0
-@@ -1269,11 +1269,11 @@ EXPORT_SYMBOL_GPL(ide_unregister_region)
- void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
- {
- =09ide_hwif_t *hwif =3D drive->hwif;
--=09unsigned int unit =3D drive->select.all & (1 << 4);
-+=09unsigned int unit =3D drive->name[2] - 'a' - hwif->index * MAX_DRIVES;
-=20
- =09disk->major =3D hwif->major;
- =09disk->first_minor =3D unit << PARTN_BITS;
--=09sprintf(disk->disk_name, "hd%c", 'a' + hwif->index * MAX_DRIVES + unit)=
-;
-+=09disk->disk_name =3D drive->name;
- =09disk->queue =3D drive->queue;
- }
-=20
+c) This would involve race conditions for e.g. two disconnected nodes on
+   reconnect. AFAI can see, this race can be solved by:
+ c1) The final transaction must be delayed until it's ACKed or 
+     NACKed. This may delay the D-State for some seconds, but not enough.
+ c2) The server will have to keep track of the clients and need to be told
+     when a user left for a trip to the south pole without unmounting. 
+     Very undesirable.
+ c3) Ignoring. Very, very undesireable.
+ c4) Requiring explicit transaction handling by the applications.  
+     Interesting, but not in the near future.
 
-------=_Part_1321_10204631.1109210613180--
+d) This won't allow synchronous updates without falling back to classic 
+   handling.
+
+e) The users will update some files, get a positive reply and shut down
+   their PCs before the changes can be commited to the server. If the
+   server will not come back or the client is not rebooted within
+   reasonable time, this will cause silent data loss.
+
+f) This will require reliable identification of the network server.
+
+g) I'm not only thinking of NFS/..., allthough I used it as _the_ example. 
+   E.g. if you see your IDE drive failing, you'll want to declare it dead
+   instead of waiting $num_of_sectors times five minutes until the kernel
+   decides to give up.
+
+
+I agree that most D-states are problems that need to be fixed instead of
+being worked-around, but sometimes you can't fix the problem without
+access to the crystal-ball-device. Therefore all devices that can block
+will need a manual override (with different probability), and the
+processes that were stuck will need a way to recover or be stuck forever.
+
+Obvoiusly the system is healthy enough to do some important and
+uninterruptible work after those errors occured, so having them stuck will
+be OK for now. Instead, the next task might be freeing the file
+descriptors preventing you from unmounting your removable media or network
+share or allowing really-forced umount.
+
+-- 
+Top 100 things you don't want the sysadmin to say:
+54. Uh huh......"nu -k $USER".. no problem....sure thing...

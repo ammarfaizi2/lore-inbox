@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130359AbRATKzp>; Sat, 20 Jan 2001 05:55:45 -0500
+	id <S131212AbRATLE5>; Sat, 20 Jan 2001 06:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131212AbRATKzf>; Sat, 20 Jan 2001 05:55:35 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:31178 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S130359AbRATKz0>;
-	Sat, 20 Jan 2001 05:55:26 -0500
-Date: Sat, 20 Jan 2001 11:55:24 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: Felix von Leitner <leitner@convergence.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Off-Topic: how do I trace a PID over double-forks?
-In-Reply-To: <20010119013649.A30163@convergence.de>
-Message-ID: <Pine.LNX.4.32.0101201146050.14165-100000@ally.lammerts.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132973AbRATLEr>; Sat, 20 Jan 2001 06:04:47 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:26508 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S131212AbRATLEd>; Sat, 20 Jan 2001 06:04:33 -0500
+Date: Sat, 20 Jan 2001 03:04:30 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: wolfgang@ces.ch, linux-usb-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [PATCH] linux-2.4.1-pre9/drivers/usb/serial/mct_u232.c usb_device_id table broken by new format
+Message-ID: <20010120030430.A3456@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 19 Jan 2001, Felix von Leitner wrote:
-> Now, the back channel for my init has a function that allows to set the
-> PID of a process.  The idea is that the init does not start sendmail but
-> a wrapper.  The wrapper forks, runs sendmail, does some magic trickery
-> to find the real PID of the daemonized sendmail and tells init this PID
-> so init will know it has to restart sendmail when it exits and won't
-> restart the wrapper when that exits.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Someone suggested using fcntl to create a lock and then use fcntl again
-> to see who holds the lock.  That sounded good at first, but fork() does
-> not seem to inherit locks.  Does anyone have another idea?
 
-Take a look at fghack (http://cr.yp.to/daemontools/fghack.html). It
-opens a pipe, gives the write end to the daemon (but the daemon is not
-aware of that) and monitors the read end. When the daemon process
-exits, the read end of the pipe gets EOF.
+	The format of usb_device_id tables was recently changed
+(just before 2.4.0, I think) to include a match_flags field.  A bit
+set to one in that field indicates that a given member of the structure
+contains a valid value that must match.  A bit set to zero indicates
+a wildcard (skip the comparison).  Compiling a driver that uses the old
+format results in that driver having a usb_device_id structure that
+has an all zeroes match_flags, which means don't compare anything.
+That is, it is a completely wildcard and will match every USB interface.
 
-If the daemon closes all filehandles, you're out of luck.
-
-Eric
+	As of 2.4.1-pre9, there appears to be only USB driver that
+was missed: drivers/usb/serial/mct_u232.c.  This patch fixes the problem.
 
 -- 
-Eric Lammerts <eric@lammerts.org> | The best way to accelerate a computer
-http://www.lammerts.org           | running Windows is at 9.8 m/s^2.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="usb-mct.diff"
+
+--- linux-2.4.1-pre9/drivers/usb/serial/mct_u232.c	Thu Dec  7 16:13:38 2000
++++ linux/drivers/usb/serial/mct_u232.c	Sat Jan 20 02:52:44 2001
+@@ -102,7 +102,7 @@
+  * All of the device info needed for the MCT USB-RS232 converter.
+  */
+ static __devinitdata struct usb_device_id id_table [] = {
+-	{ idVendor: MCT_U232_VID, idProduct: MCT_U232_PID },
++	{ USB_DEVICE(MCT_U232_VID, MCT_U232_PID) },
+ 	{ }					/* Terminating entry */
+ };
+ 
+
+--ReaqsoxgOBHFXBhH--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

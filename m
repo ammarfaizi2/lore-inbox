@@ -1,81 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263983AbUA0SJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 13:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbUA0SJQ
+	id S264463AbUA0SRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 13:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbUA0SRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 13:09:16 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:56488 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S263983AbUA0SJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 13:09:13 -0500
-Date: Tue, 27 Jan 2004 19:09:11 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: SMP AMD64 (Tyan S2882) problems.
-Message-ID: <20040127190911.B13769@fi.muni.cz>
-Mime-Version: 1.0
+	Tue, 27 Jan 2004 13:17:20 -0500
+Received: from ultra12.almamedia.fi ([193.209.83.38]:31728 "EHLO
+	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
+	id S264463AbUA0SRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 13:17:09 -0500
+Message-ID: <4016AB1F.9EF8F42@users.sourceforge.net>
+Date: Tue, 27 Jan 2004 20:17:03 +0200
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: Michael A Halcrow <mahalcro@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Filesystem
+References: <OFA97B290B.67DE842E-ON87256E27.0061728C-86256E27.0061BB0E@us.ibm.com.suse.lists.linux.kernel> <p73znc9s724.fsf@nielsen.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, world!\n
+Andi Kleen wrote:
+> Better use a stacking file system or somesuch. Technically this
+> has the advantage that you don't need to cache the data twice (crypto
+> loop keeps both unencrypted and crypted data in the page cache)
 
-I have a new Opteron server based on Tyan Thunder K8S Pro (S882GNR) board.
-The storage is 3ware 7506 controller with 4 disks in RAID-5. The system
-has 4GB of RAM, and runs 2.6.1 kernel.
+Not true for device backed loops. At least on device backed loops on
+loop-AES implementation encrypted data in not stored in page cache.
 
-Problem 1:
-	I have tried to run a test load (multiple kernel compiles using
-make -j4, copying a filesystem subtrees, etc), and I have noticed that
-all IRQs go to the CPU0 only. My /proc/interrupts says:
+> The biggest shortcomming in crypto loop is that you cannot change the
+> password easily. Doing so would require reencryption of the whole
+> volume and it is hard to do so in a crash safe way (or you risk loss
+> of the volume when the machine crashes during reencryption)
 
-# cat /proc/interrupts
-           CPU0       CPU1
-  0:    3188815          0    IO-APIC-edge  timer
-  1:      10387          0    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  9:          0          0    IO-APIC-edge  acpi
- 24:      46802          0   IO-APIC-level  eth0
- 27:     384890          0   IO-APIC-level  3ware Storage Controller
-NMI:     903323     881935
-LOC:    3188129    3188158
-ERR:          0
-MIS:          0
+Not true with loop-AES where changing password is either:
 
-Is it normal? How can I set up some IRQ balancing (or at least hard-wire
-3ware for CPU1 and eth0 for CPU0)?
+  gpg --decrypt </root/fskey1.gpg | ( sleep 60; gpg --symmetric >/etc/fskey2.gpg )
+  mv /etc/fskey2.gpg /etc/fskey1.gpg
 
-Output of "dmesg" is at http://www.fi.muni.cz/~kas/tmp/dmesg-K8SPro.txt
+or:
 
-Other problems are not so important or lkml-related:
+  gpg --edit-key "myname"
+  Command> passwd
 
-Problem 2: the 3ware controller does not work correctly on the first
-PCI bus (slot 1 and 2) - in slot 1 it hangs under bigger load (e.g.
-an array rebuild), in slot 2 it hangs during boot in 3ware BIOS.
-It is probably not Linux-specific, but has anyone seen the same problem?
+depending on how gpg key file was encrypted.
 
-Problem 3:
-What the "PCI-DMA: Disabling IOMMU." message in dmesg output means?
+> Another
+> problem is that using the user key makes it easy to use dictionary
+> attacks using known plain text. For example the first block on a ext2
+> file system is always zero and can be easily used to do a dictionary
+> attack based on a weak user password.
 
-Problem 4:
-Does Linux support the hardware sensors on this board? The i2c driver
-AMD8111 seems to be working, but what sensors driver should I use?
+Not true. loop-AES solved this dictionary attack problem in 2001. Mainline
+and kerneli.org versions are vulnerable as always.
 
-Problem 5:
-Is there a 3ware configuration program (tw_cli), which works on AMD64?
+> The standard crypto loop uses
+> fixed IVs too which do not help against this.
 
-	Thanks,
+Not true. Mainline uses simple sector IV. SuSE twofish uses fixed IV which
+is even more vulnerable than mainline. Loop-AES 2.x versions use more secure
+MD5 IV, but they are also compatible with old setups for backward
+compatibility sake.
 
--Yenya
+> Not directly related to the file system, but in a bigger picture the
+> biggest problem with using cryptography regularly in Linux is that
+> there is no nice way for users to prevent pages from being swapped out
+> to disk.  Always when you decrypt a file you risk it ending up
+> unencrypted on the swap partition.  This means even when your file
+> system encrypts great you still risk your data when reading it.
+
+That is what encrypted swap is for. Loop-AES version of loop was rewritten
+in 2001 to be compatible with encrypted swap. That work included removing
+all runtime memory allocations from device backed loops.
+
+Quote from loop-AES README file:
+
+First, run "swapoff -a" to turn off swap devices in your /etc/fstab file.
+Second, add "loop=/dev/loop?" and "encryption=AES128" options to swap lines 
+in your /etc/fstab file. Example:
+
+ /dev/hda666   none   swap   sw,loop=/dev/loop6,encryption=AES128   0   0
+                                ^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^
+Third, there may be old unencrypted data on your swap devices, in which case
+you can try to overwrite that data with command like this:
+
+    dd if=/dev/zero of=/dev/hda666 bs=64k conv=notrunc
+    mkswap /dev/hda666
+
+Fourth, run "swapon -a" and "rm -rf /var/log/ksymoops" and you are done.
+
+> While it would be possible to encrypt swap too I'm not sure this is a
+> good idea: e.g. it requires global key management, which is probably
+> bad.
+
+"swapon -a" reads some random bits from /dev/urandom and recycles old
+encrypted swap data while it generates 64 new random swap keys for each loop
+device that it uses to encrypt swap partitions. No 'global key management'
+problem whatsoever. Encrypted swap has worked fine since 2001.
+
+> And it could cause performance problems.
+
+Optimized assembler implementation of AES cipher works fast enough here.
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|  I actually have a lot of admiration and respect for the PATA knowledge  |
-| embedded in drivers/ide. But I would never call it pretty:) -Jeff Garzik |
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266119AbUBCV5K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 16:57:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266156AbUBCV5K
+	id S265942AbUBCVwq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 16:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbUBCVwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 16:57:10 -0500
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:13426 "EHLO
-	mwinf0202.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S266119AbUBCV5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 16:57:05 -0500
-Date: Tue, 3 Feb 2004 23:14:21 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 37/42]
-Message-ID: <20040203231421.GC10009@zaniah>
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan> <20040202200344.GK6785@dreamland.darkstar.lan> <Pine.GSO.4.58.0402022207240.19699@waterleaf.sonytel.be> <20040203210738.GB1337@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040203210738.GB1337@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+	Tue, 3 Feb 2004 16:52:46 -0500
+Received: from atchoum.afturgurluk.org ([62.4.18.28]:36077 "EHLO
+	daghoba.afturgurluk.org") by vger.kernel.org with ESMTP
+	id S265942AbUBCVwp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 16:52:45 -0500
+Date: Tue, 3 Feb 2004 22:52:50 +0100 (CET)
+From: Mourn <mourn@daghoba.afturgurluk.org>
+To: linux-kernel@vger.kernel.org
+Subject: Mounting hfs cdrom
+Message-ID: <Pine.NEB.4.44.0402032248530.20342-100000@daghoba.afturgurluk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 Feb 2004 at 22:07 +0000, Kronos wrote:
+Hello,
 
-> Ok, I cooked up this patch. BUG() is a function marked as noreturn that is
-> always inlined. Unfortunately, gcc prior to 3.x does not support
-> __always_inline__ attribute, so I had to revert to the old macro with older
-> compiler.
-> 
-> The patch fixes warnings with newer compiler, but not with older ones.
-> Note that the while(1) is needed, otherwise gcc will say that the
-> function marked as noreturn does actually return.
-> 
-> Comments?
-> 
-> diff -Nru -X dontdiff linux-2.4-vanilla/include/asm-i386/page.h linux-2.4/include/asm-i386/page.h
-> --- linux-2.4-vanilla/include/asm-i386/page.h	Tue Nov 11 18:05:52 2003
-> +++ linux-2.4/include/asm-i386/page.h	Tue Feb  3 07:26:04 2004
-> @@ -10,6 +10,7 @@
->  #ifndef __ASSEMBLY__
->  
->  #include <linux/config.h>
-> +#include <linux/compiler.h>
->  
->  #ifdef CONFIG_X86_USE_3DNOW
->  
-> @@ -94,6 +95,26 @@
->   * The offending file and line are encoded after the "officially
->   * undefined" opcode for parsing in the trap handler.
->   */
-> +#ifdef __bug
-> +#if 1	/* Set to zero for a slightly smaller kernel */
-> +__bug void __bugfn(void) {
-> +	while(1) {
-> +		 __asm__ __volatile__(	"ud2\n"
-> +					"\t.word %c0\n"
-> +					"\t.long %c1\n"
-> +					: : "i" (__LINE__), "i" (__FILE__));
-> + 	}
-> +}
+As I received the same error with different kernel version and
+compilation, I thought I had to send you this report.
 
-You must pass __LINE__ and __FILE__ as parameter to this function.
+For information, my kernel is a 2.4.22-grsec with pax enabled.
+When I try to mount in loopback mode an iso of an hfs cdrom, it works
+well, but when I try to mount directly the cdrom, I obtain a kernel BUG
+message. If I re-use mount after that, my kernel finally panics.
 
-regards,
-Philippe Elie
+Here is the message I obtain when I try to mount an HFS cdrom :
+--------------------------------------------------------------------
+Feb  3 22:27:48 cath kernel: kernel BUG at buffer.c:2557!
+Feb  3 22:27:48 cath kernel: invalid operand: 0000
+Feb  3 22:27:48 cath kernel: CPU:    0
+Feb  3 22:27:48 cath kernel: EIP:    0010:[<c021c4f2>]    Tainted: P
+Feb  3 22:27:48 cath kernel: EFLAGS: 00010206
+Feb  3 22:27:48 cath kernel: eax: 000007ff   ebx: 0000000b   ecx: 00000800
+edx: d6d46600
+Feb  3 22:27:48 cath kernel: esi: 00000000   edi: 00000b00   ebp: 00000000
+esp: d61cbda0
+Feb  3 22:27:48 cath kernel: ds: 0018   es: 0018   ss: 0018
+Feb  3 22:27:48 cath kernel: Process mount (pid: 393, stackpage=d61cb000)
+Feb  3 22:27:48 cath kernel: Stack: 00000000 00000b00 00000200 00000000
+00004000 c021a509 00000b00 00000000
+Feb  3 22:27:48 cath kernel:        00000200 00000b00 c17a4800 00000000
+00000001 c021a728 00000b00 00000000
+Feb  3 22:27:48 cath kernel:        00000200 d61cbdf4 c027b883 00000b00
+00000000 00000200 00000b00 00000001
+Feb  3 22:27:48 cath kernel: Call Trace:    [<c021a509>] [<c021a728>]
+[<c027b883>] [<c027aa91>] [<c027b6a2>]
+Feb  3 22:27:48 cath kernel:   [<c0313b85>] [<c021dce7>] [<c022f6a6>]
+[<c021decd>] [<c0230787>] [<c0230a5b>]
+Feb  3 22:27:48 cath kernel:   [<c02308a4>] [<c0230ea7>] [<c01e61e7>]
+Feb  3 22:27:48 cath kernel:
+Feb  3 22:27:48 cath kernel: Code: 0f 0b fd 09 7f 75 3d c0 8b 44 24 20 05
+00 fe ff ff 3d 00 0e
+-----------------------------------------------------------------------
+
+Thanks for your work :)
+
+++
+Damien
+

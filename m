@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270603AbUJTXyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270270AbUJUAQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270603AbUJTXyi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270599AbUJTXsW
+	id S270270AbUJUAQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 20:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270505AbUJUAHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:48:22 -0400
-Received: from pop-a065c05.pas.sa.earthlink.net ([207.217.121.183]:44445 "EHLO
-	pop-a065c05.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S270499AbUJTXr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:47:59 -0400
-From: Eric Bambach <eric@cisu.net>
-Reply-To: eric@cisu.net
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Date: Wed, 20 Oct 2004 18:48:02 -0500
-User-Agent: KMail/1.6.2
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <200410201843.49835.eric@cisu.net>
-In-Reply-To: <200410201843.49835.eric@cisu.net>
+	Wed, 20 Oct 2004 20:07:52 -0400
+Received: from li-22.members.linode.com ([64.5.53.22]:61196 "EHLO
+	www.cryptography.com") by vger.kernel.org with ESMTP
+	id S269175AbUJUAEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 20:04:08 -0400
+Message-ID: <4176FCB8.3060103@root.org>
+Date: Wed, 20 Oct 2004 17:03:04 -0700
+From: Nate Lawson <nate@root.org>
+User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pavel Machek <pavel@ucw.cz>
+CC: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS,
+ ...)
+References: <20041020191531.GC21315@elf.ucw.cz> <1098311478.4989.100.camel@desktop.cunninghams> <20041020225639.GD29863@elf.ucw.cz>
+In-Reply-To: <20041020225639.GD29863@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410201848.02106.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I have been having this nasty habit of sending out unfinished e-mail 
-lately(mis-clicks). Anyways in summary a large affirmative no from key 
-players would solidify Linux's position as being a collaborative and open 
-project ultimately never for sale. I think it would also show large companies 
-who are giving support like Novell and IBM a better idea and a concrete 
-example of what open source and collaborative development is all about.
+Pavel Machek wrote:
+>>>I'm seeing bad problem with N620c notebook (and have reports of more
+>>>machines behaving like this, for example ASUS L8400C.) If I shutdown
+>>>machine with lid closed, opening lid will power the machine up. Ouch.
+>>>2.6.7 behaves okay.
+>>
+>>:> Some people would love to have the machine power up when they open
+>>the lid! Wish my XE3 would do that!
 
-----------------------------------------
-EB
+This problem sounds like a wake GPE is enabled for the lid switch and 
+that it has a _PRW that indicates it can wake the system from S5.  If 
+this is the case, just disabled the GPE.
 
-> All is fine except that I can reliably "oops" it simply by trying to read
-> from /proc/apm (e.g. cat /proc/apm).
-> oops output and ksymoops-2.3.4 output is attached.
-> Is there anything else I can contribute?
+> :-). Well for some other people it powers up when they unplug AC
+> power, and *that* is nasty. I'd like my machine to stay powered down
+> when I tell it so.
 
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.
+This is likely a similar GPE problem.  The GPE for the EC fires even in 
+S5.  I think the EC GPE should be disabled in the suspend method.
 
-		--Alan Cox 2000-12-08 
-
-----------------------------------------
+-- 
+Nate

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317785AbSHCU5c>; Sat, 3 Aug 2002 16:57:32 -0400
+	id <S317779AbSHCVCO>; Sat, 3 Aug 2002 17:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSHCU5c>; Sat, 3 Aug 2002 16:57:32 -0400
-Received: from www.jubileegroup.co.uk ([212.22.195.7]:26640 "EHLO
-	www2.jubileegroup.co.uk") by vger.kernel.org with ESMTP
-	id <S317785AbSHCU5b>; Sat, 3 Aug 2002 16:57:31 -0400
-Date: Sat, 3 Aug 2002 22:00:58 +0100 (BST)
-From: Ged Haywood <ged@www2.jubileegroup.co.uk>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19
-In-Reply-To: <Pine.LNX.4.44.0208031520560.20471-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.21.0208032156330.29654-100000@www2.jubileegroup.co.uk>
+	id <S317782AbSHCVCO>; Sat, 3 Aug 2002 17:02:14 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20996 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317779AbSHCVCG>; Sat, 3 Aug 2002 17:02:06 -0400
+Date: Sat, 3 Aug 2002 18:05:12 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: Daniel Phillips <phillips@arcor.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Rmap speedup
+In-Reply-To: <3D4B692B.46817AD0@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0208031803050.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Fri, 2 Aug 2002, Andrew Morton wrote:
 
-On Sat, 3 Aug 2002, Mr. James W. Laferriere wrote:
+> No joy, I'm afraid.
 
-> Haven't the tarballs usuaully been archived as 'linux/' instead of
-> 'linux-2.4.19/' ?
+> Guess we should instrument it up and make sure that the hashing
+> and index thing is getting the right locality.
 
-Absolutely not.  Many systems have a symlink 'linux' to the current
-kernel tree, which is a directory e.g. 'linux-2.2.16'.  If the tarball
-extracts into the 'linux' directory it would overwrite the (presumed
-working) source.  I'm sure that the use of 'linux' was an oversight.
-At least I hope it was.
+Could it be that your quad needs to go to RAM to grab a cacheline
+that's exclusive on the other CPU while Daniel's machine can just
+shove cachelines from CPU to CPU ?
 
+What I'm referring to is the fact that the pte_chain_locks in
+Daniel's patch are all packed into a few cachelines, instead of
+having each lock on its own cache line...
 
-73,
-Ged.
+This could explain the fact that the locking overhead plummeted
+on Daniel's box while it didn't change at all on your machine.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

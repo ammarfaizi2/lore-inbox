@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbTEJUgS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 16:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbTEJUgR
+	id S264500AbTEJUkM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 16:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTEJUkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 16:36:17 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:57836 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S264495AbTEJUgR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 16:36:17 -0400
-Date: Sat, 10 May 2003 22:47:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Will Dinkel <wdinkel@atipa.com>
+	Sat, 10 May 2003 16:40:12 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:59264 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264500AbTEJUkL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 16:40:11 -0400
+Date: Sat, 10 May 2003 21:52:51 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86_64 interrupts handled by CPU0 only
-Message-ID: <20030510204701.GB577@elf.ucw.cz>
-References: <1052326953.22518.184.camel@zappa>
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+Message-ID: <20030510205251.GA30275@mail.jlokier.co.uk>
+References: <20030509124042.GB25569@mail.jlokier.co.uk> <Pine.LNX.4.44.0305090856500.9705-100000@home.transmeta.com> <b9hrhg$5v7$1@cesium.transmeta.com> <20030510153156.GA29271@mail.jlokier.co.uk> <3EBD51C6.8030100@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1052326953.22518.184.camel@zappa>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <3EBD51C6.8030100@zytor.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I see this behavior on systems using either the MSI or Tyan dual-opteron
-> boards.  I also see it on RedHat's preview x86_64 distribution (kernel
-> version 2.4.20-9.2).
+H. Peter Anvin wrote:
+> >It doesn't need a PTE.  The vsyscall code could be _copied_ to the end
+> >of the page at 0xbffff000, with the stack immediately preceding it.
+> >
 > 
-> I'm still trying to get 2.5.69 to boot correctly, so I don't have
-> results there yet.  On RedHat it hangs after "Booting the kernel..."
-> (and yes, I have CONFIG_VT, and CONFIG_VT_CONSOLE on).  Any ideas?
+> You don't really want that, though.  If you're doing gettimeofday() in 
+> user space it's critically important that the kernel can modify all 
+> these pages at once.
 
-Turn *on* CONFIG_HUGETLB_PAGE or how is it called.
-								Pavel
+I think gettimeofday() is exceptional, and other system call
+accelerators actually want per-task data.  For example sigprocmask()
+can be done in user space, but that needs a per-task mask
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+For gettimeofday(), the kernel can (a) update the word in the mm of
+currently running tasks on timer interrupts, (b) update the word at
+context switch time, and then only when switching mm.  Ok, I'll admit
+that is looking a bit messed up, and possible SMP synchronisation
+problems too.
+
+How about this: gettimeofday() in user space simply does rdtsc, and if
+the number of clocks since the last jiffy update is above a threshold,
+it does a syscall.  If rdtsc is not available, it always does the
+syscall.
+
+Per-mm vsyscall data is appropriate for that, and no globally shared
+page is required.  (Think of the NUMA! :)
+
+Granted, sharing the vsyscall and stack ptes is not great if the
+vsyscall code expands considerably.  As it is now, it's a very small
+bit of code which costs nothing to copy.
+
+-- Jamie

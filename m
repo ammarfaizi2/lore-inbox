@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270069AbRHGFKK>; Tue, 7 Aug 2001 01:10:10 -0400
+	id <S270072AbRHGFSK>; Tue, 7 Aug 2001 01:18:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270071AbRHGFJ7>; Tue, 7 Aug 2001 01:09:59 -0400
-Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:225 "EHLO
-	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S270069AbRHGFJq>; Tue, 7 Aug 2001 01:09:46 -0400
-Date: Tue, 7 Aug 2001 01:12:28 -0400 (EDT)
-From: Garett Spencley <gspen@home.com>
-X-X-Sender: <gspen@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Encrypted Swap
-In-Reply-To: <200108070420.f774KXl04696@www.2ka.mipt.ru>
-Message-ID: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270073AbRHGFR7>; Tue, 7 Aug 2001 01:17:59 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:23273 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270072AbRHGFRp>;
+	Tue, 7 Aug 2001 01:17:45 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <laughing@shared-source.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.7-ac8 
+In-Reply-To: Your message of "Mon, 06 Aug 2001 19:03:21 +0100."
+             <20010806190320.A5719@lightning.swansea.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 07 Aug 2001 15:17:49 +1000
+Message-ID: <14551.997161469@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmmm, if you have PHYSICAL access to the machine, you can simply reboot and type
-> "linux init=/bin/sh" and after it simply cat /etc/shadow and run John The Ripper....
-> Am i wrong?
+On Mon, 6 Aug 2001 19:03:21 +0100, 
+Alan Cox <laughing@shared-source.org> wrote:
+>2.4.7-ac8
 
-Yes. Generally speaking if you have physical access to a machine then you
-have root.
+<rant>
+The aic7xxx maintainer keeps trying to break the kernel build system,
+introducing special cases just to support his broken makefiles.  At the
+same time he refuses to listen to suggestions for doing it correctly.
+This is unacceptable, and will not work in kbuild 2.5.  The module
+install structure is an exact match for the kernel source structure,
+with no need to install modules elsewhere.  modutils >= 2.3.12 takes
+care of the correct hierarchy, mkinitrd has no problem with the correct
+tree.
+</rant>
 
-Heck why bother trying to crack the passwords when you can just boot up
-with a root disk and access any file on the hard drive that you want? If
-you want to use the machine for malicious purposes while it's running then
-just install a back door.
-
-So as someone else earlier in the thread mentioned, any secure set up
-would not allow non-root users to access swap while the machine's running.
-And if you can get at the hard drive physically while the machine is not
-running then why bother screwing with swap when you have root anyway?
-
-However, writing this got me thinking: you could potentialy go
-through swap if you're after keys for encrypted files...
-
--- 
-Garett Spencley
-
-I encourage you to encrypt e-mail sent to me using PGP
-My public key is available on PGP key servers (http://keyservers.net)
-Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
+Index: 7.41/Rules.make
+--- 7.41/Rules.make Tue, 07 Aug 2001 10:44:16 +1000 kaos (linux-2.4/T/c/47_Rules.make 1.1.2.3 644)
++++ 7.41(w)/Rules.make Tue, 07 Aug 2001 15:10:31 +1000 kaos (linux-2.4/T/c/47_Rules.make 1.1.2.3 644)
+@@ -150,7 +150,7 @@ endif
+ #
+ ALL_MOBJS = $(filter-out $(obj-y), $(obj-m))
+ ifneq "$(strip $(ALL_MOBJS))" ""
+-MOD_DESTDIR ?= $(shell $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
++MOD_DESTDIR := $(shell $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
+ endif
+ 
+ unexport MOD_DIRS
+Index: 7.41/drivers/scsi/aic7xxx/Makefile
+--- 7.41/drivers/scsi/aic7xxx/Makefile Tue, 07 Aug 2001 10:44:16 +1000 kaos (linux-2.4/y/d/24_Makefile 1.1.1.1.1.1 644)
++++ 7.41(w)/drivers/scsi/aic7xxx/Makefile Tue, 07 Aug 2001 15:10:40 +1000 kaos (linux-2.4/y/d/24_Makefile 1.1.1.1.1.1 644)
+@@ -27,7 +27,6 @@ AIC7XXX_OBJS += aic7xxx_pci.o
+ endif
+ 
+ # Override our module desitnation
+-MOD_DESTDIR = $(shell cd .. && $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
+ MOD_TARGET = aic7xxx.o
+ 
+ include $(TOPDIR)/Rules.make
 

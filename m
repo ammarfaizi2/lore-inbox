@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135611AbRDXNiu>; Tue, 24 Apr 2001 09:38:50 -0400
+	id <S135613AbRDXNi6>; Tue, 24 Apr 2001 09:38:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135610AbRDXNiq>; Tue, 24 Apr 2001 09:38:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62731 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135613AbRDXNgv>; Tue, 24 Apr 2001 09:36:51 -0400
-Subject: Re: serial driver not properly detecting modem
-To: srwalter@yahoo.com (Steven Walter)
-Date: Tue, 24 Apr 2001 14:38:08 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010423223847.A3945@hapablap.dyn.dhs.org> from "Steven Walter" at Apr 23, 2001 10:38:48 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135610AbRDXNi5>; Tue, 24 Apr 2001 09:38:57 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:19620 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135614AbRDXNhN>;
+	Tue, 24 Apr 2001 09:37:13 -0400
+Date: Tue, 24 Apr 2001 09:37:07 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: ttel5535@artax.karlin.mff.cuni.cz
+cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.21.0104241508370.11387-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.GSO.4.21.0104240926290.6992-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14s318-00023o-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've fixed this here merely by adding an entry to the PCI table of
-> serial.c for PCI_CLASS_COMMUNICATION_OTHER.  Is this the best way to fix
-> this?  Is there some reason that this shouldn't be done in general?  If
-> not, I'd like to see it fix in the kernel proper.
 
-Most class other devices wont be 16x50 compatible.
 
-> It should be noted that the modem is listed in serial.c's pci_boards,
-> perhaps it would be best for the serial driver to list PCI_ID_ANY for a
-> class, and only use pci_boards to further identify serial ports?  Or
-> would this be too inefficient to correct for a few misguided hardware
-> makers?
+On Tue, 24 Apr 2001, Tomas Telensky wrote:
 
-Probably serial.c should look for class serial || (class_other && in table)
+> of linux distributions the standard daemons (httpd, sendmail) are run as
+> root! Having multi-user system or not! Why? For only listening to a port
+> <1024? Is there any elegant solution?
+
+Sendmail is old. Consider it as a remnant of times when network was
+more... friendly. Security considerations were mostly ignored - and
+not only by sendmail. It used to be choke-full of holes. They were
+essentially debugged out of it in late 90s. It seems to be more or
+less OK these days, but it's full of old cruft. And splitting the
+thing into reasonable parts and leaving them with minaml privileges
+they need is large and painful work.
+
+There are alternatives (e.g. exim, or two unmentionable ones) that are
+cleaner. Besides, there are some, erm, half-promises that next major
+release of sendmail may be a big cleanup. Hell knows what will come out
+of that.
 

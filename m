@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290802AbSAaBSs>; Wed, 30 Jan 2002 20:18:48 -0500
+	id <S290803AbSAaBS2>; Wed, 30 Jan 2002 20:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290798AbSAaBS3>; Wed, 30 Jan 2002 20:18:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3088 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290796AbSAaBSK>;
-	Wed, 30 Jan 2002 20:18:10 -0500
-Message-ID: <3C5899A5.5A5F7272@zip.com.au>
-Date: Wed, 30 Jan 2002 17:11:01 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
-CC: velco@fadata.bg, linux-kernel@vger.kernel.org
-Subject: Re: linux-kernel@vger.kernel.org
-In-Reply-To: <200201310102.CAA17256@faui1a.informatik.uni-erlangen.de>
+	id <S290798AbSAaBSK>; Wed, 30 Jan 2002 20:18:10 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:44257 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S290803AbSAaBR4>;
+	Wed, 30 Jan 2002 20:17:56 -0500
+Date: Wed, 30 Jan 2002 20:17:54 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, raul@viadomus.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
+Message-ID: <20020130201754.B18730@havoc.gtf.org>
+In-Reply-To: <200201301824.g0UIOMO32639@devserv.devel.redhat.com> <5960.1012433626@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5960.1012433626@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, Jan 31, 2002 at 10:33:46AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Weigand wrote:
+On Thu, Jan 31, 2002 at 10:33:46AM +1100, Keith Owens wrote:
+> On Wed, 30 Jan 2002 13:24:22 -0500, 
+> Pete Zaitcev <zaitcev@redhat.com> wrote:
+> >Kernel headers are not to be included in applications.
 > 
-> Momchil Velikov wrote:
-> 
-> +int move_from_swap_cache(struct page *page, unsigned long index,
-> +               struct address_space *mapping)
-> +{
-> +       void **pslot;
-> +       int err;
-> +
-> +       if (!PageLocked(page))
-> +               BUG();
-> +
-> +       spin_lock(&swapper_space.i_shared_lock);
-> +       spin_lock(&mapping->i_shared_lock);
-> +
-> +       err = radix_tree_reserve(&mapping->page_tree, index, &pslot);
-> +       if (!err) {
-> +               swp_entry_t entry;
-> +
-> +               block_flushpage(page, 0);
+> Just to flog this dead horse into the ground, the reverse is also true.
+> Kernel code must not include user space headers (kernel code excludes
+> programs that are used to build the kernel).
 
-block_flushpage inside spinlock is a no-no.  It does I/O,
-and sleeps.
+Wow, does that actually occur?  File references?
 
--
+	Jeff
+
+
+

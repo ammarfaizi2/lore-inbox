@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTENBT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 21:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbTENBT1
+	id S262364AbTENBQd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 21:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTENBQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 21:19:27 -0400
-Received: from smtp1.cwidc.net ([154.33.63.111]:9697 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S262687AbTENBTZ (ORCPT
+	Tue, 13 May 2003 21:16:33 -0400
+Received: from holomorphy.com ([66.224.33.161]:13247 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262364AbTENBQb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 21:19:25 -0400
-Message-ID: <3EC19C9B.3030609@tequila.co.jp>
-Date: Wed, 14 May 2003 10:32:11 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rick Lindsley <ricklind@us.ibm.com>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Missing disc io stats in /proc/stat in 2.5.69?
-References: <200305132110.h4DLAkT02067@owlet.beaverton.ibm.com>
-In-Reply-To: <200305132110.h4DLAkT02067@owlet.beaverton.ibm.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 13 May 2003 21:16:31 -0400
+Date: Tue, 13 May 2003 18:29:13 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: axel@pearbough.net
+Subject: Re: drivers/scsi/aic7xxx/aic7xxx_osm.c: warning is error
+Message-ID: <20030514012913.GG8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, axel@pearbough.net
+References: <20030514004009.GA20914@neon.pearbough.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030514004009.GA20914@neon.pearbough.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, May 14, 2003 at 02:40:09AM +0200, axel@pearbough.net wrote:
+> today compiled 2.5.69-bk8 with gcc version 3.3 20030510 and a warning in
+> drivers/scsi/aic7xxx/aic7xxx_osm.c resulted in an error because of gcc flag
+> -Werror.
+>   gcc -Wp,-MD,drivers/scsi/aic7xxx/.aic7xxx_osm.o.d -D__KERNEL__ -Iinclude
+> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+> -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586
+> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix
+> include  -Idrivers/scsi -Werror  -DKBUILD_BASENAME=aic7xxx_osm
+> -DKBUILD_MODNAME=aic7xxx -c -o drivers/scsi/aic7xxx/aic7xxx_osm.o
+> drivers/scsi/aic7xxx/aic7xxx_osm.c
+> drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_map_seg':
+> drivers/scsi/aic7xxx/aic7xxx_osm.c:767: warning: integer constant is too
+> large for "long" type
+> make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
 
-Rick Lindsley wrote:
+Could you send in your .config? I can't reproduce it here (gcc 3.2).
 
-I didn't know they appeared in the sysfs, I actually paid no attention
-to it, nor did I know it appeared :) or so ...
+Thanks.
 
-> Since apparently the interest in this trivia :) continues, I'll bump the
-> priority and submit a file for Documentation/ by the end of the week.
-> Clemens, if your need is urgent, drop me a line and I can send you a
-> less polished description sooner.
 
-No its not urgent. It all just started because I lost some devices in
-2.4.20 in the /proc/stat on a completly different system, so I looked in
-the 2.5er on my test machine and compared to the 2.4er on the same box,
-and I just thought it might be a similar bug/problem.
-
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+wZyajBz/yQjBxz8RAsXHAKDLXyNJkbrnWJIZHo2h22N45iS6cQCffKbg
-+pVYJ1DDWMfxN7VQecvrtb0=
-=AyTk
------END PGP SIGNATURE-----
-
+-- wli

@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267846AbUHUUqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267860AbUHUUq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267846AbUHUUqK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 16:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267859AbUHUUqJ
+	id S267860AbUHUUq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 16:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267859AbUHUUq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 16:46:09 -0400
-Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:5268 "EHLO
-	dedasys.com") by vger.kernel.org with ESMTP id S267846AbUHUUpj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 16:45:39 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8 (or 7?) regression: sleep on older tibooks broken
-References: <873c2ohjrv.fsf@dedasys.com> <1092569364.9539.16.camel@gaston>
-	<873c2n41hs.fsf@dedasys.com> <1092668911.9539.55.camel@gaston>
-	<87llgfdqb7.fsf@dedasys.com> <874qn353on.fsf@dedasys.com>
-	<1092729140.9539.129.camel@gaston> <87k6vytbjo.fsf@dedasys.com>
-	<1092732749.10506.151.camel@gaston> <87isbh6hxd.fsf@dedasys.com>
-From: davidw@dedasys.com (David N. Welton)
-Date: 21 Aug 2004 22:42:51 +0200
-In-Reply-To: <87isbh6hxd.fsf@dedasys.com>
-Message-ID: <871xi0te7o.fsf@dedasys.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Aug 2004 16:46:28 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:19927 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267860AbUHUUqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 16:46:14 -0400
+Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
+From: Lee Revell <rlrevell@joe-job.com>
+To: Josan Kadett <corporate@superonline.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1093120934.854.155.camel@krustophenia.net>
+References: <1093120934.854.155.camel@krustophenia.net>
+Content-Type: text/plain
+Message-Id: <1093121172.854.157.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 21 Aug 2004 16:46:13 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davidw@dedasys.com (David N. Welton) writes:
+On Sat, 2004-08-21 at 17:41, Josan Kadett wrote:
+> I added the patch, indeed this was just one of the few modifications I tried
+> before. The result is failure, the TCP/IP stack still does the checksum...
+> Perhaps after this modification, the condition that the packet is not
+> "eaten" may not be telling the system that there is a checksum error, but
+> instead, just dropping packets by not igniting the TCP ACK function.
 
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
-> 
-> > > 2.6.6 sleeps/wakes just fine.  I had a halfhearted look through
-> > > the 7 2.6.patch, searching on things like 'ppc' and 'macintosh',
-> > > but didn't 2.6.see much that jumped out at me.
-> 
-> > Best would be if you could try the various 2.6.7-rc patches ...
-> 
->  .... patching, compiling ....
-> 
-> rc1 sleeps/wakes, rc2 does not.
+Please try Kalin's suggestion, instead of my patch.  It's more generic,
+plus my 'patch' didn't handle UDP.
 
-The only thing that jumps out at me is that arch/ppc/mm/cachemap.c
-'moved' to arch/ppc/kernel/dma-mapping.c and seems to have changed
-some as well.  Other than that, I would need more suggestions for
-debugging.
+Lee
 
-Thankyou,
--- 
-David N. Welton
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/
-       Photos: http://www.dedasys.com/photos/

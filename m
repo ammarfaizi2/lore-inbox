@@ -1,103 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbUCLWbS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 17:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbUCLWbS
+	id S263002AbUCLWhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 17:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbUCLWhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 17:31:18 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:21912 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263001AbUCLWbP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 17:31:15 -0500
-Content-Class: urn:content-classes:message
+	Fri, 12 Mar 2004 17:37:16 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:16361 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S263002AbUCLWhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 17:37:05 -0500
+Message-ID: <40523B6C.7070409@matchmail.com>
+Date: Fri, 12 Mar 2004 14:36:28 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C40881.B32BBB0C"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Kernel 2.6.3 patch for Intel Compiler 8.0
-Date: Fri, 12 Mar 2004 14:31:02 -0800
-Message-ID: <7F740D512C7C1046AB53446D37200173FEB957@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel 2.6.3 patch for Intel Compiler 8.0
-Thread-Index: AcQGNbFZ4p/HfpUdR8GS+lTurHorBACRW1HQ
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Ingo at Pyrillion" <ingo@pyrillion.org>,
-       "Norberto Bensa" <norberto+linux-kernel@bensa.ath.cx>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Mar 2004 22:31:03.0078 (UTC) FILETIME=[B3A25460:01C40881]
+To: Jamie Lokier <jamie@shareable.org>
+CC: Nick Piggin <piggin@cyberone.com.au>, Mark_H_Johnson@raytheon.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, m.c.p@wolk-project.de, owner-linux-mm@kvack.org,
+       plate@gmx.tm, William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
+References: <OF62A00090.6117DDE8-ON86256E55.004FED23@raytheon.com> <4051D39D.80207@cyberone.com.au> <20040312193547.GD18799@mail.shareable.org> <405228DC.1010107@matchmail.com> <20040312222139.GG18799@mail.shareable.org>
+In-Reply-To: <20040312222139.GG18799@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Jamie Lokier wrote:
+> Mike Fedyk wrote:
+> 
+>>That would have other side benefits.  If the anon page matches (I'm not 
+>>calling it "!dirty" since that might have other semantics in the current 
+>>VM) what is in swap, it can be cleaned without performing any IO.  Also, 
+>> suspending will have much less IO to perform before completion.
+> 
+> 
+> Exactly those sort of benefits.
 
-------_=_NextPart_001_01C40881.B32BBB0C
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+:)
 
-Ingo, Hi
+> 
+> Btw, When you say "You're saying all anon memory should become
+> swap_cache eventually" it's worth noting that there are benefits to
+> doing it the other way too: speculatively pulling in pages that are
+> thought likely to be good for interactive response, at the expense of
+> pages which have been used more recently, and must remain in RAM for a
+> short while while they are considered in use, but aren't ranked so
+> highly based on some interactivity heuristics.
+> 
 
-We tried it (2.6.4) our side. As long as we tested, we did not need _any
-changes_ to the kernel tree, and I guess what you are missing is a shell
-script that calls icc converting the GCC specific options to Intel
-compiler.
+IIUC, the current VM loses the aging information as soon as a page is 
+swapped out.  You might be asking for a LFU list instead of a LRU list.
+Though, a reverse LFU (MFU -- most frequently used?) used only for swap 
+might do what you want also...
 
-Attached is the script. Just type "make CC=3Dkicc" for example.
+> I.e. fixing the "everything swapped out in the morning" problem by
+> having a long term slow rebalancing in favour of pages which seem to
+> be requested for interactive purposes, competing against the short
+> term balance of whichever pages have been used recently or are
+> predicted by short term readahead.
+> 
 
-Can you be more specific about the issue with dec_and_lock.c?
+There was talk in Andrea's objrmap thread about using two LRU lists, but 
+I forget what the benefits of that were.
 
-Jun
+> Both replicating RAM pages to swap, and replicating swap or
+> file-backed pages to RAM can be speculative and down slowly, over the
+> long term, and when there is little other activity or I/O.
 
-> Hi Jun,
->=20
-> the patch I submitted is for icc 8.0, i.e. I386 platform only.
->
-> Did I understand your last message right that you even do not
-> need a kernel patch for icc, i.e. I386?
->
-> If so, then try to compile the 2.6.3 kernel using icc without
-> applying my patch and see what happens if icc "tries" to compile
-> hybrid code, i.e. mixed assembly and C statements....
-> The current icc 8.0 (and also icc 7.0) makes FATAL mistakes
-> compiling those mixings. Just check the object file that results
-> from "dec_and_lock.c" in arch/i386/lib using a disassembler.
->
-> Rgs, Ingo.
- <<kicc>>=20
+In short, that probably would require some major surgery in the VM.
 
-------_=_NextPart_001_01C40881.B32BBB0C
-Content-Type: application/octet-stream;
-	name="kicc"
-Content-Transfer-Encoding: base64
-Content-Description: kicc
-Content-Disposition: attachment;
-	filename="kicc"
-
-IyBLZXJuZWwgaWNjCiMgVGhpcyBpcyBhIHdyYXBlciBhcm91bmQgaWNjIHRvIGJlIGNvbXBhdGli
-bGUgd2l0aCBnY2MgIGZvciBrZXJuZWwgYnVpbGQKIwoKQVJHUz0kQAoKSUNDQVJHUz0iLWlwbyAt
-aXBvX29iaiIKS0VSTkFSR1M9IlwKLURfX0dOVUNfXz0zIC1EX19HTlVDX01JTk9SX189MCIKCk5F
-V0FSR1M9IiRJQ0NBUkdTIgoKaWYgWyAteiAiJEdDQyIgXSAKdGhlbgoJR0NDPS91c3IvYmluL2dj
-YwpmaQoKZm9yIEFSRyBpbiAkQCAgCmRvCgpjYXNlICRBUkcgaW4KLURfX0tFUk5FTF9fICkKCU5F
-V0FSR1M9IiRORVdBUkdTICRLRVJOQVJHUyAkQVJHIgoJOzsKCi1PMiB8IC1PMyApCglORVdBUkdT
-PSIkTkVXQVJHUyAtTzMiCgk7OwoKLXYgKQoJaWNjIC1WIDI+JjEgfCBncmVwICJWZXJzaW9uXHxJ
-bnRlbChSKSIgfCAgcGVybCAtcGkgLWUgJ3RyL1xuLyAvZDsnCglleGl0IDAKCTs7CgotaGVscCAp
-CglpY2MgLWhlbHAKCWVjaG8KCWVjaG8ga2ljYzogV3JhcHBlciBhcm91bmQgaWNjIGZvciBnY2Mg
-Y29tcGF0aWJpbGl0eQoJZXhpdCAgJD8KCTs7CgotbWFyY2g9aTY4NiApCglORVdBUkdTPSIkTkVX
-QVJHUyAtdHBwNiIKCTs7CgotbWFyY2g9cGVudGl1bTQgKQoJTkVXQVJHUz0iJE5FV0FSR1MgLXRw
-cDciCgk7OwoKL2Rldi9udWxsIHwgKi5TICkKICAgICAgICAkR0NDICRBUkdTCiAgICAgICAgZXhp
-dCAkPwogICAgICAgIDs7CgoKIyBpZ25vcmUgdGhlc2UgZ2NjIG9wdGlvbnMKLVdzdHJpY3QtcHJv
-dG90eXBlcyB8IC1Xd3JpdGUtc3RyaW5ncyB8IC1XaW5saW5lIHwgLVduby11bmluaXRpYWxpemVk
-IAlcCnwgLVduby1mb3JtYXQgfCAtV25vLXRyaWdyYXBocyB8IC1Xbm8tdW51c2VkIHwgLW5vc3Rk
-aW5jIHwgLVdhbGwJXAp8IC1mbm8taW5saW5lLWZ1bmN0aW9ucyB8IC1maW5oaWJpdC1zaXplLWRp
-cmVjdGl2ZSB8IC1mbm8tZXhjZXB0aW9ucyAJXAp8IC1mbm8taW5saW5lIHwgLWZmbG9hdC1zdG9y
-ZSB8IC1mbm8tYnVpbHRpbiB8IC1mZXhjZXB0aW9ucyB8IC1waXBlIAlcCnwgLWZvbWl0LWZyYW1l
-LXBvaW50ZXIgfCAtLXBhcmFtIHwgbWF4LWlubGluZS1pbnNucz0qIAkJCVwKfCAtZnJlbmFtZS1y
-ZWdpc3RlcnMgfCAtZmFsaWduLWZ1bmN0aW9ucz0qIHwgLWZuby1zdHJpY3QtYWxpYXNpbmcgCVwK
-fCAtZm5vLWNvbW1vbiB8IC1mZml4ZWQtcjEzIHwgLW1iLXN0ZXAgfCAtdHJhZGl0aW9uYWwgCQkJ
-XAp8IC1tcHJlZmVycmVkLXN0YWNrLWJvdW5kYXJ5PTIgfCAtbWFyY2g9KiB8IC1tYWxpZ24tZnVu
-Y3Rpb25zPSogCVwKfCAtbWFsaWduLWp1bXBzPSogfCAtbWFsaWduLWxvb3BzPSogfCAtZ3N0YWJz
-ICkKCTs7CgoqICkKCU5FV0FSR1M9IiRORVdBUkdTICRBUkciCgk7Owplc2FjCgpkb25lCgppY2Mg
-JE5FV0FSR1MgCmV4aXQgJD8K
-
-------_=_NextPart_001_01C40881.B32BBB0C--
+Mike

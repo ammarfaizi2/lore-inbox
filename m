@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbTGATmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 15:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTGATmp
+	id S262945AbTGATmL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTGATmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 15:42:45 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:59908 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263380AbTGATmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 15:42:42 -0400
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Jens Axboe <axboe@suse.de>, Grant Grundler <grundler@parisc-linux.org>,
-       davem@redhat.com, suparna@in.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>, alex_williamson@hp.com,
-       bjorn_helgaas@hp.com
-In-Reply-To: <20030701194241.368a6a9c.ak@suse.de>
-References: <1057077975.2135.54.camel@mulgrave>
-	<20030701190938.2332f0a8.ak@suse.de> <1057080529.2003.62.camel@mulgrave> 
-	<20030701194241.368a6a9c.ak@suse.de>
+	Tue, 1 Jul 2003 15:42:11 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:20922 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S262945AbTGATmJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:42:09 -0400
+Subject: RE: How to Avoid GPL Issue
+From: Steven Cole <elenstev@mesatop.com>
+To: "Heater, Daniel (IndSys, " "GEFanuc, VMIC)" 
+	<Daniel.Heater@gefanuc.com>
+Cc: "'G. C.'" <gpc01532@hotmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <A9D3E503844A904CB9E42AD008C1C7FDBA9BD6@vacho3misge.cho.ge.com>
+References: <A9D3E503844A904CB9E42AD008C1C7FDBA9BD6@vacho3misge.cho.ge.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 01 Jul 2003 14:56:49 -0500
-Message-Id: <1057089411.1775.104.camel@mulgrave>
+Organization: 
+Message-Id: <1057089350.13992.37.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 01 Jul 2003 13:55:51 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-01 at 12:42, Andi Kleen wrote:
-> K8 doesn't have a real IOMMU. Instead it extended the AGP aperture to work
-> for PCI devices too.  The AGP aperture is a hole in memory configured 
-> at boot, normally mapped directly below 4GB, but it can be elsewhere
-> (it's actually an BIOS option on machines without AGP chip and when 
-> the BIOS option is off Linux allocates some memory and puts the hole
-> on top of it. This allocated hole can be anywhere in the first 4GB) 
-> Inside the AGP aperture memory is always remapped, you get a bus abort
-> when you access an area in there that is not mapped.
+On Tue, 2003-07-01 at 13:36, Heater, Daniel (IndSys, GEFanuc, VMIC)
+wrote:
+> > We are trying to port a third party hardware driver into Linux kernel and 
+> > this third party vendor does not allow us to publish the source code. Is 
+> > there any approach that we can avoid publicizing the third party code
+> while 
+> > porting to Linux? Do we need to write some shim layer code in Linux kernel
 > 
-> In short to detect it it needs to test against an address range, 
-> a mask is not enough.
-
-It sounds like basically anything not physically in the window is
-bypassable, so you just set BIO_VMERGE_BYPASS_MASK to 1.  Thus, any
-segment within the device's dma_mask gets bypassed, and anything that's
-not has to be remapped within the window.
-
-I don't see where you need to put extra information into the virtual
-merging process.
-
-> > I'm a bit reluctant to put a function like this in because the block
-> > layer does a very good job of being separate from the dma layer. 
-> > Maintaining this separation is one of the reasons I added a dma_mask to
-> > the request_queue, not a generic device pointer.
+> > to interface the third party code? How can we do that? Is there any
+> document 
+> > or samples?
 > 
-> Not sure I understand why you want to do this in the block layer.
-> It's a generic extension of the PCI DMA API. The block devices/layer itself
-> has no business knowing such intimate details about the pci dma 
-> implementation, it should just ask.
+> It depends on what you intend to do with your port. If it is only for
+> internal use (you will not distribute the ported code in any form)
+> then you may not be required to supply the source code to anyone. This is
+> a common interpretation of the GPL (although I can not find explicit
+> language providing for this interpretation in the license).
 
-Virtual merging is already part of the block layer.  It actually
-interferes with the ability to bypass the IOMMU because you can't merge
-virtually if you want to do a bypass.
+Look here:
+http://www.gnu.org/licenses/gpl-faq.html#GPLRequireSourcePostedPublic
 
-James
+Steven
 
 

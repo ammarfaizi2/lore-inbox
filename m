@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268257AbTBMTFk>; Thu, 13 Feb 2003 14:05:40 -0500
+	id <S268271AbTBMTR6>; Thu, 13 Feb 2003 14:17:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268263AbTBMTFk>; Thu, 13 Feb 2003 14:05:40 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:5056 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S268257AbTBMTFi>; Thu, 13 Feb 2003 14:05:38 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Michael Stolovitzsky <romat8@netvision.net.il>
-Subject: Re: NO BOOT since 2.5.60-bk1
-Date: Thu, 13 Feb 2003 20:07:33 +0100
-User-Agent: KMail/1.5
-References: <200302131507.37380.schlicht@uni-mannheim.de> <200302131633.37777.romat8@netvision.net.il>
-In-Reply-To: <200302131633.37777.romat8@netvision.net.il>
-Cc: linux-kernel@vger.kernel.org
+	id <S268270AbTBMTR6>; Thu, 13 Feb 2003 14:17:58 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:24193 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268271AbTBMTR5>;
+	Thu, 13 Feb 2003 14:17:57 -0500
+Date: Thu, 13 Feb 2003 13:19:54 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, <wingel@nano-systems.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+In-Reply-To: <1045161084.1721.30.camel@vmhack>
+Message-ID: <Pine.LNX.4.33.0302131317210.1133-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_6z+S+MDK2ypPBLV";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200302132007.38595.schlicht@uni-mannheim.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_6z+S+MDK2ypPBLV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+On 13 Feb 2003, Rusty Lynch wrote:
 
-On Thursday 13 February 2003 15:33, Michael Stolovitzsky wrote:
-> Apparently your initd fails for whichever reason. Doesn't seem to be a
-> specifically kernel related problem.
+> On Thu, 2003-02-13 at 11:07, Dave Jones wrote:
+> > On Thu, Feb 13, 2003 at 07:51:45AM -0800, Rusty Lynch wrote:
+> > 
+> >  > > You could regard them as 'system' devices, and have them show up in 
+> >  > > devices/sys/, which would make more sense than 'legacy'.
+> >  > Ok, system device is the winner.
+> > 
+> > Why? Stop for a second and look what we have in those dirs.
+> > They both contain things that are essentially motherboard resources.
+> > 
+> > These are add-on cards we're talking about. Surely a more sensible
+> > place for them to live is somewhere under devices/pci0/ or whatever
+> > bus-type said card is for.
+> > 
+> > Whilst there are some watchdogs which _are_ part of the motherboard
+> > chipset (which is arguably 'system'), these still show up in PCI
+> > space as regular PCI devices.
+> > 
+> > Lumping them all into the same category as things like rtc, pic,
+> > fdd etc is just _wrong_.
+> > 
+> > 		Dave
+> > 
+> 
+> The thing I would like to see is an easy way for a user space
+> application to see the available watchdog devices without searching
+> every possible bus type.  If we had that one location to find all
+> watchdog devices, then each device could just be a symbolic link to the
+> device in it's real bus.
 
-Yes it seems so, but I wonder why it worked without any problem with=20
-2.5.60...? So in any kind it IS a kernel related problem...
+Create a watchdog timer class. That will contain all watchdog timers, no 
+matter what bus they are on. 
 
-  Thomas Schlichter
---Boundary-02=_6z+S+MDK2ypPBLV
-Content-Type: application/pgp-signature
-Content-Description: signature
+I apologize for leading you astray with suggesting you treat them as 
+system devices; I was under the assumption they were more important. :)
+They should always be in the most accurate place in the tree. Don't worry 
+about what the user sees; consistency and accuracy are more important..
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+S+z6YAiN+WRIZzQRAkesAKDwUGjXyPwPpA4VrOYdl8z8NRq+WACgoGeT
-9xvjcp8QevtjuoFNctzQP0Q=
-=YkFs
------END PGP SIGNATURE-----
-
---Boundary-02=_6z+S+MDK2ypPBLV--
+	-pat
 

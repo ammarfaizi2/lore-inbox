@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbUACWIz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 17:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUACWIz
+	id S263537AbUACWSU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 17:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUACWSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 17:08:55 -0500
-Received: from gprs214-230.eurotel.cz ([160.218.214.230]:51841 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264255AbUACWIy (ORCPT
+	Sat, 3 Jan 2004 17:18:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:1423 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264272AbUACWQO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 17:08:54 -0500
-Date: Sat, 3 Jan 2004 23:10:01 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       James Bourne <jbourne@hardrock.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-uv3 patch set released
-Message-ID: <20040103221001.GB2775@elf.ucw.cz>
-References: <Pine.LNX.4.51.0312290052470.1599@cafe.hardrock.org> <Pine.LNX.4.58L.0312300935040.22101@logos.cnet> <Pine.LNX.4.58.0312301130430.2065@home.osdl.org>
+	Sat, 3 Jan 2004 17:16:14 -0500
+Date: Sat, 3 Jan 2004 14:16:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Witukind <witukind@nsbm.kicks-ass.org>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040103221604.GJ11061@kroah.com>
+References: <20031231002942.GB2875@kroah.com> <20040101011855.GA13628@hh.idb.hist.no> <20040103055938.GD5306@kroah.com> <20040103140140.3b848e9f.witukind@nsbm.kicks-ass.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312301130430.2065@home.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040103140140.3b848e9f.witukind@nsbm.kicks-ass.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Jan 03, 2004 at 02:01:40PM +0100, Witukind wrote:
+> On Fri, 2 Jan 2004 21:59:38 -0800
+> Greg KH <greg@kroah.com> wrote:
+> 
+> > On Thu, Jan 01, 2004 at 02:18:55AM +0100, Helge Hafting wrote:
+> > > On Tue, Dec 30, 2003 at 04:29:42PM -0800, Greg KH wrote:
+> > > > 
+> > > >  2) We are (well, were) running out of major and minor numbers for
+> > > >     devices.
+> > > 
+> > > devfs tried to fix this one by _getting rid_ of those numbers.
+> > > Seriously - what are they needed for?  
+> > 
+> > But devfs failed in this.  The devfs kernel interface still requires a
+> > major/minor number to create device nodes.
+> 
+> Let's be more precise and not say that "devfs" failed this, but that the
+> current implementation of devfs failed this.
 
-> Anyway, in ide_wait_stat(), the "timeout" value is always either 
-> "WAIT_DRQ" (5*HZ/100) or it is "WAIT_READY" (3*HZ/100). And look at 
-> WAIT_READY a bit more: 
-> 
-> 	#if defined(CONFIG_APM) || defined(CONFIG_APM_MODULE)
-> 	#define WAIT_READY      (5*HZ)          /* 5sec - some laptops are very slow */
-> 	#else
-> 	#define WAIT_READY      (3*HZ/100)      /* 30msec - should be instantaneous */
-> 	#endif /* CONFIG_APM || CONFIG_APM_MODULE */
-> 
-> I bet that the _real_ problem is this. That "3*HZ/100" value is just too 
-> damn short. It has already been increased to 5*HZ for anything that has 
-> APM enabled, but anybody who doesn't use APM gets a _really_ short 
-> timeout.
-> 
-> My suggestion: change the non-APM timeout to something much larger. Make
-> it ten times bigger, rather than leaving it at a value that us so small
-> that a single interrupt could make a difference..
-> 
-> In fact, right now a single timer interrupt on 2.4.x is the difference
-> between waiting 20ms and 30ms. That's a _big_ relative difference.
-> 
-> Andrew - unless you disagree, I'd just be inlined to change both the DRQ
-> and READY timeouts to be a bit larger. On working hardware it shouldn't
-> matter, so how about just making them both be something like 100 msec (and
-> leave that strange really big APM value alone).
+Um, that's all we have to go by right now, sorry.
 
-I believe you should get rid of that CONFIG_APM. Its wrong. CONFIG_APM
-no longer corresponds with "is laptop". You can have laptop with ACPI
-etc.
+> If devfs works good on FreeBSD, it probably means that the current
+> devfs for Linux is badly designed, not that the idea of devfs is bad.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I have no idea how FreeBSD implemented devfs.
+
+If you know how FreeBSD implemented devfs, and how it solves all of the
+problems that I detailed in my original posting, I would be interested.
+
+thanks,
+
+greg k-h

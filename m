@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263956AbTLJVPp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 16:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTLJVPp
+	id S264134AbTLJVYX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 16:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264136AbTLJVYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 16:15:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11240 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263956AbTLJVPn
+	Wed, 10 Dec 2003 16:24:23 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:13477 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264134AbTLJVYV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 16:15:43 -0500
-Date: Wed, 10 Dec 2003 21:15:41 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Kendall Bennett <KendallB@scitechsoft.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "'Andre Hedrick'" <andre@linux-ide.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210211541.GF4176@parcelfarce.linux.theplanet.co.uk>
-References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com> <3FD7081D.31093.61FCFA36@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD7081D.31093.61FCFA36@localhost>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Dec 2003 16:24:21 -0500
+Message-ID: <3FD78F03.7080205@namesys.com>
+Date: Thu, 11 Dec 2003 00:24:19 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vitaly Fertman <vitaly@namesys.com>
+CC: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: forwarded message from Jan De Luyck
+References: <16343.2023.525418.637117@laputa.namesys.com> <200312101604.15299.vitaly@namesys.com> <3FD77A0E.7000909@namesys.com> <200312110002.29307.vitaly@namesys.com>
+In-Reply-To: <200312110002.29307.vitaly@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 11:48:45AM -0800, Kendall Bennett wrote:
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > In fact, a user program written in 1991 is actually still likely
-> > to run, if it doesn't do a lot of special things. So user programs
-> > really are a hell of a lot more insulated than kernel modules,
-> > which have been known to break weekly. 
-> 
-> IMHO (and IANAL of course), it seems a bit tenuous to me the argument 
-> that just because you deliberating break compatibility at the module 
-> level on a regular basis, that they are automatically derived works. 
-> Clearly the module interfaces could be stabilised and published, and if 
-> you consider the instance of a single kernel version in time, that module 
-> ABI *is* published and *is* stable *for that version*. Just because you 
-> make an active effort to change things and actively *not* document the 
-> ABI other than in the source code across kernel versions, doesn't 
-> automatically make a module a derived work. 
+Vitaly Fertman wrote:
 
-Oh, for crying out loud!  Had you ever looked at that "API"?
+>On Wednesday 10 December 2003 22:54, Hans Reiser wrote:
+>  
+>
+>>Vitaly Fertman wrote:
+>>    
+>>
+>>>Hello,
+>>>
+>>>      
+>>>
+>>>>Hello,
+>>>>
+>>>>Today I discovered this in my syslogs, after something strange
+>>>>happening to XFree86 (hung at startup, then dumped me back to the
+>>>>console)
+>>>>
+>>>>is_leaf: free space seems wrong: level=1, nr_items=41, free_space=65224
+>>>>rdkey vs-5150: search_by_key: invalid format found in block 283191. Fsck?
+>>>>vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
+>>>>stat data of [11 12795 0x0 SD] is_leaf: free space seems wrong: level=1,
+>>>>nr_items=41, free_space=65224 rdkey vs-5150: search_by_key: invalid
+>>>>format found in block 283191. Fsck? vs-13070:
+>>>>reiserfs_read_locked_inode: i/o failure occurred trying to find stat
+>>>>data of [11 12798 0x0 SD]
+>>>>        
+>>>>
+>>>this all about fs corruptions. fsck is needed.
+>>>      
+>>>
+>>is this a failure due to bad sector on the drive?
+>>    
+>>
+>
+>No, we return EIO in many places if some data corruption is found 
+>even if the hardware has worked ok. A stat data has not been found
+>here and EIO is returned.
+>
+>--
+>Thanks,
+>Vitaly Fertman
+>
+>
+>  
+>
+fix the code to have a more accurate description.  This is not what I 
+would consider an IO error, and it should not describe itself to users 
+that way.
 
-At least 90% of it are random functions exposing random details of internals.
-Most of them are there only because some in-tree piece of code had been
-"modularized".  Badly.
+Also, please attempt to determine if this is happening on a file system 
+that has only had a recent kernel running on it.  I am concerned that we 
+might have a bug in recent V3.
 
-Due to the dumb mechanism used to export symbols, each of those layering
-violations automatically becomes available to all modules.  And they outnumber
-the things that could be reasonably considered as something resembling an
-API.  Outnumber by order of magnitude.
+-- 
+Hans
 
-The problem had been festering for almost a decade now, and external modules
-also didn't help things - a lot of them contained layering violations of their
-own and asked to export this, this and that.  With no explanation offered and
-too little resistance met.
 
-In 2.7 we need to get the export list back to sanity.  Right now it's a such
-a junkpile that speaking about even a relative stability for it...  Not funny.

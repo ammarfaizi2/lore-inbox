@@ -1,55 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUDDWb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 18:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUDDWb6
+	id S261388AbUDDWag (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 18:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUDDWag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 18:31:58 -0400
-Received: from mail.tpgi.com.au ([203.12.160.57]:45478 "EHLO mail1.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S262888AbUDDWb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 18:31:56 -0400
-Subject: BK tree corruption?
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1081117647.2616.15.camel@laptop-linux.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Mon, 05 Apr 2004 08:27:27 +1000
+	Sun, 4 Apr 2004 18:30:36 -0400
+Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:47318 "EHLO
+	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261388AbUDDWac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 18:30:32 -0400
+Message-ID: <40708CE2.3030105@blueyonder.co.uk>
+Date: Sun, 04 Apr 2004 23:32:02 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5 x86_64 still broken - was Re: 2.6.5-rc3-mm4
+References: <406CD984.2010200@blueyonder.co.uk> <406E9B1D.7070201@blueyonder.co.uk>
+In-Reply-To: <406E9B1D.7070201@blueyonder.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+X-OriginalArrivalTime: 04 Apr 2004 22:30:32.0304 (UTC) FILETIME=[70CAD700:01C41A94]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+SysRq-P (it should have said below)  gives similar output on 2.6.5, 
+definitely looks like something that was changed in 2.6.5-rc3.
+Regards
+Sid.
 
-Is anyone else having issues trying to pull from bkbits.net? I've just
-tried a pull on the 2.6 tree twice and both times got:
+Sid Boyce wrote:
 
-[...]
-Running resolve to apply new work ...
-Using :0.0 as graphical display
-ChangeSet 1.1162 inc: 1.875.1.853,1.875.1.854,1.875.1.855,1.875.1.856,1.875.1.857,1.875.1.858,1.875.1.859,1.875.1.860,1.875.1.861,1.875.1.862,1.875.1.863,1.875.1.864,1.875.1.865,1.875.1.866,1.875.1.867,1.875.1.868,1.875.1.869,1.875.1.870,1.875.1.871,1.875.1.872,1.875.1.873,1.875.1.874,1.875.1.875,1.875.1.876,1.875.1.877,1.875.1.878,1.875.1.879,1.875.1.880,1.875.1.881,1.875.1.882,1.875.1.883,1.875.1.884,1.875.1.885,1.875.1.886,1.875.1.887,1.875.1.888,1.875.1.889,1.875.1.890,1.875.1.891,1.875.1.892,1.875.1.893,1.875.1.894,1.875.1.895,1.875.1.896,1.875.1.897,1.875.1.898,1.875.1.899,1.875.1.900,1.875.1.901,1.875.1.902,1.875.1.903,1.875.1.904,1.875.1.905,1.875.1.906,1.875.1.907,1.875.1.908 -> 1.1163
-ChangeSet revision 1.1163: +0 -0 = 35090
-resolve: applied 275 files in pass 4
-resolve: running consistency check, please wait...
-BitKeeper/deleted/.del-scsi_dma.c~c40099d48309b3d4: bad file checksum, corrupted file?
-Missing file (chk3) torvalds@athlon.transmeta.com|drivers/scsi/scsi_dma.c|20020205174009|32078|c40099d48309b3d4
-100% |=================================================================| FAILED
-Check failed.  Resolve not completed.
-[...]
+> Sid Boyce wrote:
+>
+>> My x86_64 Acer 1501LCe laptop problem persists, it freezes at the 
+>> same point with the HD light on solid. Boot proceeds normally up to 
+>> "found reiserfs format "3.6" with standard journal".
+>> Regards
+>> Sid.
+>>
+> Tried using netconsole, but no network traffic, suppose because the 
+> network is not yet up, so I can't get a call trace captured with ...
+> netconsole=6665@192.168.10.5/eth0,6666@192.168.10.1/00:40:95:30:db:5b
+>
+> From SysRq-B
+> ============
+> Uniform CD-ROM driver Revision: 3.20
+> mice: PS/2 mouse device common for all mice
+> input: PC Speaker
+> i8042.c: Detected active multiplexing controller, rev 1.1.
+> serio: i8042 AUX0 port at 0x60,0x64 irq 12
+> serio: i8042 AUX1 port at 0x60,0x64 irq 12
+> serio: i8042 AUX2 port at 0x60,0x64 irq 12
+> serio: i8042 AUX3 port at 0x60,0x64 irq 12
+> Synaptics Touchpad, model: 1
+> Firmware: 5.8
+> 180 degree mounted touchpad
+> Sensor: 18
+> new absolute packet format
+> Touchpad has extended capability bits
+> -> 4 multi-buttons, i.e besides standard buttons
+> -> multifinger detection
+> -> palm detection
+> input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> NET: Registered protocol family 2
+> IP: routing cache hash table of 4096 buckets, 32Kbytes
+> TCP: Hash tables configured (established 32768 bind 32768)
+> Net: Registered protocol family 1
+> ACPI: (supports S0 S3 S4 S5)
+> found reiserfs format "3.6" with standard journal
+> SysRq: Show Regs
+>
+> Pid: 0, comm: swapper Not tainted 2.6.5-rc3-mm4
+> RIP: 0010:[<ffffffff8010e660>] <ffffffff80103660>{default_idle+32}
+> RSP: 0000:ffffffff8050ffc8  EFLAGS: 00000246
+> RAX: 0000000000000000 RBX: ffffffff8010e640 RCX: ffffffff8040ca40
+> RDX: 0000000000000000 RSI: 00000000ffffffff RDI: 000001001fe86040
+> RBP: 0000000000000000 R08: ffffffff8050e000 R09: 00000000ffffffff
+> R10: 0000000000000000 R11: 00000000ad55ad55 R12: 0000000000000000
+> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+> FS:  0000000000000000(0000) GS:ffffffff80507800(0000) 
+> knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 0000000000000000 CR3: 0000000000101000 CR4: 00000000000006e0
+>
+> Call Trace:<ffffffff8010f5da>{cpu_idle+26} 
+> <ffffffff805117ad>{start_kernel+509}
+>       <ffffffff805110e5>{__init_begin+229}
+> Regards
+> Sid.
+>
 
-Regards,
 
-Nigel
 -- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.
 

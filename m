@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbTHST2S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTHST2F
+	id S261329AbTHSTXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbTHSTWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:28:05 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59665 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261230AbTHST1N
+	Tue, 19 Aug 2003 15:22:34 -0400
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:36049
+	"EHLO bastard") by vger.kernel.org with ESMTP id S261305AbTHSTTl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:27:13 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: scheduler interactivity: timeslice calculation seem wrong
-Date: 19 Aug 2003 19:18:59 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bhtt73$8i4$1@gatekeeper.tmr.com>
-References: <3F41B43D.6000706@cyberone.com.au> <1061276043.6974.33.camel@orbiter>
-X-Trace: gatekeeper.tmr.com 1061320739 8772 192.168.12.62 (19 Aug 2003 19:18:59 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 19 Aug 2003 15:19:41 -0400
+Message-ID: <3F427838.60600@tupshin.com>
+Date: Tue, 19 Aug 2003 12:19:20 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030813 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS regression in 2.6
+References: <3F4268C1.9040608@redhat.com> <3F427122.9040408@redhat.com>
+In-Reply-To: <3F427122.9040408@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1061276043.6974.33.camel@orbiter>,
-Eric St-Laurent  <ericstl34@sympatico.ca> wrote:
+Ulrich Drepper wrote:
 
-| Well, i was looking at TimeSys scheduler, trying something like that in
-| 2.6 requires modifications to many files and it's a PITA to maintain a
-| diff with frequents kernel releases. having a structure in place to
-| plug-in other schedulers sure helps.
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>Ulrich Drepper wrote:
+>
+>  
+>
+>>Go into a directory mounted via NFS.  You need write access.  Then
+>>execute this little program:
+>>    
+>>
+>
+>Just to be clear: the client is running 2.6.  The server in my case runs
+>a 2.4 kernel.
+>
+Duplicated here. Same symptoms with a 2.6.0-test3 server. Works with 2.4 
+client, breaks with 2.6 client.
 
-I agree. In fact I'm pretty sure I said something similar a while ago.
-Unlike you I didn't do any major changes, certainly none I felt were of
-general interest.
+-Tupshin
 
-This could go in 2.7, though, or possibly in 2.6.x depending on how the
-powers that be feel. I think having the scheduler as a plugin is a win
-in terms of having whole special-use algorithms. It would have to be
-done *very* carefully to be sure it didn't add measurable overhead.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.

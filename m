@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133009AbRDSTbs>; Thu, 19 Apr 2001 15:31:48 -0400
+	id <S133051AbRDSTe7>; Thu, 19 Apr 2001 15:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133018AbRDSTbj>; Thu, 19 Apr 2001 15:31:39 -0400
-Received: from denise.shiny.it ([194.20.232.1]:31104 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S133009AbRDSTb0>;
-	Thu, 19 Apr 2001 15:31:26 -0400
-Message-ID: <3ADDDF82.DB37117B@denise.shiny.it>
-Date: Wed, 18 Apr 2001 20:40:02 +0200
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.3 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: SodaPop <soda@xirr.com>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Oscillations in disk write compaction, poor interactive performance
-In-Reply-To: <Pine.LNX.4.30.0104170950350.24360-100000@xirr.com>
+	id <S133024AbRDSTej>; Thu, 19 Apr 2001 15:34:39 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26634 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S133018AbRDSTeT>;
+	Thu, 19 Apr 2001 15:34:19 -0400
+Date: Thu, 19 Apr 2001 21:33:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: AJ Lewis <lewis@sistina.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jes Sorensen <jes@linuxcare.com>,
+        linux-kernel@vger.kernel.org, linux-openlvm@nl.linux.org,
+        Arjan van de Ven <arjanv@redhat.com>,
+        Martin Kasper Petersen <mkp@linuxcare.com>, riel@conectiva.com.br,
+        linux-lvm@sistina.com
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+Message-ID: <20010419213335.E30135@suse.de>
+In-Reply-To: <20010419132927.D10345@sistina.com> <E14qJhd-0007oR-00@the-village.bc.nu> <20010419142400.E10345@sistina.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010419142400.E10345@sistina.com>; from lewis@sistina.com on Thu, Apr 19, 2001 at 02:24:00PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 19 2001, AJ Lewis wrote:
+> Did anyone bother to e-mail the list admins?  Perhaps it was too difficult
+> to figure out who to mail about this, but I know for a fact that Rik van
+> Riel and Jens Axboe could post to linux-lvm@sistina.com.  It would have been
+> nice if they had mentioned something to us.
 
-> The problem is that at the low point in the cycle, the machine is
-> unusable.  It is utterly unresponsive until the writes complete, which can
-> take a very long time (in the case of the ppc machine, several minutes!)
-> Anything that does disk I/O will block for a long time - having 'ls' take
-> two minutes is not a good thing.
+First one gets a mail saying that the mail sent is queued for moderator
+approval, since I'm not on the list. Then later a second mail arrives,
+saying the mail has been rejected by the moderator.
 
-Can you chack how much cpu time do dbflush and kswapd get ?
+I then reply to the admin mail listed, in not-so-kind words (yes I was
+pissed off). Haven't heard anything.
 
-> 2.2 does not exhibit this behaviour.
+> > The openlvm list is open to existing LVM hackers too..
+> 
+> True, but it seems silly to duplicate the load if it's not necessary.
 
-2.2 is much worse IMO.
+It's necessary in that we need an open list.
 
-Bye.
+-- 
+Jens Axboe
 

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275219AbTHRWjW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275234AbTHRWjW
+	id S275059AbTHRWek (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275219AbTHRWek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:39:22 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:55515 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S275219AbTHRWjV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:39:21 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Mike Fedyk" <mfedyk@matchmail.com>,
-       "Hank Leininger" <hlein@progressive-comp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
-Date: Mon, 18 Aug 2003 15:39:15 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEFLFDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030818210238.GG10320@matchmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Mon, 18 Aug 2003 18:34:40 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:24315 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S275059AbTHRWej (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 18:34:39 -0400
+Date: Tue, 19 Aug 2003 00:34:08 +0200 (MEST)
+Message-Id: <200308182234.h7IMY8op012304@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: m.c.p@wolk-project.de
+Subject: Re: [PATCH][2.4.22-rc2] Disable APIC on reboot.
+Cc: fxkuehl@gmx.de, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+       willy@w.ods.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Aug 2003 21:22:10 +0200, Marc-Christian Petersen wrote:
+>> disable_local_APIC() now checks if detect_init_APIC() enabled the
+>> local APIC via the APIC_BASE MSR, and if so it now disables APIC_BASE.
+>> Previously we would leave APIC_BASE enabled, and that made some
+>> BIOSen unhappy.
+>> The SMP reboot code calls disable_local_APIC(). On SMP HW there is
+>> no change since detect_init_APIC() isn't called and APIC_BASE isn't
+>> enabled by us. An SMP kernel on UP HW behaves just like an UP_APIC
+>> kernel, so it disables APIC_BASE if we enabled it at boot.
+>> The UP_APIC disable-before-suspend code is simplified since the existing
+>> code to disable APIC_BASE is moved into disable_local_APIC().
+>> (Felix Kühling originally reported the BIOS reboot problem. This is a
+>> fixed-up version of his preliminary patch.)
+>
+>please correct me if I say something really stupid now but shouldn't the APIC 
+>be disabled only during reboot time and enabled again at a new boot?
+>
+>my experience with this patch is, after a reboot he APIC isn't enabled again 
+>until I power off my machine.
 
-> And why not just catch the ones sent from the kernel?  That's the one that
-> is killing the program because it crashed, and that's the one the
-> origional
-> poster wants logged...
+Seems impossible to me. We _know_ how to enable APIC_BASE,
+otherwise this code wouldn't trigger at all.
+Please give evidence as to what goes wrong, i.e., dmesg logs
+from first (cold) and subsequent (warm) boots.
+(Preferably from a standard 2.4.22-rc2 so I can verify the code.)
 
-	Because sometimes a program wants to terminate. And it is perfectly legal
-for a programmer who needs to terminate his program as quickly as possible
-to do this:
-
-char *j=NULL;
-signal(SIGSEGV, SIG_DFL);
-*j++;
-
-	This is a perfectly sensible thing for a program to do with well-defined
-semantics. If a program wants to create a child every minute like this and
-kill it, that's perfectly fine. We should be able to do that in the default
-configuration without a sysadmin complaining that we're DoSing his syslogs.
-
-	DS
-
-
-
+/Mikael

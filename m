@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135691AbRDSUaT>; Thu, 19 Apr 2001 16:30:19 -0400
+	id <S135686AbRDSUdJ>; Thu, 19 Apr 2001 16:33:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135692AbRDSUaJ>; Thu, 19 Apr 2001 16:30:09 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29889 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135691AbRDSU35>;
-	Thu, 19 Apr 2001 16:29:57 -0400
-Message-ID: <3ADF4AC0.2485C0BC@mandrakesoft.com>
-Date: Thu, 19 Apr 2001 16:29:52 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre4 i686)
-X-Accept-Language: en
+	id <S135692AbRDSUc7>; Thu, 19 Apr 2001 16:32:59 -0400
+Received: from s340-modem3054.dial.xs4all.nl ([194.109.171.238]:8840 "EHLO
+	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id <S135686AbRDSUcr>;
+	Thu, 19 Apr 2001 16:32:47 -0400
+Date: Thu, 19 Apr 2001 23:13:49 +0200 (CEST)
+From: Arjan Filius <iafilius@xs4all.nl>
+X-X-Sender: <arjan@sjoerd.sjoerdnet>
+Reply-To: Arjan Filius <iafilius@xs4all.nl>
+To: <linux-lvm@sistina.com>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-lvm] 2.4.3-ac{6,7} LVM hang
+In-Reply-To: <Pine.LNX.4.21.0104161653140.14442-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.31.0104192311080.1048-100000@sjoerd.sjoerdnet>
 MIME-Version: 1.0
-To: tytso@valinux.com
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        Andreas Dilger <adilger@turbolinux.com>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] ext2 inode size (on-disk)
-In-Reply-To: <20001202014045.F2272@parcelfarce.linux.theplanet.co.uk> <Pine.GSO.4.21.0104190719240.16930-100000@weyl.math.psu.edu> <20010419161003.E17837@snap.thunk.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tytso@valinux.com wrote:
-> In the long run, it probably makes sense to adjust the algorithms to
-> allow for non-power-of-two inode sizes,
+Hello,
 
-If you don't mind, does that imply packing inodes across block
-boundaries?
+Same here as reported.
+restoring lvm.c from 2.4.3 into 2.4.4-pre? "fixes" this. (tested not ac's
+kernel)
 
-Regards,
+Greatings,
 
-	Jeff
+On Mon, 16 Apr 2001, Rik van Riel wrote:
 
+> Hi,
+>
+> 2.4.3-ac4 seems to work great on my test box (UP K6-2 with SCSI
+> disk), but 2.4.3-ac6 and 2.4.3-ac7 hang pretty hard when I try
+> to access any of the logical volumes on my test box.
+>
+> The following changelog entry in Linus' changelog suggests me
+> whom to bother:   ;)
+>  - Jens Axboe: LVM and loop fixes
+>
+> regards,
+>
+> Rik
+> --
+> Virtual memory is like a game you can't win;
+> However, without VM there's truly nothing to lose...
+>
+> 		http://www.surriel.com/
+> http://www.conectiva.com/	http://distro.conectiva.com.br/
+>
+> _______________________________________________
+> linux-lvm mailing list
+> linux-lvm@sistina.com
+> http://lists.sistina.com/mailman/listinfo/linux-lvm
+>
 
 -- 
-Jeff Garzik       | "The universe is like a safe to which there is a
-Building 1024     |  combination -- but the combination is locked up
-MandrakeSoft      |  in the safe."    -- Peter DeVries
+Arjan Filius
+mailto:iafilius@xs4all.nl
+

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267175AbUHITyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267176AbUHITsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267175AbUHITyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUHITyJ
+	id S267176AbUHITsB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUHITpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:54:09 -0400
-Received: from holomorphy.com ([207.189.100.168]:27618 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266921AbUHITxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 15:53:37 -0400
-Date: Mon, 9 Aug 2004 12:53:23 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040809195323.GU11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20040808152936.1ce2eab8.akpm@osdl.org> <20040809112550.2ea19dbf.akpm@osdl.org> <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408091217.50786.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 9 Aug 2004 15:45:06 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:33706 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S266894AbUHIToE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 15:44:04 -0400
+Message-ID: <4117D48B.9000500@tmr.com>
+Date: Mon, 09 Aug 2004 15:46:19 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rick Lindsley <ricklind@us.ibm.com>
+CC: Adrian Bunk <bunk@fs.tum.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1: SCHEDSTATS compile error 
+References: <200408051817.i75IHD715692@owlet.beaverton.ibm.com>
+In-Reply-To: <200408051817.i75IHD715692@owlet.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, akpm wrote:
->>> I'd be suspecting one of the CPU scheduler patches.
+Rick Lindsley wrote:
+> This looks like it could happen if you compile without CONFIG_SMP ...
+> which admittedly I have not tried since the sched-domain code was
+> introduced.  Adrian, was this the situation in your case?
 
-On Monday, August 9, 2004 11:32 am, Jesse Barnes wrote:
->> Yep, that's what I'm looking at now...
+Solved it for me, although running SMP on a old slow PentiumII feels a 
+tad odd. Other than that the system is running very well, I have to try 
+a response test and see how it feels then.
 
-On Mon, Aug 09, 2004 at 12:17:50PM -0700, Jesse Barnes wrote:
-> If I apply everything up to and including schedstat-v10.patch, it
-> boots fine. So it might be sched-init_idle-fork_by_hand-consolidation.patch
-> or something nearby...  Just reverting the sched-single-array.patch
-> wasn't enough.
-
-I can reproduce here (ia64/Altix). Fixing.
-
-
--- wli
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

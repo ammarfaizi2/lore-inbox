@@ -1,67 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267871AbUGWSU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUGWSb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267871AbUGWSU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUGWSU1
+	id S267872AbUGWSb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267877AbUGWSb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:20:27 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:26773 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S267871AbUGWSUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:20:25 -0400
-Subject: Re: [PATCH] Delete cryptoloop
-From: Christophe Saout <christophe@saout.de>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org,
-       Walter Hofmann <lkml-040723143345-5954@secretlab.mine.nu>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200407230901.33814.kevcorry@us.ibm.com>
-References: <2kvT4-5AY-1@gated-at.bofh.it> <2kECW-3a0-7@gated-at.bofh.it>
-	 <E1BnzGM-0005zX-00@gimli.local>  <200407230901.33814.kevcorry@us.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hUz+enPtvGAuuodtMS/u"
-Date: Fri, 23 Jul 2004 20:20:18 +0200
-Message-Id: <1090606819.17093.1.camel@leto.cs.pocnet.net>
+	Fri, 23 Jul 2004 14:31:57 -0400
+Received: from alhambra.mulix.org ([192.117.103.203]:7622 "EHLO
+	granada.merseine.nu") by vger.kernel.org with ESMTP id S267872AbUGWSbf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 14:31:35 -0400
+Date: Fri, 23 Jul 2004 21:31:07 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Robert Love <rml@ximian.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel events layer
+Message-ID: <20040723183107.GB4905@granada.merseine.nu>
+References: <1090604517.13415.0.camel@lucy>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="V0207lvV8h4k8FAm"
+Content-Disposition: inline
+In-Reply-To: <1090604517.13415.0.camel@lucy>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-hUz+enPtvGAuuodtMS/u
-Content-Type: text/plain
+--V0207lvV8h4k8FAm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Am Fr, den 23.07.2004 um 9:01 Uhr -0500 schrieb Kevin Corry:
+On Fri, Jul 23, 2004 at 01:41:57PM -0400, Robert Love wrote:
+> +void send_kmessage(int type, const char *object, const char *signal,
+> +		   const char *fmt, ...)
+> +{
+> +	char *buffer;
+> +	int len;
+> +	int ret;
+> +
+> +	if (!object)
+> +		return;
+> +
+> +	if (!signal)
+> +		return;
+> +
+> +	if (strlen(object) > PAGE_SIZE)
+> +		return;
+> +
+> +	buffer =3D (char *) get_zeroed_page(GFP_ATOMIC);
+> +	if (!buffer)
+> +		return;
+> +
+> +	len =3D sprintf(buffer, "From: %s\n", object);
+> +	len +=3D sprintf(&buffer[len], "Signal: %s\n", signal);
+> +
+> +	/* possible anxiliary data */
+> +	if (fmt) {
+> +		va_list args;
+> +
+> +		va_start(args, fmt);
+> +		len +=3D vscnprintf(&buffer[len], PAGE_SIZE-len-1, fmt, args);
+> +		va_end(args);
+> +	}
+> +	buffer[len++] =3D '\0';
+> +
+> +	ret =3D netlink_send((1 << type), buffer, len);
 
-> > I use cryptoloop and I would be really annoyed if it disappeared in
-> > the stable kernel series. Besides, I read in another mail in this threa=
-d
-> > that dm-crypt will not work with file-based storage (I'm using
-> > cryptoloop on a file), and that it is new and potentially buggy.
->=20
-> Just to clarify this one point...
-> Device-Mapper (and thus dm-crypt) can only create mappings on block-devic=
-es.=20
-> However, in your situation, you could just take a two-step approach of=20
-> creating a loop device on the encrypted file (using losetup), and then us=
-ing=20
-> dm-crypt on top of this loop device.
+Should we be ignoring the return value of netlink_send here, or
+propogating a possible error to the callers?
 
-Yes, just look at the Wiki page on http://www.saout.de/misc/dm-crypt/ ,
-people have contributed a lot of scripts.
+> +	free_page((unsigned long) buffer);
+> +}
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
 
---=-hUz+enPtvGAuuodtMS/u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+--V0207lvV8h4k8FAm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBBAVbiZCYBcts5dM0RAoY7AJ4jL+PM2B6MkDh2BDNf0BgRh5K4owCfXJ0n
-ka33HqG1o4zYcwvf0/vEF9Q=
-=Z0Kp
+iD8DBQFBAVlrKRs727/VN8sRAiZJAJ0ev1TeNZLyS0QODLQlbRUhU6IlggCffDst
+GLzNIjOduodRn9+U3zYrjvI=
+=kfv1
 -----END PGP SIGNATURE-----
 
---=-hUz+enPtvGAuuodtMS/u--
-
+--V0207lvV8h4k8FAm--

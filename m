@@ -1,79 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289515AbSBEOWN>; Tue, 5 Feb 2002 09:22:13 -0500
+	id <S289540AbSBEOdz>; Tue, 5 Feb 2002 09:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289521AbSBEOV4>; Tue, 5 Feb 2002 09:21:56 -0500
-Received: from 200-161-215-36.dsl.telesp.net.br ([200.161.215.36]:4480 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S289515AbSBEOVs>; Tue, 5 Feb 2002 09:21:48 -0500
-Date: Tue, 5 Feb 2002 12:30:01 -0200
-From: Marinho Paiva Duarte <marinho_linux@yahoo.com>
-To: Fabrice Eudes <fabrice.eudes@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't boot 2.4.17 or 2.5.1 kernel
-Message-Id: <20020205123001.0d19596c.marinho_linux@yahoo.com>
-In-Reply-To: <20020204142233.A6154@corwin.ambre.fr>
-In-Reply-To: <20020204113949.A1695@corwin.ambre.fr>
-	<20020204100142.384b9d52.mpd_kernel@yahoo.com>
-	<20020204142233.A6154@corwin.ambre.fr>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-Red Hat GNU/Linux 7.1)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S289537AbSBEOdp>; Tue, 5 Feb 2002 09:33:45 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:5540 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289523AbSBEOde>; Tue, 5 Feb 2002 09:33:34 -0500
+Message-ID: <XFMail.20020205153210.R.Oehler@GDAmbH.com>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Tue, 05 Feb 2002 15:32:10 +0100 (MET)
+From: Ralf Oehler <R.Oehler@GDAmbH.com>
+To: Scsi <linux-scsi@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: one-line-patch against SCSI-Read-Error-BUG()
+Cc: Andrea Arcangeli <andrea@suse.de>, Jens Axboe <axboe@kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I really don't know...
-I use Debain 2.2r3 and always used the Bunk's packages to use 2.4.x
-kernels. Did you try to compile the kernel instead of using the .deb
-version?? 
-I did never use a kernel in .deb format. So, I can not say if it is
-the problem.
-Try to get a kernel in tarball format and compile it by yourself.
-If you need more help, feel free to contact me.
-One more thing: send any error messages that can get when trying to
-boot 2.4 kernel. It can be very useful.
+Hi, List
+
+I think, I found a very simple solution for this annoying BUG().
+
+Since at least kernel 2.4.16 there is a BUG() in pci.h,
+that crashes the kernel on any attempt to read a SCSI-Sector
+from an erased MO-Medium and on any attempt to read
+a sector from a SCSI-disk, which returns "Read-Error".
+
+There seems to be a thinko in the corresponding code, which 
+does not take into account the case where a SCSI-READ
+does not return any data because of a "sense code: read error"
+or a "sense code: blank sector".
+
+I simply commented out this BUG() statement (see below)
+and everything worked well from there on. The BUG()
+seems to be inadequate.
+
+Please could you check if I'm right and apply this change to the
+current kernel? Again I want to stress that in my
+oppinion it is dangerous for the stability of a production
+machine if it crashes on the next SCSI-Read-Error it sees.
+Most SCSI-Hardware today shows very few read errors, but 
+please let's not rely on that. That'd be playing vabanque.
+
+
+If there are tests to do, I can offer my time and hardware
+(SCSI-MO drives and media with various sector sizes) to
+test and in case to provide stack traces.
 
 Regards,
-
--------
-Marinho Paiva Duarte
-Usu·rio Linux #229528
-
- /"\
- \ /  CAMPANHA DA FITA ASCII - CONTRA MAIL HTML
-  X   ASCII RIBBON CAMPAIGN - AGAINST HTML MAIL
- / \
+        Ralf
 
 
 
 
+include/asm/pci.h:
+static inline int pci_map_sg(struct pci_dev *hwdev, struct scatterlist *sg,
+                             int nents, int direction)
+{
+        int i;
 
-On Mon, 4 Feb 2002 14:22:33 +0100
-Fabrice Eudes <fabrice.eudes@free.fr> wrote:
+        if (direction == PCI_DMA_NONE)
+                BUG();
+ 
+        /*
+         * temporary 2.4 hack
+         */
+        for (i = 0; i < nents; i++ ) {
+                if (sg[i].address && sg[i].page)
+                        BUG();
+    -------->   else if (!sg[i].address && !sg[i].page)
+    -------->         BUG();
+ 
+                if (sg[i].address)
+                        sg[i].dma_address = virt_to_bus(sg[i].address);
+                else
+                        sg[i].dma_address = page_to_bus(sg[i].page) + sg[i].offset;
+        }
+ 
+        flush_write_buffers();
+        return nents;
+}
 
-> Hi again !
-> 
-> Le Mon, Feb 04, 2002 at 10:01:42AM -0200, Marinho Paiva Duarte a
-> Ècrit:> You must upgrade the modutils and other related packages.
-> > Take a look at debian news and see the packages that Bunk had
-> > prepared to use Debian 2.2 with 2.4.x kernels.
-> > I think it will solve your problem.
-> I said in my previous mail that I use the 'woody' version so it
-> should be ready for 2.4.x kernel shouldn't it ?
-> 
-> Anymay, I had a look at A. Bunk site, upgraded the necessary
-> packages and reboot; well, still no problem for the 2.2.19 but still
-> can't boot the 2.4.x (tried the official kernel-image-2.4.17-k7)
-> 
-> any other idea ? thanks.
-> -- 
-> StÈphanie, Fabrice et Fiona	 -o)
-> stephanie.dupuis@free.fr	 /\\
-> fabrice.eudes@free.fr		_\_V
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+ --------------------------------------------------------------------------
+|  Ralf Oehler                          
+|                                       
+|  GDA - Gesellschaft fuer Digitale                              _/
+|        Archivierungstechnik mbH & CoKG                        _/
+|  Ein Unternehmen der Bechtle AG               #/_/_/_/ _/_/_/_/ _/_/_/_/
+|                                              _/    _/ _/    _/       _/
+|  E-Mail:      R.Oehler@GDAmbH.com           _/    _/ _/    _/ _/    _/
+|  Tel.:        +49 6182-9271-23             _/_/_/_/ _/_/_/#/ _/_/_/#/
+|  Fax.:        +49 6182-25035                    _/
+|  Mail:        GDA, Bensbruchstraﬂe 11,   _/_/_/_/
+|               D-63533 Mainhausen      
+|  HTTP:        www.GDAmbH.com         
+ --------------------------------------------------------------------------
+
+time is a funny concept

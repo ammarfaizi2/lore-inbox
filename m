@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbULHV27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbULHVeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbULHV27 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 16:28:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbULHV2u
+	id S261366AbULHVeD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 16:34:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbULHVeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 16:28:50 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:53689
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261367AbULHV2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 16:28:40 -0500
-Date: Wed, 8 Dec 2004 13:26:27 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: jbarnes@engr.sgi.com, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
-       torvalds@osdl.org, hugh@veritas.com, benh@kernel.crashing.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Anticipatory prefaulting in the page fault handler V1
-Message-Id: <20041208132627.1c73177e.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0412080952100.27324@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
-	<20041202101029.7fe8b303.cliffw@osdl.org>
-	<Pine.LNX.4.58.0412080920240.27156@schroedinger.engr.sgi.com>
-	<200412080933.13396.jbarnes@engr.sgi.com>
-	<Pine.LNX.4.58.0412080952100.27324@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 8 Dec 2004 16:34:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58301 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261366AbULHVeA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 16:34:00 -0500
+Date: Wed, 8 Dec 2004 13:33:59 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: FoObArf00@netscape.net
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: IGMP packets?
+Message-ID: <20041208133359.Z2357@build.pdx.osdl.net>
+References: <00640596.1F2101FF.023DF18B@netscape.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00640596.1F2101FF.023DF18B@netscape.net>; from FoObArf00@netscape.net on Wed, Dec 08, 2004 at 03:58:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Dec 2004 09:56:00 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
+* FoObArf00@netscape.net (FoObArf00@netscape.net) wrote:
+> I have 3 machines.  A (eth0) is connected to B (eth1) with a cross over
+> cable and B (eth0) and C (eth0) are on a switch.  I want to forward the
+> igmp queries and reports that A (eth1) generates when joining/leaving a
+> multicast group on B (eth1) from B(eth0) to C (eth0).  I put the code to
+> do this on different places such as ip_rcv, ip_route_input, etc and no
+> luck.  The weird thing is that it works when I do a tcpdump on B's eth1.
 
-> A patch like this is important for applications that allocate and preset
-> large amounts of memory on startup. It will drastically reduce the startup
-> times.
+Sounds like B(eth1) is filtering the packets.  Does it also work if you
+enable IFF_ALLMULTI on eth1 (instead of IFF_PROMISC)?  Also, what kernel
+are you using?  Does a group join on A generate a v1 or v3 report?
 
-I see.  Yet I noticed that while the patch makes system time decrease,
-for some reason the wall time is increasing with the patch applied.
-Why is that, or am I misreading your tables?
+thanks,
+-chris

@@ -1,78 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbTEVSCD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 14:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTEVSCD
+	id S262945AbTEVSC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 14:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbTEVSC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 14:02:03 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:37345 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP id S262934AbTEVSCB
+	Thu, 22 May 2003 14:02:27 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:57297 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S262945AbTEVSCX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 14:02:01 -0400
-Message-ID: <3ECD13A1.9060103@tmsusa.com>
-Date: Thu, 22 May 2003 11:14:57 -0700
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>
-Subject: 2.5.69-mm8 improvements and one oops
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 May 2003 14:02:23 -0400
+Date: Thu, 22 May 2003 20:15:14 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Simon Kelley <simon@thekelleys.org.uk>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Re: request_firmware() hotplug interface, third round and a halve
+Message-ID: <20030522181514.GA20203@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <20030517221921.GA28077@ranty.ddts.net> <20030521072318.GA12973@kroah.com> <20030521185212.GC12677@ranty.ddts.net> <20030521200736.GA2606@kroah.com> <20030522153154.GD13224@ranty.ddts.net> <3ECD0F8A.5080409@thekelleys.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
+Content-Disposition: inline
+In-Reply-To: <3ECD0F8A.5080409@thekelleys.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello -
 
-This may be of interest...
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-kernel: 2.5.69-mm8
+On Thu, May 22, 2003 at 06:57:30PM +0100, Simon Kelley wrote:
+> Works great for me now.
+> 
+> It's noisy: I'd remove/disable the printks in firmware_data_read and 
+> firmware_data_write
+> before it goes in.
 
-Linux distro: Red Hat 9 + updates
+ I'd rather not resend it all again.
+ 
+ Attached goes an incremental patch just in case, but I don't mind
+ resending it later, once the bulk of it goes in.
 
-Hardware:
-Celeron 1.2 Ghz on Intel Motherboard
-51e MB RAM, 2x e100 ethernet
+ Have a nice day
 
-FWIW, The last few 2.5.69-mm releases would not boot for me,
-but would oops while trying to load usb modules, then hang
-immediately after the line announcing the activation of swap.
+ 	Manuel
 
-Happily, -mm8 compiled without module errors, and booted fine.
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.
 
-All seems healthy, and the services are all fully functional,
-but I did spot this oops in syslog, after logging in and starting
-a gnome session:
+--OgqxwSJOaUobr8KG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="revised-noise.diff"
 
-I wil gladly supply .config and all other info if desired
+--- drivers/base/firmware_class.c	2003/05/22 14:49:44	1.14
++++ drivers/base/firmware_class.c	2003/05/22 18:07:38
+@@ -152,8 +152,6 @@
+ 	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
+ 	struct firmware *fw = fw_priv->fw;
+ 
+-	printk("%s: count:%d offset:%lld\n", __FUNCTION__, count, offset);
+-
+ 	if (offset > fw->size)
+ 		return 0;
+ 	if (offset + count > fw->size)
+@@ -204,12 +202,9 @@
+ 	struct firmware *fw = fw_priv->fw;
+ 	int retval;
+ 
+-	printk("%s: count:%d offset:%lld\n", __FUNCTION__, count, offset);
+ 	retval = fw_realloc_buffer(fw_priv, offset + count);
+-	if (retval) {
+-		printk("%s: retval:%d\n", __FUNCTION__, retval);
++	if (retval)
+ 		return retval;
+-	}
+ 
+ 	memcpy(fw->data + offset, buffer, count);
+ 
 
-Best regards,
-
-Joe
-
-------------[ cut here ]------------
-kernel BUG at kernel/sched.c:614!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c011d762>]    Not tainted VLI
-EFLAGS: 00010246
-EIP is at schedule_tail+0xe2/0x140
-eax: 00000008   ebx: 00000000   ecx: d65d4e40   edx: d563c000
-esi: d8fa0120   edi: d953a31c   ebp: d563dfb8   esp: d563df9c
-ds: 007b   es: 007b   ss: 0068
-Process bonobo-activati (pid: 1275, threadinfo=d563c000 task=d65d54c0)
-Stack: 43297d43 7d43297d 297d4329 43297d43 7d43297d d8fa0120 d65d54c0 
-d564ffbc
-       c010a362 d8fa0120 01200011 00000000 00000000 00000000 40018da8 
-bfffe148
-       00000000 0000007b 0000007b 00000078 ffffe410 00000073 00000202 
-bfffe0ec
-Call Trace:
- [<c010a362>] ret_from_fork+0x6/0x14
-
-Code: 85 d2 74 16 89 d6 83 c6 04 19 c9 39 70 18 83 d9 00 85 c9 75 05 8b 
-43 7c 89 02 83 c4 14 5b 5e 5d c3 89 34 24 e8 a0 35 00 00 eb c6 <0f> 0b 
-66 02 ad 7d 3e c0 eb b2 8d 74 26 00 89 d8 e8 f9 66 00 00
-
-
+--OgqxwSJOaUobr8KG--

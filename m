@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbTDOPOA (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbTDOPOA 
+	id S261605AbTDOPKk (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTDOPKk 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 11:14:00 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:13264 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261664AbTDOPN6 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 11:13:58 -0400
-Date: Tue, 15 Apr 2003 17:25:46 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Timothy Miller <miller@techsource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Quick way to get preprocessor output???
-Message-ID: <20030415152546.GC7721@wohnheim.fh-wedel.de>
-References: <3E9C226E.6090102@techsource.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E9C226E.6090102@techsource.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 15 Apr 2003 11:10:40 -0400
+Received: from zeke.inet.com ([199.171.211.198]:2222 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id S261605AbTDOPKj 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 11:10:39 -0400
+Message-ID: <3E9C23B3.4090208@inet.com>
+Date: Tue, 15 Apr 2003 10:22:27 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] patch splitting util(s)?
+References: <3E9B2C38.4020405@inet.com> <20030414215128.GA24096@suse.de> <mailman.1050360781.7083.linux-kernel2news@redhat.com> <200304150047.h3F0lXc22483@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 April 2003 11:17:02 -0400, Timothy Miller wrote:
+Pete Zaitcev wrote:
+>>> > I didn't have much luck with googling.  I think the words I used are too 
+>>> > generic.  :/
+>>> 
+>>>Google for diffsplit. Its part of Tim Waugh's patchutils.
+>>>Patchutils should be part of pretty much every distro these days too.
+>>
+>>I'm aware of patchutils.  (Check the 0.2.22 Changelog ;) )  However, 
+>>splitdiff doesn't do what I'm after, from my initial look.  Though now 
+>>that I think about it, it suggests an alternative solution.  A 
+>>'shatterdiff' that created one diff file per hunk in a patch would give 
+>>me basically what I want.
 > 
-> This is in regard to the kernel message compression I'm working on.
-
-Something tells me that fun patches are going to show up.
-
-> I'm starting work on the code parser for the kernel, and I find that a 
-> lot of the printk format strings have macros in them.  Is there a quick 
-> and easy way to get preprocessor (.i) output from all kernel source files?
 > 
-> I'm sure I won't understand enough to hack all Makefiles, but in case I 
-> have to, what would be the best way of going about it?  I know about 
-> using -E, but I don't want to take an excessive amount of time on this.
+> I moaned at Tim until he caved in and added an '-s' option
+> couple of weeks ago. It should be in a fresh rawhide srpm.
 
-Try the patch below or something similar. This was done by memory,
-without testing, for 2.5. The equivalent for 2.4 would be even
-simpler.
+I'm not finding a -s option in Tim's 0.2.23pre1 release.  Where should I 
+be looking for it?
 
-Actually, this should not work yet, the real trick would be to
-generate the .o files from .c *and* the .i, so the linker stage will
-find correct .o files and keep running.
+> Mind, you can do what you want even now, with -n (for line numbers)
+> and a little bit of sh or perl, but all concievable solutions
+> require several passes over the diff, which gets tiresome
+> if you diff 2.4.9 (RH 7.2) and 2.4.18 (RH 8.0). The -s option
+> does it in one pass.
 
-In case you want to do allyesconfig, you will several hours fixing
-compile problems. The resulting .config after doing all that is on my
-system, you can have it if you want it.
+Thanks,
 
-> Of course, to actually implement the text compression, all Makefiles 
-> will have to change anyhow to pipe preprocessor output through a program 
-> whose output is then run through the compiler.
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 
-Not all Makefiles, just one. :)
-
-Jörn
-
--- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
-
---- linux-2.5.67/scripts/Makefile.build~pp_output	2003-04-07 19:32:25.000000000 +0200
-+++ linux-2.5.67/scripts/Makefile.build	2003-04-15 17:12:32.000000000 +0200
-@@ -157,7 +157,7 @@
- 	$(call if_changed_dep,cc_i_c)
- 
- quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
--cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
-+cmd_cc_o_c       = $(CC) $(c_flags) -C -E $< > $<.i
- 
- # Built-in and composite module parts
- 

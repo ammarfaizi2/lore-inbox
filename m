@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267182AbSKML51>; Wed, 13 Nov 2002 06:57:27 -0500
+	id <S267188AbSKMMCx>; Wed, 13 Nov 2002 07:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbSKML51>; Wed, 13 Nov 2002 06:57:27 -0500
-Received: from mta01ps.bigpond.com ([144.135.25.133]:60120 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267182AbSKML50>; Wed, 13 Nov 2002 06:57:26 -0500
-Date: Wed, 13 Nov 2002 23:03:56 +1100
-From: Michael Still <mikal@stillhq.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
-Subject: Re: Linux v2.5.47
-In-Reply-To: <20021113002222.B323@infradead.org>
-Message-ID: <Pine.LNX.4.30.0211132302050.6360-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267189AbSKMMCx>; Wed, 13 Nov 2002 07:02:53 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:22535 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S267188AbSKMMCw>; Wed, 13 Nov 2002 07:02:52 -0500
+Date: Wed, 13 Nov 2002 15:07:16 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: William Lee Irwin III <wli@holomorphy.com>, Greg KH <greg@kroah.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hohnbaum@us.ibm.com, mochel@osdl.org
+Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
+Message-ID: <20021113150716.B1245@jurassic.park.msu.ru>
+References: <20021112213906.GW23425@holomorphy.com> <177250000.1037141189@flay> <20021112215305.GZ23425@holomorphy.com> <179150000.1037145229@flay> <20021112225937.GA23425@holomorphy.com> <20021112235824.GG22031@holomorphy.com> <20021113000435.GE32274@kroah.com> <20021113001246.GC23425@holomorphy.com> <20021113002032.GF32274@kroah.com> <20021113002855.GD23425@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021113002855.GD23425@holomorphy.com>; from wli@holomorphy.com on Tue, Nov 12, 2002 at 04:28:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Nov 2002, Christoph Hellwig wrote:
+On Tue, Nov 12, 2002 at 04:28:55PM -0800, William Lee Irwin III wrote:
+> On Tue, Nov 12, 2002 at 04:20:32PM -0800, Greg KH wrote:
+> > Ok, then also please fix up drivers/pci/probe.c::pci_setup_device() to
+> > set a unique slot_name up for the pci_dev, if you have multiple
+> > domains/segments.
+> > thanks,
+> > greg k-h
+> 
+> Okay, tihs just needs the introduction of something that can produce
+> a number out of ->sysdata (or whatever):
 
-> You can convert it easily into a new-style pci driver with the following
-> probe routine:
+Please use existing pci_controller_num(struct pci_dev *pdev).
+It does exactly that you want.
 
-Remembering of course that a scsi_register() can fail...
-
-> 	[do basic setup]
-> 	sdev = scsi_register();
-
-        if(sdev == NULL){
-          /* Handle error */
-          }
-
-> 	[do more setup]
-> 	return scsi_add_host();
-
-Cheers,
-Mikal
-
--- 
-
-Michael Still (mikal@stillhq.com)     UTC +10 hours
-
+Ivan.

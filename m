@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUHIMWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266508AbUHIM0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266519AbUHIMWb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUHIMHw
+	id S266508AbUHIM0m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUHIM0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:07:52 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:19683 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S266514AbUHIMHi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:07:38 -0400
+	Mon, 9 Aug 2004 08:26:41 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:50140 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266508AbUHIMZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:25:31 -0400
+Date: Mon, 9 Aug 2004 14:24:51 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408091224.i79COp69009736@burner.fokus.fraunhofer.de>
+To: eric@lammerts.org, schilling@fokus.fraunhofer.de
+Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: Jesse Stockall <stockall@magma.ca>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
-References: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Message-Id: <1092053162.8168.9.camel@homer.blizzard.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 08:06:02 -0400
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 06:13, Joerg Schilling wrote:
-> 
-> You should learn what "make sense" means, Linux-2.6 is a clear move away from 
-> the demands of a Linux user who likes to write CDs/DVDs.
+>From: Eric Lammerts <eric@lammerts.org>
 
-Hmmm, as a Linux user who had been fighting with scsi emulation and
-cdecord --scanbus for years, being able to use dev=/dev/hda is so much
-easier and so much more in tune with the way the rest of Linux works. 
+>On Fri, 6 Aug 2004, Joerg Schilling wrote:
+>> The CAM interface (which is from the SCSI standards group)
+>> usually is implemeted in a way that applications open /dev/cam and
+>> later supply bus, target and lun in order to get connected
+>> to any device on the system that talks SCSI.
+>>
+>> Let me repeat: If you believe that this is a bad idea, give very
+>> good reasons.
 
-If you don't believe me, spend some time on irc channels like #gentoo or
-#debian where people like me (and many others) give support to Linux and
-cdrecord users from all over the world.
+>With this interface, how do you grant non-root users access to a CD
+>writer, but prevent them from directly accessing a SCSI harddisk?
 
-Jesse 
+On Linux, it is impossible to run cdrecord without root privilleges.
+Make cdrecord suid root, it has been audited....
+
+On Solaris, there is ACLs, RBAC & getppriv() / setppriv()
+
+http://docs.sun.com/db/doc/816-5167/6mbb2jaeu?a=expand
+
+Jörg
 
 -- 
-Jesse Stockall <stockall@magma.ca>
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281525AbRKUAXb>; Tue, 20 Nov 2001 19:23:31 -0500
+	id <S281530AbRKUAZy>; Tue, 20 Nov 2001 19:25:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281527AbRKUAXN>; Tue, 20 Nov 2001 19:23:13 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64707 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281525AbRKUAXK>;
-	Tue, 20 Nov 2001 19:23:10 -0500
-Date: Tue, 20 Nov 2001 19:23:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: more fun with procfs (netfilter)
-In-Reply-To: <20011121001418.C2472@kushida.jlokier.co.uk>
-Message-ID: <Pine.GSO.4.21.0111201920030.23604-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281531AbRKUAYn>; Tue, 20 Nov 2001 19:24:43 -0500
+Received: from viper.haque.net ([66.88.179.82]:63715 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S281530AbRKUAYc>;
+	Tue, 20 Nov 2001 19:24:32 -0500
+Date: Tue, 20 Nov 2001 19:24:19 -0500
+Subject: Re: File size limit exceeded with mkfs
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v475)
+Cc: Jason Tackaberry <tack@auc.ca>, linux-kernel@vger.kernel.org
+To: Andreas Dilger <adilger@turbolabs.com>
+From: "Mohammad A. Haque" <mhaque@haque.net>
+In-Reply-To: <20011120163523.F1308@lynx.no>
+Message-Id: <1A7AE531-DE16-11D5-980E-00306569F1C6@haque.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tuesday, November 20, 2001, at 06:35 PM, Andreas Dilger wrote:
 
-On Wed, 21 Nov 2001, Jamie Lokier wrote:
+> That is unfortunate, since a lot of things changed in 2.4.10, so it will
+> make tracking the change hard.  Yet, I am running 2.4.13 and have no 
+> such
+> problems (well, at least I think not).  I don't have a spare partition >
+> 2GB, but I can do the following without problems, which _should_ be the
+> same thing:
 
-> Alexander Viro wrote:
-> > - IOW, awk (both gawk and mawk) loses everything past the first 4Kb.
-> > And yes, it's a real-world example (there was more than $5 and it was
-> > followed by sed(1), but that doesn't affect the result - lost lines).
-> 
-> Does this break fopen/fscanf as well then?  There are programs which use
-> fscanf to read this info.
+could it be glibc 2.1.3 specific? i _think_ thats what I saw when the 
+first round of reports came in (2.2.x users reported no problems).
 
-I suspect that unless you do something stupid with setvbuf() you should be
-OK - glibc uses sufficiently large buffers for stdio and doesn't try to
-cram as much as possible into them (that's what kills awk - it ends up
-doing read(2) again and agian trying to fill the buffer and eventually
-tail of the buffer becomes too small; then it gets 0 from read(2) and
-decides that it was an EOF).
+--
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                                mhaque@haque.net
+
+   "Alcohol and calculus don't mix.             Developer/Project Lead
+    Don't drink and derive." --Unknown          http://www.themes.org/
+                                                batmanppc@themes.org
+=====================================================================
 

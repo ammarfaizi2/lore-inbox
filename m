@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264796AbUD1OEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264807AbUD1OGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264796AbUD1OEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 10:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbUD1OEP
+	id S264807AbUD1OGL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 10:06:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264805AbUD1OEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 10:04:15 -0400
-Received: from mail.tmr.com ([216.238.38.203]:45576 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S264796AbUD1OAz (ORCPT
+	Wed, 28 Apr 2004 10:04:31 -0400
+Received: from waste.org ([209.173.204.2]:38122 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264789AbUD1OEB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 10:00:55 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Load hid.o module synchronously?
-Date: Wed, 28 Apr 2004 10:02:15 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c6od9g$53k$1@gatekeeper.tmr.com>
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net>	<408D65A7.7060207@nortelnetworks.com> <s5gisfm34kq.fsf@patl=users.sf.net>
+	Wed, 28 Apr 2004 10:04:01 -0400
+Date: Wed, 28 Apr 2004 09:03:53 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netconsole hangs w/ alt-sysrq-t
+Message-ID: <20040428140353.GC28459@waste.org>
+References: <16519.58589.773562.492935@segfault.boston.redhat.com> <20040425191543.GV28459@waste.org> <16527.42815.447695.474344@segfault.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1083160688 5236 192.168.12.100 (28 Apr 2004 13:58:08 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <s5gisfm34kq.fsf@patl=users.sf.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16527.42815.447695.474344@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick J. LoPresti wrote:
-> Chris Friesen <cfriesen@nortelnetworks.com> writes:
+On Wed, Apr 28, 2004 at 08:44:47AM -0400, Jeff Moyer wrote:
+> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
 > 
+> mpm> On Thu, Apr 22, 2004 at 11:29:33AM -0400, Jeff Moyer wrote:
+> >> If netconsole is enabled, and you hit Alt-Sysrq-t, then it will print a
+> >> small amount of output to the console(s) and then hang the system.  In
+> >> this case, I'm using the e100 driver, and we end up exhausting the
+> >> available cbs.  Since we are in interrupt context, the driver's poll
+> >> routine is never run, and we loop infinitely waiting for resources to
+> >> free up that never will.  Kernel version is 2.6.5.
 > 
->>Patrick J. LoPresti wrote:
->>
->>
->>>For example, I invoke "modprobe hid" to make my USB keyboard work.
->>>This loads the module and exits immediately, causing my script to
->>>proceed, before the USB keyboard is probed and ready.
->>>I want to wait until the driver is finished initializing (i.e., a USB
->>>keyboard is either found or not found) before my script continues.
->>>How can I do that?
->>
->>How about scanning the usb device tree to see if the keyboard is
->>present and properly detected?
+> mpm> Can you try 2.6.6-rc2? It has a fix to congestion handling that should
+> mpm> address this.
 > 
-> 
-> You mean under sysfs or usbfs?  Or both?
-> 
-> I see how I can scan for a USB keyboard after loading the USB host
-> controller module.  I think.  But what do I look for, exactly, to tell
-> when hid.o has hooked itself up to the keyboard?
+> Is the attached patch the change you are referring to?  If so, I don't see
+> how this would fix the problem.  I ended up deferring netpoll writes to
+> process context, which has been working fine for me.  Have I missed
+> something?
 
-You need to be able to tell "not hooked yet" from "never saw it" for 
-reliable operation. I don't know how to do that, sorry.
+Well process context defeats the purpose. Ok, I've more closely read
+your report and if I understand correctly, you're using the NAPI
+version of e100? There's some magic NAPI bits in netpoll_poll that
+might help here:
+
+        if(trapped && np->dev->poll &&
+           test_bit(__LINK_STATE_RX_SCHED, &np->dev->state))
+                np->dev->poll(np->dev, &budget);
+
+Perhaps we need to pull the trapped test out of there. Then with any
+luck, dev->hard_start_xmit will return non-zero in netpoll_send_skb,
+we'll call netpoll_poll to pump the card, and we'll be able to flush
+it.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Matt Mackall : http://www.selenic.com : Linux development and consulting

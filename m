@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUEDR2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264532AbUEDRej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUEDR2y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 13:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbUEDR2y
+	id S264532AbUEDRej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 13:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbUEDRej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 13:28:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61398 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264531AbUEDR2x
+	Tue, 4 May 2004 13:34:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20699 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264532AbUEDRei
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 13:28:53 -0400
-Date: Tue, 4 May 2004 14:29:41 -0300
+	Tue, 4 May 2004 13:34:38 -0400
+Date: Tue, 4 May 2004 14:35:29 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
        ckrm-tech <ckrm-tech@lists.sourceforge.net>
 Subject: Re: [RFC] Revised CKRM release
-Message-ID: <20040504172941.GD11346@logos.cnet>
-References: <4090BBF1.6080801@watson.ibm.com> <20040430174117.A13372@infradead.org>
+Message-ID: <20040504173529.GE11346@logos.cnet>
+References: <4090BBF1.6080801@watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040430174117.A13372@infradead.org>
+In-Reply-To: <4090BBF1.6080801@watson.ibm.com>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 05:41:18PM +0100, Christoph Hellwig wrote:
-> > The basic concepts and motivation of CKRM remain the same as described
-> > in the overview at http://ckrm.sf.net. Privileged users can define
-> > classes consisting of groups of kernel objects (currently tasks and
-> > sockets) and specify shares for these classes. Resource controllers,
-> > which are independent of each other, can regulate and monitor the
-> > resources consumed by classes e.g the CPU controller will control the
-> > CPU time received by a class etc. Optional classification engines,
-> > implemented as kernel modules, can assist in the automatic
-> > classification of the kernel objects (tasks/sockets currently) into
-> > classes.
+
+On Thu, Apr 29, 2004 at 04:25:21AM -0400, Shailabh Nagar wrote:
+> The Class-based Resource Management project is happy to release the
+> first bits of a working prototype following a major revision of its
+> interface and internal organization.
+>
+> The basic concepts and motivation of CKRM remain the same as described
+> in the overview at http://ckrm.sf.net. Privileged users can define
+> classes consisting of groups of kernel objects (currently tasks and
+> sockets) and specify shares for these classes. Resource controllers,
+> which are independent of each other, can regulate and monitor the
+> resources consumed by classes e.g the CPU controller will control the
+> CPU time received by a class etc. Optional classification engines,
+> implemented as kernel modules, can assist in the automatic
+> classification of the kernel objects (tasks/sockets currently) into
+> classes.
+
+Cool!
+
+> New in this release are the following:
 > 
-> I'd still love to see practical problems this thing is solving.  It's
-> a few thousand lines of code, not written to linux style guidelines,
-> sometimes particularly obsfucated with callbacks all over the place.
+> rbce.ckrm-E12:
 > 
-> I'd hate to see this in the kernel unless there's a very strong need
-> for it and no way to solve it at a nicer layer of abstraction, e.g.
-> userland virtual machines ala uml/umlinux.
+> Two classification engines (CE) to assist in automatic classification
+> of tasks and sockets. The first one, rbce, implements a rule-based
+> classification engine which is generic enough for most users. The
+> second, called crbce, is a variant of rbce which additionally provides
+> information on significant kernel events (where a task/socket could
+> get reclassified) to userspace as well as reports per-process wait
+> times for cpu, memory, io etc. Such information can be used by user
+> level tools to reclassify tasks to new classes, change class shares
+> etc.
 
-I have been reading CKRM docs this week and I think something which provides the 
-same functionality is required for v2.7.
+It sounds to me the classification engine can be moved to userspace? 
 
-I haven't read the code yet, though. It probably should be converted to 
-"linux style" and simplified whenever possible.
+Such "classification" sounds a better suited to be done there.
 
-Right now our resource-limit infrastructure is very basic and limited. CKRM 
-provides advanced/fine grained resource management.
+Note: I haven't read the code yet.

@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUESL0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbUESLht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUESL0P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 07:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUESLUq
+	id S263697AbUESLht (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 07:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUESLht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 07:20:46 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:28551 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263624AbUESLOb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 07:14:31 -0400
-Date: Wed, 19 May 2004 21:13:27 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Jan Kasprzak <kas@informatics.muni.cz>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: sendfile -EOVERFLOW on AMD64
-Message-ID: <20040519211326.D574345@wobbly.melbourne.sgi.com>
-References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz> <20040519105805.GK30909@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040519105805.GK30909@devserv.devel.redhat.com>; from jakub@redhat.com on Wed, May 19, 2004 at 06:58:06AM -0400
+	Wed, 19 May 2004 07:37:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:34944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263697AbUESLhr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 07:37:47 -0400
+Date: Wed, 19 May 2004 07:39:10 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Alex Davis <alex14641@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: signal handling issue.
+In-Reply-To: <20040519054507.63816.qmail@web50201.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.53.0405190734280.2283@chaos>
+References: <20040519054507.63816.qmail@web50201.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 06:58:06AM -0400, Jakub Jelinek wrote:
-> ...
-> (note error is int, not ssize_t), but I don't see anything obvious
-> for other filesystems.
+On Tue, 18 May 2004, Alex Davis wrote:
 
-Thanks, I'll fix that up.
+> There appears to be a change between linux 2.4 and 2.6
+> in how signals are handled. As a test, I wrote the program
+> below:
+>
+> #include <stdio.h>
+> #include <signal.h>
+> #include <setjmp.h>
+>
+> static jmp_buf env;
+>
+> static void handler(int s) {
+>         printf("caught signal %d\n", s);
+>         longjmp(env, 1);
+> }
 
-cheers.
+[SNIPPED...]
 
--- 
-Nathan
+A a couple years ago they changed the rules. You can't longjmp
+from a signal handler anymore. There's some other function
+call with 'sig' in it, like siglongjmp or something like
+that. Ahh... here it is:
+
+/usr/include/setjmp.h:extern void siglongjmp __P ((sigjmp_buf __env, int __val))
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

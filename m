@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbUAUDTu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 22:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUAUDTu
+	id S261606AbUAUEDF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 23:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUAUEDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 22:19:50 -0500
-Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:42028
-	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S261298AbUAUDTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 22:19:48 -0500
-Subject: Re: TG3: very high CPU usage
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Lincoln Dale <ltd@cisco.com>
-Cc: JG <jg@cms.ac>, Andreas Hartmann <andihartmann@freenet.de>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.0.14.2.20040121100550.03cff190@171.71.163.14>
-References: <20040119033527.GA11493@linux.comp>
-	 <20040119033527.GA11493@linux.comp>
-	 <5.1.0.14.2.20040121100550.03cff190@171.71.163.14>
-Content-Type: text/plain
-Message-Id: <1074655162.5834.16.camel@localhost.localdomain>
+	Tue, 20 Jan 2004 23:03:05 -0500
+Received: from dp.samba.org ([66.70.73.150]:22986 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261606AbUAUEC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 23:02:56 -0500
+Date: Wed, 21 Jan 2004 14:58:56 +1100
+From: Anton Blanchard <anton@samba.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] vmalloc fix
+Message-ID: <20040121035856.GA4372@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 20 Jan 2004 22:19:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-01-20 at 18:13, Lincoln Dale wrote:
-> At 11:33 PM 20/01/2004, JG wrote:
-> >i have also two boxes (one with 2.6.0, the other one 2.6.1-mm2) equipped 
-> >with netgear ga302t cards (x-over cable).
-> >i don't see a very high cpu usage, but since upgrading to 2.6.x kernels i 
-> >sometimes have really weird speed issues. i often only get transfer rates 
-> >of about ~200-300 kilobytes/second...yes, and this over a gigabit 
-> >interface, tested over ftp.
-> >i'm also running a nfs server on the 2.6.1-mm2 box, the 2.6.0 pc is the 
-> >client, but again, sometimes it's *very* slow. if i reboot my 2.6.1-mm2 
-> >box (the other one is a server which can't be rebooted) it seems to be 
-> >fine for some time.
-> >
-> >i didn't have such problems with 2.4.19 kernels on both pcs, there i got 
-> >about 30-35MB/s over ftp without any problems, so i don't think it's 
-> >hardware related.
 
-I'm curious is the people seeing this problem happen to have preempt
-enabled in their config.  I've noticed that my laptop, which also
-happens to have a tg3 based 10/100/1000 card, uses tons of CPU during
-trasfers, but only when preempt is enabled.
+Hi,
 
-After looking into this, my Aironet wireless has exactly the same
-problem.  When preempt is enabled a simple scp transfer running at
-approximately maximum speed for 802.11b (7.5Mb/sec) uses almost 70% of
-the CPU.  The tg3 driver doing the same scp at 40Mb/sec (100Mb ethernet)
-uses > 90% of the CPU.
+Paul wrote a patch to use some of the rmap infrastructure to flush TLB
+entries on ppc64. When testing it we found a problem in vmalloc where it
+sets up the pte -> address mapping incorrectly. We clear the top bits of
+the address but then forget to pass in the full address to
+pte_alloc_kernel. The end result is the address in page->index is
+truncated.
 
-However, turning off preempt and my system runs at approximately the
-same speed on wireless (7.5Mb/sec) but only about 5% CPU.  The tg3
-driver with preempt disabled allows the scp to run at near wire speed
-(95-100Mb/sec) and uses only a fraction of the CPU.
+I fixed it in a similar way to how zeromap_pmd_range etc does it. Im
+guessing no one uses the rmap hooks on vmalloc pages yet, so havent seen
+this problem.
 
-Just curious if this might be what others are seeing.
+Anton
 
-Later,
-Tom
-
-
+===== mm/vmalloc.c 1.29 vs edited =====
+--- 1.29/mm/vmalloc.c	Wed Oct  8 12:53:44 2003
++++ edited/mm/vmalloc.c	Wed Jan 21 14:48:23 2004
+@@ -114,15 +114,16 @@
+ 			       unsigned long size, pgprot_t prot,
+ 			       struct page ***pages)
+ {
+-	unsigned long end;
++	unsigned long base, end;
+ 
++	base = address & PGDIR_MASK;
+ 	address &= ~PGDIR_MASK;
+ 	end = address + size;
+ 	if (end > PGDIR_SIZE)
+ 		end = PGDIR_SIZE;
+ 
+ 	do {
+-		pte_t * pte = pte_alloc_kernel(&init_mm, pmd, address);
++		pte_t * pte = pte_alloc_kernel(&init_mm, pmd, base + address);
+ 		if (!pte)
+ 			return -ENOMEM;
+ 		if (map_area_pte(pte, address, end - address, prot, pages))

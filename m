@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269602AbUJFXk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269650AbUJFXkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269602AbUJFXk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269620AbUJFXhS
+	id S269650AbUJFXkt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269648AbUJFXjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:37:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21633 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269440AbUJFXeL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:34:11 -0400
-Message-ID: <416480A7.5070408@redhat.com>
-Date: Wed, 06 Oct 2004 19:32:55 -0400
-From: Neil Horman <nhorman@redhat.com>
-Reply-To: nhorman@redhat.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: hzhong@cisco.com, "'Andries Brouwer'" <aebr@win.tue.nl>,
-       "'Joris van Rantwijk'" <joris@eljakim.nl>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+	Wed, 6 Oct 2004 19:39:46 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:28316
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269617AbUJFXgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 19:36:10 -0400
+Date: Wed, 6 Oct 2004 16:35:21 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <003301c4abdc$c043f350$b83147ab@amer.cisco.com> <41645892.9060105@redhat.com> <4164713F.3080506@nortelnetworks.com>
-In-Reply-To: <4164713F.3080506@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20041006163521.2ae12e6d.davem@davemloft.net>
+In-Reply-To: <20041006200608.GA29180@dspnet.fr.eu.org>
+References: <20041006193053.GC4523@pclin040.win.tue.nl>
+	<003301c4abdc$c043f350$b83147ab@amer.cisco.com>
+	<20041006200608.GA29180@dspnet.fr.eu.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
+On Wed, 6 Oct 2004 22:06:08 +0200
+Olivier Galibert <galibert@pobox.com> wrote:
 
-> Neil Horman wrote:
->
->> Again, shouldn't this just mean that recvfrom should not be called 
->> without the MSG_ERRQUEUE flag set?
->
->
-> Does a message with a bad udp checksum even get sent up as a queued 
-> error message?
+> On Wed, Oct 06, 2004 at 12:43:27PM -0700, Hua Zhong wrote:
+> > How hard is it to treat the next read to the fd as NON_BLOCKING, even if
+> > it's not set?
+> 
+> Programs don't expect EAGAIN from blocking sockets.
 
-I thought thats exactly what MSG_ERRQUEUE was for, or am I mistaken?
-Neil
-
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
-
+That's right, which is why we block instead.

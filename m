@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316099AbSEZOOH>; Sun, 26 May 2002 10:14:07 -0400
+	id <S316106AbSEZOQE>; Sun, 26 May 2002 10:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316106AbSEZOOG>; Sun, 26 May 2002 10:14:06 -0400
-Received: from bs1.dnx.de ([213.252.143.130]:29869 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S316099AbSEZOOF>;
-	Sun, 26 May 2002 10:14:05 -0400
-Date: Sun, 26 May 2002 16:13:18 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Der Herr Hofrat <der.herr@mail.hofr.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]y
-Message-ID: <20020526161318.O598@schwebel.de>
-In-Reply-To: <20020525204542.A10392@stm.lbl.gov> <200205260913.g4Q9DPT20434@hofr.at>
+	id <S316111AbSEZOQD>; Sun, 26 May 2002 10:16:03 -0400
+Received: from rkom.r-kom.de ([212.77.162.22]:36021 "EHLO urfass.r-kom.de")
+	by vger.kernel.org with ESMTP id <S316106AbSEZOQB>;
+	Sun, 26 May 2002 10:16:01 -0400
+Date: Sun, 26 May 2002 16:16:01 +0200
+From: "Stefan M. Brandl" <smb@smbnet.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ioctl() still problem w/2.5.18
+Message-ID: <20020526161601.B14961@urfass.r-kom.de>
+In-Reply-To: <20020526160519.A23832@urfass.r-kom.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+User-Agent: Mutt/1.2.5.1i
+X-NCC-RegID: de.r-kom
+X-URL: http://www.smbnet.de/
+X-Organization: heavy overdose administration
+X-Location: Regensburg, Bavaria, Germany
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicholas, 
+>         In 2.5.16, have any restrictions been placed on ioctl()? With 2.5.16,
+> a non-root user is unable to use /dev/cdrom with an ide cd, to play audio cds.
+> An strace of workbone shows this:
+> 
+> open("/dev/cdrom", O_RDONLY)            = 3
+> ioctl(3, CDROMSUBCHNL, 0xbfffe814)      = -1 EACCES (Permission denied)  
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> rt_sigaction(SIGINT, {SIG_IGN}, {SIG_DFL}, 8) = 0
+> ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+> ioctl(0, SNDCTL_TMR_START, {B38400 opost isig -icanon -echo ...}) = 0
+> ioctl(0, TCGETS, {B38400 opost isig -icanon -echo ...}) = 0
+> write(1, "\n", 1
+> )                       = 1
+> ioctl(0, SNDCTL_TMR_START, {B38400 opost isig icanon echo ...}) = 0
+> ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+> rt_sigaction(SIGINT, {SIG_DFL}, {SIG_IGN}, 8) = 0
+> munmap(0x40017000, 4096)                = 0
+> _exit(0)                                = ?
+> 
+>         Workbone is supposed to access /dev/cdrom, and then wait for user 
+> input from the number pad, to play the cd. the following strace from workbone 
+> in 2.5.7 shows this working properly:
+> 
+> write(1, "\33[10m\n", 6
+> ) = 55                                               
+> open("/dev/cdrom", O_RDONLY)            = 3  "..., 55
+> ioctl(3, CDROMSUBCHNL, 0xbfffe654)      = 0
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> ioctl(3, CDROMREADTOCHDR, 0xbfffe626)   = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
+> rt_sigaction(SIGINT, {SIG_IGN}, {SIG_DFL}, 8) = 0
+> ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+> 
+>         This worked as root, and with  a kernel <= 2.5.13. I didn't try this 
+> with 2.5.14 or 2.5.15.
+> 
 
-On Sun, May 26, 2002 at 11:13:25AM +0200, Der Herr Hofrat wrote:
-> In my opinion it is obvious that the RT comunity that was RTLinux and
-> RTAI for quite a while was "stealing" ideas and code from each other -
-> and that is a very good thing to happen in GPL'ed environments, there was
-> for a long time one mailing list and that was being shared in a
-> productive manner by both groups. The fact that the two groups splitt up
-> and are fighting each other is what is really hurting both sides a lot
-> and probably also hurting Linux in the market that has interest in
-> hard-realtime. 
+Same problem here.
+While kernels <= 2.5.15 don't show this error, 2.5.16, 17 and 18 do.
+The bug? must have been introduced with 2.5.16.
 
-I strongly support this statement, and I'm pretty sure all the RTAI
-developers do the same. It would be _much_ better for all people involved
-in the realtime Linux development if we would work _together_ like in the
-very beginning instead of fighting each other. Too much energy has been
-wasted yet.  
 
-And honestly, I'm also thinking that even from the commercial point of
-view, a situation where the realtime Linux community joins it's forces to
-create the best General Purpose Realtime Operating System on earth in terms
-of _technical_ arguments would not be a bad one. For _everyone_, FSM-Labs
-and the rest of the world. 
-
-But that's just my 0.02 Euro.
-
-Robert
--- 
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
+Stefan

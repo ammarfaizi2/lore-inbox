@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261824AbSJQGaw>; Thu, 17 Oct 2002 02:30:52 -0400
+	id <S261823AbSJQGag>; Thu, 17 Oct 2002 02:30:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261825AbSJQGaw>; Thu, 17 Oct 2002 02:30:52 -0400
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:53979 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S261824AbSJQGav>; Thu, 17 Oct 2002 02:30:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: John Levon <levon@movementarian.org>
-Subject: Re: Use of yield() in the kernel
-Date: Thu, 17 Oct 2002 08:36:29 +0200
-User-Agent: KMail/1.4.3
+	id <S261824AbSJQGag>; Thu, 17 Oct 2002 02:30:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63160 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261823AbSJQGag>;
+	Thu, 17 Oct 2002 02:30:36 -0400
+Date: Wed, 16 Oct 2002 23:28:54 -0700 (PDT)
+Message-Id: <20021016.232854.133268321.davem@redhat.com>
+To: acme@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-References: <200210151536.39029.baldrick@wanadoo.fr> <20021015171250.GB25538@compsoc.man.ac.uk>
-In-Reply-To: <20021015171250.GB25538@compsoc.man.ac.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210170836.29584.baldrick@wanadoo.fr>
+Subject: Re: [PATCH] ipv4: remove the hack, using seq->private to hold state
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021017052349.GB11445@conectiva.com.br>
+References: <20021017052349.GB11445@conectiva.com.br>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 October 2002 19:12, John Levon wrote:
-> On Tue, Oct 15, 2002 at 03:36:38PM +0200, Duncan Sands wrote:
-> > fs/locks.c
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103352923323135&w=2
->
-> I don't think the maintainer has submitted a patch for it yet.
+   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+   Date: Thu, 17 Oct 2002 02:23:49 -0300
 
-A fix has been applied in Linus's tree.  See
+   master.kernel.org:/home/acme/BK/net-2.5
+   
+Pulled, thanks.
 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.781.27.3?nav=index.html|ChangeSet@-3d
+   	It is extremely fortunate that all this discussion about
+   seq_file proper usage has happened
 
-Duncan.
+Indeed :)
+

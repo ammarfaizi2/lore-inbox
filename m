@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264882AbSJPMhY>; Wed, 16 Oct 2002 08:37:24 -0400
+	id <S262461AbSJPMpU>; Wed, 16 Oct 2002 08:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264845AbSJPMhY>; Wed, 16 Oct 2002 08:37:24 -0400
-Received: from traven9.uol.com.br ([200.221.4.35]:13698 "EHLO
-	traven9.uol.com.br") by vger.kernel.org with ESMTP
-	id <S264882AbSJPMhX>; Wed, 16 Oct 2002 08:37:23 -0400
-Date: Wed, 16 Oct 2002 09:31:34 -0200
-From: Andre Costa <brblueser@uol.com.br>
-To: clemens@dwf.com
-Cc: Linux kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: What kernels 2.4.x 2.5.x compile gcc3.2???
-Message-Id: <20021016093134.12d8bd76.brblueser@uol.com.br>
-In-Reply-To: <200210151849.g9FInbur002088@orion.dwf.com>
-References: <200210151849.g9FInbur002088@orion.dwf.com>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262492AbSJPMpU>; Wed, 16 Oct 2002 08:45:20 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:21777 "EHLO
+	doughboy.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S262461AbSJPMpT>; Wed, 16 Oct 2002 08:45:19 -0400
+Message-ID: <3DAD6062.30906@snapgear.com>
+Date: Wed, 16 Oct 2002 22:49:38 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Miles Bader <miles@gnu.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: linux-2.5.42uc1 (MMU-less support)
+References: <3DAC337D.7010804@snapgear.com> <buoit03lz1n.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-2.4.19 compiled just fine with gcc 3.2 here -- still using RH 7.1,
-though (however, AFAIK RH dropped that "use-my-tweaked-compiler" thing
-and shipped vanilla gcc 3.2 with RH 8.0).
+Hi Miles,
 
-HTH,
+Miles Bader wrote:
 
-Andre
+> Here's a v850 update for 2.5.42uc1.
 
-On Tue, 15 Oct 2002 12:49:37 -0600
-clemens@dwf.com wrote:
 
-> The subject just about says it.
-> What versions of 2.4.x and 2.5.x compile cleanly with
-> the new gcc 3.2 that is included in most recent releases
-> (in particular RH8.0)
+I have rolled this into, linux-2.5.43uc0.
+I have also removed the gdb patches under arch/v850.
+
+
+> I addressed two of Christoph Hellwig's concerns, (1) vmlinux.lds.S
+> [barf] and (2) the asm-constant generation mechanism.
 > 
-> The 2.4.18-14 kernel sources from RH have LOTS of patches,
-> and they (well the modules) still dont compile with their
-> own config file (sigh).
-> 
-> 
-> -- 
->                                         Reg.Clemens
->                                         reg@dwf.com
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> He also complained about using the MD driver &c instead of initrd, but
+> I'm not sure what do about that -- it'd be nice to use a `standard'
+> solution, but when I originally looked at the initrd stuff, it seemed
+> very convoluted and confusing; since earlier lkml discussion had pointed
+> to using MD as the nearest thing to the old blkmem device, that seemed
+> like the way to go.
 
 
--- 
-Andre Oliveira da Costa
+I very much like using a specific MTD map driver. I haven't carried
+my initrd patches through to the 2.5 code yet. But it was pretty
+simple to do for 2.4...
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136176AbRARXj6>; Thu, 18 Jan 2001 18:39:58 -0500
+	id <S130140AbRARXmi>; Thu, 18 Jan 2001 18:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136338AbRARXjs>; Thu, 18 Jan 2001 18:39:48 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41990 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S136176AbRARXji>; Thu, 18 Jan 2001 18:39:38 -0500
-Date: Thu, 18 Jan 2001 19:49:00 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Steven Cole <scole@lanl.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1pre8 slowdown on dbench tests
-In-Reply-To: <01011815520101.01097@spc.esa.lanl.gov>
-Message-ID: <Pine.LNX.4.21.0101181944350.4333-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130400AbRARXm2>; Thu, 18 Jan 2001 18:42:28 -0500
+Received: from [195.92.70.201] ([195.92.70.201]:10258 "EHLO
+	blacklight.gweep.org.uk") by vger.kernel.org with ESMTP
+	id <S130140AbRARXmO>; Thu, 18 Jan 2001 18:42:14 -0500
+Date: Thu, 18 Jan 2001 23:42:25 +0000
+From: Howard Johnson <merlin@blacklight.gweep.org.uk>
+To: "John O'Donnell" <johnod@voicefx.com>
+Cc: Matthew Fredrickson <lists@frednet.dyndns.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VIA chipset discussion
+Message-ID: <20010118234225.A7210@www.mwob.org.uk>
+In-Reply-To: <Pine.LNX.4.21.0101171358020.1171-100000@ns-01.hislinuxbox.com> <20010118020408.A4713@iname.com> <20010118121356.A28529@frednet.dyndns.org> <3A677D17.8000701@voicefx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A677D17.8000701@voicefx.com>; from johnod@voicefx.com on Thu, Jan 18, 2001 at 06:32:39PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 18 Jan 2001, Steven Cole wrote:
-
-> On Thu, 18 Jan 2001, Marcelo Tosatti wrote:
-> > On my dbench runs I've noted a slowdown between pre4 and pre8 with 48
-> > threads. (128MB, 2 CPU's machine)
+On Thu, Jan 18, 2001 at 06:32:39PM -0500, John O'Donnell wrote:
+> Matthew Fredrickson wrote:
 > 
-> I ran dbench 48 four times in succession for 2.4.0 and 2.4.1-pre8.
-> The change in performance appears to be not significant.
+> I have the ASUS CUV4X.
+> VIA vt82c686a (cf/cg) IDE UDMA66 controller on pci0:4.1
+> I also run DMA66 with no problems here.
 > 
-> This was performed with a Dell 420 dual P-III (733 MHz), with a ST317221A, 
-> ATA DISK drive and ReiserFS 3.6.25. 
+> I never have seen any issues with the PS/2 mouse and X.
+> I use the Logitech cordless wheel mouse.  I use the "MouseManPlusPS/2"
+> driver in XFree.  When I was first setting this up (about a year ago)
+> I had the problems you mention.  I read an article on setting up your
+> scroll wheel in X and it said to use the IMPS/2 setting.  This was
+> nothing but trouble, till I RTFM on XFree and mice and found my solution.
+> Can you tell us what kind of mouse this is and how you have it set up in
+> XFree.
 > 
-> Each test was done under the same conditions, running KDE 2.0, one xterm, 
-> right after booting.  
-> 
-> 2.4.0:
-> Average    9.07868 MB/sec
-> 
-> Throughput 9.03546 MB/sec (NB=11.2943 MB/sec  90.3546 MBit/sec)
-> Throughput 8.99614 MB/sec (NB=11.2452 MB/sec  89.9614 MBit/sec)
-> Throughput 8.87756 MB/sec (NB=11.097 MB/sec  88.7756 MBit/sec)
-> Throughput 9.40556 MB/sec (NB=11.7569 MB/sec  94.0556 MBit/sec)
-> 
-> 2.4.1-pre8:
-> Average    9.25707 MB/sec
-> 
-> Throughput 8.93444 MB/sec (NB=11.1681 MB/sec  89.3444 MBit/sec)
-> Throughput 9.43609 MB/sec (NB=11.7951 MB/sec  94.3609 MBit/sec)
-> Throughput 9.5075 MB/sec (NB=11.8844 MB/sec  95.075 MBit/sec)
-> Throughput 9.15026 MB/sec (NB=11.4378 MB/sec  91.5026 MBit/sec)
+> Let's take this mouse discussion off list as it has nuttin to do with
+> the kernel....
+> Johnny O
 
-Steven,
+I'm seeing the same mouse problems... fine under 2.2.x, but jumps around under
+a couple of 2.4.x releases (2.4.0-test6, IIRC, and 2.4.1-pre7). I find it odd
+that if it isn't a kernel-related problem, that it's only manifesting itself
+under 2.4.
 
-The issue is the difference between pre4 and pre8.
+I'm running a slot A athlon on an abit KA7-100.
 
-Could you please try pre4 and report results ? 
-
-Thanks
-
-
+--
+Howard Johnson
+merlin@mwob.org.uk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

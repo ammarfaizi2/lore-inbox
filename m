@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284765AbRLZS7p>; Wed, 26 Dec 2001 13:59:45 -0500
+	id <S284732AbRLZTFZ>; Wed, 26 Dec 2001 14:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbRLZS7f>; Wed, 26 Dec 2001 13:59:35 -0500
-Received: from mail.gmx.net ([213.165.64.20]:17650 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284809AbRLZS7S> convert rfc822-to-8bit;
-	Wed, 26 Dec 2001 13:59:18 -0500
-From: toxischerabflussreiniger@gmx.net
-To: "Bjoern A. Zeeb" <bzeeb+linuxkernel@zabbadoz.net>
-Date: Wed, 26 Dec 2001 19:58:46 +0100
+	id <S284800AbRLZTFP>; Wed, 26 Dec 2001 14:05:15 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:18256 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S284732AbRLZTE7>; Wed, 26 Dec 2001 14:04:59 -0500
+Posted-Date: Wed, 26 Dec 2001 19:04:26 GMT
+Date: Wed, 26 Dec 2001 19:04:26 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Rene Engelhard <mail@rene-engelhard.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <B8490A4D.4093%mail@rene-engelhard.de>
+Message-ID: <Pine.LNX.4.21.0112261902280.32161-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Subject: Re: writing device drivers for commercial hardware
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3C2A2BF6.9718.4C5955@localhost>
-In-Reply-To: <3C2A1D7E.25900.13D1DF@localhost>
-In-Reply-To: <Pine.BSF.4.30.0112261942310.727-100000@noc.zabbadoz.net>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Dec 2001, at 19:50, Bjoern A. Zeeb wrote:
+Hi Rene.
 
+>> If I just say off the cuff that I'm going to send you a megabyte of
+>> data, do I mean 1,000,000 bytes, 1,048,576 bytes, or 1,024,000
+>> bytes?
 
-> BTW what card reader is it ? There are already enough _user space_
-> implementations for serial smartcard readers. 
+> What _you_ mean can not be determied from me. But *I* would mean
+> 1.048.574, otherwise I would say the 9xxx number or say nearly 1 MB.
 
-As I've said, this is a really cheap one, I don't think that it's well-
-known.
-It's from ELV and called 'GSM- und Chipkartenlesegerät', so, it's a 
-German one. Sorry for that.
-But thanks for all your hints and tips. I'll keep on trying.
+You obviously give short change as a matter of course then...
 
+(Assuming that you use . as a thousands separator rather than as a
+decimal point the way most of the Enlish speaking world does)
 
+Best wishes from Riley.
 
------------------
-Marc,
-<toxischerabflussreiniger@gmx.net>

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293362AbSB1OyM>; Thu, 28 Feb 2002 09:54:12 -0500
+	id <S293351AbSB1Onf>; Thu, 28 Feb 2002 09:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293365AbSB1Ovh>; Thu, 28 Feb 2002 09:51:37 -0500
-Received: from nobugconsulting.ro ([213.157.160.38]:5002 "EHLO
-	mail.nobugconsulting.ro") by vger.kernel.org with ESMTP
-	id <S293362AbSB1Ot0>; Thu, 28 Feb 2002 09:49:26 -0500
-Message-ID: <3C7E4375.50D0789F@pcnet.ro>
-Date: Thu, 28 Feb 2002 16:49:25 +0200
-From: lonely wolf <wolfy@pcnet.ro>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: disk transfer speed problem
-In-Reply-To: <Pine.LNX.4.33.0202281007410.14351-100000@unicef.org.yu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S293357AbSB1OlG>; Thu, 28 Feb 2002 09:41:06 -0500
+Received: from mallaury.noc.nerim.net ([62.4.17.82]:50449 "HELO
+	mallaury.noc.nerim.net") by vger.kernel.org with SMTP
+	id <S293354AbSB1Ojm>; Thu, 28 Feb 2002 09:39:42 -0500
+Date: Thu, 28 Feb 2002 15:39:39 +0100
+To: Urban Widmark <urban@teststation.com>
+Cc: linux-kernel@vger.kernel.org,
+        Christian =?iso-8859-15?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Subject: Re: [2.4.18] OOPS in smbfs
+Message-ID: <20020228143939.GA13616@calixo.net>
+In-Reply-To: <20020227080024.GA16232@calixo.net> <Pine.LNX.4.33.0202281507560.32098-100000@cola.teststation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0202281507560.32098-100000@cola.teststation.com>
+User-Agent: Mutt/1.3.27i
+X-Face: "99`N"mZV/:<T->OLp[>#d3R;u.!ivtwAEpIQDL8rD#;L3Wm)~^)Uv=#;S!LZf1y8oRY7J#JR\Lr{*4Cn*32C89ln>0~5~tm--}j%hvhj+vtW><xbwA=@G8M||zPV0-r`:6zhMqq+_OC_0W*-:Wxzm3%|A5EE}VFnIgRU=+,L-hGdM"j&l'_^zK+%MBOsdmi#e3(3fGg^SGM
+From: Cyrille Chepelov <cyrille@chepelov.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davidovac Zoran wrote:
+Le Thu, Feb 28, 2002, à 03:34:53PM +0100, Urban Widmark a écrit:
 
-> > -
-> on kernel 2.2.20 with andre ata100 patches ported from 2.2.19 to 2.2.20
-> on asus i815 board.
-> Kernel 2.4.17 results are similar about 35MB/sec
+> Does 2.4.17 work fine for everyone?
+> Did any of you try something between 2.4.18-pre4 and 2.4.18-rc2?
 
-Any chance to get better results with stock kernel 2.4.17 then with 2.4.9-21 (or
--31) ?
+Previously, that machine was running 2.4.17-pre8. It was running fine with
+smbfs, but had never been asked to touch the NT server I mentioned. OTOH,
+with the 2.4.18-rc4 kernel, I can touch other Win2K (workstation) machines
+with no harmful effects.
 
-I am not in position to do many tests (or reboots for that matter), the machine is
-in production, so I'd like a definite approach, if at all possible
+I would like to avoid going back to 2.4.18-rc2 (lack of time to compile), if
+someone with identical oopes had the time the better. But if no-one does
+before tomorrow, I'll try that version.
 
+	-- Cyrille
 
+-- 
+Grumpf.
 

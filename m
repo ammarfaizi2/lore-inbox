@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVCGLaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVCGLiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVCGLaO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 06:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVCGLaO
+	id S261280AbVCGLiR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 06:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVCGLiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 06:30:14 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:33676 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261258AbVCGLaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 06:30:09 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: hugang@soulinfo.com
-Subject: Re: [PATCH][3/3] swsusp: use non-contiguous memory
-Date: Mon, 7 Mar 2005 12:32:31 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@zip.com.au>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200503042051.54176.rjw@sisk.pl> <20050307064131.GA31983@hugang.soulinfo.com>
-In-Reply-To: <20050307064131.GA31983@hugang.soulinfo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Mon, 7 Mar 2005 06:38:17 -0500
+Received: from fire.osdl.org ([65.172.181.4]:40143 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261280AbVCGLiQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 06:38:16 -0500
+Date: Mon, 7 Mar 2005 03:37:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information
+Message-Id: <20050307033734.5cc75183.akpm@osdl.org>
+In-Reply-To: <9268.1110194624@redhat.com>
+References: <20050303123448.462c56cd.akpm@osdl.org>
+	<20050302135146.2248c7e5.akpm@osdl.org>
+	<20050302090734.5a9895a3.akpm@osdl.org>
+	<9420.1109778627@redhat.com>
+	<31789.1109799287@redhat.com>
+	<13767.1109857095@redhat.com>
+	<9268.1110194624@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503071232.32141.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 7 of March 2005 07:41, hugang@soulinfo.com wrote:
-> On Fri, Mar 04, 2005 at 08:51:53PM +0100, Rafael J. Wysocki wrote:
-> > From: Hu Gang <hugang@soulinfo.com>
-> > 
-> > Subject: swsusp: use non-contiguous memory on resume - ppc support
-> > 
-> > This patch contains the architecture-dependent changes for ppc
-> > required for using a linklist instead of an array of page backup entries
-> > during resume.
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
->   Signed-off-by: Hu Gang <hugang@soulinfo.com>
+David Howells <dhowells@redhat.com> wrote:
+>
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+>  > >  Making these into bitfields would result in having to use three variables
+>  > >  instead of just the one.
+>  > 
+>  > Well let's do one or the other, and not have it half-and-half, please.
+> 
+>  So I should fold the two other bitfields back into the capabilities mask and
+>  make it an unsigned long.
 
-Yes, the Signed-off-by line was missing from the original patch.  Andrew,
-should I resubmit it?
-
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+I suppose so.  Although unsigned int would be preferable.

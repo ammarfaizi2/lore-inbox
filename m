@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbUKKBEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbUKKBUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbUKKBEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 20:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUKKBEr
+	id S262074AbUKKBUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 20:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUKKBUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 20:04:47 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:40940 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262076AbUKKBEq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 20:04:46 -0500
-Date: Thu, 11 Nov 2004 02:04:26 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
-       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041111010426.GA26171@mail.muni.cz>
-References: <20041103222447.GD28163@zaphods.net> <20041104121722.GB8537@logos.cnet> <20041104181856.GE28163@zaphods.net> <20041109164113.GD7632@logos.cnet> <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109224423.GC18366@mail.muni.cz> <20041109203348.GD8414@logos.cnet> <20041110212818.GC25410@mail.muni.cz> <20041110181148.GA12867@logos.cnet>
+	Wed, 10 Nov 2004 20:20:50 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:11026 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262074AbUKKBUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 20:20:44 -0500
+Subject: Re: [PATCH] VM routine fixes
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dhowells <dhowells@redhat.com>, hch@infradead.org, torvalds@osdl.org,
+       davidm@snapgear.com, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+In-Reply-To: <20041110110145.3751ae17.akpm@osdl.org>
+References: <20041109140122.GA5388@infradead.org>
+	 <20041109125539.GA4867@infradead.org>
+	 <200411081432.iA8EWfmh023432@warthog.cambridge.redhat.com>
+	 <15068.1100008386@redhat.com> <4530.1100093877@redhat.com>
+	 <20041110110145.3751ae17.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 11 Nov 2004 01:17:13 +0000
+Message-Id: <1100135833.4631.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041110181148.GA12867@logos.cnet>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 04:11:48PM -0200, Marcelo Tosatti wrote:
-> OK, do you have Nick watermark fixes in? 
+On Wed, 2004-11-10 at 11:01 -0800, Andrew Morton wrote:
+> Why _does_ !CONFIG_MMU futz around with page counts in such weird ways
+> anyway?  Why does it have requirements for higher-order pages which differ
+> from !CONFIG_MMU?
 
-Well I've applied it and it seems to be ok. Thanks. 
+Because in the absence of an MMU, an mmap of a large region (like an
+executable) has to be satisfied by a large enough allocation followed by
+a read.
 
-Hope that fix will be included in 2.6.10 final.
+> If someone could explain the reasoning behind the current code, and the FRV
+> enhancements then perhaps we could work something out.
+
+I think these parts aren't FRV-specific; they're the fixes required to
+do proper shared readable mmap with !CONFIG_MMU. That was a prerequisite
+for the ELF-FDPIC executable format, which allows real shared libraries
+on uClinux.
 
 -- 
-Luká¹ Hejtmánek
+dwmw2
+

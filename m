@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbTIZK0O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 06:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTIZK0O
+	id S261399AbTIZK3i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 06:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbTIZK3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 06:26:14 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:65177 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S261495AbTIZK0N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 06:26:13 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: mru@users.sourceforge.net (Mons Rullgord)
-Date: Fri, 26 Sep 2003 12:25:50 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	Fri, 26 Sep 2003 06:29:38 -0400
+Received: from zork.zork.net ([64.81.246.102]:24720 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261399AbTIZK3h convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 06:29:37 -0400
+To: linux-kernel@vger.kernel.org
 Subject: Re: vmware in Linux 2.6
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <14ADC76564A@vcnet.vc.cvut.cz>
+References: <yw1xwubvq3vq.fsf@users.sourceforge.net>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Fri, 26 Sep 2003 11:29:35 +0100
+In-Reply-To: <yw1xwubvq3vq.fsf@users.sourceforge.net> 
+ =?iso-8859-1?q?=28M=E5ns_Rullg=E5rd's?= message of "Fri, 26 Sep 2003 11:46:01 +0200")
+Message-ID: <6u1xu3q1v4.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Sep 03 at 11:46, Mons Rullgord wrote:
-> 
+mru@users.sourceforge.net (Måns Rullgård) writes:
+
 > Is it possible to use vmware with Linux 2.6?  The kernel modules
 > (obviously) fail to compile.
 
-Do you know Google?... And best for such type of questions are newsgroups
-at news.vmware.com, especially one named vmware.for-linux.experimental.
-
-And if you do not know Google, you need to know
-ftp://platan.vc.cvut.cz/pub/vmware ...  You can also use
-http://platan.vc.cvut.cz/ftp/pub/vmware, but ftp is preferred access
-method, so people with broken NATs are separated first...
-                                                Petr Vandrovec
-                                                
+There are three references in the vmnet code that need to be changed
+from ->priv to ->sk_priv, or somesuch.  After that, it seems to work
+fine.
 

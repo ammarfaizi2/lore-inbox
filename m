@@ -1,49 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVCUWsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVCVGp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbVCUWsz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVCUWrR
+	id S262297AbVCVGp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 01:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbVCVGms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:47:17 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37058 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262155AbVCUWoV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:44:21 -0500
-Date: Mon, 21 Mar 2005 23:44:03 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mws <mws@twisted-brains.org>
-Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2/2] SquashFS
-Message-ID: <20050321224403.GP1390@elf.ucw.cz>
-References: <20050314170653.1ed105eb.akpm@osdl.org> <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk> <20050321190044.GD1390@elf.ucw.cz> <423F4B88.8020504@twisted-brains.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 22 Mar 2005 01:42:48 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:55813 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262280AbVCVGlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 01:41:20 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Adrian Bunk <bunk@stusta.de>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [PATCH] reduce inlined x86 memcpy by 2 bytes
+Date: Tue, 22 Mar 2005 08:40:53 +0200
+User-Agent: KMail/1.5.4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matt Mackall <mpm@selenic.com>, vital@ilport.com.ua
+References: <200503181121.42809.vda@port.imtp.ilyichevsk.odessa.ua> <20050320131737.GD4449@stusta.de>
+In-Reply-To: <20050320131737.GD4449@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <423F4B88.8020504@twisted-brains.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200503220840.53411.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 20 March 2005 15:17, Adrian Bunk wrote:
+> Hi Denis,
+> 
+> what do your benchmarks say about replacing the whole assembler code 
+> with a
+> 
+>   #define __memcpy __builtin_memcpy
 
-[I'm not sure if I should further feed the trolls.]
+It generates call to out-of-line memcpy()
+if count is non-constant.
 
-> >Yes, it *is* rather unfair. Sorry about that. But having 2 different
-> >limited compressed filesystems in kernel does not seem good to me.
+# cat t.c
+extern char *a, *b;
+extern int n;
 
-> what do you need e.g. reiserfs 4 for? or jfs? or xfs? does not ext2/3 
-> the journalling job also?
-> is there really a need for cifs and samba and ncpfs and nfs v3 and nfs 
-> v4? why?
+void f() {
+    __builtin_memcpy(a,b,n);
+}
 
-Take a look at debate that preceded xfs merge. And btw reiserfs4 is
-*not* merged.
+void g() {
+    __builtin_memcpy(a,b,24);
+}
+# gcc -S -O2 --omit-frame-pointer t.c
+# cat t.s
+        .file   "t.c"
+        .text
+        .p2align 2,,3
+.globl f
+        .type   f, @function
+f:
+        subl    $16, %esp
+        pushl   n
+        pushl   b
+        pushl   a
+        call    memcpy
+        addl    $28, %esp
+        ret
+        .size   f, .-f
+        .p2align 2,,3
+.globl g
+        .type   g, @function
+g:
+        pushl   %edi
+        pushl   %esi
+        movl    a, %edi
+        movl    b, %esi
+        cld
+        movl    $6, %ecx
+        rep
+        movsl
+        popl    %esi
+        popl    %edi
+        ret
+        .size   g, .-g
+        .section        .note.GNU-stack,"",@progbits
+        .ident  "GCC: (GNU) 3.4.1"
 
-And people merging xfs/reiserfs4/etc did address problems pointed out
-in their code.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Proving that it is slower than inline is left
+as an excercise to the reader :)
+
+Kernel one will be inlined always.
+void h) { __memcpy(a,b,n);} is
+        movl    n, %eax
+        pushl   %edi
+        movl    %eax, %ecx
+        pushl   %esi
+        movl    a, %edi
+        movl    b, %esi
+        shrl    $2, %ecx
+#APP
+        rep ; movsl
+        movl %eax,%ecx
+        andl $3,%ecx
+        jz 1f
+        rep ; movsb
+        1:
+#NO_APP
+        popl    %esi
+        popl    %edi
+        ret
+--
+vda
+

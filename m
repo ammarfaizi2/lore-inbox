@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279307AbRLULqE>; Fri, 21 Dec 2001 06:46:04 -0500
+	id <S279778AbRLULqE>; Fri, 21 Dec 2001 06:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279778AbRLULpz>; Fri, 21 Dec 2001 06:45:55 -0500
-Received: from hal.grips.com ([62.144.214.40]:43235 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S279307AbRLULpi>;
-	Fri, 21 Dec 2001 06:45:38 -0500
-Message-Id: <200112211144.fBLBivK06638@hal.grips.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Gerold Jury <gjury@hal.grips.com>
-To: Dan Kegel <dank@kegel.com>, "David S. Miller" <davem@redhat.com>
-Subject: Re: aio
-Date: Fri, 21 Dec 2001 12:44:56 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: bcrl@redhat.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <20011219171631.A544@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com> <3C220ED2.F5B01AD4@kegel.com>
-In-Reply-To: <3C220ED2.F5B01AD4@kegel.com>
+	id <S279798AbRLULpz>; Fri, 21 Dec 2001 06:45:55 -0500
+Received: from punt-2.aladdin.de ([212.14.90.2]:54461 "HELO punt.aladdin.de")
+	by vger.kernel.org with SMTP id <S279778AbRLULpq>;
+	Fri, 21 Dec 2001 06:45:46 -0500
+To: Mike Jagdis <jaggy@purplet.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+From: Christian Groessler <cpg@aladdin.de>
+Date: 21 Dec 2001 12:44:37 +0100
+Message-ID: <87pu58ol0a.fsf@panther.aladdin.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 December 2001 17:16, Dan Kegel wrote:
-> "David S. Miller" wrote:
-> > If AIO was so relevant+sexy we'd be having threads of discussion about
-> > the AIO implementation instead of threads about how relevant it is or
-> > is not for the general populace.  Wouldn't you concur?  :-)
-> >
-> > The people doing Java server applets are such a small fraction of the
-> > Linux user community.
+On 12/21/2001 10:58:30 AM GMT Mike Jagdis wrote:
 >
-> reason AIO is important is to make it easier to port code from NT.
+>Mike Eldridge wrote:
 >
-> but I firmly believe that some form of AIO is vital.
+>> i was going to comment about simply using lowercase equivalents, but
+>> then milli already has 'm', although the concept of a millibyte (or even
+>> millibit) is absurd.
 >
-> - Dan
+>Why? For instance a millibyte/s might be a hearbeat across a LAN every
+>hour or so or it might be a control traffic requirement for a deep space
+>probe. You might not have an immediate use for the term but it has a
+>specific meaning - and certainly isn't "absurd" (see definition on
+>http://www.dict.org).
 
->From the aio-0.3.1/README
-section Current State
+So, is it 1/1024 or 1/1000 bytes ?  :-)
 
-  IPv4 TCP and UDP (rx only) sockets.
+regards,
+chris
 
-It is simply too early for sexy discussions. For me, the most appealing part 
-of AIO is the socket handling. It seems a little bit broken in the current 
-glibc emulation/implementation.
-Recv and send operations are ordered when used on the same socket handle.
-Thus a recv must be finished before a subsequent send will happen.
-Good idea for files, bad for sockets.
-
-SGI's implementation kaio, which works perfect for me, is widespread ignored 
-and sufferes from the unreserved syscall problem like Ben's aio. I am sure 
-there is a reason for ignoring SGI-kaio, i just do not remember.
-
-With the current state of the different implementations it is difficult to 
-have sex about or use them.
-But i would really like tooooooooooooooooooo.
-
-Gerold
-
--
-The one-sig-perfd patch did not get much attention either.
-No one seems to use sockets these days.

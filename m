@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135700AbRDSUlt>; Thu, 19 Apr 2001 16:41:49 -0400
+	id <S135696AbRDSUqJ>; Thu, 19 Apr 2001 16:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135704AbRDSUlh>; Thu, 19 Apr 2001 16:41:37 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:29070 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S135696AbRDSUlI>;
-	Thu, 19 Apr 2001 16:41:08 -0400
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: light weight user level semaphores
-In-Reply-To: <Pine.LNX.4.31.0104191036220.5052-100000@penguin.transmeta.com>
-	<m3ofts3d4k.fsf@otr.mynet.cygnus.com>
-	<20010419222228.J682@nightmaster.csn.tu-chemnitz.de>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 19 Apr 2001 13:40:19 -0700
-In-Reply-To: Ingo Oeser's message of "Thu, 19 Apr 2001 22:22:28 +0200"
-Message-ID: <m31yqo1v4c.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+	id <S135698AbRDSUp7>; Thu, 19 Apr 2001 16:45:59 -0400
+Received: from mail.clemson.edu ([130.127.28.87]:2688 "EHLO CLEMSON.EDU")
+	by vger.kernel.org with ESMTP id <S135696AbRDSUpo>;
+	Thu, 19 Apr 2001 16:45:44 -0400
+Message-ID: <002301c0c911$e77c6490$3cac7f82@crb50>
+From: "Hai Xu" <xhai@CLEMSON.EDU>
+To: <linux-kernel@vger.kernel.org>
+Subject: A little problem.
+Date: Thu, 19 Apr 2001 16:47:09 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> writes:
+Dear all,
 
-> Are you sure, you can implement SMP-safe, atomic operations (which you need
-> for all up()/down() in user space) WITHOUT using privileged
-> instructions on ALL archs Linux supports?
+I have a question about the kernel used by the RedHat. I am using Redhat 7.0
+and upgrade the Linux Kerenl from their original 2.2.16 to 2.2.18. But when
+I compile some modules, it said my kernel is 2.4.0. I check the
+/usr/include/linux/version.h as follows, found that it shows I am using
+Kernel 2.4.0.
 
-Which processors have no such instructions but are SMP-capable?
+#include <linux/rhconfig.h>
+#if defined(__module__smp)
+#define UTS_RELEASE "2.4.0-0.26smp"
+#else
+#define UTS_RELEASE "2.4.0-0.26"
+#endif
+#define LINUX_VERSION_CODE 132096
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
-> How do we do this on nccNUMA machines later? How on clusters[1]?
 
-Clusters are not my problem.  They require additional software.  And
-NUMA machines maybe be requiring a certain sequence in which the
-operations must be performed and the hardware should take care of the
-rest.
+ But when I "cat /proc/version", it will give me:
+
+Linux version 2.2.18-rtl (gcc version egcs-2.91.66 19990314/Linux
+(egcs-1.1.2 release)) #1 Thu Apr 5 23:10:12 EDT 2001
+
+So I am totally confused by the RedHat. So could you please tell me how to
+solve this problem?
+
+I just want to use the 2.2.18 without the 2.4.0. I did not install this one,
+I also do not know where this one comes from.
+
+Thanks in advance.
+Hai Xu
 
 
-I don't really care what the final implementation will be like.  For
-UP and SMP machines I definitely want to have as much as possible at
-user-level.  If you need a special libpthread for NUMA machines, so be
-it.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------

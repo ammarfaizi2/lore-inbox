@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264607AbSIQViS>; Tue, 17 Sep 2002 17:38:18 -0400
+	id <S264575AbSIQVkT>; Tue, 17 Sep 2002 17:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264627AbSIQViS>; Tue, 17 Sep 2002 17:38:18 -0400
-Received: from users.linvision.com ([62.58.92.114]:9881 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S264607AbSIQViR>; Tue, 17 Sep 2002 17:38:17 -0400
-Date: Tue, 17 Sep 2002 23:43:02 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Thomas Dodd <ted@cypress.com>, linux-kernel@vger.kernel.org,
-       linux-usb-users@lists.sourceforge.net, gen-lists@blueyonder.co.uk
-Subject: Re: Problems accessing USB Mass Storage
-Message-ID: <20020917234302.A26741@bitwizard.nl>
-References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com> <3D876861.9000601@cypress.com> <20020917174631.GD2569@kroah.com>
-Mime-Version: 1.0
+	id <S264591AbSIQVkT>; Tue, 17 Sep 2002 17:40:19 -0400
+Received: from packet.digeo.com ([12.110.80.53]:8919 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264575AbSIQVkS>;
+	Tue, 17 Sep 2002 17:40:18 -0400
+Message-ID: <3D87A264.8D5F3AD2@digeo.com>
+Date: Tue, 17 Sep 2002 14:45:08 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: manfred@colorfullife.com, "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+References: <3D879F59.6BDF9443@digeo.com> <20020917.142635.114214508.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020917174631.GD2569@kroah.com>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Sep 2002 21:45:08.0045 (UTC) FILETIME=[7D9D27D0:01C25E93]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 10:46:31AM -0700, Greg KH wrote:
-> On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
-> > 
-> > I get the feeling it's not a true mass storage device.
+"David S. Miller" wrote:
 > 
-> Sounds like it.
+>    From: Andrew Morton <akpm@digeo.com>
+>    Date: Tue, 17 Sep 2002 14:32:09 -0700
+> 
+>    There is a similar background loadtester at
+>    http://www.zip.com.au/~akpm/linux/#zc .
+> 
+>    It's fairly fancy - I wrote it for measuring networking
+>    efficiency.  It doesn't seem to have any PCisms....
+> 
+> Thanks I'll check it out, but meanwhile I hacked up sparc
+> specific assembler for manfred's code :-)
+> 
+>    (I measured similar regression using an ancient NAPIfied
+>    3c59x a long time ago).
+> 
+> Well, it is due to the same problems manfred saw initially,
+> namely just a crappy or buggy NAPI driver implementation. :-)
 
-Nope. Sure does sound like it's a mass storage device. And it works
-too. 
+It was due to additional inl()'s and outl()'s in the driver fastpath.
 
-The kernel managed to read the partition table off it, and got
-one valid partition: sda1. 
+Testcase was netperf Tx and Rx.  Just TCP over 100bT. AFAIK, this overhead
+is intrinsic to NAPI.  Not to say that its costs outweigh its benefits,
+but it's just there.
 
-				Roger.
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+If someone wants to point me at all the bits and pieces to get a
+NAPIfied 3c59x working on 2.5.current I'll retest, and generate
+some instruction-level oprofiles.

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261576AbREUQz6>; Mon, 21 May 2001 12:55:58 -0400
+	id <S261577AbREURAJ>; Mon, 21 May 2001 13:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbREUQzt>; Mon, 21 May 2001 12:55:49 -0400
-Received: from viper.haque.net ([66.88.179.82]:21450 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S261535AbREUQzi>;
-	Mon, 21 May 2001 12:55:38 -0400
-Message-ID: <3B094884.F5AEB9B1@haque.net>
-Date: Mon, 21 May 2001 12:55:32 -0400
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Harald Dunkel <harri@synopsys.COM>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Giant disk on 2.2.17: Any concerns?
-In-Reply-To: <3B094183.24148B9D@Synopsys.COM> <3B094401.502463F7@haque.net> <3B094525.63F86FEA@Synopsys.COM>
+	id <S261578AbREUQ77>; Mon, 21 May 2001 12:59:59 -0400
+Received: from marine.sonic.net ([208.201.224.37]:10622 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S261577AbREUQ7o>;
+	Mon, 21 May 2001 12:59:44 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Mon, 21 May 2001 09:59:38 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010521095938.A1529@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3B08B6B0.4010907@kalifornia.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Dunkel wrote:
-> Many thanx for your fast answer.
-> 
-> What kind of controller did you use?
+On Sun, May 20, 2001 at 11:33:20PM -0700, Ben Ford wrote:
+> Not only that, but Alan said that somebody is rewriting it in C.
 
-Mylex eXtremeRAID 1100. It's not sold anymore I don't think.
+I'll believe it when I see it.
 
+mrc
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

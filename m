@@ -1,113 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVAYWXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVAYWXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVAYWXx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 17:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVAYWUv
+	id S262203AbVAYWXv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 17:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVAYWWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 17:20:51 -0500
-Received: from gizmo03ps.bigpond.com ([144.140.71.13]:23720 "HELO
-	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262188AbVAYWTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 17:19:02 -0500
-Message-ID: <41F6C5CE.9050303@bigpond.net.au>
-Date: Wed, 26 Jan 2005 09:18:54 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
-In-Reply-To: <20050125135613.GA18650@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 17:22:00 -0500
+Received: from farad.aurel32.net ([82.232.2.251]:51649 "EHLO farad.aurel32.net")
+	by vger.kernel.org with ESMTP id S262180AbVAYWSW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 17:18:22 -0500
+Date: Tue, 25 Jan 2005 23:18:19 +0100
+From: =?iso-8859-15?Q?Aur=E9lien?= Jarno <aurelien@aurel32.net>
+To: Greg KH <greg@kroah.com>
+Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] I2C: lm78 driver improvement
+Message-ID: <20050125221819.GB23560@bode.aurel32.net>
+Mail-Followup-To: =?iso-8859-15?Q?Aur=E9lien?= Jarno <aurelien@aurel32.net>,
+	Greg KH <greg@kroah.com>, sensors@Stimpy.netroedge.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+X-Mailer: Mutt 1.5.6+20040907i (CVS)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> pretty much the only criticism of the RT-CPU patch was that the global
-> sysctl is too rigid and that it doesnt allow privileged tasks to ignore
-> the limit. I've uploaded a new RT-CPU-limit patch that solves this
-> problem:
-> 
->   http://redhat.com/~mingo/rt-limit-patches/
-> 
-> i've removed the global sysctl and implemented a new rlimit,
-> RT_CPU_RATIO: the maximum amount of CPU time RT tasks may use, in
-> percent. For testing purposes it defaults to 80%.
-> 
-> the RT-limit being an rlimit makes it much more configurable: root tasks
-> can have unlimited CPU time limit, while users could have a more
-> conservative setting of say 30%. This also makes it per-process and
-> runtime configurable as well. The scheduler will instantly act upon any
-> new RT_CPU_RATIO rlimit.
-> 
-> (this approach is fundamentally different from the previous patch that
-> made the "maximum RT-priority available to an unprivileged task" value
-> an rlimit - with priorities being an rlimit we still havent made RT
-> priorities safe against deadlocks.)
-> 
-> multiple tasks can have different rlimits as well, and the scheduler
-> interprets it the following way: it maintains a per-CPU "RT CPU use"
-> load-average value and compares it against the per-task rlimit. If e.g. 
-> the task says "i'm in the 60% range" and the current average is 70%,
-> then the scheduler delays this RT task - if the next task has an 80%
-> rlimit then it will be allowed to run. This logic is straightforward and
-> can be used as a further control mechanism against runaway highprio RT
-> tasks.
-> 
-> other properties of the RT_CPU_RATIO rlimit:
-> 
->  - if there's idle time in the system then RT tasks will be
->    allowed to use more than the limit.
-> 
->  - if an RT task goes above the limit all the time then there
->    is no guarantee that exactly the limit will be allowed for
->    it. (i.e. you should set the limit to somewhat above the real
->    needs of the RT task in question.)
-> 
->  - a zero RLIMIT_RT_CPU_RATIO value means unlimited CPU time to that
->    RT task. If the task is not an RT task then it may not change to RT
->    priority. (i.e. a zero value makes it fully compatible with previous
->    RT scheduling semantics.)
-> 
->  - a nonzero rt_cpu_limit value also has the effect of allowing
->    the use of RT priorities to nonprivileged users.
-> 
->  - on SMP the limit is measured and enforced per-CPU.
-> 
->  - runtime overhead is minimal, especially if the limit is set to 0.
-> 
->  - the CPU-use measurement code has a 'memory' of roughly 300 msecs.
->    I.e. if an RT task runs 100 msecs nonstop then it will increase
->    its CPU use by about 30%. This should be fast enough for users for
->    the limit to be human-inperceptible, but slow enough to allow
->    occasional longer timeslices to RT tasks.
+Hi Greg,
 
-As I understand this (and I may be wrong), the intention is that if a 
-task has its RT_CPU_RATIO rlimit set to a value greater than zero then 
-setting its scheduling policy to SCHED_RR or SCHED_FIFO is allowed. 
-This causes me to ask the following questions:
+The following patch against kernel 2.6.11-rc2-mm1 improves the lm78
+driver. I used it as a model to port the sis5595 driver to the 2.6
+kernel, and I then applied the changes suggested by Jean Delvare on 
+the sis5595 driver to this one.
 
-1. Why is current->signal->rlim[RLIMIT_RT_CPU_RATIO].rlim_cur being used 
-in setscheduler() instead of p->signal->rlim[RLIMIT_RT_CPU_RATIO].rlim_cur?
+Please apply.
 
-2. What stops a task that had a non zero RT_CPU_RATIO rlimit and changed 
-its policy to SCHED_RR or SCHED_FIFO from then setting RT_CPU_RATIO 
-rlimit back to zero and escaping the controls?  As far as I can see 
-(and, once again, I may be wrong) the mechanism for setting rlimits only 
-requires CAP_SYS_RESOURCE privileges in order to increase the value.
+Thanks,
+Aurelien
 
-Peter
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+
+diff -urN linux-2.6.11-rc2-mm1.orig/drivers/i2c/chips/lm78.c linux-2.6.11-rc2-mm1/drivers/i2c/chips/lm78.c
+--- linux-2.6.11-rc2-mm1.orig/drivers/i2c/chips/lm78.c	2005-01-25 19:51:32.000000000 +0100
++++ linux-2.6.11-rc2-mm1/drivers/i2c/chips/lm78.c	2005-01-25 22:26:01.000000000 +0100
+@@ -81,9 +81,8 @@
+ 
+ static inline u8 FAN_TO_REG(long rpm, int div)
+ {
+-	if (rpm == 0)
++	if (rpm <= 0)
+ 		return 255;
+-	rpm = SENSORS_LIMIT(rpm, 1, 1000000);
+ 	return SENSORS_LIMIT((1350000 + rpm * div / 2) / (rpm * div), 1, 254);
+ }
+ 
+@@ -94,15 +93,15 @@
+ 
+ /* TEMP: mC (-128C to +127C)
+    REG: 1C/bit, two's complement */
+-static inline u8 TEMP_TO_REG(int val)
++static inline s8 TEMP_TO_REG(int val)
+ {
+ 	int nval = SENSORS_LIMIT(val, -128000, 127000) ;
+-	return nval<0 ? (nval-500)/1000+0x100 : (nval+500)/1000;
++	return nval<0 ? (nval-500)/1000 : (nval+500)/1000;
+ }
+ 
+-static inline int TEMP_FROM_REG(u8 val)
++static inline int TEMP_FROM_REG(s8 val)
+ {
+-	return (val>=0x80 ? val-0x100 : val) * 1000;
++	return val * 1000;
+ }
+ 
+ /* VID: mV
+@@ -112,16 +111,6 @@
+ 	return val==0x1f ? 0 : val>=0x10 ? 5100-val*100 : 2050-val*50;
+ }
+ 
+-/* ALARMS: chip-specific bitmask
+-   REG: (same) */
+-#define ALARMS_FROM_REG(val) (val)
+-
+-/* FAN DIV: 1, 2, 4, or 8 (defaults to 2)
+-   REG: 0, 1, 2, or 3 (respectively) (defaults to 1) */
+-static inline u8 DIV_TO_REG(int val)
+-{
+-	return val==8 ? 3 : val==4 ? 2 : val==1 ? 0 : 1;
+-}
+ #define DIV_FROM_REG(val) (1 << (val))
+ 
+ /* There are some complications in a module like this. First off, LM78 chips
+@@ -157,9 +146,9 @@
+ 	u8 in_min[7];		/* Register value */
+ 	u8 fan[3];		/* Register value */
+ 	u8 fan_min[3];		/* Register value */
+-	u8 temp;		/* Register value */
+-	u8 temp_over;		/* Register value */
+-	u8 temp_hyst;		/* Register value */
++	s8 temp;		/* Register value */
++	s8 temp_over;		/* Register value */
++	s8 temp_hyst;		/* Register value */
+ 	u8 fan_div[3];		/* Register encoding, shifted right */
+ 	u8 vid;			/* Register encoding, combined */
+ 	u16 alarms;		/* Register encoding, combined */
+@@ -357,7 +346,17 @@
+ 			DIV_FROM_REG(data->fan_div[nr]));
+ 	unsigned long val = simple_strtoul(buf, NULL, 10);
+ 	int reg = lm78_read_value(client, LM78_REG_VID_FANDIV);
+-	data->fan_div[nr] = DIV_TO_REG(val);
++	switch (val) {
++	case 1: data->fan_div[nr] = 0; break;
++	case 2: data->fan_div[nr] = 1; break;
++	case 4: data->fan_div[nr] = 2; break;
++	case 8: data->fan_div[nr] = 3; break;
++	default:
++		dev_err(&client->dev, "fan_div value %ld not "
++			"supported. Choose one of 1, 2, 4 or 8!\n", val);
++		return -EINVAL;
++	}
++
+ 	switch (nr) {
+ 	case 0:
+ 		reg = (reg & 0xcf) | (data->fan_div[nr] << 4);
+@@ -430,7 +429,7 @@
+ static ssize_t show_alarms(struct device *dev, char *buf)
+ {
+ 	struct lm78_data *data = lm78_update_device(dev);
+-	return sprintf(buf, "%d\n", ALARMS_FROM_REG(data->alarms));
++	return sprintf(buf, "%u\n", data->alarms);
+ }
+ static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
+ 
+@@ -633,17 +632,15 @@
+ {
+ 	int err;
+ 
+-	/* release ISA region first */
+-	if(i2c_is_isa_client(client))
+-		release_region(client->addr, LM78_EXTENT);
+-
+-	/* now it's safe to scrap the rest */
+ 	if ((err = i2c_detach_client(client))) {
+ 		dev_err(&client->dev,
+ 		    "Client deregistration failed, client not detached.\n");
+ 		return err;
+ 	}
+ 
++	if(i2c_is_isa_client(client))
++		release_region(client->addr, LM78_EXTENT);
++
+ 	kfree(i2c_get_clientdata(client));
+ 
+ 	return 0;
+@@ -653,9 +650,7 @@
+    We don't want to lock the whole ISA bus, so we lock each client
+    separately.
+    We ignore the LM78 BUSY flag at this moment - it could lead to deadlocks,
+-   would slow down the LM78 access and should not be necessary. 
+-   There are some ugly typecasts here, but the good new is - they should
+-   nowhere else be necessary! */
++   would slow down the LM78 access and should not be necessary.  */
+ static int lm78_read_value(struct i2c_client *client, u8 reg)
+ {
+ 	int res;
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+  .''`.  Aurelien Jarno	              GPG: 1024D/F1BCDB73
+ : :' :  Debian GNU/Linux developer | Electrical Engineer
+ `. `'   aurel32@debian.org         | aurelien@aurel32.net
+   `-    people.debian.org/~aurel32 | www.aurel32.net
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+
+

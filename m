@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVAMR2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVAMRb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVAMR2K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVAMR1a
+	id S261295AbVAMRb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:31:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAMRah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:27:30 -0500
-Received: from zlynx.org ([199.45.143.209]:26120 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S261331AbVAMRZL (ORCPT
+	Thu, 13 Jan 2005 12:30:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22456 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261269AbVAMR3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:25:11 -0500
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-From: Zan Lynx <zlynx@acm.org>
-To: jarausch@belgacom.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050113151050.051BEFEC0E@numa-i.igpm.rwth-aachen.de>
-References: <20050113151050.051BEFEC0E@numa-i.igpm.rwth-aachen.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dDNqo4NtLy6U/ej41sor"
-Date: Thu, 13 Jan 2005 10:25:02 -0700
-Message-Id: <1105637102.7988.1.camel@localhost>
+	Thu, 13 Jan 2005 12:29:55 -0500
+Date: Thu, 13 Jan 2005 09:29:51 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113092951.Z469@build.pdx.osdl.net>
+References: <050LZ7812@server5.heliogroup.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <050LZ7812@server5.heliogroup.fr>; from hubert.tonneau@fullpliant.org on Wed, Jan 12, 2005 at 08:49:55PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Hubert Tonneau (hubert.tonneau@fullpliant.org) wrote:
+> Basically, you are currently leaving non distribution related users alone in the
+> cold and this is really really bad for the confidence we have in Linux,
+> so please publish a 2.6.10.1 with the short term solution to fix the hole.
+> Of course this does not prevent to publish 2.6.10.2 when you found a better
+> solution, or use a different fix in 2.6.11 since they are not based on 2.6.10.1
 
---=-dDNqo4NtLy6U/ej41sor
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I agree (it was part of my original mail), and would like to remedy this.
+For now, you can pick up fixes from -ac tree.
 
-On Mon, 2001-10-22 at 20:45 +0200, jarausch@belgacom.net wrote:
-> Hello,
->=20
-> yes I know, you don't like modules without full sources available.
-> But Nvidia is the leading vendor of video cards and all 2.4.x
-> kernels up to 2.4.13-pre5 work nice with this module.
-[snip]
+> Regards,
+> Hubert Tonneau
+> 
+> 
+> PS: I believe that it would also be a very good idea, since Linux is now
+> expected to be a mature organisation, to automatically publish 2.6.x.y new holes
+> only fix patch for each stable kernel that has been released less than a year ago.
+> This would enable smoother upgrade of highly important production servers.
 
-Looks like someone flushed a stuck mail queue from 2001.  I wonder what
-else was in there?  It's like archeology!=20
---=20
-Zan Lynx <zlynx@acm.org>
+Not sure about that (it's quite some work), but at least the _current_
+stable release version.
 
---=-dDNqo4NtLy6U/ej41sor
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBB5q7uG8fHaOLTWwgRAlhbAJ0cZyDn6SyEPeIO55+m+mf4z/9B4wCdG6Pu
-26UoL4V6Clj9Xaa2wg4KtlM=
-=Rb+K
------END PGP SIGNATURE-----
-
---=-dDNqo4NtLy6U/ej41sor--
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

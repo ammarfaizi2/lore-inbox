@@ -1,132 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266944AbTADOxH>; Sat, 4 Jan 2003 09:53:07 -0500
+	id <S266955AbTADPFk>; Sat, 4 Jan 2003 10:05:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbTADOxH>; Sat, 4 Jan 2003 09:53:07 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:3274 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266944AbTADOxF>; Sat, 4 Jan 2003 09:53:05 -0500
-Date: Sat, 4 Jan 2003 16:01:28 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Subject: [PATCH] unify netdev config follow-up
-Message-ID: <20030104150128.GZ1360@louise.pinerecords.com>
+	id <S266953AbTADPFk>; Sat, 4 Jan 2003 10:05:40 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56548 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266948AbTADPFh>; Sat, 4 Jan 2003 10:05:37 -0500
+Date: Sat, 4 Jan 2003 16:14:05 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, claus@momo.math.rwth-aachen.de,
+       linux-tape@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: [2.5 patch] re-add zft_dirty to zftape-ctl.c
+Message-ID: <20030104151404.GX6114@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add more netdev bus dependencies.  Patch by Arnd Bergmann.
+Hi Alan,
 
-Linus, please apply.
+your
 
+  [PATCH] rescue ftape from the ravages of that Rusty chap
 
+removed zft_dirty from zftape-ctl.c in Linus' 2.5 tree. This seems to be
+accidentially and wrong, it was the only definition of zft_dirty in the
+whole kernel sources and now there's an error at the final linking of
+the kernel. The patch below (against 2.5.54) re-adds it.
 
-===== drivers/net/Kconfig 1.8 vs edited =====
---- 1.8/drivers/net/Kconfig	Thu Jan  2 22:05:21 2003
-+++ edited/drivers/net/Kconfig	Fri Jan  3 17:48:11 2003
-@@ -2364,7 +2364,7 @@
- 
- config ARLAN
- 	tristate "Aironet Arlan 655 & IC2200 DS support"
--	depends on NET_RADIO
-+	depends on NET_RADIO && ISA
- 	---help---
- 	  Aironet makes Arlan, a class of wireless LAN adapters. These use the
- 	  www.Telxon.com chip, which is also used on several similar cards.
-===== drivers/net/wan/Kconfig 1.1 vs edited =====
---- 1.1/drivers/net/wan/Kconfig	Wed Oct 30 02:16:55 2002
-+++ edited/drivers/net/wan/Kconfig	Fri Jan  3 18:25:47 2003
-@@ -62,7 +62,7 @@
- #
- config COMX
- 	tristate "MultiGate (COMX) synchronous serial boards support"
--	depends on WAN
-+	depends on WAN && (ISA || PCI)
- 	---help---
- 	  Say Y if you want to use any board from the MultiGate (COMX) family.
- 	  These boards are synchronous serial adapters for the PC,
-@@ -176,7 +176,7 @@
- #
- config DSCC4
- 	tristate "Etinc PCISYNC serial board support"
--	depends on WAN && m
-+	depends on WAN && PCI && m
- 	help
- 	  This is a driver for Etinc PCISYNC boards based on the Infineon
- 	  (ex. Siemens) DSCC4 chipset. It is supposed to work with the four
-@@ -193,7 +193,7 @@
- #
- config LANMEDIA
- 	tristate "LanMedia Corp. SSI/V.35, T1/E1, HSSI, T3 boards"
--	depends on WAN
-+	depends on WAN && PCI
- 	---help---
- 	  This is a driver for the following Lan Media family of serial
- 	  boards.
-@@ -222,7 +222,7 @@
- # There is no way to detect a Sealevel board. Force it modular
- config SEALEVEL_4021
- 	tristate "Sealevel Systems 4021 support"
--	depends on WAN && m
-+	depends on WAN && ISA && m
- 	help
- 	  This is a driver for the Sealevel Systems ACB 56 serial I/O adapter.
- 
-@@ -336,7 +336,7 @@
- 
- config N2
- 	tristate "SDL RISCom/N2 support"
--	depends on HDLC
-+	depends on HDLC && ISA
- 	help
- 	  This driver is for RISCom/N2 single or dual channel ISA cards
- 	  made by SDL Communications Inc.  If you have such a card,
-@@ -348,7 +348,7 @@
- 
- config C101
- 	tristate "Moxa C101 support"
--	depends on HDLC
-+	depends on HDLC && ISA
- 	help
- 	  This driver is for C101 SuperSync ISA cards made by Moxa
- 	  Technologies Co., Ltd. If you have such a card,
-@@ -358,7 +358,7 @@
- 
- config FARSYNC
- 	tristate "FarSync T-Series support"
--	depends on HDLC
-+	depends on HDLC && PCI
- 	---help---
- 	  This driver supports the FarSync T-Series X.21 (and V.35/V.24) cards
- 	  from FarSite Communications Ltd.
-@@ -432,7 +432,7 @@
- 
- config SDLA
- 	tristate "SDLA (Sangoma S502/S508) support"
--	depends on DLCI
-+	depends on DLCI && ISA
- 	help
- 	  Say Y here if you need a driver for the Sangoma S502A, S502E, and
- 	  S508 Frame Relay Access Devices. These are multi-protocol cards, but
-@@ -465,7 +465,7 @@
- 
- config VENDOR_SANGOMA
- 	tristate "Sangoma WANPIPE(tm) multiprotocol cards"
--	depends on WAN_ROUTER_DRIVERS && WAN_ROUTER
-+	depends on WAN_ROUTER_DRIVERS && WAN_ROUTER && (PCI || ISA)
- 	---help---
- 	  WANPIPE from Sangoma Technologies Inc. (<http://www.sangoma.com/>)
- 	  is a family of intelligent multiprotocol WAN adapters with data
-@@ -559,7 +559,7 @@
- 
- config CYCLADES_SYNC
- 	tristate "Cyclom 2X(tm) cards (EXPERIMENTAL)"
--	depends on WAN_ROUTER_DRIVERS
-+	depends on WAN_ROUTER_DRIVERS && (PCI || ISA)
- 	---help---
- 	  Cyclom 2X from Cyclades Corporation (<http://www.cyclades.com/> and
+cu
+Adrian
 
+--- linux/drivers/char/ftape/zftape/zftape-ctl.c	2003-01-02 04:21:44.000000000 +0100
++++ linux/drivers/char/ftape/zftape/zftape-ctl.c	2000-10-16 21:58:51.000000000 +0200
+@@ -648,6 +648,50 @@
+ 	TRACE_EXIT 0;
+ }
+ 
++/*  decide when we should lock the module in memory, even when calling
++ *  the release routine. This really is necessary for use with
++ *  kerneld.
++ *
++ *  NOTE: we MUST NOT use zft_write_protected, because this includes
++ *  the file access mode as well which has no meaning with our 
++ *  asynchronous update scheme.
++ *
++ *  Ugly, ugly. We need to look the module if we changed the block size.
++ *  How sad! Need persistent modules storage!
++ *
++ *  NOTE: I don't want to lock the module if the number of dma buffers 
++ *  has been changed. It's enough! Stop the story! Give me persisitent
++ *  module storage! Do it!
++ */
++int zft_dirty(void)
++{
++	if (!ft_formatted || zft_offline) { 
++		/* cannot be dirty if not formatted or offline */
++		return 0;
++	}
++	if (zft_blk_sz != CONFIG_ZFT_DFLT_BLK_SZ) {
++		/* blocksize changed, must lock */
++		return 1;
++	}
++	if (zft_mt_compression != 0) {
++		/* compression mode with /dev/qft, must lock */
++		return 1;
++	}
++	if (!zft_header_read) {
++		/* tape is logical at BOT, no lock */
++		return 0;
++	}
++	if (!zft_tape_at_lbot(&zft_pos)) {
++		/* somewhere inside a volume, lock tape */
++		return 1;
++	}
++	if (zft_volume_table_changed || zft_header_changed) {
++		/* header segments dirty if tape not write protected */
++		return !(ft_write_protected || zft_old_ftape);
++	}
++	return 0;
++}
++
+ /*      OPEN routine called by kernel-interface code
+  *
+  *      NOTE: this is also called by mt_reset() with dev_minor == -1

@@ -1,84 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290105AbSAQSJL>; Thu, 17 Jan 2002 13:09:11 -0500
+	id <S290103AbSAQSLm>; Thu, 17 Jan 2002 13:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290103AbSAQSJC>; Thu, 17 Jan 2002 13:09:02 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:15682 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S290102AbSAQSIs>; Thu, 17 Jan 2002 13:08:48 -0500
-Date: Thu, 17 Jan 2002 19:09:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: pte-highmem-5
-Message-ID: <20020117190924.B4847@athlon.random>
-In-Reply-To: <20020116185814.I22791@athlon.random> <Pine.LNX.4.21.0201171752520.2304-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0201171752520.2304-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Jan 17, 2002 at 05:57:15PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S290107AbSAQSLc>; Thu, 17 Jan 2002 13:11:32 -0500
+Received: from smtp-out1.kaptech.com ([62.106.132.133]:54802 "HELO
+	smtp-out.kaptech.net") by vger.kernel.org with SMTP
+	id <S290103AbSAQSLT>; Thu, 17 Jan 2002 13:11:19 -0500
+User-Agent: Microsoft-Entourage/9.0.2.4011
+Date: Thu, 17 Jan 2002 19:09:37 +0100
+Subject: Re: aty128fb weirdness
+From: Chris Boot <bootc@worldnet.fr>
+To: <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Message-ID: <B86CD1F1.6BA%bootc@worldnet.fr>
+In-Reply-To: <200201160817.g0G8HYE10520@Port.imtp.ilyichevsk.odessa.ua>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 17, 2002 at 05:57:15PM +0000, Hugh Dickins wrote:
-> On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
-> > 
-> > This patch in short will move pagetables into highmem, obviously it
-> > breaks all the archs out there. This should fix the problem completly
-> > allowing linux to effectively support all the 64G possibly available in
-> > the ia32 boxes (currently, without this patch, you risk to be able to
-> > use only a few gigabytes).
+on 16/1/2002 13:17, Denis Vlasenko at vda@port.imtp.ilyichevsk.odessa.ua
+wrote:
+
+> On 15 January 2002 17:06, Chris Boot wrote:
+>> I only just decided to reinstall Linux on my Apple iMac DV SE/500 with an
+>> ATI Rage Pro 128.  Last time I used Linux on this machine was when kernel
+>> 2.4.2 was the latest.  Now, when I try to use the native kernel driver for
+>> my graphics card, all I get is a black screen.  I can type blindly into the
+>> console or login through the network.  I double-checked all my kernel
+>> arguments and didn't find any mistake whatsoever, and enabled the debug
+>> code in the aty128fb driver, all to no avail.  I also tried several
+>> kernels, ranging from the one included with my distro (a patched 2.4.10),
+>> 2.4.16, 2.4.17, and 2.4.18-pre3.
 > 
-> Several random points on the patch, I've not studied it as long as
-> I'd like: so may well be making a fool of myself on some of these,
-> and you may quickly say so!
-> 
-> 1.  Yes, this has to come sooner or later, but it is a significant step,
->     as I've said in other mail - may unmap some useful debugging info.
-> 
-> 2.  More complicated than I'd like: too many pte_offset variants!
->     I'd prefer it without the different SERIEs, I don't understand why
->     those.  I assume it's to prevent kmaps of data flushing away "more
->     valuable" kmaps of page tables, but wouldn't it be better to keep
->     just one "serie" of kmap for now, add cleverer decision on what
->     and when to throw away later on, localized within mm/highmem.c?
+> You forgot to say which of them worked.
 
-we need more than one serie, no way, or it can deadlock, the default
-serie is for pages, the other series are for pagetables.
+When I last used it it was 2.4.3 or something back then.
 
-> 
-> 3.  KM_SERIE_PAGETABLE2 kmap_pagetable2 pmd_page2 pte_offset2 all just
->     for copy_page_range src?  Why distinguished from KM_SERIE_PAGETABLE?
->     Often it will already be KM_SERIE_PAGETABLE.  I can imagine you might
->     want an atomic at that point (holding spinlock), but I don't see what
->     the PAGETABLE2 distinction gives you.
+> Can't help you directly, but if nobody will answer, you can pinpoint at which
+> kernel version exactly it broke. Don't forget to recompile them with same
+> working .config from 2.4.2 (minus inevitable changes due to 'make oldconfig')
+> if you will decide to go hunting the bug :-)
 
-deadlock avoidance. It's the same reason as the mempool, you need tow
-mempool if you need two objects from the same task or it can deadlock
-(yes, it would be hard to deadlock it but possible).
+I stopped using Linux for a while and decided to install it over again and
+found the video non-working (2.4.10), then I decided to upgrade and had the
+same symptoms.  I had just recompiled a whole load of old kernels to see
+under which it broke when all of a sudden I came across a web page stating
+that acceleration didn't work on Rage 128 Pro chipsets, exactly what I have.
+So I tried adding the "noaccel" kernel parameter (which I didn't used to
+have to add) and it now works without a hitch under 2.4.18-pre3.  Go figure.
 
-in fork the pte_offset kmap could be an atomic one, but atomic are more
-costly with the invlpg I believe, to do it in a raw the 2 variant with a
-different serie should be faster for fork(2).
+Thanks anyway,
 
-> 4.  You've lifted the PAE restriction to LAST_PKMAP 512 in i386/highmem.h,
->     and use pkmap_page_table as one long array in mm/highmem.c, but I
->     don't see where you enforce the contiguity of page table pages in
->     i386/mm/init.c.  (I do already have a patch for lifting the 1024,512
->     kmaps limit, simplifying i386/mm/init.c, we've been using for months:
->     I can update that from 2.4.9 if you'd like it.)
+-- 
+Chris Boot
+bootc@mac.com
 
-correct, currently it works because the bootmem tends to return
-physically contigous pages but it is not enforced and it may trigger
-with a weird e820 layout. If you've a patch very feel free to post it!!  :)
-thanks for the review.
+"The keyboard is missing - Press any key to continue."
 
-> 
-> 5.  Shouldn't mm/vmscan.c be in the patch?
-
-can you elaborate?
-
-Andrea

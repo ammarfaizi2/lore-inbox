@@ -1,63 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261575AbSJCOyC>; Thu, 3 Oct 2002 10:54:02 -0400
+	id <S261672AbSJCPZA>; Thu, 3 Oct 2002 11:25:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261630AbSJCOyC>; Thu, 3 Oct 2002 10:54:02 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:54252 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S261575AbSJCOyB>; Thu, 3 Oct 2002 10:54:01 -0400
-Message-ID: <3D9C5B4B.4050803@metaparadigm.com>
-Date: Thu, 03 Oct 2002 22:59:23 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S261675AbSJCPY7>; Thu, 3 Oct 2002 11:24:59 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:14156 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261672AbSJCPX2>;
+	Thu, 3 Oct 2002 11:23:28 -0400
+From: <Hell.Surfers@cwctv.net>
+To: rickh@Capaccess.org, linux-kernel@vger.kernel.org
+Date: Thu, 3 Oct 2002 16:28:26 +0100
+Subject: RE:Tux should be a goat
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Kevin Corry <corryk@us.ibm.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: EVMS Submission for 2.5
-References: <02100216332002.18102@boiler> <20021003153256.B17513@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1033658906930"
+Message-ID: <099b205271503a2DTVMAIL2@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/03/02 22:32, Christoph Hellwig wrote:
 
->>version of EVMS was released. EVMS has been accepted into the
->>Debian (Woody and Sid versions)
-> 
-> 
-> Can't find evms in my stock woody or sid kernel images.. (neither in the
-> sarge ones, btw..)
+--1033658906930
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Ships as a kernel patch deb as per most other debian kernel stuff that
-isn't in mainline (debian kernel images are always unpatched mainline)
+Have you been consuming magic mushrooms?
 
-This is on my sid machine
+Cheers, Dean McEwan. Currently hacking KGI, which I don't understand, oh and ask me about OpenModemTalk...
 
-$ apt-cache pkgnames | grep evms
-evms-ncurses
-libevms0
-libevms1
-evms-cli
-evms-gui
-kernel-patch-evms
-libevms-dev
-evms-lvmutils
-evms
+On 	Wed, 02 Oct 2002 22:28:22 -0400 	"Rick A. Hohensee" <rickh@Capaccess.org> wrote:
 
-This is on one of my woody machines
+--1033658906930
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-$ apt-cache pkgnames | grep evms
-evms-ncurses
-libevms0
-libevms1
-evms-cli
-evms-gui
-kernel-patch-evms
-libevms-dev
-evms-lvmutils
-evms
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Thu, 3 Oct 2002 03:28:01 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S262717AbSJCCWu>; Wed, 2 Oct 2002 22:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S262718AbSJCCWu>; Wed, 2 Oct 2002 22:22:50 -0400
+Received: from fc.capaccess.org ([151.200.199.53]:12560 "EHLO fc.Capaccess.org")
+	by vger.kernel.org with ESMTP id <S262717AbSJCCWt>;
+	Wed, 2 Oct 2002 22:22:49 -0400
+Message-id: <fc.0010c7b2005d96900010c7b2005d9690.5d96cc@Capaccess.org>
+Date: Wed, 02 Oct 2002 22:28:22 -0400
+Subject: Tux should be a goat
+To: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@Capaccess.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-~mc
+I was marvelling at the IBM Eserver ad in USA Today that mentions
+UNIX(TM), a trademark of the Open Group, and does not mention Linux. A
+handsome Arab-ish looking woman in a drab grey suit was raising her fists
+while brandishing an Eserver. The suits seem to be winning. The phone
+rings. Really. It's Verizon DSL with the deal of the century. Me "Does it
+work with Linux?" Him "What's that?"
+
+Me "Uh, it was an OS that showed a lot of promise for a while, but the
+Beast bought it."
+
+Rick Hohensee
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1033658906930--
+
 

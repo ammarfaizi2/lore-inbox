@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVALHv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVALH6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVALHv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 02:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVALHvz
+	id S261280AbVALH6v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 02:58:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVALH6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 02:51:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45246 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261275AbVALHvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 02:51:54 -0500
-Date: Wed, 12 Jan 2005 08:49:06 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       Lee Revell <rlrevell@joe-job.com>, Matt Mackall <mpm@selenic.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050112074906.GB5735@devserv.devel.redhat.com>
-References: <20050111214152.GA17943@devserv.devel.redhat.com> <200501112251.j0BMp9iZ006964@localhost.localdomain> <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us>
+	Wed, 12 Jan 2005 02:58:51 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:9377 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261280AbVALH6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 02:58:49 -0500
+Date: Wed, 12 Jan 2005 07:58:04 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
+Message-ID: <20050112075804.GA13336@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	"Barry K. Nathan" <barryn@pobox.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org> <20050107221255.GA8749@logos.cnet> <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org> <20050111225127.GD4378@ip68-4-98-123.oc.oc.cox.net> <20050111235907.GG2760@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87y8ezzake.fsf@sulphur.joq.us>
+In-Reply-To: <20050111235907.GG2760@pclin040.win.tue.nl>
 User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
-> > This is straying from the core issue...  But, Arjan's saying that an RT
-> > (non-root) task could trash the filesystem if it deadlocks the machine
-> > (because those important fs and IO threads don't run).
+On Wed, Jan 12, 2005 at 12:59:07AM +0100, Andries Brouwer wrote:
+> s/sys_uselib/uselib/
+> The system call is uselib().
 > 
-> Lexicographic ambiguity: Lee and Paul are using "trash" for things
-> like installing a hidden suid root shell or co-opting sendmail into an
-> open spam relay.  Arjan just means crashing the system which forces
-> reboot to run fsck.
+> Hmm - old cruft.. Why insult your users?
+> I do not have source for Maple. And my xmaple binary works just fine.
+> But it is a libc4 binary.
+> 
+> You mean "on the typical recently installed Linux system, with nothing
+> but the usual Linux utilities".
+> 
+> People always claim that Linux is good in preserving binary compatibility.
+> Don't know how true that was, but introducing such config options doesnt
+> help.
+> 
+> Let me also mutter about something else.
+> In principle configuration options are evil. Nobody wants fifty thousand
+> configuration options. But I see them multiply like ioctls.
+> There should be a significant gain in having a config option.
+> 
+> 
+> Maybe some argue that there is a gain in security here. Perhaps.
+> Or a gain in memory. It is negligible.
+> I see mostly a loss.
+> 
+> There are more ancient system calls, like old_stat and oldolduname.
+> Do we want separate options for each system call that is obsoleted?
 
-I actually meant data corruption.
+Agreed to this complaint.  I still think it might be a good idea to
+allow configuring obsolete syscalls out, but doing that on a per-syscall
+basis sounds like a bad idea.  I always liked the way FreeBSD one
+conditionals for everything that was obsoleted in a release.  So by setting
+only few options you could select how old binaries you want to support,
+defaulting to on for all of them.

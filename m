@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbTDQBy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 21:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTDQBy0
+	id S262513AbTDQB5D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 21:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbTDQB5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 21:54:26 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38408 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262478AbTDQBy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 21:54:26 -0400
-Date: Wed, 16 Apr 2003 19:06:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BK+PATCH] remove __constant_memcpy
-In-Reply-To: <3E9DFC11.50800@pobox.com>
-Message-ID: <Pine.LNX.4.44.0304161904170.1534-100000@home.transmeta.com>
+	Wed, 16 Apr 2003 21:57:03 -0400
+Received: from imladris.surriel.com ([66.92.77.98]:53703 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S262513AbTDQB5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 21:57:02 -0400
+Date: Wed, 16 Apr 2003 22:08:53 -0400 (EDT)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+cc: "David S. Miller" <davem@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] compile fix for br2684 
+In-Reply-To: <200304170153.h3H1rOGi007109@locutus.cmf.nrl.navy.mil>
+Message-ID: <Pine.LNX.4.50L.0304162207380.18306-100000@imladris.surriel.com>
+References: <200304170153.h3H1rOGi007109@locutus.cmf.nrl.navy.mil>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Apr 2003, chas williams wrote:
+> In message <Pine.LNX.4.44.0304162107370.12494-100000@chimarrao.boston.redhat.com>,Rik van Riel writes:
+> >It looks like the recent ATM updates forgot br2684.c, here is
+> >the patch needed to make that driver compile.
+>
+> forgive me, but i didnt think the recvq to sk->receive_queue changes were
+> in the 2.4 kernel series yet?
 
-On Wed, 16 Apr 2003, Jeff Garzik wrote:
-> 
-> gcc's __builtin_memcpy performs the same function (and more) as the 
-> kernel's __constant_memcpy.  So, let's remove __constant_memcpy, and let 
-> the compiler do it.
+Marcelo pulled them in recently:
 
-Please don't.
+$ bk changes | head -20
+...
+ChangeSet@1.1006.2.33, 2003-04-03 04:39:49-08:00, chas@locutus.cmf.nrl.navy.mil
+  [ATM]: Fix IPHASE build with debugging enabled.
 
-There's no way gcc will EVER get the SSE2 cases right. It just cannot do 
-it. In fact, I live in fear that we will have to turn off the compiler 
-intrisics entirely some day just because there is always the worry that 
-gcc will start using FP.
+cheers,
 
-So the advantage of doing our own memcpy() is not that it's necessarily 
-faster than the gcc built-in, but simply because I do not believe that the 
-gcc people care enough about the kernel to let them make the choice.
-
-		Linus
-
+Rik
+-- 
+Engineers don't grow up, they grow sideways.
+http://www.surriel.com/		http://kernelnewbies.org/

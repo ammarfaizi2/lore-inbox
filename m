@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291566AbSBHMlW>; Fri, 8 Feb 2002 07:41:22 -0500
+	id <S291441AbSBHMnc>; Fri, 8 Feb 2002 07:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291571AbSBHMlF>; Fri, 8 Feb 2002 07:41:05 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:5648 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S291564AbSBHMkm>;
-	Fri, 8 Feb 2002 07:40:42 -0500
-Message-ID: <3C63C73E.4060605@evision-ventures.com>
-Date: Fri, 08 Feb 2002 13:40:30 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020129
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Brian <hiryuu@envisiongames.net>
-CC: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ?????????????????????
-In-Reply-To: <0GR400G9IRB2XW@mtaout03.icomcast.net> <2094646627.1013034678@[195.224.237.69]> <0GR400HBLXT5DU@mtaout03.icomcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291247AbSBHMnX>; Fri, 8 Feb 2002 07:43:23 -0500
+Received: from ns.suse.de ([213.95.15.193]:46093 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S291033AbSBHMnP>;
+	Fri, 8 Feb 2002 07:43:15 -0500
+Date: Fri, 8 Feb 2002 13:43:12 +0100
+From: Dave Jones <davej@suse.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Serial Development <linux-serial@vger.kernel.org>
+Subject: Re: CONFIG_SERIAL_ACPI and early_serial_setup
+Message-ID: <20020208134311.D32413@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Linux Serial Development <linux-serial@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0202081320200.29963-100000@vervain.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0202081320200.29963-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Fri, Feb 08, 2002 at 01:25:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian wrote:
+On Fri, Feb 08, 2002 at 01:25:07PM +0100, Geert Uytterhoeven wrote:
+ > 
+ > If CONFIG_SERIAL_ACPI=y, but CONFIG_SERIAL=m, the kernel (2.4.18-pre9) doesn't
+ > link because early_serial_setup() is not found.
+ > 
+ > I think the correct fix is to not allow CONFIG_SERIAL_ACPI, unless
+ > CONFIG_SERIAL=y.
 
->On Wednesday 06 February 2002 05:31 pm, Alex Bligh - linux-kernel wrote:
->
->>like
->>
->>Subject: [ANNOUNCE] blah blah?
->>
->
->That would be upperCASE ACSII.
->I mean 6 bytes, each higher than 127, in a row.
->
->To my knowledge, there is no English word that would match that regex (or, 
->for that matter, any Romantic or Germanic language word).  It's the most 
->effective tool I've seen against Asian spam (like the one I replied to).
->
-Just for the record... the spam you replayed to was in russian.
+ Isn't CONFIG_SERIAL_ACPI an ia64 only option ?
 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

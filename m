@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315451AbSGSUnb>; Fri, 19 Jul 2002 16:43:31 -0400
+	id <S316994AbSGSUqX>; Fri, 19 Jul 2002 16:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316959AbSGSUnb>; Fri, 19 Jul 2002 16:43:31 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:53999 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S315451AbSGSUna>;
-	Fri, 19 Jul 2002 16:43:30 -0400
-Subject: Re: 2.4 O(1) scheduler
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: anton wilson <anton.wilson@camotion.com>
-Cc: J Sloan <jjs@lexus.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200207192018.QAA19141@test-area.com>
-References: <200207191943.PAA00351@test-area.com>
-	 <3D386E70.4040401@lexus.com>  <200207192018.QAA19141@test-area.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 19 Jul 2002 15:46:27 -0500
-Message-Id: <1027111587.6685.24.camel@UberGeek>
+	id <S317020AbSGSUqX>; Fri, 19 Jul 2002 16:46:23 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:31997 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316994AbSGSUqW>; Fri, 19 Jul 2002 16:46:22 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 19 Jul 2002 14:47:38 -0600
+To: Shawn <core@enodev.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020719204738.GF10315@clusterfs.com>
+Mail-Followup-To: Shawn <core@enodev.com>, linux-kernel@vger.kernel.org
+References: <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com> <20020717114501.GB28284@merlin.emma.line.org> <20020717190259.GA31503@clusterfs.com> <20020719102906.A5131@krusty.dt.e-technik.uni-dortmund.de> <20020719163907.GD10315@clusterfs.com> <20020719150116.A31973@q.mn.rr.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020719150116.A31973@q.mn.rr.com>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Been using 2.4.19-rc1-aa2 on a fairly large x86 box for about 16 days
-now. Nothing but love. Using the 0/1 scheduler, though I'm not sure if I
-could tweak it for "better" performance.(hint: like to see some
-"best-practices" type of doc, for 4/8-way SMP boxen)
+On Jul 19, 2002  15:01 -0500, Shawn wrote:
+> On 07/19, Andreas Dilger said something like:
+> > You cannot mount a dirty ext3 filesystem from read-only media.
+> 
+> I thought you could "mount -t ext2" ext3 volumes, and thought you could
+> force mount ext2.
 
-Aside from that, I've got 8GB ram, a ~750GB Oracle instance running, and
-4GB SHMMAX attatched to some Copper FC1 disks and using QLA2200's. 
+This is true if the ext3 filesystem is unmounted cleanly.  Otherwise
+there is a flag in the superblock which tells the kernel it can't
+mount the filesystem because there is something there it doesn't
+understand (namely the dirty journal with all of the recent changes).
 
-It's been very happy since rc1. Anyway, it's worth a shot. As soon as
-2.4.19 is "done" this box will go into production as soon as this RC2 VM
-stuff is cleared up.
+This flag (EXT3_FEATURE_INCOMPAT_RECOVERY) is cleared when the
+filesystem is unmounted properly, when e2fsck or a r/w mount
+recovers the journal, and not coincidentally when an LVM snapshot
+is created.
 
+In case you are more curious, there are a couple of paragraphs in
+linux/Documentation/filesystems/ext2.txt about the compat flags,
+which are really one of the great features of ext2.  You may think
+that an overstatement, but without the feature flags, none of the
+other enhancements that have been added to ext2 over the last few
+years (and in the next few years too) would have been so easily done.
 
-On Fri, 2002-07-19 at 15:17, anton wilson wrote:
-> On Friday 19 July 2002 03:54 pm, J Sloan wrote:
-> > Use 2.4-aa, 2.4-ac or 2.4-redhat kernel
-> > and you get the O(1) secheduler at
-> > no extra cost -
-> >
-> 
-> 
-> > Joe
-> 
-> 
-> I'm actually worried not about just the O(1) scheduler but if these patches 
-> will be incorporating the O(1) bug fixes such as the serious one in 
-> balance_load where curr->next was used instead of current->prev. Also, I need 
-> to use a patch that won't tamper with the usb implementation because I'd have 
-> to update our current usb driver to fit into the new system, and I'm getting 
-> flack about wasting time trying to update that thing already . . . So if you 
-> tell me no, I can go tell my boss I have to update the usb driver.
-> 
-> 
-> Anton
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+As for mounting a dirty ext2 filesystem, yes that is possible with
+only a warning at mount time.  That is why nobody has put much effort
+into adding the snapshot hooks into ext2 yet.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

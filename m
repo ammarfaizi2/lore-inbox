@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbULEMxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbULENSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbULEMxw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 07:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULEMxw
+	id S261302AbULENSA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 08:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULENSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 07:53:52 -0500
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:51613 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S261298AbULEMxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 07:53:49 -0500
-Date: Sun, 5 Dec 2004 07:53:37 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Ron Murray <rjmx@rjmx.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] CS461x gameport code isn't being included in build
-In-Reply-To: <41B237C6.9030404@rjmx.net>
-Message-ID: <Pine.LNX.4.61.0412050628300.31025@linaeum.absolutedigital.net>
-References: <41B237C6.9030404@rjmx.net>
+	Sun, 5 Dec 2004 08:18:00 -0500
+Received: from kane.otenet.gr ([195.170.0.27]:56749 "EHLO kane.otenet.gr")
+	by vger.kernel.org with ESMTP id S261302AbULENR5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 08:17:57 -0500
+Message-Id: <200412051317.iB5DHrOL026570@kane.otenet.gr>
+From: "Nicholas Papadakos" <panic@quake.gr>
+To: "'Francois Romieu'" <romieu@fr.zoreil.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: realtek r8169 + kernel 2.4.24 (openmosix)
+Date: Sun, 5 Dec 2004 15:17:01 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20041205122414.GA22383@electric-eye.fr.zoreil.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcTaxsSZIJOG3TFYTkqQ1C0UpvHbAQABTvEA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Dec 2004, Ron Murray wrote:
+I must be doing something wrong cauz I still get the same error when I try
+to apply the patch.
 
->    I've found a typo in drivers/input/gameport/Makefile in kernel
-> 2.6.9 which effectively prevents the CS461x gameport code from
-> being included. Here's the diff:
+I use :
+patch -p0 < r8169-mini-fix.patch 
 
-Good catch Ron (I thought I noticed that this wasn't being built), but 
-your patch appears to have been whitespace damaged.
+patching file drivers/net/r8169.c
+Hunk #1 FAILED at 1161.
+1 out of 1 hunk FAILED -- saving rejects to file drivers/net/r8169.c.rej
 
-Vojtech, here's one that should apply cleanly.
+Dump of rej file :
 
-thanks,
+***************
+*** 1161,1167 ****
 
--- Cal
+  static inline void rtl8169_make_unusable_by_asic(struct RxDesc *desc)
+  {
+-       desc->addr = 0x0badbadbadbadbad;
+        desc->status &= ~cpu_to_le32(OWNbit | RsvdMask);
+  }
 
-> Signed-off-by: Ron Murray <rjmx@rjmx.net>
+--- 1161,1167 ----
 
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
+  static inline void rtl8169_make_unusable_by_asic(struct RxDesc *desc)
+  {
++       desc->addr = 0x0badbadbadbadbadull;
+        desc->status &= ~cpu_to_le32(OWNbit | RsvdMask);
+  }
 
---- linux-2.6.10-rc3/drivers/input/gameport/Makefile	2004-10-18 17:53:06.000000000 -0400
-+++ linux-2.6.10-rc3-1/drivers/input/gameport/Makefile	2004-12-05 06:26:15.000000000 -0500
-@@ -5,7 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_GAMEPORT)		+= gameport.o
--obj-$(CONFIG_GAMEPORT_CS461X)	+= cs461x.o
-+obj-$(CONFIG_GAMEPORT_CS461x)	+= cs461x.o
- obj-$(CONFIG_GAMEPORT_EMU10K1)	+= emu10k1-gp.o
- obj-$(CONFIG_GAMEPORT_FM801)	+= fm801-gp.o
- obj-$(CONFIG_GAMEPORT_L4)	+= lightning.o
+I saved the file from my windows machine (outlook 2003) to a samba share on
+the machine needed to be patched. 
+I don't believe that has anything to do with it, right ?
+
+When commenting the line out the module did compile but It still connection
+froze after a while like before.
+
+I tried to apply the patch in both kernel versions same result.
+Am I missing something ?
+
+Thank you for your patience
+Regards, 
+Nicholas Papadakos
+
+
+
+
+
+
+
+

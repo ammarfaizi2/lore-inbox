@@ -1,45 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUFAN5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUFAN52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUFAN5n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 09:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUFAN5n
+	id S265048AbUFAN52 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 09:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265058AbUFAN52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 09:57:43 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:37857 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265055AbUFAN5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 09:57:41 -0400
-Date: Tue, 1 Jun 2004 14:57:37 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040601135737.GA18989@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040601021539.413a7ad7.akpm@osdl.org> <20040601102928.GA16718@infradead.org> <16572.34833.366022.48748@alkaid.it.uu.se>
+	Tue, 1 Jun 2004 09:57:28 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:17629 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S265048AbUFAN5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 09:57:19 -0400
+Date: Tue, 1 Jun 2004 10:53:36 -0300
+From: Guido Guenther <agx@sigxcpu.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch]: Fix rivafb's OF parsing
+Message-ID: <20040601135335.GA5406@bogon.ms20.nix>
+References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <16572.34833.366022.48748@alkaid.it.uu.se>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1086064086.1978.0.camel@gaston>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 03:43:45PM +0200, Mikael Pettersson wrote:
-> Been there, done that. open() on /proc/{$pid,self}/perfctr with
-> or without O_CREAT was the "get initial access" interface for
-> several years, until the semantics of /proc/$pid (and /proc/self)
-> completely changed in 2.6.0-test6.
-> 
-> Virtual perfctrs wants something that denotes the real kernel
-> task, not that process-is-a-group-of-kernel-threads crap.
+On Tue, Jun 01, 2004 at 02:28:06PM +1000, Benjamin Herrenschmidt wrote:
+> You'll have more chances getting the patch picked up quickly if you send
+> it in the body of the mail, not as an attachment. Attachement are an
+> order of magnitude more painful to process for us.
+Next try:
 
-I'm not on a nptl system here, so no thread groups in use, but don't
-we have /proc/$pid/$tid/ now?
+the attached patch fixes the EDID parsing for PPC on rivafb. It actually
+finds the EDID info in the OF Tree now. I grabbed this from BenHs Tree as
+of 2.6.5-rc3. The current code has no chance to work since it doesn't
+walk the device tree.
+This helps rivafb on PPC at least a bit further...
+Cheers,
+ -- Guido
 
-And yes, I agree with you that the change was utter crap, still wondering
-how it went in without proper review.
+signed-off-by: Guido Günther <agx@sigxpu.org>
+
+--- ../linux-2.6.7-rc2.orig/drivers/video/riva/fbdev.c	2004-05-30 11:40:32.000000000 -0300
++++ drivers/video/riva/fbdev.c	2004-06-01 00:57:37.060599712 -0300
+@@ -1620,14 +1632,27 @@
+ 	struct riva_par *par = (struct riva_par *) info->par;
+ 	struct device_node *dp;
+ 	unsigned char *pedid = NULL;
++        unsigned char *disptype = NULL;
++        static char *propnames[] = {
++        	"DFP,EDID", "LCD,EDID", "EDID", "EDID1", "EDID,B", "EDID,A", NULL };
++        int i;  
+ 
+ 	dp = pci_device_to_OF_node(pd);
+-	pedid = (unsigned char *)get_property(dp, "EDID,B", 0);
+-
+-	if (pedid) {
++        for (; dp != NULL; dp = dp->child) {
++               	disptype = (unsigned char *)get_property(dp, "display-type", NULL);
++                if (disptype == NULL)
++                	continue;
++                if (strncmp(disptype, "LCD", 3) != 0)
++                	continue;
++                for (i = 0; propnames[i] != NULL; ++i) {
++                        pedid = (unsigned char *)
++                                get_property(dp, propnames[i], NULL);
++                        if (pedid != NULL) {
+ 		par->EDID = pedid;
+ 		return 1;
+-	} else
++                        }
++                }
++        }
+ 		return 0;
+ }
+ #endif /* CONFIG_PPC_OF */

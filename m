@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293175AbSCWVoZ>; Sat, 23 Mar 2002 16:44:25 -0500
+	id <S311288AbSCWVxR>; Sat, 23 Mar 2002 16:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311277AbSCWVoQ>; Sat, 23 Mar 2002 16:44:16 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17668
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S293175AbSCWVoC>; Sat, 23 Mar 2002 16:44:02 -0500
-Date: Sat, 23 Mar 2002 13:43:23 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: John Langford <jcl@cs.cmu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, ahaas@neosoft.com, dave@zarzycki.org,
-        ben.de.rydt@pandora.be
-Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
-In-Reply-To: <3C9C7EF9.8020307@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10203231325370.1053-100000@master.linux-ide.org>
+	id <S311362AbSCWVxG>; Sat, 23 Mar 2002 16:53:06 -0500
+Received: from rigljica.arnes.si ([193.2.1.82]:30758 "EHLO rigljica.arnes.si")
+	by vger.kernel.org with ESMTP id <S311288AbSCWVw5>;
+	Sat, 23 Mar 2002 16:52:57 -0500
+Message-ID: <000901c1d2b5$345ce020$41448fd5@telemach.net>
+From: "Grega Fajdiga" <Gregor.Fajdiga@arnes.si>
+To: "Bob Miller" <rem@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020323125729.7d8fd3fd.Gregor.Fajdiga@telemach.net> <20020323082207.A5636@doc.pdx.osdl.net>
+Subject: Re: Compile problems with 2.5.7
+Date: Sat, 23 Mar 2002 22:53:43 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Mar 2002, Martin Dalecki wrote:
-
-> John Langford wrote:
-> > I went nuts with printk statements and managed to isolate the hang to
-> > one particular line of code.  The final printk in this code fragment
-> > never gets executed.  
-> > 
-> >                 } else if (m5229_revision >= 0xC3) {
-> > 		        /*
-> >                          * 1553/1535 (m1533, 0x79, bit 1)
-> >                          */
-> >                         printk("ata66_ali15x3           } else if (m5229_revisi\on >= 0xC3) {\n");
-> >                         pci_write_config_byte(isa_dev, 0x79, tmpbyte | 0x02);
+Good day
+> Grega,
 > 
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> Things are a little funny.  You have CONFIG_BSD_PROCESS_ACCT not set
+> but the compile errors you're getting are for code in acct.c that
+> will only compile if CONFIG_BSD_PROCESS_ACCT is SET.  I suspect that
+> something is not right with your view.
 > 
-> pci_write_config to isa_dev???? This looks at least suspicious.
-> You may very well check whatever isa_dev is trully a PCI device
-> handle or just some random IO base for ISA bus!
-
-Martin, recall the WinXP issue on resources.  This is that hook.  I will
-try to get more details out of the US base ALI people in a few days.
-
-Just a heads up, 95% of all hosts have hooks in function zero of the
-southbridge.  This is why I commented the other day about a perferred
-ruleset of device hunting.
-
-> >                 }
-> >                 printk("ata66_ali15x3 endif\n");
-> > 
-> > Art, Dave, and Ben may or may not have the same problem.  It would be
-> > interesting to know if they get a hang here.
-> > 
-> > Any ideas for fixing?
+> 1. Patch to acct.c didn't work correctly (did you get 2.5.7 by patching
+>    or a clean tar?).
 > 
-> See above :-)
+> 2. need to do a make mrproper/config/dep/clean/etc...
+> 
 
-I have now several reports about Transmeta LifeBooks that are doing things
-bad and not conforming to the docs.  This is not good.
-
+I downloaded a fresh tar, used the same .config, but got same error.
 Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
+Grega
 

@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVBAPXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVBAPZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbVBAPXu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 10:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVBAPXu
+	id S262041AbVBAPZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 10:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVBAPZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 10:23:50 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:5536 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262041AbVBAPXj (ORCPT
+	Tue, 1 Feb 2005 10:25:28 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:11980 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262039AbVBAPYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 10:23:39 -0500
-Message-ID: <41FF9EF8.2000101@us.ibm.com>
-Date: Tue, 01 Feb 2005 09:23:36 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-arch@vger.kernel.org
-Subject: Re: pci: Arch hook to determine config space size
-References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com> <20050128185234.GB21760@infradead.org> <20050129040647.GA6261@kroah.com> <41FE82B6.9060407@us.ibm.com> <41FE8994.4040802@us.ibm.com> <20050201074657.GA548@colo.lackof.org>
-In-Reply-To: <20050201074657.GA548@colo.lackof.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 1 Feb 2005 10:24:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Altva82CScn0472ptCwdRjivse8dm4azDfzcD0uabAyekiG6LEegZ2Lho/X/HKm9XDt45n8H5NWI+yF3K2DyLOycDd5xy5QOjxxSG8Zw/1H/ouC4HxZh+RTJUc8xh9D+MiDoisVjDI3UmkTgN5V5buoeuAcPui/0isf7bN1D/94=
+Message-ID: <d120d500050201072413193c62@mail.gmail.com>
+Date: Tue, 1 Feb 2005 10:24:39 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: David Fries <dfries@mail.win.org>
+Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <20050201145215.GA29942@spacedout.fries.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041123212813.GA3196@spacedout.fries.net>
+	 <20050201145215.GA29942@spacedout.fries.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> On Mon, Jan 31, 2005 at 01:40:04PM -0600, Brian King wrote:
+On Tue, 1 Feb 2005 08:52:15 -0600, David Fries <dfries@mail.win.org> wrote:
+> Currently a blocking read, select, or poll call will not return if a
+> joystick device is unplugged.  This patch allows them to return.
 > 
->>CC'ing the linux-pci mailing list...
-> 
-> 
-> thanks...
-> 
-> 
->>>This patch adds an arch hook so
->>>that individual archs can indicate if the underlying system supports
->>>expanded config space accesses or not.
-> 
-> 
->>>@@ -653,6 +653,8 @@ static int pci_cfg_space_size(struct pci
->>>			goto fail;
->>>	}
->>>
->>>+	if (!pcibios_exp_cfg_space(dev))
->>>+		goto fail;
->>>	if (pci_read_config_dword(dev, 256, &status) != PCIBIOS_SUCCESSFUL)
->>>		goto fail;
-> 
-> 
-> pci_read_config_dword lands in arch specific code.
-> See drivers/pci/access.c:PCI_OP_READ() macro.
-> 
-> I'm missing what pcibios_exp_cfg_space() does that can't be handled by
-> the bus_ops supplied by pci_scan_bus().
-> 
-> I would expect the pci_read_config_dword to fail for being out of bounds.
-> Is that wrong?
-> Or is bus_ops not feasible in this case because pcibios needs access
-> to pci_dev?
+...
+> static unsigned int joydev_poll(struct file *file, poll_table *wait)
+> {
+> +       int mask = 0;
+>        struct joydev_list *list = file->private_data;
+>        poll_wait(file, &list->joydev->wait, wait);
+> -       if (list->head != list->tail || list->startup < list->joydev->nabs + list->joydev->nkey)
+> -               return POLLIN | POLLRDNORM;
+> -       return 0;
+> +       if(!list->joydev->exist)
+> +               mask |= POLLERR;
 
-The current patch for this has become essentially that. It is now a 
-PPC64 specific patch that adds bounds checking in the PPC64 PCI config 
-access functions.
+Probably need POLLHUP in addition (or instead of POLLERR).
 
--Brian
+>        if (joydev->open)
+> +       {
+>                input_close_device(handle);
+> +               wake_up_interruptible(&joydev->wait);
+> +       }
+>        else
+> +       {
+>                joydev_free(joydev);
+> +       }
 
-
+Opening braces should go on the same line as the statement (if (...) {).
 -- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+Dmitry

@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271486AbRIJQmR>; Mon, 10 Sep 2001 12:42:17 -0400
+	id <S270999AbRIJQ7P>; Mon, 10 Sep 2001 12:59:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271431AbRIJQmI>; Mon, 10 Sep 2001 12:42:08 -0400
-Received: from ashi.FootPrints.net ([204.239.179.1]:9991 "EHLO
-	ashi.FootPrints.net") by vger.kernel.org with ESMTP
-	id <S271421AbRIJQl5>; Mon, 10 Sep 2001 12:41:57 -0400
-Date: Mon, 10 Sep 2001 09:42:08 -0700 (PDT)
-From: Kaz Kylheku <kaz@ashi.footprints.net>
-To: Wolfram Gloger <wg@malloc.de>
-cc: <brianmc1@us.ibm.com>, <libc-alpha@sources.redhat.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: SMP-ix86-threads-fork: Linux 2.4.x kernel problem identified
- [phantom read()]
-In-Reply-To: <E15gSpt-0008PG-00@mrvdom01.schlund.de>
-Message-ID: <Pine.LNX.4.33.0109100931190.20444-100000@ashi.FootPrints.net>
+	id <S271085AbRIJQ7E>; Mon, 10 Sep 2001 12:59:04 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:16532 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S270999AbRIJQ6w>; Mon, 10 Sep 2001 12:58:52 -0400
+Message-ID: <3B9CF178.333B11BE@kegel.com>
+Date: Mon, 10 Sep 2001 09:59:36 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bernd.Suessmilch@SWAROVSKI.COM,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: re: 2.4.x, mlockall() and pthreads: exceptionally huge memory demands
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Sep 2001, Wolfram Gloger wrote:
+Bernd.Suessmilch@SWAROVSKI.COM wrote:
+> I have written an application that uses mlockall() in conjunction
+> with posix-threads. I realized that under Kernel 2.4.x (tested
+> on 2.4.5-pre1 and 2.4.10-pre6, pentium III, no swap) each thread
+> consumes an exceptionally huge amount of memory (about 2MB).
+> When I omit the mlockall()-call each thread consumes only about
+> 24KB.
+> Running the same application under kernel 2.2.x  each thread
+> consumes about 12KB of memory (with memory locked).
+> The attached program illustrates this behavior. 
+> 
+> May this be a bug in the mlockall() implementation of 2.4.x and is
+> this behavior already known (I found no hint in the archive)?
 
-> On a variety of dual-ix86-SMP systems running Linux-2.4.[0-10pre]
-> kernels (compiled with gcc-2.95.2 and gcc-2.95.4) it eventually
-> happens that a read(fd, buf, sz) system call returns successfully but
-> it _actually hasn't read any bytes into buf_ (maybe the bytes go
-> somewhere else but I haven't determined where).
+First - this is a glibc issue, not a kernel issue, I bet.
+Second - the new behavior seems allowed by the standard, if not desirable.
+Portably speaking, the default stack size for a thread may be quite large.
+If you want to consume less memory, either configure the threads to use a 
+smaller stack with pthread_attr_setstacksize() (I haven't tried this), 
+or use fewer threads (my favorite approach).
 
-Wow, that is nuts! :)
+Third - the old behavior is hinted by 
+http://pauillac.inria.fr/~xleroy/linuxthreads/faq.html
+(see below) so perhaps there's a problem with newer glibc's?
+- Dan
 
-> --- linuxthreads/manager.c.orig	Mon Jul 23 19:54:13 2001
-> +++ linuxthreads/manager.c	Mon Sep 10 11:48:49 2001
-> @@ -150,8 +150,18 @@
->      }
->      /* Read and execute request */
->      if (n == 1 && (ufd.revents & POLLIN)) {
-> -      n = __libc_read(reqfd, (char *)&request, sizeof(request));
-> -      ASSERT(n == sizeof(request));
-> +      int sz_read;
-> +      request.req_kind = 0x123456;
-> +      for (sz_read=0; sz_read<sizeof(request); sz_read+=n) {
-> +	n = __libc_read(reqfd, (char *)&request + sz_read,
-> +			sizeof(request) - sz_read);
-> +	if (n < 0)
-> +	  continue;
-> +      }
+"E.5: Does LinuxThreads implement pthread_attr_setstacksize() and pthread_attr_setstackaddr()?
 
-Careful; when you continue, the increment expression sz_read += n
-is still evaluated.
+These optional functions are provided in recent versions 
+of LinuxThreads (0.8 and up). Earlier releases did not provide 
+these optional components of the POSIX standard.
 
-And please note that sz_read < sizeof(request) is a signed-unsigned
-comparison!
-
-So if sz_read is negative, its value will be converted to a positive
-value of type size_t, and your loop may terminate prematurely.
-
-So it's perfectly possible to observe the behavior you are seeing
-if __libc_read() returns -1. Because then sz_read will acquire the
-value -1, and the guard expresssion sz_read < sizeof(request) will yield
-zero, terminating the loop.
-
-Could you recode the test patch to eliminate these suspicions and re-test?
-
+Even if pthread_attr_setstacksize() and pthread_attr_setstackaddr() 
+are now provided, we still recommend that you do not use them 
+unless you really have strong reasons for doing so. The default 
+stack allocation strategy for LinuxThreads is nearly optimal: 
+stacks start small (4k) and automatically grow on demand to a 
+fairly large limit (2M). 
+Moreover, there is no portable way to estimate the stack requirements 
+of a thread, so setting the stack size yourself makes your program 
+less reliable and non-portable."

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270037AbRHQJUd>; Fri, 17 Aug 2001 05:20:33 -0400
+	id <S270020AbRHQJTN>; Fri, 17 Aug 2001 05:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270036AbRHQJUX>; Fri, 17 Aug 2001 05:20:23 -0400
-Received: from pat.uio.no ([129.240.130.16]:35492 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S270031AbRHQJUO>;
-	Fri, 17 Aug 2001 05:20:14 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.9: atomic_dec_and_lock sometimes used while not defined
-In-Reply-To: <200108161821.LAA02805@adam.yggdrasil.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 17 Aug 2001 11:20:18 +0200
-In-Reply-To: "Adam J. Richter"'s message of "Thu, 16 Aug 2001 11:21:45 -0700"
-Message-ID: <shs8zgjdovh.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S270031AbRHQJTE>; Fri, 17 Aug 2001 05:19:04 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22028 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270020AbRHQJS5>; Fri, 17 Aug 2001 05:18:57 -0400
+Subject: Re: 2.4.9 does not compile [PATCH]
+To: davem@redhat.com (David S. Miller)
+Date: Fri, 17 Aug 2001 10:17:16 +0100 (BST)
+Cc: zippel@linux-m68k.org, aia21@cam.ac.uk, tpepper@vato.org,
+        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "David S. Miller" at Aug 16, 2001 07:59:06 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Xfki-0006zw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Adam J Richter <adam@yggdrasil.com> writes:
+> Wrong.  This is legal:
+> 
+> int test(unsigned long a, int b)
+> {
+> 	return min(a, b);
+> }
 
-     > 	If I try to build a kernel that can do SMP and run on a 386,
-     > the linux-2.4.9 NFS client gets compiled with an undefined
-     > reference to atomic_dec_and_lock().
+> And the compiler will warn about it with your typeof version.
 
-Why aren't you seeing the same error in linux/fs/inode.c? That also
-references atomic_dec_and_lock when compiling 386 SMP...
-
-     > 	However, I'm really not clear enough on the semantics of
-     > atomic_dec_and_lock vs. atomic_dec_and_test to know whether
-     > this is safe.
-
-     > 	Also, it looks like arch/sparc64/sparc64_ksyms.c references
-     > atomic_dec_and_test without it every being defined on any
-     > architecture other than x86, so I am suspicious of a partially
-     > applied patch here.
-
-See linux/arch/sparc64/lib/dec_and_lock.S. atomic_dec_and_lock should
-indeed be defined on a sparc64.
-
-Cheers,
-   Trond
+Good, because its absolutely bogus and you want people to be warned so they
+fix the input types to fit in the output type, and are forced to think about
+whether all cases actually fit

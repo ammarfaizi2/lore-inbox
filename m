@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290154AbSAKXDs>; Fri, 11 Jan 2002 18:03:48 -0500
+	id <S290153AbSAKXHS>; Fri, 11 Jan 2002 18:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290157AbSAKXDi>; Fri, 11 Jan 2002 18:03:38 -0500
-Received: from yeager.cse.Buffalo.EDU ([128.205.36.9]:751 "EHLO
-	yeager.cse.Buffalo.EDU") by vger.kernel.org with ESMTP
-	id <S290154AbSAKXDa>; Fri, 11 Jan 2002 18:03:30 -0500
-Date: Fri, 11 Jan 2002 18:03:26 -0500 (EST)
-From: Nelson Mok <nmok@cse.Buffalo.EDU>
-To: Timothy Covell <timothy.covell@ashavan.org>
-cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI ID wars [was:  USB Sandisk SDDR-31 problems in 2.4.9 -
- 2.4.17]
-In-Reply-To: <200201102237.g0AMbASr031936@svr3.applink.net>
-Message-ID: <Pine.SOL.4.30.0201111755110.18542-100000@yeager.cse.Buffalo.EDU>
+	id <S290157AbSAKXHM>; Fri, 11 Jan 2002 18:07:12 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:37904 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S290153AbSAKXHA>;
+	Fri, 11 Jan 2002 18:07:00 -0500
+Message-ID: <3C3F7013.8080603@inet6.fr>
+Date: Sat, 12 Jan 2002 00:06:59 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020109
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE Patch SIS ATA100
+In-Reply-To: <Pine.LNX.4.10.10201080709060.991-100000@master.linux-ide.org> <3C3B6526.44A03F39@kolumbus.fi> <3C3B711D.1050400@free.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Timothy Covell wrote:
+Lionel Bouton wrote:
 
-> On Thursday 10 January 2002 15:35, Matthew Dharm wrote:
-> > The "stall at shutdown" is a known problem.  I'm testing a patch now... as
-> > soon as I see my last patchset incorporated into the kernels, I'll send it
-> > out for inclusion.
-> >
-> > As for the USB device "hiding" your SCSI device... how odd.   I've never
-> > heard of that before.
-> >
-> > Matt
->
-> Does it hide your SCSI device or just shift the SCSI IDs such that
-> /dev/scd0 becomes /dev/scd1?
->
->
-> And that brings up a question concerning whether there is a defined
-> way of assigning SCSI IDs.    I'm assume that it's "every driver for
-> itself".
->
->
-> ---
-> timothy.covell@ashavan.org.
+> Jussi Laako wrote:
+> 
+> 
+> I'm on it. Had some intermittent successes and thought to have a correct 
+> patch until today (one 2002 week with ATA100)...
+> But I had a bugreport today and same dma problems on my machine after a 
+> BIOS flashing and a new drive in the system.
+> Currently in heavy debugging.
+> 
 
-Well after having this happen to me again, I checked to see whether the
-SCSI IDs were shifted or not...  from what I gather, they haven't because
-the CD-ROM is assigned ID 3 and the CD-R is assigned ID 4 and I am still
-able to mount a CD as /dev/scd1 if the disc was placed in the CD-R drive.
+
+Debugging ended. Patch cleaned from debugging code submitted to Andre.
+After numerous bug reports and google search I understood that the 
+problem is an *hardware* one on my board.
+
+
+> PB: chip seems to init itself correctly on extended periods of time on 
+> my config! Makes testing rather difficult :-(
+> 
+> For example, with the *exact* same code this evening I had:
+> - a system freeze just after /sbin/init load,
+> - a crash after ext3 fs errors before init,
+> - a somewhat working boot (some weird library errors caused "ip" to not 
+> work),
+> - a fully functionnal system (no error reported, some file copies, 
+> reboot with ide=nodma, e2fsck -f -> no error).
+> 
+
+
+Should have been 100% sure this was an hardware pb at this time. Non 
+deterministic behaviour in my code could not have had any other source.
+
+People encountering problems using SIS chipsets should try the driver 
+available here:
+
+http://gyver.homeip.net/sis5513/index.html
+
+LB.
+
+
 

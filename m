@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270758AbTGPI6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270791AbTGPI6X
+	id S270796AbTGPJAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 05:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbTGPJAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:58:23 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:27011
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270758AbTGPI6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:58:22 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Sean Neakums <sneakums@zork.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test1-mm1
-Date: Wed, 16 Jul 2003 19:15:29 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Ingo Molnar <mingo@elte.hu>
-References: <20030715225608.0d3bff77.akpm@osdl.org> <6uwueidhdd.fsf@zork.zork.net>
-In-Reply-To: <6uwueidhdd.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jul 2003 05:00:08 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:16512 "EHLO
+	hera.eugeneteo.net") by vger.kernel.org with ESMTP id S270796AbTGPJAA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 05:00:00 -0400
+Date: Wed, 16 Jul 2003 17:14:50 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Supphachoke Suntiwichaya <mrchoke@opentle.org>
+Cc: Eugene Teo <eugene.teo@eugeneteo.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre6 + alsa 0.9.5 + i810 not work
+Message-ID: <20030716091450.GA2578@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <3F150561.5040903@opentle.org> <20030716081350.GA8976@eugeneteo.net> <3F150E84.60209@opentle.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
 Content-Disposition: inline
-Message-Id: <200307161915.29497.kernel@kolivas.org>
+In-Reply-To: <3F150E84.60209@opentle.org>
+X-Operating-System: Linux 2.6.0-test1-mm1
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jul 2003 18:07, Sean Neakums wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> > . Another interactivity patch from Con.  Feedback is needed on this
-> >   please - we cannot make much progress on this fairly subjective work
-> >   without lots of people telling us how it is working for them.
->
-> This patch seems to mostly cure an oddity I've been seeing since
-> 2.5.7x, or maybe very late 2.5.6x (I forget exactly when) where
-> running 'ps aux' or 'ls -l' in an xterm (and only xterm it seems; I've
-> tried rxvt and aterm) would more often than not result in a wallclock
-> run time of up to two seconds, instead of the usual tenth of a second
-> or so, with system and user time remaining constant.  If I keep
-> running 'ps aux' its output does start to become slow again, snapping
-> back to full speed after a few more runs.  Kind of an odd one.
 
-In fact I've seen a number of apps display this problem. Basically how I 
-understood it was the child was spawned with a lower dynamic priority (50% of 
-the bonus of the parent with the child penalty at 50%). The parent then was 
-spinning madly waiting for the child but in the process it was continually 
-preempting the child. Eventually the parent was seen as a cpu hog, it's 
-dynamic priority dropped and the child finally got to run along side it. The 
-next time you ran the same parent/child combination the problem had gone 
-because the parent was at a lower dynamic priority. Changing child penalty 
-back up to 95% cures this problem (but can bring other problems with it 
-unless workarounds are added). While this seems more an anomaly in the coding 
-of the application brought out by the scheduler, it seems to be very common.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Con
+<quote sender=3D"Supphachoke Suntiwichaya">
+> Eugene Teo wrote:
+>=20
+> >>Intel 810 + AC97 Audio, version 0.24, 11:19:13 Jul 16 2003
+> >>i810_rng: RNG not detected
+> >
+> >Looks like the same specs as I have for Fujitsu E-7010.
+> >
+> >Have you tried choosing (Y), instead of compiling it as modules?
+> >
+> >// Intel ICH (i8xx), SiS 7012, NVidia nForce Audio or AMD 768/811x
+> >CONFIG_SOUND_ICH=3Dy=20
+> >
+> hmm... I think if say y I can't use ALSA ?
 
+I guess so. Personally, I have not tried the ALSA drivers. However,
+=66rom what I heard from my buddy who is also using the same laptop
+as I do, the ALSA driver for this soundcard don't work very well if
+you play DVD, doesn't work well with swsusp, and it seems to "scratch"
+if there is heavy traffic on the NIC. I have been using OSS drivers
+for this, and I have not experienced any problems at all.
+
+Eugene
+--=20
+Eugene TEO @ Linux Users Group, Singapore <eugeneteo@lugs.org.sg>
+GPG FP: D851 4574 E357 469C D308  A01E 7321 A38A 14A0 DDE5=20
+main(i){putchar(182623909>>(i-1)*5&31|!!(i<7)<<6)&&main(++i);}
+
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/FReKcyGjihSg3eURAmQIAJ40x8bPrT9/WRmZibja0lG70gURKwCfX5ER
+8Vlrn7IwrXO39RallyRBfvA=
+=nml9
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--

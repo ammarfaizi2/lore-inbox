@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277983AbRJIVSm>; Tue, 9 Oct 2001 17:18:42 -0400
+	id <S277987AbRJIVfx>; Tue, 9 Oct 2001 17:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277984AbRJIVSc>; Tue, 9 Oct 2001 17:18:32 -0400
-Received: from anime.net ([63.172.78.150]:52753 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S277983AbRJIVSS>;
-	Tue, 9 Oct 2001 17:18:18 -0400
-Date: Tue, 9 Oct 2001 14:18:45 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: German Gomez Garcia <german@piraos.com>
-cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the 760MP
-In-Reply-To: <Pine.LNX.4.33.0110092255500.2610-102000@hal9000.piraos.com>
-Message-ID: <Pine.LNX.4.30.0110091415270.17086-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277990AbRJIVfn>; Tue, 9 Oct 2001 17:35:43 -0400
+Received: from mail-1.tiscalinet.it ([195.130.225.147]:53365 "EHLO
+	mail.tiscalinet.it") by vger.kernel.org with ESMTP
+	id <S277987AbRJIVfg>; Tue, 9 Oct 2001 17:35:36 -0400
+Message-Id: <5.1.0.14.2.20011009225518.00ac48f0@box.tin.it>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 09 Oct 2001 23:32:31 +0200
+To: linux-kernel@vger.kernel.org
+From: Filippo Solinas <Allanon@tiscalinet.it>
+Subject: tcp/ip stack timeout tuning
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, German Gomez Garcia wrote:
-> it appears in the /proc/cmdline that message stills apears.
-> Also I'm unable to get correct readings with lm_sensors (CVS), I've been
-> enable to detect the w83781d chip using the i2c-amd756 SMbus but half of
-> the times the kernel hangs up when loading this module.
 
-1) You need to enable ACPI in bios for sensors to work.
-2) There's a bug in w83781d driver which causes the hang:
-   http://www2.lm-sensors.nu/~lm78/readticket.cgi?ticket=670
-   The fix described at the bottom does work for me.
+Hello folks,
 
--Dan
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+I was wondering if someone is aware of the existence of a patch for
+2.2/2.4 which allow the tuning at runtime of the following values:
+
+timeout_close
+timeout_closewait
+timeout_established
+timeout_finwait
+timeout_icmp
+timeout_lastack
+timeout_listen
+timeout_synack
+timeout_synrecv
+timeout_synsent
+timeout_timewait
+timeout_udp
+
+You know LVS only affects the tuning of those timers for its virtual
+servers, and BTW the patch I'm looking for is not related to LVS.
+
+Anyone?
+
+Regards,
+
+	ph.
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129132AbQKPStz>; Thu, 16 Nov 2000 13:49:55 -0500
+	id <S129069AbQKPSy0>; Thu, 16 Nov 2000 13:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129770AbQKPStp>; Thu, 16 Nov 2000 13:49:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17216 "EHLO
+	id <S129076AbQKPSyQ>; Thu, 16 Nov 2000 13:54:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23360 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129132AbQKPStd>; Thu, 16 Nov 2000 13:49:33 -0500
-Subject: Re: PATCH: 8139too kernel thread
-To: viro@math.psu.edu (Alexander Viro)
-Date: Thu, 16 Nov 2000 18:19:40 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, netdev@oss.sgi.com
-In-Reply-To: <Pine.GSO.4.21.0011161302200.13047-100000@weyl.math.psu.edu> from "Alexander Viro" at Nov 16, 2000 01:05:53 PM
+	id <S129069AbQKPSyJ>; Thu, 16 Nov 2000 13:54:09 -0500
+Subject: Re: Local root exploit with kmod and modutils > 2.1.121
+To: kuznet@ms2.inr.ac.ru
+Date: Thu, 16 Nov 2000 18:24:26 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200011161732.UAA03398@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Nov 16, 2000 08:32:19 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13wTdO-0008BQ-00@the-village.bc.nu>
+Message-Id: <E13wThz-0008C0-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 8K of memory, two tlb flushes, cache misses on the scheduler. The price is
->                 ^^^^^^^^^^^^^^^
-> > actually extremely high.
-> 
-> <confused>
-> Does it really need non-lazy TLB?
+> It is the first. And the second: each user is allowed to refer to this device.
+> And it is problem of module to allow to load corresponding module or not
+> to allow this.
 
-Good point, so its a mere 8K of memory and the scheduler cache misses
+Not so.
 
-> I'm not saying that it's a good idea, but...
+> It means that test for CAP_SYS_MODULE is illegal, moving pure policy
+> issue to improper place.
 
-It seems a very bad idea for the general case. It might be justified for a few
-drivers but then they should not use their own thread but (to merge two mail
-discussions together) use the generic api dwmw2 is doing to solve the pcmcia
-problem.
+Definitely not so
 
-Now we can sleep and we are back to a single 8K stack for all of it
+What matters is whether the user is requesting a module or the kernel is 
+choosing to load a module. In the former case where the user can influence the
+module name then you need to check CAP_SYS_MODULE in the latter you do not
+care.
 
+Alan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

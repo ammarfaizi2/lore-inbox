@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbTIFTmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 15:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIFTmq
+	id S261783AbTIFT4I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 15:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIFT4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 15:42:46 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:11977 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S261795AbTIFTmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 15:42:45 -0400
-Message-ID: <3F5A38B2.7050802@genebrew.com>
-Date: Sat, 06 Sep 2003 15:42:42 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Yau <jyau_kernel_dev@hotmail.com>
-CC: "'Robert Love'" <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <000101c374a3$2d2f9450$f40a0a0a@Aria>
-In-Reply-To: <000101c374a3$2d2f9450$f40a0a0a@Aria>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+	Sat, 6 Sep 2003 15:56:08 -0400
+Received: from chello080110084234.506.15.vie.surfer.at ([80.110.84.234]:54955
+	"EHLO elch.elche") by vger.kernel.org with ESMTP id S261783AbTIFT4E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 15:56:04 -0400
+Date: Sat, 6 Sep 2003 21:55:59 +0200
+From: Armin Obersteiner <armin@xos.net>
+To: Jose Luis Alarcon Sanchez <jlalarcon@chevy.zzn.com>
+Cc: armin@xos.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test4 latencey problems + howto compilation
+Message-ID: <20030906195559.GA18299@elch.elche>
+References: <A340D5F1860783E4BBC9E429C5A7DAFD@jlalarcon.chevy.zzn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A340D5F1860783E4BBC9E429C5A7DAFD@jlalarcon.chevy.zzn.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Yau wrote:
-> How come Ingo's granular timeslice patch didn't get put into
-> 2.6.0-test4?
+hi!
 
-It is being tested in Andrew's mm kernels, along with Con's tweaks.
+>   I don't know why the previous module-init-tools don't work
+> for your system. I am using the 2.6.0-test4 kernel (with the
+> Nick Piggin ideas about schedule patched) and i can manage
+> modules perfectly. This is my depmod -V output:
+> 
+> module-init-tools 0.9.10
+> 
+>   Maybe you can have another thing broken?.
 
--Rahul
--- 
-Rahul Karnik
-rahul@genebrew.com
-http://www.genebrew.com/
+I did not try every version from 0.9.10 to 0.9.13. I can remember
+0.9.9 (recommended) did not work and 0.9.14-pre did not work/compile
+(most current) so I tried 0.9.13 - and this one worked :)
 
+Of course maybe there is an other cause 0.9.9 not working (I had to
+upgrade the normal modutils too), but I would simply recommend 0.9.13 
+for 2.6-test5.
+
+Regards,
+	Armin
+--
+armin@xos.net                        pgp public key on request        CU

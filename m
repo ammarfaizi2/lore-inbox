@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266058AbRGOLLN>; Sun, 15 Jul 2001 07:11:13 -0400
+	id <S266063AbRGOLMX>; Sun, 15 Jul 2001 07:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266063AbRGOLLD>; Sun, 15 Jul 2001 07:11:03 -0400
-Received: from 1Cust29.tnt1.cbr1.da.uu.net ([210.84.112.29]:53130 "EHLO
-	backdraft") by vger.kernel.org with ESMTP id <S266058AbRGOLKv>;
-	Sun, 15 Jul 2001 07:10:51 -0400
-Date: Sun, 15 Jul 2001 21:10:34 +1000
-From: Patrick Cole <z@amused.net>
-To: Rodrigo Ventura <yoda@isr.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bridge and netfilter
-Message-ID: <20010715211034.A20917@backdraft.amused.net>
-Mime-Version: 1.0
+	id <S266081AbRGOLMN>; Sun, 15 Jul 2001 07:12:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7552 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266063AbRGOLL4>;
+	Sun, 15 Jul 2001 07:11:56 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <lx7kxbxror.fsf@pixie.isr.ist.utl.pt>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15185.31355.152129.716780@pizda.ninka.net>
+Date: Sun, 15 Jul 2001 04:11:55 -0700 (PDT)
+To: "George Bonser" <george@gator.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Linux default IP ttl
+In-Reply-To: <CHEKKPICCNOGICGMDODJOEEMDKAA.george@gator.com>
+In-Reply-To: <15185.27251.356109.500135@pizda.ninka.net>
+	<CHEKKPICCNOGICGMDODJOEEMDKAA.george@gator.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sat, Jul 14, 2001 at 07:59:32PM +0100, Rodrigo Ventura wrote:
 
->         Hi everyone. What's the current status of the kernel bridging
-> code with respect to netfilter stack? We want to put a transparent
-> firewall working. So we need to apply netfilter rules to the packets
-> between two interfaces in the same bridge group.
+George Bonser writes:
+ > While it is still the wee hours ... 4am here ... the change in TTL has
+ > resulted in a 10% increase in bandwidth to my server farms so far. It
+ > appears to be a substantial improvement.
 
->From what I've read the code is still experimental and there are a few
-issues with it killing the machine. The 2.4 mainstream kernel has the 
-hooks but an extra patch is required to get it going.
+These people need to fix their systems and routes.
 
-Pat
+As it stands they have put themselves in a position where they cannot
+reach any existing Linux system with a default ttl on routes that
+exceed 64 hops.
 
--- 
-Patrick Cole  -  Debian Developer    <ltd@debian.org>
-              -  Linux.com Volunteer <z@linux.com>
-              -  ANU JCSMR ICU Staff <Patrick.Cole@anu.edu.au>
-              -  PGP Key ID          6 0 D 7 4 C 7 D
-                 
+I mean, even if I did change the default ttl, this would still leave
+them with the problem for all existing sites.
+
+Later,
+David S. Miller
+davem@redhat.com
+

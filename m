@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267468AbTAGSc6>; Tue, 7 Jan 2003 13:32:58 -0500
+	id <S267522AbTAGS7s>; Tue, 7 Jan 2003 13:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267469AbTAGSc6>; Tue, 7 Jan 2003 13:32:58 -0500
-Received: from smtp.mailix.net ([216.148.213.132]:36317 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id <S267468AbTAGSc5>;
-	Tue, 7 Jan 2003 13:32:57 -0500
-Date: Tue, 7 Jan 2003 19:41:31 +0100
-From: Alex Riesen <fork0@users.sf.net>
-To: Dirk Bull <dirkbull102@hotmail.com>
-Cc: doug@mcnaught.org, linux-kernel@vger.kernel.org
-Subject: Re: shmat problem
-Message-ID: <20030107184131.GA382@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
-References: <F39ekoL0jfQnPEiuGHi0001ee0c@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F39ekoL0jfQnPEiuGHi0001ee0c@hotmail.com>
-User-Agent: Mutt/1.4i
+	id <S267521AbTAGS7s>; Tue, 7 Jan 2003 13:59:48 -0500
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:57439 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S267517AbTAGS7r>; Tue, 7 Jan 2003 13:59:47 -0500
+Message-ID: <3E1B25A2.7020508@users.sf.net>
+Date: Tue, 07 Jan 2003 20:08:18 +0100
+From: Thomas Tonino <ttonino@users.sf.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Asterisk] DTMF noise
+References: <20030107140012$1b66@gated-at.bofh.it> <20030107150006$4896@gated-at.bofh.it>
+In-Reply-To: <20030107150006$4896@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dirk Bull, Tue, Jan 07, 2003 09:14:17 +0100:
-> saved me a lot of time. Finally, in the code they share pages, therefor 
-> using SHM_REMAP is not that unsafe, but still not good practice?
+Mark Spencer wrote:
 
-it seems correctly implemented, but the approach is error-prone
-(Doug McNaught pointed on that).
-What would you do if pagesize change? Fixing the code again
-maybe a painful way, if the remapping was made to a common
-practice.
+> The DTMF detector in the linux kernel is fairly simplistic and doesn't do
+> many relative energy tests.  The Zapata library has a much better tone
+> detector, but it is FP, and so would have to be made fixed point.  If
+> nothing else, it may provide some lessons for the ISDN folks.
 
--alex
+I remember that a good DTMF decoder can be very simplistic: DTMF was designed 
+for that.
+
+The idea is:
+
+- separate the high tones from the low tones.
+- amplify clip the high band and the low band separately
+- run the tone decoders on the clipped signals
+
+The clipping stage would make sure that only relatively pure tones will trigger 
+the detector.
+
+See also http://groups.google.com/groups?selm=7462%40accuvax.nwu.edu
+
+
+Thomas
+

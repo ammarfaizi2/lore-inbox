@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSLYSzT>; Wed, 25 Dec 2002 13:55:19 -0500
+	id <S261290AbSLYUQK>; Wed, 25 Dec 2002 15:16:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261206AbSLYSzT>; Wed, 25 Dec 2002 13:55:19 -0500
-Received: from mx2.mail.ru ([194.67.57.12]:18955 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id <S261205AbSLYSzS>;
-	Wed, 25 Dec 2002 13:55:18 -0500
-Date: Wed, 25 Dec 2002 22:06:51 +0300
-From: Nick Kurshev <nickols_k@mail.ru>
+	id <S261292AbSLYUQK>; Wed, 25 Dec 2002 15:16:10 -0500
+Received: from p15108950.pureserver.info ([217.160.128.7]:64680 "EHLO
+	pluto.schiffbauer.net") by vger.kernel.org with ESMTP
+	id <S261290AbSLYUQJ> convert rfc822-to-8bit; Wed, 25 Dec 2002 15:16:09 -0500
+Date: Wed, 25 Dec 2002 21:24:06 +0100
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG???] EXT3FS+VM86+/dev/mem+pthread=segfault
-Message-Id: <20021225220651.2e356089.nickols_k@mail.ru>
-Organization: HomePC
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: [BUG???] EXT3FS+VM86+/dev/mem+pthread=segfault
+Message-ID: <20021225202406.GB18790@lisa>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021225215452.020129b0.nickols_k@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.MO4N7xtaR9_Y+M"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20021225215452.020129b0.nickols_k@mail.ru>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.20-pre11 i686
+X-Editor: VIM 6.0
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.MO4N7xtaR9_Y+M
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+* Nick Kurshev schrieb am 25.12.02 um 19:54 Uhr:
+> Hello!
+> 
 
-Hello!
+Hi Nick,
 
-Sorry! Forget to add - this bug happens with any kernels include 2.4.20 (I don't use DEV_FS)
-I've tested this behaviour with glibc-2.1.3 and glibc-2.2.5.
+[...]
+> 
+> Btw, does there exists any way to convert ext3fs to ext2fs safely?
+> 
 
-WBR! Nick
+You may try to "mount -t ext2fs" it.
 
-
-
-
-
---=.MO4N7xtaR9_Y+M
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+CgHMB/1cNcrTvJkRAhNhAKCm7pCbOoSkXvlD+kUugs05SfA7WgCfe3fS
-qBJq1V09DuRnkWPBRM+7vHw=
-=XA5d
------END PGP SIGNATURE-----
-
---=.MO4N7xtaR9_Y+M--
-
+-Marc
+-- 
+-------------------------------------------
+Take back the Net! http://www.anti-dmca.org
+-------------------------------------------

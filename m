@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVBJSNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVBJSWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbVBJSNY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 13:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVBJSNY
+	id S262189AbVBJSWF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 13:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVBJSWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 13:13:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:22188 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262185AbVBJSNG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 13:13:06 -0500
-Date: Thu, 10 Feb 2005 10:12:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <abelay@novell.com>
-Cc: rml@novell.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] add driver matching priorities
-Message-ID: <20050210181255.GC8683@kroah.com>
-References: <1106951404.29709.20.camel@localhost.localdomain> <20050210084113.GZ32727@kroah.com> <1108055918.3423.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Feb 2005 13:22:05 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:2985 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262189AbVBJSWB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 13:22:01 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Subject: Re: [RFC PATCH] add wait_event_*_lock() functions
+Date: Thu, 10 Feb 2005 10:21:58 -0800
+User-Agent: KMail/1.7.1
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       Al Borchers <alborchers@steinerpoint.com>
+References: <20050210173948.GE2364@us.ibm.com>
+In-Reply-To: <20050210173948.GE2364@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1108055918.3423.23.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200502101021.58630.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 12:18:37PM -0500, Adam Belay wrote:
-> On Thu, 2005-02-10 at 00:41 -0800, Greg KH wrote:
-> > On Fri, Jan 28, 2005 at 05:30:04PM -0500, Adam Belay wrote:
-> > > Hi,
-> > > 
-> > > This patch adds initial support for driver matching priorities to the
-> > > driver model.  It is needed for my work on converting the pci bridge
-> > > driver to use "struct device_driver".  It may also be helpful for driver
-> > > with more complex (or long id lists as I've seen in many cases) matching
-> > > criteria. 
-> > > 
-> > > "match" has been added to "struct device_driver".  There are now two
-> > > steps in the matching process.  The first step is a bus specific filter
-> > > that determines possible driver candidates.  The second step is a driver
-> > > specific match function that verifies if the driver will work with the
-> > > hardware, and returns a priority code (how well it is able to handle the
-> > > device).  The bus layer could override the driver's match function if
-> > > necessary (similar to how it passes *probe through it's layer and then
-> > > on to the actual driver).
-> > > 
-> > > The current priorities are as follows:
-> > > 
-> > > enum {
-> > > 	MATCH_PRIORITY_FAILURE = 0,
-> > > 	MATCH_PRIORITY_GENERIC,
-> > > 	MATCH_PRIORITY_NORMAL,
-> > > 	MATCH_PRIORITY_VENDOR,
-> > > };
-> > > 
-> > > let me know if any of this would need to be changed.  For example, the
-> > > "struct bus_type" match function could return a priority code.
-> > > 
-> > > Of course this patch is not going to be effective alone.  We also need
-> > > to change the init order.  If a driver is registered early but isn't the
-> > > best available, it will be bound to the device prematurely.  This would
-> > > be a problem for carbus (yenta) bridges.
-> > > 
-> > > I think we may have to load all in kernel drivers first, and then begin
-> > > matching them to hardware.  Do you agree?  If so, I'd be happy to make a
-> > > patch for that too.
-> > 
-> > I think the issue that Al raises about drivers grabbing devices, and
-> > then trying to unbind them might be a real problem.
+On Thursday 10 February 2005 9:39 am, Nishanth Aravamudan wrote:
+> Hi David, LKML,
 > 
-> I agree.  Do you think registering every in-kernel driver before probing
-> hardware would solve this problem?
+> It came up on IRC that the wait_cond*() functions from
+> usb/serial/gadget.c could be useful in other parts of the kernel. Does
+> the following patch make sense towards this? 
 
-This doesn't work for any vendor kernel as they build all drivers as
-modules :(
+I know that Al Borchers -- who wrote those -- did so with that
+specific notion.  And it certainly makes sense to me, in
+principle, that such primitives exist in the kernel ... maybe
+with some tweaks first.  (And docs for all the wait_* calls?)
 
-thanks,
+But nobody's pressed the issue before, to the relevant audience:
+namely, LKML.  I'd be interested to hear what other folk think.
+Clearly these particular primitives don't understand how to cope
+with nested spinlocks, but those are worth avoiding anyway.
 
-greg k-h
+- Dave

@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270609AbRHUD6z>; Mon, 20 Aug 2001 23:58:55 -0400
+	id <S271507AbRHUEBZ>; Tue, 21 Aug 2001 00:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271507AbRHUD6q>; Mon, 20 Aug 2001 23:58:46 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:3846 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S270609AbRHUD6c>;
-	Mon, 20 Aug 2001 23:58:32 -0400
-Date: Tue, 21 Aug 2001 00:58:32 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Mike Galbraith <mikeg@wen-online.de>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8/2.4.9 VM problems
-In-Reply-To: <20010821034550Z16007-32383+621@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0108210053260.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271515AbRHUEBP>; Tue, 21 Aug 2001 00:01:15 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:8971 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S271507AbRHUEBL>; Tue, 21 Aug 2001 00:01:11 -0400
+Date: Tue, 21 Aug 2001 00:01:26 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org, t.sailer@alumni.ethz.ch
+Subject: Re: Patch for bizzare oops in USB
+Message-ID: <20010821000125.A28638@sventech.com>
+In-Reply-To: <20010818013101.A7058@devserv.devel.redhat.com> <3B80FBA9.556B7B2B@scs.ch> <20010820174448.A1299@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010820174448.A1299@devserv.devel.redhat.com>; from zaitcev@redhat.com on Mon, Aug 20, 2001 at 05:44:48PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Aug 2001, Daniel Phillips wrote:
+On Mon, Aug 20, 2001, Pete Zaitcev <zaitcev@redhat.com> wrote:
+> A prolifiration of subtly different versions of basic primitives
+> is not an answer either. But wait, here's a better fix. The
+> root of the evil is that the waiting thread accesses urb->status
+> before a callback happened, which is unsafe.
+> 
+> BTW, I took a liberty to clean the thing up a bit. It looked as
+> if the author of that fragment was not sure of what he was doing,
+> and the style was quite dirty. I think a number of wrongs for
+> such a small fragment was astonishing.
+> 
+>  - "status" was an errno in the begining, then 5 lines down
+>    it's bool (== timeout), then it turns into system style once again.
+>  - Wasted pointer to wait head
+>  - Unused void *stuff.
+>  - typedef without _t and unprefixed type name in global header.
+>  - Urban legend of test for waitqueue_active() before wakeup.
+>    This is one half wrong because so many people do it,
+>    anyone has an idea why? Half a point deducted.
+>  - Confused and redundant checking for -EINPROGRESS
+>    (even if it was the cause of oops)
+> 
+> And the last one ...
+>  - THE GOD DAMN RACE THAT OOPS - that's 10 hacker points down!
+>    It only goes to show that replacing interruptible_sleep_on
+>    with add_wait_queue/schedule/remove_wait_queue does not make
+>    any racy code correct automatically.
+> 
+> Cheesh, I am surprised _anything_ in Linux kernel works.
 
-> I have to admit, the 100 FTP clients case wasn't on the top of my
-> mind.  Even so, think about what is really happening.  Nothing is
-> getting activated and nothing is competing with these allocations so
+So am I. To be honest, there's a bunch of things in the USB code I'm not
+entirely happy.
 
-> Assuming that some of the files are more popular than others, these
-> file pages will be touched more than once and will go onto the active
-> ring, also exactly what you want.
+I didn't see many of them until recently, but I guess with experience,
+comes wisdom. I had intended to fix many of them in 2.5 when it finally
+forks.
 
-... and so you contradict yourself in consecutive
-paragraphs...
+I like your patch, but since we have the new completion stuff now, we
+should probably use that. I'll make the mod and send off the patch to
+Linus when I get back from this business trip.
 
-> As they get old they get fed into the inactive queue at a rate that's
-> tunable.  I don't see what the problem is.
+Thanks.
 
-You just pointed it out.  The old pages get fed into the
-inactive queue at a rate which isn't influenced by how
-much pressure the new pages put on the VM, but only by
-some "tunable" rate.
-
-> There are a couple of simple improvements that can be made.  We could mark
-> all new pages referenced, age=1 (to distinguish from aged-to-zero pages).  We
-> would not do unlazy activation but just allow age to increment with each
-> touch.  Then, in addition to the Referenced test, we would test the age
-> against a tunable threshold to decide which pages to rescue.  You can see
-> that this would take care of your 100 streaming clients case nicely, while
-> not negatively affecting the cases that are already working well.
-
-Nice way to fuck up the 100 streaming client case even more, you mean.
-
-> A second simple improvement is to have separate activation and deactivation
-> queues.  This allows you to tune the rate at which pages are pulled from the
-> activation queue (these would be the streaming IO pages) against pages culled
-> from the active list.  I can't think of any downside at all for doing this,
-> except that it's not something I'd consider appropriate for the 2.4 series.
-
-This is called "better page aging".
-
-> > [...] you haven't yet made any
-> > proposal on how to make the rest of the VM interact nicely
-> > with the use-once idea, preventing things like the thrashing
-> > of the readahead window, etc...
->
-> This is hypothetical thrashing so far, have you see it in the wild?
-
-Yes.
-
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+JE
 

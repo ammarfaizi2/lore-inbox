@@ -1,57 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVAVCY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVAVCaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVAVCY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 21:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVAVCY2
+	id S262507AbVAVCaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 21:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262646AbVAVCaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 21:24:28 -0500
-Received: from mailfe06.swip.net ([212.247.154.161]:27804 "EHLO
-	mailfe06.swip.net") by vger.kernel.org with ESMTP id S262494AbVAVCYX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 21:24:23 -0500
-X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
-Subject: Re: Memory leak in 2.6.11-rc1?
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050121161959.GO3922@fi.muni.cz>
-References: <20050121161959.GO3922@fi.muni.cz>
-Content-Type: text/plain
-Date: Sat, 22 Jan 2005 03:23:59 +0100
-Message-Id: <1106360639.15804.1.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 21:30:25 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:41976 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262507AbVAVCaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 21:30:11 -0500
+From: Elias da Silva <silva@aurigatec.de>
+Organization: aurigatec Informationssysteme GmbH
+To: Jens Axboe <axboe@suse.de>
+Subject: [PATCH] drivers/block/scsi_ioctl.c, Video DVD playback support
+Date: Sat, 22 Jan 2005 03:27:38 +0100
+User-Agent: KMail/1.7.2
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_aob8BjVjx/IcJDW"
+Message-Id: <200501220327.38236.silva@aurigatec.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:71cf304d62c8802a383a5ddf42c5bd08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre 2005-01-21 klockan 17:19 +0100 skrev Jan Kasprzak:
-> 	Hi all,
-> 
-> I've been running 2.6.11-rc1 on my dual opteron Fedora Core 3 box for a week
-> now, and I think there is a memory leak somewhere. I am measuring the
-> size of active and inactive pages (from /proc/meminfo), and it seems
-> that the count of sum (active+inactive) pages is decreasing. Please
-> take look at the graphs at
-> 
-> http://www.linux.cz/stats/mrtg-rrd/vm_active.html
-> 
-> (especially the "monthly" graph) - I've booted 2.6.11-rc1 last Friday,
-> and since then the size of "inactive" pages is decreasing almost
-> constantly, while "active" is not increasing. The active+inactive
-> sum has been steady before, as you can see from both the monthly
-> and yearly graphs.
-> 
-> Now I am playing with 2.6.11-rc1-bk snapshots to see what happens.
-> I have been running 2.6.10-rc3 before. More info is available, please ask me.
-> The box runs 3ware 7506-8 controller with SW RAID-0, 1, and 5 volumes,
-> Tigon3 network card. The main load is FTP server, and there is also
-> a HTTP server and Qmail.
+--Boundary-00=_aob8BjVjx/IcJDW
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Others have seen this as well, the reports indicated that it takes a day
-or two before it becomes noticeable. When it happens next time please
-capture the output of /proc/meminfo and /proc/slabinfo.
+Moin.
 
-Thanks
-Alexander
+Attached patch fixes a problem of reading Video DVDs
+through the cdrom_ioctl interface. VMware is among
+the prominent victims.
 
+The bug was introduced in kernel version 2.6.8 in the
+function verify_command().
+
+Regards,
+
+Elias da Silva
+
+--Boundary-00=_aob8BjVjx/IcJDW
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="linux-2.6.10-dvd.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="linux-2.6.10-dvd.patch"
+
+--- linux-2.6.10/drivers/block/scsi_ioctl.c	2004-12-24 22:35:40.000000000 +0100
++++ linux-2.6.10-dvd/drivers/block/scsi_ioctl.c	2005-01-22 02:31:28.223951296 +0100
+@@ -159,6 +159,11 @@
+ 		safe_for_read(GPCMD_SEEK),
+ 		safe_for_read(GPCMD_STOP_PLAY_SCAN),
+ 
++                /* Video DVD playback support */
++		safe_for_read(GPCMD_SET_STREAMING),
++		safe_for_read(GPCMD_SEND_KEY),
++                /* safe_for_read(0xe9), missing this opcode definition */
++
+ 		/* Basic writing commands */
+ 		safe_for_write(WRITE_6),
+ 		safe_for_write(WRITE_10),
+@@ -179,13 +184,11 @@
+ 		safe_for_write(GPCMD_RESERVE_RZONE_TRACK),
+ 		safe_for_write(GPCMD_SEND_DVD_STRUCTURE),
+ 		safe_for_write(GPCMD_SEND_EVENT),
+-		safe_for_write(GPCMD_SEND_KEY),
+ 		safe_for_write(GPCMD_SEND_OPC),
+ 		safe_for_write(GPCMD_SEND_CUE_SHEET),
+ 		safe_for_write(GPCMD_SET_SPEED),
+ 		safe_for_write(GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL),
+ 		safe_for_write(GPCMD_LOAD_UNLOAD),
+-		safe_for_write(GPCMD_SET_STREAMING),
+ 	};
+ 	unsigned char type = cmd_type[cmd[0]];
+ 
+@@ -194,13 +197,11 @@
+ 		return 0;
+ 
+ 	/* Write-safe commands just require a writable open.. */
+-	if (type & CMD_WRITE_SAFE) {
+-		if (file->f_mode & FMODE_WRITE)
+-			return 0;
+-	}
++	if ((type & CMD_WRITE_SAFE) && (file->f_mode & FMODE_WRITE))
++		return 0;
+ 
+-	if (!(type & CMD_WARNED)) {
+-		cmd_type[cmd[0]] = CMD_WARNED;
++	if (!type) {
++		type = cmd_type[cmd[0]] = CMD_WARNED;
+ 		printk(KERN_WARNING "scsi: unknown opcode 0x%02x\n", cmd[0]);
+ 	}
+ 
+@@ -208,7 +209,14 @@
+ 	if (capable(CAP_SYS_RAWIO))
+ 		return 0;
+ 
+-	/* Otherwise fail it with an "Operation not permitted" */
++        if (!(type & CMD_WARNED))
++        {
++          cmd_type[cmd[0]] |= CMD_WARNED;
++          printk(KERN_WARNING "scsi: opcode 0x%02x write/rawio"
++                 " permission denied\n", cmd[0]);
++        }
++
++        /* Otherwise fail it with an "Operation not permitted" */
+ 	return -EPERM;
+ }
+ 
+
+--Boundary-00=_aob8BjVjx/IcJDW--

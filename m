@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUGQP70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266713AbUGQQCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266708AbUGQP70 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 11:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266713AbUGQP7Z
+	id S266713AbUGQQCx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 12:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266714AbUGQQCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 11:59:25 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:21414 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S266708AbUGQP7Y
+	Sat, 17 Jul 2004 12:02:53 -0400
+Received: from imo-m15.mx.aol.com ([64.12.138.205]:53711 "EHLO
+	imo-m15.mx.aol.com") by vger.kernel.org with ESMTP id S266713AbUGQQCw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 11:59:24 -0400
-Date: Sat, 17 Jul 2004 17:57:17 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jean Francois Martinez <jfm512@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Davicom DM9102AF card working only at 10 Mbps
-Message-ID: <20040717175717.A11275@electric-eye.fr.zoreil.com>
-References: <1090070520.4498.25.camel@agnes>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1090070520.4498.25.camel@agnes>; from jfm512@free.fr on Sat, Jul 17, 2004 at 03:22:00PM +0200
-X-Organisation: Land of Sunshine Inc.
+	Sat, 17 Jul 2004 12:02:52 -0400
+Date: Sat, 17 Jul 2004 12:02:45 -0400
+From: Floydsmith@aol.com
+To: linux-kernel@vger.kernel.org
+Cc: floydsmith@aol.com
+Subject: 2.4.26 vfat mounted fs will not reqcognize 8,3 file IF extention part (ONLY) is lower case.
+MIME-Version: 1.0
+Message-ID: <3DDFD80E.22916F17.0B512FEB@aol.com>
+X-Mailer: Atlas Mailer 2.0
+X-AOL-IP: 172.152.176.64
+X-AOL-Language: english
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Francois Martinez <jfm512@free.fr> :
-> I have an ethernet card with a DM9102AF chip.  It only works at 10 Mbps.
-> 
-> More precisely by using etheral on another box I see the frames it is
-> sending but it seems unable to catch the replies.  If I configure it 
-> to transmit at 10 Mbps then it works.
 
-The name of the driver ('lsmod' output) would help identify the relevant
-maintainer (if any). It seems to be a tulip clone, right ?
+When a ANY linux command (running under 2.4.26) ("ls", "grep", "find", etc) tryies to access a file in a "vfat" mounted fs with a filename such that it meets real mode DOS's "8.3" requirement EXCEPT (under windoze, of course), the file has has ONLY its extention part as lower case (that is, base is all UPPER), then the file will not be accessable (that is, it will appear NOT TO EXIST under linux.)
 
-> It happens both with 2.4 and 2.6 kernels.
+Here is an example of what I mean.
+In one FAT32 dir (say dir1) under REAL MODE DOS we have a file nameed "checkfix.exe". Then a dir executed therein will show:
+    CHECKFIX EXE        34,448  05-27-03  3:05a CHECKFIX.EXE
+Then all linux commands will be able to see this file (if in a DOS WINDOW, the "dir" command shows EXACTLY the same thing).
 
-Some more details could help as well:
-- vendor or vanilla kernel ?
-- sub-revision ?
-- latest -bk/-mm ?
+But, if in another dir (again in a FAT32 partition) there is a "copy" of the file (EXCEPT it's extention part [ONLY] is lower case), then linux will not be able to access the file (but of course, both REAL MODE DOS and windoze will).
+That is, (if while in a windoze (NOT REAL MODE DOS) DOS WINDOW, this other file in shows up as:
+    CHECKFIX EXE        34,448  05-27-03  3:05a CHECKFIX.exe
+A DOS WINDOW's "dir" command will display the "long filename info" in the 5th column which shows where the problem occurs.
 
---
-Ueimor
+The only workarrond I know of is IN REAL MODE DOS ONLY, copy the the file somewhere else, the copy it back - it will loose its' "long filename" properties, in this case - and will thus become accesible to all.
+
+Please "cc" me, I am NOT on the "list" anymore.
+
+Floyd,
+
+

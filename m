@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUEDJlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264291AbUEDJpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUEDJlv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 05:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264293AbUEDJlv
+	id S264291AbUEDJpS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 05:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUEDJpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 05:41:51 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:39693 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264278AbUEDJlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 05:41:46 -0400
-Date: Tue, 4 May 2004 10:41:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org, kaos@sgi.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Fw: 2.6.6-rc3 ia64 smp_call_function() called with interrupts disabled
-Message-ID: <20040504104143.A21207@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matthew Wilcox <willy@debian.org>, Andrew Morton <akpm@osdl.org>,
-	linux-scsi@vger.kernel.org, kaos@sgi.com,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <20040502214525.5ad05bed.akpm@osdl.org> <20040503122948.GI2281@parcelfarce.linux.theplanet.co.uk> <20040503203512.GP2281@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 May 2004 05:45:18 -0400
+Received: from cernmx07.cern.ch ([137.138.166.171]:14661 "EHLO
+	cernmx07.cern.ch") by vger.kernel.org with ESMTP id S264291AbUEDJpN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 05:45:13 -0400
+Keywords: CERN SpamKiller Note: -50 Charset: west-latin
+X-Filter: CERNMX07 SMTPGW CERN Spam Sink v1.0
+From: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>
+To: linux-kernel@vger.kernel.org
+Subject: freezes with cdrecord
+Date: Tue, 4 May 2004 11:45:05 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040503203512.GP2281@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Mon, May 03, 2004 at 09:35:13PM +0100
+Message-Id: <200405041145.05894.Alexander.Zviagine@cern.ch>
+X-OriginalArrivalTime: 04 May 2004 09:45:11.0718 (UTC) FILETIME=[7E61FC60:01C431BC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 09:35:13PM +0100, Matthew Wilcox wrote:
-> That patch is crap -- it only frees the memory on the error path, not
-> the normal exit.  Since I got confused by this function, it struck me
-> as not unreasonable that somebody else might also get confused by it
-> and split it into two parts.
-> 
-> I simplified some of the code.  The old code took the lock, scanned
-> through looking for a free slot, dropped the lock, allocated an sdp,
-> grabbed the lock and checked the slot was still free, branching back
-> if it had raced.  This rewrite assumes that we will find a slot and
-> allocates an sdp in advance.
-> 
-> Does anybody like this patch?  It survived booting on my test box which
-> only has one scsi device.  More testing welcomed.
+Hello,
 
-Better than what was there, but I still don't like it.  A global array
-of devices is just utter crap.  Every entry point from scsi already has
-struct scsi_device from which we can derive the sg-specific portion easily,
-and for anything else (from a quick look that seems to be only procfs
-stuff which should fade out anyway) a linear search on a linked list
-is okay.
+I use DVD+RW with 2.6.5 kernel. Very often my computer
+freezes for ~10-20 seconds when a disk is cleaning.
+I can move my mouse pointer, and switch between some
+windows, but that is all. Command prompt is
+not responding as well. For me it looks like the
+filesystem is locked.
 
-btw, why are we vmalloc()ing Sg_device?
+During the burning process everything is fine and
+smooth. But very close to the end, the computer freezes
+again for ~10-20 seconds. It happens in 'fixating' stage
+of the writing process.
+
+The created disks are fine, and computer runs OK.
+I use k3b fronted to cdrecord 2.1a25.
+
+Any explanations why those freezes happen?
+
+With best wishes,
+Alexander.
+

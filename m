@@ -1,205 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265091AbTIIXoj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTIIXoj
+	id S264329AbTIIXwA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264087AbTIIXwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:44:39 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:55492 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S265091AbTIIXoc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:44:32 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16222.26077.28147.350570@napali.hpl.hp.com>
-Date: Tue, 9 Sep 2003 16:44:29 -0700
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davidm@HPL.HP.COM, Jes Sorensen <jes@wildopensource.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: [Patch] asm workarounds in generic header files
-In-Reply-To: <Pine.LNX.4.44.0309091329570.30594-100000@home.osdl.org>
-References: <16222.14136.21774.211178@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0309091329570.30594-100000@home.osdl.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@HPL.HP.COM
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Tue, 9 Sep 2003 19:52:00 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:14721 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S265024AbTIIXvy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 19:51:54 -0400
+Date: Tue, 9 Sep 2003 16:51:53 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: tytso@mit.edu, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-serial@vger.kernel.org, gallen@arlut.utexas.edu
+Cc: Kumar Gala <kumar.gala@motorola.com>
+Subject: Re: [PATCH] Make the Startech UART detection 'more correct'.
+Message-ID: <20030909235153.GB4559@ip68-0-152-218.tc.ph.cox.net>
+References: <20030908205431.GB3888@ip68-0-152-218.tc.ph.cox.net> <20030909171859.D4216@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Disposition: inline
+In-Reply-To: <20030909171859.D4216@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 9 Sep 2003 13:33:51 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
 
-  Linus> I might agree, but "compiler.h" is getting increasingly
-  Linus> messy, and this just makes it worse (and sets the stage for
-  Linus> making it even worse in the future).
+--envbJBWh7q8WU6mo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  Linus> Is somebody willing to split up compiler.h into a
-  Linus> per-compiler file (and yes, I think "gcc-2.95" is a different
-  Linus> compiler from "gcc-3.2" in this case, since that is what most
-  Linus> of the compiler.h #ifdef's are all about).
+On Tue, Sep 09, 2003 at 05:18:59PM +0100, Russell King wrote:
 
-How about something like this?
-(the patch has Works-for-Me status...)
+> On Mon, Sep 08, 2003 at 01:54:31PM -0700, Tom Rini wrote:
+> > Hello.  The following patches (vs 2.4 and 2.6) make the Startech UART
+> > detection 'more correct'  The problem is that on with the Motorola
+> > MPC82xx line (8245 for example) it has an internal DUART that it claims
+> > to be PC16550D compatible, and it has an additional EFR (Enhanced
+> > Feature Register) at offset 0x2, like on the Startech UARTS.  However,
+> > it is not a Startech, and when it's detected as such, FIFOs don't work.
+> > The fix for this is that the Startech UARTs have a 32 byte FIFO [1] and
+> > the MPC82xx DUARTs have a 16-byte FIFO [2], to check that the FIFO size
+> > is correct for a Startech.
+>=20
+> size_fifo() is claimed to be unreliable at detecting the FIFO size,
+> so I don't feel safe about using it here.
+>=20
+> I'd suggest something like:
+>=20
+> 	serial_outp(port, UART_LCR, UART_LCR_DLAB);
+> 	efr =3D serial_in(port, UART_EFR);
+> 	if ((efr & 0xfc) =3D=3D 0) {
+> 		serial_out(port, UART_EFR, 0xac | (efr & 3));
+> 		/* if top 6 bits return zero, its motorola */
+> 		if (serial_in(port, UART_EFR) =3D=3D (efr & 3)) {
+> 			/* motorola port */
+> 		} else {
+> 			/* ST16C650V1 port */
+> 		}
+> 		/* restore old value */
+> 		serial_outb(port, UART_EFR, efr);
+> 	}
 
-	--david
+Okay, from Kumar Gala (cc'ed) I've got the following patch for 2.4:
+=3D=3D=3D=3D=3D drivers/char/serial.c 1.34 vs edited =3D=3D=3D=3D=3D
+--- 1.34/drivers/char/serial.c	Sun Jul  6 22:33:28 2003
++++ edited/drivers/char/serial.c	Tue Sep  9 16:50:22 2003
+@@ -3741,7 +3741,10 @@
+ 		/* Check for Startech UART's */
+ 		serial_outp(info, UART_LCR, UART_LCR_DLAB);
+ 		if (serial_in(info, UART_EFR) =3D=3D 0) {
+-			state->type =3D PORT_16650;
++			serial_outp(info, UART_EFR, 0xA8);
++			if (serial_in(info, UART_EFR) !=3D 0)
++				state->type =3D PORT_16650;
++			serial_outp(info, UART_EFR, 0);
+ 		} else {
+ 			serial_outp(info, UART_LCR, 0xBF);
+ 			if (serial_in(info, UART_EFR) =3D=3D 0)
 
-===== include/linux/compiler.h 1.18 vs edited =====
---- 1.18/include/linux/compiler.h	Thu Aug 14 18:17:28 2003
-+++ edited/include/linux/compiler.h	Tue Sep  9 16:28:07 2003
-@@ -2,26 +2,21 @@
- #define __LINUX_COMPILER_H
- 
- #ifdef __CHECKER__
--  #define __user	__attribute__((noderef, address_space(1)))
--  #define __kernel	/* default address space */
-+# define __user		__attribute__((noderef, address_space(1)))
-+# define __kernel	/* default address space */
- #else
--  #define __user
--  #define __kernel
-+# define __user
-+# define __kernel
- #endif
- 
--#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
--#define inline		__inline__ __attribute__((always_inline))
--#define __inline__	__inline__ __attribute__((always_inline))
--#define __inline	__inline__ __attribute__((always_inline))
--#endif
--
--/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
--   a mechanism by which the user can annotate likely branch directions and
--   expect the blocks to be reordered appropriately.  Define __builtin_expect
--   to nothing for earlier compilers.  */
--
--#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
--#define __builtin_expect(x, expected_value) (x)
-+#if __GNUC__ > 3
-+# include <linux/compiler-gcc+.h>	/* catch-all for GCC 4, 5, etc. */
-+#elif __GNUC__ == 3
-+# include <linux/compiler-gcc3.h>
-+#elif __GNUC__ == 2
-+# include <linux/compiler-gcc2.h>
-+#else
-+# error Sorry, your compiler is too old/not recognized.
- #endif
- 
- #define likely(x)	__builtin_expect(!!(x), 1)
-@@ -33,10 +28,8 @@
-  * Usage is:
-  * 		int __deprecated foo(void)
-  */
--#if ( __GNUC__ == 3 && __GNUC_MINOR__ > 0 ) || __GNUC__ > 3
--#define __deprecated	__attribute__((deprecated))
--#else
--#define __deprecated
-+#ifndef __deprecated
-+# define __deprecated		/* unimplemented */
- #endif
- 
- /*
-@@ -50,10 +43,8 @@
-  * In prior versions of gcc, such functions and data would be emitted, but
-  * would be warned about except with attribute((unused)).
-  */
--#if __GNUC__ == 3 && __GNUC_MINOR__ >= 3 || __GNUC__ > 3
--#define __attribute_used__	__attribute__((__used__))
--#else
--#define __attribute_used__	__attribute__((__unused__))
-+#ifndef __attribute_used__
-+# define __attribute_used__	/* unimplemented */
- #endif
- 
- /*
-@@ -65,19 +56,9 @@
-  * elimination and loop optimization just as an arithmetic operator
-  * would be.
-  * [...]
-- * The attribute `pure' is not implemented in GCC versions earlier
-- * than 2.96.
-  */
--#if (__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || __GNUC__ > 2
--#define __attribute_pure__	__attribute__((pure))
--#else
--#define __attribute_pure__	/* unimplemented */
-+#ifndef __attribute_pure__
-+# define __attribute_pure__	/* unimplemented */
- #endif
- 
--/* This macro obfuscates arithmetic on a variable address so that gcc
--   shouldn't recognize the original var, and make assumptions about it */
--#define RELOC_HIDE(ptr, off)					\
--  ({ unsigned long __ptr;					\
--    __asm__ ("" : "=g"(__ptr) : "0"(ptr));		\
--    (typeof(ptr)) (__ptr + (off)); })
- #endif /* __LINUX_COMPILER_H */
---- /dev/null	2003-03-27 10:58:26.000000000 -0800
-+++ include/linux/compiler-gcc+.h	2003-09-09 16:39:42.000000000 -0700
-@@ -0,0 +1,13 @@
-+/* Never include this file directly.  Include <linux/compiler.h> instead.  */
-+
-+/*
-+ * These definitions are for Ueber-GCC: always newer than the latest
-+ * version and hence sporting everything plus a kitchen-sink.
-+ */
-+
-+#define inline			__inline__ __attribute__((always_inline))
-+#define __inline__		__inline__ __attribute__((always_inline))
-+#define __inline		__inline__ __attribute__((always_inline))
-+#define __deprecated		__attribute__((deprecated))
-+#define __attribute_used__	__attribute__((__used__))
-+#define __attribute_pure__	__attribute__((pure))
---- /dev/null	2003-03-27 10:58:26.000000000 -0800
-+++ include/linux/compiler-gcc3.h	2003-09-09 16:40:11.000000000 -0700
-@@ -0,0 +1,21 @@
-+/* Never include this file directly.  Include <linux/compiler.h> instead.  */
-+
-+/* These definitions are for GCC v3.x.  */
-+
-+#if __GNUC_MINOR__ >= 1
-+# define inline		__inline__ __attribute__((always_inline))
-+# define __inline__	__inline__ __attribute__((always_inline))
-+# define __inline	__inline__ __attribute__((always_inline))
-+#endif
-+
-+#if __GNUC_MINOR__ > 0
-+# define __deprecated	__attribute__((deprecated))
-+#endif
-+
-+#if __GNUC_MINOR__ >= 3
-+# define __attribute_used__	__attribute__((__used__))
-+#else
-+# define __attribute_used__	__attribute__((__unused__))
-+#endif
-+
-+#define __attribute_pure__	__attribute__((pure))
---- /dev/null	2003-03-27 10:58:26.000000000 -0800
-+++ include/linux/compiler-gcc2.h	2003-09-09 16:40:06.000000000 -0700
-@@ -0,0 +1,22 @@
-+/* Never include this file directly.  Include <linux/compiler.h> instead.  */
-+
-+/* These definitions are for GCC v2.x.  */
-+
-+/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
-+   a mechanism by which the user can annotate likely branch directions and
-+   expect the blocks to be reordered appropriately.  Define __builtin_expect
-+   to nothing for earlier compilers.  */
-+
-+#if __GNUC_MINOR__ < 96
-+# define __builtin_expect(x, expected_value) (x)
-+#endif
-+
-+#define __attribute_used__	__attribute__((__unused__))
-+
-+/*
-+ * The attribute `pure' is not implemented in GCC versions earlier
-+ * than 2.96.
-+ */
-+#if __GNUC_MINOR__ >= 96
-+# define __attribute_pure__	__attribute__((pure))
-+#endif
+And I forward ported this up to 2.6 as:
+=3D=3D=3D=3D=3D drivers/serial/8250.c 1.36 vs edited =3D=3D=3D=3D=3D
+--- 1.36/drivers/serial/8250.c	Tue Sep  9 07:22:12 2003
++++ edited/drivers/serial/8250.c	Tue Sep  9 16:49:07 2003
+@@ -469,8 +469,13 @@
+ 	 */
+ 	serial_outp(up, UART_LCR, UART_LCR_DLAB);
+ 	if (serial_in(up, UART_EFR) =3D=3D 0) {
+-		DEBUG_AUTOCONF("EFRv1 ");
+-		up->port.type =3D PORT_16650;
++		serial_outp(up, UART_EFR, 0xA8);
++		if (serial_in(up, UART_EFR) !=3D 0) {
++			DEBUG_AUTOCONF("EFRv1 ");
++			up->port.type =3D PORT_16650;
++		} else
++			DEBUG_AUTOCONF("Motorola 8xxx DUART ");
++		serial_outp(up, UART_EFR, 0);
+ 		return;
+ 	}
+
+Better?
+
+--=20
+Tom Rini
+http://gate.crashing.org/~trini/
+
+--envbJBWh7q8WU6mo
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/XmeZdZngf2G4WwMRAtXrAJ4gUH2JVVZ2c/eLJuEOPBJ6uF8iuQCeKGlx
+p0qdZyIVLKdCGoOqGULfCbc=
+=Wba5
+-----END PGP SIGNATURE-----
+
+--envbJBWh7q8WU6mo--

@@ -1,139 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVBFUAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVBFUF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVBFUAT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 15:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVBFUAT
+	id S261305AbVBFUF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 15:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVBFUF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 15:00:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:60749 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261303AbVBFUAD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 15:00:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=nm+i1hWAZd3Iq7Dmr8mejZ3dX/xQPxYKP303EYFTamXydBL3L9JBr+YQWVmVVx4VyC8Ji37xwDpxFacKW8VCABV59pdWOrUueHbjOGiMCvIdqg/27pLmnTlR1pKbvIpsjsKa3qYyjyXJsOHwC0+ES85PQxzbAXeZcn+m93we/Ps=
-Message-ID: <d4b38520502061200598ecd97@mail.gmail.com>
-Date: Sun, 6 Feb 2005 21:00:02 +0100
-From: Mikkel Krautz <krautz@gmail.com>
-Reply-To: Mikkel Krautz <krautz@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.de>
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-In-Reply-To: <20050206190724.GL23126@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 6 Feb 2005 15:05:29 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:26613 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261305AbVBFUFT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 15:05:19 -0500
+Message-ID: <4206787F.8060508@tiscali.de>
+Date: Sun, 06 Feb 2005 21:05:19 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Frank van Maarseveen <frankvm@frankvm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3 BUG: using smp_processor_id() in preemptible [00000001]
+ code: ip/6840
+References: <20050206195111.GA28814@janus>
+In-Reply-To: <20050206195111.GA28814@janus>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <1103335970.15567.15.camel@localhost>
-	 <20041218012725.GB25628@kroah.com> <41C46B4D.5040506@gmail.com>
-	 <20041218165331.GA7737@kroah.com>
-	 <d4b385204121817521b0df40f@mail.gmail.com>
-	 <20050206190724.GL23126@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the suggestions. :)
+Frank van Maarseveen wrote:
 
-I'm wondering if there perhaps is a more clean way to do this? Perhaps
-something that would give the user the possibility to change the
-polling interface per device, or something like that, perhaps exported
-to sysfs? Though, since you mentioned that the endpoint descriptor
-should be considered read only, I guess not.
-
-And oh, would adding other parameters make sense? For instance for
-gamepads, joysticks etc.? Also, is there any chance of this getting
-into the driver? :)
-
-Thanks,
-Mikkel
-
-On Sun, 6 Feb 2005 20:07:24 +0100, Vojtech Pavlik <vojtech@suse.de> wrote:
-> On Sun, Dec 19, 2004 at 01:52:06AM +0000, Mikkel Krautz wrote:
-> > On Sat, 18 Dec 2004 08:53:31 -0800, Greg KH <greg@kroah.com> wrote:
-> > > On Sat, Dec 18, 2004 at 05:39:25PM +0000, Mikkel Krautz wrote:
-> > > > On Fri, 17 Dec 2004 18:59:48 -0800, Greg KH <greg@kroah.com> wrote:
-> > > > > What about makeing it a module paramater then, that is exported to
-> > > > > sysfs?  That makes it easier to adjust on the fly (before the mouse is
-> > > > > inserted), and doesn't require the kernel to be rebuilt.
-> > > >
-> > > > I really like the idea. I'm start to think that this is the ideal way to
-> > > > accomplish this.
-> > > >
-> > > > Here's a new patch. Let's hope it doesn't wrap!
-> > >
-> > > It was eaten :(
-> > >
-> > > > module_init(hid_init);
-> > > > module_exit(hid_exit);
-> > > > +module_param(hid_mouse_polling_interval, int, 644);
-> > >
-> > > 0644, or use the proper #defines instead.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> > >
-> >
-> > Here's an updated version, with your and Marcel's suggestions:
-> 
-> Some more suggestions:
-> 
-> A MODULE_PARM_DESC() would be good, as well as a patch to
-> kernel-parameters.txt.
-> 
-> Also, it'd be better instead of changing the bInterval in the endpoint
-> descriptor to change the "interval" variable. This way one wouldn't need
-> to think about whether the device is Full-speed or High-speed when
-> setting the parameter. Also the endpoint descriptor should be considered
-> read only.
-> 
-> > Signed-off-by: Mikkel Krautz <krautz@gmail.com>
-> > ---
-> >
-> >
-> >  hid-core.c |    9 ++++++++-
-> >  1 files changed, 8 insertions(+), 1 deletion(-)
-> >
-> >
-> > --- clean/drivers/usb/input/hid-core.c
-> > +++ dirty/drviers/usb/input/hid-core.c
-> > @@ -37,11 +37,12 @@
-> >   * Version Information
-> >   */
-> >
-> > -#define DRIVER_VERSION "v2.0"
-> > +#define DRIVER_VERSION "v2.01"
-> >  #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
-> >  #define DRIVER_DESC "USB HID core driver"
-> >  #define DRIVER_LICENSE "GPL"
-> >
-> > +static unsigned int hid_mousepoll_interval;
-> >  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
-> >                               "Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
-> >
-> > @@ -1663,6 +1664,11 @@
-> >               if ((endpoint->bmAttributes & 3) != 3)          /* Not an interrupt endpoint */
-> >                       continue;
-> >
-> > +             /* Change the polling interval of mice. */
-> > +             if (hid->collection->usage == HID_GD_MOUSE
-> > +                             && hid_mousepoll_interval > 0)
-> > +                     endpoint->bInterval = hid_mousepoll_interval;
-> > +
-> >               /* handle potential highspeed HID correctly */
-> >               interval = endpoint->bInterval;
-> >               if (dev->speed == USB_SPEED_HIGH)
-> > @@ -1910,6 +1916,7 @@
-> >
-> >  module_init(hid_init);
-> >  module_exit(hid_exit);
-> > +module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
-> >
-> >  MODULE_AUTHOR(DRIVER_AUTHOR);
-> >  MODULE_DESCRIPTION(DRIVER_DESC);
-> >
-> 
-> --
-> Vojtech Pavlik
-> SuSE Labs, SuSE CR
+>While executing
+>iptables -t nat -D OUTPUT -d 80.126.170.174 -p tcp --dport https -j DNAT --to 192.168.0.1
+>iptables -t nat -D OUTPUT -d 80.126.170.174 -p tcp --dport http  -j DNAT --to 192.168.0.1
+>ip route del default
+>ip addr del 80.126.170.174 dev eth0
 >
+>on a dual PIII during a shutdown:
+>
+>kernel: BUG: using smp_processor_id() in preemptible [00000001] code: ip/6840
+>kernel: caller is get_next_corpse+0x13/0x260
+>kernel:  [<c010385e>] dump_stack+0x1e/0x30
+>kernel:  [<c024f13f>] smp_processor_id+0xaf/0xc0
+>kernel:  [<c0407d83>] get_next_corpse+0x13/0x260
+>kernel:  [<c0408006>] ip_ct_iterate_cleanup+0x36/0xc0
+>kernel:  [<c041896a>] masq_inet_event+0x3a/0x70
+>kernel:  [<c012eded>] notifier_call_chain+0x2d/0x50
+>kernel:  [<c03ef589>] inet_del_ifa+0x99/0x150
+>kernel:  [<c03efafb>] inet_rtm_deladdr+0x12b/0x170
+>kernel:  [<c03b1f47>] rtnetlink_rcv+0x347/0x410
+>kernel:  [<c03c1b10>] netlink_data_ready+0x60/0x70
+>kernel:  [<c03c0f71>] netlink_sendskb+0x31/0x60
+>kernel:  [<c03c17e9>] netlink_sendmsg+0x259/0x310
+>kernel:  [<c039e87b>] sock_sendmsg+0xbb/0xe0
+>kernel:  [<c03a0424>] sys_sendmsg+0x1c4/0x230
+>kernel:  [<c03a08cc>] sys_socketcall+0x21c/0x240
+>kernel:  [<c01029f3>] syscall_call+0x7/0xb
+>kernel: BUG: using smp_processor_id() in preemptible [00000001] code: ip/6840
+>kernel: caller is get_next_corpse+0x23f/0x260
+>kernel:  [<c010385e>] dump_stack+0x1e/0x30
+>kernel:  [<c024f13f>] smp_processor_id+0xaf/0xc0
+>kernel:  [<c0407faf>] get_next_corpse+0x23f/0x260
+>kernel:  [<c0408006>] ip_ct_iterate_cleanup+0x36/0xc0
+>kernel:  [<c041896a>] masq_inet_event+0x3a/0x70
+>kernel:  [<c012eded>] notifier_call_chain+0x2d/0x50
+>kernel:  [<c03ef589>] inet_del_ifa+0x99/0x150
+>kernel:  [<c03efafb>] inet_rtm_deladdr+0x12b/0x170
+>kernel:  [<c03b1f47>] rtnetlink_rcv+0x347/0x410
+>kernel:  [<c03c1b10>] netlink_data_ready+0x60/0x70
+>kernel:  [<c03c0f71>] netlink_sendskb+0x31/0x60
+>kernel:  [<c03c17e9>] netlink_sendmsg+0x259/0x310
+>kernel:  [<c039e87b>] sock_sendmsg+0xbb/0xe0
+>kernel:  [<c03a0424>] sys_sendmsg+0x1c4/0x230
+>kernel:  [<c03a08cc>] sys_socketcall+0x21c/0x240
+>kernel:  [<c01029f3>] syscall_call+0x7/0xb
+>
+>  
+>
+Hi!
+You have to use get_cpu() or __smp_processor_id() to avoid this debug 
+message.
+Have a look at inlcude/linux/smp.h and include/asm-i386/smp.h.
+
+Matthias-Christian Ott

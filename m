@@ -1,60 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315905AbSEGPyM>; Tue, 7 May 2002 11:54:12 -0400
+	id <S315904AbSEGPzg>; Tue, 7 May 2002 11:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315904AbSEGPyL>; Tue, 7 May 2002 11:54:11 -0400
-Received: from heffalump.fnal.gov ([131.225.9.20]:8857 "EHLO fnal.gov")
-	by vger.kernel.org with ESMTP id <S315905AbSEGPyK>;
-	Tue, 7 May 2002 11:54:10 -0400
-Date: Tue, 07 May 2002 10:54:10 -0500
-From: Dan Yocum <yocum@fnal.gov>
-Subject: Re: Poor NFS client performance on 2.4.18?
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <3CD7F8A2.24DF8433@fnal.gov>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13SGI_XFS_1.0.2 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no>
- <3CD6FE1E.A20384D@fnal.gov> <E174zP0-0007N9-00@charged.uio.no>
- <3CD7F385.BAA3870B@fnal.gov>
+	id <S315906AbSEGPzf>; Tue, 7 May 2002 11:55:35 -0400
+Received: from host2.netbasiks.com ([209.239.35.86]:55044 "EHLO
+	host2.netbasiks.com") by vger.kernel.org with ESMTP
+	id <S315904AbSEGPzd>; Tue, 7 May 2002 11:55:33 -0400
+Message-Id: <4.3.2.7.2.20020507115600.029c8ea0@mail.qrts.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Tue, 07 May 2002 11:58:26 -0400
+To: Jesse Wyant <jrwyant@frx774.dhs.org>
+From: "Nicolae P. Costescu" <lkm@qrts.com>
+Subject: Re: P4 Xeon summary inquiry
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200205070712.g477CSt00441@frx774.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Yocum wrote:
-> 
-> Trond Myklebust wrote:
-> >
-> > On Tuesday 7. May 2002 00:05, Dan Yocum wrote:
-> > > Trond,
-> > >
-> > > OK, so backing out the rpc_tweaks dif fixed the performance problem,
-> > > however, seems to have introduced another problem that appears to be
-> > > stemming from the seekdir.dif.  Attempting to run an app from an IRIX
-> > > client (that has the 32bitclients option set) freezes the NFS volume - one
-> > > can't access it from the Linux side, anymore.
-> > >
-> > > You can read and write to the NFS volume *before* trying to run something
-> > > from there, but not after.
-> > >
-> > > Ideas?
-> >
-> > That smells like another network driver bug. Have you tcpdumped the traffic
-> > between client and server?
-> 
-> Ah, that may be the case - the problem also exists with a Linux server as
-> well... let me check, and I'll let you know.
+Jesse,
+The mixed performance bag of hyperthreading you are seeing is pretty normal 
+from what I understand.
 
+Here's a nice summary article on the topic from anandtech...
 
-I take that back - it's only hanging on the Linux server when the IRIX
-server is already hung.
+http://anandtech.com/showdoc.html?i=1576&p=1
 
+Thanks
+Nick
 
-
--- 
-Dan Yocum
-Sloan Digital Sky Survey, Fermilab  630.840.6509
-yocum@fnal.gov, http://www.sdss.org
-SDSS.  Mapping the Universe.

@@ -1,93 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263057AbUDTOLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbUDTOLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263057AbUDTOLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 10:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbUDTOLp
+	id S262388AbUDTOLu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 10:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbUDTOLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 20 Apr 2004 10:11:50 -0400
+Received: from ra.sai.msu.su ([158.250.29.2]:56493 "EHLO ra.sai.msu.su")
+	by vger.kernel.org with ESMTP id S262388AbUDTOLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Apr 2004 10:11:45 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49088 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263059AbUDTOLm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 10:11:42 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
-Subject: Re: [somewhat OT] binary modules agaaaain
-Date: Tue, 20 Apr 2004 16:11:07 +0200
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.33.0404191651300.1869-100000@pcgl.dsa-ac.de>
-In-Reply-To: <Pine.LNX.4.33.0404191651300.1869-100000@pcgl.dsa-ac.de>
-Cc: <linux-kernel@vger.kernel.org>
+Date: Tue, 20 Apr 2004 18:11:12 +0400 (MSD)
+From: "E.Rodichev" <er@sai.msu.su>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux problem (2.6.5)
+In-Reply-To: <200404200736.38616.dtor_core@ameritech.net>
+Message-ID: <Pine.GSO.4.58.0404201718220.4975@ra.sai.msu.su>
+References: <Pine.GSO.4.58.0404200404360.22353@ra.sai.msu.su>
+ <200404200736.38616.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404201611.07832.bzolnier@elka.pw.edu.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 of April 2004 17:53, Guennadi Liakhovetski wrote:
-> Hello all
->
-> I came across an idea, how Linux could allow binary modules, still having
-> reasonable control over them.
->
-> I am not advocating for binary modules, nor I am trying to make their life
-> harder, this is just an idea how it could be done.
->
-> I'll try to make it short, details may be discussed later, if any interest
-> arises.
->
-> A binary module is "considered good" if
+It's not a problem of mousedev, but the problem of make menuconfig.
 
-This is a false assumption IMO no binary only modules can be "good".
+The relevant part of .config is
 
-> 1) It is accompanied by a "suitably licensed" (GPL-compatible) open-source
->    glue-module.
->
-> 2) The sourced used to compile the binary part do not access any of the
->    kernel functionalities directly. Which means:
-> 	a) they don't (need to) include any kernel header-files
-> 	b) they don't access any kernel objects or methods directly
-> 	c) all interfacing to the kernel goes over the glue module and the
-> 	   interface is _purely functional_ - no macros, no inlines.
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
 
-What you've just described are the most evil binary only modules. :-)
+Starting from original linux-2.6.5.tar.gz it seems impossible to
+disable CONFIG_INPUT_MOUSEDEV_PSAUX without disabling CONFIG_INPUT_MOUSEDEV.
 
-
-Please think a while about all these recent "the most famous binary module"
-vs 4kb kernel stacks mails...
-
-I think that binary modules are evil because:
-
-- they slow down development (indirectly - think about it)
-
-- some vendors claim Linux support
-  while they only provide binary only modules
-
-- less informed users tend to put blame on kernel or distribution
-  not the binary only module (!)
-
-I'm not a fanatic :-), I can see good sides of binary only modules:
-
-- additional hardware and features is supported
-
-- wider usage of Linux
-
-but I still think that cons > pros...
-
-> With this restrictions those "good" binary modules could be debugged, run
-> in a sandbox... The question remains if anybody will want to debug them:-)
-
-In my opinion using binary only modules is equal to modifying your kernel
-but being unable to show your modifications so you are on your own and you
-shouldn't bring it on lkml.
-
-> Again - no advocating, just in case anyone find it useful / worthy.
-
-Useful thing will be to create mailing list about Linux kernel
-+ binary only modules and to move discussion from lkml there...
+If I comment out the line CONFIG_INPUT_MOUSEDEV_PSAUX by hand, make
+silently restore this line to yes.
 
 Regards,
-Bartlomiej
+E.R.
 
+On Tue, 20 Apr 2004, Dmitry Torokhov wrote:
+
+> On Monday 19 April 2004 07:26 pm, E.Rodichev wrote:
+>
+> > The reason is that in 2.6.5 it looks impossible to disable the existing
+> > mouse driver, which conflicts with driver from Tuukka Toivonen. My
+> > temporary solution was as follows:
+> >
+> >
+> > --- drivers/input/Kconfig.orig ?2004-04-04 07:36:18.000000000 +0400
+> > +++ drivers/input/Kconfig ? ? ? 2004-04-20 03:45:31.000000000 +0400
+> > @@ -26,7 +26,6 @@ comment "Userland interfaces"
+> >
+> > ?config INPUT_MOUSEDEV
+> > ? ? ? ? tristate "Mouse interface" if EMBEDDED
+> > - ? ? ? default y
+> > ? ? ? ? depends on INPUT
+> > ? ? ? ? ---help---
+> > ? ? ? ? ? Say Y here if you want your mouse to be accessible as char devices
+> >
+>
+> Ok, I am slow today, but how does mousedev affect his psaux implementation?
+> I can see that his module can conflict with psmouse (which is configurable),
+> but mousedev?
+>
+> The reason it is always on because it is useful for any kind of mouse -
+> serial, USB, PS/2. You really want to keep it around...
+>
+> --
+> Dmitry
+>
+
+_________________________________________________________________________
+Evgeny Rodichev                          Sternberg Astronomical Institute
+email: er@sai.msu.su                              Moscow State University
+Phone: 007 (095) 939 2383
+Fax:   007 (095) 932 8841                       http://www.sai.msu.su/~er

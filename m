@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314422AbSD0Tk2>; Sat, 27 Apr 2002 15:40:28 -0400
+	id <S314420AbSD0TmI>; Sat, 27 Apr 2002 15:42:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314420AbSD0Tk1>; Sat, 27 Apr 2002 15:40:27 -0400
-Received: from newman.edw2.uc.edu ([129.137.2.198]:49417 "EHLO smtp.uc.edu")
-	by vger.kernel.org with ESMTP id <S314422AbSD0Tk1>;
-	Sat, 27 Apr 2002 15:40:27 -0400
-From: kuebelr@email.uc.edu
-Date: Sat, 27 Apr 2002 15:40:19 -0400
-To: linux-kernel@vger.kernel.org
-Subject: un-removable files on reiserfs
-Message-Id: <20020427194019.GA898@cartman>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314433AbSD0TmH>; Sat, 27 Apr 2002 15:42:07 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:18955 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S314420AbSD0TmG>;
+	Sat, 27 Apr 2002 15:42:06 -0400
+Message-ID: <001501c1ee23$98c57cf0$0201a8c0@witek>
+From: =?iso-8859-2?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: ext2 fs corruption on 2.5.10
+Date: Sat, 27 Apr 2002 21:41:58 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have a few files on a reiserfs disk that i cannot remove. they showed
-up sometime after i started using 2.4.17.  also, i haven't been able to
-find an oops in my ksymoops logs.
-
-i also have used 2.4.18 and 2.4.19-pre2 for a day or two each.
-
-here is an example: /non-debian/src/openbsd/sys/arch/sun3/stand/CVS/nn
-
-% ls -l /non-debian/src/openbsd/sys/arch/sun3/stand/CVS
-ls: /non-debian/src/openbsd/sys/arch/sun3/stand/CVS/nn: No such file or directory
-total 8
--rw-r--r--    1 rob      rob           211 Oct 17  2001 Entries
--rw-r--r--    1 rob      rob            24 Oct 17  2001 Repository
-
-% ls -l /non-debian/src/openbsd/sys/arch/sun3/stand/CVS/nn
-ls: /non-debian/src/openbsd/sys/arch/sun3/stand/CVS/nn: No such file or directory
-
-% ls -ld /non-debian/src/openbsd/sys/arch/sun3/stand/CVS
-drwxr-xr-x    2 rob      rob           104 Oct 19  2001 /non-debian/src/openbsd/sys/arch/sun3/stand/CVS
-
-i can provide any other info, if needed.
-
-thanks.
-rob.
+2 machines, 2 partitions:
+At first kernel hanged while calling hdparm, after removing hdparm from rc
+scripts, it hangs while remounting rootfs read-write. After that, partition
+is totally screwed up. All parts (ide, ext2) compiled as modules.
+It's reproductible but I'm unable to reproduce it since I'm cutted out from
+my Linux partition
+WK
 

@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUIKR06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUIKR1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268249AbUIKR06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 13:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268210AbUIKRZ5
+	id S268228AbUIKR1f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 13:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268218AbUIKR1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 13:25:57 -0400
-Received: from open.hands.com ([195.224.53.39]:62876 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S268234AbUIKRZl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 13:25:41 -0400
-Date: Sat, 11 Sep 2004 18:36:52 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Gianni Tedesco <gianni@scaramanga.co.uk>
-Cc: Patrick McHardy <kaber@trash.net>, linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [PATCH 2.6 NETFILTER] new netfilter module ipt_program.c
-Message-ID: <20040911173651.GC12835@lkcl.net>
-References: <20040911124106.GD24787@lkcl.net> <4142F4CC.7080708@trash.net> <1094914175.8495.66.camel@sherbert>
+	Sat, 11 Sep 2004 13:27:34 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:49587 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268228AbUIKR0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 13:26:08 -0400
+Subject: Re: radeon-pre-2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>,
+       Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e47339104091109463694ffd3@mail.gmail.com>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <9e47339104091010221f03ec06@mail.gmail.com>
+	 <1094835846.17932.11.camel@localhost.localdomain>
+	 <9e47339104091011402e8341d0@mail.gmail.com>
+	 <Pine.LNX.4.58.0409102254250.13921@skynet>
+	 <1094853588.18235.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409110137590.26651@skynet>
+	 <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
+	 <Pine.LNX.4.58.0409110600120.26651@skynet>
+	 <1094913222.21157.61.camel@localhost.localdomain>
+	 <9e47339104091109463694ffd3@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094919683.21082.121.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094914175.8495.66.camel@sherbert>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 11 Sep 2004 17:23:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 03:49:35PM +0100, Gianni Tedesco wrote:
-> On Sat, 2004-09-11 at 14:51 +0200, Patrick McHardy wrote:
-> > Luke Kenneth Casson Leighton wrote:
-> > > decided to put this into a separate module.  based on ipt_owner.c.
-> > > does full program's pathname.  like ipt_owner, only suitable for
-> > > outgoing connections.
-> > 
-> > I agree that it would be useful to match the full path, but
-> > the patch is broken, as are the owner match's pid-, sid- and
-> > command-matching options. You can't grab files->file_lock
-> > outside of process context. Besides, we want to consolidate
-> > functionality, not add new matches that do basically the same
-> > as existing ones.
+On Sad, 2004-09-11 at 17:46, Jon Smirl wrote:
+> User 1's game queues up 20ms of 3D drawing commands.
+> Process swap to user 2.  ->quiesce() is going to take 20ms. 
+> User 2's timeslice expires and we go back to user 1.
+> User 1 queues up another 20ms.
 > 
-> This is a binary compatibility issue, I don't think it's possible to add
-> Lukes functionality to ipt_owner without breaking iptables
-> compatibility.
- 
- weeeelllll... there's nothing to stop you adding a header file
- ipt_owner_program.h instead :)
+> User 2's editor is never going to function.
 
- i know it breaks the convention but hey.
+If you implement it wrongly sure. If you implemented it right then
+this occurs.
 
- l.
+User 1 queues 20 ms of 3D commands
+User 1 is pre-empted
+User 2 wants the 2D engine
+User 2 beings wait for 2D
+User 2 sleeps
+User 1 wakes
+User 1 beings wait for 3D but discovers a claim is in progress
+User 1 sleeps
+User 2 wakes, runs commands
 
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+If you have DRI loaded then as you rightly say the obvious desired
+outcome is that the fb engine either turns acceleration off or switches
+to using the DRI layer. 
+
+But this is a pretty obscure case, and one we can't even begin to
+support yet anyway.
+
+
 

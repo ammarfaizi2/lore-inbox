@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268902AbRG0RCK>; Fri, 27 Jul 2001 13:02:10 -0400
+	id <S268042AbRG0RLJ>; Fri, 27 Jul 2001 13:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268042AbRG0RB7>; Fri, 27 Jul 2001 13:01:59 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:56328 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S267943AbRG0RBz>;
-	Fri, 27 Jul 2001 13:01:55 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200107271701.VAA19367@ms2.inr.ac.ru>
-Subject: Re: 2.4.7 softirq incorrectness.
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 27 Jul 2001 21:01:48 +0400 (MSK DST)
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <15201.13760.734675.989919@pizda.ninka.net> from "David S. Miller" at Jul 27, 1 02:34:56 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S267943AbRG0RLA>; Fri, 27 Jul 2001 13:11:00 -0400
+Received: from rj.SGI.COM ([204.94.215.100]:21142 "EHLO rj.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S267984AbRG0RKz>;
+	Fri, 27 Jul 2001 13:10:55 -0400
+Message-Id: <200107271710.f6RHAVU19467@jen.americas.sgi.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Andrew Morton <akpm@zip.com.au>
+cc: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
+        Hans Reiser <reiser@namesys.com>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption 
+In-Reply-To: Message from Andrew Morton <akpm@zip.com.au> 
+   of "Sat, 28 Jul 2001 02:39:50 +1000." <3B619956.6AA072F9@zip.com.au> 
+Date: Fri, 27 Jul 2001 12:10:31 -0500
+From: Steve Lord <lord@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello!
 
-> Do you mean "user context" when you say normal? 
+> 
+> You can narrow the window of exposure by fiddling with the
+> parameters in /proc/sys/vm/bdflush - force a full flush every
+> five seconds, say.
+> 
+> >   It seems to be that any open file is
+> > in danger.  I don't know if this is normal, or not, but I switched to XFS o
+> n
+> > several machines.  I have nothing against reiser.  I assumed that these
+> > problems were due to immaturity....
+> 
+> I'm under the impression that XFS also leaves data in the hands
+> of the kernel's normal writeback mechanisms and will thus be
+> exposed to the same problem.  I may be wrong about this.
+> 
 
-Why "user" then? :-)
+Yes, XFS does leave writing the data to the normal writeback mechanisms, 
+however, what happens with XFS is usually:
 
-Well, after some digging in brains I find that I use home-made terminology.
-non-interrupt/non-bh context is called "process context" here. :-)
-"Normal context" is process context with enabled BHs and irqs.
+ o a file with no extents - the size made it out to disk but the data did not.
+   since on writes to new space we do not allocate the space until we flush
+   you tend not to see old data. The only way out of something like this is
+   to prevent the inode size update from hitting disk until the file data
+   is on disk. The performance consequences of doing that are probably 
+   large.
+
+   This situation is somewhat helped by the fact that if one page gets
+   flushed by bdflush and it calls back into xfs to allocate space, we 
+   will allocate space for, and flush all surrounding data in the file,
+   so this may be causing earler flushing than might otherwise happen.
+
+Since xfs usually operates with a much smaller in memory log than other
+filesystems (64K default) and we have some synchronous transactions which
+cause a flush of the in memory log, the amount that time can go backwards
+by in a crash is a lot smaller.
+
+Steve
 
 
-> The reason I pushed to have netif_FOO use __cpu_raise_softirq() was
-> that I felt sick to my stomache when I saw a new whole function call
-> added to that spot. 
-
-I experience even more unpleasant feelings, when thinking what would happen
-if netif_rx() without these __ is called from under irq protected spinlock.
-
-> Let us just fix the odd places that aren't calling things in the
-> correct environment.
-
-I caught you! :-) Each "context" is normal, but "environment" still can
-be wrong. 
-
-Yes, I agreed. It is the simplest solution. In any case, all the instances
-of netif_rx are to be checked for spinlock-safeness.
-
-Alexey

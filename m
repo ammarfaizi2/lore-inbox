@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUKGVKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbUKGVJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUKGVKE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 16:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbUKGVKE
+	id S261657AbUKGVJa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 16:09:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbUKGVJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 16:10:04 -0500
-Received: from holomorphy.com ([207.189.100.168]:38287 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261638AbUKGVJz (ORCPT
+	Sun, 7 Nov 2004 16:09:30 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:36618 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S261638AbUKGVJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 16:09:55 -0500
-Date: Sun, 7 Nov 2004 13:09:43 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: David Gibson <david@gibson.dropbear.id.au>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, Adam Litke <agl@us.ibm.com>,
-       Andy Whitworth <apw@shadowen.org>
-Subject: Re: [RFC] Consolidate lots of hugepage code
-Message-ID: <20041107210943.GN2890@holomorphy.com>
-References: <20041029033708.GF12247@zax> <20041029034817.GY12934@holomorphy.com> <20041107172030.GA16976@krispykreme.ozlabs.ibm.com> <20041107192024.GM2890@holomorphy.com> <20041107193007.GC16976@krispykreme.ozlabs.ibm.com>
+	Sun, 7 Nov 2004 16:09:20 -0500
+Date: Sun, 7 Nov 2004 16:08:12 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       "Adam J. Richter" <adam@yggdrasil.com>, davids@webmaster.com,
+       jp@enix.org, linux-kernel@vger.kernel.org
+Subject: Re: Possible GPL infringement in Broadcom-based routers
+Message-ID: <20041107210811.GA3944@michonline.com>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	"Adam J. Richter" <adam@yggdrasil.com>, davids@webmaster.com,
+	jp@enix.org, linux-kernel@vger.kernel.org
+References: <200411061338.iA6DcBBG004040@laptop11.inf.utfsm.cl> <1099756157.2814.16.camel@laptop.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041107193007.GC16976@krispykreme.ozlabs.ibm.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1099756157.2814.16.camel@laptop.fenrus.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> The second is a triplefault on x86-64 under some
->> condition involving a long-running database regression test. There has
->> obviously been considerably less progress there in no small part due to
->> the amount of time required to reproduce the issue.
+On Sat, Nov 06, 2004 at 04:49:17PM +0100, Arjan van de Ven wrote:
+> 
+> > For the kernel, Linus has clarified the license of the kernel (it is _not_
+> > vanilla GPL), see COPYING. And one would assume that if somebody
+> > contributes voluntarily, they are agreeing to the licence...
+> 
+> the kernel is under the vanilla GPL, not only did Linus say so
+> repeatedly, also it contains code that IS under the vanilla GPL.
+> (eg taken from other projects etc etc).
 
-On Mon, Nov 08, 2004 at 06:30:07AM +1100, Anton Blanchard wrote:
-> OK. We have not seen a similar issue on ppc64 even with extensive
-> testing (although with HPC apps). The question is how long we should
-> hold off on further hugetlb development waiting for this one bug report
-> on a single architecture to be chased.
+Well, that's not *quite* accurate.
 
-Until it's fixed. Until then I'm considering it a byproduct of that same
-development. And with your report, that makes it two architectures, not
-one.
+Vanilla GPL tends to be "version 2 or any later version", whereas Linux
+is distributed *only* under version 2.
 
-The concepts of the features etc. are all generally okay, though very
-buzzword-centric. In general the audits and sweeps have been lacking
-thoroughness in the architecture-specific areas. I expect that
-particular issue to have been the cause of these two bugreports.
+(Yes, rather nitpicky, and I'm not disagreeing with you in any
+meaningful way - just trying to make sure archive searches find the correct
+statements over and over again.)
 
+-- 
 
--- wli
+Ryan Anderson
+  sometimes Pug Majere

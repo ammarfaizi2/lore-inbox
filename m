@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280703AbRKJUKQ>; Sat, 10 Nov 2001 15:10:16 -0500
+	id <S280705AbRKJUL4>; Sat, 10 Nov 2001 15:11:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280708AbRKJUKG>; Sat, 10 Nov 2001 15:10:06 -0500
-Received: from okc-65-31-200-76.mmcable.com ([65.31.200.76]:47488 "EHLO
-	dogbert.cubicle.home") by vger.kernel.org with ESMTP
-	id <S280705AbRKJUJs>; Sat, 10 Nov 2001 15:09:48 -0500
-Message-ID: <3BED88E7.6050208@tux.ou.edu>
-Date: Sat, 10 Nov 2001 14:07:03 -0600
-From: Robert Cantu <robert@tux.cs.ou.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S280707AbRKJULg>; Sat, 10 Nov 2001 15:11:36 -0500
+Received: from pD952A7A1.dip.t-dialin.net ([217.82.167.161]:10369 "EHLO
+	darkside.ddts.net") by vger.kernel.org with ESMTP
+	id <S280705AbRKJUL3>; Sat, 10 Nov 2001 15:11:29 -0500
+Date: Sat, 10 Nov 2001 20:26:52 +0100
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
 To: linux-kernel@vger.kernel.org
-Subject: Hot-swappable IDE Drives?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: isdn: isdnloop support crashes kernel when compiled in
+Message-ID: <20011110202652.B14401@darkside.ddts.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What would it take to be able to have hot swappable IDE drives 
-consistently among the different IDE controllers? This would be a 
-god-send for laptop users...
+Hoi,
 
-Please CC me, I am not subscribed.
+The isdnloop support for the ISDN subsystem crashes the kernel when
+compiled in the kernel directly (null pointer reference).
+I guess, this is because parameters are only given as MODULE_PARM().
 
---
-Robert Cantu
-System Administrator, Dept. of Computer Science
-University of Oklahoma
-robert@tux.ou.edu
+I found that in the 2.4.12 kernel, if it's fixed already in higher
+kernels, please excuse me :)
 
+If this is a feature and not a bug, should'nt it then be forced
+to be configured as a module in the Config.in?
+
+
+PS: I'm not member on the linux-kernel@ list, so please CC me in
+    replies, thanks.
+
+
+regards,
+   Mario
+-- 
+*axiom* welcher sensorische input bewirkte die output-aktion,
+        den irc-chatter mit dem nick "dus" des irc-servers
+        mittels eines kills zu verweisen?

@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272329AbSISSxE>; Thu, 19 Sep 2002 14:53:04 -0400
+	id <S272370AbSISStc>; Thu, 19 Sep 2002 14:49:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272334AbSISSxE>; Thu, 19 Sep 2002 14:53:04 -0400
-Received: from are.twiddle.net ([64.81.246.98]:9623 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S272329AbSISSxD>;
-	Thu, 19 Sep 2002 14:53:03 -0400
-Date: Thu, 19 Sep 2002 11:57:47 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Syscall changes registers beyond %eax, on linux-i386
-Message-ID: <20020919115747.A22594@twiddle.net>
-Mail-Followup-To: Brian Gerst <bgerst@didntduck.org>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	dvorak <dvorak@xs4all.nl>, linux-kernel@vger.kernel.org
-References: <24181C771D3@vcnet.vc.cvut.cz> <3D8A11BB.4090100@didntduck.org> <20020919113048.A22520@twiddle.net> <3D8A1CC0.8070407@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D8A1CC0.8070407@didntduck.org>; from bgerst@didntduck.org on Thu, Sep 19, 2002 at 02:51:44PM -0400
+	id <S272400AbSISStb>; Thu, 19 Sep 2002 14:49:31 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:15367 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S272370AbSISSt2>; Thu, 19 Sep 2002 14:49:28 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
+Date: Thu, 19 Sep 2002 18:54:06 +0000 (UTC)
+Organization: Cistron
+Message-ID: <amd6ge$fng$3@ncc1701.cistron.net>
+References: <20020919163542.GA14951@win.tue.nl> <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1032461646 16112 62.216.29.67 (19 Sep 2002 18:54:06 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 02:51:44PM -0400, Brian Gerst wrote:
-> > The parameter area belongs to the callee, and it may *always* be modified.
-> 
-> The parameters can not be modified if they are declared const though, 
-> that's my point.
+In article <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>,
+Linus Torvalds  <torvalds@transmeta.com> wrote:
+>
+>On Thu, 19 Sep 2002, Andries Brouwer wrote:
+>> The controlling terminal is inherited by a child process during a fork()
+>> function call. A process relinquishes its controlling terminal when it creates
+>> a new session with the setsid() function; other processes remaining in the
+>> old session that had this terminal as their controlling terminal continue
+>> to have it.
+>
+>Well, that certainly clinches the fact that the controlling terminal _can_ 
+>and does continue to be hold by processes outside the current session 
+>group.
 
-Yes they can.
+No, not at all. A few lines above that it said:
 
-	extern void bar(int x, int y, int z);
-	void foo(const int a, const int b, const int c)
-	{
-	  bar(a+1, b+1, c+1);
-	}
+>> A terminal that is associated with a session. Each session may have
+>> at most one controlling terminal associated with it, and a controlling
+>> terminal is associated with exactly one session.
 
-        subl    $12, %esp
-        movl    20(%esp), %eax
-        incl    %eax
-        movl    %eax, 20(%esp)
-        movl    16(%esp), %eax
-        incl    %eax
-        incl    24(%esp)
-        movl    %eax, 16(%esp)
-        addl    $12, %esp
-        jmp     bar
+A session has zero or 1 controlling terminals. A controlling
+terminal is associated with one session only.
 
-(Not sure why gcc doesn't use incl on all three memories, nor
-should it allocate that stack frame...)
+Mike.
 
-
-r~

@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUHNReL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUHNRhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUHNReL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 13:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbUHNReK
+	id S264278AbUHNRhA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 13:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUHNRhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 13:34:10 -0400
-Received: from YahooBB219197212132.bbtec.net ([219.197.212.132]:9088 "EHLO
-	rai.sytes.net") by vger.kernel.org with ESMTP id S264297AbUHNReH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 13:34:07 -0400
-Message-ID: <411E4D15.9080708@yahoo.co.jp>
-Date: Sun, 15 Aug 2004 02:34:13 +0900
-From: Tetsuji Rai <badtrans666@yahoo.co.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, ja, zh-tw, zh-cn, zh-hk
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Keyboard input ignored by 2.6.8
-References: <411E40F2.6000000@yahoo.co.jp>
-In-Reply-To: <411E40F2.6000000@yahoo.co.jp>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Sat, 14 Aug 2004 13:37:00 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:51903 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264278AbUHNRg5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 13:36:57 -0400
+Message-ID: <2a4f155d0408141036e114001@mail.gmail.com>
+Date: Sat, 14 Aug 2004 20:36:57 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Latest 2.6 kernels broke debugging of threaded applications
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In addition, I had disabled the usb keyboard in bios.
+Hi all,
 
-Tetsuji Rai wrote:
-> Today I compiled 2.6.8 on my Debian sarge with gcc-3.4(and tested with
-> gcc-3.3 also), and found 2.6.8 didn't accept my keyboard input.   My
-> keybaord is a usual PS/2 keyboard.  I don't know what's going on.  I cannot
-> even login.   Until today I have been using 2.6.7 without any problem.   I
-> attach my .config file as the attachment.
-> 
-> Another (minor?) problem is when I compiled into usb stuff into the 2.6.8
-> kernel, it freezed on booting.  So I compiled usb stuff as modules and it
-> was solved.
-> 
-> 
-> TIA
-> 
+I am having weird problems with gdb & latest 2.6 kernels
+
+I tested 2.6.6,.2.6.7,.2.6.8 and they all have the same problem. When
+I try to debug a threaded application in gdb applications freezes and
+gdb doesn't output anything. strace shows this interesting piece at
+the point the application freezes :
+
+<snip>
+
+--- SIGCHLD (Child exited) @ 0 (0) ---
+sigreturn()                             = ? (mask now [RTMIN])
+wait4(-1, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGTRAP}], 0, NULL) = 17055
+ptrace(PTRACE_GETREGS, 17055, 0, 0xbfffea60) = 0
+ptrace(PTRACE_PEEKUSER, 17055, offsetof(struct user, u_debugreg) + 24,
+[0xffff4ff0]) = 0
+ptrace(PTRACE_PEEKTEXT, 17055, 0x4000af40, [0x5de58955]) = 0
+ptrace(PTRACE_PEEKTEXT, 17055, 0x4000af40, [0x5de58955]) = 0
+ptrace(PTRACE_POKEDATA, 17055, 0x4000af40, 0x5de589cc) = 0
+ptrace(PTRACE_CONT, 17055, 0, SIG_0)    = 0
+wait4(-1, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGTRAP} | 0x30000], 0,
+NULL) = 17055
+--- SIGCHLD (Child exited) @ 0 (0) ---
+sigreturn()                             = ? (mask now [RTMIN])
+--- SIGCHLD (Child exited) @ 0 (0) ---
+sigreturn()                             = ? (mask now [RTMIN])
+ptrace(0x4201 /* PTRACE_??? */, 17055, 0, 0xbfffec08) = 0
+wait4(17062, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGSTOP}], __WCLONE,
+NULL) = 17062
+ptrace(PTRACE_DETACH, 17062, 0, SIG_0)  = 0
+wait4(-1,
+
+</snip>
+
+Debugging works fine with 2.4.26 and 2.6.8-rc4-mm1. Any ideas?
+
+P.S: I am on a Slackware 10 box.
+
+Cheers,
+ismail
+
 
 -- 
-Tetsuji Rai (in Tokyo) aka AF-One (Athlete's Foot-One)
-Born to be the luckiest guy in the world!   May the Force be with me!
-http://www.geocities.com/tetsuji_rai
-http://setiathome.ssl.berkeley.edu/fcgi-bin/fcgi?cmd=view_feedback&id=1855
+Time is what you make of it

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263905AbTE1KQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 06:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbTE1KQ7
+	id S264623AbTE1Kej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 06:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264664AbTE1Kej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 06:16:59 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:27911 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263905AbTE1KQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 06:16:57 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+	Wed, 28 May 2003 06:34:39 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:57255 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264623AbTE1Keh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 06:34:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>
 Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Date: Wed, 28 May 2003 12:29:44 +0200
-User-Agent: KMail/1.5.2
-Cc: axboe@suse.de, manish@storadinc.com, andrea@suse.de,
+Date: Wed, 28 May 2003 20:48:57 +1000
+User-Agent: KMail/1.5.1
+Cc: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>,
+       m.c.p@wolk-project.de, manish@storadinc.com, andrea@suse.de,
        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-References: <3ED2DE86.2070406@storadinc.com> <20030528032315.679e77b0.akpm@digeo.com> <200305282029.14875.kernel@kolivas.org>
-In-Reply-To: <200305282029.14875.kernel@kolivas.org>
+References: <3ED2DE86.2070406@storadinc.com> <20030528032315.679e77b0.akpm@digeo.com> <20030528102529.GQ845@suse.de>
+In-Reply-To: <20030528102529.GQ845@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200305281229.44407.m.c.p@wolk-project.de>
+Message-Id: <200305282048.58032.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 May 2003 12:29, Con Kolivas wrote:
-
-Hi Con, AKPM, Jens,
-
+On Wed, 28 May 2003 20:25, Jens Axboe wrote:
+> On Wed, May 28 2003, Andrew Morton wrote:
+> > Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de> wrote:
+> > > Works fine on my notebook. Good throughput and no mouse hangs anymore.
+> >
+> > Interesting.
+> >
+> > Could you please work out which change caused it?  Go back to stock 2.4
+> > and then apply this:
+> >
+> >
 > > diff -puN drivers/block/ll_rw_blk.c~1 drivers/block/ll_rw_blk.c
 > > --- 24/drivers/block/ll_rw_blk.c~1	2003-05-28 03:20:42.000000000 -0700
 > > +++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 03:20:57.000000000 -0700
@@ -48,9 +54,49 @@ Hi Con, AKPM, Jens,
 > >  		if (q->rq[rw].count == 0)
 > >  			schedule();
 > >  		spin_lock_irq(&io_request_lock);
-> It's not this because this is the layout in my -ck* and it still exhibits
-> the pauses.
-Same for -WOLK*
+>
+> I think it was already established that this wasn't the reason. Was my
+> first suspect too, though...
+>
+> > then this:
+> >
+> > diff -puN drivers/block/ll_rw_blk.c~2 drivers/block/ll_rw_blk.c
+> > --- 24/drivers/block/ll_rw_blk.c~2	2003-05-28 03:21:03.000000000 -0700
+> > +++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 03:21:09.000000000 -0700
+> > @@ -590,7 +590,7 @@ static struct request *__get_request_wai
+> >  	register struct request *rq;
+> >  	DECLARE_WAITQUEUE(wait, current);
+> >
+> > -	add_wait_queue_exclusive(&q->wait_for_requests[rw], &wait);
+> > +	add_wait_queue(&q->wait_for_requests[rw], &wait);
+> >  	do {
+> >  		set_current_state(TASK_UNINTERRUPTIBLE);
+> >  		generic_unplug_device(q);
+>
+> Since we do a general wake_up(), only the order of wakeups matter here
+> right (lifo vs fifo). Given that, the _exclusive() should be more fair
+> possibly at the cost of a bit of throughput.
+>
+> > Then this (totally unlikely, don't bother):
+> >
+> > diff -puN drivers/block/ll_rw_blk.c~3 drivers/block/ll_rw_blk.c
+> > --- 24/drivers/block/ll_rw_blk.c~3	2003-05-28 03:21:15.000000000 -0700
+> > +++ 24-akpm/drivers/block/ll_rw_blk.c	2003-05-28 03:21:39.000000000 -0700
+> > @@ -829,8 +829,7 @@ void blkdev_release_request(struct reque
+> >  	 */
+> >  	if (q) {
+> >  		list_add(&req->queue, &q->rq[rw].free);
+> > -		if (++q->rq[rw].count >= q->batch_requests &&
+> > -				waitqueue_active(&q->wait_for_requests[rw]))
+> > +		if (++q->rq[rw].count >= q->batch_requests)
+> >  			wake_up(&q->wait_for_requests[rw]);
+> >  	}
+> >  }
+>
+> Well it's the only one left :). But you are right, try one of them at
+> the time, establishing the effect of each of them.
 
-ciao, Marc
+THIS IS IT! The last one. No pauses writing a 2Gb file now unless I do a read 
+midstream.
 
+Con

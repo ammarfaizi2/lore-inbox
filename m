@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264499AbUDTWYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264529AbUDTWYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264499AbUDTWYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbUDTWW4
+	id S264529AbUDTWYL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUDTWVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:22:56 -0400
-Received: from ip213-185-37-13.laajakaista.mtv3.fi ([213.185.37.13]:28037 "EHLO
-	home.holviala.com") by vger.kernel.org with ESMTP id S264499AbUDTUio
+	Tue, 20 Apr 2004 18:21:16 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:43694 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264581AbUDTV4Y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 16:38:44 -0400
-From: Kim Holviala <kim@holviala.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] psmouse fixes for 2.6.5
-Date: Tue, 20 Apr 2004 23:38:53 +0300
-User-Agent: KMail/1.6.1
-References: <200404201038.46644.kim@holviala.com> <200404200759.11446.dtor_core@ameritech.net>
-In-Reply-To: <200404200759.11446.dtor_core@ameritech.net>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404202338.53773.kim@holviala.com>
+	Tue, 20 Apr 2004 17:56:24 -0400
+Subject: Re: [module-init-tools] Segmentation fault
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: =?ISO-8859-1?Q?M=E9her?= Khiari <meher@wanadoo.fr>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4083A05F.8060309@wanadoo.fr>
+References: <4083A05F.8060309@wanadoo.fr>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1082444781.5566.166.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 21 Apr 2004 07:56:02 +1000
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 April 2004 15:59, Dmitry Torokhov wrote:
-> On Tuesday 20 April 2004 02:38 am, Kim Holviala wrote:
-> > Some fixes for PS/2 mice:
-> >
-> > - fixed hotplugging (real reset of device instead of softreset)
-> > - support for Targus Scroller mice (from my last weeks patch)
-> > - extended protocol probing fixed
->
-> Why do you have Tragus as a config option - just set the protocol mask
-> correctly by default...
+On Mon, 2004-04-19 at 19:48, Méher Khiari wrote:
+> Hi all
+> It is my first post here.
+> I didn't find any other mailing list talking about module-init-tools 
+> (nor a wiki page), so I am posting here.
+> I got module-init-tools-0.9.14, I compiled and installed (as written in 
+> the README) but I got a segmentation fault when I tested modprobe.
+> Although, I got the testsuite and ran the test and all went well !!!!
 
-Targus mice misuse the normal PS/2 protocol so that they can sneak through 
-command-filtering PS/2 ports (like on my Digital HiNote 2000). Basically they 
-output very strange but valid traffic when the wheel is moved. Anyway, this 
-is Linux, and I'd rather force people to turn it on explicitly rather than 
-take the risk of breaking some valid PS/2 device which might theoretically 
-output the same stuff.
+Yes.  The testsuite rebuilds the binaries with -DJUST_TESTING so it can
+do nasty things to the internals (like control uname).  These will
+segfault if run normally.  Hence "make check" now does a "make clean" at
+the end.
 
-
-
-
-Kim
-
+Hope that helps!
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSGHQTq>; Mon, 8 Jul 2002 12:19:46 -0400
+	id <S317002AbSGHQlq>; Mon, 8 Jul 2002 12:41:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316992AbSGHQTp>; Mon, 8 Jul 2002 12:19:45 -0400
-Received: from copper.ftech.net ([212.32.16.118]:24778 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S293680AbSGHQTo>;
-	Mon, 8 Jul 2002 12:19:44 -0400
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E0EF427@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Thunder from the hill'" <thunder@ngforever.de>,
-       Kevin Curtis <kevin.curtis@farsite.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Implementing a sockets address family
-Date: Mon, 8 Jul 2002 17:18:57 +0100 
+	id <S317003AbSGHQlp>; Mon, 8 Jul 2002 12:41:45 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:3461 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317002AbSGHQlo> convert rfc822-to-8bit;
+	Mon, 8 Jul 2002 12:41:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       <Andries.Brouwer@cwi.nl>
+Subject: Re: IDE, util-linux
+Date: Mon, 8 Jul 2002 18:43:25 +0200
+User-Agent: KMail/1.4.1
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.SOL.4.30.0207081802001.28633-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0207081802001.28633-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207081843.25332.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	thanks for the reply.  From an application point of view, when a
-socket is created it is non-blocking by default.  If the application uses
-ioctl or fcntl to set the socket to non-blocking mode, then all I was saying
-was I don't see any indication in flags or msghdr->flags as to whether the
-user wants to wait for the recv to complete or not.  How is my recvmsg()
-function in my implementation of the new address family supposed to
-differentiate.  I cannot see any reference to O_NONBLOCK or MSG_DONTWAIT in
-the tcp_recvmsg() function.
+What patches should I use?
+Where are they?
 
+> Don't run vanilla 2.5.25, it has only IDE-93...
+>
+> On Mon, 8 Jul 2002 Andries.Brouwer@cwi.nl wrote:
+> > Yesterday util-linux 2.11t was released.
+> > As always, comments are welcome.
+> >
+> > Wanted to continue some usb-storage work on 2.5 and
+> > recklessly booted 2.5.25. It survived for several hours,
+> > then deadlocked. Two filesystems turned out to be corrupted.
+> > Wouldn't mind if the rock solid 2.4 handling of HPT366
+> > was carefully copied to 2.5, that today quickly causes
+> > corruption and quickly deadlocks or crashes.
+> > [Yes, these are independent bugs. The fact that the current
+> > IDE code writes to random disk sectors is much more annoying
+> > than the fact that it crashes and deadlocks. This random
+> > writing is observed only on disks on the HPT366 card.]
+> >
+> > Andries
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Kevin
-
------Original Message-----
-From: Thunder from the hill [mailto:thunder@ngforever.de]
-Sent: 08 July 2002 13:16
-To: Kevin Curtis
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Implementing a sockets address family
-
-
-Hi,
-
-On Mon, 8 Jul 2002, Kevin Curtis wrote:
-> 1) It seems that the only way you can tell if the socket is blocking or
-> non-blocking is to looks at the flags or msghdr->flags on each function
-> call.  Is this the case?  When the socket is set to non-blocking and a
-call
-> to the system recv() function is made, my recvmsg() function is called but
-> neither the flags parameter nor the flags in the msghdr structure have any
-> indication that the socket is non-blocking.  What am I missing here?
-
-non-blocking is a matter of behavior. It easily doesn't block.
-
-The man page says
-
- O_NONBLOCK or O_NDELAY
-	When  possible,  the file is opened in non-blocking
-	mode. Neither the open nor  any  subsequent  opera-
-	tions on the file descriptor which is returned will
-	cause the calling process to wait.   For  the  han-
-	dling  of  FIFOs  (named  pipes), see also fifo(4).
-	This mode need not have any effect on  files  other
-	than FIFOs.
-
-So it shouldn't work outside FIFOs. However, have a look at net/ipv4/tcp.c 
-for more details.
-
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265830AbTFSQFy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 12:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265831AbTFSQFy
+	id S265831AbTFSQUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265832AbTFSQUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 12:05:54 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:34765 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S265830AbTFSQFx (ORCPT
+	Thu, 19 Jun 2003 12:20:09 -0400
+Received: from news.cistron.nl ([62.216.30.38]:57614 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S265831AbTFSQUH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 12:05:53 -0400
-Date: Thu, 19 Jun 2003 10:19:52 -0600
-From: Matthew Wilcox <willy@fc.hp.com>
-To: Matthew Wilcox <willy@fc.hp.com>
-Cc: Greg KH <greg@kroah.com>, davidm@hpl.hp.com, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: move pci_domain_nr() inside "#ifdef CONFIG_PCI" bracket
-Message-ID: <20030619161952.GF21906@ldl.fc.hp.com>
-References: <16112.54572.443092.996206@napali.hpl.hp.com> <20030618215706.GA1919@kroah.com> <20030619150344.GE21906@ldl.fc.hp.com>
+	Thu, 19 Jun 2003 12:20:07 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Sco vs. IBM
+Date: Thu, 19 Jun 2003 16:34:05 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bcsolt$37m$2@news.cistron.nl>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030619150344.GE21906@ldl.fc.hp.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1056040445 3318 62.216.29.200 (19 Jun 2003 16:34:05 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 19, 2003 at 09:03:44AM -0600, Matthew Wilcox wrote:
-> On Wed, Jun 18, 2003 at 02:57:06PM -0700, Greg KH wrote:
-> > On Wed, Jun 18, 2003 at 02:10:04PM -0700, David Mosberger wrote:
-> > > Trivial build fix: pci_domain_nr() cannot be declared unless
-> > > CONFIG_PCI is defined (otherwise, struct pci_bus hasn't been defined).
-> > 
-> > Thanks, I've added this to my pci bk tree and will send it off to Linus
-> > in a bit.
-> 
-> I don't understand.  One of the PPC guys saw it too, but how is it
-> possible?  CONFIG_PCI is first mentioned at line 526 of pci.h.
-> pci_bus is defined at line 446.
+In article <20030619141443.GR29247@fs.tum.de>,
+Adrian Bunk  <bunk@fs.tum.de> wrote:
+>There's no license reason today why there are two big desktop projects 
+>(GNOME and KDE).
 
-Now I understand.  Tom Rini forwarded me the output from gcc -E.  The
-problem is that CONFIG_PCI_DOMAIN is conditional on CONFIG_PCI.  So ppc
-& ia64 define a macro for pci_domain_nr, then PCI_DOMAIN isn't set, so
-the default definition of pci_domain_nr happens ... and gets mutilated
-by the macro:
+There is. If you want to develop a commercial application under
+KDE you need to pay TrollTech for the Qt license. Basically
+TrollTech controls all commercial KDE applications.
 
-static inline int ((struct pci_controller *)( struct pci_bus *bus)->sysdata)->index  { return 0; }
+Which makes no sense. You're not at the mercy of Linus or the
+kernel developers, neither at that of the KDE developers, but
+TrollTech controls the KDE desktop wrt commercial apps.
 
-A bit subtle, that ... I think this patch is fine, though perhaps it'd
-be best to unconditionally make CONFIG_PCI_DOMAIN true as well?
+What if TrollTech decides to only license (or sell) Qt
+to, say, Microsoft? What does that mean for, say, the Kompany ?
 
--- 
-It's always legal to use Linux (TM) systems
-http://www.gnu.org/philosophy/why-free.html
+Mike.
+

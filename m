@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBUXPO>; Wed, 21 Feb 2001 18:15:14 -0500
+	id <S129379AbRBUXRo>; Wed, 21 Feb 2001 18:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBUXOz>; Wed, 21 Feb 2001 18:14:55 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57610 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129170AbRBUXOO>; Wed, 21 Feb 2001 18:14:14 -0500
+	id <S129738AbRBUXRf>; Wed, 21 Feb 2001 18:17:35 -0500
+Received: from m1smtpisp03.wanadoo.es ([62.36.220.63]:5805 "EHLO
+	smtp.wanadoo.es") by vger.kernel.org with ESMTP id <S129379AbRBUXRY>;
+	Wed, 21 Feb 2001 18:17:24 -0500
+Message-ID: <3A944C92.60A1E514@wanadoo.es>
+Date: Thu, 22 Feb 2001 00:17:38 +0100
+From: Javi Roman <javiroman@wanadoo.es>
+X-Mailer: Mozilla 4.75 [es] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Date: 21 Feb 2001 15:13:42 -0800
-Organization: Transmeta Corporation
-Message-ID: <971i36$180$1@penguin.transmeta.com>
-In-Reply-To: <E14VNAU-00014j-00@the-village.bc.nu> <20010221023515.6DF8E18C99@oscar.casa.dyndns.org>
+Subject: mke2fs + 8MB + 2.2.5 = hangs
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010221023515.6DF8E18C99@oscar.casa.dyndns.org>,
-Ed Tomlinson  <tomlins@cam.org> wrote:
->
->The default in reiserfs is now the R5 hash, but you are right that lots of efforts went 
->into finding this hash.  This includes testing various hashes on real directory 
->structures to see which one worked best.  R5 won.
+Hi:
 
-That's interesting.  The R5 hash is easily also the only one of the
-reiser hashes that might be useable for the generic VFS hashing.  It's
-not so different in spirit from the current one, and if you've done the
-work to test it, it's bound to be a lot better.
+Any weeks ago I asked about problem with
+program mke2fs. I asked why mke2fs hanged
+the system (2.2.5-15) from install program
+in a 4 MB machine (with 16 MB swap memory).
 
-(The current VFS name hash is probably _really_ stupid - I think it's
-still my original one, and nobody probably ever even tried to run it
-through any testing.  For example, I bet that using a shift factor of 4
-is really bad, because it evenly divides a byte, which together with the
-xor means that you can really easily generate trivial bad cases). 
+Alan Cox answered "its a VM 2.5.5 problem". Well ,I
+have increased the RAM memory (up to 8 MB) but I
+obtain the same problem: mke2fs hangs the system
+with big partitions (no very bigs partitions: 10,
+20 MB ...) with 3 MB partiton mke2fs works correctly
+(I am using a execl function to run mke2fs).
 
-What did you use for a test-case? Real-life directory contents? Did you
-do any worst-case analysis too?
+With 8 MB memory mke2fs uses swap, so I obtain the
+same problem?
 
-		Linus
+Really is it a 2.2.5 kernel problem?
+
+With 2.2.14 kernel (for instance) my installation
+program would work?
+
+I have not probed a higer kernel because I have any
+compiled drivers (I have not sources) for 2.2.5-15 kernel.
+I don't know if it's a kernel problem or a install program problem.
+(I have a 4MB machine with RedHat 6.2 with 2.2.5-15
+kernel and mk2efs work fine with partition over 100MB???)
+I don't understand.
+
+Any idea?
+

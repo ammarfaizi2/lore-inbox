@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316836AbSGIRCR>; Tue, 9 Jul 2002 13:02:17 -0400
+	id <S316897AbSGIRDQ>; Tue, 9 Jul 2002 13:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316897AbSGIRCQ>; Tue, 9 Jul 2002 13:02:16 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:18049 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316836AbSGIRCN>;
-	Tue, 9 Jul 2002 13:02:13 -0400
-Message-ID: <3D2B178B.1070903@us.ibm.com>
-Date: Tue, 09 Jul 2002 10:04:11 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: dan carpenter <error27@email.com>,
-       kernel-janitor-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: lock_kernel check...
-References: <Pine.LNX.4.44.0207091228250.4869-100000@linux-box.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317005AbSGIRDP>; Tue, 9 Jul 2002 13:03:15 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15878 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316897AbSGIRDL>; Tue, 9 Jul 2002 13:03:11 -0400
+Date: Tue, 9 Jul 2002 19:05:54 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-user] Re: user-mode port 0.58-2.4.18-36
+Message-ID: <20020709170554.GC31838@atrey.karlin.mff.cuni.cz>
+References: <20020709031618.GC113@elf.ucw.cz> <200207091655.LAA02540@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207091655.LAA02540@ccure.karaya.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Tue, 9 Jul 2002, Dave Hansen wrote:
-> 
-> 
->>It isn't absoulutely a bad thing to return while you have a lock held. 
->>    It might be hard to understand, or even crazy, but not immediately 
->>wrong :)
->>
->>// BKL protects both "a", and io port 0xF00D
->>bar()
->>{
->>	lock_kernel();
->>	return inb(0xF00D);
->>}
->>
->>int a;
->>foo()
->>{
->>	a = bar();
->>	a--;
->>	unlock_kernel();
->>}
-> 
-> But broken nonetheless, that kinda thing just looks ugly. Especially when 
-> someone tries to call bar multiple times or consecutively or with the lock 
-> already held or...
+Hi!
 
-Yes, it is horribly ugly, but it is not broken.  As a function, if you 
-document what you require your caller to do, there shouldn't be a 
-problem.
+> > ...and using CAP_SYS_RAWIO... 
+> 
+> ... or were you complaining about 'jail' turning off CAP_SYS_RAWIO, rather
+> than claiming that it is an unplugged hole?
 
-Also, it is valid to have nested holds of the BKL.  You can never 
-deadlock with another lock_kernel() which was done in the same process.
+I thought it was that. It was mostly for other list users that may try
+to setup their UML jail, and forget about this.
 
+> If so, that may be a problem, but I haven't seen anything that cares about
+> CAP_SYS_RAWIO being off.  That was the simplest way I could find to disable
+> writing to /dev/kmem.
+
+I don't understand here. So UML never ever permits access to
+/dev/kmem? If so that is rather strange architecture.
+									Pavel
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

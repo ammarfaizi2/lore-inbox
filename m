@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSFXMJq>; Mon, 24 Jun 2002 08:09:46 -0400
+	id <S312938AbSFXMNL>; Mon, 24 Jun 2002 08:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSFXMJp>; Mon, 24 Jun 2002 08:09:45 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:53007 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S312560AbSFXMJo>;
-	Mon, 24 Jun 2002 08:09:44 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: Kernel Build for 2.5, release 3.1 is available 
-Date: Mon, 24 Jun 2002 22:09:35 +1000
-Message-ID: <7587.1024920575@ocs3.intra.ocs.com.au>
+	id <S313060AbSFXMNL>; Mon, 24 Jun 2002 08:13:11 -0400
+Received: from hugin.diku.dk ([130.225.96.144]:41220 "HELO hugin.diku.dk")
+	by vger.kernel.org with SMTP id <S312938AbSFXMNJ>;
+	Mon, 24 Jun 2002 08:13:09 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: henning@makholm.net, bug-make@gnu.org, linux-hams@vger.kernel.org,
+       linux-kernel@vger.kernel.org, sailer@ife.ee.ethz.ch
+Subject: Re: make-3.79.1 bug breaks linux-2.5.24/drivers/net/hamradio/soundmodem
+References: <200206222156.OAA00651@baldur.yggdrasil.com>
+X-My-Web-page: http://www.diku.dk/~makholm/
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+From: Henning Makholm <henning@makholm.net>
+Date: 24 Jun 2002 14:13:10 +0200
+In-Reply-To: "Adam J. Richter"'s message of "Sat, 22 Jun 2002 14:56:23 -0700"
+Message-ID: <yahn0tklvs9.fsf@pc-043.diku.dk>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Scripsit "Adam J. Richter" <adam@yggdrasil.com>
 
-Content-Type: text/plain; charset=us-ascii
+> >I'm not sure this is really a bug either. It is a Good Thing that make
+> >tries to normalize the names of targets and dependencies internally,
+> >lest the build may be incomplete or redundant if make does not realize
+> >that foo.bar and ./foo.bar is the same file. It is quite reasonable
+> >for $< to unfold to the *canonical* name of the file in question, I
+> >think.
 
-Release 3.1 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
-release 3.1.
+> 	That just makes the behavior of make less predictable.
+> Whatever make does with the file names internally is its own business.
+> Rewriting the file names passed to commands unnecessarily is
+> potentially a big problem.
 
-New files:
+It is not rewriting file names. It is just substituting the name of
+the dependency for the $< variable, just as documented.
 
-kbuild-2.5-core-20
-  Changes from core-19
+> >If one absolutely wants the command to use the exact form of the
+> >dependency that's used in the dependency list, it's easy to simply
+> >reproduce that form, replacing the % by $*
 
-  Add target 'install_with_errors'.
-  Update documentation (Jak).
-  Keep HOSTCC and HOSTLD in sync (reported by Jak).
-  Sanitize filenames in shipped files.
-  Bug fix in parser.
-  Avoid spurious gcc 3.1 warnings (reported by Jak).
+> 	Sorry, I do not understand what you mean.
 
-kbuild-2.5-common-2.5.24-1
-kbuild-2.5-i386-2.5.24-1
+It wasn't right anyway. I remembered the semantics of $* when the file
+name contains slashes wrong.
 
-  Upgrade to 2.5.24.
-  Add target 'install_with_errors'.
-  Correct install of vmlinux for debugging (Jak).
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE9Fwv9i4UHNye0ZOoRAvWQAKDj9Nr2mORorg4HPw2zw7d33OV6KgCgw/It
-L4LHsijG9Q7FtqiBTWE6kOk=
-=oi1u
------END PGP SIGNATURE-----
-
+-- 
+Henning Makholm                      "They are trying to prove a hypothesis,
+                             they are down here gathering data every season,
+                       they're publishing results in peer-reviewed journals.
+                     They're wrong, I think, but they are still scientists."

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264665AbSKUABA>; Wed, 20 Nov 2002 19:01:00 -0500
+	id <S265650AbSKTXzR>; Wed, 20 Nov 2002 18:55:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264936AbSKUABA>; Wed, 20 Nov 2002 19:01:00 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:61874 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264665AbSKUAA7>;
-	Wed, 20 Nov 2002 19:00:59 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 21 Nov 2002 01:07:25 +0100 (MET)
-Message-Id: <UTC200211210007.gAL07Pa07926.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: kill i_dev
-Cc: torvalds@transmeta.com, viro@math.psu.edu
+	id <S265656AbSKTXzQ>; Wed, 20 Nov 2002 18:55:16 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:48772 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265650AbSKTXzP>; Wed, 20 Nov 2002 18:55:15 -0500
+Subject: Re: RFC - new raid superblock layout for md driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+In-Reply-To: <15836.5807.792124.255167@notabene.cse.unsw.edu.au>
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
+	<1037801381.3267.17.camel@irongate.swansea.linux.org.uk> 
+	<15836.5807.792124.255167@notabene.cse.unsw.edu.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Nov 2002 00:30:52 +0000
+Message-Id: <1037838652.3241.108.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One disadvantage of enlarging the size of dev_t is
-that struct inode grows. Bad.
-We used to have i_dev and i_rdev; today i_rdev has split into
-i_rdev, i_bdev and i_cdev. Bad.
+On Wed, 2002-11-20 at 23:11, Neil Brown wrote:
+> This brings up endian-ness?  Should I assert 'little-endian' or should
+> the code check the endianness of the magic number and convert if
+> necessary?
+> The former is less code which will be exercised more often, so it is
+> probably safe.
 
-It looks like these four fields can be replaced by a single one,
-making struct inode smaller. Not bad.
+>From my own experience pick a single endianness otherwise some tool will
+always get one endian case wrong on one platform with one word size.
 
-The first step would be to delete the field i_dev, and
-all assignments to it, and replace all remaining occurrences
-by i_sb->s_dev.
+> 
+> So:
+>   All values shall be little-endian and times shall be stored in 64
+>   bits with the top 20 bits representing microseconds (so we & with
+>   (1<<44)-1  to get seconds.
 
-Roughly speaking, the only use of this field is in the stat
-system call.
-
-Any objections?
-
-Andries
-
+Could do - or struct timeval or whatever

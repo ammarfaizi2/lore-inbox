@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbUCUGcW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 01:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUCUGcW
+	id S263614AbUCUHAa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 02:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbUCUHA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 01:32:22 -0500
-Received: from 216-199-40-2.orl.fdn.com ([216.199.40.2]:5272 "EHLO
-	masterlinkcorp.com") by vger.kernel.org with ESMTP id S263612AbUCUGcV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 01:32:21 -0500
-Date: Sun, 21 Mar 2004 01:24:35 -0500
-From: linguist@masterlinkcorp.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <20040321062435.GA27226@goblin.masterlinkcorp.com>
+	Sun, 21 Mar 2004 02:00:29 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:33756 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263614AbUCUHA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 02:00:28 -0500
+Date: Sat, 20 Mar 2004 23:00:16 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040321070016.GB8130@pain.stupidest.org>
+References: <20040320133025.GH9009@dualathlon.random> <Pine.LNX.4.58.0403200937500.1106@ppc970.osdl.org> <20040321031355.GB3930@dingdong.cryptoapps.com> <20040321062322.A5861@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040321062322.A5861@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is just a random observation, I don't know this piece of code
-or the kernel in general, but instinct tells me that where is says
-"if (!fd) return -EBADF", it should say "if (!file) return -EBADF".
-Just a heads up.
+On Sun, Mar 21, 2004 at 06:23:22AM +0000, Christoph Hellwig wrote:
 
-Regards,
-Rich
+> Not sure how you get to fetchop here, but that driver does map ram
+> pages so it should take pagefaults and not use remap_page_range().
 
-static int tiocgdev(unsigned fd, unsigned cmd,  unsigned int *ptr) 
-{ 
+It's been a while since I looked at this....  the fetchop driver maps
+AMO space which is excluded from the EFI memory map (and any SHub
+aliases) and thus shouldn't be touching anything normally considered
+RAM.
 
-	struct file *file = fget(fd);
-	struct tty_struct *real_tty;
+<pause>
 
-	if (!fd)
-		return -EBADF;
-	if (file->f_op->ioctl != tty_ioctl)
-		return -EINVAL; 
-	real_tty = (struct tty_struct *)file->private_data;
-	if (!real_tty) 	
-		return -EINVAL; 
-	return put_user(new_encode_dev(tty_devnum(real_tty)), ptr); 
-} 
+Checking the source I see:
+
+    if (remap_page_range(vm_start, __pa(maddr), PAGE_SIZE, vma->vm_page_prot)) {
+            fetchop_free_pages(vma->vm_private_data);
+            vfree(vdata);
+            fetchop_update_stats(-1, -pages);
+            return -EAGAIN;
+    }
+
+as part of the drivers 'mmap fop'.  The underlying page is actually
+from region-6 so I'm pretty sure it's safe.  If you think it is doing
+something weird please let me know.
+
+
+
+  --cw

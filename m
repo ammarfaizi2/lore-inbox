@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282681AbRK0AGb>; Mon, 26 Nov 2001 19:06:31 -0500
+	id <S282687AbRK0AIm>; Mon, 26 Nov 2001 19:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282677AbRK0AGX>; Mon, 26 Nov 2001 19:06:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2822 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S282681AbRK0AGN>; Mon, 26 Nov 2001 19:06:13 -0500
-Date: Mon, 26 Nov 2001 16:03:54 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
-cc: Andrew Morton <akpm@zip.com.au>, Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3: kjournald and spun-down disks
-In-Reply-To: <20011127002525.A2912@pelks01.extern.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.10.10111261559020.9508-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S282672AbRK0AIf>; Mon, 26 Nov 2001 19:08:35 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:58108 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282688AbRK0AG4>;
+	Mon, 26 Nov 2001 19:06:56 -0500
+Date: Mon, 26 Nov 2001 17:06:31 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Martin Eriksson <nitrax@giron.wox.org>
+Cc: Steve Brueggeman <xioborg@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Message-ID: <20011126170631.O730@lynx.no>
+Mail-Followup-To: Martin Eriksson <nitrax@giron.wox.org>,
+	Steve Brueggeman <xioborg@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011124103642.A32278@vega.ipal.net> <20011124184119.C12133@emma1.emma.line.org> <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de> <4.3.2.7.2.20011124150445.00bd4240@10.1.1.42> <3C002D41.9030708@zytor.com> <0f050uosh4lak5fl1r07bs3t1ecdonc4c0@4ax.com> <002f01c176d4$f79a3f70$0201a8c0@HOMER>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <002f01c176d4$f79a3f70$0201a8c0@HOMER>; from nitrax@giron.wox.org on Tue, Nov 27, 2001 at 12:49:19AM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, Daniel Kobras wrote:
+On Nov 27, 2001  00:49 +0100, Martin Eriksson wrote:
+> I sure think the drives could afford the teeny-weeny cost of a power failure
+> detection unit, that when a power loss/sway is detected, halts all
+> operations to the platters except for the writing of the current sector.
 
-> On Fri, Nov 23, 2001 at 05:25:46PM -0800, Andrew Morton wrote:
-> > Also, if we had appropriate hooks into the request layer, we could detect
-> > when the disk was being spun up for a read, and opporunistically flush
-> > out any pending writes.
-> 
-> Actually you can't. SCSI spinup code isn't very useful anyway, and IDE disks
-> mostly handle spinup themselves. The kernel has too issue a reset to get a
-> disk back alive from sleep mode, but revival from standby doesn't involve
-> the kernel at all. When using the disk's internal timer, it isn't involved in
-> spindown either. Teaching the request layer about disk state might therefore
-> turn out to become rather messy, I suspect.
+What happens if you have a slightly bad power supply?  Does it immediately
+go read only all the time?  It would definitely need to be able to
+recover operations as soon as the power was "normal" again, even if this
+caused basically "sync" I/O to the disk.  Maybe it would be able to
+report this to the user via SMART, I don't know.
 
-No messier than corrupted data --
-
-> > Tell me if this is joyful:
-> [...]
-> > -	transaction->t_expires = jiffies + journal->j_commit_interval;
-> > +	transaction->t_expires = jiffies + dirty_buffer_flush_interval();
-> 
-> This change doesn't take care of kupdated's most interesting feature, i.e.
-> that you can entirely stop it (with a flush interval of zero and/or a
-> SIGSTOP). Now, if kjournald honoured SIGSTOP/SIGCONT, I could teach noflushd
-> to handle the spindown issue in userland. Uh, at least for one small detail:
-> Is there a way to tell which kjournald process is associated to which
-> partition? A fake cmdline, or an fd to the partition's device node that
-> shows up in /proc/<pid>/fd would indeed be quite helpful.
-
-LOL
-
-The low-level spindles can not walk backwards to find a partition because
-of the bogus aliased/virtual LBA(0)s that litter a spindle.  The LBA(0)
-count == Number of Partitions + 1;
-
-This is utter crap but it is scheduled to be fixed in 2.5, now that it has
-started.
-
-Solution : Do not partition use the entire raw device but that will not
-work because of the real LBA 0 -- EEK
-
-Cheers,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

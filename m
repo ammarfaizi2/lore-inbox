@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263944AbUEMIql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUEMIvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263944AbUEMIql (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 04:46:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUEMIql
+	id S263881AbUEMIvI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 04:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbUEMIvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 04:46:41 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:64886 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263944AbUEMIqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 04:46:38 -0400
-Date: Thu, 13 May 2004 16:47:55 +0800
-From: fisherman <fishermandong@yahoo.com.cn>
-X-Mailer: The Bat! (v2.10.01) Business
-Reply-To: fisherman <fishermandong@yahoo.com.cn>
-X-Priority: 3 (Normal)
-Message-ID: <821514233.20040513164755@yahoo.com.cn>
-To: linux-kernel@vger.kernel.org
-Subject: sleep in make_request_fn() casue system no response(2.4.20-8)
-MIME-Version: 1.0
+	Thu, 13 May 2004 04:51:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32774 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263881AbUEMIvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 04:51:05 -0400
+Date: Thu, 13 May 2004 09:51:02 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: namespace pollution
+Message-ID: <20040513095102.A5502@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+One of the threads on lkml just highlighted this issue:
 
-   I am writting a virtual device driver, I found that if I add sleep
-into function make_request_fn(), then use dd to copy 100M  data to the
-corresponding device, the system goes dead(keyboard & mouse have no
-response, can't login by telnet).
+It appears that we have namespace issues.  "set_cr" is in use by both ARM
+and ATM.  I'll cook up a patch later today (if I remember.)
 
-   I also tried to add sleep into LVM's driver, and the test result is
-similar to our driver do, the test about LVM is shown as follws:
+$ grep set_cr drivers/atm include/asm-arm -r
+drivers/atm/horizon.c:  int set_cr (void) {
+drivers/atm/horizon.c:      PRINTD (DBG_QOS, "set_cr internal failure: d=%u p=%u",
+drivers/atm/horizon.c:    return set_cr ();
+drivers/atm/horizon.c:      return set_cr ();
+drivers/atm/horizon.c:  return set_cr ();
+include/asm-arm/system.h:#define set_cr(x) \
 
-[1] source modification
--------- source begin --------
-static int lvm_make_request_fn(request_queue_t * q,
-                               int rw, struct buffer_head *bh)
-{
-        current->state = TASK_INTERRUPTIBLE;  /* newly added */
-        schedule_timeout(1);                  /*newly added*/
-        return (lvm_map(bh, rw) <= 0) ? 0 : 1;
-}   
--------- source end --------
-
-[2] test 1
-   after building the module, the system will go dead if I run the
-folling command to write data to a LV(100M bye ONE command):
-#dd if=/dev/zero of=/dev/vg_data1/dlv3 bs=1024 count=100000
-
-[3] test 2
-    but write operation with smaller size can be repeated many times, the
-following script runs OK.
--------- script begin --------
-#write 10M for 10 times
-i=0
-pos=0
-cnt=10000
-while [ $i -lt 10 ] 
-do
-dd if=/dev/zero of=/dev/vg_data1/dlv3 bs=1024 count=$cnt seek=$pos
-i=`expr $i + 1`
-pos=`expr $pos + $cnt`
-done
--------- script end --------
-
-[4] environment
-    redhat 9;
-    kernel 2.4.20-8.
-    
-    I repeated test 1 and test 2 for many times, ant the result are the
-same.
-
-Can anyone tell me the reason?
-
-thanks.
-
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

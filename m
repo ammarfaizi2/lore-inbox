@@ -1,86 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbTIYVX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 17:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTIYVX4
+	id S261892AbTIYV2R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 17:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTIYV2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 17:23:56 -0400
-Received: from web40903.mail.yahoo.com ([66.218.78.200]:26811 "HELO
-	web40903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261894AbTIYVXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 17:23:54 -0400
-Message-ID: <20030925212353.74708.qmail@web40903.mail.yahoo.com>
-Date: Thu, 25 Sep 2003 14:23:53 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: 2.6.0-test5 broke RPM 4.2 on Red Hat 9 in a VERY weird way
+	Thu, 25 Sep 2003 17:28:16 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:48330 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261892AbTIYV2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 17:28:15 -0400
+Subject: Tracking remap_page_range error
+From: JDeas <jdeas@jadsystems.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Organization: 
+Message-Id: <1064525484.2372.14.camel@HD1>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 25 Sep 2003 14:31:44 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damn, spoke too soon :(
+What tools can I use to track a error with remap_page_range?
+I am working on a driver that remaps a 64M chunk from a
+PCI card. I have confirmed that the driver executes
 
-I upgraded to popt 1.8.1, installed beecrypt (rawhide RPM needs it), and installed
-rpm 4.2.1 from rawhide -- all using LD_ASSUME_KERNEL=2.2.5. Reloaded my konsole
-to clear&reset my environment.
+remap_page_range(42133000,f0000000,400000,27)
+vma->Flags = 840fb
+in the driver mmap. This is driven from my apps mmap
+command where I pass NULL for the address.
 
-Now I still get the error, but the program still works, i.e. something like this:
+While the application has the driver open
+/proc/[ps]/maps shows the following
 
-rpm -qpl /download/system/popt-1.8.1-0.30.i386.rpm
-rpmdb: unable to join the environment
-error: db4 error(11) from dbenv->open: Resource temporarily unavailable
-error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
-error: cannot open Packages database in /var/lib/rpm
-warning: /download/system/popt-1.8.1-0.30.i386.rpm: V3 DSA signature: NOKEY, key ID
-897da07a
-/usr/include/popt.h
-/usr/lib/libpopt.a
-/usr/lib/libpopt.la
-/usr/lib/libpopt.so
-/usr/lib/libpopt.so.0
-/usr/lib/libpopt.so.0.0.0
-/usr/share/locale/cs/LC_MESSAGES/popt.mo
-/usr/share/locale/da/LC_MESSAGES/popt.mo
-/usr/share/locale/de/LC_MESSAGES/popt.mo
-/usr/share/locale/es/LC_MESSAGES/popt.mo
-/usr/share/locale/eu_ES/LC_MESSAGES/popt.mo
-/usr/share/locale/fi/LC_MESSAGES/popt.mo
-/usr/share/locale/fr/LC_MESSAGES/popt.mo
-/usr/share/locale/gl/LC_MESSAGES/popt.mo
-/usr/share/locale/hu/LC_MESSAGES/popt.mo
-/usr/share/locale/id/LC_MESSAGES/popt.mo
-/usr/share/locale/is/LC_MESSAGES/popt.mo
-/usr/share/locale/it/LC_MESSAGES/popt.mo
-/usr/share/locale/ja/LC_MESSAGES/popt.mo
-/usr/share/locale/ko/LC_MESSAGES/popt.mo
-/usr/share/locale/no/LC_MESSAGES/popt.mo
-/usr/share/locale/pl/LC_MESSAGES/popt.mo
-/usr/share/locale/pt/LC_MESSAGES/popt.mo
-/usr/share/locale/pt_BR/LC_MESSAGES/popt.mo
-/usr/share/locale/ro/LC_MESSAGES/popt.mo
-/usr/share/locale/ru/LC_MESSAGES/popt.mo
-/usr/share/locale/sk/LC_MESSAGES/popt.mo
-/usr/share/locale/sl/LC_MESSAGES/popt.mo
-/usr/share/locale/sr/LC_MESSAGES/popt.mo
-/usr/share/locale/sv/LC_MESSAGES/popt.mo
-/usr/share/locale/tr/LC_MESSAGES/popt.mo
-/usr/share/locale/uk/LC_MESSAGES/popt.mo
-/usr/share/locale/wa/LC_MESSAGES/popt.mo
-/usr/share/locale/zh/LC_MESSAGES/popt.mo
-/usr/share/locale/zh_CN.GB2312/LC_MESSAGES/popt.mo
-/usr/share/man/man3/popt.3.gz
+42133000-46133000 rw-s 000000
 
-Anybody have any other ideas?
 
-Brad
+I have also checked /proc/iomem and found
+f0000000-f3ffffff
+listed on the PCI card I am working on
 
-=====
-Brad Chapman
+MY problem is a single write to 42133000 in the application
+locks the system and is appearing to try and write to the
+vga cards memory (or the crash is affecting the vga screen mem).
 
-Permanent e-mail: kakadu_croc@yahoo.com
+What other tools can I use to check/trace this remapping?
 
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+Redhat9.0 (2.4.20-6smp) (mem=768 passed to stay under 1G)
+PCI card uses Xilinx PCI core
+
+Thanks 
+JDeas
+
+
+

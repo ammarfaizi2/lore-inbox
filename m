@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143720AbRAHNSu>; Mon, 8 Jan 2001 08:18:50 -0500
+	id <S143713AbRAHNVV>; Mon, 8 Jan 2001 08:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143736AbRAHNSk>; Mon, 8 Jan 2001 08:18:40 -0500
-Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:33779 "EHLO
-	stefan.sime.com") by vger.kernel.org with ESMTP id <S143720AbRAHNS1>;
-	Mon, 8 Jan 2001 08:18:27 -0500
-Date: Mon, 8 Jan 2001 14:17:21 +0100
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-Message-ID: <20010108141721.C13072@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-In-Reply-To: <Pine.GSO.4.21.0101080711470.4061-100000@weyl.math.psu.edu> <E14FbNU-0004SI-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14FbNU-0004SI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 08, 2001 at 12:26:17PM +0000
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.0-fijiji0 (i686)
-X-APM: 100% 400 min
+	id <S143716AbRAHNVL>; Mon, 8 Jan 2001 08:21:11 -0500
+Received: from laxmls02.socal.rr.com ([24.30.163.11]:32196 "EHLO
+	laxmls02.socal.rr.com") by vger.kernel.org with ESMTP
+	id <S143713AbRAHNU5>; Mon, 8 Jan 2001 08:20:57 -0500
+From: Shane Nay <shane@agendacomputing.com>
+Reply-To: shane@agendacomputing.com
+Organization: Agenda Computing
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
+Date: Mon, 8 Jan 2001 12:13:39 +0000
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010108141702.I10035@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010108141702.I10035@nightmaster.csn.tu-chemnitz.de>
+MIME-Version: 1.0
+Message-Id: <0101081213390Z.02165@www.easysolutions.net>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 12:26:17PM +0000, Alan Cox wrote:
+Ingo,
+> cramfs is a read-only fs. So we should honour that in inode->mode
+> to avoid confusion of programs.
+>
+> My isofs shows this too, so I think I'm right deleting the write
+> permissions in the inode. May be we should change it in
+> mkcramfs (too).
+>
+> I don't know what POSIX says about RO fs, but I can't find any
+> real sense in having W permissions for an RO fs.
 
-> I can put all that in the VFS so I did (right now the ext2 size calculator is
-> wrong but thats proof of concept detail). Just need to shift if over from
-> ext2/file.c
+The only sense I can derive from it is the situation that I'm in.  We use 
+cramfs partitions for lots of stuff, but one of them is to hold mirrors of 
+the "default" configuration of the user-area of our device.  (Flash)  It 
+makes it easy to just copy over the base partitions knowing the permisions 
+will stick right.
 
-Try 'getconf LINK_MAX /ramfs'.
-While the result (127) is in some way SuS/POSIXLY_CORRECT,
-it's not the truth.
+This may not initially seem like such a great thing..., but imagine a base 
+distro being distributed as a cramfs file.  Copy the thing over to your HD 
+and you're done, otherwise the distro packaging has to keep track of 
+permisions for each file, etc.
 
-Why not start to fix this problem outside the funny switch/case in glibc ?
-The filesystem itself should able to handle this.
+On the other hand..., maybe I'm being "selfish", and this is the right way to 
+go.  You never write to it, so why track the write bits?  (One answer is 
+maybe later we can create a writable cramfs, but oh well)  Lord knows I could 
+use a few extra bits in the cramfs inode.... (Using sticky bit to denote XIP 
+mode binaries right now..., such a hack)
 
--- 
-
-  ciao - 
-    Stefan
-
-"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
-    
-Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
-Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
-8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
-Austria                                    mailto://st.traby@opengroup.org
-Europe                                   mailto://stefan@hello-penguin.com
+Thanks,
+Shane Nay.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

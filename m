@@ -1,36 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265478AbRGSRd2>; Thu, 19 Jul 2001 13:33:28 -0400
+	id <S265488AbRGSRlT>; Thu, 19 Jul 2001 13:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265480AbRGSRdI>; Thu, 19 Jul 2001 13:33:08 -0400
-Received: from ns.suse.de ([213.95.15.193]:16145 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S265478AbRGSRc7>;
-	Thu, 19 Jul 2001 13:32:59 -0400
-To: Cornel Ciocirlan <ctrl@rdsnet.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Request for comments
-In-Reply-To: <Pine.LNX.4.21.0107191757400.17990-100000@groove.rdsnet.ro.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 19 Jul 2001 19:33:02 +0200
-In-Reply-To: Cornel Ciocirlan's message of "19 Jul 2001 18:06:36 +0200"
-Message-ID: <oup4rs8kenl.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265559AbRGSRlJ>; Thu, 19 Jul 2001 13:41:09 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:37393 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S265488AbRGSRkz>; Thu, 19 Jul 2001 13:40:55 -0400
+Date: Thu, 19 Jul 2001 11:40:54 -0600
+Message-Id: <200107191740.f6JHes713911@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swap usage of high memory (fwd)
+In-Reply-To: <Pine.LNX.4.33.0107191020350.8055-100000@penguin.transmeta.com>
+In-Reply-To: <200107191659.f6JGxYh13394@mobilix.ras.ucalgary.ca>
+	<Pine.LNX.4.33.0107191020350.8055-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Cornel Ciocirlan <ctrl@rdsnet.ro> writes:
-
-> Hi, 
+Linus Torvalds writes:
 > 
-> I was thinking of starting a project to implement a Cisco-like
-> "NetFlow" architecture for Linux. This would be relevant for edge routers
-> and/or network monitoring devices.  
+> On Thu, 19 Jul 2001, Richard Gooch wrote:
+> > Linus Torvalds writes:
+> > > Note that the unfair aging (apart from just being a natural
+> > > requirement of higher allocation pressure) actually has some other
+> > > advantages too: it ends up being aload balancing thing. Sure, it
+> > > might throw out some things that get "unfairly" treated, but once we
+> > > bring them in again we have a better chance of bringing them into a
+> > > zone that _isn't_ under pressure.
+> >
+> > What about moving data to zones with free pages? That would save I/O.
+> 
+> Well, remember that we _are_ talking about pages that have been aged
+> (just a bit more aggressively than some other pages), and are not
+> being used.
 
-Linux 2.1+ already has such a cache in form of the rtcache since several
-years.
+Well, under memory pressure, those pages may be considered "old" but
+in fact could be needed again soon.
 
--Andi
+> Dropping them may well be the right thing to do, and migrating them
+> is potentially very costly indeed (and can cause oscillating
+> patterns etc horror-schenarios).
 
+If you move them, preserving the age and making sure not to evict
+younger pages in the new zone, that should avoid the oscillations,
+should it not?
+
+Besides, I've seen plenty of oscillations when paging to/from the swap
+device :-(
+
+> Yes, true page migration might eventually be something we have to
+> start thinking about for NUMA machines, but I'd really really prefer
+> just about any alternative. Getting a good balance would be _much_
+> preferable to having to take out the sledgehammer..
+
+I agree that a good balancing algorithm is required. I'm just
+suggesting that if you get to the point where you *have* to evict a
+page from a zone, instead of just tossing it out, move it to another
+zone if you can.
+
+Note that I'm not necessarily suggesting writing dirty pages to
+another zone instead of to swap. I was originally thinking of just
+moving "clean" pages (i.e. those that can be freed without the need to
+schedule I/O) so that potential subsequent I/O to pull them back in
+may be avoided. Doing proper page migration is a more complex step
+that needs further consideration.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

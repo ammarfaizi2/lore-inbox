@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbTFOLSi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 07:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbTFOLSi
+	id S262153AbTFOLYa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 07:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTFOLY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 07:18:38 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:5060 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S262145AbTFOLSi (ORCPT
+	Sun, 15 Jun 2003 07:24:29 -0400
+Received: from smtp.terra.es ([213.4.129.129]:12441 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id S262153AbTFOLY2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 07:18:38 -0400
-Date: Sun, 15 Jun 2003 14:32:27 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_DIRECT for ext3 (2.4.21)
-Message-ID: <20030615113227.GS28900@mea-ext.zmailer.org>
-References: <20030615110106.GA8404@karlsbakk.net>
+	Sun, 15 Jun 2003 07:24:28 -0400
+Date: Sun, 15 Jun 2003 13:22:21 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-mm9
+Message-Id: <20030615132221.0b481b95.diegocg@teleline.es>
+In-Reply-To: <1055663908.631.0.camel@teapot.felipe-alfaro.com>
+References: <20030613013337.1a6789d9.akpm@digeo.com>
+	<20030615031421.1ed6640a.diegocg@teleline.es>
+	<1055663908.631.0.camel@teapot.felipe-alfaro.com>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030615110106.GA8404@karlsbakk.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 15, 2003 at 01:01:06PM +0200, Roy Sigurd Karlsbakk wrote:
-> hi all
+On 15 Jun 2003 09:58:29 +0200
+Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+
+> The "__mark_inode_dirty" message is a deugging leftofer from Andrew that
+> is spit out the first time the machine starts swapping out. You can
+> safely ignore it.
 > 
-> I've been waiting for the official O_DIRECT on ext3 for some time now, so I
-> thought perhaps it's time to get it into 2.4.22 or so. The patch I've used, is
-> the one below (for 2.4.21):
 
-  There is O_DIRECT support for ext3  in 2.5.
-  How does this relate to that 2.5 version ?
-
-> Please apply
-> 
-> roy
-....
-
-/Matti Aarnio
+Happy to hear that :)
+It happened in the init scripts, so it seems coherent.
+Anyway, i rebooted to fsck the root filesystem and it found a error (i
+don't remember what though) and it fixed it. 

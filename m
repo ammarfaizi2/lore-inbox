@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbTKIRux (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 12:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbTKIRux
+	id S262738AbTKIR4o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 12:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTKIR4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 12:50:53 -0500
-Received: from draal.physics.wisc.edu ([128.104.222.75]:41150 "EHLO
-	moya.mcelrath.org") by vger.kernel.org with ESMTP id S262747AbTKIRuv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 12:50:51 -0500
-Date: Sun, 9 Nov 2003 09:44:36 -0800
-From: Bob McElrath <bob+linux-kernel@mcelrath.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/rtc on alpha
-Message-ID: <20031109174436.GA24812@mcelrath.org>
-Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org
-References: <20031108213356.GD16295@mcelrath.org> <20031109142435.A4596@jurassic.park.msu.ru>
+	Sun, 9 Nov 2003 12:56:43 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:1030
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S262738AbTKIR4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 12:56:42 -0500
+Subject: Re: preemption when running in the kernel
+From: Robert Love <rml@tech9.net>
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031109020424.A801@google.com>
+References: <20031107040427.A32421@google.com>
+	 <200311081402.07345.ioe-lkml@rameria.de>
+	 <1068337385.27320.203.camel@localhost>  <20031109020424.A801@google.com>
+Content-Type: text/plain
+Message-Id: <1068400600.27320.1273.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <20031109142435.A4596@jurassic.park.msu.ru>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 09 Nov 2003 12:56:40 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-11-09 at 05:04, Frank Cusack wrote:
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Thank you for the clarification.
 
-Ivan Kokshaysky [ink@jurassic.park.msu.ru] wrote:
-> On Sat, Nov 08, 2003 at 01:33:57PM -0800, Bob McElrath wrote:
-> > Why is the alpha kernel code grabbing the rtc interrupt?  Is it possible
-> > it share its use with a user program?  Would reprogramming the interrupt
-> > rate by a user program do violence to some internel kernel timing?
->=20
-> On most Alphas RTC is the system timer (running at 1024 Hz).
-> So changing the interrupt rate from user space wouldn't be a good idea.
+No problem.
 
-Then I propose CONFIG_RTC be set to "n" in the arch/alpha files, and the
-/dev/rtc driver be disabled on alpha.  There seems to be confusion on
-this point in the config files.  CONFIG_RTC is for the /dev/rtc driver.
+> That leads me to 2 followup questions.
+> 
+> If a task in the kernel is preempted, is a membar issued?  (I believe
+> so -- running another task means that the scheduler must have run,
+> which will grab and release various locks thus giving us the membars.)
 
-Since the timer can only be set to powers of 2, it should be possible to
-simulate getting the interrupt by calling the rtc.c interrupt handler
-every 2^n interrupts...that way the user could program the timer for any
-interval less than 1024 Hz.
+Yes, a memory barrier is definitely issued.
 
-Cheers,
-Bob McElrath [Univ. of California at Davis, Department of Physics]
+> When the preempted task resumes, is it guaranteed to run on the same CPU?
+> (I wouldn't expect so, unless the task was specifically told to do that
+> via hard affinity.  But maybe a task preempted in the kernel is different
+> then a task preempted in userland.)
 
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+No.  A preempted task can reschedule on any processor.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+	Robert Love
 
-iD8DBQE/rn0EjwioWRGe9K0RAllwAJ9YYERjMwauQOf5QTVWP8ATK3PefQCfWB06
-1WduJOqOUT2vSp0nuvk7XTU=
-=Ov+I
------END PGP SIGNATURE-----
 
---SUOF0GtieIMvvwua--

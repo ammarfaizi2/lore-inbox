@@ -1,105 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVBHJst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVBHJu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVBHJst (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 04:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVBHJst
+	id S261501AbVBHJu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 04:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVBHJu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 04:48:49 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:14569 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S261500AbVBHJrp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 04:47:45 -0500
-Date: Tue, 8 Feb 2005 11:47:44 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: P@draigBrady.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] support of motherboards with ICH6]
-Message-ID: <20050208094744.GO1561@edu.joroinen.fi>
-References: <20050207142141.GF1561@edu.joroinen.fi> <42077FD1.1070605@draigBrady.com> <20050207145953.GH1561@edu.joroinen.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050207145953.GH1561@edu.joroinen.fi>
-User-Agent: Mutt/1.5.6+20040523i
+	Tue, 8 Feb 2005 04:50:56 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:63604 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261501AbVBHJt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 04:49:57 -0500
+Message-ID: <42088B3E.7050701@yahoo.com.au>
+Date: Tue, 08 Feb 2005 20:49:50 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: dino@in.ibm.com
+CC: Matthew Dobson <colpatch@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
+       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       sylvain.jeaugey@bull.net, djh@sgi.com,
+       LKML <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
+       Andi Kleen <ak@suse.de>, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+References: <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis> <420800F5.9070504@us.ibm.com> <20050208095440.GA3976@in.ibm.com>
+In-Reply-To: <20050208095440.GA3976@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 04:59:53PM +0200, Pasi Kärkkäinen wrote:
-> On Mon, Feb 07, 2005 at 02:48:49PM +0000, P@draigBrady.com wrote:
-> > Pasi Kärkkäinen wrote:
-> > >On Mon, Feb 07, 2005 at 10:00:03AM +0100, P.O. Gaillard wrote:
-> > >
-> > >>Hi,
-> > >>
-> > >>I am replying to myself so that people googling for similar problems can 
-> > >>find the answer.
-> > >>
-> > >>Supermicro says that the internal driver of the southbridge (and also the 
-> > >>W83627HF chip) are not useable because the necessary support hardware is 
-> > >>missing. They say that the P8SCi board has a working watchdog.
-> > >>
-> > >>	hope this can help somebody someday,
-> > >>
-> > >>	P.O. Gaillard
-> > >>
-> > >
-> > >
-> > >Hi!
-> > >
-> > >I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
-> > >
-> > >I loaded w83627hf_wdt driver, and the watchdog was detected:
-> > >
-> > >WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
-> > >w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
-> > 
-> > Note there is no detection. It just writes to a particular IO port
-> > (2E by default).
-> > 
-> > >But it is not working. I tried setting the timeout to 1 minute, and to
-> > >8 minute in the BIOS, but the machine reboots after the delay no matter 
-> > >what
-> > >the delay is.. the watchdog driver is loaded before the timeout of course.
-> > >
-> > >For some reason, the driver is not working.
-> > >
-> > >I mailed supermicro support about this, and they told me one of their
-> > >customers is using watchdog with Debian 2.6.10 kernel. 
-> > >So it should work, but..
-> > 
-> > You need to ask them what watchdog they use exactly.
-> > I've seen motherboards that have w83637hf chips but
-> > actually wire the intel watchdog up so you need the i8xx_tco driver
-> > 
-> > If they are using the w83726hf chip you need to ask
-> > what IO port they're using.
-> > 
+Dinakar Guniguntala wrote:
+> On Mon, Feb 07, 2005 at 03:59:49PM -0800, Matthew Dobson wrote:
 > 
-> Hi!
 > 
-> http://nrg.joroinen.fi/watchdog_function_project_description_P4SGL.doc
+>>Sorry to reply a long quiet thread, but I've been trading emails with Paul 
+>>Jackson on this subject recently, and I've been unable to convince either 
+>>him or myself that merging CPUSETs and CKRM is as easy as I once believed.  
+>>I'm still convinced the CPU side is doable, but I haven't managed as much 
+>>success with the memory binding side of CPUSETs.  In light of this, I'd 
+>>like to remove my previous objections to CPUSETs moving forward.  If others 
+>>still have things they want discussed before CPUSETs moves into mainline, 
+>>that's fine, but it seems to me that CPUSETs offer legitimate functionality 
+>>and that the code has certainly "done its time" in -mm to convince me it's 
+>>stable and usable.
+>>
+>>-Matt
+>>
 > 
-> That is the document I got from supermicro.. it has the io ports / registers
-> they're using and also watchdog example in assembly.
 > 
-> It seems that they're using 0x2E..
+> What about your proposed sched domain changes?
+> Cant sched domains be used handle the CPU groupings and the
+> existing code in cpusets that handle memory continue as is?
+> Weren't sched somains supposed to give the scheduler better knowledge
+> of the CPU groupings afterall ?
 > 
 
-I asked for confirmation about the watchdog-chip from supermicro support, and
-they replied: "The P8SCi is using Winbond W83627THF chip for watchdog.".
+sched domains can provide non overlapping top level partitions.
+It would basically just stop the multiprocessor balancing from
+moving tasks between these partitions (they would be manually
+moved by setting explicit cpu affinities).
 
-They also sent the docs of the winbond watchdog (different doc this time ;):
+I didn't really follow where that idea went, but I think at least
+a few people thought that sort of functionality wasn't nearly
+fancy enough! :)
 
-http://nrg.joroinen.fi/W83627THF0.90.pdf
-
-Hopefully that helps somebody..
-
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.

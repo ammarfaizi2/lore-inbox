@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314085AbSEXECV>; Fri, 24 May 2002 00:02:21 -0400
+	id <S314123AbSEXEDh>; Fri, 24 May 2002 00:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317083AbSEXECU>; Fri, 24 May 2002 00:02:20 -0400
-Received: from adsl-216-62-200-54.dsl.austtx.swbell.net ([216.62.200.54]:50304
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S314123AbSEXECS>; Fri, 24 May 2002 00:02:18 -0400
-Subject: Re: Recent kernel SMP scalability Benchmark/White-paper References.
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Stephane Charette <scharette@packeteer.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020524002323Z317055-22651+51447@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: http://www.digitalroadkill.net
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 23 May 2002 23:01:55 -0500
-Message-Id: <1022212915.23894.31.camel@UberGeek>
+	id <S317083AbSEXEDg>; Fri, 24 May 2002 00:03:36 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:159 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S314123AbSEXEDe>; Fri, 24 May 2002 00:03:34 -0400
+Date: Fri, 24 May 2002 14:06:56 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial - remove unused field
+Message-Id: <20020524140656.419a522e.rusty@rustcorp.com.au>
+In-Reply-To: <3CED6510.4FB31E7A@daimi.au.dk>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-23 at 19:23, Stephane Charette wrote:
-> On 23 May 2002 17:41:55 -0500, Austin Gonyou wrote:
-> 
-> >I was looking around on google web, google groups, lkml digests,
-> >Intel.com, RedHat, SuSe, SGI.com, osdl.com, etc for some benchmarks of
-> >recent 2.4.x kernels, say 2.4.x > 16, with references to SMP scalability
-> >problems or successes, etc. Mainly centering around 4-way/8-way x86
-> >testing in terms of memory bandwidth/utilization, threading performance,
-> >etc. 
-> 
-> All I've found so far is:
-> 
-> http://www.usenix.org/publications/library/proceedings/als2000/full_papers/bryantscale/bryantscale.pdf
-> 
+On Thu, 23 May 2002 23:54:24 +0200
+Kasper Dupont <kasperd@daimi.au.dk> wrote:
 
-Yeah..been there, done that. Most stuff I've found is no newer than
-2000. :( I really need something recent. 
+> This patch removes the unused v86mode field from the
+> thread_struct. It was tested against 2.4.19-pre8-ac5,
+> and I also verified that 2.5.17 did compile with
+> this patch.
 
-> which is based on the 2.2.14-SMP -vs- 2.3.99-SMP kernels.
-> 
-> >I'm hoping to create a white-paper internally, and hopefully externally
-> >at some point, which can be maintained so others don't have to do the
-> >same arduous task of trying to find recent data as it pertains to said
-> >statistics.
-> 
-> If you find anything else, or get forwarded any information, please post the relevant information where possible.  There are many of us looking for benchmark information on recent 2.4.x kernels.  Seems like a few companies/projects are currently looking at the costs/benefits/risks of moving up to the new kernel.
-> 
-That is the plan. Like with my recently completed Multi-Realm Kerberos
-install docs that I've been working on, everything I collect will get
-out for public knowledge.Sharing our experiences is the only way to make
-the world a better place. 
+<plug>
+	Trivial Patch Monkey - trivial at rustcorp.com.au
+</plug>
 
-
-> Regards,
-> 
-> Stephane Charette
-
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271755AbRH0OmL>; Mon, 27 Aug 2001 10:42:11 -0400
+	id <S271748AbRH0Owo>; Mon, 27 Aug 2001 10:52:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271754AbRH0OmC>; Mon, 27 Aug 2001 10:42:02 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:10128 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271748AbRH0Olr>;
-	Mon, 27 Aug 2001 10:41:47 -0400
-Date: Mon, 27 Aug 2001 15:42:00 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-Message-ID: <499114355.998926919@[169.254.198.40]>
-In-Reply-To: <20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
-In-Reply-To: <20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S271754AbRH0Owf>; Mon, 27 Aug 2001 10:52:35 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:21164 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271748AbRH0OwX>; Mon, 27 Aug 2001 10:52:23 -0400
+Date: Mon, 27 Aug 2001 08:52:45 -0600
+Message-Id: <200108271452.f7REqjT15752@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: arjanv@redhat.com
+Cc: Per Niva <pna@mendosus.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Added devfs support for i386 msr/cpuid driver
+In-Reply-To: <3B8A2C1F.63AF4AE7@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0108271031010.12684-102000@subcentral.mendosus.org>
+	<3B8A2C1F.63AF4AE7@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Monday, 27 August, 2001 4:31 PM +0200 Daniel Phillips 
-<phillips@bonn-fries.net> wrote:
+Arjan van de Ven writes:
+> > 
+> >  int __init msr_init(void)
+> >  {
+> > +#ifdef CONFIG_DEVFS_FS
+> > +    devfs_handle = devfs_register(NULL, "cpu/msr", DEVFS_FL_DEFAULT, 0, 0,
+> > +                                  S_IFREG | S_IRUGO | S_IWUSR,
+> > +                                  &msr_fops, NULL);
+> > +#else
+> >    if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
+> >      printk(KERN_ERR "msr: unable to get major %d for msr\n",
+> >            MSR_MAJOR);
+> >      return -EBUSY;
+> >    }
+> > +#endif
+> 
+> this must be wrong as you don't check for devfs_register failures...
 
->   - Readahead cache is important enough to get its own lru list.
->     We know it's a fifo so don't have to waste cycles scanning/aging.
->     Having a distinct list makes the accounting trivial, vs keeping
->     readahead on the active list for example.
+The reason it's wrong is because he put #ifdef's in there. The
+functions should just be called unconditionally. The #ifdef's are in
+the header.
 
-A nit: I think it's a MRU list you want. If you are reading
-ahead (let's have caps for a page that has been used for reading,
-as well as read from the disk, and lowercase for read-ahead that
-has not been used):
-	ABCDefghijklmnopq
-             |            |
-            read         disk
-	   ptr          head
-and you want to reclaim memory, you want to drop (say) 'pq'
-to get
-	ABCDefghijklmno
-for two reasons: firstly because 'efg' etc. are most likely
-to be used NEXT, and secondly because the diskhead is nearer
-'pq' when you (inevitably) have to read it again.
+> Also why devfs can't just use register_chrdev and not touch ALL
+> drivers is beyond me, but it has been like that for a while now...
 
-This seems even more imporant when considering multiple streams,
-as if you drop the least recently 'used' (i.e. read in from disk),
-you will instantly create a thrashing storm.
+Huh?!? I thought that should be obvious. Think about it,
+register_chrdev() registers a *major*, whereas devfs_register()
+registers an individual device node. The former has no way of
+representing which devices are detected, the latter sets up a 1:1
+relationship between devices and device nodes (which is what people
+actually want).
 
-And an idea: when dropping read-ahead pages, you might be better
-dropping many readahed pages for a single stream, rather than
-hitting them all equally, else they will tend to run out of
-readahead in sync.
+				Regards,
 
---
-Alex Bligh
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

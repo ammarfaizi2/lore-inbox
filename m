@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbTCXXdF>; Mon, 24 Mar 2003 18:33:05 -0500
+	id <S261301AbTCXXkp>; Mon, 24 Mar 2003 18:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbTCXXdE>; Mon, 24 Mar 2003 18:33:04 -0500
-Received: from bitmover.com ([192.132.92.2]:28571 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261290AbTCXXdE>;
-	Mon, 24 Mar 2003 18:33:04 -0500
-Date: Mon, 24 Mar 2003 15:44:10 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Steven Pritchard <steve@silug.org>, linux-kernel@vger.kernel.org
-Subject: Re: 3ware driver errors
-Message-ID: <20030324234410.GB10520@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-	Steven Pritchard <steve@silug.org>, linux-kernel@vger.kernel.org
-References: <20030324212813.GA6310@osiris.silug.org> <20030324180107.A14746@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030324180107.A14746@vger.timpanogas.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S261302AbTCXXko>; Mon, 24 Mar 2003 18:40:44 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:6303 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261301AbTCXXko> convert rfc822-to-8bit;
+	Mon, 24 Mar 2003 18:40:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Duncan Sands <baldrick@wanadoo.fr>,
+       Spang Oliver <oliver.spang@siemens.com>
+Subject: Re: 2.5.64 ttyS problem ?
+Date: Mon, 24 Mar 2003 15:46:27 -0800
+User-Agent: KMail/1.4.1
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <AEEEEE93AFA5D411AF8500D0B75E4A16062A4675@BSL203E> <200303241617.01952.baldrick@wanadoo.fr>
+In-Reply-To: <200303241617.01952.baldrick@wanadoo.fr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303241546.27384.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 06:01:07PM -0700, Jeff V. Merkey wrote:
-> There is a firmware upgrade you need to obtain from WD if you are using their 
-> drives with a 3Ware controller.  The WD drives were optimized for desktop use
-> and they go into a "powersave" mode of sorts which will cause them to disappear
-> and reappear mysteriously with all sorts of strange errors.  WD is aware of 
-> this problem and so is 3Ware.
+On Monday 24 March 2003 07:17 am, Duncan Sands wrote:
+> > has anyone another solution? I tried 2.5.62 to 2.5.65, same result.
+>
+> Is this the no "serial" module problem?  It seems to have been renamed
+> "8250", but not everything knows that yet...
+>
+> Duncan.
 
-Is this for all WD drives or just some?  I've got some wd400 drives that 
-I've been using for a long time behind a 3ware in jbod mode.  I have seen
-some errors but they seem to have settled down.  Is there any way to know?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+[root@elm3b81 linux-2.5.64-gcov]# minicom
+Device /dev/ttyS1 lock failed: No child processes.
+
+[root@elm3b81 linux-2.5.64-gcov]# grep 8250 .config
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+# CONFIG_SERIAL_8250_CS is not set
+# CONFIG_SERIAL_8250_EXTENDED is not set
+# Non-8250 serial port support
+
+- Badari

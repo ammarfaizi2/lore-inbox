@@ -1,45 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261255AbRELOeH>; Sat, 12 May 2001 10:34:07 -0400
+	id <S261258AbRELOs3>; Sat, 12 May 2001 10:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261257AbRELOd5>; Sat, 12 May 2001 10:33:57 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:45212 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261255AbRELOdu>;
-	Sat, 12 May 2001 10:33:50 -0400
-Message-ID: <3AFD49CC.655E3E4F@mandrakesoft.com>
-Date: Sat, 12 May 2001 10:33:48 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] winbond-840 update
-In-Reply-To: <3AFD0A27.49C11072@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261259AbRELOsT>; Sat, 12 May 2001 10:48:19 -0400
+Received: from gate.alaweb.com ([206.155.114.4]:9491 "EHLO gate")
+	by vger.kernel.org with ESMTP id <S261258AbRELOsI>;
+	Sat, 12 May 2001 10:48:08 -0400
+Date: Sat, 12 May 2001 09:48:16 -0500
+Message-ID: <B0032926992@gate>
+X-Mailer: Windows Eudora Light Version 1.5.2
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+From: Aubrey Kilpatrick <oppaak@alaweb.com>
+Subject: Kernel "Oops" output
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> @@ -437,9 +439,9 @@
->         if (option > 0) {
->                 if (option & 0x200)
->                         np->full_duplex = 1;
-> -               np->default_port = option & 15;
-> -               if (np->default_port)
-> -                       np->medialock = 1;
-> +               if (option & 15)
-> +                       printk(KERN_INFO "%s: ignoring user supplied media type %d",
-> +                               dev->name, option & 15);
->         }
->         if (find_cnt < MAX_UNITS  &&  full_duplex[find_cnt] > 0)
->                 np->full_duplex = 1;
+Hello,
 
-I'm not sure this part is something we want in the mainstream kernel...
+I have a K6-2D 333MHz system with Red Hat 7.0 (with updates) that gives the
+following "oops" output when I execute the "shutdown -h now" command.  I
+tried to find the "opps" output in the /var/log/messages file but there is
+nothing there.  The system hangs at the last line of the oops output to the
+screen and will not accept any commands.  The only recourse at this point is
+to "CTRL-ALT-DEL" and let the system reboot.
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+The oops out follows:
+
+Power down
+general protection fault: f000
+CPU: 0
+EIP: 005: [<00008865>]
+EFLAGS: 00010046
+eax: 00005301   ebx: 00000001   ecx: 00000000   edx: c1239de0
+
+esi: c0258136   edi: c1239e8c   ebp: 67890000   esp: c1239de0
+
+ds: 0058        es: 0000        ss: 0018
+
+Process halt (pid: 869, stackpage=c1239000)
+Stack:  9e8c82df   8136c123   0000c025   9e026789   0001c123   00000000
+00030000   53070000
+
+        00000000   00000000   81250058   80fa6aac   000080cd   00160000
+00488036   bffffcc8
+        
+        c01118a4   00000010   bffffcc8   c1239e8c   00000018   00000018
+00000292   00000000
+
+Call Trace: [<c01118a4>] [<c0111963>] [<c0111991>] [<c01119e7>] [<f000bcd0>]
+[<fee1dead>] [<c010741b>]
+
+[<c011f3ed>] [<c020ea40>] [<c011debb>] [<c011df45>] [<c011e1ad>]
+[<c011e8b9>] [<c0144fe5>] [<c0133d26>]
+
+[<c0113e4d>] [<c0108fb3>] [<fee1dead>] [<fee1dead>]
+
+Code: Bad EIP value.
+/etc/rc0.d/S01halt: line 1:  869 Segmentation fault     halt -i -d -p
+
+end of oops output and system hangs.
+
+More system info:
+
+DFI Motherboard (P5BV3+)
+64M RAM
+Mitsumi 40X CD-ROM
+2.4G hard drive
+17" CTX Monitor
+4Meg Trident 3D Image 975 Chipset (Video 77/87/L87PCI/AGP (v6.45.5423b.98)
+PS2 Mouse
+101 Keyboard
+
+If there is additional system/hardware info you need to fix this problem
+please let me know and I will be glad to try and get it for you.
+
+Thank you for your help.
+
+Aubrey Kilpatrick
+
+email at:  oppaak@alaweb.com
+phone:  USA 1-334-493-4962 
+

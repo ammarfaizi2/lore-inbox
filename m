@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262532AbRENWez>; Mon, 14 May 2001 18:34:55 -0400
+	id <S262537AbRENWhp>; Mon, 14 May 2001 18:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262537AbRENWep>; Mon, 14 May 2001 18:34:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53258 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262532AbRENWe3>; Mon, 14 May 2001 18:34:29 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: viro@math.psu.edu (Alexander Viro)
-Date: Mon, 14 May 2001 23:30:15 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.GSO.4.21.0105141748180.19333-100000@weyl.math.psu.edu> from "Alexander Viro" at May 14, 2001 06:05:15 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262540AbRENWhf>; Mon, 14 May 2001 18:37:35 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:1808 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262537AbRENWhY>; Mon, 14 May 2001 18:37:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+Date: Tue, 15 May 2001 00:23:36 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105142004.f4EK4oRr002055@webber.adilger.int>
+In-Reply-To: <200105142004.f4EK4oRr002055@webber.adilger.int>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14zQr1-0001ZY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01051500233602.24410@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Would you mind demonstrating such wonder? Old devices are still there,
-> AFAICS. Ext2 (reiserfs, devfs, abortion-of-your-choice-fs) still has
-> the ability to create device nodes for them.
+On Monday 14 May 2001 22:04, Andreas Dilger wrote:
+> Maybe we can have a "noindex" mount option for this?
 
-Except that Linus wont hand out major numbers, which means I can't even boot
-simply off such a device. I bet the vendors in question dont think the sun
-shines out of linus backside any more.
+We need that regardless, I just keep forgetting to put it in.  I assume 
+the semantics are obvious: no new indexes are created but existing ones 
+are maintained.  I.e., -o noindex does not mean 'seek out and destroy 
+all indexes'.
 
+--
+Daniel

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132414AbRAKWlH>; Thu, 11 Jan 2001 17:41:07 -0500
+	id <S132474AbRAKWlh>; Thu, 11 Jan 2001 17:41:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132474AbRAKWk5>; Thu, 11 Jan 2001 17:40:57 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:6574 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S132414AbRAKWkp>;
-	Thu, 11 Jan 2001 17:40:45 -0500
-Date: Thu, 11 Jan 2001 23:34:36 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101112234.XAA98877.aeb@ark.cwi.nl>
-To: sorisor@hell.wh8.tu-dresden.de, viro@math.psu.edu
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-Cc: linux-kernel@vger.kernel.org
+	id <S132718AbRAKWlS>; Thu, 11 Jan 2001 17:41:18 -0500
+Received: from oldftp.webmaster.com ([209.10.218.74]:39649 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S132474AbRAKWlN>; Thu, 11 Jan 2001 17:41:13 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Micah Gorrell" <angelcode@myrealbox.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Poll and Select not scaling
+Date: Thu, 11 Jan 2001 14:41:12 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKCEKEMPAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <000401c07b5c$08d924b0$9b2f4189@angelw2k>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The "none" bit puzzles me the most.
 
-It is a common misconfiguration. Given a line
+> I have been trying to increase the scalabilty of an email server that has
+> been ported to Linux.  It was originally written for Netware, and there we
+> are able to provide over 30,000 connections at any given time.  On Linux
+> however select stops working after the first 1024 connections.  I have
+> changed include/linux/fs.h and updated NR_FILE to be 81920.  In test
+> applications I have been able to create well over 30,000 connections but I
+> am unable to do either a select or a poll on them.  Does any one
+> know what I
+> can do to fix this?
 
-  device  dir  type  options  garbage
+	Multithread.
 
-in /etc/fstab, some umount versions will complain "device busy"
-when the umount fails. Thus, it is better to use
+	DS
 
-  proc    /proc     proc
-  devpts  /dev/pts  devpts
-
-instead of
-
-  none    /proc     proc
-  none    /dev/pts  devpts
-
-so as to avoid this silly "none busy".
-But many distributions come misconfigured like this.
-
-These days umount is done by directory, not by device,
-since a device may be mounted multiple times, so
-I expect the silly message is gone.
-(Is your umount recent?)
-
-[But this is only about the "none". I don't know what is
-wrong in your situation.]
-
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

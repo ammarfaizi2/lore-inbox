@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265074AbUFAOYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265058AbUFAOWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265074AbUFAOYu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 10:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265075AbUFAOXA
+	id S265058AbUFAOWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 10:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265072AbUFAOVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 10:23:00 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:13512 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S265074AbUFAOWM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 10:22:12 -0400
-Date: Tue, 1 Jun 2004 17:22:11 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: linux-kernel@vger.kernel.org
-Subject: [Announce] noca - pagecache control
-Message-ID: <Pine.LNX.4.60.0406011713570.3003@hosting.rdsbv.ro>
+	Tue, 1 Jun 2004 10:21:53 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:32252 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265058AbUFAOTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 10:19:51 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16572.36993.237361.960475@alkaid.it.uu.se>
+Date: Tue, 1 Jun 2004 16:19:45 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6.7-rc2] gcc-3.4.0 warning in i386 __down_read_trylock()
+In-Reply-To: <Pine.LNX.4.58.0405301021480.1632@ppc970.osdl.org>
+References: <200405301047.i4UAl5Wg003268@harpo.it.uu.se>
+	<Pine.LNX.4.58.0405301021480.1632@ppc970.osdl.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Linus Torvalds writes:
+ > 
+ > 
+ > On Sun, 30 May 2004, Mikael Pettersson wrote:
+ > >
+ > > The i386 __down_read_trylock() code contains a "+m" asm
+ > > constraint, which triggers warnings from gcc-3.4.0:
+ > 
+ > This comes up every once in a while.
+ > 
+ > It's going to be fixed in 3.4.1, and the 3.4.0 warning is just bogus.
 
-I follow the recent thread about swapping and fadvise.
+Ok, I see. But most "+m" constraints in the i386 arch files
+have already been "fixed"; the one I sent is I think the
+last one. Should those "fixes" be undone?
 
-So, I made a little shared library that hooks read, lseek and close.
-After 128KiB readed (configurable by a environment variable) this 
-functions call fadvise.
-
-Code is at: http://kernel.umbrella.ro/index.php?vm=1
-
-What is this good for?
-
-If you know that you'll need a file once, use this program so
-it will not pollute the pagecache.
-
-I know it is not perfect.
-Patches are welcomed.
-
-Examples:
- 	noca cat BIG_FILE_THAT_IS_NEEDED_ONLY_ONCE > /dev/null
-and watch "vmstat 1".
-
-Comments welcomed.
-
-P.S. It only works on i386 for now.
-It was tested on Slackware with a hack for fadvise64_64 (on Slack, glibc 
-does call kernel's fadvise).
----
-Catalin(ux aka Dino) BOIE
-catab at deuroconsult.ro
-http://kernel.umbrella.ro/
+/Mikael

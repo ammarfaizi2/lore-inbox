@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUEFJqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUEFJoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUEFJqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 05:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUEFJqi
+	id S261932AbUEFJoB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 05:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUEFJoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 05:46:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12010 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261937AbUEFJqg (ORCPT
+	Thu, 6 May 2004 05:44:01 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:51349 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261932AbUEFJn7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 05:46:36 -0400
-Date: Thu, 6 May 2004 02:45:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: ashok.raj@intel.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       anil.s.keshavamurthy@intel.com, pj@sgi.com, rusty@rustycorp.com.au
-Subject: Re: (resend-3) take3: Updated CPU Hotplug patches for IA64 (pj
- blessed) Patch [6/7]
-Message-Id: <20040506024530.5682acf4.akpm@osdl.org>
-In-Reply-To: <20040506023239.A3664@unix-os.sc.intel.com>
-References: <20040504211755.A13286@unix-os.sc.intel.com>
-	<20040504225907.6c2fe459.akpm@osdl.org>
-	<20040505104739.A24549@unix-os.sc.intel.com>
-	<20040505231350.1d8a3ea6.akpm@osdl.org>
-	<20040506023239.A3664@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 6 May 2004 05:43:59 -0400
+Date: Thu, 6 May 2004 11:43:45 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>
+cc: Zhenmin Li <zli4@cs.uiuc.edu>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [OPERA] Potential bugs detected by static analysis tool in 2.6.4
+In-Reply-To: <002701c4331c$092a3b40$76f6ae80@Turandot>
+Message-ID: <Pine.GSO.4.58.0405061141290.12096@waterleaf.sonytel.be>
+References: <002701c4331c$092a3b40$76f6ae80@Turandot>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj <ashok.raj@intel.com> wrote:
+On Wed, 5 May 2004, Zhenmin Li wrote:
+> We ran our static analysis tool upon Linux 2.6.4 source files, and found
+> some potential errors. Since all of them are detected by the tool, we need
+> more effort to inspect. We would appreciate your help if anyone can verify
+> whether they are bugs or not.
 >
-> > I'll stick a CONFIG_SMP in the caller, let the bitmap beavers worry about
-> > the more general details.
-> Now under the protective covers of CONFIG_SMP, init/main.c compiles now
+> Thanks a lot,
+>
+> OPERA Research Group
+> University of Illinois at Urbana-Champaign
+>
+>
+>
+> Version: 2.6.4
 
-I already fixed it up, thanks.  With an incremental patch, which is very
-much preferred over a wholesale replacement.
+    [...]
 
-> kernel/built-in.o(.text+0x144e4): In function `kthread_bind':
-> : undefined reference to `kthread_wait_task_inactive'
-> make: *** [.tmp_vmlinux1] Error 1
+> 8. /arch/m68k/mac/iop.c, Line 164:
 
-There is no symbol `kthread_wait_task_inactive' in the tree.
+Should be line 264?
 
+> iop_base[IOP_NUM_SCC]->status_ctrl = 0;
+>
+> Maybe change to:
+> iop_base[IOP_NUM_ISM]->status_ctrl = 0;
+
+Mac guys, is this correct?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

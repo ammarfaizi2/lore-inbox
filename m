@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266161AbUA1TZG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 14:25:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266010AbUA1TYx
+	id S266132AbUA1Tiz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 14:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266140AbUA1Tiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 14:24:53 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:4032 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S266161AbUA1TYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 14:24:03 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: long long on 32-bit machines
-From: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
-Cc: =?iso-8859-1?Q? "H=2E_Peter_Anvin" ?= <hpa@zytor.com>
-Message-Id: <26879984$107531702940180925001758.71044950@config16.schlund.de>
-X-Binford: 6100 (more power)
-X-Originating-From: 26879984
-X-Mailer: Webmail
-X-Routing: DE
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jan 2004 14:38:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12263 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266132AbUA1Tix (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 14:38:53 -0500
+Date: Wed, 28 Jan 2004 11:38:46 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       netdev@oss.sgi.com
+Subject: Re: 2.6.2-rc2-mm1
+Message-Id: <20040128113846.4c71521b.davem@redhat.com>
+In-Reply-To: <20040128094106.A26158@infradead.org>
+References: <20040127233402.6f5d3497.akpm@osdl.org>
+	<20040128094106.A26158@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Date: Wed, 28 Jan 2004 20:22:01 +0100
-X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.143
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 28 Jan 2004 09:41:06 +0000
+Christoph Hellwig <hch@infradead.org> wrote:
 
-H.P.A wrote:
+> On Tue, Jan 27, 2004 at 11:34:02PM -0800, Andrew Morton wrote:
+> > 	Jeff's tree:		netdev.patch
+> 
+> Any plan when we'll get the damn netdev lifetime rule fixes merged?
+> They're real life problems and have been around for a long time..
 
-> Does anyone happen to know if there are *any* 32-bit architectures (on 
-> which Linux runs) for which the ABI for a "long long" is different from 
-> passing two "longs" in the appropriate order, i.e. (hi,lo) for bigendian 
-> or (lo,hi) for littleendian?
+Please be more specific, show me what patch you're talking about.
 
-Some architectures require long long arguments to be passed as an
-even/odd register pair. For example on s390, 
-
-   void f(int a, int b, long long x) 
-
-uses registers 2, 3, 4 and 5, while 
-
-   void f(int a, long long x, int b)
-
-uses registers 2, 4, 5 and 6. AFAIK, mips does the same, probably others
-as well.
-
-       Arnd <><

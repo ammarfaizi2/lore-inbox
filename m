@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281565AbRKPVym>; Fri, 16 Nov 2001 16:54:42 -0500
+	id <S281569AbRKPV5W>; Fri, 16 Nov 2001 16:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281561AbRKPVyc>; Fri, 16 Nov 2001 16:54:32 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:29058 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281565AbRKPVyW> convert rfc822-to-8bit;
-	Fri, 16 Nov 2001 16:54:22 -0500
-Date: Fri, 16 Nov 2001 13:54:09 -0800 (PST)
-Message-Id: <20011116.135409.118971851.davem@redhat.com>
-To: groudier@free.fr
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] block-highmem-all-18
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011116193057.O1825-100000@gerard>
-In-Reply-To: <20011116093927.E27010@suse.de>
-	<20011116193057.O1825-100000@gerard>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S281566AbRKPV5M>; Fri, 16 Nov 2001 16:57:12 -0500
+Received: from apollo.wizard.ca ([204.244.205.22]:45586 "HELO apollo.wizard.ca")
+	by vger.kernel.org with SMTP id <S281561AbRKPV46>;
+	Fri, 16 Nov 2001 16:56:58 -0500
+Subject: Current Max Swap size? Performance issues
+From: Michael Peddemors <michael@wizard.ca>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 16 Nov 2001 14:02:31 -0800
+Message-Id: <1005948151.10803.18.camel@mistress>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gérard Roudier <groudier@free.fr>
-   Date: Fri, 16 Nov 2001 19:59:02 +0100 (CET)
-   
-   On Fri, 16 Nov 2001, Jens Axboe wrote:
-   
-   > - Add sym2 can_dma_32 flag (me)
-                ^^^^^^^^^^ Pooaaahhh!:) What's this utter oddity ?
-   Only dma 32 ? :-)
+With all of the latest VM, again the question is asked...  Best way to
+set up swap now..
 
-It is workaround for buggy drivers, when set it means that single SG
-list entry request will be handled correctly.  When clear it means
-that single entry SG lists are to be avoided by the block layer.
+For 2 GIG memory...
+Channel 0 is RAID 1 SCSI
+Channel 2 is RAID 1+0 SCSI
+Hardware Raid
 
-Many devices would explode when given single entry scatterlist. :(
+Shoudl it be?
 
-It's naming is questionable... that I agree with.  The name should be
-more suggestive to what it really means.
+2 GIG swap partition (Is this still the limit?)
+Dual 2 GIG swaps on seperate channels?
+Dual 2 GIG swap files on same channel?
+(Assuming that the channel is different than the channel using the bulk
+of I/O)
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+Wizard IT Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
+

@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316544AbSEaS3G>; Fri, 31 May 2002 14:29:06 -0400
+	id <S316538AbSEaSiF>; Fri, 31 May 2002 14:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316574AbSEaS3F>; Fri, 31 May 2002 14:29:05 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:34784 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S316544AbSEaS3D>; Fri, 31 May 2002 14:29:03 -0400
-Date: Fri, 31 May 2002 11:28:47 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Ian Collinson <icollinson@imerge.co.uk>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
-Message-ID: <20020531112847.B1529@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316548AbSEaSiE>; Fri, 31 May 2002 14:38:04 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18816 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316538AbSEaSiD>; Fri, 31 May 2002 14:38:03 -0400
+Date: Fri, 31 May 2002 14:38:30 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: do_mmap
+In-Reply-To: <Pine.GSO.4.05.10205312012330.10681-100000@mausmaki.cosy.sbg.ac.at>
+Message-ID: <Pine.LNX.3.95.1020531143216.2645A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 06:54:46PM +0100, Ian Collinson wrote:
+On Fri, 31 May 2002, Thomas 'Dent' Mirlacher wrote:
+
+> Dick,
 > 
-> 	We're having problems with realtime scheduling (SCHED_RR and
-> SCHED_FIFO), on 2.4 kernels >= 2.4.10 (built for i386, no SMP).  We have an
-> app that uses real-time scheduled threads. To aid debugging, in case of
-> realtime threads spinning and locking the system, we always keep a bash
-> running on a (text) console, at SCHED_RR, priority 99 (a higher priority
-> than any threads in our app).  We test that this is a valid approach by
-> running a lower priority realtime app, on another console, that sits in an
-> infinite busy loop.  This has always worked, and we've been able to
-> successfully use the high-priority bash to run gdb, and so on.  This is also
-> what the man page for sched_setscheduler suggests, to avoid total system
-> lock up.
-
-<snip>
-
-> 	Then I switch back to the first console, with its priority 99 bash.
-> I am able to type away for 10 seconds, until the priority 50 process starts,
-> at which point the shell locks up.   I can get the same effect on one
-> console with:
+> --snip/snip
 > 
-> 	> ( sleep 10; realtime -rr 50 eat_cpu ) & realtime -rr 99 bash
 > 
-> 	Previously, the high-priority shell would never lock up.  Now it
-> does.
+> > > btw, is err should (according to alans explaination be):
+> > > 
+> > > 	return (unsigned long)ptr > (unsigned long)-1024UL;
+> > > 
+> > > 	tm
+> > > 
+> > 
+> > At the user-mode API, we get to (void *) -1, defined in sys/mman.h
+> > (actually (__ptr_t) -1); so whatever you do, the 'C' runtime library
+> > has to 'know' about your return values if this propagates to
+> > sys-calls.
+> 
+> the code right now, will pass all the errors through to the user
+> space in any case (beside a handful internal kernel-functions).
+> 
+> by changing unsigned long to void * everything should stay the same
+> (at least for todays architectures) - well if i'm wrong, please
+> enlighten me :)
+> 
+> also using IS_ERR is essentially the same as the other approaches
+> to check for errors (beside the check for == 0).
+> 
+> this means by "cleaning up" the internal functions, _nothing_ should
+> me impacted, even if the changes are step by step, function by function,
+> beside some gcc warnings (the well known: "assignment makes pointer from
+> integer without a cast").
+> 
+> cheers,
+> 
+> 	tm
+> 
 
-This works fine for me on 2.4.17 with a SERIAL console.  Could this
-be related to some differences (new features) in the VGA console?
-I am totally ignorant of how the consoles work.
+Good. It was just a 'sanity-check' as these things caught my
+eye. Because I have to fix a lot of junk code that others have
+written (here at work), as they become Peter-principled to
+higher-level positions, I get sensitized to these things.
+No complaint -- I like fixing junk code!
+The previously line was written for Network Security Administrators
+(Hello Thor).
 
--- 
-Mike
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

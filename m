@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264453AbTFITNA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 15:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTFITNA
+	id S264455AbTFITSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 15:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTFITSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 15:13:00 -0400
-Received: from hematita.dcc.ufmg.br ([150.164.10.11]:16528 "EHLO
-	hematita.dcc.ufmg.br") by vger.kernel.org with ESMTP
-	id S264453AbTFITM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 15:12:59 -0400
-Date: Mon, 9 Jun 2003 16:26:01 -0300 (BRT)
-From: "Leonardo H. Machado" <leoh@dcc.ufmg.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cachefs on linux
-Message-ID: <Pine.LNX.4.44.0306091624370.14854-100000@volga.dcc.ufmg.br>
+	Mon, 9 Jun 2003 15:18:11 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:50417 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264455AbTFITSK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 15:18:10 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780DA16CB0@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: RE: Patches for SCSI timeout bug
+Date: Mon, 9 Jun 2003 12:31:42 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> From: Anton Blanchard [mailto:anton@samba.org]
+> 
+> > 2) By incresing the sym53c8xx post-reset delay to at least
+> >    12 seconds.
+> >
+> > Fix 2) may not be bad: I have at least one scsi hard drive which
+> > takes 5 seconds to recover from a bus reset.   On the other hand,
+> > fix 2) makes the boot process longer: it introduces a delay of
+> > N x 12 seconds, where N is the number of scsi channels.
+> > (Most cards have two channels; some server-class machines with
+> > many cards may have a significantly longer boot).
+> 
+> Yep, Ive got a box with 42 scsi controllers and the time to probe SCSI
+> is already unbearable :)
 
- 	Dear Sirs,
+Woah, can I see a copy of your electricity bill? That must suck
+amps...
 
- 	I'm using linux and solaris for a while and, after seaching all
- the web, newsgroups, and mailing lists I could not find the answer for a
- very simple question. Before emailing Alan Cox or any other guru (that
- might not answer me) I will try to ask you. Here is my simple question:
-
- 	Why has Solaris a CacheFS file system, while linux doesn't? Is it
- because cachefs is VERY difficult to implement (It should be no barrier
- for our gurus), or because there's no such a big demand for this marvelous
- FS, or else, because no one thought of it?
-
- 	There are certanly some cacheFS implementations around the web,
- like CODA, but they are not free and not even so good as Solaris CacheFS.
-
- 	Would you please help me with this question or at least tell me
- where are the answers?
-
- Thank you very much.
-
-
- //leoh
- main(){int j=1234;char t[]=":@abcdefghijklmnopqrstuvwxyz.\n"
- ,*i = "iqgbgxmlvivuc\n:wwnfwsdoi"; char *strchr(char *,int);
- while(*i){j+=strchr(t,*i++)-t;j%=sizeof t-1;putchar(t[j]);}}
-
-
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

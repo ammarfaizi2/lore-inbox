@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263464AbTLSQwq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 11:52:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTLSQwq
+	id S263452AbTLSRE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 12:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTLSRE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 11:52:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36314 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263464AbTLSQwp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 11:52:45 -0500
-Date: Fri, 19 Dec 2003 08:51:26 -0800
+	Fri, 19 Dec 2003 12:04:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58336 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263452AbTLSRE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 12:04:27 -0500
+Date: Fri, 19 Dec 2003 09:03:08 -0800
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Lenar =?ISO-8859-1?Q?L=F5hmus?= <lenar@city.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 fails to complete boot - Sony VAIO laptop
-Message-Id: <20031219085126.6e13bb43.rddunlap@osdl.org>
-In-Reply-To: <20031219135316.42DE41FFFF@xs.dev>
-References: <14q3A-5qF-11@gated-at.bofh.it>
-	<14qd7-5Fl-1@gated-at.bofh.it>
-	<20031219135316.42DE41FFFF@xs.dev>
+To: Ben Collins <bcollins@debian.org>
+Cc: dale_d@telusplanet.net, linux-kernel@vger.kernel.org
+Subject: Re: ieee1394 subsystem causes segfaults
+Message-Id: <20031219090308.6966e068.rddunlap@osdl.org>
+In-Reply-To: <20031217141057.GC551@phunnypharm.org>
+References: <1071670222.2519.5.camel@localhost>
+	<20031217141057.GC551@phunnypharm.org>
 Organization: OSDL
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
  !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Dec 2003 15:53:15 +0200 Lenar Lõhmus <lenar@city.ee> wrote:
+On Wed, 17 Dec 2003 09:10:57 -0500 Ben Collins <bcollins@debian.org> wrote:
 
-| > Okay, nothing matching other bugreports turned up here. I might have
-| > to ask you to try to capture some log information. Do you have a null
-| > modem cable or a null modem adapter and serial cable, and another box
-| > to hook that up to?
+| > 5. no oops message
 | 
-| Could somebody please forward port kmsgdump? It's at 
-| http://w.ods.org/tools/kmsgdump/ but the link to 2.5 patches is not
-| functional anymore. It would be really great for those without null-modem
-| cables.
+| Not sure how things can segv without some sort of kernel message. Are
+| you sure it didn't print anything at all?
 
-http://developer.osdl.org/rddunlap/kmsgdump/
+What messages are there then?  You should post the kernel log
+showing the problem(s).  (Yes, I looked at the original posting.)
 
-I think that the 260test9c patch still works.
-I'll check and update it if needed.
+I have seen kernel bugs cause user space segfaults, so maybe
+it's an app that is having the segfault.
 
 --
 ~Randy

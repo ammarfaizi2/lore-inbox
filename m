@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262392AbSK0MBv>; Wed, 27 Nov 2002 07:01:51 -0500
+	id <S262414AbSK0MNd>; Wed, 27 Nov 2002 07:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262395AbSK0MBv>; Wed, 27 Nov 2002 07:01:51 -0500
-Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:30652 "EHLO
-	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262392AbSK0MBu>; Wed, 27 Nov 2002 07:01:50 -0500
-Date: Wed, 27 Nov 2002 10:08:56 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Frederik Dannemare <tux@sentinel.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Limiting max cpu usage per user (old Conectiva patch)
-In-Reply-To: <3DE49A66.4020208@sentinel.dk>
-Message-ID: <Pine.LNX.4.44L.0211271008370.4103-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262425AbSK0MNc>; Wed, 27 Nov 2002 07:13:32 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:58516 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262414AbSK0MM0>; Wed, 27 Nov 2002 07:12:26 -0500
+Subject: Re: [PATCH] Start of compat32.h (again)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: davidm@hpl.hp.com, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, schwidefsky@de.ibm.com,
+       ralf@gnu.org, willy@debian.org
+In-Reply-To: <20021127082918.GA5227@averell>
+References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
+	<15844.31669.896101.983575@napali.hpl.hp.com> 
+	<20021127082918.GA5227@averell>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 12:49:10 +0000
+Message-Id: <1038401350.6390.14.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Nov 2002, Frederik Dannemare wrote:
+On Wed, 2002-11-27 at 08:29, Andi Kleen wrote:
+> But the 32bit user space surely doesn't care about any garbage in 
+> the upper 32bits, no ?
 
-> do we have an effective way to limit max cpu usage per user? I haven't been
-> able to find much useful info except for an old thread on lkml, where Rik
-> van Riel mentions[1] a 2.2 kernel patch by Conectiva.
->
-> Anybody knows if this patch (or similar functionality) been ported to 2.4
-> (or 2.5)?
-
-It's on my patches page:
-
-	http://surriel.com/patches/
-
-cheers,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Providing its garbage not leaked kernel data
 

@@ -1,34 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265094AbSLHBJP>; Sat, 7 Dec 2002 20:09:15 -0500
+	id <S265074AbSLHBHC>; Sat, 7 Dec 2002 20:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265095AbSLHBJO>; Sat, 7 Dec 2002 20:09:14 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:12748 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265094AbSLHBJG> convert rfc822-to-8bit; Sat, 7 Dec 2002 20:09:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [BUG] 2.4.20-BK
-Date: Sun, 8 Dec 2002 02:16:26 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200212071434.11514.m.c.p@wolk-project.de> <1039312291.27923.13.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1039312291.27923.13.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212080216.26925.m.c.p@wolk-project.de>
+	id <S265092AbSLHBHB>; Sat, 7 Dec 2002 20:07:01 -0500
+Received: from crack.them.org ([65.125.64.184]:34447 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S265081AbSLHBGT>;
+	Sat, 7 Dec 2002 20:06:19 -0500
+Date: Sat, 7 Dec 2002 20:14:03 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [RFC][PATCH] net drivers and cache alignment
+Message-ID: <20021208011403.GA7729@nevyn.them.org>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com
+References: <3DF2781D.3030209@pobox.com> <20021207.144004.45605764.davem@redhat.com> <3DF27EE7.4010508@pobox.com> <3DF2844C.F9216283@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DF2844C.F9216283@digeo.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 December 2002 02:51, Alan Cox wrote:
+On Sat, Dec 07, 2002 at 03:29:16PM -0800, Andrew Morton wrote:
+> Jeff Garzik wrote:
+> > 
+> > David S. Miller wrote:
+> > > Can't the cacheline_aligned attribute be applied to individual
+> > > struct members?  I remember doing this for thread_struct on
+> > > sparc ages ago.
+> > 
+> > Looks like it from the 2.4 processor.h code.
+> > 
+> > Attached is cut #2.  Thanks for all the near-instant feedback so far :)
+> >   Andrew, does the attached still need padding on SMP?
+> 
+> It needs padding _only_ on SMP.  ____cacheline_aligned_in_smp.
+> 
+> #define offsetof(t, m)  ((int)(&((t *)0)->m))
+> 
+> struct foo {
+>         int a;
+>         int b __attribute__((__aligned__(1024)));
+>         int c;
+> } foo;
+> 
+> main()
+> {
+>         printf("%d\n", sizeof(struct foo));
+>         printf("%d\n", offsetof(struct foo, a));
+>         printf("%d\n", offsetof(struct foo, b));
+>         printf("%d\n", offsetof(struct foo, c));
+> }
+> 
+> ./a.out
+> 2048
+> 0
+> 1024
+> 1028
+> 
+> So your patch will do what you want it to do.  You should just tag the
+> first member of a group with ____cacheline_aligned_in_smp, and keep an
+> eye on things with offsetof().
+> 
+> Not sure why sizeof() returned 2048 though.
 
-Hi Alan,
+The structure contains an __aligned__(1024) item.  Think about an array
+of 'struct foo' items.  They have to be 2048 bytes or you won't align
+correctly.
 
-> > flushing ide devices: hda hdd
-> Marcelo dropped some of the patches I sent (or his mailer or some random
-> box in between did). You also want the ll_rw_blk change from -ac
-ah, ok :) thnx Alan.
+C allows for empty space in structure padding, but not in arrays,
+AFAIK.
 
-ciao, Marc
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267366AbTBPUAu>; Sun, 16 Feb 2003 15:00:50 -0500
+	id <S267476AbTBPUEi>; Sun, 16 Feb 2003 15:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267368AbTBPUAu>; Sun, 16 Feb 2003 15:00:50 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:20398 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S267366AbTBPUAt>;
-	Sun, 16 Feb 2003 15:00:49 -0500
-Date: Sun, 16 Feb 2003 21:09:47 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH][2.5] Signal handling changes broke 8139too
-Message-ID: <20030216200947.GA5369@k3.hellgate.ch>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.61 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+	id <S267482AbTBPUEi>; Sun, 16 Feb 2003 15:04:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5129 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267476AbTBPUEh>; Sun, 16 Feb 2003 15:04:37 -0500
+Date: Sun, 16 Feb 2003 12:10:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: more signal locking bugs?
+In-Reply-To: <Pine.LNX.4.44.0302162100140.24528-100000@dbl.q-ag.de>
+Message-ID: <Pine.LNX.4.44.0302161206540.2952-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun, 16 Feb 2003, Manfred Spraul wrote:
+> But these lines are not in 2.4 or 2.5.61.
+> The current rule to nesting tasklist_lock and task_lock is
+> - read_lock(&tasklist_lock) and task_lock can be mixed in any order.
+> - write_lock_irq(&tasklist_lock) and task_lock are incompatible.
 
-Starting with 2.5.61, 8139too takes forever (30+ seconds) to take an
-interface down. This gets the driver back to regular fraction of a second
-time. Works for me.
+Oh, you're right, and you're right exactly _because_ "task->signal" isn't
+protected by the task lock right now. Aurgh. I had already mentally done
+that protection, which is why I thought we already had the bug.
 
-Roger
+So never mind. 2.4.x is obviously also ok.
 
+> What about this minimal patch? The performance critical operation is 
+> signal delivery - we should fix the synchronization between signal 
+> delivery and exec first.
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="8139too.c-2.5.61-sigterm.diff"
+The patch looks ok, although I'd also remove the locking and testing from
+collect_sigign_sigcatch() once it is done at a higher level.
 
---- linux-2.5.61/drivers/net/8139too.c.orig	Sun Feb 16 20:44:00 2003
-+++ linux-2.5.61/drivers/net/8139too.c	Sun Feb 16 20:44:16 2003
-@@ -1589,7 +1589,7 @@
- 	unsigned long timeout;
- 
- 	daemonize("%s", dev->name);
--	allow_signal(SIGKILL);
-+	allow_signal(SIGTERM);
- 
- 	while (1) {
- 		timeout = next_tick;
+And yeah, what about signal delivery? Put back the same lock there?
 
---WIyZ46R2i8wDzkSu--
+		Linus
+

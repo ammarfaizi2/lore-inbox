@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261827AbRE2VCG>; Tue, 29 May 2001 17:02:06 -0400
+	id <S261861AbRE2VFQ>; Tue, 29 May 2001 17:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261913AbRE2VB4>; Tue, 29 May 2001 17:01:56 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:17671 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S261855AbRE2VBv>; Tue, 29 May 2001 17:01:51 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: serial console problems under 2.4.4/5
-Date: Tue, 29 May 2001 21:01:50 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9f12nu$dig$1@ncc1701.cistron.net>
-In-Reply-To: <yrxofscdnpj.fsf@terra.mcs.anl.gov> <9f0qoj$ttr$1@ncc1701.cistron.net> <yrxsnhot1ec.fsf@terra.mcs.anl.gov>
-X-Trace: ncc1701.cistron.net 991170110 13904 195.64.65.67 (29 May 2001 21:01:50 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S261894AbRE2VFG>; Tue, 29 May 2001 17:05:06 -0400
+Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:50948 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S261861AbRE2VEx>;
+	Tue, 29 May 2001 17:04:53 -0400
+Message-ID: <3B136639.D883F0C8@mail.utexas.edu>
+Date: Tue, 29 May 2001 15:04:57 +0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-athlon i686)
+X-Accept-Language: en,fr,de
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Status of ALi MAGiK 1 support in 2.4.?
+In-Reply-To: <E154iiK-0004Mb-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <yrxsnhot1ec.fsf@terra.mcs.anl.gov>,
-Narayan Desai <desai@mcs.anl.gov> wrote:
->>>>>> "Mike" == Miquel van Smoorenburg <miquels@cistron-office.nl> writes:
+Alan Cox wrote:
+
+> > May 22 21:45:07 pollux kernel: ALI15X3: simplex device:  DMA disabled
+> > May 22 21:45:07 pollux kernel: ide0: ALI15X3 Bus-Master DMA disabled
+> > (BIOS)
+> > May 22 21:45:07 pollux kernel: ALI15X3: simplex device:  DMA disabled
+> > May 22 21:45:07 pollux kernel: ide1: ALI15X3 Bus-Master DMA disabled
 >
->Mike> In article <yrxofscdnpj.fsf@terra.mcs.anl.gov>,
->Mike> Narayan Desai <desai@mcs.anl.gov> wrote:
->>> Hi. I have started having serial console problems in the last bunch
->>> of kernel releases. I have tried various 2.4.4 and 2.4.5 ac kernels
->>> (up to and including 2.4.5-ac4) and the problem has persisted. The
->>> problem is basically that serial console doesn't recieve.
->
->Mike> The serial driver now pays attention to the CREAD bit. Sysvinit
->Mike> clears it, so that's where it goes wrong.
->
->Mike> I don't think this change should have gone into a 'stable'
->Mike> kernel version. 2.5.0 would have been fine, not 2.4.4
+> The DMA was off because the BIOS left it off.
 
-Okay it was 2.4.3 when it went in
+I just checked, and the BIOS auto-detect page for that drive shows PIO Mode 4
+and Ultra DMA Mode 5.  The BIOS also shows a summary chart during boot, just
+before the LILO prompt, and that summary also reports UDMA 5 for that drive. It
+really looks like the kernel is not getting the correct device info from the
+BIOS.
 
->How would I go about resetting this so that serial console worked
->again? thanks...
+As I mentioned earlier, the A7A266 supposedly has an ALi M1535D+ southbridge
+"with PCI Super-I/O Integrated Peripheral Controller (PSIPC)", rather than the
+ALI15X3 reported by the kernel.
 
-Fix sysvinit. Oh and all getty programs etc - everything that
-mucks around with termios.
+Thanks,
 
-Alternatively revert the change to drivers/char/serial.c
+Bobby Bryant
+Austin, Texas
 
-See also http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg42426.html
-
-Oh *ahem* I just read the entire thread again and I remembered it
-wrong. It's not the CREAD handling perse, it's something else that
-has changed that caused this, but it appears that a solution
-hasn't been found yet. Except for fixing all user-space programs.
-Sysvinit, agetty, busybox etc etc
-
-Okay so ignore my earlier comments. Sorry.
-
-Mike.
 

@@ -1,47 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265306AbUADWhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 17:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbUADWhP
+	id S265373AbUADW6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 17:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUADW6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 17:37:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58507 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265306AbUADWhO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 17:37:14 -0500
-Date: Sun, 4 Jan 2004 22:37:10 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Rob Love <rml@ximian.com>,
-       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040104223710.GY4176@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040104230104.A11439@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+	Sun, 4 Jan 2004 17:58:32 -0500
+Received: from web40613.mail.yahoo.com ([66.218.78.150]:61833 "HELO
+	web40613.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265373AbUADW62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 17:58:28 -0500
+Message-ID: <20040104225827.39142.qmail@web40613.mail.yahoo.com>
+Date: Sun, 4 Jan 2004 23:58:27 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+To: azarah@nosferatu.za.org, Con Kolivas <kernel@kolivas.org>
+Cc: Soeren Sonnenburg <kernel@nn7.de>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       gillb4@telusplanet.net
+In-Reply-To: <1073227359.6075.284.camel@nosferatu.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 11:01:04PM +0100, Andries Brouwer wrote:
-> A common Unix idiom is testing for the identity
-> of two files by comparing st_ino and st_dev.
-> A broken idiom?
+ --- Martin Schlemmer <azarah@nosferatu.za.org> a écrit : > On
+Sun, 2004-01-04 at 14:45, Con Kolivas wrote:
+> > On Sun, 4 Jan 2004 22:13, Martin Schlemmer wrote:
+> > > On Sun, 2004-01-04 at 10:49, Con Kolivas wrote:
+> > > > > I added a fprintf(stderr, "%d\n", amount); to that
+> code and indeed
+> > > > > amount was *always* 1 no matter what I did (it even
+> was 1 when the
+> > > > > (dmesg/...) output came in fast). And jump scrolling
+> would take place
+> > > > > if amount > 59 in my case... can this still be not a
+> schedulers issue ?
+> > > > >
+> > > > >
+> > > > > Looking at that how can it not be a scheduling problem
+> ....
+> > > >
+> > > > Scheduling problem, yes; of a sort.
+> > > >
+> > > > Solution by altering the scheduler, no.
+> > > >
+> > > > My guess is that turning the xterm graphic candy up or
+> down will change
+> > > > the balance. Trying to be both gui intensive and a
+> console is where it's
+> > > > happening. On some hardware you are falling on both
+> sides of the fence
+> > > > with 2.6 where previously you would be on one side.
+> > >
+> > > So its Ok for 'eye candy' to 'lag', but xmms should not
+> skip?  Anyhow,
+> > > its xterm that he have issues with, not gnome-terminal or
+> such with
+> > > transparency.  I smell something ...
+> > 
+> > Sigh... 
+> > 
+> > Xmms was a simple test case long forgotten but most still
+> think all I did was 
+> > make an xmms scheduler. Deleting one character from sched.c
+> before all of my 
+> > patches would make the scheduler ideal for xmms. Any
+> braindead idiot can tune 
+> > a scheduler for just one application.
+> 
+> Well, its the favorite example 8)
+> 
+> >  An application that changes it's 
+> > behaviour dynamically well in the setting of a particular
+> scheduler, though? 
+> > Should a scheduler be tuned to suit a coding style or quirk?
+> 
+> > 
+> 
+> But the scheduler changes to a particular application?  I
+> still am of
+> opinion that the current scheduler in mainline 'breaks'
+> priorities ...
+> call it dynamic tuning or whatever you like.  Now something
+> gets
+> priority while something else starves.
+> 
+> > I should go back to lurking before people start calling me
+> names. This thread 
+> > has gone long enough for that. If I hadn't said anything it
+> would have died 
+> > out by now.
+> 
+> Well, I have stayed out of this for months now, as its always
+> 'they' at
+> fault - that app, or piece of code.  Sure, I am one of those
+> whining
+> users, and I have no particular interest in the scheduler code
+> - that
+> is if it behaves like it should.  But whatever is in now, just
+> do not
+> behave as expected, and call it a feature or whatever you
+> want, if it
+> deviates the definition, then what should we call it?  Or if
+> its a
+> feature, can we have the weirdness in priorities disabled by
+> default
+> with a sysctl or sysfs switch?
+> 
+> > Instead I'm drawing attention to my fundamentally flawed
+> code.
+> > 
+> 
+> The scrolling is but one part.  Just starting an app, or
+> running
+> 'vim /etc/fstab' for example takes ages some times, even with
+> minimal load.  If xterm, gnome-term, aterm, multi-gnome-term,
+> etc is broken, how do we fix it then?  What about some of the
+> other issues?  If its a problem with those apps, why is it I
+> still
+> wonder what they are doing wrong, and it not fixed?
+> 
+> Do not worry, _I_ will go back to lurking about this issue
+> _again_,
+> but after _once_again_ seeing a issue about this being blown
+> off
+> as being something wrong with 'it', and some facts (you did
+> see
+> that the skipping code for the other user _never_ kicked in)
+> were just ignored, I just could not help myself - sorry.
+> 
+> At least I will not experience those issues of the others, and
+> hopefully Nick will not stop his work, or things change too
+> much
+> to adapt his patch.
+> 
 
-	No, just your usual highly selective reading.  First of all, that
-idiom relies only on different ->s_dev *among* *currently* *mounted*
-*filesystems*.  In part that has anything to do with devices, it means
-only one thing:
+how much free memory do you have when this happens ?
+I had 
+a similar problem. It was easily reproducive doing 
+a du -sh / and then trying to do other things.
+It didn't happend all the time but most of the time
 
-	Any two different block devices that are both currently opened by
-	the kernel and are both alive must have different device numbers.
+Doing a 
+echo 16384 >/proc/sys/vm/min_free_kbytes
+seems to help the kernel remember that it has some swap and he
+*has* to use it in some cases
 
-Note the "are alive" part - we can even allow reuse of device numbers
-as long as we make sure that stat() will fail on filesystems mounted
-from dead ones.
+> 
+> Thanks,
+> 
+> -- 
+> Martin Schlemmer
+> 
 
-Now, care to explain how preserving aforementioned common Unix idiom
-is related to your expostulations?
+> ATTACHMENT part 2 application/pgp-signature name=signature.asc
+
+
+=====
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
+
+_________________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317802AbSGaVcU>; Wed, 31 Jul 2002 17:32:20 -0400
+	id <S318425AbSGaVij>; Wed, 31 Jul 2002 17:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317814AbSGaVcU>; Wed, 31 Jul 2002 17:32:20 -0400
-Received: from moutng.kundenserver.de ([212.227.126.170]:18653 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317802AbSGaVcT>; Wed, 31 Jul 2002 17:32:19 -0400
-X-KENId: 00002EB3KEN47D99429
-Date: Wed, 31 Jul 2002 23:33:20 +0200
-From: Thomas <thomas@mierau.org>
-Subject: Re: Tyan K7X with AMD MP 2.4.19-rc3-ac4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Thomas Mierau <tmi@wikon.de>, linux-kernel@vger.kernel.org
-Message-Id: <3D4857A0.2040407@mierau.org>
-References: <200207301421.18701.tmi@wikon.de> <1028038129.6725.26.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-User-Agent: Mozilla/5.0 (Windows; U; Win98; de-DE; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: de-DE
-Content-Transfer-Encoding: 7bit
+	id <S318466AbSGaVij>; Wed, 31 Jul 2002 17:38:39 -0400
+Received: from mta01bw.bigpond.com ([139.134.6.78]:999 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S318425AbSGaVii>; Wed, 31 Jul 2002 17:38:38 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Kernel ABI BoF at Linux-Kongress? [was: Header files and the kernel ABI]
+Date: Thu, 1 Aug 2002 07:37:20 +1000
+User-Agent: KMail/1.4.5
+References: <aho5ql$9ja$1@cesium.transmeta.com>
+In-Reply-To: <aho5ql$9ja$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200208010737.20093.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My machine is still not working.
-I tried ...-ac5 too.
-I did a little debugging. Everything seems to be detected correctly. I 
-also changed the /proc/interrupts a little to see if and which IRQs are 
-know to the system. IRQ's up to 21 are all IO-APIC or XT-PIC IRQ's so 
-that part is fine. But I don't get any redirects
+On Thu, 25 Jul 2002 16:28, H. Peter Anvin wrote:
+> OK... I have had a thought grinding in my head for a while, and wanted
+> to throw it out for everyone to think about...
+>
+> In the libc4/libc5 days, we attempted to use kernel headers in user
+> space.  This was a total mess, not the least because the kernel
+> headers tended to pull in a lot of other kernel headers, and the
+> datatypes were unsuitable to have spead all across userspace.
+>
+> In glibc, the official rule is "don't use kernel headers."  This
+> causes problems, because certain aspects of the kernel ABI is only
+> available through the include files, and reproducing them by hand is
+> tedious and error-prone.
+>
+> I'm in the process of writing a very tiny libc for initramfs, and will
+> likely have to deal with how to use the kernel ABI as well.
+Well the initial enthusiasm appears to have passed, and nothing
+is happening.
 
-The IRQ's are distributed pretty even between the CPU's. eth1 on IRQ5 
-shows just 1 IRQ and no change after pinging another of our servers. The 
-data is transmitted thou, as I receive the ping on the other machine. 
-The other one is also answering.
-On my SMP machine I get an error that the IRQ can't be handled and that 
-may be another device uses it.
-There is no other device (as I stripped the machine down to nothing) The 
-  printer is disabled in BIOS. PCI just shows eth1 on IRQ5. And ther is 
-only one "action" in the IRQ setup.
+Is there interest in getting together to resolve this issue?
 
+I note that the next major conference appears to be
+Linux Kongress (Koln/Cologne) in early September. Maybe
+we can get some glibc / other-libraries people there, and
+make some progress.
 
-During boot I looked at all IRQ's and printk'ed the "shared" which the 
-system is checking they all show a "shared=0" --> single IRQ source.
+If there is some interest (post off-list if preferred), I'll contact the
+organisers and try to get a BoF together for this.
 
-I looked at other postings and all of them had the redirects. But all 
-the Kernels were also 4GB kernels, while I am using the 64G Kernal as I 
-have 4GB RAM + swap. Is there any sense in removing some RAM for testing 
-or not
+I'll look at linux.conf.au as an additional opportunity when
+time gets a bit closer.
 
-The issue with the freezing system is persistent. The only question is 
-when. Compliling the kernel with standard "make" will hang up the system 
-hard. Using the option "make -j" will work with no problem.
-
-
-Alan Cox wrote:
-
-> On Tue, 2002-07-30 at 13:21, Thomas Mierau wrote:
-> 
->>Hi
->>
->>I am trying to get the above board to work. Somehow it doesn't.
->>I tried kernel  2.4.18, 2.4.19-rc3, 2.4.19-rc3-ac3 and of course the latest 
->>2.4.19-rc3-ac4
->>
->>The machine itself is "working" stable under 2.4.18 with a limited 
->>functionality (no network, no additional scsi ports, no printer, no usb ...)
->>
-> 
-> Start by disabling acpi support
-> 
-> 
-> 
-> 
-
-
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVABOlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVABOnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVABOlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 09:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVABOlr
+	id S261256AbVABOnO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 09:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVABOnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 09:41:47 -0500
-Received: from livid.absolutedigital.net ([66.92.46.173]:23689 "EHLO
-	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S261251AbVABOlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 09:41:39 -0500
-Date: Sun, 2 Jan 2005 09:41:36 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: fix for modular floppy builds
-Message-ID: <Pine.LNX.4.61.0501020934320.6458@lancer.cnet.absolutedigital.net>
+	Sun, 2 Jan 2005 09:43:14 -0500
+Received: from fyrebird.net ([217.70.144.192]:37553 "HELO fyrebird.net")
+	by vger.kernel.org with SMTP id S261256AbVABOnF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 09:43:05 -0500
+X-Qmail-Scanner-Mail-From: lethalman@fyrebird.net via fyrebird
+X-Qmail-Scanner: 1.23 (Clear:RC:0(62.11.84.211):. Processed in 1.88449 secs)
+Message-ID: <41D805A8.9010009@fyrebird.net>
+Date: Sun, 02 Jan 2005 15:31:04 +0100
+From: Lethalman <lethalman@fyrebird.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to start
+References: <20050102030444.51206.qmail@web51002.mail.yahoo.com> <41D806E8.1040008@mathematica.scientia.net>
+In-Reply-To: <41D806E8.1040008@mathematica.scientia.net>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Christoph Anton Mitterer wrote:
+> What about http://kernelnewbies.org/?
+> I'm also extremely new in the kernel-programming scene (have done my
+> first post to lkml just two days ago ;-) ) and I tried to start there...
+> 
+> cam.
+> 
+Me too :) i made some few patch since about a week
 
-Modular floppy builds are still broken in -bk5. Can you merge in Jeff's 
-patch below?
-
-thanks,
-
--- Cal
-
-
-Please do a
-
-	bk pull bk://gkernel.bkbits.net/misc-2.6
-
-This will update the following files:
-
- drivers/block/floppy.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-through these ChangeSets:
-
-<jgarzik@pobox.com> (04/12/29 1.2079)
-   block/floppy.c: fix build by removing UTS_RELEASE use
-   
-   It's redundant to the kernel message that prints out the kernel version,
-   as well as many other places where one can request the kernel version.
-
-diff -Nru a/drivers/block/floppy.c b/drivers/block/floppy.c
---- a/drivers/block/floppy.c	2004-12-29 14:00:55 -05:00
-+++ b/drivers/block/floppy.c	2004-12-29 14:00:55 -05:00
-@@ -4595,7 +4595,7 @@
- 
- int init_module(void)
- {
--	printk(KERN_INFO "inserting floppy driver for " UTS_RELEASE "\n");
-+	printk(KERN_INFO "inserting floppy driver\n");
- 
- 	if (floppy)
- 		parse_floppy_cfg_string(floppy);
+-- 
+www.iosn.it * Amministratore Italian Open Source Network
+www.fyrebird.net * Fyrebird Hosting Provider - Technical Department

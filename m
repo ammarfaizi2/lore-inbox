@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131233AbRDKFT7>; Wed, 11 Apr 2001 01:19:59 -0400
+	id <S131246AbRDKFfv>; Wed, 11 Apr 2001 01:35:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbRDKFTu>; Wed, 11 Apr 2001 01:19:50 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:17680 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S131233AbRDKFTg>;
-	Wed, 11 Apr 2001 01:19:36 -0400
-Date: Tue, 10 Apr 2001 23:22:13 -0600
-From: yodaiken@fsmlabs.com
-To: Paul McKenney <Paul.McKenney@us.ibm.com>
-Cc: nigel@nrg.org, ak@suse.de, Dipankar Sarma <dipankar.sarma@in.ibm.com>,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Suparna Bhattacharya <bsuparna@in.ibm.com>
-Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-Message-ID: <20010410232213.A8718@hq.fsmlabs.com>
-In-Reply-To: <OFC444FA4A.28BB0BC6-ON88256A2B.0016B71E@LocalDomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <OFC444FA4A.28BB0BC6-ON88256A2B.0016B71E@LocalDomain>; from Paul.McKenney@us.ibm.com on Tue, Apr 10, 2001 at 09:08:16PM -0700
+	id <S131275AbRDKFfl>; Wed, 11 Apr 2001 01:35:41 -0400
+Received: from calnet3-192.gtecablemodem.com ([207.175.226.192]:4349 "EHLO
+	dave.xdr.com") by vger.kernel.org with ESMTP id <S131246AbRDKFf3>;
+	Wed, 11 Apr 2001 01:35:29 -0400
+Date: Tue, 10 Apr 2001 22:30:41 -0700
+From: David Ashley <dash@xdr.com>
+Message-Id: <200104110530.WAA00945@dave.xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 kernel problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 09:08:16PM -0700, Paul McKenney wrote:
-> > Disabling preemption is a possible solution if the critical section is
-> short
-> > - less than 100us - otherwise preemption latencies become a problem.
-> 
-> Seems like a reasonable restriction.  Of course, this same limit applies
-> to locks and interrupt disabling, right?
+XFree86 X window updates are slower on 2.4 than 2.2, by a significant amount.
+I've observed this comparing 2.2.18 with 2.4.1 and one of the 2.4.pre kernels.
+I've seen it with ATI Rage 128, Geforce 1 and GeForce 2 MX. I've seen it on
+two different computers, both Athlon based. Just any rectangular copies to
+an X window are slow on 2.4 and much faster under 2.2.18.
 
-So supposing 1/2 us per update
-	lock process list
-		for every process update pgd
-	unlock process list
+I'm using DRI and accelerated GLX servers so I get good 3d, but 2d is
+suffering in a *big* way. Here are some frames/second for a simple program:
 
-is ok if #processes <  200, but can cause some unspecified system failure
-due to a dependency on the 100us limit otherwise?
 
-And on a slower machine or with some heavy I/O possibilities ....
+Using shared memory       Kernel       frames/second
+     yes                   2.4              39
+     no                    2.4              30
+     yes                   2.2.18          245
+     no                    2.2.18           88
 
-We have a tiny little kernel to worry about inRTLinux and it's quite 
-hard for us to keep track of all possible delays in such cases. How's this
-going to work for Linux?
+I can't get any response from the XFree86 team. I know I'm not the only
+one with this trouble, something has been broken in the 2.4.
 
-	
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Thanks--
+Dave
+dash@xdr.com

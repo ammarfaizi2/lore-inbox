@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269225AbUISMH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269229AbUISMMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269225AbUISMH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 08:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269227AbUISMH3
+	id S269229AbUISMMA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 08:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269230AbUISML7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 08:07:29 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38564 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S269225AbUISMH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 08:07:27 -0400
-Date: Sun, 19 Sep 2004 13:07:13 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Mike Kirk <mike.kirk@sympatico.ca>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2: "kernel BUG at mm/rmap.c:473!"
-In-Reply-To: <008601c49de9$cf8817c0$1b00a8c0@cruncher>
-Message-ID: <Pine.LNX.4.44.0409191220390.13142-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 19 Sep 2004 08:11:59 -0400
+Received: from colin2.muc.de ([193.149.48.15]:7172 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S269229AbUISML6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 08:11:58 -0400
+Date: 19 Sep 2004 14:11:55 +0200
+Date: Sun, 19 Sep 2004 14:11:55 +0200
+From: Andi Kleen <ak@muc.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch V8: [4/7] universally available cmpxchg on i386
+Message-ID: <20040919121155.GA58884@muc.de>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409181627300.24054@schroedinger.engr.sgi.com> <200409191430.37444.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409191430.37444.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Sep 2004, Mike Kirk wrote:
-> Not sure what this means: but the system kept running and I only lost a
-> bzip2 process: 2.6.9-rc2 w/preempt AMD 2700+ on A7N8X motherboard, 1GB
-> DDR400:
-> ==============================
-> kernel BUG at mm/rmap.c:473!
-> EIP is at page_remove_rmap+0x29/0x40
+On Sun, Sep 19, 2004 at 02:30:37PM +0300, Denis Vlasenko wrote:
+> Far too large for inline
 
-Was there a "Bad page state" message and backtrace shortly before this?
-I say "shortly" because I don't suppose bzip2 had been running for hours,
-I'd expect the underlying error to have occurred while it was running.
+It's much smaller than it looks - the switch will be optimized away by the
+compiler. For the X86_CMPXCHG case it is even a single instruction.
+For the other case it should be < 10 instructions, which is still reasonable.
 
-BUG_ON(page_mapcount(page) < 0);
-
-Previous incidents of this BUG (or its antecedents: the mapcount has
-recently changed to atomic from guarded by spinlock) have been after
-something elsewhere has freed a page it no longer owned, which has
-meanwhile got mapped into process address space.
-
-If that's the case this time around, then I hope the bad_page backtrace
-will shed light on what's freeing that shouldn't.  But if there was no
-"Bad page state" message before, then I'll have to start worrying about
-rmap mapcount consistency.
-
-(The page_remove_rmap BUG follows as a consequence of bad_page resetting
-the mapcount on such a page.  This is unsatisfactory: that code remote
-from the cause should force a BUG, whereas code nearer the cause try to
-continue without forcing a BUG.  Just removing the BUG from mm/rmap.c
-would let me off the hook, but seems irresponsible.  Adding a BUG into
-bad_page would revert an intentional relaxation.  I don't know.)
-
-Hugh
-
+-Andi

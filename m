@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263249AbTECEJb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 00:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTECEJb
+	id S263250AbTECENU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 00:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbTECENT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 00:09:31 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:9718 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263249AbTECEJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 00:09:30 -0400
-Date: Sat, 3 May 2003 09:54:31 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reducing overheads in fget/fput
-Message-ID: <20030503042431.GC1407@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030428165240.GA1105@in.ibm.com> <20030428193228.GP10374@parcelfarce.linux.theplanet.co.uk> <20030428195836.GD1105@in.ibm.com> <20030502171726.GA1414@in.ibm.com> <20030502135404.0ba2ca66.akpm@digeo.com> <20030503035300.GA1407@in.ibm.com> <20030502210003.7ab96802.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030502210003.7ab96802.akpm@digeo.com>
-User-Agent: Mutt/1.4i
+	Sat, 3 May 2003 00:13:19 -0400
+Received: from mx12.arcor-online.net ([151.189.8.88]:62876 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263250AbTECENT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 00:13:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       The Spirit of Open Source <tsoos@scoloses.org>
+Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
+Date: Sat, 3 May 2003 06:26:36 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <ZIA7D8S737743.2233333333@Gilgamesh-frog.org> <20030502064349.A9988@infradead.org>
+In-Reply-To: <20030502064349.A9988@infradead.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030503042544.4413513BD9E@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 02, 2003 at 09:00:03PM -0700, Andrew Morton wrote:
-> Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> > Not sure what your grouse is, but I don't like the fget_ligth()/fput_light
-> > semantics myself. They don't seem natural, but I can't think of
-> > better way to do this. 
-> 
-> Precisely.
+Hi Christoph,
 
-I thought of doing something like -
+On Fri 02 May 03 07:43, Christoph Hellwig wrote:
+> It might be more interesting to look for stolen Linux code in Unixware,
+> I'd suggest with the support for a very well known Linux fileystem in
+> the Linux compat addon product for UnixWare..
 
-static inline is_fds_shared(void)
-{
-	struct files_struct *files = current->files;
-	return atomic_read(&files->count) != 1;
-}
+So... we should check UnixWare to see if any of the Ext2 support is provided 
+by GPL code ripped and distributed under the UnixWare license, which is 
+presumably not compatible with the GPL?
 
+I know that's what you meant, I just thought I'd spell it out.  To date, I've 
+never had the slightest interest in UnixWare, but now I'm getting at least a 
+little interested.  UnixWare includes Ext2 support?  The UnixWare license 
+doesn't guarantee the user can have the source?
 
-sys_blah(..)
-{
+Regards,
 
-	int fds_shared = is_fds_shared();
-
-	file = fget_light(fd, fds_shared);
-	...
-	...
-	fput_light(file, fds_shared);
-}
-
-It still didn't look very natural. We leave open the possibility of
-users doing is_fds_shared() for both fget_light and fput_light.
-With fput_needed flag, atleast we force them to use what is returned
-by fget_light.
-
-Thanks
-Dipankar
+Daniel

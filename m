@@ -1,49 +1,41 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <161052-221>; Mon, 22 Mar 1999 16:25:40 -0500
-Received: by vger.rutgers.edu id <160030-221>; Mon, 22 Mar 1999 16:25:25 -0500
-Received: from gap.cco.caltech.edu ([131.215.139.43]:57433 "EHLO gap.cco.caltech.edu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157550-221>; Mon, 22 Mar 1999 16:25:09 -0500
-To: mlist-linux-kernel@nntp-server.caltech.edu
-Path: news
-From: Stuart Anderson <sba@srl.caltech.edu>
-Newsgroups: mlist.linux.kernel
-Subject: Re: Knfsd and 2.2.3ac3 kernel status and problems
-Date: Mon, 22 Mar 1999 12:56:04 -0800
-Organization: California Institute of Technology, Pasadena
-Message-ID: <36F6AE64.28799A1D@srl.caltech.edu>
-References: <linux.kernel.Pine.LNX.3.96.990322212229.26078B-100000@naomi.fe.up.pt>
-NNTP-Posting-Host: thrym.srl.caltech.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: Mozilla 4.5 [en] (X11; I; SunOS 5.6 sun4u)
-X-Accept-Language: en
+Received: by vger.rutgers.edu via listexpand id <161149-221>; Thu, 25 Mar 1999 08:41:34 -0500
+Received: by vger.rutgers.edu id <160905-221>; Thu, 25 Mar 1999 08:41:25 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:7354 "HELO Cantor.suse.de" ident: "TIMEDOUT") by vger.rutgers.edu with SMTP id <160927-220>; Thu, 25 Mar 1999 08:41:12 -0500
+Date: Thu, 25 Mar 1999 14:40:48 +0100 (MET)
+From: Michael Hasenstein <mha@suse.de>
+To: Greg Maxwell <gmaxwell@Martin.FL.US>
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: NAT and 2.2?
+In-Reply-To: <Pine.GSO.3.96.990325081514.5266A-100000@da1server>
+Message-ID: <Pine.LNX.4.10.9903251434350.25052-100000@Benjy.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Test account wrote:
+On Thu, 25 Mar 1999, Greg Maxwell wrote:
 
->    Hello! Ive tested kernel 2.2.3 with ac3 patches from Alan Cox as a nfs
-> server for SGI & IBM Aix workstations. I found some problems that you may
-> recognize or not.
->
->    a) A little offtopic. Knfsd 1.2 doesnt compile in a Redhat 5.2
-> installation with upgrades to kernel 2.2.3 and some packages, following
-> Redhats document on the subject. I resorted to getting
-> knfsd-981204-3.i386.rpm and knfsd-clients-981204-3.i386.rpm from
-> Startbuck.  I also upgraded to glibc-2.1-0.990311.i386.rpm from the same
-> Startbuck distribution. (Btw, does anyone have a binary rpm package for
-> Knfsd 1.2?)
->
+> Can the new IP ROUTE stuff in 2.2 do ONE-ONE NAT insted of the standard
 
-You may have run into the same problem I had with the configure script for
-knfsd-1.2
-having problems finding cpp. My solution was:
+check http://www.csn.tu-chemnitz.de/HyperNews/get/linux-ip-nat.html
+long term solution will probably be 2.3, see ipchain homepage, new
+netfilter code, I'm looking into contributing there right now, but since
+you need something fast... the stuff on the page above is in production
+use by some insane people; both 2.2 and 2.0 versions work (if you get the
+right one, you should now how to patch a kernel and being able to read
+the code certainly helps)
+there's NAT code in the current 2.2 series, haven't tried that, don't know
+if it works and how well it works
+disadvantage of both: no protocol specific NAT available (i.e. ftp won't
+work, if you only NAT src OR dest, one of PASV/reg. ftp will work, though,
+but not if you NAT both
+don't forget to read the 50 page document on that site ;-)
 
-ln -s /usr/lib/gcc-lib/i686-pc-linux-gnu/egcs-2.91.66/cpp /lib
 
 --
-Stuart Anderson  sba@srl.caltech.edu  http://www.srl.caltech.edu/personnel/sba
-
-
+Michael Hasenstein
+http://www.csn.tu-chemnitz.de/~mha/
+Private Pilot (ASEL) since 1998
 
 
 -

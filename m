@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263866AbTKXUA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 15:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTKXUA6
+	id S263886AbTKXUIK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 15:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTKXUIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 15:00:58 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:10887 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S263866AbTKXUA4
+	Mon, 24 Nov 2003 15:08:09 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:15848 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263886AbTKXUID
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 15:00:56 -0500
-To: Stan Bubrouski <stan@ccs.neu.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Linux 2.6.0-test10
-References: <fa.krtm6pg.1808vpg@ifi.uio.no> <fa.gdpbcul.1t2k3id@ifi.uio.no>
-From: Junio C Hamano <junkio@cox.net>
-Date: Mon, 24 Nov 2003 12:00:39 -0800
-In-Reply-To: <fa.gdpbcul.1t2k3id@ifi.uio.no> (Stan Bubrouski's message of
- "Mon, 24 Nov 2003 07:06:47 GMT")
-Message-ID: <7visl9iljs.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Nov 2003 15:08:03 -0500
+Subject: Re: [BUG]Missing i_sb NULL pointer check in destroy_inode()
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
+       Paul.McKenney@us.ibm.com
+In-Reply-To: <20031124112718.1e650478.akpm@osdl.org>
+References: <1068045518.10730.266.camel@socrates>
+	<20031105181600.GC18278@thunk.org> <1068066524.10726.289.camel@socrates>
+	<20031106033817.GB22081@thunk.org> <1068145132.10735.322.camel@socrates>
+	<20031106123922.Y10197@schatzie.adilger.int>
+	<1068148881.10730.337.camel@socrates> <1068230146.10726.359.camel@socrates>
+	<20031109130826.2b37219d.akpm@osdl.org> <1068419747.687.28.camel@socrates>
+	<20031109152936.3a9ffb69.akpm@osdl.org>
+	<1069700440.16649.19433.camel@localhost.localdomain> 
+	<20031124112718.1e650478.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Nov 2003 12:10:15 -0800
+Message-Id: <1069704617.16649.19508.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "SB" == Stan Bubrouski <stan@ccs.neu.edu> writes:
+On Mon, 2003-11-24 at 11:27, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > destroy_inode() dereferences inode->i_sb without checking if it is NULL.
+> > This is inconsistent with its caller: iput() and clear_inode(),  both of
+> > which check inode->i_sb before dereferencing it.
+> 
+> I assume this has only been observed with an out-of-tree filesystem, but
+> yes, the consistency is good.
+> 
 
-SB> The message by all indication is from Linus.  I do not see the the lines
-SB> folded with '=' as you point out, but I do see the content-type as
-SB> charset ISO-8859-1, but I don't see Linus using Latin 1 as suspicious at
-SB> all.  Finally someone more paranoid than me ;-)
+Yes,  the crash happened with an out-of-tree filesystem.  Thanks.
 
-I checked with http://marc.theaimsgroup.com/, and as you say
-there is no '=' folding.  It could be done at fa.linux.kernel
-news gateway I use to read l-k..
+-Mingming
 
 

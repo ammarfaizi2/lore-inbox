@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbUBXWRL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUBXWRL
+	id S262420AbUBXWPz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUBXWPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:17:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47286 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262484AbUBXWQy (ORCPT
+	Tue, 24 Feb 2004 17:15:55 -0500
+Received: from gprs144-166.eurotel.cz ([160.218.144.166]:61056 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262420AbUBXWPx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:16:54 -0500
-Date: Tue, 24 Feb 2004 17:17:12 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-In-Reply-To: <20040224202223.GA31232@certainkey.com>
-Message-ID: <Xine.LNX.4.44.0402241713220.26251-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 17:15:53 -0500
+Date: Tue, 24 Feb 2004 23:15:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Split kgdb into "lite" and "normal" parts
+Message-ID: <20040224221541.GA9145@elf.ucw.cz>
+References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com> <20040224213908.GD1052@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040224213908.GD1052@smtp.west.cox.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Jean-Luc Cooke wrote:
+Hi!
 
-> The two patches are:
->  - http://jlcooke.ca/lkml/ctr_and_omac.patch
->    (added ctr to cipher.c and omac.c)
->    Using the init/update/final interface.
->  - http://jlcooke.ca/lkml/ctr_and_omac2.patch
->    (added ctr to cipher.c and integrated OMAC into all
->    existing modes of operation. If cipher_tfm.cit_omac!=NULL, OMAC is stored
->    into cipher_tfm.cit_omac)
+> > Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
+> > Looks good.
+> > 
+> > Let's first check this in and then do more cleanups.
+> > Tom, does it sound ok?
+> 
+> This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
+> could you provide some pointers on how to replicate this in the future?
 
-Looks good so far, although the duplicated scatterwalk code needs to be 
-put into a separate file (e.g. scatterwalk.c).
+Unfortunately, I done it by hand :-(. But if -lite parts are not
+merged, soon, I'll be forced to start using quilt. Doing stuff by hand
+is quite painfull...
+								Pavel
 
-
-> ps. Will crypto_cipher_encrypt/crypto_cipher_decrypt *always* be called in
-> onesies?  I need to perform come final() code on the OMAC before it's
-> ready to pass test vectors - how do I know when we're done?
-
-I don't understand what you mean here.
-
-
-Thanks for all this work!
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

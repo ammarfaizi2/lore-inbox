@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317495AbSG2QIQ>; Mon, 29 Jul 2002 12:08:16 -0400
+	id <S317499AbSG2QRT>; Mon, 29 Jul 2002 12:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317497AbSG2QIQ>; Mon, 29 Jul 2002 12:08:16 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:23624 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S317495AbSG2QIQ>; Mon, 29 Jul 2002 12:08:16 -0400
-Date: Mon, 29 Jul 2002 18:11:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>, davej@suse.de,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Paul McKenney <paul.mckenney@us.ibm.com>
-Subject: Re: [PATCH] Read-Copy Update 2.5.28 [resent]
-Message-ID: <20020729161135.GT1201@dualathlon.random>
-References: <20020725222146.A12780@in.ibm.com> <20020726132107.D16440@in.ibm.com> <20020729083007.GA115@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020729083007.GA115@elf.ucw.cz>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S317500AbSG2QRT>; Mon, 29 Jul 2002 12:17:19 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:38084 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317499AbSG2QRS>;
+	Mon, 29 Jul 2002 12:17:18 -0400
+Subject: page allocation failure. order:0,  mode:0x0
+To: Andrew Morton <akpm@zip.com.au>
+Cc: akpm@zip.com.au, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF0A1A9652.12E2201D-ON85256C05.005979B0@pok.ibm.com>
+From: "David F Barrera" <dbarrera@us.ibm.com>
+Date: Mon, 29 Jul 2002 11:20:31 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.10 SPR# MIAS5B3GZN |June
+ 28, 2002) at 07/29/2002 12:20:32 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 10:30:08AM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > Currently, it seems useful for -
-> > 
-> > 1. CPU hotplug (synchronize_kernel())
-> > 2. ipv4 route cache lookup
-> > 3. dentry cache lookup [ more results and new patch on the way ]
-> > 4. Potential uses in XFS (Christoph ?)
-> 
-> Can it be used to make module unloading less painfull?
 
-yes of course, we just do this in 2.4 too. It doesn't cover all the
-possible cases though, but it gives additional guarantees that you can
-rely on and that's enough for most cases.
+Tried the lru-removal.patch on 2.5.27 but the problem still occurs.
+Many of these displayed on dmesg:  pdflush: page allocation failure.
+order:0, mode:0x0
 
-Andrea
+David Barrera
+
+
+
+                                                                                                                                       
+                      Andrew Morton                                                                                                    
+                      <akpm@zip.com.au>        To:       Andrea Arcangeli <andrea@suse.de>                                             
+                      Sent by:                 cc:       David F Barrera/Austin/IBM@IBMUS, linux-kernel@vger.kernel.org                
+                      akpm@e3.ny.us.ibm        Subject:  Re: kernel BUG at page_alloc.c:92! & page allocation failure. order:0,        
+                      .com                      mode:0x0                                                                               
+                                                                                                                                       
+                                                                                                                                       
+                      07/24/2002 03:11                                                                                                 
+                      PM                                                                                                               
+                                                                                                                                       
+                                                                                                                                       
+
+
+
+Andrea Arcangeli wrote:
+>
+> On Wed, Jul 24, 2002 at 12:35:54PM -0700, Andrew Morton wrote:
+> > And please drop the ptrace.c change and use
+> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.27/lru-removal.patch
+> > instead.
+>
+> page_cache_release() can return a #define to __free_page().
+>
+
+Man, it can do a ton more than that.  This patch is just a stopgap
+to prevent the oops.
+
+page_cache_release() goes out onto the bus for the PageReserved()
+test and then immediately goes out onto the bus again to perform the
+atomic_dec_and_test().  Plus it tends to do all this inside
+a global lock.  That PageReserved thing needs to go away.
+
+Seriously, this stuff needs a truck driven through it.  See
+http://mail.nl.linux.org/linux-mm/2002-07/msg00009.html and things
+like pagevec_release().  It still needs quite some work, but the
+optimisations which are available here are considerable.
+
+-
+
+
+
+
+

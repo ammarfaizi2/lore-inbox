@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284189AbRLASWI>; Sat, 1 Dec 2001 13:22:08 -0500
+	id <S284182AbRLASdr>; Sat, 1 Dec 2001 13:33:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284195AbRLASV7>; Sat, 1 Dec 2001 13:21:59 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:38661 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S284190AbRLASVl>;
-	Sat, 1 Dec 2001 13:21:41 -0500
-Date: Sat, 1 Dec 2001 16:21:04 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <20011201190529.A782@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.33L.0112011620370.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S284194AbRLASdh>; Sat, 1 Dec 2001 13:33:37 -0500
+Received: from [199.29.68.123] ([199.29.68.123]:11794 "EHLO MailAndNews.com")
+	by vger.kernel.org with ESMTP id <S284182AbRLASdb>;
+	Sat, 1 Dec 2001 13:33:31 -0500
+X-WM-Posted-At: MailAndNews.com; Sat, 1 Dec 01 13:33:25 -0500
+Message-ID: <010401c17a96$a994aa20$0500a8c0@myroom>
+From: "Matt Schulkind" <mschulkind@mailandnews.com>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: GeForce3 framebuffer suport
+Date: Sat, 1 Dec 2001 13:33:24 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Dec 2001, Ingo Oeser wrote:
-> On Sat, Dec 01, 2001 at 09:18:54AM -0200, Rik van Riel wrote:
-> > Biological selection does nothing except removing the weak
-> > ones, it cannot automatically create systems which work well.
-> >
-> > In short, I believe the biological selection is just that,
-> > selection. The creation of stuff will need some direction.
->
-> Creation is as simple as:
->
-> 1. If you encounter a problem, try to solve it.
-> 2. If you cannot solve it, mark/document/publish it and try to
->    work around it for now.
-> 3. If you cannot work around it, leave it to other people and
->    offer help.
->
-> Which is pretty much what this list here is for ;-)
+Has anyone attempted to add framebuffer support for the GeForce3 into the
+prexisting riva fb drivers? I tried just added the PCI ID and adjusting all
+the tables, but when I loaded the driver, the picture looked like the bit
+depths or something was off. I also coudln't find any documentation to try
+hacking it my self. Anyone know what the differences are between the 2D in
+the GeForce2 and GeForce2 are?
 
-4. If the problem cannot be solved with a quick hack by
-   one person, give up and switch to another OS.
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+-Matt Schulkind
 

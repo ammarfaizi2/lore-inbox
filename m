@@ -1,128 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUIPPWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268210AbUIPPlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268157AbUIPPWC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUIPPVX
+	id S268210AbUIPPlh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUIPPlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:21:23 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:11301 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268236AbUIPPJy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:09:54 -0400
-Message-ID: <5d6b657504091608093b171e30@mail.gmail.com>
-Date: Thu, 16 Sep 2004 17:09:51 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Stelian Pop <stelian@popies.net>, Andrew Morton <akpm@osdl.org>,
+	Thu, 16 Sep 2004 11:41:35 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:11927 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S268210AbUIPPk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 11:40:26 -0400
+Date: Thu, 16 Sep 2004 17:39:30 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Paul Jackson <pj@sgi.com>
+cc: Simon Derr <Simon.Derr@bull.net>, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-In-Reply-To: <20040916104535.GA3146@crusoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040913135253.GA3118@crusoe.alcove-fr>
-	 <20040915153013.32e797c8.akpm@osdl.org>
-	 <20040916064320.GA9886@deep-space-9.dsnet>
-	 <20040916000438.46d91e94.akpm@osdl.org>
-	 <20040916104535.GA3146@crusoe.alcove-fr>
+Subject: Re: [Patch] cpusets: fix race in cpuset_add_file()
+In-Reply-To: <20040916075501.20c3ee45.pj@sgi.com>
+Message-ID: <Pine.LNX.4.61.0409161715550.5423@openx3.frec.bull.fr>
+References: <20040916012913.8592.85271.16927@sam.engr.sgi.com>
+ <Pine.LNX.4.61.0409161548040.5423@openx3.frec.bull.fr> <20040916075501.20c3ee45.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Sep 2004 12:45:36 +0200, Stelian Pop <stelian@popies.net> wrote:
-> On Thu, Sep 16, 2004 at 12:04:38AM -0700, Andrew Morton wrote:
-> 
-> > Stelian Pop <stelian@popies.net> wrote:
-> > >
-> > > > Implementation-wise, the head and tail indices should *not* be constrained
-> > >  > to be less than the size of the buffer.  They should be allowed to wrap all
-> > >  > the way back to zero.  This allows you to distinguish between the
-> > >  > completely-empty and completely-full states while using 100% of the storage.
-> [...]
-> 
-> Here is the updated patch.
+On Thu, 16 Sep 2004, Paul Jackson wrote:
+
+> Color me confused - this cpuset_sem down/up should not be needed,
+> and should deadlock.  In the call chain:
 >
-[ .. ] 
+>    cpuset_mkdir -> cpuset_create -> cpuset_populate_dir -> cpuset_add_file
 >
-> +unsigned int __kfifo_put(struct kfifo *fifo,
-> +                        unsigned char *buffer, unsigned int len)
-> +{
-> +       unsigned int total, remaining, l;
-> +
-> +       total = remaining = min(len, fifo->size - fifo->tail + fifo->head);
-
-I could be mistaken (long day at the office ;-) but doesn't this fail after 
-wrapping?
-
-> +       while (remaining > 0) {
-> +               l = min(remaining, fifo->size - (fifo->tail % fifo->size));
-> +               memcpy(fifo->buffer + (fifo->tail % fifo->size), buffer, l);
-> +               fifo->tail += l;
-> +               buffer += l;
-> +               remaining -= l;
-> +       }
-> +
-> +       return total;
-> +}
-> +EXPORT_SYMBOL(__kfifo_put);
-> +
-> +/*
-> + * kfifo_get - gets some data from the FIFO, no locking version
-> + * @fifo: the fifo to be used.
-> + * @buffer: where the data must be copied.
-> + * @len: the size of the destination buffer.
-> + *
-> + * This function copies at most 'len' bytes from the FIFO into the
-> + * 'buffer' and returns the number of copied bytes.
-> + */
-> +unsigned int __kfifo_get(struct kfifo *fifo,
-> +                        unsigned char *buffer, unsigned int len)
-> +{
-> +       unsigned int total, remaining, l;
-> +
-> +       total = remaining = min(len, fifo->tail - fifo->head);
-
-Same here?
-
-> +       while (remaining > 0) {
-> +               l = min(remaining, fifo->size - (fifo->head % fifo->size));
-> +               memcpy(buffer, fifo->buffer + (fifo->head % fifo->size), l);
-> +               fifo->head += l;
-> +               buffer += l;
-> +               remaining -= l;
-> +       }
-> +
-> +       return total;
-> +}
-> +EXPORT_SYMBOL(__kfifo_get);
-> +
-> +/*
-> + * kfifo_len - returns the number of bytes available in the FIFO, no locking version
-> + * @fifo: the fifo to be used.
-> + */
-> +unsigned int __kfifo_len(struct kfifo *fifo)
-> +{
-> +       return fifo->tail - fifo->head;
-> +}
-> +EXPORT_SYMBOL(__kfifo_len);
-> --- linux-2.6/kernel/Makefile.orig      2004-09-16 12:27:29.012343608 +0200
-> +++ linux-2.6/kernel/Makefile   2004-09-16 11:58:26.000000000 +0200
-> @@ -7,7 +7,7 @@
->            sysctl.o capability.o ptrace.o timer.o user.o \
->            signal.o sys.o kmod.o workqueue.o pid.o \
->            rcupdate.o intermodule.o extable.o params.o posix-timers.o \
-> -           kthread.o
-> +           kthread.o kfifo.o
-> 
-> obj-$(CONFIG_FUTEX) += futex.o
-> obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
-> 
-> --
-> 
-> 
-> Stelian Pop <stelian@popies.net>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> cpuset_create() already holds the cpuset_sem for the duration, and you're
+> adding another cpuset_sem down in cpuset_add_file(), which should deadlock.
 >
+> If you are seeing the duplicate invalid cpuset entries, then must be
+> something else going on, unfortunately.
+>
+> That, or I'm confused.
+Neither.
+You've just read the patch too quickly:
+
++       down(&dir->d_inode->i_sem);
+
+NOT down(&cpuset_sem);
+
+However, your remark is welcome, since there is indeed a slight chance of 
+deadlock with my patch, but it needs 2 mkdirs racing.
+
+imagine:
+
+mkdir a/b                               mkdir a/b/c
+
+sys_mkdir():       down(a->i_sem);
+cpuset_create():   down(cpuset_sem);
+                                         sys_mkdir():     down(b->i_sem);
+cpuset_add_file(): down(b->i_sem);
+                                         cpuset_create(): down(cpuset_sem);
+
+
+-> deadlock.
+
+
+So we should release cpuset_sem a bit earlier in cpuset_create(), before 
+calling cpuset_populate_dir().
+
+
+
+
+
+This updated patch should be better (hopefully).
+
+Signed-off-by: Simon Derr <simon.derr@bull.net>
+
+Index: mm4/kernel/cpuset.c
+===================================================================
+--- mm4.orig/kernel/cpuset.c	2004-09-13 09:43:02.000000000 +0200
++++ mm4/kernel/cpuset.c	2004-09-16 17:23:48.764321923 +0200
+@@ -956,13 +956,12 @@ static int cpuset_create_dir(struct cpus
+  	return error;
+  }
+
+-/* MUST be called with dir->d_inode->i_sem held */
+-
+  static int cpuset_add_file(struct dentry *dir, const struct cftype *cft)
+  {
+  	struct dentry *dentry;
+  	int error;
+
++	down(&dir->d_inode->i_sem);
+  	dentry = cpuset_get_dentry(dir, cft->name);
+  	if (!IS_ERR(dentry)) {
+  		error = cpuset_create_file(dentry, 0644 | S_IFREG);
+@@ -971,6 +970,7 @@ static int cpuset_add_file(struct dentry
+  		dput(dentry);
+  	} else
+  		error = PTR_ERR(dentry);
++	up(&dir->d_inode->i_sem);
+  	return error;
+  }
+
+@@ -1162,7 +1162,6 @@ static struct cftype cft_notify_on_relea
+  	.private = FILE_NOTIFY_ON_RELEASE,
+  };
+
+-/* MUST be called with ->d_inode->i_sem held */
+  static int cpuset_populate_dir(struct dentry *cs_dentry)
+  {
+  	int err;
+@@ -1219,9 +1218,16 @@ static long cpuset_create(struct cpuset
+  	err = cpuset_create_dir(cs, name, mode);
+  	if (err < 0)
+  		goto err;
++
++	/* release cpuset_sem before cpuset_populate_dir()
++	 * because it will down() this new directory's i_sem
++	 * and if we race with another mkdir,
++	 * we might deadlock 
++	 */
++	up(&cpuset_sem);
++
+  	err = cpuset_populate_dir(cs->dentry);
+  	/* If err < 0, we have a half-filled directory - oh well ;) */
+-	up(&cpuset_sem);
+  	return 0;
+  err:
+  	list_del(&cs->sibling);

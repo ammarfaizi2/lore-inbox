@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263884AbTHVSlo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 14:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264136AbTHVSlo
+	id S263508AbTHVScd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 14:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTHVScc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 14:41:44 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:39686 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264015AbTHVSlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 14:41:39 -0400
-Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
-	tst-mmap-eofsync in glibc on parisc)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "David S. Miller" <davem@redhat.com>, willy@debian.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
-In-Reply-To: <Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0308221926060.2200-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 22 Aug 2003 13:41:26 -0500
-Message-Id: <1061577688.2090.285.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 22 Aug 2003 14:32:32 -0400
+Received: from acsrs1.bu.edu ([128.197.153.59]:15000 "EHLO acsrs1.bu.edu")
+	by vger.kernel.org with ESMTP id S263508AbTHVScb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 14:32:31 -0400
+Date: Fri, 22 Aug 2003 14:32:18 -0400 (EDT)
+From: Parmer <gabep1@bu.edu>
+To: Ben Greear <greearb@candelatech.com>
+cc: Patrick Sodre Carlos <klist@i-a-i.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Reinjecting IP Packets
+In-Reply-To: <3F464177.1020709@candelatech.com>
+Message-ID: <Pine.A41.4.53.0308221429420.174462@acsrs1.bu.edu>
+References: <1061563295.824.4.camel@iai68> <3F464177.1020709@candelatech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-22 at 13:34, Hugh Dickins wrote:
-> Might the problem be in parisc's __flush_dcache_page,
-> which only examines i_mmap_shared?
+On Fri, 22 Aug 2003, Ben Greear wrote:
 
-This is the issue: we do treat them differently.
+> Patrick Sodre Carlos wrote:
+> > Hi Guys,
+> >    I'm trying to figure out what is the best way to reinject IP packets
+> > into the stack. Does anyone have good/right/left ideas on this?
+>
+> Maybe netif_rx() in net/core/dev.c ?
 
-Semantics differ between privately mapped data (where there's no
-coherency guarantee) and shared data (where there is).  Flushing the
-virtual cache is expensive on pa, so we only do it for the i_mmap_shared
-list.
+If you want an example of how this is done, look in /net/ipv4/ipip.c and
+(I'm pretty sure) /net/ipv4/ip_gre.c.  I only know 2.4.*, but the files
+still exist in 2.6, and they probably do it the same way.
 
-The difficulty is that a mmap of a read only file with MAP_SHARED is
-expecting the shared cache semantics, but gets added to the non shared
-list.
+Fairly elegant way to strip some headers and send it though again.
 
-Since flushing the caches is a performance hog, we'd like do be able to
-distinguish the cases where we have to do the flush MAP_SHARED mappings
-from those we don't (MAP_PRIVATE).
-
-James
-
-
-
+Hope that helps,
+Gabe

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbUCBSWe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 13:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUCBSWe
+	id S261732AbUCBSbX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 13:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUCBSbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 13:22:34 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:10990 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261729AbUCBSWd convert rfc822-to-8bit
+	Tue, 2 Mar 2004 13:31:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25528 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261732AbUCBSbW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 13:22:33 -0500
-content-class: urn:content-classes:message
+	Tue, 2 Mar 2004 13:31:22 -0500
+Message-ID: <4044D2ED.401@pobox.com>
+Date: Tue, 02 Mar 2004 13:31:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
-Date: Tue, 2 Mar 2004 10:22:19 -0800
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDEC9@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
-Thread-Index: AcP9LGy9DCYDtwk0RnOTuLLUfxW6jQCky7RgABbgo8AAGdr8oA==
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Martin Bene" <martin.bene@icomedias.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 02 Mar 2004 18:22:19.0949 (UTC) FILETIME=[4CA00DD0:01C40083]
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] kbuild: Add a binary only .o file to a module
+References: <20040301214617.GA7777@mars.ravnborg.org> <4044A692.40106@nortelnetworks.com>
+In-Reply-To: <4044A692.40106@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> experimenting with the driver source shows that the interrupt 
-> displayed by ifconfig seems to depend on netdev->irq being 
-> set; this was removed during the netdev->irq ==> 
-> adapter->pdev->irq change. adding the following line corrects 
-> ifconfig display:
+Chris Friesen wrote:
+> Sam Ravnborg wrote:
+> 
+>> Any objections from having this in the kernel?
+>> [Please, please, this is only for 'legal' binary modules - so do not
+>> start the usual 'binary modules should be GPL discussion'].
+>>
+>> This is a small step towards better support for external modules.
+> 
+> 
+> I'll put in a vote for this.  Unfortunately we have some hardware for 
+> which the only drivers available use binary blobs.
 
-Caching pdev->irq in netdev->irq is problematic because pdev->irq can
-change after registering for MSI interrupts, for example.  netdev->irq
-is vestigial from the days of manual irq assignment.
 
-Bottom line is you'll not see the irq with ifconfig, but it'll be there
-in /proc and lspci.
+Shouldn't we discourage this practice where feasible?  :)
 
--scott
+	Jeff
+
+
+

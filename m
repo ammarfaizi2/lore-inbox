@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136563AbREAC1Q>; Mon, 30 Apr 2001 22:27:16 -0400
+	id <S133110AbREAChh>; Mon, 30 Apr 2001 22:37:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136564AbREAC1G>; Mon, 30 Apr 2001 22:27:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:56333 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S136563AbREAC06>;
-	Mon, 30 Apr 2001 22:26:58 -0400
-Date: Mon, 30 Apr 2001 23:26:48 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac1
-In-Reply-To: <E14uOO0-0000pT-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0104302323540.19012-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S135249AbREACh1>; Mon, 30 Apr 2001 22:37:27 -0400
+Received: from cc1020302-a.sumt1.nj.home.com ([24.3.184.188]:2564 "EHLO
+	shakti.sivalik.com") by vger.kernel.org with ESMTP
+	id <S133110AbREAChS>; Mon, 30 Apr 2001 22:37:18 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4: USB HC TakeOver failed!
+In-Reply-To: <871yqbf66x.fsf@shakti.sivalik.com>
+From: Narang <narang@home.com>
+Date: 30 Apr 2001 22:37:16 -0400
+In-Reply-To: <871yqbf66x.fsf@shakti.sivalik.com>
+Message-ID: <873dapiylf.fsf@shakti.sivalik.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, Alan Cox wrote:
+Does anyone has any suggestions on fixing 'USB HC TakeOver failed!'
+problem. thanks.
 
-> This release is mostly meant for further eyes to check for merge
-> errors. It boots but thats about all I'd guarantee. I plan to do just
-> the fixups for 2.4.4 bugs and then back out some of the existing
-> changes that don't help much - notably some of the VM tuning isnt
-> gaining us anything but multiple bad implementations.
+syslog
+------
 
-Later this week I'll have some time to look at the VM things
-again. I suspect a lot of the code that was merged into the
--ac kernels either only helped one specific test case by
-accident or only works if you think about it from the "right"
-point of view ;)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+PCI: Setting latency timer of device 01:04.0 to 64
+usb-ohci.c: USB OHCI at membase 0xc8914000, IRQ 8
+usb-ohci.c: usb-01:04.0, CMD Technology Inc USB0670
+>>>> usb-ohci.c: USB HC TakeOver failed!
+usb.c: USB bus -1 deregistered
+usb.c: deregistering driver usbdevfs
+usb.c: deregistering driver hub
 
-One thing I've noted with many of the VM patches for 2.4 is
-that the author goes into great detail describing a VM problem
-that occurs and then attaches a patch which "fixes" something
-only losely related to the problem described...  ;)
+lspci -vv -s 01:04
+------------------
 
-regards,
+01:04.0 USB Controller: CMD Technology Inc USB0670 (rev 06) (prog-if 10 [OHCI])
+	Subsystem: CMD Technology Inc USB0670
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 8
+	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [40] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
 
-http://www.surriel.com/		http://distro.conectiva.com/
+lspci
+--------
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+00:00.0 Host bridge: VLSI Technology Inc 82C592-FC1 (rev 01)
+00:01.0 ISA bridge: VLSI Technology Inc 82C593-FC1 (rev 01)
+00:0d.0 IDE interface: CMD Technology Inc PCI0640 (rev 02)
+00:10.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
+00:11.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+]
+00:12.0 SCSI storage controller: BusLogic BT-946C (BA80C30) [MultiMaster 10]
+01:04.0 USB Controller: CMD Technology Inc USB0670 (rev 06)
+01:05.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8020
 

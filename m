@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266645AbTBDT5p>; Tue, 4 Feb 2003 14:57:45 -0500
+	id <S267438AbTBDUC1>; Tue, 4 Feb 2003 15:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267438AbTBDT5p>; Tue, 4 Feb 2003 14:57:45 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1946 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267436AbTBDT5o>; Tue, 4 Feb 2003 14:57:44 -0500
-Date: Tue, 4 Feb 2003 15:10:06 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Fiona Sou-Yee Wong <wongfs@cs.ucdavis.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: disabling nagle
-In-Reply-To: <Pine.LNX.4.44.0302041138070.2629-100000@pc6.cs.ucdavis.edu>
-Message-ID: <Pine.LNX.3.95.1030204150721.12306A-100000@chaos.analogic.com>
+	id <S267444AbTBDUC1>; Tue, 4 Feb 2003 15:02:27 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:18441 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267443AbTBDUC0>;
+	Tue, 4 Feb 2003 15:02:26 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302042011.h14KBuG6002791@darkstar.example.net>
+Subject: Re: gcc 2.95 vs 3.21 performance
+To: davej@codemonkey.org.uk (Dave Jones)
+Date: Tue, 4 Feb 2003 20:11:56 +0000 (GMT)
+Cc: john@grabjohn.com, wookie@osdl.org, vda@port.imtp.ilyichevsk.odessa.ua,
+       root@chaos.analogic.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <20030204194459.GC6417@codemonkey.org.uk> from "Dave Jones" at Feb 04, 2003 07:44:59 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Feb 2003, Fiona Sou-Yee Wong wrote:
-
-> Hi
+>  > Maybe we should create a KGCC fork, optimise it for kernel
+>  > complilations, then try to get our changes merged back in to GCC
+>  > mainline at a later date.
 > 
-> I have kernel version 2.4.18 and I was looking for a patch to have the 
-> option to disable NAGLE's algorithm.
-> Is there a patch available for kernels 2.4 and greater and if not, what 
-> other options do I have?
-> 
-> Thanks
-> Fiona
+> What exactly do you mean by "optimise for kernel compilations" ?
 
-Just turn it off in your program:
+I don't, that was a bad way of phrasing it - I didn't mean fork GCC
+just to create one which compiles the kernel so it runs faster, as the
+expense of other code.
 
-int on = 1;
-setsockopt(s, SOL_TCP, TCP_NODELAY, &on, sizeof(on));
+What I was thinking was that if we forked GCC, we could try out all of
+these ideas that have been floating around in this thread, and if, as
+was hinted at earlier in this thread, $bigcompanies[] have not offered
+contributions because of reluctance to accept them by the GCC team, we
+would be more in a position to try them out, because we only need to
+concern ourselves with breaking the compilation of the kernel, not
+every single program that currently compiles with GCC.
 
+The way I see it, the development series would be optimised for KGCC,
+and when we start to think about stabilising that development series,
+we try to get our KGCC changes merged back in to GCC mainline.  If
+they are not accepted, either KGCC becomes the recommended kernel
+compiler, which should cause no great difficulties, (having one
+compiler for kernels, and one for userland applications), or we start
+making sure that we haven't broken compilation with GCC, (and since a
+there would probably always be people compiling with GCC anyway, even
+if there was a KGCC, we would effectively always know if we broke
+compilation with GCC), and then the recommended compiler is just not
+the optimal one, and it would be up to the various distributions to
+decide which one they are going to use.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+John.

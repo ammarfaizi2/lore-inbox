@@ -1,73 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVAMX3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVAMXiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbVAMX3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVAMX0L
+	id S261825AbVAMXiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVAMXfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:26:11 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:25819 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261774AbVAMXWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:22:54 -0500
-Subject: [PATCH] generic irq code missing export of probe_irq_mask()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 17:22:37 -0600
-Message-Id: <1105658558.5630.16.camel@mulgrave>
+	Thu, 13 Jan 2005 18:35:14 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:48667 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261778AbVAMXc2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 18:32:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=VKuxvtqsmYbhBitxidC2zn4QVJX2uq2Rz84raWvIRbwrMNPsi0+otUZEo4FoMKMEIWOPMXk03QWxxV5mJGOwn9Nygn+rcUam7PQaOlHXzJKK28TFMmTjQGm2MdqmuLi9+xlh+iGkEjONcMHlP0AJnfpSv1bpq47cGSMiMYT55cw=
+Message-ID: <8746466a05011315321ede946c@mail.gmail.com>
+Date: Thu, 13 Jan 2005 16:32:27 -0700
+From: Dave <dave.jiang@gmail.com>
+Reply-To: Dave <dave.jiang@gmail.com>
+To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
+       drew.moseley@intel.com, mporter@kernel.crashing.org
+Subject: [PATCH 5/5] Convert resource to u64 from unsigned long
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_712_16611477.1105659147742"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox just converted parisc over to doing the generic irq code
-and we ran across the symbol probe_irq_mask being undefined (and thus
-preventing yenta_socket from loading).
+------=_Part_712_16611477.1105659147742
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-It looks like the EXPORT_SYMBOL() was accidentally missed from
-kernel/irq/autoprobe.c and no-one noticed on x86 because it's still in
-i386_ksyms.c
+This is for PPC platform by Matt Porter
 
-This patch corrects the problem so that the generic irq code now works
-completely on parisc.
+Signed-off-by: Dave Jiang (dave.jiang@gmail.com)
+Signed-off-by: Matt Porter (mporter@kernel.crashing.org)
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+-- 
+-= Dave =-
 
---
+Software Engineer - Advanced Development Engineering Team 
+Storage Component Division - Intel Corp. 
+mailto://dave.jiang @ intel
+http://sourceforge.net/projects/xscaleiop/
+----
+The views expressed in this email are
+mine alone and do not necessarily 
+reflect the views of my employer
+(Intel Corp.).
 
-James
+------=_Part_712_16611477.1105659147742
+Content-Type: application/octet-stream; name="ppc_u64_clean.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ppc_u64_clean.patch"
 
-Index: linux-2.6/arch/i386/kernel/i386_ksyms.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/arch/i386/kernel/i386_ksyms.c,v
-retrieving revision 1.11
-diff -u -r1.11 i386_ksyms.c
---- linux-2.6/arch/i386/kernel/i386_ksyms.c	29 Nov 2004 19:55:27 -0000	1.11
-+++ linux-2.6/arch/i386/kernel/i386_ksyms.c	13 Jan 2005 23:16:41 -0000
-@@ -75,7 +75,6 @@
- EXPORT_SYMBOL(__ioremap);
- EXPORT_SYMBOL(ioremap_nocache);
- EXPORT_SYMBOL(iounmap);
--EXPORT_SYMBOL(probe_irq_mask);
- EXPORT_SYMBOL(kernel_thread);
- EXPORT_SYMBOL(pm_idle);
- EXPORT_SYMBOL(pm_power_off);
-Index: linux-2.6/kernel/irq/autoprobe.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/kernel/irq/autoprobe.c,v
-retrieving revision 1.2
-diff -u -r1.2 autoprobe.c
---- linux-2.6/kernel/irq/autoprobe.c	21 Oct 2004 19:00:13 -0000	1.2
-+++ linux-2.6/kernel/irq/autoprobe.c	13 Jan 2005 23:17:10 -0000
-@@ -137,6 +137,7 @@
- 
- 	return mask & val;
- }
-+EXPORT_SYMBOL(probe_irq_mask);
- 
- /**
-  *	probe_irq_off	- end an interrupt autodetect
-
-
+PT09PT0gYXJjaC9wcGMva2VybmVsL3BjaS5jIDEuNDggdnMgZWRpdGVkID09PT09Ci0tLSAxLjQ4
+L2FyY2gvcHBjL2tlcm5lbC9wY2kuYwkyMDA0LTEwLTIwIDAxOjM3OjA1IC0wNzowMAorKysgZWRp
+dGVkL2FyY2gvcHBjL2tlcm5lbC9wY2kuYwkyMDA1LTAxLTEzIDExOjEwOjQyIC0wNzowMApAQCAt
+MTE0LDcgKzExNCw3IEBACiAJCWlmICghcmVzLT5mbGFncykKIAkJCWNvbnRpbnVlOwogCQlpZiAo
+cmVzLT5lbmQgPT0gMHhmZmZmZmZmZikgewotCQkJREJHKCJQQ0k6JXMgUmVzb3VyY2UgJWQgWyUw
+OGx4LSUwOGx4XSBpcyB1bmFzc2lnbmVkXG4iLAorCQkJREJHKCJQQ0k6JXMgUmVzb3VyY2UgJWQg
+WyUwOEx4LSUwOEx4XSBpcyB1bmFzc2lnbmVkXG4iLAogCQkJICAgIHBjaV9uYW1lKGRldiksIGks
+IHJlcy0+c3RhcnQsIHJlcy0+ZW5kKTsKIAkJCXJlcy0+ZW5kIC09IHJlcy0+c3RhcnQ7CiAJCQly
+ZXMtPnN0YXJ0ID0gMDsKQEAgLTE3MywxNyArMTczLDE3IEBACiAgKiBidXQgd2Ugd2FudCB0byB0
+cnkgdG8gYXZvaWQgYWxsb2NhdGluZyBhdCAweDI5MDAtMHgyYmZmCiAgKiB3aGljaCBtaWdodCBo
+YXZlIGJlIG1pcnJvcmVkIGF0IDB4MDEwMC0weDAzZmYuLgogICovCi12b2lkIHBjaWJpb3NfYWxp
+Z25fcmVzb3VyY2Uodm9pZCAqZGF0YSwgc3RydWN0IHJlc291cmNlICpyZXMsIHVuc2lnbmVkIGxv
+bmcgc2l6ZSwKLQkJICAgICAgIHVuc2lnbmVkIGxvbmcgYWxpZ24pCit2b2lkIHBjaWJpb3NfYWxp
+Z25fcmVzb3VyY2Uodm9pZCAqZGF0YSwgc3RydWN0IHJlc291cmNlICpyZXMsIHU2NCBzaXplLAor
+CQkgICAgICAgdTY0IGFsaWduKQogewogCXN0cnVjdCBwY2lfZGV2ICpkZXYgPSBkYXRhOwogCiAJ
+aWYgKHJlcy0+ZmxhZ3MgJiBJT1JFU09VUkNFX0lPKSB7Ci0JCXVuc2lnbmVkIGxvbmcgc3RhcnQg
+PSByZXMtPnN0YXJ0OworCQl1NjQgc3RhcnQgPSByZXMtPnN0YXJ0OwogCiAJCWlmIChzaXplID4g
+MHgxMDApIHsKIAkJCXByaW50ayhLRVJOX0VSUiAiUENJOiBJL08gUmVnaW9uICVzLyVkIHRvbyBs
+YXJnZSIKLQkJCSAgICAgICAiICglbGQgYnl0ZXMpXG4iLCBwY2lfbmFtZShkZXYpLAorCQkJICAg
+ICAgICIgKCVMZCBieXRlcylcbiIsIHBjaV9uYW1lKGRldiksCiAJCQkgICAgICAgZGV2LT5yZXNv
+dXJjZSAtIHJlcywgc2l6ZSk7CiAJCX0KIApAQCAtMjU1LDcgKzI1NSw3IEBACiAJCQkJfQogCQkJ
+fQogCi0JCQlEQkcoIlBDSTogYnJpZGdlIHJzcmMgJWx4Li4lbHggKCVseCksIHBhcmVudCAlcFxu
+IiwKKwkJCURCRygiUENJOiBicmlkZ2UgcnNyYyAlTHguLiVMeCAoJWx4KSwgcGFyZW50ICVwXG4i
+LAogCQkJICAgIHJlcy0+c3RhcnQsIHJlcy0+ZW5kLCByZXMtPmZsYWdzLCBwcik7CiAJCQlpZiAo
+cHIpIHsKIAkJCQlpZiAocmVxdWVzdF9yZXNvdXJjZShwciwgcmVzKSA9PSAwKQpAQCAtMzA2LDcg
+KzMwNiw3IEBACiAJKnBwID0gTlVMTDsKIAlmb3IgKHAgPSByZXMtPmNoaWxkOyBwICE9IE5VTEw7
+IHAgPSBwLT5zaWJsaW5nKSB7CiAJCXAtPnBhcmVudCA9IHJlczsKLQkJREJHKEtFUk5fSU5GTyAi
+UENJOiByZXBhcmVudGVkICVzIFslbHguLiVseF0gdW5kZXIgJXNcbiIsCisJCURCRyhLRVJOX0lO
+Rk8gIlBDSTogcmVwYXJlbnRlZCAlcyBbJUx4Li4lTHhdIHVuZGVyICVzXG4iLAogCQkgICAgcC0+
+bmFtZSwgcC0+c3RhcnQsIHAtPmVuZCwgcmVzLT5uYW1lKTsKIAl9CiAJcmV0dXJuIDA7CkBAIC0z
+NjIsMTIgKzM2MiwxMiBAQAogCQl0cnkgPSBjb25mbGljdC0+c3RhcnQgLSAxOwogCX0KIAlpZiAo
+cmVxdWVzdF9yZXNvdXJjZShwciwgcmVzKSkgewotCQlEQkcoS0VSTl9FUlIgIlBDSTogaHVoPyBj
+b3VsZG4ndCBtb3ZlIHRvICVseC4uJWx4XG4iLAorCQlEQkcoS0VSTl9FUlIgIlBDSTogaHVoPyBj
+b3VsZG4ndCBtb3ZlIHRvICVMeC4uJUx4XG4iLAogCQkgICAgcmVzLT5zdGFydCwgcmVzLT5lbmQp
+OwogCQlyZXR1cm4gLTE7CQkvKiAiY2FuJ3QgaGFwcGVuIiAqLwogCX0KIAl1cGRhdGVfYnJpZGdl
+X2Jhc2UoYnVzLCBpKTsKLQlwcmludGsoS0VSTl9JTkZPICJQQ0k6IGJyaWRnZSAlZCByZXNvdXJj
+ZSAlZCBtb3ZlZCB0byAlbHguLiVseFxuIiwKKwlwcmludGsoS0VSTl9JTkZPICJQQ0k6IGJyaWRn
+ZSAlZCByZXNvdXJjZSAlZCBtb3ZlZCB0byAlTHguLiVMeFxuIiwKIAkgICAgICAgYnVzLT5udW1i
+ZXIsIGksIHJlcy0+c3RhcnQsIHJlcy0+ZW5kKTsKIAlyZXR1cm4gMDsKIH0KQEAgLTQ3OSwxNCAr
+NDc5LDE0IEBACiB7CiAJc3RydWN0IHJlc291cmNlICpwciwgKnIgPSAmZGV2LT5yZXNvdXJjZVtp
+ZHhdOwogCi0JREJHKCJQQ0k6JXM6IFJlc291cmNlICVkOiAlMDhseC0lMDhseCAoZj0lbHgpXG4i
+LAorCURCRygiUENJOiVzOiBSZXNvdXJjZSAlZDogJTAxNkx4LSUwMTZMeCAoZj0lbHgpXG4iLAog
+CSAgICBwY2lfbmFtZShkZXYpLCBpZHgsIHItPnN0YXJ0LCByLT5lbmQsIHItPmZsYWdzKTsKIAlw
+ciA9IHBjaV9maW5kX3BhcmVudF9yZXNvdXJjZShkZXYsIHIpOwogCWlmICghcHIgfHwgcmVxdWVz
+dF9yZXNvdXJjZShwciwgcikgPCAwKSB7CiAJCXByaW50ayhLRVJOX0VSUiAiUENJOiBDYW5ub3Qg
+YWxsb2NhdGUgcmVzb3VyY2UgcmVnaW9uICVkIgogCQkgICAgICAgIiBvZiBkZXZpY2UgJXNcbiIs
+IGlkeCwgcGNpX25hbWUoZGV2KSk7CiAJCWlmIChwcikKLQkJCURCRygiUENJOiAgcGFyZW50IGlz
+ICVwOiAlMDhseC0lMDhseCAoZj0lbHgpXG4iLAorCQkJREJHKCJQQ0k6ICBwYXJlbnQgaXMgJXA6
+ICUwMTZMeC0lMDE2THggKGY9JWx4KVxuIiwKIAkJCSAgICBwciwgcHItPnN0YXJ0LCBwci0+ZW5k
+LCBwci0+ZmxhZ3MpOwogCQkvKiBXZSdsbCBhc3NpZ24gYSBuZXcgYWRkcmVzcyBsYXRlciAqLwog
+CQlyLT5mbGFncyB8PSBJT1JFU09VUkNFX1VOU0VUOwpAQCAtMTA2MSw3ICsxMDYxLDcgQEAKIAlE
+QkcoIlJlbWFwcGluZyBCdXMgJWQsIGJyaWRnZTogJXNcbiIsIGJ1cy0+bnVtYmVyLCBicmlkZ2Ut
+PnNsb3RfbmFtZSk7CiAJcmVzLnN0YXJ0IC09ICgodW5zaWduZWQgbG9uZykgaG9zZS0+aW9fYmFz
+ZV92aXJ0IC0gaXNhX2lvX2Jhc2UpOwogCXJlcy5lbmQgLT0gKCh1bnNpZ25lZCBsb25nKSBob3Nl
+LT5pb19iYXNlX3ZpcnQgLSBpc2FfaW9fYmFzZSk7Ci0JREJHKCIgIElPIHdpbmRvdzogJTA4bHgt
+JTA4bHhcbiIsIHJlcy5zdGFydCwgcmVzLmVuZCk7CisJREJHKCIgIElPIHdpbmRvdzogJTAxNkx4
+LSUwMTZMeFxuIiwgcmVzLnN0YXJ0LCByZXMuZW5kKTsKIAogCS8qIFNldCB1cCB0aGUgdG9wIGFu
+ZCBib3R0b20gb2YgdGhlIFBDSSBJL08gc2VnbWVudCBmb3IgdGhpcyBidXMuICovCiAJcGNpX3Jl
+YWRfY29uZmlnX2R3b3JkKGJyaWRnZSwgUENJX0lPX0JBU0UsICZsKTsKQEAgLTEyMDksOCArMTIw
+OSw4IEBACiAJCQkJCWNvbnRpbnVlOwogCQkJCWlmICgoci0+ZmxhZ3MgJiBJT1JFU09VUkNFX0lP
+KSA9PSAwKQogCQkJCQljb250aW51ZTsKLQkJCQlEQkcoIlRyeWluZyB0byBhbGxvY2F0ZSBmcm9t
+ICUwOGx4LCBzaXplICUwOGx4IGZyb20gcGFyZW50IgotCQkJCSAgICAiIHJlcyAlZDogJTA4bHgg
+LT4gJTA4bHhcbiIsCisJCQkJREJHKCJUcnlpbmcgdG8gYWxsb2NhdGUgZnJvbSAlMDE2THgsIHNp
+emUgJTAxNkx4IGZyb20gcGFyZW50IgorCQkJCSAgICAiIHJlcyAlZDogJTAxNkx4IC0+ICUwMTZM
+eFxuIiwKIAkJCQkJcmVzLT5zdGFydCwgcmVzLT5lbmQsIGksIHItPnN0YXJ0LCByLT5lbmQpOwog
+CQkJCiAJCQkJaWYgKGFsbG9jYXRlX3Jlc291cmNlKHIsIHJlcywgcmVzLT5lbmQgKyAxLCByZXMt
+PnN0YXJ0LCBtYXgsCg==
+------=_Part_712_16611477.1105659147742--

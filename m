@@ -1,78 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267025AbSKSSB6>; Tue, 19 Nov 2002 13:01:58 -0500
+	id <S267020AbSKSR7q>; Tue, 19 Nov 2002 12:59:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbSKSSB6>; Tue, 19 Nov 2002 13:01:58 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:57830 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267025AbSKSSB4>;
-	Tue, 19 Nov 2002 13:01:56 -0500
-Date: Tue, 19 Nov 2002 10:08:31 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Ian G Batten <I.G.Batten@ftel.co.uk>
-Cc: David Gibson <hermes@gibson.dropbear.id.au>
-Subject: Re: Orinoco pcmcia fails in 2.5.47, OK in 2.5.43
-Message-ID: <20021119180831.GA24834@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S267025AbSKSR7q>; Tue, 19 Nov 2002 12:59:46 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:32453 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267020AbSKSR7n>; Tue, 19 Nov 2002 12:59:43 -0500
+Subject: Re: [NFS] Re: Non-blocking lock requests during the grace period
+To: mike.kupfer@sun.com
+Cc: kupfer@athyra.eng.sun.com, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, trond.myklebust@fys.uio.no
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OFB5AB2A91.F36007C8-ON87256C76.00632179@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Tue, 19 Nov 2002 10:06:11 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
+ 11/19/2002 11:07:16
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian G Batten wrote :
-> Booting 2.5.47 on a Fujitsu B110 laptop, 233 Pentium MMX, Yenta
-> interface, I get this trace below.  It worked correctly under 2.5.43.
-> 
-> Nov 18 19:03:02 lifebook cardmgr[506]: shutting down socket 0 
-> Nov 18 19:03:02 lifebook cardmgr[506]: executing: 'modprobe -r orinoco_cs'
-> Nov 18 19:03:02 lifebook cardmgr[506]: executing: 'modprobe -r orinoco'
-> Nov 18 19:03:02 lifebook cardmgr[506]: executing: 'modprobe -r hermes'
-> Nov 18 19:03:02 lifebook kernel: bad: scheduling while atomic!
-> Nov 18 19:03:02 lifebook kernel: Call Trace: [<c0114f9e>]  [<c0120e2f>]  [<c0120da0>]
-> [<c0203894>]  [<c0205b6b>]  [<c02076ec>]  [<c017a580>]  [<c016ce6c>]  [<c016cecd>]
-> [<c01714e8>]  [<c017154e>]  [<c0179f7e>]  [<c01718c1>]  [<c014177b>]  [<c0179f16>]
-> [<c014177b>]  [<c0179f16>]  [<c0142ac4>]  [<c0179f7e>]  [<c01718c1>]  [<c017f9db>]
-> [<c0171854>]  [<c0171865>]  [<c0115370>]  [<c017a983>]  [<c016e0c2>]  [<c0176763>]
-> [<c0155032>]  [<c015608e>]  [<c0154806>]  [<c014acbd>]  [<c015372c>]  [<c015372c>]
-> [<c014ada0>]  [<c014d10b>]  [<c014f3a7>]  [<c013f8f6>]  [<c0108d47>] 
-> Nov 18 19:03:06 lifebook cardmgr[506]: initializing socket 0
-> Nov 18 19:03:06 lifebook cardmgr[506]: socket 0: NETGEAR MA401 Wireless PC
-> Nov 18 19:03:06 lifebook cardmgr[506]: executing: 'modprobe hermes'
-> Nov 18 19:03:06 lifebook cardmgr[506]: + modprobe: Can't locate module hermes
-> Nov 18 19:03:06 lifebook cardmgr[506]: modprobe exited with status 255
-> Nov 18 19:03:06 lifebook cardmgr[506]: module /lib/modules/2.5.47/pcmcia/hermes.o not available 
-> Nov 18 19:03:06 lifebook cardmgr[506]: executing: 'modprobe orinoco'
-> Nov 18 19:03:06 lifebook cardmgr[506]: + modprobe: Can't locate module orinoco
-> Nov 18 19:03:06 lifebook cardmgr[506]: modprobe exited with status 255
-> Nov 18 19:03:06 lifebook cardmgr[506]: module /lib/modules/2.5.47/pcmcia/orinoco.o not available
-> Nov 18 19:03:06 lifebook cardmgr[506]: executing: 'modprobe orinoco_cs'
-> Nov 18 19:03:06 lifebook cardmgr[506]: + modprobe: Can't locate module orinoco_cs
-> Nov 18 19:03:07 lifebook cardmgr[506]: modprobe exited with status 255 
-> Nov 18 19:03:07 lifebook cardmgr[506]: module /lib/modules/2.5.47/pcmcia/orinoco_cs.o not available
-> Nov 18 19:03:08 lifebook cardmgr[506]: get dev info on socket 0 failed: Resource temporarily unavailable  -
 
-	David Gibson is the maintainer of Orinoco.
-	But, to be fair, it looks like a module issue or generic
-Pcmcia issue because the modules fails even before beeing loaded, so
-it's hard to blame the modules. I don't know who is the *real*
-maintainer of Pcmcia in 2.5.X, and for modules issues just look around
-on LKML.
-	Note that with 2.5.X, it's normal for the "insmod" of Pcmcia
-modules to fail, but "modprobe" should pick properly the modules where
-they are. Make sure the modules exist in /lib/modules/...
 
-> I'm compiling 2.5.47 to get the latest IRDA bits.
 
-	The individual patches are available on my web page, so you
-can upgrade your older kernel.
 
-> ian
+Mike,
 
-	Good luck...
+I agree with the F_GETLK part, as I pointed out to Trond earlier. However,
+I feel it is odd to block a client for about one minutre when it issues
+"non-blocking" lock requests. I have seen that Solaris code does so but
+still feels odd and it may conflict with what most programmers expect,
+though I see your point, perhaps if this was well documented in man pages
+there would not be a problem. In Linux this is not the case.
 
-	Jean
+
+Juan
+
+
+
+
+
+|---------+---------------------------->
+|         |           mike.kupfer@sun.c|
+|         |           om               |
+|         |           Sent by:         |
+|         |           kupfer@athyra.eng|
+|         |           .sun.com         |
+|         |                            |
+|         |                            |
+|         |           11/18/02 05:04 PM|
+|         |                            |
+|---------+---------------------------->
+  >-------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                         |
+  |       To:       trond.myklebust@fys.uio.no                                                                              |
+  |       cc:       Juan Gomez/Almaden/IBM@IBMUS, linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net                   |
+  |       Subject:  Re: [NFS] Re: Non-blocking lock requests during the grace period                                        |
+  |                                                                                                                         |
+  |                                                                                                                         |
+  >-------------------------------------------------------------------------------------------------------------------------|
+
+
+
+>>>>> "Trond" == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+
+>>>>> " " == Juan Gomez <juang@us.ibm.com> writes:
+
+    >> (note that F_GETLK man page does not provide EAGAIN as a
+    >> possible error code).
+
+F_GETLK indicates a conflict by changing the arg struct to show the
+conflicting lock.
+
+As for the original topic, I would hesitate before changing the client
+locking code to return EAGAIN just because the server is in its grace
+period.  The "blocking" or "non-blocking" behavior is tied to what
+happens when there is already a lock that conflicts with the requested
+one.  When the server is in the grace period, it's unknown as to
+whether there is already a lock that conflicts with the requested
+one.
+
+Mike Kupfer                                            mike.kupfer@sun.com
+Solaris File Sharing                                   Speaking for myself,
+not for Sun.
+
+
+
+
+

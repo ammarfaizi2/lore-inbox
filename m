@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261885AbTDBHH3>; Wed, 2 Apr 2003 02:07:29 -0500
+	id <S261980AbTDBHKA>; Wed, 2 Apr 2003 02:10:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261842AbTDBHH3>; Wed, 2 Apr 2003 02:07:29 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:52747 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261885AbTDBHH2>; Wed, 2 Apr 2003 02:07:28 -0500
-Date: Wed, 2 Apr 2003 08:18:47 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] second pass at fixing atm spinlock
-Message-ID: <20030402081847.A22335@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	chas williams <chas@locutus.cmf.nrl.navy.mil>,
-	linux-atm-general@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <200303272228.h2RMSSGi009141@locutus.cmf.nrl.navy.mil> <200304011628.h31GSXGi000846@locutus.cmf.nrl.navy.mil>
-Mime-Version: 1.0
+	id <S262000AbTDBHKA>; Wed, 2 Apr 2003 02:10:00 -0500
+Received: from smtpde02.sap-ag.de ([155.56.68.170]:20427 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S261980AbTDBHJ7>; Wed, 2 Apr 2003 02:09:59 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: tomlins@cam.org, CaT <cat@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Organisation: Development SAP J2EE Engine
+Date: Wed, 02 Apr 2003 09:20:50 +0200
+In-Reply-To: <Pine.LNX.4.44.0304011734370.1503-100000@localhost.localdomain> (Hugh
+ Dickins's message of "Tue, 1 Apr 2003 17:45:39 +0100 (BST)")
+Message-ID: <ovd6k5l60d.fsf@sap.com>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.4 (Native Windows TTY
+ Support (Windows), cygwin32)
+References: <Pine.LNX.4.44.0304011734370.1503-100000@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200304011628.h31GSXGi000846@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Tue, Apr 01, 2003 at 11:28:33AM -0500
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 11:28:33AM -0500, chas williams wrote:
-> >ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_5_64_atm_dev_lock.patch
-> 
-> i have made an equivalent version of these patches for 2.4.20 in hopes
-> of getting more feedback.
-> 
-> ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_4_20_atm_dev_lock.patch
-> 
-> (only the nicstar, fore200e, eni and he (included) driver support the
-> new smp 'safe' locking)
+Hi Hugh,
 
-You always include the he driver in your patches, what about cleaning it up
-and submitting it first?
+On Tue, 1 Apr 2003, Hugh Dickins wrote:
+> You surprise me, Christoph, I'd expected you to approve of CaT's.
+
+look back into your mail store. I said this pretty early. 
+
+> If tmpfs already defaulted to 50% of ram+swap, then I'd agree
+> with you.  But it has all along been in terms of RAM, so I think
+> it's better to continue in that way.  (We could add options to
+> allow +swap in too, but I'm not terribly interested.)
+
+No, I always thought the 50% RAM was a terrible hack. And IMHO it is
+one of the biggest usability gaps of tmpfs. 
+
+> If people really wanted their tmpfs pages to go out to disk, I think
+> they'd be choosing a more sophisticated filesystem to manage that:
+> swap is a vital overflow area for tmpfs, not its home.
+
+I definitely want them to go there. It is a very sophisticated
+mechinsm because by adding swap on _any_ storage I can grow my tmpfs
+instances even temporarily.
+
+If you now were able to take advantage of additional swap
+automatically administration would be a no brainer. Also distributions
+could add much saner defaults for /dev/shm or even use it for /tmp.
+
+Greetings
+		Christoph
+
 

@@ -1,320 +1,362 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264743AbSJ3QzY>; Wed, 30 Oct 2002 11:55:24 -0500
+	id <S264748AbSJ3RFw>; Wed, 30 Oct 2002 12:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264746AbSJ3QzY>; Wed, 30 Oct 2002 11:55:24 -0500
-Received: from skunk.directfb.org ([212.84.236.169]:37568 "EHLO
-	skunk.directfb.org") by vger.kernel.org with ESMTP
-	id <S264743AbSJ3QzQ>; Wed, 30 Oct 2002 11:55:16 -0500
-Date: Wed, 30 Oct 2002 18:01:35 +0100
-From: Denis Oliver Kropp <dok@directfb.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.44 - neofb-0.4 (sorry, wrong attachment)
-Message-ID: <20021030170135.GA29486@skunk.convergence.de>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
+	id <S264749AbSJ3RFw>; Wed, 30 Oct 2002 12:05:52 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:39891 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264748AbSJ3RFr>;
+	Wed, 30 Oct 2002 12:05:47 -0500
+Date: Wed, 30 Oct 2002 17:11:49 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: post-halloween 0.2
+Message-ID: <20021030171149.GA15007@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="oyUTqETQ0mS9luUI"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I updated the list of various things that wannabe testers might hit.
+If theres something I missed let me know, and I'll get it right
+next time round..
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-
-
-I'm sorry, the last mail had the wrong attachment.
+		Dave
 
 
-Changes:
 
-- Toshiba Libretto support
-- allow modes larger than LCD size if LCD is disabled
-- keep BIOS settings if internal/external display haven't been enabled explicitly
 
-  (all changes by Thomas J. Moore <dark@mama.indstate.edu>)
+                     The post-halloween document. v0.2
+                        (aka, 2.5 - what to expect)
+
+                    Dave Jones <davej@codemonkey.org.uk>
+
+This document explains some of the new functionality to be found in the 2.5
+Linux kernel, some pitfalls you may encounter, and also points out some new
+features which could really use testing.
+Note, that "contact foo@bar.com" below also implies that you should also
+cc: linux-kernel@vger.kernel.org.
+
+Latest version of this document can always be found at
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+
+
+Regressions:
+~~~~~~~~~~~~
+(Things not expected to work just yet)
+- The hptraid/promise RAID drivers are currently non functional.
+- Various SCSI drivers still need work, and don't even compile.
+- software suspend is still in development, and in need of more work.
+  It is unlikely to work as expected currently.
+- Some filesystems still need work (Coda, Intermezzo).
+
+Deprecated features:
+~~~~~~~~~~~~~~~~~~~~
+- khttpd is gone.
+- Older Direct Rendering Manager (DRM) support (For XFree86 4.0)
+  has been removed. Upgrade to XFree86 4.1.0 or higher.
+
+
+IO subsystem.
+~~~~~~~~~~~~~
+You should notice considerable throughput improvements over 2.4 due
+to much reworking of the block and the memory management layers.
+Report any regressions in this area to Jens Axboe <axboe@suse.de>
+and Andrew Morton <akpm@digeo.com>.
+
+Assorted changes throughout the block layer meant various block
+device drivers had a large scale cleanup whilst being updated to
+newer APIs.
+
+
+Kernel preemption.
+~~~~~~~~~~~~~~~~~~
+The much talked about preemption patches made it into 2.5.
+With this included you should notice much lower latencies especially
+in demanding multimedia applications. 
+Note, there are still cases where preemption must be temporarily disabled
+where we do not.  If you get "xxx exited with preempt count=n" messages
+in syslog, don't panic, these are non fatal, but are somewhat unclean.
+Report such cases (and any other preemption related problems) to
+rml@tech9.net
+
+
+O(1) Scheduling improvements.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Another much talked about feature. Ingo Molnar reworked the process
+scheduler to use an O(1) algorithm.  In operation, you should notice
+no changes with low loads, and increased scalability with large numbers
+of processes, especially on large SMP systems. Regressions to mingo@redhat.com
+
+
+Input layer
+~~~~~~~~~~~
+Possibly the most visible change to the end user. If misconfigured,
+you'll find that your keyboard/mouse/other input device will no longer work.
+2.5 offers a much more flexable interface to devices such as keyboards.
+The downside is more confusing options.
+In the "Input device support" menu, be sure to enable at least the following.
+
+                    --- Input I/O drivers
+                    < > Serial i/o support
+                    < >   i8042 PC Keyboard controller
+                    [ ] Keyboards
+                    [ ] Mice
+
+(Also choose the relevant keyboard/mouse from the list)
+
+If you find your keyboard/mouse still don't work, edit the file
+drivers/input/serio/i8042.c, and replace the #undef DEBUG
+with a #define DEBUG
+
+When you boot, you should now see a lot more debugging information.
+Forward this information to Vojtech Pavlik <vojtech@suse.cz>
+
+If you use a KVM switcher, and experience problems, booting
+with the boot time argument 'psmouse_noext' should fix your
+problems.
+
+
+PnP layer
+~~~~~~~~~
+Support for plug and play devices such as early ISAPNP cards has
+improved a lot in the 2.5 kernel. You should no longer need to
+futz with userspace tools to configure IRQ's and the likes.
+Report any regressions in plug & play functionality to
+Adam Belay <ambx1@neo.rr.com>
+
+
+ALSA
+~~~~
+The advanced linux sound architecture got merged into 2.5.
+This offers considerably improved functionality over the
+older OSS drivers, but requires new userspace tools.
+Several distros have shipped ALSA for some time, so you
+may already have the necessary tools. If not, you can find them
+at http://www.alsa-project.org/
+(Note that the OSS drivers are also still functional, and
+ still present)
+
+
+procps
+~~~~~~
+The 2.5 /proc filesystems exports more statistics, which confuse
+older versions of procps. Rik van Riel and Robert Love have
+been maintaining a forked version of procps during the 2.5 cycle,
+which you can find at http://tech9.net/rml/procps/
+
+
+
+Framebuffer layer
+~~~~~~~~~~~~~~~~~
+James Simmons has reworked the framebuffer/console layer
+considerably during 2.5. Support for some cards is still
+lagging a little, but it should be functionally no different
+than previous incarnations.
+
+
+IDE
+~~~
+The IDE code was subject to much criticism in early 2.5.x, which
+put off a lot of people from testing. This work was then subsequently
+dropped, and reverted back to a 2.4.18 IDE status.
+(Since then additional work has occured, but not to the extent
+ of the first cleanup attempts).
+Additional work on the ATA code is happening in 2.4-ac, and pending
+merging to 2.5
+
+
+IDE TCQ
+~~~~~~~
+Tagged command queueing for IDE devices has been included.
+Not all devices may like this, so handle with care.
+If you didn't choose the "TCQ on by default" option,
+you can enable it by using the command
+
+echo "using_tcq:32" > /proc/ide/hdX/settings
+(replacing 32 with 0 disables TCQ again).
+Report success/failure stories to Jens Axboe <axboe@suse.de> with
+inclusion of hdparm -i /dev/hdX
+
+
+v4l2
+~~~~
+The video4linux API finally got its long awaited cleanup.
+xawtv, bttv and most other existing v4l tools are also compatable
+with the new v4l2 layer. You should notice no loss in functionality.
+http://bytesex.org/v4l/
+
+
+Quota reworking
+~~~~~~~~~~~~~~~
+The new quota system needs new tools.
+ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/utils/alpha/quota-3.05-pre1.tar.gz
+
+
+CD Recording
+~~~~~~~~~~~~
+Jens Axboe added the ability to use DMA for writing CDs on
+ATAPI devices. Writing CDs should be much faster than it
+was in 2.4, and also less prone to buffer underruns and the like.
+Updated cdrecord in rpm and tar.gz can be found at
+*.kernel.org/pub/linux/kernel/people/axboe/tools/
+
+With the above tools, you also no longer need ide-scsi
+in order to use an IDE CD writer.
+
+Ripping audio tracks off of CDs now also uses DMA and should
+be notably faster. You can also find an updated cdda2wav
+at the same location.
+
+Send good/bad reports of audio extraction with cdda2wav
+and burning with cdrecord to Jens Axboe <axboe@suse.de>
+
+More info at http://lwn.net/Articles/13538/ & http://lwn.net/Articles/13160/
+
+
+Filesystems:
+~~~~~~~~~~~~
+A number of additional filesystems have made their way into 2.5.
+Whilst these have had testing out of tree, the level of testing
+after merging is unparalleled. Be wary of trusting data to immature
+filesystems.  A number of new features and improvements have also
+been made to the existing filesystems from 2.4.
+
+Reports of stress testing with the various tools available would
+be beneficial.
+
+NFS
+~~~
+Support has been added for NFSv4 (server and client), and additionally,
+NFS over TCP. Reports of interoperability with other OS's would be useful.
+
+driverfs
+~~~~~~~~
+In simple terms, the driverfs filesystem is a saner way for
+drivers to export their innards than /proc.
+This filesystem is always compiled in, and can be mounted
+just like another virtual filesystem. No userspace tools
+beyond cat and echo are needed.
+
+	mount -t driverfs none /sys
+
+*NB*, at some point the name of this filesystem will be changing to sysfs.
+See Documentation/filesystems/sysfs.txt for more info.
+
+XFS
+~~~
+The SGI XFS filesystem has been merged, and has a number of userspace
+features. Users are encouraged to read http://oss.sgi.com/project
+for more information.
+The various utilties for creating and manipulating XFS volumes can
+be found on SGI's ftp server..
+ftp://oss.sgi.com/projects/xfs/download/download/cmd_tars/xfsprogs-2.2.2.src.tar.gz
+
+CIFS
+~~~~
+Support utilities and documentation for the common internet file system (CIFS)
+can be found at http://us1.samba.org/samba/Linux_CIFS_client.html
+
+EXT3 Htree support.
+~~~~~~~~~~~~~~~~~~~
+The ext3 filesystem has gained indexed directory support, which offers
+considerable performance gains when used on filesystems with large directories.
+In order to use the htree feature, you need at least version 1.29 of e2fsprogs.
+Existing filesystems can be converted using the command "tune2fs -O dir_index /dev/hdXXX"
+The latest e2fsprogs can be found at http://prdownloads.sourceforge.net/e2fsprogs
+
+
+Oprofile.
+~~~~~~~~~
+A system wide performance profiler has been included in 2.5.
+The userspace utilities for this are very young, and still being developed.
+You can find out more at http://oprofile.sourceforge.net/oprofile-2.5.html
+
+
+Simple boot flag support.
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The SBF specification is an x86 BIOS extension that allows improved
+system boot speeds. It does this by marking a CMOS field to say
+"I booted okay, skip extensive POST next reboot".
+Userspace tool is at http://www.codemonkey.org.uk/cruft/sbf-0.3.c
+More info on SBF is at http://www.microsoft.com/hwdev/resources/specs/simp_bios.asp
+
+
+x86 CPU detection.
+~~~~~~~~~~~~~~~~~~
+The CPU detection code got a pretty hefty shake up. To be certain your
+CPU has all relevant workarounds applied, be sure to check that it was
+detected correctly. cat /proc/cpuinfo will tell what the kernel thinks it is.
+Likewise, the x86 MTRR driver got a considerable makeover.
+Any regressions in both should go to mochel@osdl.org
+
+
+Extra tainting.
+~~~~~~~~~~~~~~~
+Running certain AMD processors in SMP boxes is out of spec, and will taint
+the kernel with the 'S' flag.  Running 2 Athlon XPs for example may seem to
+work fine, but may also introduce difficult to pin down bugs.
+In time it's likely this tainting will be extended to cover other out of
+spec cases.
+
+
+Power management.
+~~~~~~~~~~~~~~~~~
+2.5 contains a more up to date snapshot of the ACPI driver. Should
+you experience any problems booting, try booting with the argument
+"acpi=off" to rule out any ACPI interaction. ACPI has a much more involved
+role in bringing the system up in 2.5 than it did in 2.4
+The old "acpismp=force" boot option is now obsolete, and will be ignored
+due to the old "mini ACPI" parser being removed.
+
+
+CPU frequency scaling.
+~~~~~~~~~~~~~~~~~~~~~~
+Certain processors have the facility to scale their voltage/clockspeed.
+2.5 introduces an interface to this feature, see Documentation/cpufreq
+for more information. This functionality also covers features like
+Intel's speedstep, and will be extended in time to cover the Powernow
+feature present in mobile Athlons.
+
+
+Background polling of MCE
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The machine check handler has been extended so that it regularly polls
+for any problems on AMD Athlon systems.  This may result in machine check
+exceptions occuring more frequently than they did in 2.4 on out of spec
+systems (Overclocking/poor cooling/underated PSU etc..).
+
+
+LVM2 - DeviceMapper.
+~~~~~~~~~~~~~~~~~~~~
+The LVM code got a massive overhaul (read as: replacement).
+This means new tools are needed to manage the device mapper.
+You can get these from ftp://ftp.sistina.com/pub/LVM2/tools/
+
+
+Debugging options.
+~~~~~~~~~~~~~~~~~~
+During the stabilising period, it's likely that the debugging options
+in the kernel hacking menu will trigger quite a few problems.
+Please report any of these problems to linux-kernel@vger.kernel.org
+rather than just disabling the relevant CONFIG_ options.
+
+TODO
+~~~~
+- Reiser4 ?
+  http://www.namesys.com/snapshots/2002.10.29/reiser4progs-0.1.0.tar.gz
+- ipsec ?
+- ebtables
+- compilers
+  When compiled with a modern gcc (Ie gcc 3.x), 2.5 will use additional
+  optimisations that 2.4 didn't. This may shake out compiler bugs that
+  2.4 didn't expose. The recommended compiler is still 2.95.3.
+- boot time root= parsing changed.
+ ramdisks now have ram<n> isntead of rd<n> and cm206 - cm206cd (instead of cm206).
 
 
 -- 
-  Denis Oliver Kropp
-
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-                            Convergence GmbH
-
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="linux-2.5.44-neofb-0.4.patch"
-
-diff -Naur linux-2.5.44/drivers/char/toshiba.c linux-2.5.44-neofb-0.4/drivers/char/toshiba.c
---- linux-2.5.44/drivers/char/toshiba.c	2002-10-19 06:02:31.000000000 +0200
-+++ linux-2.5.44-neofb-0.4/drivers/char/toshiba.c	2002-10-30 17:03:24.000000000 +0100
-@@ -210,7 +210,7 @@
- /*
-  * Put the laptop into System Management Mode
-  */
--static int tosh_smm(SMMRegisters *regs)
-+int tosh_smm(SMMRegisters *regs)
- {
- 	int eax;
- 
-diff -Naur linux-2.5.44/drivers/video/neofb.c linux-2.5.44-neofb-0.4/drivers/video/neofb.c
---- linux-2.5.44/drivers/video/neofb.c	2002-10-19 06:02:00.000000000 +0200
-+++ linux-2.5.44-neofb-0.4/drivers/video/neofb.c	2002-10-30 18:00:00.000000000 +0100
-@@ -1,7 +1,7 @@
- /*
-  * linux/drivers/video/neofb.c -- NeoMagic Framebuffer Driver
-  *
-- * Copyright (c) 2001  Denis Oliver Kropp <dok@convergence.de>
-+ * Copyright (c) 2001-2002  Denis Oliver Kropp <dok@directfb.org>
-  *
-  *
-  * Card specific code is based on XFree86's neomagic driver.
-@@ -11,6 +11,13 @@
-  * Public License.  See the file COPYING in the main directory of this
-  * archive for more details.
-  *
-+ *
-+ * 0.4
-+ *  - Toshiba Libretto support, allow modes larger than LCD size if
-+ *    LCD is disabled, keep BIOS settings if internal/external display
-+ *    haven't been enabled explicitly
-+ *                          (Thomas J. Moore <dark@mama.indstate.edu>)
-+ *
-  * 0.3.3
-  *  - Porting over to new fbdev api. (jsimmons)
-  *  
-@@ -56,6 +63,10 @@
- #include <linux/fb.h>
- #include <linux/pci.h>
- #include <linux/init.h>
-+#ifdef CONFIG_TOSHIBA
-+#include <linux/toshiba.h>
-+extern int tosh_smm(SMMRegisters *regs);
-+#endif
- 
- #include <asm/io.h>
- #include <asm/irq.h>
-@@ -70,7 +81,7 @@
- #include <video/fbcon.h>
- #include <video/neomagic.h>
- 
--#define NEOFB_VERSION "0.3.3"
-+#define NEOFB_VERSION "0.4"
- 
- struct neofb_par default_par;
- 
-@@ -79,6 +90,7 @@
- static int disabled = 0;
- static int internal = 0;
- static int external = 0;
-+static int libretto = 0;
- static int nostretch = 0;
- static int nopciburst = 0;
- 
-@@ -94,6 +106,8 @@
- MODULE_PARM_DESC(internal, "Enable output on internal LCD Display.");
- MODULE_PARM(external, "i");
- MODULE_PARM_DESC(external, "Enable output on external CRT.");
-+MODULE_PARM(libretto, "i");
-+MODULE_PARM_DESC(libretto, "Force Libretto 100/110 800x480 LCD.");
- MODULE_PARM(nostretch, "i");
- MODULE_PARM_DESC(nostretch,
- 		 "Disable stretching of modes smaller than LCD.");
-@@ -551,8 +565,9 @@
- 	timings.sync = var->sync;
- 
- 	/* Is the mode larger than the LCD panel? */
--	if ((var->xres > par->NeoPanelWidth) ||
--	    (var->yres > par->NeoPanelHeight)) {
-+	if (par->internal_display &&
-+            ((var->xres > par->NeoPanelWidth) ||
-+	     (var->yres > par->NeoPanelHeight))) {
- 		printk(KERN_INFO
- 		       "Mode (%dx%d) larger than the LCD panel (%dx%d)\n",
- 		       var->xres, var->yres, par->NeoPanelWidth,
-@@ -561,23 +576,27 @@
- 	}
- 
- 	/* Is the mode one of the acceptable sizes? */
--	switch (var->xres) {
--	case 1280:
--		if (var->yres == 1024)
--			mode_ok = 1;
--		break;
--	case 1024:
--		if (var->yres == 768)
--			mode_ok = 1;
--		break;
--	case 800:
--		if (var->yres == 600)
--			mode_ok = 1;
--		break;
--	case 640:
--		if (var->yres == 480)
--			mode_ok = 1;
--		break;
-+	if (!par->internal_display)
-+		mode_ok = 1;
-+	else {
-+		switch (var->xres) {
-+		case 1280:
-+			if (var->yres == 1024)
-+				mode_ok = 1;
-+			break;
-+		case 1024:
-+			if (var->yres == 768)
-+				mode_ok = 1;
-+			break;
-+		case 800:
-+			if (var->yres == (par->libretto ? 480 : 600))
-+				mode_ok = 1;
-+			break;
-+		case 640:
-+			if (var->yres == 480)
-+				mode_ok = 1;
-+			break;
-+		}
- 	}
- 
- 	if (!mode_ok) {
-@@ -1261,6 +1280,17 @@
- 
- 	switch (blank) {
- 	case 4:		/* powerdown - both sync lines down */
-+#ifdef CONFIG_TOSHIBA
-+		/* attempt to turn off backlight on toshiba; also turns off external */
-+		{
-+			SMMRegisters regs;
-+
-+			regs.eax = 0xff00; /* HCI_SET */
-+			regs.ebx = 0x0002; /* HCI_BACKLIGHT */
-+			regs.ecx = 0x0000; /* HCI_DISABLE */
-+			tosh_smm(&regs);
-+		}
-+#endif
- 		break;
- 	case 3:		/* hsync off */
- 		break;
-@@ -1269,6 +1299,17 @@
- 	case 1:		/* just software blanking of screen */
- 		break;
- 	default:		/* case 0, or anything else: unblank */
-+#ifdef CONFIG_TOSHIBA
-+		/* attempt to re-enable backlight/external on toshiba */
-+		{
-+			SMMRegisters regs;
-+
-+			regs.eax = 0xff00; /* HCI_SET */
-+			regs.ebx = 0x0002; /* HCI_BACKLIGHT */
-+			regs.ecx = 0x0001; /* HCI_ENABLE */
-+			tosh_smm(&regs);
-+		}
-+#endif
- 		break;
- 	}
- 	return 0;
-@@ -1437,6 +1478,24 @@
- 	vmode:		FB_VMODE_NONINTERLACED
- };
- 
-+static struct fb_var_screeninfo __devinitdata neofb_var800x480x8 = {
-+	accel_flags:    FB_ACCELF_TEXT,
-+	xres:           800,
-+	yres:           480,
-+	xres_virtual:   800,
-+	yres_virtual:   30000,
-+	bits_per_pixel: 8,
-+	pixclock:       25000,
-+	left_margin:    88,
-+	right_margin:   40,
-+	upper_margin:   23,
-+	lower_margin:   1,
-+	hsync_len:      128,
-+	vsync_len:      4,
-+	sync:           FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
-+	vmode:          FB_VMODE_NONINTERLACED
-+};
-+
- static struct fb_var_screeninfo __devinitdata neofb_var1024x768x8 = {
- 	accel_flags:	FB_ACCELF_TEXT,
- 	xres:		1024,
-@@ -1609,6 +1668,13 @@
- 	VGAwGR(0x09, 0x26);
- 	type = VGArGR(0x21);
- 	display = VGArGR(0x20);
-+	if (!par->internal_display && !par->external_display) {
-+		par->internal_display = display & 2 || !(display & 3) ? 1 : 0;
-+		par->external_display = display & 1;
-+		printk (KERN_INFO "Autodetected %s display\n",
-+			par->internal_display && par->external_display ? "simultaneous" :
-+			par->internal_display ? "internal" : "external");
-+	}
- 
- 	/* Determine panel width -- used in NeoValidMode. */
- 	w = VGArGR(0x20);
-@@ -1621,8 +1687,8 @@
- 		break;
- 	case 0x01:
- 		par->NeoPanelWidth = 800;
--		par->NeoPanelHeight = 600;
--		neofb_var = &neofb_var800x600x8;
-+		par->NeoPanelHeight = par->libretto ? 480 : 600;
-+		neofb_var = par->libretto ? &neofb_var800x480x8 : &neofb_var800x600x8;
- 		break;
- 	case 0x02:
- 		par->NeoPanelWidth = 1024;
-@@ -1638,7 +1704,7 @@
- 		break;
- #else
- 		printk(KERN_ERR
--		       "neofb: Only 640x480, 800x600 and 1024x768 panels are currently supported\n");
-+		       "neofb: Only 640x480, 800x600/480 and 1024x768 panels are currently supported\n");
- 		return -1;
- #endif
- 	default:
-@@ -1766,14 +1832,10 @@
- 
- 	par->pci_burst = !nopciburst;
- 	par->lcd_stretch = !nostretch;
-+	par->libretto = libretto;
- 
--	if (!internal && !external) {
--		par->internal_display = 1;
--		par->external_display = 0;
--	} else {
--		par->internal_display = internal;
--		par->external_display = external;
--	}
-+	par->internal_display = internal;
-+	par->external_display = external;
- 
- 	switch (info->fix.accel) {
- 	case FB_ACCEL_NEOMAGIC_NM2070:
-@@ -2036,6 +2098,8 @@
- 			nostretch = 1;
- 		if (!strncmp(this_opt, "nopciburst", 10))
- 			nopciburst = 1;
-+		if (!strncmp(this_opt, "libretto", 8))
-+			libretto = 1;
- 	}
- 
- 	return 0;
-diff -Naur linux-2.5.44/include/video/neomagic.h linux-2.5.44-neofb-0.4/include/video/neomagic.h
---- linux-2.5.44/include/video/neomagic.h	2002-10-19 06:01:48.000000000 +0200
-+++ linux-2.5.44-neofb-0.4/include/video/neomagic.h	2002-10-30 17:50:44.000000000 +0100
-@@ -176,6 +176,7 @@
-   int lcd_stretch;
-   int internal_display;
-   int external_display;
-+  int libretto;
- };
- 
- typedef struct {
-
---oyUTqETQ0mS9luUI--
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVCAKVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVCAKbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbVCAKVm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 05:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCAKVm
+	id S261853AbVCAKbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 05:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVCAKbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 05:21:42 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43401 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261850AbVCAKVj (ORCPT
+	Tue, 1 Mar 2005 05:31:05 -0500
+Received: from gprs215-195.eurotel.cz ([160.218.215.195]:62160 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261853AbVCAKa4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 05:21:39 -0500
-Date: Tue, 1 Mar 2005 02:21:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
-Message-Id: <20050301022116.2bbd55a0.akpm@osdl.org>
-In-Reply-To: <20050301020722.6faffb69.akpm@osdl.org>
-References: <20050228231721.GA1326@elf.ucw.cz>
-	<20050301020722.6faffb69.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 1 Mar 2005 05:30:56 -0500
+Date: Tue, 1 Mar 2005 11:30:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: martin f krafft <madduck@madduck.net>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp logic error?
+Message-ID: <20050301103043.GB1345@elf.ucw.cz>
+References: <20050208203950.GA21623@cirrus.madduck.net> <20050227174309.GA27265@piper.madduck.net> <20050228135604.GA6364@piper.madduck.net> <200502281533.01621.rjw@sisk.pl> <20050228144506.GA11125@piper.madduck.net> <20050301082254.GA4402@piper.madduck.net> <1109667621.4229.40.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109667621.4229.40.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Resume on SMP locks up.
+> > > > > Could you, please, verify that you don't need to load any
+> > > > > modules from initrd for your swap partition to work?  It won't
+> > > > > work if you do.
+> > > > 
+> > > > this makes perfect sense to me when you talk about resuming.
+> > > > does it also apply to suspending?
+> > > 
+> > > As kernel is the same for suspend and resume... Yes, it seems it
+> > > makes sense.
+> > 
+> > But before the suspend, the IDE modules are loaded, so the swap
+> > drive is accessible, no? Or are IDE modules (yes, they are modules
+> > here) unloaded just before writing to swap?
+> 
+> I think Pavel got a bit confused somewhere here! The IDE modules will
+> always be loaded when you're doing the suspend, right to the very end.
+> At resume time, they need to be loaded the swsusp attempts to parse the
+> resume= parameter, so that it can actually succeed in doing that.
+> Suspend2 works with IDE made as modules because it allows you to delay
+> that parsing until after the modules are loaded (you put echo >
+> /proc/software_suspend/do_resume in your initrd after modules are loaded
+> but before you mount filesystems). Last time I looked, swsusp didn't
+> have that capability and thus required IDE to be built in. Pavel, has
+> that changed?
 
+No, it has not changed for mainline.
 
-Relocating pagedir | 
-Reading image data (8157 pages): 100% 8157 done.
-Stopping tasks: ====|                           
-Freeing memory... done (0 pages freed)
-Freezing CPUs (at 1)...Sleeping in:   
- [<c0103c1d>] dump_stack+0x19/0x20 
- [<c0133c7f>] smp_pause+0x1f/0x54 
- [<c010ee27>] smp_call_function_interrupt+0x3b/0x60
- [<c01037d4>] call_function_interrupt+0x1c/0x24    
- [<c0101111>] cpu_idle+0x55/0x64               
- [<c05929ed>] start_secondary+0x71/0x78
- [<00000000>] 0x0                      
- [<cffa5fbc>] 0xcffa5fbc
-ok                      
-double fault, gdt at c1203260 [255 bytes]
-NMI Watchdog detected LOCKUP on CPU1, eip c0133c96, registers:
-Modules linked in: video thermal processor pcc_acpi fan button battery ac
-CPU:    1                                                                
-EIP:    0060:[<c0133c96>]    Not tainted VLI
-EFLAGS: 00000002   (2.6.11-rc5)             
-EIP is at smp_pause+0x36/0x54   
-eax: 00000001   ebx: cffa5f20   ecx: fffbe4e6   edx: cffa5f20
-esi: cffa4000   edi: 00000080   ebp: cffa5f58   esp: cffa5f1c
-ds: 007b   es: 007b   ss: 0068                               
-Process swapper (pid: 0, threadinfo=cffa4000 task=c18ac540)
-Stack: 00000000 0000007b 00680000 80050033 00000000 005d3000 000006f0 00ff0001 
-       c120b260 07ff5f4c c0577000 00000088 cffa0080 c011eed4 cffa5f68 cffa5f68 
-       c010ee27 00000000 00000001 cffa5fa4 c01037d4 00000001 c120b260 fffbe4e5 
-Call Trace:                                                                    
- [<c0103bf7>] show_stack+0x7b/0x88
- [<c0103d36>] show_registers+0x112/0x188
- [<c01046f1>] die_nmi+0x41/0x74         
- [<c010fcb4>] nmi_watchdog_tick+0x54/0xcc
- [<c0104797>] default_do_nmi+0x73/0xfc   
- [<c0104865>] do_nmi+0x39/0x4c        
- [<c010395c>] nmi_stack_correct+0x1d/0x2a
- [<c010ee27>] smp_call_function_interrupt+0x3b/0x60
- [<c01037d4>] call_function_interrupt+0x1c/0x24    
- [<c0101111>] cpu_idle+0x55/0x64               
- [<c05929ed>] start_secondary+0x71/0x78
- [<00000000>] 0x0                      
- [<cffa5fbc>] 0xcffa5fbc
-Code: e8 60 e0 24 00 68 0c 7a 40 c0 e8 c2 68 fe ff e8 85 ff fc ff 83 c4 08 f0 ff 05 4c 20 5e c0 a1 50 20 5e c0 89 da 85 c0 74 0b f3 
-console shuts up ...                                                                                                               
-                    
+SuSE has patch to allow resume from modular IDE.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

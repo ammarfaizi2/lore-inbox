@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289239AbSANOCx>; Mon, 14 Jan 2002 09:02:53 -0500
+	id <S289251AbSANOIm>; Mon, 14 Jan 2002 09:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289242AbSANOCn>; Mon, 14 Jan 2002 09:02:43 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:56210 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289239AbSANOC1>; Mon, 14 Jan 2002 09:02:27 -0500
-Date: Mon, 14 Jan 2002 16:00:37 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Eric S Raymond <esr@thyrsus.com>
-Subject: Re: ISA hardware discovery -- the elegant solution
-In-Reply-To: <E16Q3fX-0001Bt-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201141550370.9308-100000@netfinity.realnet.co.sz>
+	id <S289246AbSANOIe>; Mon, 14 Jan 2002 09:08:34 -0500
+Received: from web14902.mail.yahoo.com ([216.136.225.54]:58763 "HELO
+	web14902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289244AbSANOIO>; Mon, 14 Jan 2002 09:08:14 -0500
+Message-ID: <20020114140754.36133.qmail@web14902.mail.yahoo.com>
+Date: Mon, 14 Jan 2002 09:07:53 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: Recompile the loop device
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Alan Cox wrote:
-> Red Hat for one basically avoids ISA probing in favour of user guidance. We
-> also use a standard kernel build and the more I think about this the more
-> I think Erik's tool is trying to be too clever and should simply build
-> a complete kernel set for the right cpu with the root fs and root fs block
-> device built into it
+Hello, has anyone recompiled the loop device? I had a
+problem when trying to load the recompiled loop.o into
+the kernel. When I use the insmod to load the loop.o,
+the system always return "loop.o: unresolved external
+__put_user_bad". What is wrong? I found that the
+__put_user_bad() was defined in the <asm/uaccess.h> as
+"extern void __put_user_bad(void);". But I couldn't
+found the source code of this function. I don't know
+why. Can I define my own __put_user_bad() function in
+my recompiled loop.c? 
+ 
+Another question. My recompiled loop.o is about 25K.
+But I found that the loop.o in the
+"linux/drivers/block" directory is only 15K. What is
+the reason of this difference? I use the following
+command line to compile the loop.c file.
+ 
+gcc -D__KERNEL__ -I/home/mzhu/linux/include -Wall
+-DMODULE -DMODVERSIONS -include
+/home/mzhu/linux/include/linux/modversions.h -c loop.c
+ 
+Am I right? I can compile the loop.c and create the
+loop.o successfully. But I couldn't load it. 
+ 
+Thanks
+ 
+Best regards,
+ 
+Michael
 
-I'm definately not a fan of automagic kernel configurations, there are way
-too many variables. Frankly the way i see it distro kernels do a damn good
-job as it is right now and i don't see anything wrong with going the RH
-errata kernel style for upgrading kernels (ditto for Debian and their apt
-kernel upgrades). All Aunt Tillie has to do is click on the update button.
-
-Are ISA device questions really that much of a big problem? The way i see
-it, the user would get flooded more with the plethora of PCI and USB
-devices more than anything. Then again i might be missing the "Big
-Picture" ;)
-
-Regards,
-	Zwane Mwaikambo
-
+______________________________________________________________________ 
+Web-hosting solutions for home and business! http://website.yahoo.ca

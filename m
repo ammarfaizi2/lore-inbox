@@ -1,82 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271711AbRICNs5>; Mon, 3 Sep 2001 09:48:57 -0400
+	id <S271717AbRICNyH>; Mon, 3 Sep 2001 09:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271712AbRICNsr>; Mon, 3 Sep 2001 09:48:47 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:12813 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S271711AbRICNs3>;
-	Mon, 3 Sep 2001 09:48:29 -0400
-Message-ID: <20010903175544.A1340@castle.nmd.msu.ru>
-Date: Mon, 3 Sep 2001 17:55:44 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: "Nadav Har'El" <nyh@math.technion.ac.il>
+	id <S271715AbRICNxr>; Mon, 3 Sep 2001 09:53:47 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:13019 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S271714AbRICNxg>;
+	Mon, 3 Sep 2001 09:53:36 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 3 Sep 2001 13:53:07 GMT
+Message-Id: <200109031353.NAA32321@vlet.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
+Subject: Re: [PATCH] cleanup in fs/super.c (do_kern_mount())
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Transparent proxy support in 2.4 - revisited
-In-Reply-To: <20010607170825.A18760@leeor.math.technion.ac.il> <20010608014443.A28407@saw.sw.com.sg> <20010903131240.A9791@leeor.math.technion.ac.il> <20010903144442.A32332@castle.nmd.msu.ru> <20010903161621.A14859@leeor.math.technion.ac.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010903161621.A14859@leeor.math.technion.ac.il>; from "Nadav Har'El" on Mon, Sep 03, 2001 at 04:16:21PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    From: Alexander Viro <viro@math.psu.edu>
 
-On Mon, Sep 03, 2001 at 04:16:21PM +0300, Nadav Har'El wrote:
-> On Mon, Sep 03, 2001, Andrey Savochkin wrote about "Re: Transparent proxy support in 2.4 - revisited":
-> > In 2.2 kernel you also needed to configure which incoming packets you want to
-> > handle locally.
-> 
-> If I remember correctly, no such configuration was needed if the
-> CONFIG_IP_TRANSPARENT_PROXY compilation flag was enabled. As I understand from
-> a cursory examination of the 2.2 source, Whenever packets were received and
-> were not meant for the local address, a check would be made if they meant for
-> one of the transparent-proxied connections (i.e., connections whose local
-> endpoint isn't local).
+    New helper function: do_kern_mount() (aka. kern_mount() donw right).
 
-I don't remember for sure, but packet processing layering suggests that you
-still needed to do something.  Otherwise the packet will be forwarded on the
-routing level and will never reach socket layer.
-So, ipchains rule was still necessary.
-The really difference of 2.2 was amasingly complex socket lookup procedure
-with CONFIG_IP_TRANSPARENT_PROXY turned on.
+    +#define MS_NOUSER    (1<<31)
 
-> This is the kind of thing I need in Linux 2.4 too.
-> I'm still puzzled by the fact that this support simply disappeared between
-> 2.2 and 2.4, and nobody seems to know why (or people who know why don't
-> reply).
+But you introduce a new, undocumented, mount flag?
 
-It had been broken in 2.2 for months and nobody repaired it => nobody needed
-it.  I don't know, whether it works now or not.
-The implementation was crooked, difficult to understand and maintain...
+(It seems a pity to take away from the scarce resource
+"bits in the mount flag" for kernel-internal purposes.
+Today 14 bits (of the 16) are in use, and as soon as we'll need
+the 17th, mount will stop adding this 0xC0ED0000 flag, and
+we'll have 15 or 16 additional bits.
 
-> > If you want to handle locally all packets destined to a specific IP address,
-> > just add local route.
-> > If you want some complex matching rules, check iptables, there was something
-> > about "redirects" there.
-> 
-> Remember that the reverse proxy machine, the one faking connections with an
-> adjacent server (as if they are coming from the actual clients) also serves
-> as the the gateway for that server and needs to forward packets for it.
+On the other hand, if you think this bit is also useful from
+user space, then the use should be documented.)
 
-How are you going to determine whether the packet is destined to you or two
-the real server?
-That's the main question.
-
-> So I can't redirect *all* packets to local sockets, yet I also can't pick
-> specific IP addresses to redirect (unless I write some sort of hack to
-> modify the iptables tables dynamically as new non-local bind()s happen).
-> Not to mention that the standard redirect, which also rewrites the destination
-> address on the packet (if I remember correctly), isn't quite what I need when
-
-If it's true, the redirecting module is the place to change the policy to what
-you need.
-If the module always rewrites the destination IP address, and it can't be
-turned off, it's certainly a misfeature.
-Make it conditional, or just make a quick hack for yourself, or copy the
-existing redirect module, fix it and use the new module.
-
-> I already have a socket bound to a non-local address.
-
-Best regards
-		Andrey
+Andries

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129780AbRATURW>; Sat, 20 Jan 2001 15:17:22 -0500
+	id <S130271AbRATUWp>; Sat, 20 Jan 2001 15:22:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130271AbRATURM>; Sat, 20 Jan 2001 15:17:12 -0500
-Received: from femail2.rdc1.on.home.com ([24.2.9.89]:12420 "EHLO
-	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S129780AbRATURG>; Sat, 20 Jan 2001 15:17:06 -0500
-Message-ID: <3A69F220.B16F2B1C@Home.net>
-Date: Sat, 20 Jan 2001 15:16:32 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i586)
-X-Accept-Language: en
+	id <S131633AbRATUWg>; Sat, 20 Jan 2001 15:22:36 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:2823 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130271AbRATUWZ>;
+	Sat, 20 Jan 2001 15:22:25 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101202022.XAA05556@ms2.inr.ac.ru>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+To: torvalds@transmeta.COM (Linus Torvalds)
+Date: Sat, 20 Jan 2001 23:22:14 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101201138100.10317-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 20, 1 10:45:00 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Gregory Maxwell <greg@linuxpower.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.x kernels?
-In-Reply-To: <3A69EBF8.B35A3B80@Home.net> <20010120145924.A22169@xi.linuxpower.cx>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where can i get the patch?
+Hello!
 
-I can apply it right now.
+> > 	write(100000*MSS)
+> > 	write(1)
+> > 	write(1)
+...
+> As far as I can tell, the second "write(1)" will always merge with the
+> first one
 
-Gregory Maxwell wrote:
+This would be true, if Andrea wrote not exactly 100000*MSS,
+but 100000*MSS+1 or just write(<lots of data>).
 
-> On Sat, Jan 20, 2001 at 02:50:16PM -0500, Shawn Starr wrote:
-> > It just seems that since using 2.4 ive noticed my poor Pentium 200Mhz
-> > slow down whether being in X or otherwise. It just seems that the system
-> > is sluggish.
-> >
-> > I am using the new ReiserFS filesystem and I do know its still in heavy
-> > development perhaps my latency is due to this (?)
->
-> Reiserfs uses much more complex data structures then ext2 (trees..). I don't
-> think that latency has ever been a design criteria and all of the benchmarks
-> they use are pretty much pure throughput tests.
->
-> So it wouldn't be really surprising if reiserfs had very bad latency. You
-> should apply the timepegs patch and profile your kernel latency to see where
-> it's coming from.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+In some exceptional situations (sort of writing exactly N*MSS,
+then remnant, then something) Minshall's and bsd coalescing
+are a bit different.
 
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

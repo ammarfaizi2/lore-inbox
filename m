@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267779AbUIAXlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUIAXsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267779AbUIAXlG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUIAXkT
+	id S268025AbUIAXsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267523AbUIAXlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:40:19 -0400
-Received: from gate.crashing.org ([63.228.1.57]:14219 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268026AbUIAXW5 (ORCPT
+	Wed, 1 Sep 2004 19:41:21 -0400
+Received: from ozlabs.org ([203.10.76.45]:57988 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268115AbUIAX3D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:22:57 -0400
-Subject: Re: page fault scalability patch final : i386 tested, x86_64
-	support added
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, William Lee Irwin III <wli@holomorphy.com>,
-       "David S. Miller" <davem@redhat.com>, raybry@sgi.com, ak@muc.de,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, vrajesh@umich.edu,
-       hugh@veritas.com
-In-Reply-To: <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
-	 <20040815130919.44769735.davem@redhat.com>
-	 <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
-	 <20040815165827.0c0c8844.davem@redhat.com>
-	 <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
-	 <20040815185644.24ecb247.davem@redhat.com>
-	 <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
-	 <20040816143903.GY11200@holomorphy.com>
-	 <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
-	 <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
-	 <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
-	 <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
-	 <1094012689.6538.330.camel@gaston>
-	 <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
+	Wed, 1 Sep 2004 19:29:03 -0400
+Subject: Re: [PATCH] cpu hotplug fixes for dependent_sleeper and
+	wake_sleeping_dependent
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nathan Lynch <nathanl@austin.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040830132925.GA1531@elte.hu>
+References: <1093858876.11274.50.camel@biclops.private.network>
+	 <20040830132925.GA1531@elte.hu>
 Content-Type: text/plain
-Message-Id: <1094080164.4025.17.camel@gaston>
+Message-Id: <1094042223.17828.78.camel@bach>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 02 Sep 2004 09:09:25 +1000
+Date: Thu, 02 Sep 2004 09:25:21 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 02:43, Christoph Lameter wrote:
-
-> This would limit the time that the page_table_lock is held to a minimum
-> and may still offer some of the performance improvements.
+On Mon, 2004-08-30 at 23:29, Ingo Molnar wrote:
+> * Nathan Lynch <nathanl@austin.ibm.com> wrote:
 > 
-> Would that be acceptable?
+> > To recap, offlining a cpu with current bk results in the "Aiee,
+> > killing interrupt handler!" panic from do_exit().  This seems to be
+> > triggered only with CONFIG_PREEMPT and CONFIG_SCHED_SMT both enabled. 
+> > I believe the problem is that when do_stop() calls schedule(),
+> > dependent_sleeper() drops the "offline" cpu's rq->lock and never
+> > reacquires it.
+> > 
+> > The following seems to work (tested on ppc64).  Is there a better way?
+> 
+> > -	if (!(sd->flags & SD_SHARE_CPUPOWER))
+> > +	if (!(sd->flags & SD_SHARE_CPUPOWER) || cpu_is_offline(this_cpu))
+> 
+> > +	if (!(sd->flags & SD_SHARE_CPUPOWER) || cpu_is_offline(this_cpu))
+> 
+> it would really be nice to do this without any runtime overhead. Rusty?
 
-Not sure... You probably want to have the set_pte and the later flush_*
-in the same lock to maintain expected semantics with those platforms...
+If the scheduling topology is updated atomically (ie. inside
+__cpu_disable), this would not happen; there are patches around to do
+this and I think longer term this is the correct fix.  However, I
+believe a good current fix is to merely ensure that the current cpu is
+always set in dependent_sleeper(), something like:L
 
-It's not that a simple issue. I have ways to do sort-of lock-less by
-using my PAGE_BUSY lock bit in the PTE instead on ppc64 and I think
-doing that properly would result in almost no overhead over what we have
-now, so I'm still interested. ppc32 would have to take a global
-spinlock, but that's fine as we aren't looking for scalability on this
-arch.
+	/*
+	 * The same locking rules and details apply as for
+	 * wake_sleeping_dependent():
+	 */
+	spin_unlock(&this_rq->lock);
+	cpus_and(sibling_map, sd->span, cpu_online_map);
++	/* Include this CPU, for special case of going us dying */
++	cpu_set(this_cpu, sibling_map);
+	for_each_cpu_mask(i, sibling_map)
+		spin_lock(&cpu_rq(i)->lock);
+	cpu_clear(this_cpu, sibling_map);
 
-So while I like your idea, I think it needs a bit more thinking & work
-on some platforms. David wrote about potential issues on sparc64, and I
-wonder if it would be worth re-thinking some of the pte invalidation
-semantics a bit (pushing more logic into set-pte, that is making it
-higher level, rather than having the common code split changing of PTEs
-and invalidations, with eventually some beign/end semantics for batches)
-
-BTW. We should get David's patch in first thing before tackling with
-this complicated issue (the one adding mm & addr to set_pte & friends).
-
-Ben.
-
+Not quite free, but very cheap...
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVCNXQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVCNXSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVCNXQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 18:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVCNXOJ
+	id S262114AbVCNXSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 18:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVCNXQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 18:14:09 -0500
-Received: from smtp220.tiscali.dk ([62.79.79.114]:1807 "EHLO
-	smtp220.tiscali.dk") by vger.kernel.org with ESMTP id S262071AbVCNXNR
+	Mon, 14 Mar 2005 18:16:32 -0500
+Received: from avexch01.qlogic.com ([198.70.193.200]:17224 "EHLO
+	avexch01.qlogic.com") by vger.kernel.org with ESMTP id S262114AbVCNXQD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 18:13:17 -0500
-Subject: Re: pam and nice-rt-prio-rlimits
-From: Vegard Lima <Vegard.Lima@hia.no>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050314214336.GG3163@waste.org>
-References: <1110791657.1807.11.camel@pingvin.krs.hia.no>
-	 <20050314214336.GG3163@waste.org>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 15 Mar 2005 00:13:15 +0100
-Message-Id: <1110841995.3976.11.camel@tordenfugl.lima.heim>
+	Mon, 14 Mar 2005 18:16:03 -0500
+Date: Mon, 14 Mar 2005 15:16:30 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: comsatcat <comsatcat@earthlink.net>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: qla2xxx fail over support
+Message-ID: <20050314231630.GB8548@plap.qlogic.org>
+Mail-Followup-To: comsatcat <comsatcat@earthlink.net>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <1110838136.12171.4.camel@solaris.zataoh.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110838136.12171.4.camel@solaris.zataoh.com>
+Organization: QLogic Corporation
+X-Operating-System: Linux 2.6.8-24.11-default
+User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 14 Mar 2005 23:15:47.0333 (UTC) FILETIME=[C12D6350:01C528EB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-må den 14.03.2005 Klokka 13:43 (-0800) skreiv Matt Mackall:
-> On Mon, Mar 14, 2005 at 10:14:17AM +0100, Vegard Lima wrote:
-> > Hello,
-> > 
-> > in the long thread on "[request for inclusion] Realtime LSM" there
-> > doesn't appear to be too many people who has actually tested the
-> > nice-and-rt-prio-rlimits.patch. Well, it works for me...
-> > 
-> > However, the patch to pam_limits posted here:
-> >   http://lkml.org/lkml/2005/1/14/174
-> > is a little bit aggressive on the semi-colon side.
+On Mon, 14 Mar 2005, comsatcat wrote:
+
 > 
-> It would be more helpful if you pointed out the exact bug. But I think
-> I spotted the bug in question the first time around.
-
-Sorry, the incremental patch looks like this
-
---- Linux-PAM-0.77/modules/pam_limits/pam_limits.c-rtprio	2005-03-15 00:04:30.000000000 +0100
-+++ Linux-PAM-0.77/modules/pam_limits/pam_limits.c	2005-03-15 00:04:58.000000000 +0100
-@@ -370,16 +370,15 @@
-             limit_value *= 1024;
-             break;
-         case RLIMIT_NICE:
--            limit_value = 19 - limit_value;
-             if (limit_value > 39)
- 		limit_value = 39;
--	    if (limit_value < 0);
-+	    if (limit_value < 0)
- 		limit_value = 0;
-             break;
-         case RLIMIT_RTPRIO:
-             if (limit_value > 99)
- 		limit_value = 99;
--	    if (limit_value < 0);
-+	    if (limit_value < 0)
- 		limit_value = 0;
-             break;
-     }
-
-
-The conversion
-  limit_value = 19 - limit_value;
-takes place in can_nice() in kernel/schec.c and had to be removed.
-
-> Please double-check and test this patch from -mm, which will likely
-> show up in mainline:
+> Is the qla2xxx dirver not capable of fail over support?  under
+> Documentation/* for the qla2xxx release notes, it says in a earlier
+> revision that fail over was made optional.  Was the optional support
+> removed?  If it is capable of fail over, what are the means of
+> enable/accessing the ability?
 > 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/broken-out/nice-and-rt-prio-rlimits.patch
 
-Sound good.
-I've tested with both 2.6.11-mm3 and 2.6.11-bk10 + patch above.
-jackd starts OK with realtime scheduling and playing with nice seems OK
-when I have positive values for "rt_priority" and "nice" in limits.conf.
+Failover support for a variety of reasons has been removed from the
+embedded 2.6.x kernel driver.  If you are interested in continuing to
+use the failover functionality you will need to use one of the drivers
+in:
 
+	ftp://ftp.qlogic.com/outgoing/linux/beta/8.x/
 
-Thanks,
--- 
-Vegard Lima
+more specifically:
 
+	ftp://ftp.qlogic.com/outgoing/linux/beta/8.x/qla2xxx-v8.00.02b10-dist.tgz
+
+Regards,
+Andrew Vasquez

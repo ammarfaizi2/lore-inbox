@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbRAaV0g>; Wed, 31 Jan 2001 16:26:36 -0500
+	id <S130633AbRAaVZg>; Wed, 31 Jan 2001 16:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129028AbRAaV00>; Wed, 31 Jan 2001 16:26:26 -0500
-Received: from kohoutek.bigsky.net ([206.252.237.8]:47884 "EHLO
-	kohoutek.bigsky.net") by vger.kernel.org with ESMTP
-	id <S129026AbRAaV0H>; Wed, 31 Jan 2001 16:26:07 -0500
-Message-ID: <01d801c08bcb$49981720$3ceefcce@adhara.bigsky.net>
-From: "Josh Higham" <jhigham@bigsky.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.18 - failed to exec /sbin/modprobe -s -k binfmt-464c
-Date: Wed, 31 Jan 2001 14:17:56 -0700
+	id <S131481AbRAaVZ0>; Wed, 31 Jan 2001 16:25:26 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:34492 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130633AbRAaVZO>; Wed, 31 Jan 2001 16:25:14 -0500
+Date: Wed, 31 Jan 2001 21:24:51 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: James Simmons <jsimmons@suse.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CPU error codes
+In-Reply-To: <E14Nz6N-0002Vj-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.4.21.0101312122380.1537-100000@orange.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 4.72.3155.0
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3155.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried compiling a 2.2.18 kernel, and when I reboot I get
+On Wed, 31 Jan 2001, Alan Cox wrote:
 
-failed to exec /sbin/modprobe -s -k binfmt-464c
+> > > In the intel databook. Generally an MCE indicates hardware/power/cooling
+> > > issues
+> > 
+> > Doesn't an MCE also cover some hardware memory problems - parity/ECC
+> > issues etc?
+> 
+> Parity/ECC on main memory is reported by the chipset and needs seperate
+> drivers or apps to handle this
 
-scrolling past the screen.
+Yes - MCE only covers errors in the CPU's cache, IIRC? (Is there still an
+NMI on main memory parity errors, or has this changed on modern
+chipsets? Presumably ECC is handled differently, being recoverable??)
 
-A web search reveals a comment about 2.3.99pre3, which indicates that it is
-a problem with the USB config (video4linux must be compiled in the kernel?).
-I am not using USB, and it is not compiled, so I am either misunderstanding
-the problem, or there is something else at work here.  I tried compiling
-with USB as a module and video as a module (but no specific options, since
-it was just a rough experiment) and that gave the same error.  Compiling
-without modules altogether wouldn't boot at all (stops after the
-'uncompressing kernel now loading' bit).
 
-Am I misunderstanding the problem (there were a few issues reported in the
-archived message that I looked at, so it may be that the answer regarding
-USB is the answer to a different question), or is there a simple (heh)
-config change that I can make to get this to compile?
-
-I would appreciate it if you could CC me in, as I am not a member of this
-list.
-
-Thanks,
-
-Josh Higham
-
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

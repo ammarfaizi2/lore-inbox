@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbTIGV7N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 17:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTIGV7N
+	id S261604AbTIGV4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 17:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbTIGV4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 17:59:13 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:17857 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261686AbTIGV7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 17:59:07 -0400
-Date: Sun, 7 Sep 2003 22:58:04 +0100
-From: Dave Jones <davej@redhat.com>
-To: cheapisp@sensewave.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hi-res fb console with 2.6.0-testX ?
-Message-ID: <20030907215803.GB28927@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, cheapisp@sensewave.com,
-	linux-kernel@vger.kernel.org
-References: <10539.80.202.106.246.1062964311.squirrel@to.server.sensewave.com>
+	Sun, 7 Sep 2003 17:56:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39402 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261604AbTIGV4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 17:56:42 -0400
+Date: Sun, 7 Sep 2003 23:56:34 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org, robert@schwebel.de,
+       rusty@rustcorp.com.au
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030907215634.GE27930@fs.tum.de>
+References: <200309072146.h87LkwWU020877@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <10539.80.202.106.246.1062964311.squirrel@to.server.sensewave.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200309072146.h87LkwWU020877@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 09:51:51PM +0200, cheapisp@sensewave.com wrote:
- > The kernel command lines which work with vesafb and matroxfb in 2.4 do not 
- > work for me in 2.6.0-testX.                                                
- >                                    
- > kernel (hd0,0)/bz-2.6.0-t4mm3 root=/dev/hdc2 video=matrox:vesa:0x11A       
- > kernel (hd0,0)/bz-2.6.0-t4mm3 root=/dev/hdc2 vga=794                       
- >                                    
- > both result in something resembling a Vesa 101 mode under 2.6.0-test4-mm3. 
- >                                    
- > (640x480, 60 Hz)                                                           
- >                                    
- > I'd expect 1280x1024 in 60 Hz, which is what I get with a 2.4 kernel.      
+On Sun, Sep 07, 2003 at 11:46:58PM +0200, Mikael Pettersson wrote:
+>...
+> Admittedly, the kernel could include some more performance-tweaking
+> CONFIG options (mainly for L1 cache size and gcc -mcpu= values),
+> but that's a simple thing to add if necessary.
 
-vga= seems to have changed semantics. (Which is a polite way of saying
-"has regressed" IMO), this has been reported several times before, but
-it doesn't seem to be too high on peoples 'must fix' list.
+-march implies -mcpu.
 
- > Doing fbset "vesa11A" causes the monitor to lose the sync.                 
+> /Mikael
 
-last I looked, fbset needed updates for the changes in 2.6
-
-		Dave
+cu
+Adrian
 
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

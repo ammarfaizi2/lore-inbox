@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268791AbTGOP77 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 11:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268789AbTGOP6R
+	id S268789AbTGOQBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268761AbTGOP6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:58:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:51171 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268577AbTGOP6G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:58:06 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Josh Litherland <josh@emperorlinux.com>
-Subject: Re: Partitioned loop device..
-Date: Tue, 15 Jul 2003 11:04:49 -0500
-User-Agent: KMail/1.5
+	Tue, 15 Jul 2003 11:58:09 -0400
+Received: from mail.kroah.org ([65.200.24.183]:62105 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268748AbTGOP5s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 11:57:48 -0400
+Date: Tue, 15 Jul 2003 09:11:27 -0700
+From: Greg KH <greg@kroah.com>
+To: CaT <cat@zip.com.au>
 Cc: linux-kernel@vger.kernel.org
-References: <20030715155317.317B461FDE@sade.emperorlinux.com>
-In-Reply-To: <20030715155317.317B461FDE@sade.emperorlinux.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.0-t1: i2c+sensors still whacky (hi Greg :)
+Message-ID: <20030715161127.GA2925@kroah.com>
+References: <20030715090726.GJ363@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307151104.49455.kevcorry@us.ibm.com>
+In-Reply-To: <20030715090726.GJ363@zip.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 July 2003 10:53, Josh Litherland wrote:
-> In article <200307151001.44218.kevcorry@us.ibm.com> you wrote:
-> > so there's not much of a reason to add partitioning support to the loop
-> > driver itself.
->
-> Working with sector images of hard drives?  I use Linux for data
-> recovery jobs and it would be very helpful to me to be able to look at
-> DOS partitions inside a loopback device.  As it is I must chunk it up
-> into seperate files by hand.
+On Tue, Jul 15, 2003 at 07:07:27PM +1000, CaT wrote:
+> Ok. For a while i2c+sensors for me would freeze my box. Lately though
+> it has been slowing it down to a crawl. And by slow I mean I can see
+> the framebuffer console scroll block by block and be able to see 
+> individual lines half-scrolled and suchlike things. All is fine with 
+> the kernel until it hits the i2c and sensors code. Then it slows to
+> a crawl. By the look at the HD usage indicator it seems that it pauses
+> a second at a time (ie approx seconds pause, burst of activity, seconds
+> pause etc). This also happened before AS was merged into the kernel.
 
-Like I said, this exact thing can be done using Device-Mapper and EVMS. No 
-need to add new partitioning support to the loop driver.
+So, if you don't have any i2c code loaded, everything works?  How about
+just loading the i2c driver and not the sensor driver?
 
-Generally, EVMS does not look for loop devices when scanning for disks to use, 
-but I have a simple patch (to the EVMS tools) that will allow it to recognize 
-loop devices. Let me know if you're interested.
+Oh, how about enabiling debugging in the i2c driver that you are using?
+Any interesting info in the kernel log would be appreciated.
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+thanks,
 
+greg k-h

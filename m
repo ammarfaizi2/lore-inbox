@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTHZXvK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 19:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbTHZXvK
+	id S262978AbTHZXv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 19:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbTHZXv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 19:51:10 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:19416 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S262971AbTHZXvH convert rfc822-to-8bit
+	Tue, 26 Aug 2003 19:51:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35216 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262980AbTHZXvT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 19:51:07 -0400
-content-class: urn:content-classes:message
+	Tue, 26 Aug 2003 19:51:19 -0400
+Message-ID: <3F4BF265.5050101@pobox.com>
+Date: Tue, 26 Aug 2003 19:51:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH][2.6][2/5]Support for HPET based timer
-Date: Tue, 26 Aug 2003 16:50:59 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F9@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.6][2/5]Support for HPET based timer
-Thread-Index: AcNsKjH9V5kc6qmsRMGYcCxS4EG9uQAAKQ6Q
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "john stultz" <johnstul@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: <vojtech@suse.cz>, "Andi Kleen" <ak@suse.de>,
-       "Dave H" <haveblue@us.ibm.com>, <mikpe@csd.uu.se>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "lkml" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Aug 2003 23:50:59.0608 (UTC) FILETIME=[E6627980:01C36C2C]
+To: Jim Keniston <jkenisto@us.ibm.com>
+CC: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       netdev <netdev@oss.sgi.com>, "Feldman, Scott" <scott.feldman@intel.com>,
+       Larry Kessler <kessler@us.ibm.com>, Randy Dunlap <rddunlap@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/4] Net device error logging, revised
+References: <3F4A8027.6FE3F594@us.ibm.com> <20030826183221.GB3167@kroah.com> <3F4BEE68.A6C862C2@us.ibm.com>
+In-Reply-To: <3F4BEE68.A6C862C2@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: john stultz [mailto:johnstul@us.ibm.com] 
+Jim Keniston wrote:
+> #define netdev_printk(sevlevel, netdev, msglevel, format, arg...)	\
+> do {									\
+> if (NETIF_MSG_##msglevel == NETIF_MSG_ALL || ((netdev)->msg_enable & NETIF_MSG_##msglevel)) {	\
+> 	char pfx[40];							\
+> 	printk(sevlevel "%s: " format , make_netdev_msg_prefix(pfx, netdev) , ## arg);	\
+> }} while (0)
 > 
-> Well, the difficult part is deciding in time_init() if we are going to
-> use HPET without touching the hardware (to say, check if its actually
-> there).
-> 
+> This would make your code bigger, but not that much bigger for the common case where
+> the msglevel is omitted (and the 'if(...)' is optimized out).
 
-Yes. But, currently we are using ACPI early table parse to look at HPET.
-So we should be OK here.
-Even if accessing HPET hardware fails later, in the late_time_init(), 
-we can fallback to PIT, as long as calibrate_delay() is done after 
-late_time_init().
 
-> We could pick a simple time source (ie: PIT) that would get us through
-> early boot, then choose the real time source in late_time_init(). That
-> would also make implementing the ACPI PM time-source much simpler as
-we
-> could wait until after ACPI is up, letting us avoid having to parse
-the
-> tables by hand.
-> 
-> However I'm not sure it would be trivial and bug free. ;)
-> 
+"NETIF_MSG_" is silly and should be eliminated.
+A separate "NETIF_MSG_ALL" test is not needed, because msg_enable is a 
+bitmask.  A msg_enable of 0xffffffff will naturally create a NETIF_MSG_ALL.
 
-Depending on multiple time sources may not be good idea, IMO. May be, 
-one day we will have a fully-legacy-free system with no PIT. :)
+Also, whatever mechanism is created, it needs to preserve the feature of 
+the existing system:
 
-Thanks,
--Venkatesh
+	if (a quick bitmask test)
+		do something
+
+And preferably "do something" is not inlined, because printk'ing -- 
+although it may appear in a fast path during debugging -- cannot be 
+considered a fast path itself.
+
+	Jeff
+
+
+

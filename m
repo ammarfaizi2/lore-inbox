@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319192AbSIKJQ3>; Wed, 11 Sep 2002 05:16:29 -0400
+	id <S319180AbSIKJOM>; Wed, 11 Sep 2002 05:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319194AbSIKJQ3>; Wed, 11 Sep 2002 05:16:29 -0400
-Received: from mail.pixelwings.com ([194.152.163.212]:49670 "EHLO
-	pixelwings.com") by vger.kernel.org with ESMTP id <S319192AbSIKJQ2> convert rfc822-to-8bit;
-	Wed, 11 Sep 2002 05:16:28 -0400
-Date: Wed, 11 Sep 2002 11:21:14 +0200
-From: Clemens Schwaighofer <cs@pixelwings.com>
-To: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
+	id <S319181AbSIKJOL>; Wed, 11 Sep 2002 05:14:11 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39404 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S319180AbSIKJOL>; Wed, 11 Sep 2002 05:14:11 -0400
+Date: Wed, 11 Sep 2002 11:18:55 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Thomas Molina <tmolina@cox.net>
+cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5 Problem Status Report
-Message-ID: <189380000.1031736074@[192.168.1.172]>
-In-Reply-To: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
-References: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
-X-Mailer: Mulberry/2.2.0 (Linux/x86)
+In-Reply-To: <Pine.LNX.4.44.0209110305020.9324-100000@dad.molina>
+Message-ID: <Pine.NEB.4.44.0209111115460.26432-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Thomas Molina
+On Wed, 11 Sep 2002, Thomas Molina wrote:
 
---On Tuesday, September 10, 2002 09:00:30 PM -0500 you wrote:
+> What I post to LKML is a cut and paste from lynx.  I put hyperlinks to the
+> LKML archive discussions on my web page and a hyperlink to the web page
+> when I post the report.
 
->               2.5 Kernel Problem Reports as of 10 Sep
-[snip]
+If you use
 
-and since we are here reporting Problems in 2.5
+  lynx -dump http://members.cox.net/tmolina/kernprobs/status.html
 
-fb still broken, since 2.5.32 at least. Patches exist, but they haven't 
-found their way into the kerenl tree.
+instead you get a text output that includes all links.
+
+cu
+Adrian
 
 -- 
-"Der Krieg ist ein Massaker von Leuten, die sich nicht kennen, zum
-Nutzen von Leuten, die sich kennen, aber nicht massakrieren"
-- Paul Valéry (1871-1945)
-mfg, Clemens Schwaighofer                       PIXELWINGS Medien GMBH
-Kandlgasse 15/5, A-1070 Wien                      T: [+43 1] 524 58 50
-JETZT NEU! MIT FEWA GEWASCHEN       -->      http://www.pixelwings.com
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

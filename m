@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264196AbUENDPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUENDRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbUENDPo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 23:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbUENDPo
+	id S264272AbUENDRI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 23:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUENDRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 23:15:44 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:31071 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264196AbUENDPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 23:15:42 -0400
-Message-ID: <40A439DB.70902@yahoo.com.au>
-Date: Fri, 14 May 2004 13:15:39 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Thu, 13 May 2004 23:17:08 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:48958 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264272AbUENDRC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 23:17:02 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow console drivers to be called early
+Date: Thu, 13 May 2004 20:16:18 -0700
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <200405131547.14062.jbarnes@engr.sgi.com> <20040513194408.0e6ba433.akpm@osdl.org>
+In-Reply-To: <20040513194408.0e6ba433.akpm@osdl.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, hugh@veritas.com
-CC: viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] truncate vs add_to_page_cache race
-References: <40A42892.5040802@yahoo.com.au> <20040513193328.11479d3e.akpm@osdl.org> <40A43152.4090400@yahoo.com.au> <40A438AC.9020506@yahoo.com.au>
-In-Reply-To: <40A438AC.9020506@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405132016.18570.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Nick Piggin wrote:
-> 
->> Andrew Morton wrote:
->>
->>> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->>
->>
->>
->>>> OK, I made a debug patch to printk and schedule_timeout in this
->>>> race window so I can easily truncate the file. When this happens,
->>>> it turns out that the readpage thinks it is reading a hole and
->>>> fills the page with zeros -> invalid result?
->>>
->>>
->>>
->>>
->>> A zero-filled pagecache page outside i_size is OK.
->>>
->>
->> Yes. But in this case the zero filled page actually gets
->> read by read(2).
->>
->> In any case, I think my patch won't close the race completely.
->>
-> 
-> This following patch should be right.
-> 
-> It causes the zeros to not get copied back unless i_size
-> gets extended again.
-> 
+On Thursday, May 13, 2004 7:44 pm, Andrew Morton wrote:
+> >  -	if (!cpu_online(smp_processor_id()) &&
+> >  +	if (!early_printk_ok && !cpu_online(smp_processor_id()) &&
+>
+> Is it not possible to mark this cpu as being online?   It sure seems to be.
 
-However, it causes the fast path reading off the end of a file
-to always go into ->readpage and copy the non-existant page of
-zeros. This could be fixed no problem, but I'll shut up and let
-others comment in case I'm making a fool of myself :)
+But then we miss out on all the good stuff happening in setup_arch since 
+smp_processor_id() isn't set in cpu_online_map until smp_prepare_boot_cpu.  I 
+can try upping it in arch code, but iirc, I had problems with that in older 
+kernels due to the expectations of some of the other CPU upping code.  I'll 
+give it a try again and either give you a good answer or send a more 
+appropriate patch to David.
+
+Thanks,
+Jesse

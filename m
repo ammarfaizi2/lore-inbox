@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbUDNV0q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 17:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUDNV0q
+	id S261817AbUDNV0C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 17:26:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUDNV0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 17:26:46 -0400
-Received: from waste.org ([209.173.204.2]:44267 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261791AbUDNV0c (ORCPT
+	Wed, 14 Apr 2004 17:26:01 -0400
+Received: from tantale.fifi.org ([216.27.190.146]:27264 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S261817AbUDNVZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 17:26:32 -0400
-Date: Wed, 14 Apr 2004 16:25:39 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] conditionalize some boring buffer_head checks
-Message-ID: <20040414212539.GE1175@waste.org>
-References: <407CEB91.1080503@pobox.com> <20040414005832.083de325.akpm@osdl.org> <20040414010240.0e9f4115.akpm@osdl.org> <407CF201.408@pobox.com> <20040414011653.22c690d9.akpm@osdl.org> <407CFFF9.5010500@pobox.com>
-Mime-Version: 1.0
+	Wed, 14 Apr 2004 17:25:58 -0400
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nfs lost locks
+References: <87k72h17n7.fsf@ceramic.fifi.org>
+	<Pine.LNX.4.58L.0402241607500.23951@logos.cnet>
+	<87wu6cckys.fsf@ceramic.fifi.org>
+	<Pine.LNX.4.58L.0402241757130.23951@logos.cnet>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 14 Apr 2004 14:25:56 -0700
+In-Reply-To: <Pine.LNX.4.58L.0402241757130.23951@logos.cnet>
+Message-ID: <87isg2ntej.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <407CFFF9.5010500@pobox.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 05:10:17AM -0400, Jeff Garzik wrote:
-> Andrew Morton wrote:
-> >Jeff Garzik <jgarzik@pobox.com> wrote:
-> >
-> >>I would rather not kill the code in submit_bh() outright, just disable 
-> >>it for non-filesystem developers.
-> >
-> >
-> >submit_bh() is a slowpath ;) The one in mark_buffer_dirty() will be called
-> >more often, possibly others.  Kill!
-> 
-> Jens seems to like the debugging checks, so here's an alterna-patch.
-> 
-> 	Jeff
-> 
-> 
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 
-> ===== arch/alpha/Kconfig 1.36 vs edited =====
-> +++ edited/arch/alpha/Kconfig	Wed Apr 14 04:58:08 2004
-> @@ -690,6 +690,13 @@
->  	  Say Y here only if you plan to use gdb to debug the kernel.
->  	  If you don't debug the kernel, you can say N.
->  
-> +config DEBUG_BUFFERS
-> +	bool "Enable additional filesystem buffer_head checks"
-> +	depends on DEBUG_KERNEL
-> +	help
-> +	  If you say Y here, additional checks are performed that aid
-> +	  filesystem development.
-> +
->  endmenu
+> On Tue, 24 Feb 2004, Philippe Troin wrote:
+> 
+> > Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+> >
+> > > On Fri, 20 Feb 2004, Philippe Troin wrote:
+> > >
+> > > > The NFS client is prone to loose locks on filesystems when the locking
+> > > > process is killed with a signal. This has been discussed on the nfs
+> > > > mailing list in these threads:
+> > > >
+> > > >   http://sourceforge.net/mailarchive/forum.php?thread_id=3213117&forum_id=4930
+> > > >
+> > > >   http://marc.theaimsgroup.com/?l=linux-nfs&m=107074045907620&w=2
+> > > >
+> > > > Marcelo, if the above links are not sufficient, please email back for
+> > > > more details.
+> > > >
+> > > > The enclosed patch is from Trond, and it fixes the problem.
+> > >
+> > > Hi Philippe,
+> > >
+> > > It might be wise to wait for the patch to be in 2.6 first?
+> > >
+> > > Trond, what do you think?
+> >
+> > I do not know about the 2.6.x status, but Trond requested help with
+> > pushing this patch to the kernel, mentionning he was very busy with
+> > NFSv4.
+> >
+> > I personnaly think it fixes a serious problem with file locking on
+> > NFS, but that's my assessment.
+> 
+> I also think it fixes a serious problem with file locking on NFS. What I
+> dont think is that it has been extensively tested (I seen you stressed
+> file locking with it for a couple of days, but thats not enough).
+> 
+> I feel that it needs to get tested on different setups.
+> 
+> If Trond is confident it works reliably, I will apply it right away.
 
-Sticking this in arch/*/Kconfig seems silly (as does much of the
-duplication in said files). Can we stick this and other debug bits
-under the kallsyms option in init/Kconfig instead? Or alternately move
-debugging bits into their own file that gets included as appropriate.
+For reference and posterity, 2.4.26 includes this patch.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Thanks to Marcelo and Trond.
+
+Phil.

@@ -1,136 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263092AbVCQPVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263091AbVCQP1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263092AbVCQPVa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 10:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbVCQPV3
+	id S263091AbVCQP1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 10:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbVCQP1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 10:21:29 -0500
-Received: from mail.shareable.org ([81.29.64.88]:29073 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263092AbVCQPVE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 10:21:04 -0500
-Date: Thu, 17 Mar 2005 15:20:31 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>, mingo@elte.hu,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, ahu@ds9a.nl, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>, Scott Snyder <snyder@fnal.gov>
-Subject: Re: Futex queue_me/get_user ordering
-Message-ID: <20050317152031.GB16743@mail.shareable.org>
-References: <20041114010943.3d56985a.akpm@osdl.org> <20041114092308.GA4389@mail.shareable.org> <4197FF42.9070706@jp.fujitsu.com> <20041115020148.GA17979@mail.shareable.org> <41981D4D.9030505@jp.fujitsu.com> <20041115132218.GB25502@mail.shareable.org> <20041117084703.GL10340@devserv.devel.redhat.com> <20041118072058.GA19965@mail.shareable.org> <20041118194726.GX10340@devserv.devel.redhat.com> <20050317102619.GA23494@devserv.devel.redhat.com>
+	Thu, 17 Mar 2005 10:27:18 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:15298 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263091AbVCQP1N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 10:27:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=koM1f3ODKJU01rMXic1H5Nu9pJNrx7CxwILPUGE2Duacy1i7e5w451ASzGIq3+cY51fvwJayI67OLkAZEVJEmHdTWbkTK7ozP6Gz+Pua/KGEUPLFQOL0gbY+Fqcb13TOt0SZI+1uTvYBExFvnwUGJAjYe21GrDlhkwI5sUuK79U=
+Message-ID: <5a2cf1f605031707277205137a@mail.gmail.com>
+Date: Thu, 17 Mar 2005 16:27:12 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: enabling IOAPIC on C3 processor?
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1111006101.21604.9.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050317102619.GA23494@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <5a2cf1f6050315040956a512a6@mail.gmail.com>
+	 <1110918157.17931.18.camel@mindpipe>
+	 <5a2cf1f60503160711137dbff3@mail.gmail.com>
+	 <1111006101.21604.9.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0411.2/0953.html
+On Wed, 16 Mar 2005 15:48:21 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Wed, 2005-03-16 at 16:11 +0100, jerome lacoste wrote:
+> > On Tue, 15 Mar 2005 15:22:36 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> > > On Tue, 2005-03-15 at 13:09 +0100, jerome lacoste wrote:
+> > > > I have a VIA Epia M10000 board that crashes very badly (and pretty
+> > > > often, especially when using DMA). I want to fix that.
+> > > >
+> > >
+> > > Are the crashes associated with any particular workload or device?  My
+> > > M6000 works perfectly.
+> > >
+> > > The one big problem I had with is is the VIA Unichrome XAA driver had a
+> > > FIFO related bug that caused it to stall the PCI bus, delaying
+> > > interrupts for tens of ms unless "Option NoAccel" was used.
+> > >
+> > > This bug was fixed over 6 months ago though.
+> >
+> > It crashes my box within minutes if not seconds when using mythtv
+> > (tuner using ivtv driver) while using my network card. If I disable
+> > DMA on the disk and don't use my card, it's much more stable (several
+> > hours without problem).
+> >
 > 
-> Your argument in November was that you don't want to slow down the
-> kernel and that userland must be able to cope with the
-> non-atomicity of futex syscall.
+> Well, you might have better luck capturing the Oops with kdb.  At the
+> very least it might drop you into the debugger instead of locking up the
+> machine.
 
-Those were two of them.
+It doesn't.
+I patched and recompiled my kernel and made sure the
+/proc/sys/kernel/kdb is set to 1.
+Machine dies with no kdb started.
 
-But my other main concern is conceptual.
+I guess I just need for VIA to wake up now, right? No more bullets in my gun?
 
-Right now, a futex_wait call is roughly equivalent to to
-add_wait_queue, which is quite versatile.
-
-It means anything you can do with one futex, you can extend to
-multiple futexes (e.g. waiting on more than one lock), and you can do
-asynchronously (e.g. futex_wait can be implemented in userspace as
-futex_fd[1] + poll[2], and therefore things like poll-driven state machines
-where one of the state machines wants to wait on a lock are possible).
-
-[1] Ulrich was mistaken in his paper to say futex_fd needs to check a word
-    to be useful; userspace is supposed to check the word after futex_fd
-    and before polling or waiting on it.  This is more useful because it
-    extends to multiple futexes.
-[2] actually it can't right now because of a flaw in futex_fd's poll
-    function, but that could be fixed.  The _principle_ is sound.
-
-If you change futex_wait to be "atomic", and then have userspace locks
-which _depend_ on that atomicity, it becomes impossible to wait on
-multiple of those locks, or make poll-driven state machines which can
-wait on those locks.
-
-There are applications and libraries which use futex, not just for
-threading but things like database locks in files.
-
-You can do userspace threading and simulate most blocking system calls
-by making them non-blocking and using poll).
-
-(I'm not saying anything against NPTL by this, by the way - NPTL is a
-very good general purpose library - but there are occasions when an
-application wants to do it's own equivalent of simulated blocking
-system calls for one reason or another.  My favourite being research
-into inter-thread JIT-optimisation in an environment like valgrind).
-
-Right now, in principle, futex_wait is among the system calls which
-can be simulated by making it non-blocking (= futex_fd) and using poll()[2].
-Which means programs using futex themselves can be subject to interesting
-thread optimisations by code which knows nothing about the program
-(similar to valgrind..)
-
-If you change futex_wait to be "atomic", then it would be _impossible_
-to take a some random 3rd party library which is using that
-futex_wait, and convert it's blocking system calls to use poll-driven
-state machines instead.
-
-I think taking that away would be a great conceptual loss.
-
-It's not a _huge_ loss, but considering it's only Glibc which is
-demanding this and futexes have another property, token-passing, which
-Glibc could be using instead - why not use it?
-
-That said, let's look at your patch.
-
-> It would simplify requeue implementation (getting rid of the nqueued
-> field),
-
-The change to FUTEX_REQUEUE2 is an improvement :)
-nqueued is an abomination, like the rest of FUTEX_REQUEUE2 :)
-
-> @@ -265,7 +264,6 @@ static inline int get_futex_value_locked
->  	inc_preempt_count();
->  	ret = __copy_from_user_inatomic(dest, from, sizeof(int));
->  	dec_preempt_count();
-> -	preempt_check_resched();
->  
->  	return ret ? -EFAULT : 0;
->  }
-
-inc_preempt_count() and dec_preempt_count() aren't needed, as
-preemption is disabled by the queue spinlocks.  So
-get_futex_value_locked isn't needed any more: with the spinlocks held,
-__get_user will do.
-
-> [numerous instances of...]
-> +	preempt_check_resched();
-
-Not required.  The spin unlocks will do this.
-
-> But with the recent changes to futex.c I think kernel can ensure
-> atomicity for free.
-
-I agree it would probably not slow the kernel, but I would _strongly_
-prefer that Glibc were fixed to use the token-passing property, if
-Glibc is the driving intention behind this patch - instead of this
-becoming a semantic that application-level users of futex (like
-database and IPC libraries) come to depend on and which can't be
-decomposed into a multiple-waiting form.
-
-(I admit that the kernel code does look nicer with
-get_futex_value_locked gone, though).
-
-By the way, do you know of Scott Snyder's recent work on fixing Glibc
-in this way?  He bumped into one of Glibc's currently broken corner
-cases, fixed it (according to the algorithm I gave in November), and
-reported that it works fine with the fix.
-
--- Jamie
+Jerome

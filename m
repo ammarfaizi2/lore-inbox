@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbTEZSOc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 14:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTEZSOc
+	id S261936AbTEZSO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 14:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTEZSO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 14:14:32 -0400
-Received: from vsat-148-64-8-86.c119.t7.mrt.starband.net ([148.64.8.86]:260
-	"EHLO chaos.mshome.net") by vger.kernel.org with ESMTP
-	id S261944AbTEZSOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 14:14:30 -0400
-Date: Mon, 26 May 2003 12:26:55 -0600
-From: Robert Creager <Robert_Creager@LogicalChaos.org>
-To: Bruce Harada <bharada@coral.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with virtually no buffer usage in 2.4.21mdk kernel
-Message-Id: <20030526122655.0042c298.Robert_Creager@LogicalChaos.org>
-In-Reply-To: <20030527024141.5b168415.bharada@coral.ocn.ne.jp>
-References: <20030524223320.7c1ac413.Robert_Creager@LogicalChaos.org>
-	<20030525151816.4a433953.bharada@coral.ocn.ne.jp>
-	<20030525081253.05d4e5f3.Robert_Creager@LogicalChaos.org>
-	<20030527024141.5b168415.bharada@coral.ocn.ne.jp>
-Organization: Starlight Vision, LLC.
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.ok:ag0eV+yI3GP"
+	Mon, 26 May 2003 14:14:27 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:12989 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S261936AbTEZSO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 14:14:26 -0400
+From: Eric <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: New make config options
+Date: Mon, 26 May 2003 13:26:35 -0500
+User-Agent: KMail/1.5.1
+References: <200305261004.25297.eric@cisu.net> <200305261724.23712.rudmer@legolas.dynup.net> <200305261318.24887.eric@cisu.net>
+In-Reply-To: <200305261318.24887.eric@cisu.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305261326.35814.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.ok:ag0eV+yI3GP
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Monday 26 May 2003 01:18 pm, Eric wrote:
+> On Monday 26 May 2003 10:24 am, Rudmer van Dijk wrote:
+> > what about `make allmodconfig` ??
+>
+> Now if we can convince someone to code it :(
 
-On Tue, 27 May 2003 02:41:41 +0900
-Bruce Harada <bharada@coral.ocn.ne.jp> said something like:
+I've just been informed that this is part of the 2.5 kernel... silly me...
 
-> On Sun, 25 May 2003 08:12:53 -0600
-> Robert Creager <Robert_Creager@LogicalChaos.org> wrote:
-> 
-> > That's why I said virtually no buffer usage (not shared memory).  I'm
-> > looking at the 88kb (90112).  On my other two systems, both 2.4.19 with
-> > 640Mb and 128Mb memory, the buffer usage is 86Mb, and 44Mb respectivly.
-> > 
-> > Other thoughts?
-> 
-> Ah, my apologies. As for why your buffer usage is so low, it's likely a bit
-> difficult to tell whether it's indicative of a problem without knowing what
-> patches have been applied to the Mandrake kernel. Also, I believe the buffers
-> value these days isn't as useful a metric as it used to be, so personally I
-> wouldn't worry about it too much, unless you're seeing problems with the box.
-> 
-
-I'm not seeing any problems that I'm aware of, just trying to eak out a little more performance out of the box, and the lack of disk buffer usage seems suspicious.
-
-I may try backing of to a known released kernel, and see what happens...
-
-Cheers,
-Rob
-
--- 
-O_
-
---=.ok:ag0eV+yI3GP
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iEYEARECAAYFAj7SXH8ACgkQgy51bQc2FFk2tgCcCEP8DyTqGOoSLeTOXsacVjlN
-qGkAn19MzucjjYir8aVlwfF6HVNtXgJz
-=uoZ3
------END PGP SIGNATURE-----
-
---=.ok:ag0eV+yI3GP--
-
+----------------------
+Eric Bambach   
+Eric@CISU.net 
+----------------------

@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVANDRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVANDVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVANDRU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 22:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVANDQG
+	id S261880AbVANDVT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 22:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVANDRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 22:16:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62621 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261877AbVANDGM (ORCPT
+	Thu, 13 Jan 2005 22:17:47 -0500
+Received: from faye.voxel.net ([69.9.164.210]:53204 "EHLO faye.voxel.net")
+	by vger.kernel.org with ESMTP id S261862AbVANDPy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 22:06:12 -0500
-Date: Thu, 13 Jan 2005 19:05:59 -0800
-Message-Id: <200501140305.j0E35xqW007488@magilla.sf.frob.com>
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Steve Dickson <SteveD@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] clear false pending signal indication in core dump
-X-Windows: a mistake carried out to perfection.
+	Thu, 13 Jan 2005 22:15:54 -0500
+Subject: Re: 2.6.10-as1
+From: Andres Salomon <dilinger@voxel.net>
+To: Felipe Alfaro Solana <lkml@mac.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <B7C8CFFE-6593-11D9-8FEA-000D9352858E@mac.com>
+References: <1105605448.7316.13.camel@localhost>
+	 <41E6D5F8.2040901@gentoo.org>
+	 <B7C8CFFE-6593-11D9-8FEA-000D9352858E@mac.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XHcoAhMx6BydyfXED98W"
+Date: Thu, 13 Jan 2005 22:15:52 -0500
+Message-Id: <1105672552.11805.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When kill is used to force a core dump, __group_complete_signal uses the
-group_stop_count machinery to stop other threads from doing anything more
-before the signal-taking thread starts the coredump synchronization.  This
-intentionally results in group_stop_count always still being > 0 when the
-signal-taking thread gets into do_coredump.  However, that has the
-unintended effect that signal_pending can return true when called from the
-filesystem code while writing the core dump file.  For NFS mounts using the
-"intr" option, this results in NFS operations bailing out before they even
-try, so core files never get successfully dumped on such a filesystem when
-the crash was induced by an asynchronous process-wide signal.
 
-This patch fixes the problem by clearing group_stop_count after the
-coredump synchronization is complete.
+--=-XHcoAhMx6BydyfXED98W
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The locking I threw in is not directly related, but always should have been
-there and may avoid some potential races with kill.
+On Thu, 2005-01-13 at 19:48 +0100, Felipe Alfaro Solana wrote:
+[...]
+>=20
+> Will this release get enough exposure? I mean, will this patchset will=20
+> get published in www.kernel.org?
+>=20
 
-
-Thanks,
-Roland
+I suppose that depends whether or not I get Linus & co's official
+blessing for the tree.  I assume hpa is the person who would actually be
+setting everything up?
 
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+--=20
+Andres Salomon <dilinger@voxel.net>
 
---- linux-2.6/fs/exec.c
-+++ linux-2.6/fs/exec.c
-@@ -1397,10 +1434,19 @@ int do_coredump(long signr, int exit_cod
- 	}
- 	mm->dumpable = 0;
- 	init_completion(&mm->core_done);
-+	spin_lock_irq(&current->sighand->siglock);
- 	current->signal->flags = SIGNAL_GROUP_EXIT;
- 	current->signal->group_exit_code = exit_code;
-+	spin_unlock_irq(&current->sighand->siglock);
- 	coredump_wait(mm);
- 
-+	/*
-+	 * Clear any false indication of pending signals that might
-+	 * be seen by the filesystem code called to write the core file.
-+	 */
-+	current->signal->group_stop_count = 0;
-+	clear_thread_flag(TIF_SIGPENDING);
-+
- 	if (current->signal->rlim[RLIMIT_CORE].rlim_cur < binfmt->min_coredump)
- 		goto fail_unlock;
- 
+--=-XHcoAhMx6BydyfXED98W
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBB5zln78o9R9NraMQRAiKIAJ9c0E0UuuWihZOqHZHeLHAA8V7Y0gCeODmZ
+el79e+VOmbrfI4vIqf6ZqB0=
+=kRRS
+-----END PGP SIGNATURE-----
+
+--=-XHcoAhMx6BydyfXED98W--
+

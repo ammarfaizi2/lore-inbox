@@ -1,91 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbTJEMnb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 08:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTJEMnb
+	id S263098AbTJEMox (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 08:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbTJEMox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 08:43:31 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:14979
-	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
-	id S263095AbTJEMn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 08:43:28 -0400
-Date: Sun, 5 Oct 2003 14:43:21 +0200
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
-Subject: Re: crypto benchmark results with 2.6.0-test6
-Message-ID: <20031005124321.GA2529@leto2.endorphin.org>
-References: <20031004104131.GA1533@leto2.endorphin.org> <3F800BF8.3020800@g-house.de>
+	Sun, 5 Oct 2003 08:44:53 -0400
+Received: from smtpout.mac.com ([17.250.248.89]:59384 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S263098AbTJEMo3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 08:44:29 -0400
+Subject: Re: [PATCH] [2/2] posix message queues
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@mac.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+       bo.z.li@intel.com
+In-Reply-To: <3F7DBCF6.3050407@colorfullife.com>
+References: <1065196646.3682.54.camel@picklock.adams.family>
+	 <3F7DBCF6.3050407@colorfullife.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: 
+Message-Id: <1065282666.2448.57.camel@picklock.adams.family>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-In-Reply-To: <3F800BF8.3020800@g-house.de>
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens-dated-1066221801.48ed@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 05 Oct 2003 14:42:27 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Fre, 2003-10-03 um 20.16 schrieb Manfred Spraul:
+> Peter Wächtler wrote:
+> 
+> >+
+> >+#if 0
+> >+/* don't use fget() to avoid the fput() for speed reason 
+> >+ * on create/open the refcount is 1 and decremented on close
+> >+ * if you have a multithreaded app where one thread closes
+> >+ * the mqueue while another thread operates on it -> possible crash
+> >+ * the spec says the behavior is undefined
+> >+ * separate processes are not affected
+> >+ */
+> >
+> Could you remove that block, instead of just disabling it? Bugs spread 
+> at an incredible rate...
+> The right approach to avoid the cost of the fget is fget_light. But 
+> that's an optimization, it can be added later.
+> 
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+removed and replaced with fget_light/fput_light
 
-On Sun, Oct 05, 2003 at 02:18:00PM +0200, Christian Kujau wrote:
-> Sorry, took me a while to retest.
+> >+
+> >+static void local_remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait)
+> >+{
+> >+	spin_lock(&q->lock);
+> >+	__remove_wait_queue(q, wait);
+> >+	spin_unlock(&q->lock);
+> >+}
+> >
+> What's the difference between remove_wait_queue() and 
+> local_remove_wait_queue?
+> 
 
-Thanks :)
+don't disable local_irq , because no irq involved
+don't know how expensive a local_irq_save is on SMP
 
-> Fruhwirth Clemens schrieb:
-> >would you like to benchmark
-> >http://clemens.endorphin.org/patches/aes-i586-asm-2.6.0-test5.diff
->
-> yes, i did so, results on:
-> http://www.nerdbynature.de/bench/prinz/
+> >+	queue->q_lspid = current->pid;
+> >+	queue->q_cbytes += msg_len;
+> >+	atomic_add(msg_len, &msg_bytes);
+> >
+> You are accounting posix messages in the sysv msg variables. Is that 
+> something we want, or should posix messages have their own accounting 
+> variables? I don't know what's better, but it should be discussed.
 
-Looks promising. But it's not going to be merged because of objections by
-the cryptoapi maintainer.
 
-> >http://clemens.endorphin.org/twofish-i586/ (experimential)=20
->=20
-> uh, i guess this masm/windoze/elf32 stuff is too much for me, i could=20
-> try, but don't have time to dig into this. but you could try my script,=
-=20
-> and run benchmarks on your machine too.
-> but: how is this twofish optimization supposed to go into mainline=20
-> anyway? one had to use a special compiling environment to compile a kerne=
-l?
+msg_bytes is local to posixqueue.c
+if I use the SysV queue code, I use its storage. What do you mean by
+accounting? Whatever security_msg_msg_alloc() does?
+We have no enforcable user limits on queues (in context of ulimits).
 
-It's not a patch, it's an add-on. I'm working on a gas version of the
-assembler code so it can be merged, but it's far from being complete
-(although it works).
+> >+	queue->q_qnum++;
+> >+	inode->i_size = queue->q_qnum;
+> >+	inode->i_mtime = CURRENT_TIME;
+> >+
+> >+	if (waitqueue_active(&q->wait_recv)) {
+> >+		/* wake up all waiters to serve the highest prio waiter */
+> >+		wake_up_interruptible_all(&q->wait_recv);
+> >
+> Would it be possible to sort the waiters according to their prio? 
+> wake_all is always bad.
+> 
 
-> i set up these benchmarks for me too, because i needed to know what=20
-> cipher is fast enough for my own use. usually i sticked to serpent, now=
-=20
-> aes-i586 looks quite good on this PC. i wonder if it will compile and so=
-=20
-> something on ppc32 too, but probably not. which is a pity, because my=20
-> primary use of the cryptoloop is a ppc :-(
+yes, I will try that.
 
-Well that's the cost of an assembler implementation ;) it's not portable.=
-=20
-Probably you can one of IBM's compilers to compile the cipher of your
-choice. http://www-3.ibm.com/software/awdtools/ccompilers/ ... Rumours say
-they're fast than gcc.
+> >+	} else {
+> >+		/* since there was no synchronously waiting process for message
+> >+		 * we notify it when the state of queue changed from
+> >+		 * empty to not empty */
+> >+		if (q->notify_pid != 0 && queue->q_qnum == 1) {
+> >+			/* TODO: Add support for sigev_notify==SIGEV_THREAD
+> >+			 *    we should create a thread in userspace
+> >+			 */
+> >
+> Is that comment still correct? You wrote that it's supported in user space.
+> 
 
-Regards, Clemens
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Userspace translates SIGEV_THREAD to something that uses SIGEV_SIGNAL.
+Ulrich made a suggestion to use a futex, but I think of something even
+more lightweight. Just put the requestor right to sleep.
+No further syscall involved (and avoids a race inbetween sys_mq_notify
+and sigsuspend).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/gBHpW7sr9DEJLk4RAiijAJ9n12Wmd4Jr+9n0dd9MYYu8KPCKLwCcDk62
-S1te3gHaiQ58Jg24rUXvgtE=
-=nhp/
------END PGP SIGNATURE-----
+-- 
+Peter Wächtler              http://homepage.mac.com/pwaechtler/
 
---UugvWAfsgieZRqgk--

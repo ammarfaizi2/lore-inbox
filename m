@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315631AbSEZD6P>; Sat, 25 May 2002 23:58:15 -0400
+	id <S315630AbSEZEDo>; Sun, 26 May 2002 00:03:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315629AbSEZD6O>; Sat, 25 May 2002 23:58:14 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:17368 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315630AbSEZD6N>;
-	Sat, 25 May 2002 23:58:13 -0400
-Date: Sat, 25 May 2002 23:58:14 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Larry McVoy <lm@bitmover.com>
-cc: David Schleef <ds@schleef.org>, Karim Yaghmour <karim@opersys.com>,
-        Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <20020525201749.A19792@work.bitmover.com>
-Message-ID: <Pine.GSO.4.21.0205252320550.15165-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315634AbSEZEDn>; Sun, 26 May 2002 00:03:43 -0400
+Received: from pool-129-44-55-198.ny325.east.verizon.net ([129.44.55.198]:31239
+	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
+	id <S315630AbSEZEDm>; Sun, 26 May 2002 00:03:42 -0400
+Date: Sun, 26 May 2002 00:03:37 -0400
+From: "Kevin O'Connor" <kevin@koconnor.net>
+To: Larry McVoy <lm@work.bitmover.com>, Erwin Rol <erwin@muffin.org>,
+        linux-kernel@vger.kernel.org, RTAI users <rtai@rtai.org>
+Subject: Re: RTAI/RtLinux
+Message-ID: <20020526000337.A31674@arizona.localdomain>
+In-Reply-To: <1022317532.15111.155.camel@rawpower> <20020525090537.G28795@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 25, 2002 at 09:05:37AM -0700, Larry McVoy wrote:
+> So the thing I have a problem with is that Victor says that all GPL
+> is fine.  You say you are all GPL.  So far, no problem.  Yet you keep
+> coming back and saying there is a problem, that Linux is going to
+> be out of the running as a real time platform because of the patent.
+> I don't get it, why should the patent prevent Linux from being used?
 
+The problem is with a non-GPL userspace.
 
-On Sat, 25 May 2002, Larry McVoy wrote:
+Using an analogy, consider what would occur if a company revealed it had a
+patent on some key part of the Linux dcache - a patent free for all GPL
+users, but requiring a license for any commercial code.  In theory this
+isn't a problem, but what happens when that company starts demanding
+licensing fees from application developers like Oracle, IBM, and even
+BitKeeper Inc?  What if the patent holder was Rational Inc and they were
+not eager to license the patent to some companies?  Finally consider what
+would happen if there were a dozen (hundreds?) of patent owners demanding
+royalties for a userspace application.
 
-> Good luck making that stick in court.  First of all, the RTAI guys have
-> admitted over and over that RTAI is a fork of the RTLinux source base.
-> Your claims that that isn't true are countered by principles from both
-> parties in question.  Second of all, both source bases have evolved 
-> since the fork.  Whether your script catches the common heritage or 
-> not has no meaning, the fact remains that one is derived from the
-> other, and as such has to be GPLed.
+To be clear, I do not believe this is the case with RTAI.  Their userspace
+appears to be distinctly different from Linux userspace.  But I hope you
+can appreciate why this concept can be very disturbing.
 
-Larry, can it.  4.4BSD was derived from v6->v7->32V - nobody had ever
-denied that.  So was USG "codebase"<spit>.  Didn't change the outcome
-of lawsuit.
+-Kevin
 
-And for fuck sake, stop harping on "GPL is the only free license, anyone
-who prefers something else wants to use code as revenue source" tune - 
-$DEITY witness, FSF wankers are more than enough.  It was my impression
-that unlike them you _do_ pretend to have some amount of intellectual honesty.
-
-For the record - the only reason why I'm using GPL for kernel work is
-the license on the rest of kernel.  My preference for situations when
-I get to choose is either BSD license (short one) or Artistic - _not_ GPV,
-thank you very much.  For very simple reasons - I don't care who uses
-the code and don't think that forcing contributions works better than
-letting people contribute if they want to do that.
-
-If somebody chooses to use these "free for GPLed works" patents - fine,
-but at least have a decency to admit that it's a bit more complex than
-"if you want to make money on my work I want a part of it".
-
-I don't give a damn for RT systems in general and RTLinux/RTAI in particular,
-but I'm getting really sick and tired from the density of crap in this thread.
-Folks, it stinks.  On both sides.
-
-Grrr... As if dealing with "product" of Sun-employed cretins was not enough
-interactions with idiocy for one day...
-
+-- 
+ ------------------------------------------------------------------------
+ | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ------------------------------------------------------------------------

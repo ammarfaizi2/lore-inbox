@@ -1,135 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUGJSbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266338AbUGJSdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUGJSbr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 14:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUGJSbp
+	id S266338AbUGJSdj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 14:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUGJSdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 14:31:45 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:57867 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266334AbUGJSba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 14:31:30 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: [OOPS] linux-2.6.7-bk20: possible use-after-free in platform_device_unregister()
-Date: Sat, 10 Jul 2004 21:31:10 +0300
-User-Agent: KMail/1.5.4
+	Sat, 10 Jul 2004 14:33:39 -0400
+Received: from ishtar.tlinx.org ([64.81.245.74]:2946 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S266338AbUGJSdb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 14:33:31 -0400
+Message-ID: <40F03665.90108@tlinx.org>
+Date: Sat, 10 Jul 2004 11:33:09 -0700
+From: L A Walsh <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Chris Wedgwood <cw@f00f.org>
+CC: L A Walsh <lkml@tlinx.org>,
+       Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <40EEC9DC.8080501@tlinx.org> <20040709215955.GA24857@taniwha.stupidest.org>
+In-Reply-To: <20040709215955.GA24857@taniwha.stupidest.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407102131.10194.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compile kernels with
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_STACK_USAGE=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
+My cases have been "vim" edited files.  I'd sorta think once vim has 
+exited, the
+data has been flushed, but that's just a WAG...
 
-Kernel oopsed while probing for devices in depca.c:
+-l
 
-static void __init depca_platform_probe (void)
-{
-        int i;
-        struct platform_device *pldev;
+Chris Wedgwood wrote:
 
-        for (i = 0; depca_io_ports[i].iobase; i++) {
-                depca_io_ports[i].device = NULL;
-
-                /* if an address has been specified on the command
-                 * line, use it (if valid) */
-                if (io && io != depca_io_ports[i].iobase)
-                        continue;
-
-                if (!(pldev = kmalloc (sizeof (*pldev), GFP_KERNEL)))
-                        continue;
-
-                memset (pldev, 0, sizeof (*pldev));
-                pldev->name = depca_string;
-                pldev->id   = i;
-                pldev->dev.platform_data = (void *) depca_io_ports[i].iobase;
-                pldev->dev.release       = depca_platform_release;
-                depca_io_ports[i].device = pldev;
-
-                if (platform_device_register (pldev)) {
-                        kfree (pldev);
-                        depca_io_ports[i].device = NULL;
-                        continue;
-                }
-
-                if (!pldev->dev.driver) {
-                /* The driver was not bound to this device, there was
-                 * no hardware at this address. Unregister it, as the
-                 * release fuction will take care of freeing the
-                 * allocated structure */
-
-                        depca_io_ports[i].device = NULL;
-===>                    platform_device_unregister (pldev);
-                }
-        }
-}
-
-void platform_device_unregister(struct platform_device * pdev)
-{
-        int i;
-
-        if (pdev) {
-                device_unregister(&pdev->dev);
-
-                for (i = 0; i < pdev->num_resources; i++) {
-                        struct resource *r = &pdev->resource[i];
-===>                    if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
-                                release_resource(r);
-                }
-        }
-}
-
-That if() corresponds to "testl  $0x300,0xc(%eax)" instruction in assembler.
-%eax == 6b6b6b6b there at that moment (looks like poison). oops.
-
-I verified that pdev->num_resources==0 upon entry to
-platform_device_unregister().
-
-device_unregister() must be deallocating *pdev, poisoning
-its contents. pdev->num_resources!=0, and pdev->resource[i]
-is garbage too.
-
-However, I don't see where does it free *pdev.
-
-Source of device_unregister() is below for easy reference.
---
-vda
-
-void device_unregister(struct device * dev)
-{
-        pr_debug("DEV: Unregistering device. ID = '%s'\n", dev->bus_id);
-        device_del(dev);
-        put_device(dev);
-}
-
-void device_del(struct device * dev)
-{
-        struct device * parent = dev->parent;
-
-        down_write(&devices_subsys.rwsem);
-        if (parent)
-                list_del_init(&dev->node);
-        up_write(&devices_subsys.rwsem);
-
-        /* Notify the platform of the removal, in case they
-         * need to do anything...
-         */
-        if (platform_notify_remove)
-                platform_notify_remove(dev);
-        bus_remove_device(dev);
-        device_pm_remove(dev);
-        kobject_del(&dev->kobj);
-        if (parent)
-                put_device(parent);
-}
+>On Fri, Jul 09, 2004 at 09:37:48AM -0700, L A Walsh wrote:
+>
+>>ven after multiple syncs, files edited within the past few days
+>>will sometimes go mysteriously null.  Good reason to do daily
+>>backups as the backups will usually contain the correct file...
+>>    
+>>
+>I *never* see this even when beating the hell out of machines and
+>trying to break things.
+>
+>I do see nulls in cases where the metadata was updated and the data
+>didn't flush, that's supposed to happen.
+>  
+>
+>>Now if we could just come up with a reproducable test case...but
+>>when I try to reproduce it, it doesn't.  Grrr....it knows when I'm
+>>scrutinizing!! :-)
+>>    
+>>
+>Use anything that handles dotfiles or configuration badly (ie. KDE),
+>make some changes or just 'run it' for a bit.  Every now something
+>rewrites some files.  Yank the power a few times and sooner or later
+>you'll end up with problems under KDE certainly.
+>  
+>
+---
+    No desktop on this machine...it's a server I log into remotely for 
+the most part.
 

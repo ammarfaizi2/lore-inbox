@@ -1,153 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbTIWQnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 12:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTIWQnU
+	id S261443AbTIWQgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 12:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTIWQgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 12:43:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54169 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261641AbTIWQnP (ORCPT
+	Tue, 23 Sep 2003 12:36:10 -0400
+Received: from [65.39.167.210] ([65.39.167.210]:54146 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S261443AbTIWQgG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 12:43:15 -0400
-Date: Tue, 23 Sep 2003 09:36:07 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Sebastian Piecha" <spi@gmxpro.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to understand an oops?
-Message-Id: <20030923093607.54335f4c.rddunlap@osdl.org>
-In-Reply-To: <3F703FAE.32215.13B8E21F@localhost>
-References: <3F703FAE.32215.13B8E21F@localhost>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Sep 2003 12:36:06 -0400
+Date: Tue, 23 Sep 2003 12:36:03 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       Jan Evert van Grootheest <j.grootheest@euronext.nl>,
+       Mike Galbraith <efault@gmx.de>,
+       german aracil boned <german@tecnoxarxa.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [OFFTOPIC] Re: ATTACK TO MY SYSTEM
+In-Reply-To: <Pine.LNX.4.51.0309231447020.1116@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.44.0309231234090.17470-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Sep 2003 12:42:22 +0200 "Sebastian Piecha" <spi@gmxpro.de> wrote:
+Worse than this is the fact that some idiot wrote spam software that tells
+each RECPIANT that someone tried to send them spam.  I saw a cc list hat
+included half of linux-kernel.
 
-| Hello,
-| 
-| using samba 2.2.8a with kernel 2.4.20 or 2.4.23pre1 ends in an oops. 
-| In several mailings to the lkml I tried to get help but unfortunately 
-| nobody did answer me.
+	Gerhard
 
-You would probably get more linux-networking help on
-linux-net@vger.kernel.org or
-netdev@oss.sgi.com
+On Tue, 23 Sep 2003, Maciej Soltysiak wrote:
 
-| I'm trying to interpret all the oopses myself. I reproduced the 
-| kernel panic in different configurations - with or without LVM or 
-| RAID. What all oopses do have common is the "Code" section. 
-| skb_drop_fraglist is listed herein. skb_drop_fraglist is defined in 
-| net/core/skbuff.c.
+> Date: Tue, 23 Sep 2003 14:55:57 +0200 (CEST)
+> From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+> To: Russell King <rmk@arm.linux.org.uk>
+> Cc: Jan Evert van Grootheest <j.grootheest@euronext.nl>,
+>      Mike Galbraith <efault@gmx.de>,
+>      german aracil boned <german@tecnoxarxa.com>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: [OFFTOPIC] Re: ATTACK TO MY SYSTEM
+>
+> > When there are enough complaints to mail server admins, hopefully the
+> > philosophy will change.
+> It is changing. I have been talking to antivirus software people (nod32)
+> and I suggested that their virus signatures could have information whether
+> the virus spoofs the sender address or not, and then simply do not send
+> replies for infected mail. I got a response that they are working on it,
+> and that other antivirus software developers like dudes from symantec,
+> sophos, mcaffe, etc... are working on it also.
+>
+> So we should have a slightly better solution to that when the software
+> gets better.
+>
+> Also note the disinformative effect of the virus on plain users.
+> We will have all of these problem until the protocols get seriously
+> improved. We urgently need a reliable and secure SMTP replacing or
+> extending protocol, which would aid in tracking down the culprits.
+> TCP/IP Ideas like icmp traceback messages (it's still an IETF draft)
+> and other ideas will hopefully help us cut down on spoofing, flooding,
+> etc, as the detection will improve. Anyway these are my wishes for the
+> Internet Community. The protocols we are using today (SMTP, IP) are
+> inadequate due to lacks in their defensive value.
+>
+> I also heard that there is work in progress conerning SMTP
+> replacement/improvement by enhancements.
+>
+> Regards,
+> Maciej
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Yes, and that's the only source file where it is used.
-
-| Does the code section mean that the kernel panic occurred during 
-| execution of this code?
-
-Yes.
-Are there a few informative lines missing before the Oops: line below?
-
-| How likely is it that a bug in net/core/skbuff.c is causing the 
-| kernel panic?
-
-Dunno.  It's trying to access memory at (%ebx) == 00200000.
-That could be a single-bit error in memory which was supposed to be
-0, which would have terminated the while loop in skb_drop_fraglist().
-
-The common suggestion based on this would be to run memtest86
-(or memtst86 ?) overnight to check for memory errors.
-
-| How can I find other code/modules from which skb_drop_fraglist is 
-| called and used?
-
-Use grep (or cscope, but that would be overkill in this case).
-I found it only in net/core/skbuff.c.
-
-| What is the best way interpreting such an oops?
-| 
-| ################## oops #####################
-| Oops: 0000
-| CPU:    0
-| EIP:    0010:[<c0219cd7>]    Not tainted
-| Using defaults from ksymoops -t elf32-i386 -a i386
-| EFLAGS: 00010206
-| eax: c40866a0   ebx: 00200000   ecx: c40866a0   edx: 00200000
-| esi: cec57360   edi: fffffff9   ebp: 00000046   esp: c0303f2c
-| ds: 0018   es: 0018   ss: 0018
-| Process swapper (pid: 0, stackpage=c0303000)
-| Stack: cec57360 c0219d6e cec57360 cec57360 cec57360 c0219dab cec57360 
-| cec57360
-|        c0219efc cec57360 cf49cb20 c021e173 cec57360 00000003 c032c568 
-| c0120629
-|        c032c568 00000006 0000000e c0303f98 d3e02e40 c010a091 c0106f40 
-| c0302000
-| Call Trace:    [<c0219d6e>] [<c0219dab>] [<c0219efc>] [<c021e173>] 
-| [<c0120629>]
-|   [<c010a091>] [<c0106f40>] [<c010c4e8>] [<c0106f40>] [<c0106f64>] 
-| [<c0106fd2>]
-|   [<c0105000>]
-| Code: 8b 1b 8b 42 74 48 74 0a ff 4a 74 0f 94 c0 84 c0 74 07 52 e8
-| 
-| 
-| >>EIP; c0219cd7 <skb_drop_fraglist+17/40>   <=====
-                   ^^^^^^^^^^^^^^^^^^^^^^^
-This is the faulting code location.
-
-| >>eax; c40866a0 <_end+3cf81fc/14e64bbc>
-| >>ecx; c40866a0 <_end+3cf81fc/14e64bbc>
-| >>esi; cec57360 <_end+e8c8ebc/14e64bbc>
-| >>esp; c0303f2c <init_task_union+1f2c/2000>
-
-This is the call stack.  skb_drop_fraglist() was called from here:
-                   vvvvvvvvvvvvvvvvvvvvvv
-| Trace; c0219d6e <skb_release_data+4e/80>
-| Trace; c0219dab <kfree_skbmem+b/70>
-| Trace; c0219efc <__kfree_skb+ec/150>
-| Trace; c021e173 <net_tx_action+33/a0>
-| Trace; c0120629 <do_softirq+99/a0>
-| Trace; c010a091 <do_IRQ+a1/b0>
-| Trace; c0106f40 <default_idle+0/30>
-| Trace; c010c4e8 <call_do_IRQ+5/d>
-| Trace; c0106f40 <default_idle+0/30>
-| Trace; c0106f64 <default_idle+24/30>
-| Trace; c0106fd2 <cpu_idle+42/60>
-| Trace; c0105000 <_stext+0/0>
-| 
-| Code;  c0219cd7 <skb_drop_fraglist+17/40>
-| 00000000 <_EIP>:
-| Code;  c0219cd7 <skb_drop_fraglist+17/40>   <=====
-|    0:   8b 1b                     mov    (%ebx),%ebx   <=====
-                                    ^^^^^^^^^^^^^^^^^^
-This is the faulting instruction.  Accessing memory at (%ebx) == 00200000.
-
-| Code;  c0219cd9 <skb_drop_fraglist+19/40>
-|    2:   8b 42 74                  mov    0x74(%edx),%eax
-| Code;  c0219cdc <skb_drop_fraglist+1c/40>
-|    5:   48                        dec    %eax
-| Code;  c0219cdd <skb_drop_fraglist+1d/40>
-|    6:   74 0a                     je     12 <_EIP+0x12>
-| Code;  c0219cdf <skb_drop_fraglist+1f/40>
-|    8:   ff 4a 74                  decl   0x74(%edx)
-| Code;  c0219ce2 <skb_drop_fraglist+22/40>
-|    b:   0f 94 c0                  sete   %al
-| Code;  c0219ce5 <skb_drop_fraglist+25/40>
-|    e:   84 c0                     test   %al,%al
-| Code;  c0219ce7 <skb_drop_fraglist+27/40>
-|   10:   74 07                     je     19 <_EIP+0x19>
-| Code;  c0219ce9 <skb_drop_fraglist+29/40>
-|   12:   52                        push   %edx
-| Code;  c0219cea <skb_drop_fraglist+2a/40>
-|   13:   e8 00 00 00 00            call   18 <_EIP+0x18>
-| 
-|  <0>Kernel panic: Aiee, killing interrupt handler!
-| #################################
-
-HTH.
 --
-~Randy
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270273AbUJTBNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270256AbUJTBD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270273AbUJTBNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270261AbUJTBJG
+	id S270256AbUJTBD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270253AbUJTA7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:09:06 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:22194 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S269536AbUJTBGu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:06:50 -0400
-Date: Tue, 19 Oct 2004 18:06:49 -0700
-To: "David S. Miller" <davem@davemloft.net>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Debug module param
-Message-ID: <20041020010649.GI12932@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Tue, 19 Oct 2004 20:59:39 -0400
+Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:1411 "EHLO
+	finwe.eu.org") by vger.kernel.org with ESMTP id S269536AbUJTAek
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:34:40 -0400
+Date: Wed, 20 Oct 2004 02:34:08 +0200
+From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Register corruption --patch
+Message-ID: <20041020003408.GA6101@finwe.eu.org>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0410191112100.4820@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <Pine.LNX.4.61.0410191112100.4820@chaos.analogic.com>
+Organization: Kreatorzy Kreacji Bialej
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irXXX_debug_mod_parm.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [CORRECT] irda 2.6 - fix module info
-The module parameter info for irda is incorrect.
-The debug parameter is named "debug", the variable is irda_debug.
+Richard B. Johnson wrote:
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
+> This 'C' compiler destroys parameters passed to functions
+> even though the code does not alter that parameter.
+[example]
+> This was from /usr/src/linux-2.6.9/arch/i386/kernel/semaphore.c
+> It this case, the value of 'sem' is destroyed which means that
+> certain assembly-language helper functions no longer work.
+> 
+> This was discovered by Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+> 
+> I have been having trouble with mysterious things like:
+[...]
+> (4) Data errors in email.
+> (5) Network connections failing to go away `netstat -c` shows
+> hundreds of lines of very old history.
+> ... etc.
+> 
 
-diff -Nru a/net/irda/irmod.c b/net/irda/irmod.c
---- a/net/irda/irmod.c	2004-10-08 10:48:24 -07:00
-+++ b/net/irda/irmod.c	2004-10-08 10:48:24 -07:00
-@@ -62,7 +62,7 @@
- #ifdef CONFIG_IRDA_DEBUG
- unsigned int irda_debug = IRDA_DEBUG_LEVEL;
- module_param_named(debug, irda_debug, uint, 0);
--MODULE_PARM_DESC(irda_debug, "IRDA debugging level");
-+MODULE_PARM_DESC(debug, "IRDA debugging level");
- EXPORT_SYMBOL(irda_debug);
- #endif
- 
+Having troubles with some strange (and -as it seems- temporary) 
+data corruptions here[*], I was wondering, whether would it be 
+posiible to easily diagnose this somehow?
+
+[*] like diff running serval times over same two files can 
+    only once in a while show one character altered 
+
+bye
+
+-- 
+Jacek Kawa  **Define the universe.  Give three examples.** [r.h.f.r]

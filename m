@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbRLXSwF>; Mon, 24 Dec 2001 13:52:05 -0500
+	id <S285236AbRLXS4P>; Mon, 24 Dec 2001 13:56:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285229AbRLXSvz>; Mon, 24 Dec 2001 13:51:55 -0500
-Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:23307 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S285226AbRLXSvn>;
-	Mon, 24 Dec 2001 13:51:43 -0500
-Date: Mon, 24 Dec 2001 10:47:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Juergen Sauer <jojo@automatix.de>
-Cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-usb-users] VIA Chipsets + USB + SMP == UGLY TRASH
-Message-ID: <20011224104724.B8215@kroah.com>
-In-Reply-To: <E16IRTQ-0003oN-00@s.automatix.de>
-Mime-Version: 1.0
+	id <S285246AbRLXS4F>; Mon, 24 Dec 2001 13:56:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30725 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285236AbRLXSz7>; Mon, 24 Dec 2001 13:55:59 -0500
+Subject: Re: [patch] Assigning syscall numbers for testing
+To: dledford@redhat.com (Doug Ledford)
+Date: Mon, 24 Dec 2001 19:05:31 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
+        bcrl@redhat.com (Benjamin LaHaise), linux-kernel@vger.kernel.org
+In-Reply-To: <3C2770FE.80403@redhat.com> from "Doug Ledford" at Dec 24, 2001 01:16:30 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16IRTQ-0003oN-00@s.automatix.de>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 26 Nov 2001 16:11:53 -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16IaPj-0004u4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 24, 2001 at 10:32:49AM +0100, Juergen Sauer wrote:
-> Hi!
-> Merry X-Mas everywhere !
-> 
-> So, my USB tryout is over. 
-> This is the expierience report:
-> You should not try to use VIA Chipsets + SMP + USB, that's
-> the worst thinkable idea. It's junk (usb-Part).
+> it.  However, I think it needs to be allocated *regardless* of whether Linus 
+> takes the patch into his kernel.  Even if the patch is simply used outside 
+> Linus's kernel, it still needs the allocation to truly be safe.
 
-Depends on the motherboard.  What one do you have?
+Negative numbers are safe until Linus has 2^31 syscalls, at which point
+quite frankly we would have a few other problems including the fact that
+the syscall table won't fit in kernel mapped memory.
 
-> That's why:
-> 1. not solved USB Irq errors in APIC mode, causes:
-> 	Error -110, device does not accept ID
-> 	USB Host is recognized fine, no device is attaced
-> 
-> This is an error somewhere in the Kernel APIC Irq routing, which may 
-> worked around with "append noapic pirq="your irq" but using such a cutdown
-> USB System is not a good idea, no relly working bulk-transfers (forget 
-> any devices which depend from it: scanners, camera, sound, isdn, 
-> harddisks, zip etc.)
-
-I have a SMP motherboard that requires this (noapic setting).  With that
-set, everything works fine including bulk transfers and all other USB
-devices that I have.
-
-What error messages do you have showing that bulk transfers do not work?
-
-thanks,
-
-greg k-h
+I'm sure we could get Linus to agree not to use negative numbers out of
+spite.

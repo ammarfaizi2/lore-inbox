@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269600AbUICKNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269616AbUICKBw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269600AbUICKNB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 06:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269670AbUICKJC
+	id S269616AbUICKBw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 06:01:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269589AbUICJ7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 06:09:02 -0400
-Received: from alias.nmd.msu.ru ([193.232.127.67]:56372 "EHLO alias.nmd.msu.ru")
-	by vger.kernel.org with ESMTP id S269623AbUICKIP (ORCPT
+	Fri, 3 Sep 2004 05:59:17 -0400
+Received: from holomorphy.com ([207.189.100.168]:43139 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269587AbUICJzl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 06:08:15 -0400
-Date: Fri, 3 Sep 2004 14:08:12 +0400
-From: Alexander Lyamin <flx@msu.ru>
-To: bzolnier@milosz.na.pl
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, zam@namesys.com,
-       linux-kernel@vger.kernel.org
-Subject: Re:  A few filesystem benchmarks w/ReiserFS4 vs Other Filesystems
-Message-ID: <20040903100812.GA32387@alias>
-Reply-To: flx@msu.ru
-Mail-Followup-To: flx@msu.ru, bzolnier@milosz.na.pl,
-	Justin Piszcz <jpiszcz@lucidpixels.com>, zam@namesys.com,
+	Fri, 3 Sep 2004 05:55:41 -0400
+Date: Fri, 3 Sep 2004 02:55:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [1/4] standardize bit waiting data type
+Message-ID: <20040903095538.GQ3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Martin Wilck <martin.wilck@fujitsu-siemens.com>,
 	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0408271037080.15499@p500> <200408271745.41722.bzolnier@elka.pw.edu.pl>
+References: <2xoKb-2Pa-27@gated-at.bofh.it> <2y3X5-73V-37@gated-at.bofh.it> <2y46A-798-17@gated-at.bofh.it> <2y4T1-7GM-17@gated-at.bofh.it> <2y52E-7Li-11@gated-at.bofh.it> <2y5ci-7Qz-7@gated-at.bofh.it> <2y5m3-7VH-5@gated-at.bofh.it> <2y7Hd-1aP-21@gated-at.bofh.it> <41383F33.4050503@fujitsu-siemens.com> <20040903094247.GP3106@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408271745.41722.bzolnier@elka.pw.edu.pl>
-X-Operating-System: Linux 2.6.5-7.104-smp
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040903094247.GP3106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fri, Aug 27, 2004 at 05:45:41PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> Hi,
-> > Execute rm -rf linux-2.6.8.1 on each file system.
-> > # -------------------------------------------------------------------- #
-> > ext2 | 10.26 sec @ 22% cpu
-> > ext3 | 10.02 sec @ 25% cpu
-> >   jfs | 26.67 sec @ 27% cpu
-> >   rs3 | 03.22 sec @ 74% cpu
-> >   rs4 | 25.58 sec @ 50% cpu <- What happened to reiserfs4 here?
-> >   xfs | 12.51 sec @ 47% cpu
-> > # -------------------------------------------------------------------- #
-> > Create a 500MB file with dd to each filesystem with 1MB blocks.
-> > # -------------------------------------------------------------------- #
-> > ext2 | 15.72 sec @ 26% cpu
-> > ext3 | 17.04 sec @ 31% cpu
-> >   jfs | 29.57 sec @ 25% cpu
-> >   rs3 | 15.21 sec @ 27% cpu
-> >   rs4 | 23.96 sec @ 23% cpu <- What happened to reiserfs4 here?
-> >   xfs | 19.07 sec @ 29% cpu
+On Fri, Sep 03, 2004 at 11:53:55AM +0200, Martin Wilck wrote:
+>> Why don't you need a do..while loop any more ?
+>> There is also no loop in __wait_on_bit() in the completed patch series.
 
-Your answers somewhere in HCH's "silent semantics" thread.
+On Fri, Sep 03, 2004 at 02:42:47AM -0700, William Lee Irwin III wrote:
+> Part of the point of filtered waitqueues is to reestablish wake-one
+> semantics. This means two things:
+> (a) those waiting merely for a bit to clear with no need to set it,
+> 	i.e. all they want is to know a transition from set to
+> 	clear occurred, are only woken once and don't need to loop
+> 	waking and sleeping
+> (b) Of those tasks waiting for a bit to clear so they can set it
+> 	exclusively, only one needs to be woken, and after the first
+> 	is woken, it promises to clear the bit again, so there is no
+> 	need to wake more tasks.
 
-Basically reiserfs team aware that they do suck at file DELETES
-and OVERWRITES.  There seem to be a way to rectify this perfomance
-issues in future (dynamic repacker?). Altough i was somewhat surprised
-with this  dd file benchmark... probably Alexander Zarochentsev knows
-the answer.
--- 
-"the liberation loophole will make it clear.."
-lex lyamin
+Also, (a) still works in the presence of signals with interruptible
+waits (which the VM and VFS do not now use); the sleeping function is
+required to return -EINTR or some other nonzero value to indicate
+abnormal termination, which in turn must be checked by the caller.
+
+
+-- wli

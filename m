@@ -1,16 +1,16 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S267875AbTBVLGX>; Sat, 22 Feb 2003 06:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S267877AbTBVLGW>; Sat, 22 Feb 2003 06:06:22 -0500
-Received: from [217.78.76.157] ([217.78.76.157]:1028 "HELO localhst619.com") by vger.kernel.org with SMTP id <S267875AbTBVLGV> convert rfc822-to-8bit; Sat, 22 Feb 2003 06:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S267877AbTBVLH5>; Sat, 22 Feb 2003 06:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S267881AbTBVLH5>; Sat, 22 Feb 2003 06:07:57 -0500
+Received: from [217.78.76.157] ([217.78.76.157]:260 "HELO n2now419.com") by vger.kernel.org with SMTP id <S267877AbTBVLHw> convert rfc822-to-8bit; Sat, 22 Feb 2003 06:07:52 -0500
 From: "MRS CEDIA ESTRADA" <estrada_11@linuxmail.org>
 Reply-To: estrada71@phantomemail.com
 To: linux-kernel@vger.kernel.org
-Date: Sat, 22 Feb 2003 00:13:50 +0100
+Date: Sat, 22 Feb 2003 00:16:26 +0100
 Subject: MRS CEDIA ESTRADA
 X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20030222110621Z267875-29901+894@vger.kernel.org>
+Message-Id: <20030222110752Z267877-29901+895@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>

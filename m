@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUFLN5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUFLN6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUFLN5x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 09:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUFLN5x
+	id S264795AbUFLN6U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 09:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUFLN6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 09:57:53 -0400
-Received: from nepa.nlc.no ([195.159.31.6]:65468 "HELO nepa.nlc.no")
-	by vger.kernel.org with SMTP id S264791AbUFLN5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 09:57:52 -0400
-Message-ID: <1469.83.109.11.80.1087048662.squirrel@nepa.nlc.no>
-In-Reply-To: <20040612134413.GA3396@sirius.home>
-References: <Pine.LNX.4.44.0406112308100.13607-100000@chimarrao.boston.redhat.com>
-      <20040612134413.GA3396@sirius.home>
-Date: Sat, 12 Jun 2004 15:57:42 +0200 (CEST)
+	Sat, 12 Jun 2004 09:58:20 -0400
+Received: from zulo.virutass.net ([62.151.20.186]:9938 "EHLO mx.larebelion.net")
+	by vger.kernel.org with ESMTP id S264795AbUFLN6P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 09:58:15 -0400
+From: Manuel Arostegui Ramirez <manuel@todo-linux.com>
+To: stian@nixia.no, linux-kernel@vger.kernel.org
 Subject: Re: timer + fpu stuff locks my console race
-From: stian@nixia.no
-To: "Sergey Vlasov" <vsu@altlinux.ru>
-Cc: "Rik van Riel" <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       stian@nixia.no
-User-Agent: SquirrelMail/1.4.0-1
+Date: Sat, 12 Jun 2004 15:45:08 +0200
+User-Agent: KMail/1.5
+References: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
+In-Reply-To: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200406121545.08651.manuel@todo-linux.com>
+X-Virus: by Larebelion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux-2.6.6/include/asm-i386/i387.h.fp-lockup	2004-05-10 06:33:06
-> +0400
-> +++ linux-2.6.6/include/asm-i386/i387.h	2004-06-12 17:25:56 +0400
-> @@ -51,7 +51,6 @@
->  #define __clear_fpu( tsk )					\
->  do {								\
->  	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
-> -		asm volatile("fwait");				\
->  		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
->  		stts();						\
->  	}							\
+El Sábado 12 Junio 2004 15:28, stian@nixia.no escribió:
+> Forgot to update the diff file after I fixed some bogus stuff. This patch
+> file compiles. Please report if it works or not for 2.4.26 (I'm lacking
+> that damn Internett connection on my linux box). So much for vaccation.
+>
+> Stian Skjelstad
+>
+> diff -ur linux-2.4.26/kernel/signal.c
+> linux-2.4.26-fpuhotfix/kernel/signal.c --- linux-2.4.26/kernel/signal.c    
+>    2004-02-18 14:36:32.000000000 +0100 +++
+> linux-2.4.26-fpuhotfix/kernel/signal.c      2004-06-12
+> 15:26:10.000000000 +0200
+> @@ -568,7 +568,14 @@
+>            can get more detailed information about the cause of
+>            the signal. */
+>         if (sig < SIGRTMIN && sigismember(&t->pending.signal, sig))
+> +       {
+> +               if (sig==8)
+> +               {
+> +                       printk("Attempt to exploit known bug, process=%s
+> pid=%d uid=%d\n", t->comm, t->pid, t->uid);
+> +                       do_exit(0);
+> +               }
+>                 goto out;
+> +       }
+>
+>         ret = deliver_signal(sig, info, t);
+>  out:
 
-But what about task-switching and fpu-exceptions that comes in late? I
-know that the kernel does not use FPU in general, and the places it does,
-fsave, fwait and frstor embeddes it all in kernel-space.
+I'm going to try the patch on a 2.4.20-8 in about one hour.
+Thanks
 
+-- 
+Manuel Arostegui Ramirez #Linux Registered User 200896
 
-Stian Skjelstad

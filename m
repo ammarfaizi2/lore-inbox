@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262736AbSJCFSH>; Thu, 3 Oct 2002 01:18:07 -0400
+	id <S262737AbSJCFTj>; Thu, 3 Oct 2002 01:19:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262739AbSJCFSH>; Thu, 3 Oct 2002 01:18:07 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:39863 "HELO
+	id <S262741AbSJCFSq>; Thu, 3 Oct 2002 01:18:46 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:41143 "HELO
 	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S262736AbSJCFRq>; Thu, 3 Oct 2002 01:17:46 -0400
+	id <S262737AbSJCFRv>; Thu, 3 Oct 2002 01:17:51 -0400
 From: <peterc@gelato.unsw.edu.au>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Date: Thu, 3 Oct 2002 15:20:34 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15771.54178.765338.598679@lemon.gelato.unsw.EDU.AU>
-Subject: [PATCH] Large Block device patch part 1/4
+Message-ID: <15771.54178.106397.870653@lemon.gelato.unsw.EDU.AU>
+Subject: [PATCH] Large Block device patch part 2/4
 X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,477 +25,729 @@ This patch can be picked up from http://www.gelato.unsw.edu.au or from
 the bk repository at bk://gelato.unsw.edu.au:2023
 See part 0/4 for details.
 
- drivers/block/blkpg.c      |   38 +++++++++++++++++++++++++-------------
- drivers/block/floppy.c     |    8 ++++----
- drivers/ide/ide-cd.c       |    8 +++++---
- drivers/ide/ide-disk.c     |   35 +++++++++++++++++++----------------
- drivers/ide/ide-floppy.c   |    2 +-
- drivers/ide/ide-taskfile.c |    4 ++--
- drivers/ide/ide.c          |    4 ++--
- drivers/scsi/ide-scsi.c    |    2 +-
- fs/partitions/check.c      |    7 +++----
- fs/partitions/check.h      |    7 +++----
- include/linux/blkdev.h     |   20 ++++++++++++++++++--
- include/linux/genhd.h      |    6 +++---
- include/linux/ide.h        |    2 +-
- 13 files changed, 87 insertions(+), 56 deletions(-)
+ drivers/block/genhd.c     |    8 ++++----
+ drivers/block/ll_rw_blk.c |   16 +++++++++-------
+ drivers/block/loop.c      |   35 +++++++++++++++++++++++++----------
+ drivers/block/ps2esdi.c   |    4 ++--
+ drivers/ieee1394/sbp2.c   |    5 +++--
+ drivers/md/Makefile       |   13 +++++++++++++
+ drivers/mtd/nftlcore.c    |    4 ++--
+ drivers/scsi/scsi.c       |   10 +++++-----
+ drivers/scsi/sd.c         |   40 ++++++++++++++++++++++++----------------
+ drivers/scsi/sd.h         |    2 +-
+ drivers/scsi/sr.c         |    4 ++--
+ fs/ext3/ialloc.c          |    7 ++++---
+ fs/isofs/inode.c          |    7 ++++---
+ fs/jbd/commit.c           |    4 ++--
+ fs/jbd/revoke.c           |    2 +-
+ fs/reiserfs/journal.c     |   12 ++++++------
+ fs/reiserfs/prints.c      |   40 ++++++++++++++++++++--------------------
+ fs/reiserfs/super.c       |    8 ++++----
+ 18 files changed, 131 insertions(+), 90 deletions(-)
 
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.664   -> 1.667  
-#	drivers/ide/ide-taskfile.c	1.4     -> 1.5    
-#	drivers/block/blkpg.c	1.42    -> 1.43   
-#	include/linux/genhd.h	1.30    -> 1.31   
-#	drivers/block/floppy.c	1.48    -> 1.49   
-#	include/linux/blkdev.h	1.69    -> 1.70   
-#	   drivers/ide/ide.c	1.23    -> 1.24   
-#	fs/partitions/check.c	1.64    -> 1.65   
-#	fs/partitions/check.h	1.7     -> 1.8    
-#	 include/linux/ide.h	1.18    -> 1.19   
-#	drivers/ide/ide-disk.c	1.16    -> 1.17   
-#	drivers/ide/ide-cd.c	1.17    -> 1.18   
-#	drivers/ide/ide-floppy.c	1.14    -> 1.15   
-#	drivers/scsi/ide-scsi.c	1.10    -> 1.11   
+#	           ChangeSet	1.667   -> 1.670  
+#	drivers/block/ps2esdi.c	1.50    -> 1.51   
+#	 drivers/md/Makefile	1.5     -> 1.6    
+#	drivers/mtd/nftlcore.c	1.34    -> 1.35   
+#	     fs/jbd/revoke.c	1.10    -> 1.11   
+#	drivers/block/ll_rw_blk.c	1.115   -> 1.116  
+#	drivers/ieee1394/sbp2.c	1.11    -> 1.12   
+#	   drivers/scsi/sr.c	1.46    -> 1.47   
+#	 fs/reiserfs/super.c	1.52    -> 1.53   
+#	drivers/block/genhd.c	1.42    -> 1.43   
+#	    fs/ext3/ialloc.c	1.14    -> 1.15   
+#	 drivers/scsi/scsi.c	1.37    -> 1.38   
+#	drivers/block/loop.c	1.62    -> 1.63   
+#	   drivers/scsi/sd.h	1.4     -> 1.5    
+#	fs/reiserfs/journal.c	1.56    -> 1.57   
+#	fs/reiserfs/prints.c	1.19    -> 1.20   
+#	   drivers/scsi/sd.c	1.59    -> 1.60   
+#	     fs/jbd/commit.c	1.12    -> 1.13   
+#	    fs/isofs/inode.c	1.24    -> 1.25   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/10/02	peterc@numbat.chubb.wattle.id.au	1.665
-# Partition handling changes for transition to 64-bit sector_t:
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.668
+# printk changes: A sector_t can be either 64 or 32 bits, so cast it
+# to a printable type that is at least as large as 64-bits on all platforms (i.e.,
+# cast to unsigned long long and use a %llu format)
+# --------------------------------------------
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.669
+# Transition to 64-bit sector_t: fix isofs_get_blocks by converting 
+# the (possibly 64-bit) arg to a long.
+# --------------------------------------------
+# 02/10/03	peterc@numbat.chubb.wattle.id.au	1.670
+# SCSI 64-bit sector_t cleanup:  capacity now stored as sector_t;
+# make sure that the READ_CAPACITY command doesn't sign-extend its
+# returned value; avoid 64-bit division when printing size in MB.
 # 
-# * Make sure that partitions (reported to add_partition()) fit into 
-#   a struct gendisk
-# * store size and offset of partitions as a sector_t
-# --------------------------------------------
-# 02/10/02	peterc@numbat.chubb.wattle.id.au	1.666
-# IDE changes to transition to 64-bit sector_t:
-# 	-- do_request() function takes sector_t not unsigned long as the 
-# 	   block number to operate on.
-# 	-- Various casts to long where the underlying device can never get 
-# 	   big enough to warrant a 64-bit sector offset.
-# 	-- Cast sector_t to unsigned long long when printing.
-# --------------------------------------------
-# 02/10/02	peterc@numbat.chubb.wattle.id.au	1.667
-# Change read_dev_sector to take sector_t not unsigned long
+# Still to do:
+# 	-- 16-byte SCSI commands
+# 	-- Individual scsi drivers.
 # --------------------------------------------
 #
-diff -Nru a/drivers/block/blkpg.c b/drivers/block/blkpg.c
---- a/drivers/block/blkpg.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/block/blkpg.c	Thu Oct  3 15:04:51 2002
-@@ -68,17 +68,22 @@
+diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
+--- a/drivers/block/genhd.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/block/genhd.c	Thu Oct  3 15:05:15 2002
+@@ -177,16 +177,16 @@
+ 		return 0;
+ 
+ 	/* show the full disk and all non-0 size partitions of it */
+-	seq_printf(part, "%4d  %4d %10ld %s\n",
++	seq_printf(part, "%4d  %4d %10llu %s\n",
+ 		sgp->major, sgp->first_minor,
+-		get_capacity(sgp) >> 1,
++		(unsigned long long)get_capacity(sgp) >> 1,
+ 		disk_name(sgp, 0, buf));
+ 	for (n = 0; n < (1<<sgp->minor_shift) - 1; n++) {
+ 		if (sgp->part[n].nr_sects == 0)
+ 			continue;
+-		seq_printf(part, "%4d  %4d %10ld %s\n",
++		seq_printf(part, "%4d  %4d %10llu %s\n",
+ 			sgp->major, n + 1 + sgp->first_minor,
+-			sgp->part[n].nr_sects >> 1 ,
++			(unsigned long long)sgp->part[n].nr_sects >> 1 ,
+ 			disk_name(sgp, n + 1, buf));
+ 	}
+ 
+diff -Nru a/drivers/block/ll_rw_blk.c b/drivers/block/ll_rw_blk.c
+--- a/drivers/block/ll_rw_blk.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/block/ll_rw_blk.c	Thu Oct  3 15:05:15 2002
+@@ -649,7 +649,7 @@
+ 	} while (bit < __REQ_NR_BITS);
+ 
+ 	if (rq->flags & REQ_CMD)
+-		printk("sector %lu, nr/cnr %lu/%u\n", rq->sector,
++		printk("sector %llu, nr/cnr %lu/%u\n", (unsigned long long)rq->sector,
+ 						       rq->nr_sectors,
+ 						       rq->current_nr_sectors);
+ 
+@@ -1795,10 +1795,10 @@
+ 			 * device, e.g., when mounting a device. */
+ 			printk(KERN_INFO
+ 			       "attempt to access beyond end of device\n");
+-			printk(KERN_INFO "%s: rw=%ld, want=%ld, limit=%Lu\n",
++			printk(KERN_INFO "%s: rw=%ld, want=%Lu, limit=%Lu\n",
+ 			       bdevname(bio->bi_bdev),
+ 			       bio->bi_rw,
+-			       sector + nr_sectors,
++			       (unsigned long long) sector + nr_sectors,
+ 			       (long long) maxsector);
+ 
+ 			set_bit(BIO_EOF, &bio->bi_flags);
+@@ -1827,8 +1827,10 @@
+ 		}
+ 
+ 		if (unlikely(bio_sectors(bio) > q->max_sectors)) {
+-			printk("bio too big (%u > %u)\n", bio_sectors(bio),
+-							q->max_sectors);
++			printk("bio too big device %s (%u > %u)\n", 
++			       bdevname(bio->bi_bdev),
++			       bio_sectors(bio),
++			       q->max_sectors);
+ 			goto end_io;
+ 		}
+ 
+@@ -1938,8 +1940,8 @@
+ 
+ 	req->errors = 0;
+ 	if (!uptodate) {
+-		printk("end_request: I/O error, dev %s, sector %lu\n",
+-			kdevname(req->rq_dev), req->sector);
++		printk("end_request: I/O error, dev %s, sector %llu\n",
++			kdevname(req->rq_dev), (unsigned long long)req->sector);
+ 		error = -EIO;
+ 	}
+ 
+diff -Nru a/drivers/block/loop.c b/drivers/block/loop.c
+--- a/drivers/block/loop.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/block/loop.c	Thu Oct  3 15:05:15 2002
+@@ -90,7 +90,7 @@
+  * Transfer functions
+  */
+ static int transfer_none(struct loop_device *lo, int cmd, char *raw_buf,
+-			 char *loop_buf, int size, int real_block)
++			 char *loop_buf, int size, sector_t real_block)
  {
- 	struct gendisk *g;
- 	long long ppstart, pplength;
--	long pstart, plength;
- 	int part, i;
+ 	if (raw_buf != loop_buf) {
+ 		if (cmd == READ)
+@@ -103,7 +103,7 @@
+ }
  
--	/* convert bytes to sectors, check for fit in a hd_struct */
-+	/* convert bytes to sectors */
- 	ppstart = (p->start >> 9);
- 	pplength = (p->length >> 9);
--	pstart = ppstart;
--	plength = pplength;
--	if (pstart != ppstart || plength != pplength
--	    || pstart < 0 || plength < 0)
--		return -EINVAL;
-+
-+	/* check for fit in a hd_struct */ 
-+	if (sizeof(sector_t) == sizeof(long) && 
-+	    sizeof(long long) > sizeof(long)) {
-+		long pstart, plength;
-+		pstart = ppstart;
-+		plength = pplength;
-+		if (pstart != ppstart || plength != pplength
-+		    || pstart < 0 || plength < 0)
-+			return -EINVAL;
+ static int transfer_xor(struct loop_device *lo, int cmd, char *raw_buf,
+-			char *loop_buf, int size, int real_block)
++			char *loop_buf, int size, sector_t real_block)
+ {
+ 	char	*in, *out, *key;
+ 	int	i, keysize;
+@@ -181,18 +181,18 @@
+ 	struct address_space_operations *aops = mapping->a_ops;
+ 	struct page *page;
+ 	char *kaddr, *data;
+-	unsigned long index;
++	pgoff_t index;
+ 	unsigned size, offset;
+ 	int len;
+ 	int ret = 0;
+ 
+ 	down(&mapping->host->i_sem);
+ 	index = pos >> PAGE_CACHE_SHIFT;
+-	offset = pos & (PAGE_CACHE_SIZE - 1);
++	offset = pos & ((pgoff_t)PAGE_CACHE_SIZE - 1);
+ 	data = kmap(bvec->bv_page) + bvec->bv_offset;
+ 	len = bvec->bv_len;
+ 	while (len > 0) {
+-		int IV = index * (PAGE_CACHE_SIZE/bsize) + offset/bsize;
++		sector_t IV = index * (PAGE_CACHE_SIZE/bsize) + offset/bsize;
+ 		int transfer_result;
+ 
+ 		size = PAGE_CACHE_SIZE - offset;
+@@ -211,7 +211,7 @@
+ 			 * The transfer failed, but we still write the data to
+ 			 * keep prepare/commit calls balanced.
+ 			 */
+-			printk(KERN_ERR "loop: transfer error block %ld\n", index);
++			printk(KERN_ERR "loop: transfer error block %llu\n", (unsigned long long)index);
+ 			memset(kaddr + offset, 0, size);
+ 		}
+ 		flush_dcache_page(page);
+@@ -702,7 +702,11 @@
+ 	lo->lo_backing_file = file;
+ 	lo->transfer = NULL;
+ 	lo->ioctl = NULL;
+-	figure_loop_size(lo);
++	if (figure_loop_size(lo)) {
++		error = -EFBIG;
++		fput(file);
++		goto out_putf;
 +	}
+ 	lo->old_gfp_mask = inode->i_mapping->gfp_mask;
+ 	inode->i_mapping->gfp_mask = GFP_NOIO;
  
- 	/* find the drive major */
- 	g = get_gendisk(bdev->bd_dev, &part);
-@@ -101,13 +106,13 @@
+@@ -822,6 +826,7 @@
+ 	struct loop_info info; 
+ 	int err;
+ 	unsigned int type;
++	loff_t offset;
  
- 	/* overlap? */
- 	for (i = 0; i < (1<<g->minor_shift) - 1; i++)
--		if (!(pstart+plength <= g->part[i].start_sect ||
--		      pstart >= g->part[i].start_sect + g->part[i].nr_sects))
-+		if (!(ppstart+pplength <= g->part[i].start_sect ||
-+		      ppstart >= g->part[i].start_sect + g->part[i].nr_sects))
- 			return -EBUSY;
+ 	if (lo->lo_encrypt_key_size && lo->lo_key_owner != current->uid && 
+ 	    !capable(CAP_SYS_ADMIN))
+@@ -837,13 +842,23 @@
+ 		return -EINVAL;
+ 	if (type == LO_CRYPT_XOR && info.lo_encrypt_key_size == 0)
+ 		return -EINVAL;
++
+ 	err = loop_release_xfer(lo);
+ 	if (!err) 
+ 		err = loop_init_xfer(lo, type, &info);
++
++	offset = lo->lo_offset;
++	if (offset != info.lo_offset) {
++		lo->lo_offset = info.lo_offset;
++		if (figure_loop_size(lo)){
++			err = -EFBIG;
++			lo->lo_offset = offset;
++		}
++	}
++
+ 	if (err)
+ 		return err;	
  
- 	/* all seems OK */
--	g->part[p->pno - 1].start_sect = pstart;
--	g->part[p->pno - 1].nr_sects = plength;
-+	g->part[p->pno - 1].start_sect = ppstart;
-+	g->part[p->pno - 1].nr_sects = pplength;
- 	update_partition(g, p->pno);
+-	lo->lo_offset = info.lo_offset;
+ 	strncpy(lo->lo_name, info.lo_name, LO_NAME_SIZE);
+ 
+ 	lo->transfer = xfer_funcs[type]->transfer;
+@@ -856,7 +871,7 @@
+ 		       info.lo_encrypt_key_size);
+ 		lo->lo_key_owner = current->uid; 
+ 	}	
+-	figure_loop_size(lo);
++
  	return 0;
  }
-@@ -259,10 +264,17 @@
- 			intval = bdev_hardsect_size(bdev);
- 			return put_user(intval, (int *) arg);
  
--		case BLKGETSIZE:
-+		case BLKGETSIZE: 
-+		{
-+			unsigned long ret;
- 			/* size in sectors, works up to 2 TB */
- 			ullval = bdev->bd_inode->i_size;
--			return put_user((unsigned long)(ullval >> 9), (unsigned long *) arg);
-+			ret = ullval >> 9;
-+			if ((u64)ret != (ullval >> 9))
-+				return -EFBIG;
-+			return put_user(ret, (unsigned long *) arg);
-+		}
-+		
- 		case BLKGETSIZE64:
- 			/* size in bytes */
- 			ullval = bdev->bd_inode->i_size;
-diff -Nru a/drivers/block/floppy.c b/drivers/block/floppy.c
---- a/drivers/block/floppy.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/block/floppy.c	Thu Oct  3 15:04:51 2002
-@@ -493,7 +493,7 @@
-  */
- static struct floppy_struct user_params[N_DRIVE];
+@@ -1055,7 +1070,7 @@
+ 	for (i = 0; i < max_loop; i++) {
+ 		struct loop_device *lo = &loop_dev[i];
+ 		struct gendisk *disk = disks + i;
+-		memset(lo, 0, sizeof(struct loop_device));
++		memset(lo, 0, sizeof(*lo));
+ 		init_MUTEX(&lo->lo_ctl_mutex);
+ 		init_MUTEX_LOCKED(&lo->lo_sem);
+ 		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
+diff -Nru a/drivers/block/ps2esdi.c b/drivers/block/ps2esdi.c
+--- a/drivers/block/ps2esdi.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/block/ps2esdi.c	Thu Oct  3 15:05:15 2002
+@@ -532,8 +532,8 @@
+ 	}
+ 	/* is request is valid */ 
+ 	else {
+-		printk("Grrr. error. ps2esdi_drives: %d, %lu %lu\n", ps2esdi_drives,
+-		       CURRENT->sector, get_capacity(&ps2esdi_gendisk[unit]));
++		printk("Grrr. error. ps2esdi_drives: %d, %lu %llu\n", ps2esdi_drives,
++		       CURRENT->sector, (unsigned long long)get_capacity(&ps2esdi_gendisk[unit]));
+ 		end_request(CURRENT, FAIL);
+ 	}
  
--static int floppy_sizes[256];
-+static sector_t floppy_sizes[256];
+diff -Nru a/drivers/ieee1394/sbp2.c b/drivers/ieee1394/sbp2.c
+--- a/drivers/ieee1394/sbp2.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/ieee1394/sbp2.c	Thu Oct  3 15:05:15 2002
+@@ -3146,12 +3146,13 @@
  
- /*
-  * The driver is trying to determine the correct media format
-@@ -2653,8 +2653,8 @@
+ 	heads = 64;
+ 	sectors = 32;
+-	cylinders = disk->capacity / (heads * sectors);
++	cylinders = (int)disk->capacity / (heads * sectors);
++	
  
- 	max_sector = _floppy->sect * _floppy->head;
+ 	if (cylinders > 1024) {
+ 		heads = 255;
+ 		sectors = 63;
+-		cylinders = disk->capacity / (heads * sectors);
++		cylinders = (int)disk->capacity / (heads * sectors);
+ 	}
  
--	TRACK = current_req->sector / max_sector;
--	fsector_t = current_req->sector % max_sector;
-+	TRACK = (int)current_req->sector / max_sector;
-+	fsector_t = (int)current_req->sector % max_sector;
- 	if (_floppy->track && TRACK >= _floppy->track) {
- 		if (current_req->current_nr_sectors & 1) {
- 			current_count_sectors = 1;
-@@ -2991,7 +2991,7 @@
+ 	geom[0] = heads;
+diff -Nru a/drivers/md/Makefile b/drivers/md/Makefile
+--- a/drivers/md/Makefile	Thu Oct  3 15:05:15 2002
++++ b/drivers/md/Makefile	Thu Oct  3 15:05:15 2002
+@@ -19,3 +19,16 @@
+ obj-$(CONFIG_BLK_DEV_LVM)	+= lvm-mod.o
  
- 	if (usage_count == 0) {
- 		printk("warning: usage count=0, current_req=%p exiting\n", current_req);
--		printk("sect=%ld flags=%lx\n", current_req->sector, current_req->flags);
-+		printk("sect=%ld flags=%lx\n", (long)current_req->sector, current_req->flags);
+ include $(TOPDIR)/Rules.make
++
++# I can't get around the need for 64-bit division in raid[0-5]
++ifdef CONFIG_LBD
++
++LIBGCC:= $(shell ${CC} ${CFLAGS} -print-libgcc-file-name)
++
++md.o: md.c _udivdi3.o _umoddi3.o
++	$(CC) $(c_flags) -c -o md-tmp.o md.c
++	$(LD) -r  -o md.o md-tmp.o _udivdi3.o _umoddi3.o
++
++_udivdi3.o _umoddi3.o: $(LIBGCC)
++	$(AR) x $(LIBGCC) $@
++endif
+diff -Nru a/drivers/mtd/nftlcore.c b/drivers/mtd/nftlcore.c
+--- a/drivers/mtd/nftlcore.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/mtd/nftlcore.c	Thu Oct  3 15:05:15 2002
+@@ -803,9 +803,9 @@
+ 
+ 		DEBUG(MTD_DEBUG_LEVEL2, "NFTL_request\n");
+ 		DEBUG(MTD_DEBUG_LEVEL3,
+-		      "NFTL %s request, from sector 0x%04lx for %d sectors\n",
++		      "NFTL %s request, from sector 0x%04llx for %d sectors\n",
+ 		      (req->cmd == READ) ? "Read " : "Write",
+-		      req->sector, req->current_nr_sectors);
++		      (unsigned long long)req->sector, req->current_nr_sectors);
+ 
+ 		dev = minor(req->rq_dev);
+ 		block = req->sector;
+diff -Nru a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
+--- a/drivers/scsi/scsi.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/scsi/scsi.c	Thu Oct  3 15:05:15 2002
+@@ -2407,16 +2407,16 @@
+ 		for (SDpnt = shpnt->host_queue; SDpnt; SDpnt = SDpnt->next) {
+ 			for (SCpnt = SDpnt->device_queue; SCpnt; SCpnt = SCpnt->next) {
+ 				/*  (0) h:c:t:l (dev sect nsect cnumsec sg) (ret all flg) (to/cmd to ito) cmd snse result %d %x      */
+-				printk(KERN_INFO "(%3d) %2d:%1d:%2d:%2d (%6s %4ld %4ld %4ld %4x %1d) (%1d %1d 0x%2x) (%4d %4d %4d) 0x%2.2x 0x%2.2x 0x%8.8x\n",
++				printk(KERN_INFO "(%3d) %2d:%1d:%2d:%2d (%6s %4llu %4ld %4ld %4x %1d) (%1d %1d 0x%2x) (%4d %4d %4d) 0x%2.2x 0x%2.2x 0x%8.8x\n",
+ 				       i++,
+ 
+ 				       SCpnt->host->host_no,
+ 				       SCpnt->channel,
+-				       SCpnt->target,
+-				       SCpnt->lun,
++                                       SCpnt->target,
++                                       SCpnt->lun,
+ 
+-				       kdevname(SCpnt->request->rq_dev),
+-				       SCpnt->request->sector,
++                                       kdevname(SCpnt->request->rq_dev),
++                                       (unsigned long long)SCpnt->request->sector,
+ 				       SCpnt->request->nr_sectors,
+ 				       (long)SCpnt->request->current_nr_sectors,
+ 				       SCpnt->request->rq_status,
+diff -Nru a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+--- a/drivers/scsi/sd.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/scsi/sd.c	Thu Oct  3 15:05:15 2002
+@@ -295,7 +295,8 @@
+  **/
+ static int sd_init_command(Scsi_Cmnd * SCpnt)
+ {
+-	int dsk_nr, part_nr, block, this_count;
++	int dsk_nr, part_nr, this_count;
++	sector_t block;
+ 	Scsi_Device *sdp;
+ #if CONFIG_SCSI_LOGGING
+ 	char nbuff[6];
+@@ -312,8 +313,8 @@
+ 	block = SCpnt->request->sector;
+ 	this_count = SCpnt->request_bufflen >> 9;
+ 
+-	SCSI_LOG_HLQUEUE(1, printk("sd_command_init: dsk_nr=%d, block=%d, "
+-			    "count=%d\n", dsk_nr, block, this_count));
++	SCSI_LOG_HLQUEUE(1, printk("sd_command_init: dsk_nr=%d, block=%llu, "
++			    "count=%d\n", dsk_nr, (unsigned long long)block, this_count));
+ 
+ 	sdp = SCpnt->device;
+ 	/* >>>>> the "(part_nr & 0xf)" excludes 15th partition, why?? */
+@@ -336,8 +337,8 @@
+ 		return 0;
+ 	}
+ 	SCSI_LOG_HLQUEUE(2, sd_dskname(dsk_nr, nbuff));
+-	SCSI_LOG_HLQUEUE(2, printk("%s : [part_nr=%d], block=%d\n",
+-				   nbuff, part_nr, block));
++	SCSI_LOG_HLQUEUE(2, printk("%s : [part_nr=%d], block=%llu\n",
++				   nbuff, part_nr, (unsigned long long)block));
+ 
+ 	/*
+ 	 * If we have a 1K hardware sectorsize, prevent access to single
+@@ -599,8 +600,8 @@
+ 	int result = SCpnt->result;
+ 	int this_count = SCpnt->bufflen >> 9;
+ 	int good_sectors = (result == 0 ? this_count : 0);
+-	int block_sectors = 1;
+-	long error_sector;
++	sector_t block_sectors = 1;
++	sector_t error_sector;
+ #if CONFIG_SCSI_LOGGING
+ 	char nbuff[6];
+ 
+@@ -935,7 +936,7 @@
+ 		    SRpnt->sr_sense_buffer[2] == NOT_READY)
+ 			sdp->changed = 1;
+ 
+-		/* Either no media are present but the drive didnt tell us,
++		/* Either no media are present but the drive didn't tell us,
+ 		   or they are present but the read capacity command fails */
+ 		/* sdkp->media_present = 0; -- not always correct */
+ 		sdkp->capacity = 0x200000; /* 1 GB - random */
+@@ -943,7 +944,7 @@
  		return;
  	}
- 	if (fdc_busy){
-diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
---- a/drivers/ide/ide-cd.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/ide/ide-cd.c	Thu Oct  3 15:04:51 2002
-@@ -1160,7 +1160,7 @@
- 	if (rq->current_nr_sectors < bio_sectors(rq->bio) &&
- 	    (rq->sector % SECTORS_PER_FRAME) != 0) {
- 		printk("%s: cdrom_read_from_buffer: buffer botch (%ld)\n",
--			drive->name, rq->sector);
-+			drive->name, (long)rq->sector);
- 		cdrom_end_request(drive, 0);
- 		return -1;
- 	}
-@@ -1747,7 +1747,7 @@
-  * cdrom driver request routine.
-  */
- static ide_startstop_t
--ide_do_rw_cdrom (ide_drive_t *drive, struct request *rq, unsigned long block)
-+ide_do_rw_cdrom (ide_drive_t *drive, struct request *rq, sector_t block)
- {
- 	ide_startstop_t action;
- 	struct cdrom_info *info = drive->driver_data;
-@@ -2770,11 +2770,13 @@
- static int ll_10byte_cmd_build(request_queue_t *q, struct request *rq)
- {
- 	int hard_sect = queue_hardsect_size(q);
--	sector_t block = rq->hard_sector / (hard_sect >> 9);
-+	long block = (long)rq->hard_sector / (hard_sect >> 9);
- 	unsigned long blocks = rq->hard_nr_sectors / (hard_sect >> 9);
  
- 	if (!(rq->flags & REQ_CMD))
+-	sdkp->capacity = 1 + ((buffer[0] << 24) |
++	sdkp->capacity = 1 + (((sector_t)buffer[0] << 24) |
+ 			      (buffer[1] << 16) |
+ 			      (buffer[2] << 8) |
+ 			      buffer[3]);
+@@ -979,24 +980,31 @@
+ 		 * Jacques Gelinas (Jacques@solucorp.qc.ca)
+ 		 */
+ 		int hard_sector = sector_size;
+-		int sz = sdkp->capacity * (hard_sector/256);
++		sector_t sz = sdkp->capacity * (hard_sector/256);
+ 		request_queue_t *queue = &sdp->request_queue;
++		sector_t mb;
+ 
+ 		blk_queue_hardsect_size(queue, hard_sector);
++		/* avoid 64-bit division on 32-bit platforms */
++		mb = sz >> 1;
++		sector_div(sz, 1250);
++		mb -= sz - 974;
++		sector_div(mb, 1950);
++
+ 		printk(KERN_NOTICE "SCSI device %s: "
+-		       "%d %d-byte hdwr sectors (%d MB)\n",
+-		       diskname, sdkp->capacity,
+-		       hard_sector, (sz/2 - sz/1250 + 974)/1950);
++		       "%llu %d-byte hdwr sectors (%llu MB)\n",
++		       diskname, (unsigned long long)sdkp->capacity,
++		       hard_sector, (unsigned long long)mb);
+ 	}
+ 
+ 	/* Rescale capacity to 512-byte units */
+ 	if (sector_size == 4096)
+ 		sdkp->capacity <<= 3;
+-	if (sector_size == 2048)
++	else if (sector_size == 2048)
+ 		sdkp->capacity <<= 2;
+-	if (sector_size == 1024)
++	else if (sector_size == 1024)
+ 		sdkp->capacity <<= 1;
+-	if (sector_size == 256)
++	else if (sector_size == 256)
+ 		sdkp->capacity >>= 1;
+ 
+ 	sdkp->device->sector_size = sector_size;
+diff -Nru a/drivers/scsi/sd.h b/drivers/scsi/sd.h
+--- a/drivers/scsi/sd.h	Thu Oct  3 15:05:15 2002
++++ b/drivers/scsi/sd.h	Thu Oct  3 15:05:15 2002
+@@ -21,7 +21,7 @@
+ #endif
+ 
+ typedef struct scsi_disk {
+-	unsigned capacity;		/* size in 512-byte sectors */
++	sector_t capacity;		/* size in 512-byte sectors */
+ 	Scsi_Device *device;
+ 	unsigned char media_present;
+ 	unsigned char write_prot;
+diff -Nru a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+--- a/drivers/scsi/sr.c	Thu Oct  3 15:05:15 2002
++++ b/drivers/scsi/sr.c	Thu Oct  3 15:05:15 2002
+@@ -323,7 +323,7 @@
+ 	/*
+ 	 * request doesn't start on hw block boundary, add scatter pads
+ 	 */
+-	if ((SCpnt->request->sector % (s_size >> 9)) || (SCpnt->request_bufflen % s_size)) {
++	if (((unsigned int)SCpnt->request->sector % (s_size >> 9)) || (SCpnt->request_bufflen % s_size)) {
+ 		printk("sr: unaligned transfer\n");
  		return 0;
-+
-+	BUG_ON(sizeof(rq->hard_sector) > 4 && (rq->hard_sector >> 32));
- 
- 	if (rq->hard_nr_sectors != rq->nr_sectors) {
- 		printk(KERN_ERR "ide-cd: hard_nr_sectors differs from nr_sectors! %lu %lu\n",
-diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
---- a/drivers/ide/ide-disk.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/ide/ide-disk.c	Thu Oct  3 15:04:51 2002
-@@ -358,7 +358,7 @@
-  * using LBA if supported, or CHS otherwise, to address sectors.
-  * It also takes care of issuing special DRIVE_CMDs.
-  */
--static ide_startstop_t do_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
-+static ide_startstop_t do_rw_disk (ide_drive_t *drive, struct request *rq, sector_t block)
- {
- 	ide_hwif_t *hwif	= HWIF(drive);
- 	u8 lba48		= (drive->addressing == 1) ? 1 : 0;
-@@ -390,19 +390,22 @@
- 			tasklets[5] = (task_ioreg_t) (block>>8);
- 			tasklets[6] = (task_ioreg_t) (block>>16);
- 			tasklets[7] = (task_ioreg_t) (block>>24);
--			tasklets[8] = (task_ioreg_t) 0;
--			tasklets[9] = (task_ioreg_t) 0;
--//			tasklets[8] = (task_ioreg_t) (block>>32);
--//			tasklets[9] = (task_ioreg_t) (block>>40);
-+			if (sizeof(block) == 4) {
-+				tasklets[8] = (task_ioreg_t) 0;
-+				tasklets[9] = (task_ioreg_t) 0;
-+			} else {
-+				tasklets[8] = (task_ioreg_t) (block>>32);
-+				tasklets[9] = (task_ioreg_t) (block>>40);
-+			}
- #ifdef DEBUG
--			printk("%s: %sing: LBAsect=%lu, sectors=%ld, "
--				"buffer=0x%08lx, LBAsect=0x%012lx\n",
-+			printk("%s: %sing: LBAsect=%llu, sectors=%ld, "
-+				"buffer=0x%08lx, LBAsect=0x%012llx\n",
- 				drive->name,
- 				(rq->cmd==READ)?"read":"writ",
--				block,
-+				(unsigned long long)block,
- 				rq->nr_sectors,
- 				(unsigned long) rq->buffer,
--				block);
-+				(unsigned long long)block);
- 			printk("%s: 0x%02x%02x 0x%02x%02x%02x%02x%02x%02x\n",
- 				drive->name, tasklets[3], tasklets[2],
- 				tasklets[9], tasklets[8], tasklets[7],
-@@ -422,10 +425,10 @@
- 			hwif->OUTB(0x00|drive->select.all,IDE_SELECT_REG);
- 		} else {
- #ifdef DEBUG
--			printk("%s: %sing: LBAsect=%ld, sectors=%ld, "
-+			printk("%s: %sing: LBAsect=%llu, sectors=%ld, "
- 				"buffer=0x%08lx\n",
- 				drive->name, (rq->cmd==READ)?"read":"writ",
--				block, rq->nr_sectors,
-+				(unsigned long long)block, rq->nr_sectors,
- 				(unsigned long) rq->buffer);
- #endif
- 			hwif->OUTB(0x00, IDE_FEATURE_REG);
-@@ -437,8 +440,8 @@
- 		}
- 	} else {
- 		unsigned int sect,head,cyl,track;
--		track = block / drive->sect;
--		sect  = block % drive->sect + 1;
-+		track = (int)block / drive->sect;
-+		sect  = (int)block % drive->sect + 1;
- 		hwif->OUTB(sect, IDE_SECTOR_REG);
- 		head  = track % drive->head;
- 		cyl   = track / drive->head;
-@@ -542,7 +545,7 @@
-  * using LBA if supported, or CHS otherwise, to address sectors.
-  * It also takes care of issuing special DRIVE_CMDs.
-  */
--static ide_startstop_t do_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
-+static ide_startstop_t do_rw_disk (ide_drive_t *drive, struct request *rq, sector_t block)
- {
- 	if (!blk_fs_request(rq)) {
- 		blk_dump_rq_flags(rq, "do_rw_disk - bad command");
-@@ -824,8 +827,8 @@
- 				}
- 			}
- 			if (HWGROUP(drive) && HWGROUP(drive)->rq)
--				printk(", sector=%ld",
--					HWGROUP(drive)->rq->sector);
-+				printk(", sector=%llu",
-+					(unsigned long long)HWGROUP(drive)->rq->sector);
- 		}
  	}
- #endif	/* FANCY_STATUS_DUMPS */
-diff -Nru a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
---- a/drivers/ide/ide-floppy.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/ide/ide-floppy.c	Thu Oct  3 15:04:51 2002
-@@ -1268,7 +1268,7 @@
- 		return ide_stopped;
- 	}
- 	if (rq->flags & REQ_CMD) {
--		if ((rq->sector % floppy->bs_factor) ||
-+		if (((long)rq->sector % floppy->bs_factor) ||
- 		    (rq->nr_sectors % floppy->bs_factor)) {
- 			printk("%s: unsupported r/w request size\n",
- 				drive->name);
-diff -Nru a/drivers/ide/ide-taskfile.c b/drivers/ide/ide-taskfile.c
---- a/drivers/ide/ide-taskfile.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/ide/ide-taskfile.c	Thu Oct  3 15:04:51 2002
-@@ -289,8 +289,8 @@
- 				}
- 			}
- 			if (HWGROUP(drive)->rq)
--				printk(", sector=%lu",
--					HWGROUP(drive)->rq->sector);
-+				printk(", sector=%llu",
-+					(unsigned long long)HWGROUP(drive)->rq->sector);
- 		}
- media_out:
- #endif  /* FANCY_STATUS_DUMPS */
-diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
---- a/drivers/ide/ide.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/ide/ide.c	Thu Oct  3 15:04:51 2002
-@@ -587,7 +587,7 @@
- 					}
- 				}
- 				if (HWGROUP(drive) && HWGROUP(drive)->rq)
--					printk(", sector=%ld", HWGROUP(drive)->rq->sector);
-+					printk(", sector=%llu", (unsigned long long)HWGROUP(drive)->rq->sector);
- 			}
- 		}
- #endif	/* FANCY_STATUS_DUMPS */
-@@ -3254,7 +3254,7 @@
- 	return 0;
- }
+@@ -339,7 +339,7 @@
+ 	SCpnt->cmnd[1] = (SCpnt->device->scsi_level <= SCSI_2) ?
+ 			 ((SCpnt->lun << 5) & 0xe0) : 0;
  
--static ide_startstop_t default_do_request (ide_drive_t *drive, struct request *rq, unsigned long block)
-+static ide_startstop_t default_do_request (ide_drive_t *drive, struct request *rq, sector_t block)
- {
- 	ide_end_request(drive, 0, 0);
- 	return ide_stopped;
-diff -Nru a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
---- a/drivers/scsi/ide-scsi.c	Thu Oct  3 15:04:51 2002
-+++ b/drivers/scsi/ide-scsi.c	Thu Oct  3 15:04:51 2002
-@@ -487,7 +487,7 @@
- /*
-  *	idescsi_do_request is our request handling function.
+-	block = SCpnt->request->sector / (s_size >> 9);
++	block = (unsigned int)SCpnt->request->sector / (s_size >> 9);
+ 
+ 	if (this_count > 0xffff)
+ 		this_count = 0xffff;
+diff -Nru a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
+--- a/fs/ext3/ialloc.c	Thu Oct  3 15:05:15 2002
++++ b/fs/ext3/ialloc.c	Thu Oct  3 15:05:15 2002
+@@ -479,9 +479,10 @@
+ 			!(inode = iget(sb, ino)) || is_bad_inode(inode) ||
+ 			NEXT_ORPHAN(inode) > max_ino) {
+ 		ext3_warning(sb, __FUNCTION__,
+-			     "bad orphan inode %ld!  e2fsck was run?\n", ino);
+-		printk(KERN_NOTICE "ext3_test_bit(bit=%d, block=%ld) = %d\n",
+-			bit, bitmap_bh->b_blocknr,
++			     "bad orphan inode %lu!  e2fsck was run?\n", ino);
++		printk(KERN_NOTICE "ext3_test_bit(bit=%d, block=%llu) = %d\n",
++		       bit, 
++			(unsigned long long)bitmap_bh->b_blocknr, 
+ 			ext3_test_bit(bit, bitmap_bh->b_data));
+ 		printk(KERN_NOTICE "inode=%p\n", inode);
+ 		if (inode) {
+diff -Nru a/fs/isofs/inode.c b/fs/isofs/inode.c
+--- a/fs/isofs/inode.c	Thu Oct  3 15:05:15 2002
++++ b/fs/isofs/inode.c	Thu Oct  3 15:05:15 2002
+@@ -934,21 +934,22 @@
+  * or getblk() if they are not.  Returns the number of blocks inserted
+  * (0 == error.)
   */
--static ide_startstop_t idescsi_do_request (ide_drive_t *drive, struct request *rq, unsigned long block)
-+static ide_startstop_t idescsi_do_request (ide_drive_t *drive, struct request *rq, sector_t block)
+-int isofs_get_blocks(struct inode *inode, sector_t iblock,
++int isofs_get_blocks(struct inode *inode, sector_t iblock_s,
+ 		     struct buffer_head **bh, unsigned long nblocks)
  {
- #if IDESCSI_DEBUG_LOG
- 	printk (KERN_INFO "rq_status: %d, rq_dev: %u, cmd: %d, errors: %d\n",rq->rq_status,(unsigned int) rq->rq_dev,rq->cmd,rq->errors);
-diff -Nru a/fs/partitions/check.c b/fs/partitions/check.c
---- a/fs/partitions/check.c	Thu Oct  3 15:04:51 2002
-+++ b/fs/partitions/check.c	Thu Oct  3 15:04:51 2002
-@@ -471,13 +471,12 @@
- 	return res;
- }
+ 	unsigned long b_off;
+ 	unsigned offset, sect_size;
+ 	unsigned int firstext;
+ 	unsigned long nextino;
++	long iblock = (long)iblock_s;
+ 	int section, rv;
+ 	struct iso_inode_info *ei = ISOFS_I(inode);
  
--unsigned char *read_dev_sector(struct block_device *bdev, unsigned long n, Sector *p)
-+unsigned char *read_dev_sector(struct block_device *bdev, sector_t n, Sector *p)
- {
- 	struct address_space *mapping = bdev->bd_inode->i_mapping;
--	int sect = PAGE_CACHE_SIZE / 512;
- 	struct page *page;
+ 	lock_kernel();
  
--	page = read_cache_page(mapping, n/sect,
-+	page = read_cache_page(mapping, (pgoff_t)(n >> (PAGE_CACHE_SHIFT-9)),
- 			(filler_t *)mapping->a_ops->readpage, NULL);
- 	if (!IS_ERR(page)) {
- 		wait_on_page_locked(page);
-@@ -486,7 +485,7 @@
- 		if (PageError(page))
- 			goto fail;
- 		p->v = page;
--		return (unsigned char *)page_address(page) + 512 * (n % sect);
-+		return (unsigned char *)page_address(page) +  ((n & ((1 << (PAGE_CACHE_SHIFT - 9)) - 1)) << 9);
- fail:
- 		page_cache_release(page);
+ 	rv = 0;
+-	if (iblock < 0) {
+-		printk("isofs_get_blocks: block < 0\n");
++	if (iblock < 0 || iblock != iblock_s) {
++		printk("isofs_get_blocks: block number too large\n");
+ 		goto abort;
  	}
-diff -Nru a/fs/partitions/check.h b/fs/partitions/check.h
---- a/fs/partitions/check.h	Thu Oct  3 15:04:51 2002
-+++ b/fs/partitions/check.h	Thu Oct  3 15:04:51 2002
-@@ -5,14 +5,13 @@
-  * add_gd_partition adds a partitions details to the devices partition
-  * description.
-  */
--
- enum { MAX_PART = 256 };
  
- struct parsed_partitions {
- 	char name[40];
- 	struct {
--		unsigned long from;
--		unsigned long size;
-+		sector_t from;
-+		sector_t size;
- 		int flags;
- 	} parts[MAX_PART];
- 	int next;
-@@ -20,7 +19,7 @@
- };
+diff -Nru a/fs/jbd/commit.c b/fs/jbd/commit.c
+--- a/fs/jbd/commit.c	Thu Oct  3 15:05:15 2002
++++ b/fs/jbd/commit.c	Thu Oct  3 15:05:15 2002
+@@ -355,8 +355,8 @@
+ 			}
+ 			
+ 			bh = jh2bh(descriptor);
+-			jbd_debug(4, "JBD: got buffer %ld (%p)\n",
+-				bh->b_blocknr, bh->b_data);
++			jbd_debug(4, "JBD: got buffer %llu (%p)\n",
++				(unsigned long long)bh->b_blocknr, bh->b_data);
+ 			header = (journal_header_t *)&bh->b_data[0];
+ 			header->h_magic     = htonl(JFS_MAGIC_NUMBER);
+ 			header->h_blocktype = htonl(JFS_DESCRIPTOR_BLOCK);
+diff -Nru a/fs/jbd/revoke.c b/fs/jbd/revoke.c
+--- a/fs/jbd/revoke.c	Thu Oct  3 15:05:15 2002
++++ b/fs/jbd/revoke.c	Thu Oct  3 15:05:15 2002
+@@ -388,7 +388,7 @@
+ 		record = find_revoke_record(journal, bh->b_blocknr);
+ 		if (record) {
+ 			jbd_debug(4, "cancelled existing revoke on "
+-				  "blocknr %lu\n", bh->b_blocknr);
++				  "blocknr %llu\n", (u64)bh->b_blocknr);
+ 			list_del(&record->hash);
+ 			kmem_cache_free(revoke_record_cache, record);
+ 			did_revoke = 1;
+diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+--- a/fs/reiserfs/journal.c	Thu Oct  3 15:05:15 2002
++++ b/fs/reiserfs/journal.c	Thu Oct  3 15:05:15 2002
+@@ -1008,15 +1008,15 @@
+     ** is not marked JDirty_wait
+     */
+     if ((!was_jwait) && !buffer_locked(saved_bh)) {
+-printk("journal-813: BAD! buffer %lu %cdirty %cjwait, not in a newer tranasction\n", saved_bh->b_blocknr,
++printk("journal-813: BAD! buffer %llu %cdirty %cjwait, not in a newer tranasction\n", (unsigned long long)saved_bh->b_blocknr,
+         was_dirty ? ' ' : '!', was_jwait ? ' ' : '!') ;
+     }
+     /* kupdate_one_transaction waits on the buffers it is writing, so we
+     ** should never see locked buffers here
+     */
+     if (buffer_locked(saved_bh)) {
+-      printk("clm-2083: locked buffer %lu in flush_journal_list\n", 
+-              saved_bh->b_blocknr) ;
++      printk("clm-2083: locked buffer %llu in flush_journal_list\n", 
++              (unsigned long long)saved_bh->b_blocknr) ;
+       wait_on_buffer(saved_bh) ;
+       if (!buffer_uptodate(saved_bh)) {
+         reiserfs_panic(s, "journal-923: buffer write failed\n") ;
+@@ -1029,8 +1029,8 @@
+       submit_logged_buffer(saved_bh) ;
+       count++ ;
+     } else {
+-      printk("clm-2082: Unable to flush buffer %lu in flush_journal_list\n",
+-              saved_bh->b_blocknr) ;
++      printk("clm-2082: Unable to flush buffer %llu in flush_journal_list\n",
++              (unsigned long long)saved_bh->b_blocknr) ;
+     }
+ free_cnode:
+     last = cn ;
+@@ -2310,7 +2310,7 @@
+   ** could get to disk too early.  NOT GOOD.
+   */
+   if (!prepared || buffer_locked(bh)) {
+-    printk("journal-1777: buffer %lu bad state %cPREPARED %cLOCKED %cDIRTY %cJDIRTY_WAIT\n", bh->b_blocknr, prepared ? ' ' : '!', 
++    printk("journal-1777: buffer %llu bad state %cPREPARED %cLOCKED %cDIRTY %cJDIRTY_WAIT\n", (unsigned long long)bh->b_blocknr, prepared ? ' ' : '!', 
+                             buffer_locked(bh) ? ' ' : '!',
+ 			    buffer_dirty(bh) ? ' ' : '!',
+ 			    buffer_journal_dirty(bh) ? ' ' : '!') ;
+diff -Nru a/fs/reiserfs/prints.c b/fs/reiserfs/prints.c
+--- a/fs/reiserfs/prints.c	Thu Oct  3 15:05:15 2002
++++ b/fs/reiserfs/prints.c	Thu Oct  3 15:05:15 2002
+@@ -139,8 +139,8 @@
  
- static inline void
--put_partition(struct parsed_partitions *p, int n, int from, int size)
-+put_partition(struct parsed_partitions *p, int n, sector_t from, sector_t size)
+ static void sprintf_buffer_head (char * buf, struct buffer_head * bh) 
  {
- 	if (n < p->limit) {
- 		p->parts[n].from = from;
-diff -Nru a/include/linux/blkdev.h b/include/linux/blkdev.h
---- a/include/linux/blkdev.h	Thu Oct  3 15:04:51 2002
-+++ b/include/linux/blkdev.h	Thu Oct  3 15:04:51 2002
-@@ -37,7 +37,7 @@
- 	int errors;
- 	sector_t sector;
- 	unsigned long nr_sectors;
--	unsigned long hard_sector;	/* the hard_* are block layer
-+	sector_t hard_sector;		/* the hard_* are block layer
- 					 * internals, no driver should
- 					 * touch them
- 					 */
-@@ -394,11 +394,27 @@
+-  sprintf (buf, "dev %s, size %d, blocknr %ld, count %d, state 0x%lx, page %p, (%s, %s, %s)",
+-	   bdevname (bh->b_bdev), bh->b_size, bh->b_blocknr,
++  sprintf (buf, "dev %s, size %d, blocknr %llu, count %d, state 0x%lx, page %p, (%s, %s, %s)",
++	   bdevname (bh->b_bdev), bh->b_size, (unsigned long long)bh->b_blocknr,
+ 	   atomic_read (&(bh->b_count)),
+ 	   bh->b_state, bh->b_page,
+ 	   buffer_uptodate (bh) ? "UPTODATE" : "!UPTODATE",
+@@ -367,7 +367,7 @@
+     if (tb) {
+ 	while (tb->insert_size[h]) {
+ 	    bh = PATH_H_PBUFFER (path, h);
+-	    printk ("block %lu (level=%d), position %d\n", bh ? bh->b_blocknr : 0,
++	    printk ("block %llu (level=%d), position %d\n", bh ? (unsigned long long)bh->b_blocknr : 0LL,
+ 		    bh ? B_LEVEL (bh) : 0, PATH_H_POSITION (path, h));
+ 	    h ++;
+ 	}
+@@ -377,8 +377,8 @@
+       printk ("Offset    Bh     (b_blocknr, b_count) Position Nr_item\n");
+       while ( offset > ILLEGAL_PATH_ELEMENT_OFFSET ) {
+ 	  bh = PATH_OFFSET_PBUFFER (path, offset);
+-	  printk ("%6d %10p (%9lu, %7d) %8d %7d\n", offset, 
+-		  bh, bh ? bh->b_blocknr : 0, bh ? atomic_read (&(bh->b_count)) : 0,
++	  printk ("%6d %10p (%9llu, %7d) %8d %7d\n", offset, 
++		  bh, bh ? (unsigned long long)bh->b_blocknr : 0LL, bh ? atomic_read (&(bh->b_count)) : 0,
+ 		  PATH_OFFSET_POSITION (path, offset), bh ? B_NR_ITEMS (bh) : -1);
+ 	  
+ 	  offset --;
+@@ -510,8 +510,8 @@
+ 	return 1;
+     }
  
- typedef struct {struct page *v;} Sector;
+-    printk ("%s\'s super block is in block %ld\n", bdevname (bh->b_bdev), 
+-            bh->b_blocknr);
++    printk ("%s\'s super block is in block %llu\n", bdevname (bh->b_bdev), 
++            (unsigned long long)bh->b_blocknr);
+     printk ("Reiserfs version %s\n", version );
+     printk ("Block count %u\n", sb_block_count(rs));
+     printk ("Blocksize %d\n", sb_blocksize(rs));
+@@ -547,8 +547,8 @@
+     if (memcmp(desc->j_magic, JOURNAL_DESC_MAGIC, 8))
+ 	return 1;
  
--unsigned char *read_dev_sector(struct block_device *, unsigned long, Sector *);
-+unsigned char *read_dev_sector(struct block_device *, sector_t, Sector *);
+-    printk ("Desc block %lu (j_trans_id %d, j_mount_id %d, j_len %d)",
+-	    bh->b_blocknr, desc->j_trans_id, desc->j_mount_id, desc->j_len);
++    printk ("Desc block %llu (j_trans_id %d, j_mount_id %d, j_len %d)",
++	    (unsigned long long)bh->b_blocknr, desc->j_trans_id, desc->j_mount_id, desc->j_len);
  
- static inline void put_dev_sector(Sector p)
- {
- 	page_cache_release(p.v);
+     return 0;
  }
-+
-+#ifdef CONFIG_LBD
-+# include <asm/div64.h>
-+# define sector_div(a, b) do_div(a, b)
-+#else
-+# define sector_div(n, b)( \
-+{ \
-+	int _res; \
-+	_res = (n) % (b); \
-+	(n) /= (b); \
-+	_res; \
-+} \
-+)
-+#endif 
-+ 
-+
- 
- #endif
-diff -Nru a/include/linux/genhd.h b/include/linux/genhd.h
---- a/include/linux/genhd.h	Thu Oct  3 15:04:51 2002
-+++ b/include/linux/genhd.h	Thu Oct  3 15:04:51 2002
-@@ -59,8 +59,8 @@
- #  include <linux/devfs_fs_kernel.h>
- 
- struct hd_struct {
--	unsigned long start_sect;
--	unsigned long nr_sects;
-+	sector_t start_sect;
-+	sector_t nr_sects;
- 	devfs_handle_t de;              /* primary (master) devfs entry  */
- 	struct device hd_driverfs_dev;  /* support driverfs hiearchy     */
- };
-@@ -95,7 +95,7 @@
- extern void del_gendisk(struct gendisk *gp);
- extern void unlink_gendisk(struct gendisk *gp);
- extern struct gendisk *get_gendisk(dev_t dev, int *part);
--static inline unsigned long get_start_sect(struct block_device *bdev)
-+static inline sector_t get_start_sect(struct block_device *bdev)
- {
- 	return bdev->bd_offset;
+@@ -573,7 +573,7 @@
+ 	if (print_internal (bh, first, last))
+ 	    if (print_super_block (bh))
+ 		if (print_desc_block (bh))
+-		    printk ("Block %ld contains unformatted data\n", bh->b_blocknr);
++		    printk ("Block %llu contains unformatted data\n", (unsigned long long)bh->b_blocknr);
  }
-diff -Nru a/include/linux/ide.h b/include/linux/ide.h
---- a/include/linux/ide.h	Thu Oct  3 15:04:51 2002
-+++ b/include/linux/ide.h	Thu Oct  3 15:04:51 2002
-@@ -1224,7 +1224,7 @@
- 	int		(*suspend)(ide_drive_t *);
- 	int		(*resume)(ide_drive_t *);
- 	int		(*flushcache)(ide_drive_t *);
--	ide_startstop_t	(*do_request)(ide_drive_t *, struct request *, unsigned long);
-+	ide_startstop_t	(*do_request)(ide_drive_t *, struct request *, sector_t);
- 	int		(*end_request)(ide_drive_t *, int, int);
- 	u8		(*sense)(ide_drive_t *, const char *, u8);
- 	ide_startstop_t	(*error)(ide_drive_t *, const char *, u8);
+ 
+ 
+@@ -608,19 +608,19 @@
+ 	    tbFh = 0;
+ 	}
+ 	sprintf (print_tb_buf + strlen (print_tb_buf),
+-		 "* %d * %3ld(%2d) * %3ld(%2d) * %3ld(%2d) * %5ld * %5ld * %5ld * %5ld * %5ld *\n",
++		 "* %d * %3lld(%2d) * %3lld(%2d) * %3lld(%2d) * %5lld * %5lld * %5lld * %5lld * %5lld *\n",
+ 		 h, 
+-		 (tbSh) ? (tbSh->b_blocknr):(-1),
++		 (tbSh) ? (long long)(tbSh->b_blocknr):(-1LL),
+ 		 (tbSh) ? atomic_read (&(tbSh->b_count)) : -1,
+-		 (tb->L[h]) ? (tb->L[h]->b_blocknr):(-1),
++		 (tb->L[h]) ? (long long)(tb->L[h]->b_blocknr):(-1LL),
+ 		 (tb->L[h]) ? atomic_read (&(tb->L[h]->b_count)) : -1,
+-		 (tb->R[h]) ? (tb->R[h]->b_blocknr):(-1),
++		 (tb->R[h]) ? (long long)(tb->R[h]->b_blocknr):(-1LL),
+ 		 (tb->R[h]) ? atomic_read (&(tb->R[h]->b_count)) : -1,
+-		 (tbFh) ? (tbFh->b_blocknr):(-1),
+-		 (tb->FL[h]) ? (tb->FL[h]->b_blocknr):(-1),
+-		 (tb->FR[h]) ? (tb->FR[h]->b_blocknr):(-1),
+-		 (tb->CFL[h]) ? (tb->CFL[h]->b_blocknr):(-1),
+-		 (tb->CFR[h]) ? (tb->CFR[h]->b_blocknr):(-1));
++		 (tbFh) ? (long long)(tbFh->b_blocknr):(-1LL),
++		 (tb->FL[h]) ? (long long)(tb->FL[h]->b_blocknr):(-1LL),
++		 (tb->FR[h]) ? (long long)(tb->FR[h]->b_blocknr):(-1LL),
++		 (tb->CFL[h]) ? (long long)(tb->CFL[h]->b_blocknr):(-1LL),
++		 (tb->CFR[h]) ? (long long)(tb->CFR[h]->b_blocknr):(-1LL));
+     }
+ 
+     sprintf (print_tb_buf + strlen (print_tb_buf), 
+@@ -647,7 +647,7 @@
+     h = 0;
+     for (i = 0; i < sizeof (tb->FEB) / sizeof (tb->FEB[0]); i ++)
+ 	sprintf (print_tb_buf + strlen (print_tb_buf),
+-		 "%p (%lu %d)%s", tb->FEB[i], tb->FEB[i] ? tb->FEB[i]->b_blocknr : 0,
++		 "%p (%llu %d)%s", tb->FEB[i], tb->FEB[i] ? (unsigned long long)tb->FEB[i]->b_blocknr : 0ULL,
+ 		 tb->FEB[i] ? atomic_read (&(tb->FEB[i]->b_count)) : 0, 
+ 		 (i == sizeof (tb->FEB) / sizeof (tb->FEB[0]) - 1) ? "\n" : ", ");
+ 
+diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+--- a/fs/reiserfs/super.c	Thu Oct  3 15:05:15 2002
++++ b/fs/reiserfs/super.c	Thu Oct  3 15:05:15 2002
+@@ -916,8 +916,8 @@
+     rs = (struct reiserfs_super_block *)bh->b_data;
+     if (sb_blocksize(rs) != s->s_blocksize) {
+ 	printk ("sh-2011: read_super_block: "
+-		"can't find a reiserfs filesystem on (dev %s, block %lu, size %lu)\n",
+-		reiserfs_bdevname (s), bh->b_blocknr, s->s_blocksize);
++		"can't find a reiserfs filesystem on (dev %s, block %Lu, size %lu)\n",
++		reiserfs_bdevname (s), (unsigned long long)bh->b_blocknr, s->s_blocksize);
+ 	brelse (bh);
+ 	return 1;
+     }
+@@ -980,8 +980,8 @@
+     ll_rw_block(READ, 1, &(SB_AP_BITMAP(s)[i].bh)) ;
+     wait_on_buffer(SB_AP_BITMAP(s)[i].bh) ;
+     if (!buffer_uptodate(SB_AP_BITMAP(s)[i].bh)) {
+-      printk("reread_meta_blocks, error reading bitmap block number %d at
+-      %ld\n", i, SB_AP_BITMAP(s)[i].bh->b_blocknr) ;
++      printk("reread_meta_blocks, error reading bitmap block number %d at %llu\n", 
++        i, (unsigned long long)SB_AP_BITMAP(s)[i].bh->b_blocknr) ;
+       return 1 ;
+     }
+   }

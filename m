@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316606AbSEaS5i>; Fri, 31 May 2002 14:57:38 -0400
+	id <S316650AbSEaTG3>; Fri, 31 May 2002 15:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316640AbSEaS5h>; Fri, 31 May 2002 14:57:37 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:38921 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316606AbSEaS5h>;
-	Fri, 31 May 2002 14:57:37 -0400
-Date: Fri, 31 May 2002 11:55:50 -0700
-From: Greg KH <greg@kroah.com>
-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USB host drivers test results (2.5.19) and problem.
-Message-ID: <20020531185549.GF1886@kroah.com>
-In-Reply-To: <20020531133429.GF8310@come.alcove-fr> <21481.1022856842@redhat.com> <20020531163914.GB1250@kroah.com> <20020531184442.GB10621@come.alcove-fr>
+	id <S316653AbSEaTG2>; Fri, 31 May 2002 15:06:28 -0400
+Received: from THANK.THUNK.ORG ([216.175.175.163]:19074 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S316650AbSEaTG1>;
+	Fri, 31 May 2002 15:06:27 -0400
+Date: Fri, 31 May 2002 15:05:39 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
+        jw schultz <jw@pegasys.ws>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: wait queue process state
+Message-ID: <20020531190539.GA3965@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@redhat.com>, jw schultz <jw@pegasys.ws>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1022676201.9255.160.camel@irongate.swansea.linux.org.uk> <1022631707.4123.151.camel@irongate.swansea.linux.org.uk> <3CF2A0FB.8090507@um.edu.mt> <1022572663.12203.127.camel@pc-16.office.scali.no> <20020528160143.G885@pegasys.ws> <20020528190518.E21009@redhat.com> <2338.1022669938@redhat.com> <9160.1022673363@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 03 May 2002 16:41:03 -0700
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 31, 2002 at 08:44:42PM +0200, Stelian Pop wrote:
-> On Fri, May 31, 2002 at 09:39:14AM -0700, Greg KH wrote:
+On Wed, May 29, 2002 at 12:56:03PM +0100, David Woodhouse wrote:
 > 
-> > > >  1. Shouldn't the ehci/ohci drivers give some error on loading, since
-> > > > I obviously don't have the hardware ? 
-> > > 
-> > > How do they know that? You could have it in your hand and be just about to
-> > > insert it.
-> > 
-> > They should not load, like any other pci driver that should not load if
-> > you don't have the hardware present for it.
+> alan@lxorguk.ukuu.org.uk said:
+> >  Given an infinite number of monkeys yes. The 'disk I/O is not
+> > interruptible' assumption is buried in vast amounts of software. This
+> > isnt a case of sorting out a few misbehaving applications, you can
+> > start with some of the most basic unix programs like 'ed' and work
+> > outwards.
 > 
-> What about the PCI hotplug case, as David suggested ?
+> Still probably worth doing in the long term. In the short term, we could 
+> possibly have a sysctl or personality flag to disable it for the benefit of 
+> broken software. I'm in favour of just letting it break though, to be 
+> honest - it's _already_ possible to trigger the breakage in some 
+> circumstances and making it more reproducible is a _good_ thing.
 
-When the pci hotplug core sees a new device it calls out to
-/sbin/hotplug to load any available driver (if necessary).  So if you
-later plug in the device, everything will work just fine.
+If you really think this is important thing to do, I suggest you
+create a kernel patch which returns a partial read/write whenever the
+the size is even (and return an odd number of bytes), thus
+guaranteeing that 50% of the time, any I/O appears to have been
+interrupted.
 
-Well, that's the way it's _supposed_ to work, but the pci core changes
-in 2.5.19 seem to have broken this too :(
+Then run it on a system, and see what breaks.  I wouldn't suggest
+doing this on any system that you care about, though!
 
-/me looks for Pat Mochel...
-
-thanks,
-
-greg k-h
+							- Ted

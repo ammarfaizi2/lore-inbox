@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284965AbRLUSpt>; Fri, 21 Dec 2001 13:45:49 -0500
+	id <S284973AbRLUSxJ>; Fri, 21 Dec 2001 13:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284968AbRLUSpk>; Fri, 21 Dec 2001 13:45:40 -0500
-Received: from f134.law4.hotmail.com ([216.33.149.134]:55565 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S284965AbRLUSpf>;
-	Fri, 21 Dec 2001 13:45:35 -0500
-X-Originating-IP: [205.231.90.227]
-From: "victor1 torres" <camel_3@hotmail.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Concerning a driver rewrite (NOT THE KERNEL)
-Date: Fri, 21 Dec 2001 18:45:29 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F134DovvQ0Puz63Bma4000031b8@hotmail.com>
-X-OriginalArrivalTime: 21 Dec 2001 18:45:30.0015 (UTC) FILETIME=[A9DFCAF0:01C18A4F]
+	id <S284972AbRLUSxA>; Fri, 21 Dec 2001 13:53:00 -0500
+Received: from [129.27.43.9] ([129.27.43.9]:8458 "EHLO xarch.tu-graz.ac.at")
+	by vger.kernel.org with ESMTP id <S284970AbRLUSws>;
+	Fri, 21 Dec 2001 13:52:48 -0500
+Date: Fri, 21 Dec 2001 19:52:36 +0100 (CET)
+From: Alex <mail_ker@xarch.tu-graz.ac.at>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: conclusion: arp.c *must* be (still) defective
+In-Reply-To: <E16HSWd-0000eY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10112211952010.6988-100000@xarch.tu-graz.ac.at>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan-
-(How do you intend the two pieces to interact ?)
-I intend for the two pieces to interact with each other since they both have 
-access to the DSP. (DSP code will be aviable in late Janurary for the 
-Modem).
-(If you are also loading the sound driver you are likely to get into a mess
-with current 2.4 because the sound code sticks its nose into the codec bus
-somewhat further nowdays. )
-I understand that the codec sticks its nose into the codec bus but can´t I 
-add another (nose) into it also.
-You driver also seems to be assuming the sound
-driver has initialised the codec bus and codecs.) How could I fix it if the 
-sound codec is not initialised so that the modem codec could initialised  
-the codec bus and codecs?
-Thank you
 
 
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
+On Fri, 21 Dec 2001, Alan Cox wrote:
+
+> > Whenever I ping my nexthop router (ip: x.x.x.1) i get a pause of a few
+> > seconds, then a whole sequence of "Destination unreachable".
+> > Looking at the arp cache using "arp -a", I see that the arp cache is
+> > always incomplete (always KEEPS being incomplete). 
+> 
+> Sounds like you have the card on the wrong port or the IRQ not set in the
+> BIOS to be routed to ISA
+> 
+
+Sir! It's PLUG AND PLAY! Isapnp! I ought not to care about IRQ or Bios?
+
+Yours
+
+Alex
+
 

@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVATNue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVATNxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVATNue (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 08:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVATNue
+	id S262102AbVATNxl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 08:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVATNxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 08:50:34 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:53341 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262090AbVATNuZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 08:50:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Js5y6Vo4d5T7xYjkavVueTHTl7LfCNBxEf2HavYxhj/urOywo0ZbGt2Mhh/h2imh+zSkCSey5G2NUCfECl9MP4F/3qQJkYZSbOudE9dxKyH6Wu+UhmGOloqJPVr40/BwZ7Syws8+dqcIeTWuEgdT6pZQJOLgdIkZUkrIVBrVkTk=
-Message-ID: <d120d500050120055026b5d854@mail.gmail.com>
-Date: Thu, 20 Jan 2005 08:50:24 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH] remove input_call_hotplug (Take#2)
-Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <41EF640D.60102@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 20 Jan 2005 08:53:41 -0500
+Received: from smtp-bedford-x.mitre.org ([192.160.51.76]:6823 "EHLO
+	smtp-bedford.mitre.org") by vger.kernel.org with ESMTP
+	id S262102AbVATNxi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 08:53:38 -0500
+Message-ID: <41EFB7E0.60701@mitre.org>
+Date: Thu, 20 Jan 2005 08:53:36 -0500
+From: Jeff Blaine <jblaine@mitre.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: BUG: oom-killer active when overcommit_memory contains '2', and more...
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <41EE651E.1060201@suse.de> <20050119214249.GC4151@kroah.com>
-	 <41EF640D.60102@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jan 2005 08:55:57 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> Greg KH wrote:
-> > On Wed, Jan 19, 2005 at 02:48:14PM +0100, Hannes Reinecke wrote:
-> >
-> >>Hi Dmitry,
-> >>
-> >>attached is the reworked patch for removing the call to
-> >>call_usermodehelper from input.c
-> >>I've used the 'phys' attribute to generate the device names, this way we
-> >>don't need to touch all drivers and the patch itself is nice and small.
-> >
-> >
-> > The main problem of this is the input_dev structures are created
-> > statically, right?  Because of this, the release function really doesn't
-> > work out correctly I think....
-> > 
-> That depends on the driver. input_dev is in general a static entry in
-> the driver-dependend structure, which in turn may be statically or
-> dynamically allocated (depending on whether the driver allows for more
-> than one instance of the device to be connected).
-> Would dynamic allocation be of any help here?
+I see this as 2 bugs, personally, and will say right up front
+that none of these problems exist in 2.4.10.  I don't mean
+to sound flippant, but also have to say that the reality of
+this is that I do not have the time to test things further
+for anyone.  Filing this bug report is as much as I have time
+for (in addition to all of the time I have spent on this
+already before this message).
 
-The concern is the following: you are using class_simple and
-class_device structure is embedded into input_dev structure. When you
-unregister input_dev class_simple_release will attempt to kfree()
-memory occupied by class_device which is bad because it was never
-kalloc()ated.
+1.  Filling up the memory on a 2.6.10 box renders it completely
+     and permanently useless even after the memory-filling process
+     exits due to oom-killer's havoc.
 
-For now, if you continue using class_simple (which is I believe right
-solution for now, we have issues with lifetime rules there and it will
-take time to resolve everything), you need to dynamically allocate
-class_device for input_dev (change cdev to *cdev).
+     I came across this problem when running Iozone NFSv3
+     benchmarks.  The client Linux box in question is running
+     2.6.10 (Fedora Core 3 with latest updates) and has 4GB
+     physical memory and 4GB in a swap partition.  To perform
+     a proper Iozone benchmark for NFS testing, one needs to
+     specify a test file size that is larger than the amount
+     of memory in the client.  In my case, 4224MB is being
+     specified:
 
--- 
-Dmitry
+          ./iozone -a -g 4224m -f /sol9server/testfile
+
+     As soon as it finally gets to trying a file size of
+     4194304, oom-killer steps in and starts blasting
+     processes off my machine.  NFS stops functioning,
+     RPC calls to the box fail, SSH connections are no
+     longer accepted, and I generally have to hard
+     powercycle the box.  That's pretty poor :)
+
+2.  Andries Brouwer looked into this and asked me to try
+     turning off oom-killer with the following command:
+
+         echo 2 > /proc/sys/vm/overcommit_memory
+
+     Re-running the 4GB benchmark with Iozone, this did
+     nothing and oom-killer walked through the door blasting
+     processes off of my machine, rendering it totally
+     broken in the end.
+

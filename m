@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280857AbRKGQbu>; Wed, 7 Nov 2001 11:31:50 -0500
+	id <S280861AbRKGQwX>; Wed, 7 Nov 2001 11:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280852AbRKGQbl>; Wed, 7 Nov 2001 11:31:41 -0500
-Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:16099 "EHLO
-	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280857AbRKGQb1>; Wed, 7 Nov 2001 11:31:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        roy@karlsbakk.net (Roy Sigurd Karlsbakk)
-Subject: Re: ext3 vs resiserfs vs xfs
-Date: Wed, 7 Nov 2001 16:31:24 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu>
-In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu>
+	id <S280859AbRKGQwN>; Wed, 7 Nov 2001 11:52:13 -0500
+Received: from web13105.mail.yahoo.com ([216.136.174.150]:13321 "HELO
+	web13105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S280853AbRKGQvy>; Wed, 7 Nov 2001 11:51:54 -0500
+Message-ID: <20011107165153.91027.qmail@web13105.mail.yahoo.com>
+Date: Wed, 7 Nov 2001 08:51:53 -0800 (PST)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: Q:Howto benchmark preemptible kernel ?
+To: linux-kernel@vger.kernel.org
+Cc: akpm@zip.com.au, rml@tech9.net
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E161Vbf-0000m9-00@lilac.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 November 2001 3:23 pm, Alan Cox wrote:
-> > I just set up a RedHat 7.2 box with ext3, and after a few tests/chrashes,
-> > I see no difference at all. After a chrash, it really wants to run fsck
-> > anyway. I've tried ReiserFS before, with no fsck after chrashes - is this
->
-> Umm RH 7.2 after an unexpected shutdown will give you a 5 second count down
-> when you can choose to force an fsck - ext3 doesnt need an fsck but
-> sometimes folks might want to force it thats all
+Hi 
+I'm have a Cyrix 486/66 with 12Megs of ram.
+I'm using preemptible patches from quite some time
+now.
+(2.4.10- 2.4.13)
+I was using both Robert Love and Andrew Morton's
+patch.
+I would like to do some benhmarks but there are some
+issues:
+1. The system is slow and has low memory so a big
+benchmark is out of question (compiling the kernel
+take 4 hours if i don't touch the console)
+2. The benchmark must be small and adequate (patching
+the kernel to make a benchmark is out of discussion)
 
-Hm.. after a decidedly unclean shutdown, I decided to force an fsck here and 
-my ext3 partition DID have two inode errors on fsck... (Having said that, the 
-last entry in syslog was from the SCSI driver, and ext3's journalling 
-probably doesn't help much when the disk it's on goes AWOL...)
+Any ideas ?
+
+(No i don't have money to buy a new machine, I win
+200$/month, a new pc (crappy) is 350-400$ (in my
+country)).
+
+I did run (some time ago, without preemptible kernel)
+some benchmarks (bonnie, and bytebench or something)
+but it was no improvement (1% maybe ) whatever I have
+done with hdparm or vm tweaking.
+ 
+P.S. (for Andrew ) Will there be a patch for 2.4.14 ?
 
 
-James.
+__________________________________________________
+Do You Yahoo!?
+Find a job, post your resume.
+http://careers.yahoo.com

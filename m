@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267177AbUBMTOb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 14:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267182AbUBMTOb
+	id S267184AbUBMTE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 14:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUBMTE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 14:14:31 -0500
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:27576 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id S267177AbUBMTO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 14:14:26 -0500
-Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310F0BA@stca204a.bus.sc.rolm.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'Maciej Zenczykowski'" <maze@cela.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: your mail
-Date: Fri, 13 Feb 2004 11:14:19 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 13 Feb 2004 14:04:56 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:59071 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S267184AbUBMTEz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 14:04:55 -0500
+Date: Fri, 13 Feb 2004 12:04:53 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/6] A different KGDB stub
+Message-ID: <20040213190453.GA1564@smtp.west.cox.net>
+References: <20040212000237.GA19676@smtp.west.cox.net> <20040211162756.12bb19e8.akpm@osdl.org> <20040212165259.GP19676@smtp.west.cox.net> <20040213105838.F14506@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040213105838.F14506@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, your assumtion about the 1GB is correct.
+On Fri, Feb 13, 2004 at 10:58:38AM -0800, Chris Wright wrote:
 
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
-
-
------Original Message-----
-From: Maciej Zenczykowski [mailto:maze@cela.pl]
-Sent: Friday, February 13, 2004 1:11 PM
-To: Bloch, Jack
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-
-
-The deleted marks in question mean that the file in question has been 
-unlinked (rm'ed), however it is still being used and the inode in question 
-still exists.  This memory is in use and thus validly takes up mapping 
-space.  You'd need to unmap inorder to free that memory.  Deleting a file 
-does not delete that file until _all_ processes close and unmap any 
-references to it.  What's more worrying is the large area of unmapped 
-memory below 1GB (0x40000000), wonder why it doesn't get allocated?  But I 
-think the answer is that the standard allocator only searches 1GB..3GB for 
-free areas...
-
-Cheers,
-MaZe.
-
-On Fri, 13 Feb 2004, Bloch, Jack wrote:
-
-> I am running a 2.4.19 Kernel and have a problem where a process is using
-the
-> up to the 0xC0000000 of space. It is no longer possible for this process
-to
-> get any more memory vi mmap or via shmget. However, when I dump the
-> /procs/#/maps file, I see large chunks of memory deleted. i.e this should
-be
-> freely available to be used by the next call. I do not see these addresses
-> get re-used. The maps file is attached.
+> * Tom Rini (trini@kernel.crashing.org) wrote:
+> > On Wed, Feb 11, 2004 at 04:27:56PM -0800, Andrew Morton wrote:
+> > > CONFIG_KGDB_SYSRQ		(Just turn it on by default?)
+> > > 
+> > > I have never used (or, as far as I know, needed) any of the above.
+> > 
+> > I think CONFIG_KGDB_SYSRQ can die since with the 8250 and enet drivers
+> > you can try and connect at any point, which will schedule a breakpoint
+> > and you can get in like that.  As for NO_KGDB_CPUS, I'm not entirely
+> > certain why this can't go away and there'd be an array of NR_CPUS in
+> > size.
 > 
->  <<9369>> 
-> 
-> Jack Bloch 
-> Siemens ICN
-> phone                (561) 923-6550
-> e-mail                jack.bloch@icn.siemens.com
-> 
-> 
+> Using kgdboe I've had numerous times where it gets a bit wedged and
+> only sysrq-g could get the breakpoint.
+
+Alright.   We can just always have it on SYSRQ+KGDB then.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

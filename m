@@ -1,242 +1,226 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265314AbSJXFN4>; Thu, 24 Oct 2002 01:13:56 -0400
+	id <S265319AbSJXFjN>; Thu, 24 Oct 2002 01:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265315AbSJXFNz>; Thu, 24 Oct 2002 01:13:55 -0400
-Received: from dp.samba.org ([66.70.73.150]:62675 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265314AbSJXFNx>;
-	Thu, 24 Oct 2002 01:13:53 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Move driverfs cpu stuff to kernel/cpu.c
-Date: Thu, 24 Oct 2002 15:05:25 +1000
-Message-Id: <20021024052004.3F5682C08C@lists.samba.org>
+	id <S265320AbSJXFjN>; Thu, 24 Oct 2002 01:39:13 -0400
+Received: from pop017pub.verizon.net ([206.46.170.210]:54501 "EHLO
+	pop017.verizon.net") by vger.kernel.org with ESMTP
+	id <S265319AbSJXFjK>; Thu, 24 Oct 2002 01:39:10 -0400
+Message-ID: <3DB788B2.34A9946B@verizon.net>
+Date: Wed, 23 Oct 2002 22:44:18 -0700
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.44 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] convert /proc/swaps to seq_file
+Content-Type: multipart/mixed;
+ boundary="------------0EF9EF4883C39D36025D0263"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop017.verizon.net from [4.64.197.173] at Thu, 24 Oct 2002 00:45:16 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applies against 2.5.44 *and* 2.5.44-mm4.
+This is a multi-part message in MIME format.
+--------------0EF9EF4883C39D36025D0263
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Name: Put cpus in driverfs for all architectures
-Author: Rusty Russell
-Status: Trivial
+This patch to 2.5.44 make /proc/swaps use seq_file.
 
-D: Moves registering of cpus from arch/i386/kernel/cpu/common.c into
-D: kernel/cpu.c, makes it use per-cpu variables, and makes
-D: kernel/cpu.c compiled even on non-SMP (as the entry must exist even
-D: for UP).  This allows some UP stubs to be removed from smp.h into
-D: kernel/cpu.c, too.
+Question:  is any locking needed here?
+The previous code didn't use any locking.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/arch/i386/kernel/cpu/common.c .21228-linux-2.5.44-mm3.updated/arch/i386/kernel/cpu/common.c
---- .21228-linux-2.5.44-mm3/arch/i386/kernel/cpu/common.c	2002-10-15 15:19:37.000000000 +1000
-+++ .21228-linux-2.5.44-mm3.updated/arch/i386/kernel/cpu/common.c	2002-10-23 19:06:22.000000000 +1000
-@@ -507,37 +507,3 @@ void __init cpu_init (void)
- 	current->used_math = 0;
- 	stts();
- }
--
--/*
-- * Bulk registration of the cpu devices with the system.
-- * Some of this stuff could possibly be moved into a shared 
-- * location..
-- * Also, these devices should be integrated with other CPU data..
-- */
--
--static struct cpu cpu_devices[NR_CPUS];
--
--static struct device_driver cpu_driver = {
--	.name		= "cpu",
--	.bus		= &system_bus_type,
--	.devclass	= &cpu_devclass,
--};
--
--static int __init register_cpus(void)
--{
--	int i;
--
--	driver_register(&cpu_driver);
--
--	for (i = 0; i < NR_CPUS; i++) {
--		struct sys_device * sysdev = &cpu_devices[i].sysdev;
--		sysdev->name = "cpu";
--		sysdev->id = i;
--		sysdev->dev.driver = &cpu_driver;
--		if (cpu_possible(i))
--			sys_device_register(sysdev);
--	}
--	return 0;
--}
--
--subsys_initcall(register_cpus);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/include/linux/cpu.h .21228-linux-2.5.44-mm3.updated/include/linux/cpu.h
---- .21228-linux-2.5.44-mm3/include/linux/cpu.h	2002-10-15 15:19:44.000000000 +1000
-+++ .21228-linux-2.5.44-mm3.updated/include/linux/cpu.h	2002-10-23 19:06:22.000000000 +1000
-@@ -19,6 +19,7 @@
-  */
- 
- #include <linux/device.h>
-+#include <linux/percpu.h>
- 
- extern struct device_class cpu_devclass;
- 
-@@ -26,3 +27,7 @@ struct cpu {
- 	struct sys_device sysdev;
+Any other feedback on it?
+
+Thanks,
+~Randy
+~~~
+--------------0EF9EF4883C39D36025D0263
+Content-Type: text/plain; charset=us-ascii;
+ name="swaps-seqfile-2544.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="swaps-seqfile-2544.patch"
+
+--- ./fs/proc/proc_misc.c.swaps	Fri Oct 18 21:01:14 2002
++++ ./fs/proc/proc_misc.c	Mon Oct 21 20:11:48 2002
+@@ -295,6 +295,18 @@
+ 	.release	= seq_release,
  };
  
-+DECLARE_PER_CPU(struct cpu, cpu_devices);
++extern struct seq_operations swaps_op;
++static int swaps_open(struct inode *inode, struct file *file)
++{
++	return seq_open(file, &swaps_op);
++}
++static struct file_operations proc_swaps_operations = {
++	.open		= swaps_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= seq_release,
++};
 +
-+/* Bring a CPU up */
-+int cpu_up(unsigned int cpu);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/include/linux/smp.h .21228-linux-2.5.44-mm3.updated/include/linux/smp.h
---- .21228-linux-2.5.44-mm3/include/linux/smp.h	2002-10-23 19:05:55.000000000 +1000
-+++ .21228-linux-2.5.44-mm3.updated/include/linux/smp.h	2002-10-23 19:07:28.000000000 +1000
-@@ -70,14 +70,6 @@ extern volatile int smp_msg_id;
- 					 */
- #define MSG_RESCHEDULE		0x0003	/* Reschedule request from master CPU*/
- #define MSG_CALL_FUNCTION       0x0004  /* Call function on all other CPUs */
+ #ifdef CONFIG_MODULES
+ extern struct seq_operations modules_op;
+ static int modules_open(struct inode *inode, struct file *file)
+@@ -503,13 +515,6 @@
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+ 
+-static int swaps_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	int len = get_swaparea_info(page);
+-	return proc_calc_metrics(page, start, off, count, eof, len);
+-}
 -
--struct notifier_block;
--
--/* Need to know about CPUs going up/down? */
--extern int register_cpu_notifier(struct notifier_block *nb);
--extern void unregister_cpu_notifier(struct notifier_block *nb);
--
--int cpu_up(unsigned int cpu);
- #else /* !SMP */
+ static int memory_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+ {
+@@ -616,7 +621,6 @@
+ 		{"rtc",		ds1286_read_proc},
+ #endif
+ 		{"locks",	locks_read_proc},
+-		{"swaps",	swaps_read_proc},
+ 		{"iomem",	memory_read_proc},
+ 		{"execdomains",	execdomains_read_proc},
+ 		{NULL,}
+@@ -632,6 +636,7 @@
+ 		entry->proc_fops = &proc_kmsg_operations;
+ 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
+ 	create_seq_entry("partitions", 0, &proc_partitions_operations);
++	create_seq_entry("swaps", 0, &proc_swaps_operations);
+ #if !defined(CONFIG_ARCH_S390)
+ 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
+ #endif
+--- ./mm/swapfile.c.swaps	Fri Oct 18 21:01:17 2002
++++ ./mm/swapfile.c	Wed Oct 23 22:33:27 2002
+@@ -15,6 +15,7 @@
+ #include <linux/shm.h>
+ #include <linux/blkdev.h>
+ #include <linux/buffer_head.h>
++#include <linux/seq_file.h>
+ 
+ #include <asm/pgtable.h>
+ #include <linux/swapops.h>
+@@ -1041,45 +1042,89 @@
+ 	return err;
+ }
+ 
+-int get_swaparea_info(char *buf)
++#ifdef CONFIG_PROC_FS
++/* iterator */
++static void *swap_start(struct seq_file *swap, loff_t *pos)
+ {
+-	char * page = (char *) __get_free_page(GFP_KERNEL);
+ 	struct swap_info_struct *ptr = swap_info;
+-	int i, len;
++	int i;
++	loff_t l = *pos;
++	char * page = (char *) __get_free_page(GFP_KERNEL);
+ 
+ 	if (!page)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+-	len = sprintf(buf, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
+-	for (i = 0 ; i < nr_swapfiles ; i++, ptr++) {
+-		int j, usedswap;
+-		struct file *file;
+-		char *path;
++	swap->private = page;	/* save for swap_show */
+ 
++	for (i = 0; i < nr_swapfiles; i++, ptr++) {
+ 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
+ 			continue;
++		if (!l--)
++			return ptr;
++	}
+ 
+-		file = ptr->swap_file;
+-		path = d_path(file->f_dentry, file->f_vfsmnt, page, PAGE_SIZE);
+-		for (j = 0,usedswap = 0; j < ptr->max; ++j)
+-			switch (ptr->swap_map[j]) {
+-				case SWAP_MAP_BAD:
+-				case 0:
+-					continue;
+-				default:
+-					usedswap++;
+-			}
+-		len += sprintf(buf + len, "%-39s %s\t%d\t%d\t%d\n",
+-			       path,
+-			       S_ISBLK(file->f_dentry->d_inode->i_mode) ?
+-					"partition" : "file\t",
+-			       ptr->pages << (PAGE_SHIFT - 10),
+-			       usedswap << (PAGE_SHIFT - 10),
+-			       ptr->prio);
++	return NULL;
++}
++
++static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
++{
++	struct swap_info_struct *ptr = v;
++	void *endptr = (void *) swap_info + nr_swapfiles * sizeof(struct swap_info_struct);
++
++	for (++ptr; ptr < (struct swap_info_struct *) endptr; ptr++) {
++		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
++			continue;
++		++*pos;
++		return ptr;
+ 	}
+-	free_page((unsigned long) page);
+-	return len;
++
++	return NULL;
+ }
++
++static void swap_stop(struct seq_file *swap, void *v)
++{
++	free_page((unsigned long) swap->private);
++	swap->private = NULL;
++}
++
++static int swap_show(struct seq_file *swap, void *v)
++{
++	struct swap_info_struct *ptr = v;
++	int j, usedswap;
++	struct file *file;
++	char *path;
++
++	if (v == swap_info)
++		seq_puts(swap, "Filename\t\t\t\tType\t\tSize\tUsed\tPriority\n");
++
++	file = ptr->swap_file;
++	path = d_path(file->f_dentry, file->f_vfsmnt, swap->private, PAGE_SIZE);
++
++	for (j = 0, usedswap = 0; j < ptr->max; ++j)
++		switch (ptr->swap_map[j]) {
++			case SWAP_MAP_BAD:
++			case 0:
++				continue;
++			default:
++				usedswap++;
++		}
++	seq_printf(swap, "%-39s %s\t%d\t%d\t%d\n",
++		       path,
++		       S_ISBLK(file->f_dentry->d_inode->i_mode) ?
++				"partition" : "file\t",
++		       ptr->pages << (PAGE_SHIFT - 10),
++		       usedswap << (PAGE_SHIFT - 10),
++		       ptr->prio);
++	return 0;
++}
++
++struct seq_operations swaps_op = {
++	.start =	swap_start,
++	.next =		swap_next,
++	.stop =		swap_stop,
++	.show =		swap_show
++};
++#endif
  
  /*
-@@ -101,16 +93,6 @@ static inline void smp_send_reschedule_a
- #define first_possible_cpu()			0
- #define next_possible_cpu(cpu)			NR_CPUS
- 
--struct notifier_block;
--
--/* Need to know about CPUs going up/down? */
--static inline int register_cpu_notifier(struct notifier_block *nb)
--{
--	return 0;
--}
--static inline void unregister_cpu_notifier(struct notifier_block *nb)
--{
--}
- #endif /* !SMP */
- 
- #define for_each_possible_cpu(var)		\
-@@ -127,4 +109,9 @@ static inline void unregister_cpu_notifi
- #define put_cpu()		preempt_enable()
- #define put_cpu_no_resched()	preempt_enable_no_resched()
- 
-+/* Need to know about CPUs going up/down? */
-+struct notifier_block;
-+extern int register_cpu_notifier(struct notifier_block *nb);
-+extern void unregister_cpu_notifier(struct notifier_block *nb);
-+
- #endif /* __LINUX_SMP_H */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/init/main.c .21228-linux-2.5.44-mm3.updated/init/main.c
---- .21228-linux-2.5.44-mm3/init/main.c	2002-10-23 12:03:15.000000000 +1000
-+++ .21228-linux-2.5.44-mm3.updated/init/main.c	2002-10-23 19:06:22.000000000 +1000
-@@ -33,6 +33,7 @@
- #include <linux/workqueue.h>
- #include <linux/profile.h>
- #include <linux/rcupdate.h>
-+#include <linux/cpu.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/kernel/Makefile .21228-linux-2.5.44-mm3.updated/kernel/Makefile
---- .21228-linux-2.5.44-mm3/kernel/Makefile	2002-10-16 15:01:26.000000000 +1000
-+++ .21228-linux-2.5.44-mm3.updated/kernel/Makefile	2002-10-23 19:06:22.000000000 +1000
-@@ -4,16 +4,15 @@
- 
- export-objs = signal.o sys.o kmod.o workqueue.o ksyms.o pm.o exec_domain.o \
- 		printk.o platform.o suspend.o dma.o module.o cpufreq.o \
--		profile.o rcupdate.o
-+		profile.o rcupdate.o cpu.o
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    module.o exit.o itimer.o time.o softirq.o resource.o \
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o workqueue.o futex.o platform.o pid.o \
--	    rcupdate.o
-+	    rcupdate.o cpu.o
- 
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
--obj-$(CONFIG_SMP) += cpu.o
- obj-$(CONFIG_UID16) += uid16.o
- obj-$(CONFIG_MODULES) += ksyms.o
- obj-$(CONFIG_KALLSYMS) += kallsyms.o
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21228-linux-2.5.44-mm3/kernel/cpu.c .21228-linux-2.5.44-mm3.updated/kernel/cpu.c
---- .21228-linux-2.5.44-mm3/kernel/cpu.c	2002-10-23 12:03:15.000000000 +1000
-+++ .21228-linux-2.5.44-mm3.updated/kernel/cpu.c	2002-10-23 19:06:22.000000000 +1000
-@@ -1,5 +1,5 @@
- /* CPU control.
-- * (C) 2001 Rusty Russell
-+ * (C) 2001, 2002 Rusty Russell
-  * This code is licenced under the GPL.
-  */
- #include <linux/proc_fs.h>
-@@ -8,11 +8,14 @@
- #include <linux/notifier.h>
- #include <linux/sched.h>
- #include <linux/unistd.h>
-+#include <linux/cpu.h>
-+#include <linux/module.h>
- #include <asm/semaphore.h>
- 
- /* This protects CPUs going up and down... */
- DECLARE_MUTEX(cpucontrol);
- 
-+#ifdef CONFIG_SMP
- static struct notifier_block *cpu_chain = NULL;
- 
- /* Need to know about CPUs going up/down? */
-@@ -64,3 +67,46 @@ out:
- 	up(&cpucontrol);
- 	return ret;
- }
-+#else /* ... !CONFIG_SMP */
-+/* Need to know about CPUs going up/down? */
-+int register_cpu_notifier(struct notifier_block *nb)
-+{
-+	return 0;
-+}
-+void unregister_cpu_notifier(struct notifier_block *nb)
-+{
-+}
-+int __devinit cpu_up(unsigned int cpu)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_SMP */
-+
-+static struct device_driver cpu_driver = {
-+	.name		= "cpu",
-+	.bus		= &system_bus_type,
-+	.devclass	= &cpu_devclass,
-+};
-+
-+DEFINE_PER_CPU(struct cpu, cpu_devices) = {
-+	.sysdev = { .name = "cpu",
-+		    .dev = { .driver = &cpu_driver, },
-+	},
-+};
-+
-+static int __init register_cpus(void)
-+{
-+	unsigned int i;
-+
-+	driver_register(&cpu_driver);
-+	for (i = first_possible_cpu(); i < NR_CPUS; i = next_possible_cpu(i)) {
-+		per_cpu(cpu_devices, i).sysdev.id = i;
-+		sys_device_register(&per_cpu(cpu_devices, i));
-+	}
-+	return 0;
-+}
-+
-+__initcall(register_cpus);
-+
-+EXPORT_SYMBOL_GPL(register_cpu_notifier);
-+EXPORT_SYMBOL_GPL(unregister_cpu_notifier);
+  * Written 01/25/92 by Simmule Turner, heavily changed by Linus.
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--------------0EF9EF4883C39D36025D0263--
+

@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbTDYDC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 23:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTDYDC6
+	id S262856AbTDYD3H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 23:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbTDYD3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 23:02:58 -0400
-Received: from holomorphy.com ([66.224.33.161]:29615 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262885AbTDYDC4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 23:02:56 -0400
-Date: Thu, 24 Apr 2003 20:14:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: jds <jds@soltis.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: busy_loop in compile kernel 2.5.68-mm2
-Message-ID: <20030425031459.GR8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	jds <jds@soltis.cc>, linux-kernel@vger.kernel.org
-References: <20030425022510.M26474@soltis.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030425022510.M26474@soltis.cc>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 24 Apr 2003 23:29:07 -0400
+Received: from lakemtao02.cox.net ([68.1.17.243]:55172 "EHLO
+	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S262856AbTDYD3G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 23:29:06 -0400
+Message-ID: <3EA8AE49.7020705@cox.net>
+Date: Thu, 24 Apr 2003 22:40:57 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA and 2.4.x
+References: <20030424212508.GI14661@codepoet.org>
+In-Reply-To: <20030424212508.GI14661@codepoet.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 08:28:12PM -0600, jds wrote:
->     I have problems when compile kernel 2.5.68-mm2 the message is:
->     make -f scripts/Makefile.build obj=net/unix
-[...]
-> arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-> drivers/built-in.o(.text+0x9d70b): In function `busy_loop':
-> : undefined reference to `save_flags'
-> drivers/built-in.o(.text+0x9d710): In function `busy_loop':
-> : undefined reference to `sti'
-> drivers/built-in.o(.text+0x9d72d): In function `busy_loop':
-> : undefined reference to `restore_flags'
-> make: *** [.tmp_vmlinux1] Error 1
->   Help me please
->   Regards
+Erik Andersen wrote:
+> On Thu Apr 24 2003 - 08:35:48 EST, David van Hoose wrote:
+> 
+>>Is there a ALSA backport to 2.4.x anywhere? 
+> 
+> I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
+> 2.4.x a week or two ago.  I just prefer to have ALSA be part of
+> the kernel rather than needing to compile it seperately all the
+> time.  The patch, along with various other things, is included as
+> part of my 2.4.21-rc1-erik kernel:
+> 
+>     http://codepoet.org/kernel/
+> 
+> This is what I am running locally, and it works for me,
 
-You have an SMP-unsafe driver configured.
-A little birdy called grep(1) told me:
+Works *very* well. I now have sound. I'd recommend adding the ALSA 
+documentation from 2.5.x to the patch. It is easier than trying to 
+navigate through alsa-project.org for setup information. It would be 
+nice if ALSA was placed into 2.4.x as soon as possible. Doesn't require 
+any extra patches beyond the ones for the kernel.
 
-$ grep -nr busy_loop drivers           
-drivers/net/pcmcia/xirc2ps_cs.c:443:busy_loop(u_long len)
-drivers/net/pcmcia/xirc2ps_cs.c:1788:    busy_loop(HZ/25);                   /* wait 40 msec */
-drivers/net/pcmcia/xirc2ps_cs.c:1793:    busy_loop(HZ/50);                   /* wait 20 msec */
-drivers/net/pcmcia/xirc2ps_cs.c:1807:    busy_loop(HZ/50);                   /* wait 20 msec */
-drivers/net/pcmcia/xirc2ps_cs.c:1809:    busy_loop(HZ/25);                   /* wait 40 msec */
-drivers/net/pcmcia/xirc2ps_cs.c:1820:    busy_loop(HZ/2);               /* about 500ms */
-drivers/net/pcmcia/xirc2ps_cs.c:1839:    busy_loop(HZ/25);                   /* wait 40 msec to let it complete */
-drivers/net/pcmcia/xirc2ps_cs.c:1898:       busy_loop(HZ/50);
-drivers/net/pcmcia/xirc2ps_cs.c:1907:       busy_loop(HZ/25);   /* wait 40 msec to let it complete */
-drivers/net/pcmcia/xirc2ps_cs.c:2000:       busy_loop(HZ/10);    /* wait 100 msec */
+Thanks for the help!
+David
 
-
--- wli

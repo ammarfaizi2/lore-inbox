@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132296AbQKDBcX>; Fri, 3 Nov 2000 20:32:23 -0500
+	id <S132340AbQKDBcX>; Fri, 3 Nov 2000 20:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132326AbQKDBcN>; Fri, 3 Nov 2000 20:32:13 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:47378 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S132296AbQKDBcD>; Fri, 3 Nov 2000 20:32:03 -0500
-Date: Fri, 3 Nov 2000 19:31:51 -0600
-To: matthew <matthew@mattshouse.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test10 Sluggish After Load
-Message-ID: <20001103193151.K1041@wire.cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.21.0011021152310.15168-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0011021016120.12598-100000@matthew.linuxnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011021016120.12598-100000@matthew.linuxnet>; from matthew@mattshouse.com on Thu, Nov 02, 2000 at 10:22:22AM -0600
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S132296AbQKDBcO>; Fri, 3 Nov 2000 20:32:14 -0500
+Received: from lina.inka.de ([212.227.16.17]:49172 "EHLO matrix.inka.de")
+	by vger.kernel.org with ESMTP id <S132375AbQKDBb7>;
+	Fri, 3 Nov 2000 20:31:59 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BUG?] two swapping processes freeze 2.4.0-test10 (but not 2.2.18pre19)
+Message-Id: <E13rsBQ-0004bX-00@calista.inka.de>
+Date: Sat, 04 Nov 2000 02:31:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.21.0011012222210.1296-100000@shimura.math.berkeley.edu> you wrote:
+> I simultaneously run "top d1" and two of the test computations.  All is
+> well (top updates smoothly) until physical RAM is exhausted.  However, as
+> soon as swap is touched, then top freezes and does not update.  In this
+> state, I can switch virtual consoles but not login to a new one; the
+> machine is pingable but does not respond to ssh.  Once swap is exhausted,
+> the OOM killer kicks in and kills one of the test computations; then all
+> is well and everything works as expected.
 
-[matthew]
-> ls /proc > killscript
-> added "kill -9" to the beginning and "\" to the end of each line,
-> ran it as the database user.  It worked pretty well.
+Yes, i described the same behaviour. Rick answered, that the swap out
+situation is stopping other processes, since the out of free memory
+situation will also page out other active processes' pages.
 
-Sounds like a lot of trouble.
+I suggested a fix to actually start to page out only a own process pages if
+the system is that short that it starts to page out very recently used
+pages.
 
-  su {oracle} -c 'kill -9 -1'
+this will lead to the efect, that as long as there are unused pages on the
+system one growing process can page out other pages "idle" pages. But as
+soon as the growing process can only page out other processes (which will in
+turn page in their own pages, ...) we should chnage page out strategy and
+only page out the oldest pages of the growing process. Therefore the swap
+penalty is fully on the growing process.
 
-Or is there some reason that wouldn't have worked in your case?
-
-Peter
+Greetings
+Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

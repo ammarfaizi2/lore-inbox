@@ -1,76 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266760AbSKUPoI>; Thu, 21 Nov 2002 10:44:08 -0500
+	id <S266767AbSKUPtE>; Thu, 21 Nov 2002 10:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266767AbSKUPoI>; Thu, 21 Nov 2002 10:44:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24838 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266760AbSKUPoG>;
-	Thu, 21 Nov 2002 10:44:06 -0500
-Message-ID: <3DDD00EC.1010305@pobox.com>
-Date: Thu, 21 Nov 2002 10:51:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S266792AbSKUPtE>; Thu, 21 Nov 2002 10:49:04 -0500
+Received: from gordo.y12.doe.gov ([134.167.141.46]:6569 "EHLO
+	gordo.y12.doe.gov") by vger.kernel.org with ESMTP
+	id <S266767AbSKUPtD>; Thu, 21 Nov 2002 10:49:03 -0500
+Message-ID: <3DDD020A.62F83EE5@y12.doe.gov>
+Date: Thu, 21 Nov 2002 10:55:54 -0500
+From: David Dillow <dillowd@y12.doe.gov>
+Organization: BWXT Y-12/TC/UT Subcon/What a mess!
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Dmitry Kudryavtsev <dkudr@sao.ru>
+To: Christian Axelsson <smiler@lanil.mine.nu>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Sound VIA VT8233 on K7VTA3 motherboard
-References: <Pine.LNX.4.44.0211211445190.1664-100000@jack.sao.ru>
-In-Reply-To: <Pine.LNX.4.44.0211211445190.1664-100000@jack.sao.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Status of 3Com 3CR990 driver
+References: <20021118153338.3e93f0b8.smiler@lanil.mine.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Kudryavtsev wrote:
+Christian Axelsson wrote:
+> 
+> I couple of weeks ago I read a post from David Dillow about drivers for the
+> 3CR990 NICs
+> (http://www.3com.com/products/en_US/detail.jsp?tab=features&pathtype=purchase&s
+> ku=3CR990-TX-95).
+> Now I wonder how work is progressing as I've got a hand of one of these cards
+> for free :)
 
-> [1.] One line summary of the problem:
-> -------------------------------------
->   Problems with sound VIA VT8233A on K7VTA3 motherboard
->
->
->
-> [2.] Full description of the problem/report:
-> --------------------------------------------
->
->  Sound works perfectly with Windows on the same host.
->
->  dmesg:
->   PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try
->    using pci=biosirq
->   ...
->   VP_IDE: VIA vt8233a (rev 00) IDE UDMA133 controller on pci00:11.1
->
-> sndconfig:
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/
->  via82cxxx_audio.o: init_module: No such device
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/
->  via82cxxx_audio.o: insmod
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/
->  via82cxxx_audio.o failed
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/
->  via82cxxx_audio.o: insmod sound-slot-0 failed
->
-> modprobe via82cxxx_audio:
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/via82cxxx_audio.o:
->  init_module: No such device
->  Hint: insmod errors can be caused by incorrect module parameters,
->  including invalid IO or IRQ parameters.
->       You may find more information in syslog or the output from dmesg
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/via82cxxx_audio.o:
->   insmod
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/via82cxxx_audio.o
->   failed
->  /lib/modules/2.4.18-18.7.xcustom/kernel/drivers/sound/via82cxxx_audio.o:
->   insmod via82cxxx_audio failed
+Sorry, bit of an emergency on another project, but I'm back to cleaning
+this up and pushing it through channels. Ah, bureaucracy.... :/
 
+> If there will be a 2.4 backport of the driver David is writing, I'll be happy to
+> beta-test it for him :)
 
-
-Kernel 2.4.x does not support your audio chip.  I hope to add support soon.
-
-ALSA 2.4.x or the in-kernel ALSA in 2.5.x does support your audio.
-
-	Jeff
-
-
-
+I'm mainly working against 2.4.current, but it won't change too much for
+2.4.older or 2.5.

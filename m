@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129114AbRBAFqn>; Thu, 1 Feb 2001 00:46:43 -0500
+	id <S129183AbRBAFuO>; Thu, 1 Feb 2001 00:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129290AbRBAFqd>; Thu, 1 Feb 2001 00:46:33 -0500
-Received: from h179-210-243-135.iii.org.tw ([210.243.135.179]:5367 "EHLO
-	mta0.iii.org.tw") by vger.kernel.org with ESMTP id <S129114AbRBAFqW>;
-	Thu, 1 Feb 2001 00:46:22 -0500
-Message-ID: <01dc01c08c11$e96f6be0$4c0c5c8c@trd.iii.org.tw>
+	id <S129417AbRBAFuE>; Thu, 1 Feb 2001 00:50:04 -0500
+Received: from h179-210-243-135.iii.org.tw ([210.243.135.179]:47094 "EHLO
+	mta0.iii.org.tw") by vger.kernel.org with ESMTP id <S129287AbRBAFtx>;
+	Thu, 1 Feb 2001 00:49:53 -0500
+Message-ID: <01ea01c08c12$67bccba0$4c0c5c8c@trd.iii.org.tw>
 From: "Greeen-III" <greeen@iii.org.tw>
 To: "LinuxKernelMailList" <linux-kernel@vger.kernel.org>
-Subject: New Guy!!
-Date: Thu, 1 Feb 2001 13:43:29 +0800
+Subject: Can't gunzip the ramdisk!!
+Date: Thu, 1 Feb 2001 13:47:03 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="big5"
@@ -22,21 +22,21 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-I am a new guy in MIPS.
-I want to port Linux/MIPS.
-Is there any mail list I should join into?
-I have a trouble in gunzip the ramdisk.
+Hi all,
 
-Appreciate in advance.
+I try to port Linux/MIPS. When the Ramdisk bigger than
+certain size, the kernel fail to gunzip it.
+Could you give me a way to find this bug?
 
+Thanks.
 
-**********************************
+************************************
 * It's Green!! (萬林明)
 * TEL: 886-2-23776100  ext.620
 * mailto:greeen@iii.org.tw
-**********************************
-
+* Working at III(資策會)
+* 台北市大安區敦化南路二段216號12F
+************************************
 
 
 -

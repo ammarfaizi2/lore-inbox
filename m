@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283666AbRLEB2T>; Tue, 4 Dec 2001 20:28:19 -0500
+	id <S283672AbRLEB33>; Tue, 4 Dec 2001 20:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283671AbRLEB2E>; Tue, 4 Dec 2001 20:28:04 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:15489 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S283657AbRLEB1B>; Tue, 4 Dec 2001 20:27:01 -0500
-Message-ID: <3C0D77D9.70205@optonline.net>
-Date: Tue, 04 Dec 2001 20:26:49 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S283674AbRLEB3V>; Tue, 4 Dec 2001 20:29:21 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:21259 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S283660AbRLEB3A>;
+	Tue, 4 Dec 2001 20:29:00 -0500
+Message-ID: <XFMail.20011205022659.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20011204222407.D1772@mouse.mydomain>
+Date: Wed, 05 Dec 2001 02:26:59 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Gert Menke <gert@menke.za.net>
+Subject: Re: kapm-idled
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+Hi,
+the problem is that kapm-idled and the idle task are both trying to handle the
+system idle time. I did send a patch correcting this weird behaviour for
+revision to Alan Cox a few days ago but until now there's no reaction from him.
+Oh, and there's more problems with kapm-idled. Think of a task like kmix that
+is ready to run every fraction of HZ to do some bookkeeping. Now look at the
+kapm-idled code. If both run in sync, e.g. they are ready to run during the
+same time slice kapm-idled will never do bios idle calls as there's always at
+least one task ready to run and this is then accounted as a 'heavily loaded
+system'.
+If you want to have a look at the patch please let me know though it may take a
+few days. I have to recover a system suffering from severe bit errors due to
+a memory module having gone south very slowly and quiet.
 
-> OK, good.  I've fixed another bug related to MMAPed stuff (for the 
-> people that like to play Quake on these sound cards).  I've put up a 
-> 0.08 version of the file on my web page.  If people could please 
-> verify that this version works for them I would appreciate it.  Once 
-> I've gotten a few "It works here" reports and no "It blew my computer 
-> up" reports, I'll submit it to Marcello and Linus so we can finally 
-> get these things working a bit more reliably.
+On 04-Dec-2001 Gert Menke wrote:
+> Hi,
+> 
+> On Tue, Dec 04, 2001 at 09:45:44PM +0100, Dave Jones wrote:
+>> http://www.tux.org/lkml/#s14-1
+> Sorry, I should have read the FAQ first.
+> 
+> But it is still annoying that kapm-idled claims to use that much system
+> ressources when it isn't. When my system is idle it should say ~100% idle,
+> not ~50% system. Right?
+> Is there an easy way to fix this? Or a good reason not to?
+> 
+> Greetings
+> Gert
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-artsd works in 0.08
-glquake.glx doesn't: "i810_audio: drain_dac, dma timeout?"
-
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

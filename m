@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSDWRQa>; Tue, 23 Apr 2002 13:16:30 -0400
+	id <S315272AbSDWR1N>; Tue, 23 Apr 2002 13:27:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315267AbSDWRQ3>; Tue, 23 Apr 2002 13:16:29 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:42769 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S315265AbSDWRQ1>; Tue, 23 Apr 2002 13:16:27 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A77B0@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'James L Peterson'" <peterson@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: RE: PowerPC Linux and PCI
-Date: Tue, 23 Apr 2002 10:16:16 -0700
+	id <S315273AbSDWR1M>; Tue, 23 Apr 2002 13:27:12 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21926 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S315272AbSDWR1M>;
+	Tue, 23 Apr 2002 13:27:12 -0400
+Date: Tue, 23 Apr 2002 17:23:38 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
+In-Reply-To: <1019580821.2045.85.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0204231722330.16139-100000@elte.hu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James L Peterson wrote: 
-> 
-> "David S. Miller" wrote:
-> > 
-> > An important point to mention is that big endian systems need to do
-> > byte twisting in the PCI controller for all the byte-lane issues to
-> > work out properly.
-> 
-> What does this mean?  This suggests that PCI controller for
-> big-endian systems are not interchangeable with PCI controllers
-> for little-endian systems, because the controller itself does
-> byte swapping (is that what you mean by "byte twisting"?)
 
-I think David's reference is to the system's PCI subsystem/interface rather
-than to the PCI cards plugged into it.
+On 23 Apr 2002, Robert Love wrote:
 
-Ed Vance
+> Now the hard part is abstracting sched_find_first_set for an arbitrary
+> MAX_RT_PRIO.
 
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+i'd suggest the following: keep the current hand-optimized one for the
+bitrange it's good for, and use the find_bit variant for all other values.  
+(We had this before, check out some of the older versions of the O(1)  
+scheduler.)
+
+	Ingo
 

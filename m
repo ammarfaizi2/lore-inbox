@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279992AbRKXUtX>; Sat, 24 Nov 2001 15:49:23 -0500
+	id <S279997AbRKXUvE>; Sat, 24 Nov 2001 15:51:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279997AbRKXUtO>; Sat, 24 Nov 2001 15:49:14 -0500
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:3986 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id <S279992AbRKXUtF>; Sat, 24 Nov 2001 15:49:05 -0500
-Date: Sat, 24 Nov 2001 15:48:24 -0500 (EST)
-From: Ahmed Masud <masud@marauder.googgun.com>
-To: Peter Jay Salzman <p@dirac.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kswapd and system response
-In-Reply-To: <20011124121231.A2062@dirac.org>
-Message-ID: <Pine.LNX.4.33.0111241535160.3541-100000@marauder.googgun.com>
+	id <S280028AbRKXUuy>; Sat, 24 Nov 2001 15:50:54 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:15633 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S279997AbRKXUui>; Sat, 24 Nov 2001 15:50:38 -0500
+Date: Sat, 24 Nov 2001 17:33:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Pavel Frolov <pavel.frolov@gmd.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: broken highmemory working in new WM (2.4.14 freeze continuation)
+In-Reply-To: <3BFEE74A.30909@gmd.de>
+Message-ID: <Pine.LNX.4.21.0111241732450.12119-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Could you please describe whats your problem with HIGHMEM again?
 
-On Sat, 24 Nov 2001, Peter Jay Salzman wrote:
+I did not read your first report.
 
-> hi there,
->
-> every so often, my system (2.4.13 smp) gets really sloooooow.   a typical top
-> looks something like:
->
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->     5 root      14   0     0    0     0 RW   99.9  0.0   7:52 kswapd
->     7 root       9   0     0    0     0 SW    1.9  0.0   0:04 kupdated
->  2053 root      13   0   984  984   776 R     0.7  0.4   0:01 top
->  2063 p          9   0  2080 2080  1292 S     0.3  0.9   0:00 vim
->
-> kswapd is definitely not behaving correctly.
->
-> the thing that brought it on this time was gtv (an mpeg viewer which uses
-> sdl) bailed on me.   X "kind of" froze, so i killed it.  but that's only the
-> cause this time around.  last time, it happened between the time of going to
-> bed and waking up (ie- the system was pretty much idling from a user's pov).
->
-> this has been happening with the 2.4.13 kernel every couple of days.
->
+On Sat, 24 Nov 2001, Pavel Frolov wrote:
 
-Hello
-
-I have experienced similar behaviour with kswapd/kupdated with 2.4.12 and
-2.4.13 .  After much struggle, I discovered that the system had become
-slugish and non-responsive because i was using the wrong IDE busmastering
-and DMA drivers (VIA chipset) instead of the correct ones for my
-motherboard (PROMISE chipset). If you are using IDE, then perhaps you have
-something similar and are using the incorrect drivers?
-
-If you are indeed using IDE then suggest that you turn of busmastering all
-together and give it another try.
-
-Ahmed.
+> Hi, ppl!
+>    I have tried to use HIGHMEM on 2.4.15 and 2.4.14 as had written 
+> before without success.
+>    On 2.4.9 kernel HIGHMEM is working.
+> 
+>     Please check new VM stuff.
+>  
+>                                                           pasha.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282715AbRK0Bc5>; Mon, 26 Nov 2001 20:32:57 -0500
+	id <S282722AbRK0Blr>; Mon, 26 Nov 2001 20:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282716AbRK0Bcr>; Mon, 26 Nov 2001 20:32:47 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63756 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282715AbRK0Bck>; Mon, 26 Nov 2001 20:32:40 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Release Policy
-Date: 26 Nov 2001 17:32:18 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9tuqf2$eri$1@cesium.transmeta.com>
-In-Reply-To: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com> <Pine.LNX.4.21.0111261328450.13681-100000@freak.distro.conectiva> <3C02E682.4CDC6858@zip.com.au> <20011126.171301.50592818.davem@redhat.com>
+	id <S282720AbRK0Blh>; Mon, 26 Nov 2001 20:41:37 -0500
+Received: from vp226158.uac62.hknet.com ([202.71.226.158]:52494 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S282718AbRK0Bl1>;
+	Mon, 26 Nov 2001 20:41:27 -0500
+Message-ID: <3C02F063.3000105@coppice.org>
+Date: Tue, 27 Nov 2001 09:46:11 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en, zh-TW
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: Re: Intel I860
+In-Reply-To: <3BFD0F19.86D23BEB@dohle.com> <20011126152803.A8684@tlaloc.indstorage.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011126.171301.50592818.davem@redhat.com>
-By author:    "David S. Miller" <davem@redhat.com>
-In newsgroup: linux.dev.kernel
->
->    From: Andrew Morton <akpm@zip.com.au>
->    Date: Mon, 26 Nov 2001 17:04:02 -0800
->    
->    Marcelo, if someone sends you a patch which has not been thoroughly
->    reviewed on the appropriate mailing list, I would urge you to
->    peremptorily shitcan it.  There is no reason why you alone should
->    be responsible for reviewing kernel changes.
+n0ano@indstorage.com wrote:
+
+> Achim-
 > 
-> Are you suggesting that, for example, I should send every Sparc change
-> to this list?
+> Uh, what exactly do you think you have here?  The I860 was a
+> completely new architecture that Intel dropped over 5 years
+> ago.  I've got one running Unix SVR4 in my basement but you
+> can't buy an I860 motherboard today.
 > 
+> (For the record the 860 was a great architecture for the time
+> and I'm still bitter that Intel dropped it but that's a different
+> story.)
 
-appropriate != this.
 
-> I bet a lot of what he is seeing are driver and arch updates.
-> 
-> Such updates really only need to go through his "stupid filter"
-> when it is coming from the maintainer, but it does add up and
-> take up time.
+Yep. The i432, sorry the i860, sorry the Itanium is most definitely 
+going to be the next great processor, with a long and solid future!
 
-Obviously.  If it's for a maintained subsystem:
+Regards,
+Steve
 
-a) if it's from the subsystem maintainer, sanity-check it.
-b) if it's not, dump it or reject with the appropriate notice.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+
+

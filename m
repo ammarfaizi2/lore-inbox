@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbTFXNCS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 09:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTFXNCS
+	id S262000AbTFXNLM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 09:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbTFXNLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 09:02:18 -0400
-Received: from [194.38.131.35] ([194.38.131.35]:42948 "HELO
-	www1.onevision-design.com") by vger.kernel.org with SMTP
-	id S262018AbTFXNCR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 09:02:17 -0400
-Subject: Re: [ACPI] MS-6368L ACPI IRQ problem still in 2.4.21
-From: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto 
-	<sbasto@onevision-design.com>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: linux-kernel@vger.kernel.org,
-       acpi-devel <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20030624063612.GB20235@alf.amelek.gda.pl>
-References: <F760B14C9561B941B89469F59BA3A847E96FBE@orsmsx401.jf.intel.com>
-	 <20030624063612.GB20235@alf.amelek.gda.pl>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 24 Jun 2003 14:16:04 +0100
-Message-Id: <1056460565.1430.15.camel@darkstar.portugal>
+	Tue, 24 Jun 2003 09:11:12 -0400
+Received: from med-gwia-02a.med.umich.edu ([141.214.93.150]:51110 "EHLO
+	mail-02.med.umich.edu") by vger.kernel.org with ESMTP
+	id S262000AbTFXNLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 09:11:10 -0400
+Message-Id: <sef818ff.059@mail-02.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.2
+Date: Tue, 24 Jun 2003 09:25:11 -0400
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <ranma@gmx.at>, <linux-kernel@vger.kernel.org>
+Subject: Re: WDC HD found, but ignored?
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-24 at 07:36, Marek Michalkiewicz wrote:
-> On Mon, Jun 23, 2003 at 03:23:48PM -0700, Grover, Andrew wrote:
-> > Is this an SMP machine?
-> 
-> No, it's a low cost Socket-370 Micro-ATX board with built-in VGA and
-> RTL8139 LAN, VT8601/VT82C686A chipset, Celeron 1200A processor.
-
-I have a laptop presario 7xx that have one VIA mother board 
-with built-in VGA and RTL8139 LAN.
-
-BTW: I have to disable APIC since the begging, because APIC enable,
-without acpi cause oops, and with acpi doesn't boot.
-my acpi works alone on irq 10 happily.
- 
-> 
-> Some of the kernel build options:
-> 
-> CONFIG_MPENTIUMIII=y
-> CONFIG_SMP=n
-> CONFIG_X86_UP_APIC=y
-> CONFIG_X86_UP_IOAPIC=y
-> 
-> But, there are some SMP-related boot messages:
-> 
-> found SMP MP-table at 000f6430
-> 
-> Intel MultiProcessor Specification v1.4
->     Virtual Wire compatibility mode.
-
-So maybe you should compile with smp support ,
-
-> 
-> I can provide the complete boot messages if necessary.
-> 
-of course we want see the complete dmesg 
 
 
--- 
-Sérgio Basto
+>>> Tobias Diedrich <ranma@gmx.at> 06/23/03 07:14PM >>>
+> This is a really weird case.
+> The kernel (2.4.21-ac2) finds the hard disk (WDC WD1800JB-00DUA0),
+but
+> does not attach the ide-disk driver (No error message). The
+following
+> partition check fails with I/O error on sector 0. Attempts to access
+the
+> disk (In this case hdc) on the booted system result in the kernel
+trying
+> to load the ide-disk module, which fails because it is compiled in.
+> The works fine in this configuration when booting the W2K partition.
 
+> I hope someone has an idea on what is going wrong here.
+> Please CC me on replies as I am not subscribed to the list at the
+> moment.
+> Kernel boot log:
 
+> Linux version 2.4.21-ac2 (root@elektra) (gcc version 2.95.4 20011002
+(Debian prerelease)) #5 Sun Dec 1 18:56:36 CET 2002
+> BIOS-provided physical RAM map:
+> BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+> BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+> BIOS-e820: 0000000000100000 - 000000003fffc000 (usable)
+> BIOS-e820: 000000003fffc000 - 000000003ffff000 (ACPI data)
+> BIOS-e820: 000000003ffff000 - 0000000040000000 (ACPI NVS)
+> BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+> BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+> BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+> Warning only 896MB will be used.
+> Use a HIGHMEM enabled kernel.
+> 896MB LOWMEM available.
+> On node 0 totalpages: 229376
+> zone(0): 4096 pages.
+> zone(1): 225280 pages.
+> zone(2): 0 pages.
+> Kernel command line: root=/dev/hda1 vga=ext parport=auto
+hdc=ide-scsi
+
+hdc=ide-scsi? Do you really want this?
+
+Nik

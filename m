@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318986AbSICV6g>; Tue, 3 Sep 2002 17:58:36 -0400
+	id <S318945AbSICWAP>; Tue, 3 Sep 2002 18:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318988AbSICV6g>; Tue, 3 Sep 2002 17:58:36 -0400
-Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:12418 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318986AbSICV6e>; Tue, 3 Sep 2002 17:58:34 -0400
-Date: Tue, 3 Sep 2002 16:03:05 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       Hacksaw <hacksaw@hacksaw.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
-In-Reply-To: <1031090398.21439.42.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0209031600140.3373-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318948AbSICWAK>; Tue, 3 Sep 2002 18:00:10 -0400
+Received: from [209.249.170.16] ([209.249.170.16]:47371 "EHLO dns1.nvidia.com")
+	by vger.kernel.org with ESMTP id <S318945AbSICWAI>;
+	Tue, 3 Sep 2002 18:00:08 -0400
+From: Terence Ripperda <TRipperda@nvidia.com>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Terence Ripperda <TRipperda@nvidia.com>, linux-kernel@vger.kernel.org
+Date: Tue, 3 Sep 2002 17:04:24 -0500
+Subject: Re: lockup on Athlon systems, kernel race condition?
+Message-ID: <20020903220424.GL2343@hygelac>
+References: <3D752DA3.6030000@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D752DA3.6030000@colorfullife.com>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.4.19 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Sep 03, 2002 at 11:46:11PM +0200, manfred@colorfullife.com wrote:
+> Which compiler to you use, and which kernel? Which additional patches?
+> 
+> With my 2.4.20-pre4-ac1 kernel, the lock_kernel is at offset +3a, 
+> according to your dump it's at +6a.
 
-On 3 Sep 2002, Alan Cox wrote:
-> If you have a good raid card then you can do online resizing, volume
-> allocation, volume format changing, volume migration etc. For those
-> cases you have to get the journalling right in order to be able to do
-> that kind of thing properly
+I'm using gcc 2.95.4 (on debian). The kernel I'm currently using is 2.4.19, with the kdb patch and apic_routing patches applied. Neither of these is required to reproduce the problem, they're just to help debug the problem.
 
-That's true, if you use partitions. I don't see the problem.
+that reminds me. when I originally tried to use the nmi watchdog to break into the debugger when the hang occured, I got the following at bootup:
 
-> Standard PC with 80Gb disks benefits from dynamic partitioning. But if
-> you are pushed then you can shove 3ware 8500 PCI cards into your slots
-> and get 12 SATA hotplug IDE channels per PCI slot.
+Sep  3 14:56:49 localhost kernel: activating NMI Watchdog ... done.
+Sep  3 14:56:49 localhost kernel: testing NMI watchdog ... CPU#0: NMI appears to be stuck!
 
-Oh, well. IDE.
 
-> Thats 12 * 200Gb hotswap per pci slot. Which given 4 slots of it would
-> come out at a nice 9600Gb of disk. Maybe you can archive usenet on one
-> PC after all 8)
+> Is it possible to display the cpu registers with kdb? Could you check 
+> that the interrupts are enabled?
 
-Yes, but lately that's rather a funny than an enterprise solution.
+I don't have things caught in the debugger currently, but I did check the registers at the time. bit 9 of eflags was enabled on both cpus.
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
-
+Terence

@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262848AbTKPOPc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 09:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbTKPOPc
+	id S262844AbTKPOP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 09:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTKPOP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 09:15:32 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:49024 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S262848AbTKPOP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 09:15:29 -0500
-Date: Sun, 16 Nov 2003 15:15:27 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Valdis.Kletnieks@vt.edu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test9 - document elevator= parameter
-In-Reply-To: <200311160259.hAG2x4La006117@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.53.0311161510280.14183@gockel.physik3.uni-rostock.de>
-References: <200311160259.hAG2x4La006117@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 16 Nov 2003 09:15:28 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:44975 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262844AbTKPOP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 09:15:26 -0500
+X-Sender-Authentication: net64
+Date: Sun, 16 Nov 2003 15:15:22 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: mfedyk@matchmail.com, reiser@namesys.com, herbert@gondor.apana.org.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer
+ error at fs/buffer.c:431"
+Message-Id: <20031116151522.6ef9d2e1.skraw@ithnet.com>
+In-Reply-To: <20031116130558.GB199@elf.ucw.cz>
+References: <20031029141931.6c4ebdb5.akpm@osdl.org>
+	<E1AGCUJ-00016g-00@gondolin.me.apana.org.au>
+	<20031101233354.1f566c80.akpm@osdl.org>
+	<20031102092723.GA4964@gondor.apana.org.au>
+	<20031102014011.09001c81.akpm@osdl.org>
+	<20031116130558.GB199@elf.ucw.cz>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nick wrote a nice as-iosched.txt file, but apparently nobody updated the
-> kernel-parameters.txt file...
+On Sun, 16 Nov 2003 14:05:58 +0100
+Pavel Machek <pavel@ucw.cz> wrote:
+
+> Hi!
+> [...]
+> > Just to avoid a false impression: I am in no way against debian project nor
+> > do I say there is anything specifically bad about it. I am generally
+> > disliking distros' ideas of having _own_ kernels. Commercial companies like
+> > SuSE or Red Hat may find arguments for that which are commercially backed,
+> > debian on the other hand can hardly argue commercially. From the community
+> > point of view it is just nonsense. It means more work and less useable
+> > feedback. Bugs is distro kernels are (always) the sole fault of their
+> > respective maintainers because they actively decided _not_ to follow the
+> > mainstream and made bogus patches. Why waste the appreciated work of
+> > (unpaid) debian volunteers in this area? There are tons of other work left
+> > with far more relevance for users than bleeding edge kernel patches...
 > 
-> Diff against 2.6.0-test9-mm3.
-...
-> +	elevator=	[IOSCHED]
-> +			Format: {"as"|"cfq"|"deadline"|"noop"}
+> 
+> Debian is distibution; distributions are _expected_ to fix bugs (etc)
+> in their packages.
 
-IIRC cfq isn't yet in mainline, thus it seems a bit too early to
-document it...
+I am just of the opposite opinion. It is a project maintainers' job to fix
+bugs. A distributions' job is to _distribute_ packages in its pure sense.
+Obviously people creating a distribution run across bugs while checking out the
+projects to pack into their distro. So I very well agree they should do
+_something_ about it, BUT this "something" is _not_ creating more or less
+useful patches for their (and their customers) use, but get in contact with the
+project maintainer and hand them the patches, look for their approval and
+_then_ move the project into their distro. There is no sense in creating a
+debian patched pppd, a SuSE patched pppd and a RH-patched pppd, altogether
+different from the projects basic pppd. (This is not a real example, but only a
+clarification of what I'd say is _the wrong way_ (tm))
 
-Tim
+> If distribution had all packages unmodified, it would be useless...
 
+Just contrary I'd state that this would be the "perfect world", because this
+would mean all projects are in perfect shape and all patches have gone to the
+respective maintainers.
 
---- linux.dist/Documentation/kernel-parameters.txt.dist	2003-11-13 15:20:43.000000000 -0500
-+++ linux/Documentation/kernel-parameters.txt	2003-11-15 21:54:54.004814257 -0500
-@@ -24,6 +24,7 @@
- 	HW	Appropriate hardware is enabled.
- 	IA-32	IA-32 aka i386 architecture is enabled.
- 	IA-64	IA-64 architecture is enabled.
-+	IOSCHED	More than one I/O scheduler is enabled.
- 	IP_PNP	IP DCHP, BOOTP, or RARP is enabled.
- 	ISAPNP	ISA PnP code is enabled.
- 	ISDN	Appropriate ISDN support is enabled.
-@@ -303,6 +304,10 @@
- 			See comment before function elanfreq_setup() in
- 			arch/i386/kernel/cpu/cpufreq/elanfreq.c.
- 
-+	elevator=	[IOSCHED]
-+			Format: {"as"|"deadline"|"noop"}
-+			See Documentation/as-iosched.txt for details
-+
- 	es1370=		[HW,OSS]
- 			Format: <lineout>[,<micbias>]
- 			See also header of sound/oss/es1370.c.
+> So I'd expect all distros to have at least some changes in their
+> kernel... the same way I expect distros to have some patches in
+> midnight commander etc.
 
+So you say midnight commanders' maintainer is an a**hole, or what?
+If you think some project needs patches, then please talk to its maintainer (if
+any), or get involved and become its maintainer...
 
+I do think though, that there should be something in between, namely a place
+where projects are hosted that (currently) have no maintainer, but where one
+can send patches that are needed for some reason. This is a bit of a political
+question, maybe OSDL can be such a place. Whatever the place is, it should be
+independent to a degree.
+
+> Of course it is good to keep the .diff as small as possible.
+
+diffsize small is wanted.
+diffsize zero is unwanted.
+What kind of a logic is that?
+
+Forgive me Pavel, that does not sound thoughtful to me.
+
+Regards,
+Stephan

@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbULaL1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbULaLb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbULaL1A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 06:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbULaL1A
+	id S261854AbULaLb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 06:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbULaLb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 06:27:00 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:25559 "EHLO
+	Fri, 31 Dec 2004 06:31:26 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:60631 "EHLO
 	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261851AbULaL0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 06:26:55 -0500
-Message-ID: <41D5376A.8000705@grupopie.com>
-Date: Fri, 31 Dec 2004 11:26:34 +0000
+	id S261854AbULaLbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 06:31:24 -0500
+Message-ID: <41D53876.9050704@grupopie.com>
+Date: Fri, 31 Dec 2004 11:31:02 +0000
 From: Paulo Marques <pmarques@grupopie.com>
 Organization: Grupo PIE
 User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: William Park <opengeometry@yahoo.ca>, juhl-lkml@dif.dk,
-       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: William Park <opengeometry@yahoo.ca>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Subject: Re: waiting 10s before mounting root filesystem?
-References: <20041227195645.GA2282@node1.opengeometry.net>	<20041227201015.GB18911@sweep.bur.st>	<41D07D56.7020702@netshadow.at>	<20041229005922.GA2520@node1.opengeometry.net>	<20041230152531.GB5058@logos.cnet>	<Pine.LNX.4.61.0412310011400.3494@dragon.hygekrogen.localhost>	<Pine.LNX.4.61.0412310234040.4725@dragon.hygekrogen.localhost>	<20041231035834.GA2421@node1.opengeometry.net> <20041231014905.30b05a11.akpm@osdl.org>
-In-Reply-To: <20041231014905.30b05a11.akpm@osdl.org>
+References: <20041227195645.GA2282@node1.opengeometry.net> <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net> <20041230152531.GB5058@logos.cnet> <Pine.LNX.4.61.0412310011400.3494@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412310234040.4725@dragon.hygekrogen.localhost> <20041231035834.GA2421@node1.opengeometry.net> <Pine.LNX.4.61.0412310537420.26032@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0412310537420.26032@dragon.hygekrogen.localhost>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> William Park <opengeometry@yahoo.ca> wrote:
+Jesper Juhl wrote:
+> [...]
+>> #include <linux/nfs_fs.h>
+>> #include <linux/nfs_fs_sb.h>
+>>@@ -278,6 +279,7 @@
+>> 	char *fs_names = __getname();
+>> 	char *p;
+>> 	char b[BDEVNAME_SIZE];
+>>+	int tryagain = 20;
+>> 
 > 
->>-		printk("VFS: Cannot open root device \"%s\" or %s\n",
->> -				root_device_name, b);
->> -		printk("Please append a correct \"root=\" boot option\n");
->> +		if (--tryagain) {
->> +		    printk (KERN_WARNING "VFS: Waiting %dsec for root device...\n", tryagain);
->> +		    ssleep (1);
->> +		    goto retry;
->> +		}
->> +		printk (KERN_CRIT "VFS: Cannot open root device \"%s\" or %s\n", root_device_name, b);
->> +		printk (KERN_CRIT "Please append a correct \"root=\" boot option\n");
-> 
-> 
-> Why is this patch needed?  If it is to offer the user a chance to insert
-> the correct medium or to connect the correct device, why not rely upon the
-> user doing that thing and then hitting reset?
+> Ok, I'm nitpicking here, but why int and not short? are we likely to ever
+> want to wait for more than 2 minutes? and if we want to wait ~3min, then
+> unsigned short should do just fine (and unsigned would even be logical
+> since negative retry value doesn't make any sense)....
 
-No, no. The problem is not user interaction.
+Usually it is better to use int's instead of short's because memory 
+accesses for CPU word size data are faster.
 
-The problem is that the USB subsystem takes a lot of time to go through 
-the hostcontrollers -> hubs -> devices. By the time it finds the USB 
-mass storage that is supposed to be used as root filesystem, the kernel 
-had already panic'ed.
+With some CPUs, decrementing a short will probably involve reading a int 
+from memory, updating only the correct section of it, and then writing 
+an int. It is only worth the save if you're trying to make a very used 
+struct have a good 2^N size, or something like that.
 
-IMHO the kernel should handle this case just fine, without the need for 
-initrd's. After all the user says "my root filesystem is /dev/sda1", and 
-the kernel panic's even though the filesystem is there. This doesn't 
-seem like a correct bahavior.
+Of course, things will get more complex with data caches, bus sizes, 
+etc., but I think the premise that the CPU will be more confortable 
+handling its native data size still holds.
 
 -- 
 Paulo Marques - www.grupopie.com

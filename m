@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273535AbRIUP2R>; Fri, 21 Sep 2001 11:28:17 -0400
+	id <S273578AbRIUPj7>; Fri, 21 Sep 2001 11:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273578AbRIUP2H>; Fri, 21 Sep 2001 11:28:07 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:29077 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S273535AbRIUP1u>; Fri, 21 Sep 2001 11:27:50 -0400
-Date: Fri, 21 Sep 2001 11:27:23 -0400
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: broken VM in 2.4.10-pre9
-Message-ID: <20010921112722.A3646@cs.cmu.edu>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.33L.0109200903100.19147-100000@imladris.rielhome.conectiva> <20010921080549Z16344-2758+350@humbolt.nl.linux.org>
-Mime-Version: 1.0
+	id <S273580AbRIUPjt>; Fri, 21 Sep 2001 11:39:49 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:46093 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S273578AbRIUPjj>;
+	Fri, 21 Sep 2001 11:39:39 -0400
+Message-ID: <XFMail.20010921173903.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010921080549Z16344-2758+350@humbolt.nl.linux.org>
-User-Agent: Mutt/1.3.20i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <01092119193901.01004@iron.auriga.ru>
+Date: Fri, 21 Sep 2001 17:39:03 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Nick Ivanter <nick@emcraft.ru>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre13: Panic mounting initrd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 21, 2001 at 10:13:11AM +0200, Daniel Phillips wrote:
->   - small inactive list really means large active list (and vice versa)
->   - aging increments need to depend on the size of the active list
->   - "exponential" aging may be completely bogus
 
-I don't think so, whenever there is sufficient memory pressure, the scan
-of the active list is not only done by kswapd, but also by the page
-allocations.
+On 21-Sep-2001 Nick Ivanter wrote:
+> Andreas,
+> 
+> Looks like you somehow haven't compiled ext2fs support into your new kernel. 
+> Try to check that.
+> 
+If things would be that easy...
 
-This does have the nice effect that with a large active list on a system
-that has a working set that fits in memory, pages basically always age
-up, and we get an automatic used-once/drop-behind behaviour for
-streaming data because the age of these pages is relatively low.
+Snippets from a slight modification to mount_root() in fs/super.c
 
-As soon as the rate of new allocations increases to the point that
-kswapd can't keep up, which happens if the number of cached used-once
-pages is too small, or the working set expands so that it doesn't fit in
-memory. The memory shortage then causes all pages to agressively get
-aged down, pushing out the less frequently used pages of the working set.
+        for (fs_type = file_systems ; fs_type ; fs_type = fs_type->next) {
+printk("VFS: Processing %s\n",fs_type->name);
+                if (!(fs_type->fs_flags & FS_REQUIRES_DEV))
+                        continue;
+                if (!try_inc_mod_count(fs_type->owner))
+                        continue;
+printk("VFS: Trying %s\n",fs_type->name);
 
-Exponential down aging simply causes us to loop fewer times in
-do_try_to_free_pages is such situations.
 
-Jan
+And now the results during boot (snippets again):
 
+VFS: Processing bdev
+VFS: Processing proc
+VFS: Processing sockfs
+VFS: Processing tmpfs
+VFS: Processing pipefs
+VFS: Processing ext2
+VFS: Trying ext2
+VFS: Processing msdos
+VFS: Trying msdos
+VFS: Processing vfat
+VFS: Trying vfat
+VFS: Processing iso9660
+VFS: Trying iso9660
+VFS: Processing nfs
+VFS: Processing reiserfs
+VFS: Trying reiserfs
+Kernel Panic: ...
+
+This clearly shows that there's definitely something going _very_ wrong.
+Best bet is loading/decompression of initrd. As far as I'm following the list
+there were initrd modifications discussed/done by Alexander Viro/Andrea
+Arcangeli.
+
+
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

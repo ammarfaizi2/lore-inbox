@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270524AbTHDIKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 04:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271357AbTHDIKj
+	id S270501AbTHDIDh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 04:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270524AbTHDIDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 04:10:39 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:40092 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id S270524AbTHDIKf (ORCPT
+	Mon, 4 Aug 2003 04:03:37 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:50005 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S270501AbTHDIDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 04:10:35 -0400
-Date: Mon, 4 Aug 2003 10:10:34 +0200 (MEST)
+	Mon, 4 Aug 2003 04:03:32 -0400
+Date: Mon, 4 Aug 2003 10:03:31 +0200 (MEST)
 From: Daniel Blueman <daniel.blueman@gmx.net>
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Subject: Re: [BUG] 2.6.0-t1 sis900 timeout
+Subject: Re: [PATCH] Use EDID/DDC data to set better refreshrates on VBE3.0+ videocards on boot
 X-Priority: 3 (Normal)
 X-Authenticated-Sender: #0008973862@gmx.net
 X-Authenticated-IP: [194.202.174.101]
-Message-ID: <8723.1059984634@www20.gmx.net>
+Message-ID: <23027.1059984211@www20.gmx.net>
 X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
 X-Flags: 0001
 Content-Type: text/plain; charset="iso-8859-1"
@@ -25,15 +25,9 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you check if the IRQ allocated to the SiS900 is the same on kernels
-where it does work, and try without ACPI support, and/or any IO-APIC support
-disabled?
+IMHO, this is a superb patch!
 
-I've seen this before with the network card in one of my systems - the
-IO-APIC setup code, or ACPI table parsing was misprogramming the IRQ routing
-tables, and it was being allocated the wrong level-triggered IRQ line.
-
-Dan
+I'll test tonight, and report any problems I encounter...
 
 -- 
 Daniel J Blueman

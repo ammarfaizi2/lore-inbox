@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVCINWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVCIN0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVCINWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 08:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVCINWQ
+	id S262363AbVCIN0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 08:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVCIN0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 08:22:16 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:24982 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262319AbVCINV2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 08:21:28 -0500
-Message-ID: <422EF853.7000708@g-house.de>
-Date: Wed, 09 Mar 2005 14:21:23 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tony.luck@intel.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: size of /proc/kcore grows?
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
+	Wed, 9 Mar 2005 08:26:22 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:25014 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262363AbVCINZ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 08:25:28 -0500
+Subject: I/O and Memory accounting...
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Jay Lan <jlan@engr.sgi.com>
+Date: Wed, 09 Mar 2005 14:25:23 +0100
+Message-Id: <1110374723.10590.116.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/03/2005 14:34:30,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 09/03/2005 14:34:37,
+	Serialize complete at 09/03/2005 14:34:37
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Luck wrote:
->
-> Take a look at the driver (fs/proc/kcore.c) that creates this pseudo-file.
+Hello,
 
-will do ;)
+  In the ChangeLog-2.6.11 file I read that the enhanced I/O accounting
+data patch and the enhanced memory accounting data collection patch were
+added. It's cool but I don't see how this stuff is used because
+information is never dump in a file or send to an accounting application
+(or I miss something). 
+ 
+  Maybe we should update the ac_io in the "struct acct"? Thus, values
+will be dump in the accounting file. Maybe it could be something like:
 
-> Initially the size of the file is set from the size of your memory.
->
-> Reading the file has the side-effect of setting up the ELF headers to make
-> this look like an ELF file ... in fact a sparse one.  Use "objdump" (with the
-> "-p" flag I think) to show the headers, and you'll see which offsets in the file
-> correspond to which kernel virtual addresses.
+--- acct.c.orig	2005-03-09 14:17:07.000000000 +0100
++++ acct.c	2005-03-09 14:18:20.000000000 +0100
+@@ -477,8 +477,8 @@ static void do_acct_process(long exitcod
+ 	}
+ 	vsize = vsize / 1024;
+ 	ac.ac_mem = encode_comp_t(vsize);
+-	ac.ac_io = encode_comp_t(0 /* current->io_usage */);	/* %% */
+-	ac.ac_rw = encode_comp_t(ac.ac_io / 1024);
++	ac.ac_io = encode_comp_t(current->rchar + current->wchar);
++	ac.ac_rw = encode_comp_t(0);
+ 	ac.ac_minflt = encode_comp_t(current->signal->min_flt +
+ 				     current->group_leader->min_flt);
+ 	ac.ac_majflt = encode_comp_t(current->signal->maj_flt +
 
-ah, well. i was just curious, why the file on the filesystem did not grow
-beyond 4 times of the size of the ram. i just reproduced it on another
-machine, booted with "mem=48M" and "dd" tried to write out a file until
-E_NOSPACE happens, just as expected.
 
-thank you,
-Christian.
--- 
-BOFH excuse #133:
+For memory and read/write syscall we may add new fields. 
 
-It's not plugged in.
+Best regards,
+Guillaume
+

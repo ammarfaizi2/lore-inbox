@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263403AbTIGRh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 13:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbTIGRgd
+	id S263358AbTIGRgO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 13:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTIGReV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 13:36:33 -0400
-Received: from ns.suse.de ([195.135.220.2]:8069 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263390AbTIGRei (ORCPT
+	Sun, 7 Sep 2003 13:34:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47233 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263400AbTIGRde (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 13:34:38 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <willy@debian.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-References: <Pine.LNX.4.44.0309071024010.2977-100000@home.osdl.org>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I have no actual hairline...
-Date: Sun, 07 Sep 2003 19:34:36 +0200
-In-Reply-To: <Pine.LNX.4.44.0309071024010.2977-100000@home.osdl.org> (Linus
- Torvalds's message of "Sun, 7 Sep 2003 10:29:28 -0700 (PDT)")
-Message-ID: <jeekysjydv.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 7 Sep 2003 13:33:34 -0400
+Date: Sun, 7 Sep 2003 10:34:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Robert Love <rml@tech9.net>
+Cc: piggin@cyberone.com.au, jyau_kernel_dev@hotmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+Message-Id: <20030907103447.410016f6.akpm@osdl.org>
+In-Reply-To: <1062954122.12822.3.camel@boobies.awol.org>
+References: <000101c374a3$2d2f9450$f40a0a0a@Aria>
+	<1062878664.3754.12.camel@boobies.awol.org>
+	<3F5ABD3A.7060709@cyberone.com.au>
+	<20030906231856.6282cd44.akpm@osdl.org>
+	<1062954122.12822.3.camel@boobies.awol.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
-
-> On Sun, 7 Sep 2003, Andreas Schwab wrote:
->> 
->> Here is a patch that enforces the use of types in the third argument.  It
->> requires gcc >= 3.1 for the check to work, I couldn't find a method for
->> previous versions.
+Robert Love <rml@tech9.net> wrote:
 >
-> Ehh, what's wrong with the obvious approach: declare a dummy variable. If 
-> it's not a type, then the declaration won't work.
->
-> Ie, change the (sizeof(x)) to something like
->
-> 	({ x __dummy; sizeof(__dummy); })
->
-> which should work with all compiler versions.
+>  There are a _lot_ of scheduler changes in 2.6-mm, and who knows which
+>  ones are an improvement, a detriment, and a noop?
 
-This won't work with array types, eg. in <linux/random.h>:
+We know that sched-2.6.0-test2-mm2-A3.patch caused the regression, and
+we now that sched-CAN_MIGRATE_TASK-fix.patch mostly fixed it up.
 
-#define RNDGETPOOL	_IOR( 'R', 0x02, int [2] )
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+What we don't know is whether the thing which sched-CAN_MIGRATE_TASK-fix.patch
+fixed was the thing which sched-2.6.0-test2-mm2-A3.patch broke.

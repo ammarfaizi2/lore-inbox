@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270452AbTHSO5s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 10:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270628AbTHSO5e
+	id S270650AbTHSOwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 10:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270682AbTHSOwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 10:57:34 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:8602 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S270479AbTHSO4D
+	Tue, 19 Aug 2003 10:52:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48256 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270650AbTHSOwP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 10:56:03 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Con Kolivas <kernel@kolivas.org>, Wes Janzen <superchkn@sbcglobal.net>
-Subject: Re: [RFC] Re: Blender profiling-1 O16.2int
-Date: Tue, 19 Aug 2003 04:39:59 -0400
-User-Agent: KMail/1.5
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030817003128.04855aed.voluspa@comhem.se> <3F416BD4.3040302@sbcglobal.net> <200308191028.11109.kernel@kolivas.org>
-In-Reply-To: <200308191028.11109.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 10:52:15 -0400
+Date: Tue, 19 Aug 2003 15:52:13 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Brandon Stewart <rbrandonstewart@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCO's "proof"
+Message-ID: <20030819145213.GC5582@gallifrey>
+References: <3F422809.7080806@yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308190439.59273.rob@landley.net>
+In-Reply-To: <3F422809.7080806@yahoo.com>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.0-test3 (i686)
+X-Uptime: 15:51:00 up 3 days,  4:23,  6 users,  load average: 0.29, 0.12, 0.08
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 August 2003 20:28, Con Kolivas wrote:
-> On Tue, 19 Aug 2003 10:14, Wes Janzen wrote:
-> > I think this problem is exacerbated when another app is competing for
-> > the processor.  The machine just pauses unless I'm also doing something
-> > else, in this case compiling XINE.  Once something is competing, it
-> > looks like X takes an extraordinarily long time to come back into the
-> > running queue.
->
-> Yes that is correct behaviour and to be expected.
->
-> > Is there a way to figure out when a process is spinning on a wait and
->
-> That's the trick isn't it? No there isn't or else I'd fix it in a jiffy. If
-> someone can think of a way I'd love to know.
+* Brandon Stewart (rbrandonstewart@yahoo.com) wrote:
+> compliments of "d1rkinator" from yahoo finance message board:
+> 
+> The code SCO finds offending:
+> 
+> www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
+> www.heise.de/newsticker/data/jk-19.08.03-000/imh1.jpg
 
-Well, in theory you could fiddle with its memory map and force it to 
-soft-fault all its pages back in, and count the soft faults.  But I know just 
-enough about that to suspect it's a rast nest of evil complexity and loss of 
-orthogonality.
+Ah I was wondering if anyone had a copy of that.
 
-Another thing is if it's calling the same syscalls in sequence with the same 
-arguments...  (What syscalls IS it calling?)
+> Its location in Linux:
+> 
+> /usr/src/linux-2.4.20/arch/ia64/sn/io/ate_utils.c
+> 
+> And its heritage:
+> 
+> minnie.tuhs.org/UnixTree/V7/usr/sys/sys/malloc.c.html
+> 
+> Ok, SCO: This was easy. Now, show us the other many examples.
 
-Looking at the profile list you gave earlier, schedule is showing up.  If the 
-sucker's calling schedule in the loop, that should be a heck of a hint that 
-it's busy-waiting, dontcha think?
+Is it? What the hell was the copyright on that code?
 
-As long as you've got a queue for each priority, how about having an "I called 
-schedule" queue?  (Or can you re-queue it somewhere lower than its actual 
-priority?  How about one queue lower than the queue was on when it called 
-schedule, without necessarily changing its dynamic priority...)
-
-What DOES calling "schedule" from userspace mean with the current scheduler?
-
-Rob
-
-
+Dave
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

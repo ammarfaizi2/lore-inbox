@@ -1,81 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbTENWeX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 18:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbTENWeX
+	id S263056AbTENWbe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 18:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTENWbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 18:34:23 -0400
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:36970
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S262984AbTENWeT (ORCPT
+	Wed, 14 May 2003 18:31:34 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:52662 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S263056AbTENWbc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 18:34:19 -0400
-Message-ID: <3EC2C760.6050604@rogers.com>
-Date: Wed, 14 May 2003 18:46:56 -0400
-From: Jeff Muizelaar <muizelaar@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Riley Williams <Riley@Williams.Name>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] NE2000 driver updates
-References: <BKEGKPICNAKILKJKMHCACEOMCPAA.Riley@Williams.Name>
-In-Reply-To: <BKEGKPICNAKILKJKMHCACEOMCPAA.Riley@Williams.Name>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Wed, 14 May 2003 18:46:58 -0400
+	Wed, 14 May 2003 18:31:32 -0400
+Date: Thu, 15 May 2003 00:42:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Simmons <jsimmons@infradead.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.69 - no setfont and loadkeys on tty > 1
+Message-ID: <20030514224212.GA8124@elf.ucw.cz>
+References: <20030514120950.GA302@elf.ucw.cz> <Pine.LNX.4.44.0305142248040.13403-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305142248040.13403-100000@phoenix.infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Riley Williams wrote:
+Hi!
 
->Hi Jeff.
->
-> > Attached is the rough beginnings of a patch that does this.
-> >
-> > Basically it adds ISA bus support and uses it in ne.c.
-> >
-> > ISA Bus Support
-> > --
-> > The bus uses ioaddr as the bus_id because I don't think we have
-> > anything else unique to use.
->
->If there's going to be any problems, it's with devices claiming the
->same IOaddr as each other - and certain addresses are far too common
->where that's concerned - especially 0x0300 through 0x031F which are
->almost universal in their use !!!!!!!
->  
->
-This is a problem that already exists, if two devices are at the same io 
-address there is not much we can do. Autoprobe will pick up one first 
-and the second is out of luck.
-(or are you confusing bus_id with device_id?)
+> > > > > I'am wondering why setfont and loadkeys in setting only on first tty.
+> > > > > It works (setting font map on all six tty) in 2.{2,4}.x.
+> > > > > 
+> > > > > I'am using _radeonfb_ with rv250if, could it be the reason?
+> > > > 
+> > > > FYI, its same as vesafb here.
+> > > 
+> > > Try this patch. If it works I will pass it on to linus. thank you.
+> > 
+> > Does not work. Setfont still only changes tty it is run on.
+> 
+> This is because I nuked a few global variables. Video_font_height and 
+> video_scan_line where global variables. When you changed fonts it affected
+> every terminal. Now you might think this is correct behavior but what 
+> about systems with more than one graphics card. Say for example vgacon and 
+> fbcon. Now for vgacon you can't change the width of your fonts but for 
+> fbcon you can. So changing this global variable caused havoc for the VGA 
+> text mode display. 
 
->
-> > Drivers are responsible for adding devices to the bus, through 
-> > isa_device_register(). Once added, devices stay around forever,
-> > even after driver unload. Right now I use the device id's stolen
-> > from eisa, but I can't see any reason not to just make ids up as
-> > necessary.
->
-> > ne.c
-> > ---
-> > ne_probe (the function called by Space.c) autoprobes for ne2000
-> > devices and then as it finds them it calls isa_register_device.
-> > It always returns -ENODEV. (eventually if all the net drivers
-> > get moved to this model, some of this stuff could be moved into
-> > Space.c) Later on, during module init the driver registers itself
-> > with ISA bus and then ne_isa_probe is called appropriately.
->
->According to what I've been told and have seen for myself in the
->past, having this autoprobe at address 0x0300 is VERY likely to lock
->the machine up solid because of the number of other devices using
->that range. However, autoprobing the other addresses that this card
->can be at is apparently far less dangerous.
->
-Nothing is being changed as far as this concerned. If you compile ne.c 
-into your kernel you get autoprobe at 0x300.
+Well, it would be nice to set the default for newly created consoles.
 
--Jeff
+Perhaps you need to make old ioctls 2.4.X compatible and introduce new
+ioctl that sets only "this" console?
 
+> > There are more problems. Emacs changes cursor to "more visible" one,
+> > this somehow leaks between ttys.
+> 
+> Hm. I can't seem to reproduce this problem.
+
+Do this:
+
+pavel@amd:~$ echo -e '\e[?8c'
+
+Notice cursor changes to block. Switch to another console. Oops, block
+cursor, too.
+
+> > Last but not least: Try this on your tty:
+> > 
+> > echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
+> > 
+> > It is supposed to start "softcursor". Unfortunately, with 2.5.68+
+> > softcursor is not cleared properly. Try typing foo^H^H^H in bash
+> > :-(. [Or try most /some/file]. 
+> 
+> I see. Only moving the cursor to the left cause this problem. Moving right 
+> is okay. Also hitting enter shows this problem. This is strange. It 
+
+Its not. Its software generated cursor, and it is only drawn, not
+properly hidden. Thats why it behaves like that.
+
+> appears the flashing is the issue. I will see if a hardware cursor
+> also has
+
+Don't let flashing confuse you. Set it to the red block and you'll see
+problem better.
+
+>     KDGKBDTYPE.   (Wow, I can't believe we still have this. It should die)
+
+What is that? I can not see it in 2.5.X.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbTFIRVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 13:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbTFIRVQ
+	id S264555AbTFIR0B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 13:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbTFIR0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 13:21:16 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:39582 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264471AbTFIRVP (ORCPT
+	Mon, 9 Jun 2003 13:26:01 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:60360 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264555AbTFIR0A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 13:21:15 -0400
-To: "David Schwartz" <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: select for UNIX sockets?
-References: <MDEHLPKNGKAHNMBLJOLKKEHBDIAA.davids@webmaster.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 09 Jun 2003 19:18:14 +0200
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEHBDIAA.davids@webmaster.com>
-Message-ID: <m3znkr41bd.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 9 Jun 2003 13:26:00 -0400
+Date: Mon, 9 Jun 2003 19:39:33 +0200 (MEST)
+Message-Id: <200306091739.h59HdXam011608@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: mochel@osdl.org
+Subject: Re: [RFC] New system device API
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
+On Mon, 9 Jun 2003 09:18:03 -0700 (PDT), Patrick Mochel wrote:
+>> >-EXPORT_SYMBOL(device_lapic);
+>> 
+>> Why did you ignore the 'not static' comment, and why remove
+>> the EXPORT? They're there for a reason...
+>
+>Because it only appeared to be there to be able to set the parent device
+>for hierarchically dependent devices. Assuming that is not needed, then 
+>the EXPORT_SYMBOL() shouldn't be needed, and that device can be declared 
+>statically. Right? 
 
-> 	It really doesn't matter. UDP applications have to control the transmit
-> pacing at application level. There is absolutely no way for the kernel to
-> know whether the path to the recipient is congested or not.
+Yes, they were only there so a child device could set its
+parent pointer.
 
-Because what? The kernel knows everything it has to know - i.e. complete
-state of socket queue in question.
+>> Unless I'm missing something, you've just broken the hierarchical
+>> relationship that exists between the local APIC device and its
+>> client devices (NMI watchdog, oprofile [which you didn't convert],
+>> and perfctr [not merged into Linus' tree]).
+>
+>I'm aware of the necessary ancstral relationship, and I should have 
+>mentioned this in the first email. Proper ancestral order is maintained by 
+>virtue of the fact that child devices are registered after parent devices. 
+>Because of this, they are inserted into the list of system devices after 
+>their parents, so by walking the list in reverse order, you are guaranteed 
+>to suspend/shutdown the devices in the right order. 
 
-But if select() on sockets is illegal, should we make it return -Esth
-instead of success. Certainly, we should get rid of invalid kernel code,
-right?
+Ok. I'm used to having this spelled out explicitly, but walking the
+list in insertion order / reverse insertion order should work too.
 
-> 	The kernel can't tell you when to send because that depends upon
-> factors
-> that are remote.
-
-Such as?
-
-> 	Yes, it would be nice of the kernel helped more. But the application
-> has to
-> deal with remote packet loss as well.
-
-Could you please show me a place in the kernel which could cause such
-a loss on local datagram sockets?
--- 
-Krzysztof Halasa
-Network Administrator
+/Mikael

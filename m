@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316919AbSFKIMQ>; Tue, 11 Jun 2002 04:12:16 -0400
+	id <S316935AbSFKITg>; Tue, 11 Jun 2002 04:19:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316928AbSFKIMP>; Tue, 11 Jun 2002 04:12:15 -0400
-Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:28128 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S316919AbSFKIMO>; Tue, 11 Jun 2002 04:12:14 -0400
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: dirty buffers and umount/remount
-Date: Tue, 11 Jun 2002 01:12:10 -0700
-Message-ID: <FEEFKBEFIEBONNKJABKDEEHKDNAA.hzhong@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S316951AbSFKITf>; Tue, 11 Jun 2002 04:19:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18627 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316935AbSFKITe>;
+	Tue, 11 Jun 2002 04:19:34 -0400
+Date: Tue, 11 Jun 2002 01:15:25 -0700 (PDT)
+Message-Id: <20020611.011525.29963495.davem@redhat.com>
+To: oliver@neukum.name
+Cc: roland@topspin.com, wjhun@ayrnetworks.com, paulus@samba.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200206111007.19142.oliver@neukum.name>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-In-Reply-To: <FEEFKBEFIEBONNKJABKDGEHIDNAA.hzhong@cisco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am wondering if 3) is necessary or not. When the filesystem is remounted
-> from rw to ro, are all dirty buffers related to it flushed to disk? How
-> about umount?
->
-> The last related question: is the kdev field in the buffer head
-> the physical
-> block device (i.e., /dev/hda) or the logical block device (i.e.,
-> /dev/hda7)?
-
-auh..it must be the logical device which is passed as the mount point..
-
-I also checked the mount/umount code, and didn't find any part does the
-flush.
-So I guess data can still be lost after an unmount?
-
-> Thanks a lot.
->
-> Hua
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+   From: Oliver Neukum <oliver@neukum.name>
+   Date: Tue, 11 Jun 2002 10:07:19 +0200
+   
+   Are there really PCI controllers which have to physically write
+   much more than is transfered ?
+   
+On sparc64 the cacheline size can be either 64 or 128 bytes.
+It's a bus characteristic, so we have to get at the PCI
+controller info.

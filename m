@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269356AbUI3Q77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269346AbUI3RBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269356AbUI3Q77 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 12:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbUI3Q77
+	id S269346AbUI3RBE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 13:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269358AbUI3RBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 12:59:59 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:27405 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S269356AbUI3Q75
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 12:59:57 -0400
-Date: Thu, 30 Sep 2004 17:59:47 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andy Currid <ACurrid@nvidia.com>, Ross Dickson <ross@datscreative.com.au>
-Cc: "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
-       Allen Martin <AMartin@nvidia.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       white phoenix <white.phoenix@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: nforce2 bugs?
-In-Reply-To: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45A1C@hqemmail02.nvidia.com>
-Message-ID: <Pine.LNX.4.58L.0409301705180.25286@blysk.ds.pg.gda.pl>
-References: <8E5ACAE05E6B9E44A2903C693A5D4E8A01C45A1C@hqemmail02.nvidia.com>
+	Thu, 30 Sep 2004 13:01:03 -0400
+Received: from scrye.com ([216.17.180.1]:12940 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S269346AbUI3RA4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 13:00:56 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Sep 2004 11:00:48 -0600
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+X-Draft-From: ("scrye.linux.kernel" 72155)
+References: <415C322A.6070405@0Bits.COM>
+Message-Id: <20040930170053.51171A3414@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Sep 2004, Andy Currid wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I'm taking a look at the patches discussed in other recent emails on the
-> list, but I'm curious about the timer issue that Maciej notes here. In
-> systems running in IOAPIC mode where this problem has been observed, is
-> ACPI enabled?
+>>>>> "Mitch" == Mitch  <Mitch@0Bits.COM> writes:
 
- One I can test a bit has indeed ACPI enabled.
+Mitch> Kevin Fenzi <kevin-linux-kernel () scrye ! com> wrote:
+>> What do you get from:
+>> 
+>> cat /sys/power/disk ?
 
-> I strongly suspect that it is. Some BIOSes on nForce systems contain an
-> incorrect INT override for the timer interrupt in their ACPI tables,
-> indicating that in IOAPIC mode the timer interrupts on IRQ2 rather than
-> IRQ0. The kernel honors the override, then notices the timer interrupt
-> isn't working and subsequently rescues the situation by configuring the
-> timer in ExtInt mode. That recovers the timer interrupt but I suspect
-> that configuration may be responsible for the "noisy" behavior (it's a
-> faulty configuration).
+Mitch> Do you mean /sys/power/state ? /sys/power/disk is for powering
+Mitch> off the disk ? Anyhow here are both of them
 
- The firmware (BIOS) reports I/O APIC interrupts correctly on this box --
-there's no override for IRQ0.  Timer interrupts work correctly in the
-ExtInt mode.  They only fail in the I/O APIC mode.
+/sys/power/disk is for deciding how to do suspend to disk. 
+shutdown = do it with the in kernel code
+platform = do it with the BIOS code
 
- Older reports from the list show exactly the same problem, e.g.  
-"http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.1/0739.html", which is
-probably one of the earliest references to the clock skew problem with I/O
-APIC routing.  As I believe both the 8254 and 8259A and the I/O APIC are
-internal to the chipset, I doubt that can be a problem specific to board
-design; it may be a firmware fault, though, such as an initialization bug.  
-As Ross used to maintain temporary workarounds for nforce2 problems, he
-may be able to comment on what reports he received.  Ross?
+Mitch> 	~% cat /sys/power/disk shutdown ~% cat /sys/power/state
+Mitch> standby mem disk
 
-  Maciej
+Mitch> Remember this worked fine in -rc2.
+
+Yes, but in rc3 the merge between pmdisk and swsusp1 happened. 
+It basically has totally changed between rc2 and rc3. 
+
+So, looks like that setting is right. 
+
+So if you wait until it's done writing out pages and hard power it
+off, does it resume? 
+
+Does it work if you boot with: 
+acpi=off
+
+>> If it says "platform" you might try:
+>> 
+>> echo "shutdown" > /sys/power/disk
+>> 
+>> I wonder how many of Pavel's speed improvment patches went in with
+>> the pmdisk/swsusp merge in rc3? I guess I can try it and see. :)
+
+Mitch> The speed improvement that made it stop working surely went in
+Mitch> ;-)
+
+Well, thats not one we want. ;) 
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQFBXDvF3imCezTjY0ERAggZAJ45K56uCqeVpuq73m6T2KZsupiDqQCfbArn
+vXqp6Gr+G63iTzxhNY7CzTo=
+=S6ow
+-----END PGP SIGNATURE-----

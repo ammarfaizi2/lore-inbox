@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbTCTOr4>; Thu, 20 Mar 2003 09:47:56 -0500
+	id <S261490AbTCTOrM>; Thu, 20 Mar 2003 09:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261493AbTCTOrz>; Thu, 20 Mar 2003 09:47:55 -0500
-Received: from moutng.kundenserver.de ([212.227.126.185]:3797 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S261492AbTCTOrw>; Thu, 20 Mar 2003 09:47:52 -0500
-X-KENId: 000052ABKEN00984689
-X-KENRelayed: 000052ABKEN00984689@PCDR800
-Date: Thu, 20 Mar 2003 15:55:47 +0100
-From: "Christoph Baumann" <cb@sorcus.com>
-Subject: Re: ptrace patch
-To: "James Bourne" <jbourne@mtroyal.ab.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "Christoph Baumann" <cb@sorcus.com>
-Message-Id: <000d01c2eef0$cbf52e80$2265a8c0@dirtyentw>
-References: <001d01c2eeeb$02112b00$2265a8c0@dirtyentw> <Pine.LNX.4.51.0303200743050.25830@skuld.mtroyal.ab.ca>
-Mime-Version: 1.0
+	id <S261492AbTCTOrM>; Thu, 20 Mar 2003 09:47:12 -0500
+Received: from mta01ps.bigpond.com ([144.135.25.133]:29904 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261490AbTCTOrL> convert rfc822-to-8bit; Thu, 20 Mar 2003 09:47:11 -0500
 Content-Type: text/plain;
-   charset="iso-8859-1"
-X-Priority: 3
-Organization: SORCUS Computer GmbH
-Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+  charset="us-ascii"
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Bottleneck on /dev/null
+Date: Fri, 21 Mar 2003 01:57:10 +1100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200303210157.10494.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, stupid me! Of course it makes suid root.
+Linux-2.4.latest
+PACKET_MMAP
+PCAP_FRAMES=max for tcpdump-3.8/libpcap-0.8 (from http://public.lanl.gov/cpw/)
+e1000 driver
 
-/me is banging his head against the monitor...
+2 * Xeon 2800 MHz, 512 KB L2
+1 GB RAM
+70 GB HW RAID-0 on SmartArray 5i
+2 * 2 port Intel GigE cards (only using 1 per card for the testing purposes)
 
-Mit freundlichen Gruessen / Best regards
-Dipl.-Phys. Christoph Baumann
----
-SORCUS Computer GmbH
-Im Breitspiel 11 c
-D-69126 Heidelberg
+Capturing all packets and writting to /dev/null causes more packet drops than 
+writting to hard drives (approx 40,000 packets/sec of 70 bytes for couple of 
+minutes). I will have a comparision between those figures in a day or two, 
+but /dev/null was well over SCSI hard drives. I thought writting (even 
+multiple of them simultaneously) to /dev/null should be faster than fastest 
+SCSI drives out there :) Interesting.
 
-Tel.: +49(0)6221/3206-0
-Fax: +49(0)6221/3206-66
+(And yes I see plenty of "errors", "dropped", and "overruns" in ifconfig stats 
+on those interfaces. %system is over 80%, and tcpdump goes to "D" state many 
+times. Simon Kirby suggested to use irq-smp_affinity to see if that helps for 
+reducing %system time. A well optimised e1000 would definitely help as tg3 
+does it very well.)
+
+I mean to test this /dev/null behavior on 2 tg3 driver configuration perhaps 
+in couple of days time. (But the 2 tg3 cards with out-of-the-box NAPI support 
+on 2.4.latest is able to not to loose a single packet even while writting to 
+hard drives, then I didn't care to test it on /dev/null)
+
+BTW I found 2.5.51 backport of e1000 NAPI support at  
+http://havoc.gtf.org/lunz/linux/net/
+Anyone knows of a recent backport or improved one for 2.4.latest (including 
+2.4.21-pre5 or -pre6). Patches for testing or URL is welcome.
+
+Thanks
+-- 
+Hari
+harisri@bigpond.com
+
+

@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131116AbQKUToQ>; Tue, 21 Nov 2000 14:44:16 -0500
+	id <S130880AbQKUTp4>; Tue, 21 Nov 2000 14:45:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131148AbQKUToH>; Tue, 21 Nov 2000 14:44:07 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:35332 "EHLO
+	id <S131083AbQKUTpq>; Tue, 21 Nov 2000 14:45:46 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:36356 "EHLO
 	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S131116AbQKUTny>; Tue, 21 Nov 2000 14:43:54 -0500
-Date: Tue, 21 Nov 2000 19:13:14 +0000 (GMT)
+	id <S130880AbQKUTpg>; Tue, 21 Nov 2000 14:45:36 -0500
+Date: Tue, 21 Nov 2000 19:15:04 +0000 (GMT)
 From: David Woodhouse <dwmw2@infradead.org>
-To: Johannes Erdfelt <jerdfelt@valinux.com>
-cc: Oleg Drokin <green@ixcelerator.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: hardcoded HZ in hub.c
-In-Reply-To: <20001121095626.F3431@valinux.com>
-Message-ID: <Pine.LNX.4.30.0011211912490.22252-100000@imladris.demon.co.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Peter Samuelson <peter@cadcamlab.org>,
+        Hakan Lennestal <hakanl@cdt.luth.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0, test10, test11: HPT366 problem
+In-Reply-To: <Pine.LNX.4.10.10011211030300.26689-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0011211914400.22252-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, Johannes Erdfelt wrote:
+On Tue, 21 Nov 2000, Andre Hedrick wrote:
 
-> That that possible? usb_hub_events can block for a long time. That is why
-> the kernel thread was needed. I'm not familiar with schedule_task enough
-> to know if it can be used.
+> No, if it doesn not hang and we get iCRC errors it will down grade
+> automatically, but it is a transfer rate issue than it must be hard coded
+> to force an upper threshold limit.
 
-Ah. How long? At first glance, it didn't look to me as if it would sleep
-for long at all.
+Do we downgrade gracefully, or do we just drop directly to non-DMA mode?
 
 -- 
 dwmw2

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288377AbSAHVT0>; Tue, 8 Jan 2002 16:19:26 -0500
+	id <S288374AbSAHVSq>; Tue, 8 Jan 2002 16:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288372AbSAHVTR>; Tue, 8 Jan 2002 16:19:17 -0500
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:17307 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S288364AbSAHVSn>; Tue, 8 Jan 2002 16:18:43 -0500
-Date: Tue, 8 Jan 2002 13:18:40 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: matthew david reuther <mreuther@engin.umich.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
-In-Reply-To: <200112220839.DAA15715@alumni.engin.umich.edu>
-Message-ID: <Pine.LNX.4.33.0201081316210.23436-100000@sol.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288372AbSAHVSh>; Tue, 8 Jan 2002 16:18:37 -0500
+Received: from ppp-RAS1-4-2.dialup.eol.ca ([64.56.227.2]:3333 "EHLO
+	node0.opengeometry.ca") by vger.kernel.org with ESMTP
+	id <S288364AbSAHVST>; Tue, 8 Jan 2002 16:18:19 -0500
+Date: Tue, 8 Jan 2002 16:18:19 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Two hdds on one channel - why so slow?
+Message-ID: <20020108161819.A1878@node0.opengeometry.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200201041740.LAA07840@tomcat.admin.navo.hpc.mil> <200201082029.g08KTAA28497@snark.thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201082029.g08KTAA28497@snark.thyrsus.com>; from landley@trommello.org on Tue, Jan 08, 2002 at 07:41:42AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Dec 2001, matthew david reuther wrote:
+On Tue, Jan 08, 2002 at 07:41:42AM -0500, Rob Landley wrote:
+> The goal was to see how cheaply we could get to 10 terabytes of storage.  We 
+> didn't do the whole cluster, but I think we determined we only needed 4 or 5 
+> nodes to do it.  Then the dot-com crash hit and that company's business model 
+> changed, project got shelved...
 
-> I guess the reason these feel more "natural" to some people, is because
-> they relate to our bodies, just like the inch, foot, hand, and cubit. It
-> still doesn't explain things like pounds, but that's probably related to
-> agriculture somehow.
+Hi Rob, how did you manage to get 10TB storage?  It's my understanding
+that kernel block device still counts 1kB blocks using 32bit (signed)
+integer.  So, that's 2TB in total.  Are you talking about 5 x 2TB?
 
-a pound is the weight of one pint of water (one gallon = 7.8 lbs, roughly)
-there are two pints in a quart, and four quarts to a gallon. therefore, a 
-pint is 1/8 gallon, and very close to one pound.
-
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
+8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin

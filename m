@@ -1,39 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264155AbUFFVor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264164AbUFFVpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264155AbUFFVor (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 17:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264164AbUFFVor
+	id S264164AbUFFVpN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 17:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264170AbUFFVpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 17:44:47 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:61903 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264155AbUFFVoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 17:44:46 -0400
-Date: Sun, 6 Jun 2004 17:46:20 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Disable scheduler debugging
-In-Reply-To: <40C3452B.5010500@pobox.com>
-Message-ID: <Pine.LNX.4.58.0406061742100.1838@montezuma.fsmlabs.com>
-References: <20040606033238.4e7d72fc.ak@suse.de> <20040606055336.GA15350@elte.hu>
- <40C3452B.5010500@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 6 Jun 2004 17:45:13 -0400
+Received: from gate.crashing.org ([63.228.1.57]:53890 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264164AbUFFVpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 17:45:04 -0400
+Subject: Re: [PATCH] (urgent) ppc32: Fix CPUs with soft loaded TLB
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0406061418450.1730@ppc970.osdl.org>
+References: <1086556255.1859.14.camel@gaston>
+	 <Pine.LNX.4.58.0406061418450.1730@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1086558161.10538.24.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 06 Jun 2004 16:42:42 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jun 2004, Jeff Garzik wrote:
+On Sun, 2004-06-06 at 16:20, Linus Torvalds wrote:
+> On Sun, 6 Jun 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > The recent introduction of ptep_set_access_flags() with the optimisation
+> > of not flushing the TLB unfortunately broke ppc32 CPUs with no hash table.
+> 
+> Makes sense, applied.
 
-> Unfortunately there are just, flat-out, way too many kernel messages at
-> boot-up.  Making them KERN_DEBUG doesn't solve the fact that SMP boxes
-> often overflow the printk buffer before you boot up to a useful userland
-> that can record the dmesg.
->
-> The IO-APIC code is a _major_ offender in this area, but the CPU code is
-> right up there as well.
+ARGH. Missed one file. Here is an additional patch (missed tlbflush.h patch)
 
-How about the configurable log buffer size patch? I think Andrew still has
-that amongst his wares.
+Sorry.
+
+This adds the definiction of flush_tlb_page_nohash() that was missing
+from the previous patch fixing SW-TLB loaded PPCs
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+ 
+===== include/asm-ppc/tlbflush.h 1.9 vs edited =====
+--- 1.9/include/asm-ppc/tlbflush.h	2003-09-15 15:59:05 -05:00
++++ edited/include/asm-ppc/tlbflush.h	2004-06-06 16:01:50 -05:00
+@@ -29,6 +29,9 @@
+ static inline void flush_tlb_page(struct vm_area_struct *vma,
+ 				unsigned long vmaddr)
+ 	{ _tlbie(vmaddr); }
++static inline void flush_tlb_page_nohash(struct vm_area_struct *vma,
++					 unsigned long vmaddr)
++	{ _tlbie(vmaddr); }
+ static inline void flush_tlb_range(struct vm_area_struct *vma,
+ 				unsigned long start, unsigned long end)
+ 	{ __tlbia(); }
+@@ -44,6 +47,9 @@
+ static inline void flush_tlb_page(struct vm_area_struct *vma,
+ 				unsigned long vmaddr)
+ 	{ _tlbie(vmaddr); }
++static inline void flush_tlb_page_nohash(struct vm_area_struct *vma,
++					 unsigned long vmaddr)
++	{ _tlbie(vmaddr); }
+ static inline void flush_tlb_range(struct mm_struct *mm,
+ 				unsigned long start, unsigned long end)
+ 	{ __tlbia(); }
+@@ -56,6 +62,7 @@
+ struct vm_area_struct;
+ extern void flush_tlb_mm(struct mm_struct *mm);
+ extern void flush_tlb_page(struct vm_area_struct *vma, unsigned long vmaddr);
++extern void flush_tlb_page_nohash(struct vm_area_struct *vma, unsigned long addr);
+ extern void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ 			    unsigned long end);
+ extern void flush_tlb_kernel_range(unsigned long start, unsigned long end);
+
+
+

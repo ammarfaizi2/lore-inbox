@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261806AbSJ2LDI>; Tue, 29 Oct 2002 06:03:08 -0500
+	id <S261531AbSJ2LML>; Tue, 29 Oct 2002 06:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSJ2LDI>; Tue, 29 Oct 2002 06:03:08 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:42448 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261806AbSJ2LDG>; Tue, 29 Oct 2002 06:03:06 -0500
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: <chris@scary.beasts.org>, <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
-References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com>
-	<200210290323.09565.agruen@suse.de>
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Tue, 29 Oct 2002 12:09:08 +0100
-Message-ID: <87n0oxmrhn.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
+	id <S261554AbSJ2LML>; Tue, 29 Oct 2002 06:12:11 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:30222 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S261531AbSJ2LMK>; Tue, 29 Oct 2002 06:12:10 -0500
+From: Chris Evans <chris@scary.beasts.org>
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Reply-To: Chris Evans <chris@scary.beasts.org>
+Cc: chris@scary.beasts.org, linux-kernel@vger.kernel.org, drepper@redhat.com
+References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com> <87elaanlhx.fsf@goat.bogus.local> <877kg2njbi.fsf@goat.bogus.local>
+In-Reply-To: <877kg2njbi.fsf@goat.bogus.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP3 Imap webMail Program 2.0.11
+X-Originating-IP: 217.163.5.253
+Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
+Message-Id: <E186UO6-0000sD-00@sphinx.mythic-beasts.com>
+Date: Tue, 29 Oct 2002 11:18:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher <agruen@suse.de> writes:
+Hi,
 
-> On Tuesday 29 October 2002 00:36, chris@scary.beasts.org wrote:
->> I'm not sure what the current glibc security check is, but it used to be
->> simple *uid() vs. *euid() checks. This would not catch an executable with
->> filesystem capabilities.
->> Have a look at
->> http://security-archive.merton.ox.ac.uk/security-audit-199907/0192.html
-[...]
->> I think the eventual plan was that we pass the kernel's current->dumpable
->> as an ELF note. Not sure if it got done. Alternatively glibc could use
->> prctl(PR_GET_DUMPABLE).
->
-> Sorry, I don't know exactly what was your plan here. Could you please explain?
+Quoting Olaf Dietsche
+<olaf.dietsche#list.linux-kernel@t-online.de>:
 
-Judging from the mail archive above: instead of checking uid vs. euid
-and gid vs. egid, ask the kernel and grant or deny LD_PRELOAD
-according to the dumpable flag (see prctl(2)). This flag is set to
-false, if uid != euid, etc. So, this flag could be used/cleared by
-capabilities as well.
+> I just downloaded glibc 2.3.1 and would say you can
+subvert a
+> privileged executable with LD_PRELOAD. There's no
+mention of
+> PR_GET_DUMPABLE anywhere and __libc_enable_secure is
+set according to
+> some euid/egid tests.
 
-> A perhaps unrelated note: We once had Pavel Machek's elfcap implementation, in 
-> which capabilities were stored in ELF. This was a bad idea because being able 
-> to create executables does not imply the user is capable of CAP_SETFCAP, and 
-> users shouldn't be able to freely choose their capabilities :-] We still want 
+In theory you should be able to just replace the
+__libc_enable_secure check with
 
-I remember this hack and since I hear this claim every now and then, I
-downloaded his patch and verified with the source. Pavel's capability
-patch was about _restricting_ not granting capabilities, so it's more
-like an inheritable, rather than a permitted, set.
+__libc_enable_secure = !prctl(PR_GET_DUMPABLE);
 
-At least that was his intention. I didn't verify this with the
-appropriate kernel sources from 1999.
+i.e. let the kernel handle the logic of whether a
+process is running privileged.If we duplicate it
+between kernel and libc, we'll get security bugs.
 
-Regards, Olaf.
+Cheers
+Chris
+

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbQKMIdA>; Mon, 13 Nov 2000 03:33:00 -0500
+	id <S129298AbQKMIoG>; Mon, 13 Nov 2000 03:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129135AbQKMIcu>; Mon, 13 Nov 2000 03:32:50 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:48905 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129061AbQKMIci>;
-	Mon, 13 Nov 2000 03:32:38 -0500
-Date: Mon, 13 Nov 2000 10:32:31 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: david+validemail@kalifornia.com
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
-Message-ID: <20001113103231.B28963@mea-ext.zmailer.org>
-In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org> <3A0F5F6D.F8B26CDF@linux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A0F5F6D.F8B26CDF@linux.com>; from david@linux.com on Sun, Nov 12, 2000 at 07:26:37PM -0800
+	id <S129296AbQKMIn4>; Mon, 13 Nov 2000 03:43:56 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:58823 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129135AbQKMInn>; Mon, 13 Nov 2000 03:43:43 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Dual XEON - >>SLOW<< on SMP
+Date: Mon, 13 Nov 2000 08:41:03 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <Pine.LNX.3.95.1001107174352.436A-100000@chaos.analogic.com> <20001111202655.A22628@cerebro.laendle> <20001112232202.B15166@vger.timpanogas.org>
+In-Reply-To: <20001112232202.B15166@vger.timpanogas.org>
+MIME-Version: 1.0
+Message-Id: <00111308433800.19602@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 12, 2000 at 07:26:37PM -0800, David Ford wrote:
-> tytso@mit.edu wrote:
-> > Fixed
-> >      * Incredibly slow loopback tcp bug (believed fixed about 2.3.48)
+On Mon, 13 Nov 2000, Jeff V. Merkey wrote:
+> On Sat, Nov 11, 2000 at 08:26:55PM +0100, Marc Lehmann wrote:
+> > On Tue, Nov 07, 2000 at 04:03:25PM -0700, "Jeff V. Merkey" <jmerkey@timpanogas.org> wrote:
+> > > 
+> > > Marc Lehman verified that PII systems will generate tons of AGIs with
+> > > gcc. 
+> > 
+> > It is a bit late (just came back from the systems'00 fair), but Jeff
+> > Merkey just acknowledged that indeed he meant me with "Marc Lehman". I
+> > have no idea why he wrote such a thing, since I never mentioned something
+> > like that, nor did I verify anything like this (given that the sentence
+> > doesn't make much sense, either).
+> > 
+> > Jeff, I never said such a thing and I would appreciate if you didn't put
+> > your words into my mouth.
 > 
-> Note; if I set up ESD to listen on a tcp port, connecting locally sounds
-> horrible.  I haven't looked to see who's fault it really is.
+> I can go and get the text from our discussion, and I distinctly remember
+> your answer to this question on PII and you said "lots".  This was also a 
+> private email correspondence between us based on my review.  I also 
+> verified what you told me, and you were right .  On PII, it generated
+> lots....
 
-	FTP-transfer of large file over loopback gives me about 80 MB/sec
-	speeds at 2.4.0-test8 -- nor is the ESD bad sounding.
+I wouldn't swear it was Marc, but I do remember seeing a thread in which
+someone did confirm this. Jeff posted an example code segment which would
+generate an AGI, and gcc generated a lot of code like this (i.e. it doesn't
+avoid generating AGIs). Someone (Marc??) supported this.
 
-	However my Alpha has the SB support very bad sounding..
-	It sounds like spectrum reversal, in fact -- first noticed
-	when playing stereophonic MP3 with xmms, but when same file
-	was played to .WAV file at an intel box (where it sounds quite
-	ok), and that wav is play(1)ed at the alpha -- same bad sound.
+He didn't state directly "gcc code produces lots of AGIs", but did say that gcc
+generated a lot of code which, according to Jeff, produces AGIs.
 
-> -d
 
-/Matti Aarnio
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

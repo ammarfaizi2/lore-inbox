@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUH2Wh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268352AbUH2Wrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268260AbUH2Wh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 18:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268352AbUH2Wh2
+	id S268352AbUH2Wrc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 18:47:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268353AbUH2Wrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 18:37:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60589 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268260AbUH2Wh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 18:37:26 -0400
-Date: Sun, 29 Aug 2004 15:37:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
-Message-ID: <Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
- <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
- <20040829150231.GE9471@alias> <4132205A.9080505@namesys.com>
- <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
- <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> <41323751.5000607@namesys.com>
- <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
- <Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Aug 2004 18:47:32 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42747 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268352AbUH2Wr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 18:47:29 -0400
+Date: Mon, 30 Aug 2004 00:47:18 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alex Woods <linux-dvb@giblets.org>
+Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove some unneeded #ifdefs from dvb/ttusb-dec/ttusb_dec.c
+Message-ID: <20040829224718.GB12134@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+DVB_TTUSB_DEC selects CRC32, do the #ifdefs can be removed.
 
-[ Linux-kernel cc'd, because I don't think the question is stupid, and I 
-  can't even fully answer the kNFSd thing other than point to it as a
-  problem. ]
 
-On Mon, 30 Aug 2004, Grzegorz Kulewski wrote:
-> 
-> Sorry if my qestion is stupid, but why can't we deal with (hard)links to 
-> directories in (nearly) same way we deal with bind mounts (= making 
-> exactly one object representing target and only referencing to it)?
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-On a VFS level we could, these days, I think. But realize that bind mounts
-and the vfsmounts are pretty recent things.
+--- linux-2.6.9-rc1-mm1-full-3.4/drivers/media/dvb/ttusb-dec/ttusb_dec.c.old	2004-08-29 21:09:21.000000000 +0200
++++ linux-2.6.9-rc1-mm1-full-3.4/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2004-08-29 21:09:57.000000000 +0200
+@@ -28,11 +28,7 @@
+ #include <linux/usb.h>
+ #include <linux/interrupt.h>
+ #include <linux/firmware.h>
+-#if defined(CONFIG_CRC32) || defined(CONFIG_CRC32_MODULE)
+ #include <linux/crc32.h>
+-#else
+-#warning "CRC checking of firmware not available"
+-#endif
+ #include <linux/init.h>
+ 
+ #include "dmxdev.h"
+@@ -1165,9 +1161,7 @@
+ 	u16 firmware_csum = 0;
+ 	u16 firmware_csum_ns;
+ 	u32 firmware_size_nl;
+-#if defined(CONFIG_CRC32) || defined(CONFIG_CRC32_MODULE)
+ 	u32 crc32_csum, crc32_check, tmp;
+-#endif
+ 	const struct firmware *fw_entry = NULL;
+ 	dprintk("%s\n", __FUNCTION__);
+ 
+@@ -1189,7 +1183,6 @@
+ 	/* a 32 bit checksum over the first 56 bytes of the DSP Code is stored
+ 	   at offset 56 of file, so use it to check if the firmware file is
+ 	   valid. */
+-#if defined(CONFIG_CRC32) || defined(CONFIG_CRC32_MODULE)
+ 	crc32_csum = crc32(~0L, firmware, 56) ^ ~0L;
+ 	memcpy(&tmp, &firmware[56], 4);
+ 	crc32_check = htonl(tmp);
+@@ -1199,7 +1192,6 @@
+ 			__FUNCTION__, crc32_csum, crc32_check);
+ 		return -1;
+ 	}
+-#endif
+ 	memcpy(idstring, &firmware[36], 20);
+ 	idstring[20] = '\0';
+ 	printk(KERN_INFO "ttusb_dec: found DSP code \"%s\".\n", idstring);
 
-We don't have any filesystems that support the notion, though, and we 
-don't have any interfaces for the filesystem to tell us about it right 
-now. The VFS layer could try to figure it out on its own from aliasing 
-information, so the latter may be a non-issue, but the former is why 
-nobody does it.
-
-And even if Linux _these days_ could handle hardlinked directories, the
-fact is that they would cause slightly more memory usage (due to the
-vfsmounts), and that nobody else can handle such filesystems - including
-older versions of Linux. So nobody would likely use the feature (not to
-mention that nobody is even really asking for it ;).
-
-And the lack of filesystem support is not theoretical. It's not easy to 
-just retrofit directory hardlinks on a UNIX filesystem. The ".." entry 
-actually exists on _disk_ on traditional unix filesystems, and with 
-hardlinks on directories, that's a real problem. A hardlinked directory 
-has multiple parents.
-
-Also, while the VFS layer no longer cares (to it, ".." is purely virtual,
-and it never uses it), the NFS export routines still do actually want to
-get the on-disk parent. A filesystem that can't do that may be unable to
-be exported with full semantics (ie you might get ESTALE errors after
-server reboots, although you'd have to ask somebody with more kNFSd
-knowledge than me on exactly why that is the case ;)
-
-			Linus

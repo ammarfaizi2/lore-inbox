@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUDJT5G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 15:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbUDJT5G
+	id S261752AbUDJUAj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 16:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUDJUAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 15:57:06 -0400
-Received: from ns.clanhk.org ([69.93.101.154]:14517 "EHLO mail.clanhk.org")
-	by vger.kernel.org with ESMTP id S261718AbUDJT5D (ORCPT
+	Sat, 10 Apr 2004 16:00:39 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:17589 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S261752AbUDJUAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 15:57:03 -0400
-Message-ID: <407851AB.2020409@clanhk.org>
-Date: Sat, 10 Apr 2004 14:57:31 -0500
+	Sat, 10 Apr 2004 16:00:37 -0400
+Message-ID: <40785284.6050308@clanhk.org>
+Date: Sat, 10 Apr 2004 15:01:08 -0500
 From: "J. Ryan Earl" <heretic@clanhk.org>
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Mohamed Aslan <mkernel@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: Rewrite Kernel
-References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com> <4078280B.5080604@clanhk.org> <200404102021.36745.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200404102021.36745.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: amd64 questions
+References: <1Ijzw-4ff-5@gated-at.bofh.it> <1Ijzv-4ff-3@gated-at.bofh.it> <1IntE-7wn-39@gated-at.bofh.it> <m3isgb69xx.fsf@averell.firstfloor.org> <407826DF.9030506@clanhk.org> <20040410184904.GA12924@colin2.muc.de>
+In-Reply-To: <20040410184904.GA12924@colin2.muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+Andi Kleen wrote:
 
->>I doubt you would be capable of generating assembly that would be any
->>faster than gcc, and you would inherit all the accidental difficulties
->>that come with engineering software at a lower-level.
+>>So let me get this straight, we can't use LVM with AMD64 under the 2.6 
 >>    
 >>
 >
->No, writing 'better than gcc' assembly is easy, gcc is far from stellar
->in this regard. But it's painfully slow and non-portable.
+>No, you completely misunderstood.
 >  
 >
-How can "painfully slow and non-portable" be better?  You mean faster?
+It was ambiguous, I saw more than one valid interpretation.
 
-Doesn't change the fact that I doubt he could write faster assembly.  By 
-the time he got done doing it in assembly, gcc 5 would probably be out 
-generating much faster binaries, not to mention new major stable kernel 
-revisions.
+>>line either?  Or we can if we use AMD64 [DM] libraries with a AMD64 
+>>kernel?  DM = Device Mapper right?
+>>    
+>>
+>
+>You can't use Device Mapper with 32bit user tools on a 64bit kernel
+>right now.
+>  
+>
+Which doesn't say we can use 64bit user tools with a 64bit kernel, but I 
+assume this is what you mean.
+
+-ryan

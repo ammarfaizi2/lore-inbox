@@ -1,98 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUBEUQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 15:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266809AbUBEUQP
+	id S266413AbUBEUU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 15:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbUBEUU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 15:16:15 -0500
-Received: from mail.kroah.org ([65.200.24.183]:20896 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266808AbUBEUQJ (ORCPT
+	Thu, 5 Feb 2004 15:20:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59355 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266413AbUBEUUx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 15:16:09 -0500
-Date: Thu, 5 Feb 2004 12:16:05 -0800
-From: Greg KH <greg@kroah.com>
-To: "Tillier, Fabian" <ftillier@infiniconsys.com>
-Cc: "Hefty, Sean" <sean.hefty@intel.com>, linux-kernel@vger.kernel.org,
-       Troy Benjegerdes <hozer@hozed.org>,
-       "Woodruff, Robert J" <woody@co.intel.com>,
-       "Magro, Bill" <bill.magro@intel.com>,
-       "Woodruff, Robert J" <woody@jf.intel.com>,
-       infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in the Linux kernel
-Message-ID: <20040205201605.GC14646@kroah.com>
-References: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96C2@mercury.infiniconsys.com>
+	Thu, 5 Feb 2004 15:20:53 -0500
+Date: Thu, 5 Feb 2004 12:14:42 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: solt@dns.toxicfilms.tv
+Subject: Re: 2.6.2-mm1 [are these mine?]
+Message-Id: <20040205121442.1fd57016.rddunlap@osdl.org>
+In-Reply-To: <20040205121136.1538887f.rddunlap@osdl.org>
+References: <20040205014405.5a2cf529.akpm@osdl.org>
+	<200402051357.04005.s0348365@sms.ed.ac.uk>
+	<4022505B.1020900@vision.ee>
+	<000501c3ec22$46444bb0$0e25fe96@pysiak>
+	<20040205121136.1538887f.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB01DB96C2@mercury.infiniconsys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 02:44:07PM -0500, Tillier, Fabian wrote:
-> 
-> The component library (the abstraction layer used by IBAL) is in no way
-> tied to InfiniBand.  Whatever is in there can be used by any other
-> projects, and there's a lot of useful stuff in there that does provide
-> value.
+On Thu, 5 Feb 2004 12:11:36 -0800 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-Great, if you think so, please provide patches to the main kernel tree
-for all of us to see.  Just don't try to bury it in a driver subsystem.
-That is my complaint.
+| On Thu, 5 Feb 2004 20:57:17 +0100 "Maciej Soltysiak" <solt@dns.toxicfilms.tv> wrote:
+| 
+| | Hi,
+| | 
+| | 2.6.2-mm1 contains:
+| |  sound/oss/dmasound/tas3001c.c                                       1 +
+| | 1 -       0 !
+| |  sound/oss/dmasound/tas3001c_tables.c                              166 +
+| | 166 -       0 !
+| |  sound/oss/dmasound/tas3004_tables.c                               120 +
+| | 120 -       0 !
+| |  sound/oss/dmasound/trans_16.c                                      22 +
+| | 22 -       0 !
+| |  sound/oss/sb_card.h                                                50 +
+| | 50 -       0 !
+| | 
+| | I would like to ask if these are from the batch I proposed a while ago
+| | during 2.6.0 available at:
+| | http://soltysiak.com/patches/2.6/2.6.0/c99/patch-2.6.0-c99.diff
+| | split:
+| | http://soltysiak.com/patches/2.6/2.6.0/c99/split/
+| | 
+| | It would add to my other C99 contributed patches list :-)
+| 
+| Yes, they are yours.  I rediffed them and pushed them to Andrew
+| and the comment for them says:
+| 
+| 
+| [PATCH] janitor: sound/oss: use C99 inits.
+| 
+| From: "Randy.Dunlap" <rddunlap@osdl.org>,
+|       "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+| 
+| C99 initializers for linux/sound.
 
-> One goal of IBAL is to get InfiniBand support for Linux.  As such, it is
-> a higher priority to get things working than to wait for changes to
-> appear in the Linux kernel before making forward progress.
 
-Isn't it a better idea to try to work with the community, instead of
-ignoring them and thinking that you are progressing ahead of them?  :)
+You can see the bk changelog here:
+  http://linux.bkbits.net:8080/linux-2.5/cset@1.1532.4.121?nav=index.html|ChangeSet@-7d
 
-> Keep in mind also that InfiniBand is not a Linux-only technology.
-> Sharing code between different operating systems accelerates development
-> and reduces the cost of maintenance.
+BTW, there was quite a bit of whitespace damage in your [patch] email
+that I fixed up.  Please don't do that again.
 
-For your driver subsystem, possibly.  I know the whole history of ACPI,
-and how that is developed too.  Also remember all of the man-hours that
-were spent getting that acpi code into the proper shape for Linux...
-
-> Lastly, there are things (like timers) that are blatantly missing from
-> user-mode in Linux, and having an abstraction here allows code to be
-> shared between kernel and user mode.
-
-Again, patches are always appreciated to address anything that you feel
-is missing in Linux.
-
-> Keep in mind that we're not expecting you or the Linux community to
-> blindly take the code as is.
-
-That's good, as you have yet to even submit anything :)
-
-> We're looking for constructive feedback to
-> make it so that everyone goes home happy.  It's disappointing that the
-> feedback we're getting from you is that any abstractions will be cause
-> for rejection.  What are the grounds for this policy?
-
-Um, "no one else does it as it is not necessary," is not enough?
-
-> What does it accomplish?  Is portable code a problem for the Linux
-> community in general?
-
-Not at all.  Just look at the vast array of different hardware platforms
-that Linux runs on!  And look at how almost all drivers work on all of
-those platforms with no changes needed!  We are all for portability.
-
-> Removing the abstraction from the IBAL project would require
-> significant rework of the code that would add very little from a
-> functional perspective, and make the code base more complicated and
-> harder to maintain.
-
-Harder for whom to maintain?  You, or the rest of the kernel community?
-Remember, once your code is in the tree, everyone is free to make
-changes to it, that's the power of a community effort.
-
-That's enough of this, just submit a patch and we can work from there,
-with real, technical answers for specific technical issues.
-
-thanks,
-
-greg k-h
+--
+~Randy
+kernel-janitors project:  http://janitor.kernelnewbies.org/

@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266562AbUBLTi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 14:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUBLTi6
+	id S266560AbUBLTeU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 14:34:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUBLTeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 14:38:58 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:39445 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266562AbUBLTiz (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 14:38:55 -0500
-Message-Id: <200402121938.i1CJcpVb002430@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Konstantin Kudin <konstantin_kudin@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange boot with multiple identical disks 
-In-Reply-To: Your message of "Thu, 12 Feb 2004 11:28:48 PST."
-             <20040212192848.29083.qmail@web21204.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040212192848.29083.qmail@web21204.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1607311684P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 12 Feb 2004 14:34:20 -0500
+Received: from c-67-169-7-208.client.comcast.net ([67.169.7.208]:56962 "EHLO
+	beeble.homelinux.net") by vger.kernel.org with ESMTP
+	id S266560AbUBLTd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 14:33:29 -0500
+Message-ID: <402BD507.2040201@lbl.gov>
+Date: Thu, 12 Feb 2004 11:33:27 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix make rpm in 2.6 when using RH9 or Fedora..
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 12 Feb 2004 14:38:51 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1607311684P
-Content-Type: text/plain; charset=us-ascii
+Doing a 'make rpm' with any linux-2.6 (or probably, even linux-2.4 kernel) will fail with the current RH/Fedora RPM macros.
 
-On Thu, 12 Feb 2004 11:28:48 PST, Konstantin Kudin <konstantin_kudin@yahoo.com>  said:
+The failure message is this:
 
->  Now I am trying to add the failing one as /hdc, and
-> boot. Linux starts to display all kinds of weird
-> messages, and thinks that / partition was shut down
-> uncleanly. I just hit "reset". Then I disable /hdc via
-> the boot option hdc=noprobe, and things boot fine. If
-> I try to disable raid via raid=noautodetect, the bunch
-> of errors still appears and the boot is no go. Done
-> this several times, without /hdc things are fine, with
-> - all kinds of issues.
-> 
->  What is the problem for linux to boot on /hda when
-> /hdc is detected and has almost identical setup? 
+Processing files: kernel-debuginfo-2.6.3rc1mm1-12
+error: Could not open %files file /usr/src/redhat/BUILD/kernel-2.6.3rc1mm1/debugfiles.list: No such file or directory
 
-Sometimes, the LABEL= support is your enemy.  You probably have
-multiple partitions with the same LABEL=, and your /etc/fstab is
-picking up the "wrong" ones.  Try giving partition names instead.
 
---==_Exmh_-1607311684P
-Content-Type: application/pgp-signature
+RPM build errors:
+    Could not open %files file /usr/src/redhat/BUILD/kernel-2.6.3rc1mm1/debugfiles.list: No such file or directory
+make: *** [rpm] Error 1
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFAK9ZLcC3lWbTT17ARAsy1AKCGEk1B1n5y5tPRvNc2PVTJg0lQUQCfSyxQ
-QwnkcpEP7nf0yeBfznZ66bA=
-=FOjm
------END PGP SIGNATURE-----
+The fix is this patch:
 
---==_Exmh_-1607311684P--
+--- linux-2.6/scripts/mkspec    2004-01-08 22:59:04.000000000 -0800
++++ linux-2.6.3-rc1-mm1/scripts/mkspec  2004-02-12 00:02:55.000000000 -0800
+@@ -37,6 +37,7 @@
+ echo "BuildRoot: /var/tmp/%{name}-%{PACKAGE_VERSION}-root"
+ echo "Provides: $PROVIDES"
+ echo "%define __spec_install_post /usr/lib/rpm/brp-compress || :"
++echo "%define debug_package %{nil}"
+ echo ""
+ echo "%description"
+ echo "The Linux Kernel, the operating system core itself"

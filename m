@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131632AbQLNPpd>; Thu, 14 Dec 2000 10:45:33 -0500
+	id <S130396AbQLNPrn>; Thu, 14 Dec 2000 10:47:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130396AbQLNPpY>; Thu, 14 Dec 2000 10:45:24 -0500
-Received: from exit1.i-55.com ([204.27.97.1]:6080 "EHLO exit1.i-55.com")
-	by vger.kernel.org with ESMTP id <S129802AbQLNPpL>;
-	Thu, 14 Dec 2000 10:45:11 -0500
-Message-ID: <3A38E509.1030402@i-55.com>
-Date: Thu, 14 Dec 2000 09:19:37 -0600
-From: Leslie Donaldson <donaldlf@i-55.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; m18) Gecko/20001010
-X-Accept-Language: en
+	id <S132099AbQLNPrd>; Thu, 14 Dec 2000 10:47:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59666 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130396AbQLNPrZ>;
+	Thu, 14 Dec 2000 10:47:25 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012141516.eBEFG5B06658@flint.arm.linux.org.uk>
+Subject: Physical memory addresses/PCI memory addresses/io_remap_page_range/etc
+To: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+Date: Thu, 14 Dec 2000 15:16:04 +0000 (GMT)
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, donaldlf@i-55.com
-Subject: Major Failure  2.4.0-test12 Alpha
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  Just writing in to report a bug in 2.4.0-test12.
-Hardware:
-  PCI-Matrox_Mill
-  PCI-Adaptec 39160 / 160M scsi card
-  PCI-Generic TNT-2 card
-  PCI-Sound blaster -128 (es1370)
+Hi,
 
-CPU 21164a - Alpha
+I'm looking at a frame buffer driver, and I'm getting a little confused...
 
-Problem:
-  There is a race condition in the aic7xxxx driver that causes the 
-kernel to lock up.
-I don't have a kernel dump yet as the machine reported by it'self..
-This problem has been easy to reproduce. ergo about 3 crashes a day.
+To remove any confusion (since I know that people get confused with the
+terminology here), here is how I define these addresses:
 
-Solution:
-  Sync often and pray.
+  virtual space    - address space that the kernel runs in
+  physical space   - address space that the CPU sits in
+  PCI memory space - memory address space that the PCI peripherals sit in
 
-Misc:
-  As soon as I get a real dump I will post a followup to this message.
+Many, if not all ARM architectures have physical address 0 different from
+PCI memory address 0.
 
-Leslie Donaldson
+According to include/linux/fb.h, fb drivers should place a physical address
+into "fix.smem_start" and "fix.mmio_start", which can then be passed to
+io_remap_page_range.
 
+However, many drivers (eg, Matrox Millenium) place the PCI memory space
+address here (obtained from pci_resource_start), and this tends to cause
+things to fail on ARM machines.
+
+If we were to change (where possible) the PCI memory space such that it did
+tie up with the physical address, then we loose the ability to use vgacon
+consoles, which in turn means that there would have to be fbcon drivers for
+a lot more PCI VGA cards in the kernel (since vgacon needs to access the usual
+PCI memory address 0xb8000).
+
+The questions (that I would like someone authoritive on this to answer)
+are:
+
+1. Should pci_resource_start be returning the PCI memory space address or
+   a physical memory space address?
+
+2. Should io_remap_page_range take a PCI memory space address or a physical
+   memory space address?
+
+3. Do we need a macro to convert PCI memory space addresses to physical
+   memory space addresses?
+
+4. What does this mean for ioremap?  (currently, on ARM, ioremap takes
+   PCI memory space addresses, not a physical memory address, which makes
+   the physmap MTD driver technically broken).
+
+Help!
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

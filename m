@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267999AbTBMJfV>; Thu, 13 Feb 2003 04:35:21 -0500
+	id <S268002AbTBMJwu>; Thu, 13 Feb 2003 04:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268000AbTBMJfV>; Thu, 13 Feb 2003 04:35:21 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:4230 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267999AbTBMJfR>;
-	Thu, 13 Feb 2003 04:35:17 -0500
-Date: Thu, 13 Feb 2003 15:20:33 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net, fastboot@osdl.org
-Subject: Re: [Fastboot] Re: Kexec on 2.5.59 problems ?
-Message-ID: <20030213152033.A14278@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210164401.A11250@in.ibm.com> <1044896964.1705.9.camel@andyp.pdx.osdl.net> <m13cmwyppx.fsf@frodo.biederman.org> <20030211125144.A2355@in.ibm.com> <1044983092.1705.27.camel@andyp.pdx.osdl.net> <1045007213.1959.2.camel@andyp.pdx.osdl.net> <m1k7g6xgs8.fsf@frodo.biederman.org> <1045089117.1502.5.camel@andyp.pdx.osdl.net>
+	id <S268005AbTBMJwu>; Thu, 13 Feb 2003 04:52:50 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:56801 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S268002AbTBMJwt>; Thu, 13 Feb 2003 04:52:49 -0500
+Date: Thu, 13 Feb 2003 11:00:29 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Dave Jones <davej@codemonkey.org.uk>, torvalds@transmeta.com,
+       davej@suse.de, linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] cpufreq: move frequency table helpers to extra module
+Message-ID: <20030213100029.GA14301@brodo.de>
+References: <20030213091131.GA8909@brodo.de> <20030213093951.GA22151@codemonkey.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1045089117.1502.5.camel@andyp.pdx.osdl.net>; from andyp@osdl.org on Wed, Feb 12, 2003 at 02:31:57PM -0800
+In-Reply-To: <20030213093951.GA22151@codemonkey.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 02:31:57PM -0800, Andy Pfiffer wrote:
-> On Tue, 2003-02-11 at 20:29, Eric W. Biederman wrote:
-> > Andy Pfiffer <andyp@osdl.org> writes:
-> > > On Tue, 2003-02-11 at 09:04, Andy Pfiffer wrote:
-> > > > On Mon, 2003-02-10 at 23:21, Suparna Bhattacharya wrote:
-> > > > <snip>
-> > > > > The following patch from Anton Blanchard's WIP kexec tree 
-> > > > > for ppc64 seems to fix this for me. It just does a use_mm() 
-> > > > > (routine from fs/aio.c) instead of switch_mm(). 
-> > > > > 
-> > > > > Andy could you try this out and see if it helps  ?
-> > > > > 
-> <snip>
-> > > > > Regards
-> > > > > Suparna
-> > > > 
-> > > > Will do. --Andy
-> > > 
-> > > Answer: hard lock-up after decompressing the kernel.  I'll see if I can
-> > > get anything meaningful out of the system before it wedges.
-> > 
-> > Which kernel is wedging.  The kexec'd kernel.  Or the kernel with
-> > the patch?
-> > 
-> > Eric
+On Thu, Feb 13, 2003 at 09:39:51AM +0000, Dave Jones wrote:
+> On Thu, Feb 13, 2003 at 10:11:31AM +0100, Dominik Brodowski wrote:
+>  > The CPU frequency table helpers can easily be modularized --
+>  > especially as they are not needed on all architectures, or for 
+>  > all drivers.
 > 
-> Correction: this patch is now working for me.  While pruning my .config
-> to debug my serial console problem, kexec worked on a 2-way for me
-> several times in a row without failure.  (I hadn't properly updated my
-> script that invokes kexec with my preferred command line arguments).
+> As most of the x86 drivers have been converted now, it looks like
+> it'd make more sense to conditionalise this on architecture, and
+> move the remaining x86 drivers over to the helpers (longrun/longhaul).
 
-Great !
-Eventually we should probably avoid init_mm altogether (on ppc64
-at least, init_mm can't be used as Anton pointed out to me) and
-setup a spare mm instead. 
+Longhaul yes, Longrun no. On longrun you can't set the speed to a specific
+frequency[*], only to a _frequency range_. So the frequency table helpers
+aren't needed there. Also, for gx-suspmod, which allows really fine-grained
+setting of frequencies, the frequency table helpers don't make sense.
 
-Regards
-Suparna
+> It just strikes me as silly that we have a config option that when
+> disabled could end up showing no chip drivers when the conversion
+> is complete.
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+So, even when the conversion is complete, there are two drivers which can be
+compiled. Additionally, some users (or distros!) might prefer modularizing
+this.
 
+	Dominik
+
+[*] you can set policy->max = policy->min, but that really doesn't make
+sense on longrun.

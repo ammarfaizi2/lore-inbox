@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131353AbRCSDak>; Sun, 18 Mar 2001 22:30:40 -0500
+	id <S131344AbRCSD1A>; Sun, 18 Mar 2001 22:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131354AbRCSDaa>; Sun, 18 Mar 2001 22:30:30 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:33245 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131353AbRCSDaV>;
-	Sun, 18 Mar 2001 22:30:21 -0500
-Date: Sun, 18 Mar 2001 18:23:11 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, axboe@suse.de, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com
-Subject: Re: [PATCH] off-by-1 error in ide-probe (2.4.x)
-In-Reply-To: <Pine.LNX.4.31.0103181723160.2981-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10103181815490.17416-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131348AbRCSD0v>; Sun, 18 Mar 2001 22:26:51 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34565 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131344AbRCSD0n>; Sun, 18 Mar 2001 22:26:43 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [CHECKER] blocking w/ spinlock or interrupt's disabled
+Date: 18 Mar 2001 19:24:25 -0800
+Organization: Transmeta Corporation
+Message-ID: <993u59$32k$1@penguin.transmeta.com>
+In-Reply-To: <001801c0af8e$bda30c10$5517fea9@local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Mar 2001, Linus Torvalds wrote:
+In article <001801c0af8e$bda30c10$5517fea9@local>,
+Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+>Unortunately schedule() with disabled interrupts is a feature, it's
+>needed for the old (deprecated and waiting for termination in 2.5)
+>sleep_on() functions.
 
-> 
-> 
-> On Mon, 19 Mar 2001 Andries.Brouwer@cwi.nl wrote:
-> >
-> >     Agreed. That would be a trivially easy bug in the firmware, limiting to
-> >     255 sectors seems safer.
-> >
-> >             Linus
-> >
-> > Yes, possibly.
-> > I checked old standards, and see that "0 means 256 as a sector count"
-> > is already in ATA-1.
-> 
-> Yes. But we could have some silly bug in the Linux drivers too, if some
-> part of the driver reads back the sector count and doesn't do the 0==256
-> conversion. So let's not blame the disk quite yet. Although it would be
-> interesting to hear if the problem only happens for a specific disk or
-> manufacturer...
+Yes.  But that should only cover "sleep_on()" and it's interruptible
+cousing "sleep_on_interruptible()".  No other blocking call should have
+interrupts disabled, I would hope.
 
-LT,
+The special-case is a fairly specific "some old-style drivers avoid race
+conditions by having interrupts disabled over explicit conditional
+sleeps", not a generic "you may have interrupts disabled before
+blocking". 
 
-This is why I want to standardize the data-phase rules, but we have agreed
-to postpone for 2.5.  Since the glue for the main loops is spread like hot
-butter, it covers up a lot of issues and threads get messy.  I had all but
-given up on chasing them down and then resolved to start from scratch.
-
-
-Andre Hedrick
-Linux ATA Development
-
+		Linus

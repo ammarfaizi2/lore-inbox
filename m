@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbTIQOOF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 10:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTIQOOF
+	id S262767AbTIQOJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 10:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbTIQOJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 10:14:05 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.25]:63343 "EHLO
-	mwinf0603.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262769AbTIQOOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 10:14:03 -0400
-Message-ID: <3F686D4C.3070407@wanadoo.fr>
-Date: Wed, 17 Sep 2003 16:18:52 +0200
-From: Remi Colinet <remi.colinet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
+	Wed, 17 Sep 2003 10:09:40 -0400
+Received: from gw-nl3.philips.com ([212.153.190.5]:9870 "EHLO
+	gw-nl3.philips.com") by vger.kernel.org with ESMTP id S262767AbTIQOJi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 10:09:38 -0400
+Message-ID: <3F686B79.8030206@basmevissen.nl>
+Date: Wed, 17 Sep 2003 16:11:05 +0200
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test5-bk4 : compile error
+To: Bas Mevissen <ml@basmevissen.nl>
+Cc: jarausch@belgacom.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre7 Unresolved symbols
+References: <20030917095232.CC86AA7E68@numa-i.igpm.rwth-aachen.de> <3F686AEF.1000900@basmevissen.nl>
+In-Reply-To: <3F686AEF.1000900@basmevissen.nl>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bas Mevissen wrote:
 
-  AR      arch/i386/lib/lib.a
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-net/built-in.o: In function `__vcc_seq_open':
-net/built-in.o(.text+0x8a27e): undefined reference to `try_atm_clip_ops'
-make: *** [.tmp_vmlinux1] Error 1
+> jarausch@belgacom.net wrote:
+> 
+(snip)
 
-Compiled error caused by net/atm/proc.c line 195. I was able to compile 
-with :
 
---- net/atm/proc.c.org  2003-09-17 16:14:30.000000000 +0200
-+++ net/atm/proc.c      2003-09-17 16:16:53.000000000 +0200
-@@ -192,7 +192,9 @@
-                goto out_kfree;
+Ah, somebody resend his 2-years old messages again :-)
+Well, anyway. My answer is still valid :-)))
 
-        state->family = family;
-+#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
-        state->clip_info = try_atm_clip_ops();
-+#endif
+Bas.
 
-        seq = file->private_data;
-        seq->private = state;
 
-Remi
+
 

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTHBQqr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 12:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTHBQqr
+	id S269676AbTHBRIo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 13:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269696AbTHBRIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 12:46:47 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:53745 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262290AbTHBQqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 12:46:46 -0400
-To: rob@landley.net
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: More fun with menuconfig...
-References: <200308020605.58423.rob@landley.net>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Sat, 02 Aug 2003 18:46:28 +0200
-In-Reply-To: <200308020605.58423.rob@landley.net> (Rob Landley's message of
- "Sat, 2 Aug 2003 06:05:58 -0400")
-Message-ID: <87ispgknx7.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
-MIME-Version: 1.0
+	Sat, 2 Aug 2003 13:08:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64004 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269676AbTHBRIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 13:08:43 -0400
+Date: Sat, 2 Aug 2003 18:08:37 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Stefan Jones <cretin@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>
+Subject: Re: [2.6.0-test1] yenta_socket.c:yenta_get_status returns bad value compared to 2.4
+Message-ID: <20030802180837.B1895@flint.arm.linux.org.uk>
+Mail-Followup-To: Stefan Jones <cretin@gentoo.org>,
+	linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>
+References: <1059244318.3400.17.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1059244318.3400.17.camel@localhost>; from cretin@gentoo.org on Sat, Jul 26, 2003 at 07:31:59PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <rob@landley.net> writes:
+On Sat, Jul 26, 2003 at 07:31:59PM +0100, Stefan Jones wrote:
+> It seems the the change from 2.4 to 2.6 made the state read from 
+> yenta_get_status change it's return value. It reads it from hardware.
 
-> So I have a .config with CONFIG_ADVANCED_PARTION not set, and 
-> CONFIG_MSDOS_PARTITION=y.  (I.E. the default from arch/i386/defconfig.)
->
-> I fire up make menuconfig and expand the advanced partition menu (setting 
-> CONFIG_ADVANCED_PARTITION to y).  MSDOS partition support is NOT set in the 
-> newly opened menu, I.E. opening the menu has the side effect of deselecting 
-> CONFIG_MSDOS_PARTITION.
->
-> If I do nothing else, and save with the menu open, it's off.  (Saved as "not 
-> set".)  If I fire it up again and close the menu, CONFIG_MSDOS_PARTITION 
-> becomes Y again.
->
-> What magic am I failing to understand here?  (This sort of seems intentional, 
-> but it would make more sense for MSDOS partition support to default to on 
-> when you first open the menu...)
+The get_status function is called multiple times during card
+initialisation.  I doubt that it is valid to compare the get_status
+values from 2.4 and 2.6 kernels, without examining what's going on
+in the cs.c code.
 
-Maybe it's this default definition in fs/partitions/Kconfig(101):
+It would be helpful if you could apply the patch to cs.c which I've
+recently posted to lkml, and report back the full kernel messages,
+including the messages you get from your printk in yenta_get_status().
 
-config MSDOS_PARTITION
-        bool "PC BIOS (MSDOS partition tables) support" if PARTITION_ADVANCED
-        default y if !PARTITION_ADVANCED && !AMIGA && !ATARI && !MAC && !SGI_IP22 && !ARM && !SGI_IP27
+The message id was: <20030802173352.A1895@flint.arm.linux.org.uk>
 
-Regards, Olaf.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKQU27>; Fri, 17 Nov 2000 15:28:59 -0500
+	id <S129208AbQKQUaJ>; Fri, 17 Nov 2000 15:30:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129147AbQKQU2s>; Fri, 17 Nov 2000 15:28:48 -0500
-Received: from 62-6-231-5.btconnect.com ([62.6.231.5]:57472 "EHLO
-	saturn.homenet") by vger.kernel.org with ESMTP id <S129097AbQKQU2o>;
-	Fri, 17 Nov 2000 15:28:44 -0500
-Date: Fri, 17 Nov 2000 20:00:49 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: test11-pre6 still very broken
-Message-ID: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet>
+	id <S129147AbQKQU37>; Fri, 17 Nov 2000 15:29:59 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:6273 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129208AbQKQU3o>; Fri, 17 Nov 2000 15:29:44 -0500
+Date: Fri, 17 Nov 2000 14:59:04 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        mj@suse.cz
+Subject: Re: VGA PCI IO port reservations
+In-Reply-To: <200011171953.TAA01877@raistlin.arm.linux.org.uk>
+Message-ID: <Pine.LNX.3.95.1001117145621.23447A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 17 Nov 2000, Russell King wrote:
 
-The mysterious lockups in test11-pre5 continue in test11-pre6. It is very
-difficult because the lockups appear to be kdb-specific (and kdb itself
-goes mad) but when there is no kdb there is very little useful information
-one can extract from a dead system...
+> Richard B. Johnson writes:
+> > The code necessary to find the lowest unaliased address looks like
+> > this:
+> 
+> Any chance of providing something more readable?  I may be able to read
+> some x86 asm, but I don't have the time to try to decode that lot.
 
-I will start removing kernel subsystems, one by one and try to reproduce
-it on as plain kernel as possible (i.e. just io, no networking etc.)
+It's Intel assembly on Intel machines. It's a hell of a lot more
+readable than AT&T assembly. This stuff has to be set up before you
+have any resources necessary to execute the output of a 'C' compiler,
+so, if you are looking for 'C' syntax, you are out of luck.
 
-So, this not-very-useful report just says -- test11-pre6 is extremely
-unstable, a simple "ltrace ls" can cause a lockup. Also, some programs
-work when run normally but coredump (or hang) when run via strace, but
-only sometimes, not always... (no, I don't have faulty memory, I run
-memtest!)
 
-Regards,
-Tigran
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

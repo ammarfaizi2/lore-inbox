@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314612AbSEPTfZ>; Thu, 16 May 2002 15:35:25 -0400
+	id <S314609AbSEPTkL>; Thu, 16 May 2002 15:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314621AbSEPTfY>; Thu, 16 May 2002 15:35:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59917 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314612AbSEPTfY>;
-	Thu, 16 May 2002 15:35:24 -0400
-Message-ID: <3CE4098E.2070808@mandrakesoft.com>
-Date: Thu, 16 May 2002 15:33:34 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: "Patrick Mochel (mochel@osdl.org)" <mochel@osdl.org>,
-        "'davem@redhat.com'" <davem@redhat.com>,
-        "'Greg@kroah.com'" <Greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: pci segments/domains
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314637AbSEPTkK>; Thu, 16 May 2002 15:40:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:64423 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314609AbSEPTkJ>;
+	Thu, 16 May 2002 15:40:09 -0400
+Date: Thu, 16 May 2002 12:38:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Todd R. Eigenschink" <todd@tekinteractive.com>
+Cc: Mike Galbraith <EFAULT@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Re: kswapd OOPS under 2.4.19-pre8 (ext3, Reiserfs + (soft)raid0)
+Message-ID: <20020516193834.GI27957@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Todd R. Eigenschink" <todd@tekinteractive.com>,
+	Mike Galbraith <EFAULT@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200205160528.g4G5S631019167@sol.mixi.net> <15587.42492.25950.446607@rtfm.ofc.tekinteractive.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grover, Andrew wrote:
+On Thu, May 16, 2002 at 07:28:44AM -0500, Todd R. Eigenschink wrote:
+> Ooh, spiffy idea.  (Like I said, asm rookie.)  I just compiled gdb,
+> and here's what it says.  Interesting, to me, at least.
+> (gdb) list *__wake_up+0xb2
+> 0x9d6 is in __wake_up
+> (/src/linux-2.4.19-pre8/include/asm/processor.h:488).
+> 483     #ifdef  CONFIG_MPENTIUMIII
+> 484
+> 485     #define ARCH_HAS_PREFETCH
+> 486     extern inline void prefetch(const void *x)
+> 487     {
+> 488             __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
+> 489     }
+> 490
+> 491     #elif CONFIG_X86_USE_3DNOW
 
->Well, ACPI calls them "segments" but a previous discussion (c.f. "RFC:
->Changes for PCI" from a year ago) called them domains.
->
->I don't care what they're called, but I wanted to bring them up and see what
->everyone thought about how best to implement them, or at least if anyone had
->an objection to adding a "segment" parameter to pci_scan_root.
->
->I certainly don't have a machine that uses these but some people do, and it
->sounds like it would be nice to handle them in an arch-neutral way.
->
-
-alpha and sparc64 at least already do them.
-
-I wouldn't mind making the PCI domain support a bit more explicit, 
-though.  I think it's fair to be able to obtain a pointer to "struct 
-pci_domain", which would most likely be defined in asm/pci.h for each arch.
-
-    Jeff
+list_for_each() uses prefetch() and is used in __wake_up_common(), which
+is in turn used by __wake_up(). This is waitqueue list corruption.
 
 
-
+Cheers,
+Bill

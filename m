@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314361AbSDRORa>; Thu, 18 Apr 2002 10:17:30 -0400
+	id <S314362AbSDROSI>; Thu, 18 Apr 2002 10:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314362AbSDROR3>; Thu, 18 Apr 2002 10:17:29 -0400
-Received: from zebra.siol.net ([193.189.160.16]:4561 "EHLO zebra.siol.net")
-	by vger.kernel.org with ESMTP id <S314361AbSDROR3>;
-	Thu, 18 Apr 2002 10:17:29 -0400
-Message-ID: <001d01c1e6e3$c2ef1e60$b4a6a8c0@si>
-From: "Vasja J Zupan" <vasja@nuedi.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: HPT372 on KR7A-133R (ATA133) on production server
-Date: Thu, 18 Apr 2002 16:16:47 +0200
+	id <S314364AbSDROSG>; Thu, 18 Apr 2002 10:18:06 -0400
+Received: from [137.112.40.22] ([137.112.40.22]:48278 "EHLO
+	hermes.cs.rose-hulman.edu") by vger.kernel.org with ESMTP
+	id <S314362AbSDROSA>; Thu, 18 Apr 2002 10:18:00 -0400
+Date: Thu, 18 Apr 2002 09:16:39 -0500 (EST)
+From: "Leslie F. Donaldson" <donaldlf@cs.rose-hulman.edu>
+X-X-Sender: <donaldlf@voodoo>
+To: <axp-kernel-list@redhat.com>, <linux-kernel@vger.kernel.org>
+cc: <ldonald@nw.verizonwireless.com>
+Subject: Booting on a raid/lvm combination?
+Message-ID: <Pine.GSO.4.33.0204180909540.17436-100000@voodoo>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm buying a production server for webservices for mobile operators.
+Hello,
+  After loseing my hard drive to e2fs corruption I decided
+to build the drive system up, so I am laying out an
 
-My HW provider suggested Abit's KR7A-133R (ATA133)  with HPT372.
+raid-5 --> LVM --> reiserfs
 
-Is this motherboard already fully supported and when will stable kernel be
-ready for production use on these motherboards? (btw - any advice on good
-amd combo is appreciated)
+Distribution is 7.1 (soon to be upgraded to rawhide)
 
-Thank you for your help and I'd appreciate a personal cc: cos I'm not a
-member of this list.
+My problem is I boot with milo and I can't get it to work.
+I have my kernel on a dos part at sda1 and I have added
+a file initrd.gz to that disk. My real root system is sda3
+which is the raid.
 
-Thanx!
-Vasja
+I boot using (or try to boot)
+
+boot sda1:/vmlinux.gz root=/dev/sda3 initrd=/initrd.gz
+
+but it can't find the file because it's on the lvm drive which
+is no active yet. I tried something along the lines of
+
+boot sda1:/vmlinux.gz root=/dev/sda3 initrd=sda1:/initrd.gz
+
+Does anyone have a clue I can use?
+
+Please reply to me directly ad without my drives working
+it's a terminal session to my email account <sigh>
+
+Leslie Donaldson
+
 

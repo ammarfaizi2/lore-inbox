@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131956AbRBOBFa>; Wed, 14 Feb 2001 20:05:30 -0500
+	id <S132048AbRBOBHK>; Wed, 14 Feb 2001 20:07:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132007AbRBOBFU>; Wed, 14 Feb 2001 20:05:20 -0500
-Received: from viper.haque.net ([64.0.249.226]:35469 "EHLO viper.haque.net")
-	by vger.kernel.org with ESMTP id <S131956AbRBOBFN>;
-	Wed, 14 Feb 2001 20:05:13 -0500
-Message-ID: <3A8B2B46.7547FF2F@haque.net>
-Date: Wed, 14 Feb 2001 20:05:10 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i686)
-X-Accept-Language: en
+	id <S132049AbRBOBHA>; Wed, 14 Feb 2001 20:07:00 -0500
+Received: from nic-31-c31-100.mn.mediaone.net ([24.31.31.100]:4224 "EHLO
+	nic-31-c31-100.mn.mediaone.net") by vger.kernel.org with ESMTP
+	id <S132048AbRBOBGt>; Wed, 14 Feb 2001 20:06:49 -0500
+Date: Wed, 14 Feb 2001 19:06:27 -0600 (CST)
+From: "Scott M. Hoffman" <scott@mediaone.net>
+X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
+Reply-To: <scott1021@mediaone.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: crash 5/5 w/ memtest86
+Message-ID: <Pine.LNX.4.32.0102141857410.1021-100000@nic-31-c31-100.mn.mediaone.net>
 MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: modules_install target
-In-Reply-To: <20010215013846.A25812@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're forgetting it's using System.map from your build directory and
-not from /boot.
+Hi,
+  After getting several segfaults running fetchmail, I tried memtest86 for
+the first time on my PC (Celeron 500, i810m/b from e-machines).  Five out
+of five tries from two different floppy disks crashed at 6% into test 1.
+  I suspected a new PC133 memory stick, but the test failed at the same
+point without it.  My system has run fine with this for at least five
+days, I only noticed a problem after an oops last night, after upgrading
+to the 2.4.2-pre3 kernel yesterday morning.
+  Is there any other way to test whether this may be a memory problem or
+something else, besides gettig more ram or a different motherboard?
+  I do have an strace of one SIGSEGV from a fetchmail run, if it might
+help.
 
-"J . A . Magallon" wrote:
-> 
-> I have recently noticed that 'make modules_install' tries as a last step
-> 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.1-ac13; fi
-> 
-> I depends on 'make install' doing the right symlinks in /boot.
-> Would not be better to do a:
-> 
-> if [ -r System.map-2.4.1-ac13 ]; then /sbin/depmod -ae -F System.map-2.4.1-ac13
->  2.4.1-ac13; fi
-> 
-> ???
+Thanks,
+Scott
 
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================

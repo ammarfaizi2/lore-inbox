@@ -1,63 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272337AbTGYVfM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272338AbTGYVfM
+	id S272335AbTGYVeh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 17:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272337AbTGYVeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 17:35:12 -0400
-Received: from mail.kroah.org ([65.200.24.183]:27355 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272337AbTGYVfE (ORCPT
+	Fri, 25 Jul 2003 17:34:37 -0400
+Received: from dup-200-42-139-10.prima.net.ar ([200.42.139.10]:7552 "EHLO hal")
+	by vger.kernel.org with ESMTP id S272335AbTGYVec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 17:35:04 -0400
-Date: Fri, 25 Jul 2003 17:47:45 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 0.2 release
-Message-ID: <20030725214745.GA4223@kroah.com>
-Reply-To: linux-hotplug-devel@lists.sourceforge.net
+	Fri, 25 Jul 2003 17:34:32 -0400
+Subject: Sound recording problems
+From: Pablo Baena <pbaena@uol.com.ar>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-dVm8NL2SFIcS9xu8SKBU"
+Message-Id: <1059158899.1116.29.camel@hal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 25 Jul 2003 18:48:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've released the 0.2 version of udev into the wild, after surviving a
-live demo at the 2003 Ottawa Linux Symposium during a presentation.  It
-can be found at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-0.2.tar.gz
+--=-dVm8NL2SFIcS9xu8SKBU
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-udev is a implementation of devfs in userspace using sysfs and
-/sbin/hotplug.  It requires a 2.5/2.6 kernel to run properly.  The major
-changes since the last release is that persistent device naming schemes
-are now implemented.  Yeah, it's pretty rough, but it does prove that
-the concept is sane and will end up working well for users.
+Hi! I tried the linux-sound list without luck, so I try this list. I'm
+having recording troubles with my computer. I say my computer, because
+I've already tried 3 different sound cards, and 2 kernels, with strange
+results.
 
-There's a BitKeeper tree of the latest stuff available at:
-	bk://kernel.bkbits.net/gregkh/udev/
+I'll focus on my actual configuration, so I can debug the problem. I
+have a SB16 Awe ISA, and I tried the OSS drivers with 2.6.0-test1.
+I have a VIAC686 motherboard, with a K7 650Mhz processor.
 
-I've also placed the slides from my OLS talk up at:
-	http://www.kroah.com/linux/talks/ols_2003_udev_talk/
+The sample program I attach, do record the sound. Please notice the
+commented snip that doesn't work, it is stopping a lot of programs from
+working.
 
-The paper which attempts to explain the background of udev, what it
-does, and where it is going is at:
-	http://archive.linuxsymposium.org/ols2003/Proceedings/All-Reprints/Reprint-Kroah-Hartman-OLS2003.pdf
+Also, if I try doing a 
 
+cat /dev/dsp > bla.raw
 
-Due to the rush of the development of udev in this past week (hacking at
-it during the conference in an attempt to have something to show) there
-are still a number of very rough corners present, a few known memory
-leaks, and at least one hard coded path to my home directory for a
-config file...  Please feel free to take it for a spin to see how well
-things are progressing.
+the result file is full of 7F's (doesn't hear anything).
+This is just a sample of the problems I have with lots of other
+recording programs.
 
-Patches are always welcome, and discussions of the implementation, and
-future directions that the project should entail are welcome for now on
-the linux-hotplug-devel mailing list (if it's over-run, a new list will
-be started up, but I don't think that's necessary for now.)
+Can you help me debug this? What should I do? What information should I
+reunite?
 
-thanks,
+Please reply to my own address, since I'm not subscribed to the list.
 
-greg k-h
+TIA!!
+-- 
+Whip it, baby. Whip it right. Whip it, baby. Whip it all night!
+
+--=-dVm8NL2SFIcS9xu8SKBU
+Content-Disposition: attachment; filename=nrec.c
+Content-Type: text/x-c; name=nrec.c; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+// Stolen from nuvrec: http://mars.tuwien.ac.at/~roman/nuppelvideo/
+#include <sys/soundcard.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <signal.h>
+
+int ostr=0;
+long audio_buffer_size=0;
+
+static void sighandler(int i)
+{
+  if (ostr) {
+    close(ostr);
+  }
+  printf ("\n");
+  exit(0);
+}
+
+int main (int argc, char** argv) {
+	int afmt, afd, frag, channels, rate, blocksize, trigger, lastread;
+	char audiodevice[] = "/dev/dsp";
+	unsigned char* buffer;
+
+	ostr=open(argv[1],O_WRONLY|O_CREAT, 0644);
+
+	if (ostr==-1) return(-1);
+
+	if (-1 == (afd = open(audiodevice, O_RDONLY))) {
+		fprintf(stderr, "\n%s\n", "Cannot open DSP, exiting");
+		exit(1);
+	}
+
+	signal(SIGINT, sighandler); // install sighaendler
+                                                                               
+	ioctl(afd, SNDCTL_DSP_RESET, 0);
+                                                                               
+	frag=(8<<16)|(10);//8 buffers, 1024 bytes each
+	ioctl(afd, SNDCTL_DSP_SETFRAGMENT, &frag);
+
+	afmt = AFMT_S16_LE;
+	ioctl(afd, SNDCTL_DSP_SETFMT, &afmt);
+	if (afmt != AFMT_S16_LE) {
+		fprintf(stderr, "\n%s\n", "Can't get 16 bit DSP, exiting");
+		exit;
+	}
+
+	channels = 2;
+	ioctl(afd, SNDCTL_DSP_CHANNELS, &channels);
+                                                                                
+	// sample rate 
+	rate = 44100;
+	ioctl(afd, SNDCTL_DSP_SPEED,    &rate);
+
+	if (-1 == ioctl(afd, SNDCTL_DSP_GETBLKSIZE,  &blocksize)) {
+		fprintf(stderr, "\n%s\n", "Can't get DSP blocksize, exiting");
+		exit;
+	}
+
+	blocksize*=4;  // allways read 4*blocksize
+	audio_buffer_size = blocksize;
+
+// This doesn't work!! Throws: Resource temporarily unavailable!
+// when reading.
+	// trigger record 
+	trigger = ~PCM_ENABLE_INPUT;
+	ioctl(afd,SNDCTL_DSP_SETTRIGGER,&trigger);
+                                                                               
+	trigger = PCM_ENABLE_INPUT;
+	ioctl(afd,SNDCTL_DSP_SETTRIGGER,&trigger);
+//
+
+	buffer = (char *)malloc(audio_buffer_size);
+
+	while(1) {
+		if (audio_buffer_size != (lastread = read(afd,buffer,audio_buffer_size))) 
+		{
+			fprintf(stderr, "only read %d from %ld bytes from '%s'\n", lastread, audio_buffer_size,
+				audiodevice);
+			perror("read /dev*audiodevice");
+			if (lastread == -1)
+				exit (1);
+		}
+		else {
+			fprintf(stderr, ".");
+			write(ostr, buffer, audio_buffer_size);
+		}
+	}
+}                                                                                
+
+--=-dVm8NL2SFIcS9xu8SKBU--
+

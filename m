@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135981AbRDTSuD>; Fri, 20 Apr 2001 14:50:03 -0400
+	id <S135980AbRDTSun>; Fri, 20 Apr 2001 14:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135980AbRDTSt4>; Fri, 20 Apr 2001 14:49:56 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:38641
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S135978AbRDTSts>; Fri, 20 Apr 2001 14:49:48 -0400
-Date: Fri, 20 Apr 2001 14:48:18 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>,
-        lkml <linux-kernel@vger.kernel.org>, <parisc-linux@parisc-linux.org>
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is
- anyone paying attention?
-In-Reply-To: <20010420112042.Z13403@opus.bloom.county>
-Message-ID: <Pine.LNX.4.33.0104201440580.12186-100000@xanadu.home>
+	id <S135978AbRDTSuX>; Fri, 20 Apr 2001 14:50:23 -0400
+Received: from goat.cs.wisc.edu ([128.105.166.42]:40973 "EHLO goat.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id <S135980AbRDTSuN>;
+	Fri, 20 Apr 2001 14:50:13 -0400
+To: linux-kernel@vger.kernel.org
+Cc: pcroth@cs.wisc.edu, epaulson@cs.wisc.edu
+Subject: Re: BUG: Global FPU corruption in 2.2
+In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>
+From: Victor Zandy <zandy@cs.wisc.edu>
+Date: 20 Apr 2001 13:50:06 -0500
+In-Reply-To: Victor Zandy's message of "19 Apr 2001 11:05:03 -0500"
+Message-ID: <cpx8zkvz9r5.fsf@goat.cs.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Victor Zandy <zandy@cs.wisc.edu> writes:
+> We have found that one of our programs can cause system-wide
+> corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
+> run this program, the FPU gives bad results to all subsequent
+> processes.
 
-On Fri, 20 Apr 2001, Tom Rini wrote:
+We have now tested 2.4.2 and 2.2.19.
 
-> On Fri, Apr 20, 2001 at 12:35:12PM -0400, Nicolas Pitre wrote:
->
-> > Why not having everybody's tree consistent with themselves and have whatever
-> > CONFIGURE_* symbols and help text be merged along with the very code it
-> > refers to?  It's worthless to have config symbols be merged into Linus' or
-> > Alan's tree if the code isn't there (yet).  It simply makes no sense.
->
-> Well, this depends a lot on a) The project to be merged (arch, mtd, whatever)
-> and b) how far something has gotten in being merged someplace else, and of
-> course c) the maintainer(s).  Whatever the exact case, and in general, it
-> should be handled via the maintainer.  Why? They maintain the code.
+2.2.19 has the same problem.
 
-Therefore it's the maintainer's job to submit coherent patches and accept to
-see inconsistent CONFIG_* references be removed from the official tree until
-further patch submission is due.  It's only a question of discipline.
-Otherwise how can you distinguish between dead wood which must be removed
-and potentially valid symbols referring to code existing only in a remote
-tree?
+2.4.3 does not seem to be affected.  Unfortunately, we really need a
+working 2.2 kernel at this time.
 
+We also patched the 2.2.19 kernel with the PIII patch found in
+/pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre13/PIII-10.bz2
+on ftp.kernel.org.  Same problem.
 
-Nicolas
+Does anyone have any ideas for us?
+
+Thanks.
+
+Vic
 

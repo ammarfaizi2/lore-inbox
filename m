@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268370AbTGLTYK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 15:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268376AbTGLTYK
+	id S268364AbTGLT36 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 15:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268380AbTGLT36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 15:24:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17036 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268370AbTGLTYJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 15:24:09 -0400
-Message-ID: <3F1063AD.40206@pobox.com>
-Date: Sat, 12 Jul 2003 15:38:21 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5 'what to expect'
-References: <20030711140219.GB16433@suse.de> <20030712152406.GA9521@mail.jlokier.co.uk> <3F103018.6020008@pobox.com> <20030712112722.55f80b60.akpm@osdl.org> <20030712183929.GA10450@mail.jlokier.co.uk> <3F105B9A.7070803@pobox.com> <20030712193401.GD10450@mail.jlokier.co.uk>
-In-Reply-To: <20030712193401.GD10450@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Jul 2003 15:29:58 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:4756 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S268364AbTGLT35 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 15:29:57 -0400
+Date: Sat, 12 Jul 2003 20:44:32 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Eric Varsanyi <e0206@foo21.com>
+Cc: linux-kernel@vger.kernel.org, davidel@xmailserver.org
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+Message-ID: <20030712194432.GE10450@mail.jlokier.co.uk>
+References: <20030712181654.GB15643@srv.foo21.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030712181654.GB15643@srv.foo21.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> 2.4 fails on write()?  A strace of "rpm --rebuilddb" shows it is
-> opening with O_DIRECT and writing just fine.  Or does that only work
-> with RedHat's 2.4 kernels?
+Eric Varsanyi wrote:
+> 	- epoll_wait() returns a single EPOLLIN event on the FD representing
+> 	  both the 1/2 shutdown state and data available
 
+Correct.
 
-Are you testing on a filesystem where an O_DIRECT is not supported?
+> At this point there is no way the app can tell if there is a half closed
+> connection so it may issue a close() back to the client after writing
+> results. Normally the server would distinguish these events by assuming
+> EOF if it got a read ready indication and the first read returned 0 bytes,
+> or would issue read calls until less data was returned than was asked for.
+> 
+> In a level triggered world this all just works because the read ready
+> indication is driven back to the app as long as the socket state is half
+> closed. The event driven epoll mechanism folds these two indications
+> together and thus loses one 'edge'.
 
-The "it works" case is not an issue.
+Well then, use epoll's level-triggered mode.  It's quite easy - it's
+the default now. :)
 
-	Jeff
+If there's an EOF condition pending after you called read(), and then
+you call epoll_wait(), you _should_ see another EPOLLIN condition
+immediately.
 
+If you aren't seeing epoll_wait() return with EPOLLIN when there's an
+EOF pending, *and* you haven't set EPOLLET in the event flags, that's
+a bug in epoll.  Is that what you're seeing?
 
-
+-- Jamie

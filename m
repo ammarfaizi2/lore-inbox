@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131643AbRCURRz>; Wed, 21 Mar 2001 12:17:55 -0500
+	id <S131702AbRCURRz>; Wed, 21 Mar 2001 12:17:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131702AbRCURRp>; Wed, 21 Mar 2001 12:17:45 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:50075 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131669AbRCURRa>;
-	Wed, 21 Mar 2001 12:17:30 -0500
-Date: Wed, 21 Mar 2001 12:16:47 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlock usage - ext2_get_block, lru_list_lock
-In-Reply-To: <99am8l$8mk$1@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0103211203090.739-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131669AbRCURRq>; Wed, 21 Mar 2001 12:17:46 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15114 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131643AbRCURR1>; Wed, 21 Mar 2001 12:17:27 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: SMP on assym. x86
+Date: 21 Mar 2001 09:16:20 -0800
+Organization: Transmeta Corporation
+Message-ID: <99anl4$8oi$1@penguin.transmeta.com>
+In-Reply-To: <20010321165541.H3514@garloff.casa-etp.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010321165541.H3514@garloff.casa-etp.nl>,
+Kurt Garloff  <garloff@suse.de> wrote:
+>
+>recently upgrading one of my two CPUs, I found kernel-2.4.2 to be unable to
+>handle the situation with 2 different CPUs (AMP =3D Assymmetric
+>multiprocessing ;-) correctly.
 
+This is not really a configuration Linux supports. You can hack it to
+work in many cases, but I'm generally not inclined to make this a an
+issue for me because:
 
-On 21 Mar 2001, Linus Torvalds wrote:
+ - intel explicitly doesn't support it necessarily even in hardware.
+   You're supposed to only mix CPU's of the same stepping within a
+   family, never mind different families.  They sometimes explicitly say
+   which steppings are compatible and can be mixed.
 
-> The big case seems to be ext2_get_block(), we'll fix that early in
-> 2.5.x. I think Al already has patches for it.
+   NOTE! For all I know, this might, for all I know, actually be due to
+   fundamental issues like cache coherency protocol timing or similar.
+   Safe answer: just say no.
 
-Since the last August ;-) Bitmaps handling is a separate story (it got
-less testing) but with the ->gfp_mask in tree it will be much simpler.
-I'll port these patches to current tree if anyone is interested - all
-infrastructure is already there, so it's only code in fs/ext2/* is touched.
+ - The boot CPU under Linux is special, and will be used to determine
+   things like support for 4M pages etc. It will then re-write the page
+   tables to be more efficient. If the other CPU's don't support all the
+   features the boot CPU has, they'll have serious trouble booting up. 
 
-Obext2: <plug>
-Guys, help with testing directories-in-pagecache patch. It works fine
-here and I would really like it to get serious beating.
-Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch-b-S2.gz (against
-2.4.2, but applies to 2.4.3-pre* too).
-</plug>
+   NOTE! I'm not all that interested in trying to complicate the bootup
+   logic to take into account all the differences that can occur.
+   Especially as it only happens on arguably very broken hardware that
+   doesn't meet the specs anyway.
 
-(Linus, if you want me to mail it to you - just tell; comments on the
-style would be _very_ welcome)
+So I'm perfectly happy with you fixing it on your machine, but right now
+I have no incentives to make this a "real" option for a standard kernel.
 
-> As to lseek, that one should probably get the inode semaphore, not the
-> kernel lock. 
+I retain the right to change my mind, as always. Le Linus e mobile.
 
-lseek() is per-file, so ->i_sem seems to be strange... I really don't see
-why do we want a blocking semaphore there - spinlock (heck, even global
-spinlock) should be OK, AFAICS. All we really want is atomic assignment
-for 64bit and atomic += for the same beast.
-							Cheers,
-								Al
-
+		Linus

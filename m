@@ -1,127 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269761AbUJMRqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269762AbUJMRts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269761AbUJMRqi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 13:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269762AbUJMRqi
+	id S269762AbUJMRts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 13:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269766AbUJMRts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 13:46:38 -0400
-Received: from [81.23.229.73] ([81.23.229.73]:64408 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S269761AbUJMRqd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 13:46:33 -0400
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: root@chaos.analogic.com
-Subject: Re: Linux-2.6.8 Hates DOS partitions
-Date: Wed, 13 Oct 2004 19:46:30 +0200
-User-Agent: KMail/1.6.2
-References: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410131946.30070.Norbert@edusupport.nl>
+	Wed, 13 Oct 2004 13:49:48 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:24964
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S269762AbUJMRtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 13:49:43 -0400
+Subject: [patch 1/1] uml: mark broken configs (fixed-up)
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it,
+       zippel@linux-m68k.org
+From: blaisorblade_spam@yahoo.it
+Date: Wed, 13 Oct 2004 19:20:40 +0200
+Message-Id: <20041013172041.2C3C58685@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-msdos==vfat?
-lilo installed in MBR (Unsafe in some situations!!)?
-toggle bootability flag with fdisk (under linux ofcourse)?
 
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>, Roman Zippel <zippel@linux-m68k.org>
+Some configuration options are known not to compile. So then make them
+depend on CONFIG_BROKEN.
 
+In this version, which completely replaces the previous one, posted yesterday
+as "uml: mark broken configs", I do this:
+ menu "SCSI support"
++depends on BROKEN
 
-On Wednesday 13 October 2004 19:31, Richard B. Johnson wrote:
-> Hello DOS haters!
->
-> I used to boot my system as:
->
-> aic7xxx	[SCSI 0]
->  	/dev/sda  LILO boot record
->  	/dev/sda1 DOS drive C:
->  	/dev/sda5 DOS drive D:
->          [SCSI 1]
->  	/dev/sdb1 ext2 root "/"
->  	/dev/sdb2 swap-file
->  	[SCSI 2]
->  	/dev/sdc1 ext3 fs
->  	/dev/sdc2 swap-file
->  	/dev/sdc3 ext3 fs
->
->
-> /dev/sdb1			/		ext2	rw,noatime  0   1
-> /dev/sdc1			/alt		ext2	rw,noatime  0   2
-> /dev/sdb2			none		swap	defaults    0	2
-> /dev/sdc2			none		swap	defaults    0	2
-> /dev/sdc3			/home/users	ext2	rw,noatime  0	2
-> none				/proc		proc	defaults  0	2
-> /dev/sda1			/dos/drive_C	msdos	defaults  0     2
-> /dev/sda5			/dos/drive_D	msdos	defaults  0     2
->
->
-> Then I added a completely different hard-disk to
-> boot the following:
->
-> LABEL=/ (/dev/hda2)     /                       ext3    defaults        1 1
-> none                    /dev/pts                devpts  gid=5,mode=666  0 0
-> none                    /dev/shm                tmpfs   defaults        0 0
-> none                    /proc                   proc    defaults        0 0
-> none                    /sys                    sysfs   defaults        0 0
-> /dev/sdb1		/home/project		ext2	defaults	0 0
-> /dev/sda1		/dos/drive_C		msdos	defaults	0 0
-> /dev/sda5		/dos/drive_D		msdos	defaults	0 0
-> /dev/hda3               swap                    swap    defaults        0 0
-> /dev/sdb2               swap                    swap    defaults        0 0
-> /dev/sdc2               swap                    swap    defaults        0 0
->
-> Only the DOS partitions and the swap are used in this new configuration.
-> This is a new "Fedora Linux 2" installation on a completely
-> different IDE hard disk, in which I have to enable boot disks in
-> the BIOS to boot the new system.
->
-> Immediately after installing the new system I reverted (in the BIOS)
-> to the original to make sure that I was still able to boot the old
-> system and the DOS partition. Everything was fine.
->
-> Then I installed linux-2.6.8 after building a new kernel with
-> the old ".config" file used as `make oldconfig`. Everything was
-> fine after that, also.
->
-> I have now run for about a week and I can't boot the DOS partition
-> anymore! I can boot from a DOS diskette and DOS sees 'C:', but
-> not 'D:'. DOS 'thinks' that C: is bootable but I get "Missing
-> operating system" when it attempts to boot. I have executed
-> `fdisk /mbr`, and `sys C:`, as well as Norton's `ndd`. Everything
-> seems to 'think' that the system should boot. However, it
-> doesn't.
->
-> I can boot Linux from an emergency floppy and re-run LILO to
-> make my first SCSI bootable. It will boot Linux, but not
-> DOS. I can also boot DOS from a floppy and access the
-> "C:" partition, but not the "D:" one.
->
-> It looks like the new operating system, linux-2.6.8, has
-> done something bad when it used my SCSI disks for swap.
->
-> I can copy everything  from C: and D: from within Linux
-> and then re-do the DOS partitions, BUT.... bad stuff
-> will happen again unless the cause is found. I never
-> had any such problem with linux-2.4.26 and below. I
-> could even execute dosemu and run DOS compilers, editors,
-> and assemblers. Not anymore. DOSEMU-1.3.1 won't even
-> compile with the new 'C' compiler, but that's another
-> problem.
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
->              Note 96.31% of all statistics are fiction.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+instead of this:
+
+-menu "SCSI support"
++if BROKEN
++     menu "SCSI support"
+...
++endif
+
+as was requested by Roman Zippel.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ linux-2.6.9-current-paolo/arch/um/Kconfig       |    7 +++++--
+ linux-2.6.9-current-paolo/arch/um/Kconfig_block |    1 +
+ linux-2.6.9-current-paolo/arch/um/Kconfig_net   |    2 +-
+ 3 files changed, 7 insertions(+), 3 deletions(-)
+
+diff -puN arch/um/Kconfig~uml-mark_broken_configs arch/um/Kconfig
+--- linux-2.6.9-current/arch/um/Kconfig~uml-mark_broken_configs	2004-10-13 17:23:55.000000000 +0200
++++ linux-2.6.9-current-paolo/arch/um/Kconfig	2004-10-13 17:26:54.967233056 +0200
+@@ -143,7 +143,6 @@ config SMP
+         will appear to be running simultaneously.  If the host is a
+         multiprocessor, then UML processes may run simultaneously, depending
+         on the host scheduler.
+-        CONFIG_SMP will be set to whatever this option is set to.
+         It is safe to leave this unchanged.
+ 
+ config NR_CPUS
+@@ -179,6 +178,7 @@ config KERNEL_HALF_GIGS
+ 
+ config HIGHMEM
+ 	bool "Highmem support"
++	depends on BROKEN
+ 
+ config KERNEL_STACK_ORDER
+ 	int "Kernel stack size order"
+@@ -226,6 +226,7 @@ source "crypto/Kconfig"
+ source "lib/Kconfig"
+ 
+ menu "SCSI support"
++depends on BROKEN
+ 
+ config SCSI
+ 	tristate "SCSI support"
+@@ -242,6 +243,8 @@ endmenu
+ 
+ source "drivers/md/Kconfig"
+ 
+-source "drivers/mtd/Kconfig"
++if BROKEN
++	source "drivers/mtd/Kconfig"
++endif
+ 
+ source "arch/um/Kconfig.debug"
+diff -puN arch/um/Kconfig_block~uml-mark_broken_configs arch/um/Kconfig_block
+--- linux-2.6.9-current/arch/um/Kconfig_block~uml-mark_broken_configs	2004-10-13 17:23:55.000000000 +0200
++++ linux-2.6.9-current-paolo/arch/um/Kconfig_block	2004-10-13 17:23:55.920452304 +0200
+@@ -54,6 +54,7 @@ config BLK_DEV_INITRD
+ 
+ config MMAPPER
+ 	tristate "Example IO memory driver"
++	depends on BROKEN
+ 	help
+         The User-Mode Linux port can provide support for IO Memory
+         emulation with this option.  This allows a host file to be
+diff -puN arch/um/Kconfig_net~uml-mark_broken_configs arch/um/Kconfig_net
+--- linux-2.6.9-current/arch/um/Kconfig_net~uml-mark_broken_configs	2004-10-13 17:23:55.000000000 +0200
++++ linux-2.6.9-current-paolo/arch/um/Kconfig_net	2004-10-13 17:23:55.920452304 +0200
+@@ -135,7 +135,7 @@ config UML_NET_MCAST
+ 
+ config UML_NET_PCAP
+ 	bool "pcap transport"
+-	depends on UML_NET
++	depends on UML_NET && BROKEN
+ 	help
+ 	The pcap transport makes a pcap packet stream on the host look
+ 	like an ethernet device inside UML.  This is useful for making 
+_

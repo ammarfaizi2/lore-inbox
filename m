@@ -1,53 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVBABVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVBABa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVBABVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 20:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVBABVw
+	id S261454AbVBABa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 20:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVBABaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 20:21:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:19212 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261449AbVBABVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 20:21:50 -0500
-Date: Tue, 1 Feb 2005 02:21:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>
-Subject: [2.6 patch] mm/rmap.c: update the email address of Rik van Riel
-Message-ID: <20050201012148.GF8722@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 31 Jan 2005 20:30:25 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:19842 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261454AbVBABaN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 20:30:13 -0500
+Message-ID: <41FEDAA9.3070504@cwazy.co.uk>
+Date: Mon, 31 Jan 2005 20:26:01 -0500
+From: Jim Nelson <james4765@cwazy.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Laurent Riffard <laurent.riffard@free.fr>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.11-rc2-mm2
+References: <20050129131134.75dacb41.akpm@osdl.org> <7f800d9f05013113157978f158@mail.gmail.com> <41FEA724.1060404@free.fr>
+In-Reply-To: <41FEA724.1060404@free.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [70.16.225.90] at Mon, 31 Jan 2005 19:26:43 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the email address of Rik van Riel in mm/rmap.c from a 
-bouncing address to his current address.
+Laurent Riffard wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Le 31.01.2005 22:15, Andre Eisenbach a écrit :
+> | Andrew,
+> |
+> | My PCMCIA slot (yenta_socket) doesn't work anymore with
+> | 2.6.11-rc2-m2. See the dmesg output below. It works fine with
+> | 2.6.11-rc1-mm1.
+> |
+> | Let me know if you need any additional information.
+> |
+> | Thanks,
+> |     Andre
+> |
+> | --- snipp ---
+> |
+> | Linux Kernel Card Services
+> |   options:  [pci] [cardbus] [pm]
+> | kobject_register failed for pcmcia_core (-17)
+> |  [<c021686b>] kobject_register+0x5b/0x70
+> |  [<c0130620>] mod_sysfs_setup+0x50/0xb0
+> |  [<c0131999>] load_module+0x959/0xaa0
+> |  [<c0131b6b>] sys_init_module+0x5b/0x1a0
+> |  [<c010300d>] sysenter_past_esp+0x52/0x75
+> | rsrc_nonstatic: Unknown symbol release_cis_mem
+> | rsrc_nonstatic: Unknown symbol pcmcia_socket_list
+> | rsrc_nonstatic: Unknown symbol pccard_validate_cis
+> | rsrc_nonstatic: Unknown symbol destroy_cis_cache
+> | rsrc_nonstatic: Unknown symbol pcmcia_socket_list_rwsem
+> | yenta_socket: Unknown symbol dead_socket
+> | yenta_socket: Unknown symbol pcmcia_register_socket
+> | yenta_socket: Unknown symbol pcmcia_socket_dev_resume
+> | yenta_socket: Unknown symbol pcmcia_parse_events
+> | yenta_socket: Unknown symbol pcmcia_socket_dev_suspend
+> | yenta_socket: Unknown symbol pccard_nonstatic_ops
+> | yenta_socket: Unknown symbol pcmcia_unregister_socket
+> | kobject_register failed for pcmcia_core (-17)
+> |  [<c021686b>] kobject_register+0x5b/0x70
+> |  [<c0130620>] mod_sysfs_setup+0x50/0xb0
+> |  [<c0131999>] load_module+0x959/0xaa0
+> |  [<c0131b6b>] sys_init_module+0x5b/0x1a0
+> |  [<c010300d>] sysenter_past_esp+0x52/0x75
+> | pcmcia: Unknown symbol pcmcia_get_socket
+> | pcmcia: Unknown symbol pcmcia_get_window
+> | pcmcia: Unknown symbol pcmcia_suspend_card
+> | pcmcia: Unknown symbol pcmcia_replace_cis
+> [snip]
+> 
+> I had the same type of problem while loading modules.
+> 
+> Fixed this evening by the following patch :
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110715631504335
+> 
+> - --
+> laurent
+> 
 
-This patch was already ACK'ed by Rik van Riel.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc2-mm2-full/mm/rmap.c.old	2005-01-31 22:47:25.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/mm/rmap.c	2005-01-31 22:48:13.000000000 +0100
-@@ -1,7 +1,7 @@
- /*
-  * mm/rmap.c - physical to virtual reverse mappings
-  *
-- * Copyright 2001, Rik van Riel <riel@conectiva.com.br>
-+ * Copyright 2001, Rik van Riel <riel@redhat.com>
-  * Released under the General Public License (GPL).
-  *
-  * Simple, low overhead reverse mapping scheme.
-@@ -11,7 +11,7 @@
-  * the anon methods track anonymous pages, and
-  * the file methods track pages belonging to an inode.
-  *
-- * Original design by Rik van Riel <riel@conectiva.com.br> 2001
-+ * Original design by Rik van Riel <riel@redhat.com> 2001
-  * File methods by Dave McCracken <dmccr@us.ibm.com> 2003, 2004
-  * Anonymous methods by Andrea Arcangeli <andrea@suse.de> 2004
-  * Contributions by Hugh Dickins <hugh@veritas.com> 2003, 2004
-
-
+I can confirm that patch took care of a similar kobject_register failure in tulip 
+on my test machine.

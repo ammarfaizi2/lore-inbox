@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267899AbTBEK1C>; Wed, 5 Feb 2003 05:27:02 -0500
+	id <S267907AbTBEKqg>; Wed, 5 Feb 2003 05:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267902AbTBEK1C>; Wed, 5 Feb 2003 05:27:02 -0500
-Received: from ns.suse.de ([213.95.15.193]:61455 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267899AbTBEK1B>;
-	Wed, 5 Feb 2003 05:27:01 -0500
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: gcc 2.95 vs 3.21 performance
-X-Yow: I Know A Joke
-From: Andreas Schwab <schwab@suse.de>
-Date: Wed, 05 Feb 2003 11:36:32 +0100
-In-Reply-To: <200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua> (Denis
- Vlasenko's message of "Wed, 5 Feb 2003 09:15:48 +0200")
-Message-ID: <jevfzzj9ov.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.3.50 (ia64-suse-linux)
-References: <200302042011.h14KBuG6002791@darkstar.example.net>
-	<3E40264C.5050302@WirelessNetworksInc.com>
-	<200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua>
+	id <S267900AbTBEKqg>; Wed, 5 Feb 2003 05:46:36 -0500
+Received: from web8001.mail.in.yahoo.com ([203.199.70.95]:48999 "HELO
+	web8001.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S267907AbTBEKqg>; Wed, 5 Feb 2003 05:46:36 -0500
+Message-ID: <20030205105605.17754.qmail@web8001.mail.in.yahoo.com>
+Date: Wed, 5 Feb 2003 10:56:05 +0000 (GMT)
+From: =?iso-8859-1?q?Yours=20Lovingly?= <ylovingly@yahoo.co.in>
+Subject: kernel profiling
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+hello, 
+i m trying to use kernel profiling to optimize nfs
+cache performance in 2.4.18. But unfortunately i m
+unable to access sgi's ftp site hosting kernprof.
+But more unfortunately :
+i turned on profiling on the kernel command line with
+profile=2
+but whenever i give a readprofile command, all i get
+is a single line that goes like:
+     0 total                 0.0000
 
-|> I am damn sure that if you compile with less sadistic alignment
-|> you will get smaller *and* faster kernel.
+1. please suggest a way to make readprofile work.
+2. please suggest someother profiling mechanism that
+could be of more help
 
-So why don't you try it out?  GCC offers everything you need for this
-experiment.
+thanks a lot
 
-Andreas.
+abhishek
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+________________________________________________________________________
+Missed your favourite TV serial last night? Try the new, Yahoo! TV.
+       visit http://in.tv.yahoo.com

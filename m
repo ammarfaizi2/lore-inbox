@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbSLaS6D>; Tue, 31 Dec 2002 13:58:03 -0500
+	id <S264706AbSLaS7t>; Tue, 31 Dec 2002 13:59:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264724AbSLaS6D>; Tue, 31 Dec 2002 13:58:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42504 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264716AbSLaS6C>; Tue, 31 Dec 2002 13:58:02 -0500
-Date: Tue, 31 Dec 2002 11:00:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Henderson <rth@twiddle.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [TGAFB] implement the imageblit acceleration hook
-In-Reply-To: <20021231004138.A13860@twiddle.net>
-Message-ID: <Pine.LNX.4.44.0212311100260.2697-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264715AbSLaS7t>; Tue, 31 Dec 2002 13:59:49 -0500
+Received: from main.gmane.org ([80.91.224.249]:50849 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S264706AbSLaS7s>;
+	Tue, 31 Dec 2002 13:59:48 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: NIC with polling support
+Date: Tue, 31 Dec 2002 19:07:21 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <slrnb13qop.bsm.lunz@stoli.localnet>
+References: <87el7yrvso.fsf@Login.CERT.Uni-Stuttgart.DE>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Weimer@CERT.Uni-Stuttgart.DE said:
+> Any suggestions which card I should use?  The driver has to be open
+> source, and the card shouldn't be too expensive (i.e. in the usual
+> price range of brand 100BaseTX NICs).
 
-On Tue, 31 Dec 2002, Richard Henderson wrote:
->
-> Please pull from
-> 
-> 	bk://are.twiddle.net/tgafb-2.5
+linux 2.4.20 supports NAPI for tg3 only. I have patches for e1000,
+3c59x, tulip, and eepro100 at:
 
-Richard, you forgot to restart bkd again. Maybe add it to your 
-initscripts?
+	http://gtf.org/lunz/linux/net/
 
-	bk://are.twiddle.net/tgafb-2.5: Connection refused
+The tulip patch might be a bit outdated. The only one of these patches
+that I've personally tested extensively is e1000, and it works well
+under extremely high interrupt load. e1000 cards are getting cheap
+enough to be considered as 100BaseTX NICs, and they perform well doing
+that.
 
-Heh,
+Napi patches also exist for dl2k and a few other drivers, but I'm not
+sure where.
 
-		Linus
+Jason
+
 

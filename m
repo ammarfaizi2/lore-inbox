@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316446AbSE3HXp>; Thu, 30 May 2002 03:23:45 -0400
+	id <S316459AbSE3IFI>; Thu, 30 May 2002 04:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316444AbSE3HXo>; Thu, 30 May 2002 03:23:44 -0400
-Received: from schwerin.p4.net ([195.98.200.5]:15962 "EHLO schwerin.p4.net")
-	by vger.kernel.org with ESMTP id <S316441AbSE3HXo>;
-	Thu, 30 May 2002 03:23:44 -0400
-Message-ID: <3CF5D424.2060500@p4all.de>
-Date: Thu, 30 May 2002 09:26:28 +0200
-From: Michael Dunsky <michael.dunsky@p4all.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: de, en
+	id <S316463AbSE3IFH>; Thu, 30 May 2002 04:05:07 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:50439 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316459AbSE3IFH>; Thu, 30 May 2002 04:05:07 -0400
+Date: Thu, 30 May 2002 10:04:03 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: missing bit from signal patches
+In-Reply-To: <20020530101848.2ac84805.sfr@canb.auug.org.au>
+Message-ID: <Pine.LNX.4.21.0205300959050.17583-100000@serv>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Peter Chubb <peter@chubb.wattle.id.au>
-Subject: Re: Strange code in ide_cdrom_register
-In-Reply-To: <15605.34861.599803.405864@wombat.chubb.wattle.id.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-Peter Chubb wrote:
- > Hi,
- > 	This code snippet in ide_cdrom_register() seems really
- > strange...
- >
- > 	devinfo->ops = &ide_cdrom_dops;
- > 	devinfo->mask = 0;
- >
- >>>>	*(int *)&devinfo->speed = CDROM_STATE_FLAGS (drive)->current_speed;
- >>>>	*(int *)&devinfo->capacity = nslots;
- >>>
- > 	devinfo->handle = (void *) drive;
- > 	strcpy(devinfo->name, drive->name);
- >
- > devinfo->speed and devinfo->capacity are both ints.  So the casts are
- > just a disaster waiting to happen, if the types of capacity or speed
- > ever change?
+On Thu, 30 May 2002, Stephen Rothwell wrote:
 
-Just take a quick look in drivers/ide/ide-cd.h: values "nslots" and
-"current_speed" are of type "byte", so we need to cast to store them 
-(like that) into the integer-vars. Nothing strange there....
+> The following should allow the affected architectures to build in
+> 2.5.19 as currently there will be two definitions of
+> copy_siginfo_to_user.
 
+There are other build problems. m68k doesn't compile, because siginfo_t is
+defined after the generic include and the inline functions in there access
+that structure. On the other hand I can't put the include after the
+definition, as it depends on other defines in the include.
+I worked around it with some ugly hacks, but a proper fix would be very
+welcome.
 
- > Peter C
- >
-
-ciao
-
-Michael
-
+bye, Roman
 

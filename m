@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288820AbSANGet>; Mon, 14 Jan 2002 01:34:49 -0500
+	id <S288821AbSANGfT>; Mon, 14 Jan 2002 01:35:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288833AbSANGej>; Mon, 14 Jan 2002 01:34:39 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12306 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288820AbSANGea>;
-	Mon, 14 Jan 2002 01:34:30 -0500
-Date: Mon, 14 Jan 2002 04:34:09 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Andres Salomon <dilinger@mp3revolution.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] oom_kill() race?
-In-Reply-To: <20020114053708.GA32597@mp3revolution.net>
-Message-ID: <Pine.LNX.4.33L.0201140433480.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33L.0201140433482.32617@imladris.surriel.com>
-Content-Disposition: INLINE
+	id <S288835AbSANGfL>; Mon, 14 Jan 2002 01:35:11 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64184 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S288821AbSANGfC>; Mon, 14 Jan 2002 01:35:02 -0500
+Date: Sun, 13 Jan 2002 23:36:04 -0700
+Message-Id: <200201140636.g0E6a4b16527@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: nahshon@actcom.co.il
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: SCSI host numbers?
+In-Reply-To: <200201132041.g0DKfeg30866@lmail.actcom.co.il>
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
+	<200201022335.g02NZaj10253@lmail.actcom.co.il>
+	<200201060144.g061i9E09115@vindaloo.ras.ucalgary.ca>
+	<200201132041.g0DKfeg30866@lmail.actcom.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Andres Salomon wrote:
+Itai Nahshon writes:
+> On Sunday 06 January 2002 03:44 am, Richard Gooch wrote:
+> > Where exactly is the host_id for an unregistered host being
+> > remembered?
+> 
+> Sorry for the late reply. I was away from Email for the whole week.
+> 
+> Scsi host numbers (for both regstered and unregistered hosts)
+> are preserved in scsi_host_no_list.
+> 
+> The list is used in the function scsi_register (in drivers/scsi/hosts.c).
+> Same function also adds new hosts to the list.
+> 
+> The list can be initialized (from boot parameters ?) by 
+> the function scsi_host_no_init (drivers/scsi/scsi.c).
 
-> In oom_kill(), is there any chance the task_struct can be unmapped
-> between being returned from select_bad_process() (where the tasklist
-> is locked) and where it walks the tasklist again, looking for threads?
+Ah, yes. That was a patch someone sent to me years ago, and got
+included in the jumbo devfs patch. There's a boot parameter which
+allows you to control the allocation of host numbers.
 
-Indeed you're right.  Thanks for the patch!
+So how about in scsi_host_no_init() we call alloc_unique_number() N
+times until we've allocated the required number of host numbers for
+manual control. These will never be freed. Then all other host
+allocations can be done dynamically. We would just need a flag in the
+host structure to disable deallocation of the number if it's one of
+the reserved numbers.
 
-regards,
+				Regards,
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

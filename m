@@ -1,34 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267269AbUHSTCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUHSTEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267269AbUHSTCk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267278AbUHSTCk
+	id S267278AbUHSTEy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbUHSTEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:02:40 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:7301 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267269AbUHSTCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:02:35 -0400
-Subject: Re: [PATCH] Firmware Loader is orphan
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <200408191558.i7JFwxw0004307@laptop14.inf.utfsm.cl>
-References: <200408191558.i7JFwxw0004307@laptop14.inf.utfsm.cl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092938397.28370.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 19 Aug 2004 18:59:58 +0100
+	Thu, 19 Aug 2004 15:04:54 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:56290 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S267285AbUHSTDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:03:51 -0400
+Date: Thu, 19 Aug 2004 21:03:50 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: i_blocks overflow
+Message-ID: <Pine.LNX.4.58.0408192056490.23100@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-19 at 16:58, Horst von Brand wrote:
-> I's move the data (at least the name) to a THANKS (or some such) file for
-> people who left as maintainers (for whatever reason). I think they deserve
-> our lasting gratitude.
+Hi
 
-CREDITS ?
+Maximum file size on Linux is 2^41-2049.
+What happens when you create file so large and overflow i_blocks
+variable? (because that file will use more than 2^32 blocks, there are
+indirect blocks too) There seems to be no check for that in
+inode_add_bytes.
 
+This bug applies to both 2.4 and 2.6.
+
+Does anybody have so large raid to try it?
+
+Mikulas

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267138AbSLaCUk>; Mon, 30 Dec 2002 21:20:40 -0500
+	id <S267131AbSLaCXx>; Mon, 30 Dec 2002 21:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267139AbSLaCUk>; Mon, 30 Dec 2002 21:20:40 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49668 "EHLO
+	id <S267132AbSLaCXx>; Mon, 30 Dec 2002 21:23:53 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50180 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267138AbSLaCUj>; Mon, 30 Dec 2002 21:20:39 -0500
-Date: Mon, 30 Dec 2002 21:27:01 -0500 (EST)
+	id <S267131AbSLaCXw>; Mon, 30 Dec 2002 21:23:52 -0500
+Date: Mon, 30 Dec 2002 21:30:12 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@digeo.com>
 cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.53 : modules_install warnings 
-In-Reply-To: <20021229062833.09C3F2C07F@lists.samba.org>
-Message-ID: <Pine.LNX.3.96.1021230212600.8353B-100000@gatekeeper.tmr.com>
+Subject: Re: [PATCH] more deprectation bits
+In-Reply-To: <3E0F6F64.DDE742A3@digeo.com>
+Message-ID: <Pine.LNX.3.96.1021230212733.8353C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Dec 2002, Rusty Russell wrote:
+On Sun, 29 Dec 2002, Andrew Morton wrote:
 
-> In message <Pine.LNX.4.44.0212281758230.839-100000@linux-dev> you write:
-> > Hello all,
-> >   I received the following warnings while a 'make modules_install'. It 
-> > looks like there are a few more locking changes that need to be made. :)
-> 
-> This is SMP, right?  Those warnings are perfectly correct (yes, those
-> files need updating).
+> We shouldn't generate tons of bogus warnings for something which
+> everyone knows about anyway.
 
-Any guess when you'll get them fixed?
+You could make the argument that we don't need to generate ANY bogus
+warnings. For anything.
+
+My feeling on the issue, there are lots of things in the to-do queue,
+filling logs with warnings is a good way to get even more "what does this
+warning mean" messages to the list and newsgroups.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbULNUQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbULNUSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbULNUQD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 15:16:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbULNUQD
+	id S261643AbULNUSa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 15:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbULNUS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 15:16:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6796 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261641AbULNUPN (ORCPT
+	Tue, 14 Dec 2004 15:18:29 -0500
+Received: from smtp.e7even.com ([83.151.192.5]:26320 "HELO smtp.e7even.com")
+	by vger.kernel.org with SMTP id S261643AbULNUSC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 15:15:13 -0500
-Date: Tue, 14 Dec 2004 12:15:13 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about memcpy_fromio prototype
-In-Reply-To: <20041214195855.GU27199@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0412141209150.3279@ppc970.osdl.org>
-References: <20041214195855.GU27199@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Dec 2004 15:18:02 -0500
+Subject: Re: file as a directory
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+In-Reply-To: <41BF21BC.1020809@namesys.com>
+References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>
+	 <41ACA7C9.1070001@namesys.com>
+	 <1103043518.21728.159.camel@pear.st-and.ac.uk>
+	 <41BF21BC.1020809@namesys.com>
+Content-Type: text/plain
+Message-Id: <1103059622.2999.17.camel@grape.st-and.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Dec 2004 21:27:03 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-12-14 at 17:24, Hans Reiser wrote:
+> Peter, I think you are right, though it might be useful to have the 
+> default be dirname/..../glued and to allow users to link 
+> dirname/..../filebody to 
+> dirname/..../something_else_if_they_want_it_to_not_be_glued, and to have 
+> dirname/..../filebody or whatever it is linked to be what they get if 
+> they read the directory as a file.
 
+Yes. I assume you mean that dirname in itself should always be
+interpreted as dirname/..../glued, which by default would be a linked to
+dirname/..../filebody, the latter being the file content, right?
 
-On Tue, 14 Dec 2004, Matthew Wilcox wrote:
-> 
-> Hi Linus.  On x86 and ia64, memcpy_fromio is protoyped as:
-> 
-> static inline void memcpy_fromio(void *dst, volatile void __iomem *src, int count)
-> 
-> ALSA does this (except on x86 and sparc32, so you don't see it):
-> 
-> int copy_to_user_fromio(void __user *dst, const void __iomem *src, size_t count)
-> [...]
->                 memcpy_fromio(buf, src, c);
-> 
-> which provokes a warning from gcc that we're discarding a qualifier (the
-> 'const') from src.  Is ALSA just wrong?  Or is the 'volatile' wrong?
+Also, a pseudofile (e.g. dirname/..../structure ?) could be used to
+specify how the files should be glued together. A simple question is,
+for instance, what separators to use between the components, and what
+ordering to use when putting the component objects together. (This
+pseudofile could also determine more complicated ways of composing
+objects.) 
 
-Neither. The right thing for a read-only IO pointer is actually
+The component objects themselves could be full objects, so they
+themselves could have sub-components.
+ Peter
 
-	const volatile void __iomem *
-
-which looks funny ("const volatile"?) but makes sense for prototypes,
-exactly because a "const volatile" pointer is the most permissive kind of
-pointer there is. And it actually does describe the thing perfectly: it is
-"const" because we don't write to it ("const" in C does not mean that the
-thing is constant, and never has, confusing name and some C++ semantic
-changes aside) and obviously as an IO area it's both "volatile" and
-"__iomem".
-
-On x86, readb/w/l already gets that right, so I'll just fix
-memcpy_fromio(). Other architectures can sort out themselves (ppc64 is
-already correct, at least for eeh).
-
-		Linus

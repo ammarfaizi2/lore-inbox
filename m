@@ -1,41 +1,49 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154116AbPGVCTA>; Wed, 21 Jul 1999 22:19:00 -0400
-Received: by vger.rutgers.edu id <S154035AbPGVCSj>; Wed, 21 Jul 1999 22:18:39 -0400
-Received: from gw.simegen.com ([203.2.135.4]:4450 "EHLO gw.simegen.com") by vger.rutgers.edu with ESMTP id <S153976AbPGVCSb>; Wed, 21 Jul 1999 22:18:31 -0400
-Message-ID: <37967F3F.5F3CC5A1@zeor.simegen.com>
-Date: Thu, 22 Jul 1999 12:17:35 +1000
-From: Dancer <dancer@zeor.simegen.com>
-X-Mailer: Mozilla 4.6 [en] (Win98; I)
-X-Accept-Language: en
+Received: by vger.rutgers.edu via listexpand id <S154714AbPGXByg>; Fri, 23 Jul 1999 21:54:36 -0400
+Received: by vger.rutgers.edu id <S154303AbPGXByQ>; Fri, 23 Jul 1999 21:54:16 -0400
+Received: from MERCURY.CS.UREGINA.CA ([142.3.200.53]:5553 "EHLO MERCURY.CS.UREGINA.CA") by vger.rutgers.edu with ESMTP id <S154306AbPGXByF>; Fri, 23 Jul 1999 21:54:05 -0400
+Date: Fri, 23 Jul 1999 19:54:00 -0600 (CST)
+From: Kamran Karimi <karimi@cs.uregina.ca>
+To: linux-kernel@vger.rutgers.edu
+Subject: DIPC for PowerPC, MIPS, and SPARC
+Message-ID: <Pine.SGI.3.91.990723194928.18857R-100000@MERCURY.CS.UREGINA.CA>
 MIME-Version: 1.0
-To: "Theodore Y. Ts'o" <tytso@mit.edu>
-CC: Lars Kellogg-Stedman <lars@bu.edu>, Nomad the Wanderer <nomad@orci.com>, linux-kernel <linux-kernel@vger.rutgers.edu>
-Subject: Re: Device naming???
-References: <199907212041.QAA10609@tsx-prime.MIT.EDU>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-"Theodore Y. Ts'o" wrote:
-> 
-> The other solution for avoiding problems if a specific SCSI drive fails
-> to spin up is to use entries in /etc/fstab of the following form:
-> 
-> LABEL=tmp              /tmp                     ext2    defaults 1 2
-> UUID=3a30d6b4-08a5-11d3-91c3-e1fc5550af17  /usr ext2    defaults 1 2
-> 
-> The latest mount supports this, as does the very latest e2fsprogs
-> release (1.15, just released this week; see the e2fsprogs page at
-> http://web.mit.edu/tytso/www/linux/e2fsprogs.html).
+Hi,
 
-Where's the UUID stored? On the drive? Wouldn't this cause problems with
-systems involving hot-swap drives? (Ie: If a scratch drive fails (as
-many have), and I go 'eek!', swap it and reboot, the drive UUID would be
-different and I'd also have to edit the fstab, right?)
+ I did a blind port of DIPC (http://wallybox.cei.net/dipc) to SPARC and 
+PowerPC processors. Here blind means that due to the lack of equipment, I 
+have not done any tests, not even a kernel compile. Ralf Baechle did the 
+port to MIPS and it has been compiled successfully. I would be grateful if
+someone on this list could test the patch, available by anonymous FTP
+from orion.cs.uregina.ca /pub/dipc. More adventurous people can test the
+whole system (available from the same place). You should be able to mix 32 
+bit machines in the same DIPC cluster. Contact me if you have any 
+questions or problems. The following is the readme file accompanying 
+the new patch. 
 
-Just checking...for my own information.
+The file dipc-patch-1.1d.gz was prepared against a 2.2.10 linux
+kernel. It is based on the DIPC 1.1c kernel patch and has the following
+additions:
+ 
+ *) The port to MIPS by Ralf Baechle (not tested in a cluster)
+ *) The port to SPARC (blind, not compiled on target machine)
+ *) The port to PowerPC (blind, not compiled on target machine)
+ *) Some memory management modifications as proposed by David Miller (This
+    might have introduced bugs into DIPC's shared memory subsystem)
 
-D
+ The rest of the package, including the user-space dameon dipcd, some tools
+and example programs, and also the documentation of DIPC, can be found in
+the file dipc-1.1c.tgz.
+
+ Please test the patch, and if possible the whole system in a cluster, and
+report the results to me or to linux-dipc@wallybox.cei.net.
+
+-Kamran Karimi
+
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

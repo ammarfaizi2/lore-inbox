@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVAUPJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVAUPMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbVAUPJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 10:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAUPJ3
+	id S262382AbVAUPMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 10:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAUPMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 10:09:29 -0500
-Received: from mail.suse.de ([195.135.220.2]:15770 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262383AbVAUPJZ (ORCPT
+	Fri, 21 Jan 2005 10:12:25 -0500
+Received: from ns.suse.de ([195.135.220.2]:45220 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262382AbVAUPMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 10:09:25 -0500
-Subject: [trivial patch] fs/mbcache.c: Remove an unused wait queue variable
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1106320163.19651.13.camel@winden.suse.de>
+	Fri, 21 Jan 2005 10:12:22 -0500
+Date: Fri, 21 Jan 2005 16:12:18 +0100
+From: Andi Kleen <ak@suse.de>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix put_user under mmap_sem in sys_get_mempolicy()
+Message-ID: <20050121151218.GA21389@wotan.suse.de>
+References: <41F116DB.3BA37CEB@tv-sign.ru> <20050121142908.GA3487@wotan.suse.de> <41F12773.AAC62D5C@tv-sign.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 21 Jan 2005 16:09:23 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F12773.AAC62D5C@tv-sign.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Jan 21, 2005 at 07:01:55PM +0300, Oleg Nesterov wrote:
+> Andi Kleen wrote:
+> >
+> > I suppose this simpler patch has the same effect (also untested).
+> >
+> > 	if (flags & ~(unsigned long)(MPOL_F_NODE|MPOL_F_ADDR))
+> > 		return -EINVAL;
+> >@@ -502,6 +502,10 @@
+> > 			pol = vma->vm_ops->get_policy(vma, addr);
+> > 		else
+> > 			pol = vma->vm_policy;
+> >+		pol2 = mpol_copy(pol);
+> >+		up_read(&mm->mmap_sem);
+> >+		if (IS_ERR(pol2)) 
+> >+			return PTR_ERR(pol2);
+> >
+> 
+> I don't think so. With MPOL_F_ADDR|MPOL_F_NODE sys_get_mempolicy
+> calls lookup_node()->get_user_pages() few lines below, so we can't
+> up_read(&mm->mmap_sem) here.
 
-This one slipped me. The "real" wait queue is defined some lines further
-down inside the loop.
+True.
 
-In the future, where should I best send trivial tings like this? Thank
-you!
+> 
+> > It's hard to figure out what your patch actually does because
+> > of all the gratious white space changes.
+> 
+> For your convenience here is the code with the patch applied.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Looks reasonable. 
 
-Index: linux-2.6.11-latest/fs/mbcache.c
-===================================================================
---- linux-2.6.11-latest.orig/fs/mbcache.c
-+++ linux-2.6.11-latest/fs/mbcache.c
-@@ -554,8 +554,6 @@ static struct mb_cache_entry *
- __mb_cache_entry_find(struct list_head *l, struct list_head *head,
- 		      int index, struct block_device *bdev, unsigned int key)
- {
--	DEFINE_WAIT(wait);
--
- 	while (l != head) {
- 		struct mb_cache_entry *ce =
- 			list_entry(l, struct mb_cache_entry,
+-Andi
 
-
-Cheers,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
+P.S.: Again if you really care about these class of deadlocks take a look at
+tasklist_lock.
 

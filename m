@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318062AbSIOOrA>; Sun, 15 Sep 2002 10:47:00 -0400
+	id <S318061AbSIOOpp>; Sun, 15 Sep 2002 10:45:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318065AbSIOOrA>; Sun, 15 Sep 2002 10:47:00 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:11155 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S318062AbSIOOq7>; Sun, 15 Sep 2002 10:46:59 -0400
-Date: Sun, 15 Sep 2002 07:50:19 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] add vmalloc stats to meminfo
-Message-ID: <73286230.1032076218@[10.10.2.3]>
-In-Reply-To: <3D84340A.25ED4C69@digeo.com>
-References: <3D84340A.25ED4C69@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S318062AbSIOOpp>; Sun, 15 Sep 2002 10:45:45 -0400
+Received: from dsl-213-023-039-078.arcor-ip.net ([213.23.39.78]:19328 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318061AbSIOOpo>;
+	Sun, 15 Sep 2002 10:45:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Date: Sun, 15 Sep 2002 16:53:15 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <E17qRfU-0001qz-00@starship> <20020915020739.A22101@devserv.devel.redhat.com>
+In-Reply-To: <20020915020739.A22101@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17qalv-0000B6-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Some workloads like to eat up a lot of vmalloc space.
+On Sunday 15 September 2002 08:07, Pete Zaitcev wrote:
+> > From: Daniel Phillips <phillips@arcor.de>
+> > Date: Sun, 15 Sep 2002 07:10:00 +0200
 > 
-> Which workloads are those?
+> >[...]
+> > Let's try a different show of hands: How many users would be happier if
+> > they knew that kernel developers are using modern techniques to improve
+> > the quality of the kernel?
 > 
->>  It is often hard to tell
->> whether this is because the area is too small, or just too fragmented.  This
->> makes it easy to determine.
-> 
-> I do not recall ever having seen any bug/problem reports which this patch
-> would have helped to solve.  Could you explain in more detai why is it useful?
+> I do not see how using a debugger improves a quality of the kernel.
 
-Seen on specweb - doubling the size of the vmalloc space made it go
-away, but without any counters, it was all really just guesswork.
+It improves my quality of life, that would be enough by itself.  And
+since I am doing this purely for my own satisfaction at the moment, I
+*will not* waste my time screwing around with 60's tools because
+somebody who is paid whether or not they work productively thinks they
+imbue the kernel with some kind of airy-fairy zen quality.
 
-I am also going to implement per-node slabcache on top of vmalloc,
-as slabs have to be in permanently mapped KVA, but all ZONE_NORMAL
-is on node 0. That's going to put a lot of pressure on the vmalloc
-area.
+Look, we tried the zen state thing.  It didn't work.  Think about the
+madness in the period between 2.3 and 2.4, with one oops after another
+reported to the list, each taking days or weeks to track down.  Sure,
+it allowed Linus and Al to show off their superior powers of cerebration,
+solving the things given only a few lines of oops as a result, but it
+sure fucked everything else up.  As I recall, it wasn't fun at all in
+the end, not for Linus or Al either, and some folks got pretty close
+to burned out.
 
-M.
+The answer to the question "is this sillyness slowing down development
+and reducing the quality of the kernel?" is "yes".  I don't have to
+speculate about that any more, I've seen it enough with my own eyes.
+Now ask yourself who the most productive hackers are today, and ask
+yourself if they are using the good ol zen state blunt edged tools.
 
+> Good thinking and coding does improve kernel quality. Debugger
+> certainly does not help if someone cannot code.
+
+Sorry, but you are full of shit.
+
+-- 
+Daniel

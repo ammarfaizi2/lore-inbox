@@ -1,55 +1,161 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314058AbSDVGZT>; Mon, 22 Apr 2002 02:25:19 -0400
+	id <S314067AbSDVG2X>; Mon, 22 Apr 2002 02:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314059AbSDVGZS>; Mon, 22 Apr 2002 02:25:18 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:11477 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S314058AbSDVGZS>;
-	Mon, 22 Apr 2002 02:25:18 -0400
-Date: Sun, 21 Apr 2002 23:16:15 -0700 (PDT)
-Message-Id: <20020421.231615.129368238.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: marcelo@conectiva.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] TRIVIAL 2.4.19-pre7: smp_call_function not allowed
- from bh
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E16zUc3-0000Rk-00@wagner.rustcorp.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S314068AbSDVG2W>; Mon, 22 Apr 2002 02:28:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9477 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314067AbSDVG2V>;
+	Mon, 22 Apr 2002 02:28:21 -0400
+Message-ID: <3CC3AD8C.630D4B74@zip.com.au>
+Date: Sun, 21 Apr 2002 23:28:28 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: updated writeback patches for 2.5.8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Mon, 22 Apr 2002 13:35:34 +1000
 
-It would be nice to fix this up on every other smp_call_function
-implementation too.  Since this patch is by definition trivial, it
-would be equally trivial to make sure every platform is updated
-properly as well.
+This code is working satisfactorily now.
 
-Please do this before installing the change.
+ext2, the three modes of ext3 and reiserfs are solid.  JFS has also
+been tested - had a bit of a problem with JFS under heavy load, but
+that appears to be unrelated to these changes.  The loop driver
+is much, much happier.  The ramdisk driver is very sick, but that
+is not due to these changes:
 
-Thanks.
+# mke2fs /dev/ram0
+# mount /dev/ram0 /mnt/ram0
+# cp -a /usr/src/dbench /mnt/ram0
+# umount /mnt/ram0
+# e2fsck -fy /dev/ram0		--->>  many, many errors
 
-   --- trivial-2.4.19-pre7/arch/i386/kernel/smp.c.orig	Mon Apr 22 13:21:41 2002
-   +++ trivial-2.4.19-pre7/arch/i386/kernel/smp.c	Mon Apr 22 13:21:41 2002
-   @@ -528,7 +528,7 @@
-     * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-     *
-     * You must not call this function with disabled interrupts or from a
-   - * hardware interrupt handler, you may call it from a bottom half handler.
-   + * hardware interrupt handler or from a bottom half handler.
-     */
-    {
-    	struct call_data_struct data;
-   @@ -544,7 +544,7 @@
-    	if (wait)
-    		atomic_set(&data.finished, 0);
-    
-   -	spin_lock_bh(&call_lock);
-   +	spin_lock(&call_lock);
-    	call_data = &data;
-    	wmb();
-    	/* Send a message to all other CPUs and wait for them to respond */
+Minix and sysvfs are broken - fixing those will happen shortly (there
+doesn't seem to be a mkfs.sysv.  Help.)
+
+It's a very big patch.  That is pretty unavoidable - a large chunk of
+kernel functionality has been removed and new mechanisms (which are
+largely just a revamp of the existing ones) were put in its place.
+
+There's a *ton* of stuff still to be done.  Smaller patches,
+fortunately.  It would help if anyone who reviews these changes could
+check my todo list before larting me - it's probably already in the
+plans.
+
+I haven't done much benchmarking at all - a number of design changes
+still need to be made before tuning and smoothing is appropriate.
+And, really, some VM decisions need to be made.  Generally, throughput
+seems to be improved.
+
+At http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/ the following
+files may be found:
+
+ttd
+
+  The 86-entry todo list.
+
+pagecache-screwup.patch
+
+  Fix ratcache locking bug.
+
+per-cpu-pages.patch
+
+  Fun hack to amortise zone_t.lock costs for Anton's testing. 
+  Not really being proposed for inclusion, but it works well.
+
+dallocbase-10-page_alloc_fail.patch
+
+  Debug stuff.
+
+dallocbase-35-pageprivate_fixes.patch
+
+  Fix JFS compilation
+
+dallocbase-55-ext2_dir.patch
+
+  Teach ext2 to not use directory data outside i_size
+
+dallocbase-60-page_accounting.patch
+
+  Global locked and dirty page accounting
+
+ratcache-pf_memalloc.patch
+
+  Make the rat not consume all memory on the swapout path.
+
+mempool-node.patch
+
+  Make mempool not alter the objects which it is managing
+
+readahead-fixes.patch
+
+  Allow zero-length readahead, make readahead initialisation sane.
+
+unplug-fix.patch
+
+  Might fix a lockup which I observed a single time in a week's heavy
+  thrashing.  Everything died; a process was stuck in
+  get_request_wait() while holding fs locks.  There were many
+  outstanding requests.  Why had I/O not been started?  I assume it was
+  a missing unplug.  Very, very, very hard to reproduce.
+
+dallocbase-70-writeback.patch
+
+  The core writeback stuff.  Removes the buffer LRU and hash table,
+  implements address_space-based writeback.
+
+  Splits half of fs/inode.c into fs/fs-writeback.c.
+  Moves most of the page flag handling out of mm.h into page-flags.h
+  address_space writeback functions in mm/page-writeback.c
+
+dallocbase-80-unused_list.patch
+
+  Remove the buffer unused_list, replace with a mempool.
+
+
+The rest hasn't been tested in two weeks and is probably busted:
+
+dalloc-10-syncalloc_ext3.patch
+dalloc-20-syncalloc_ext2.patch
+
+  Turn on multipage VM writeback for ext2, ext3.
+
+dalloc-30-dellalloc_core.patch
+
+  Delayed allocate core
+
+dalloc-40-ext2.patch
+
+  Implement delayed allocation in ext2
+
+mpage-10-biobits.patch
+
+  BIO support for multipage writeback and readahead
+
+mpage-20-core.patch
+
+  Multipage I/O core
+
+mpage-30-ext2.patch
+
+  Multipage for ext2
+
+mpage-40-ext3.patch
+
+  Teach ext3 about generic_writeback_mapping() interface change.
+
+tuning-10-request.patch
+
+  get_request() starvation fix.
+
+tuning-20-ext2-preread-inode.patch
+
+  ext2 tuning.
+
+tuning-30-read_latency.patch
+
+  Disk read latency hacks.

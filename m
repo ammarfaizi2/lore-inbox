@@ -1,63 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUFFIeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUFFIgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUFFIeu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 04:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUFFIet
+	id S263093AbUFFIgy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 04:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUFFIgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 04:34:49 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:34659 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263089AbUFFIef (ORCPT
+	Sun, 6 Jun 2004 04:36:54 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:3738 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263093AbUFFIgd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 04:34:35 -0400
-Date: Sun, 6 Jun 2004 01:40:25 -0700
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040606014025.1bc75433.pj@sgi.com>
-In-Reply-To: <20040605082647.GQ21007@holomorphy.com>
-References: <20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603221854.25d80f5a.pj@sgi.com>
-	<16576.16748.771295.988065@alkaid.it.uu.se>
-	<20040604090314.56d64f4d.pj@sgi.com>
-	<20040604165601.GC21007@holomorphy.com>
-	<20040604170542.576b4243.pj@sgi.com>
-	<20040605013139.GM21007@holomorphy.com>
-	<20040605010444.6a384e6c.pj@sgi.com>
-	<20040605082647.GQ21007@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Jun 2004 04:36:33 -0400
+Message-ID: <40C2D780.4010009@colorfullife.com>
+Date: Sun, 06 Jun 2004 10:36:16 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: ktech@wanadoo.es, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.7-rc1 breaks forcedeth
+References: <E1BWmws-0005aN-Nw@mb04.in.mad.eresmas.com> <Pine.LNX.4.58.0406051958150.7010@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406051958150.7010@ppc970.osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040503000303040408010009"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> or whatever someone can be arsed to consider a better idea.
+This is a multi-part message in MIME format.
+--------------040503000303040408010009
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If anyone lurking feels the urge to drive this puppy home, jump in.
+Linus Torvalds wrote:
 
-I'm unavailable, and from what I can guess reading between William's
-lines, he's not signed up either.  Be forewarned - it's an area that can
-generate some long lkml threads ;).  Both William and I seem to have an
-ample supply of keystrokes.
+>I suspect that the driver should at the very least make sure to disable
+>any potentially pending interrupts in the "nv_probe()" function. I have no 
+>idea how to do that, but it looks like something like
+>
+>	writel(0, base + NvRegIrqMask);
+>	writel(NVREG_IRQSTAT_MASK, base + NvRegIrqStatus);
+>
+>should probably do it. It would be better to reset the thing completely, 
+>methinks, but whatever.
+>
+>  
+>
+I'll add that, but it's only a partial fix: what if ehci_hcd is loaded 
+before the forcedeth driver?
 
+Luis, could you apply the patch and boot with it? It should print 
+something like
 
-> a user ABI change in a stable series, would be unfriendly
+forcedeth: irq line 11, Status 0x00000020, Mask 0x00000020
 
-I agree.  While I contemplated such, I don't recall advocating such,
-for the reason you state.  We're stuck at least for now with the
-sched_(set/get)affinity ABI.
+If mask and status are really not zero, then it explains your problems. 
+Additionally I try to reset the nic in nv_probe - there were a few 
+reports seemed to indicate that the nic generates timer interrupts even 
+if the mask is zero.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--
+    Manfred
+
+--------------040503000303040408010009
+Content-Type: text/plain;
+ name="patch-forcedeth-test"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-forcedeth-test"
+
+--- 2.6/drivers/net/forcedeth.c	2004-05-10 04:31:59.000000000 +0200
++++ build-2.6/drivers/net/forcedeth.c	2004-06-06 10:31:43.826368991 +0200
+@@ -1195,16 +1195,13 @@
+ 	enable_irq(dev->irq);
+ }
+ 
+-static int nv_open(struct net_device *dev)
++static void nv_reset(struct net_device *dev)
+ {
+-	struct fe_priv *np = get_nvpriv(dev);
+ 	u8 *base = get_hwbase(dev);
+-	int ret, oom, i;
+ 
+-	dprintk(KERN_DEBUG "nv_open: begin\n");
++	writel(0, base + NvRegIrqMask);
++	writel(NVREG_IRQSTAT_MASK, base + NvRegIrqStatus);
+ 
+-	/* 1) erase previous misconfiguration */
+-	/* 4.1-1: stop adapter: ignored, 4.3 seems to be overkill */
+ 	writel(NVREG_MCASTADDRA_FORCE, base + NvRegMulticastAddrA);
+ 	writel(0, base + NvRegMulticastAddrB);
+ 	writel(0, base + NvRegMulticastMaskA);
+@@ -1215,6 +1212,20 @@
+ 	writel(0, base + NvRegUnknownTransmitterReg);
+ 	nv_txrx_reset(dev);
+ 	writel(0, base + NvRegUnknownSetupReg6);
++	pci_push(base);
++}
++
++static int nv_open(struct net_device *dev)
++{
++	struct fe_priv *np = get_nvpriv(dev);
++	u8 *base = get_hwbase(dev);
++	int ret, oom, i;
++
++	dprintk(KERN_DEBUG "nv_open: begin\n");
++
++	/* 1) erase previous misconfiguration */
++	/* 4.1-1: stop adapter: ignored, 4.3 seems to be overkill */
++	nv_reset(dev);
+ 
+ 	/* 2) initialize descriptor rings */
+ 	np->in_shutdown = 0;
+@@ -1506,6 +1517,11 @@
+ 	writel(0, base + NvRegWakeUpFlags);
+ 	np->wolenabled = 0;
+ 
++printk(KERN_ERR "forcedeth: irq line %d, Status 0x%8x, Mask %0x8x\n",
++		       		pci_dev->irq, readl(base + NvRegIrqStatus),
++				readl(base + NvRegIrqMask));
++	nv_reset(dev);
++
+ 	np->tx_flags = cpu_to_le16(NV_TX_LASTPACKET|NV_TX_LASTPACKET1|NV_TX_VALID);
+ 	if (id->driver_data & DEV_NEED_LASTPACKET1)
+ 		np->tx_flags |= cpu_to_le16(NV_TX_LASTPACKET1);
+
+--------------040503000303040408010009--

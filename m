@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUD2ACh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUD2AEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUD2ACh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 20:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUD2ACh
+	id S262085AbUD2AEV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 20:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUD2AEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 20:02:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32953 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262079AbUD2ACg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 20:02:36 -0400
-Date: Wed, 28 Apr 2004 20:02:21 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Marc Boucher <marc@linuxant.com>
-cc: Timothy Miller <miller@techsource.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <975460FA-994A-11D8-85DF-000A95BCAC26@linuxant.com>
-Message-ID: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com>
+	Wed, 28 Apr 2004 20:04:20 -0400
+Received: from mail.fastclick.com ([205.180.85.17]:24040 "EHLO
+	mail.fastclick.net") by vger.kernel.org with ESMTP id S262085AbUD2AEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 20:04:15 -0400
+Message-ID: <4090467E.4070709@fastclick.com>
+Date: Wed, 28 Apr 2004 17:04:14 -0700
+From: "Brett E." <brettspamacct@fastclick.com>
+Reply-To: brettspamacct@fastclick.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: brettspamacct@fastclick.com
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+References: <409021D3.4060305@fastclick.com>
+In-Reply-To: <409021D3.4060305@fastclick.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Apr 2004, Marc Boucher wrote:
+Brett E. wrote:
 
-> At the same time, I think that the "community" should, without 
-> relinquishing its principles, be less eager before getting the facts to 
-> attack people and companies trying to help in good faith, and be more 
-> realistic when it comes to satisfying practical needs of ordinary 
-> users.
+> Same thing happens on 2.4.18.
+> 
+> I attached sar, slabinfo and /proc/meminfo data on the 2.6.5 machine.  I 
+> reproduce this behavior by simply untarring a 260meg file on a 
+> production server, the machine becomes sluggish as it swaps to disk. Is 
+> there a way to limit the cache so this machine, which has 1 gigabyte of 
+> memory, doesn't dip into swap?
+> 
+> Thanks,
+> 
+> Brett
+> 
 
-I wouldn't be averse to changing the text the kernel prints
-when loading a module with an incompatible license. If the
-text "$MOD_FOO: module license '$BLAH' taints kernel." upsets
-the users, it's easy enough to change it.
+I created a hack which allocates memory causing cache to go down, then 
+exits, freeing up the malloc'ed memory. This brings free memory up by 
+400 megs and brings the cache down to close to 0, of course the cache 
+grows right afterwards. It would be nice to cap the cache datastructures 
+in the kernel but I've been posting about this since September to no 
+avail so my expectations are pretty low.
 
-How about the following?
+Here's the code:
 
-"Due to $MOD_FOO's license ($BLAH), the Linux kernel community
-cannot resolve problems you may encounter. Please contact
-$MODULE_VENDOR for support issues."
+#define ALLOC_SIZE 1024*1024
+#define NUM_ALLOC 400
+
+int main() {
+     char* ptr;
+     int i,j;
+
+     for(i=0;i<NUM_ALLOC;i++) {
+         ptr = (void*)malloc(ALLOC_SIZE);
+         for(j=0;j<ALLOC_SIZE;j+=512) {
+                 ptr[j]=0;
+         }
+     }
+
+     return 0;
+}
 
 
+...
+Maybe I can make it a hack of all hacks and have it parse out "Cached" 
+from /proc/meminfo and allocate that many bytes.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132311AbRA0UBD>; Sat, 27 Jan 2001 15:01:03 -0500
+	id <S135416AbRA0UDn>; Sat, 27 Jan 2001 15:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135381AbRA0UAs>; Sat, 27 Jan 2001 15:00:48 -0500
-Received: from shomer.lee.k12.nc.us ([207.4.71.118]:28938 "EHLO lee.k12.nc.us")
-	by vger.kernel.org with ESMTP id <S132311AbRA0UAe>;
-	Sat, 27 Jan 2001 15:00:34 -0500
-From: "Ryan Hairyes" <rhairyes@lee.k12.nc.us>
-To: <linux-kernel@vger.kernel.org>
-Date: Sat, 27 Jan 2001 20:58:51 +0000 (GMT)
-Organization: Lee County Schools
-X-Mailer: ObsidianSystems-OcsEmail1-0-30 brewed at www.obsidian.co.za
-Reply-to: rhairyes@lee.k12.nc.us
-Message-ID: <98062913115550-27145815550rhairyes@lee.k12.nc.us>
-Subject: kernel boot problems
+	id <S135417AbRA0UDd>; Sat, 27 Jan 2001 15:03:33 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:16140
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S135416AbRA0UDW>; Sat, 27 Jan 2001 15:03:22 -0500
+Date: Sat, 27 Jan 2001 11:59:22 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: jacob@chaos2.org, linux-kernel@vger.kernel.org
+Subject: Re: hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete
+ Error }
+In-Reply-To: <20010127141730.C27929@suse.de>
+Message-ID: <Pine.LNX.4.10.10101271159000.25130-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Sat, 27 Jan 2001, Jens Axboe wrote:
 
-I was wondering if someone might be able to help me.
-I have just compiled my kernel and set it up on a floppy
-to boot off a disk.  I have it then use an image file to uncompress
-and get the filesystem off ,etc.  Well when it boots it says it has
-uncompressed the filesystem image and then gives me this:
-Mounted Root (ext2 filesystem) readonly
-Freeing unused kernel memory: 212K freed
-Warning: unable to open an initial console
-Kernel panic: no init found. Try passing init= option to the kernel.
+> On Sat, Jan 27 2001, Andre Hedrick wrote:
+> > > I've been getting this during the boot sequence for quite some time now.
+> > > They don't seem to impact the functionality of the drive any though.  Just
+> > > another extra-verbose kernel message I should ignore?  :)
+> > > 
+> > > (This is from the 2.4.1-pre10 btw.)
+> > > 
+> > > hdd: CD-ROM TW 120D, ATAPI CD/DVD-ROM drive
+> > > hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+> > > hdd: set_drive_speed_status: error=0x04
+> > 
+> > Means your device did not like that command and barfed.
+> > status=0x51, error=0x04 == command aborted next....
+> 
+> My gut tells me that this is the 'get last written' command, and even
+> with the quiet flag we get the IDE error status printed. Could you
+> try and add
+> 
+> 	goto use_toc;
+> 
+> add the top of drivers/cdrom/cdrom.c:cdrom_get_last_written() and
+> see if that makes the error disappear?
 
-I know that I have init on the image, so what could I be doing wrong.
-It is probably something stupid that I am overlooking, but I thank you in
-advance.
-              
-Ryan                     
+It is an ATA command not ATAPI.
+
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264521AbSIVUo3>; Sun, 22 Sep 2002 16:44:29 -0400
+	id <S264529AbSIVUrK>; Sun, 22 Sep 2002 16:47:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264522AbSIVUo3>; Sun, 22 Sep 2002 16:44:29 -0400
-Received: from smtpout.mac.com ([204.179.120.97]:7380 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S264521AbSIVUo2>;
-	Sun, 22 Sep 2002 16:44:28 -0400
-Date: Sun, 22 Sep 2002 20:55:39 +0200
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: ingo Molnar <mingo@redhat.com>
-To: linux-kernel@vger.kernel.org
-From: Peter Waechtler <pwaechtler@mac.com>
-Content-Transfer-Encoding: 7bit
-Message-Id: <E2E1F730-CE5C-11D6-8873-00039387C942@mac.com>
-X-Mailer: Apple Mail (2.482)
+	id <S264538AbSIVUrK>; Sun, 22 Sep 2002 16:47:10 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:7552 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264529AbSIVUrH>;
+	Sun, 22 Sep 2002 16:47:07 -0400
+Date: Sat, 21 Sep 2002 23:12:51 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp updates
+Message-ID: <20020921211251.GA31803@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > The true cost of M:N shows up when threading is actually used
- > for what it's intended to be used :-)
+Hi!
 
- > M:N's big mistakes is that it concentrates on what
- > matters the least: useruser context switches.
+Small updates to documentation, sanity checks turned into BUG_ONs to
+save space, fix recovery on resume error. Please apply,
 
-Well, from the perspective of the kernel, userspace is a black box.
-Is that also true for kernel developers?
+							Pavel
 
-If you, as an application engineer, decide to use a multithreaded
-design, it could be a) you want to learn or b) have some good
-reasons to choose that.
 
-Having multiple threads doing real work including IO means more
-blocking IO and therefore more context switches. One reason to
-choose threading is to _not_ have to use select/poll in app code.
-If you gather more IO requests and multiplex them with select/poll
-the chances are higher that the syscall returns without context
-switch. Therefore you _save_ some real context switches with
-useruser context switches.
+--- clean/Documentation/swsusp.txt	2002-07-09 04:54:06.000000000 +0200
++++ linux-swsusp/Documentation/swsusp.txt	2002-09-13 19:12:59.000000000 +0200
+@@ -148,7 +148,7 @@
+   corrupts the virtual console of X.. (Maybe this has been fixed AFAIK).
+ 
+ Drivers we support
+-- IDE disks are okay
++- IDE disks are okay... Were okay before Andre's ide came back.
+ - vesafb
+ 
+ Drivers that need support
+@@ -156,6 +156,23 @@
+ - do IDE cdroms need some kind of support?
+ - IDE CD-RW -- how to deal with that?
+ 
++FAQ:
++
++Q: well, suspending a server is IMHO a really stupid thing,
++but... (Diego Zuccato):
++
++A: You bought new UPS for your server. How do you install it without
++bringing machine down? Suspend to disk, rearrange power cables,
++resume.
++
++You have your server on UPS. Power died, and UPS is indicating 30
++seconds to failure. What do you do? Suspend to disk.
++
++Ethernet card in your server died. You want to replace it. Your
++server is not hotplug capable. What do you do? Suspend to disk,
++replace ethernet card, resume. If you are fast your users will not
++even see broken connections.
++
+ Any other idea you might have tell me!
+ 
+ Contacting the author
+--- clean/kernel/suspend.c	2002-09-21 13:20:46.000000000 +0200
++++ linux-swsusp/kernel/suspend.c	2002-09-21 13:25:41.000000000 +0200
+@@ -472,16 +472,17 @@
+ 	int pfn;
+ 	struct page *page;
+ 	
+-	if (max_mapnr != num_physpages)
+-		panic("mapnr is not expected");
++	BUG_ON (max_mapnr != num_physpages);
+ 	for (pfn = 0; pfn < max_mapnr; pfn++) {
+ 		page = pfn_to_page(pfn);
+ 		if (PageHighMem(page))
+ 			panic("Swsusp not supported on highmem boxes. Send 1GB of RAM to <pavel@ucw.cz> and try again ;-).");
++
+ 		if (!PageReserved(page)) {
+ 			if (PageNosave(page))
+ 				continue;
+ 
++
+ 			if ((chunk_size=is_head_of_free_region(page))!=0) {
+ 				pfn += chunk_size - 1;
+ 				continue;
+@@ -774,9 +785,10 @@
+ 	BUG_ON (nr_copy_pages_check != nr_copy_pages);
+ 	BUG_ON (pagedir_order_check != pagedir_order);
+ 
++	__flush_tlb_global();		/* Even mappings of "global" things (vmalloc) need to be fixed */
++
+ 	PRINTK( "Freeing prev allocated pagedir\n" );
+ 	free_suspend_pagedir((unsigned long) pagedir_save);
+-	__flush_tlb_global();		/* Even mappings of "global" things (vmalloc) need to be fixed */
+ 	drivers_resume(RESUME_ALL_PHASES);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 
+@@ -807,12 +819,10 @@
+ 
+ 	barrier();
+ 	mb();
+-	drivers_resume(RESUME_PHASE2);
+ 	spin_lock_irq(&suspend_pagedir_lock);	/* Done to disable interrupts */ 
+ 	mdelay(1000);
+ 
+ 	free_pages((unsigned long) pagedir_nosave, pagedir_order);
+-	drivers_resume(RESUME_PHASE1);
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
+ 	PRINTK(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
+@@ -1035,6 +1045,7 @@
+ 	return 0;
+ #endif
+ 	printk(KERN_CRIT "%sWarning %s: Fixing swap signatures unimplemented...\n", name_resume, resume_file);
++	return 0;
+ }
+ 
+ extern kdev_t __init name_to_kdev_t(const char *line);
 
-Don't make the mistake to think too much about the optimal case.
-(as Linus told us: optimize for the _common_ case :)
-
-You think that one should have an almost equal number of threads
-and processors. This is unrealistic despite some server apps
-running on +4(8?) way systems. With this assumption nobody would
-write a multithreaded desktop app (>90% are UP).
-
-The effect of M:N on UP systems should be even more clear. Your
-multithreaded apps can't profit of parallelism but they do not
-add load to the system scheduler. The drawback: more syscalls
-(I think about removing the need for
-flags=fcntl(GETFLAGS);fcntl(fd,NONBLOCK);write(fd);fcntl(fd,flags))
-
-Until we have some numbers we can't say which approach is better.
-I'm convinced that apps exist that run better on one and others
-on the other.
-
-AIX and Irix deploy M:N - I guess for a good reason: it's more
-flexible and combine both approaches with easy runtime tuning if
-the app happens to run on SMP (the uncommon case).
-
-Your great work at the scheduler and tuning on exit are highly
-appreciated. Both models profit - of course 1:1 much more.
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,93 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUITLI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUITLJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266236AbUITLI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUITLI0
+	id S266216AbUITLJS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUITLJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:08:26 -0400
-Received: from NS-1.e-dict.net ([62.197.1.27]:1763 "EHLO e-dict.net")
-	by vger.kernel.org with ESMTP id S266249AbUITLIA (ORCPT
+	Mon, 20 Sep 2004 07:09:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45718 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266216AbUITLJE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:08:00 -0400
-From: "Ingo Freund" <Ingo.Freund@e-dict.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: three days running fine, then memory allocation errors
-Date: Mon, 20 Sep 2004 13:07:54 +0200
-Message-ID: <NEBBILBHKLDLOMLDGKGNIEKKCIAA.Ingo.Freund@e-dict.net>
+	Mon, 20 Sep 2004 07:09:04 -0400
+Message-ID: <414EBA3A.6010205@redhat.com>
+Date: Mon, 20 Sep 2004 07:08:42 -0400
+From: Neil Horman <nhorman@redhat.com>
+Reply-To: nhorman@redhat.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+CC: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: Is anyone using vmware 4.5 with 2.6.9-rc2-mm1?
+References: <200409191214.47206.norberto+linux-kernel@bensa.ath.cx> <D36064A5-0A5D-11D9-96E1-000D9352858E@linuxmail.org> <414E19DF.4090807@redhat.com> <200409192329.26604.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <200409192329.26604.norberto+linux-kernel@bensa.ath.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Norberto Bensa wrote:
 
-I hope you guys can help, I cannot use any kernel 2.4 >23 without
-the here described problem.
+>Neil Horman wrote:
+>  
+>
+>>Have you accidentally turned down the maximum sized shared memory
+>>segment on your system, making an allocation of shared memory of that
+>>size impossible? 
+>>    
+>>
+>
+>Hm no, I think not; but how do I find that anyways?
+>
+>Many thanks in advance,
+>Norberto
+>  
+>
+The values in /proc/sys/kernel/ that begin with shm defined the 
+boundaries of what you can allocate in term of shared memory.  i'm not 
+sure if their meanings have changed at all from the 2.4 kernel series, 
+so you might have to do some poking at the code to understand them.
+HTH
+Neil
 
-Searching the web for solutions to my problem I have already found 
-a thread in a mailing list but no solution was mentioned, also the 
-guys who talked about the error didn't answer to my direct mail.
-
-The machine is a two xeon cpu database server without any other service 
-except sshd running. I do some tests on the ICP-Vortex GDT controller 
-every 2 minutes by using 
-# cat /proc/scsi/gdt/2
-but the output of cat stops without beeing completed.
-
-This is what I see in the syslog file every time when I use the cat
-command (the messages beginn after 3 days uptime):
---> /var/log/messages
-kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
-
-What do you propose to do for I can get the information I need for 
-longer than three days without reboot? This is a highly used database
-server in production environment.
-
-Kernel version (from /proc/version):
-Linux version 2.4.27 (root@widbrz01) (gcc version 3.3.1 
-
-
-# cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  2118139904 2074345472 43794432        0 151343104 1742090240
-Swap: 6407458816 48291840 6359166976
-MemTotal:      2068496 kB
-MemFree:         42768 kB
-MemShared:           0 kB
-Buffers:        147796 kB
-Cached:        1694548 kB
-SwapCached:       6712 kB
-Active:         223620 kB
-Inactive:      1709760 kB
-HighTotal:     1179628 kB
-HighFree:         2080 kB
-LowTotal:       888868 kB
-LowFree:         40688 kB
-SwapTotal:     6257284 kB
-SwapFree:      6210124 kB
-
-# cat /proc/sys/kernel/shmmax 
-1069547520
-
-# cat /proc/sys/kernel/shmall 
-1073741824
-
-Please let me know if there are any informations you need.
-Thanks in advance for your answer,
-regards
-ingo.
 -- 
-// ---------------------------------------------------------------------
-// e-dict GmbH & Co. KG
-// Ingo Freund         
-// Alter Steinweg 3    
-// D-20459 Hamburg/Germany                E-Mail: Ingo.Freund@e-dict.net
-// ---------------------------------------------------------------------
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/
 

@@ -1,220 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281322AbRKRIkG>; Sun, 18 Nov 2001 03:40:06 -0500
+	id <S281239AbRKRIiR>; Sun, 18 Nov 2001 03:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281454AbRKRIj5>; Sun, 18 Nov 2001 03:39:57 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:37126 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S281322AbRKRIjt>;
-	Sun, 18 Nov 2001 03:39:49 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200111180839.fAI8dg124742@oboe.it.uc3m.es>
-Subject: Re: Raw access to block devices
-In-Reply-To: <20011118081525.50385.qmail@web21106.mail.yahoo.com> from "Roy S.C.
- Ho" at "Nov 18, 2001 00:15:25 am"
-To: "Roy S.C. Ho" <scho1208@yahoo.com>
-Date: Sun, 18 Nov 2001 09:39:42 +0100 (MET)
-Cc: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S281298AbRKRIiG>; Sun, 18 Nov 2001 03:38:06 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:28940 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S281239AbRKRIh6>; Sun, 18 Nov 2001 03:37:58 -0500
+Date: Sun, 18 Nov 2001 08:51:52 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: VM-related Oops: 2.4.15pre1
+Message-ID: <20011118085152.D25232@athlon.random>
+In-Reply-To: <20011118051023.A25232@athlon.random> <Pine.LNX.4.33.0111172220300.1290-100000@penguin.transmeta.com> <20011118073730.C25232@athlon.random> <200111180731.fAI7VFa01371@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200111180731.fAI7VFa01371@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 11:31:15PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Roy S.C. Ho wrote:"
-> Hi Peter, thanks for your help. I found that the
-> control device is only for GETBIND or SETBIND. It
-> seems that the binded devices still have to be char
-> devices. Is there a way to change this?
-> Your help is much appreciated. Thanks.
+On Sat, Nov 17, 2001 at 11:31:15PM -0800, Linus Torvalds wrote:
+> No. It would be a _gcc_ bug if gcc did things to "page->flags" that the
+> code did not ask it to do. And that is _regardless_ of any notions of
+> "strictly conforming C code". The fact is, that if gcc were to clear a
+> bit that the code never clears, that is a HUGE AND GAPING GCC BUG.
 
-I'm afraid I only ever read the code, then wrote a simple user space
-tool to exercise the ioctls, but never got enough time to try it! But
-my impression was that it aimed at controlling the vm system's
-reactions to block-device memory buffers.
+I see what you mean of course (the usual problem is that we never know
+if gcc could make such decision for whatever subtle optimization, asm
+optimizations are all but intuitional). But I just giveup also about the
+other thing of reading from C variables that can change under us. So I'm ok
+assuming gcc does what we expect here too, even if I'd prefer not to.
 
-Here's the test code (rawsetup.c), entirely untested. Copyright me,
-of course. 
+> The fact is, if we write code that leaves a certain bit unmodified, gcc
+> MUST NOT modify that bit. If gcc generated code that temporarily
+> modifies the bit, I can show user-level code that would break with
+> signals. See "sig_atomic_t" and friends - the compiler simply _has_ to
+> guarantee that the semantics you write in C code are actually upheld.
 
+There should be proper macros to handle those userspace sig_atomic_t
+because of that. Anyways I certainly believe there is code playing with
+those types from C by hand :).
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-
-#include <linux/major.h>
-#include <linux/raw.h>
-
-
-
-char *raw_device;
-char *blk_device;
-int mode;
-int fdctl;
-
-static
-int cmdline(int argc, char **argv) {
-    if (argc < 3)
-      return -EINVAL;
-
-    switch (argc) {
-    case 3:
-      mode = RAW_SET_BIND;
-      raw_device = argv[1];
-      blk_device = argv[2];
-      return 0;
-    case 2:
-      mode = RAW_GET_BIND;
-      raw_device = argv[1];
-      return 0;
-    }
-    return -EINVAL;
-}
-
-static
-void usage(void) {
-   fprintf(stderr,"usage: rawsetup <raw_device> <blk_device>\n");
-   fprintf(stderr,"     : rawsetup <raw_device>\n");
-}
-
-int setup() {
-
-   int err;
-   struct stat statbuf;
-
-   fdctl = open("/dev/raw",O_RDWR);
-   if (fdctl < 0) {
-     perror("rawsetup error on open of /dev/raw");
-     return fdctl;
-   }
-   err = fstat(fdctl, &statbuf);
-   if (err < 0) {
-     perror("rawsetup error on stat of /dev/raw");
-     return err;
-   }
-   if (!S_ISCHAR(statbuf.st_rdev)) {
-     fprintf(stderr,"/dev/raw is not a character device\n");
-     return -ENODEV;
-   }
-   if (MAJOR(statbuf.st_rdev) != RAW_MAJOR) {
-     fprintf(stderr,"/dev/raw is not a RAW minor character device\n");
-     return -ENODEV;
-   }
-   if (MINOR(statbuf.st_rdev) != 0) {
-     fprintf(stderr,"/dev/raw is not the RAW control device\n");
-     return -ENODEV;
-   }
-   return 0;
-}
-
-int get() {
-   struct raw_config_request rq;
-   /*        int     raw_minor;
-	   __u64   block_major;
-	   __u64   block_minor;
-    */
-   int err;
-   struct stat statbuf;
-
-   err = stat(raw_device, &statbuf);
-   if (err < 0) {
-     perror("rawsetup error on stat of raw device");
-     return err;
-   }
-   if (!S_ISCHAR(statbuf.st_rdev)) {
-     fprintf(stderr,"%s is not a character device\n", raw_device);
-     return -ENODEV;
-   }
-   if (MAJOR(statbuf.st_rdev) != RAW_MAJOR) {
-     fprintf(stderr,"%s is not a RAW device\n", raw_device);
-     return -ENODEV;
-   }
-   rq.raw_minor = MINOR(statbuf.st_rdev);
-   if (rq.raw_minor <= 0) {
-     fprintf(stderr,"%s is not a RAW minor device\n", raw_device);
-     return -ENODEV;
-   }
-
-   err = ioctl(fdctl,RAW_GETBIND,&rq) ;
-   if (err < 0) {
-     perror("rawsetup error on GETBIND ioctl to /dev/raw");
-     return err;
-   }
-   printf("raw device %s is bound to block device %h:%h\n",
-	rq.raw_major, rq.raw_minor);
-   return 0;
-}
-
-int bind() {
-
-   struct raw_config_request rq;
-   /*        int     raw_minor;
-	   __u64   block_major;
-	   __u64   block_minor;
-    */
-   int err;
-   struct stat statbuf;
-
-   err = stat(raw_device, &statbuf);
-   if (err < 0) {
-     perror("rawsetup error on stat of raw device");
-     return err;
-   }
-   if (!S_ISCHAR(statbuf.st_rdev)) {
-     fprintf(stderr,"%s is not a character device\n", raw_device);
-     return -ENODEV;
-   }
-   if (MAJOR(statbuf.st_rdev) != RAW_MAJOR) {
-     fprintf(stderr,"%s is not a RAW device\n", raw_device);
-     return -ENODEV;
-   }
-   rq.raw_minor = MINOR(statbuf.st_rdev);
-   if (rq.raw_minor <= 0) {
-     fprintf(stderr,"%s is not a RAW minor device\n", raw_device);
-     return -ENODEV;
-   }
-
-   err = stat(blk_device, &statbuf);
-   if (err < 0) {
-     perror("rawsetup error on stat of block device");
-     return err;
-   }
-   if (!S_ISBLK(statbuf.st_rdev)) {
-     fprintf(stderr,"%s is not a block device\n");
-     return -ENODEV;
-   }
-   rq.block_major = MAJOR(statbuf.st_rdev);
-   rq.block_minor = MINOR(statbuf.st_rdev);
-
-   err = ioctl(fdctl,RAW_SETBIND,&rq) ;
-   if (err < 0) {
-     perror("rawsetup error on SETBIND ioctl to /dev/raw");
-     return err;
-   }
-   return 0;
-}
-
-int main(int argc, char **argv) {
-
-   if (cmdline(argc,argv) < 0) {
-      usage();
-      return 1;
-   }
-   if (setup() < 0) {
-      return 2;
-   }
-   switch(mode) {
-     case RAW_SET_BIND:   return bind();
-     case RAW_GET_BIND:   return get();
-     default: usage();    return 3;
-   }
-   return 0;
-}
-
-// (C) Peter T, Breuer 2001, ptb@it.uc3m.es
-
+Andrea

@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266940AbRGHRhE>; Sun, 8 Jul 2001 13:37:04 -0400
+	id <S266942AbRGHRky>; Sun, 8 Jul 2001 13:40:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266941AbRGHRgy>; Sun, 8 Jul 2001 13:36:54 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:34052 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266940AbRGHRgq>;
-	Sun, 8 Jul 2001 13:36:46 -0400
-Date: Sat, 30 Jun 2001 10:52:23 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Gerhard Mack <gmack@innerfire.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Patrick Dreker <patrick@dreker.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-Message-ID: <20010630105223.A36@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.10.10106281224250.26067-100000@innerfire.net> <3B3B8601.2FEA031E@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S266943AbRGHRko>; Sun, 8 Jul 2001 13:40:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51730 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266942AbRGHRkc>; Sun, 8 Jul 2001 13:40:32 -0400
+Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+To: pavel@suse.cz (Pavel Machek)
+Date: Sun, 8 Jul 2001 18:37:51 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), srwalter@yahoo.com (Steven Walter),
+        andyw@edafio.com (Andy Ward), linux-kernel@vger.kernel.org
+In-Reply-To: <20010630135804.A142@toy.ucw.cz> from "Pavel Machek" at Jun 30, 2001 01:58:05 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3B3B8601.2FEA031E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Jun 28, 2001 at 03:31:13PM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15JIVD-0000Qc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > possible on the memory bus. Several people have reported that machines that
+> > are otherwise stable on the bios fast options require  the proper conservative
+> > settings to be stable with the Athlon optimisations
+> 
+> Do we need patch to memtest to use 3dnow?
 
-> FWIW I find usb and parport messages exceptionally verbose, but some of
-
-USB was bad, but should get better in 2.4.6. I hate that ugly verbosity,
-and will try to kill it in USB case.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Possibly yes. Although memtest86 really tries to test for onchip not bus
+related problems
 

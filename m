@@ -1,71 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbSL2Xsl>; Sun, 29 Dec 2002 18:48:41 -0500
+	id <S262360AbSL2X5u>; Sun, 29 Dec 2002 18:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbSL2Xsl>; Sun, 29 Dec 2002 18:48:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15624 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262395AbSL2Xsi>; Sun, 29 Dec 2002 18:48:38 -0500
-Date: Sun, 29 Dec 2002 15:51:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jakub Jelinek <jakub@redhat.com>
-Subject: Re: glibc binaries w/ sysenter support
-In-Reply-To: <3E0F5233.5050209@redhat.com>
-Message-ID: <Pine.LNX.4.44.0212291543140.1414-100000@home.transmeta.com>
+	id <S262380AbSL2X5u>; Sun, 29 Dec 2002 18:57:50 -0500
+Received: from packet.digeo.com ([12.110.80.53]:38647 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262360AbSL2X5r>;
+	Sun, 29 Dec 2002 18:57:47 -0500
+Message-ID: <3E0F8DEA.A84FB662@digeo.com>
+Date: Sun, 29 Dec 2002 16:06:02 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Barnhart <sbarn03@softhome.net>
+CC: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Enable ALIGN #undef for drivers/net/defxx.c
+References: <1041202757.19002.3.camel@sbarn.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Dec 2002 00:06:03.0292 (UTC) FILETIME=[3DE1B5C0:01C2AF97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 29 Dec 2002, Ulrich Drepper wrote:
->
-> After quite some fiddling we finally have some glibc binaries with
-> sysenter support.  The problems were not in the sysenter code but in
-> coordinating everything in ld.so so that it works on old kernels
-> (without TLS support).
+Steven Barnhart wrote:
 > 
-> Anyway, the result can be downloaded from
+> The following patch #undef's the variable ALIGN in include/linux/cache.h
+> so that drivers/net/defxx.c can use the same variable. Patch has been
+> tested and defxx.c compiles. Please apply.
 > 
->   ftp://people.redhat.com/drepper/glibc/2.3.1-25/
 
-Thanks. 
+But they're identical.  It would be better to formalise the kernel-wideness
+of ALIGN() and just use it in defxx?
 
-Having a full system like this showed a few special cases in sysenter
-handling, where some system calls really depend on the old "iret" return
-path.
+ drivers/net/defxx.h    |    7 -------
+ include/linux/cache.h  |    3 +--
+ include/linux/kernel.h |    1 +
+ 3 files changed, 2 insertions(+), 9 deletions(-)
 
-Notably, "sys_iopl()" requires the iret path because that's the only way
-to restore the full eflags, and "execve()" requires the iret return path
-because it needs to start up the new process with fixed values in
-%edx/%ebx, and the stack has a new layout and no longer contains the
-required sysexit fixup code.
+--- 25/include/linux/cache.h~align	Sun Dec 29 16:02:54 2002
++++ 25-akpm/include/linux/cache.h	Sun Dec 29 16:03:13 2002
+@@ -1,11 +1,10 @@
+ #ifndef __LINUX_CACHE_H
+ #define __LINUX_CACHE_H
+ 
++#include <linux/kernel.h>
+ #include <linux/config.h>
+ #include <asm/cache.h>
+ 
+-#define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
+-
+ #ifndef L1_CACHE_ALIGN
+ #define L1_CACHE_ALIGN(x) ALIGN(x, L1_CACHE_BYTES)
+ #endif
+--- 25/drivers/net/defxx.h~align	Sun Dec 29 16:02:54 2002
++++ 25-akpm/drivers/net/defxx.h	Sun Dec 29 16:05:17 2002
+@@ -1669,13 +1669,6 @@ typedef union
+ #define XMT_BUFF_K_SA		7				/* six byte source address */
+ #define XMT_BUFF_K_DATA		13				/* offset to start of packet data */
+ 
+-/*
+- * Macro evaluates to "value" aligned to "size" bytes.  Make sure that
+- * "size" is greater than 0 bytes.
+- */
+-
+-#define ALIGN(value,size) ((value + (size - 1)) & ~(size - 1))
+-
+ /* Macro for checking a "value" is within a specific range */
+ 
+ #define IN_RANGE(value,low,high) ((value >= low) && (value <= high))
+--- 25/include/linux/kernel.h~align	Sun Dec 29 16:02:54 2002
++++ 25-akpm/include/linux/kernel.h	Sun Dec 29 16:03:55 2002
+@@ -28,6 +28,7 @@
+ #define STACK_MAGIC	0xdeadbeef
+ 
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++#define ALIGN(x,a) (((x)+(a)-1)&~((a)-1))
+ 
+ #define	KERN_EMERG	"<0>"	/* system is unusable			*/
+ #define	KERN_ALERT	"<1>"	/* action must be taken immediately	*/
 
-I've pushed the fix for both of these issues to the kernel -bk trees. 
-
-Without the fix, a system with sysenter support would not boot up cleanly
-with these libraries due to the execve() issues, and X wouldn't start
-because of the iopl() problem.
-
-With this in place, I've not seen any strange behaviour, and "lmbench" 
-reports
-
-	Processor, Processes - times in microseconds - smaller is better
-	----------------------------------------------------------------
-	Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
-	                             call  I/O stat clos       inst hndl proc proc proc
-	--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
-	i686-linu  Linux 2.5.53 2380  0.7  1.1    5    7 0.04K  1.2    3 0.2K   1K   3K
-	i686-linu  Linux 2.5.53 2380  0.7  1.1    5    7 0.04K  1.2    3 0.2K   1K   3K
-	i686-linu  Linux 2.5.53 2380  0.7  1.1    5    7 0.04K  1.2    3 0.2K   1K   3K
-	i686-linu  Linux 2.5.53 2380  0.2  0.6    5    6 0.04K  0.7    3 0.2K   1K   3K
-	i686-linu  Linux 2.5.53 2380  0.2  0.6    5    6 0.04K  0.7    3 0.2K   1K   3K
-	i686-linu  Linux 2.5.53 2380  0.2  0.6    5    6 0.04K  0.7    3 0.2K   1K   3K
-
-(the three first entries are with the old glibc, three last entries are
-with the new one - note the null call/io and signal install improvements).
-
-		Linus
-
+_

@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129993AbQKIG5I>; Thu, 9 Nov 2000 01:57:08 -0500
+	id <S129874AbQKIHGM>; Thu, 9 Nov 2000 02:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130294AbQKIG4t>; Thu, 9 Nov 2000 01:56:49 -0500
-Received: from vp175121.reshsg.uci.edu ([128.195.175.121]:46602 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S130148AbQKIG4p>; Thu, 9 Nov 2000 01:56:45 -0500
-Date: Wed, 8 Nov 2000 22:56:03 -0800
-Message-Id: <200011090656.eA96u3Y22945@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Scott McDermott <vaxerdec@frontiernet.net>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Stange NFS messages - 2.2.18pre19
-In-Reply-To: <20001109024949$4fc3@tornado.cs.columbia.edu>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.17 (i586))
+	id <S129946AbQKIHGD>; Thu, 9 Nov 2000 02:06:03 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:35112 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S129874AbQKIHFy>; Thu, 9 Nov 2000 02:05:54 -0500
+Message-ID: <3A0A4CBA.ED4DC5C4@linux.com>
+Date: Wed, 08 Nov 2000 23:05:30 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@wirex.com>
+CC: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+Subject: Re: [bug] usb-uhci locks up on boot half the time
+In-Reply-To: <3A09F158.910C925@linux.com> <14857.62696.393621.795132@somanetworks.com> <3A09FD81.E7DA9352@linux.com> <20001108200844.A13446@wirex.com> <3A0A25C1.C46E392B@linux.com> <20001108215901.A13572@wirex.com>
+Content-Type: multipart/mixed;
+ boundary="------------15CC03D8157D5E19F29D5592"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000 21:15:38 -0500, Scott McDermott <vaxerdec@frontiernet.net> wrote:
-> Sasi Peter on Tue  7/11 23:28 +0100:
->> I'm getting this under moderate NFS load:
->> Nov  6 17:39:56 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
->> Nov  6 17:40:08 iq kernel: svc: unknown program 100227 (me 100003)
->> Nov  6 19:06:11 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
->> Nov  6 19:38:48 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
->> 
->> What do these means? Is this a kernel bug?
-> 
-> Your Suns are using TCP mounts, this got introduced into 2.2.18
-> somewhere and is a bit broken, do a patch -R with
-> ftp://oss.sgi.com/www.projects/nfs3/download/nfs_tcp-2.2.17.dif and
-> these go away.  Suns try TCP mounts first.  Be careful to unmount them
-> first or they will hang waiting for the TCP server to come back up.
+This is a multi-part message in MIME format.
+--------------15CC03D8157D5E19F29D5592
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I really really think this should be backed out -- or at the very least
-disabled. The code wasn't part of the dhiggen merge, it wasn't tested,
-and it doesn't work well. Heck, it's still experimental and not recommended
-in 2.4.0-test.
+More data:
 
-What's worse, it will burn everybody out there who is using am-utils or 
-an automounter that tries TCP mounts first. NFS/UDP server support in 2.2.18
-is so much better than in previous versions, it would a shame to ruin
-it with this ill-fated patch.
+kdb> bp pci_conf1_write_config_word+0x3a
+Instruction(i) BP #1 at 0xc01100f2 (pci_conf1_write_config_word+0x3a)
+    is enabled globally adjust 1
+kdb> go
+Instruction(i) breakpoint #1 at 0xc01100f2 (adjusted)
+0xc01100f2 pci_conf1_write_config_word+0x3a:   orl    $0xcfc,%edx
+
+Entering kdb (current=0xcfff4000, pid 1) due to Breakpoint @ 0xc01100f2
+kdb> ss
+0xc01100f2 pci_conf1_write_config_word+0x3a:   orl    $0xcfc,%edx
+SS trap at 0xc01100f8 (pci_conf1_write_config_word+0x40)
+0xc01100f8 pci_conf1_write_config_word+0x40:   outw   %ax,(%dx)
+kdb> rd
+eax = 0x00002000 ebx = 0x800022c0 ecx = 0x000000c0 edx = 0x00000cfc
+esi = 0x00002000 edi = 0xc144c800 esp = 0xcfff5f68 eip = 0xc01100f8
+ebp = 0xcfff5f70 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00000006
+xds = 0xcfff0018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xcfff5f34
+
+-d
+
+--
+"The difference between 'involvement' and 'commitment' is like an
+eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+'committed'."
 
 
-Ion
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+--------------15CC03D8157D5E19F29D5592
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------15CC03D8157D5E19F29D5592--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

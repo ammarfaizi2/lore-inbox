@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267130AbSLDWds>; Wed, 4 Dec 2002 17:33:48 -0500
+	id <S267133AbSLDWfa>; Wed, 4 Dec 2002 17:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267131AbSLDWds>; Wed, 4 Dec 2002 17:33:48 -0500
-Received: from adsl-67-113-154-34.dsl.sntc01.pacbell.net ([67.113.154.34]:33265
-	"EHLO postbox.aslab.com") by vger.kernel.org with ESMTP
-	id <S267130AbSLDWdq>; Wed, 4 Dec 2002 17:33:46 -0500
-Message-ID: <100401c29be5$776d8f00$6502a8c0@jeff>
-From: "Jeff Nguyen" <jeff@aslab.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <A5974D8E5F98D511BB910002A50A66470580D41F@hdsmsx103.hd.intel.com > <36490000.1038853452@aslan.btc.adaptec.com>
-Subject: Re: AIC79xx driver question
-Date: Wed, 4 Dec 2002 14:35:36 -0800
+	id <S267134AbSLDWf3>; Wed, 4 Dec 2002 17:35:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18698 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267133AbSLDWf1>; Wed, 4 Dec 2002 17:35:27 -0500
+Date: Wed, 4 Dec 2002 14:42:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: george anzinger <george@mvista.com>
+cc: "David S. Miller" <davem@redhat.com>, <dan@debian.org>,
+       <sfr@canb.auug.org.au>, <linux-kernel@vger.kernel.org>,
+       <anton@samba.org>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <3DEE822D.385D2664@mvista.com>
+Message-ID: <Pine.LNX.4.44.0212041435550.1745-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Justin,
 
-The latest aic79xx source code (v1.1.0) found on Adaptec Web site
-does not compile under 2.4.20 kernel. The makefile references to
-an object file, aic7xxx_reg_print.o, which does not exist at all. 
+On Wed, 4 Dec 2002, george anzinger wrote:
+> 
+> On the PARISC I did this (a long time ago in a far away
+> place) by unwinding the stack to pick up the registers that
+> were saved along the way.  Is this at all feasible?
 
-Is there a patch that I can run to fix this error?
+No. Alpha (and apparently sparc) simply do not save the registers that the
+signal handling wants on the stack _at_all_. There are too many registers 
+to save at each system call entry point, and 99% of all system calls never 
+need it.
 
-Jeff
+The system call return that checks for signals anyway will end up saving a
+special stack frame when needed. As will the special signal-related system
+calls (sigsuspend() and friends). All of this is not only architecture-
+dependent, it is literally coded in assembly language for the
+architectures.  See "do_switch_stack()" for alpha.
 
+Anyway, if you wondered why Linux beats every other Unix out there on 
+system call overhead, now you know.  And yes, this is important.
 
-
+		Linus
 

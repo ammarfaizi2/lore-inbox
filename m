@@ -1,59 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272856AbRIRIbs>; Tue, 18 Sep 2001 04:31:48 -0400
+	id <S272912AbRIRJA4>; Tue, 18 Sep 2001 05:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272871AbRIRIbi>; Tue, 18 Sep 2001 04:31:38 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:13843 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S272856AbRIRIbZ>; Tue, 18 Sep 2001 04:31:25 -0400
-Date: Tue, 18 Sep 2001 10:31:21 +0200
-From: Tobias Diedrich <ranma@gmx.at>
-To: Jeffrey Ingber <jhingber@ix.netcom.com>
-Cc: linux-kernel@vger.kernel.org, xpert@XFree86.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [FIXED] Random Sig'11 in XF864 with kernel > 2.2.x
-Message-ID: <20010918103121.B763@router.ranmachan.dyndns.org>
-Mail-Followup-To: Tobias Diedrich <ranma@gmx.at>,
-	Jeffrey Ingber <jhingber@ix.netcom.com>,
-	linux-kernel@vger.kernel.org, xpert@XFree86.org,
-	alan@lxorguk.ukuu.org.uk
-In-Reply-To: <3BA6D4C0.1010309@ix.netcom.com>
+	id <S272926AbRIRJAq>; Tue, 18 Sep 2001 05:00:46 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:28942 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S272912AbRIRJAe>;
+	Tue, 18 Sep 2001 05:00:34 -0400
+Date: Tue, 18 Sep 2001 11:00:48 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm rewrite ready [Re: broken VM in 2.4.10-pre9]
+Message-Id: <20010918110048.095af437.skraw@ithnet.com>
+In-Reply-To: <20010918004116.A698@athlon.random>
+In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance>
+	<9o1dev$23l$1@penguin.transmeta.com>
+	<1000722338.14005.0.camel@x153.internalnet>
+	<20010916203414.B1315@athlon.random>
+	<20010917174037.7e3739b9.skraw@ithnet.com>
+	<20010918004116.A698@athlon.random>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BA6D4C0.1010309@ix.netcom.com>
-User-Agent: Mutt/1.3.20i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeffrey Ingber wrote:
+On Tue, 18 Sep 2001 00:41:16 +0200 Andrea Arcangeli <andrea@suse.de> wrote:
 
-> The problem mentioned in the following threads:
+> [ CC'ed to l-k with Stephan approval ]
+> > - cpu average load is low, during whole test sometimes even below 3
+> >   (never saw
+> > this before)
 > 
-> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0109.1/0932.html
-> http://www.xfree86.org/pipermail/xpert/2001-September/011055.html
-> http://www.xfree86.org/pipermail/xpert/2001-September/011230.html
+> Good.
 > 
-> Is fixed in at least 2.4.9-ac10.  I haven't been a regular user of the 
-> -ac series so I can't say when exactly this was fixed.  However, this 
-> problem still persists in Linus 2.4.10-pre10.  Can anyone who chimed in 
-> with similar problems to mine try said kernel (2.4.9-ac10) and provide 
-> any feedback?  It would excellent if the exact fix could be identified.
+> I also had another report with very vfs intensive operation going on and
+> I suspect this patch will be a good idea (even if it can lead to the
+> usual excessive grow of the vfs caches on the long run but the current
+> way is probably too aggressive).
 
-I'm using ac-10 with the preempt patch at the moment and still have
-trouble with the X server segfaulting sometimes.
-Usually it does this not that often (once a day to once every few days),
-it seems more likely to happen when switching between text mode console
-and X, I can increase the likelyhood of this by running the wmcpu and
-wmsysmon applets, which will often make it segfault after only a few minutes.
-System is Dual Celeron 433 on an ABIT BP6 board. XFree 4.1.0. Debian
-unstable. Riva TNT, using the nv driver. (I sometimes switch to the
-nvidia driver because this supports the xvideo extensions, but have not
-since the last reboot, so the proprietary module should not have been
-loaded)
-The most annoying thing is that the console is stuck in graphics mode
-after the server crashed...
+Hm, are you sure about this? Here is /proc/meminfo after a night of heavy nfs
+action (we are at the server side):
 
--- 
-Tobias								PGP: 0x9AC7E0BC
-Hannover Fantreffen ML: mailto:fantreffen-request@mantrha.de?subject=subscribe
-Manga & Anime Treff Hannover: http://www.mantrha.de/
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  923574272 919187456  4386816        0 39723008 793706496
+Swap: 271392768  1417216 269975552
+MemTotal:       901928 kB
+MemFree:          4284 kB
+MemShared:           0 kB
+Buffers:         38792 kB
+Cached:         775052 kB
+SwapCached:         52 kB
+Active:         811464 kB
+Inactive:         2432 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       901928 kB
+LowFree:          4284 kB
+SwapTotal:      265032 kB
+SwapFree:       263648 kB
+
+You see most mem found its way in the active queue. If you talk about
+"aggressive" meaning aggressively aged or even freed, I cannot see it.
+I will go on for another day without additional patching and see how things
+evolve and how the system behaves in interactive situation.
+
+Ah, another thing to mention. I got some _new_ alloc failures:
+
+Sep 18 04:16:49 admin kernel: nfsd __alloc_pages: 1-order allocation failed
+(gfp=0x20/0) from c012de72
+Sep 18 04:17:27 admin kernel: nfsd __alloc_pages: 0-order allocation failed
+(gfp=0x1d2/0) from c012de72
+Sep 18 04:21:18 admin kernel: gzip __alloc_pages: 0-order allocation failed
+(gfp=0x1d2/0) from c012de72
+
+c012de5c T _alloc_pages 
+c012de74 t balance_classzone
+
+Hope this helps,
+Stephan
+

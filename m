@@ -1,60 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278046AbRKFGfk>; Tue, 6 Nov 2001 01:35:40 -0500
+	id <S278098AbRKFGub>; Tue, 6 Nov 2001 01:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278133AbRKFGfa>; Tue, 6 Nov 2001 01:35:30 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33212 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S278046AbRKFGfX>; Tue, 6 Nov 2001 01:35:23 -0500
-Date: Mon, 5 Nov 2001 23:35:18 -0700
-Message-Id: <200111060635.fA66ZIH20196@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: more devfs fun (Piled Higher and Deeper)
-In-Reply-To: <Pine.GSO.4.21.0110271558430.21545-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0110271536190.21545-100000@weyl.math.psu.edu>
-	<Pine.GSO.4.21.0110271558430.21545-100000@weyl.math.psu.edu>
+	id <S278218AbRKFGuV>; Tue, 6 Nov 2001 01:50:21 -0500
+Received: from gnu.in-berlin.de ([192.109.42.4]:29196 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S278125AbRKFGuJ>;
+	Tue, 6 Nov 2001 01:50:09 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 5 Nov 2001 22:52:01 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: volodya@mindspring.com
+Cc: video4linux-list@redhat.com, livid-gatos@linuxvideo.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [V4L] Re: [RFC] alternative kernel multimedia API
+Message-ID: <20011105225201.A17854@bytesex.org>
+In-Reply-To: <20011105095245.B11001@bytesex.org> <Pine.LNX.4.20.0111051544120.3346-100000@node2.localnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.20.0111051544120.3346-100000@node2.localnet.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> ... and one more - devfs_unregister() on a directory happening when
-> mknod() in that directory sleeps in create_entry() (on kmalloc()).
+> > different kernel versions because a driver IMHO should be maintained for
+> > both current stable and current hacker kernels.
 > 
-> Do you ever read your own code?  It's not like this stuff was hard
-> to find - I'm just poking into random places and every damn one
-> contains a hole.  Sigh...
+> The change I was talking about has occured someplace between 2.4.2 and
+> 2.4.9. On the other hand some interface did not change at all - for
+> example serial devices /dev/ttySx. I do not see anything too special to
+> video capture to warrant constanly changing interfaces.
+
+That was me in kernel 2.4.3 IIRC.  Added one more argument to allow
+drivers to ask for specific minor numbers (so you can give your devices
+fixed minor numbers using insmod options).  And this has _NOTHING_ to do
+with the API visible to the applications.
+
+
+> > Why this needs to be in the kernel?  Simply ship a copy of the header
+> > file with both application and driver or require the driver being
+> > installed to build the application.  Once you've worked out good,
+> > working interfaces they can go into the kernel headers.  You don't need
+> > that for experimental stuff.
 > 
-> Oh, BTW - here's another one:  think what happens if tree-walking in
-> unregister() steps on the entry we are currently removing in
-> devfs_unlink().
+> And what am I to do if someone introduces the exact same ioctl number into
+> the kernel ? I will get instant breakage. People will start saying: this
+> does not work with kernele 2.4.(N+x). So, I'll change the number and will
+> get bugreports of the kind "it does not work with 2.4.(N-1-y)". I do not
+> want that.
 
-Yep, as I've long ago admitted, there are races in the old devfs
-code, which couldn't be fixed without proper locking. And that's why
-I've been wanting to add said locking for ages, and have been
-frustrated at interruptions which delayed that work. And I'm very
-happy to get the first cut of the new code released.
+Such clashes shouldn't happen as v4l has ioctl number ranges for driver
+private stuff which can be used for such tests and shouldn't cause
+clashes with new, official ioctls.
 
-That said, try to understand (before getting emotional and launching
-off a tirade such as the one last week) that different people have
-different priorities, and mine was to provide functionality first, and
-worry about hostile attacks/exploits later. This is not unreasonable
-if you consider that the initial target machines for devfs were:
-- my personal boxes (which are not public machines)
-- big-iron machines sitting behind a firewall
-- small university group sitting behind a firewall (and I know where
-  all the users live:-)
+Beside that I don't see why breaking applications is a problem for
+_experimental_ interfaces.  On the one hand you want to have the
+flexibility to change interfaces easily to test them, on the other hand
+you care alot about compatibility and stuff.  You can't get both, I
+don't see a way to do that without making either the drivers or the
+applications (or both) very complex.
 
-I know your favourite horror scenario is the public machines available
-to the undergrads, but not everyone works in such a hostile
-environment.
+That is the price users will have to pay for playing with bleeding edge
+stuff.
 
-Anyway, I hope Linus wasn't bored by all the messages you Cc:ed to
-him for your^H^H^H^Hhis benefit :-O
+> > becomes harder to debug because the failures are more subtile.  With a
+> > obsolete ioctl struct you likely get back -EINVAL, which is quite
+> > obvious if the application does sane error checking.  Or the application
+> > doesn't even compile.  Both are IMHO much better than some stange
+> 
+> This is a separate issue.. Just keep in mind that there are plenty of
+> applications that ignore return values from ioctl's.
 
-				Regards,
+s/applications/broken applications/
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+  Gerd
+
+-- 
+Netscape is unable to locate the server localhost:8000.
+Please check the server name and try again.

@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUDEVi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 17:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbUDEViT
+	id S263252AbUDEVRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 17:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbUDEVPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 17:38:19 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:50871 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S263185AbUDEVg2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 17:36:28 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: APIC error on CPU0
-Date: Mon, 5 Apr 2004 23:35:59 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Mon, 5 Apr 2004 17:15:06 -0400
+Received: from gprs214-195.eurotel.cz ([160.218.214.195]:38016 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263225AbUDEVN5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 17:13:57 -0400
+Date: Mon, 5 Apr 2004 23:13:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: Remove extra whitespace in input.h
+Message-ID: <20040405211347.GA3605@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404052336.23585.mbuesch@freenet.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-Hi,
+Perhaps this is good idea? BTN_0 vs. KEY_0 puzzled me for a while.
 
-What does this kernel message mean?
+						Pavel
 
-Apr  5 23:16:20 lfs kernel: APIC error on CPU0: 60(60)
-Apr  5 23:16:31 lfs kernel: APIC error on CPU0: 60(60)
+Index: linux/include/linux/input.h
+===================================================================
+--- linux.orig/include/linux/input.h	2004-04-05 22:47:34.000000000 +0200
++++ linux/include/linux/input.h	2004-02-20 12:39:34.000000000 +0100
+@@ -330,6 +330,7 @@
+ 
+ #define KEY_UNKNOWN		240
+ 
++/* This is for keys 0..9 on remote control etc. */
+ #define BTN_MISC		0x100
+ #define BTN_0			0x100
+ #define BTN_1			0x101
+@@ -776,7 +777,6 @@
+ 		__old; })
+ 
+ struct input_dev {
+-
+ 	void *private;
+ 
+ 	char *name;
+@@ -858,7 +858,6 @@
+ 	(INPUT_DEVICE_ID_MATCH_DEVICE | INPUT_DEVICE_ID_MATCH_VERSION)
+ 
+ struct input_device_id {
+-
+ 	unsigned long flags;
+ 
+ 	struct input_id id;
+@@ -878,7 +877,6 @@
+ struct input_handle;
+ 
+ struct input_handler {
+-
+ 	void *private;
+ 
+ 	void (*event)(struct input_handle *handle, unsigned int type, unsigned int code, int value);
+@@ -897,7 +895,6 @@
+ };
+ 
+ struct input_handle {
+-
+ 	void *private;
+ 
+ 	int open;
 
-kernel is 2.6.5 with reiser4 patch.
-I can post .config if needed, but I don't want to abuse
-the list, if nobody is interrested in my configuration.
-
-Thanks.
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAcdFWFGK1OIvVOP4RAg9JAJkBImV4TpaExUhg/AfATSzkENKxLwCdHU5a
-fY7cKIaNDVYbRasKIgQODX8=
-=mLkL
------END PGP SIGNATURE-----
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

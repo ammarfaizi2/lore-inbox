@@ -1,100 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261750AbSJJS0X>; Thu, 10 Oct 2002 14:26:23 -0400
+	id <S261835AbSJJS0u>; Thu, 10 Oct 2002 14:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbSJJS0X>; Thu, 10 Oct 2002 14:26:23 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:60685 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261750AbSJJS0R>;
-	Thu, 10 Oct 2002 14:26:17 -0400
-Date: Thu, 10 Oct 2002 11:27:56 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: johnstul@us.ibm.com
-Subject: [PATCH] i386 timer changes for 2.5.41
-Message-ID: <20021010182756.GB25871@kroah.com>
-References: <20021010182652.GA25871@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021010182652.GA25871@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S261907AbSJJS0u>; Thu, 10 Oct 2002 14:26:50 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:64150 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261835AbSJJS0q>;
+	Thu, 10 Oct 2002 14:26:46 -0400
+Message-ID: <3DA5C6EC.7040904@us.ibm.com>
+Date: Thu, 10 Oct 2002 11:29:00 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       LSE <lse-tech@lists.sourceforge.net>, Martin Bligh <mjbligh@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+References: <3DA4D3E4.6080401@us.ibm.com> <3DA4EE6C.6B4184CC@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.748   -> 1.749  
-#	               (new)	        -> 1.1     include/asm-i386/timer.h
-#	               (new)	        -> 1.1     arch/i386/kernel/timers/timer.c
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/09	johnstul@us.ibm.com	1.749
-# i386 timer core: introduce struct timer_ops
-# 
-# provides the infrastructure needed via the timer_ops structure, 
-# as well as the select_timer() function for choosing the best 
-# available timer
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timers/timer.c	Thu Oct 10 11:21:16 2002
-@@ -0,0 +1,31 @@
-+#include <linux/kernel.h>
-+#include <asm/timer.h>
-+
-+/* list of externed timers */
-+/* eg: extern struct timer_opts timer_XXX*/;
-+
-+/* list of timers, ordered by preference, NULL terminated */
-+static struct timer_opts* timers[] = {
-+	/* eg: &timer_XXX */
-+	NULL,
-+};
-+
-+
-+/* iterates through the list of timers, returning the first 
-+ * one that initializes successfully.
-+ */
-+struct timer_opts* select_timer(void)
-+{
-+	int i = 0;
-+	
-+	/* find most preferred working timer */
-+	while (timers[i]) {
-+		if (timers[i]->init)
-+			if (timers[i]->init() == 0)
-+				return timers[i];
-+		++i;
-+	}
-+		
-+	panic("select_timer: Cannot find a suitable timer\n");
-+	return NULL;
-+}
-diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/timer.h	Thu Oct 10 11:21:16 2002
-@@ -0,0 +1,20 @@
-+#ifndef _ASMi386_TIMER_H
-+#define _ASMi386_TIMER_H
-+
-+/**
-+ * struct timer_ops - used to define a timer source
-+ *
-+ * @init: Probes and initializes the timer.  Returns 0 on success, anything
-+ *	else on failure.
-+ * @mark_offset: called by the timer interrupt
-+ * @get_offset: called by gettimeofday().  Returns the number of ms since the
-+ *	last timer intruupt.
-+ */
-+struct timer_opts{
-+	int (*init)(void);
-+	void (*mark_offset)(void);
-+	unsigned long (*get_offset)(void);
-+};
-+
-+extern struct timer_opts* select_timer(void);
-+#endif
+Andrew Morton wrote:
+> Matthew Dobson wrote:
+>>Greetings & Salutations,
+>>        Here's a wonderful patch that I know you're all dying for...  Memory
+>>Binding!
+> Seems reasonable to me.
+Good news!
+
+> Could you tell us a bit about the operator's view of this?
+> 
+> I assume that a typical usage scenario would be to bind a process
+> to a bunch of CPUs and to then bind that process to a bunch of
+> memblks as well? 
+> 
+> If so, then how does the operator know how to identify those
+> memblks?  To perform the (cpu list) <-> (memblk list) mapping?
+Well, that's what the super-duper In-Kernel topology API is for!  ;)  If 
+the operator wanted to ensure that all the processes memory was *only* 
+allocated from the memblks closest to her bound CPUs, she'd loop over 
+her cpu binding, and for each set bit, she'd:
+	bitmask &= 1 << __node_to_memblk(__cpu_to_node(cpu));
+I suppose that I could include a macro to do this in the patch, but I 
+was a bit afraid (and still am) that it already may be a bit large for 
+people's tastes.  I've got some suggestions on how to split it up/pare 
+it down, so we'll see.
+
+> Also, what advantage does this provide over the current node-local
+> allocation policy?  I'd have thought that once you'd bound a 
+> process to a CPU (or to a node's CPUs) that as long as the zone
+> fallback list was right, that process would be getting local memory
+> pretty much all the time anyway?
+Very true...  This is to specifically allow for processes that want to 
+do something *different* than the default policy.  Again, akin to CPU 
+affinity, this is not something that the average process is going to 
+ever use, or even care about.  The majority of processes don't 
+specifically bind themselves to certain CPUs or groups of CPUs, because 
+for them the default scheduler policies are fine.  For the majority of 
+processes, the default memory allocation policy works just dandy.  This 
+is for processes that want to do something different: Testing/debugging 
+apps on a large (likely NUMA) system, high-end databases, and who knows 
+what else?  There is also a plan to add a function call to bind specific 
+regions of a processes memory to certain memblks, and this would allow 
+for efficient shared memory for process groups spread across a large system.
+
+> Last but not least: you got some benchmark numbers for this?
+Nope..  It is not something that is going to (on average) improve 
+benchmark numbers for something like a kernel compile...  As you 
+mentioned above, the default policy is to allocate from the local memory 
+block anyway.  This API is more useful for something where you want to 
+pin your memory close to a particular process that your process is 
+working with, or pin you memory to a different node than the one you're 
+executing on to purposely test/debug something.  If you'd like, I can do 
+some kernbench runs or something to come up with some numbers to show 
+that it doesn't negatively affect performance, but I don't know of any 
+benchmarking suites offhand that would show positive numbers.
+
+> Thanks.
+My pleasure! ;)
+
+Cheers!
+
+-Matt
+

@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267884AbTAMSYi>; Mon, 13 Jan 2003 13:24:38 -0500
+	id <S267955AbTAMS2L>; Mon, 13 Jan 2003 13:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267943AbTAMSYh>; Mon, 13 Jan 2003 13:24:37 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:5374 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S267884AbTAMSYf>;
-	Mon, 13 Jan 2003 13:24:35 -0500
-Subject: Re: any chance of 2.6.0-test*?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042469960.18624.9.camel@irongate.swansea.linux.org.uk>
-References: <20030110165441$1a8a@gated-at.bofh.it>
-	 <15906.13194.169834.758112@argo.ozlabs.ibm.com>
-	 <1042469960.18624.9.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042482986.30833.22.camel@zion.wanadoo.fr>
+	id <S267943AbTAMS2J>; Mon, 13 Jan 2003 13:28:09 -0500
+Received: from h80ad2749.async.vt.edu ([128.173.39.73]:17536 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267892AbTAMS2H>; Mon, 13 Jan 2003 13:28:07 -0500
+Message-Id: <200301131836.h0DIalRX005606@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Nico Schottelius <schottelius@wdt.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.56] (partial known) bugs/compile errors 
+In-Reply-To: Your message of "Mon, 13 Jan 2003 10:02:00 +0100."
+             <20030113090200.GA1096@schottelius.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030113090200.GA1096@schottelius.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 13 Jan 2003 19:36:26 +0100
+Content-Type: multipart/signed; boundary="==_Exmh_918559007P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Jan 2003 13:36:45 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-13 at 15:59, Alan Cox wrote:
-> On Mon, 2003-01-13 at 03:33, Paul Mackerras wrote:
-> > I'm using the patch below, which makes sure that ide_release (in
-> > ide-cs.c) runs in process context not interrupt context.  The specific
-> > problem I saw was that ide_unregister calls various devfs routines
-> > that don't like being called in interrupt context, but there may well
-> > be other thing ide_unregister does that aren't safe in interrupt
-> > context.
-> 
-> The ide release code isnt safe in any context.
+--==_Exmh_918559007P
+Content-Type: text/plain; charset=us-ascii
 
-Yup, though Paul's patch is a first step in the right way as I don't
-think anybody sane plan to fix the IDE release code to make it interrupt
-safe ;) At least I don't...
- 
-> > I have "fixed" the problem for now by adding a call to
-> > init_hwif_data(index) in ide_register_hw just before the first
-> > memcpy.  I'd be interested to know what the right fix is. :)
-> 
-> The code is currently written on the basis that people don't mangle
-> free interfaces (the free up code restores stuff which I grant is
-> kind of ass backwards). It also needs serious review and 2.5 testing
-> before I'd want to move it to the right spot.
+On Mon, 13 Jan 2003 10:02:00 +0100, Nico Schottelius <schottelius@wdt.de>  said:
 
-The code is indeed strangely backward, I had to deal with that in 2.4
-for the PowerBook hotswap CD bay and will soon have to review that for
-2.4.21-pre & 2.5.
+> WARNING: /lib/modules/2.5.56/kernel/drivers/scsi/pcmcia/aha152x_cs.ko needs=
+>  unknown symbol aha152x_driver_template
+> WARNING: /lib/modules/2.5.56/kernel/drivers/scsi/pcmcia/fdomain_cs.ko needs=
+>  unknown symbol fdomain_driver_template
+> WARNING: /lib/modules/2.5.56/kernel/drivers/scsi/pcmcia/fdomain_cs.ko needs=
+>  unknown symbol fdomain_16x0_reset
+> WARNING: /lib/modules/2.5.56/kernel/drivers/scsi/pcmcia/fdomain_cs.ko needs=
+>  unknown symbol fdomain_setup
+> WARNING: /lib/modules/2.5.56/kernel/drivers/message/i2o/i2o_pci.ko needs un=
+> known symbol i2o_sys_init
+> WARNING: /lib/modules/2.5.56/kernel/security/root_plug.ko needs unknown sym=
+> bol usb_bus_list_lock
+> WARNING: /lib/modules/2.5.56/kernel/security/root_plug.ko needs unknown sym=
+> bol usb_bus_list
+> WARNING: /lib/modules/2.5.56/kernel/fs/nfsd/nfsd.ko needs unknown symbol ha=
+> sh_mem
+> WARNING: /lib/modules/2.5.56/kernel/arch/i386/kernel/microcode.ko needs unk=
+> nown symbol devfs_set_file_size
 
-> Also note that freeing the IDE can fail. If it fails then the code
-> should probably be a lot smarter. Right now it 'loses' the interface.
-> Really it should set a timer and try again. It might also want to
-> add a null iops (out does nothing in returns FFFFFFFF) to stop
-> further I/O cycles.
+I can't speak for the others being known, but I posted a fix for the
+microcode.ko one the other day.  That one was pretty clearly a EXPORT_SYMBOL
+line that got overzealously removed in 2.5.47 (the next 4 EXPORT_SYMBOLS in the
+file got removed as part of a code cleanup, one line too many got nuked, I
+guess)
 
-Yup, this have been a problem for me too, as ide_unregister for example
-fails with a mounted fs. So the user had effectively removed the drive
-from the bay, but I couldn't free the interface... nasty. Especially if
-the user then plugs some different IDE device in the bay, the kernel
-will get completely confused.
+I had a few others that went away when I upgraded to Rusty's 0.9.8 version
+of module-init-tools that correctly dealt with EXPORT_GPL_SYMBOL....
 
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
+
+
+--==_Exmh_918559007P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+Iwc8cC3lWbTT17ARAiVJAJsGRWrOGfPc3CFJzUVOXzlVHPiiPACfWVQm
+lMKMDEwlTAbIO1mRRsUB+nk=
+=tUjn
+-----END PGP SIGNATURE-----
+
+--==_Exmh_918559007P--

@@ -1,96 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271972AbTHMXQy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 19:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272000AbTHMXQy
+	id S272042AbTHMXSh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 19:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272043AbTHMXSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 19:16:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38564 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271972AbTHMXQv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 19:16:51 -0400
-Message-Id: <200308132316.h7DNGao27969@mail.osdl.org>
-Date: Wed, 13 Aug 2003 16:16:33 -0700 (PDT)
-From: markw@osdl.org
-Subject: bounce buffers and i/o schedulers with aacraid
-To: piggin@cyberone.com.au, axboe@suse.de
-cc: linux-kernel@vger.kernel.org
+	Wed, 13 Aug 2003 19:18:36 -0400
+Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:25531
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S272042AbTHMXSe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 19:18:34 -0400
+Message-ID: <3F3AC749.7010803@candelatech.com>
+Date: Wed, 13 Aug 2003 16:18:33 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.21: proc-fs and allocating many new files (PROC_NDYNAMIC)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're still trying to avoid bounce buffers with the aacraid driver and
-noticed something interesting in some profiles (which I'll copy farther
-down) with the deadline scheduler and AS.  Using our DBT-2 workload, we
-see with the deadline scheduler our patch to avoid bounce buffers
-doesn't change the profile much.  But with AS, we don't see
-bounce_copy_vec or __blk_queue_bounce near the top of the profile.  Any
-ideas why?
+I am working on a mac-vlan module, and would like to have a proc entry for each
+vlan device.  My code fails after creating 124 vlans (which will create ~240
+proc entries).
 
-This is with 2.6.0-test3 on a system with 4GB of memory.  The first pair
-of tables compares the deadline scheduler with our patch applied to the
-profile in the right side.  The second pair of tables compare AS with
-our patch applied to the profile on the right side.
+What is worse, after doing this, the 802.1q module will not even load because
+it can't allocate it's small number of proc entries.  (I will fix this shortly
+and have it ignore the error and continue, since it uses ioctls as well.)
 
-You can see our patch here: 
-	http://www.osdl.org/cgi-bin/getpatch?id=2052
-or in color!
-	http://www.osdl.org/cgi-bin/getpatch?id=2052.html
+After poking around in the proc-fs code (please, next time someone re-writes this,
+give us an int* err_code return value so that we can know why things fail!!!)
+I believe I must be hitting the failure due to not being able to find a free entry
+in the proc_alloc_map.  It seems that a max of PROC_NDYNAMIC proc entries can be
+created.  This value is #defined to 4096 in 2.4.21....
 
+So, several questions:
 
+Can I arbitrarily make this bigger...say (4096*4)?  Any trade-offs other than memory?
 
-METRICS OVER LAST 20 MINUTES:
---------------- -------- ----- ---- -------- -----------------------------------
-Kernel          Elevator NOTPM CPU% Blocks/s URL                                
---------------- -------- ----- ---- -------- -----------------------------------
-2.6.0-test3     deadline  1313 94.5   9582.1 http://khack.osdl.org/stp/277489/  
-2.6.0-test3     deadline  1304 94.1   9685.0 http://khack.osdl.org/stp/277494/  
+Is there a better way to have many proc file entries?  I can even live
+  with read-only, as I can do the config through ioctls.
 
-FUNCTIONS SORTED BY LOAD:
--- ------------------------- ------- ------------------------- -------
- # deadline 2.6.0-test3      ticks   deadline 2.6.0-test3      ticks  
--- ------------------------- ------- ------------------------- -------
- 1 default_idle              5470223 default_idle              5447766
- 2 bounce_copy_vec             77961 bounce_copy_vec             85122
- 3 schedule                    65916 schedule                    62840
- 4 __blk_queue_bounce          30048 __blk_queue_bounce          24983
- 5 do_softirq                  23265 scsi_request_fn             23950
- 6 scsi_request_fn             22748 do_softirq                  23573
- 7 __make_request              18727 __make_request              19055
- 8 scsi_end_request            12207 scsi_end_request            12358
- 9 sysenter_past_esp           10296 try_to_wake_up              10007
-10 try_to_wake_up              10132 sysenter_past_esp            9959
-
-
-
-METRICS OVER LAST 20 MINUTES:
---------------- -------- ----- ---- -------- -----------------------------------
-Kernel          Elevator NOTPM CPU% Blocks/s URL                                
---------------- -------- ----- ---- -------- -----------------------------------
-2.6.0-test3     as        1143 92.6   8848.5 http://khack.osdl.org/stp/277490/  
-2.6.0-test3     as        1175 91.4   8883.1 http://khack.osdl.org/stp/277493/  
-
-FUNCTIONS SORTED BY LOAD:
--- ------------------------- ------- ------------------------- -------
- # as 2.6.0-test3            ticks   as 2.6.0-test3            ticks  
--- ------------------------- ------- ------------------------- -------
- 1 default_idle              6089608 default_idle              6307410
- 2 bounce_copy_vec             69264 schedule                    44346
- 3 schedule                    63544 scsi_request_fn             25109
- 4 scsi_request_fn             25617 __make_request              23740
- 5 __make_request              23137 do_softirq                  20522
- 6 __blk_queue_bounce          20156 scsi_end_request            15665
- 7 do_softirq                  20012 try_to_wake_up               7979
- 8 scsi_end_request            15821 dio_bio_end_io               7867
- 9 sysenter_past_esp           10313 do_anonymous_page            7440
-10 try_to_wake_up               9227 ipc_lock                     6387
-
+Thanks,
+Ben
 
 -- 
-Mark Wong - - markw@osdl.org
-Open Source Development Lab Inc - A non-profit corporation
-12725 SW Millikan Way - Suite 400 - Beaverton, OR 97005
-(503) 626-2455 x 32 (office)
-(503) 626-2436      (fax)
-http://www.osdl.org/archive/markw/
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+
+

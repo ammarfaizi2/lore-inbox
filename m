@@ -1,158 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbUJ3PuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUJ3PuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbUJ3PuH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 11:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUJ3PsG
+	id S261271AbUJ3PuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 11:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbUJ3Ps0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 11:48:06 -0400
-Received: from mail.gmx.de ([213.165.64.20]:231 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261154AbUJ3Pnu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 11:43:50 -0400
-X-Authenticated: #815327
-Message-ID: <4183B6B0.7010906@gmx.de>
-Date: Sat, 30 Oct 2004 17:43:44 +0200
-From: =?ISO-8859-1?Q?Malte_Schr=F6der?= <MalteSch@gmx.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
+	Sat, 30 Oct 2004 11:48:26 -0400
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:10503 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261277AbUJ3Pie
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 11:38:34 -0400
+Message-ID: <4183B572.60804@tebibyte.org>
+Date: Sat, 30 Oct 2004 17:38:26 +0200
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: pt-br, pt
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] WOL for sis900
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigF5EAB29990F9C10883DEDBDE"
+To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com> <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org> <41834FE7.5060705@jp.fujitsu.com> <418354C0.3060207@tebibyte.org> <418357C5.4070304@jp.fujitsu.com> <41835F4D.2060508@tebibyte.org> <4183649C.7070601@jp.fujitsu.com>
+In-Reply-To: <4183649C.7070601@jp.fujitsu.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF5EAB29990F9C10883DEDBDE
-Content-Type: multipart/mixed;
- boundary="------------070003080301080804090207"
-
-This is a multi-part message in MIME format.
---------------070003080301080804090207
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-
-Hello,
-I have applied the patch from http://lkml.org/lkml/2003/7/16/88 manually 
-to 2.6.7 (also works on 2.6.{8,9}) and have been using it since then.
-Attached is a diff against 2.6.9.
-
-Greets
--- 
----------------------------------------
-Malte Schröder
-MalteSch@gmx.de
-ICQ# 68121508
----------------------------------------
 
 
---------------070003080301080804090207
-Content-Type: text/x-patch;
- name="sis900_wol.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sis900_wol.diff"
+Hiroyuki KAMEZAWA escreveu:
+> Oh, Okay, my patch was wrong ;(.
+> Very sorry for wrong hack.
+> This one will be Okay.
 
---- drivers/net/sis900.c.orig	2004-10-18 23:53:51.000000000 +0200
-+++ drivers/net/sis900.c	2004-10-30 17:35:49.000000000 +0200
-@@ -74,12 +74,14 @@
- 
- #define SIS900_MODULE_NAME "sis900"
- #define SIS900_DRV_VERSION "v1.08.07 11/02/2003"
-+#define SIS900_WOL_DEFAULT 0
- 
- static char version[] __devinitdata =
- KERN_INFO "sis900.c: " SIS900_DRV_VERSION "\n";
- 
- static int max_interrupt_work = 40;
- static int multicast_filter_limit = 128;
-+static int enable_wol = SIS900_WOL_DEFAULT;
- 
- #define sis900_debug debug
- static int sis900_debug;
-@@ -182,9 +184,11 @@
- MODULE_PARM(multicast_filter_limit, "i");
- MODULE_PARM(max_interrupt_work, "i");
- MODULE_PARM(debug, "i");
-+MODULE_PARM(enable_wol, "i");
- MODULE_PARM_DESC(multicast_filter_limit, "SiS 900/7016 maximum number of filtered multicast addresses");
- MODULE_PARM_DESC(max_interrupt_work, "SiS 900/7016 maximum events handled per interrupt");
- MODULE_PARM_DESC(debug, "SiS 900/7016 debug level (2-4)");
-+MODULE_PARM_DESC(enable_wol, "Enable Wake-on-LAN support (0/1)");
- 
- static int sis900_open(struct net_device *net_dev);
- static int sis900_mii_probe (struct net_device * net_dev);
-@@ -930,6 +934,7 @@
- {
- 	struct sis900_private *sis_priv = net_dev->priv;
- 	long ioaddr = net_dev->base_addr;
-+	u32 cfgpmcsr;
- 	u8 revision;
- 	int ret;
- 
-@@ -956,6 +961,15 @@
- 	/* Workaround for EDB */
- 	sis900_set_mode(ioaddr, HW_SPEED_10_MBPS, FDX_CAPABLE_HALF_SELECTED);
- 
-+	/* Enable Wake-on-LAN if requested. */
-+	if (enable_wol) {
-+		pci_read_config_dword(sis_priv->pci_dev, CFGPMCSR, &cfgpmcsr);
-+		cfgpmcsr |= PME_EN;
-+		pci_write_config_dword(sis_priv->pci_dev, CFGPMCSR, cfgpmcsr);
-+		outl(inl(ioaddr + pmctrl) | MAGICPKT | ALGORITHM, ioaddr + pmctrl);
-+	} else
-+		outl(inl(ioaddr + pmctrl) & ~MAGICPKT, ioaddr + pmctrl);
-+
- 	/* Enable all known interrupts by setting the interrupt mask. */
- 	outl((RxSOVR|RxORN|RxERR|RxOK|TxURN|TxERR|TxIDLE), ioaddr + imr);
- 	outl(RxENA | inl(ioaddr + cr), ioaddr + cr);
---- drivers/net/sis900.h.orig	2004-10-30 17:35:42.000000000 +0200
-+++ drivers/net/sis900.h	2004-10-30 17:35:49.000000000 +0200
-@@ -140,6 +140,25 @@
- 	EEREQ = 0x00000400, EEDONE = 0x00000200, EEGNT = 0x00000100
- };
- 
-+/* Wake-on-LAN support. */
-+enum sis900_power_management_control_register_bits {
-+	LINKLOSS  = 0x00000001,
-+	LINKON    = 0x00000002,
-+	MAGICPKT  = 0x00000400,
-+	ALGORITHM = 0x00000800,
-+	FRM1EN    = 0x00100000,
-+	FRM2EN    = 0x00200000,
-+	FRM3EN    = 0x00400000,
-+	FRM1ACS   = 0x01000000,
-+	FRM2ACS   = 0x02000000,
-+	FRM3ACS   = 0x04000000,
-+	WAKEALL   = 0x40000000,
-+	GATECLK   = 0x80000000
-+};
-+
-+#define CFGPMCSR 0x44
-+#define PME_EN 0x100
-+
- /* Management Data I/O (mdio) frame */
- #define MIIread         0x6000
- #define MIIwrite        0x5002
+That works, now my oom report looks like this...
 
---------------070003080301080804090207--
+Oct 30 17:32:22 sleepy oom-killer: gfp_mask=0x1d2
+Oct 30 17:32:22 sleepy DMA per-cpu:
+Oct 30 17:32:22 sleepy cpu 0 hot: low 2, high 6, batch 1
+Oct 30 17:32:22 sleepy cpu 0 cold: low 0, high 2, batch 1
+Oct 30 17:32:22 sleepy Normal per-cpu:
+Oct 30 17:32:22 sleepy cpu 0 hot: low 4, high 12, batch 2
+Oct 30 17:32:22 sleepy cpu 0 cold: low 0, high 4, batch 2
+Oct 30 17:32:22 sleepy HighMem per-cpu: empty
+Oct 30 17:32:22 sleepy
+Oct 30 17:32:22 sleepy Free pages:         332kB (0kB HighMem)
+Oct 30 17:32:22 sleepy Active:11887 inactive:517 dirty:0 writeback:0 
+unstable:0 free:83 slab:1347 mapped:11930 pagetables:247
+Oct 30 17:32:22 sleepy DMA free:60kB min:60kB low:120kB high:180kB 
+active:11256kB inactive:436kB present:16384kB pages_scanned:11686 
+all_unreclaimable? yes
+Oct 30 17:32:22 sleepy protections[]: 0 0 0
+Oct 30 17:32:22 sleepy Normal free:272kB min:188kB low:376kB high:564kB 
+active:36292kB inactive:1632kB present:49144kB pages_scanned:6922 
+all_unreclaimable? no
+Oct 30 17:32:22 sleepy protections[]: 0 0 0
+Oct 30 17:32:22 sleepy HighMem free:0kB min:128kB low:256kB high:384kB 
+active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+Oct 30 17:32:22 sleepy protections[]: 0 0 0
+Oct 30 17:32:22 sleepy DMA: 1*4kB 1*8kB 1*16kB 1*32kB 0*64kB 0*128kB 
+0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 60kB
+Oct 30 17:32:22 sleepy Normal: 0*4kB 12*8kB 1*16kB 1*32kB 0*64kB 1*128kB 
+0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 272kB
+Oct 30 17:32:22 sleepy HighMem: empty
+Oct 30 17:32:22 sleepy Swap cache: add 136776, delete 129314, find 
+37853/51620, race 0+0
+Oct 30 17:32:22 sleepy Out of Memory: Killed process 12395 (ld).
 
---------------enigF5EAB29990F9C10883DEDBDE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBg7a04q3E2oMjYtURAsLjAJwL/rqFNBxLXe3lkV5uDVU6Tl85mwCfbiqe
-mg1+a2JgHha6I+drxg++eYw=
-=fhcb
------END PGP SIGNATURE-----
-
---------------enigF5EAB29990F9C10883DEDBDE--

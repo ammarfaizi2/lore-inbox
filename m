@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289931AbSAKM0L>; Fri, 11 Jan 2002 07:26:11 -0500
+	id <S289933AbSAKM1S>; Fri, 11 Jan 2002 07:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289932AbSAKM0B>; Fri, 11 Jan 2002 07:26:01 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5636 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289931AbSAKMZx>; Fri, 11 Jan 2002 07:25:53 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: nigel@nrg.org
-Date: Fri, 11 Jan 2002 12:37:09 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), landley@trommello.org (Rob Landley),
-        akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.40.0201101840470.5213-100000@cosmic.nrg.org> from "Nigel Gamble" at Jan 10, 2002 06:47:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289934AbSAKM0y>; Fri, 11 Jan 2002 07:26:54 -0500
+Received: from ns.suse.de ([213.95.15.193]:12302 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289932AbSAKM0a>;
+	Fri, 11 Jan 2002 07:26:30 -0500
+Date: Fri, 11 Jan 2002 13:26:29 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Anders Vedmar <anders.vedmar@interactiveinstitute.se>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17 raid5 checksumming function selection wierdness
+In-Reply-To: <200201111208.g0BC8wI29387@nav.interactiveinstitute.se>
+Message-ID: <Pine.LNX.4.33.0201111325090.15636-100000@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16P0vl-0007Tu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On good hardware, we can easily do much better than 1ms latency with a
-> preemptible kernel and a spinlock cleanup.  I don't think the
-> limitations of some PC hardware should limit our goals for Linux.
+On Fri, 11 Jan 2002, Anders Vedmar wrote:
 
-Its more than a spinlock cleanup at that point. To do anything useful you have
-to tackle both priority inversion and some kind of at least semi-formal 
-validation of the code itself. At the point it comes down to validating the
-code I'd much rather validate rtlinux than the entire kernel
+> The raid5 code in 2.4.17 seems to select the slowest available
+> checksumming function.
+>    8regs     :  2148.000 MB/sec
+>    pIII_sse  :  1272.000 MB/sec
+> raid5: using function: pIII_sse (1272.000 MB/sec)
 
-Alan
+SSE is favoured due to it avoiding trashing the cache contents.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

@@ -1,95 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVARLFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVARLZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVARLFV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 06:05:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVARLFU
+	id S261275AbVARLZI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 06:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVARLZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 06:05:20 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:7041 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261261AbVARLEX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 06:04:23 -0500
-Message-ID: <41ECED31.3010209@andrew.cmu.edu>
-Date: Tue, 18 Jan 2005 06:04:17 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Tue, 18 Jan 2005 06:25:08 -0500
+Received: from ranger.systems.pipex.net ([62.241.162.32]:1216 "EHLO
+	ranger.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S261275AbVARLZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 06:25:00 -0500
+Date: Tue, 18 Jan 2005 11:25:55 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@ezer.homenet
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andi Kleen <ak@muc.de>, Arjan van de Ven <arjan@infradead.org>,
+       Jan Hubicka <jh@suse.cz>, Jack F Vogel <jfv@bluesong.net>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
+In-Reply-To: <41EC224D.5080204@zytor.com>
+Message-ID: <Pine.LNX.4.61.0501181112120.2911@ezer.homenet>
+References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
+ <20050114205651.GE17263@kam.mff.cuni.cz> <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
+ <cs9v6f$3tj$1@terminus.zytor.com> <Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
+ <1105955608.6304.60.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0501171002190.4644@ezer.homenet>
+ <41EBFF87.6080105@zytor.com> <m1wtubvm8y.fsf@muc.de> <41EC224D.5080204@zytor.com>
 MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IBM Patents
-References: <Pine.LNX.4.61.0501170842540.21983@chaos.analogic.com> <1105973138.28592.26.camel@tara.firmix.at>
-In-Reply-To: <1105973138.28592.26.camel@tara.firmix.at>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe that IBM is simply responding to the recent study that "Linux 
-violates more than 283 patents".  Regardless of the truth to that study, 
-this is IBM's way of stating that the 60 that they hold will not be used 
-against Linux or other open source projects.
+On Mon, 17 Jan 2005, H. Peter Anvin wrote:
+> Or does kdb not have a client at all?  (If so, I have no sympathy for it.)
 
-Bernd Petrovitsch wrote:
-> On Mon, 2005-01-17 at 08:44 -0500, linux-os wrote:
->>Tue Jan 11 07:07:40 EST 2005
->>IBM has announced that it will provide free access to about
->>500 of its existing software patents to users and groups
-> 
-> No, they only promise now to not sue anyone given the following
-> criteria. No one knows what happens in 5 years.
+Peter, it was very easy for you to call my emails "rants" and "not even 
+funny" but the above statement is displaying complete ignorance of what 
+kdb actually is :) So, instead of "patronizing" your fellow-hacker, please 
+listen to what he has to say below:
 
-Yes we do "know what happens"; From the first page of IBM's pledge:
-   "... the commitment not to assert any of these 500 U.S. patents and 
-all counterparts of these patents issued in other countries is 
-*irrevocable* except that IBM reserves the right to terminate this 
-patent pledge and commitment only with regard to any party who files a 
-lawsuit asserting patents or other intellectual property rights against 
-Open Source Software." (emphasis added)
+I already solved this paricular problem. And the solution is (but don't 
+tell me you knew it, for then why didn't you tell anyone) simply --- 
+compile the kernel with -g and that includes enough debug information to 
+be able to decode the stack content correctly. And yes, kdb does show the 
+correct argument values now. No changes to kdb are necessary and no need 
+to do the work with dwarf2 implementation etc etc.
 
-They also state that the pledge is intended to be "legally binding". 
-So, unless you plan on suing an open source developer over intellectual 
-property you should be fine.  That includes five years from now.  It 
-could however, have negative effects on Jeff Merkey's plans to buy a 
-copy of the kernel code.
+However, this highlighted a more serious problem in the x86_64 kernel (or 
+more likely in the kdb patch) --- the kernel compiled with -g panics when 
+you try to return from kdb after hitting a breakpoint. This is a bug and 
+I'll investigate to find out the reason why it panics. (I hope it is not 
+an "assumption" of the x86_64 port that one must never compile the kernel 
+with -g either...)
 
-> They have ca. 40000 AFAIK. So 500 is 1,25 %.
-> And IBM is actually lobbying for patents so this is only a marketing
-> thing.
-
-I wouldn't expect them to change overnight.  Patents have made IBM (and 
-many other companies) a lot of money.  The ones who's interests are not 
-served by patents are citizens and small companies.  Not surprisingly, 
-they are the ones fighting the EU initiative.  Thus everyone is doing 
-what's in their best interests, which is hardly unexpected.  I am of 
-course hoping that citizens' interests win out in the EU.
-
-However, given the patent system already present in the US, IBM's action 
-is a step in the right direction.  It strikes me as a lot like how 
-Copyleft used copyright law to effect the opposite of the intended 
-result.  While "no software patents" is desirable, if there is a way to 
-work within the existing system to get some freedom back for developers, 
-I don't think that's a bad thing.
-
->>working on open source software.
->> 	http://www.ibm.com/news/us/
->>
->>Many of these patents relate to interoperability, communications,
->>file-export protocols, and dynamic linking.
-> 
-> And almost all of them are pure software-patents and probably prior art.
-> Thus they are - at least in Europe - not relevant and actually illegal
-> if you believe in the current European patent law as defined by the
-> European Patent Convention (see §52(2) for details).
-
-I'm can't comment on every patent in the list, but many of the ones 
-regarding image processing (my area of expertise) are novel enough under 
-the current legal system to stand up in court.  Even if only 1 in 10 of 
-the patents are valid in the overall list, those that remain represent 
-new things that can now be released as open source, without fear of 
-reprisal.  I for one hope this grows and other companies see the benefit 
-of adding patents to the list.  Given that the EU will quite possibly 
-get software patents within the next year, this could quickly become 
-important for all of us.
-
-  - Jim Bruce
+Kind regards
+Tigran

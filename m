@@ -1,44 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265761AbSKBAjy>; Fri, 1 Nov 2002 19:39:54 -0500
+	id <S265815AbSKBAnX>; Fri, 1 Nov 2002 19:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265783AbSKBAjy>; Fri, 1 Nov 2002 19:39:54 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:46089 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265761AbSKBAjx>; Fri, 1 Nov 2002 19:39:53 -0500
-Date: Sat, 2 Nov 2002 01:46:18 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Tom Rini <trini@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Where's the documentation for Kconfig?
-In-Reply-To: <20021102000730.GB6410@opus.bloom.county>
-Message-ID: <Pine.LNX.4.44.0211020119520.6949-100000@serv>
-References: <Pine.LNX.4.44.0210311452531.13258-100000@serv>
- <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv>
- <20021101193112.B26989@flint.arm.linux.org.uk> <20021101203033.GA5773@opus.bloom.county>
- <20021101203546.C26989@flint.arm.linux.org.uk> <20021101204225.GA6003@opus.bloom.county>
- <20021101204643.D26989@flint.arm.linux.org.uk> <20021101233250.GA6410@opus.bloom.county>
- <Pine.LNX.4.44.0211020051090.6949-100000@serv> <20021102000730.GB6410@opus.bloom.county>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265839AbSKBAnX>; Fri, 1 Nov 2002 19:43:23 -0500
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:51864
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP
+	id <S265815AbSKBAnW>; Fri, 1 Nov 2002 19:43:22 -0500
+Subject: Re: What's left over. - Dave's crash code supports a gdb interface
+	for LKCD crash dumps.
+From: Piet Delaney <piet@www.piet.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Dave Anderson <anderson@redhat.com>, kgdb@vsnl.net,
+       Linus Torvalds <torvalds@transmeta.com>, piet <piet@www.piet.net>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+In-Reply-To: <3DC17354.943DAC97@digeo.com>
+References: <Pine.LNX.4.44.0210310900130.20412-100000@nakedeye.aparity.com>
+	<Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com> 
+	<3DC17354.943DAC97@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 01 Nov 2002 16:49:29 -0800
+Message-Id: <1036198169.1580.126.camel@www.piet.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2002-10-31 at 10:15, Andrew Morton wrote:
+ 
+> (Disclaimer: I've never used lkcd.  I'm assuming that it's
+> possible to gdb around in a dump)
 
-On Fri, 1 Nov 2002, Tom Rini wrote:
-
-> Consistency with values?  It's not needed, but in somplaces we had:
-> #define FOO 0x12345678UL,
-> which was replaced with
-> #define FOO CONFIG_BAR_VALUE
+I updated Dave Anderson's (Mission Critical) crash code to work 
+with LKCD core dumps when I updated LKCD to support the ia64. 
+Dave's crash code uses gdb as a command interpreter. It's not quite 
+as flexible as using gdb macros on core dumps but it's very close 
+and has lots of support for various kernel structures. For example, 
+you can't just have ddd walk through data structures by simply 
+clicking on pointers in data structures like you normally can.
+ 
 > 
-> So for consistency (and only that really, so if it's hard just say No)
-> I'd like to be able to put back the 'UL' / 'L'
+> >         In particular when it comes to this project, I'm told about
+> >         "netdump", which doesn't try to dump to a disk, but over the net.
+> 
+> It could help.  But like serial console, the random person whose
+> kernel just died often can't be bothered setting it up, or simply
+> doesn't have the gear, or the crash is not repeatable.
 
-It would add more complexity than it gives us it. I would implement it if 
-it would help avoiding helping complexity somewhere else.
+Yes, ideally I'd like to have an integration between live gdb stub
+debugging and crash debugging. I'd like to even be able to use ddd/gdb
+on a core file and simulate execution. When using gdb on the kernel 
+I've found it nice to move the cursor over the PC and move it to the 
+end of panic(). Then single step back out of panic and re-execute 
+the code that returned the error code that caused us to decide to panic.
+Doing this in asm language with a asm debugger is too difficult for 
+most folks.
 
-bye, Roman
+I really liked HP's kwdb approach. kwdb has a tiny TCP/IP stack and
+has direct hooks into the trap vectors like a normal kgdb stub. The
+nice thing is you can attach to a crash system over the internet
+from anywhere in the world to debug the panic. I wasn't able to get
+HP to release the kwdb gdb stub into the public domain. The gdb hacks
+are available at:
+ 
+http://h21007.www2.hp.com/dspp/tech/tech_TechSoftwareDetailPage_IDX/1,1703,257,00.html
+
+but are based on a very old version of gdb and ia64 libraries.
+	
+
+
+> So.  _If_ lkcd gives me gdb-able images from time-of-crash, I'd
+> like it please.  And I'm the grunt who spent nearly two years
+> doing not much else apart from working 2.3/2.4 oops reports.
+
+You can snarf a copy from:
+
+	ftp://people.redhat.com/anderson
+
+One area that I'm not sure of is if the lkcd kernel changes are a
+problem with the kgdb patch (http://kgdb.sourceforge.net/). Perhaps
+I can check into that in the near future.
+
+I'd prefer to have both kgdb (http://kgdb.sourceforge.net/)
+remote debugging and kgdb crash support available in stock kernels 
+like the BSD kernels (NetBSD, FreeBSD). I don't know why the kgdb 
+stub wasn't integrated into the kernel for the ia32 and ia64 platforms.
+I suppose for reasons like we are hearing now on the LKCD kernel hooks.
+The current LKCD code is at least a step in that direction.
+
+-- 
+piet@www.piet.net
 

@@ -1,397 +1,793 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265836AbTIJWSo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 18:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbTIJWSo
+	id S265941AbTIJXCA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 19:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbTIJXB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 18:18:44 -0400
-Received: from smtp9.us.dell.com ([143.166.148.136]:42171 "EHLO
-	smtp9.us.dell.com") by vger.kernel.org with ESMTP id S265836AbTIJWSC
+	Wed, 10 Sep 2003 19:01:59 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:45804 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S265941AbTIJXBe convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 18:18:02 -0400
-Date: Wed, 10 Sep 2003 12:17:34 -0500 (CDT)
-From: Matt Domsch <Matt_Domsch@Dell.com>
-X-X-Sender: mdomsch@localhost.localdomain
-To: Greg KH <greg@kroah.com>
-cc: rmk@arm.linux.org.uk, <linux-kernel@vger.kernel.org>
-Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable
- data
-In-Reply-To: <Pine.LNX.4.44.0309100427490.17820-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0309101212510.2440-100000@localhost.localdomain>
+	Wed, 10 Sep 2003 19:01:34 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: 2.6.0-test5-mm1
+Date: Wed, 10 Sep 2003 16:01:14 -0700
+Message-ID: <7F740D512C7C1046AB53446D3720017304AF36@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.0-test5-mm1
+Thread-Index: AcN34dsPxea7et87QxanguewEWR1qwAC+FHQ
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Wiktor Wodecki" <wodecki@gmx.de>, "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+       "linux-acpi" <linux-acpi@intel.com>
+X-OriginalArrivalTime: 10 Sep 2003 23:01:17.0116 (UTC) FILETIME=[70E08FC0:01C377EF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > These either need to be marked __devinit and make "new_id" dependant on
-> > CONFIG_HOTPLUG
+Getting SCI at IRQ 7 is not a problem, but it sounds very rare. 
 
-Patch below moves all the new_id code under CONFIG_HOTPLUG.  Tested
-with both CONFIG_HOTPLUG enabled and disabled.  No significant code
-changes, merely code moving, and in 2 cases, stub functions added.
+Can you please send dmesg and acpidmp to linux-acpi@intel.com?
+Or file a bug report and put them on http://bugme.osdl.org/?
 
-Please review and apply.
+Thanks,
+Jun
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---- linux-2.5/drivers/pci/pci-driver.c	Thu Sep  4 16:36:45 2003
-+++ linux-2.5-devinit/drivers/pci/pci-driver.c	Wed Sep 10 10:18:55 2003
-@@ -19,7 +19,7 @@
-  *                        PCI device id structure
-  * @id: single PCI device id structure to match
-  * @dev: the PCI device structure to match against
-- * 
-+ *
-  * Returns the matching pci_device_id structure or %NULL if there is no match.
-  */
- 
-@@ -35,6 +35,166 @@ pci_match_one_device(const struct pci_de
- 	return NULL;
- }
- 
-+/*
-+ * Dynamic device IDs are disabled for !CONFIG_HOTPLUG
-+ */
-+
-+#ifdef CONFIG_HOTPLUG
-+/**
-+ * pci_device_probe_dynamic()
-+ *
-+ * Walk the dynamic ID list looking for a match.
-+ * returns 0 and sets pci_dev->driver when drv claims pci_dev, else error.
-+ */
-+static int
-+pci_device_probe_dynamic(struct pci_driver *drv, struct pci_dev *pci_dev)
-+{
-+	int error = -ENODEV;
-+	struct list_head *pos;
-+	struct dynid *dynid;
-+
-+	spin_lock(&drv->dynids.lock);
-+	list_for_each(pos, &drv->dynids.list) {
-+		dynid = list_entry(pos, struct dynid, node);
-+		if (pci_match_one_device(&dynid->id, pci_dev)) {
-+			spin_unlock(&drv->dynids.lock);
-+			error = drv->probe(pci_dev, &dynid->id);
-+			if (error >= 0) {
-+				pci_dev->driver = drv;
-+				return 0;
-+			}
-+			return error;
-+		}
-+	}
-+	spin_unlock(&drv->dynids.lock);
-+	return error;
-+}
-+static inline void
-+dynid_init(struct dynid *dynid)
-+{
-+	memset(dynid, 0, sizeof(*dynid));
-+	INIT_LIST_HEAD(&dynid->node);
-+}
-+
-+/**
-+ * store_new_id
-+ * @ pdrv
-+ * @ buf
-+ * @ count
-+ *
-+ * Adds a new dynamic pci device ID to this driver,
-+ * and causes the driver to probe for all devices again.
-+ */
-+static inline ssize_t
-+store_new_id(struct device_driver * driver, const char * buf, size_t count)
-+{
-+	struct dynid *dynid;
-+	struct bus_type * bus;
-+	struct pci_driver *pdrv = to_pci_driver(driver);
-+	__u32 vendor=PCI_ANY_ID, device=PCI_ANY_ID, subvendor=PCI_ANY_ID,
-+		subdevice=PCI_ANY_ID, class=0, class_mask=0;
-+	unsigned long driver_data=0;
-+	int fields=0;
-+
-+	fields = sscanf(buf, "%x %x %x %x %x %x %lux",
-+			&vendor, &device, &subvendor, &subdevice,
-+			&class, &class_mask, &driver_data);
-+	if (fields < 0)
-+		return -EINVAL;
-+
-+	dynid = kmalloc(sizeof(*dynid), GFP_KERNEL);
-+	if (!dynid)
-+		return -ENOMEM;
-+	dynid_init(dynid);
-+
-+	dynid->id.vendor = vendor;
-+	dynid->id.device = device;
-+	dynid->id.subvendor = subvendor;
-+	dynid->id.subdevice = subdevice;
-+	dynid->id.class = class;
-+	dynid->id.class_mask = class_mask;
-+	dynid->id.driver_data = pdrv->dynids.use_driver_data ?
-+		driver_data : 0UL;
-+
-+	spin_lock(&pdrv->dynids.lock);
-+	list_add_tail(&pdrv->dynids.list, &dynid->node);
-+	spin_unlock(&pdrv->dynids.lock);
-+
-+	bus = get_bus(pdrv->driver.bus);
-+	if (bus) {
-+		if (get_driver(&pdrv->driver)) {
-+			down_write(&bus->subsys.rwsem);
-+			driver_attach(&pdrv->driver);
-+			up_write(&bus->subsys.rwsem);
-+			put_driver(&pdrv->driver);
-+		}
-+		put_bus(bus);
-+	}
-+
-+	return count;
-+}
-+
-+static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
-+static inline void
-+pci_init_dynids(struct pci_dynids *dynids)
-+{
-+	memset(dynids, 0, sizeof(*dynids));
-+	spin_lock_init(&dynids->lock);
-+	INIT_LIST_HEAD(&dynids->list);
-+}
-+
-+static void
-+pci_free_dynids(struct pci_driver *drv)
-+{
-+	struct list_head *pos, *n;
-+	struct dynid *dynid;
-+
-+	spin_lock(&drv->dynids.lock);
-+	list_for_each_safe(pos, n, &drv->dynids.list) {
-+		dynid = list_entry(pos, struct dynid, node);
-+		list_del(&dynid->node);
-+		kfree(dynid);
-+	}
-+	spin_unlock(&drv->dynids.lock);
-+}
-+
-+static int
-+pci_create_newid_file(struct pci_driver * drv)
-+{
-+	int error = 0;
-+	if (drv->probe != NULL)
-+		error = sysfs_create_file(&drv->driver.kobj,
-+					  &driver_attr_new_id.attr);
-+	return error;
-+}
-+
-+static int
-+pci_bus_match_dynids(const struct pci_dev * pci_dev, const struct pci_driver * pci_drv)
-+{
-+	struct list_head *pos;
-+	struct dynid *dynid;
-+
-+	spin_lock(&pci_drv->dynids.lock);
-+	list_for_each(pos, &pci_drv->dynids.list) {
-+		dynid = list_entry(pos, struct dynid, node);
-+		if (pci_match_one_device(&dynid->id, pci_dev)) {
-+			spin_unlock(&pci_drv->dynids.lock);
-+			return 1;
-+		}
-+	}
-+	spin_unlock(&pci_drv->dynids.lock);
-+	return 0;
-+}
-+
-+#else /* !CONFIG_HOTPLUG */
-+#define pci_device_probe_dynamic(drv,pci_dev) (-ENODEV)
-+#define dynid_init(dynid) do {} while (0)
-+#define pci_init_dynids(dynids) do {} while (0)
-+#define pci_free_dynids(drv) do {} while (0)
-+#define pci_create_newid_file(drv) (0)
-+#define pci_bus_match_dynids(pci_dev, pci_drv) (0)
-+#endif
-+
- /**
-  * pci_match_device - Tell if a PCI device structure has a matching
-  *                    PCI device id structure
-@@ -80,36 +240,6 @@ pci_device_probe_static(struct pci_drive
- }
- 
- /**
-- * pci_device_probe_dynamic()
-- * 
-- * Walk the dynamic ID list looking for a match.
-- * returns 0 and sets pci_dev->driver when drv claims pci_dev, else error.
-- */
--static int
--pci_device_probe_dynamic(struct pci_driver *drv, struct pci_dev *pci_dev)
--{		   
--	int error = -ENODEV;
--	struct list_head *pos;
--	struct dynid *dynid;
--
--	spin_lock(&drv->dynids.lock);
--	list_for_each(pos, &drv->dynids.list) {
--		dynid = list_entry(pos, struct dynid, node);
--		if (pci_match_one_device(&dynid->id, pci_dev)) {
--			spin_unlock(&drv->dynids.lock);
--			error = drv->probe(pci_dev, &dynid->id);
--			if (error >= 0) {
--				pci_dev->driver = drv;
--				return 0;
--			}
--			return error;
--		}
--	}
--	spin_unlock(&drv->dynids.lock);
--	return error;
--}
--
--/**
-  * __pci_device_probe()
-  * 
-  * returns 0  on success, else error.
-@@ -178,72 +308,6 @@ static int pci_device_resume(struct devi
- 	return 0;
- }
- 
--static inline void
--dynid_init(struct dynid *dynid)
--{
--	memset(dynid, 0, sizeof(*dynid));
--	INIT_LIST_HEAD(&dynid->node);
--}
--
--/**
-- * store_new_id
-- * @ pdrv
-- * @ buf
-- * @ count
-- *
-- * Adds a new dynamic pci device ID to this driver,
-- * and causes the driver to probe for all devices again.
-- */
--static inline ssize_t
--store_new_id(struct device_driver * driver, const char * buf, size_t count)
--{
--	struct dynid *dynid;
--	struct bus_type * bus;
--	struct pci_driver *pdrv = to_pci_driver(driver);
--	__u32 vendor=PCI_ANY_ID, device=PCI_ANY_ID, subvendor=PCI_ANY_ID,
--		subdevice=PCI_ANY_ID, class=0, class_mask=0;
--	unsigned long driver_data=0;
--	int fields=0;
--
--	fields = sscanf(buf, "%x %x %x %x %x %x %lux",
--			&vendor, &device, &subvendor, &subdevice,
--			&class, &class_mask, &driver_data);
--	if (fields < 0)
--		return -EINVAL;
--
--	dynid = kmalloc(sizeof(*dynid), GFP_KERNEL);
--	if (!dynid)
--		return -ENOMEM;
--	dynid_init(dynid);
--
--	dynid->id.vendor = vendor;
--	dynid->id.device = device;
--	dynid->id.subvendor = subvendor;
--	dynid->id.subdevice = subdevice;
--	dynid->id.class = class;
--	dynid->id.class_mask = class_mask;
--	dynid->id.driver_data = pdrv->dynids.use_driver_data ?
--		driver_data : 0UL;
--
--	spin_lock(&pdrv->dynids.lock);
--	list_add_tail(&pdrv->dynids.list, &dynid->node);
--	spin_unlock(&pdrv->dynids.lock);
--
--	bus = get_bus(pdrv->driver.bus);
--	if (bus) {
--		if (get_driver(&pdrv->driver)) {
--			down_write(&bus->subsys.rwsem);
--			driver_attach(&pdrv->driver);
--			up_write(&bus->subsys.rwsem);
--			put_driver(&pdrv->driver);
--		}
--		put_bus(bus);
--	}
--	
--	return count;
--}
--
--static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
- 
- #define kobj_to_pci_driver(obj) container_of(obj, struct device_driver, kobj)
- #define attr_to_driver_attribute(obj) container_of(obj, struct driver_attribute, attr)
-@@ -290,38 +354,9 @@ static struct kobj_type pci_driver_kobj_
- static int
- pci_populate_driver_dir(struct pci_driver * drv)
- {
--	int error = 0;
--
--	if (drv->probe != NULL)
--		error = sysfs_create_file(&drv->driver.kobj,
--					  &driver_attr_new_id.attr);
--	return error;
--}
--
--static inline void
--pci_init_dynids(struct pci_dynids *dynids)
--{
--	memset(dynids, 0, sizeof(*dynids));
--	spin_lock_init(&dynids->lock);
--	INIT_LIST_HEAD(&dynids->list);
--}
--
--static void
--pci_free_dynids(struct pci_driver *drv)
--{
--	struct list_head *pos, *n;
--	struct dynid *dynid;
--
--	spin_lock(&drv->dynids.lock);
--	list_for_each_safe(pos, n, &drv->dynids.list) {
--		dynid = list_entry(pos, struct dynid, node);
--		list_del(&dynid->node);
--		kfree(dynid);
--	}
--	spin_unlock(&drv->dynids.lock);
-+	return pci_create_newid_file(drv);
- }
- 
--
- /**
-  * pci_register_driver - register a new pci driver
-  * @drv: the driver structure to register
-@@ -411,8 +446,6 @@ static int pci_bus_match(struct device *
- 	struct pci_driver * pci_drv = to_pci_driver(drv);
- 	const struct pci_device_id * ids = pci_drv->id_table;
- 	const struct pci_device_id *found_id;
--	struct list_head *pos;
--	struct dynid *dynid;
- 
- 	if (!ids)
- 		return 0;
-@@ -421,17 +454,7 @@ static int pci_bus_match(struct device *
- 	if (found_id)
- 		return 1;
- 
--	spin_lock(&pci_drv->dynids.lock);
--	list_for_each(pos, &pci_drv->dynids.list) {
--		dynid = list_entry(pos, struct dynid, node);
--		if (pci_match_one_device(&dynid->id, pci_dev)) {
--			spin_unlock(&pci_drv->dynids.lock);
--			return 1;
--		}
--	}
--	spin_unlock(&pci_drv->dynids.lock);
--
--	return 0;
-+	return pci_bus_match_dynids(pci_dev, pci_drv);
- }
- 
- /**
-
+> -----Original Message-----
+> From: Wiktor Wodecki [mailto:wodecki@gmx.de]
+> Sent: Wednesday, September 10, 2003 2:18 PM
+> To: Andrew Morton
+> Cc: linux-kernel@vger.kernel.org; linux-mm@kvack.org
+> Subject: Re: 2.6.0-test5-mm1
+> 
+> Hi,
+> 
+> still errors with uncared irq with test5-mm1:
+> 
+> Sep 10 21:36:13 kakerlak kernel: irq 7: nobody cared!
+> Sep 10 21:36:13 kakerlak kernel: Call Trace:
+> Sep 10 21:36:13 kakerlak kernel:  [__report_bad_irq+42/144]
+> __report_bad_irq+0x2a/0x90
+> Sep 10 21:36:13 kakerlak kernel:  [note_interrupt+108/176]
+> note_interrupt+0x6c/0xb0
+> Sep 10 21:36:13 kakerlak kernel:  [do_IRQ+288/304] do_IRQ+0x120/0x130
+> Sep 10 21:36:13 kakerlak kernel:  [common_interrupt+24/32]
+> common_interrupt+0x18/0x20
+> Sep 10 21:36:13 kakerlak kernel:  [do_softirq+64/160]
+do_softirq+0x40/0xa0
+> Sep 10 21:36:13 kakerlak kernel:  [do_IRQ+252/304] do_IRQ+0xfc/0x130
+> Sep 10 21:36:13 kakerlak kernel:  [_stext+0/96] rest_init+0x0/0x60
+> Sep 10 21:36:13 kakerlak kernel:  [common_interrupt+24/32]
+> common_interrupt+0x18/0x20
+> Sep 10 21:36:13 kakerlak kernel:  [_stext+0/96] rest_init+0x0/0x60
+> Sep 10 21:36:13 kakerlak kernel:  [acpi_processor_idle+213/455]
+> acpi_processor_idle+0xd5/0x1c7
+> Sep 10 21:36:13 kakerlak kernel:  [_stext+0/96] rest_init+0x0/0x60
+> Sep 10 21:36:13 kakerlak kernel:  [cpu_idle+44/64] cpu_idle+0x2c/0x40
+> Sep 10 21:36:13 kakerlak kernel:  [start_kernel+332/352]
+> start_kernel+0x14c/0x160
+> Sep 10 21:36:13 kakerlak kernel:  [unknown_bootoption+0/256]
+> unknown_bootoption+0x0/0x100
+> Sep 10 21:36:13 kakerlak kernel:
+> Sep 10 21:36:13 kakerlak kernel: handlers:
+> Sep 10 21:36:13 kakerlak kernel: [acpi_irq+0/22] (acpi_irq+0x0/0x16)
+> Sep 10 21:36:13 kakerlak kernel: Disabling IRQ #7
+> 
+> kernel booted with pci=noacpi, lspci attached
+> 
+> On Mon, Sep 08, 2003 at 11:50:28PM -0700, Andrew Morton wrote:
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-
+> test5/2.6.0-test5-mm1/
+> >
+> >
+> > Small fixes, mainly.
+> >
+> >
+> >
+> >
+> > Changes since 2.6.0-test4-mm6:
+> >
+> >
+> > -sysfs-memleak-fix.patch
+> > -large-dev_t-2nd-01.patch
+> > -large-dev_t-2nd-02.patch
+> > -large-dev_t-2nd-03.patch
+> > -large-dev_t-2nd-04.patch
+> > -large-dev_t-2nd-05.patch
+> > -large-dev_t-2nd-06.patch
+> > -large-dev_t-2nd-07.patch
+> > -large-dev_t-2nd-08.patch
+> > -large-dev_t-2nd-09.patch
+> > -large-dev_t-2nd-10.patch
+> > -large-dev_t-2nd-11.patch
+> > -large-dev_t-2nd-12.patch
+> > -large-dev_t-2nd-13.patch
+> > -large-dev_t-2nd-14.patch
+> > -large-dev_t-2nd-15.patch
+> > -kobject-unlimited-name-lengths.patch
+> > -kobject-unlimited-name-lengths-use-after-free-fix.patch
+> > -remove-version_h.patch
+> > -remove-__SMP__.patch
+> > -make-init_mister-static.patch
+> > -skfddi-copy_user-checks.patch
+> > -ll_rw_blk-comment-corrections.patch
+> > -sc520_wdt-ioremap-checking.patch
+> > -paride-error-return-handling.patch
+> > -init-exit-cleanups.patch
+> > -qla1280-pci-alloc-free-checking.patch
+> > -saa7134-core-ioremap-checking.patch
+> > -acpi-pci-routing-fixes.patch
+> >
+> >  Merged
+> >
+> > +tg3-poll_controller.patch
+> > +kgdb-eth-reattach.patch
+> > +kgdb-skb_reserve-fix.patch
+> >
+> >  kgdb-over-ethernet fixes
+> >
+> > -fix-io-hangs.patch
+> > -as-insert-here-fix.patch
+> >
+> >  Obsoleted
+> >
+> > +acpi-irq-fixes.patch
+> >
+> >  Andrew de Quincey's ACPI changes
+> >
+> > -cfq-3.patch
+> > -cfq-3-fixes.patch
+> > +cfq-4.patch
+> >
+> >  Reworked CFQ IO scheduler
+> >
+> > -thread-pgrp-fix-2.patch
+> >
+> >  Obsoleted by group_leader-rework.patch
+> >
+> > +group_leader-rework.patch
+> >
+> >  Use the thread group leader's pgrp rather than the current thread's
+> pgrp
+> >  everywhere.
+> >
+> > +timer_tsc-cyc2ns_scale-fix.patch
+> >
+> >  ia32 timer fixlet
+> >
+> > +ppp-oops-fix.patch
+> >
+> >  Fix an oops in the PPP driver (with devfs)
+> >
+> > +d_delete-d_lookup-race-fix.patch
+> >
+> >  dentry race fix
+> >
+> > +idle-using-monitor-mwait.patch
+> > +idle-using-monitor-mwait-tweaks.patch
+> >
+> >  Support for using the new ia32 monitor/mwait instructions in the
+idle
+> loop.
+> >
+> > +remap_file_pages-MAP_NONBLOCK-fix.patch
+> > +install_page-use-after-unmap-fix.patch
+> >
+> >  remap_file_pages() fixes
+> >
+> > +agp-build-fix.patch
+> >
+> >  Compile fix
+> >
+> > +inflate-error-cleanup.patch
+> >
+> >  Error message consistencies.
+> >
+> > +slab-debug-additions.patch
+> >
+> >  Slab debug enhancements, including: make sure that objects are
+aligned
+> at
+> >  the highest possible address within their page, so overruns are
+more
+> likely
+> >  to trigger the page unmapping debug feature.
+> >
+> > +mwave-locking-fixes.patch
+> >
+> >  mwave driver fixes
+> >
+> > +summit-includes-fix.patch
+> >
+> >  Build fix
+> >
+> > +random-lock-contention.patch
+> >
+> >  Fix lock contention in the new random driver locking on monster
+SMP.
+> >
+> > +agp-warning-fix.patch
+> >
+> >  Fix some warning
+> >
+> > +ifdown-lockup-fix.patch
+> >
+> >  Fix network device close hang
+> >
+> > +fadvise-needs-asmlinkage.patch
+> >
+> >  Missing asmlinkage
+> >
+> > +ufs-build-fix.patch
+> >
+> >  Purge C++isms
+> >
+> > -put_task_struct-debug.patch
+> >
+> >  This broke, but the bug was fixed anyway.
+> >
+> > -sparc64-lockmeter-fix.patch
+> > -sparc64-lockmeter-fix-2.patch
+> >
+> >  Folded into lockmeter.patch
+> >
+> > +4g4g-copy_mount_options-fix.patch
+> > +4g4g-pagetable-accounting-fix.patch
+> >
+> >  4G/4G fixes
+> >
+> >
+> >
+> >
+> >
+> > All 173 patches:
+> >
+> >
+> > mm.patch
+> >   add -mmN to EXTRAVERSION
+> >
+> > kgdb-ga.patch
+> >   kgdb stub for ia32 (George Anzinger's one)
+> >   kgdbL warning fix
+> >
+> > kgdb-warning-fix.patch
+> >   kgdbL warning fix
+> >
+> > kgdb-build-fix.patch
+> >
+> > kgdb-spinlock-fix.patch
+> >
+> > kgdb-fix-debug-info.patch
+> >   kgdb: CONFIG_DEBUG_INFO fix
+> >
+> > kgdb-cpumask_t.patch
+> >
+> > kgdb-x86_64-fixes.patch
+> >   x86_64 fixes
+> >
+> > kgdb-over-ethernet.patch
+> >   kgdb-over-ethernet patch
+> >
+> > kgdb-over-ethernet-fixes.patch
+> >   kgdb-over-ethernet fixlets
+> >
+> > kgdb-CONFIG_NET_POLL_CONTROLLER.patch
+> >   kgdb: replace CONFIG_KGDB with CONFIG_NET_RX_POLL in net drivers
+> >
+> > kgdb-handle-stopped-NICs.patch
+> >   kgdb: handle netif_stopped NICs
+> >
+> > eepro100-poll-controller.patch
+> >
+> > tlan-poll_controller.patch
+> >
+> > tulip-poll_controller.patch
+> >
+> > tg3-poll_controller.patch
+> >   kgdb: tg3 poll_controller
+> >
+> > kgdb-eth-smp-fix.patch
+> >   kgdb-over-ethernet: fix SMP
+> >
+> > kgdb-eth-reattach.patch
+> >
+> > kgdb-skb_reserve-fix.patch
+> >   kgdb-over-ethernet: skb_reserve() fix
+> >
+> > acpi-irq-fixes.patch
+> >   Next round of ACPI IRQ fixes (VIA ACPI fixed)
+> >
+> > cfq-4.patch
+> >   CFQ io scheduler
+> >   CFQ fixes
+> >
+> > no-unit-at-a-time.patch
+> >   Use -fno-unit-at-a-time if gcc supports it
+> >
+> > calibrate_tsc-consolidation.patch
+> >   calibrate_tsc() fix and consolidation
+> >
+> > config_spinline.patch
+> >   uninline spinlocks for profiling accuracy.
+> >
+> > ppc64-build-fixes.patch
+> >   Fix ppc64 breakage
+> >
+> > ppc64-bar-0-fix.patch
+> >   Allow PCI BARs that start at 0
+> >
+> > ppc64-reloc_hide.patch
+> >
+> > ppc64-semaphore-reimplementation.patch
+> >   ppc64: use the ia32 semaphore implementation
+> >
+> > ppc64-local.patch
+> >   ppc64: local.h implementation
+> >
+> > sym-do-160.patch
+> >   make the SYM driver do 160 MB/sec
+> >
+> > rt-tasks-special-vm-treatment.patch
+> >   real-time enhanced page allocator and throttling
+> >
+> > rt-tasks-special-vm-treatment-2.patch
+> >
+> > input-use-after-free-checks.patch
+> >   input layer debug checks
+> >
+> > fbdev.patch
+> >   framebbuffer driver update
+> >
+> > cursor-flashing-fix.patch
+> >   fbdev: fix cursor letovers
+> >
+> > slab-hexdump.patch
+> >   slab: hexdump structures when things go wrong
+> >
+> > aic7xxx-parallel-build-fix.patch
+> >   fix parallel builds for aic7xxx
+> >
+> > group_leader-rework.patch
+> >   Fix setpgid and threads
+> >   use group_leader->pgrp (was Re: setpgid and threads)
+> >
+> > ramdisk-cleanup.patch
+> >
+> > delay-ksoftirqd-fallback.patch
+> >   Try harded in IRQ context before falling back to ksoftirqd
+> >
+> > intel8x0-cleanup.patch
+> >   intel8x0 cleanups
+> >
+> > claim-serio-early.patch
+> >   Serio: claim serio early
+> >
+> > mark-devfs-obsolete.patch
+> >   mark devfs obsolete
+> >
+> > VT8231-router-detection.patch
+> >   VT8231 IRQ router detection
+> >
+> > block-devfs-conversions.patch
+> >   Initialise devfs_name in various block drivers
+> >
+> > timer_tsc-cyc2ns_scale-fix.patch
+> >   monolitic_clock, timer_{tsc,hpet} and CPUFREQ
+> >
+> > test4-pm1.patch
+> >   power management update
+> >
+> > ide-pm-oops-fix.patch
+> >   IDE power management oops fix
+> >
+> > swsusp-fpu-fix.patch
+> >   swsusp fpu management fix
+> >
+> > ricoh-mask-fix.patch
+> >   pcmcia: ricoh.h mask fix
+> >   EDEC
+> >   From: KOMURO <komujun@nifty.com>, Alan Cox
+<alan@lxorguk.ukuu.org.uk>
+> >
+> >   RL5C4XX_16BIT_MEM_0 was wrong.
+> >
+> > dac960-devfs_name-fix.patch
+> >   dac960 devfs_name initialisation fix
+> >
+> > dac960-warning-fixes.patch
+> >   compiler warning fixes for DAC960 on alpha
+> >
+> > ikconfig-gzipped-2.patch
+> >   Move ikconfig to /proc/config.gz
+> >   ikconfig cleanup
+> >
+> > flush-invalidate-fixes.patch
+> >   memory writeback/invalidation fixes
+> >
+> > flush-invalidate-fixes-warning-fix.patch
+> >
+> > ide_floppy-maybe-fix.patch
+> >   might fix ide_floppy
+> >
+> > reiserfs-direct-io.patch
+> >   resierfs direct-IO support
+> >
+> > pdflush-diag.patch
+> >
+> > joydev-exclusions.patch
+> >   joydev is too eager claiming input devices
+> >
+> > might_sleep-diags.patch
+> >
+> > imm-fix-fix.patch
+> >   Fix imm.c again
+> >
+> > selinux-option-config-option.patch
+> >   make selinux enable param config option, enabled by default
+> >
+> > sound-remove-duplicate-includes.patch
+> >   sound: remove duplicate includes
+> >
+> > kernel-remove-duplicate-includes.patch
+> >   remove duplicate includes in kernel/
+> >
+> > utime-on-immutable-file-fix.patch
+> >   disallow utime{s}() on immutable or append-only files
+> >
+> > add-daniele-to-credits.patch
+> >   add Daniele to CREDITS
+> >
+> > NR_CPUS-overflow-fix.patch
+> >   Handle NR_CPUS overflow
+> >
+> > ppp-oops-fix.patch
+> >   ppp oops fix
+> >
+> > d_delete-d_lookup-race-fix.patch
+> >   d_delete-d_lookup race fix
+> >
+> > idle-using-monitor-mwait.patch
+> >   idle using PNI monitor/mwait
+> >
+> > idle-using-monitor-mwait-tweaks.patch
+> >
+> > remap_file_pages-MAP_NONBLOCK-fix.patch
+> >   remap file pages MAP_NONBLOCK fix
+> >
+> > install_page-use-after-unmap-fix.patch
+> >   install_page pte use-after-unmap fix
+> >
+> > agp-build-fix.patch
+> >   AGPGART_MINOR needs <linux/agpgart.h>
+> >
+> > really-use-english-date-in-version-string.patch
+> >   really use english date in version string
+> >
+> > inflate-error-cleanup.patch
+> >   tidy up lib/inflate.c error messages
+> >
+> > slab-debug-additions.patch
+> >   Move slab objects to the end of the real allocation
+> >
+> > mwave-locking-fixes.patch
+> >   mwave locking fixes
+> >
+> > summit-includes-fix.patch
+> >   fix Summit srat.h includes
+> >
+> > random-lock-contention.patch
+> >   Redue random driver lock contention
+> >
+> > agp-warning-fix.patch
+> >   AGP warning fix
+> >
+> > ifdown-lockup-fix.patch
+> >
+> > fadvise-needs-asmlinkage.patch
+> >
+> > ufs-build-fix.patch
+> >   fs/ufs/namei.c build fix
+> >
+> > p00001_synaptics-restore-on-close.patch
+> >
+> > p00002_psmouse-reset-timeout.patch
+> >
+> > p00003_synaptics-multi-button.patch
+> >
+> > p00004_synaptics-optional.patch
+> >
+> > p00005_synaptics-pass-through.patch
+> >
+> > p00006_psmouse-suspend-resume.patch
+> >
+> > p00007_synaptics-old-proto.patch
+> >
+> > synaptics-mode-set.patch
+> >   Synaptics mode setting
+> >
+> > syn-multi-btn-fix.patch
+> >   synaptics multibutton fix
+> >
+> > keyboard-resend-fix.patch
+> >   keyboard resend fix
+> >
+> > psmouse_ipms2-option.patch
+> >   Force mouse detection as imps/2 (and fix my KVM switch)
+> >
+> > i8042-history.patch
+> >   debug: i8042 history dumping
+> >
+> > linux-isp-2.patch
+> >
+> > linux-isp-2-fix-again.patch
+> >   lost feral fix
+> >
+> > feral-bounce-fix.patch
+> >   Feral driver - highmem issues
+> >
+> > feral-bounce-fix-2.patch
+> >   Feral driver bouncing fix
+> >
+> > list_del-debug.patch
+> >   list_del debug check
+> >
+> > print-build-options-on-oops.patch
+> >   print a few config options on oops
+> >
+> > show_task-free-stack-fix.patch
+> >   show_task() fix and cleanup
+> >
+> > oops-dump-preceding-code.patch
+> >   i386 oops output: dump preceding code
+> >
+> > lockmeter.patch
+> >
+> > printk-oops-mangle-fix.patch
+> >   disentangle printk's whilst oopsing on SMP
+> >
+> > 20-odirect_enable.patch
+> >
+> > 21-odirect_cruft.patch
+> >
+> > 22-read_proc.patch
+> >
+> > 23-write_proc.patch
+> >
+> > 24-commit_proc.patch
+> >
+> > 25-odirect.patch
+> >
+> > nfs-O_DIRECT-always-enabled.patch
+> >   Force CONFIG_NFS_DIRECTIO
+> >
+> > sched-CAN_MIGRATE_TASK-fix.patch
+> >   CAN_MIGRATE fix
+> >
+> > sched-balance-fix-2.6.0-test3-mm3-A0.patch
+> >   sched-balance-fix-2.6.0-test3-mm3-A0
+> >
+> > sched-2.6.0-test2-mm2-A3.patch
+> >   sched-2.6.0-test2-mm2-A3
+> >
+> > ppc-sched_clock.patch
+> >
+> > ppc64-sched_clock.patch
+> >   ppc64: sched_clock()
+> >
+> > sparc64_sched_clock.patch
+> >
+> > x86_64-sched_clock.patch
+> >   Add sched_clock for x86-64
+> >
+> > sched-warning-fix.patch
+> >
+> > sched-balance-tuning.patch
+> >   CPU scheduler balancing fix
+> >
+> > sched-no-tsc-on-numa.patch
+> >   Subject: Re: Fw: Re: 2.6.0-test2-mm3
+> >
+> > o12.2int.patch
+> >   O12.2int for interactivity
+> >
+> > o12.3.patch
+> >   O12.3 for interactivity
+> >
+> > o13int.patch
+> >   O13int for interactivity
+> >
+> > o13.1int.patch
+> >   O13.1int
+> >
+> > o14int.patch
+> >   O14int
+> >
+> > o14int-div-fix.patch
+> >   o14int 64-bit-divide fix
+> >
+> > o14.1int.patch
+> >   O14.1int
+> >
+> > o15int.patch
+> >   O15int for interactivity
+> >
+> > o16int.patch
+> >   From: Con Kolivas <kernel@kolivas.org>
+> >   Subject: [PATCH] O16int for interactivity
+> >
+> > o16.1int.patch
+> >   O16.1int for interactivity
+> >
+> > o16.2int.patch
+> >   O16.2int
+> >
+> > o16.3int.patch
+> >   O16.3int
+> >
+> > o18int.patch
+> >   O18int
+> >
+> > o18.1int.patch
+> >   O18.1int
+> >
+> > sched-cpu-migration-fix.patch
+> >   sched: task migration fix
+> >
+> > o19int.patch
+> >   O19int
+> >
+> > o20int.patch
+> >   O20int
+> >
+> > 4g-2.6.0-test2-mm2-A5.patch
+> >   4G/4G split patch
+> >   4G/4G: remove debug code
+> >   4g4g: pmd fix
+> >   4g/4g: fixes from Bill
+> >   4g4g: fpu emulation fix
+> >   4g/4g usercopy atomicity fix
+> >   4G/4G: remove debug code
+> >   4g4g: pmd fix
+> >   4g/4g: fixes from Bill
+> >   4g4g: fpu emulation fix
+> >   4g/4g usercopy atomicity fix
+> >   4G/4G preempt on vstack
+> >   4G/4G: even number of kmap types
+> >   4g4g: fix __get_user in slab
+> >   4g4g: Remove extra .data.idt section definition
+> >   4g/4g linker error (overlapping sections)
+> >   4G/4G: remove debug code
+> >   4g4g: pmd fix
+> >   4g/4g: fixes from Bill
+> >   4g4g: fpu emulation fix
+> >   4g4g: show_registers() fix
+> >   4g/4g usercopy atomicity fix
+> >   4g4g: debug flags fix
+> >   4g4g: Fix wrong asm-offsets entry
+> >   cyclone time fixmap fix
+> >   4G/4G preempt on vstack
+> >   4G/4G: even number of kmap types
+> >   4g4g: fix __get_user in slab
+> >   4g4g: Remove extra .data.idt section definition
+> >   4g/4g linker error (overlapping sections)
+> >   4G/4G: remove debug code
+> >   4g4g: pmd fix
+> >   4g/4g: fixes from Bill
+> >   4g4g: fpu emulation fix
+> >   4g4g: show_registers() fix
+> >   4g/4g usercopy atomicity fix
+> >   4g4g: debug flags fix
+> >   4g4g: Fix wrong asm-offsets entry
+> >   cyclone time fixmap fix
+> >
+> > 4g4g-cyclone-timer-fix.patch
+> >
+> > 4g4g-copy_mount_options-fix.patch
+> >   use direct_copy_{to,from}_user for kernel access in mm/usercopy.c
+> >
+> > 4g4g-pagetable-accounting-fix.patch
+> >   4g/4g pagetable accounting fix
+> >
+> > ppc-fixes.patch
+> >   make mm4 compile on ppc
+> >
+> > aic7xxx_old-oops-fix.patch
+> >
+> > aio-01-retry.patch
+> >   AIO: Core retry infrastructure
+> >
+> > io_submit_one-EINVAL-fix.patch
+> >   Fix aio process hang on EINVAL
+> >
+> > aio-02-lockpage_wq.patch
+> >   AIO: Async page wait
+> >
+> > aio-03-fs_read.patch
+> >   AIO: Filesystem aio read
+> >
+> > aio-04-buffer_wq.patch
+> >   AIO: Async buffer wait
+> >
+> > aio-05-fs_write.patch
+> >   AIO: Filesystem aio write
+> >
+> > aio-05-fs_write-fix.patch
+> >
+> > aio-06-bread_wq.patch
+> >   AIO: Async block read
+> >
+> > aio-06-bread_wq-fix.patch
+> >
+> > aio-07-ext2getblk_wq.patch
+> >   AIO: Async get block for ext2
+> >
+> > O_SYNC-speedup-2.patch
+> >   speed up O_SYNC writes
+> >
+> > aio-09-o_sync.patch
+> >   aio O_SYNC
+> >
+> > aio-10-BUG-fix.patch
+> >   AIO: fix a BUG
+> >
+> > aio-11-workqueue-flush.patch
+> >   AIO: flush workqueues before destroying ioctx'es
+> >
+> > aio-12-readahead.patch
+> >   AIO: readahead fixes
+> >
+> > aio-dio-no-readahead.patch
+> >   aio O_DIRECT no readahead
+> >
+> > lock_buffer_wq-fix.patch
+> >   lock_buffer_wq fix
+> >
+> > unuse_mm-locked.patch
+> >   AIO: hold the context lock across unuse_mm
+> >
+> > aio-take-task_lock.patch
+> >   task task_lock in use_mm()
+> >
+> > aio-O_SYNC-fix.patch
+> >   Unify o_sync changes for aio and regular writes
+> >
+> > aio-O_SYNC-fix-missing-bit.patch
+> >   aio-O_SYNC-fix bits got lost
+> >
+> > O_SYNC-speedup-nolock-fix.patch
+> >
+> > aio-writev-nsegs-fix.patch
+> >   aio: writev nr_segs fix
+> >
+> > aio-remove-lseek-triggerable-BUG_ONs.patch
+> >
+> > aio-readahead-rework.patch
+> >   Unified page range readahead for aio and regular reads
+> >
+> > aio-readahead-speedup.patch
+> >   Readahead issues and AIO read speedup
+> >
+> > aio-osync-fix-2.patch
+> >   More AIO O_SYNC related fixes
+> >
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel"
+> in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> --
+> Regards,
+> 
+> Wiktor Wodecki

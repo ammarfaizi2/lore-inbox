@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUIZT5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUIZUDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUIZT5I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 15:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUIZT5I
+	id S263540AbUIZUDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 16:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUIZUDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 15:57:08 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:21465 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262406AbUIZT5F (ORCPT
+	Sun, 26 Sep 2004 16:03:42 -0400
+Received: from sa9.bezeqint.net ([192.115.104.23]:51878 "EHLO sa9.bezeqint.net")
+	by vger.kernel.org with ESMTP id S263540AbUIZUDl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 15:57:05 -0400
-Date: Sun, 26 Sep 2004 21:56:59 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tonnerre <tonnerre@thundrix.ch>
-cc: Olivier Galibert <galibert@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: __initcall macros and C token pasting
-In-Reply-To: <20040926172429.GA15441@thundrix.ch>
-Message-ID: <Pine.GSO.4.61.0409262155040.8756@waterleaf.sonytel.be>
-References: <9e47339104092510574c908525@mail.gmail.com>
- <20040925183234.GU23987@parcelfarce.linux.theplanet.co.uk>
- <9e473391040925121774e7e1e1@mail.gmail.com> <20040926172104.GA44528@dspnet.fr.eu.org>
- <20040926172429.GA15441@thundrix.ch>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 26 Sep 2004 16:03:41 -0400
+Date: Sun, 26 Sep 2004 23:04:51 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG: 2.6.9-rc2-bk11] input completely dead in X
+Message-ID: <20040926210450.GA2960@luna.mooo.com>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Sep 2004, Tonnerre wrote:
-> Actually, lots  of drivers  that *are* in  the kernel are  pretty much
-> broken.
+Just tried kernel 2.6.9-rc2-bk11 and when I start X input is completely
+dead (including num-lock, caps-lock, sysrq and mouse). The computer is
+otherwise functional (I can log in with ssh, kill X and everything is
+functional again).
 
-I don't disagree with that...
+In the console is completely functional, before and after starting X.
 
-> And I don't  think putting more drivers into  the mainline kernel will
-> fix this problem.
+I had exactly the same behavior with mm kernels from version 2.6.7 or
+2.6.8 (not sure) onwards, which was fixed by reversing the bk-input
+patch.
 
-But the One True Path to guaranteed brokenness somewhere in time leads through
-drivers that are not in the standard kernel tree...
+kernel 2.6.9-rc2 works fine.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+The machine is Sony Vaio PCG-FXA53 laptop (amd 1500+ and via chipset).
+The keyboard is recognized as ps2 AFAIK and the touchpad is an alps
+(with the alps kernel patch).

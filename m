@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276834AbRJCCR7>; Tue, 2 Oct 2001 22:17:59 -0400
+	id <S276839AbRJCC0j>; Tue, 2 Oct 2001 22:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276836AbRJCCRu>; Tue, 2 Oct 2001 22:17:50 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:52182 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S276834AbRJCCRi>; Tue, 2 Oct 2001 22:17:38 -0400
-Date: Tue, 2 Oct 2001 22:18:08 -0400 (EDT)
-From: Alex Larsson <alexl@redhat.com>
-X-X-Sender: <alexl@devserv.devel.redhat.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <alexl@redhat.com>
-Subject: Directory notification problem
-Message-ID: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com>
+	id <S276842AbRJCC0a>; Tue, 2 Oct 2001 22:26:30 -0400
+Received: from femail6.sdc1.sfba.home.com ([24.0.95.86]:30917 "EHLO
+	femail6.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S276840AbRJCC0V>; Tue, 2 Oct 2001 22:26:21 -0400
+Message-ID: <3BBA7767.C99059CB@home.com>
+Date: Tue, 02 Oct 2001 19:26:47 -0700
+From: Seth Goldberg <bergsoft@home.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Colin Frank <kernel@osafo.com>
+CC: Abe Hayhurst <abe@avidsublimation.net>, linux-kernel@vger.kernel.org
+Subject: Re: Best gigabit card for linux
+In-Reply-To: <001a01c13fed$ef3806f0$6c01a8c0@ABEPC> <3BAC153A.4060700@osafo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I discovered a problem with the dnotify API while fixing a FAM bug today.
+Hi,
 
-The problem occurs when you want to watch a file in a directory, and that 
-file is changed several times in the same second. When I get the directory 
-notify signal on the directory I need to stat the file to see if the 
-change was actually in the file. If the file already changed in the 
-current second the stat() result will be identical to the previous stat() 
-call, since the resolution of mtime and ctime is one second. 
+   I ordered 2 NSC-based giga ethernet cards (copper) and I was able to
+get 54.4 Megabytes/s sustained (between an amd athlon 1200 MHz and an
+athlon 1000 MHz) on kernel v2.4.5.  
 
-This leads to missed notifications, leaving clients (such as Nautilus or 
-Konqueror) displaying an state not representing the current state.
+  Since these card cost $45 each, i HIGHLY recommend them.  The actualy
+manufacturer is a company called Cameo in Taiwan.
 
-The only userspace solutions I see is to delay all change notifications to 
-the end of the second, so that clients always read the correct state. This 
-is somewhat countrary to the idea of FAM though, as it does not give 
-instant feedback.
-
-Is there any possibility of extending struct stat with a generation 
-counter? Or is there another solution to this problem?
-
-/ Alex
-
-Please CC any reply to me, i'm not on the list.
+ --Seth
 
 
-
-
-
-
+Colin Frank wrote:
+> 
+> In the following test. I was able to achieve close to 40 MegaBytes
+> per second using the packet engines Hamachi driver.
+> 
+> http://www.linuxcare.com/labs/sol-val/3w-esc6800-web.epl
+> Test done with:
+>     Packet engines Hamachi card
+>     3ware escalade 6800
+>     2.2.16 kernel.
+>     Cisco 6500
+>     10 - 20 client machines each with eepro100 cards
+> 
+> Colin...
+> 
+> Abe Hayhurst wrote:
+> 
+> >Hi Alan,
+> >
+> >I wanted to know your opinion as to which combination of gigabit cards (both
+> >fiber and copper) and drivers would yield the best performance (mostly
+> >transferring large files from server to client, but also latency) in Linux.
+> >I am not a programmer, a kernel tweaker, or a driver developer. I need a
+> >card that either has a driver that comes with Red Hat Linux 7.1 or is easy
+> >to install and needs minimal tweaks to the driver. I am currently
+> >considering cards from 3Com (Alteon), Broadcom, Intel, and SysKonnect.
+> >
+> >Thanks for your help,
+> >
+> >Abe Hayhurst
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

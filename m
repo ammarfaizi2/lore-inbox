@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261724AbSLAOZI>; Sun, 1 Dec 2002 09:25:08 -0500
+	id <S261732AbSLAO1R>; Sun, 1 Dec 2002 09:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261733AbSLAOZI>; Sun, 1 Dec 2002 09:25:08 -0500
-Received: from mx-out.ttys.com ([80.239.199.130]:2073 "EHLO fep01-svc.ttyl.com")
-	by vger.kernel.org with ESMTP id <S261724AbSLAOZH>;
-	Sun, 1 Dec 2002 09:25:07 -0500
-From: Andy Jefferson <andy@ajsoft.freeserve.co.uk>
-Reply-To: andy@ajsoft.net
-Organization: AJSoft Limited
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 DRM/DRI issue with Radeon
-Date: Sun, 1 Dec 2002 14:32:33 +0000
+	id <S261733AbSLAO1R>; Sun, 1 Dec 2002 09:27:17 -0500
+Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:49083 "EHLO
+	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id <S261732AbSLAO1Q>; Sun, 1 Dec 2002 09:27:16 -0500
+Date: Sun, 1 Dec 2002 15:34:22 +0100 (CET)
+From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+X-X-Sender: golbi@anna
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: linux-kernel@vger.kernel.org, Michal Wronski <wrona@mat.uni.torun.pl>
+Subject: Re: [PATCH] POSIX message queues, 2.5.50
+In-Reply-To: <3DE9E567.4030103@colorfullife.com>
+Message-ID: <Pine.GSO.4.40.0212011435000.7409-100000@anna>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <20021201143233.MIKG4739.fep01-svc.ttyl.com@localhost>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In the 2.4.20 kernel changelog I see comments about having consistent
-> > DRM modules with XFree4.2.0. I have a Radeon Mobility M6 LY in a Dell
-> > laptop and would like to get DRI working. Whenever I use any 2.4.*
-> > (including 2.4.20) kernel I get the following messages in
-> > /var/log/XFree86.0.log, and DRM is not enabled. Is this supposed to be
-> > working in 2.4.20 ? I am using a Mandrake 8.2 system (except for the
-> > kernel).
-> > (EE) RADEON(0): [dri] RADEONDRIScreenInit failed because of a version mismatch.
-> > [dri] radeon.o kernel module version is 1.1.1 but version 1.2.x is needed.
-> > [dri] see http://gatos.sf.net/ for an updated module
-> > [dri] Disabling DRI.
+On Sun, 1 Dec 2002, Manfred Spraul wrote:
+
+> Some notes:
+> - coding style: linux functions usually have only one return at the end
+> of the function, and goto internally. mqueue_parse_options() does that,
+> mqueue_create contains multiple returns.
+Ok, I've fixed it.
+I just didn't know that this also belongs to coding style (I don't
+like goto's much and it isn't in CodingStyle ;-).
+
+> - why do you allocate the ext_wait_queue structure dynamically? Put it
+> on the stack, that avoids error handling for failed allocations.
+Hmh, you remind me about one thing that I'm constantly forgetting.
+In fact allocation will stay (it is dynamic queue and it must be that way)
+but I should use there list.h stuff. My fault.
+
+> - reusing kernel functions is not a disadvantage - load_msg() and
+> store_msg() automagically split the kmalloc allocations into page sized
+> chunks.
+Of course. I just wanted to be fair. There were pointed out main
+differences (in first place) and some advantages.
+
+> - why do you use __add_wait_queue in wq_sleep_on()? It seems you have
+> copied that code from kernel/sched.c - it's not needed. It was needed for
+>
+>     cli()
+>     if(condition_var==0)
+>         sleep_on(&my_queue);
+>
+And from Russell King:
+> Do we have to encourage this abonimation?  We do have
+> wait_event().
+
+wait_event is rather not good as I don't have condition to check - in that
+case I just place process in a queue and wait for wake_up.
+But I agree that it is ugly - I used it only as a quick fix for one bug.
+Now I think I have good solution but I have to test it first.
 
 
-> Works for me.
-> Debian GNU/Linux unstable distribution
-> 
-> You did enable radeon DRM drivers in the kernel config right? For your
-> chipset and for the Radeon, right?
+Thanks for advices - new patch will be placed on
+www.mat.uni.torun.pl/~wrona/posix_ipc
+on Tuesday along with new library.
 
-Well, yes. I'm getting VERSION CONFLICT messages, and not that there is no radeon.o module. For the record, 
-what I get from dmesg is
-
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 203M
-agpgart: Detected Intel i830M chipset
-agpgart: AGP aperture is 256M @ 0xd0000000
-[drm] AGP 0.99 on Unknown @ 0xd0000000 256MB
-[drm] Initialized radeon 1.1.1 20010405 on minor 0
-
-FWIW I have in the kernel
-
-/dev/agpgart set to Module
-I830M support set to Yes
-Build old DRM 4.0 drivers set to No
-DRM 4.1 ATI Radeon set to Module
-
-So the version of the kernel module is 1.1.1 20010405 (with 2.4.19, AND 2.4.20) , yet the XFree86 drivers need 1.2.* as per the original message in the XFree86.0.log. Why is the kernel using 1.1.1 and not 1.2.* ?
-
-Thx
-
---
-Andy
-
-_______________________________________________________________________
-Freeserve AnyTime, only £13.99 per month with one month's FREE trial!
-For more information visit http://www.freeserve.com/time/ or call free on 0800 970 8890
-
+Krzysiek Benedyczak
 

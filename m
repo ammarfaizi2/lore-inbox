@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310494AbSCGT44>; Thu, 7 Mar 2002 14:56:56 -0500
+	id <S310495AbSCGUAg>; Thu, 7 Mar 2002 15:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310495AbSCGT4r>; Thu, 7 Mar 2002 14:56:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6415 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310494AbSCGT4k>;
-	Thu, 7 Mar 2002 14:56:40 -0500
-Message-ID: <3C87C583.C8565E4B@zip.com.au>
-Date: Thu, 07 Mar 2002 11:54:43 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Troy Benjegerdes <hozer@drgw.net>
-CC: Pavel Machek <pavel@ucw.cz>, Larry McVoy <lm@work.bitmover.com>,
-        Kent Borg <kentborg@borg.org>,
-        The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux 
- Maintainers
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net> <20020305165123.V12235@work.bitmover.com> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz>,
-		<20020306221305.GA370@elf.ucw.cz>; from pavel@ucw.cz on Wed, Mar 06, 2002 at 11:13:05PM +0100 <20020307101701.S1682@altus.drgw.net>
+	id <S310496AbSCGUA0>; Thu, 7 Mar 2002 15:00:26 -0500
+Received: from mail.internet-factory.de ([195.122.142.5]:47746 "EHLO
+	mail.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S310495AbSCGUAM>; Thu, 7 Mar 2002 15:00:12 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: 160gb maxtor with promise ultra 100
+Date: Thu, 07 Mar 2002 21:00:11 +0100
+Organization: Internet Factory AG
+Message-ID: <3C87C6CB.F05C3B96@internet-factory.de>
+NNTP-Posting-Host: bastille.internet-factory.de
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 1015531211 3331 195.122.142.158 (7 Mar 2002 20:00:11 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 7 Mar 2002 20:00:11 GMT
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-pre2-ac3 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Troy Benjegerdes wrote:
-> 
-> I'd really like everyone that's bitching about BK to shut the hell up and
-> go work on some scripts to allow a maintainer to easily manage a
-> BK<->$OTHER_SCM gateway.
+hi,
 
-ie: "We broke it.  You fix it".
+recently i installed two 160gb maxtor drives. using the latest ac-kernel
+(.19-pre2-ac3), they were detected correctly. however, the promise ultra
+100 (detected as pdc 20267) hangs at the partition check. last thing it
+prints is "hde:" and it's dead. however, if i connect the drives to the
+onboard piix3 ide, they are detected correctly, survive the partition
+check, and _do_ work as 160gb drives, but slow (piix3 only supports
+mdma2, no udma). if i boot the latest non-ac-kernel available on the
+machine (which is the not so recent 2.4.14) the drives are misdetected
+as only 137gb (of course, no 48 bit support) but otherwise the machine
+works, even with the drives connected to the promise.
 
-It's not reasonable to expect people who shall not be using bitkeeper
-to go off and perform enhancements to bitkeeper so that they can
-continue to be effective kernel developers.
+so the situation is - either i use the full 160 gb, but only mdma2 data
+transfer. or i use udma 100, but only 137 gb of the drives. i can't seem
+to have both.
 
-If bitkeeper proves to be significantly disadvantageous to non-bitkeeper
-developers then it simply is not appropriate that bitkeeper be used
-for kernel development at all.
+i am out of ideas what might be causing this. of course i could just
+throw the promise out and leave the drives connected to the on board
+controller, but... other ideas?
 
-If additional development around bitkeeper is needed then the onus
-is upon the bitkeeper side to do that work.  (And yes, there are
-sides now).
-
-That being said, I don't see any need for additional development, 
-unless people actually want increased functionality over that
-which we've traditionally had.  Things generally will appear to
-be unchanged for non-bitkeeper users because Linus will continue
-to push out the regular prepatches.  This *has* to be done anyway,
-so the testers can get at the tree promptly.
-
-Also. The things being discussed here *matter* to some people.  Some
-of the comments made by Larry, David, Cort, Rik and others have
-coarsely sought to deligitimise the very reasons why a significant number
-of kernel contributors and users are here at all.  Those comments
-are monumentally insulting.
-
--
+tia,
+holger

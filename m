@@ -1,60 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKOHWw>; Wed, 15 Nov 2000 02:22:52 -0500
+	id <S129178AbQKOHeH>; Wed, 15 Nov 2000 02:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKOHWm>; Wed, 15 Nov 2000 02:22:42 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:25083 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S129069AbQKOHWZ>;
-	Wed, 15 Nov 2000 02:22:25 -0500
-Date: Tue, 14 Nov 2000 22:52:01 -0800
-From: Greg KH <greg@wirex.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch(?): linux-2.4.0-test11-pre4/drivers/sound/yss225.c compilefailure
-Message-ID: <20001114225201.B20546@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	"Adam J. Richter" <adam@yggdrasil.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200011150102.RAA00924@adam.yggdrasil.com> <3A121F2B.21DB3265@mandrakesoft.com> <20001114214343.A20546@wirex.com> <3A12251B.7F600351@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A12251B.7F600351@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Nov 15, 2000 at 12:54:35AM -0500
-X-Operating-System: Linux 2.2.17-immunix (i686)
+	id <S129061AbQKOHd5>; Wed, 15 Nov 2000 02:33:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:20868 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129091AbQKOHdi>;
+	Wed, 15 Nov 2000 02:33:38 -0500
+Date: Tue, 14 Nov 2000 22:48:45 -0800
+Message-Id: <200011150648.WAA03713@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: comandante@zaralinux.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A11C0C9.665B1EB0@zaralinux.com> (message from Jorge Nerin on
+	Tue, 14 Nov 2000 23:46:33 +0100)
+Subject: Re: kernel BUG at sock.c:722! (2.4.0-test11-pre4)
+In-Reply-To: <3A11C0C9.665B1EB0@zaralinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2000 at 12:54:35AM -0500, Jeff Garzik wrote:
-> 
-> I -want- there to be only one hotplug strategy, but Adam seemed to be
-> talking about the opposite, with his CONFIG_USB_HOTPLUG suggestion.
+   Date: 	Tue, 14 Nov 2000 23:46:33 +0100
+   From: Jorge Nerin <comandante@zaralinux.com>
 
-Here's Adam's proposal for CONFIG_USB_HOTPLUG:
-	http://www.geocrawler.com/lists/3/SourceForge/2571/250/4599696/
+   Well, first saw this in test11-pre1, and now in test11-pre4 I report it
+   again.
 
->From what I remember (and from looking at this message), all he seems to
-want is to redefine the __init and __initdata macros depending on a
-config item.  There's no other grander scheme of things, right Adam?
+Do you use any one of USB, PCMCIA+Yenta, or ATM?  If so, please give
+the following patch a try.
 
-Although such a small memory savings for turning a bus whose main goal
-in life is to enable hot plugged devices into a fixed connection doesn't
-seem worth it.  
+If not, do you use KHTTPD?  If so, please don't... it's unmaintained,
+buggy, and to eventually be replaced by TUX.
 
-We are talking embedded USB hosts here, not devices.  USB devices
-running Linux is a whole 'nother thing, which I'm just now starting to
-look into...
-
-Comments Adam?
-
-thanks,
-
-greg k-h
-
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+--- ./drivers/sbus/char/su.c.~1~	Sat Oct 14 03:09:04 2000
++++ ./drivers/sbus/char/su.c	Tue Nov 14 23:28:09 2000
+@@ -1,4 +1,4 @@
+-/* $Id: su.c,v 1.42 2000/10/14 10:09:04 davem Exp $
++/* $Id: su.c,v 1.43 2000/11/15 07:28:09 davem Exp $
+  * su.c: Small serial driver for keyboard/mouse interface on sparc32/PCI
+  *
+  * Copyright (C) 1997  Eddie C. Dost  (ecd@skynet.be)
+@@ -2001,6 +2001,7 @@
+ #endif
+ 		schedule();
+ 	}
++	current->state = TASK_RUNNING;
+ 	remove_wait_queue(&info->open_wait, &wait);
+ 	if (extra_count)
+ 		info->count++;
+@@ -2219,7 +2220,7 @@
+  */
+ static __inline__ void __init show_su_version(void)
+ {
+-	char *revision = "$Revision: 1.42 $";
++	char *revision = "$Revision: 1.43 $";
+ 	char *version, *p;
+ 
+ 	version = strchr(revision, ' ');
+--- ./drivers/sbus/char/sab82532.c.~1~	Sat Oct 14 03:09:04 2000
++++ ./drivers/sbus/char/sab82532.c	Tue Nov 14 23:28:09 2000
+@@ -1,4 +1,4 @@
+-/* $Id: sab82532.c,v 1.52 2000/10/14 10:09:04 davem Exp $
++/* $Id: sab82532.c,v 1.53 2000/11/15 07:28:09 davem Exp $
+  * sab82532.c: ASYNC Driver for the SIEMENS SAB82532 DUSCC.
+  *
+  * Copyright (C) 1997  Eddie C. Dost  (ecd@skynet.be)
+@@ -1833,6 +1833,7 @@
+ #endif
+ 		schedule();
+ 	}
++	current->state = TASK_RUNNING;
+ 	remove_wait_queue(&info->open_wait, &wait);
+ 	if (!tty_hung_up_p(filp))
+ 		info->count++;
+@@ -2133,7 +2134,7 @@
+ 
+ static inline void __init show_serial_version(void)
+ {
+-	char *revision = "$Revision: 1.52 $";
++	char *revision = "$Revision: 1.53 $";
+ 	char *version, *p;
+ 
+ 	version = strchr(revision, ' ');
+--- ./drivers/usb/storage/transport.c.~1~	Sun Nov 12 00:22:27 2000
++++ ./drivers/usb/storage/transport.c	Tue Nov 14 22:28:51 2000
+@@ -423,6 +423,7 @@
+ 	if (status) {
+ 		/* something went wrong */
+ 		up(&(us->current_urb_sem));
++		current->state = TASK_RUNNING;
+ 		remove_wait_queue(&wqh, &wait);
+ 		kfree(dr);
+ 		return status;
+@@ -480,6 +481,7 @@
+ 	if (status) {
+ 		/* something went wrong */
+ 		up(&(us->current_urb_sem));
++		current->state = TASK_RUNNING;
+ 		remove_wait_queue(&wqh, &wait);
+ 		return status;
+ 	}
+--- ./drivers/usb/usb.c.~1~	Tue Nov 14 14:21:38 2000
++++ ./drivers/usb/usb.c	Tue Nov 14 22:27:22 2000
+@@ -951,6 +951,7 @@
+ 	if (status) {
+ 		// something went wrong
+ 		usb_free_urb(urb);
++		current->state = TASK_RUNNING;
+ 		remove_wait_queue(&wqh, &wait);
+ 		return status;
+ 	}
+@@ -961,6 +962,7 @@
+ 	} else
+ 		status = 1;
+ 
++	current->state = TASK_RUNNING;
+ 	remove_wait_queue(&wqh, &wait);
+ 
+ 	if (!status) {
+--- ./drivers/usb/net1080.c.~1~	Sun Nov 12 00:22:26 2000
++++ ./drivers/usb/net1080.c	Tue Nov 14 22:27:49 2000
+@@ -653,6 +653,7 @@
+ 		dbg ("waited for %d urb completions", temp);
+ 	}
+ 	dev->wait = 0;
++	current->state = TASK_RUNNING;
+ 	remove_wait_queue (&unlink_wakeup, &wait); 
+ 
+ 	mutex_unlock (&dev->mutex);
+--- ./drivers/usb/usb-ohci.c.~1~	Tue Oct 31 12:58:00 2000
++++ ./drivers/usb/usb-ohci.c	Tue Nov 14 22:28:15 2000
+@@ -654,6 +654,7 @@
+ 				set_current_state(TASK_UNINTERRUPTIBLE);
+ 				while (timeout && (urb->status == USB_ST_URB_PENDING))
+ 					timeout = schedule_timeout (timeout);
++				current->state = TASK_RUNNING;
+ 				remove_wait_queue (&unlink_wakeup, &wait); 
+ 				if (urb->status == USB_ST_URB_PENDING) {
+ 					err ("unlink URB timeout");
+@@ -765,6 +766,7 @@
+ 				set_current_state(TASK_UNINTERRUPTIBLE);
+ 				while (timeout && dev->ed_cnt)
+ 					timeout = schedule_timeout (timeout);
++				current->state = TASK_RUNNING;
+ 				remove_wait_queue (&freedev_wakeup, &wait);
+ 				if (dev->ed_cnt) {
+ 					err ("free device %d timeout", usb_dev->devnum);
+--- ./drivers/atm/atmtcp.c.~1~	Sat Jun 24 05:40:27 2000
++++ ./drivers/atm/atmtcp.c	Tue Nov 14 22:29:32 2000
+@@ -77,6 +77,7 @@
+ 		set_current_state(TASK_UNINTERRUPTIBLE);
+ 		schedule();
+ 	}
++	current->state = TASK_RUNNING;
+ 	remove_wait_queue(&vcc->sleep,&wait);
+ 	return error;
+ }
+--- ./drivers/pcmcia/yenta.c.~1~	Tue Nov  7 21:04:48 2000
++++ ./drivers/pcmcia/yenta.c	Tue Nov 14 22:29:54 2000
+@@ -585,6 +585,7 @@
+ 		add_wait_queue(&socket->wait, &wait);
+ 		if (!socket->events)
+ 			schedule_timeout(HZ);
++		current->state = TASK_RUNNING;
+ 		remove_wait_queue(&socket->wait, &wait);
+ 	} while (!signal_pending(current));
+ 	MOD_DEC_USE_COUNT;
+--- ./net/atm/signaling.c.~1~	Tue Jul 11 22:52:09 2000
++++ ./net/atm/signaling.c	Tue Nov 14 22:40:26 2000
+@@ -50,6 +50,7 @@
+ 		}
+ 		schedule();
+ 	}
++	current->state = TASK_RUNNING;
+ 	remove_wait_queue(&sigd_sleep,&wait);
+ #else
+ 	if (!sigd) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131836AbRAaOwm>; Wed, 31 Jan 2001 09:52:42 -0500
+	id <S132094AbRAaOym>; Wed, 31 Jan 2001 09:54:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129965AbRAaOwc>; Wed, 31 Jan 2001 09:52:32 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:53750 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131836AbRAaOwS>; Wed, 31 Jan 2001 09:52:18 -0500
-Date: Wed, 31 Jan 2001 12:51:24 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: <386.980952480@fenrus.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.21.0101311250510.1321-100000@duckman.distro.conectiva>
+	id <S132095AbRAaOyc>; Wed, 31 Jan 2001 09:54:32 -0500
+Received: from windsormachine.com ([206.48.122.28]:21766 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S132094AbRAaOyT>; Wed, 31 Jan 2001 09:54:19 -0500
+Message-ID: <3A7826E9.BCE00744@windsormachine.com>
+Date: Wed, 31 Jan 2001 09:53:29 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Version 2.4.1 cannot be built.
+In-Reply-To: <Pine.LNX.3.95.1010131093940.13598C-200000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, David Woodhouse wrote:
-> root@chaos.analogic.com said:
-> > ftp> cd gnu
-> > ftp> ls
-> > ftp> ls mak*
-> > ftp> bin
-> > ftp> get make-3.79.1.tar.gz
-> > ftp> get make-3.79.1.tar.gz
-> > ftp> exit
-> 
-> Try typing 'pwd' instead of 'exit' at the end of this script.
+> ftp> ls mak*
+>
 
-He must have "spent most of last night" trying to find other
-explanations for this error since, obviously, he can't be the
-one at fault here ;)
+> make:
+>
+> -rw-r--r--   1 ftp      ftp       1030393 Jun 24  2000 make-3.79.1.tar.gz
+>
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+> ftp> get make-3.79.1.tar.gz
+>
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+get make/make-3.79.1.tar.gz
+
+You missed the make: it did just before it listed the contents of make/
+
+Just tried it myself with make/make-3.79.1.tar.gz, works.  Now, if i'd remembered to turn on bin mode, I'd have
+a useable file.
+
+Mike Dresser
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

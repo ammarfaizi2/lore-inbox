@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268510AbSIRRyV>; Wed, 18 Sep 2002 13:54:21 -0400
+	id <S268354AbSIRRuN>; Wed, 18 Sep 2002 13:50:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268514AbSIRRyU>; Wed, 18 Sep 2002 13:54:20 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:45272 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S268510AbSIRRyS>;
-	Wed, 18 Sep 2002 13:54:18 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Wed, 18 Sep 2002 11:57:10 -0600
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918115710.A656@host110.fsmlabs.com>
-References: <20020918113551.A654@host110.fsmlabs.com> <343149182.1032346081@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <343149182.1032346081@[10.10.2.3]>; from mbligh@aracnet.com on Wed, Sep 18, 2002 at 10:48:03AM -0700
+	id <S268341AbSIRRtL>; Wed, 18 Sep 2002 13:49:11 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:43659 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S268335AbSIRRs1>; Wed, 18 Sep 2002 13:48:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: axel@hh59.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.36: Software suspend fails with JFS filesystem
+Date: Wed, 18 Sep 2002 12:53:24 -0500
+X-Mailer: KMail [version 1.4]
+Cc: pavel@suse.cz,
+       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>
+References: <20020918163931.GA198@prester.hh59.org>
+In-Reply-To: <20020918163931.GA198@prester.hh59.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209181253.24254.shaggy@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm also a big fan of "Do that crap outside the kernel until it works
-properly" type projects.  If you want to talk about real-time scheduling as
-an example... looks at the trouble it's causing now.  I think it makes my
-point for me very strongly.
+On Wednesday 18 September 2002 11:39, axel@hh59.org wrote:
+> When I reported this first a whole while ago, someone said JFS still
+> somehow lacks support for software suspend.
 
-The Linux view should not be that N-way boxes are its manifest destiny.
-The same goes for thousands of threads.  Linux works pretty well on 95% of
-the boxes that it is being run on.  Lets not screw that up to fix the other
-5%.  Try some fixes _outside_ the main kernel for a while, find a workable
-solution and then merge it in.
+Oops.  I talked about fixing it, then promptly forgot about it.  I'll 
+work on it today!
 
-The Linux bus is getting really top-heavy because of some macho-features.
+> Best regards,
+> Axel
 
-} Like real time scheduling or embedded systems for example?
-} Be careful what you ask for ....
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

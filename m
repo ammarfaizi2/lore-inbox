@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281423AbRKEXMn>; Mon, 5 Nov 2001 18:12:43 -0500
+	id <S281417AbRKEXNM>; Mon, 5 Nov 2001 18:13:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281418AbRKEXMc>; Mon, 5 Nov 2001 18:12:32 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:62892 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S281424AbRKEXMY>; Mon, 5 Nov 2001 18:12:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Christian Laursen <xi@borderworlds.dk>
-Subject: Re: Ext2 directory index, updated
-Date: Tue, 6 Nov 2001 00:13:12 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org> <20011105014225Z17055-18972+38@humbolt.nl.linux.org> <m3n120x1re.fsf@borg.borderworlds.dk>
-In-Reply-To: <m3n120x1re.fsf@borg.borderworlds.dk>
+	id <S281418AbRKEXND>; Mon, 5 Nov 2001 18:13:03 -0500
+Received: from modem-2114.lynx.dialup.pol.co.uk ([217.135.200.66]:17416 "EHLO
+	Mail.MemAlpha.cx") by vger.kernel.org with ESMTP id <S281417AbRKEXMo>;
+	Mon, 5 Nov 2001 18:12:44 -0500
+Posted-Date: Mon, 5 Nov 2001 23:08:48 GMT
+Date: Mon, 5 Nov 2001 23:08:47 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Pavel Machek <pavel@suse.cz>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
+In-Reply-To: <20011102121602.A45@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.21.0111052300490.1693-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011105231222Z16039-18972+236@humbolt.nl.linux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 5, 2001 11:59 pm, Christian Laursen wrote:
-> Daniel Phillips <phillips@bonn-fries.net> writes:
-> 
-> > On November 4, 2001 11:09 pm, Christian Laursen wrote:
-> > > Daniel Phillips <phillips@bonn-fries.net> writes:
-> > > 
-> > > > ***N.B.: still for use on test partitions only.***
-> > > 
-> > > It's the first time, I've tried this patch and I must say, that
-> > > the first impression is very good indeed.
-> > > 
-> > > I took a real world directory (my linux-kernel MH folder containing
-> > > roughly 115000 files) and did a 'du -s' on it.
-> > > 
-> > > Without the patch it took a little more than 20 minutes to complete.
-> > > 
-> > > With the patch, it took less than 20 seconds. (And that was inside uml)
-> > 
-> > Which kernel are you using?
-> 
-> Actually, it was on a 2.2.20 kernel.
+Hi Pavel.
 
-Yes, it's cool you can run 2.4 uml kernels on 2.2, isn't it?  What I meant 
-was, which kernel is your uml built on?
+>> PROBLEM: Linux updates RTC secretly when clock synchronizes.
+>> 
+>> Please CC replies etc to Ian Maclaine-cross <iml@debian.org>.
+>> 
+>> When /usr/sbin/ntpd synchronizes the Linux kernel (or system) clock
+>> using the Network Time Protocol the kernel time is accurate to a few
+>> milliseconds. Linux then sets the Real Time (or Hardware or CMOS)
+>> Clock to this time at approximately 11 minute intervals. Typical
+>> RTCs drift less than 10 s/day so rebooting causes only millisecond
+>> errors.
+>>
+>> Linux currently does not record the 11 minute updates to a log file.
+>> Clock programs (like hwclock) cannot correct RTC drift at boot time
+>> without knowing when the RTC was last set. If NTP service is available
+>> after a long shutdown, ntpd may step the time. Worse after a longer
+>> shutdown ntpd may drop out or even synchronize to the wrong timezone.
+>> The workarounds are clumsy.
+>>
+>> Please find following my small patch for
+>> linux/arch/i386/kernel/time.c which adds a KERN_NOTICE of each 11
+>> minute update to the RTC. This is just for i386 machines at present.
+>> A script can search the logs for the last set time of the RTC and
+>> update /etc/adjtime. Hwclock can then correct the RTC for drift and
+>> set the kernel clock.
 
-> > From 2.4.10 on ext2 has an accelerator in 
-> > ext2_find_entry - it caches the last lookup position.  I'm wondering how 
-> > that affects this case.
-> 
-> From the description I read a while ago, I believe it could cause a
-> significant speedup.
-> 
-> I'll have to try that out one of these days.
+> That seems as very wrong solution.
 
-I noticed split results with the find_entry accelerator, at least in its 
-current form: faster delete, slower create.
+> What about just making kernel only _read_ system clock, and never
+> set it? That looks way cleaner to me.
 
---
-Daniel
+It is cleaner. However, I feel that the RTC code should printk (at least
+as KERN_DEBUG if not as KERN_NOTICE) whenever the RTC is written to.
+It's too important a subsystem to be left hidden like it currently is.
+
+Best wishes from Riley.
+

@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266038AbTAUGwL>; Tue, 21 Jan 2003 01:52:11 -0500
+	id <S265094AbTAUGsc>; Tue, 21 Jan 2003 01:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266041AbTAUGwL>; Tue, 21 Jan 2003 01:52:11 -0500
-Received: from dp.samba.org ([66.70.73.150]:30409 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266020AbTAUGwI>;
-	Tue, 21 Jan 2003 01:52:08 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: John Levon <levon@movementarian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: size in /proc/modules 
-In-reply-to: Your message of "Mon, 20 Jan 2003 14:27:03 -0000."
-             <20030120142703.GA58326@compsoc.man.ac.uk> 
-Date: Tue, 21 Jan 2003 17:44:21 +1100
-Message-Id: <20030121070114.A6A3D2C282@lists.samba.org>
+	id <S265305AbTAUGsb>; Tue, 21 Jan 2003 01:48:31 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64760 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265094AbTAUGsa>;
+	Tue, 21 Jan 2003 01:48:30 -0500
+Message-ID: <3E2CEF45.CB981617@mvista.com>
+Date: Mon, 20 Jan 2003 22:57:09 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-14smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       high-res-timers-discourse@lists.sourceforge.net
+Subject: [PATCH NOTICE 3/3] High-res-timers part 3 (posix to hrposix) take 25
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030120142703.GA58326@compsoc.man.ac.uk> you write:
-> 
-> /proc/modules size field includes init_size in 2.5. Why ?
-> 
-> The removal of sensible values in /proc/ksyms means that oprofile can no
-> longer attribute module samples reliably. The only information we have
-> is module_core address, and size == core_size+init_size. Since init code
-> is removed in sys_init_module, this will overestimate, and can lead to
-> overlapping with the start of another module, afaics.
-> 
-> In 2.4, we had size(.text), which could underestimate (think
-> .text.exit), but that is not a big problem.
-> 
-> Rusty, does this fall under another one of your "corner cases" ? (what I
-> would call "flaky code" ...)
-> 
-> Or I have I just missed something obvious ?
+And this finishes the high res timers code.
 
-Yes, line 1328 of kernel/module.c, by the sound of it 8)
+Now available for 2.5.59 on sourceforge (see signature).
 
-I was thinking of you when I added this, actually.
+Changes since last time:
+-----------
+-----------
+I had to add arg3 to the restart_block to handle the two
+word restart time...
 
-Hope that helps!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+This patch adds the two POSIX clocks CLOCK_REALTIME_HR and
+CLOCK_MONOTONIC_HR to the posix clocks & timers package.  A
+small change is made in sched.h and the rest of the patch is
+against .../kernel/posix_timers.c and
+.../include/linux/posix_timers.h
+
+
+This patch takes advantage of the timer storm protection
+features of the POSIX clock and timers patch.
+
+This patch fixes the high resolution timer resolution at 1
+micro second.  Should this number be a CONFIG option?
+
+I think it would be a "good thing" to move the NTP stuff to
+the jiffies clock.  This would allow the wall clock/ jiffies
+clock difference to be a "fixed value" so that code that
+needed this would not have to read two clocks.  Setting the
+wall clock would then just be an adjustment to this "fixed
+value".  It would also eliminate the problem of asking for a
+wall clock offset and getting a jiffies clock offset.  This
+issue is what causes the current 2.5.46 system to fail the
+simple:
+
+time sleep 60
+
+test (any value less than 60 seconds violates the standard
+in that it implies a timer expired early).
+
+These patches as well as the POSIX clocks & timers patch are
+available on the project site:
+http://sourceforge.net/projects/high-res-timers/
+
+The 3 parts to the high res timers are:
+ core      The core kernel (i.e. platform independent)
+ i386      The high-res changes for the i386 (x86) platform
+*hrposix   The changes to the POSIX clocks & timers patch to
+           use high-res timers
+
+Please apply.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

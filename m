@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTLVBax (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 20:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTLVBax
+	id S264296AbTLVBfq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 20:35:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbTLVBfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 20:30:53 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:15512 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S264277AbTLVBaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 20:30:52 -0500
-Subject: Re: [PATCH] loop.c patches, take two
-From: Christophe Saout <christophe@saout.de>
-To: Andi Kleen <ak@muc.de>
+	Sun, 21 Dec 2003 20:35:46 -0500
+Received: from 12-208-144-233.client.attbi.com ([12.208.144.233]:55681 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S264296AbTLVBfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 20:35:44 -0500
+Message-ID: <3FE64A6E.2020506@comcast.net>
+Date: Sun, 21 Dec 2003 17:35:42 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nicklas Bondesson <nikomail@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m31xqx7im0.fsf@averell.firstfloor.org>
-References: <MllE.6qa.7@gated-at.bofh.it> <MpyW.3Ub.9@gated-at.bofh.it>
-	 <MsGq.8cN.1@gated-at.bofh.it> <MvO6.47g.7@gated-at.bofh.it>
-	 <MEf3.8oB.13@gated-at.bofh.it> <MROA.319.5@gated-at.bofh.it>
-	 <NxkP.4kY.17@gated-at.bofh.it> <15hUp-58e-21@gated-at.bofh.it>
-	 <15iGH-6hd-17@gated-at.bofh.it> <15kfk-vj-1@gated-at.bofh.it>
-	 <m31xqx7im0.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Message-Id: <1072056646.2237.4.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Dec 2003 02:30:46 +0100
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+ (PDC20271)
+References: <BAY8-DAV35IMKT7Fvnj0000fb07@hotmail.com>
+In-Reply-To: <BAY8-DAV35IMKT7Fvnj0000fb07@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mo, den 22.12.2003 schrieb Andi Kleen um 02:21:
-
-> > What about dropping block device backed support for the loop driver
-> > altogether? We now have a nice device mapper in the 2.6 kernel. I don't
+Nicklas Bondesson wrote:
+> Now I'm sucessfully booting my system with the 2.4.23 kernel using only one
+> of the drives (hde). There is not a single line in the logs that says
+> anything about the Promise ATARAID driver is beeing fired up, so my guess is
+> that it doesn't load if no one is calling on it. When I try to boot from the
+> RAID it dies right after the "NET4: Unix domain sockets 1.0/SMP for Linux"
+> message. I think it's when the ATARAID driver is about to fire up. I have no
+> idea at all what to do now. It must have something to do with the hard
+> drives since this is the only thing that has changed. Maybee I'm missing
+> some important kernel setting option or so? (I don't think so, but one never
+> know for sure). Also what have changed in the Promise / ATARAID since
+> 2.4.18?.
 > 
-> Device Mapper doesn't support cryptographic transformations.
+> /Nicke
 
-I know. Not yet.
+Not sure what else to tell you. If the pdcraid driver is compiled into the
+kernel, you'll get a message about it during boot, even if it can't find all the
+drives. I no longer use the 2.4 kernel series (or pdcraid), so I'm afraid I'm
+out of ideas. Maybe somebody else on the list has some other things to try. Sorry.
 
-As I've written some lines below, there is a patch:
-http://www.saout.de/misc/dm-crypt.diff that I've written some time ago.
+-Walt
 
-I posted it some time ago but never got feedback from any "VIP" (except
-for Joe Thornber who helped developing the target and thinks it looks
-good). Some people tested it though and it worked for them (and better
-than cryptoloop around test4).
 
---
-Christophe Saout <christophe@saout.de>
-Please avoid sending me Word or PowerPoint attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
 

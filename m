@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbTIVWya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 18:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbTIVWya
+	id S261164AbTIVXBP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 19:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTIVXBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 18:54:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5386 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261746AbTIVWy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 18:54:27 -0400
-Message-Id: <200309222254.PAA21101@cesium.transmeta.com>
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: compiler warnings and syscall macros
-Summary: 
-Expires: 
-References: <3F6F6B1B.9040609@nortelnetworks.com>
-Followup-To: 
-Distribution: 
-Organization: Transmeta Corporation, Santa Clara CA
-Keywords: 
-MIME-Version: 1.0
+	Mon, 22 Sep 2003 19:01:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33509 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261164AbTIVXBN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 19:01:13 -0400
+Date: Mon, 22 Sep 2003 15:41:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5-mm4: wanxl doesn't compile with gcc 2.95
+Message-Id: <20030922154132.2d134e6f.akpm@osdl.org>
+In-Reply-To: <m3fzioigxw.fsf@defiant.pm.waw.pl>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+	<20030922191049.GC6325@fs.tum.de>
+	<m3fzioigxw.fsf@defiant.pm.waw.pl>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Comment-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
-Date: Mon, 22 Sep 2003 15:49:33 -0700
-To: linux-kernel@vger.kernel.org, cfriesen@nortelnetworks.com
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3F6F6B1B.9040609@nortelnetworks.com>
-By author:    Chris Friesen <cfriesen@nortelnetworks.com>
-In newsgroup: linux.dev.kernel
+Krzysztof Halasa <khc@pm.waw.pl> wrote:
 >
-> 
-> I'm trying to figure something out.  For ppc, in asm/unistd.h, 
-> __syscall_nr is defined as:
-> 
-> 
-> #define __syscall_nr(nr, type, name, args...)	\
-> 	unsigned long __sc_ret, __sc_err;	\
-> 	{					\
-> <snipped for brevity>
-> 	}					\
-> 	if (__sc_err & 0x10000000)		\
-> 	{					\
-> 		errno = __sc_ret;		\
-> 		__sc_ret = -1;			\
-> 	}					\
-> 	return (type) __sc_ret
-> 
-> 
-> Whenever I use this in my code, I get compiler warnings about the 
-> statment "__sc_ret = -1" since it is assigning a negative value to an 
-> unsigned int.
+> +		       " at 0x%LX!\n", card_name(pdev), (u64)addr);
 
-Just do:
+This should be "unsigned long long", not u64.  That is what "%L" means,
+after all.
 
-__sc_ret = -1UL;
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

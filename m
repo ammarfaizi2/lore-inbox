@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265593AbRF1H5E>; Thu, 28 Jun 2001 03:57:04 -0400
+	id <S265576AbRF1HTQ>; Thu, 28 Jun 2001 03:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265599AbRF1H4y>; Thu, 28 Jun 2001 03:56:54 -0400
-Received: from t111.niisi.ras.ru ([193.232.173.111]:40480 "EHLO
-	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
-	id <S265593AbRF1H4i>; Thu, 28 Jun 2001 03:56:38 -0400
-Message-ID: <3B3B5349.3050905@niisi.msk.ru>
-Date: Thu, 28 Jun 2001 11:54:49 -0400
-From: Alexandr Andreev <andreev@niisi.msk.ru>
-Organization: niisi
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.9) Gecko/20010507
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: Barry Wu <wqb123@yahoo.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: about linux mips ext2fs
-In-Reply-To: <20010625155706.66345.qmail@web13907.mail.yahoo.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265577AbRF1HTG>; Thu, 28 Jun 2001 03:19:06 -0400
+Received: from t2.redhat.com ([199.183.24.243]:18159 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S265576AbRF1HS7>; Thu, 28 Jun 2001 03:18:59 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3B3A4967.CD5A83BA@mandrakesoft.com> 
+In-Reply-To: <3B3A4967.CD5A83BA@mandrakesoft.com>  <Pine.LNX.4.33.0106271348420.24832-100000@penguin.transmeta.com> 
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4.6.5: fix mtd config 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Jun 2001 08:18:47 +0100
+Message-ID: <13913.993712727@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Barry Wu wrote:
 
->
->I want port linux to our mipsel system. The kernel
->can work and system stop at mount root file system.
->I download root file system for mipsel from MIPS
->company. Because our system have no ethernet
->interface,
->I have to copy root file system directly to our hard
->disk. I put hard disk under intel linux, and using 
->fdisk and make ex2fs on it. Then I copy root file 
->system to hard disk. After finished, I place this hard
->disk under our mipsel environment. I do not know if 
->it can work under this environment, the kernel can
->mount root file system? If someone knows, please help
->me.
->
-I have MIPSEB, and there is no problems with ext2. As i know, it doesn't 
-matter
-where you created your rootfs and put it on disk. But you have to take the
-kernel for a MIPS from oss.sgi.com, by the way.
+jgarzik@mandrakesoft.com said:
+> Seeing David Woodhouse's name reminds me that this patch, submitted by
+> both David and myself, didn't make it into pre5...  It moves
+> mtd-related config items inside CONFIG_MTD. 
+
+Jeff, thankyou for finding this and making me aware of it. It's now in the 
+2.4.6 branch of my tree and I'll resend it, along with one or two other 
+minor fixes, shortly. I'll now need to wait to see whether this partial 
+patch appears in -pre6, I suppose.
+
+--
+dwmw2
+
 

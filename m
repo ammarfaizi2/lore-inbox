@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbRBDQTv>; Sun, 4 Feb 2001 11:19:51 -0500
+	id <S131892AbRBDQWu>; Sun, 4 Feb 2001 11:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131892AbRBDQTk>; Sun, 4 Feb 2001 11:19:40 -0500
-Received: from [203.169.151.222] ([203.169.151.222]:32781 "EHLO
-	main.coppice.org") by vger.kernel.org with ESMTP id <S129092AbRBDQT2>;
-	Sun, 4 Feb 2001 11:19:28 -0500
-Message-ID: <3A7D8116.CA16340B@coppice.org>
-Date: Mon, 05 Feb 2001 00:19:34 +0800
-From: Steve Underwood <steveu@coppice.org>
-Organization: Me? Organised?
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en, zh-TW
+	id <S132023AbRBDQWa>; Sun, 4 Feb 2001 11:22:30 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:735 "EHLO
+	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S131892AbRBDQWV>; Sun, 4 Feb 2001 11:22:21 -0500
+From: Mathieu Dube <mathieu_dube@videotron.ca>
+Reply-To: mathieu_dube@videotron.ca
+Organization: Mondo-Live
+To: linux-kernel@vger.kernel.org
+Subject: RE: accept
+Date: Sun, 4 Feb 2001 11:37:43 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKGEICNHAA.davids@webmaster.com>
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKGEICNHAA.davids@webmaster.com>
+Cc: davids@webmaster.com
 MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <Pine.SOL.4.21.0102041540300.14562-100000@green.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01020411401700.00110@grndctrl>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland wrote:
-> 
-> On Sun, 4 Feb 2001, Ben Ford wrote:
-> 
-> > David Woodhouse wrote:
-> >
-> > > On Sun, 4 Feb 2001, James Sutherland wrote:
-> > >
-> > > > For the end-user, the ability to see readings in other units would be
-> > > > useful - how many people on this list work in litres/metres/kilometres,
-> > > > and how many in gallons/feet/miles? Probably enough in both groups that
-> > > > neither could count as universal...
-> > >
-> > > Yeah. We can have this as part of the locale settings, changable by
-> > > echoing the desired locale string to /proc/sys/kernel/lc_all.
-> > >
-> > > -
-> >
-> > Just an idea, . .  but isn't this something better done in userland?
-> >
-> > (ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-> > $ date  +%s
-> > 981298161
-> > (ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-> > $ date  +%c
-> > Sun Feb  4 06:49:24 2001
-> 
-> That's what I'd do, anyway - /dev/pieceofstring would return the length of
-> said piece of string in some units, explicityly stated. (e.g. "5m" or
-> "15ft").
-> 
-> "uname -s" ("how long's a piece of string on this system") would then
-> convert the length into feet, metres or fathoms, depending on what the
-> user prefers.
-> 
-> James.
+Ok, but fd 0 cant be a valid socket since its the stdin
 
-Don't get carried away. In the present context we are only talking about
-time and electrical measurements. Whilst most of the human race can't
-read the English labels in /proc, they all use the same measurements for
-electrical units and time (unless the time exceeds 24 hours, where dates
-get a bit screwed up). In this case even the US in in line with the rest
-of humanity............. or would you like to be able to express battery
-capacity in BTUs?
+I posted that on this mailing list coz I thought that this might be a scaling
+problem since it happens when theres already several clients connected to the
+server
 
-Regards,
-Steve
+On Sun, 04 Feb 2001, David Schwartz wrote:
+> > What does it typically mean when accept returns 0
+> > and that the perror outputs "Interupted system call"??
+> 
+> 	Since 'accept' returning zero is not an error, the results of 'perror' are
+> meaningless. Please read the manual page for 'accept' and notice that it
+> says, "The call returns -1 on error". Continue reading to understand what a
+> return value of zero means. Remember that zero is a non-negative integer.
+> 
+> 	DS
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+-- 
+Mathieu Dube
+Mondo-Live
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUHVTRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268073AbUHVTSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268069AbUHVTRd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 15:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268073AbUHVTRd
+	id S268073AbUHVTSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 15:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUHVTSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 15:17:33 -0400
-Received: from darwin.snarc.org ([81.56.210.228]:4816 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S268069AbUHVTRa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 15:17:30 -0400
-Date: Sun, 22 Aug 2004 21:17:27 +0200
-To: Albert Cahalan <albert@users.sf.net>
-Cc: benh@kernel.crashing.org,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc32 use simplified mmenonics
-Message-ID: <20040822191727.GB12014@snarc.org>
-References: <1093135526.5759.2513.camel@cube> <20040822094317.GA2589@snarc.org> <1093171291.5759.2544.camel@cube> <20040822144501.GA10017@snarc.org> <1093178422.2301.2674.camel@cube> <20040822162845.GA10911@snarc.org> <1093184939.2301.2799.camel@cube>
-Mime-Version: 1.0
+	Sun, 22 Aug 2004 15:18:24 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:52117 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S268073AbUHVTSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 15:18:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
+References: <200408221527.10303.karl.vogel@seagha.com>
+	<m38yc757pu.fsf@seagha.com>
+From: Karl Vogel <karl.vogel@seagha.com>
+In-Reply-To: <m38yc757pu.fsf@seagha.com> (karl vogel's message of "Sun, 22
+ Aug 2004 20:49:17 +0200")
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Date: Sun, 22 Aug 2004 21:18:51 +0200
+Message-ID: <m33c2f56ck.fsf_-_@seagha.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093184939.2301.2799.camel@cube>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.6+20040803i
-From: Vincent Hanquez <tab@snarc.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 22, 2004 at 10:29:00AM -0400, Albert Cahalan wrote:
-> That comes to 2304. Subtract the 456 "simplified"
-> instruction names you have. That leaves 1848 that
-> you are unable to access.
-> 
-> Take a look at the crand instruction. It uses numbers.
-> Now, just imagine mixing that with branch instructions
-> that hide the numbers. I hope you see the problem.
+When using elevator=as I'm unable to trigger the swap of death, so it seems
+that the CFQ scheduler is at blame here.
 
-I never said we should use simplified instructions everywhere there are
-instructions. Hence I don't see why we care here about 1848 instructions
-not beeing accessible. Most of thoses 1848 instructions probably fit in the
-'not so much' used, and thus doesn't need a simplified mmenonic.
+With AS scheduler, the system recovers in +-10 seconds, vmstat output during
+that time:
 
-> It doesn't appear to be so. He wrote:
-> 
-> : Oh well.. I've got quite used to tweaking rlwinm directly
-> : but I suppose it's more clear for others to go to clrrwi.
-> 
-> So I'd like him to know that others like rlwinm directly too.
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 1  0      0 295632  40372  49400   87  278   324   303 1424   784  7  2 78 13
+ 0  0      0 295632  40372  49400    0    0     0     0 1210   648  3  1 96  0
+ 0  0      0 295632  40372  49400    0    0     0     0 1209   652  4  0 96  0
+ 2  0      0 112784  40372  49400    0    0     0     0 1204   630 23 34 43  0
+ 1  9 156236    788    264   8128   28 156220  3012 156228 3748  3655 11 31  0 59
+ 0 15 176656   2196    280   8664    0 20420   556 20436 1108   374  2  5  0 93
+ 0 17 205320    724    232   7960   28 28664   396 28664 1118   503  7 12  0 81
+ 2 12 217892   1812    252   8556  248 12584   864 12584 1495   318  2  7  0 91
+ 4 14 253268   2500    268   8728  188 35392   432 35392 1844   399  3  7  0 90
+ 0 13 255692   1188    288   9152  960 2424  1408  2424 1173  2215 10  5  0 85
+ 0  7 266140   2288    312   9276  604 10468   752 10468 1248   644  5  5  0 90
+ 0  7 190516 340636    348   9860 1400    0  2016     0 1294   817  4  8  0 88
+ 1  8 190516 339460    384  10844  552    0  1556     4 1241   642  3  1  0 96
+ 1  3 190516 337084    404  11968 1432    0  2576     4 1292   788  3  1  0 96
+ 0  6 190516 333892    420  13612 1844    0  3500     0 1343   850  5  2  0 93
+ 0  1 190516 333700    424  13848  480    0   720     0 1250   654  3  2  0 95
+ 0  1 190516 334468    424  13848  188    0   188     0 1224   589  3  2  0 95
 
-sure.
+With CFQ processes got stuck in 'D' and never left that state. See URL's in my
+initial post for diagnostics.
 
-and some other prefer simplified instructions. I guess we're hitting a
-wall here :)
-
-But as clrrwi is already use in the kernel (as a lot of others simplified
-instructions), either send a patch to remove them or don't say that this
-is madness.
-
-> Using instructions that are in the index makes sense.
-> Using a zillion poorly documented alternatives is madness.
-
-Maybe then you should rewrite all part of kernels, gcc, objdump and gdb that
-use/disassemble the code with simplified instructions (mr, li, b*, etc...) too.
-(clrrwi is as documented as mr)
-
--- 
-Tab

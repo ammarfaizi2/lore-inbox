@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbTIJMcG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 08:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbTIJMcG
+	id S262790AbTIJM2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTIJM2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 08:32:06 -0400
-Received: from hal-4.inet.it ([213.92.5.23]:16587 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S262884AbTIJMcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 08:32:03 -0400
-Message-ID: <043901c37798$23be1520$5aaf7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: <alexander.riesen@synopsys.COM>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM> <03ae01c37795$063561a0$5aaf7450@wssupremo> <20030910121143.GA28858@Synopsys.COM> <03fb01c37797$33f706a0$5aaf7450@wssupremo> <20030910122810.GA28990@Synopsys.COM>
+	Wed, 10 Sep 2003 08:28:16 -0400
+Received: from us01smtp2.synopsys.com ([198.182.44.80]:32986 "EHLO
+	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S262790AbTIJM2Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 08:28:16 -0400
+Date: Wed, 10 Sep 2003 14:28:10 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Luca Veraldi <luca.veraldi@katamail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 14:36:19 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-ID: <20030910122810.GA28990@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Luca Veraldi <luca.veraldi@katamail.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM> <03ae01c37795$063561a0$5aaf7450@wssupremo> <20030910121143.GA28858@Synopsys.COM> <03fb01c37797$33f706a0$5aaf7450@wssupremo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <03fb01c37797$33f706a0$5aaf7450@wssupremo>
+Organization: Synopsys, Inc.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> but it does imply "tested". And widely used. And well-known.
+Luca Veraldi, Wed, Sep 10, 2003 14:29:37 +0200:
+> > it is widely accepted one.
+> 
+> Widely accepted does not necessary implies clear.
+> 
 
-And inefficient, too.
-Sorry, but I use theory not popular convention to judge.
+but it does imply "tested". And widely used. And well-known.
 
-Bye,
-Luca

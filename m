@@ -1,557 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbUKODES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbUKODNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUKODES (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbUKODDw
+	id S261481AbUKODNB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUKODMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:03:52 -0500
-Received: from almesberger.net ([63.105.73.238]:54788 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261510AbUKOC47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 21:56:59 -0500
-Date: Sun, 14 Nov 2004 23:56:46 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC] Generalize prio_tree (1/3)
-Message-ID: <20041114235646.K28802@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Sun, 14 Nov 2004 22:12:37 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:22665 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261516AbUKODFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 22:05:00 -0500
+Date: Mon, 15 Nov 2004 12:06:53 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Subject: Re: Futex queue_me/get_user ordering
+In-reply-to: <20041115020148.GA17979@mail.shareable.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: mingo@elte.hu, Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, ahu@ds9a.nl
+Message-id: <41981D4D.9030505@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja, en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+References: <20041113164048.2f31a8dd.akpm@osdl.org>
+ <20041114090023.GA478@mail.shareable.org>
+ <20041114010943.3d56985a.akpm@osdl.org>
+ <20041114092308.GA4389@mail.shareable.org> <4197FF42.9070706@jp.fujitsu.com>
+ <20041115020148.GA17979@mail.shareable.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rajesh,
+Jamie Lokier wrote:
+> Third possibility: your test is buggy.  Do you actually use a mutex in
+> your test when you call pthread_cond_wait, and does the waker hold it
+> when it calls pthread_cond_signal?
+> 
+> If you don't use a mutex as you are supposed to with condvars, then it
+> might not be a kernel or NPTL bug.  I'm not sure if POSIX-specified
+> behaviour is defined when you use condvars without a mutex.
+> 
+> If you do use a mutex (and you just didn't mention it), then the code
+> above is not enough to decide if there's an NPTL bug.  We need to look
+> at pthread_cond_wait as well, to see how it does the "atomic" wait and
+> mutex release.
+> 
+> -- Jamie
 
-perhaps you remember me posting a long time ago about generalizing
-prio_tree. Now I finally got to make that patch. In fact, there are
-three parts:
+Now I'm asking our test team about that.
 
- - the prio_tree "core" in lib/
- - switching mm/prio_tree.c to use the "core"
- - some debugging extensions
+Again, from glibc-2.3.3(RHEL4b2):
 
-The reason for wanting this generalization is that we'll also need
-radix priority search trees for healthier barrier handling in the
-IO scheduler (aka disk elevator).
+[nptl/sysdeps/pthread/pthread_cond_wait.c]
+   85 int
+   86 __pthread_cond_wait (cond, mutex)
+   87      pthread_cond_t *cond;
+   88      pthread_mutex_t *mutex;
+   89 {
+   90   struct _pthread_cleanup_buffer buffer;
+   91   struct _condvar_cleanup_buffer cbuffer;
+   92   int err;
+   93
+   94   /* Make sure we are along.  */
+   95   lll_mutex_lock (cond->__data.__lock);
+   96
+   97   /* Now we can release the mutex.  */
+   98   err = __pthread_mutex_unlock_usercnt (mutex, 0);
+   99   if (__builtin_expect (err, 0))
+  100     {
+  101       lll_mutex_unlock (cond->__data.__lock);
+  102       return err;
+  103     }
+  104
+  105   /* We have one new user of the condvar.  */
+  106   ++cond->__data.__total_seq;
+  107   ++cond->__data.__futex;
+  108   cond->__data.__nwaiters += 1 << COND_CLOCK_BITS;
+  109
+  110   /* Remember the mutex we are using here.  If there is already a
+  111      different address store this is a bad user bug.  Do not store
+  112      anything for pshared condvars.  */
+  113   if (cond->__data.__mutex != (void *) ~0l)
+  114     cond->__data.__mutex = mutex;
+  115
+  116   /* Prepare structure passed to cancellation handler.  */
+  117   cbuffer.cond = cond;
+  118   cbuffer.mutex = mutex;
+  119
+  120   /* Before we block we enable cancellation.  Therefore we have to
+  121      install a cancellation handler.  */
+  122   __pthread_cleanup_push (&buffer, __condvar_cleanup, &cbuffer);
+  123
+  124   /* The current values of the wakeup counter.  The "woken" counter
+  125      must exceed this value.  */
+  126   unsigned long long int val;
+  127   unsigned long long int seq;
+  128   val = seq = cond->__data.__wakeup_seq;
+  129   /* Remember the broadcast counter.  */
+  130   cbuffer.bc_seq = cond->__data.__broadcast_seq;
+  131
+  132   do
+  133     {
+  134       unsigned int futex_val = cond->__data.__futex;
+  135
+  136       /* Prepare to wait.  Release the condvar futex.  */
+  137       lll_mutex_unlock (cond->__data.__lock);
+  138
+  139       /* Enable asynchronous cancellation.  Required by the standard.  */
+  140       cbuffer.oldtype = __pthread_enable_asynccancel ();
+  141
+  142       /* Wait until woken by signal or broadcast.  */
+  143       lll_futex_wait (&cond->__data.__futex, futex_val);
+  144
+  145       /* Disable asynchronous cancellation.  */
+  146       __pthread_disable_asynccancel (cbuffer.oldtype);
+  147
+  148       /* We are going to look at shared data again, so get the lock.  */
+  149       lll_mutex_lock (cond->__data.__lock);
+  150
+  151       /* If a broadcast happened, we are done.  */
+  152       if (cbuffer.bc_seq != cond->__data.__broadcast_seq)
+  153         goto bc_out;
+  154
+  155       /* Check whether we are eligible for wakeup.  */
+  156       val = cond->__data.__wakeup_seq;
+  157     }
+  158   while (val == seq || cond->__data.__woken_seq == val);
+  159
+  160   /* Another thread woken up.  */
+  161   ++cond->__data.__woken_seq;
+  162
+  163  bc_out:
+  164
+  165   cond->__data.__nwaiters -= 1 << COND_CLOCK_BITS;
+  166
+  167   /* If pthread_cond_destroy was called on this varaible already,
+  168      notify the pthread_cond_destroy caller all waiters have left
+  169      and it can be successfully destroyed.  */
+  170   if (cond->__data.__total_seq == -1ULL
+  171       && cond->__data.__nwaiters < (1 << COND_CLOCK_BITS))
+  172     lll_futex_wake (&cond->__data.__nwaiters, 1);
+  173
+  174   /* We are done with the condvar.  */
+  175   lll_mutex_unlock (cond->__data.__lock);
+  176
+  177   /* The cancellation handling is back to normal, remove the handler.  */
+  178   __pthread_cleanup_pop (&buffer, 0);
+  179
+  180   /* Get the mutex before returning.  */
+  181   return __pthread_mutex_cond_lock (mutex);
+  182 }
 
-Since this rearranges fairly crucial code, I think a first round
-for review is approproate. If nothing major turns up, I'll make
-another patch for merging into mainline when the next version is
-out.
+I'm not sure but it seems that the pseudo-code could be:
 
-The patch below puts an includeable version of prio_tree to lib/.
-This should be included similar to how inflate.c is used.
+(mutex must be locked before calling pthread_cond_wait.)
+-A01 pthread_cond_wait {
++A01 pthread_cond_wait (futex,mutex) {
++A0*   mutex_unlock(mutex);
+  A02   timeout = 0;
+  A03   lock(counters);
+  A04     total++;
+  A05     val = get_from(futex);
+  A06   unlock(counters);
+  A07
+  A08   sys_futex(futex, FUTEX_WAIT, val, timeout);
+  A09
+  A10   lock(counters);
+  A11     woken++;
+  A12   unlock(counters);
++A1*   mutex_lock(mutex);
+  A13 }
 
-The only real change is that index_bits_to_maxindex is now called
-prio_tree_index_bits_to_maxindex, and is globally shard.
+(and it's better to replace var "futex" to "cond".)
 
-- Werner
+Is it possible that NPTL shut the window between mutex_unlock()
+and actual queueing in futex_wait?
 
----------------------------------- cut here -----------------------------------
 
---- linux-2.6.9-orig/include/linux/prio_tree.h	Mon Oct 18 18:54:08 2004
-+++ linux-2.6.9/include/linux/prio_tree.h	Sun Nov 14 21:29:29 2004
-@@ -73,4 +73,6 @@
- 	return node->right == node;
- }
- 
-+extern unsigned long prio_tree_index_bits_to_maxindex[];
-+
- #endif /* _LINUX_PRIO_TREE_H */
---- linux-2.6.9-orig/lib/Makefile	Mon Oct 18 18:53:08 2004
-+++ linux-2.6.9/lib/Makefile	Sun Nov 14 21:33:17 2004
-@@ -6,7 +6,7 @@
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
- 	 kobject.o kref.o idr.o div64.o parser.o int_sqrt.o \
--	 bitmap.o extable.o
-+	 bitmap.o extable.o prio_tree_init.o
- 
- lib-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
---- /dev/null	Wed Jun  9 20:31:45 2004
-+++ linux-2.6.9/lib/prio_tree_init.c	Sun Nov 14 21:54:27 2004
-@@ -0,0 +1,29 @@
-+/*
-+ * lib/prio_tree_init.c - priority search tree: initialization
-+ *
-+ * Copyright (C) 2004, Rajesh Venkatasubramanian <vrajesh@umich.edu>
-+ *
-+ * This file is released under the GPL v2.
-+ *
-+ * Based on the radix priority search tree proposed by Edward M. McCreight
-+ * SIAM Journal of Computing, vol. 14, no.2, pages 257-276, May 1985
-+ *
-+ * 02Feb2004	Initial version
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/prio_tree.h>
-+
-+
-+unsigned long prio_tree_index_bits_to_maxindex[BITS_PER_LONG];
-+
-+void __init prio_tree_init(void)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(prio_tree_index_bits_to_maxindex) - 1; i++)
-+		prio_tree_index_bits_to_maxindex[i] = (1UL << (i + 1)) - 1;
-+	prio_tree_index_bits_to_maxindex
-+	    [ARRAY_SIZE(prio_tree_index_bits_to_maxindex) - 1] = ~0UL;
-+}
---- /dev/null	Wed Jun  9 20:31:45 2004
-+++ linux-2.6.9/lib/prio_tree.c	Sun Nov 14 23:00:57 2004
-@@ -0,0 +1,445 @@
-+/*
-+ * lib/prio_tree.c - priority search tree: common code
-+ *
-+ * Copyright (C) 2004, Rajesh Venkatasubramanian <vrajesh@umich.edu>
-+ *
-+ * This file is released under the GPL v2.
-+ *
-+ * Based on the radix priority search tree proposed by Edward M. McCreight
-+ * SIAM Journal of Computing, vol. 14, no.2, pages 257-276, May 1985
-+ *
-+ * 02Feb2004	Initial version
-+ */
-+
-+/* Includer will have included linux/prio_tree.h for us */
-+
-+/*
-+ * A clever mix of heap and radix trees forms a radix priority search tree (PST)
-+ * which is useful for storing intervals, e.g, we can consider a vma as a closed
-+ * interval of file pages [offset_begin, offset_end], and store all vmas that
-+ * map a file in a PST. Then, using the PST, we can answer a stabbing query,
-+ * i.e., selecting a set of stored intervals (vmas) that overlap with (map) a
-+ * given input interval X (a set of consecutive file pages), in "O(log n + m)"
-+ * time where 'log n' is the height of the PST, and 'm' is the number of stored
-+ * intervals (vmas) that overlap (map) with the input interval X (the set of
-+ * consecutive file pages).
-+ *
-+ * In our implementation, we store closed intervals of the form [radix_index,
-+ * heap_index]. We assume that always radix_index <= heap_index. McCreight's PST
-+ * is designed for storing intervals with unique radix indices, i.e., each
-+ * interval have different radix_index. However, this limitation can be easily
-+ * overcome by using the size, i.e., heap_index - radix_index, as part of the
-+ * index, so we index the tree using [(radix_index,size), heap_index].
-+ *
-+ * When the above-mentioned indexing scheme is used, theoretically, in a 32 bit
-+ * machine, the maximum height of a PST can be 64. We can use a balanced version
-+ * of the priority search tree to optimize the tree height, but the balanced
-+ * tree proposed by McCreight is too complex and memory-hungry for our purpose.
-+ */
-+
-+
-+/*
-+ * Maximum heap_index that can be stored in a PST with index_bits bits
-+ */
-+static inline unsigned long prio_tree_maxindex(unsigned int bits)
-+{
-+	return prio_tree_index_bits_to_maxindex[bits - 1];
-+}
-+
-+static void prio_tree_remove(struct prio_tree_root *, struct prio_tree_node *);
-+
-+/*
-+ * Extend a priority search tree so that it can store a node with heap_index
-+ * max_heap_index. In the worst case, this algorithm takes O((log n)^2).
-+ * However, this function is used rarely and the common case performance is
-+ * not bad.
-+ */
-+static struct prio_tree_node *prio_tree_expand(struct prio_tree_root *root,
-+		struct prio_tree_node *node, unsigned long max_heap_index)
-+{
-+	struct prio_tree_node *first = NULL, *prev, *last = NULL;
-+
-+	if (max_heap_index > prio_tree_maxindex(root->index_bits))
-+		root->index_bits++;
-+
-+	while (max_heap_index > prio_tree_maxindex(root->index_bits)) {
-+		root->index_bits++;
-+
-+		if (prio_tree_empty(root))
-+			continue;
-+
-+		if (first == NULL) {
-+			first = root->prio_tree_node;
-+			prio_tree_remove(root, root->prio_tree_node);
-+			INIT_PRIO_TREE_NODE(first);
-+			last = first;
-+		} else {
-+			prev = last;
-+			last = root->prio_tree_node;
-+			prio_tree_remove(root, root->prio_tree_node);
-+			INIT_PRIO_TREE_NODE(last);
-+			prev->left = last;
-+			last->parent = prev;
-+		}
-+	}
-+
-+	INIT_PRIO_TREE_NODE(node);
-+
-+	if (first) {
-+		node->left = first;
-+		first->parent = node;
-+	} else
-+		last = node;
-+
-+	if (!prio_tree_empty(root)) {
-+		last->left = root->prio_tree_node;
-+		last->left->parent = last;
-+	}
-+
-+	root->prio_tree_node = node;
-+	return node;
-+}
-+
-+/*
-+ * Replace a prio_tree_node with a new node and return the old node
-+ */
-+static struct prio_tree_node *prio_tree_replace(struct prio_tree_root *root,
-+		struct prio_tree_node *old, struct prio_tree_node *node)
-+{
-+	INIT_PRIO_TREE_NODE(node);
-+
-+	if (prio_tree_root(old)) {
-+		BUG_ON(root->prio_tree_node != old);
-+		/*
-+		 * We can reduce root->index_bits here. However, it is complex
-+		 * and does not help much to improve performance (IMO).
-+		 */
-+		node->parent = node;
-+		root->prio_tree_node = node;
-+	} else {
-+		node->parent = old->parent;
-+		if (old->parent->left == old)
-+			old->parent->left = node;
-+		else
-+			old->parent->right = node;
-+	}
-+
-+	if (!prio_tree_left_empty(old)) {
-+		node->left = old->left;
-+		old->left->parent = node;
-+	}
-+
-+	if (!prio_tree_right_empty(old)) {
-+		node->right = old->right;
-+		old->right->parent = node;
-+	}
-+
-+	return old;
-+}
-+
-+/*
-+ * Insert a prio_tree_node @node into a radix priority search tree @root. The
-+ * algorithm typically takes O(log n) time where 'log n' is the number of bits
-+ * required to represent the maximum heap_index. In the worst case, the algo
-+ * can take O((log n)^2) - check prio_tree_expand.
-+ *
-+ * If a prior node with same radix_index and heap_index is already found in
-+ * the tree, then returns the address of the prior node. Otherwise, inserts
-+ * @node into the tree and returns @node.
-+ */
-+static struct prio_tree_node *prio_tree_insert(struct prio_tree_root *root,
-+		struct prio_tree_node *node)
-+{
-+	struct prio_tree_node *cur, *res = node;
-+	unsigned long radix_index, heap_index;
-+	unsigned long r_index, h_index, index, mask;
-+	int size_flag = 0;
-+
-+	GET_INDEX(node, radix_index, heap_index);
-+
-+	if (prio_tree_empty(root) ||
-+			heap_index > prio_tree_maxindex(root->index_bits))
-+		return prio_tree_expand(root, node, heap_index);
-+
-+	cur = root->prio_tree_node;
-+	mask = 1UL << (root->index_bits - 1);
-+
-+	while (mask) {
-+		GET_INDEX(cur, r_index, h_index);
-+
-+		if (r_index == radix_index && h_index == heap_index)
-+			return cur;
-+
-+                if (h_index < heap_index ||
-+		    (h_index == heap_index && r_index > radix_index)) {
-+			struct prio_tree_node *tmp = node;
-+			node = prio_tree_replace(root, cur, node);
-+			cur = tmp;
-+			/* swap indices */
-+			index = r_index;
-+			r_index = radix_index;
-+			radix_index = index;
-+			index = h_index;
-+			h_index = heap_index;
-+			heap_index = index;
-+		}
-+
-+		if (size_flag)
-+			index = heap_index - radix_index;
-+		else
-+			index = radix_index;
-+
-+		if (index & mask) {
-+			if (prio_tree_right_empty(cur)) {
-+				INIT_PRIO_TREE_NODE(node);
-+				cur->right = node;
-+				node->parent = cur;
-+				return res;
-+			} else
-+				cur = cur->right;
-+		} else {
-+			if (prio_tree_left_empty(cur)) {
-+				INIT_PRIO_TREE_NODE(node);
-+				cur->left = node;
-+				node->parent = cur;
-+				return res;
-+			} else
-+				cur = cur->left;
-+		}
-+
-+		mask >>= 1;
-+
-+		if (!mask) {
-+			mask = 1UL << (root->index_bits - 1);
-+			size_flag = 1;
-+		}
-+	}
-+	/* Should not reach here */
-+	BUG();
-+	return NULL;
-+}
-+
-+/*
-+ * Remove a prio_tree_node @node from a radix priority search tree @root. The
-+ * algorithm takes O(log n) time where 'log n' is the number of bits required
-+ * to represent the maximum heap_index.
-+ */
-+static void prio_tree_remove(struct prio_tree_root *root,
-+		struct prio_tree_node *node)
-+{
-+	struct prio_tree_node *cur;
-+	unsigned long r_index, h_index_right, h_index_left;
-+
-+	cur = node;
-+
-+	while (!prio_tree_left_empty(cur) || !prio_tree_right_empty(cur)) {
-+		if (!prio_tree_left_empty(cur))
-+			GET_INDEX(cur->left, r_index, h_index_left);
-+		else {
-+			cur = cur->right;
-+			continue;
-+		}
-+
-+		if (!prio_tree_right_empty(cur))
-+			GET_INDEX(cur->right, r_index, h_index_right);
-+		else {
-+			cur = cur->left;
-+			continue;
-+		}
-+
-+		/* both h_index_left and h_index_right cannot be 0 */
-+		if (h_index_left >= h_index_right)
-+			cur = cur->left;
-+		else
-+			cur = cur->right;
-+	}
-+
-+	if (prio_tree_root(cur)) {
-+		BUG_ON(root->prio_tree_node != cur);
-+		INIT_PRIO_TREE_ROOT(root);
-+		return;
-+	}
-+
-+	if (cur->parent->right == cur)
-+		cur->parent->right = cur->parent;
-+	else
-+		cur->parent->left = cur->parent;
-+
-+	while (cur != node)
-+		cur = prio_tree_replace(root, cur->parent, cur);
-+}
-+
-+/*
-+ * Following functions help to enumerate all prio_tree_nodes in the tree that
-+ * overlap with the input interval X [radix_index, heap_index]. The enumeration
-+ * takes O(log n + m) time where 'log n' is the height of the tree (which is
-+ * proportional to # of bits required to represent the maximum heap_index) and
-+ * 'm' is the number of prio_tree_nodes that overlap the interval X.
-+ */
-+
-+static struct prio_tree_node *prio_tree_left(struct prio_tree_iter *iter,
-+		unsigned long *r_index, unsigned long *h_index)
-+{
-+	if (prio_tree_left_empty(iter->cur))
-+		return NULL;
-+
-+	GET_INDEX(iter->cur->left, *r_index, *h_index);
-+
-+	if (iter->r_index <= *h_index) {
-+		iter->cur = iter->cur->left;
-+		iter->mask >>= 1;
-+		if (iter->mask) {
-+			if (iter->size_level)
-+				iter->size_level++;
-+		} else {
-+			if (iter->size_level) {
-+				BUG_ON(!prio_tree_left_empty(iter->cur));
-+				BUG_ON(!prio_tree_right_empty(iter->cur));
-+				iter->size_level++;
-+				iter->mask = ULONG_MAX;
-+			} else {
-+				iter->size_level = 1;
-+				iter->mask = 1UL << (iter->root->index_bits - 1);
-+			}
-+		}
-+		return iter->cur;
-+	}
-+
-+	return NULL;
-+}
-+
-+static struct prio_tree_node *prio_tree_right(struct prio_tree_iter *iter,
-+		unsigned long *r_index, unsigned long *h_index)
-+{
-+	unsigned long value;
-+
-+	if (prio_tree_right_empty(iter->cur))
-+		return NULL;
-+
-+	if (iter->size_level)
-+		value = iter->value;
-+	else
-+		value = iter->value | iter->mask;
-+
-+	if (iter->h_index < value)
-+		return NULL;
-+
-+	GET_INDEX(iter->cur->right, *r_index, *h_index);
-+
-+	if (iter->r_index <= *h_index) {
-+		iter->cur = iter->cur->right;
-+		iter->mask >>= 1;
-+		iter->value = value;
-+		if (iter->mask) {
-+			if (iter->size_level)
-+				iter->size_level++;
-+		} else {
-+			if (iter->size_level) {
-+				BUG_ON(!prio_tree_left_empty(iter->cur));
-+				BUG_ON(!prio_tree_right_empty(iter->cur));
-+				iter->size_level++;
-+				iter->mask = ULONG_MAX;
-+			} else {
-+				iter->size_level = 1;
-+				iter->mask = 1UL << (iter->root->index_bits - 1);
-+			}
-+		}
-+		return iter->cur;
-+	}
-+
-+	return NULL;
-+}
-+
-+static struct prio_tree_node *prio_tree_parent(struct prio_tree_iter *iter)
-+{
-+	iter->cur = iter->cur->parent;
-+	if (iter->mask == ULONG_MAX)
-+		iter->mask = 1UL;
-+	else if (iter->size_level == 1)
-+		iter->mask = 1UL;
-+	else
-+		iter->mask <<= 1;
-+	if (iter->size_level)
-+		iter->size_level--;
-+	if (!iter->size_level && (iter->value & iter->mask))
-+		iter->value ^= iter->mask;
-+	return iter->cur;
-+}
-+
-+static inline int overlap(struct prio_tree_iter *iter,
-+		unsigned long r_index, unsigned long h_index)
-+{
-+	return iter->h_index >= r_index && iter->r_index <= h_index;
-+}
-+
-+/*
-+ * prio_tree_first:
-+ *
-+ * Get the first prio_tree_node that overlaps with the interval [radix_index,
-+ * heap_index]. Note that always radix_index <= heap_index. We do a pre-order
-+ * traversal of the tree.
-+ */
-+static struct prio_tree_node *prio_tree_first(struct prio_tree_iter *iter)
-+{
-+	struct prio_tree_root *root;
-+	unsigned long r_index, h_index;
-+
-+	INIT_PRIO_TREE_ITER(iter);
-+
-+	root = iter->root;
-+	if (prio_tree_empty(root))
-+		return NULL;
-+
-+	GET_INDEX(root->prio_tree_node, r_index, h_index);
-+
-+	if (iter->r_index > h_index)
-+		return NULL;
-+
-+	iter->mask = 1UL << (root->index_bits - 1);
-+	iter->cur = root->prio_tree_node;
-+
-+	while (1) {
-+		if (overlap(iter, r_index, h_index))
-+			return iter->cur;
-+
-+		if (prio_tree_left(iter, &r_index, &h_index))
-+			continue;
-+
-+		if (prio_tree_right(iter, &r_index, &h_index))
-+			continue;
-+
-+		break;
-+	}
-+	return NULL;
-+}
-+
-+/*
-+ * prio_tree_next:
-+ *
-+ * Get the next prio_tree_node that overlaps with the input interval in iter
-+ */
-+static struct prio_tree_node *prio_tree_next(struct prio_tree_iter *iter)
-+{
-+	unsigned long r_index, h_index;
-+
-+repeat:
-+	while (prio_tree_left(iter, &r_index, &h_index))
-+		if (overlap(iter, r_index, h_index))
-+			return iter->cur;
-+
-+	while (!prio_tree_right(iter, &r_index, &h_index)) {
-+	    	while (!prio_tree_root(iter->cur) &&
-+				iter->cur->parent->right == iter->cur)
-+			prio_tree_parent(iter);
-+
-+		if (prio_tree_root(iter->cur))
-+			return NULL;
-+
-+		prio_tree_parent(iter);
-+	}
-+
-+	if (overlap(iter, r_index, h_index))
-+		return iter->cur;
-+
-+	goto repeat;
-+}
+Thanks,
+H.Seto
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

@@ -1,369 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSL2XFr>; Sun, 29 Dec 2002 18:05:47 -0500
+	id <S262207AbSL2XJi>; Sun, 29 Dec 2002 18:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbSL2XFr>; Sun, 29 Dec 2002 18:05:47 -0500
-Received: from dsl-67-48-44-237.telocity.com ([67.48.44.237]:14638 "EHLO
-	lnuxlab.ath.cx") by vger.kernel.org with ESMTP id <S262067AbSL2XFm>;
-	Sun, 29 Dec 2002 18:05:42 -0500
-Date: Sun, 29 Dec 2002 18:32:36 -0500
-To: Andrew Morton <akpm@digeo.com>
+	id <S262208AbSL2XJi>; Sun, 29 Dec 2002 18:09:38 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:44292 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S262207AbSL2XJh>;
+	Sun, 29 Dec 2002 18:09:37 -0500
+Date: Mon, 30 Dec 2002 00:17:51 +0100
+Message-Id: <200212292317.gBTNHpl04562@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [Patch] Kernel configuration in kernel, kernel 2.4.20
+X-Newsgroups: linux.kernel
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.53-mm3: xmms: page allocation failure. order:5, mode:0x20
-Message-ID: <20021229233236.GA25035@lnuxlab.ath.cx>
-References: <20021229202610.GA24554@lnuxlab.ath.cx> <3E0F5E2C.70F7D112@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E0F5E2C.70F7D112@digeo.com>
-User-Agent: Mutt/1.3.28i
-From: khromy@lnuxlab.ath.cx (khromy)
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 29, 2002 at 12:42:20PM -0800, Andrew Morton wrote:
-> khromy wrote:
-> > 
-> > Running 2.5.53-mm3, I found the following in dmesg.  I don't remember
-> > getting anything like this with 2.5.53-mm3.
-> > 
-> > xmms: page allocation failure. order:5, mode:0x20
-> 
-> gack.  Someone is requesting 128k of memory with GFP_ATOMIC.  It fell
-> afoul of the reduced memory reserves.  It deserved to.
-> 
-> Could you please add this patch, and make sure that you have set
-> CONFIG_KALLSYMS=y?  This will find the culprit.
+In article <20021229221340.GA2259@werewolf.able.es> you wrote:
 
-XFree86: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c0265066>] unix_poll+0x22/0x90
- [<c0224ce9>] sock_poll+0x1d/0x24
- [<c014d452>] do_select+0xfe/0x208
- [<c014d214>] __pollwait+0x0/0x98
- [<c014d8b6>] sys_select+0x332/0x46c
- [<c01089af>] syscall_call+0x7/0xb
+> On 2002.12.29 Paul Rolland wrote:
+>> Hello,
+>> 
+>> Tired of keeping copy of the kernel .config file, I decided to create a kernel
+>> patch to have a 
+>> /proc/config/config.gz
 
-XFree86: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c0265066>] unix_poll+0x22/0x90
- [<c0224ce9>] sock_poll+0x1d/0x24
- [<c014d452>] do_select+0xfe/0x208
- [<c014d214>] __pollwait+0x0/0x98
- [<c014d8b6>] sys_select+0x332/0x46c
- [<c01089af>] syscall_call+0x7/0xb
+> Why people does not read the archives before doing anything ?
 
-ENOMEM in journal_alloc_journal_head, retrying.
-xmms: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c021dc2b>] es1371_poll+0xcf/0x20c
- [<c014d452>] do_select+0xfe/0x208
- [<c014d214>] __pollwait+0x0/0x98
- [<c014d8b6>] sys_select+0x332/0x46c
- [<c01089af>] syscall_call+0x7/0xb
+> http://www.it.uc3m.es/~ptb/proconfig/
 
-xmms: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c021dc2b>] es1371_poll+0xcf/0x20c
- [<c014d452>] do_select+0xfe/0x208
- [<c014d214>] __pollwait+0x0/0x98
- [<c014d8b6>] sys_select+0x332/0x46c
- [<c01089af>] syscall_call+0x7/0xb
+Uuumph. Thanks for reminding me. That made me update the page and the
+Changelog in a hurry.
 
-xmms: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c0265066>] unix_poll+0x22/0x90
- [<c0224ce9>] sock_poll+0x1d/0x24
- [<c014da35>] do_pollfd+0x45/0x84
- [<c014dad1>] do_poll+0x5d/0xc0
- [<c014dc48>] sys_poll+0x114/0x1cc
- [<c014d214>] __pollwait+0x0/0x98
- [<c01089af>] syscall_call+0x7/0xb
+It does work for latest 2.4. I ported to 2.4.19 a couple of months ago.
+Nowadays it uses string common prefix compression to reduce the
+internal size. Probably 4-12K in total (there are a LOT of kernel
+compilation params nowadays), but the output from /proc/config
+is exactly as it should be.
 
-xmms: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c0265066>] unix_poll+0x22/0x90
- [<c0224ce9>] sock_poll+0x1d/0x24
- [<c014da35>] do_pollfd+0x45/0x84
- [<c014dad1>] do_poll+0x5d/0xc0
- [<c014dc48>] sys_poll+0x114/0x1cc
- [<c014d214>] __pollwait+0x0/0x98
- [<c01089af>] syscall_call+0x7/0xb
+   Module                  Size  Used by    Not tainted
+   config                 10908   0 (unused)
 
-kswapd0: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fcee>] balance_pgdat+0xba/0x130
- [<c012fe62>] kswapd+0xfe/0x104
- [<c012fd64>] kswapd+0x0/0x104
- [<c0115a54>] autoremove_wake_function+0x0/0x38
- [<c0115a54>] autoremove_wake_function+0x0/0x38
- [<c0106dfd>] kernel_thread_helper+0x5/0xc
 
-kswapd0: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fcee>] balance_pgdat+0xba/0x130
- [<c012fe62>] kswapd+0xfe/0x104
- [<c012fd64>] kswapd+0x0/0x104
- [<c0115a54>] autoremove_wake_function+0x0/0x38
- [<c0115a54>] autoremove_wake_function+0x0/0x38
- [<c0106dfd>] kernel_thread_helper+0x5/0xc
+   betty:/usr/oboe/ptb/lib/www/proconfig% cat /proc/config | wc
+       855     855   18421
 
-bk: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e36c>] journal_alloc_journal_head+0x10/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c01322b7>] do_anonymous_page+0xf3/0x24c
- [<c0132448>] do_no_page+0x38/0x2d0
- [<c0132771>] handle_mm_fault+0x91/0x13c
- [<c0112ec2>] do_page_fault+0x132/0x414
- [<c0112d90>] do_page_fault+0x0/0x414
- [<c011d526>] update_wall_time+0x12/0x3c
- [<c01342db>] do_brk+0x10b/0x1dc
- [<c0133205>] sys_brk+0xad/0xd8
- [<c0109391>] error_code+0x2d/0x38
+(855 kernel config options, with 18.4K of output chars)
 
-XFree86: page allocation failure. order:0, mode:0xd0
-Call Trace:
- [<c012a3dd>] __alloc_pages+0x255/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c012c7e6>] cache_grow+0xb6/0x20c
- [<c012c9cf>] __cache_alloc_refill+0x93/0x220
- [<c01145ac>] do_schedule+0x268/0x2c8
- [<c012cb96>] cache_alloc_refill+0x3a/0x58
- [<c012cf1d>] kmem_cache_alloc+0x45/0xc8
- [<c017e3bc>] journal_alloc_journal_head+0x60/0x68
- [<c017e458>] journal_add_journal_head+0x80/0x120
- [<c0178fc6>] journal_dirty_data+0x4a/0x1bc
- [<c016cd5f>] journal_dirty_async_data+0x17/0x6c
- [<c016ca84>] walk_page_buffers+0x50/0x74
- [<c016d305>] ext3_writepage+0x261/0x33c
- [<c016cd48>] journal_dirty_async_data+0x0/0x6c
- [<c012f0b6>] shrink_list+0x2b6/0x4bc
- [<c0135bc1>] page_referenced+0xbd/0xcc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012fa48>] refill_inactive_zone+0x4b4/0x4dc
- [<c012e296>] __pagevec_release+0x1a/0x28
- [<c012f467>] shrink_cache+0x1ab/0x2d8
- [<c012fadc>] shrink_zone+0x6c/0x74
- [<c012fb4e>] shrink_caches+0x6a/0x94
- [<c012fbf4>] try_to_free_pages+0x7c/0xbc
- [<c012a33c>] __alloc_pages+0x1b4/0x264
- [<c012a414>] __get_free_pages+0x28/0x60
- [<c014d247>] __pollwait+0x33/0x98
- [<c0265066>] unix_poll+0x22/0x90
- [<c0224ce9>] sock_poll+0x1d/0x24
- [<c014d452>] do_select+0xfe/0x208
- [<c014d214>] __pollwait+0x0/0x98
- [<c014d8b6>] sys_select+0x332/0x46c
- [<c01089af>] syscall_call+0x7/0xb
+   betty:/usr/oboe/ptb/lib/www/proconfig% head /proc/config
+   CONFIG_X86=y
+   CONFIG_ISA=y
+   CONFIG_UID16=y
+   CONFIG_EXPERIMENTAL=y
+   CONFIG_MODULES=y
+   ...
 
--- 
-L1:	khromy		;khromy(at)lnuxlab.ath.cx
+
+Now I suppose I need to port it to latest 2.5. Assuming I can compile a
+2.5, that is! I haven't tried since 2.5.47, which was before that
+modules change.
+
+Peter

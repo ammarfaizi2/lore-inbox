@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbULWJFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbULWJHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbULWJFu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 04:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbULWJFu
+	id S261182AbULWJHY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 04:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbULWJHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 04:05:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53222 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261181AbULWJFp (ORCPT
+	Thu, 23 Dec 2004 04:07:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:36296 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261182AbULWJHM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 04:05:45 -0500
-Date: Thu, 23 Dec 2004 10:05:05 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: "Brown, Len" <len.brown@intel.com>, "Li, Shaohua" <shaohua.li@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: the patch of restore-pci-config-space-on-resume break S1 on ASUS2400 NE
-Message-ID: <20041223090505.GA7251@devserv.devel.redhat.com>
-References: <3ACA40606221794F80A5670F0AF15F84069D51E8@pdsmsx403>
+	Thu, 23 Dec 2004 04:07:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=MLs8JRnKTNyysgZyr0e5xtBjOxASwYzg6HqBfQbVEOFMAaWfKVKcHZ4owVDVmzM7aOqL8NjHVHdWTUdcpA8QyENFU3AaJpKhe9o6xiNpXk3+HOsRPQdVbmkx5HzDcRCHeHLN43cnHwHQfIkulEnx2vDQ8UFUkxbzshOoNPUA7fc=
+Message-ID: <ace3f33d041223010752c3ed23@mail.gmail.com>
+Date: Thu, 23 Dec 2004 14:37:10 +0530
+From: srinivas naga vutukuri <srinivas.vutukuri@gmail.com>
+Reply-To: srinivas naga vutukuri <srinivas.vutukuri@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux Wireless Sensor LAN Project.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F84069D51E8@pdsmsx403>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23, 2004 at 04:51:09PM +0800, Yu, Luming wrote:
->  Hi,
-> 
-> Since 2.6.7, the Changes for drivers/pci/pci-driver.c@1.37 make my
-> ASUS 2400NE hang on S1 resume. 
+Introduction:
+This is a try to make Linux host be able to act as a member of
+802.15.4 wireless sensor network as a full functional device.
 
-we need to figure out which device can't take the pci config space
-restore...
+HomePage:
+http://linux-802-15-4.sourceforge.net
 
+Interested people can put ideas.
+
+Regards,
+srinivas.

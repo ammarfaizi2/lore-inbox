@@ -1,97 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbUBXKLK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 05:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbUBXKLK
+	id S262174AbUBXKML (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 05:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbUBXKML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 05:11:10 -0500
-Received: from everest.2mbit.com ([24.123.221.2]:13034 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S262158AbUBXKLF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 05:11:05 -0500
-Message-ID: <403B22FA.70604@greatcn.org>
-Date: Tue, 24 Feb 2004 18:10:02 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-Organization: GreatCN.org & The Summit Open Source Develoment Group
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, zh
-MIME-Version: 1.0
-To: Brian Gerst <bgerst@didntduck.org>
-CC: Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-References: <c16rdh$gtk$1@terminus.zytor.com> <40375261.6030705@greatcn.org> <20040221163213.GB15991@mail.shareable.org> <403984DD.4030108@greatcn.org> <20040223143056.GC30321@mail.shareable.org> <403AC0F3.7050107@greatcn.org> <403AC563.3020306@quark.didntduck.org>
-In-Reply-To: <403AC563.3020306@quark.didntduck.org>
-X-Scan-Signature: 0cd1e2fa091f9b3676e993337bff89ca
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: Re: [PATCH] Remove the extra jmp
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-X-SA-Exim-Version: 3.1 (built Tue Oct 14 21:11:59 EST 2003)
+	Tue, 24 Feb 2004 05:12:11 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:62857 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S262174AbUBXKMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 05:12:00 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Helmut Auer <vdr@helmutauer.de>
+Date: Tue, 24 Feb 2004 21:11:54 +1100
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: HELP Re: Keyboard not working under 2.6.2
+Message-ID: <20040224101154.GD993@cse.unsw.EDU.AU>
+References: <403911AD.1030005@helmutauer.de> <403B101D.3070601@helmutauer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403B101D.3070601@helmutauer.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst wrote:
+Hi Helmut
 
-> Coywolf Qi Hunt wrote:
+What is the actual keyboard, I am using a logitech cordless USB connected
+via a PS2 adapter that works OK.
+
+Is the power supply in the keyboard OK
+Is there power at the IR receiver
+Is the receiver connected to the PS2 ports.
+
+Darren
+
+
+On Tue, 24 Feb 2004, Helmut Auer wrote:
+
 > 
->> Jamie Lokier wrote:
->>
->>>
->>> Your patch uses two instructions to flush the queue (push+ret) instead
->>> of one (jmp or ljmp).  Is that documented as reliable?  I can easily
->>> imagine an implementation which decodes one instruction after a mode
->>> change predictably, but not two.
->>>
->>> I doubt that it makes a difference - we're setting PG, not changing
->>> the instruction format - but I'd like us to be sure it cannot fail on
->>> things like 386s and 486s, and similar non-Intel chips.
->>
->>
->>
->> push+ret is encouraged/borrowed/stolen from FreeBSD ;) it should be 
->> reliable. And also, old linux uses ret. Since old linux runs on 386, 
->> it is quite reliable. If you still doubt, we can push before PG.
->>
->>
->>
->> Hello Anvin,
->>
->> Please either take the push+ret patch or take the one near jmp patch 
->> enclosed in this email. thanks
->>
->>     Coywolf
->>
->>
->>
->> ------------------------------------------------------------------------
->>
->> --- head.S.orig    2004-02-18 11:57:16.000000000 +0800
->> +++ head.S    2004-02-24 11:08:34.000000000 +0800
->> @@ -117,9 +117,6 @@
->>      movl %eax,%cr0        /* ..and set paging (PG) bit */
->>      jmp 1f            /* flush the prefetch-queue */
->>  1:
->> -    movl $1f,%eax
->> -    jmp *%eax        /* make sure eip is relocated */
->> -1:
->>      /* Set up the stack pointer */
->>      lss stack_start,%esp
->>  
+> >Hello,
+> >
+> >I am using an Intel810 MoBo with an infrared module/keyboard connected to
+> >an onboard PS/2 connector.
+> >With a 2.4.x kernel I get the message:
+> >No AT keyboard found
+> >but the keyboard works fine.
+> >With a 2.6.2 kernel, I don't get this message, but the keyboard does not
+> >work !!!
+> >Any hints what I can try ? If I connect an USB keyboard, this will 
+> >work, and also if I connect a "normal" PS/2 keyboard to that PS/2 pins.
 > 
 > 
-> This won't work, because the indirect jump is what adds PAGE_OFFSET to 
-> %eip (remember, call/jump use relative addressing).  Either keep just 
-> the indirect jump, or use "jmp __PAGE_OFFSET+1f".
+> Sorry for being impatient, but isn't here anyone who can give me a hint, 
+> or is this the wrong place for this problem ?
 > 
-
-Any jump works. But I think you did explain very well the reason that 
-the author carelessly or over carefully left the two jumps there.
-
-	Coywolf
-
-
--- 
-Coywolf Qi Hunt
-Admin of http://GreatCN.org and http://LoveCN.org
+> -- 
+> Helmut Auer, helmut@helmutauer.de
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

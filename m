@@ -1,95 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262532AbTCIQSq>; Sun, 9 Mar 2003 11:18:46 -0500
+	id <S262536AbTCIQ3a>; Sun, 9 Mar 2003 11:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262533AbTCIQSq>; Sun, 9 Mar 2003 11:18:46 -0500
-Received: from dhcp024-166-093-246.neo.rr.com ([24.166.93.246]:58502 "EHLO
-	tsiar.dyndns.org") by vger.kernel.org with ESMTP id <S262532AbTCIQSo>;
-	Sun, 9 Mar 2003 11:18:44 -0500
-Subject: [PATCH] Re: Runaway cron task on 2.5.63/4 bk?
-From: Todd Mokros <tmokros@neo.rr.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: cobra@compuserve.com, linux-kernel@vger.kernel.org,
-       george anzinger <george@mvista.com>
-In-Reply-To: <20030309001706.75467db1.akpm@digeo.com>
-References: <3E6AEDA5.D4C0FC83@compuserve.com>
-	 <20030309000839.31041e3e.akpm@digeo.com>
-	 <20030309001706.75467db1.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047227310.1958.20.camel@localhost>
+	id <S262537AbTCIQ3a>; Sun, 9 Mar 2003 11:29:30 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:3812 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262536AbTCIQ31>; Sun, 9 Mar 2003 11:29:27 -0500
+Date: Sun, 9 Mar 2003 17:39:45 +0100
+From: Andi Kleen <ak@muc.de>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: [PATCH] Fast path context switch - microoptimize FPU reload
+Message-ID: <20030309163945.GA2443@averell>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 09 Mar 2003 11:28:30 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-09 at 03:17, Andrew Morton wrote:
-> Andrew Morton <akpm@digeo.com> wrote:
-> >
-> > errr, OK.  This returns -EINVAL:
-> > 
-> > #include <time.h>
-> > 
-> > main()
-> > {
-> > 	struct timespec req;
-> > 	struct timespec rem;
-> > 	int ret;
-> > 
-> > 	req.tv_sec = 5000000;
-> > 	req.tv_nsec = 0;
-> > 
-> > 	ret = nanosleep(&req, &rem);
-> > 	if (ret)
-> > 		perror("nanosleep");
-> > }
-> > 
-> 
-> OK, I give up.
-> 
-> 			/*
-> 			 * This is a considered response, not exactly in
-> 			 * line with the standard (in fact it is silent on
-> 			 * possible overflows).  We assume such a large 
-> 			 * value is ALMOST always a programming error and
-> 			 * try not to compound it by setting a really dumb
-> 			 * value.
-> 			 */
-> 			return -EINVAL;
-> 
-> George, RH7.3 and RH8.0 cron daemons are triggering this (trying to sleep
-> for 4,500,000 seconds) and it causes them to go into a busy loop.
-> 
-> I think we need to just sleep for as long as we can and return an
-> appropriate partial result.
 
-Cron really isn't at fault, I saw sleep(52) return 4500000, which it
-just passed into another sleep call.
-The problem is a bug in do_clock_nanosleep. If it gets interrupted by a
-signal, when it calculates the amount of time left, it doesn't check if
-jiffies has advanced past the expire time, and can pass a negative value
-to jiffies_to_timespec, which results in values around 4,500,000
-((unsigned int)-1)/HZ, which ends up as sleep's return value.  The
-following trivial patch appears to have fixed the problem on my system.
-Hopefully this isn't wrapped.
+Following some changes on x86-64.
 
+When cpu_has_fxsr is defined to 1 like in many kernels unlazy_fpu can 
+collapse to three instructions. For that inlining is a very good idea.
+Otherwise it's 10 instructions or so, which can be still inlined.
 
---- 2.5-merge/kernel/posix-timers.c	Sun Mar  9 08:49:11 2003
-+++ 2.5-snapshot/kernel/posix-timers.c	Sun Mar  9 08:49:11 2003
-@@ -1282,6 +1282,9 @@
- 		if (abs)
- 			return -ERESTARTNOHAND;
+We don't need the lock prefix to test our local thread flags state.
+Unfortunately test_thread_flag currently always uses test_bit which
+has a LOCK on SMP, but that's unnecessary. LOCK is costly on P4,
+so it's a good idea to avoid it.
+
+Work around this for now by testing directly. Better would be 
+probably to define __set_bit for all architectures to not guarantee
+atomicity and then always use that for local thread_info accesses
+in linux/thread_info.h
+
+-Andi
+
+diff -u linux-2.5.63-work/arch/i386/kernel/i387.c-FPU linux-2.5.63-work/arch/i386/kernel/i387.c
+--- linux-2.5.63-work/arch/i386/kernel/i387.c-FPU	2003-02-10 19:39:17.000000000 +0100
++++ linux-2.5.63-work/arch/i386/kernel/i387.c	2003-03-05 00:23:19.000000000 +0100
+@@ -52,24 +52,6 @@
+  * FPU lazy state save handling.
+  */
  
-+		if (time_after_eq(jiffies_f, new_timer.expires))
-+			return 0;
+-static inline void __save_init_fpu( struct task_struct *tsk )
+-{
+-	if ( cpu_has_fxsr ) {
+-		asm volatile( "fxsave %0 ; fnclex"
+-			      : "=m" (tsk->thread.i387.fxsave) );
+-	} else {
+-		asm volatile( "fnsave %0 ; fwait"
+-			      : "=m" (tsk->thread.i387.fsave) );
+-	}
+-	clear_tsk_thread_flag(tsk, TIF_USEDFPU);
+-}
+-
+-void save_init_fpu( struct task_struct *tsk )
+-{
+-	__save_init_fpu(tsk);
+-	stts();
+-}
+-
+ void kernel_fpu_begin(void)
+ {
+ 	preempt_disable();
+diff -u linux-2.5.63-work/include/asm-i386/i387.h-FPU linux-2.5.63-work/include/asm-i386/i387.h
+--- linux-2.5.63-work/include/asm-i386/i387.h-FPU	2003-02-10 19:38:49.000000000 +0100
++++ linux-2.5.63-work/include/asm-i386/i387.h	2003-03-05 00:23:19.000000000 +0100
+@@ -21,23 +21,41 @@
+ /*
+  * FPU lazy state save handling...
+  */
+-extern void save_init_fpu( struct task_struct *tsk );
+ extern void restore_fpu( struct task_struct *tsk );
+ 
+ extern void kernel_fpu_begin(void);
+ #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
+ 
+ 
++static inline void __save_init_fpu( struct task_struct *tsk )
++{
++	if ( cpu_has_fxsr ) {
++		asm volatile( "fxsave %0 ; fnclex"
++			      : "=m" (tsk->thread.i387.fxsave) );
++	} else {
++		asm volatile( "fnsave %0 ; fwait"
++			      : "=m" (tsk->thread.i387.fsave) );
++	}
++	tsk->thread_info->flags &= ~TIF_USEDFPU;
++}
 +
- 		jiffies_to_timespec(new_timer.expires - jiffies_f, tsave);
++static inline void save_init_fpu( struct task_struct *tsk )
++{
++	__save_init_fpu(tsk);
++	stts();
++}
++
++
+ #define unlazy_fpu( tsk ) do { \
+-	if (test_tsk_thread_flag(tsk, TIF_USEDFPU)) \
++	if ((tsk)->thread_info->flags & _TIF_USEDFPU) \
+ 		save_init_fpu( tsk ); \
+ } while (0)
  
- 		while (tsave->tv_nsec < 0) {
+ #define clear_fpu( tsk )					\
+ do {								\
+-	if (test_tsk_thread_flag(tsk, TIF_USEDFPU)) {		\
++	if ((tsk)->thread_info->flags & _TIF_USEDFPU) {		\
+ 		asm volatile("fwait");				\
+-		clear_tsk_thread_flag(tsk, TIF_USEDFPU);	\
++		(tsk)->thread_info->flags &= ~_TIF_USEDFPU;	\
+ 		stts();						\
+ 	}							\
+ } while (0)
 
 
 
--- 
-Todd Mokros <tmokros@neo.rr.com>
+

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269978AbRHJTHB>; Fri, 10 Aug 2001 15:07:01 -0400
+	id <S269974AbRHJTSM>; Fri, 10 Aug 2001 15:18:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269975AbRHJTGv>; Fri, 10 Aug 2001 15:06:51 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:17440 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S269971AbRHJTGs>; Fri, 10 Aug 2001 15:06:48 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B7006@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'sparc-linux@vger.kernel.org'" <sparc-linux@vger.kernel.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 2.4.7ac9,10,11 compile error on Sparc (revisited)
-Date: Fri, 10 Aug 2001 15:06:53 -0400
+	id <S269975AbRHJTSC>; Fri, 10 Aug 2001 15:18:02 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3287 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269974AbRHJTR7>;
+	Fri, 10 Aug 2001 15:17:59 -0400
+Date: Fri, 10 Aug 2001 15:18:09 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Writes to mounted devices containing file-systems.
+In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
+Message-ID: <Pine.GSO.4.21.0108101503250.28666-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
 
-Just want to let you know I am running into an error trying to compile the
-ac kernels on Sparc Ultra5.  The plain 2.4.7 compiles fine, and I have also
-compiled 2.4.8pre8 fine.  ac9,10 and 11, after applying the patch and during
-the make vmlinux, it errors out with the error below.  It looks like an
-include header file is being looked for, hw_irq.h which is not in the asm
-tree.  I thought originally that the symlink for asm was not getting
-created, but it is correctly created.  I was trying to track down where the
-include file may be getting called from, but have not found it yet.
+On Fri, 10 Aug 2001, Richard B. Johnson wrote:
 
-Error:
-In file included from sched.c:26:
+> One of my file-servers was destroyed by an in-house hacker,
+> (consultant) rented by our alleged Chief Information Officer,
+> to destroy Linux systems and thereby show that they can't
+> be used in a "professional" environment.
 
-/usr/src/linux-2.4.7/include/linux/irq.h:61: asm/hw_irq.h: No such file or
-directory
+Adminned by clueless luser? I have to agree.
 
-make[2]: *** [sched.o] Error 1
+> I have about 20 megabytes of logs showing the machine being
+> attacked from inside our firewall. Each time an attack occurred,
+> I would firewall-out its phony IP address (ipchains). A few hours
+> later the cycle repeated with another phony IP address.
 
-make[1]: *** [first_rule] Error 2
+Instead of trying to see WTF was going on and fixing the problem instead
+of symptoms? _Real_ smart... Or, at least, block everything except the boxen
+that have any business accessing it? You know, with explicit "accept" rules
+in the beginning of the chain with catch-all "reject" after them...
 
-make: *** [_dir_kernel] Error 2    
-                                           
-Bruce Holzrichter 
-Systems Administrator 
-Monster.com 
-Phone:  978-461-8869 
-Cell:      978-375-9558 
-bruce.holzrichter@monster.com 
+> The exploit used multiple calls to get the system time, followed
+> by an attempt to mount a file-system. Apparently the exploit
+> eventually works because the system went down and the result was
+> that the root file-system device, /dev/sda, was completely written
+> with:
+> 
+> 	"S E C U R I T Y "
+> 
+> 8 Gb written with this 16-bytes pattern.
+
+Secure your box and stop whining.  If attacker can gain root on a box
+you admin - it's your bloody responsibility to fix the thing, firewalls
+or not. Sheesh...
+

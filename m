@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbUJaMHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUJaMHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbUJaMHg (ORCPT <rfc822;willy@w.ods.org>);
+	id S261595AbUJaMHg (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 31 Oct 2004 07:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUJaMHM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUJaMBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 07:07:12 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53671 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261595AbUJaMGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 07:06:20 -0500
-Date: Sun, 31 Oct 2004 13:07:21 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041031120721.GA19450@elte.hu>
-References: <20041030115808.GA29692@elte.hu> <1099158570.1972.5.camel@krustophenia.net> <20041030191725.GA29747@elte.hu> <20041030214738.1918ea1d@mango.fruits.de> <1099165925.1972.22.camel@krustophenia.net> <20041030221548.5e82fad5@mango.fruits.de> <1099167996.1434.4.camel@krustophenia.net> <20041030231358.6f1eeeac@mango.fruits.de> <1099171567.1424.9.camel@krustophenia.net> <20041030233849.498fbb0f@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041030233849.498fbb0f@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 31 Oct 2004 07:01:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40577 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261561AbUJaL7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 06:59:17 -0500
+Message-ID: <4184D383.1090204@pobox.com>
+Date: Sun, 31 Oct 2004 06:58:59 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Andrew Morton <akpm@osdl.org>, geert@linux-m68k.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [PATCH 475] HP300 LANCE
+References: <E1COEEO-0002lX-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1COEEO-0002lX-00@gondolin.me.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> On Sat, 30 Oct 2004 17:26:06 -0400
-> Lee Revell <rlrevell@joe-job.com> wrote:
+Herbert Xu wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> > OK this is pretty sweet.  With T3 the jitter never exceeds 7% on an idle
-> > system.  As soon as I start moving the mouse this goes to 7 or 8%.  I
-> > cannot get it to go higher than 10%.  Moving windows around has no
-> > effect, the highest jitter happens when I type or move the mouse really
-> > fast IOW it corresponds to the interrupt rate.
-> > 
-> > This is a pretty good baseline for what an xrun-free system would look
-> > like.  Now to test the latest version...
+>>Jeff Garzik <jgarzik@pobox.com> wrote:
+>>
+>>>On Sun, Oct 31, 2004 at 02:48:40AM -0800, Andrew Morton wrote:
+>>> > > -        void *va = dio_scodetoviraddr(scode);
+>>> > > +        unsigned long pa = dio_scodetophysaddr(scode);
+>>> > > +        unsigned long va = (pa + DIO_VIRADDRBASE);
+>>>
+>>> Did you see the above quoted patch chunk?  The patch is inconsistent
+>>> with _itself_, adding 'pa' and 'va' with different idents (but when they
+>>> should be at the same identation level).
+>>
+>>Trust me ;)
 > 
-> Well, 
 > 
-> on V0.5.16 i see something like the below output (which is much worse). It
-> seems that missed irq's with rtc show up at the same time as the xruns in
-> jackd do [i ran both jackd and wakeup in parallel].
+> What Jeff means is that the patch is using a tab for pa and 8 spaces
+> for va.
 
-ok, could you try the -RT-V0.6.0 patch i've just uploaded? It could i
-believe improve these latencies.
 
-	Ingo
+Precisely.  That's what my entire "whitespace challenged" comment meant.
+
+When the patch adds two lines at the same visual indentation level in 
+the source, but appear different in the patch, that is a signal that 
+some tabs got accidentally converted to spaces somewhere.
+
+	Jeff
+
+

@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVC1MbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVC1Mo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbVC1MbF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 07:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVC1MbF
+	id S261702AbVC1Mo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 07:44:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVC1Mo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 07:31:05 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:28678 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261638AbVC1May (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 07:30:54 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] print an explanation why i810 fb doesn't come up
-Date: Mon, 28 Mar 2005 15:30:40 +0300
-User-Agent: KMail/1.5.4
+	Mon, 28 Mar 2005 07:44:58 -0500
+Received: from aurora.bayour.com ([212.214.70.50]:48787 "EHLO
+	aurora.bayour.com") by vger.kernel.org with ESMTP id S261707AbVC1Mol
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 07:44:41 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Compile fails on SPARC64 - include/linux/sched.h:1171: request for
+ member `break_lock' in something not a structure or union
+X-PGP-Fingerprint: B7 92 93 0E 06 94 D6 22  98 1F 0B 5B FE 33 A1 0B
+X-PGP-Key-ID: 0x788CD1A9
+X-URL: http://www.bayour.com/
+From: Turbo Fredriksson <turbo@bayour.com>
+Organization: Bah!
+Date: Mon, 28 Mar 2005 14:41:34 +0200
+Message-ID: <87d5tk2b9d.fsf@pumba.bayour.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/20.7 (gnu/linux)
 MIME-Version: 1.0
-Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_wj/RCHO6QKARCL7"
-Message-Id: <200503281530.40665.vda@ilport.com.ua>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tried 2.6.11.6, 2.6.11.6-bk1 and 2.6.12-rc1.
 
---Boundary-00=_wj/RCHO6QKARCL7
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+----- s n i p -----
+CHROOT Aurora/Woody-devel# make
+  CHK     include/linux/version.h
+  CC      init/main.o
+In file included from include/linux/module.h:10,
+                 from init/main.c:16:
+include/linux/sched.h: In function `lock_need_resched':
+include/linux/sched.h:1171: request for member `break_lock' in something not a structure or union
+make[1]: *** [init/main.o] Error 1
+make: *** [init] Error 2
+----- s n i p -----
 
-I've spent silly amonunt of time trying to use i810 fb on my new spiffy
-flat panel. This patch will hopefully help other poor souls.
+rgrep'ing in include/ shows that it's defined in all
+but 'include/asm-sparc64/spinlock.h':
 
-Patch also fixes module parameter comments.
---
-vda
+----- s n i p -----
+CHROOT Aurora/Woody-devel# rgrep break_lock include | sort | uniq
+include/asm-alpha/spinlock.h:   unsigned int break_lock;
+include/asm-arm/spinlock.h:     unsigned int break_lock;
+include/asm-i386/spinlock.h:    unsigned int break_lock;
+include/asm-ia64/spinlock.h:    unsigned int break_lock;
+include/asm-m32r/spinlock.h:    unsigned int break_lock;
+include/asm-mips/spinlock.h:    unsigned int break_lock;
+include/asm-parisc/spinlock.h:  unsigned int break_lock;
+include/asm-parisc/system.h:    unsigned int break_lock;
+include/asm-ppc/spinlock.h:     unsigned int break_lock;
+include/asm-ppc64/spinlock.h:   unsigned int break_lock;
+include/asm-s390/spinlock.h:    unsigned int break_lock;
+include/asm-sh/spinlock.h:      unsigned int break_lock;
+include/asm-sparc/spinlock.h:   unsigned int break_lock;
+include/asm-x86_64/spinlock.h:  unsigned int break_lock;
+include/linux/sched.h:# define need_lockbreak(lock) ((lock)->break_lock)
+----- s n i p -----
 
---Boundary-00=_wj/RCHO6QKARCL7
-Content-Type: text/x-diff;
-  charset="koi8-r";
-  name="i810_main.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="i810_main.c.diff"
-
---- linux-2.6.11.src/drivers/video/i810/i810_main.c.orig	Thu Mar  3 09:30:58 2005
-+++ linux-2.6.11.src/drivers/video/i810/i810_main.c	Mon Mar 28 15:04:58 2005
-@@ -999,8 +999,14 @@ static int i810_check_params(struct fb_v
- 	info->monspecs.dclkmin = 15000000;
- 
- 	if (fb_validate_mode(var, info)) {
--		if (fb_get_mode(FB_MAXTIMINGS, 0, var, info))
-+		if (fb_get_mode(FB_MAXTIMINGS, 0, var, info)) {
-+			int default_sync = (hsync1-HFMIN)|(hsync2-HFMAX)
-+					    |(vsync1-VFMIN)|(vsync2-VFMAX);
-+			printk("i810fb: invalid video mode%s\n",
-+			    default_sync ? "" : 
-+			    ". Specifying vsyncN/hsyncN parameters may help");
- 			return -EINVAL;
-+		}
- 	}
- 	
- 	var->xres = xres;
-@@ -2020,10 +2026,10 @@ MODULE_PARM_DESC(vyres, "Virtual vertica
- 		 " (default = 480)");
- module_param(hsync1, int, 0);
- MODULE_PARM_DESC(hsync1, "Minimum horizontal frequency of monitor in KHz"
--		 " (default = 31)");
-+		 " (default = 29)");
- module_param(hsync2, int, 0);
- MODULE_PARM_DESC(hsync2, "Maximum horizontal frequency of monitor in KHz"
--		 " (default = 31)");
-+		 " (default = 30)");
- module_param(vsync1, int, 0);
- MODULE_PARM_DESC(vsync1, "Minimum vertical frequency of monitor in Hz"
- 		 " (default = 50)");
-
---Boundary-00=_wj/RCHO6QKARCL7--
-
+Kernel config can be found at http://www.bayour.com/config-2.6.12-rc1.txt.

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129120AbQJ3OCe>; Mon, 30 Oct 2000 09:02:34 -0500
+	id <S129242AbQJ3OCp>; Mon, 30 Oct 2000 09:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129240AbQJ3OCY>; Mon, 30 Oct 2000 09:02:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30530 "EHLO
+	id <S129240AbQJ3OCf>; Mon, 30 Oct 2000 09:02:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31042 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129120AbQJ3OCH>; Mon, 30 Oct 2000 09:02:07 -0500
-Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17
-To: kaos@ocs.com.au (Keith Owens)
-Date: Mon, 30 Oct 2000 14:02:38 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux_developer@hotmail.com (Linux Kernel Developer),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <4572.972914218@ocs3.ocs-net> from "Keith Owens" at Oct 31, 2000 12:56:58 AM
+	id <S129242AbQJ3OCS>; Mon, 30 Oct 2000 09:02:18 -0500
+Subject: Re: PLIP driver in 2.2.xx kernels
+To: lnxkrnl@mail.ludost.net
+Date: Mon, 30 Oct 2000 14:03:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10010301840320.15258-100000@doom.izba.net> from "lnxkrnl@mail.ludost.net" at Oct 30, 2000 06:41:51 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13qFWK-0006uI-00@the-village.bc.nu>
+Message-Id: <E13qFXE-0006uP-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As part of the 2.5 kbuild redesign, symbol versions will be completely
-> redone.  One of the things on my todo list is to detect this mismatch.
-> There are some problems in doing that which I may or may not be able to
-> overcome, but if the field names are different between C and C++ then I
-> can never detect this mismatch correctly.
+> > It has to bang on the parallel port controller the hard way, there is no
+> > useful hardware support on a basic parallel port for the kind of abuse needed
+> > for PLIP
+> > 
+> (sorry for the late reply)
+>  I used plip with kernel 1.2.8 and had no problem with it...The machines
+> that I'm using now are far superior than the old ones... Why shouldn't it
+> work now ? 
 
-The symbol generation code never sees the C++ names, never will and never can.
-I still don't see any problem.
+The performance hasnt changed. Your fast CPU simply spends longer in a tight
+loop between each thing it has to do. There are no interrupts we can use for
+the nibble by nibble data sending
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,72 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbUKPOYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbUKPOYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbUKPOYr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUKPOX5
+	id S261734AbUKPOYs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUKPOYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:23:57 -0500
-Received: from irulan.endorphin.org ([212.13.208.107]:42253 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S261967AbUKPOIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:08:38 -0500
-Subject: GPL version, "at your option"?
-From: Fruhwirth Clemens <clemens@endorphin.org>
-To: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZgbU1IA0NBQcWB+ozpVk"
-Date: Tue, 16 Nov 2004 15:08:35 +0100
-Message-Id: <1100614115.16127.16.camel@ghanima>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Tue, 16 Nov 2004 09:24:32 -0500
+Received: from krt.neobee.net ([80.74.175.2]:10910 "EHLO krt.neobee.net")
+	by vger.kernel.org with ESMTP id S261985AbUKPOXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 09:23:01 -0500
+Message-Id: <200411161427.iAGERt46031185@krt.neobee.net>
+Reply-To: <mile.davidovic@micronasnit.com>
+From: "Mile Davidovic" <mile.davidovic@micronasnit.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ITERaid and atkbd
+Date: Tue, 16 Nov 2004 15:23:30 +0100
+Organization: MicronasNIT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Thread-Index: AcTL59g5iOMXQzHPQh6TdtK7H5/dvA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi folks
 
---=-ZgbU1IA0NBQcWB+ozpVk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have trouble with IT8212F raid controller (on Gigabyte boards also known
+as GigaRaid) on FedoraCore 3.
+There was some problem with building modules but after some fixing Makefile
+I succeeded to build module. 
 
-Standard template for GPL licensing:
+After loading module dmesg shows:
+	Found Controller: IT8212 UDMA/ATA133 RAID Controller
+	FindDevices: device 0 is IDE
+	FindDevices: device 1 is IDE
+	Channel[0] BM-DMA at 0xA400-0xA407
+	Channel[1] BM-DMA at 0xA408-0xA40F
+	scsi2 : ITE RAIDExpress133
+	  Vendor: ITE       Model: IT8212F           Rev: 1.3
+	  Type:   Direct-Access                      ANSI SCSI revision: 00
+	SCSI device sdb: 488397166 512-byte hdwr sectors (250059 MB)
+	sdb: asking for cache data failed
+	sdb: assuming drive cache: write through
+	 sdb: sdb1
+	Attached scsi disk sdb at scsi2, channel 0, id 0, lun 0
+	  Vendor: ITE       Model: IT8212F           Rev: 1.3
+	  Type:   Direct-Access                      ANSI SCSI revision: 00
+	SCSI device sdc: 488397166 512-byte hdwr sectors (250059 MB)
+	sdc: asking for cache data failed
+	sdc: assuming drive cache: write through
+	 sdc:<4>atkbd.c: Unknown key pressed (translated set 2, code 0x0 on
+isa0060/serio0).
+	atkbd.c: Use 'setkeycodes 00 <keycode>' to make it known.
+	atkbd.c: Unknown key pressed (translated set 2, code 0x0 on
+isa0060/serio0).
+	atkbd.c: Use 'setkeycodes 00 <keycode>' to make it known.
+	 sdc1
+	Attached scsi disk sdc at scsi2, channel 0, id 1, lun 0
 
-"This program is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2 of the License, or (at your
-option) any later version."
+[root@beowulf scsi]# mount /dev/sdb1 /mnt/
+atkbd.c: Unknown key pressed (translated set 2, code 0x0 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes 00 <keycode>' to make it known.
+...
+atkbd.c: Unknown key pressed (translated set 2, code 0x0 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes 00 <keycode>' to make it known.
+kjournald starting.  Commit interval 5 seconds
+atkbd.c: Unknown key pressed (translated set 2, code 0x0 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes 00 <keycode>' to make it known.
+EXT3 FS on sdb1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+atkbd.c: Unknown key pressed (translated set 2, code 0x0 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes 00 <keycode>' to make it known.
 
-As the text says, the licensee can choose the GPL version at his option,
-and he is likely to choose the one with better conditions. So, newer
-version can never limit the licensee's right, because he is always free
-to choose version 2. Therefore, successor versions can only remove
-limitations.=20
+I found a lot of messages with this subject but I didn't found any final
+answer.
+I also tried to use iteraid driver from mm tree but situation is same.
 
-The institution to decide, how the new versions look like, is FSF. Being
-totally paranoid, assume the FSF decision makers are infected by a SCO
-designed virus to make them publish a new GPL version giving SCO the
-right to exploit GPL covered intellectual property. And there is a lot
-of the latter. Would be a classical "Duh!" situation.
+Thanks in a advice
+Best regards Mile
 
-I'm about to submit a patch for a new cipher mode called LRW, adding new
-code/files to the crypto tree. My question is, especially to the
-maintainers: Are you going to accept code covered by the terms:
 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 2 of the License.
-                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
-
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-ZgbU1IA0NBQcWB+ozpVk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBmgniW7sr9DEJLk4RAheJAKCJHV6E0pMmHRJfgQPfVG104jZ9xQCgjgT4
-aFJtglRx7crdQKegeIL9in0=
-=ZLUj
------END PGP SIGNATURE-----
-
---=-ZgbU1IA0NBQcWB+ozpVk--

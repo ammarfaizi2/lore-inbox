@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVAKR7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVAKR7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVAKR7P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 12:59:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVAKR5t
+	id S261268AbVAKR7N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 12:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVAKR62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 12:57:49 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:12450 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261440AbVAKRnO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 12:43:14 -0500
-Date: Tue, 11 Jan 2005 09:43:00 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: torvalds@osdl.org, Andi Kleen <ak@muc.de>
-cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: page table lock patch V15 [5/7]: x86_64 atomic pte operations
-In-Reply-To: <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0501110942320.32744@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
- <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
- <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Jan 2005 12:58:28 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:49108 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261352AbVAKRnt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 12:43:49 -0500
+Subject: Re: Proper procedure for reporting possible security
+	vulnerabilities?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Chris Wright <chrisw@osdl.org>, Steve Bergman <steve@rueb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
+References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
+	 <41E2F6B3.9060008@rueb.com>
+	 <Pine.LNX.4.61.0501102309270.2987@dragon.hygekrogen.localhost>
+	 <20050110164001.Q469@build.pdx.osdl.net>
+	 <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105461562.16168.46.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 11 Jan 2005 16:39:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-        * Provide atomic pte operations for x86_64
+On Maw, 2005-01-11 at 17:05, Jesper Juhl wrote:
+> Problem is that the info can then get stuck at a vendor or maintainer 
+> outside of public view and risk being mothballed. It also limits the 
+> number of people who can work on a solution (including peole getting to 
+> work on auditing other code for similar issues). It also prevents admins 
+> from taking alternative precautions prior to availability of a fix (you 
+> have to assume the bad guys already know of the bug, not just the good 
+> guys).
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+The evidence is that for the most part the bad guys don't know about the
+bug and the majority of the bad guys are not skilled enough to write
+some of the complex exploits. They also automate extensively so given an
+exploit can make very fast very effective use of it. There is an entire
+field of economics and game theory tied up in this as well as papers by
+some in the field who look at computer security models this way.
 
-Index: linux-2.6.10/include/asm-x86_64/pgalloc.h
-===================================================================
---- linux-2.6.10.orig/include/asm-x86_64/pgalloc.h	2005-01-10 16:31:56.000000000 -0800
-+++ linux-2.6.10/include/asm-x86_64/pgalloc.h	2005-01-10 16:41:24.000000000 -0800
-@@ -7,6 +7,10 @@
- #include <linux/threads.h>
- #include <linux/mm.h>
+If you are a member of the full disclosure camp then fine, but please cc
+vendor-sec when you publish the hole just in case Linus loses the email
+and so vendors know too and can plan appropriately.
 
-+#define PMD_NONE 0
-+#define PUD_NONE 0
-+#define PGD_NONE 0
-+
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
- #define pud_populate(mm, pud, pmd) \
-@@ -14,9 +18,20 @@
- #define pgd_populate(mm, pgd, pud) \
- 		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pud)))
-
-+#define pud_test_and_populate(mm, pud, pmd) \
-+		(cmpxchg((unsigned long *)pud, PUD_NONE, _PAGE_TABLE | __pa(pmd)) == PUD_NONE)
-+#define pgd_test_and_populate(mm, pgd, pud) \
-+		(cmpxchg((unsigned long *)pgd, PGD_NONE, _PAGE_TABLE | __pa(pud)) == PGD_NONE)
-+
-+
- static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
- {
--	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
-+       set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
-+}
-+
-+static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-+{
-+	return cmpxchg((unsigned long *)pmd, PMD_NONE, _PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
- }
-
- extern __inline__ pmd_t *get_pmd(void)
-Index: linux-2.6.10/include/asm-x86_64/pgtable.h
-===================================================================
---- linux-2.6.10.orig/include/asm-x86_64/pgtable.h	2005-01-10 16:31:56.000000000 -0800
-+++ linux-2.6.10/include/asm-x86_64/pgtable.h	2005-01-10 16:41:24.000000000 -0800
-@@ -414,6 +414,10 @@
- #define	kc_offset_to_vaddr(o) \
-    (((o) & (1UL << (__VIRTUAL_MASK_SHIFT-1))) ? ((o) | (~__VIRTUAL_MASK)) : (o))
-
-+
-+#define ptep_cmpxchg(__vma,__addr,__xp,__oldval,__newval) (cmpxchg(&(__xp)->pte, pte_val(__oldval), pte_val(__newval)) == pte_val(__oldval))
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- #define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_DIRTY
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
+Alan
 

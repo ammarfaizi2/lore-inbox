@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268163AbUG2PcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267698AbUG2Pgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268163AbUG2PcN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbUG2P3p
+	id S267698AbUG2Pgv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268118AbUG2PSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:29:45 -0400
-Received: from epithumia.math.uh.edu ([129.7.128.2]:58275 "EHLO
-	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
-	id S268168AbUG2P23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 11:28:29 -0400
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mke2fs -j goes nuts on 3Ware 8506-4LP
-References: <200407281050.24958.m.watts@eris.qinetiq.com>
-	<200407291606.58636.m.watts@eris.qinetiq.com>
-	<ufa8yd2vodw.fsf@epithumia.math.uh.edu>
-	<200407291620.10226.m.watts@eris.qinetiq.com>
-From: Jason L Tibbitts III <tibbs@math.uh.edu>
-Date: 29 Jul 2004 10:28:27 -0500
-In-Reply-To: <200407291620.10226.m.watts@eris.qinetiq.com>
-Message-ID: <ufa4qnqvnms.fsf@epithumia.math.uh.edu>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
-MIME-Version: 1.0
+	Thu, 29 Jul 2004 11:18:13 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12027 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267448AbUG2OmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:42:00 -0400
+Date: Thu, 29 Jul 2004 16:41:49 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, aia21@cantab.net
+Cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: 2.6.8-rc2-mm1: NTFS compile error with gcc 2.95
+Message-ID: <20040729144149.GC2349@fs.tum.de>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "MW" == Mark Watts <m.watts@eris.qinetiq.com> writes:
+On Wed, Jul 28, 2004 at 02:04:44AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.8-rc1-mm1:
+> 
+>...
+>  bk-ntfs.patch
+>...
 
-MW> Ok - it seems it doesn't matter what kind of slot its in then -
-MW> mine is in a 32bit/33MHz slot.
+This causes the following compile error when using gcc 2.95:
 
-It's not hard to saturate a bus at that speed, but you don't seem to
-be getting to that point.
+<--  snip  -->
 
-My experience with 3ware cards is that they will happily saturate any
-bus you plug them into as long as the drives are fast enough.  On a
-machine with a 3w7506-8 card on each of two buses running software
-RAID striping across them, both cards will saturate their respective
-buses.  (I have a few machines like this.)  I really doubt that the
-cards are the root of the issue here.
+...
+  LD      .tmp_vmlinux1
+fs/built-in.o(.text+0x14425f): In function `ntfs_find_vcn':
+: undefined reference to `__cmpdi2'
+fs/built-in.o(.text+0x144272): In function `ntfs_find_vcn':
+: undefined reference to `__cmpdi2'
+make: *** [.tmp_vmlinux1] Error 1
 
- - J<
+<--  snip  -->
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,125 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263836AbTLMETN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 23:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTLMETN
+	id S263792AbTLMFD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 00:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTLMFD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 23:19:13 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:26387 "EHLO
+	Sat, 13 Dec 2003 00:03:26 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:25862 "EHLO
 	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S263836AbTLMETK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 23:19:10 -0500
-Message-ID: <3FDA9320.1010702@nishanet.com>
-Date: Fri, 12 Dec 2003 23:18:40 -0500
+	id S263792AbTLMFDY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 00:03:24 -0500
+Message-ID: <3FDA9D7E.2000806@nishanet.com>
+Date: Sat, 13 Dec 2003 00:02:54 -0500
 From: Bob <recbo@nishanet.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Working nforce2, was Re: Fixes for nforce2 hard lockup, apic,
- io-apic, udma133 covered
-References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com> <200312111912.27811.ross@datscreative.com.au> <1071165161.2271.22.camel@big.pomac.com> <20031211182108.GA353@tesore.local> <3FD98A1F.901@nishanet.com> <20031212165929.GA187@tesore.local> <20031212181827.GA3862@forming>
-In-Reply-To: <20031212181827.GA3862@forming>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [2.4] Nforce2 oops and occasional hang (tried the lockups patch,
+ no difference)
+References: <200312131225.34937.ross@datscreative.com.au>
+In-Reply-To: <200312131225.34937.ross@datscreative.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re: two instances of good but undocumented bios voodoo
+Ross Dickson wrote:
 
-Josh McKinney wrote:
-
->On approximately Fri, Dec 12, 2003 at 09:59:29AM -0700, Jesse Allen wrote:
+>Oh, and the modules list: 
+> Module Size Used by Tainted: P 
+> i2c-dev 4548 0 (unused) 
+> i2c-core 13604 0 [i2c-dev]
+><snip>
+>
+>
+>I am not certain your problems are nforce2 type specific.
+>Standard response: I don't suppose you can try a different stick of ram?
 >  
 >
->>On Fri, Dec 12, 2003 at 04:27:59AM -0500, Bob wrote:
->>    
->>
->>>Jesse Allen wrote:
->>>
->>>      
->>>
->>>>On Thu, Dec 11, 2003 at 06:52:41PM +0100, Ian Kumlien wrote:
->>>>
->>>>
->>>>        
->>>>
->>>> ............
->>>>
->>>>but I checked 
->>>>for a bios update first.  And sure enough like they read my mind, just 
->>>>posted online today, an update.  Here are the details of fixes:
->>>>
->>>>" Checksum:   8B00H                         Date Code: 12/05/03
->>>>1.Support 0.18 micron AMD Duron (Palomino) CPU.
->>>>2.Add C1 disconnect item."..........Jesse
->>>>        
->>>>
--Jesse got a bios update that gives him a cpu disconnect
-option now in setup
+Yes, and stock settings with tested ram may
+be necessary with nforce2, possibly related to our
+timing-related voodoo culture(might overclock
+later on in life as timing-related patches evolve).
 
->>>>        
->>>>
->>>A bios update for MSI K7N2 MCP2-T nforce2 board
->>>fixed the crashing BEFORE these patches were developed,
->>>but there was no documentation that would relate or explain.
->>>      
->>>
--Bob said that about his bios update fixing
-the lockup problem entirely, but no doc,
-needing no patch except to turn on ioapic
-edge timer(another clue--without ioapic
-edge timer working bios update fixed this
-nforce2 situation!), no clue as to whether bios
-update sets cpu disconnect one way or the other,
-no opt to choose cpu disconnect in new or old
-setup.
+I have a via board that only recognizes two of
+four generic ram sticks, but second stick will cause
+an oops soon after. Another via setup will oops
+if any fast ram settings(4-way,csl2 etc) is attempted,
+though only using tested cas2 ram. "Try a different
+stick of ram".
 
-Jesse continues--
+On nforce2 I'm able to use bios "performance"
+ram timing but if I manually tweak all the ram
+settings up like I can do on other systems, I
+get mem-related OOPS with nforce2.
 
->>Last night, I updated the bios to the 12-5-03 released yesterday (see above).  I looked at the new option under Advanced Chipset Features, "C1 Disconnect".  It has three selections: Auto, Enabled, Disabled.  There seems to be no default.  The item help says:
->>"Force En/Disabled 
->> or Auto mode:
->> C17 IGP/SPP NB A03
->> C18D SPP NM A01 (C01)
->> enabled C1 disconnect
->> otherwise disabled it"
->>
->>Auto sounded nice, so I selected that first.  I compiled a new kernel without the disconnect off patch, or the ack delay.  These are the exact patches I used on 2.6.0-test11:
->>patch-2.6.0-test11-bk8.bz2
->>acpi-2.6.0t11.patch acpi bugfixes from Maciej.
->>nforce-ioapic-timer-2.6t11.patch from Ross Dickson.  Timer patch.
->>forcedeth.patch Patch stolen from -test10-mm1?  Unused.
->>forcedeth-update-2.patch Same.
->>
->>Sure enough, under this kernel, no lockups.  Athcool reported Disconnect was "on".
->>    
->>
-Disconnect was ON!!!
+acpi apic lapic amd pre-empt nforce2ide
+(once you start you have to go all the way)
 
-> <snip>  ...one case the bios update fixed the problem
-
-without needing cpu disconnect off, the other case we
-don't know how or whether cpu disconnect is on or
-off now but bios update fixed nforce2 without turning
-ioapic edge timer on. I guess these two case prove that
-neither cpu disconnect =on or ioapic timer =off are
-causing the problem directly.
-
->The thing that strikes me funny is that you get no crashes with the
->updated BIOS and Disconnect on, but without the updated BIOS we have
->to turn disconnect off with athcool or the patch?  This makes me think
->that there is some voodoo going on in the BIOS update that they aren't
->saying, surprise surprise, or something is just slowing down the time
->it takes for it to crash.  I say this because I have gone 5+ days
->without any of the patches from these threads, acpi apic lapic
->enabled, and CPU disconnect on as stated by athcool.  This was with
->much stress testing, idle time, etc.  One day I just ran a grep that I
->have done probably 30 times and boom, hang.  
+>The reason I say that is that oops were very uncommon on either the 
+>epox 8rga+ or albatron km18G-pro MOBOS upon which I developed my
+>patches. Hard lockups were pretty much all I experienced prior to the 
+>patches except for an occasional X fail. Base OS flavour I
+>use is Suse 8.2 including gcc version (web updates utilised)
 >
->Good luck, hope the BIOS is the trick, now off to see how I can get
->ASUS to put the C1 Disconnect in the next revision.
+>The udma patches are really just a cleanup on the address setup timing so
+>I do not think that they are a factor. 
 >
-...and at least two motherboard makers have voodoo
-to fix the problem.
+>The local apic ack delay timing patch needs athlon cpu and amd/nvidia ide on in 
+>kern config to kick in. If you are using it then I highly recommend uniprocessor 
+>ioapic config as well to go with it to route the 8254 timer irq0 through pin 0 of 
+>ioapic as using the apic config alone leaves a lot of ints generated on irq7 
+>which can cause problems. (Reason for 8259 making them spurious on irq7 
+>is explained in 8259A data sheet)
+>
+>Also I now use a small patch to fixup proc info - only if you are using 
+>the 64 bit jiffies var hz patch, avail here:
+>
+>http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/0838.html
+>
+>If you try acpi=off on boot and it is then not very stable then I think it has 
+>little to do with lockups patch as that is my fallback mode when I am 
+>playing with apic ioapic code. 
+>
+>Another fallback I use at times is 
+>
+>hdparm -Xudma3 /dev/hda
+>
+>Hope this helps the confusion
+>
+>Regards
+>Ross
+>
+>  
+>
 

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbVBYOMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVBYOR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbVBYOMa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 09:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVBYOMa
+	id S262703AbVBYOR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 09:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbVBYOR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 09:12:30 -0500
-Received: from smtp.gentoo.org ([156.56.111.197]:7826 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S262702AbVBYOM2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 09:12:28 -0500
-Subject: Re: [PATCH] Determine SCx200 CB address at run-time
-From: Henrik Brix Andersen <brix@gentoo.org>
+	Fri, 25 Feb 2005 09:17:56 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:23537 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262703AbVBYORy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 09:17:54 -0500
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1109248603.12001.7.camel@sponge.fungus>
-References: <1109163214.12284.2.camel@sponge.fungus>
-	 <1109248603.12001.7.camel@sponge.fungus>
-Content-Type: text/plain
-Organization: Gentoo Linux
-Date: Fri, 25 Feb 2005 15:12:26 +0100
-Message-Id: <1109340746.12351.7.camel@sponge.fungus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Subject: Re: how to capture kernel panics
+Date: Fri, 25 Feb 2005 15:17:56 +0100
+User-Agent: KMail/1.7.1
+Cc: "shabanip" <shabanip@avapajoohesh.com>
+References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
+In-Reply-To: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502251517.56254.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 13:36 +0100, Henrik Brix Andersen wrote:
-> I see that this didn't make it into linux-2.6.11-rc5. Please re-consider
-> for -rc6 as the SCx200 drivers are useless on Soekris Engineering
-> hardware without this patch.
+shabanip wrote:
+> is there any way to capture and log kernel panics on disk or ...?
 
-An updated patch for 2.6.11-rc5 can be found at
-http://dev.gentoo.org/~brix/files/net4801/linux-2.6.11-rc5-scx200.patch
+In former times, the Linux kernel tried to sync in the panic function. (If 
+the panic did not happen in interrupt context) Unfortunately this had 
+severe side effects in cases where the panic was triggered by file system 
+block device code or any other part which is necessary for syncing. In most 
+cases the call trace never made it onto disk anyway. So currently the 
+kernel does not support saving a panic.
 
-Sincerely,
-Brix
--- 
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Linux
+Apart from using a serial console, you might have a look at several 
+kexec/kdump/lkcd tools where people are working on being able to dump the 
+memory of a paniced kernel.
 
+cheers
+
+Christian

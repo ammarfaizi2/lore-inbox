@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133054AbRDRIVU>; Wed, 18 Apr 2001 04:21:20 -0400
+	id <S133052AbRDRIPs>; Wed, 18 Apr 2001 04:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133055AbRDRIVK>; Wed, 18 Apr 2001 04:21:10 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:2861 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S133054AbRDRIVC>; Wed, 18 Apr 2001 04:21:02 -0400
-Date: Wed, 18 Apr 2001 09:20:58 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Is printing broke on sparc ?
-Message-ID: <20010418092058.H350@redhat.com>
-In-Reply-To: <Pine.LNX.4.32.0104171707310.22166-100000@filesrv1.baby-dragons.com> <Pine.LNX.4.32.0104171720370.22166-100000@filesrv1.baby-dragons.com>
+	id <S133053AbRDRIPi>; Wed, 18 Apr 2001 04:15:38 -0400
+Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:52644 "EHLO
+	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S133052AbRDRIP3>; Wed, 18 Apr 2001 04:15:29 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
+        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Supplying missing entries for Configure.help, part 4 
+In-Reply-To: Message from "Eric S. Raymond" <esr@snark.thyrsus.com> 
+   of "Wed, 18 Apr 2001 01:26:48 EDT." <200104180526.f3I5Qmr14004@snark.thyrsus.com> 
+In-Reply-To: <200104180526.f3I5Qmr14004@snark.thyrsus.com> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="5UGlQXeG3ziZS81+"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.32.0104171720370.22166-100000@filesrv1.baby-dragons.com>; from babydr@baby-dragons.com on Tue, Apr 17, 2001 at 05:28:13PM -0700
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 18 Apr 2001 09:14:51 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E14pn6x-00049s-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>+Support for Cobalt Micro Server
+>+CONFIG_COBALT_MICRO_SERVER
+>+  Support for ARM-based Cobalt boxes (they have been bought by Sun and
+>+  are now the "Server Appliance Business Unit") including the 2700 series
 
---5UGlQXeG3ziZS81+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Aren't those machines MIPS based?
 
-On Tue, Apr 17, 2001 at 05:28:13PM -0700, Mr. James W. Laferriere wrote:
+p.
 
-> 	Ok , There isn't a sysctl available to do that .  I am also a
-> 	little worried about the 'none' in ths below .
->=20
-> root@udragon:~# sysctl -A | grep -i parp
-> dev.parport.parport0.devices.active =3D none
 
-Don't be: unless the printer driver is actually using the port at the
-instant that you look at the sysctl, it'll say none.  It's normal.
-If you are printing at the time you look, keep checking sysctl and you
-will see 'lp' there sometimes.
-
-Tim.
-*/
-
---5UGlQXeG3ziZS81+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD4DBQE63U5qONXnILZ4yVIRAohZAJj8l6gk1kL/89P83lspTEs00YMLAJ9QKphX
-Ikc5tDagZ66POhB3jI2YHQ==
-=IArI
------END PGP SIGNATURE-----
-
---5UGlQXeG3ziZS81+--

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263641AbUE3NQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263645AbUE3NYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263641AbUE3NQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 09:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263645AbUE3NQy
+	id S263645AbUE3NYN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 09:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUE3NYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 09:16:54 -0400
-Received: from news.cistron.nl ([62.216.30.38]:47816 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S263641AbUE3NQr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 09:16:47 -0400
+	Sun, 30 May 2004 09:24:13 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:51144 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S263645AbUE3NYL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 09:24:11 -0400
 From: dth@ncc1701.cistron.net (Danny ter Haar)
 Subject: Re: Linux 2.6.7-rc2
-Date: Sun, 30 May 2004 13:16:46 +0000 (UTC)
+Date: Sun, 30 May 2004 13:24:11 +0000 (UTC)
 Organization: Cistron
-Message-ID: <c9cmru$nju$1@news.cistron.nl>
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org> <c9c42l$228$1@news.cistron.nl> <20040530130902.A2756@electric-eye.fr.zoreil.com>
-X-Trace: ncc1701.cistron.net 1085923006 24190 62.216.30.38 (30 May 2004 13:16:46 GMT)
+Message-ID: <c9cn9r$nod$1@news.cistron.nl>
+References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org> <c9c42l$228$1@news.cistron.nl> <20040530130902.A2756@electric-eye.fr.zoreil.com> <c9cmru$nju$1@news.cistron.nl>
+X-Trace: ncc1701.cistron.net 1085923451 24333 62.216.30.38 (30 May 2004 13:24:11 GMT)
 X-Complaints-To: abuse@cistron.nl
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Originator: dth@ncc1701.cistron.net (Danny ter Haar)
@@ -23,86 +23,41 @@ To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu  <romieu@fr.zoreil.com> wrote:
->> Ethernet stopped working (for me) going from 2.6.7-rc1-bk3 to 2.6.7-rc2.
->> AMD64/asusK8V with onboard ethernet.
->> 2.6.7-rc1-bk3 worked like intended.
+Danny ter Haar <dth@ncc1701.cistron.net> wrote:
+>Francois Romieu  <romieu@fr.zoreil.com> wrote:
+>>> Ethernet stopped working (for me) going from 2.6.7-rc1-bk3 to 2.6.7-rc2.
+>>> AMD64/asusK8V with onboard ethernet.
+>>> 2.6.7-rc1-bk3 worked like intended.
+
+>make menuconfig i cannot get into the submenu 
+>device drivers -> 
+> networking support -> 
+>  Gigabit Ethernet (1000/10000 Mbit)  ---> 
 >
->The patch below was applied between 2.6.7-rc1-bk3 and 2.6.7-rc1-bk4.
->How does your kernel perform if you patch -R ?
->diff -Nru a/drivers/net/sk98lin/skvpd.c b/drivers/net/sk98lin/skvpd.c
->--- a/drivers/net/sk98lin/skvpd.c	2004-05-28 01:13:08 -07:00
->+++ b/drivers/net/sk98lin/skvpd.c	2004-05-28 01:13:08 -07:00
+>whereas with 10/100 Mbit ethernet i can.
+>Little flaw elsewhere!
 
-Same (not working)
+I remembered other artikel about gig-E problems, so after re-reading
+this cured it:
+****************
+From: walt <wa1ter@myrealbox.com>
+[1] Gigabit Kconfig problems with yesterday's update
+Distribution: cistron
 
-Running dhclient:
+I have one machine with a gigabit NIC which I updated today from Linus'
+bk tree.
 
-sit0: unknown hardware address type 776
-eth0: unknown hardware address type 24
-sit0: unknown hardware address type 776
-eth0: unknown hardware address type 24
-Listening on LPF/eth0/<null>
-Sending on   LPF/eth0/<null>
-Sending on   Socket/fallback/fallback-net
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
-receive_packet failed on eth0: Network is down
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 3
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 5
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 14
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 10
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 15
-DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 11
-No DHCPOFFERS received.
+The problem is that I was not asked if I wanted the 'new' gigabit
+support and therefore the tg3 support was dropped from my new .config.
 
-eth0      Link encap:UNSPEC  HWaddr 00-E0-18-00-00-60-79-2F-00-00-00-00-00-00-00-00  
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:17 dropped:17 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+I edited .config by hand and deleted any mention of ethernet support --
+and only then did 'make oldconfig' ask me the right questions.
 
----------------------
+Also: the phrase (10 or 100Mbit) should be deleted from the 'Ethernet'
+menu item since it implies (wrongly) that the item is not needed for
+gigabit support.
 
-Manual config:
-eth0      Link encap:UNSPEC  HWaddr 00-E0-18-00-00-60-79-2F-00-00-00-00-00-00-00-00  
-          inet addr:192.168.42.65  Bcast:192.168.42.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:19 dropped:19 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-
-Ping to firewall:
-
-eth0      Link encap:UNSPEC  HWaddr 00-E0-18-00-00-60-79-2F-00-00-00-00-00-00-00-00  
-          inet addr:192.168.42.65  Bcast:192.168.42.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:6 errors:19 dropped:19 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:0 (0.0 b)  TX bytes:216 (216.0 b)
-
-Clearly nothing received
-
-Oh wait... now i see what's wrong!
-eth0 is now suddenly ethertnet over firewire.
-
-cp /boot/config-2.6.7-rc1-bk3 .config
-make oldconfig
-somehow "whacked" CONFIG_SK98LIN=y in .config ....
-
-grmblll..
-
-make menuconfig i cannot get into the submenu 
-
-device drivers -> 
- networking support -> 
-  Gigabit Ethernet (1000/10000 Mbit)  ---> 
-
-whereas with 10/100 Mbit ethernet i can.
-
-Little flaw elsewhere!
+****************
 
 Danny
 -- 

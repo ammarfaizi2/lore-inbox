@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSG3VQA>; Tue, 30 Jul 2002 17:16:00 -0400
+	id <S316574AbSG3VQu>; Tue, 30 Jul 2002 17:16:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316574AbSG3VQA>; Tue, 30 Jul 2002 17:16:00 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:64457 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S316535AbSG3VQA>;
-	Tue, 30 Jul 2002 17:16:00 -0400
-Subject: Re: [PATCH] 2.5.29: some compilation fixes for irq frenzy [OSS +
-	i8x0 audio]
-From: Andy Pfiffer <andyp@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1028067951.8510.44.camel@irongate.swansea.linux.org.uk>
-References: <1028062608.964.6.camel@andyp> 
-	<1028067951.8510.44.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Jul 2002 14:19:13 -0700
-Message-Id: <1028063953.964.13.camel@andyp>
-Mime-Version: 1.0
+	id <S316579AbSG3VQu>; Tue, 30 Jul 2002 17:16:50 -0400
+Received: from web12904.mail.yahoo.com ([216.136.174.71]:58408 "HELO
+	web12904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316574AbSG3VQt>; Tue, 30 Jul 2002 17:16:49 -0400
+Message-ID: <20020730212013.5866.qmail@web12904.mail.yahoo.com>
+Date: Tue, 30 Jul 2002 23:20:13 +0200 (CEST)
+From: =?iso-8859-1?q?Terje=20F=E5berg?= <terje_fb@yahoo.no>
+Subject: Re: Linux 2.4.19rc3-ac5
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200207301356.g6UDuq900731@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-30 at 15:25, Alan Cox wrote:
-> On Tue, 2002-07-30 at 21:56, Andy Pfiffer wrote:
-> > This patch cleans up the save_flags()/cli() craziness in the OSS portion
-> > of the i8x0 audio driver.
-> > 
-> > Apply to ChangeSet 1.524
-> > 
-> > Built, booted, and played some tunes.
-> 
-> But not it appears on an SMP system
 
-As luck would have it, I booted the kernel and played the tunes on a
-2-way P4 Xeon system.  Nothing wedged, but then again, I didn't try to
-break it.
-
-So, what did I break?
-
-Andy
+How safe is it to use gcc-3.1?
 
 
+Kind regards, 
+Terje
 
+______________________________________________________
+Få den nye Yahoo! Messenger på http://no.messenger.yahoo.com/
+Nå med webkamera, stemmechat, interaktiv bakgrunn og mye mer!

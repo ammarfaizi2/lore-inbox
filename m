@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272130AbRIMVSt>; Thu, 13 Sep 2001 17:18:49 -0400
+	id <S272291AbRIMVbC>; Thu, 13 Sep 2001 17:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272163AbRIMVSj>; Thu, 13 Sep 2001 17:18:39 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:55549 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S272130AbRIMVSZ>; Thu, 13 Sep 2001 17:18:25 -0400
-Date: Thu, 13 Sep 2001 22:18:34 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, dri-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>,
-        mharris@redhat.com
-Subject: Radeon lockup fix
-Message-ID: <20010913221834.E29816@redhat.com>
-Mime-Version: 1.0
+	id <S272415AbRIMVaw>; Thu, 13 Sep 2001 17:30:52 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:22276 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S272291AbRIMVae>; Thu, 13 Sep 2001 17:30:34 -0400
+Message-ID: <3BA1258F.5CC18A2C@bluewin.ch>
+Date: Thu, 13 Sep 2001 23:30:56 +0200
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: How errorproof is ext2 fs?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+While reading the thread about "HFS Plus on Linux?" at
+"debian-powerpc@list.debian.org" I had the following experience:
 
-I've also been seeing the AMD-761 + radeon total lockup when X starts,
-as described in
+Within an hour I had to hard reset both of my computers, first my Linux-i386 due
+to a complete lockup of the system while using el3diag, second my MacOS-powermac
+due to an not responding USB-keyboard/-mouse (what a nice coincident). Now while
+the Mac restarted without any fuse I had to fix the ext2-fs manually for about
+15 min. Luckily it seems I haven't lost anything on both system. 
 
-http://sourceforge.net/tracker/index.php?func=detail&aid=221904&group_id=387&atid=100387
+This leaves me a bad taste of Linux in my mouth. Does ext2 fs really behave so
+worse in case of a crash? Okay Linux does not crash that often as MacOS does, so
+it does not need a good  error proof fs. Still can't ext2 be made a little more
+error proof?
 
-The X server fixes from ATI seem to fix this when running without dri,
-but in dri mode, I still see the lockups 75% of the time.  However,
-the fix described above and appended below appears to be a complete
-cure for me so far.
+Okay, there are other fs for Linux which cope better with such a situation, but
+are they really more errorproof or are they just better in fixing up the mess
+afterwards? Could there be more attention in not creating errors instead of
+fixing them afterwards?
 
-I'd like the opinion of the DRI folks about whether this should be in
-the mainline kernel DRM, or if this is just a workaround for a problem
-that still needs fixed elsewhere, but it certainly appears to work
-fine for me.
-
---Stephen
-
---- linux/drivers/char/drm/radeon_cp.c.~1~	Wed Sep 12 15:14:40 2001
-+++ linux/drivers/char/drm/radeon_cp.c	Wed Sep 12 15:16:00 2001
-@@ -543,8 +543,7 @@
- 						RADEON_SOFT_RESET_RE |
- 						RADEON_SOFT_RESET_PP |
- 						RADEON_SOFT_RESET_E2 |
--						RADEON_SOFT_RESET_RB |
--						RADEON_SOFT_RESET_HDP ) );
-+						RADEON_SOFT_RESET_RB ) );
- 	RADEON_READ( RADEON_RBBM_SOFT_RESET );
- 	RADEON_WRITE( RADEON_RBBM_SOFT_RESET, ( rbbm_soft_reset &
- 						~( RADEON_SOFT_RESET_CP |
-@@ -553,8 +552,7 @@
- 						   RADEON_SOFT_RESET_RE |
- 						   RADEON_SOFT_RESET_PP |
- 						   RADEON_SOFT_RESET_E2 |
--						   RADEON_SOFT_RESET_RB |
--						   RADEON_SOFT_RESET_HDP ) ) );
-+						   RADEON_SOFT_RESET_RB ) ) );
- 	RADEON_READ( RADEON_RBBM_SOFT_RESET );
- 
- 
+O. Wyss

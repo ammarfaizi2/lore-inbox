@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTLOGbP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 01:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLOGbO
+	id S263303AbTLOHZF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 02:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTLOHZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 01:31:14 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:21701 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263019AbTLOGbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 01:31:12 -0500
-Date: Sun, 14 Dec 2003 22:31:04 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-cc: bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <2259130000.1071469863@[10.10.2.4]>
-In-Reply-To: <20031214172156.GA16554@work.bitmover.com>
-References: <20031214172156.GA16554@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Dec 2003 02:25:05 -0500
+Received: from deagol.email.Arizona.EDU ([128.196.133.142]:12700 "EHLO
+	smtpgate.email.arizona.edu") by vger.kernel.org with ESMTP
+	id S263303AbTLOHZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 02:25:02 -0500
+Subject: Re: 2.4 vs 2.6
+From: Harry McGregor <hmcgregor@espri.arizona.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3FDC9EC8.1000908@mscc.huji.ac.il>
+References: <20031201062052.GA2022@frodo>
+	 <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet>
+	 <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDC0BAC.8020909@mscc.huji.ac.il>
+	 <3FDC8957.4000602@yahoo.es>  <3FDC9EC8.1000908@mscc.huji.ac.il>
+Content-Type: text/plain
+Organization: Tucson Center Support Group - USGS
+Message-Id: <1071473021.30831.5.camel@Sony>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 15 Dec 2003 00:23:41 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've prototyped an extension to BitKeeper that provides tarballs
-> and patches.  The idea is to make it possible for all trees hosted by
-> bkbits.net provide access to the data with a free client (included below
-> in prototype form).
-> 
-> The system is simplistic, it just provides a way to get the most recent
-> sources as a tarball and then any later updates as a patch.  There is
-> no provision for generating diffs, editing files, merging, etc.  All of
-> that is something that you can write, if you want, using standard tools
-> (think hard linked trees).
-> 
-> Before rolling this out, I want to know if this is going to (finally)
-> put to rest any complaints about BK not being open source, available on
-> all platforms, etc.  You need to understand that this is all you get,
-> we're not going to extend this so you can do anything but track the most
-> recent sources accurately.  No diffs.  No getting anything but the most
-> recent version.  No revision history.  
-> 
-> If you want anything other than the most recent version your choices
-> are to use BitKeeper itself or, if you want the main branches of the
-> Linux kernel, the BK2CVS exports.  This is not a gateway product, it
-> is a way for developers to track the latest and greatest with a free
-> (source based) client.  It is not a way to convert BK repos to $SCM.
-> 
-> If the overwhelming response is positive then I'll add this to the
-> bkbits.net server and perhaps eventually to the BK product itself.
+On Sun, 2003-12-14 at 10:32, Voicu Liviu wrote:
 
-That looks very cool to me at least - I'd find it helpful, I think.
-Thank you.
+> Because i use lvm2 and I could not find the way to get back to lvm1
+> Any clue?
 
-One thing that I've wished for in the past which looks like it *might*
-be trivial to do is to grab a raw version of the patch you already
-put out in HTML format, eg if I surf down changesets and get to a page
-like this:
+How about using the patches for 2.4 to give you LVM2 support?
 
-http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
+http://people.sistina.com/~thornber/
 
-except it got html formatted, so I can't play with it easily. Is there
-any way to provide the raw format of that? If not, or you don't want to,
-no problem - would just be convenient. This isn't a open source vs not
-issue, it's just I often want one fix without the whole tree, and it'd
-be a convenient place to grab it.
+We have it running on one system right now, in fact it is part of the
+reason that we manually patched our 2.4.21 to fix the local root exploit
+that was fixed in 2.4.23, we just had too many external patches
+(FreeSwan, DeviceMapper, XFS, etc) on that system, to do patch and
+recompile in a reasonable amount of time.
 
->  * Licensed under the NWL - No Whining License.
->  *
->  * You may use this, modify this, redistribute this provided you agree:
->  * - not to whine about this product or any other products from BitMover, Inc.
->  * - that there is no warranty of any kind.
->  * - retain this copyright in full.
 
-;-)
+			Harry
 
-M.
+> Liviu
 
-PS. If you could possibly generate the diffs with -p, whether you supply
-them in raw format or not, it'd make them easier to read.
 

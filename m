@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267179AbUFZP5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267181AbUFZQBC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267179AbUFZP5j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 11:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267181AbUFZP5j
+	id S267181AbUFZQBC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 12:01:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267178AbUFZQBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 11:57:39 -0400
-Received: from crete.csd.uch.gr ([147.52.16.2]:12282 "EHLO crete.csd.uch.gr")
-	by vger.kernel.org with ESMTP id S267179AbUFZP5a (ORCPT
+	Sat, 26 Jun 2004 12:01:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:224 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267181AbUFZQBA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 11:57:30 -0400
-Organization: 
-Date: Sat, 26 Jun 2004 18:57:15 +0300 (EEST)
-From: Panagiotis Papadakos <papadako@csd.uoc.gr>
-To: David Eger <eger@havoc.gtf.org>
-cc: Hamie <hamish@travellingkiwi.com>, linux-kernel@vger.kernel.org
-Subject: Re: radeonfb == blank screen (Thinkpad r50p - FireGL T2 1600x1200
- LCD)
-In-Reply-To: <20040626153018.GA17639@havoc.gtf.org>
-Message-ID: <Pine.GSO.4.58.0406261852480.29659@thanatos.csd.uoc.gr>
-References: <20040618154118.ED0D5106@damned.travellingkiwi.com>
- <20040626153018.GA17639@havoc.gtf.org>
+	Sat, 26 Jun 2004 12:01:00 -0400
+Date: Sat, 26 Jun 2004 09:00:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       george@galis.org
+Subject: Re: SATA_SIL works with 2.6.7-bk8 seagate drive, but oops
+In-Reply-To: <1088262728.2805.7.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.58.0406260855080.14449@ppc970.osdl.org>
+References: <1088253429.9831.1449.camel@cube> <1088262728.2805.7.camel@laptop.fenrus.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also have the same problem with the new radeon driver.
-If I use the old radeon driver, it works Ok.
-I am using 2.6.7-bk.
 
-I load the kernel with:
-"video=radeonfb:1024x768-32@85"
 
-I have the following options in my .config
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_RADEON=y
+On Sat, 26 Jun 2004, Arjan van de Ven wrote:
+> 
+> well.... this value is *passed to userspace* via the AT_ attributes ....
+> glibc probably nicely exports this info via sysconf(). I guess/hope your
+> tools are now using that ?
 
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
+Even then, it's a bug in my opinion. Yes, procps should be able to just 
+use sysconf(_SC_CLK_TCK), but the fact is, using CLK_TCK and HZ is 
+traditional unix behaviour, and we should just support it.
 
-Regards
-	Panagiotis Papadakos
-
-On Sat, 26 Jun 2004, David Eger wrote:
-
-> It doesn't look like you have fbcon enabled... make sure you have
-> at least the following set in your .config:
->
-> CONFIG_FB=y
-> CONFIG_FB_RADEON=y
-> CONFIG_FRAMEBUFFER_CONSOLE=y
->
-> -dte
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+		Linus

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293027AbSCSAAL>; Mon, 18 Mar 2002 19:00:11 -0500
+	id <S293161AbSCSABl>; Mon, 18 Mar 2002 19:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293132AbSCSAAC>; Mon, 18 Mar 2002 19:00:02 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:45835 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S293027AbSCRX7l>;
-	Mon, 18 Mar 2002 18:59:41 -0500
-Date: Mon, 18 Mar 2002 17:00:31 -0700
-From: yodaiken@fsmlabs.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Larry McVoy <lm@work.bitmover.com>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper licence issues
-Message-ID: <20020318170031.A5276@hq.fsmlabs.com>
-In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S293314AbSCSABW>; Mon, 18 Mar 2002 19:01:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31493 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293161AbSCSABL>; Mon, 18 Mar 2002 19:01:11 -0500
+Subject: Re: VFS mediator?
+To: trond.myklebust@fys.uio.no (Trond Myklebust)
+Date: Tue, 19 Mar 2002 00:15:49 +0000 (GMT)
+Cc: pavel@suse.cz (Pavel Machek), viro@math.psu.edu (Alexander Viro),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Simon.Richter@phobos.fachschaften.tu-muenchen.de (Simon Richter),
+        jbarker@ebi.ac.uk (Jonathan Barker), linux-kernel@vger.kernel.org
+In-Reply-To: <shs1yeha5b4.fsf@charged.uio.no> from "Trond Myklebust" at Mar 18, 2002 11:18:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-Organization: FSM Labs
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16n7I5-0006SA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 12:14:28AM +0100, Pavel Machek wrote:
-> By giving me binary-only installer you ask me to trust you. You ask me
+>      > Does not work... If you mount nfs server on localhost, you can
+>      > deadlock.
+> 
+> Huh? Examples please? A hell of a lot of work has gone into ensuring
+> that this cannot happen. I do most of my NFS client work on this sort
+> of setup, so it had bloody well better work...
 
-Then don't use it.
+At least theoretically it can. Imagine you have every other process stuck
+trying to page out (or blocked on a page out) over NFS, including your
+user mode nfs process. In practice it would be very hard to arrange but
+the theory is real.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Alan

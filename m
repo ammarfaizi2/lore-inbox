@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267256AbSKPKOS>; Sat, 16 Nov 2002 05:14:18 -0500
+	id <S267257AbSKPK1h>; Sat, 16 Nov 2002 05:27:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267257AbSKPKOR>; Sat, 16 Nov 2002 05:14:17 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:9355 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267256AbSKPKOR> convert rfc822-to-8bit; Sat, 16 Nov 2002 05:14:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Zwane Mwaikambo <zwane@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S267260AbSKPK1h>; Sat, 16 Nov 2002 05:27:37 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:39191
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267257AbSKPK1g>; Sat, 16 Nov 2002 05:27:36 -0500
+Date: Sat, 16 Nov 2002 05:37:46 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Greg Kroah-Hartmann <greg@kroah.com>, Andrew Morton <akpm@digeo.com>
 Subject: Re: [PATCH][2.5] USB core/urb.c triggers slab bugcheck
-Date: Sat, 16 Nov 2002 11:18:55 +0100
-User-Agent: KMail/1.4.3
-Cc: Greg Kroah-Hartmann <greg@kroah.com>, Andrew Morton <akpm@digeo.com>
-References: <Pine.LNX.4.44.0211160455040.1810-100000@montezuma.mastecende.com>
 In-Reply-To: <Pine.LNX.4.44.0211160455040.1810-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0211160536380.1810-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211161118.55733.oliver@neukum.name>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 16. November 2002 10:57 schrieb Zwane Mwaikambo:
+On Sat, 16 Nov 2002, Zwane Mwaikambo wrote:
+
 > This patch is also required to get my box to boot
+> 
+> kernel BUG at mm/slab.c:1619!
+> invalid operand: 0000
 
-Why is this needed ? I might be stupid, but it seems as if this patch
-changes nothing.
+Sorry please ignore this one, the first patch fixed the boot problem, i 
+hadn't tried booting with it alone. This must have been fallout.
 
-	Regards
-		Oliver
+Zwane
+
+-- 
+function.linuxpower.ca
 

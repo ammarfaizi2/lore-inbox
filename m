@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269930AbUJGX6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269946AbUJHACu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269930AbUJGX6d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269945AbUJGXz3
+	id S269946AbUJHACu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269923AbUJHAAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:55:29 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6061 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269930AbUJGXvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 19:51:48 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
-       "Jack O'Quin" <joq@io.com>
-In-Reply-To: <877jq5vhcw.fsf@sulphur.joq.us>
-References: <1094967978.1306.401.camel@krustophenia.net>
-	 <20040920202349.GI4273@conscoop.ottawa.on.ca>
-	 <20040930211408.GE4273@conscoop.ottawa.on.ca>
-	 <1096581213.24868.19.camel@krustophenia.net>
-	 <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net>
-	 <87k6ubcccl.fsf@sulphur.joq.us>
-	 <1096663225.27818.12.camel@krustophenia.net>
-	 <20041001142259.I1924@build.pdx.osdl.net>
-	 <1096669179.27818.29.camel@krustophenia.net>
-	 <20041001152746.L1924@build.pdx.osdl.net>  <877jq5vhcw.fsf@sulphur.joq.us>
-Content-Type: text/plain
-Message-Id: <1097193102.9372.25.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 07 Oct 2004 19:51:42 -0400
+	Thu, 7 Oct 2004 20:00:34 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:11457 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269929AbUJGXnF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 19:43:05 -0400
+Date: Thu, 07 Oct 2004 16:43:36 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       hannal@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org
+Subject: [PATCH 2.6][12/12] sandpoint.c replace pci_find_device with pci_get_device
+Message-ID: <36050000.1097192616@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 01:55, Jack O'Quin wrote:
-> Thanks to the good work being done on 2.6, we are now close to being
-> able to do serious realtime work with standard kernels available
-> everwhere.  The LSM framework is an important element of that
-> solution, with the realtime LSM a small but essential component,
-> because it makes these features available without excessive
-> administrative burden.
 
-Since no one has objected to any of Jack's points, and now that the
-setpcap is gone, and with more audio users moving to 2.6+mm+VP every
-day, I would like to ask that this go into -mm.  Any objections?
+As pci_find_device is going away I've replaced it with pci_get_device.
+If someone with a PPC system could test it I would appreciate it.
 
-Lee
+Thanks.
+
+Hanna Linder
+IBM Linux Technology Center
+
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+---
+diff -Nrup linux-2.6.9-rc3-mm3cln/arch/ppc/platforms/sandpoint.c linux-2.6.9-rc3-mm3patch3/arch/ppc/platforms/sandpoint.c
+--- linux-2.6.9-rc3-mm3cln/arch/ppc/platforms/sandpoint.c	2004-09-29 20:06:04.000000000 -0700
++++ linux-2.6.9-rc3-mm3patch3/arch/ppc/platforms/sandpoint.c	2004-10-07 16:36:52.946102904 -0700
+@@ -531,7 +531,7 @@ static unsigned long	sandpoint_idedma_re
+ static void
+ sandpoint_ide_probe(void)
+ {
+-	struct pci_dev *pdev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	struct pci_dev *pdev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 			PCI_DEVICE_ID_WINBOND_82C105, NULL);
+ 
+ 	if (pdev) {
+@@ -540,6 +540,7 @@ sandpoint_ide_probe(void)
+ 		sandpoint_ide_ctl_regbase[0]=pdev->resource[1].start;
+ 		sandpoint_ide_ctl_regbase[1]=pdev->resource[3].start;
+ 		sandpoint_idedma_regbase=pdev->resource[4].start;
++		pci_dev_put(dev);
+ 	}
+ 
+ 	sandpoint_ide_ports_known = 1;
 

@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262844AbVCWH2E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVCWHh0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbVCWH2E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 02:28:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVCWH2D
+	id S262846AbVCWHh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 02:37:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVCWHh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 02:28:03 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:62674 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262844AbVCWH17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 02:27:59 -0500
-Date: Wed, 23 Mar 2005 08:27:50 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: "shafa.hidee" <shafa.hidee@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Redirecting output
-Message-ID: <20050323072750.GT8617@admingilde.org>
-Mail-Followup-To: "shafa.hidee" <shafa.hidee@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <001e01c52f74$2f27daa0$6a88cb0a@hss.hns.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ggMi11T3lbLnZZ+m"
-Content-Disposition: inline
-In-Reply-To: <001e01c52f74$2f27daa0$6a88cb0a@hss.hns.com>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 23 Mar 2005 02:37:26 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:55162 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262846AbVCWHhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 02:37:20 -0500
+Message-ID: <42411CAC.5000808@yahoo.com.au>
+Date: Wed, 23 Mar 2005 18:37:16 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arun Srinivas <getarunsri@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: help needed pls. scheduler(kernel 2.6) + hyperthreaded related
+ questions?
+References: <BAY10-F5987CA2A1E1D6C406F5371D94F0@phx.gbl>
+In-Reply-To: <BAY10-F5987CA2A1E1D6C406F5371D94F0@phx.gbl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arun Srinivas wrote:
+> If the SMT (apart from SMP) support is enabled in the  .config file, 
+> does the kernel recogonize the 2 logical processor as 2 logical or 2 
+> physical processors?
+> 
 
---ggMi11T3lbLnZZ+m
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You shouldn't be able to select SMT if SMP is not enabled.
+If SMT and SMP is selected, then the scheduler will recognise
+the 2 processors as logical ones.
 
-hoi :)
+> Also, as the hyperthreaded processor may schedule 2 threads in the 2 
+> logical cpu's, and it may not necessarily be form the same process i.e., 
+> the 2 thread it schedules may be from the same or from the different 
+> process.
+> 
 
-On Wed, Mar 23, 2005 at 12:12:02PM +0530, shafa.hidee wrote:
->      I have created a dummy module for learning device driver in linux. I
-> want to redirect the standard output of printk to my xterm. But by default
-> it is redirected to tty.
+Yes.
 
-The kernel does not have 'standard output', so you can't redirect it.
-Please consult the manual for dmesg and syslog.
+> So, is there any way I can tell the scheduler (assuming I make the 
+> scheduler recogonize my 2 threads..i.e., it knows their pid) to schedule 
+> always my 2 threads @ the same time? How do I go abt it?
+> 
 
-And please have a look at a good Linux kernel book.
-This will help you understand the kernel and will answer most
-of your questions.
+Use sched_setaffinity to force each thread onto the particular
+CPU. Use sched_setscheduler to acquire a realtime scheduling
+policy. Then use mutexes to synchronise your threads so they
+run the desired code segment at the same time.
 
---=20
-Martin Waitz
-
---ggMi11T3lbLnZZ+m
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFCQRp1j/Eaxd/oD7IRAlIcAJ9fnJHJA+i5wvTbTwXC3tSW4lrpZQCcDuVh
-BEyXlth83sSpYm8LFIz4irc=
-=NQTV
------END PGP SIGNATURE-----
-
---ggMi11T3lbLnZZ+m--

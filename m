@@ -1,38 +1,43 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <970790-3215>; Sat, 9 May 1998 22:17:57 -0400
-Received: from zero.aec.at ([193.170.192.102]:9292 "HELO zero.aec.at" ident: "qmaill") by vger.rutgers.edu with SMTP id <970892-3215>; Sat, 9 May 1998 22:17:46 -0400
-To: Jan Vicherek <honza@ied.com>
-Cc: Marc Lehmann <pcg@goof.com>, linux-kernel@vger.rutgers.edu
-Subject: Re: clarification : Re: "renice" netowork usage.
-References: <Pine.LNX.3.96.980509205921.5258k-100000@ann.ied.com>
-From: Andi Kleen <ak@muc.de>
-Date: 10 May 1998 03:22:43 +0200
-In-Reply-To: Jan Vicherek's message of Sat, 9 May 1998 22:08:10 -0400 (EDT)
-Message-ID: <k21zu22a3g.fsf@zero.aec.at>
-X-Mailer: Gnus v5.4.41/Emacs 19.34
+Received: by vger.rutgers.edu id <973298-32480>; Fri, 15 May 1998 10:48:29 -0400
+Received: from dm.cobaltmicro.com ([209.133.34.35]:1157 "EHLO dm.cobaltmicro.com" ident: "davem") by vger.rutgers.edu with ESMTP id <973126-32480>; Fri, 15 May 1998 10:30:46 -0400
+Date: Fri, 15 May 1998 07:51:34 -0700
+Message-Id: <199805151451.HAA01712@dm.cobaltmicro.com>
+From: "David S. Miller" <davem@dm.cobaltmicro.com>
+To: cpg@aladdin.de
+CC: torvalds@transmeta.com, linux-kernel@vger.rutgers.edu, cpg@aladdin.de
+In-reply-to: <199805151156.NAA20899@punt.aladdin.de> (message from Christian Groessler on Fri, 15 May 1998 13:56:07 +0200)
+Subject: Re: 2.1.101 warnings on alpha (patch)
+References: <199805151156.NAA20899@punt.aladdin.de>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Jan Vicherek <honza@ied.com> writes:
-> 
->    My understanding of TCP tells me that "if the line conditions are
-> poor", the server adjusts the TCP window size to something smaller. Now
-> how the heck would the server knows what kind of line conditions are
-> ahead?! It doesn't. So how can it adjust the window side then ? By
-> guessing the line conditions from number and latency of ACKs.
+   Date: 	Fri, 15 May 1998 13:56:07 +0200
+   From: Christian Groessler <cpg@aladdin.de>
 
-Read up on http://ftp.ee.lbl.gov/floyd/cbq.html, and maybe
-http://ftp.ee.lbl.gov/floyd/ecn.html too. Linux implements the first 
-already, but there is no documentation (yet) and the code is still
-rather experimential and rough. Note that the best way to implement
-that is not on the end host, but rather on the router before the
-bottleneck link. 
+   How does one check whether the host is 64bitty?  Like in the above
+   "#if" or is there another (standard) way?
 
-If you want a basic explanation of the current TCP congestion
-avoidance algorithms read RFC 2001. The current algorithm penalizes 
-slow streams over fast streams a bit though.
+Unfortunately there is no failsafe way.  This is because as a cross
+compiler gcc from 32-->64 bit does not get things like:
 
+#if ((~0UL)==0xffffffff)
+    ... 32bit version ...
+#else
+    ... 64bit version ...
+#endif
 
--Andi
+correct at all.  I think it should be in an asm header file
+personally, but if you notice the check for 64-bit is often done as:
+
+#if defined(__sparc_v9__) || defined(__alpha__)
+#endif
+
+which is pretty unclean and should be fixed up.  But at the moment
+there is no other reliable way to check it.
+
+Later,
+David S. Miller
+davem@dm.cobaltmicro.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

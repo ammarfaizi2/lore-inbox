@@ -1,50 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283468AbRLDUeN>; Tue, 4 Dec 2001 15:34:13 -0500
+	id <S283430AbRLDUeO>; Tue, 4 Dec 2001 15:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283388AbRLDUdE>; Tue, 4 Dec 2001 15:33:04 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:58328 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S283424AbRLDUck>;
-	Tue, 4 Dec 2001 15:32:40 -0500
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S283432AbRLDUdH>; Tue, 4 Dec 2001 15:33:07 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55543 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S283459AbRLDUb2>; Tue, 4 Dec 2001 15:31:28 -0500
+Message-ID: <3C0D3283.4DA4DD2B@mvista.com>
+Date: Tue, 04 Dec 2001 12:30:59 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] improve spinlock debugging
+In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15373.13022.573204.805366@napali.hpl.hp.com>
-Date: Tue, 4 Dec 2001 12:32:30 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, alan@lxorguk.ukuu.org.uk, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
-        marcelo@conectiva.com.br
-Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
-In-Reply-To: <20011204.122254.110116318.davem@redhat.com>
-In-Reply-To: <15371.62205.231945.798891@napali.hpl.hp.com>
-	<E16BC09-0001Ql-00@the-village.bc.nu>
-	<15372.63827.716885.948119@napali.hpl.hp.com>
-	<20011204.122254.110116318.davem@redhat.com>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 04 Dec 2001 12:22:54 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
+Manfred Spraul wrote:
+> 
+> CONFIG_DEBUG_SPINLOCK only adds spinlock tests for SMP builds. The
+> attached patch adds runtime checks for uniprocessor builds.
+> 
+> Tested on i386/UP, but it should work on all platforms. It contains
+> runtime checks for:
+> 
+> - missing initialization
+> - recursive lock
+> - double unlock
+> - incorrect use of spin_is_locked() or spin_trylock() [both function
+> do not work as expected on uniprocessor builds]
+> The next step are checks for spinlock ordering mismatches.
 
-  DaveM> If what you are asking is should we tweak the APIs again so
-  DaveM> that situations like current IA64 can be done more sanely in
-  DaveM> the PCI DMA layer, I say definitely no.
+What do you consider an order mismatch?  I would like to see this:
 
-I certainly agree that the PCI DMA interface shouldn't be tweaked just
-because of IA64.  What I'm wondering is whether we'll have to tweak it
-anyhow to more gracefully handle the case where a hardware I/O TLB
-runs out of space.  If so, I think the software I/O TLB makes sense.
+spin_lockirq
 
-  DaveM> There really is no excuse for the current IA64 hardware
-  DaveM> situation, there were probably well over 3 or 4 major 64-bit
-  DaveM> platforms from competitors, whose PCI controllers were pretty
-  DaveM> well documented publicly, from which Intel could have derived
-  DaveM> a working 64-bit platform PCI controller design.
+spin_unlock
 
-Well, I won't comment on *this* one! ;-))
+restore_irq
 
-	--david
+go away.  I.e. xx_lockirq should be paired with xx_unlockirq.  If
+exceptions are needed, we should provide macros that explicitly do this
+such as:
+
+spin_unlock_leaveirq_off
+
+or some such.
+
+Of course, all this is predicated on using the lock macros in a
+different way than intended.  For example, preemption currently counts
+up on spin_lock and disable irq, counting the spin_lockirq twice.  In
+fact, it need only count it once, if the locks are properly paired.  It
+might also be nice to have a set of lock routines that make explicit the
+assumptions made.  For example:
+
+read_lock_irq_assumed_off  or
+read_lockirq_assumed_on  (used instead of saveirq based on the
+assumption)
+
+These locks could then have optional debug code that tested the
+assumption.
+
+If we got all of this clean enough, we would know when we were locking
+with irq off and the preemption patch, for example, would not need to
+count the spinlock at all, but just the irq.  (Oh, and since the irq
+inhibits preemption all by itself, we don't need to count it either.)
+> 
+> Which other runtime checks are possible?
+> Tests for correct _irq usage are not possible, several drivers use
+> disable_irq().
+
+Run time checks for xxx_irq when irq is already off seem reasonable. 
+The implication is that the xxx_unlockirq will then turn it on, which
+most likely is an error.  Also, see above about rolling assumptions in
+to the macro name.
+> 
+> --
+>         Manfred
+> 
+
+-- 
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281710AbRKZOyv>; Mon, 26 Nov 2001 09:54:51 -0500
+	id <S281717AbRKZO5C>; Mon, 26 Nov 2001 09:57:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281716AbRKZOym>; Mon, 26 Nov 2001 09:54:42 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:34565 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S281710AbRKZOy2>; Mon, 26 Nov 2001 09:54:28 -0500
-Message-Id: <200111261454.fAQEsDJ3004728@pincoya.inf.utfsm.cl>
-To: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1] 
-In-Reply-To: Your message of "Mon, 26 Nov 2001 13:26:49 BST."
-             <20011126122649.51511.qmail@web20508.mail.yahoo.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Mon, 26 Nov 2001 11:54:13 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S281716AbRKZO4z>; Mon, 26 Nov 2001 09:56:55 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:60855 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S281718AbRKZO4j>; Mon, 26 Nov 2001 09:56:39 -0500
+Subject: Re: PATCH: gcc3.0.2 workaround for 8139too
+From: Ali Akcaagac <ali.akcaagac@stud.fh-wilhelmshaven.de>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011126144543.90413.qmail@web12808.mail.yahoo.com>
+In-Reply-To: <20011126144543.90413.qmail@web12808.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 26 Nov 2001 15:56:10 +0100
+Message-Id: <1006786570.10998.2.camel@ulixys>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> said:
+On Mon, 2001-11-26 at 15:45, Luben Tuikov wrote:
+> Sorry, the patch is here...
+> 
+>  http://gcc.gnu.org/ml/gcc-patches/2001-11/msg00698.html
 
-> Well, I know this has been discussed several times, but why not having 2
-> stable trees : one for the average "joe" user which would include fixes
-> and new features, and one for prod servers which will have only bugfixes,
-> and quite old, tested features, with less risks of regression.
+ahh cool, this verifyies my theory of borked assembly code. well did'nt
+paid attention to that patch nor did i knew that it exists.
 
-Think distributions, think 2.2.x (still actively maintained), think 2.4.x
-(just now declared stable, ready for "just bugfixes"), and think 2.5.x +
-assorted unofficial patches.
+> or as someone pointed out get the latest CVS tree.
+
+well i use CVS for some stuff but not for CORE things like glibc or gcc.
+i've use my 8139too tweak so long that it does'nt' really matters if the
+new official gcc 3.0.3 will take a while longer or not.
+
+thank you very much for pointing me to that page.
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Name....: Ali Akcaagac
+Status..: Student Of Computer & Economic Science
+E-Mail..: mailto:ali.akcaagac@stud.fh-wilhelmshaven.de
+WWW.....: http://www.fh-wilhelmshaven.de/~akcaagaa
+

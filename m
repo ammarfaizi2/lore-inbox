@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbSJRM7l>; Fri, 18 Oct 2002 08:59:41 -0400
+	id <S265103AbSJRM7w>; Fri, 18 Oct 2002 08:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265103AbSJRM7l>; Fri, 18 Oct 2002 08:59:41 -0400
-Received: from iris.mc.com ([192.233.16.119]:60113 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S265102AbSJRM7k>;
-	Fri, 18 Oct 2002 08:59:40 -0400
-Message-Id: <200210181305.JAA28085@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-Date: Fri, 18 Oct 2002 09:11:21 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: george anzinger <george@mvista.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33L2.0210171453050.2499-100000@dragon.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.33L2.0210171453050.2499-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S265105AbSJRM7w>; Fri, 18 Oct 2002 08:59:52 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:7436 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265103AbSJRM7v>; Fri, 18 Oct 2002 08:59:51 -0400
+Date: Fri, 18 Oct 2002 14:05:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Greg KH <greg@kroah.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021018140543.C1670@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Crispin Cowan <crispin@wirex.com>,
+	Alexander Viro <viro@math.psu.edu>, Greg KH <greg@kroah.com>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <Pine.GSO.4.21.0210180309540.18575-100000@weyl.math.psu.edu> <3DAFCE1B.805@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DAFCE1B.805@wirex.com>; from crispin@wirex.com on Fri, Oct 18, 2002 at 02:02:19AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 October 2002 17:54, Randy.Dunlap wrote:
-> On Wed, 9 Oct 2002, Linus Torvalds wrote:
-> | On Wed, 9 Oct 2002, george anzinger wrote:
-> | > This patch, in conjunction with the "core" high-res-timers
-> | > patch implements high resolution timers on the i386
-> | > platforms.
-> |
-> | I really don't get the notion of partial ticks, and quite frankly, this
-> | isn't going into my tree until some major distribution kicks me in the
-> | head and explains to me why the hell we have partial ticks instead of
-> | just making the ticks shorter.
-> | -
+On Fri, Oct 18, 2002 at 02:02:19AM -0700, Crispin Cowan wrote:
+>     * root may not follow non-root symlinks in certain circumstances
+>       (prevent some temp file attacks)
+>     * non-root may not create a hard-link to root-owned files in certain
+>       circumstances (prevent some other temp file attacks)
+>     * may not ptrace root processes (preventing further recurrance of
+>       the bugs in ptrace over the last year or so)
+> 
+> These policies help a lot to secure a system. But these policies also 
+> break some things, so it is good that they be a loadable module, and not 
+> a proposed Linux patch.
 
-because just making ticks shorter/more frequent just increases timer overhead 
-all the time whether you are actually doing anything requiring it or not. 
-this is a big waste of cpu cycles.
+All three are actually very good examples on how your "Security"
+modules work around problems instead of fixing thev actual cause.
 
-using the partial tick method put forward by george, you only pay the price 
-for higher resolution timers WHEN YOU WANT TO.
+Instead of adding hacks for tempfile races you rather want to
+give each user a private namesapace and it's own /tmp (IMHO
+we should also get rid of symlinks entirely, but they're in too wide
+use nowdays unfortunately).
 
-most things that want say 1usec precision dont want to do something EVERY us, 
-just something every now and then with 1us precision.  things like programs 
-that want to block for a 350 usec. but waiting 10 or even 1 msec would be too 
-long. 
+And ptrace _really_ _really_ needs to be replaced by a sane debug
+interface,  like the plan9 procfs-based debugging.
 
-the timer overhead using fixed interval timers (as you suggest) to support 
-that occaisional 350 usec block would eat too much cpu to be practical.
-
-increasing timer frequency penalizes ALL users/processes with increased timer 
-overhead all the time for the benefit of the small number of tasks that need 
-better resolution.  the sub-jiffie/partial tick model only pays that price 
-when there is an actual timed event that needs to occur at that higher 
-resolution and the rest of the time the timer overhead remains as it is today 
-(which to my mind is 10 times what it needs to be, but that is an argument 
-for another day)
-
-embedded systems in particular need higher resolution and these types of 
-systems are precisely the systems that can't afford to multiply their timer 
-overhead by a factor of 10 or more (as increasing HZ to 1000 does).
-
+But instead of attaking these causes security folks like wirex just
+implement fuzzy busword mechanisms that are selable to managers.
 

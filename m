@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264017AbTDOAfq (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 20:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264018AbTDOAfq (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 20:35:46 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57453 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264017AbTDOAfp (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 20:35:45 -0400
-Date: Mon, 14 Apr 2003 20:47:33 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200304150047.h3F0lXc22483@devserv.devel.redhat.com>
-To: Eli Carter <eli.carter@inet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] patch splitting util(s)?
-In-Reply-To: <mailman.1050360781.7083.linux-kernel2news@redhat.com>
-References: <3E9B2C38.4020405@inet.com> <20030414215128.GA24096@suse.de> <mailman.1050360781.7083.linux-kernel2news@redhat.com>
+	id S264018AbTDOAnN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 20:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264020AbTDOAnN (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 20:43:13 -0400
+Received: from siaab1aa.compuserve.com ([149.174.40.1]:38848 "EHLO
+	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
+	id S264018AbTDOAnM (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 20:43:12 -0400
+Date: Mon, 14 Apr 2003 20:51:01 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Problem: 2.4.20, 2.5.66 have different IDE channel order
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304142054_MC3-1-3463-6D74@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  > I didn't have much luck with googling.  I think the words I used are too 
->>  > generic.  :/
->>  
->> Google for diffsplit. Its part of Tim Waugh's patchutils.
->> Patchutils should be part of pretty much every distro these days too.
-> 
-> I'm aware of patchutils.  (Check the 0.2.22 Changelog ;) )  However, 
-> splitdiff doesn't do what I'm after, from my initial look.  Though now 
-> that I think about it, it suggests an alternative solution.  A 
-> 'shatterdiff' that created one diff file per hunk in a patch would give 
-> me basically what I want.
+  I just added an HPT370A IDE controller to this machine:
 
-I moaned at Tim until he caved in and added an '-s' option
-couple of weeks ago. It should be in a fresh rawhide srpm.
 
-Mind, you can do what you want even now, with -n (for line numbers)
-and a little bit of sh or perl, but all concievable solutions
-require several passes over the diff, which gets tiresome
-if you diff 2.4.9 (RH 7.2) and 2.4.18 (RH 8.0). The -s option
-does it in one pass.
+00:00.0 Host bridge: Intel Corp. 440FX - 82441FX PMC [Natoma] (rev 02)
+00:0d.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+00:0d.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
+00:0e.0 PCI bridge: Digital Equipment Corporation DECchip 21052 (rev 01)
+00:10.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 02)
+00:11.0 VGA compatible controller: Silicon Integrated Systems [SiS] 86C326 (rev 0b)
+01:09.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
+01:0a.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 05)
+01:0b.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 03)
 
--- Pete
+
+
+  2.4 (RH 7.3 rescue mode and 2.4.20 non-modular) sees this order:
+
+    PIIX3, PDC20268, HPT370
+
+  2.5 sees this:
+
+    PIIX3, HPT370, PDC20268
+
+  Obviously reversing order isn't going to help here.
+
+  I edited the Makefile to change the link order but that didn't help.
+
+
+--
+ Chuck

@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262917AbUJ0WgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbUJ0XMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbUJ0WgT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbUJ0Wc7
+	id S262748AbUJ0XMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 19:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbUJ0XHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:32:59 -0400
-Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:55942 "EHLO
-	ash.lnxi.com") by vger.kernel.org with ESMTP id S262934AbUJ0Wbl
+	Wed, 27 Oct 2004 19:07:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:232 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262748AbUJ0XD5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:31:41 -0400
-Subject: Re: [PATCH] Remove some divide instructions
-From: Thayne Harbaugh <tharbaugh@lnxi.com>
-Reply-To: tharbaugh@lnxi.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org,
-       george@mvista.com
-In-Reply-To: <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
-References: <417FC982.7070602@vmware.com>
-	 <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1UesQYTiCs2WS/M8ydsw"
-Organization: Linux Networx
-Date: Wed, 27 Oct 2004 16:08:49 -0600
-Message-Id: <1098914929.1432.29.camel@tubarao>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-1) 
+	Wed, 27 Oct 2004 19:03:57 -0400
+Message-ID: <4180294B.6060803@pobox.com>
+Date: Wed, 27 Oct 2004 19:03:39 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [SATA] libata-dev queue updated
+References: <20041027065208.GA16230@havoc.gtf.org> <20041028005316.001d2e64.robn@verdi.et.tudelft.nl>
+In-Reply-To: <20041028005316.001d2e64.robn@verdi.et.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob van Nieuwkerk wrote:
+> On Wed, 27 Oct 2004 02:52:08 -0400
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+> Hi Jeff,
+> 
+> 
+>>John W. Linville:
+>>  o libata: SMART support via ATA pass-thru
+> 
+> 
+> Does this mean that now we can use SMART on SATA disks ?
+> Or only PATA disks ?
 
---=-1UesQYTiCs2WS/M8ydsw
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Both.
 
-On Wed, 2004-10-27 at 09:28 -0700, Linus Torvalds wrote:
+	Jeff
 
-> It's very easy to test for powers of two: !((x) & ((x)-1)) does it for=20
-> everything but zero, and zero in this case is an error anyway.
 
-Of course 0 is not a power of two - nor a power of any other number
-(although n**(-oo) where |n|>1 and n**(oo) where |n|<1 are close).
-
-8)
-
---=20
-Thayne Harbaugh
-Linux Networx
-
---=-1UesQYTiCs2WS/M8ydsw
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBgBxxsYFQl3A+qS0RAmmDAKC16NdsJ3rUXxQLYrG8gUrt+LNmQACguLU4
-6eswKSqMfDYKAP4GLJPxNrI=
-=dSqx
------END PGP SIGNATURE-----
-
---=-1UesQYTiCs2WS/M8ydsw--
 

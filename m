@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272791AbTG3HNo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272792AbTG3HNo
+	id S272792AbTG3HOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272793AbTG3HOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:13:44 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:61175 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S272791AbTG3HNm
+	Wed, 30 Jul 2003 03:14:30 -0400
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:44214 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S272792AbTG3HO2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:13:42 -0400
-Date: Wed, 30 Jul 2003 10:13:21 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-Subject: 2.4.22pre8 hangs too (Re: 2.4.21-jam1, aic7xxx-6.2.36: solid hangs)
-Message-ID: <20030730071321.GV150921@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-References: <20030729073948.GD204266@niksula.cs.hut.fi>
+	Wed, 30 Jul 2003 03:14:28 -0400
+Date: Wed, 30 Jul 2003 09:14:17 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+Message-ID: <20030730071417.GM13611@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com> <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030729073948.GD204266@niksula.cs.hut.fi>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com>
+Organization: Synopsys, Inc.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 10:39:48AM +0300, you [Ville Herva] wrote:
-> After about a year of stable operation, a server begun acting up. First it
-> begun hanging up solid during the nightly oracle backup (that had run
-> successfully for a year), the I got some aic7xxx-related crashes on boot.
+Zwane Mwaikambo, Wed, Jul 30, 2003 03:37:26 +0200:
+> On Wed, 30 Jul 2003, Jamie Lokier wrote:
 > 
-> Initially, the box ran 2.4.20pre7 kernel with aic7xxx version 6.4.8. When
-> the hangs started happening, I upgraded to 2.4.21-jam1 (basically 2.4.21
-> vanilla + -aa patch + some minor stuff) that includes aic7xxx version 6.2.36.
-> It did not help.
+> > One of Richard's points is that there is presently no way to fix the
+> > box in userspace.  If the kernel crashes during boot, it will blank
+> > the screen and there is no way to unblank it in that state.
 > 
-> I enabled kmsgdump and nmi watchdog, but when the box hangs, it hangs solid:
-> no ctrl-alt-del, no caps lock led, no alt-sysrq-b, no kmsgdump, nmi watchdog
-> doesn't trigger. Only the cursor on the console blinks, but no messages from
-> the kernel appear. (Apart from "spurious 8259A interrupt: IRQ7." that
-> always happens sometime after boot on this box, but way before the hang.)
+> Well something like this should work without complicating things during 
+> panic.
+> 
 
-Herbert Pötzl indicted that he'd had similar lockups with fairly similar hw
-up until 2.4.22pre6. He suggested I should try 2.4.22pre8.
+Does it unblank screen if panic happened while the screen was blanked?
 
-2.4.22pre8 locked up the same way in about 10 hours.
-
-> Any ideas on how to to debug this kind of hang? 
-
-The question still stands; how do I debug this? 
-
-> Does it sound kernel/driver or hw related? Are the two crashes related to
-> the hang? Is the hang related to aic7xxx?
-
-Any ideas?
-
-
-
--- v --
-
-v@iki.fi

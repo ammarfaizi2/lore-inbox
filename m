@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264298AbRFSPU3>; Tue, 19 Jun 2001 11:20:29 -0400
+	id <S264303AbRFSPY7>; Tue, 19 Jun 2001 11:24:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264300AbRFSPUT>; Tue, 19 Jun 2001 11:20:19 -0400
-Received: from mail.myrealbox.com ([192.108.102.201]:6190 "EHLO myrealbox.com")
-	by vger.kernel.org with ESMTP id <S264298AbRFSPUB>;
-	Tue, 19 Jun 2001 11:20:01 -0400
-From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-To: Linux Mailing List <linux-kernel@vger.kernel.org>,
-        Julien Laganier <Julien.Laganier@Sun.COM>
-Date: Tue, 19 Jun 2001 17:21:40 +0200
+	id <S264317AbRFSPYt>; Tue, 19 Jun 2001 11:24:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36879 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264303AbRFSPYl>; Tue, 19 Jun 2001 11:24:41 -0400
+Subject: Re: Linux 2.2.20-pre4
+To: jochen@tolot.escape.de (Jochen Striepe)
+Date: Tue, 19 Jun 2001 16:23:44 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010619172219.A18744@tolot.escape.de> from "Jochen Striepe" at Jun 19, 2001 05:22:19 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Runsocks
-Message-ID: <3B2F8A24.14270.19AE614B@localhost>
-In-Reply-To: <3B2F6C4C.3E3C502B@Sun.COM>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15CNM0-00067q-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-   Kind of offtopic, but do check http://www.socks.nec.com , please.
-
-
-Pedro
-
-On 19 Jun 2001, at 17:14, Julien Laganier wrote:
-
-> I was searching for a source code of Runsocks. Does anybody knows
-> where to find it ?
-> 
-> Tnx
-> -- 
->     Julien Laganier
->      Student Intern
-> Sun Microsystem Laboratories
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Just to keep you informed... (I think there was a saying that there was
+> interest in experiences with compiling the kernel with non-recommended
+> gcc's ...)
 
 
+> sched.c:52: conflicting types for `xtime'
+> /usr/src/linux/include/linux/sched.h:509: previous declaration of `xtime'
+
+Stick a volatile in the declaration. Thats a real bug it found

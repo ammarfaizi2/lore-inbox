@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUIOJK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUIOJOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUIOJK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 05:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUIOJK3
+	id S264571AbUIOJOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 05:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUIOJOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 05:10:29 -0400
-Received: from mproxy.gmail.com ([216.239.56.249]:40091 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264261AbUIOJHq (ORCPT
+	Wed, 15 Sep 2004 05:14:45 -0400
+Received: from cantor.suse.de ([195.135.220.2]:54682 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264571AbUIOJMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 05:07:46 -0400
-Message-ID: <c0a09e5c040915020768509041@mail.gmail.com>
-Date: Wed, 15 Sep 2004 02:07:45 -0700
-From: Andrew Grover <andy.grover@gmail.com>
-Reply-To: Andrew Grover <andy.grover@gmail.com>
-To: Tim Hockin <thockin@hockin.org>
-Subject: Re: [patch] kernel sysfs events layer
-Cc: Greg KH <greg@kroah.com>, Robert Love <rml@ximian.com>,
-       Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040915044830.GA4919@hockin.org>
+	Wed, 15 Sep 2004 05:12:38 -0400
+Date: Wed, 15 Sep 2004 11:12:32 +0200
+From: Andi Kleen <ak@suse.de>
+To: George Anzinger <george@mvista.com>
+Cc: Christoph Lameter <clameter@sgi.com>, john stultz <johnstul@us.ibm.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+Message-ID: <20040915091232.GA22158@wotan.suse.de>
+References: <1094700768.29408.124.camel@cog.beaverton.ibm.com> <413FDC9F.1030409@mvista.com> <1094756870.29408.157.camel@cog.beaverton.ibm.com> <4140C1ED.4040505@mvista.com> <Pine.LNX.4.58.0409131420500.490@schroedinger.engr.sgi.com> <1095114307.29408.285.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0409141045370.6963@schroedinger.engr.sgi.com> <41479369.6020506@mvista.com> <Pine.LNX.4.58.0409142024270.10739@schroedinger.engr.sgi.com> <4147F774.6000800@mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040910235409.GA32424@kroah.com>
-	 <20040911165300.GA17028@kroah.com> <20040913144553.GA10620@vrfy.org>
-	 <20040915000753.GA24125@kroah.com> <20040915010901.GA19524@vrfy.org>
-	 <20040915011146.GA27782@hockin.org>
-	 <1095214229.20763.6.camel@localhost> <20040915031706.GA909@hockin.org>
-	 <20040915034229.GA30747@kroah.com> <20040915044830.GA4919@hockin.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4147F774.6000800@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 21:48:30 -0700, Tim Hockin <thockin@hockin.org> wrote:
-> ACPI *has* it's own event system.  It's fine, but it's Yet Another Event
-> System.  I'd love to see it use this.  It has mostly the same behaviors,
-> except it has a data payload (a string and couple unsigned ints, if I
-> recall).  If this API can't handle that, then we have to keep ACPI's
-> current event system.  Wouldn't it be nicer to remove code and encourage
-> migrating towards standard(ish) APIs?
-> 
-> Again, other than payload, why NOT use this API for ACPI?
+> I really think a tickless system, for other than UML systems, is a loosing 
+> thing.  The accounting overhead on context switch (which increases as the 
 
-IIRC the two possible future destinations for ACPI events are this,
-and the input layer. There are some ACPI events that clearly should go
-through this mechanism (e.g. thermal), some the input layer (e.g.
-weird laptop extra keys), and maybe some in between? I know David
-Bronaugh was looking into this a few weeks ago, maybe he'll pop back
-up.
+You can run the accounting independently at much lower frequency (10ms is
+perfectly fine as 2.4 has proven - i suspect even lower would be ok too) 
+IMHO it should be a sysctl so that users can do a trade off between
+power consumption and accounting accuracy.
 
-My 2c -- Andy
+And there is one important special that doesn't need any accounting
+for user space at all: the idle loop. 
+It still needs some way to account interrupts, but that could be done
+in do_IRQ or also do with rather low frequency. 
+
+-Andi

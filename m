@@ -1,144 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130480AbRAKRrT>; Thu, 11 Jan 2001 12:47:19 -0500
+	id <S130869AbRAKRsT>; Thu, 11 Jan 2001 12:48:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRAKRrK>; Thu, 11 Jan 2001 12:47:10 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:60424
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130480AbRAKRrB>; Thu, 11 Jan 2001 12:47:01 -0500
-Date: Thu, 11 Jan 2001 09:46:41 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: AMD760/765 DDR Athlon testers needed....
-Message-ID: <Pine.LNX.4.10.10101110942250.29587-200000@master.linux-ide.org>
+	id <S131509AbRAKRsK>; Thu, 11 Jan 2001 12:48:10 -0500
+Received: from mons.uio.no ([129.240.130.14]:10628 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S130869AbRAKRr5>;
+	Thu, 11 Jan 2001 12:47:57 -0500
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="-1019260510-929799663-979235201=:29587"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14941.61668.697523.866481@charged.uio.no>
+Date: Thu, 11 Jan 2001 18:44:04 +0100 (CET)
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Russell King <rmk@arm.linux.org.uk>,
+        Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+In-Reply-To: <3A5DDD09.C8C70D36@colorfullife.com>
+In-Reply-To: <20010110013755.D13955@suse.de>
+	<200101100654.f0A6sjJ02453@flint.arm.linux.org.uk>
+	<20010110163158.F19503@athlon.random>
+	<shszogy2jmr.fsf@charged.uio.no>
+	<3A5DDD09.C8C70D36@colorfullife.com>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+>>>>> " " == Manfred Spraul <manfred@colorfullife.com> writes:
 
----1019260510-929799663-979235201=:29587
-Content-Type: text/plain; charset=us-ascii
+     > Trond Myklebust wrote:
+    >>
+    >>
+    >> As for the issue of casting 'fh->data' as a 'struct knfsd' then
+    >> that is a perfectly valid operation.
+    >>
+     > No it isn't.
 
+     > fh-> data is an array of characters, thus without any alignment
+     > restrictions.  'struct knfsd' begins with a pointer, thus it
+     > must be 4 or 8 byte aligned.
 
-Calling AMD Geeks^H^H^H^H^HUsers,
+     > The portable 'struct nfs_fh' structure would be
 
-I have one of these DDR boxes from AMD with the AMD760/765 cores, if you
-have one please let me know if you wnat to test this new code?
-It is only ATA66 limited and the DOCS I have do not have the ATA100
-timings.
+     > #define NFS_HANDLESIZE 64
+     > struct nfs_fh {
+     > 	unsigned short len; void* data[NFS_HANDLESIZE/sizeof(void*)];
+     > };
+
+Ok. I see your point now. How about the appended patch then? It means
+an extra copy operation, but it should be a lot less ugly than doing
+manual alignment...
 
 Cheers,
+  Trond
 
-Andre Hedrick
-Linux ATA Development
-
----1019260510-929799663-979235201=:29587
-Content-Type: text/plain; charset=us-ascii; name="amd76x-boot.msg"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10101110946410.29587@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="amd76x-boot.msg"
-
-SW5zcGVjdGluZyAvYm9vdC9TeXN0ZW0ubWFwDQpTeW1ib2wgdGFibGUgaGFz
-IGluY29ycmVjdCB2ZXJzaW9uIG51bWJlci4NCg0KQ2Fubm90IGZpbmQgbWFw
-IGZpbGUuDQpObyBtb2R1bGUgc3ltYm9scyBsb2FkZWQuDQprbG9nZCAxLjMt
-MywgbG9nIHNvdXJjZSA9IGtzeXNsb2cgc3RhcnRlZC4NCjw0PkxpbnV4IHZl
-cnNpb24gMi4yLjE5cHJlNyAocm9vdEAzd2FyZSkgKGdjYyB2ZXJzaW9uIDIu
-OTUuMiAxOTk5MTAyNCAocmVsZWFzZSkpICMxIFdlZCBKYW4gMTAgMTU6MzM6
-MzcgUFNUIDIwMDENCjw0PlVTRVItcHJvdmlkZWQgcGh5c2ljYWwgUkFNIG1h
-cDoNCjw0PiBVU0VSOiAwMDA5ZjAwMCBAIDAwMDAwMDAwICh1c2FibGUpDQo8
-ND4gVVNFUjogMDdlMDAwMDAgQCAwMDEwMDAwMCAodXNhYmxlKQ0KPDQ+RGV0
-ZWN0ZWQgOTk1NTcwIGtIeiBwcm9jZXNzb3IuDQo8ND5pZGVfc2V0dXA6IGlk
-ZWJ1cz0zMw0KPDQ+Q29uc29sZTogY29sb3VyIFZHQSsgODB4MjUNCjw0PkNh
-bGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMTk4NS43NCBCb2dvTUlQUw0KPDQ+
-TWVtb3J5OiAxMjY3NTJrLzEzMDA0OGsgYXZhaWxhYmxlICgxMjMyayBrZXJu
-ZWwgY29kZSwgNDE2ayByZXNlcnZlZCwgMTU4NGsgZGF0YSwgNjRrIGluaXQp
-DQo8ND5EZW50cnkgaGFzaCB0YWJsZSBlbnRyaWVzOiAxNjM4NCAob3JkZXIg
-NSwgMTI4aykNCjw0PkJ1ZmZlciBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6
-IDEzMTA3MiAob3JkZXIgNywgNTEyaykNCjw0PlBhZ2UgY2FjaGUgaGFzaCB0
-YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXIgNSwgMTI4aykNCjw1PlZGUzog
-RGlza3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYuNC4wIGluaXRpYWxpemVkDQo8
-ND5DUFU6IEwxIEkgQ2FjaGU6IDY0SyAgTDEgRCBDYWNoZTogNjRLDQo8ND5D
-UFU6IEwyIENhY2hlOiAyNTZLDQo8ND5DUFU6IEFNRCBBdGhsb24odG0pIFBy
-b2Nlc3NvciBzdGVwcGluZyAwMg0KPDY+Q2hlY2tpbmcgMzg2LzM4NyBjb3Vw
-bGluZy4uLiBPSywgRlBVIHVzaW5nIGV4Y2VwdGlvbiAxNiBlcnJvciByZXBv
-cnRpbmcuDQo8Nj5DaGVja2luZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4N
-Cjw0PlBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklYDQo8ND5t
-dHJyOiB2MS4zNWEgKDE5OTkwODE5KSBSaWNoYXJkIEdvb2NoIChyZ29vY2hA
-YXRuZi5jc2lyby5hdSkNCjw0PlBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4x
-MCBlbnRyeSBhdCAweGZiMTAwDQo8ND5QQ0k6IFVzaW5nIGNvbmZpZ3VyYXRp
-b24gdHlwZSAxDQo8ND5QQ0k6IFByb2JpbmcgUENJIGhhcmR3YXJlDQo8ND5Q
-Q0k6IEVuYWJsaW5nIEkvTyBmb3IgZGV2aWNlIDAwOjAwDQo8Nj5MaW51eCBO
-RVQ0LjAgZm9yIExpbnV4IDIuMg0KPDY+QmFzZWQgdXBvbiBTd2Fuc2VhIFVu
-aXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQ0KPDY+TkVUNDog
-VW5peCBkb21haW4gc29ja2V0cyAxLjAgZm9yIExpbnV4IE5FVDQuMC4NCjw2
-Pk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMA0KPDY+SVAgUHJv
-dG9jb2xzOiBJQ01QLCBVRFAsIFRDUA0KPDQ+VENQOiBIYXNoIHRhYmxlcyBj
-b25maWd1cmVkIChlaGFzaCAxMzEwNzIgYmhhc2ggNjU1MzYpDQo8ND5Jbml0
-aWFsaXppbmcgUlQgbmV0bGluayBzb2NrZXQNCjw0PlN0YXJ0aW5nIGtzd2Fw
-ZCB2IDEuNSANCjw2PnBhcnBvcnQwOiBQQy1zdHlsZSBhdCAweDM3OCBbU1BQ
-LFBTMl0NCjw2PkRldGVjdGVkIFBTLzIgTW91c2UgUG9ydC4NCjw2PlNlcmlh
-bCBkcml2ZXIgdmVyc2lvbiA0LjI3IHdpdGggU0hBUkVfSVJRIGVuYWJsZWQN
-Cjw2PnR0eVMwMCBhdCAweDAzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBDQo8
-Nj50dHlTMDIgYXQgMHgwM2U4IChpcnEgPSA0KSBpcyBhIDE2NTUwQQ0KPDQ+
-cHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZA0KPDY+bHAwOiB1c2lu
-ZyBwYXJwb3J0MCAocG9sbGluZykuDQo8ND5Tb2Z0d2FyZSBXYXRjaGRvZyBU
-aW1lcjogMC4wNSwgdGltZXIgbWFyZ2luOiA2MCBzZWMNCjw2PlJlYWwgVGlt
-ZSBDbG9jayBEcml2ZXIgdjEuMDkNCjw2Pk5vbi12b2xhdGlsZSBtZW1vcnkg
-ZHJpdmVyIHYxLjBhDQo8ND5SQU0gZGlzayBkcml2ZXIgaW5pdGlhbGl6ZWQ6
-ICAxNiBSQU0gZGlza3Mgb2YgNDA5Nksgc2l6ZQ0KPDY+bG9vcDogcmVnaXN0
-ZXJlZCBkZXZpY2UgYXQgbWFqb3IgNw0KPDY+VW5pZm9ybSBNdWx0aS1QbGF0
-Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNpb246IDYuMzANCjw0PmlkZTogQXNz
-dW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElPIG1vZGVzDQo8
-ND5BTUQ3NDExOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAz
-OQ0KPDQ+QU1ENzQxMTogY2hpcHNldCByZXZpc2lvbiAxDQo8ND5BTUQ3NDEx
-OiBub3QgMTAwJSBuYXRpdmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxhdGVy
-DQo8ND4gICAgaWRlMDogQk0tRE1BIGF0IDB4ZjAwMC0weGYwMDcsIEJJT1Mg
-c2V0dGluZ3M6IGhkYTpETUEsIGhkYjpETUENCjw0PiAgICBpZGUxOiBCTS1E
-TUEgYXQgMHhmMDA4LTB4ZjAwZiwgQklPUyBzZXR0aW5nczogaGRjOkRNQSwg
-aGRkOkRNQQ0KPDQ+UERDMjAyNjc6IElERSBjb250cm9sbGVyIG9uIFBDSSBi
-dXMgMDAgZGV2IDU4DQo8ND5QREMyMDI2NzogY2hpcHNldCByZXZpc2lvbiAy
-DQo8ND5QREMyMDI2Nzogbm90IDEwMCUgbmF0aXZlIG1vZGU6IHdpbGwgcHJv
-YmUgaXJxcyBsYXRlcg0KPDQ+UERDMjAyNjc6IFJPTSBlbmFibGVkIGF0IDB4
-ZTcwMDAwMDANCjw0PlBEQzIwMjY3OiAoVSlETUEgQnVyc3QgQml0IEVOQUJM
-RUQgUHJpbWFyeSBQQ0kgTW9kZSBTZWNvbmRhcnkgUENJIE1vZGUuDQo8ND4g
-ICAgaWRlMjogQk0tRE1BIGF0IDB4ZTgwMC0weGU4MDcsIEJJT1Mgc2V0dGlu
-Z3M6IGhkZTpETUEsIGhkZjpwaW8NCjw0PiAgICBpZGUzOiBCTS1ETUEgYXQg
-MHhlODA4LTB4ZTgwZiwgQklPUyBzZXR0aW5nczogaGRnOkRNQSwgaGRoOnBp
-bw0KPDQ+aGRhOiBRVUFOVFVNIEZJUkVCQUxMIENYMTMuMEEsIEFUQSBESVNL
-IGRyaXZlDQo8ND5oZGI6IFFVQU5UVU0gRklSRUJBTEwgQ1I0LjNBLCBBVEEg
-RElTSyBkcml2ZQ0KPDQ+aGRjOiBBVEFQSSBDRCBST00gRFJJVkUgNTBYIE1B
-WCwgQVRBUEkgQ0RST00gZHJpdmUNCjw0PmhkZDogSElUQUNISSBEVkQtUkFN
-IEdGLTIwMDAsIEFUQVBJIENEUk9NIGRyaXZlDQo8ND5pZGUwIGF0IDB4MWYw
-LTB4MWY3LDB4M2Y2IG9uIGlycSAxNA0KPDQ+aWRlMSBhdCAweDE3MC0weDE3
-NywweDM3NiBvbiBpcnEgMTUNCjw0PmhkYTogVEYuMT14MDAgVEYuMj14MDAg
-VEYuMz14MDAgVEYuND14MDAgVEYuNT14MDAgVEYuNj14NDAgVEYuNz14Zjgg
-DQo8Nj5oZGE6IFFVQU5UVU0gRklSRUJBTEwgQ1gxMy4wQSwgMTI0MTZNQiB3
-LzQxOGtCIENhY2hlLCBDSFM9MjUyMjgvMTYvNjMsIFVETUEoMzMpDQo8ND5o
-ZGI6IFRGLjE9eDAwIFRGLjI9eDAwIFRGLjM9eDAwIFRGLjQ9eDAwIFRGLjU9
-eDAwIFRGLjY9eDQwIFRGLjc9eGY4IA0KPDY+aGRiOiBRVUFOVFVNIEZJUkVC
-QUxMIENSNC4zQSwgNDExME1CIHcvNDE4a0IgQ2FjaGUsIENIUz0xNDg0OC85
-LzYzLCBVRE1BKDY2KQ0KPDQ+aGRjOiBBVEFQSSA1MFggQ0QtUk9NIGRyaXZl
-LCAxMjhrQiBDYWNoZSwgVURNQSgzMykNCjw2PlVuaWZvcm0gQ0QtUk9NIGRy
-aXZlciBSZXZpc2lvbjogMy4xMQ0KPDQ+aGRkOiBBVEFQSSBEVkQtUk9NIERW
-RC1SIGRyaXZlLCA1MTJrQiBDYWNoZSwgVURNQSgzMykNCjw2PkZsb3BweSBk
-cml2ZShzKTogZmQwIGlzIDEuNDRNDQo8Nj5GREMgMCBpcyBhIHBvc3QtMTk5
-MSA4MjA3Nw0KPDY+dHVsaXAuYzp2MC45MWctcHBjIDcvMTYvOTkgYmVja2Vy
-QGNlc2Rpcy5nc2ZjLm5hc2EuZ292DQo8Nj5ldGgwOiBMaXRlLU9uIDgyYzE2
-OCBQTklDIHJldiAzMiBhdCAweGQ0MDAsIDAwOkEwOkNDOjU2OkMwOjZCLCBJ
-UlEgMTAuDQo8Nj5ldGgwOiAgTUlJIHRyYW5zY2VpdmVyICMxIGNvbmZpZyAz
-MDAwIHN0YXR1cyA3ODI5IGFkdmVydGlzaW5nIDAxZTEuDQo8Nj5QYXJ0aXRp
-b24gY2hlY2s6DQo8Nj4gaGRhOiBoZGExIGhkYTIgaGRhMyA8IGhkYTUgaGRh
-NiBoZGE3IGhkYTggaGRhOSBoZGExMCA+DQo8Nj4gaGRiOiBoZGIxDQo8ND5W
-RlM6IE1vdW50ZWQgcm9vdCAoZXh0MiBmaWxlc3lzdGVtKSByZWFkb25seS4N
-Cjw0PkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnk6IDY0ayBmcmVlZA0K
-S2VybmVsIGxvZ2dpbmcgKGtzeXNsb2cpIHN0b3BwZWQuDQpLZXJuZWwgbG9n
-IGRhZW1vbiB0ZXJtaW5hdGluZy4NCg==
----1019260510-929799663-979235201=:29587--
+diff -u --recursive --new-file linux-2.2.18/fs/lockd/svcsubs.c linux-2.2.18-fix_ppc/fs/lockd/svcsubs.c
+--- linux-2.2.18/fs/lockd/svcsubs.c	Mon Dec 11 01:49:44 2000
++++ linux-2.2.18-fix_ppc/fs/lockd/svcsubs.c	Thu Jan 11 18:43:31 2001
+@@ -49,34 +49,37 @@
+ nlm_lookup_file(struct svc_rqst *rqstp, struct nlm_file **result,
+ 					struct nfs_fh *f)
+ {
+-	struct knfs_fh	*fh = (struct knfs_fh *) f->data;
++	struct knfs_fh	fh;
+ 	struct nlm_file	*file;
+ 	unsigned int	hash;
+ 	u32		nfserr;
+ 
++	/* Copy filehandle to avoid pointer alignment issues */
++	memcpy(&fh, f->data, sizeof(fh));
++
+ 	dprintk("lockd: nlm_file_lookup(%s/%u)\n",
+-		kdevname(u32_to_kdev_t(fh->fh_dev)), fh->fh_ino);
++		kdevname(u32_to_kdev_t(fh.fh_dev)), fh.fh_ino);
+ 
+-	hash = file_hash(u32_to_kdev_t(fh->fh_dev), u32_to_ino_t(fh->fh_ino));
++	hash = file_hash(u32_to_kdev_t(fh.fh_dev), u32_to_ino_t(fh.fh_ino));
+ 
+ 	/* Lock file table */
+ 	down(&nlm_file_sema);
+ 
+ 	for (file = nlm_files[hash]; file; file = file->f_next) {
+-		if (file->f_handle.fh_dcookie == fh->fh_dcookie &&
+-		    !memcmp(&file->f_handle, fh, sizeof(*fh)))
++		if (file->f_handle.fh_dcookie == fh.fh_dcookie &&
++		    !memcmp(&file->f_handle, &fh, sizeof(fh)))
+ 			goto found;
+ 	}
+ 
+ 	dprintk("lockd: creating file for %s/%u\n",
+-		kdevname(u32_to_kdev_t(fh->fh_dev)), fh->fh_ino);
++		kdevname(u32_to_kdev_t(fh.fh_dev)), fh.fh_ino);
+ 	nfserr = nlm4_lck_denied_nolocks;
+ 	file = (struct nlm_file *) kmalloc(sizeof(*file), GFP_KERNEL);
+ 	if (!file)
+ 		goto out_unlock;
+ 
+ 	memset(file, 0, sizeof(*file));
+-	file->f_handle = *fh;
++	memcpy(&file->f_handle, &fh, sizeof(file->f_handle));
+ 	file->f_sema   = MUTEX;
+ 
+ 	/* Open the file. Note that this must not sleep for too long, else
+@@ -85,7 +88,7 @@
+ 	 * We have to make sure we have the right credential to open
+ 	 * the file.
+ 	 */
+-	if ((nfserr = nlmsvc_ops->fopen(rqstp, fh, &file->f_file)) != 0) {
++	if ((nfserr = nlmsvc_ops->fopen(rqstp, &fh, &file->f_file)) != 0) {
+ 		dprintk("lockd: open failed (nfserr %d)\n", ntohl(nfserr));
+ 		goto out_free;
+ 	}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

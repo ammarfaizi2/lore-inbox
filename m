@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267562AbTA3Qwc>; Thu, 30 Jan 2003 11:52:32 -0500
+	id <S267548AbTA3RAU>; Thu, 30 Jan 2003 12:00:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267564AbTA3Qwc>; Thu, 30 Jan 2003 11:52:32 -0500
-Received: from fubar.phlinux.com ([216.254.54.154]:25304 "EHLO
-	fubar.phlinux.com") by vger.kernel.org with ESMTP
-	id <S267562AbTA3Qwb>; Thu, 30 Jan 2003 11:52:31 -0500
-Date: Thu, 30 Jan 2003 09:01:50 -0800 (PST)
-From: Matt C <wago@phlinux.com>
-To: Praveen Ray <praveen.ray@crcnet1.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: timer interrupts on HP machines
-In-Reply-To: <200301300934.54201.praveen.ray@crcnet1.com>
-Message-ID: <Pine.LNX.4.44.0301300859340.22492-100000@fubar.phlinux.com>
+	id <S267550AbTA3RAU>; Thu, 30 Jan 2003 12:00:20 -0500
+Received: from 12-240-9-4.client.attbi.com ([12.240.9.4]:387 "EHLO
+	pinkie.homelinux.net") by vger.kernel.org with ESMTP
+	id <S267548AbTA3RAT>; Thu, 30 Jan 2003 12:00:19 -0500
+Message-ID: <3E395C30.6040903@lbl.gov>
+Date: Thu, 30 Jan 2003 09:09:04 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre4
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>	 <3E384D41.9080605@lbl.gov> <1043926998.28133.21.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1043926998.28133.21.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Praveen-
-
-We have a few LT6000r servers as well, and have the same problem on all 
-2.4 kernels -- this happens when your MP spec is set to 1.1 in the BIOS. 
-Change it to 1.4 and you should be okay.
-
-The other common problem on these guys is the CPU speed misdetect, which 
-causes the kernel to think your CPU is roughly 2x as fast as it really is. 
-The solution to that one is to unplug and replug the power cords (even a 
-power-off doesn't fix it, go figure).
-
-Hope that helps.
-
--Matt
-
-On Thu, 30 Jan 2003, Praveen Ray wrote:
-
-> We have few HP (LPR NetServers and LT6000) which run 2.4.18  (from RedHat 8.0) 
-> . The problem is that sometimes the time interrupts stop coming - i.e. the 
-> (time) counts in /proc/interrupts stop getting incremented! When this 
-> happens, the date on the system falls behind, 'sleep' calls stop working and 
-> basically machine becomes unusable.Has anyone else encountered this problem? 
-> Is it an HP issue?
-> Thanks.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Alan Cox wrote:
+> On Wed, 2003-01-29 at 21:53, Thomas Davis wrote:
 > 
+>>This simple one line patch adds the missing ac97 support that the fm801 
+>>driver already uses.
+> 
+> 
+> FM801 is a card not a codec
+> 
+
+Sorry, this then adds to the ac97 codec list the fm801, which has a ac97 
+codec on it, and takes it from being "unknown" to "known".
+
+The forte driver uses the ac97codec code; with this, ac97_probe_codec 
+registers it correctly as Forte Media, and not unknown.
+
+No, it doesn't change the codec_ops - it just gets codec->name correct. 
+  Yea, it is comestic, but some mixers didn't like it having a name of 
+"Unknown".
+
+Better?
+
+thomas
 

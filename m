@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132111AbRAXSqj>; Wed, 24 Jan 2001 13:46:39 -0500
+	id <S129811AbRAXSp5>; Wed, 24 Jan 2001 13:45:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132380AbRAXSqa>; Wed, 24 Jan 2001 13:46:30 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:5450 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S131978AbRAXSqN>;
-	Wed, 24 Jan 2001 13:46:13 -0500
-Message-ID: <3A6F22D7.3000709@valinux.com>
-Date: Wed, 24 Jan 2001 11:45:43 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129703AbRAXSpr>; Wed, 24 Jan 2001 13:45:47 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:20750 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129811AbRAXSp1>;
+	Wed, 24 Jan 2001 13:45:27 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: f5ibh <f5ibh@db0bm.ampr.org>
+Date: Wed, 24 Jan 2001 19:42:22 MET-1
 MIME-Version: 1.0
-To: Timur Tabi <ttabi@interactivesi.com>
-CC: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
-        Linux MM mailing list <linux-mm@kvack.org>
-Subject: Re: Page Attribute Table (PAT) support?
-In-Reply-To: <20010124174824Z129401-18594+948@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: display problem with matroxfb
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <1382C05A16AC@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi wrote:
+On 24 Jan 01 at 10:32, f5ibh wrote:
+> > Grr. Did not pass through due to DUL blacklist...
+> What is DUL blacklist ?
+> If the problem is with my e-mail address (it is an hamradio address), you can
+> use <jean-luc.coulon@wanadoo.fr> instead.
 
-> The Page Attribute Table (PAT) is an extension to the x86 page table format
-> that lets you enable Write Combining on a per-page basis.  Details can be found
-> in chapter 9.13 of the Intel Architecture Software Developer's Manual, Volume 3
-> (System Programming).
+No. Problem is with linux-kernel@... It started blacklisting direct
+mails from dialups, so I have to implement some workaround on my side
+(as I do not want to use provider's SMTP gateway - I do not trust them).
+
+> > Can you try 'video=matrox:init' ? And 'video=matrox:nopan'?
 > 
-> I noticed that 2.4 doesn't support the Page Attribute Table, despite the fact
-> that it has a X86_FEATURE_PAT macro in processor.h.  Are there any plans to add
-> this support?  Ideally, I'd like it to be as a parameter for ioremap.
+> Bingo ! 'init' does not work but 'nopam' give me a normal display without the
+> fbset gimnick.
 
-I'm actually writing support for the PAT as we speak.  I already have 
-working code for PAT setup.  Just having a parameter for ioremap is not 
-enough, unfortunately.  According to the Intel Architecture Software 
-Developer's Manual we have to remove all mappings of the page that are 
-cached.  Only then can they be mapped with per page write combining.  I 
-should have working code by the 2.5.x timeframe.  I can also discuss the 
-planned interface if anyone is interested.
+It looks like that there is some problem with screen offset computation then.
+Can you try 'video=matrox:cross4MB' instead of '...:nopan'? I did not
+have 8MB Mystique for testing, and it even looks reasonable - Mystique
+does not use WRAM memory, so there is no need for WRAM workarounds.
+If it will work, I'll cook twoliner for Linus.
+ 
+> Next step will be to test dual head. I've already installed an AGP ATI (S3
+> chipset) together with the PCI matrox Mystique and it seems to work. If I
+> succeed, I will attach a normal VGA display on the ATI board and a 19" IBM (not
+> multisync) on the Matrox. The ATI card is a cheap one with only 4Mb RAM. I've
+> upgraded my Matrox Mystique to 8Mb, so I hope it will work.
+> Now, I will have a look on how to use XF68_FBDev (if needed).
 
--Jeff
-
+XF4.0.x should work reasonably well. Or you can run accelerated XF on mga:
+matroxfb is compatible with accelerated XF 3.3.x, and with accelerated
+XF 4.0.x WITHOUT enabled DRI (as DRI code reprograms hardware even if
+X are on background) (and 'Option "UseFBDev"' is required if you are
+using both heads of G400/G450 with XF4).
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264745AbSLPPDi>; Mon, 16 Dec 2002 10:03:38 -0500
+	id <S265777AbSLPPJA>; Mon, 16 Dec 2002 10:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbSLPPDi>; Mon, 16 Dec 2002 10:03:38 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:35337 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S264745AbSLPPDi>;
-	Mon, 16 Dec 2002 10:03:38 -0500
-To: "Scott Robert Ladd" <scott@coyotegulch.com>
-Cc: <root@chaos.analogic.com>, "Brian Jackson" <brian-kernel-list@mdrx.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/cpuinfo and hyperthreading
-References: <FKEAJLBKJCGBDJJIPJLJIELIDLAA.scott@coyotegulch.com>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 16 Dec 2002 16:11:23 +0100
-In-Reply-To: "Scott Robert Ladd"'s message of "Mon, 16 Dec 2002 09:56:27 -0500"
-Message-ID: <yw1xr8cigfs4.fsf@lakritspipa.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S265880AbSLPPJA>; Mon, 16 Dec 2002 10:09:00 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:20230 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S265777AbSLPPI7>; Mon, 16 Dec 2002 10:08:59 -0500
+Date: Mon, 16 Dec 2002 10:16:39 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.52
+Message-ID: <20021216151639.GQ504@hopper.phunnypharm.org>
+References: <Pine.LNX.4.44.0212151930120.12906-100000@penguin.transmeta.com> <20021216102639.A27589@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021216102639.A27589@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Scott Robert Ladd" <scott@coyotegulch.com> writes:
-
-> > How do you know this? How can I learn what Windows does with
-> > Win/2000/professional?
+On Mon, Dec 16, 2002 at 10:26:40AM +0000, Christoph Hellwig wrote:
+> On Sun, Dec 15, 2002 at 07:34:09PM -0800, Linus Torvalds wrote:
+> > Ben Collins <bcollins@debian.org>:
+> >   o IEEE-1394/Firewire update
 > 
-> Run the Windows Task Manager and selected the Performance tab; on my system,
-> it shows two separate graphs, one for each logical CPU.
+> This merge looks fishy.  It seems to be yet another let's throw my CVS
+> repo in merge and backs out Al's work yo get rid of lots of devfs crap.
 
-It's easy to write a program that displays any number of graphs
-vaguely related to the system load.  How do we know that the
-performance meter isn't lying?
+Quit talking shit. I go through a lot of effort to merge in changes sent
+to Linus' tree into the Linux1394 repo. I don't just dump changes for no
+good reason.
+
+How about pointing out some specifics? Maybe make my job easier by
+getting me some patches directly. Trying to track two seperate source
+tree's isn't as easy as you might think.
+
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

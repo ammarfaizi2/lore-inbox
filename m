@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbTLBReI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 12:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbTLBReI
+	id S262446AbTLBRk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 12:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTLBRk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 12:34:08 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:23689 "EHLO
-	catnet.kabel.utwente.nl") by vger.kernel.org with ESMTP
-	id S262558AbTLBReB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 12:34:01 -0500
-Date: Tue, 2 Dec 2003 18:33:59 +0100
-From: Wilmer van der Gaast <lintux@lintux.cx>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: 2.4.23 masquerading broken?
-Message-ID: <20031202173358.GK615@gaast.net>
-References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net>
+	Tue, 2 Dec 2003 12:40:56 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39179
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S262446AbTLBRky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 12:40:54 -0500
+Date: Tue, 2 Dec 2003 09:40:48 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Erik Steffl <steffl@bigfoot.com>, linux-kernel@vger.kernel.org
+Subject: Re: libata in 2.4.24?
+Message-ID: <20031202174048.GQ1566@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Greg Stark <gsstark@mit.edu>,
+	Erik Steffl <steffl@bigfoot.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet> <3FCB8312.3050703@rackable.com> <87fzg4ckej.fsf@stark.dyndns.tv> <3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com> <87n0abbx2k.fsf@stark.dyndns.tv> <20031202055336.GO1566@mis-mike-wstn.matchmail.com> <20031202055852.GP1566@mis-mike-wstn.matchmail.com> <87zneb9o5q.fsf@stark.dyndns.tv>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZG5hGh9V5E9QzVHS"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FCCCB02.5070203@trash.net>
-X-Operating-System: Linux 2.4.23 on a i686
+In-Reply-To: <87zneb9o5q.fsf@stark.dyndns.tv>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 02, 2003 at 11:31:45AM -0500, Greg Stark wrote:
+> 
+> Mike Fedyk <mfedyk@matchmail.com> writes:
+> 
+> > > Libata, uses the scsi system instead of the existing ide layer because many
+> > > new sata controllers are using an interface that is very similair to scsi
+> > > (much like atapi).
+> 
+> Now I have a different question. Does the scsi-like SATA interface include tcq?
+> 
+> Because one of the long-standing issues with IDE drives and Postgres is the
+> fact that even after issuing an fsync the data may be sitting in the drive's
+> buffer. This doesn't happen with SCSI because the drives aren't forced to lie
+> about the data being on disk in order to handle subsequent requests. Turning
+> off write-caching on IDE drives absolutely destroys performance.
 
---ZG5hGh9V5E9QzVHS
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are PATA drives that do TCQ too, but you have to look for that feature
+specifically.  IDE TCQ is in 2.6, but is still experemental.  I think Jens
+Axboe was the one working on it IIRC.  He would have more details.
 
-Patrick McHardy (kaber@trash.net) wrote:
-> Can you check the ringbuffer for error messages ? What happens
-> to the packets when masquerading fails ?
->=20
-Hmm. Damn, forgot about the syslogs completely. :-(
+> 
+> Do the new SATA drives and controllers provide a solution to this?
 
-Dec  2 16:42:30 tosca kernel: MASQUERADE: Route sent us somewhere else.
-Dec  2 16:42:44 tosca last message repeated 11 times
-Dec  2 16:42:47 tosca kernel: NET: 1 messages suppressed.
-Dec  2 16:42:47 tosca kernel: MASQUERADE: Route sent us somewhere else.
-Dec  2 16:42:51 tosca kernel: NET: 5 messages suppressed.
-Dec  2 16:42:51 tosca kernel: MASQUERADE: Route sent us somewhere else.
-Dec  2 16:42:57 tosca kernel: NET: 4 messages suppressed.
-Dec  2 16:42:57 tosca kernel: MASQUERADE: Route sent us somewhere else.
+It's not SATA specific, and I'm not sure if any ide controller can support
+TCQ or if only a specific list are compatible.
 
-And, well, it goes on like that. dmesg is full of messages like this.
-
-The packages seem to get lost completely. At least I don't see them
-going out on eth1 (where they should go to).
-
-
-Wilmer van der Gaast.
-
---=20
-+-------- .''`.     - -- ---+  +        - -- --- ---- ----- ------+
-| lintux : :'  :  lintux.cx |  | OSS Programmer   www.bitlbee.org |
-|   at   `. `~'  debian.org |  | www.algoritme.nl   www.lintux.cx |
-+--- -- -  ` ---------------+  +------ ----- ---- --- -- -        +
-
---ZG5hGh9V5E9QzVHS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE/zM0GeYWXmuMwQFERApNuAJ9yhx3cAx0XMIXr19W8cbItK1kSXQCg05vt
-tss1CRbFf6hgJaX0YJfYSY8=
-=cFnJ
------END PGP SIGNATURE-----
-
---ZG5hGh9V5E9QzVHS--
+Mike

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312050AbSCVTyO>; Fri, 22 Mar 2002 14:54:14 -0500
+	id <S312638AbSCVT4E>; Fri, 22 Mar 2002 14:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312816AbSCVTyF>; Fri, 22 Mar 2002 14:54:05 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39687 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312638AbSCVTxq>;
-	Fri, 22 Mar 2002 14:53:46 -0500
-Date: Fri, 22 Mar 2002 11:53:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM PCI Hotplug driver doesn't compile in 2.4.19-pre4
-Message-ID: <20020322195338.GI9629@kroah.com>
-In-Reply-To: <Pine.NEB.4.44.0203212148280.2125-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 22 Feb 2002 14:44:08 -0800
+	id <S312816AbSCVTzy>; Fri, 22 Mar 2002 14:55:54 -0500
+Received: from GS176.SP.CS.CMU.EDU ([128.2.198.136]:33432 "EHLO
+	gs176.sp.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S312821AbSCVTzp>; Fri, 22 Mar 2002 14:55:45 -0500
+Message-Id: <200203221956.g2MJuhK32671@gs176.sp.cs.cmu.edu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        ahaas@neosoft.com, dave@zarzycki.org, ben.de.rydt@pandora.be
+Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot 
+In-Reply-To: Your message of "Fri, 22 Mar 2002 11:55:27 +0100."
+             <3C9B0D9F.5030102@evision-ventures.com> 
+Date: Fri, 22 Mar 2002 14:56:43 -0500
+From: John Langford <jcl@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 09:51:30PM +0100, Adrian Bunk wrote:
-> 
-> Building a kernel with the IBM PCI Hotplug driver statically included
-> fails at the final linking stage with a:
 
-Nevermind about the .config.
+I went nuts with printk statements and managed to isolate the hang to
+one particular line of code.  The final printk in this code fragment
+never gets executed.  
 
-Let me know if the patch below does not solve this for you.
+                } else if (m5229_revision >= 0xC3) {
+		        /*
+                         * 1553/1535 (m1533, 0x79, bit 1)
+                         */
+                        printk("ata66_ali15x3           } else if (m5229_revisi\on >= 0xC3) {\n");
+                        pci_write_config_byte(isa_dev, 0x79, tmpbyte | 0x02);
+                }
+                printk("ata66_ali15x3 endif\n");
 
-thanks,
+Art, Dave, and Ben may or may not have the same problem.  It would be
+interesting to know if they get a hang here.
 
-greg k-h
+Any ideas for fixing?
 
-
-diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
---- a/drivers/hotplug/ibmphp_core.c	Fri Mar 22 11:47:34 2002
-+++ b/drivers/hotplug/ibmphp_core.c	Fri Mar 22 11:47:34 2002
-@@ -56,7 +56,7 @@
- MODULE_DESCRIPTION (DRIVER_DESC);
- 
- static int *ops[MAX_OPS + 1];
--static struct pci_ops *ibmphp_pci_root_ops;
-+struct pci_ops *ibmphp_pci_root_ops;
- static int max_slots;
- 
- static int irqs[16];    /* PIC mode IRQ's we're using so far (in case MPS tables don't provide default info for empty slots */
+-John

@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVC3Tc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVC3TeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVC3Tc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVC3Tc2
+	id S261872AbVC3TeL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVC3TeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:32:28 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:24525 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262398AbVC3TaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:30:22 -0500
-Date: Wed, 30 Mar 2005 20:30:01 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
-In-Reply-To: <42420928.7040502@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0503302008080.21817@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> 
-    <20050323115736.300f34eb.davem@davemloft.net> 
-    <42420928.7040502@yahoo.com.au>
+	Wed, 30 Mar 2005 14:34:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55727 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261872AbVC3Tdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:33:52 -0500
+Message-ID: <424AFF0C.4010409@pobox.com>
+Date: Wed, 30 Mar 2005 14:33:32 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Greg Felix <gregfelixlkml@gmail.com>
+CC: linux-kernel@vger.kernel.org, John Linville <linville@redhat.com>
+Subject: Re: PROBLEM: ICH7 SATA drive not detected.
+References: <e16ac85e050225153649939bed@mail.gmail.com>	 <421FBC0B.5070004@pobox.com> <e16ac85e05022517024beb5b38@mail.gmail.com>
+In-Reply-To: <e16ac85e05022517024beb5b38@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005, Nick Piggin wrote:
+Greg Felix wrote:
+> 00:1f.2 Class 0101: 8086:27c0 (prog-if 8f [Master SecP SecO PriP PriO])
+>         Subsystem: 103c:3011
+>         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+> ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium
 > 
-> OK, attached is my first cut at slimming down the boundary tests.
-> I have only had a chance to try it on i386, so I hate to drop it
-> on you like this - but I *have* put a bit of thought into it....
-> Treat it as an RFC, and I'll try to test it on a wider range of
-> things in the next couple of days.
+>>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 
+>         Latency: 0
+>         Interrupt: pin B routed to IRQ 5
+>         Region 0: I/O ports at 10d8 [size=8]
+>         Region 1: I/O ports at 10f0 [size=4]
+>         Region 2: I/O ports at 10e0 [size=8]
+>         Region 3: I/O ports at 10f4 [size=4]
+>         Region 4: I/O ports at 10b0 [size=16]
+>         Region 5: Memory at e04c4400 (32-bit, non-prefetchable)
+> [disabled] [size=1K]
 
-I've stared and stared at it.  I think I mostly like it.
-It's nicer to be rounding end up than ceiling down.
 
-It's clearly superior to what David and I had, in branching
-less (other than in your BUG_ONs), and I do believe your
-"if (end - ceiling - 1 < P*_SIZE - 1)" is correct and efficient.
+I was hoping that we could detect when this PCI BAR is disabled, and 
+base the logic on that.  But it appears that's not feasible for some BIOSen.
 
-But I still find it harder to understand than ours; and don't
-understand at all your comment "end can't have approached ceiling
-from above...." - but I think you're bravely trying to explain the case
-I sidestepped with a lordly unexplained "end can't go down to 0 there".
+I suppose your patch is the best we can do.
 
-Let others decide.
+	Jeff
 
-One thing I believe is outright wrong, at least with out-of-tree
-patches: your change from "if (addr > end - 1)" to "if (addr >= end)",
-after you've just rounded up end (perhaps to 0).
 
-(And let me astonish you by asking for the blank lines back before
-pmd_offset and pud_offset!)
-
-Hugh

@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263817AbTCVTfD>; Sat, 22 Mar 2003 14:35:03 -0500
+	id <S263799AbTCVUJG>; Sat, 22 Mar 2003 15:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263819AbTCVTfC>; Sat, 22 Mar 2003 14:35:02 -0500
-Received: from pop.gmx.net ([213.165.65.60]:2454 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263817AbTCVTfB>;
-	Sat, 22 Mar 2003 14:35:01 -0500
-Message-Id: <5.2.0.9.2.20030322191318.01f9fc38@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sat, 22 Mar 2003 20:50:36 +0100
-To: Ingo Molnar <mingo@elte.hu>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.65-mm2
-Cc: Steven Cole <elenstev@mesatop.com>, Ed Tomlinson <tomlins@cam.org>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-In-Reply-To: <Pine.LNX.4.44.0303210710490.2533-100000@localhost.localdom
- ain>
-References: <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
+	id <S263803AbTCVUJG>; Sat, 22 Mar 2003 15:09:06 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:19953 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S263799AbTCVUJE>; Sat, 22 Mar 2003 15:09:04 -0500
+Subject: Re: [PATCH] reduce stack in cdrom/optcd.c
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Randy.Dunlap" <randy.dunlap@verizon.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, leo@netlabs.net
+In-Reply-To: <1048365798.9221.35.camel@irongate.swansea.linux.org.uk>
+References: <3E7C0808.75B95FB7@verizon.net>
+	 <1048365798.9221.35.camel@irongate.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6pXsQ5vvky84vyDB+miA"
+Organization: Red Hat, Inc.
+Message-Id: <1048364399.1708.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 22 Mar 2003 21:19:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:16 AM 3/21/2003 +0100, Ingo Molnar wrote:
 
->On Thu, 20 Mar 2003, Mike Galbraith wrote:
->
-> > [...] Virgin .65 is also subject to the positive feedback loop (irman's
-> > process load is worst case methinks, and rounding down only ~hides it).
->
->there's no positive feedback loop. What might happen is that in 2.5.65 we
->now distribute the bonus timeslices more widely (the backboost thing), so
->certain workloads might be rated more interactive. But we never give away
->timeslices that were not earned the hard way (ie. via actual sleeping).
+--=-6pXsQ5vvky84vyDB+miA
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-(backboost alone is not it, nor is it timeslice granularity alone... bleh)
+On Sat, 2003-03-22 at 21:43, Alan Cox wrote:
+> On Sat, 2003-03-22 at 06:51, Randy.Dunlap wrote:
+> > Hi,
+> >=20
+> > This reduces stack usage in drivers/cdrom/optcd.c by
+> > dynamically allocating a large (> 2 KB) buffer.
+> >=20
+> > Patch is to 2.5.65.  Please apply.
+>=20
+> This loosk broken. You are using GFP_KERNEL memory allocations on the
+> read path of a block device. What happens if the allocation fails=20
+> because we need memory
 
->i've attached a patch that temporarily turns off the back-boost - does
->that have any measurable impact? [please apply this to -mm1, i do think
->the timeslice-granularity change in -mm1 (-D3) is something we really
->want.]
+it's unlikely that you have your swap on the cdrom ;)
 
-I still don't have anything worth discussing.
+--=-6pXsQ5vvky84vyDB+miA
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-         -Mike
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-(however, I have been fiddling with the dang thing rather frenetically;)
+iD8DBQA+fMVuxULwo51rQBIRAvsDAJ0TKftjOjsSlEYtS0yRc6Gtpn4d0ACffVRW
+o/CvqmvN+0ZGZWeoNnHS034=
+=06Zi
+-----END PGP SIGNATURE-----
 
-Yes, this makes a difference.  (everything in sched makes a 
-difference)  The basic problem I'm seeing is load detection, and recovery 
-from erroneous detection.  When it goes wrong, recovery isn't happening 
-here.  cc1 should not ever be called anything but a cpu hog, but I've see 
-it and others running at prio 16 (deadly).  This is nice if you're doing 
-deadline scheduling, and boost cc1 because it's late, ie intentionally, to 
-boost it's throughput.  What I believe happens is that various cpu hogs get 
-miss-identified, and get boost with no way other than to fork 
-(parent_penalty [100%atm]) or use more cpu than exists. (I think)  This I 
-call positive feedback.  The irman process loop is really ugly, and the 
-scheduler totally fails to deal with it.  Disabling forward boost actually 
-does serious harm to this load.  The best thing you can do for this load 
-with the scheduler is to run it at nice 19.  You can get a worst case 
-latency of 50ms without much if any tinkering.  (no stockish kernel does 
-better than 600ms _ever_ on an otherwise totally idle 500Mhz box 
-here.  ~200ms worst case is the _best_ I've gotten by playing with this and 
-that priority wise)
-
-There may be something really simple behind the concurrency problems I see 
-here.  (bottom line for me is the concurrency problem... I want to 
-understand it.  The rest is less than the crux of the biscuit.
-
-(generally, concurrency is much improved, and believe it or not, that's 
-exactly what is bugging me so.  Too much is too little is too much.  I'm 
-not ready to give up yet.
-
-         -Mike 
-
+--=-6pXsQ5vvky84vyDB+miA--

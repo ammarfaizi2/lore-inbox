@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270050AbRHQKOr>; Fri, 17 Aug 2001 06:14:47 -0400
+	id <S270073AbRHQKQ1>; Fri, 17 Aug 2001 06:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270067AbRHQKOh>; Fri, 17 Aug 2001 06:14:37 -0400
-Received: from t2.redhat.com ([199.183.24.243]:7158 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S270050AbRHQKOW>; Fri, 17 Aug 2001 06:14:22 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200108162056.WAA18756@harpo.it.uu.se> 
-In-Reply-To: <200108162056.WAA18756@harpo.it.uu.se> 
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: georgn@somanetworks.com, linux-kernel@vger.kernel.org
-Subject: Re: Dell I8000, 2.4.8-ac5 and APM 
-Mime-Version: 1.0
+	id <S270067AbRHQKQH>; Fri, 17 Aug 2001 06:16:07 -0400
+Received: from mons.uio.no ([129.240.130.14]:4743 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S270073AbRHQKP4>;
+	Fri, 17 Aug 2001 06:15:56 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.9: atomic_dec_and_lock sometimes used while not defined
+In-Reply-To: <200108161821.LAA02805@adam.yggdrasil.com>
+	<shs8zgjdovh.fsf@charged.uio.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 17 Aug 2001 12:15:56 +0200
+In-Reply-To: Trond Myklebust's message of "17 Aug 2001 11:20:18 +0200"
+Message-ID: <shsu1z7c7qa.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Aug 2001 11:14:32 +0100
-Message-ID: <28536.998043272@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>>>>> " " == Adam J Richter <adam@yggdrasil.com> writes:
+    >> If I try to build a kernel that can do SMP and run on a 386,
+    >> the linux-2.4.9 NFS client gets compiled with an undefined
+    >> reference to atomic_dec_and_lock().
 
-mikpe@csd.uu.se said:
->  Concerning your problem with pulling the AC plug on your Dell I8000,
-> my suspicion is that either (a) the BIOS isn't notifying apm.c of the
-> event, or (b) apm.c fails to propagate the event to its PM clients. 
+Bummer I found the bug. It's not a missing define, but a missing
+export...
 
-The problem with suspend actually turned out to be because the APIC is
-unconditionally enabled _before_ the command line is scanned and the 'noapic'
-option is detected. The noapic option, however, does have the effect of
-preventing the registration of the power management code :)
+Cheers,
+  Trond
 
-Booting with 'apic' makes the thing take some time to suspend, and then 
-it reboots instead of resuming. That may be your case (b). I put printk in 
-the apic suspend and resume functions and neither of them seem to appear.
-
---
-dwmw2
-
-
+diff -u --recursive --new-file linux-2.4.9.orig/lib/Makefile linux-2.4.9/lib/Makefile
+--- linux-2.4.9.orig/lib/Makefile	Wed Apr 25 22:31:03 2001
++++ linux-2.4.9/lib/Makefile	Fri Aug 17 11:52:35 2001
+@@ -16,6 +16,7 @@
+ obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+ 
+ ifneq ($(CONFIG_HAVE_DEC_LOCK),y) 
++  export-objs += dec_and_lock.o
+   obj-y += dec_and_lock.o
+ endif
+ 
+diff -u --recursive --new-file linux-2.4.9.orig/lib/dec_and_lock.c linux-2.4.9/lib/dec_and_lock.c
+--- linux-2.4.9.orig/lib/dec_and_lock.c	Sat Jul  8 01:22:48 2000
++++ linux-2.4.9/lib/dec_and_lock.c	Fri Aug 17 11:55:02 2001
+@@ -1,3 +1,4 @@
++#include <linux/module.h>
+ #include <linux/spinlock.h>
+ #include <asm/atomic.h>
+ 
+@@ -34,4 +35,6 @@
+ 	spin_unlock(lock);
+ 	return 0;
+ }
++
++EXPORT_SYMBOL(atomic_dec_and_lock);
+ #endif

@@ -1,98 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265213AbUAORU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 12:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265217AbUAORU1
+	id S265224AbUAORYt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 12:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbUAORYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 12:20:27 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:25802 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S265213AbUAORUP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 12:20:15 -0500
-content-class: urn:content-classes:message
+	Thu, 15 Jan 2004 12:24:48 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:21429 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S265224AbUAORYr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 12:24:47 -0500
+Date: Thu, 15 Jan 2004 12:24:46 -0500 (EST)
+From: Jim Faulkner <jfaulkne@ccs.neu.edu>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
+In-Reply-To: <4006C665.3065DFA1@users.sourceforge.net>
+Message-ID: <Pine.GSO.4.58.0401151215320.27227@denali.ccs.neu.edu>
+References: <Pine.GSO.4.58.0401141357410.10111@denali.ccs.neu.edu>
+ <4006C665.3065DFA1@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [patch] 2.6.1-mm3 acpi frees free irq0
-Date: Thu, 15 Jan 2004 12:19:24 -0500
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC89CC@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] 2.6.1-mm3 acpi frees free irq0
-Thread-Index: AcPbd+XOYKRzG7B3Th2qDyvuV6PN+gAE0kyQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jes Sorensen" <jes@trained-monkey.org>, <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>,
-       "Jesse Barnes" <jbarnes@sgi.com>
-X-OriginalArrivalTime: 15 Jan 2004 17:19:26.0170 (UTC) FILETIME=[B9DCD3A0:01C3DB8B]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The primary failure is that the SCI was not found, and the secondary
-symptom is that we failed to handle that error properly -- which you've
-patched.
 
-Can you tell me more about the primary failure?
-Was the SCI found in other releases?
+On Thu, 15 Jan 2004, Jari Ruusu wrote:
 
-Thanks,
--Len
+> Jim,
+> If you want your data secure, you need to re-encrypt your data anyway.
+> Mainline loop crypto implementation has exploitable vulnerability that is
+> equivalent to back door. Kerneli.org folks have always shipped back-doored
+> loop crypto, and now mainline folks are shipping back-doored loop crypto.
+> Kerneli.org derivatives such as Debian, SuSE, and others are also
+> back-doored.
 
-> -----Original Message-----
-> From: Jes Sorensen [mailto:jes@trained-monkey.org] 
-> Sent: Thursday, January 15, 2004 9:57 AM
-> To: akpm@osdl.org
-> Cc: linux-kernel@vger.kernel.org; 
-> acpi-devel@lists.sourceforge.net; Brown, Len; Jesse Barnes
-> Subject: [patch] 2.6.1-mm3 acpi frees free irq0
-> 
-> 
-> Hi,
-> 
-> There is a bug in the ACPI code found in 2.6.1-mm3 where if it can't
-> find the interrupt source for the ACPI System Control 
-> Interrupt Handler,
-> it end up trying to free irq 0.
-> 
-> Included patch fixes the problem.
-> 
-> Cheers,
-> Jes
-> 
-> --- linux-2.6.1-mm3/drivers/acpi/osl.c~	Wed Jan 14 05:00:25 2004
-> +++ linux-2.6.1-mm3/drivers/acpi/osl.c	Thu Jan 15 06:43:28 2004
-> @@ -257,13 +257,13 @@
->  		return AE_OK;
->  	}
->  #endif
-> -	acpi_irq_irq = irq;
->  	acpi_irq_handler = handler;
->  	acpi_irq_context = context;
->  	if (request_irq(irq, acpi_irq, SA_SHIRQ, "acpi", acpi_irq)) {
->  		printk(KERN_ERR PREFIX "SCI (IRQ%d) allocation 
-> failed\n", irq);
->  		return AE_NOT_ACQUIRED;
->  	}
-> +	acpi_irq_irq = irq;
->  
->  	return AE_OK;
->  }
-> @@ -271,12 +271,13 @@
->  acpi_status
->  acpi_os_remove_interrupt_handler(u32 irq, OSD_HANDLER handler)
->  {
-> -	if (acpi_irq_handler) {
-> +	if (irq) {
->  #if defined(CONFIG_IA64) || defined(CONFIG_PCI_USE_VECTOR)
->  		irq = acpi_irq_to_vector(irq);
->  #endif
->  		free_irq(irq, acpi_irq);
->  		acpi_irq_handler = NULL;
-> +		acpi_irq_irq = 0;
->  	}
->  
->  	return AE_OK;
-> 
+Hi Jari,
+
+Could you give me more information about this back-door, and generally
+speaking how it would be exploited?  I want to be sure that I am affected
+by this problem.
+
+Also, in the loop-AES.README, this is mentioned:
+
+"Device backed loop device can be used with journaling file systems as
+device backed loops guarantee that writes reach disk platters in
+order required by journaling file system (write caching must be disabled
+on the disk drive, of course)"
+
+Are you talking about the "hdparm -W" flag for IDE drives?  Would I need
+to disable write caching when using non-journaling file systems?
+
+thanks,
+Jim Faulkner

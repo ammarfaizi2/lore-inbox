@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271498AbRHZTj7>; Sun, 26 Aug 2001 15:39:59 -0400
+	id <S271502AbRHZTjt>; Sun, 26 Aug 2001 15:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271501AbRHZTjt>; Sun, 26 Aug 2001 15:39:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:23056 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271498AbRHZTjh>;
-	Sun, 26 Aug 2001 15:39:37 -0400
-Date: Sun, 26 Aug 2001 16:38:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S271501AbRHZTja>; Sun, 26 Aug 2001 15:39:30 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:39944 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271498AbRHZTjZ>; Sun, 26 Aug 2001 15:39:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
 Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <20010826125911.A20805@hq2>
-Message-ID: <Pine.LNX.4.33L.0108261632520.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Date: Sun, 26 Aug 2001 21:46:04 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: <pcg@goof.com>, Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0108261538190.5646-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108261538190.5646-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010826193933Z16469-32384+567@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Victor Yodaiken wrote:
+On August 26, 2001 08:39 pm, Rik van Riel wrote:
+> On Sun, 26 Aug 2001, Daniel Phillips wrote:
+> 
+> > There's an obvious explanation for the high loadavg people are seeing
+> > when their systems go into thrash mode: when free is exhausted, every
+> > task that fails to get a block in __alloc_pages will become
+> > PF_MEMALLOC and start scanning.
+> 
+> If you ever tested this, you'd know this is not true.
 
-> And scheduling gets even more complex as we try to account for work
-> done in this thread on behalf of other processes. And, of course, we
-> have all sorts of wacky merge problems
+Look at this, supplied by Nicolas Pitre in the thread "What version of the 
+kernel fixes these VM issues?":
 
-Actually, readahead is always done by the thread reading
-the data, so this is not an issue.
+> A couple sysrq-P at random intervals shows the CPU looping in the following
+> functions:
+> 
+> PC value	System.map
+> --------	----------
+> c0040d84	zone_inactive_plenty
+> c0041024	try_to_swap_out
+> c00216e0	cpu_sa1100_cache_clean_invalidate_range
+> c00216d0	cpu_sa1100_cache_clean_invalidate_range
+> c0041304	swap_out_mm
+> c0041168	swap_out_pmd
+> c0044324	__get_swap_page
+> c0040d60	zone_inactive_plenty
+> c0041128	swap_out_pmd
+> c0040fec	try_to_swap_out
 
-> BTW: maybe I'm oversimplifying, but since read-ahead is an optimization
-> trading memory space for time, why doesn't it just turn off when there's
-> a shortage of free memory?
-> 		num_pages = (num_requestd_pages +  (there_is_a_boatload_of_free_space? readahead: 0)
-
-When the VM load is high, the last thing you want to do is
-shrink the size of your IO operations, this would only lead
-to more disk seeks and possibly thrashing.
-
-It would be nice to do something similar to TCP window
-collapse for readahead, though...
-
-This would work by increasing the readahead size every
-time we reach the end of the last readahead window without
-having to re-read data twice and collapsing the readahead
-window if any of the pages we read in have to be read
-twice before we got around to using them.
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+--
+Daniel

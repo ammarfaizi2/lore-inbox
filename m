@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265314AbRF2CAl>; Thu, 28 Jun 2001 22:00:41 -0400
+	id <S265402AbRF2CTS>; Thu, 28 Jun 2001 22:19:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265398AbRF2CAb>; Thu, 28 Jun 2001 22:00:31 -0400
-Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:6129 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S265314AbRF2CAS>; Thu, 28 Jun 2001 22:00:18 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.4.5-ac21
-Date: Fri, 29 Jun 2001 03:59:58 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20010629020021Z265314-17720+8914@vger.kernel.org>
+	id <S265405AbRF2CTI>; Thu, 28 Jun 2001 22:19:08 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:33028 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265402AbRF2CS4>;
+	Thu, 28 Jun 2001 22:18:56 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: scole@lanl.gov
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac20 problems with drivers/net/Config.in and make xconfig 
+In-Reply-To: Your message of "Thu, 28 Jun 2001 10:05:58 CST."
+             <01062810055901.01131@spc.esa.lanl.gov> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 29 Jun 2001 12:18:50 +1000
+Message-ID: <16590.993781130@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Thu, 28 Jun 2001 10:05:58 -0600, 
+Steven Cole <scole@lanl.gov> wrote:
+>[root@spc linux]# make xconfig
+>./tkparse < ../arch/i386/config.in >> kconfig.tk
+>make[1]: *** [kconfig.tk] Error 139
+>make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
 
-you've missed the CONFIG_DRM_AGP thing.
-Some other config objects (Input -> joysticks , SMB file system) are
-broken, too.
+Sigh.  I wish people making big changes to config files would check
+that the change works for all the variants of make *config.
 
-Regards,
-	Dieter
+Index: 5.52/drivers/net/Config.in
+--- 5.52/drivers/net/Config.in Fri, 29 Jun 2001 11:39:55 +1000 kaos (linux-2.4/l/c/9_Config.in 1.1.2.2.1.4.1.12 644)
++++ 5.52(w)/drivers/net/Config.in Fri, 29 Jun 2001 12:14:23 +1000 kaos (linux-2.4/l/c/9_Config.in 1.1.2.2.1.4.1.12 644)
+@@ -16,7 +16,7 @@ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; the
+ fi
+ 
+ if [ "$CONFIG_ISAPNP" = "y" ]; then
+-   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000 $CONFIG_ISAPNP
++   tristate 'General Instruments Surfboard 1000' CONFIG_NET_SB1000
+ fi
+ 
+ #
+@@ -204,7 +204,6 @@ bool 'Ethernet (10 or 100Mbit)' CONFIG_N
+       dep_tristate '    D-Link DE600 pocket adapter support' CONFIG_DE600 $CONFIG_ISA
+       dep_tristate '    D-Link DE620 pocket adapter support' CONFIG_DE620 $CONFIG_ISA
+    fi
+-fi
+ 
+ endmenu
+ 
 
-can't read "CONFIG_DRM_AGP": no such variable
-    while executing
-"list $CONFIG_DRM_AGP"
-    (procedure "writeconfig" line 2352)
-    invoked from within
-"writeconfig .config include/linux/autoconf.h"
-    invoked from within
-".f0.right.save invoke"
-    ("uplevel" body line 1)
-    invoked from within
-"uplevel #0 [list $w invoke]"
-    (procedure "tkButtonUp" line 7)
-    invoked from within
-"tkButtonUp .f0.right.save
-"
-    (command bound to event)
-
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-Cognitive Systems Group
-Vogt-Kölln-Straße 30
-D-22527 Hamburg, Germany
-
-email: nuetzel@kogs.informatik.uni-hamburg.de
-@home: Dieter.Nuetzel@hamburg.de

@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUG2E64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUG2FNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264192AbUG2E64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 00:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbUG2E64
+	id S264154AbUG2FNg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 01:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUG2FNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 00:58:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46030 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264192AbUG2E6y (ORCPT
+	Thu, 29 Jul 2004 01:13:36 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12248 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264154AbUG2FNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 00:58:54 -0400
-Date: Thu, 29 Jul 2004 15:54:37 +1000
+	Thu, 29 Jul 2004 01:13:34 -0400
+Date: Thu, 29 Jul 2004 16:09:00 +1000
 From: Nathan Scott <nathans@sgi.com>
-To: L A Walsh <lkml@tlinx.org>, Chris Wedgwood <cw@f00f.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.7-vanilla-SMP kernel: pagebuf_get: failed to lookup pages
-Message-ID: <20040729055437.GL800@frodo>
-References: <40FF0479.6050509@tlinx.org> <20040722001224.GC30595@taniwha.stupidest.org> <40FF0885.7060704@tlinx.org> <20040722003357.GA31163@taniwha.stupidest.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Steve Lord <lord@xfs.org>, linux-xfs@oss.sgi.com,
+       xfs-masters@oss.sgi.com,
+       Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL and XFS on 4KSTACKS=n
+Message-ID: <20040729060900.GA1946@frodo>
+References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu> <20040720195012.GN14733@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040722003357.GA31163@taniwha.stupidest.org>
+In-Reply-To: <20040720195012.GN14733@fs.tum.de>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 21, 2004 at 05:33:57PM -0700, Chris Wedgwood wrote:
-> On Wed, Jul 21, 2004 at 05:21:25PM -0700, L A Walsh wrote:
+On Tue, Jul 20, 2004 at 09:50:12PM +0200, Adrian Bunk wrote:
 > 
-> > Will this be included/fixed in 2.6.8?
+> The patch below does:
 > 
-> i assume that's the intention but i don't know when 2.6.8 is and how
-> much time the sgi people have before then.  my guess is yes though
+> 1. let 4KSTACKS depend on EXPERIMENTAL
+> Rationale:
+> 4Kb stacks on i386 are the future. But currently this option might still 
+> cause problems in some areas of the kernel. OTOH, 4Kb stacks isn't a big 
+> gain for most people.
+> 2.6 is a stable kernel series, and 4KSTACKS=n is the safe choice.
+> Once all issues with 4KSTACKS=y are resolved this can be reverted.
 
-The fix has been included in the 2.6.8-pre/rc kernels for some
-time now, so yes it'll be in 2.6.8.
+Seems fine.
 
-> > How serious is the problem?  The system doesn't seem to panic or
-> > indicate backup failures.
-> 
-> not sure, hch can you comment here maybe?
+> 2. let XFS depend on (4KSTACKS=n || BROKEN)
+> Rationale:
+> Mark Loy said:
+>   Don't use 4K stacks and XFS.
 
-This leaked locked pages on metadata readahead failure (which
-could occur when free memory becomes low), which is serious.
+Who is Mark Loy?  (and what does he know about XFS?)
+
+> Mark this combination as BROKEN until XFS is fixed.
+
+This part is not useful.  We want to hear about problems
+that people hit with 4K stacks so we can try to address
+them, and it mostly works as is.
 
 cheers.
 

@@ -1,71 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVCRPvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbVCRPxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVCRPvv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:51:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCRPvv
+	id S261648AbVCRPxG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVCRPxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:51:51 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:16772 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261639AbVCRPvs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:51:48 -0500
-Date: Fri, 18 Mar 2005 07:33:25 -0800
+	Fri, 18 Mar 2005 10:53:06 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:17052 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261648AbVCRPwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:52:36 -0500
+Date: Fri, 18 Mar 2005 07:48:20 -0800
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: Ingo Molnar <mingo@elte.hu>
 Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050318153325.GA1299@us.ibm.com>
+Message-ID: <20050318154820.GB1299@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
-References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <20050318095327.GA15190@elte.hu>
+References: <20050318002026.GA2693@us.ibm.com> <20050318100339.GA15386@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050318095327.GA15190@elte.hu>
+In-Reply-To: <20050318100339.GA15386@elte.hu>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 10:53:27AM +0100, Ingo Molnar wrote:
+On Fri, Mar 18, 2005 at 11:03:39AM +0100, Ingo Molnar wrote:
 > 
-> * Ingo Molnar <mingo@elte.hu> wrote:
+> there's a problem in #5's rcu_read_lock():
 > 
-> > there's one detail on PREEMPT_RT though (which i think you noticed too). 
-> > 
-> > Priority inheritance handling can be done in a pretty straightforward
-> > way as long as no true read-side nesting is allowed for rwsems and
-> > rwlocks - i.e. there's only one owner of a lock at a time. So
-> > PREEMPT_RT restricts rwsem and rwlock concurrency: readers are
-> > writers, with the only exception that they are allowed to 'self-nest'.
-> > [...]
+>         void
+>         rcu_read_lock(void)
+>         {
+>                 preempt_disable();
+>                 if (current->rcu_read_lock_nesting++ == 0) {
+>                         current->rcu_read_lock_ptr =
+>                                 &__get_cpu_var(rcu_data).lock;
+>                         read_lock(current->rcu_read_lock_ptr);
+>                 }
+>                 preempt_enable();
+>         }
 > 
-> this does not affect read-side RCU, because read-side RCU can never
-> block a higher-prio thread. (as long as callback processing is pushed
-> into a separate kernel thread.)
+> not only are read_lock()-ed sections preemptible, read_lock() itself may
+> block, so it cannot be called from within preempt_disable(). How about
+> something like:
 > 
-> so RCU will be pretty much the only mechanism (besides lock-free code)
-> that allows reader concurrency on PREEMPT_RT.
+>         void
+>         rcu_read_lock(void)
+>         {
+>                 preempt_disable();
+>                 if (current->rcu_read_lock_nesting++ == 0) {
+>                         current->rcu_read_lock_ptr =
+>                                 &__get_cpu_var(rcu_data).lock;
+>                         preempt_enable();
+>                         read_lock(current->rcu_read_lock_ptr);
+>                 } else
+>                         preempt_enable();
+>         }
+> 
+> this would still make it 'statistically scalable' - but is it correct?
 
-This is a relief!  I was wondering how on earth I was going to solve
-the multi-task priority-inheritance problem!
+Good catch!
 
-But...  How do we handle the following scenario?
+Also good question...
 
-0.	A bunch of low-priority threads are preempted in the
-	middle of various RCU read-side critical sections.
+Strictly speaking, it is not necessary to block callback invocation until
+just after rcu_read_lock() returns.
 
-1.	High-priority thread does kmalloc(), but there is no
-	memory, so it blocks.
+It is correct as long as there is no sort of "upcall" or "callback" that
+can masquerade as this task.  I know of no such thing in the Linux kernel.
+In fact such a thing would break a lot of code, right?
 
-2.	OOM handling notices, and decides to clean up the outstanding
-	RCU callbacks.  It therefore invokes _synchronize_kernel()
-	(in implementation #5).
+Any tool that relied on the ->rcu_read_lock_nesting counter to deduce
+RCU state would be confused by this change, but there might be other
+ways of handling this.  Also, we are currently making do without such
+a tool.
 
-3.	The _synchronize_kernel() function tries to acquire all of
-	the read-side locks, which are held by numerous preempted
-	low-priority threads.
+It should be possible to move the preempt_enable() further forward
+ahead of the assignment to ->rcu_read_lock_ptr, since the assignment
+to ->rcu_read_lock_ptr is strictly local.  Not sure that this is
+worthwhile, thoughts?
 
-4.	What now???
+        void
+        rcu_read_lock(void)
+        {
+                preempt_disable();
+                if (current->rcu_read_lock_nesting++ == 0) {
+                        preempt_enable();
+                        current->rcu_read_lock_ptr =
+                                &__get_cpu_var(rcu_data).lock;
+                        read_lock(current->rcu_read_lock_ptr);
+                } else
+                        preempt_enable();
+        }
 
-Or does the current patch do priority inheritance across the memory
-allocator?  In other words, can we get away with ignoring this one?  ;-)
+The other question is whether preempt_disable() is needed in the first
+place.  The two task-structure fields are not accessed except by the
+task itself.  I bet that the following is just fine:
 
-						Thanx, Paul
+        void
+        rcu_read_lock(void)
+        {
+                if (current->rcu_read_lock_nesting++ == 0) {
+                        current->rcu_read_lock_ptr =
+                                &__get_cpu_var(rcu_data).lock;
+                        read_lock(current->rcu_read_lock_ptr);
+                }
+        }
+
+Thoughts?
+
+					Thanx, Paul

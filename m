@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTKUGzy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 01:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264304AbTKUGzy
+	id S264304AbTKUHME (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 02:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTKUHME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 01:55:54 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:51873
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262319AbTKUGzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 01:55:53 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Nigel Cunningham <ncunningham@clear.net.nz>, Shaheed <srhaque@iee.org>
-Subject: Re: Patrick's Test9 suspend code.
-Date: Fri, 21 Nov 2003 00:46:32 -0600
-User-Agent: KMail/1.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200311201726.48097.srhaque@iee.org> <200311202233.09609.srhaque@iee.org> <1069368082.2239.66.camel@laptop-linux>
-In-Reply-To: <1069368082.2239.66.camel@laptop-linux>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Fri, 21 Nov 2003 02:12:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38547 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264304AbTKUHMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 02:12:02 -0500
+Date: Thu, 20 Nov 2003 23:17:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT leaks memory on linux-2.6.0-test9
+Message-Id: <20031120231749.7cc3f245.akpm@osdl.org>
+In-Reply-To: <20031121061806.6A65F7007C@sv1.valinux.co.jp>
+References: <20031121061806.6A65F7007C@sv1.valinux.co.jp>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311210046.32588.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 November 2003 16:41, Nigel Cunningham wrote:
+IWAMOTO Toshihiro <iwamoto@valinux.co.jp> wrote:
+>
+>  recently I noticed that direct IO causes memory leaks with
+>  linux-2.6.0-test9.
+>  The program that causes memory leaks is "fsstress", which is
+>  testcases/kernel/fs/fsstress in ltp-full-20031106.tgz (ftp from
+>  http://sourceforge.net/projects/ltp/).
+> 
+>  fsstress does various file operations, and I found that the problem is
+>  with the combination of write and dread (O_DIRECT read).
+>  You should be able to reproduce the bug with the following command
+>  line.
+> 
+>  $ while true; do ./fsstress -c -d /usr/src/test -z -f write=1 \
+>   -f dread=1 -f creat=1 -S -n 1000 -p 32; done
 
-> Whenever I switch from testing a 2.4 kernel to testing 2.6, I do a clean
-> boot for precisely this reason. I'd love it if I could just suspend 2.4,
-> boot the new 2.6 kernel, see if it suspends properly (to a different
-> swap, of course) and then resume the original 2.4 kernel. But doing so
-> would only work if I mounted 2.6 entirely read only, which is not what
-> you seem to be planning.
-
-You could of course have two completely different sets of root and swap 
-partitions, if you have the disk space.  (And either not sharing /home or 
-unmount it before suspending...)
-
-Assuming you have the disk space, of course. :)
-
-Rob
+It seems OK here.   Please take a copy of /proc/meminfo and /proc/slabinfo.
 

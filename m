@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbSIWSm7>; Mon, 23 Sep 2002 14:42:59 -0400
+	id <S261301AbSIWSxy>; Mon, 23 Sep 2002 14:53:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbSIWSm5>; Mon, 23 Sep 2002 14:42:57 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261403AbSIWSma>;
-	Mon, 23 Sep 2002 14:42:30 -0400
-Date: Mon, 23 Sep 2002 08:30:04 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
-       linux-kernel@vger.kernel.org, ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020923083004.B14944@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Bill Davidsen <davidsen@tmr.com>, Larry McVoy <lm@bitmover.com>,
-	Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org,
-	ingo Molnar <mingo@redhat.com>
-References: <20020922143257.A8397@work.bitmover.com> <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S261285AbSIWSxU>; Mon, 23 Sep 2002 14:53:20 -0400
+Received: from packet.digeo.com ([12.110.80.53]:50313 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261368AbSIWSwK>;
+	Mon, 23 Sep 2002 14:52:10 -0400
+Message-ID: <3D8F6409.D45AA848@digeo.com>
+Date: Mon, 23 Sep 2002 11:57:13 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: trond.myklebust@fys.uio.no
+CC: Rik van Riel <riel@conectiva.com.br>,
+       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       Daniel Phillips <phillips@arcor.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <3D811A6C.C73FEC37@digeo.com> <15759.17258.990642.379366@charged.uio.no>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Mon, Sep 23, 2002 at 06:05:18AM -0400
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Sep 2002 18:57:13.0669 (UTC) FILETIME=[074BDF50:01C26333]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Instead of taking the traditional "we've screwed up the normal system 
-> > primitives so we'll event new lightweight ones" try this:
-> > 
-> > We depend on the system primitives to not be broken or slow.
-> > 
-> > If that's a true statement, and in Linux it tends to be far more true
-> > than other operating systems, then there is no reason to have M:N.
+Trond Myklebust wrote:
 > 
-> No matter how fast you do context switch in and out of kernel and a sched
-> to see what runs next, it can't be done as fast as it can be avoided.
+> >>>>> " " == Andrew Morton <akpm@digeo.com> writes:
+> 
+>      > Look, idunnoigiveup.  Like scsi and USB, NFS is a black hole
+>      > where akpms fear to tread.  I think I'll sulk until someone
+>      > explains why this work has to be performed in the context of a
+>      > process which cannot do it.
+> 
+> I'd be happy to move that work out of the RPC callbacks if you could
+> point out which other processes actually can do it.
 
-You are arguing about how many angels can dance on the head of a pin.
-Sure, there are lotso benchmarks which show how fast user level threads
-can context switch amongst each other and it is always faster than going
-into the kernel.  So what?  What do you think causes a context switch in
-a threaded program?  What?  Could it be blocking on I/O?  Like 99.999%
-of the time?  And doesn't that mean you already went into the kernel to
-see if the I/O was ready?  And doesn't that mean that in all the real
-world applications they are already doing all the work you are arguing
-to avoid?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Well it has to be a new thread, or user processes.
+
+Would it be possible to mark the inode as "needs invalidation",
+and make user processes check that flag once they have i_sem?
+
+> The main problem is that the VFS/MM has no way of relabelling pages as
+> being invalid or no longer up to date: I once proposed simply clearing
+> PG_uptodate on those pages which cannot be cleared by
+> invalidate_inode_pages(), but this was not to Linus' taste.
+
+Yes, clearing PageUptodate without holding the page lock is
+pretty scary.
+
+Do we really need to invalidate individual pages, or is it real-life
+acceptable to invalidate the whole mapping?
+
+Doing an NFS-special invalidate function is not a problem, btw - my
+current invalidate_inode_pages() is just 25 lines.  It's merely a
+matter of working out what it should do ;)

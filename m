@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUJKR0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUJKR0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268957AbUJKR0R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 13:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUJKR0R
+	id S269065AbUJKR0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 13:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUJKR0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 13:26:17 -0400
-Received: from cantor.suse.de ([195.135.220.2]:21654 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268957AbUJKRTe (ORCPT
+	Mon, 11 Oct 2004 13:26:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:36839 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269065AbUJKRVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 13:19:34 -0400
-Message-ID: <416AC081.7050504@suse.de>
-Date: Mon, 11 Oct 2004 19:18:57 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org,
-       pascal.schmidt@email.de
-Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-References: <2HO0C-4xh-29@gated-at.bofh.it> <2I5b2-88s-15@gated-at.bofh.it> <2I5E5-6h-19@gated-at.bofh.it> <2I7Zd-1TK-11@gated-at.bofh.it> <E1CB10O-0000HL-FJ@localhost> <20040925101640.GB4039@elf.ucw.cz> <416A58C2.6090304@suse.de> <20041011145911.GB2672@elf.ucw.cz>
-In-Reply-To: <20041011145911.GB2672@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 11 Oct 2004 13:21:55 -0400
+Subject: Re: [PATCH] reduce fragmentation due to kmem_cache_alloc_node
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41684BF3.5070108@colorfullife.com>
+References: <41684BF3.5070108@colorfullife.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097514734.12861.366.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Oct 2004 10:12:24 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Manfred,
 
-Pavel Machek wrote:
+This patch seems to work fine on my AMD machine.
+I tested your patch on 2.6.9-rc2-mm3. 
 
-> Ok... And I guess it is nearly impossible to trigger this on demand,
-> right?
+It seemed to have fixed fragmentation problem I was
+observing, but I don't think it fixed the problem
+completely. I still see some fragmentation, with
+repeated tests of scsi-debug, but it could be due
+to the test. I will collect more numbers..
 
-Of course. I just wanted to say "yes, it does happen". I did not say
-fixing it would be easy ;-)
+Thanks,
+Badari
 
-    Stefan
+On Sat, 2004-10-09 at 13:37, Manfred Spraul wrote:
+> Hi Andrew,
+> 
+> attached is a patch that fixes the fragmentation that Badri noticed with 
+> kmem_cache_alloc_node. Could you add it to the mm tree? The patch is 
+> against 2.6.9-rc3-mm3.
+> 
+> Description:
+> kmem_cache_alloc_node tries to allocate memory from a given node. The 
+> current implementation contains two bugs:
+> - the node aware code was used even for !CONFIG_NUMA systems. Fix: 
+> inline function that redefines kmem_cache_alloc_node as kmem_cache_alloc 
+> for !CONFIG_NUMA.
+> - the code always allocated a new slab for each new allocation. This 
+> caused severe fragmentation. Fix: walk the slabp lists and search for a 
+> matching page instead of allocating a new page.
+> - the patch also adds a new statistics field for node-local allocs. They 
+> should be rare - the codepath is quite slow, especially compared to the 
+> normal kmem_cache_alloc.
+> 
+> Badri: Could you test it?
+> Andrew, could you add the patch to the next -mm kernel? I'm running it 
+> right now, no obvious problems.
+> 
+> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+> 
+> 
+> ______________________________________________________________________
+
+

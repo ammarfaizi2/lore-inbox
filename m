@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319436AbSILFGp>; Thu, 12 Sep 2002 01:06:45 -0400
+	id <S319434AbSILFEp>; Thu, 12 Sep 2002 01:04:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319437AbSILFGp>; Thu, 12 Sep 2002 01:06:45 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:33804 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S319436AbSILFGn>; Thu, 12 Sep 2002 01:06:43 -0400
-Date: Wed, 11 Sep 2002 22:11:27 -0700
-From: jw schultz <jw@pegasys.ws>
+	id <S319435AbSILFEp>; Thu, 12 Sep 2002 01:04:45 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:55557 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S319434AbSILFEo>; Thu, 12 Sep 2002 01:04:44 -0400
+Date: Wed, 11 Sep 2002 20:27:41 +0200
+From: Jurriaan <thunder7@xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: the userspace side of driverfs
-Message-ID: <20020912051127.GH10315@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20020912012552.GF10315@pegasys.ws> <Pine.LNX.4.44.0209112254260.17242-100000@humbolt.us.dell.com>
+Subject: Re: Killing/balancing processes when overcommited
+Message-ID: <20020911182741.GA17945@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209112254260.17242-100000@humbolt.us.dell.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <OFA28F240F.93209971-ON88256C31.005E5F03@boulder.ibm.com>
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 11, 2002 at 11:13:17PM -0500, Matt Domsch wrote:
-> > The main ideal that we're shooting for is to have one ASCII value per
-> > file. The ASCII part is mandatory, but there will definitely be exceptions
-> > where we will have an array of or multiple values per file. We want to
-> > minimize those instances, though. Both for the sake of easy parsing, but
-> > also for easy formatting within the drivers.
-> 
-> On IA-64, I've got the arch/ia64/kernel/efivars.c module that exports
-> /proc/efi/vars/{NVRAM-variables}.  It violates several rules of /proc
-> which I'd like to address in 2.5.x via driverfs.
-> 1) It's in /proc but isn't process-related.
-> 2) It exports its data as binary, not ascii.
-> 
-> Proc was chosen because it was simple, didn't require a major/minor
-> number, showed easily the set of NVRAM variables that were available
-> without needing a separate program to go and query a /dev/efivars file
-> to list them; cat and tar are sufficient for making copies of
-> variables and restoring them back again.  These exact features make
-> driverfs make sense too.
-> 
-> 1) is easy to fix.  2) a little less so.  The data structure being
-> exported is a little over 2KB in length; The data is binary (itself a
-> variable length set of structures each with no ascii representation).
-> An ascii representation in "%02x" format will be longer than a 4K page
-> given to fill out and return.  Undoubtedly there's a better way to
-> handle this, and I'm open to suggestions.  The thing being exported is
-> efi_variable_t.
-> 
-> For such cases where the data being exported is really binary,
-> having a common set of parse/unparse routines would be nice. 
+From: Jim Sibley <jlsibley@us.ibm.com>
+Date: Wed, Sep 11, 2002 at 11:08:43AM -0700
+> 1 - cpu usage may not be a good measure
+> 2 - Large memory tasks may not be a good measure
+> 3 - Measuring memory by task is misleading
+> 4 - Niceness is not really useful in a multi-user environment.
+> 5 - Other numerical limits tend to be arbitrary.
 
-I don't know what others think of this but i'd say that some
-binary files are appropriate.  In a case like this i'd say
-a files named 'nvram' and 'bios' or 'firmware' would be good
-candidates for opaque binary structures and firmware.  This
-is particularly the true if the data is purely related to
-the device.  Ultimately it'd be nice to be able to upload
-and download (install)  firmware this way.
+I was just think (feel free to point out the errors of my way):
 
-Now if a datum is a parameter suitable for tuning i'd like
-it made visible and updatable in an ASCII form.  In other
-words i'd like to see an end to the proliferation of obscure
-tools like hdparm.
+what if we used the time a program was started as a guide? The last
+programs started are killed of first.
 
-These opinion does not necessarily reflect the views of
-anyone else.
+That would mean that init survives to the last, as would the daemons
+that are started when booting.
 
+Alternatively, suppose we get a very large pid-space, and at the end of
+booting there's something like
 
+echo "5000" > /proc/sys/minimum-pid-from-here-on
+
+Then, you could do:
+
+echo "5000" > proc/sys/oom_lowest_pid_to_try_killing_first
+
+in other words, protect a part of pid-space against oom-killing.
+
+How this all works with threads, forks, child-processes etc etc is
+beyond me - I'm just thinking a bit.
+
+Jurriaan
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+A black cat crossing your path signifies that the animal is going somewhere.
+        Groucho Marx (1890-1977)
+GNU/Linux 2.4.19-ac4 SMP/ReiserFS 2x1402 bogomips load av: 1.57 1.36 0.87

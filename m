@@ -1,41 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292390AbSCEWdE>; Tue, 5 Mar 2002 17:33:04 -0500
+	id <S292318AbSCEWdE>; Tue, 5 Mar 2002 17:33:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292318AbSCEWcy>; Tue, 5 Mar 2002 17:32:54 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:43585 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S292294AbSCEWco>;
-	Tue, 5 Mar 2002 17:32:44 -0500
-Date: Tue, 5 Mar 2002 23:31:41 +0100
-From: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic
-Message-Id: <20020305233141.3f438954.hanno@gmx.de>
-Organization: Mecronome Webdesign - http://www.mecronome.de/
-X-Mailer: Sylpheed version 0.7.2claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S292294AbSCEWcy>; Tue, 5 Mar 2002 17:32:54 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:27596 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S292293AbSCEWcm>;
+	Tue, 5 Mar 2002 17:32:42 -0500
+Date: Tue, 5 Mar 2002 14:32:38 -0800
+To: Linus Torvalds <torvalds@transmeta.com>, irda-users@lists.sourceforge.net,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: IrDA patches on the way...
+Message-ID: <20020305143238.A1254@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a PC with an Athlon CPU, which has problems with newer kernel-versions. (see lspci-output below)
+	Hi Linus,
 
-If I want to boot current Knoppix or Mandrake 8.2beta3 install cds (both based on kernel 2.4.17), it says:
+	It's now a tradition : here a few patches for you to merge in
+the 2.5.6 kernel. A few cleanup that have been waiting for a while,
+and a few critical fixes that recently showed up.
+	I've asked Jeff if he wanted to be my "Patch Penguin (TM)" for
+Linux-IrDA patches, but he was not very enthousiastic about IrDA (I
+don't understand why ;-) I'll make seperate patches for Marcello.
+	Patches have been tested in 2.5.6-pre2 (SMP). All non critical
+patches have been on the IrDA list for more than one month (in
+particular all the changes to LAP Tx queue).
+        Have fun...
 
-Kernel panic: VFS: Unable to mount root fs on 03:05
+        Jean
 
-It worked fine with the older mandrake 8.1 with kernel 2.4.8.
 
-Any ideas? How can I help to fix this?
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
 
-Here is lspci output:
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 730 Host (rev 02)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet (rev 82)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS] SiS PCI Audio Accelerator (rev 02)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] SiS630 GUI Accelerator+3D (rev 31)
+ir256_bus_to_virt.diff :
+----------------------
+	o [CRITICA] Fix ISA FIR drivers for new DMA API
+	<PCI FIR drivers are still broken and need fixing>
+
+ir256_sock_connect_cli.diff :
+---------------------------
+	o [CRITICA] Fix socket connect to remove dangerous cli()
+	<Tested on SMP>
+
+ir256_irnet_disc_ind.diff :
+-------------------------
+	o [CORRECT] Fix IrNET disconnection to not reconnect but
+	  instead to hangup pppd
+
+ir256_lap_icmd_fix-4.diff :
+-------------------------
+	o [CORRECT] Fix Tx queue handling (remove race, keep packets in order)
+	o [CORRECT] Synchronise window_size & line_capacity and make sure
+	  we never forget to increase them (would stall Tx queue)
+	o [FEATURE] Group common code out of if-then-else
+	o [FEATURE] Don't harcode LAP header size, use proper constant
+	o [FEATURE] Inline irlap_next_state() to decrease bloat
+
+ir256_usb_cow_urballoc.diff :
+---------------------------
+	o [FEATURE] Don't use skb_cow() unless we really need to
+	o [CORRECT] Reorder URB init to avoid races
+	o [CORRECT] USB dealy adds processing time, not removes it
+        <Following patch from Greg KH <greg@kroah.com> himself !!!>
+	o [CRITICA] Use dynamically allocated URBs (instead of statically)

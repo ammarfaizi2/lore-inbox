@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319037AbSHSVir>; Mon, 19 Aug 2002 17:38:47 -0400
+	id <S319050AbSHSV5B>; Mon, 19 Aug 2002 17:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319034AbSHSVir>; Mon, 19 Aug 2002 17:38:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:20964 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319037AbSHSViq>;
-	Mon, 19 Aug 2002 17:38:46 -0400
-Date: Mon, 19 Aug 2002 14:28:11 -0700 (PDT)
-Message-Id: <20020819.142811.53489570.davem@redhat.com>
-To: Jack.Bloch@icn.siemens.com
-Cc: linux-kernel@vger.kernel.org
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <180577A42806D61189D30008C7E632E87939F8@boca213a.boca.ssc.siemens.com>
-References: <180577A42806D61189D30008C7E632E87939F8@boca213a.boca.ssc.siemens.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S319051AbSHSV5A>; Mon, 19 Aug 2002 17:57:00 -0400
+Received: from pina.terra.com.br ([200.176.3.17]:58782 "EHLO pina.terra.com.br")
+	by vger.kernel.org with ESMTP id <S319050AbSHSV47>;
+	Mon, 19 Aug 2002 17:56:59 -0400
+Subject: [PATCH] OSS - synchronize_irq missing argument 2.5.31...
+From: Lucio Maciel <abslucio@terra.com.br>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 19 Aug 2002 19:03:47 -0300
+Message-Id: <1029794627.3319.116.camel@walker>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-   Date: Mon, 19 Aug 2002 17:29:26 -0400
+Sorry for this mail...
+the other one is the real patch....
 
-   Are there any plans to do an SCTP (RFC 2960) implementation for Linux?
-   Please CC me directly on any responses.
-   
-It's done, I'm going to merge it in the next week or so
-into 2.5.x  Search the list archives for the SCTP project
-site as I don't have the URL handy.
+Sorry....
+
+
+All calls to synchronize_irq are missing a argument.. 
+this patch fix this.... 
+
+
+diff -uNr /usr/src/linux-2.5.31/sound/oss/cmpci.c sound/oss/cmpci.c
+--- /usr/src/linux-2.5.31/sound/oss/cmpci.c	2002-08-10 22:41:16.000000000 -0300
++++ sound/oss/cmpci.c	2002-08-19 14:53:52.000000000 -0300
+@@ -1791,14 +1791,14 @@
+ 
+-- 
+::: Lucio F. Maciel
+::: abslucio@terra.com.br
+::: icq 93065464
+::: Absoluta.net
+

@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVCDE0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVCDE0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVCDE0U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 23:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVCCTkw
+	id S262538AbVCDE0T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 23:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVCCTmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:40:52 -0500
-Received: from fire.osdl.org ([65.172.181.4]:7404 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262212AbVCCTKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:10:07 -0500
-Date: Thu, 3 Mar 2005 11:11:05 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hua Zhong <hzhong@cisco.com>
-cc: "'Jeff Garzik'" <jgarzik@pobox.com>, "'Greg KH'" <greg@kroah.com>,
-       "'David S. Miller'" <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: RE: RFD: Kernel release numbering
-In-Reply-To: <200503031842.AWY46304@mira-sjc5-e.cisco.com>
-Message-ID: <Pine.LNX.4.58.0503031101270.25732@ppc970.osdl.org>
-References: <200503031842.AWY46304@mira-sjc5-e.cisco.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Mar 2005 14:42:32 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:60611 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262526AbVCCTWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 14:22:53 -0500
+Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Canter <marcus@vfxcomputing.com>
+Cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Pierre Ossman <drzeus-list@drzeus.cx>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0503031410450.19015@krusty.vfxcomputing.com>
+References: <4227085C.7060104@drzeus.cx>
+	 <29495f1d05030309455a990c5b@mail.gmail.com>
+	 <Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>
+	 <1109875926.2908.26.camel@mindpipe>
+	 <Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>
+	 <1109876978.2908.31.camel@mindpipe>
+	 <Pine.LNX.4.62.0503031410450.19015@krusty.vfxcomputing.com>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 14:22:51 -0500
+Message-Id: <1109877771.2908.41.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(I hope you don't mind me re-adding LKML because this illustrates an
+important point)
+
+On Thu, 2005-03-03 at 14:15 -0500, Mark Canter wrote:
+> Seems like the Q/A process is kind of borked if the below tests are known 
+> but don't get applied before it gets released into the wild.
+
+We will never be able to get 100% of these before they get out the door,
+because the ALSA developers can't test on every possible hardware.  And
+the group of users who test ALSA CVS and ALSA releases before they go in
+the kernel is small.
+
+That being said, you are 100% right.  It is widely acknowledged that the
+release candidate process is broken.  The solution is to fix the release
+candidate process, so more people try the -rcs.  This is the only way to
+catch bugs like this before they get out.  Please see the "release
+numbering" thread for some proposed solutions.
+
+Lee
 
 
-On Thu, 3 Mar 2005, Hua Zhong wrote:
-> 
-> Do you consider having a real stable release maintainer again?
-
-No, this really is a different thing.
-
-This is not a "truly separate" parallell track, exactly because it would 
-not actually get a life of its own. For it to make sense, it would not do 
-any big changes, ie it would be _limited_ in a way that a real stable 
-release would not. Also, since it would leave the old kernel behind when a 
-new stable release comes along, it would not have any real independence in 
-time either.
-
-Now, I think this "sucker tree" I'm talking about would be a great basis 
-for somebody else then taking it _further_ (ie vendor stable trees), but 
-it really is a fairly small step.
-
-> If you want someone to do the job, give him a title. It's a thankless and
-> boring job, and you can't make it worse by just hiding him somewhere.
-
-Actually, that was something I'd _avoid_ - make it non-glorious on 
-purpose. In the kind of tree I envision, the _last_ thing we'd want is the 
-maintainer looking at a big picture and feeling important. I'd be happiest 
-if he was almost totally anonymous, because I think it's likely a boring 
-job, but it's a boring job that _many_ people could do (ie to avoid 
-burnign people out, make it be a stint of a couple of months, not a 
-"crowning life work", and then you could probably have half a dozen people 
-who are perfectly willing to take it on every once in a while.
-
-Ie I'd organize it like some of the "checkin committees" work for other 
-projects that have nowhere _near_ as much work going on as Linux has. That 
-seems to work well for small projects - and we can try to keep this 
-"small" exactly by having the strict rules in place that would mean that 
-99% of all patches wouldn't even be a consideration.
-
-In other words, I'm really talking about something different from what you 
-seem to envision. I think we should call the tree the "sucker tree", and 
-if somebody wants to make a logo for it, make it be a penguin with a 
-jokers' hat: exactly to remind people that it's not about the glory.
-
-(Maybe that's going overboard a bit ;)
-
-		Linus

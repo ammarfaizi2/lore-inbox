@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266082AbUALIhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 03:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbUALIhQ
+	id S266081AbUALIg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 03:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266082AbUALIg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 03:37:16 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:52876 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S266082AbUALIhM (ORCPT
+	Mon, 12 Jan 2004 03:36:59 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:10123 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266081AbUALIg6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 03:37:12 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: USB hangs
-Date: Mon, 12 Jan 2004 09:37:19 +0100
-User-Agent: KMail/1.5.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       USB Developers <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk> <40021E8E.3010709@pacbell.net> <20040112073905.GA8580@one-eyed-alien.net>
-In-Reply-To: <20040112073905.GA8580@one-eyed-alien.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 03:36:58 -0500
+Date: Mon, 12 Jan 2004 09:36:47 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel 2.6.1
+Message-ID: <20040112083647.GB2372@ucw.cz>
+References: <200401111545.59290.murilo_pontes@yahoo.com.br> <20040111235025.GA832@ucw.cz> <Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200401120937.19131.oliver@neukum.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 12. Januar 2004 08:39 schrieb Matthew Dharm:
-> On Sun, Jan 11, 2004 at 08:11:58PM -0800, David Brownell wrote:
-> > 
-> > >>>	 Plus I'd
-> > >>>argue PF_MEMALLOC is a better solution anyway.
-> > >>
-> > >>It certainly seems like a more comprehensive fix for that
-> > >>particular class of problems!  :)
-> > >
-> > >
-> > >Is it really more comprehensive?  As I see it, it will only affect code
-> > >executed in the context of the usb-storage thread.  But, what about code
-> > >which is invoked in tasklets or other contexts?
-> > 
-> > Isn't it true that only that thread is allowed to
-> > submit usb-storage i/o requests?
+On Mon, Jan 12, 2004 at 12:17:03AM -0200, Frédéric L. W. Meunier wrote:
+
+> Vojtech, he reported the same problem I have. The "/ ?" key not
+> working anymore with ABNT2 keyboards.
 > 
-> That's very true.
+> I tested with the patch and it didn't fix it on the console.
+
+Yes, the patch didn't fix it for the console.
+
+> I'm using kbd 1.10.
 > 
-> What I'm concerned about is the downstream effects of a usb_submit_urb() or
-> the corresponding scatter-gather equivalents.
+> showkey under 2.4:
+> 
+> keycode  89
 
-In 2.4 they all run in interrupt or thread context IIRC.
-Problematic is the SCSI error handling thread. It can call usb_reset_device()
-which calls down and does allocations.
-Does that thread also do the PF_MEMALLOC trick?
+This, however, is VERY interesting, I didn't expect this keycode under
+2.4 at all. Can you check with 'evtest' what it does send there?
 
-	Regards
-		Oliver
+> showkey under 2.6.1:
+> 
+> keycode   0 press
+> keycode   1 release
+> keycode  53 release
+> keycode   0 release
+> keycode   1 release
+> keycode  53 release
+> 
+> It works with XFree86.
+> 
+> Since 2.6.0 worked, I assume something broke it.
 
+Can you check what it does under 2.6.0? Thanks.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

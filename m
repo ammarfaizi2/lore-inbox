@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUAOBjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbUAOBhl
+	id S264433AbUAOBjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:39:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbUAOBhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:37:41 -0500
-Received: from dp.samba.org ([66.70.73.150]:24199 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264547AbUAOBh0 (ORCPT
+	Wed, 14 Jan 2004 20:37:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:19847 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264538AbUAOBh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 14 Jan 2004 20:37:26 -0500
-Date: Thu, 15 Jan 2004 10:22:31 +1100
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: martin f krafft <madduck@madduck.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe failed: digest_null
-Message-Id: <20040115102231.37a84ed0.rusty@rustcorp.com.au>
-In-Reply-To: <20040113215355.GA3882@piper.madduck.net>
-References: <20040113215355.GA3882@piper.madduck.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Tom Rini <trini@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] 2.6 && module + -g && kernel w/o -g 
+In-reply-to: Your message of "Wed, 14 Jan 2004 14:09:37 PDT."
+             <20040114210937.GA983@stop.crashing.org> 
+Date: Thu, 15 Jan 2004 10:00:11 +1100
+Message-Id: <20040115013723.29B912C0DC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jan 2004 22:53:55 +0100
-martin f krafft <madduck@madduck.net> wrote:
-
-> I am seeing many messages like
+In message <20040114210937.GA983@stop.crashing.org> you write:
+> Okay.  I've been looking at stock 2.6.1 noticed  that the fix for this
+> issue that Rusty proposed, and that ultimately made it into 2.6.1-rc3
+> (or so) is not correct.  The problem is that we do:
 > 
->   kernel: request_module: failed /sbin/modprobe -- digest_null. error = 256
-> 
-> in my logs. What's the nature of these?
+> err = module_frob_arch_sections(hdr, sechdrs, secstrings, mod);
+> /* Which goes over every .debug section and can take _ages_ on something
+>  * like ipv6 */
 
-Upgrade module-init-tools to 0.9.14 or one of the 3.0 -pres.
+Right.  So the arch-specific module_frob_arch_sections() can be slow.
+Logically, the fix should be in those module_frob_arch_sections(), not
+in the generic code.
 
-Old "modprobe -q" fails when presented with a module it has never heard of.
+> +		/* If we find any debug RELAs, frob these away now. */
+> +		if (sechdrs[i].sh_type == SHT_RELA &&
+> +				(strstr(secstrings+sechdrs[i].sh_name, ".debug")
+> +				 != 0))
+> +			sechdrs[i].sh_type = SHT_NULL;
+> +
 
-Cheers,
+Doesn't cover SHT_REL, and I really dislike name matches: they've bitten
+us before.
+
+Really, I prefer the arch-specific optimization.
 Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

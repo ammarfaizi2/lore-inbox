@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129135AbRBGGZw>; Wed, 7 Feb 2001 01:25:52 -0500
+	id <S129258AbRBGGi6>; Wed, 7 Feb 2001 01:38:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129216AbRBGGZm>; Wed, 7 Feb 2001 01:25:42 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:61704 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129135AbRBGGZ3>; Wed, 7 Feb 2001 01:25:29 -0500
-Date: Wed, 7 Feb 2001 00:25:10 -0600
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OK to mount multiple FS in one dir?
-Message-ID: <20010207002510.A10556@cadcamlab.org>
-In-Reply-To: <3A7E1942.5090903@goingware.com> <20010205180646.B32155@cadcamlab.org> <033601c09075$a60e43e0$de00a8c0@homeip.net> <20010206154616.A9875@animx.eu.org>
-Mime-Version: 1.0
+	id <S129464AbRBGGis>; Wed, 7 Feb 2001 01:38:48 -0500
+Received: from mail11.jump.net ([206.196.91.11]:12511 "EHLO mail11.jump.net")
+	by vger.kernel.org with ESMTP id <S129258AbRBGGim>;
+	Wed, 7 Feb 2001 01:38:42 -0500
+Message-ID: <3A80ED7C.F3A92D5@sgi.com>
+Date: Wed, 07 Feb 2001 00:38:52 -0600
+From: Eric Sandeen <sandeen@sgi.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-XFS i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] updates for KLSI usb->ethernet
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010206154616.A9875@animx.eu.org>; from wakko@animx.eu.org on Tue, Feb 06, 2001 at 03:46:16PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch, against 2.4.1-ac4, does the following for the KLSI
+USB->ethernet adapter:
 
-[Wakko Warner]
-> I have a question, why was this idea even considered?
+(patch at http://lager.dyndns.org/kaweth/KLSI-2.4.1-ac4.patch.bz2)
 
-Al Viro likes Plan9 process-local namespaces.  He seems to be trying to
-move Linux in that direction.  In the past year he has been hacking the
-semantics of filesystems and mounting, probably with namespaces as an
-eventual goal, and this is one of the things that has fallen out of the
-implementation.
+o Fixes firmware downloading.  If firmware is already loaded
+  and an attempt is made to download it again, the device
+  will hang.  This will happen on a warm boot. Driver now 
+  checks the bcdDevice value, which changes after firmware 
+  is loaded.  It does this via usb_get_device_descriptor() 
+  to avoid caching.  If device already has firmware, it will 
+  skip the download.
 
-A more useful thing to fall out of the same hacking is loopback
-mounting -- i.e. the same filesystem mounted multiple places.  In
-Linux-land I guess we call it 'mount --bind'.
+o Reports bcdDevice revision in debugging messages
 
-Peter
+o Updates firmware revision, fresh from KLSI
+
+o Actually _uses_ interrupt parameter passed to
+  kaweth_trigger_firmware()
+
+o added function prototype for 
+  kaweth_internal_control_msg() to avoid warning
+
+o spells "receive" correctly.  :)
+
+There is another way to handle the firmware download check - there is a
+chunk of firmware which can be downloaded that causes the device to
+disconnect, wait, then reconnect to the USB bus.  When it reappears, it
+has the new bcdDevice value in the descriptor.
+
+This might be a better way to go, so that the device descriptor doesn't
+silently change.  I've also seen some errors when I try to re-read the
+device descriptor with usb_get_device_descriptor(), for some reason.
+
+Any thoughts on what would be more correct, 
+
+a) device descriptor silently changes
+b) device magically disconnects/reconnects on its own
+
+Both seem a bit odd, but take your pick.  :)
+
+-Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

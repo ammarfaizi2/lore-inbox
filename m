@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbTIMUHs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 16:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbTIMUHr
+	id S262174AbTIMUGi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 16:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTIMUGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 16:07:47 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:28164 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262177AbTIMUHp (ORCPT
+	Sat, 13 Sep 2003 16:06:38 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:13469 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262174AbTIMUGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 16:07:45 -0400
-Date: Sat, 13 Sep 2003 22:07:43 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Dmitri Katchalov <dmitrik@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
-Message-ID: <20030913220743.B3295@pclin040.win.tue.nl>
-References: <1063443074.3f62da82a7e24@webmail.netregistry.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1063443074.3f62da82a7e24@webmail.netregistry.net>; from dmitrik@users.sourceforge.net on Sat, Sep 13, 2003 at 06:51:14PM +1000
+	Sat, 13 Sep 2003 16:06:37 -0400
+Message-ID: <3F6378B0.8040606@colorfullife.com>
+Date: Sat, 13 Sep 2003 22:06:08 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>,
+       dipankar@in.ibm.com
+Subject: Re: [patch] Make slab allocator work with SLAB_MUST_HWCACHE_ALIGN
+References: <20030910081654.GA1129@llm08.in.ibm.com> <1063208464.700.35.camel@localhost> <20030911055428.GA1140@llm08.in.ibm.com> <20030911110853.GB3700@llm08.in.ibm.com> <3F60A08A.7040504@colorfullife.com> <20030912085921.GB1128@llm08.in.ibm.com>
+In-Reply-To: <20030912085921.GB1128@llm08.in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 06:51:14PM +1000, Dmitri Katchalov wrote:
+Ravikiran G Thirumalai wrote:
 
-> I'm consistently getting this error:
-> 
-> atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0) pressed.
-> This happens whenever I type 'f' in "<F7>usbdevfs". It then keeps 
-> repeating the 'f' until I press another key. I first noticed it when 
-> doing a search in mcedit but it also happens on command line and 
-> everywhere. It does not matter if I type it slow of fast. If I type 
-> less then the whole string (eg. "devf") the error does not occur but 
-> the letter 'f' occasionally gets eaten away.
-> 
-> H/W: P4 (w/HT), ABIT IS7 M/B with Intel i865/ICH5 chipset, 
-> bog-standard cheap PS/2 kbd.
-> S/W: Debian mid-way between stable and testing, 2.6.0-test5 
-> with SMP and preemptive, no extra tasks running (I can reproduce it at 
-> the login prompt immediately after reboot).
+>I am working on a simplistic allocator for alloc_percpu which
+>1. Minimises cache footprint (simple pointer arithmetic to get to each cpus 
+>   version
+>2. Does numa aware allocation
+>3. Does not fragment
+>4. Is simple and extends simple pointer arithmetic to get to cpus offsets
+>
+>I wouldn't be using the slab at all because using slabs would mean using
+>NR_CPUs pointers and one extra dereference which is bad as we had found out
+>earlier.  But I guess slab will have to do node local allocations for
+>other applications.
+>  
+>
+Interesting. Slab internally uses lots of large per-cpu arrays. 
+Alltogether something like around 40 kB/cpu. Right now implemented with 
+NR_CPUs pointers. In the long run I'll try to switch to your allocator.
 
-Question 1: Does the error remain if you switch off preemptive?
+But back to the patch that started this thread: Do you still need the 
+ability to set an explicit alignment for slab allocations? If yes, then 
+I'd polish my patch, double check all kmem_cache_create callers and then 
+send the patch to akpm. Otherwise I'd wait - the patch is not a bugfix.
 
-Question 2: Can you enable DEBUG in i8042.c, repeat the error
-and mail me the resulting output?
-
-Andries
-
-aeb@cwi.nl
+--
+    Manfred
 

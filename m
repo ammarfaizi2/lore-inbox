@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbTDVRaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 13:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTDVRap
+	id S263274AbTDVRaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 13:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTDVRaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 13:30:45 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4992 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263277AbTDVRam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 13:30:42 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304221745.h3MHjA8m000202@81-2-122-30.bradfords.org.uk>
-Subject: Re: objrmap and vmtruncate
-To: mbligh@aracnet.com (Martin J. Bligh)
-Date: Tue, 22 Apr 2003 18:45:10 +0100 (BST)
-Cc: mingo@redhat.com (Ingo Molnar), akpm@digeo.com (Andrew Morton),
-       andrea@suse.de (Andrea Arcangeli), mingo@elte.hu, hugh@veritas.com,
-       dmccr@us.ibm.com, torvalds@transmeta.com (Linus Torvalds),
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <182180000.1051028196@[10.10.2.4]> from "Martin J. Bligh" at Apr 22, 2003 09:16:37 AM
-X-Mailer: ELM [version 2.5 PL6]
+	Tue, 22 Apr 2003 13:30:09 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:49887 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263274AbTDVRaI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 13:30:08 -0400
+Date: Tue, 22 Apr 2003 10:43:02 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: lse-tech@lists.sourceforge.net
+cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       cliffw@osdl.org, wli@holomorphy.com
+Subject: Re: LSE conference call
+Message-ID: <55950000.1051033382@w-hlinder>
+In-Reply-To: <20030418220810.GB12469@holomorphy.com>
+References: <200304181744.h3IHitmT000299@81-2-122-30.bradfords.org.uk> <200304181958.h3IJwgX11744@mail.osdl.org> <20030418220810.GB12469@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > make almost zero noticeable difference on a 768 MB system - i have a 768
-> > MB system. Whether 1MB of extra RAM to a 128 MB system will make more of a
-> > difference than a predictable VM - i dont know, it probably depends on the
-> > app, but i'd go for more RAM. But it will make a _hell_ of a difference on
-> > a 1 TB RAM 64-bit system where the sharing factor explodes. And that's
-> > where Linux usage we will be by the time 2.6 based systems go production.
 
-> You obviously have a somewhat different timeline in mind for 2.6 than the
-> rest of us ;-)
+In light of our speaker sleeping through the meeting and
+the fact that kernel hackers tend not to be awake early
+in the morning I propose moving the time of the call to
+1pm Pacific Time (GMT-0800). 
 
-It's certainly where Linux usage will be before 2.8 is ready.
+Originally we chose 9:30am to encourage people in Europe and 
+India to attend. However, the time change has not increased 
+attendance so I think we should move it to a more reasonable 
+time for North American Continental dwellers who are the 
+main attendees.
 
-(and anyway, I'm sure there's a subsystem that we haven't _yet_
-re-written during the feature freeze...  :-) )
+Any comments? Debate? Hate mail?
+
+Send to me or lse-tech@lists.sf.net
+
+Hanna
 
 
-John.
+--On Friday, April 18, 2003 03:08:10 PM -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
+
+> At some point in the past, John Bradford wrote:
+>>> Nobody else is in the conference, has it been cancelled, or am I late?  :-)
+> 
+> On Fri, Apr 18, 2003 at 12:58:42PM -0700, Cliff White wrote:
+>> You were a bit late. Mr. Irwin didn't show, so it was a very brief call.
+>> cliffw
+> 
+> Sorry about that, I fell asleep shortly before the call despite
+> attempts not to.
+> 
+> 
+> -- wli
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

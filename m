@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267026AbUBEWql (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 17:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267028AbUBEWql
+	id S267028AbUBEWrc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 17:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267033AbUBEWrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 17:46:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16107 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267026AbUBEWq2 (ORCPT
+	Thu, 5 Feb 2004 17:47:32 -0500
+Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:44725 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267028AbUBEWr0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 17:46:28 -0500
-Date: Thu, 5 Feb 2004 14:39:40 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: sean.hefty@intel.com, ftillier@infiniconsys.com,
-       cfriesen@nortelnetworks.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org, hozer@hozed.org, woody@co.intel.com,
-       bill.magro@intel.com, woody@jf.intel.com,
-       infiniband-general@lists.sourceforge.net
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
- theLinux kernel
-Message-Id: <20040205143940.59d016ef.rddunlap@osdl.org>
-In-Reply-To: <20040205224043.A7344@infradead.org>
-References: <C1B7430B33A4B14F80D29B5126C5E94703262589@orsmsx401.jf.intel.com>
-	<20040205224043.A7344@infradead.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 17:47:26 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: apt-drink@telefonica.net
+Subject: Re: 2.6.2-ck1
+Date: Fri, 6 Feb 2004 09:47:14 +1100
+User-Agent: KMail/1.6
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200402052109.24122.kernel@kolivas.org>
+In-Reply-To: <200402052109.24122.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200402060947.14492.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004 22:40:43 +0000 Christoph Hellwig <hch@infradead.org> wrote:
+Hi Rafael
 
-| On Thu, Feb 05, 2004 at 02:26:46PM -0800, Hefty, Sean wrote:
-| > Personally, I'm amazed that professional developers have to discuss or
-| > defend modular, portable code.
-| > 
-| > Once the code has been submitted, then specific implementation problems
-| > can be dealt with.
-| 
-| *plonk*
+>Do u plan to merge bootsplash patches in your patchset like you did with 2.4 
+>series??
 
+Given time, sure why not.
 
-Christoph, he didn't say merged.  Let them submit it for review...
-and then comment on it.
+Con.
 
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/
+>Rafael Rodríguez (not suscribed, CC me)
+
+P.S. It is convention on the mailing list when replying to mail to "reply to 
+all" to ensure anyone not subscribed gets a copy. lkml can be very noisy and 
+your message might be missed.

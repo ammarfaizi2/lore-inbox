@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbTKDSgd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 13:36:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKDSgd
+	id S262529AbTKDSoP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 13:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbTKDSoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 13:36:33 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:33730 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S262458AbTKDSgc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 13:36:32 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [Alsa-devel] [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
-Date: Tue, 4 Nov 2003 21:35:05 +0100
-User-Agent: KMail/1.5.4
-References: <200311021458.59759.mbuesch@freenet.de> <200311041630.22807.mbuesch@freenet.de> <s5hism0tacc.wl@alsa2.suse.de>
-In-Reply-To: <s5hism0tacc.wl@alsa2.suse.de>
-Cc: alsa-devel@alsa-project.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200311042136.19042.mbuesch@freenet.de>
+	Tue, 4 Nov 2003 13:44:15 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:59089 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262529AbTKDSoI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 13:44:08 -0500
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+From: john stultz <johnstul@us.ibm.com>
+To: Tony Lindgren <tony@atomide.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, psavo@iki.fi, clepple@ghz.cc
+In-Reply-To: <20031104002243.GC1281@atomide.com>
+References: <20031104002243.GC1281@atomide.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1067971295.11436.66.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 Nov 2003 10:41:35 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2003-11-03 at 16:22, Tony Lindgren wrote:
+> After a year of not having access to my dual athlon box I finally ran
+> apt-get dist-upgrade on it :)
+> 
+> I also did some cleanup on the amd76x_pm to make the amd76x_pm to load as 
+> module, and to remove some unnecessary PCI code.
 
-On Tuesday 04 November 2003 16:36, Takashi Iwai wrote:
-> the first argument is "enable".  "index" is the second argument.
-> so, you'll need to pass "snd-ens1371=1,1"
+I've received some reports that this patch causes time problems.
 
-Now neither ALSA, nor OSS-emu works. :)
+Have those issues been looked into further, or addressed? 
 
-> Takashi
+thanks
+-john
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/qA3BoxoigfggmSgRAkBxAJ9fJnOGw+qCv30AUA7TrXQuBTM3JwCePPAT
-HP5FlPbzkbDMCED/ra4BSYU=
-=6RlG
------END PGP SIGNATURE-----
 

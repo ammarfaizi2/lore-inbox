@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267007AbSKQWoV>; Sun, 17 Nov 2002 17:44:21 -0500
+	id <S266991AbSKQWml>; Sun, 17 Nov 2002 17:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267013AbSKQWoV>; Sun, 17 Nov 2002 17:44:21 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:23801 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267007AbSKQWoS>;
-	Sun, 17 Nov 2002 17:44:18 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 17 Nov 2002 23:51:09 +0100 (MET)
-Message-Id: <UTC200211172251.gAHMp9Q22607.aeb@smtp.cwi.nl>
-To: marcelo-leal@procergs.rs.gov.br
-Subject: Re: hexa minor number...
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S267001AbSKQWml>; Sun, 17 Nov 2002 17:42:41 -0500
+Received: from dsl-64-192-31-41.telocity.com ([64.192.31.41]:48565 "EHLO
+	butterfly.hjsoft.com") by vger.kernel.org with ESMTP
+	id <S266991AbSKQWmk>; Sun, 17 Nov 2002 17:42:40 -0500
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Date: Sun, 17 Nov 2002 17:49:36 -0500
+To: Magnus M?nsson <ganja@0x63.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RequestIRQ: Resource in use. 2.4.20-rc2
+Message-ID: <20021117224936.GA2753@butterfly.hjsoft.com>
+References: <20021117221935.GI4722@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
+In-Reply-To: <20021117221935.GI4722@h55p111.delphi.afb.lu.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Marcelo Leal <marcelo-leal@procergs.rs.gov.br>
 
-    I have one linux file server, that serves filesystems to
-    some machines (FreeBSD, Solaris, windows and etc...).
-    My problem is the /dev filesystem. The freebsd wants to
-    create a /dev/da0s1e device with a hexa minor number (0x00020014),
-    and the linux machine write decimal (20).
-    Did you know how i fix this?
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[Maybe your /dev/da0s1e was really da2s1e?]
+On Sun, Nov 17, 2002 at 11:19:35PM +0100, Magnus M?nsson wrote:
+> In kernel 2.4.19 my pcmcia-cards works perfactly but in 2.4.20-rc1 and
+> 2.4.20-rc2 I am getting the same error on both my pcmcia cards (one=20
+802.11b
+> wireless card of model D-Link DWL-650 and one 3com card 10/100Mb of=20
+some
+> kind).
+> pcmcia-cs version 3.2.2-1 is used though I am running debian unstable.
 
-    My opinion is that linux truncate the numbers to "255" (8bits).
-    My linux filesystem is xfs. So, the filesystem supports....
-    If i could to write 13192 (decimal), i guess that it will work too.
-    But the linux do not do it.
+i have the exact same story, but in the 2.5 kernels.  orinoco card and
+a 3com card.  neither work with anything later than 2.5.45, so i've
+been stuck at that kernel.
 
-Yes, that is an old problem. It requires a kernel patch.
-Linux dev_t is split into 8+8 bits for major+minor.
-FreeBSD uses 8+24.
-Solaris uses 14+18.
+what's happened the same from 2.4.20-rc1 -> rc2 and from 2.5.45 ->
+2.5.46?
 
-There are plans to change Linux dev_t into 12+20, but things
-will still fail (since FreeBSD has more minor bits and Solaris
-has more major bits).
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
 
-For some purposes it sometimes helps to mount /dev using NFS v2.
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-[NFS v3 transmits 2 32-bit integers with the mknod command.
-NFS v2 used create instead of mknod, and stuffs major,minor
-in the size field. For communication between FreeBSD and Solaris
-that happens to work, since the 32-bit number is transferred as
-a cookie.]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-[stat and mknod form a channel between the user application
-and the bits in the filesystem; unfortunately, under Linux
-this channel truncates the values passed along; however, a
-rather small patch makes Linux behave and leave a dev_t in peace;
-if this is important for you I can dig up this old patch again,
-or recreate it; even though the patch is small, some hassle is
-involved - on the one hand, with a 32-bit dev_t you still have
-problems with FreeBSD and Solaris (but using NFS v2 might help),
-on the other hand, with a 64-bit dev_t you can handle all filesystems,
-but if I recall correctly that required a new system call, and
-recompilation of glibc]
+iD8DBQE92B0ACGPRljI8080RAri0AJ96fm3ZgjVtQJ7kdYSAVd/cd36cTgCfZyJv
+lUzqBMIoRbKB09bFRVgAMGI=
+=up9w
+-----END PGP SIGNATURE-----
 
-
-Andries
-
-
-Let me cc linux-kernel and Linus.
-There is a feature freeze in 2.5. Probably that means that
-this truncation of major and minor numbers will not be removed,
-but it would still be interesting to hear what people say today.
-
+--7JfCtLOvnd9MIVvH--

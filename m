@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319266AbSIFQIP>; Fri, 6 Sep 2002 12:08:15 -0400
+	id <S319250AbSIFQDi>; Fri, 6 Sep 2002 12:03:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319267AbSIFQIO>; Fri, 6 Sep 2002 12:08:14 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:43246 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S319266AbSIFQIO>; Fri, 6 Sep 2002 12:08:14 -0400
-Date: Fri, 06 Sep 2002 09:11:05 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, hadi@cyberus.ca,
-       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-Message-ID: <52305571.1031303463@[10.10.2.3]>
-In-Reply-To: <3D78CBF6.10609@us.ibm.com>
-References: <3D78CBF6.10609@us.ibm.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S319229AbSIFQDi>; Fri, 6 Sep 2002 12:03:38 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:20181 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319250AbSIFQDe>; Fri, 6 Sep 2002 12:03:34 -0400
+Date: Fri, 6 Sep 2002 13:07:59 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Woller, Thomas" <tom.woller@cirrus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: cs4281 & select in 2.4
+In-Reply-To: <973C11FE0E3ED41183B200508BC7774C05233F87@csexchange.crystal.cirrus.com>
+Message-ID: <Pine.LNX.4.44L.0209061305170.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, no.  Bad Martin!  Throughput didn't drop, "Specweb compliance" 
-> dropped.   Those are two very, very different things.  I've found 
-> that the server can produce a lot more throughput, although it 
-> doesn't have the characteristics that Specweb considers compliant.  
-> Just have Troy enable mod-status and look at the throughput that 
-> Apache tells you that it is giving during a run.  _That_ is real
-> throughput, not number of compliant connections.
+On Fri, 6 Sep 2002, Woller, Thomas wrote:
 
-By throughput I meant number of compliant connections, not bandwidth.
-It may well be latency that's going out the window, rather than
-bandwidth. Yes, I should use more precise terms ...
+> which 2.4 version are you using? 2.4.19?  There was a ham-radio
+> select(2) fix in the cs4281 driver back in 2.4.17 era, think that
+> it got into the 2.4.18 kernel tree.  I just checked the 2.4.19
+> kernel and the fix does seem to be included.
 
-> _And_ NAPI is for receive only, right?  Also, my compliance drop 
-> occurs with the NAPI checkbox disabled.  There is something else 
-> in the new driver that causes our problems.
+I'm using 2.4.19, but select() doesn't work just as it
+didn't in 2.4.16.
 
-Not sure about that - I was told once that there were transmission
-completion interrupts as well? What happens to those? Or am I 
-confused again ...
+> i'll place a tarbz2 file out on an FTP server, and if you can try this
+> driver, that would help me out.  if the driver does not build under your
+> tree, let me know, it's circa 2.4.17 and i don't know the 2.4.19 mods
+> concerning drivers.
 
-M.
+> i'll put cs4281-src-20011214-01n-tar.bz2 into \cs4281 directory.
+
+Thanks.  I've just grabbed the tarball and will let you know
+if this fixes things.
+
+kind regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

@@ -1,26 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312991AbSDYIaG>; Thu, 25 Apr 2002 04:30:06 -0400
+	id <S312987AbSDYIhZ>; Thu, 25 Apr 2002 04:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312988AbSDYIaF>; Thu, 25 Apr 2002 04:30:05 -0400
-Received: from [163.25.99.33] ([163.25.99.33]:15633 "HELO CHINS")
-	by vger.kernel.org with SMTP id <S312899AbSDYIaF>;
-	Thu, 25 Apr 2002 04:30:05 -0400
-Message-ID: <273oH1b@ibm.com>
-From: =?ISO-8859-1?Q?=AA=F8=A9=B0=A5=F8=B7~=BA=DE=B2z=AC=E3=A8s=A9=D2?=@vger.kernel.org
-To: Thank@vger.kernel.org, You@vger.kernel.org
-Subject: =?big5?Q?=A5u=ADn=A4=BB=A4=C0=C4=C1=B0e=B1z=AA=F7=A5=DB=B0=F3=C2=A7=A8=F7!?=
-X-Mailer: yefgn62aV4P3sU8KVIETRz
+	id <S312988AbSDYIhY>; Thu, 25 Apr 2002 04:37:24 -0400
+Received: from krynn.axis.se ([193.13.178.10]:43939 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S312987AbSDYIhX>;
+	Thu, 25 Apr 2002 04:37:23 -0400
+From: johan.adolfsson@axis.com
+Message-ID: <00a001c1ec34$ad5703a0$adb270d5@homeip.net>
+Reply-To: <johan.adolfsson@axis.com>
+To: <quinlan@transmeta.com>, <linux-kernel@vger.kernel.org>
+Cc: "Johan Adolfsson" <johan.adolfsson@axis.com>
+In-Reply-To: <Pine.LNX.4.33.0204241009040.24998-100000@ado-2.axis.se> <15559.17638.605450.368606@transmeta.com>
+Subject: Re: [PATCH and RFC] Compact time in cramfs 
+Date: Thu, 25 Apr 2002 10:39:12 +0200
+MIME-Version: 1.0
 Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-Date: Thu, 25 Apr 2002 04:30:05 -0400
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by mangalore.zipworld.com.au id SAA24774
 
-各位社會的先進打擾了! 我是長庚企研所的研究生,透過網路mail搜尋軟體,有幸得知貴公司(或個人)的mail,，由於我的研究是有關B2B網路電子市集的消費者行為,問卷對象是企業用戶在問卷蒐集上並不容易 因此想先以有工作經驗者作為前測。本問卷採用實驗情境的方式 僅有27個量表 大概會花您六分鐘的時間。在問卷確實回收且為有效樣本後，本人將以電子郵件的方式回覆您並郵寄100元的金石堂禮券以感謝您抽空填完本人的問卷。  
-請點選該網址：實驗情境八 http://home.pchome.com.tw/society/nikky520/S8.htm
+
+Daniel Quinlan writes:
+
+
+> Johan Adolfsson writes:
+>
+> > The following patch gives a cramfs filesystem a single timestamp
+> > stored in the superblock. It uses the "future" field so no space is
+> > wasted.  mkcramfs uses the newest mtime or ctime from the
+> > filesystem.
+>
+> Agreed, it seems like a good idea to have a filesystem timestamp.
+>
+> The future field should probably be saved for use as the offset of a
+> "secondary superblock" (or something like that) rather than squandered
+> for one field.  At least, I think that was the original intent for the
+> field and it has always been my plan.
+
+Ok, I wondered what the intent really was.
+
+> Maybe it would be easiest to overload the super.fsid.edition field?
+
+Makes sense.
+
+> Then you could have an option (probably a backward-compatible flag in
+> the superblock, but could be compile-time or mount-time) that indicates
+> that the edition number is a timestamp.
+
+Using a flag should be enough I think:
+#define CRAMFS_FLAG_FSID_EDITION_IS_TIMESTAMP  0x00000004 /* edition field
+used as timestamp */
+
+And mkcramfs should perhaps have support for
+-e timestamp
+(the string timestamp) which would set the edition field to the timestamp
+according to the files in the image and set the timestamp flag.
+Perhaps another option to set the timestamp flag but use whatever number
+is supplied in the -e option might be useful for some, although I personally
+don't think I need it. E.g. -f FSID_EDITION_IS_TIMESTAMP
+
+
+Another mkcramfs feature we have at Axis is the support for metafiles with
+file info used when creating the image. That allows us to create device
+nodes, change userid etc. without being root which is good when building
+for embedded devices.
+It was first posted in October last year but without any feedback:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0110.0/0098.html
+What do you think about that?
+
+> - Dan
+
+/Johan
 
 

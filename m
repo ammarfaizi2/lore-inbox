@@ -1,62 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292917AbSCDVf2>; Mon, 4 Mar 2002 16:35:28 -0500
+	id <S292915AbSCDVh2>; Mon, 4 Mar 2002 16:37:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292915AbSCDVfT>; Mon, 4 Mar 2002 16:35:19 -0500
-Received: from pc-80-195-34-57-ed.blueyonder.co.uk ([80.195.34.57]:3460 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S292914AbSCDVfO>; Mon, 4 Mar 2002 16:35:14 -0500
-Date: Mon, 4 Mar 2002 21:34:46 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Chris Mason <mason@suse.com>, "Stephen C. Tweedie" <sct@redhat.com>,
+	id <S292916AbSCDVhJ>; Mon, 4 Mar 2002 16:37:09 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12548 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S292915AbSCDVhC>; Mon, 4 Mar 2002 16:37:02 -0500
+Date: Mon, 4 Mar 2002 18:36:47 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
         Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Message-ID: <20020304213446.N1444@redhat.com>
-In-Reply-To: <mason@suse.com> <200203041811.g24IBRQ09280@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200203041811.g24IBRQ09280@localhost.localdomain>; from James.Bottomley@steeleye.com on Mon, Mar 04, 2002 at 12:11:27PM -0600
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020304191942.M20606@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0203041732520.1413-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
 
-On Mon, Mar 04, 2002 at 12:11:27PM -0600, James Bottomley wrote:
+> > 2) We can do local per-node scanning - no need to bounce
+> > information to and fro across the interconnect just to see what's
+> > worth swapping out.
+>
+> the lru lists are global at the moment, so for the normal swapout
+> activitiy rmap won't allow you to do what you mention above
 
-> The way I've seen a database do this is to set up the actions 
-> as linked threads which are run as part of the completion routine of the 
-> previous thread.  Thus, you don't need to wait for the update to complete, you 
-> just kick off the transaction.   You are prevented from stepping on your own 
-> transaction because if you want to alter the same row again you have to wait 
-> for the row lock to be released.  The row locks are the "barriers" in this 
-> case, but they preserve the concept of transaction independence.
+Actually, the lru lists are per zone and have been for a while.
 
-Right, but in the database world we are usually doing synchronous
-transactions, so allowing the writeback to be done in parallel is
-important; and typically there's a combination of undo and redo
-logging, so there is a much more relaxed ordering requirement on the
-main data writes.
+The thing which was lacking up to now is a pagecache_lru_lock
+per zone, because this clashes with truncate().  Arjan came up
+with a creative solution to fix this problem and I'll integrate
+it into -rmap soon...
 
-In filesystems it's much more common just to use redo logging, so we
-can't do any file writes before the journal commit; and the IO is
-usually done as writeback after the application's syscall has
-finished.
+> (furthmore rmap gives you only the pointer to the pte chain, but there's
+> no guarantee the pte is in the same node as the physical page, even
+> assuming we'll have per-node inactive/active list, so you'll fall into
+> the bouncing scenario anyways rmap or not, only the cpu usage will be
+> lower and as side effect you'll bounce less, but you're not avoiding the
+> interconnet overhead with the per-node scanning).
 
-Linux already has such fine-grained locking for the actual completion
-of the filesystem operations, and in the journaling case,
-coarse-grained writeback is usually done because it's far more
-efficient to be able to batch up a bunch of updates into a single
-transaction in the redo log.
+Well, if we need to free memory from node A, we will need to
+do that anyway. If we don't scan the page tables from node B,
+maybe we'll never be able to free memory from node A.
 
-There are some exceptions.  GFS, for example, takes care to maintain
-transactional fine grainedness even for writeback, because in a
-distributed filesystem you have to be able to release pinned metadata
-back to another node on demand as quickly as possible, and you don't
-want to force huge compound transactions out to disk when doing so.
+The only thing -rmap does is make sure we only scan the page
+tables belonging to the physical pages in node A, instead of
+having to scan the page tables of all processes in all nodes.
 
-Cheers,
- Stephen
+> Also note that on the modern numa (the thing I mostly care about) in
+> misc load (like a desktop), without special usages (like user bindings),
+> striping virtual pages and pagecache over all the nodes will be better
+> than restricting one task to use only the bandwith of one bank of ram,
+> so decreasing significantly the potential bandwith of the global
+> machine.
+
+This is an interesting point and suggests we want to start
+the zone fallback chains from different places for each CPU,
+this both balances the allocation and can avoid the CPUs
+looking at "each other's" zone and bouncing cachelines around.
+
+
+> depends on what kind of numa systems I think. I worry more about the
+> complexity with lots of ram. As said above on a 64bit 512G system
+> with hundred gigabytes of vm globally mapped at the same time, paging
+> out hard beacuse of some terabyte mapping marked dirty during page
+> faults, will quite certainly need rmap to pageout such dirty mappings
+> efficiently, really no matter if it's cc-numa or not, it's mostly a
+> complexity problem.
+
+Indeed.
+
+> I really don't see it as a 2.4 need :). I never said no-way rmap in 2.5.
+> It maybe I won't agree on the implementation,
+
+I'd appreciate it if you could look at the implementation and
+look for areas to optimise. However, note that I don't believe
+-rmap is already at the stage where optimisation is appropriate.
+
+Or rather, now is the time for macro optimisations, not for
+micro optimisations.
+
+regards,
+
+Rik
+-- 
+Will hack the VM for food.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

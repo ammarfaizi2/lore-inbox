@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265064AbUD3EIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265058AbUD3EPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265064AbUD3EIL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 00:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUD3EIK
+	id S265058AbUD3EPN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 00:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUD3EPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 00:08:10 -0400
-Received: from smtp016.mail.yahoo.com ([216.136.174.113]:25184 "HELO
-	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265064AbUD3EIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 00:08:07 -0400
-Message-ID: <4091D123.9070606@yahoo.com.au>
-Date: Fri, 30 Apr 2004 14:08:03 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Fri, 30 Apr 2004 00:15:13 -0400
+Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:16578 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265058AbUD3EPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 00:15:10 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-To: Marc Singer <elf@buici.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com> <409083E9.2080405@yahoo.com.au> <20040429144941.GC708@buici.com>
-In-Reply-To: <20040429144941.GC708@buici.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16529.53960.24100.683096@wombat.chubb.wattle.id.au>
+Date: Fri, 30 Apr 2004 14:15:04 +1000
+To: Justin Pryzby <justinpryzby@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5, 2.6.6-rc2 sluggish interrupts
+In-Reply-To: <689431378@toto.iv>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Singer wrote:
-> On Thu, Apr 29, 2004 at 02:26:17PM +1000, Nick Piggin wrote:
-> 
->>Yes it includes something which should help that. Along with
->>the "split active lists" that I mentioned might help your
->>problem when WLI first came up with the change to the
->>swappiness calculation for your problem.
->>
->>It would be great if you had time to give my patch a run.
->>It hasn't been widely stress tested yet though, so no
->>production systems, of course!
-> 
-> 
-> As I said, I'm game to have a go.  The trouble was that it doesn't
-> apply.  My development kernel has an RMK patch applied that seems to
-> conflict with the MM patch on which you depend.
-> 
+>>>>> "Justin" == Justin Pryzby <justinpryzby@users.sourceforge.net> writes:
 
-You would probably be better off trying a simpler change
-first actually:
+Justin> --Q68bSM7Ycu6FN28Q Content-Type: text/plain; charset=us-ascii
+Justin> Content-Disposition: inline Content-Transfer-Encoding:
+Justin> quoted-printable
 
-in mm/vmscan.c, shrink_list(), change:
+Justin> It feels to me like it always happens when the disk is
+Justin> accessed (possibly just because I can _hear_ that), and it
+Justin> seems like it happens when the disk hasn't been used in a
+Justin> while.
 
-if (res == WRITEPAGE_ACTIVATE) {
-	ClearPageReclaim(page);
-	goto activate_locked;
-}
+Try 
+    1.  booting with elevator=deadline
+    2. hdparm -u /dev/hda
 
-to
+One of these might help.
 
-if (res == WRITEPAGE_ACTIVATE) {
-	ClearPageReclaim(page);
-	goto keep_locked;
-}
-
-I think it is not the correct solution, but should narrow
-down your problem. Let us know how it goes.
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

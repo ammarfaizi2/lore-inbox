@@ -1,89 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbTEBRI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 13:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbTEBRI1
+	id S263152AbTEBTzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 15:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbTEBTzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 13:08:27 -0400
-Received: from pop.gmx.de ([213.165.65.60]:57684 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263020AbTEBRIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 13:08:24 -0400
-Message-ID: <3EB2A8E9.8000705@gmx.net>
-Date: Fri, 02 May 2003 19:20:41 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
+	Fri, 2 May 2003 15:55:13 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:17423 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263152AbTEBTzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 15:55:09 -0400
+Date: Fri, 2 May 2003 21:07:32 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] fix mach64_gx.c
+In-Reply-To: <16050.3732.615164.697680@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44.0305022106110.15173-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: John Jasen <jjasen@realityfailure.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Did the SCO Group plant UnixWare source in the Linux kernel?
-References: <Pine.LNX.4.44.0305021237020.23347-100000@bushido>
-In-Reply-To: <Pine.LNX.4.44.0305021237020.23347-100000@bushido>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Jasen wrote:
 
-> On Fri, 2 May 2003, Carl-Daniel Hailfinger wrote:
-> 
-> 
->>me@linux:~> whois scoloses.org
->>
->>Whois Server Version 1.3
->>
->>No match for "SCOLOSES.ORG".
->>
->>
->>>>>Last update of whois database: Fri, 2 May 2003 05:57:11 EDT <<<
-> 
-> 
-> .org has been moved, and whois has not worked right since then for all 
-> .org domains. Really. Check out whois for spca.org, redcross.org, etc ...
+New fixes for the ATI driver are coming. I have been neglecting the 
+drivers to finish core changes which for the most part have been done.
 
-whois has worked right since then for all .org domains. Really.
+P.S
+   Has anyone tested this chipset on a PPC 64?
 
-me@linux:~> whois -h whois.pir.org scoloses.org
-NOT FOUND
-
-me@linux:~> whois -h whois.pir.org redcross.org
-NOTICE: Access to .ORG WHOIS information is provided to assist persons
-in determining the contents of a domain name registration record in the
-PIR registry database.
-[rest of legalese snipped]
-
-Domain ID:D3201715-LROR
-Domain Name:REDCROSS.ORG
-Created On:05-Sep-1995 04:00:00 UTC
-Last Updated On:14-Mar-2003 21:46:12 UTC
-Expiration Date:04-Sep-2010 04:00:00 UTC
-Sponsoring Registrar:R63-LROR
-Status:OK
-[rest of status snipped]
-
-This should be enough to prove my point.
-
-> 
->>    _---________---__________
->>   |                         }
->>  /    DO NOT FEED THE TROLL \
->>  \____                    __/
->>       -------------------`
->>               |#:|
->>               |#:|
->>               |#:|
->>            \\\|#:|/ /
->>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> 
-> Depends on who the troll is.
-
-Exactly.
-
-
-Carl-Daniel
 

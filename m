@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTDIDgr (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbTDIDgr (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:36:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49071 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262690AbTDIDgq (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 23:36:46 -0400
-Message-ID: <3E9397FC.8050000@pobox.com>
-Date: Tue, 08 Apr 2003 23:48:12 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id S262695AbTDIDi4 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:38:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262700AbTDIDi4 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:38:56 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:59610 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP id S262695AbTDIDiz (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 23:38:55 -0400
+From: Arun Dharankar <ADharankar@ATTBI.Com>
+To: "Matt D. Robinson" <yakker@alacritech.com>
+Subject: Re: Linux kernel crash dumps (LKCD) and PowerPC ports.
+Date: Tue, 8 Apr 2003 23:49:27 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200304081647.32146.ADharankar@ATTBI.Com> <1049843693.10620.34.camel@lambda.alacritech.com>
+In-Reply-To: <1049843693.10620.34.camel@lambda.alacritech.com>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org,
-       Kai Germaschewski <kai.germaschewski@gmx.de>, sfr@canb.auug.org.au,
-       "Nemosoft Unv." <nemosoft@smcc.demon.nl>, davem@redhat.com
-Subject: Re: SET_MODULE_OWNER?
-References: <20030409032537.547E32C06F@lists.samba.org>
-In-Reply-To: <20030409032537.547E32C06F@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304082349.27844.ADharankar@ATTBI.Com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <3E937144.9090105@pobox.com> you write:
-> 
->>Why don't you just let the maintainers apply the driver "cleanups" if 
->>they wish, or do not wish, like DaveM did.  Only when that is 
->>accomplished is it reasonable to consider moving SET_MODULE_OWNER -- and 
->>only then if other people do not need it's obvious utility.
-> 
-> 
-> The please define when it should and should not be used, so everyone
-> knows.
+Matt, thanks for the pointers!
 
-Use with structures that have an owner field, if you care about 
-cross-version kernel source compatibility.
+Looking at those sites, it appears that the development at
+"http://lists.insecure.org/lists/linux-kernel/2003/Feb/0987.html."
+which I had pointed is based on the SGI's dump scheme. Same
+for the one you pointed to.
 
+The other scheme I poinited to (from Mission Critical Linux/MCLX)
+seems to have some strong points too. Any pointers to discussions
+about why the LKCD work seems to more active than the
+MCLX one?
 
-> Currently it seems to be:
-> 
-> /* This macro should be used on structures which had the owner field
->    added between 2.2 and 2.4, and not others. */
-> 
-> Is that correct?
-
-No.  SET_MODULE_OWNER is useful regardless of kernel version, not just 
-the restrictive set you define here.  Different vendors may implement 
-SET_MODULE_OWNER with a different range of kernel versions, if they so 
-choose. It's not restricted at all to when struct net_device gained an 
-'owner' field.
-
-Maybe think of it this way:  a source code hook whose implementation is 
-free to change, as long as it functionally produces the desired result. 
-    The in-kernel definition of the macro is only one of N implementations.
-
-	Jeff
+Best regards,
+-Arun.
 
 
-
+On Tuesday 08 April 2003 07:14 pm, Matt D. Robinson wrote:
+> Please look at the lkcd-devel mailing archives.  There is
+> at least one group working on a PPC port of LKCD
+>
+> 	http://sourceforge.net/mail/?group_id=2726
+>
+> --Matt
+>
+> On Tue, 2003-04-08 at 13:47, Arun Dharankar wrote:
+> > Greetings.
+> >
+> > >From what I able to find from some searching around, the implementation
+> >
+> > by MCLX ("http://oss.missioncriticallinux.com/projects/mcore/") is being
+> > carried on at
+> > http://lists.insecure.org/lists/linux-kernel/2003/Feb/0987.html.
+> >
+> > Looking at these patches, I can only see x86 architecture support for
+> > in memory kernel crash dump support. Is anyone actively working on the
+> > PowerPC architecture?
+> >
+> > Best regards,
+> > -Arun.

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbUCDHDb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 02:03:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbUCDHDb
+	id S261496AbUCDHE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 02:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbUCDHE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 02:03:31 -0500
-Received: from komp197.tera.com.pl ([81.21.195.197]:29060 "EHLO wrota.net")
-	by vger.kernel.org with ESMTP id S261519AbUCDHDa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 02:03:30 -0500
-Date: Thu, 4 Mar 2004 08:03:29 +0100
-From: Daniel Fenert <daniel@fenert.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is there some bug in ext3 in 2.4.25?
-Message-ID: <20040304070329.GA16880@fenert.net>
-Mail-Followup-To: Daniel Fenert <daniel@fenert.net>,
-	linux-kernel@vger.kernel.org
-References: <20040304065038.GV31185@fenert.net>
+	Thu, 4 Mar 2004 02:04:26 -0500
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:28011 "EHLO
+	mwinf0602.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261496AbUCDHEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 02:04:08 -0500
+Date: Thu, 4 Mar 2004 08:04:27 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nmi_watchdog=2 and P4-HT
+Message-ID: <20040304080427.GC683@zaniah>
+References: <20040304054215.GA683@zaniah>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040304065038.GV31185@fenert.net>
-User-Agent: Mutt/1.4.2i
-Organization: Co by tu =?iso-8859-2?B?d3Bpc2HmPyBNb78=?=
-	=?iso-8859-2?Q?e?= daniellek.z.domu ? ;)
-X-Operating-System: Linux 2.4.24
-X-Wyslij-mi-SMSa: Lepiej nie...
+In-Reply-To: <20040304054215.GA683@zaniah>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-W dniu Thu, Mar 04, 2004 at 07:50:38AM +0100, Daniel Fenert wystuka³(a):
->Message from syslogd@lazy at Thu Mar  4 08:31:58 2004 ...
->lazy kernel: Assertion failure in __journal_drop_transaction() at
->checkpoint.c:587: "transaction->t_ilist == NULL"
+On Thu, 04 Mar 2004 at 05:42 +0000, Philippe Elie wrote:
 
-One more thing - it has happened when /var got full.
+> Hi,
+> 
+> Actually with nmi_watchdog=2 and a P4 ht box the nmi is reflected
+> only on logical processor 0, it's better to get it on both.
 
--- 
-Daniel Fenert              --==> daniel@fenert.net <==--
-==-P o w e r e d--b y--S l a c k w a r e-=-ICQ #37739641-==
-Absurd: przekonanie sprzeczne z Twoimi pogl±dami - [Ambrose Bierce]
-=======- http://daniel.fenert.net/ -=======< +48604628083 >
+oops a line from a next patch is in the patch "deliver nmi to both thread"
+patch, apply this incremental patch please else on UP check_nmi_watchdog()
+will use 1hz as rate and boot will wait 10 seconds for complementation
+of this test.
+
+Phil 
+
+
+--- linux-2.6/arch/i386/kernel/nmi.c~	2004-03-04 07:59:22.000000000 +0000
++++ linux-2.6/arch/i386/kernel/nmi.c	2004-03-04 07:59:31.000000000 +0000
+@@ -347,7 +347,6 @@ static int setup_p4_watchdog(void)
+ 	wrmsr(MSR_P4_IQ_COUNTER0, -(cpu_khz/nmi_hz*1000), -1);
+ 	apic_write(APIC_LVTPC, APIC_DM_NMI);
+ 	wrmsr(MSR_P4_IQ_CCCR0, nmi_p4_cccr_val, 0);
+-	nmi_hz = 1;
+ 	return 1;
+ }
+ 

@@ -1,66 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUE0Sdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUE0Sjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbUE0Sdh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 14:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUE0Sdg
+	id S265000AbUE0Sjn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 14:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265014AbUE0Sjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:33:36 -0400
-Received: from cpe-66-87-73-84.ca.sprintbbd.net ([66.87.73.84]:253 "EHLO
-	elrond.shiresoft.com") by vger.kernel.org with ESMTP
-	id S264957AbUE0Sd0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:33:26 -0400
-Subject: Re: 4k stacks in 2.6
-From: Guy Sotomayor <ggs@shiresoft.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Arjan van de Ven <arjanv@redhat.com>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0405270754360.1648@ppc970.osdl.org>
-References: <20040525211522.GF29378@dualathlon.random>
-	 <20040526103303.GA7008@elte.hu>
-	 <20040526125014.GE12142@wohnheim.fh-wedel.de>
-	 <20040526125300.GA18028@devserv.devel.redhat.com>
-	 <20040526130047.GF12142@wohnheim.fh-wedel.de>
-	 <20040526130500.GB18028@devserv.devel.redhat.com>
-	 <20040526164129.GA31758@wohnheim.fh-wedel.de>
-	 <20040527124551.GA12194@elte.hu> <20040527135930.GC3889@dualathlon.random>
-	 <40B5F8C0.2010005@didntduck.org> <20040527145033.GF3889@dualathlon.random>
-	 <Pine.LNX.4.58.0405270754360.1648@ppc970.osdl.org>
-Content-Type: text/plain
-Organization: ShireSoft
-Message-Id: <1085682709.5910.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 27 May 2004 11:31:50 -0700
+	Thu, 27 May 2004 14:39:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28383 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265000AbUE0Sji
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 14:39:38 -0400
+Message-ID: <40B635DC.4070708@pobox.com>
+Date: Thu, 27 May 2004 14:39:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, prism54-devel@prism54.org
+Subject: Re: [PATCH 0/14] prism54: bring up to sync with prism54.org cvs rep
+References: <20040524083003.GA3330@ruslug.rutgers.edu>
+In-Reply-To: <20040524083003.GA3330@ruslug.rutgers.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-27 at 07:55, Linus Torvalds wrote:
-
-> "minor implementation detail"?
+Luis R. Rodriguez wrote:
+> Jeff,
 > 
-> You need to get to the thread info _some_ way, and you need to get to it
-> _fast_. There are really no sane alternatives. I certainly do not want to
-> play games with segments.
+> Please apply the following patches to linux-2.6.7-rc1. These patches
+> bring the kernel tree up to sync with prism54.org's 1.2's release.
+> 
+> [PATCH 1/14 linux-2.6.7-rc1] prism54: add new private ioctls
 
-While segments on x86 are in general to be avoided (aka the 286
-segmented memory models) they can be useful for some things in the
-kernel.
+Change OK once cleanups are moved to separate patch.
 
-Here's a couple of examples:
-      * dereference gs:0 to get the thread info.  The first element in
-        the structure is its linear address (ie usable for being deref'd
-        off of DS).
-      * use SS to enforce the stack limit.  This way you'd absolutely
-        get an exception when there was a stack overflow (underflow). 
-        SS gets reloaded on entry into the kernel and on interrupts
-        anyway so there really shouldn't be a performance impact.  I
-        haven't looked at all the (potential) gcc implications here so
-        this one may not be completely doable.
--- 
 
-TTFN - Guy
+> [PATCH 2/14 linux-2.6.7-rc1] prism54: reset card on tx_timeout
+
+OK
+
+
+> [PATCH 3/14 linux-2.6.7-rc1] prism54: add iwspy support
+
+Change OK, patch rejected due to Lindent (!!!) being included in this 
+patch as well as functional changes.
+
+
+> [PATCH 4/14 linux-2.6.7-rc1] prism54: add support for avs header in monitor mode
+
+OK
+
+
+> [PATCH 5/14 linux-2.6.7-rc1] prism54: new prism54 kernel compatibility
+
+rejected, see Arjan's comments
+
+also, prismcompat24.h doesn't belong in the 2.6 kernel.
+
+
+> [PATCH 6/14 linux-2.6.7-rc1] prism54: Fix prism54.org bugs 74, 75
+
+OK
+
+
+> [PATCH 7/14 linux-2.6.7-rc1] prism54: Fix 2.4 build
+
+rejected, as per comment for patch #5
+
+
+> [PATCH 8/14 linux-2.6.7-rc1] prism54: Fix prism54.org bugs 39, 73
+
+cleanups and bug fixes mixed together in same patch.
+
+Change OK once cleanups are moved to separate patch.
+
+
+> [PATCH 9/14 linux-2.6.7-rc1] prism54: Fix prism54.org bug 77; strengthened oid transaction
+
+More functional changes mixed in with whitespace and formatting cleanups.
+
+Change OK once cleanups are moved to separate patch.
+
+
+> [PATCH 10/14 linux-2.6.7-rc1] prism54: Don't allow mib reads while unconfigured
+
+Change OK once cleanups are moved to separate patch.
+
+
+> [PATCH 11/14 linux-2.6.7-rc1] prism54: Touched up kernel compatibility
+
+Rejected due to patch #5 comments.
+
+
+> [PATCH 12/14 linux-2.6.7-rc1] prism54: Start using likely/unlikely
+
+Use of likely()/unlikely() is OK.
+
+A change to skb_reserve() was snuck into this patch, completely 
+unrelated to $subject.  Also, meaningless cleanups obscure things here too.
+
+
+> [PATCH 13/14 linux-2.6.7-rc1] prism54: Fix 2.4 SMP build
+
+I agree with this change, but this patch also includes unrelated changes!!
+
+
+> [PATCH 14/14 linux-2.6.7-rc1] prism54: Fix channel stats; bump to 1.2
+
+OK
+
+
+Summary:  I'm glad you broke up the changes into multiple patches. 
+Thank you.  However, the patches were separated in non-sensical ways. 
+Follow these guidelines:
+
+1) With this many patches, cosmetic changes (whitespace, formatting, 
+Lindent) should be in separate patches from functional changes.
+
+2) Fully describe all the changes in the patch.  If a patch says "fix 
+2.4 SMP build", it should do that and nothing else.
+
+3) Kernel compatibility is achieved by coding for the latest kernel 
+(2.6.x), and then creating back-compat definitions that make the 2.6.x 
+API (as it's used in your driver) work under earlier kernels.  This is 
+known as the "kcompat" approach.  See the kcompat toolkit at 
+http://sf.net/projects/gkernel/ for examples.
+
+Please resend the patch series with the changes requested.  It is OK if 
+you lump Lindent/whitespace/formatting changes into one big patch, if 
+you wish -- assuming that patch contains nothing else.
+
+	Jeff
+
 

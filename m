@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSLHNni>; Sun, 8 Dec 2002 08:43:38 -0500
+	id <S261330AbSLHNku>; Sun, 8 Dec 2002 08:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261418AbSLHNnh>; Sun, 8 Dec 2002 08:43:37 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:43191 "EHLO
+	id <S261353AbSLHNkt>; Sun, 8 Dec 2002 08:40:49 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:42423 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261401AbSLHNnh>; Sun, 8 Dec 2002 08:43:37 -0500
-Subject: Re: [BUG] 2.4.20-BK
+	id <S261330AbSLHNkt>; Sun, 8 Dec 2002 08:40:49 -0500
+Subject: Re: PROBLEM: Oops.. NULL pointer reference in 2.4.20-ac1
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hps@intermeta.de
-In-Reply-To: <200212081440.42748.m.c.p@wolk-project.de>
-References: <200212071434.11514.m.c.p@wolk-project.de>
-	<200212081337.56002.m.c.p@wolk-project.de>
-	<1039356804.6942.0.camel@irongate.swansea.linux.org.uk> 
-	<200212081440.42748.m.c.p@wolk-project.de>
+To: Simon Ward <simon.ward@cs.man.ac.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <Pine.LNX.4.44.0212081222370.22353-100000@tl009.cs.man.ac.uk>
+References: <Pine.LNX.4.44.0212081222370.22353-100000@tl009.cs.man.ac.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Dec 2002 14:27:21 +0000
-Message-Id: <1039357642.6912.6.camel@irongate.swansea.linux.org.uk>
+Date: 08 Dec 2002 14:19:33 +0000
+Message-Id: <1039357173.6912.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-08 at 13:40, Marc-Christian Petersen wrote:
-> On Sunday 08 December 2002 15:13, Alan Cox wrote:
+On Sun, 2002-12-08 at 12:35, Simon Ward wrote:
 > 
-> Hi Alan,
+> The kernel 2.4.20 with the -ac1 patch results in a kernel panic. I have
+> tried kernel 2.4.19 and a vanilla 2.4.20 and these both worked fine.
 > 
-> > > That's why I've writte this also ;) It's an exact output of what I got.
-> > Send me an lspci -vxx
-> I can send that from the running system now, 2.4.20 vanilla, 2.4.20-BK hangs 
-> (as described) so lspci isn't possible :)
+> The problem appears to be after (or while) the IDE interfaces are
+> probed. The IDE chipset is (I think) ALI M1543. It's part of the ALI
+> Aladdin V chipset on an Asus P5A-B motherboard anyway, if that means
+> anything to you.
 
-2.4.20-bk seems to be missing lots of patches that are part of the IDE
-stuff so don't bother with that - 2.4.20 or 2.4.20-ac are what I need
-data from.
+Looks like your system returned a totally bogus IRQ for the interface.
+Are you enabling ACPI by any chance ?
 

@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264743AbTFLG2l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 02:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264744AbTFLG2l
+	id S264489AbTFLGds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 02:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264744AbTFLGds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 02:28:41 -0400
-Received: from dp.samba.org ([66.70.73.150]:10987 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264743AbTFLG2j (ORCPT
+	Thu, 12 Jun 2003 02:33:48 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:17105 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264489AbTFLGdq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 02:28:39 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] __cat and __unique_id in stringify.h
-Date: Thu, 12 Jun 2003 16:41:53 +1000
-Message-Id: <20030612064224.DBE562C019@lists.samba.org>
+	Thu, 12 Jun 2003 02:33:46 -0400
+Date: Thu, 12 Jun 2003 08:47:26 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: =?iso-8859-2?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: "Bryan O'Sullivan" <bos@serpentine.com>, ak@suse.de, vojtech@suse.cz,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] New x86_64 time code for 2.5.70
+Message-ID: <20030612084726.D12126@ucw.cz>
+References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com> <3EE79FD1.8060503@kolumbus.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3EE79FD1.8060503@kolumbus.fi>; from mika.penttila@kolumbus.fi on Thu, Jun 12, 2003 at 12:32:01AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__cat() to paste tokens could be used in a few places, and
-__unique_id() is useful for module.h.
+On Thu, Jun 12, 2003 at 12:32:01AM +0300, Mika Penttilä wrote:
+> /*
+> + * Read the period, compute tick and quotient.
+> + */
+> +
+> +	id = hpet_readl(HPET_ID);
+> +
+> +	if (!(id & HPET_ID_VENDOR) || !(id & HPET_ID_NUMBER) ||
+> +	    !(id & HPET_ID_LEGSUP))
+> +		return -1;
+> +
+> +	hpet_period = hpet_readl(HPET_PERIOD);
+> +	if (hpet_period < 100000 || hpet_period > 100000000)
+> +		return -1;
+> +
+> 
+> 
+> Line below seems to be wrong, given hpet period is in fsecs.
+> 
+> 
+> +	hpet_tick = (tick_nsec + hpet_period / 2) / hpet_period;
 
-Linus, please apply,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Yes, it should be:
 
-Name: Centralize token pasting and generation of unique IDs
-Author: Rusty Russell
-Status: Tested on 2.5.70-bk13
+hpet_tick = (1000000000L * (USECS_PER_SEC/HZ) + hpet_period / 2) / hpet_period;
 
-D: Add __cat(a,b) to implement token pasting to stringify.h.  To
-D: generate unique names, __unique_id(stem) is implemented (it'd be
-D: nice to have a gcc extension to give a unique identifier).  Change
-D: module.h to use them.
+> 
+> 
+> 
+> 
+> 
+> --Mika
+> 
+> 
+> 
+> 
+> 
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26569-linux-2.5.70-bk16/include/linux/module.h .26569-linux-2.5.70-bk16.updated/include/linux/module.h
---- .26569-linux-2.5.70-bk16/include/linux/module.h	2003-06-12 09:58:02.000000000 +1000
-+++ .26569-linux-2.5.70-bk16.updated/include/linux/module.h	2003-06-12 16:19:16.000000000 +1000
-@@ -55,10 +55,8 @@ search_extable(const struct exception_ta
- 	       unsigned long value);
- 
- #ifdef MODULE
--#define ___module_cat(a,b) __mod_ ## a ## b
--#define __module_cat(a,b) ___module_cat(a,b)
- #define __MODULE_INFO(tag, name, info)					  \
--static const char __module_cat(name,__LINE__)[]				  \
-+static const char __unique_id(name)[]					  \
-   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
- 
- #define MODULE_GENERIC_TABLE(gtype,name)			\
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .26569-linux-2.5.70-bk16/include/linux/stringify.h .26569-linux-2.5.70-bk16.updated/include/linux/stringify.h
---- .26569-linux-2.5.70-bk16/include/linux/stringify.h	2003-01-02 12:25:36.000000000 +1100
-+++ .26569-linux-2.5.70-bk16.updated/include/linux/stringify.h	2003-06-12 16:32:17.000000000 +1000
-@@ -9,4 +9,11 @@
- #define __stringify_1(x)	#x
- #define __stringify(x)		__stringify_1(x)
- 
-+/* Paste two tokens together. */
-+#define ___cat(a,b) a ## b
-+#define __cat(a,b) ___cat(a,b)
-+
-+/* Try to give a unique identifier: this comes close, iff used as static. */
-+#define __unique_id(stem) \
-+	__cat(__cat(__uniq,stem),__cat(__LINE__,KBUILD_BASENAME))
- #endif	/* !__LINUX_STRINGIFY_H */
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

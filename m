@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131023AbQKKBQT>; Fri, 10 Nov 2000 20:16:19 -0500
+	id <S132294AbQKKBRT>; Fri, 10 Nov 2000 20:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131845AbQKKBQL>; Fri, 10 Nov 2000 20:16:11 -0500
-Received: from rzcomm4.rz.tu-bs.de ([134.169.9.55]:64260 "EHLO
-	rzcomm4.rz.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S131023AbQKKBQB>; Fri, 10 Nov 2000 20:16:01 -0500
-Date: Sat, 11 Nov 2000 02:21:02 +0100
-From: Jochen Striepe <j.striepe@tu-bs.de>
-To: root <whtdrgn@mail.cannet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.17 wont compile on AMD k6@-550
-Message-ID: <20001111022102.L516@tolot.meuer.de>
-In-Reply-To: <3A0C9B74.114053B6@cannet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="DEueqSqTbz/jWVG1"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A0C9B74.114053B6@cannet.com>; from whtdrgn@mail.cannet.com on Fri, Nov 10, 2000 at 08:05:56PM -0500
-X-Editor: vim/5.7
+	id <S132293AbQKKBRJ>; Fri, 10 Nov 2000 20:17:09 -0500
+Received: from clavin.efn.org ([206.163.176.10]:40165 "EHLO clavin.efn.org")
+	by vger.kernel.org with ESMTP id <S131845AbQKKBRB>;
+	Fri, 10 Nov 2000 20:17:01 -0500
+From: Steve VanDevender <stevev@efn.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14860.40393.864532.703716@tzadkiel.efn.org>
+Date: Fri, 10 Nov 2000 17:15:53 -0800
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: sendmail-bugs@sendmail.org, Igmar Palsenberg <maillist@chello.nl>,
+        root@chaos.analogic.com, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue]
+In-Reply-To: <3A0C8117.20853855@timpanogas.org>
+In-Reply-To: <3A0C5EDC.3F30BE9C@timpanogas.org>
+	<Pine.LNX.4.21.0011110113590.6465-100000@server.serve.me.nl>
+	<20001110151232.A16552@sendmail.com>
+	<3A0C8117.20853855@timpanogas.org>
+X-Mailer: VM 6.81 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff V. Merkey writes:
+ > There was also an issue relative to how sendmail is interpreting load
+ > average on a linux box.  hpa@transmeta.com pointed out that perhaps you
+ > are not factoring sleeping processes, which Linux does -- a deviation
+ > from BSD's interpretation of load average.
 
---DEueqSqTbz/jWVG1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+At worst it's an issue with how Linux presents load average, not with
+how sendmail interprets it -- sendmail believes what the kernel tells
+it.  And from the sound of it, it's not even Linux's fault -- your box
+has a high load average because it's got a lot of runnable processes.
 
-        Hi,
+ > With a handle like
+ > "Assmann", deviation is proably something you already understand quite
+ > well ...
 
-On 10 Nov 2000, root <whtdrgn@mail.cannet.com> wrote:
->=20
-> cc: Internal compiler error: program cc1 got fatal signal 11
+Don't be a moron.  Claus is German, Assman really is his last name and
+not some "handle", and it's pronounced "Oss-man".
 
-http://www.bitwizard.nl/sig11/
-
-
-Have fun,
-
-Jochen.
-
---=20
-FAQ zur Newsgroup at.linux:
-<http://alfie.ist.org/LinuxFAQ/>
-
-
---DEueqSqTbz/jWVG1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6DJ79m3eMyUx1sM4RArPFAJ9+i3nbC+jv5/sZFg6au6YIahhKggCgulDv
-Phxdevpsqnl55noOJ0brToE=
-=auzQ
------END PGP SIGNATURE-----
-
---DEueqSqTbz/jWVG1--
+I'm sure we could make plenty of stupid puns with "Merkey" too.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

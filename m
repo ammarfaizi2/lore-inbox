@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266940AbSKUScQ>; Thu, 21 Nov 2002 13:32:16 -0500
+	id <S266938AbSKUSb0>; Thu, 21 Nov 2002 13:31:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266943AbSKUScQ>; Thu, 21 Nov 2002 13:32:16 -0500
-Received: from borg.org ([208.218.135.231]:40633 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S266940AbSKUScO>;
-	Thu, 21 Nov 2002 13:32:14 -0500
-Date: Thu, 21 Nov 2002 13:39:22 -0500
-From: Kent Borg <kentborg@borg.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where is ext2/3 secure delete ("s") attribute?
-Message-ID: <20021121133922.M16336@borg.org>
-References: <20021121125240.K16336@borg.org> <3DDD24E7.4040603@pobox.com>
+	id <S266940AbSKUSbZ>; Thu, 21 Nov 2002 13:31:25 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:7689 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S266938AbSKUSbZ>;
+	Thu, 21 Nov 2002 13:31:25 -0500
+Date: Thu, 21 Nov 2002 19:33:04 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [RFC] [PATCH] subarch cleanup
+Message-ID: <20021121183304.GA1144@mars.ravnborg.org>
+Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
+	"J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>
+References: <1037750429.4463.71.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DDD24E7.4040603@pobox.com>; from jgarzik@pobox.com on Thu, Nov 21, 2002 at 01:24:39PM -0500
+In-Reply-To: <1037750429.4463.71.camel@w-jstultz2.beaverton.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 01:24:39PM -0500, Jeff Garzik wrote:
-> man shred(1)
+On Tue, Nov 19, 2002 at 04:00:29PM -0800, john stultz wrote:
+> James, All,
 > 
-> Much better than anything implemented in-kernel
+> 	This is a small patch to try to somewhat cleanup the subarch code.
+> First it moves all the subarch .h files out of arch/i386/mach-xyz into
+> include/asm-i386/mach-xyz, then it changes the include patch to include
+> include/asm-i386/mach-xyz and include/asm-i386/mach-generic when
+> compiling. This allows the compiler to use the arch specific .h files
+> when needed, and then falls back to the generic .h files if no subarch
+> specific changes are needed. 
+Why do you need to move the .h files?
 
-Yes, but that will only apply to files that I specifically shred.  I
-hazard that a lot more files than the ones I explicitly "rm" in a day
-get deleted by other means.  Also, the shred man page even says that
-it doesn't know if its "shredding" even happens in the same spot on
-disk as the original data resided.  It seems this has to happen down
-in the file system if there is any hope of it working.  And even there
-it could use come help from the disk drive to make sure things can be
-made to happen where they appear to happen.
+>  ifdef CONFIG_VISWS
+> -MACHINE	:= mach-visws
+> +MACHINE_C	:= mach-visws
+> +MACHINE_H	:= mach-visws
+>  else
+> -MACHINE	:= mach-generic
+> +MACHINE_C	:= mach-generic
+> +MACHINE_H	:= mach-generic
 
+No reason to have two different variables assigned the same value.
+If you are modifying this anyway consider something like:
+machine-y               := mach-generic
+machine-$(CONFIG_VISWS) := mach-visws
 
--kb
+And then replace $(MACHINE) with $(machine-y).
+This makes it much cleaner to add summit for example.
+
+> -CFLAGS += -Iarch/i386/$(MACHINE)
+> -AFLAGS += -Iarch/i386/$(MACHINE)
+> +CFLAGS += -Iinclude/asm-i386/$(MACHINE_H) -Iinclude/asm-i386/mach-generic
+> +AFLAGS += -Iinclude/asm-i386/$(MACHINE_H) -Iinclude/asm-i386/mach-generic
+
+What's wrong with:
+CFLAGS += -Iarch/i386/$(MACHINE_H) -Iarch/i386/mach-generic
+That should achieve the same effect?
+
+	Sam

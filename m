@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262440AbSJDQ3i>; Fri, 4 Oct 2002 12:29:38 -0400
+	id <S262421AbSJDQYP>; Fri, 4 Oct 2002 12:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262439AbSJDQ3f>; Fri, 4 Oct 2002 12:29:35 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:29843 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262434AbSJDQ3a>;
-	Fri, 4 Oct 2002 12:29:30 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] add safe version of list_for_each_entry() to list.h
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF2060727F.1EF82AFF-ON85256C48.0059BC95@pok.ibm.com>
-From: "Mark Peloquin" <peloquin@us.ibm.com>
-Date: Fri, 4 Oct 2002 11:40:45 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/04/2002 12:34:25 PM
+	id <S262422AbSJDQYP>; Fri, 4 Oct 2002 12:24:15 -0400
+Received: from fep01.tuttopmi.it ([212.131.248.100]:21724 "EHLO
+	fep01-svc.flexmail.it") by vger.kernel.org with ESMTP
+	id <S262421AbSJDQYN> convert rfc822-to-8bit; Fri, 4 Oct 2002 12:24:13 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Frederik Nosi <fredi@e-salute.it>
+Reply-To: fredi@e-salute.it
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre9: kbuild strangeness
+Date: Fri, 4 Oct 2002 18:39:45 +0200
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210041839.45319.fredi@e-salute.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I followed the usual steps:
 
-On 10/04/2002 at 11:00 AM, Matthew Wilcox wrote:
+patched the kernel to 2.4.20-p9
+make mrproper, make oldconfig, make dep, make bzImage, make modules
 
-> That behaviour for list_del is new and, IMNSHO, bogus.  There's now
-_zero_
-> gain in using list_del instead of list_del_init.
+During kernel/modules building I get no errors, only this warnings:
 
-The only gain I've noticed is when the container
-object is memset it gives implicit initialization
-if one uses list_del.
+agpgart_be.c: In function `agp_generic_create_gatt_table':
+agpgart_be.c:591: warning: assignment from incompatible pointer type
+Loading defkeymap.map
+base.c: In function `devfsd_ioctl':
+base.c:3433: warning: unused variable `lock'
+{standard input}: Assembler messages:
+{standard input}:1018: Warning: indirect lcall without `*'
+{standard input}:1102: Warning: indirect lcall without `*'
+{standard input}:1186: Warning: indirect lcall without `*'
+{standard input}:1255: Warning: indirect lcall without `*'
+{standard input}:1266: Warning: indirect lcall without `*'
+{standard input}:1277: Warning: indirect lcall without `*'
+{standard input}:1350: Warning: indirect lcall without `*'
+{standard input}:1361: Warning: indirect lcall without `*'
+{standard input}:1372: Warning: indirect lcall without `*'
+{standard input}:1853: Warning: indirect lcall without `*'
+{standard input}:1953: Warning: indirect lcall without `*'
+{standard input}: Assembler messages:
+{standard input}:245: Warning: indirect lcall without `*'
+{standard input}:339: Warning: indirect lcall without `*'
+bbootsect.s: Assembler messages:
+bbootsect.s:256: Warning: indirect lcall without `*'
+bsetup.s: Assembler messages:
+bsetup.s:1512: Warning: indirect lcall without `*'
+Root device is (3, 6)
+Boot sector 512 bytes.
+Setup is 4772 bytes.
+System is 822 kB
+make: *** No rule to make target `make'.  Stop.
 
-> akpm changed it about
-> 5 months ago with a comment that says:
+During make modules_install I get this:
 
-> "list_head debugging"
+make -C  kernel modules_install
+make[1]: Entering directory `/home/fredi/src/linux-2.4.20-pre9/kernel'
+make[1]: Nothing to be done for `modules_install'.
+make[1]: Leaving directory `/home/fredi/src/linux-2.4.20-pre9/kernel'
+make -C  drivers modules_install
+make[1]: Entering directory `/home/fredi/src/linux-2.4.20-pre9/drivers'
+make -C block modules_install
+make[2]: Entering directory `/home/fredi/src/linux-2.4.20-pre9/drivers/block'
+mkdir -p /lib/modules/2.4.20-pre9/kernel/drivers/block/
+cp loop.o nbd.o /lib/modules/2.4.20-pre9/kernel/drivers/block/
+cp: impossibile fare stat di `loop.o': No such file or directory
+cp: impossibile fare stat di `nbd.o': No such file or directory
+make[2]: *** [_modinst__] Error 1
+make[2]: Leaving directory `/home/fredi/src/linux-2.4.20-pre9/drivers/block'
+make[1]: *** [_modinst_block] Error 2
+make[1]: Leaving directory `/home/fredi/src/linux-2.4.20-pre9/drivers'
+make: *** [_modinst_drivers] Error 2
 
-> so i think it's pretty safe to assume that this behaviour will not
-> remain into 2.6.  if you think you want list_member, use list_del_init
-> and list_empty() instead.
-
-I wasn't aware this was somewhat recently added item
-for debug and will switch to list_del_init().
-
-Thanks for bring this to my attention!
+Hope this is useful.
+For more info please CC me, I'm not subscribed in the list
 
 
+cheers,
+Frederik Nosi

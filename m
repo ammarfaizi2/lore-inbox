@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLODv0>; Thu, 14 Dec 2000 22:51:26 -0500
+	id <S129257AbQLOD72>; Thu, 14 Dec 2000 22:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLODvQ>; Thu, 14 Dec 2000 22:51:16 -0500
-Received: from riker.dsl.inconnect.com ([209.140.76.229]:34368 "EHLO
-	ns1.rikers.org") by vger.kernel.org with ESMTP id <S129314AbQLODvE>;
-	Thu, 14 Dec 2000 22:51:04 -0500
-Message-ID: <3A398E0A.A12F973E@Rikers.org>
-Date: Thu, 14 Dec 2000 20:20:42 -0700
-From: Tim Riker <Tim@Rikers.org>
-Organization: Riker Family (http://rikers.org/)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18pre21 i686)
-X-Accept-Language: en
+	id <S129267AbQLOD7T>; Thu, 14 Dec 2000 22:59:19 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:39439 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129257AbQLOD7A>; Thu, 14 Dec 2000 22:59:00 -0500
+Date: Thu, 14 Dec 2000 19:28:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Russell Cattelan <cattelan@thebarn.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Test12 ll_rw_block error.
+In-Reply-To: <3A398D58.92BBC9A4@thebarn.com>
+Message-ID: <Pine.LNX.4.10.10012141925080.1123-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: loop device length
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-losetup allows for setting a starting offset within a file for the loop
-block device. There however is no length parameter to permit setting the
-length. Adding a length parameter would allow for multiple fs images in
-a single file (or device) and would correctly handle programs like
-resize2fs.
 
-What do you think? We could add a lo_length to struct loop_device and
-return that if it was non-zero and less than the physical length
-calculated normally by figure_loop_size().
 
-While I'm at it why are loop_sizes[] and loop_blksizes[] not part of
-struct loop_device now?
--- 
-Tim Riker - http://rikers.org/ - short SIGs! <g>
-All I need to know I could have learned in Kindergarten
-... if I'd just been paying attention.
+On Thu, 14 Dec 2000, Russell Cattelan wrote:
+> 
+> So one more observation in
+> filemap_sync_pte
+> 
+>  lock_page(page);
+>  error = filemap_write_page(page, 1);
+> ->  UnlockPage(page);
+> This unlock page was removed? is that correct?
+
+Yes. The "writepage" thing changed: "struct file" disappeared (as I'm sure
+you also noticed), and the page writer is supposed to unlock the page
+itself. Which it may do at any time, of course.
+
+There are some reasons to do it only after the IO has actually completed:
+this way the VM layer won't try to write it out _again_ before the first
+IO hasn't even finished yet, and the writing logic can possibly be
+simplified if you know that nobody else will be touching that page.
+
+But that is up to you: you can do the UnlockPage before even returning
+from your "->writepage()" function, if you choose to do so.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVC3TqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVC3Ts4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVC3TqW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVC3TqV
+	id S262415AbVC3Ts4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:48:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVC3Tsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:46:21 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:39656 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262412AbVC3Toz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:44:55 -0500
-Date: Wed, 30 Mar 2005 20:44:42 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-In-Reply-To: <1112201194.3691.128.camel@localhost.localdomain>
-Message-Id: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
-Mime-Version: 1.0
+	Wed, 30 Mar 2005 14:48:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49590 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262415AbVC3Tss (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:48:48 -0500
+Date: Wed, 30 Mar 2005 14:47:06 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: linux-os <linux-os@analogic.com>
+cc: Steven Rostedt <rostedt@goodmis.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+       floam@sh.nu, LKML <linux-kernel@vger.kernel.org>, arjan@infradead.org,
+       Paul Jackson <pj@engr.sgi.com>, gilbertd@treblig.org,
+       vonbrand@inf.utfsm.cl, bunk@stusta.de
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+In-Reply-To: <Pine.LNX.4.61.0503290659360.10929@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0503301446430.30163@chimarrao.boston.redhat.com>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+ <1112011441.27381.31.camel@localhost.localdomain> <1112016850.6003.13.camel@laptopd505.fenrus.org>
+ <1112018265.27381.63.camel@localhost.localdomain> <20050328154338.753f27e3.pj@engr.sgi.com>
+ <1112055671.3691.8.camel@localhost.localdomain> <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com>
+ <1112059642.3691.15.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0503290659360.10929@chaos.analogic.com>
+MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Steven Rostedt wrote:
+On Tue, 29 Mar 2005, linux-os wrote:
 
-> [...] 
-> 
-> Heck, I'll make it bloat city till I get it working, and then tone it
-> down a little :-)  And maybe later we can have a better solution for the
-> BKL.
-> 
-What about removing it alltogether?
-Seriously, how much work would it be to simply remove it and go in and
-make specific locks in all those places the code can't compile?
+> If there is documented proof that those symbols were previously
+> available and then they were changed to something more restrictive,
+> I think one would prevail if a complaint were brought in court.
 
-Esben
+They're still available.  Just download an older version of Linux.
 
-> -- Steve
-> 
-> 
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

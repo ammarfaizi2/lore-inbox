@@ -1,57 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291341AbSBGVyR>; Thu, 7 Feb 2002 16:54:17 -0500
+	id <S291348AbSBGVzH>; Thu, 7 Feb 2002 16:55:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291343AbSBGVyH>; Thu, 7 Feb 2002 16:54:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39174 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291341AbSBGVxz>; Thu, 7 Feb 2002 16:53:55 -0500
+	id <S291347AbSBGVzB>; Thu, 7 Feb 2002 16:55:01 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:57216 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S291343AbSBGVym>; Thu, 7 Feb 2002 16:54:42 -0500
+Date: Thu, 7 Feb 2002 22:54:34 +0100
+From: "Axel H. Siebenwirth" <axel@hh59.org>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux Kernel Information & Install Kernel Script
-Date: 7 Feb 2002 13:53:34 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a3ut0u$f60$1@cesium.transmeta.com>
-In-Reply-To: <3C6267B7.30A3020D@starband.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Subject: psaux mouse support not working with gpm
+Message-ID: <20020207215434.GA12899@neon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C6267B7.30A3020D@starband.net>
-By author:    Justin Piszcz <war@starband.net>
-In newsgroup: linux.dev.kernel
->
-> New site: http://www.installkernel.com/
-> It is very light at the moment.
-> 
-> 1] Latest news about the kernel:
->    http://www.installkernel.com/kernel.html
->    Anything else I should add under 2.4.17?
-> 
-> 2] Install Kernel (bash script which I am working on)
->     http://www.installkernel.com/ik/index.html
->     ik-0.8.9: Adds -b option, you can build and install the kernel from
-> the current directory with -b.
->     Summary of ik:
->     Install Kernel (ik) is a bash script that installs the Linux kernel
-> and automatically sets up LILO or GRUB.
->     It also saves your kernel configuration each time you do an install.
-> This allows you to restore the newest
->     configuration file when you make a new kernel. This script is
-> intended for two groups of people; people
->     new to compiling kernels, and people who are tired of moving files
-> around and editing their bootloader
->     configurations every time they install a new kernel.
-> 
+Hi,
 
-Sounds like you should make this work as /sbin/installkernel.
+I have an optical ps2 mouse by Typhoon with a resolution of 400dpi. No
+matter wether using protocol ps2 or imps2 the mouse cursor is moving very
+disrupted (can't find the right word), not fluent at all, also causing key
+strikes.
+Is this a kernel problem? Can't figure out any other place to look at. gpm
+seems ok.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Thanks,
+Axel Siebenwirth

@@ -1,78 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318864AbSHLXZJ>; Mon, 12 Aug 2002 19:25:09 -0400
+	id <S318866AbSHLX1p>; Mon, 12 Aug 2002 19:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318866AbSHLXZJ>; Mon, 12 Aug 2002 19:25:09 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:12786 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S318864AbSHLXZI>; Mon, 12 Aug 2002 19:25:08 -0400
-Date: Mon, 12 Aug 2002 19:28:58 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: v2.5.31 handle_scancode oops
-Message-ID: <20020812192858.S1781@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S318868AbSHLX1p>; Mon, 12 Aug 2002 19:27:45 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:62897 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S318866AbSHLX1o>; Mon, 12 Aug 2002 19:27:44 -0400
+Date: Mon, 12 Aug 2002 16:36:51 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [RFC] USB driver conversion to use "struct device_driver"
+To: Greg KH <greg@kroah.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+Message-id: <3D584693.1020000@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <20020810001005.GA29490@kroah.com> <3D55832B.4040104@pacbell.net>
+ <20020812164521.GA15249@kroah.com> <3D57FECE.3020700@pacbell.net>
+ <20020812213020.GB16872@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When booting with only the serial console enabled, pressing Ctrl-Scroll 
-Lock kills the system with the following oops.  Whoever has been working 
-on the console code might be interested in fixing this.
+>>  usb_set_configuration(struct usb_device *dev, int);
+>>  usb_set_interface(struct usb_device *dev, int, int);
+>>
+>>  usb_find_interface_driver_for_ifnum(struct usb_device *dev, int);
+>>
+>>  usb_bind_driver(struct usb_driver *,struct usb_device *, int);
+>>	// usb_unbind_driver takes interface handle already!!
+>>
+>>  usb_ifnum_to_ifpos(struct usb_device *dev, int);
+>>  usb_ifnum_to_if(struct usb_device *dev, int);
+>>	// basically, abolish the need for these calls
+>>
+>>  usb_epnum_to_ep_desc(struct usb_device *dev, int);
+>>
+>>Plus I'm strongly tempted to group all the "dev + pipe" calls
+>>the same way ... better to just pass the endpoint descriptor
+>>than to encode descriptor values as bitfields and then later
+>>waste time (repeateadly) tearing apart those bitfields.
+> 
+> 
+> Agreed, I'll look into fixing up the above functions, unless someone
+> wants to send me a patch doing it first :)
 
-		-ben
+Maybe when Linus' release is a bit closer to the USB tree I could help
+with that.  Right now it's sufficiently divergent to make usb patches
+against usbcore be rather helpful in general (though maybe not in that
+particular case).  I'll certainly be glad to take a whack at that.
 
-ksymoops 2.4.4 on i686 2.4.18-5smp.  Options used
-     -v vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m System.map (specified)
 
-Unable to handle kernel paging request at virtual address 646d203c
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01bc05d>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010086
-eax: 646d2030   ebx: c7b74000   ecx: 00000000   edx: c035d5a0
-esi: 0000001d   edi: 00000001   ebp: c11610e0   esp: c77f5f2c
-ds: 0018   es: 0018   ss: 0018
-Stack: c035d5a0 611d0000 00000000 0000001d 0000270f c77f5fc4 c01bc4e7 0000001d 
-       00000001 3d52d215 00000000 0001041e 00000000 c77f5f7c 40012020 bffff550 
-       bffff5c8 c1166580 00000001 00000001 c01bc54f c0108a8a 00000001 00000000 
-Call Trace: [<c01bc4e7>] [<c01bc54f>] [<c0108a8a>] [<c0108be8>] [<c0107754>] 
-Code: f6 40 0c 08 75 15 53 ff 53 7c 5a 85 c0 0f 85 bf 00 00 00 a1 
+>>Related issue to the suspend/resume code ... I recently noticed
+>>(again) that the hub code was disconnecting top-down rather than
+>>bottom up.  That should eventually get delegated to the driver
+>>framework ... any idea whether there was a reason not to do that
+>>bottom-up in the first place?  At what point does the driver model
+>>kick in to handle that part of what the hub driver now does?  If
+>>the patch you sent around did that, my quick look missed it ... :)
+> 
+> 
+> Hm, I didn't realize it was going top-down at all.  What changes caused
+> that?  And no, I don't think I changed it, as I didn't realize it had
+> been changed in the first place :)
 
->>EIP; c01bc05d <handle_scancode+15d/250>   <=====
-Trace; c01bc4e7 <handle_kbd_event+137/190>
-Trace; c01bc54f <keyboard_interrupt+f/20>
-Trace; c0108a8a <handle_IRQ_event+3a/60>
-Trace; c0108be8 <do_IRQ+78/e0>
-Trace; c0107754 <common_interrupt+18/20>
-Code;  c01bc05d <handle_scancode+15d/250>
-00000000 <_EIP>:
-Code;  c01bc05d <handle_scancode+15d/250>   <=====
-   0:   f6 40 0c 08               testb  $0x8,0xc(%eax)   <=====
-Code;  c01bc061 <handle_scancode+161/250>
-   4:   75 15                     jne    1b <_EIP+0x1b> c01bc078 <handle_scancode+178/250>
-Code;  c01bc063 <handle_scancode+163/250>
-   6:   53                        push   %ebx
-Code;  c01bc064 <handle_scancode+164/250>
-   7:   ff 53 7c                  call   *0x7c(%ebx)
-Code;  c01bc067 <handle_scancode+167/250>
-   a:   5a                        pop    %edx
-Code;  c01bc068 <handle_scancode+168/250>
-   b:   85 c0                     test   %eax,%eax
-Code;  c01bc06a <handle_scancode+16a/250>
-   d:   0f 85 bf 00 00 00         jne    d2 <_EIP+0xd2> c01bc12f <handle_scancode+22f/250>
-Code;  c01bc070 <handle_scancode+170/250>
-  13:   a1 00 00 00 00            mov    0x0,%eax
+I think it's just been that way for ages, no changes.  It's actually
+usb_disconnect(), not the hub driver, that goes top down, disconnecting
+children only _after_ the parent is disconnected.  (Might be nice to
+flag all devices as "dead" before disconnecting in such cases, but we
+don't have a way to flag devices as "dead" AFAIK.  That'd make it easy
+to fail new urb submissions for now-gone devices.)
 
- <0>Kernel panic: Aiee, killing interrupt handler!
+If the current changes don't automagically make disconnection work
+according to the device tree, something needs to change to make that
+work correctly.  But I'm not sure what it'd be; seems like the converse
+of the probe() changes you started.
 
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+- Dave
+
+

@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbULHSxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbULHS4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbULHSxU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 13:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbULHSxU
+	id S261268AbULHS4G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 13:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbULHS4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 13:53:20 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:52881 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261304AbULHSxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 13:53:15 -0500
-Date: Wed, 8 Dec 2004 10:53:13 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] new timeofday core subsystem (v.A1)
-In-Reply-To: <1102470997.1281.30.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0412081049570.27324@schroedinger.engr.sgi.com>
+	Wed, 8 Dec 2004 13:56:06 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:8648 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261268AbULHS4C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 13:56:02 -0500
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+From: john stultz <johnstul@us.ibm.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
+       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+In-Reply-To: <Pine.LNX.4.61.0412081337150.3803@xanadu.home>
 References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>
- <1102470997.1281.30.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <Pine.LNX.4.61.0412081337150.3803@xanadu.home>
+Content-Type: text/plain
+Message-Id: <1102532227.1281.61.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 08 Dec 2004 10:57:07 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Dec 2004, john stultz wrote:
+On Wed, 2004-12-08 at 10:43, Nicolas Pitre wrote:
+> On Tue, 7 Dec 2004, john stultz wrote:
+> 
+> > Points I'm glossing over for now:
+> > ====================================================
+> > 
+> > o Some arches (arm, for example) do not have high res timing hardware
+> 
+> Just a note: The ARM architecture is rather a bunch of multiple 
+> subarchitectures sharing the same instruction set but with wildly 
+> different sets of peripherals.  Many of those ARM subarchitectures have 
+> high res (sub microsec) timer capabilities.
 
-> +/* __monotonic_clock():
-> + *		private function, must hold system_time_lock lock when being
-> + *		called. Returns the monotonically increasing number of
-> + *		nanoseconds	since the system booted (adjusted by NTP scaling)
-> + */
-> +static nsec_t __monotonic_clock(void)
-> +{
-> +	nsec_t ret, ns_offset;
-> +	cycle_t now, delta;
-> +
-> +	/* read timesource */
-> +	now = read_timesource(timesource);
-> +
-> +	/* calculate the delta since the last clock_interrupt */
-> +	delta = (now - offset_base) & timesource->mask;
-> +
-> +	/* convert to nanoseconds */
-> +	ns_offset = cyc2ns(timesource, delta,0);
-> +
-> +	/* apply the NTP scaling */
-> +	ns_offset = ntp_scale(ns_offset);
+Ah, I must have missed that when I looked over that code. I'll drop (or
+at least qualify) the incorrect reference. 
 
-The call to ntp_scale will significantly impact clock retrieval
-performance. ntp_scale needs to be removed. Could you simply let the clock
-run with a scaling factor (just make sure the scaling factor is a bit
-slower than ntp time and then skip a few nanoseconds of time forward
-at the next correction?)
+Thanks for the correction!
+-john
+
+

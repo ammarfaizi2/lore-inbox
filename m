@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265619AbTIDWUe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 18:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbTIDWUe
+	id S262136AbTIDWNi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 18:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbTIDWLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 18:20:34 -0400
-Received: from magic-mail.adaptec.com ([216.52.22.10]:32903 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S265619AbTIDWU1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 18:20:27 -0400
-Date: Thu, 04 Sep 2003 16:22:16 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: John Cherry <cherry@osdl.org>, trivial@rustcorp.com.au
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL][PATCH] fix parallel builds for aic7xxx]
-Message-ID: <59600000.1062714135@aslan.btc.adaptec.com>
-In-Reply-To: <1062698342.9322.73.camel@cherrytest.pdx.osdl.net>
-References: <1062698342.9322.73.camel@cherrytest.pdx.osdl.net>
-X-Mailer: Mulberry/3.1.0b6 (Linux/x86)
+	Thu, 4 Sep 2003 18:11:25 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:62736 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S265601AbTIDWK4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 18:10:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: jimwclark@ntlworld.com, Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Date: Fri, 5 Sep 2003 01:10:50 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <1062637356.846.3471.camel@cube> <20030904202707.GF13676@matchmail.com> <200309042216.03958.jimwclark@ntlworld.com>
+In-Reply-To: <200309042216.03958.jimwclark@ntlworld.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309050110.50236.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> My compile regression scripts were getting random build failures for
-> aic7xxx.  The two makefiles could not handle parallel build. 
-> Occasionally they would succeed...timing dependent.  The following two
-> patches fix this.
-> 
-> Part 1 - drivers/scsi/aic7xxx/Makefile
+On Friday 05 September 2003 00:16, James Clark wrote:
+> I agree that at first sight the two concepts (Binary 'plugins' and GPL)
+> don't mix well but this is actually FUD which obscures the issue of making
+> the kernel much easier to deal with for the masses. Like it or not, 99+% of
+> 'potential users' don't want/need to recompile their whole kernel, with the
+> risks that it has, to add one minor feature.
 
-I don't understand this patch.  It places the .seq file as a target
-that is rebuilt by invoking the assembler.  The .seq file is not
-a generated file.
+Those 99+% are going to use a distro. A popular Linux distro
+is a rough equivalent of a Windows install disk in terms of
+ease of use, feature set and intended audience.
+Distro can handle this problem (of driver ABI or absence thereof)
+in any way it wants. I can imagine it can even go to the great pains
+and introduce binary driver ABI. But unlikely.
 
-Can you explain the nature of the failure and why you believe this
-fixes the problem (other than - "it seems to work with my testing").
-The previous Makefile appears to be perfectly valid.
-
-> Part 2 - drivers/scsi/aic7xxx/aicasm/Makefile
-
-This also doesn't make a lot of sense to me.  Is gmake so
-dumb as to not be able to understand that the invocation of
-a single target may satisfy multiple dependencies?
-
+OTOH I believe core kernel folks will not accept your proposal.
+Stay a bit longer on lkml and you will understand why.
 --
-Justin
-
+vda

@@ -1,45 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282248AbRK2BX5>; Wed, 28 Nov 2001 20:23:57 -0500
+	id <S282267AbRK2Be0>; Wed, 28 Nov 2001 20:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282251AbRK2BXq>; Wed, 28 Nov 2001 20:23:46 -0500
-Received: from holomorphy.com ([216.36.33.161]:26292 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S282248AbRK2BXc>;
-	Wed, 28 Nov 2001 20:23:32 -0500
-Date: Wed, 28 Nov 2001 17:23:04 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] tree-based bootmem
-Message-ID: <20011128172304.E3921@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011117011415.B1180@holomorphy.com> <20011128010411.A14584@figure1.int.wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20011128010411.A14584@figure1.int.wirex.com>; from chris@wirex.com on Wed, Nov 28, 2001 at 01:04:11AM -0800
-Organization: The Domain of Holomorphy
+	id <S282269AbRK2BeR>; Wed, 28 Nov 2001 20:34:17 -0500
+Received: from zeus.anet-chi.com ([207.7.4.6]:58355 "EHLO zeus.anet-chi.com")
+	by vger.kernel.org with ESMTP id <S282267AbRK2Bd6>;
+	Wed, 28 Nov 2001 20:33:58 -0500
+Message-ID: <02d901c17877$c730f3c0$a300a8c0@ipv16>
+From: "Jim Fleming" <jfleming@anet.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011128163810.C2512@kroah.com> <E169FUY-0006k8-00@the-village.bc.nu> <20011128170748.A2762@kroah.com>
+Subject: CONFIG_IPv8_TOS for 2.4
+Date: Wed, 28 Nov 2001 19:47:16 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28, 2001 at 01:04:11AM -0800, Chris Wright wrote:
-> test results from 32-bit SPARC (sun4m).
-> 2.5.1-pre1+show_trace_task (patch form DaveM)
-> ftp://ftp.kernel.org/pub/linux/kernel/people/wli/bootmem/bootmem-2.5.1-pre1
-> applied cleanly, compiled fine, but didn't boot.
+It seems that the "kernel" should be open and free of policy, with
+respect to the IPv4 TOS field.
+http://www.dot-biz.com/IPv4/Tutorial/
 
-I've conferred with Chris Wright and he's verified that after
-a recompilation, the kernel with the bootmem patch booted successfully.
+These commands illustrate that not all TOS values can be easily set.
+ping -Q 34 192.168.0.1
+ping -Q 35 192.168.0.1
+
+Below are the changes I made to make the kernel more open.
+
+Jim Fleming
+http://www.IPv8.info
+IPv16....One Better !!
+
+------------
+
+/*
+ * Networking options
+ */
+#define CONFIG_PACKET 1
+#undef  CONFIG_PACKET_MMAP
+#undef  CONFIG_NETLINK
+#define CONFIG_NETFILTER 1
+#undef  CONFIG_NETFILTER_DEBUG
+#undef  CONFIG_FILTER
+#define CONFIG_UNIX 1
+#define CONFIG_INET 1
+#undef  CONFIG_TUX
+#define CONFIG_IPv8_TOS 1
+#define CONFIG_IP_MULTICAST 1
+#undef  CONFIG_IP_ADVANCED_ROUTER
+#undef  CONFIG_IP_PNP
+#undef  CONFIG_NET_IPIP
+#undef  CONFIG_NET_IPGRE
+#undef  CONFIG_IP_MROUTE
+#undef  CONFIG_INET_ECN
+#undef  CONFIG_SYN_COOKIES
+
+#ifndef _LINUX_IP_H
+#define _LINUX_IP_H
+#include <asm/byteorder.h>
+
+/* SOL_IP socket options */
+
+#ifdef CONFIG_IPv8_TOS
+#define IPTOS_TOS_MASK  0xFF
+#define IPTOS_TOS(tos)  (tos)
+#else
+#define IPTOS_TOS_MASK  0x1E
+#define IPTOS_TOS(tos)  ((tos)&IPTOS_TOS_MASK)
+#define IPTOS_LOWDELAY  0x10
+#define IPTOS_THROUGHPUT 0x08
+#define IPTOS_RELIABILITY 0x04
+#define IPTOS_MINCOST  0x02
+
+#define IPTOS_PREC_MASK  0xE0
+#define IPTOS_PREC(tos)  ((tos)&IPTOS_PREC_MASK)
+#define IPTOS_PREC_NETCONTROL           0xe0
+#define IPTOS_PREC_INTERNETCONTROL      0xc0
+#define IPTOS_PREC_CRITIC_ECP           0xa0
+#define IPTOS_PREC_FLASHOVERRIDE        0x80
+#define IPTOS_PREC_FLASH                0x60
+#define IPTOS_PREC_IMMEDIATE            0x40
+#define IPTOS_PREC_PRIORITY             0x20
+#define IPTOS_PREC_ROUTINE              0x00
+#endif
+
+Config.in:bool '  IP: IPv8 TOS' CONFIG_IPv8_TOS
+
+---------------------------------------------------------------------
+icmp.c:
+
+#ifdef CONFIG_IPv8_TOS
+ tos = iph->tos;
+#else
+ tos = icmp_pointers[type].error ?
+  ((iph->tos & IPTOS_TOS_MASK) | IPTOS_PREC_INTERNETCONTROL) :
+   iph->tos;
+#endif
+
+---------------------------------------------------------------------
+ip_sockglue.c:
+
+  case IP_TOS: /* This sets both TOS and Precedence */
+
+#ifndef CONFIG_IPv8_TOS
+     /* Reject setting of unused bits */
+#ifndef CONFIG_INET_ECN
+   if (val & ~(IPTOS_TOS_MASK|IPTOS_PREC_MASK))
+    goto e_inval;
+#else
+   if (sk->type == SOCK_STREAM) {
+    val &= ~3;
+    val |= sk->protinfo.af_inet.tos & 3;
+   }
+#endif
+   if (IPTOS_PREC(val) >= IPTOS_PREC_CRITIC_ECP && 
+       !capable(CAP_NET_ADMIN)) {
+    err = -EPERM;
+    break;
+   }
+#endif
+   if (sk->protinfo.af_inet.tos != val) {
+    sk->protinfo.af_inet.tos=val;
+    sk->priority = rt_tos2priority(val);
+    sk_dst_reset(sk); 
+   }
+   break;
+  case IP_TTL:
+---------------------------------------------------------------------
 
 
-Chris, if you could chime in when your mail works again, I'd be
-much obliged.
-
-
-This patch has now been successfully tested on 32-bit SPARC.
-
-
-Cheers,
-Bill

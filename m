@@ -1,70 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272838AbTHKREX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHKRBy
+	id S272815AbTHKQwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 12:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272804AbTHKQuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:01:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8939 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S272838AbTHKQ7I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 12:59:08 -0400
-Message-ID: <3F37CB44.5000307@pobox.com>
-Date: Mon, 11 Aug 2003 12:58:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
-References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com>
-In-Reply-To: <20030811164012.GB858@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Aug 2003 12:50:11 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:1881 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S272815AbTHKQta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 12:49:30 -0400
+To: torvalds@osdl.org
+From: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sparse annotations for page_alloc
+Message-Id: <E19mFqr-00068N-00@tetrachloride>
+Date: Mon, 11 Aug 2003 17:48:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> A few comments on why I don't like this patch:
->     1) It's a formatting only patch.  That screws over people who are using
->        BK for debugging, now when I double click on these changes I'll get
->        to your cleanup patch, not the patch that was the last substantive
->        change.
+Again, more work to do here..
 
-This is true, but at the same time, in Linux CodingStyle patches 
-culturally acceptable.  I think the general logic is just "don't go 
-overboard; reformat a tiny fragment at a time."
-
-
->     2) "if (expr) statement;" really ought to be considered legit coding style.
->        It's a one line "shorty" and it lets you see more of the code on a 
->        screen.
->     
-> On the other hand, the author carried things too far when they did
-> 
-> 	if (expr) statement;
-> 	else	  statement;
-> 
-> that's too hard for your eyes to parse quickly IMO.
-
-
-tee hee :)  This is why we have Documentation/CodingStyle, for just this 
-type of discussion.
-
-I actually prefer your "author carried ... too far" example, with the 
-reasoning:  if you _must_ deviate from CodingStyle, at least don't run 
-the damn lines together like
-	if (test) foo else bar;
-		or
-	if (test) foo
-	else bar;
-
-The alignment of the statements visually separates out the test more 
-clearly.
-
-	Jeff
-
-
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/mm/page_alloc.c linux-2.5/mm/page_alloc.c
+--- bk-linus/mm/page_alloc.c	2003-08-07 21:57:58.000000000 +0100
++++ linux-2.5/mm/page_alloc.c	2003-08-07 22:20:17.000000000 +0100
+@@ -1610,7 +1610,7 @@ void setup_per_zone_pages_min(void)
+  *	changes.
+  */
+ int min_free_kbytes_sysctl_handler(ctl_table *table, int write, 
+-		struct file *file, void *buffer, size_t *length)
++		struct file *file, void __user *buffer, size_t *length)
+ {
+ 	proc_dointvec(table, write, file, buffer, length);
+ 	setup_per_zone_pages_min();

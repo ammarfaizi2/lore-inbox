@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269057AbRG3R46>; Mon, 30 Jul 2001 13:56:58 -0400
+	id <S269049AbRG3SB3>; Mon, 30 Jul 2001 14:01:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269060AbRG3R4s>; Mon, 30 Jul 2001 13:56:48 -0400
-Received: from gateway.wvi.com ([204.119.27.10]:10935 "HELO gateway.wvi.com")
-	by vger.kernel.org with SMTP id <S269058AbRG3R4n>;
-	Mon, 30 Jul 2001 13:56:43 -0400
-Message-ID: <3B659FDB.CCBECA4C@wvi.com>
-Date: Mon, 30 Jul 2001 10:56:43 -0700
-From: Jim Potter <jrp@wvi.com>
-X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S269048AbRG3SBT>; Mon, 30 Jul 2001 14:01:19 -0400
+Received: from www.wen-online.de ([212.223.88.39]:51719 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S269049AbRG3SBD>;
+	Mon, 30 Jul 2001 14:01:03 -0400
+Date: Mon, 30 Jul 2001 20:00:57 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
 To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
-        linux-kernel@vger.kernel.org
+cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Test mail
 In-Reply-To: <200107301722.f6UHM3A205344@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.33.0107301955080.666-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-One problem with the idea of banning "MS virus express" is that most of the
-lemmings stuck with MS's windows are also stuck with the MS's mail app.  If they
-had the wherewithall (personal, political, whatever) to switch to a different
-mail app, they'de probably know how & be able to switch the whole thing to a
-better environment.
+On Mon, 30 Jul 2001, Albert D. Cahalan wrote:
 
-
+> Ignacio Vazquez-Ab writes:
+> > On Mon, 30 Jul 2001, christophe barbé wrote:
+>
 > >> Would it not be simple and effective to filter out mail produced by
 > >> Outlook?
 > >> It sounds to me the equivalent of RBL & co.
@@ -59,11 +56,10 @@ better environment.
 > ported to Windows, so you have the rmail/gnus stuff. Surely you
 > can tolerate at least one of these many choices.
 
---
-Sincerely,
+Why bother?  The _occasional_ spam slips through the filters.  I don't
+see any real difference if some weenie slips me a plain spam or a spam
+with an impotent attachment I'm not going to look at anyway.  It all
+costs me the same.. one 'D'+download cost.
 
-Jim Potter
-45th Parallel Processing
-jrp@wvi.com
-
+	-Mike
 

@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314347AbSDRRfg>; Thu, 18 Apr 2002 13:35:36 -0400
+	id <S314377AbSDRRf4>; Thu, 18 Apr 2002 13:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314377AbSDRRff>; Thu, 18 Apr 2002 13:35:35 -0400
-Received: from mail.myrio.com ([63.109.146.2]:28145 "HELO mail.myrio.com")
-	by vger.kernel.org with SMTP id <S314347AbSDRRfe> convert rfc822-to-8bit;
-	Thu, 18 Apr 2002 13:35:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S314395AbSDRRfz>; Thu, 18 Apr 2002 13:35:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9476 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314377AbSDRRfy>;
+	Thu, 18 Apr 2002 13:35:54 -0400
+Message-ID: <3CBF03DE.CD212965@zip.com.au>
+Date: Thu, 18 Apr 2002 10:35:26 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: VM Related question
-Date: Thu, 18 Apr 2002 10:35:04 -0700
-Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3D7@mail0.myrio.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: VM Related question
-Thread-Index: AcHmuryv7OX9yNE4Sdy8yebHu2vYyQAQ7m4Q
-From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
-To: "Tony Clarke" <sam@palamon.ie>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Apr 2002 17:34:19.0279 (UTC) FILETIME=[450FB1F0:01C1E6FF]
+To: Mark Peloquin <peloquin@us.ibm.com>, linux-kernel@vger.kernel.org
+CC: Jens Axboe <axboe@suse.de>
+Subject: Re: Bio pool & scsi scatter gather pool usage
+In-Reply-To: <OFCEC9D152.09A1A6B2-ON85256B9F.0047D732@pok.ibm.com> <3CBEF18D.F18BAA76@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Clarke wrote:
+Andrew Morton wrote:
+> 
+> Mark Peloquin wrote:
+> >
+> ...
+> > In EVMS, we are adding code to deal with BIO splitting, to
+> > enable our feature modules, such as DriveLinking, LVM, & MD
+> > Linear, etc to break large BIOs up on chunk size or lower
+> > level device boundaries.
+> 
+> Could I suggest that this code not be part of EVMS, but that
+> you implement it as a library within the core kernel?  Lots of
+> stuff is going to need BIO splitting - software RAID, ataraid,
+> XFS, etc.  May as well talk with Jens, Martin Petersen, Arjan,
+> Neil Brown.  Do it once, do it right...
+> 
 
-> I have noticed with my current kernel that after the system 
-> is idle for 
-> a while, say 10 hours or
-> so, that everything seems to be swapped out to disk. So when 
-> I come in 
-> the next morning
-> it starts swapping everything like crazy in from disk. 
+I take that back.
 
-Probably what is happening is that in the middle of the night,
-your distribution runs a cron job like "slocate" or "medusa"
-which scans through your hard drive.  Other distros do security
-checks for world-writable files and many other things...
+We really, really do not want to perform BIO splitting at all.
+It requires that the kernel perform GFP_NOIO allocations at
+the worst possible time, and it's just broken.
 
-This heavy read activity fills up a lot of buffers and causes 
-your apps to be swapped out. 
+What I would much prefer is that the top-level BIO assembly
+code be able to find out, beforehand, what the maximum 
+permissible BIO size is at the chosen offset.  It can then
+simple restrict the BIO to that size.
 
-Torrey
+Simply:
 
-thoffman@arnor.net
+	max = bio_max_bytes(dev, block);
 
+which gets passed down the exact path as the requests themselves.
+Each layer does:
+
+int foo_max_bytes(sector_t sector)
+{
+	int my_maxbytes, his_maxbytes;
+	sector_t my_sector;
+	
+	my_sector = my_translation(sector);
+	his_maxbytes = next_device(me)->max_bytes(my_sector);
+	my_maxbytes = whatever(my_sector);
+	return min(my_maxbytes, his_maxbytes);
+}
+
+and, at the bottom:
+
+int ide_max_bytes(sector_t sector)
+{
+	return 248 * 512;
+}
+
+BIO_MAX_SECTORS and request_queue.max_sectors go away.
+
+Tell me why this won't work?
+
+-

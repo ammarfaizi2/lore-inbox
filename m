@@ -1,51 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbUBVTrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 14:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbUBVTrr
+	id S261727AbUBVTqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 14:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUBVTqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 14:47:47 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:5778 "EHLO terminus.zytor.com")
-	by vger.kernel.org with ESMTP id S261733AbUBVTrp (ORCPT
+	Sun, 22 Feb 2004 14:46:13 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:55052 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S261727AbUBVTqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 14:47:45 -0500
-Message-ID: <40390759.2020201@zytor.com>
-Date: Sun, 22 Feb 2004 11:47:37 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BOOT_CS
-References: <c16rdh$gtk$1@terminus.zytor.com> <m1znbbjgfz.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1znbbjgfz.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Feb 2004 14:46:08 -0500
+Date: Sun, 22 Feb 2004 20:46:02 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>,
+       Paul Larson <plars@linuxtestproject.org>
+Subject: Re: 2.6.3-mjb1  vmware modules compile error..
+Message-ID: <20040222194602.GC28697@vana.vc.cvut.cz>
+References: <20040222011344.GB7483@vana.vc.cvut.cz> <20040222034938.1016.qmail@web10407.mail.yahoo.com> <20040222042853.GD7483@vana.vc.cvut.cz> <35790000.1077464951@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35790000.1077464951@[10.10.2.4]>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> hpa@zytor.com (H. Peter Anvin) writes:
+On Sun, Feb 22, 2004 at 07:49:12AM -0800, Martin J. Bligh wrote:
+> >> bash-2.05b# make      
+> >> Unable to find VMware installation database. Using
+> >> 'vmware'.
+> >> Building for VMware Workstation 3.2.0.
+> >> Using 2.6.x kernel build system.
+> >> make -C /lib/modules/2.6.1-mm4/build/include/..
+> >> SUBDIRS=$PWD SRCROOT=$PWD/. modu
+> >> les
+> >> make[1]: Entering directory `/vol/hdb5/linux'
+> >> *** Warning: Overriding SUBDIRS on the command line
+> >> can cause
+> >> ***          inconsistencies
+> >> make[2]: `arch/i386/kernel/asm-offsets.s' is up to
+> >> date.
+> >>   CHK     include/asm-i386/asm_offsets.h
+> >>   CC [M]  /root/vmmon-6/linux/driver.o
+> >> driver.c:7:27: driver-config.h: No such file or
+> >> directory
+> > 
+> >> I just extract the vmmon.tar from the vmware-any---
+> >> package and run make in the source dir. It works with
+> >> all vanila kernels and mm tree, but not with mjb1.
+> > 
+> > WTF? It prepends $(TOPDIR)/ to all include paths. I have
+> > no idea what is this supposed to do, but I can guarantee
+> > that I'm not going to support that kernel.
+> > 				Petr Vandrovec
+> > 
 > 
->>Anyone happen to know of any legitimate reason not to reload %cs in
->>head.S?  
-> 
-> Other than the fact it is strongly rude and error prone to depend on
-> the contents of a global descriptor table you did not setup?
-> 
+> Sigh. That's gcov. Paul, any idea why it's doing that?
 
-We already do that, as you might have noticed (we set all the data 
-registers to __BOOT_DS; CS is the only that is changed.)
+Maybe doing:
+
+new1_c_flags = $(patsubst -I$(TOPDIR)//%,-I/%,$(c_flags:-I%=-I$(TOPDIR)/%))
+
+would fix a problem.
+							Petr Vandrovec
 
 > 
-> That is almost nice.  Care to export where the bottom of the page
-> tables or even better where the bottom of the kernel is for those
-> folks who want to place their ramdisk as low in memory as possible?
+> M.
 > 
-
-The problem is that you don't know until it's too late, since it can 
-depend on dynamic factors.  This is part of why your insistence of 
-putting the ramdisk in the "most incorrect" position is simply wrong.
-
-	-hpa
+> 
+> > diff -purN -X /home/mbligh/.diff.exclude 000-virgin/scripts/Makefile.build 790-irq_vector/scripts/Makefile.build
+> > --- 000-virgin/scripts/Makefile.build   2003-10-14 15:50:40.000000000 -0700
+> > +++ 790-irq_vector/scripts/Makefile.build       2004-02-18 16:23:03.000000000 -0800
+> > @@ -128,7 +128,16 @@ cmd_cc_i_c       = $(CPP) $(c_flags)   -
+> >  quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
+> > 
+> >  ifndef CONFIG_MODVERSIONS
+> > -cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
+> > +new1_c_flags = $(c_flags:-I%=-I$(TOPDIR)/%)
+> > +new2_c_flags = $(new1_c_flags:-Wp%=)
+> > +PWD = $(TOPDIR)
+> > +
+> > +quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
+> > +cmd_cc_o_c = $(CC) $(c_flags) -E -o $@ $< \
+> > +               && cd $(dir $<) \
+> > +               && $(CC) $(new2_c_flags) -c -o $(notdir $@) $(notdir $<) \
+> > +               && cd $(TOPDIR)
+> > +#cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
+> > 
+> >  else
+> >  # When module versioning is enabled the following steps are executed:
+> 
+> 

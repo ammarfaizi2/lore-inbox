@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVAOAqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbVAOAtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVAOAqg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 19:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVAOAqg
+	id S262068AbVAOAtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 19:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVAOAta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 19:46:36 -0500
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:22415 "HELO
-	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262063AbVAOAqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 19:46:30 -0500
-Message-ID: <41E868E2.60402@sbcglobal.net>
-Date: Fri, 14 Jan 2005 16:50:42 -0800
-From: Steve <s.egbert@sbcglobal.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050109)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: disabling VESAFB no longer locks up VT (was Re: 2.4.10-r1 MTRR
- bug)
-References: <41E595E9.8040805@sbcglobal.net> <20050112230553.683a813b.akpm@osdl.org> <41E84729.1090209@gentoo.org>
-In-Reply-To: <41E84729.1090209@gentoo.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 19:49:30 -0500
+Received: from waste.org ([216.27.176.166]:8929 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262068AbVAOAtM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 19:49:12 -0500
+Date: Fri, 14 Jan 2005 18:49:06 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <2.563253706@selenic.com>
+Subject: [PATCH 1/10] random pt2: cleanup waitqueue logic, fix missed wakeup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
+Original code checked in output pool for missed wakeup avoidance,
+while waker (batch_entropy_process) checked input pool which could
+result in a missed wakeup.
 
-> Hi Andrew,
->
-> Andrew Morton wrote:
->
->> Steve <s.egbert@sbcglobal.net> wrote:
->>
->>> For the Athlon 2100, I get the following outputs and then the VGA 
->>> console is frozen from further output (but it doesn't prevent the 
->>> full bootup into X windows session of which I am able to resume 
->>> normal Linux/X session, but not able to regain any virtual console 
->>> session.)
->>
->>
->>
->> hm.  Not sure what could have caused that.
->
->
-> This may be a problem in Gentoo's kernels, we offer an experimental 
-> version of vesafb... 
+Move to wait_event_interruptible style
+Delete superfluous waitqueue
 
-Disabling the VESAFB resulted in regaining control of the VTs (virtual 
-terminals).
+Signed-off-by: Matt Mackall <mpm@selenic.com>
+
+Index: rnd/drivers/char/random.c
+===================================================================
+--- rnd.orig/drivers/char/random.c	2005-01-12 21:27:58.178748133 -0800
++++ rnd/drivers/char/random.c	2005-01-12 21:27:58.951649596 -0800
+@@ -1587,7 +1587,6 @@
+ static ssize_t
+ random_read(struct file * file, char __user * buf, size_t nbytes, loff_t *ppos)
+ {
+-	DECLARE_WAITQUEUE(wait, current);
+ 	ssize_t n, retval = 0, count = 0;
+ 
+ 	if (nbytes == 0)
+@@ -1613,20 +1612,20 @@
+ 				retval = -EAGAIN;
+ 				break;
+ 			}
++
++			DEBUG_ENT("sleeping?\n");
++
++			wait_event_interruptible(random_read_wait,
++				random_state->entropy_count >=
++						 random_read_wakeup_thresh);
++
++			DEBUG_ENT("awake\n");
++
+ 			if (signal_pending(current)) {
+ 				retval = -ERESTARTSYS;
+ 				break;
+ 			}
+ 
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			add_wait_queue(&random_read_wait, &wait);
+-
+-			if (sec_random_state->entropy_count / 8 == 0)
+-				schedule();
+-
+-			set_current_state(TASK_RUNNING);
+-			remove_wait_queue(&random_read_wait, &wait);
+-
+ 			continue;
+ 		}
+ 

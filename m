@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267270AbTBJLut>; Mon, 10 Feb 2003 06:50:49 -0500
+	id <S267760AbTBJLv6>; Mon, 10 Feb 2003 06:51:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267382AbTBJLut>; Mon, 10 Feb 2003 06:50:49 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:15234 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267270AbTBJLus>;
-	Mon, 10 Feb 2003 06:50:48 -0500
-Date: Mon, 10 Feb 2003 13:00:06 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
-       jakob@unthought.net, david.lang@digitalinsight.com,
-       riel@conectiva.com.br, ckolivas@yahoo.com.au,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
-Message-ID: <20030210120006.GC31401@dualathlon.random>
-References: <20030210001921.3a0a5247.akpm@digeo.com> <20030210085649.GO31401@dualathlon.random> <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <3E4790F7.2010208@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E4790F7.2010208@cyberone.com.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S267717AbTBJLv6>; Mon, 10 Feb 2003 06:51:58 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:33182 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S267444AbTBJLvy>;
+	Mon, 10 Feb 2003 06:51:54 -0500
+Date: Mon, 10 Feb 2003 13:01:35 +0100 (CET)
+From: Stephan van Hienen <raid@a2000.nu>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       peter@chubb.wattle.id.au, tbm@a2000.nu
+Subject: Re: fsck out of memory
+In-Reply-To: <20030209133117.E12639@schatzie.adilger.int>
+Message-ID: <Pine.LNX.4.53.0302101228430.7274@ddx.a2000.nu>
+References: <Pine.LNX.4.53.0302071555110.718@ddx.a2000.nu>
+ <Pine.LNX.4.53.0302071800200.1306@ddx.a2000.nu> <20030207102858.P18636@schatzie.adilger.int>
+ <Pine.LNX.4.53.0302090953440.1039@ddx.a2000.nu> <20030209133117.E12639@schatzie.adilger.int>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 10:45:59PM +1100, Nick Piggin wrote:
-> perspective it does nullify the need for readahead (though
-> it is obivously still needed for other reasons).
+On Sun, 9 Feb 2003, Andreas Dilger wrote:
 
-I'm guessing that physically it may be needed from a head prospective
-too, I doubt it only has to do with the in-core overhead.  Seeing it all
-before reaching the seek point might allow the disk to do smarter things
-and to keep the head at the right place for longer, dunno.  Anyways,
-whatever is the reason it doesn't make much difference from our point of
-view ;), but I don't expect this hardware behaviour changing in future
-high end storage.
+> > mke2fs -j -m 0  -b 4096 -i 4096 -R stride=16
+>
+> Do you expect to have so many small files in this huge filesystem?
+> Basically, the "-i" parameter is telling mke2fs what you think the
+> average file size will be, so 4kB is very small.
+not really, i thought the -b was telling this ?
+i think average filesize should be somewhere from 1-5 megabyte
+(zipfiles few megabyte/videofiles (can be a few gigabyte)/installation
+files for programmes)
 
-NOTE: just to be sure, I'm not at all against anticpiatory scheduling,
-it's clearly a very good feature to have (still I would like an option
-to disable it especially in heavy async environments like databases,
-where lots of writes are sync too) but it should be probably be enabled
-by default, especially for the metadata reads that have to be
-synchronous by design.
-
-Infact I wonder that it may be interesting to also make it optionally
-controlled from a fs hint (of course we don't pretend all fs to provide
-the hint), so that you stall I/O writes only when you know for sure
-you're going to submit another read in a few usec, just the time to
-parse the last metadata you read. Still a timeout would be needed for
-scheduling against RT etc..., but it could be a much more relaxed
-timeout with this option enabled, so it would need less accurate
-timings, and it would be less dependent on hardware, and it would
-be less prone to generate false positive stalls. The downside is having
-to add the hints.
-
-Andrea
+i also wonder what kind of chunk-size i need to use
+i use 64k now, but i wonder if 256k (or something bigger?) would be better
+(does chunk size difference in performance between a 4disk raid5 and a 15disk raid5 ?)

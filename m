@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289521AbSA2LqC>; Tue, 29 Jan 2002 06:46:02 -0500
+	id <S289571AbSA2LqC>; Tue, 29 Jan 2002 06:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289532AbSA2LoD>; Tue, 29 Jan 2002 06:44:03 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:41231 "HELO
+	id <S289533AbSA2LoJ>; Tue, 29 Jan 2002 06:44:09 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:42255 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289533AbSA2Lkm>; Tue, 29 Jan 2002 06:40:42 -0500
-Date: Mon, 28 Jan 2002 20:45:19 +0300
-Message-Id: <200201281745.g0SHjJd23076@bitshadow.namesys.com>
+	id <S289540AbSA2Lkm>; Tue, 29 Jan 2002 06:40:42 -0500
+Date: Mon, 28 Jan 2002 20:47:46 +0300
+Message-Id: <200201281747.g0SHlkk23098@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 9 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 12 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,11 +21,9 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-09-chown-32-bit-fix.diff
-        Reiserfs 3.5 disk format can only store 16 bit uid/gid inside
-        stat-data. This patch adds error checking so that EINVAL is returned
-        on attempt to change uid/gid of an old file to value that doesn't
-        fit into 16 bit, in stead of silently truncating it into 16 bit.
+12-infinite-replay.diff
+    Patch to break infinite loop in journal_read() in the case when the
+    journal log area is completely filled with transactions.
 
 
 The other patches in this set are:
@@ -175,49 +173,15 @@ The other patches in this set are:
 
 
 
---- linux-2.5.3-pre4.o/fs/reiserfs/file.c	Thu Jan 24 12:25:16 2002
-+++ linux-2.5.3-pre4/fs/reiserfs/file.c	Thu Jan 24 12:25:52 2002
-@@ -102,6 +102,12 @@
-             return -EFBIG ;
+--- linux-2.5.3-pre3/fs/reiserfs/journal.c.orig	Wed Jan 23 15:05:10 2002
++++ linux-2.5.3-pre3/fs/reiserfs/journal.c	Wed Jan 23 15:06:48 2002
+@@ -1724,6 +1724,8 @@
      }
+     cur_dblock = SB_ONDISK_JOURNAL_1st_BLOCK(p_s_sb) + SB_JOURNAL(p_s_sb)->j_start ;
+     replay_count++ ;
++   if (cur_dblock == oldest_start)
++        break;
+   }
  
-+    if ((((attr->ia_valid & ATTR_UID) && (attr->ia_uid & ~0xffff)) ||
-+	 ((attr->ia_valid & ATTR_GID) && (attr->ia_gid & ~0xffff))) &&
-+	(get_inode_sd_version (inode) == STAT_DATA_V1))
-+		/* stat data of format v3.5 has 16 bit uid and gid */
-+	    return -EINVAL;
-+
-     error = inode_change_ok(inode, attr) ;
-     if (!error)
-         inode_setattr(inode, attr) ;
---- linux-2.5.3-pre4.o/fs/reiserfs/inode.c	Thu Jan 24 12:25:16 2002
-+++ linux-2.5.3-pre4/fs/reiserfs/inode.c	Thu Jan 24 12:25:52 2002
-@@ -217,7 +217,7 @@
- // files which were created in the earlier version can not be longer,
- // than 2 gb
- //
--int file_capable (struct inode * inode, long block)
-+static int file_capable (struct inode * inode, long block)
- {
-     if (get_inode_item_key_version (inode) != KEY_FORMAT_3_5 || // it is new file.
- 	block < (1 << (31 - inode->i_sb->s_blocksize_bits))) // old file, but 'block' is inside of 2gb
-@@ -1528,9 +1528,16 @@
-     REISERFS_I(inode)->i_trans_id = 0;
-     REISERFS_I(inode)->i_trans_index = 0;
- 
--    if (old_format_only (sb))
-+    if (old_format_only (sb)) {
-+	if (inode->i_uid & ~0xffff || inode->i_gid & ~0xffff) {
-+	    pathrelse (&path_to_key);
-+	    /* i_uid or i_gid is too big to be stored in stat data v3.5 */
-+	    iput (inode);
-+	    *err = -EINVAL;
-+	    return NULL;
-+	}
- 	inode2sd_v1 (&sd, inode);
--    else
-+    } else
- 	inode2sd (&sd, inode);
- 
-     // these do not go to on-disk stat data
+   if (oldest_trans_id == 0) {
 

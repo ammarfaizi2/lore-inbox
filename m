@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbSJVEYe>; Tue, 22 Oct 2002 00:24:34 -0400
+	id <S262119AbSJVEXU>; Tue, 22 Oct 2002 00:23:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262129AbSJVEYe>; Tue, 22 Oct 2002 00:24:34 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8238 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262128AbSJVEYc>; Tue, 22 Oct 2002 00:24:32 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: mochel@osdl.org, eblade@blackmagik.dynup.net, linux-kernel@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
-References: <200210212056.NAA01321@adam.yggdrasil.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Oct 2002 22:28:37 -0600
-In-Reply-To: <200210212056.NAA01321@adam.yggdrasil.com>
-Message-ID: <m1wuobt7uy.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S262122AbSJVEXU>; Tue, 22 Oct 2002 00:23:20 -0400
+Received: from packet.digeo.com ([12.110.80.53]:56229 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262119AbSJVEXU>;
+	Tue, 22 Oct 2002 00:23:20 -0400
+Message-ID: <3DB4D41E.12454389@digeo.com>
+Date: Mon, 21 Oct 2002 21:29:18 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Jeff Dike <jdike@karaya.com>, Andrea Arcangeli <andrea@suse.de>,
+       john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+References: <20021020023321.GS23930@dualathlon.random> <200210220507.AAA06089@ccure.karaya.com> <20021022041524.GA11474@averell>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2002 04:29:18.0939 (UTC) FILETIME=[96516AB0:01C27983]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
-
-> Eric Biederman writes:
-> >My big concern is with getting the shutdown path setup in a manner
-> >that works, and gets testing.
+Andi Kleen wrote:
 > 
-> 	Rebooting without traversing the device tree seems to have
-> essentially worked fine for 2.4.x.
+> For example
+> you would need to special case this in uaccess.h's access_ok(), which
+> would be quite a lot of overhead (any change to this function causes
+> many KB of binary bloat because *_user is so heavily used all over the kernel)
 
-Yes.  I expect that most of the shutdown routines will be made conditional
-on something like, like CONFIG_HOTPLUG so you can disable the cleanly.
-Or perhaps, device_shutdown will be made a compile time conditional.
-
-But please note a number of 2.4.x drivers are starting to grow reboot
-notifiers.  So it appears that some people have needed code to shut
-down their driver at reboot time in 2.4.x
- 
-> >When booting linux from linux with
-> >sys_kexec a lot of my problems come back to some device driver not
-> >getting shutdown.
-> 
-> 	kmonte and sys_kexec skip the BIOS reset code and therefore
-> may need to do more elaborate shutdown, but please do not saddle the
-> normal reboot case with the reliability risk of calling code in each
-> driver when a user might be rebooting a remote machine precisely
-> because of a a confused device driver or the potential slow down
-> (especially since you want an interface where the function that gets
-> called before reboot may need to do blocking IO).  For
-> kmonte/sys_kexec, this high cost might be necessary, but for the
-> normal reboot the cost is not worth the benefit.
-
-In general if a routine takes a long time, that is a bug.
-
-> 	By way, given the ability to register reboot notifiers in the
-> device tree, I would be happy to see one registered at the top of the
-> PCI bus tree (so it would be called last) that would shut off the PCI
-> bus before reboot, along the lines of what Richard B. Johnson posted.
-> That would not involve walking a lot of data structures in many
-> different device drivers and it would be just a few instrutions.
-
-That code was chipset specific, so it may be a good thing for a host bridge
-driver to do that but it is by no means generally possible.
-
-Eric
+That's all uninlined in the -mm patches.  Saves 33k of text.

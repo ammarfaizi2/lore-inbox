@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293632AbSEIM5I>; Thu, 9 May 2002 08:57:08 -0400
+	id <S310190AbSEINAf>; Thu, 9 May 2002 09:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSEIM5H>; Thu, 9 May 2002 08:57:07 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:20498 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S293632AbSEIM5G>; Thu, 9 May 2002 08:57:06 -0400
-Message-ID: <3CDA6363.2050108@evision-ventures.com>
-Date: Thu, 09 May 2002 13:54:11 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hdreg.h
-In-Reply-To: <UTC200205082345.g48NjZX24244.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S310206AbSEINAe>; Thu, 9 May 2002 09:00:34 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:17936 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S310190AbSEINAd>; Thu, 9 May 2002 09:00:33 -0400
+Message-Id: <200205091300.g49D0TY01841@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Greg KH <greg@kroah.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>, mochel@osdl.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Problems with 2.5.14 PCI reorg and non-PCI architectures 
+In-Reply-To: Message from Greg KH <greg@kroah.com> 
+   of "Thu, 09 May 2002 01:44:24 PDT." <20020509084424.GC15460@kroah.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 09 May 2002 09:00:28 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Andries.Brouwer@cwi.nl napisa³:
-> Linus, Martin:
-> 
-> People complain that fdisk doesn't compile under 2.5.14
-> because hdreg.h has acquired stuff that cannot be included
-> from userspace. Will release util-linux 2.11r later tonight
-> with a local copy.
-> But now that I look at this file: it still contains
-> struct hd_big_geometry and HDIO_GETGEO_BIG.
-> Please remove them.
+greg@kroah.com said:
+> arch/i386/pci/dma.c now only contains pci_alloc_consistent() and
+> pci_free_consistent().  What kind of configuration are you using that
+> works without CONFIG_PCI and yet calls those functions?  Is it a
+> ISA_PNP type configuration?  Do you have a .config that this fails on?
 
+The problem is that this is not necessarily PCI related on other platforms.
 
-If fdisk doesn't use it. I will take your patch immediately.
-One arbitrary ioctl which was introduced ad hock less. :-).
+My cross platform SCSI driver, 53c700.c, uses pci_alloc_consistent because it 
+has to work on parisc archs as well (which do have consistent memory even 
+though a few of them don't have PCI busses).  It was failing a test compile.  
+I can manipulate the #ifdefs so that it doesn't use the consistent allocation 
+functions on x86, but I think, in principle, cross platform drivers should be 
+able to use these functions.
+
+> I'd be glad to move it back, but I'd like to understand who is using
+> those functions outside of the pci and isa_pnp drivers. 
+
+Yes, please.  If you look at a lot of the non-x86 arch drivers, some of them 
+also use pci_alloc_consistent.  I think the only other x86 example I can come 
+up with is aic7xxx_old which also supports the 7770 chip which is used for 
+SCSI in the intel xpress motherboard (pure EISA).
+
+James
+
 

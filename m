@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbUK1Q7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbUK1Q7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbUK1Q7I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 11:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbUK1Q4E
+	id S261522AbUK1Q7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 11:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUK1Q7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 11:56:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:684 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261530AbUK1QxT (ORCPT
+	Sun, 28 Nov 2004 11:59:32 -0500
+Received: from gprs214-243.eurotel.cz ([160.218.214.243]:46977 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261532AbUK1Q64 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 11:53:19 -0500
-Date: Sun, 28 Nov 2004 17:52:58 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Thomas Fritzsche <tf@noto.de>
-Cc: Pasi Savolainen <psavo@iki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
-Message-ID: <20041128165257.GA26714@suse.de>
-References: <33133.192.168.0.2.1101499190.squirrel@192.168.0.10> <32942.192.168.0.2.1101549298.squirrel@192.168.0.10> <slrncqhqib.19r.psavo@varg.dyndns.org> <33262.192.168.0.2.1101597468.squirrel@192.168.0.10> <slrncqjcve.19r.psavo@varg.dyndns.org> <33050.192.168.0.5.1101651929.squirrel@192.168.0.10>
+	Sun, 28 Nov 2004 11:58:56 -0500
+Date: Sun, 28 Nov 2004 17:58:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software suspend patch [1/6]
+Message-ID: <20041128165835.GA1214@elf.ucw.cz>
+References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <33050.192.168.0.5.1101651929.squirrel@192.168.0.10>
+In-Reply-To: <20041128162320.GA28881@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 28 2004, Thomas Fritzsche wrote:
-> Hi,
-> 
-> (please CC me because I'm not subscribed to the list)
-> 
-> >> What Kernel do you use?
-> >
-> > Linux tienel 2.6.10-rc2-mm1 #1 SMP Wed Nov 17 01:19:53 EET 2004 i686
-> > GNU/Linux
-> 
-> Maybe you can give a 2.4.27'er kernel a try.
-> 
-> >
-> > Actually now that I rebooted (for DVD flashing) and started back into
-> > linux, after running dvdspeed it also says:
-> > "scsi: unknown opcode 0xb6" (which is SET_STREAMING). Code for this is
-> > in drivers/block/scsi_ioctl.c, and if I read it right, it can't prevent
-> > root from executing that command.
-> 
-> I have the same impression after reading drivers/block/scsi_ioctl.c . I
-> think you will need root permission to send this command, RW-Permission
-> for the device file is not enough! Did you try this as root?
+Hi!
 
-You just need to add SET_STREAMINIG as a write-safe command, then it
-will work as a regular user. Hmm, it is already added as write safe. You
-don't have write permission on the device, then.
+I can not merge anything before 2.6.10. As you have seen, I have quite
+a lot of patches in my tree, and I do not want mix them with these...
 
-> But I'm wondering that scsi_ioctl.c comes into play, because It's a
-> ATAPI-Device. Isn't it? Do you use the scsi emulation? If so please try
-> without.
+>  device-tree.diff 
+>    base from suspend2 with a little changed.
 
-The 'scsi' in the name doesn't refer to the transport used, but the
-command set being scsi-like. ide-scsi emulation has nothing to do with
-it.
+I do not want this one.
 
-> > I modified your speed-1.0 to open device O_RDWR, didn't help.
-> > I modified it to also dump_sense after CMD_SEND_PACKET, it's just
-> > duplicate packet.
+>  core.diff
+>   1: redefine struct pbe for using _no_ continuous as pagedir.
+
+Can I get this one as a separate diff?
+
+>   2: make shrink memory as little as possible.
+>   3: using a bitmap speed up collide check in page relocating.
+>   4: pagecache saving ready.
 > 
-> No this will definitively not solve this issue. I will try to check this
-> in the kernel, but because I'm not a kernel developer I will CC Jens
-> Axboe. Maybe he can help?
+>  i386.diff
+>  ppc.diff
+>   i386 and powerpc suspend update.
 
-Just fix the permission on the special file. Additionally, the program
-must open the device O_RDWR.
+ppc changes look good, you should send them to ppc maintainer...
+
+>  pagecachs_addon.diff
+>   if enable page caches saving, must using it, it making saving
+>   pagecaches safe. idea from suspend2.
+> 
+>   ppcfix.diff
+>   fix compile error. 
+>   $ gcc -v
+>    .... 
+>    gcc version 2.95.4 20011002 (Debian prerelease)
+
+Send this one to Andrew Morton, now, it is a bugfix.
+								Pavel
 
 -- 
-Jens Axboe
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbQKQVlq>; Fri, 17 Nov 2000 16:41:46 -0500
+	id <S129806AbQKQVm4>; Fri, 17 Nov 2000 16:42:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129806AbQKQVli>; Fri, 17 Nov 2000 16:41:38 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:46605 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129199AbQKQVlZ>;
-	Fri, 17 Nov 2000 16:41:25 -0500
-Message-ID: <3A159EF1.E08E5368@mandrakesoft.com>
-Date: Fri, 17 Nov 2000 16:11:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: becker@scyld.com, linux-kernel@vger.kernel.org, shangh@realtek.com.tw
-Subject: Re: duplicate entries in rtl8129 driver
-In-Reply-To: <200011172047.MAA03712@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130347AbQKQVmq>; Fri, 17 Nov 2000 16:42:46 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:32453 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129806AbQKQVmh>;
+	Fri, 17 Nov 2000 16:42:37 -0500
+Date: Fri, 17 Nov 2000 22:12:25 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011172112.WAA135348.aeb@aak.cwi.nl>
+To: Andries.Brouwer@cwi.nl, koenig@tat.physik.uni-tuebingen.de
+Subject: Re: BUG: isofs broken (2.2 and 2.4)
+Cc: aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
+        kobras@tat.physik.uni-tuebingen.de, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
-> 
->         Both linux-2.4.0-test12-pre6/drivers/net/rtl8129.c and
-> Don Becker's version at ftp.sycld.com appear to have identical
-> PCI device ID and vendor ID values for these two cards:
+> memory leak
 
-rtl8129 is going away as soon as humanly possible.  :)  RealTek sent me
-a RTL8130 so I can test the MII stuff finally.
+Aha. Must be a missing kfree().
+Does this help?
 
-Note that those duplicate ids should be commented out of rtl8129.c,
-also.
+--- namei.c~    Fri Nov 17 00:48:37 2000
++++ namei.c     Fri Nov 17 21:59:49 2000
+@@ -197,6 +197,8 @@
+                        bh = NULL;
+                        break;
+                }
++               if (cpnt)
++                       kfree(cpnt);
+        }
+        if (page)
+                free_page((unsigned long) page);
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

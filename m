@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUKTWgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUKTWh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbUKTWgX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 17:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbUKTWgX
+	id S263191AbUKTWh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 17:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbUKTWge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 17:36:23 -0500
-Received: from gprs214-248.eurotel.cz ([160.218.214.248]:1152 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263188AbUKTWeG (ORCPT
+	Sat, 20 Nov 2004 17:36:34 -0500
+Received: from gprs214-248.eurotel.cz ([160.218.214.248]:1664 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263191AbUKTWeJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 17:34:06 -0500
-Date: Sat, 20 Nov 2004 22:41:39 +0100
+	Sat, 20 Nov 2004 17:34:09 -0500
+Date: Sat, 20 Nov 2004 22:22:32 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: hugang@soulinfo.com
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
-Message-ID: <20041120214139.GA984@elf.ucw.cz>
+Message-ID: <20041120212232.GA984@elf.ucw.cz>
 References: <20041119194007.GA1650@hugang.soulinfo.com> <20041120003010.GG1594@elf.ucw.cz> <20041120081219.GA2866@hugang.soulinfo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -44,8 +44,10 @@ Hi!
 > Here is the patch relative to your big diff. It tested pass with my x86
 > pc, But the sysfs interface can't works, I using reboot system call.
 
-Even without CONFIG_PREEMPT, it does NULL pointer dereference in
-copy_data_pages.
+Try enabling config_preempt and see how it prints about 1000 warnings
+and then oopses. (Okay, perhaps oops is because of highmem? I'll
+check.)
+
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

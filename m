@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311948AbSCXLYy>; Sun, 24 Mar 2002 06:24:54 -0500
+	id <S311936AbSCXLZY>; Sun, 24 Mar 2002 06:25:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311940AbSCXLYp>; Sun, 24 Mar 2002 06:24:45 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:44044 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S311934AbSCXLYk>; Sun, 24 Mar 2002 06:24:40 -0500
-Date: Sun, 24 Mar 2002 12:24:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Stevie O <stevie@qrpff.net>
-Cc: Pavel Machek <pavel@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: fadvise syscall?
-Message-ID: <20020324112418.GA15934@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <3C959716.6040308@mandrakesoft.com> <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au> <5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk> <3C959716.6040308@mandrakesoft.com> <5.1.0.14.2.20020324013457.022907d0@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S311940AbSCXLZF>; Sun, 24 Mar 2002 06:25:05 -0500
+Received: from ns.caldera.de ([212.34.180.1]:18351 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S311936AbSCXLYz>;
+	Sun, 24 Mar 2002 06:24:55 -0500
+Date: Sun, 24 Mar 2002 12:24:14 +0100
+Message-Id: <200203241124.g2OBOEB12463@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: akpm@zip.com.au (Andrew Morton)
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Updated -aa VM patches
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3C9D7F4B.45B1A766@zip.com.au>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+In article <3C9D7F4B.45B1A766@zip.com.au> you wrote:
+> writeback changes:
+>         aa-010-show_stack.patch
 
-> >> I disagree, and here's the main reasons:
-> >> 
-> >> * fadvise(2) usefulness extends past open(2).  It may be useful to call 
-> >> it at various points during runtime.
-> >
-> >open(/proc/self/fd/0, O_NEW_FLAGS)?
-> 
-> So to use fadvise(), the system must have /proc mounted?
+The ifdef-mania in this patch is realy ugly - I'd rather prefer to make
+the code use show_stack unconditionally and let the currently
+non-conforming ports implement it, even it's is a noop.
 
-I think it is way more feasible than adding new syscall.
-							Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.

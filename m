@@ -1,103 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbTENKoN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 06:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTENKoN
+	id S261788AbTENKtv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 06:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTENKtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 06:44:13 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:55056 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261855AbTENKoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 06:44:10 -0400
-Date: Wed, 14 May 2003 11:56:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [PATCH] PAG support, try #2
-Message-ID: <20030514115653.A15202@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	openafs-devel@openafs.org
-References: <24225.1052909011@warthog.warthog>
+	Wed, 14 May 2003 06:49:51 -0400
+Received: from 213-4-13-153.uc.nombres.ttd.es ([213.4.13.153]:43532 "HELO
+	small.felipe-alfaro.com") by vger.kernel.org with SMTP
+	id S261788AbTENKtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 06:49:50 -0400
+Subject: Re: 2.6 must-fix list, v2
+From: Felipe Alfaro Solana <yo@felipe-alfaro.com>
+To: "Shaheed R. Haque" <srhaque@iee.org>
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052866156.3ec1766c0b7b3@netmail.pipex.net>
+References: <1050146434.3e97f68300fff@netmail.pipex.net>
+	 <1050177383.3e986f67b7f68@netmail.pipex.net>
+	 <1050177751.2291.468.camel@localhost>
+	 <1050222609.3e992011e4f54@netmail.pipex.net>
+	 <1050244136.733.3.camel@localhost>
+	 <1052826556.3ec0dbbc1d993@netmail.pipex.net>
+	 <20030513130257.78ab1a2e.akpm@digeo.com>
+	 <1052866156.3ec1766c0b7b3@netmail.pipex.net>
+Content-Type: text/plain
+Message-Id: <1052910149.586.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <24225.1052909011@warthog.warthog>; from dhowells@redhat.com on Wed, May 14, 2003 at 11:43:31AM +0100
+X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
+Date: 14 May 2003 13:02:29 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 11:43:31AM +0100, David Howells wrote:
-> +extern long sys_setpag(pag_t);
-> +extern long sys_getpag(void);
+On Wed, 2003-05-14 at 00:49, Shaheed R. Haque wrote:
+> Quoting Andrew Morton <akpm@digeo.com>:
+> 
+> > > - Add ability to restrict the the default CPU affinity mask so that 
+> > >  sys_setaffinity() can be used to implement exclusive access to a CPU.
+> > 
+> > Why is this useful?
+> 
+> I forgot to add that the result is the rough equivalent of Digital UNIX's psets
+> and Irix's sysmp for my prurposes at least.
 
-These have to be a marked asmlinkage.  What's the reason you have
-the syscall in this header anyway?
-
-> +static kmem_cache_t *vfs_token_cache;
-> +static kmem_cache_t *vfs_pag_cache;
-
-So do you have an estimate for the number of users here yet?
-Adding two more slab caches that are unused for 99% of the users
-might not be the best choice if there's no strong need.
-
-> +inline pag_t vfs_leave_pag(void)
-
-Inline but not static seems strange..
-
-> +/*
-> + * join an existing PAG (+ve), run without PAG (0), or create and join new PAG (-1)
-> + * - PAG IDs must be +ve, >0 and unique
-> + * - returns ID of PAG joined or 0 if now running without a PAG
-> + */
-> +long sys_setpag(pag_t pag)
-> +{
-> +	if (pag > 0)		return vfs_join_pag(pag);
-> +	else if (pag == 0)	return vfs_leave_pag();
-> +	else if (pag == -1)	return vfs_new_pag();
-> +	else			return -EINVAL;
-> +}
-
-We already discussed the coding style issue, but anyway, why aren't
-these three separate syscalls?
-
-> +void vfs_pag_put(struct vfs_pag *vfspag)
-> +{
-> +	struct vfs_token *vtoken;
-> +
-> +	if (vfspag && atomic_dec_and_lock(&vfspag->usage, &vfs_pag_lock)) {
-> +		rb_erase(&vfspag->node, &vfs_pag_tree);
-> +		spin_unlock(&vfs_pag_lock);
-> +
-> +		while (!list_empty(&vfspag->tokens)) {
-
-What protects vfspag->tokens?
-
-> +/*
-> + * search for a token covering a particular filesystem key in the specified pag list
-> + */
-
-Please linwrap after 80 chars.
-
-> +
-> +	if (p->vfspag)
-> +		vfs_pag_get(p->vfspag);
-> +
-
-Shouldn't vfs_pag_get hanlde a NULL argument instead?
-
-> diff -uNr linux-2.5.69/kernel/Makefile linux-2.5.69-pag/kernel/Makefile
-> --- linux-2.5.69/kernel/Makefile	2003-05-06 15:04:56.000000000 +0100
-> +++ linux-2.5.69-pag/kernel/Makefile	2003-05-13 10:45:27.000000000 +0100
-> @@ -3,7 +3,7 @@
->  #
->  
->  obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
-> -	    exit.o itimer.o time.o softirq.o resource.o \
-> +	    cred.o exit.o itimer.o time.o softirq.o resource.o \
-
-What happened to the suggestion to make the pag code optional?  It's
-really easy to stub it out properly and most people don't need it.
+And psets and fencing in Solaris too...
 

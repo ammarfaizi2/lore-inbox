@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUG1SXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUG1S22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUG1SXH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 14:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUG1SXH
+	id S261857AbUG1S22 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 14:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUG1S22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 14:23:07 -0400
-Received: from main.gmane.org ([80.91.224.249]:36009 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261638AbUG1SXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 14:23:05 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-From: Benjamin Rutt <rutt.4+news@osu.edu>
-Subject: Re: clearing filesystem cache for I/O benchmarks
-Date: Wed, 28 Jul 2004 14:19:09 -0400
-Message-ID: <87llh4atb6.fsf@osu.edu>
-References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org>
- <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org>
- <4106013E.30408@namesys.com> <87vfg9nyqv.fsf@osu.edu>
- <410698FA.40400@namesys.com> <87k6wocnmk.fsf@osu.edu>
- <4107DC4C.3040603@namesys.com>
+	Wed, 28 Jul 2004 14:28:28 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:43400 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261857AbUG1S20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 14:28:26 -0400
+Subject: Re: [patch] IRQ threads
+From: Lee Revell <rlrevell@joe-job.com>
+To: karim@opersys.com
+Cc: Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
+       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Manas Saksena <manas.saksena@timesys.com>,
+       Philippe Gerum <rpm@xenomai.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4107CA18.4060204@opersys.com>
+References: <20040727225040.GA4370@yoda.timesys>
+	 <4107CA18.4060204@opersys.com>
+Content-Type: text/plain
+Message-Id: <1091039327.747.26.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dhcp065-025-157-254.columbus.rr.com
-Mail-Copies-To: nobody
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-Cancel-Lock: sha1:EdQ9SWRn3n5q6P+LOrvWFHw4QXI=
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Jul 2004 14:28:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
+On Wed, 2004-07-28 at 11:45, Karim Yaghmour wrote:
+> Scott Wood wrote:
+> > I have attached a patch for implementing IRQ handlers in threads, for
+> > latency-reduction purposes.  It requires that softirqs must be run in
+> > threads (or else they could end up running inside the IRQ threads,
+> > which will at the very least trigger bugs due to in_irq() being set). 
+> > I've tested it with Ingo's voluntary-preempt J7 patch, and it should
+> > work with the TimeSys softirq thread patch as well (though you might
+> > get a conflict with the PF_IRQHANDLER definition; just merge them
+> > into one).
+> 
+> My experience with clients who have been using TimeSys' stuff has been
+> abysmal. The fact of the of the matter is that most people who used
+> this were practically locked-in to TimeSys' services, unable to download
+> anything "standard" off the net and using it with their kernel. In one
+> example, we had to ditch the kernel the client got from TimeSys because
+> we had spent 10+ hours trying to get LTT to work on it without any
+> success whatsoever.
+> 
+> As I had said on other lists before, I don't see the point of creating
+> that much complexity in the kernel in order to try to shave-off a little
+> bit more off of the kernel's interrupt response time. The fact of the
+> matter is that neither this patch nor most of the other patches suggested
+> makes the kernel truely hard-rt. These patches only make the kernel
+> respond "faster". If you really need hard-rt, then you should be using
+> the Adeos nanokernel. With Adeos, you can even get a hard-rt driver
+> without using RTAI or any of the other rt derivatives.
+> 
 
-> Probably the best you can do is write enough in the course of the test
-> that fsync at the end (or data remaining in cache) is insignificant
-> noise.  Benchmarks that make fsync or the cache significant
-> unintentionally are common and bad.
+This is obvious FUD from someone who is selling something.  Please keep
+this crap off LKML.
 
-I assure you, our benchmarks will avoid these common pitfalls.
--- 
-Benjamin Rutt
+Lee
 

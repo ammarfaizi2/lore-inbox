@@ -1,146 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291384AbSBMFvS>; Wed, 13 Feb 2002 00:51:18 -0500
+	id <S291388AbSBMF5J>; Wed, 13 Feb 2002 00:57:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291387AbSBMFvJ>; Wed, 13 Feb 2002 00:51:09 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:50640 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S291384AbSBMFvB>; Wed, 13 Feb 2002 00:51:01 -0500
-From: "Guillaume Boissiere" <boissiere@attbi.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 13 Feb 2002 00:50:05 -0500
-MIME-Version: 1.0
-Subject: [STATUS 2.5]  February 13, 2002
-Message-ID: <3C69B83D.15628.A6CC336@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S291390AbSBMF47>; Wed, 13 Feb 2002 00:56:59 -0500
+Received: from angband.namesys.com ([212.16.7.85]:50562 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S291388AbSBMF4y>; Wed, 13 Feb 2002 00:56:54 -0500
+Date: Wed, 13 Feb 2002 08:56:53 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+Message-ID: <20020213085653.A5957@namesys.com>
+In-Reply-To: <20020212200124.A2267@namesys.com> <Pine.LNX.4.44.0202121807120.15720-100000@Expansa.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0202121807120.15720-100000@Expansa.sns.it>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest 2.5 status update is available for your enjoyment at 
-http://kernelnewbies.org/status/
+Hello!
 
-All the desktop users that care about interactive feel may want to give a 
-whirl to 2.5.4 that adds an option (disabled by default) to preempt the 
-kernel, courtesy of Robert Love based on original work by MontaVista.
+On Tue, Feb 12, 2002 at 06:13:18PM +0100, Luigi Genoni wrote:
 
-I have not heard from a few projects in the list below in quite a while, 
-so please let me know if you can spot anything out of date or incorrect.
+> I run slackware 8.0.49, and there was no log replaying.
+Ok.
 
-Cheers!
+> The corruption is the one we are talking about since some days,
+> file are fille of 0s instead of their supposed content.
+Hm. Was that a plain reboot?
+Did you tried to run reiserfsck --rebuild-tree between reboots before
+finding files with zeroes.
+(if you did, that may somewhat explain what you've seen)
 
--- Guillaume
+> I usually restore corrupted file, so I should keep one fopr you, I think.
+Ok, if it became all zeroes, then I do not need it.
 
--------------------------------------------------
-Kernel 2.5 status  -  February 13th, 2002
-(Latest kernel release is 2.5.4)
-
-
-Features:
-
-o Merged     New scheduler for improved scalability          (Ingo Molnar)
-o Merged     Rewrite of the block IO (bio) layer             (Jens Axboe)
-o Merged     New kernel device structure (kdev_t)            (Linus Torvalds, etc.)
-o Merged     Initial support for USB 2.0                     (David Brownell, Greg Kroah-Hartman, etc.)
-o Merged     Per-process namespaces, late-boot cleanups      (Al Viro, Manfred Spraul)
-o Merged     IDE layer update                                (Andre Hedrick)
-o Merged     New driver API for Wireless Extensions (1/2)    (Jean Tourrilhes)
-o Merged     Generic ACL (Access Control List) support       (Nathan Scott)
-o Merged     Support reiserfs external journal               (Reiserfs team)
-o Merged     New driver model & unified device tree          (Patrick Mochel)
-* Merged     PnP BIOS driver                                 (Alan Cox, Thomas Hood, Dave Jones, etc.)
-o Merged     Add preempt kernel option                       (Robert Love)
-
-o Pending    Finalize new device naming convention           (Linus Torvalds)
-o in -dj     Porting all input devices over to input API     (Vojtech Pavlik, James Simmons)
-o in -ac     32bit UID quota support                         (?)
-
-o Ready      Add User-Mode Linux (UML)                       (Jeff Dike)
-o Ready      HDLC (High-level Data Link Control) update      (Krzysztof Halasa)
-o Ready      Add ALSA (Advanced Linux Sound Architecture)    (ALSA team)
-o Ready      Add hardware sensors drivers                    (lm_sensors team)
-o Ready      New kernel config system: CML2                  (Eric Raymond)
-o Ready      Add JFS (Journaling FileSystem from IBM)        (JFS team)
-o Ready      Read-Copy Update Mutual Exclusion               (Dipankar Sarma, Rusty Russell, Ardrea 
-Arcangeli, LSE Team)
-
-o <1 month   New kernel build system (kbuild 2.5)            (Keith Owens)
-
-o Beta       Add support for CPU clock/voltage scaling       (Erik Mouw, Dave Jones, Russell King, 
-Arjan van de Ven)
-o Beta       Serial driver restructure                       (Russell King)
-o Beta       New IO scheduler                                (Jens Axboe)
-o Beta       NAPI Network interrupt mitigation               (Jamal Hadi Salim, Robert Olsson, Alexey 
-Kuznetsov)
-o Beta       Add XFS (A journaling filesystem from SGI)      (XFS team)
-o Beta       New VM with reverse mappings                    (Rik van Riel)
-o Beta       Add resheduling points to remove latency        (Andrew Morton)
-o Beta       Build option for Linux Trace Toolkit (LTT)      (Karim Yaghmour)
-o Beta       Better event logging for enterprise systems     (evlog team)
-o Beta       Add Linux Security Module (LSM)                 (LSM team)
-o Beta       Hotplug CPU support                             (Rusty Russell)
-o Beta       Per-mountpoint read-only, union-mounts, unionfs (Al Viro)
-o Beta       EVMS (Enterprise Volume Management System)      (EVMS team)
-o Beta       LVM (Logical Volume Manager) v2.0               (LVM team)
-o Beta       Linux booting ELF images                        (Eric Biederman)
-o Beta       First pass at LinuxBIOS support                 (Eric Biederman)
-o Beta       Dynamic Probes                                  (Suparna Bhattacharya, dprobes team)
-* Beta       Video for Linux (V4L) redesign                  (Gerd Knorr)
-
-o Alpha      Better support of high-end NUMA machines        (NUMA team)
-o Alpha      Add Asynchronous IO (aio) support               (Ben LaHaise)
-o Alpha      Overhaul PCMCIA support                         (David Woodhouse, David Hinds)
-o Alpha      Replace old NTFS driver with NTFS TNG driver    (Anton Altaparmakov)
-o Alpha      More complete IEEE 802.2 stack                  (Arnaldo, Jay Schullist, from Procom 
-donated code)
-o Alpha      Full compliance with IPv6                       (Alexey Kuznetzov, Jun Murai, Yoshifuji 
-Hideaki, USAGI team)
-o Alpha      UMSDOS (Unix under MS-DOS) Rewrite              (Al Viro)
-o Alpha      Scalable CPU bitmaps                            (Russ Weight)
-o Alpha      Scalable Statistics Counter                     (Ravikiran Thirumalai)
-o Alpha      Linux Kernel Crash Dumps                        (Matt Robinson, LKCD team)
-* Alpha      Add support for NFS v4                          (NFS v4 team)
-
-o Started    Rewrite of the framebuffer layer                (James Simmons)
-o Started    Rewrite of the console layer                    (James Simmons)
-o Started    More complete NetBEUI stack                     (Arnaldo Carvalho de Melo, from Procom 
-donated code)
-o Started    Remove use of the BKL (Big Kernel Lock)         (Alan Cox, Robert Love, Neil Brown, etc.)
-o Started    Change all drivers to new driver model          (All maintainers)
-o Started    Reiserfs v4                                     (Reiserfs team)
-o Started    Move ISDN4Linux to CAPI based interface         (ISDN4Linux team)
-
-o Draft #2   New lightweight library (klibc)                 (Greg Kroah-Hartman)
-o Draft #3   Replace initrd by initramfs                     (H. Peter Anvin, Al Viro)
-o Planning   Add thrashing control                           (Rik van Riel)
-o Planning   Remove all hardwired drivers from kernel        (Alan Cox, etc.)
-o Planning   Generic parameter/command line interface        (Keith Owens)
-o Planning   New mount API                                   (Al Viro)
-o Planning   New MTRR (Memory Type Range Register) driver    (Dave Jones)
-
-
-Cleanups:
-
-o Merged     Break Configure.help into multiple files        (Linus Torvalds)
-* Merged     Untangle include file dependancies              (Dave Jones, Roman Zippel)
-o Merged     Per network protocol slabcache & sock.h         (Arnaldo Carvalho de Melo)
-
-o Ready      Switch to ->get_super() for file_system_type    (Al Viro)
-o Ready      ->getattr() ->setattr() ->permission() changes  (Al Viro)
-o Ready      Remove dcache_lock                              (Maneesh Soni, IBM team)
-
-o Beta       file.h and INIT_TASK                            (Benjamin LaHaise)
-o Beta       Proper UFS fixes, ext2 and locking cleanups     (Al Viro)
-o Beta       Lifting limitations on mount(2)                 (Al Viro)
-
-o Started    Per filesystem slabcache & fs.h                 (Daniel Phillips, Jeff Garzik)
-o Started    Killing kdev_t for block devices                (Al Viro)
-o Started    Split up x86 setup.c into managable pieces      (Dave Jones, Randy Dunlap)
-o Started    Reorder x86 initialization		                  (Dave Jones, Randy Dunlap)
-
-Have some free time and want to help?  Check out the Kernel Janitor TO DO list for a 
-list of source code cleanups you can work on.  A great place to start learning more 
-about kernel internals!
-
+Bye,
+    Oleg

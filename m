@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTFAGkg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 02:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTFAGkg
+	id S261328AbTFAGgx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 02:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTFAGgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 02:40:36 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:45441
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261352AbTFAGkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 02:40:35 -0400
-Date: Sun, 1 Jun 2003 02:43:27 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Steven Cole <elenstev@mesatop.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question about style when converting from K&R to ANSI C.
-In-Reply-To: <20030601063946.GF10719@conectiva.com.br>
-Message-ID: <Pine.LNX.4.50.0306010242570.2614-100000@montezuma.mastecende.com>
-References: <1054446976.19557.23.camel@spc> <20030601063946.GF10719@conectiva.com.br>
+	Sun, 1 Jun 2003 02:36:53 -0400
+Received: from imsantv21.netvigator.com ([210.87.250.77]:60849 "EHLO
+	imsantv21.netvigator.com") by vger.kernel.org with ESMTP
+	id S261328AbTFAGgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 02:36:52 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: ghugh Song <ghugh@bellini.mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rmap 15j for 2.4.21-rc6
+Date: Sun, 1 Jun 2003 14:39:53 +0800
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.53.0306010049500.6637@bellini.mit.edu>
+In-Reply-To: <Pine.LNX.4.53.0306010049500.6637@bellini.mit.edu>
+X-OS: GNU/Linux 2.5.70
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306011439.53629.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jun 2003, Arnaldo Carvalho de Melo wrote:
+On Sunday 01 June 2003 12:57, ghugh Song wrote:
 
-> > The above should be straightforward, but if there are any problems with
-> > that, please holler.  I'll be sending patches through the maintainers
-> > soon.
-> 
-> Perfect!
+> On a Athlon 2700+/166MHz DDR/1GB on a board having Nvidia2 chipset
+> with SCSI hard disks, it solved all my interactivity problem.
+> BTW, I do LaTeXing the most.
 
-Why not just do this then;
+Congratulations on winning at the roulette table of everyday use ;-)
 
-Index: linux-2.5/scripts/Lindent
-===================================================================
-RCS file: /home/cvs/linux-2.5/scripts/Lindent,v
-retrieving revision 1.16
-diff -u -p -B -r1.16 Lindent
---- linux-2.5/scripts/Lindent	31 May 2003 18:57:19 -0000	1.16
-+++ linux-2.5/scripts/Lindent	1 Jun 2003 05:46:02 -0000
-@@ -1,2 +1,2 @@
- #!/bin/sh
--indent -kr -i8 -ts8 -sob -l80 -ss -bs -psl "$@"
-+indent -kr -i8 -ts8 -sob -l80 -ss -bs "$@"
+> I have never tested such test  scripts.
 
--- 
-function.linuxpower.ca
+How many hours of users and developers time have been wasted on 
+"interactivity problems, locks and hangs" since 2.4.18 ?
+
+Regards
+Michael 
+

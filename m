@@ -1,104 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270490AbTHGTxp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 15:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270497AbTHGTxp
+	id S270461AbTHGUJt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 16:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270473AbTHGUJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 15:53:45 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:58604 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S270490AbTHGTxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 15:53:42 -0400
-Date: Thu, 07 Aug 2003 12:53:19 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: slpratt@us.ibm.com
-Subject: [Bug 1057] New: oops performing AIO write with O_DIRECT to block device 
-Message-ID: <43060000.1060285999@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 7 Aug 2003 16:09:49 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:28398 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S270461AbTHGUJo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 16:09:44 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 7 Aug 2003 22:09:43 +0200 (MEST)
+Message-Id: <UTC200308072009.h77K9hm01960.aeb@smtp.cwi.nl>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: [PATCH] kill superfluous capacity
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1057
+We have both capacity and capacity48.
+Kill one of them.  A nice simplification.
 
-           Summary: oops performing AIO write with O_DIRECT to block device
-    Kernel Version: 2.6.0-test2-mm2
-            Status: NEW
-          Severity: blocking
-             Owner: akpm@digeo.com
-         Submitter: slpratt@us.ibm.com
+[I left capacity48 instead of capacity on the one hand
+to remind users that it is 64 bits, and on the other hand
+because that is easier to grep for. We have enough uses
+of capacity already.]
 
-
-Distribution:SLES8
-
-Hardware Environment:
-8way PIII 700Mhz, 4xServRAID with 80 9GB disks (20 RAID0 arrays)
-
-Software Environment:
-Problem Description:
-Doing multithreaded AIO to multiple drives produces the following oops
-
-08/04/03-18:26:32 processing command: run seqaiowrite-O_DIR rawio -m 20 -p 160
--d 6 -n 102400 -x -z -t 13 -s 1024
-new log requested
-08/04/03-18:26:32 Running command rawio -m 20 -p 160 -d 6 -n 102400 -x -z -t 13
--s 1024
-Oops: 0000 [#1]
-SMP
-CPU:    2
-EIP:    0060:[<c0307a9e>]    Not tainted VLI
-EFLAGS: 00010086
-EIP is at as_move_to_dispatch+0xe/0x130
-eax: 00000000   ebx: f7a8b0a0   ecx: 00000000   edx: fffffff9
-esi: 00000000   edi: 00000000   ebp: 00000001   esp: f5bf1c78
-ds: 007b   es: 007b   ss: 0068
-Process rawread (pid: 24164, threadinfo=f5bf0000 task=f5e90690)
-Stack: 00000001 f59e2e40 f7a4ec00 00000000 f7a8b0a0 00000000 00000000 c0307cf5
-       f7a8b0a0 00000000 c036727d f7a8b0a0 00000000 f79e1a00 f7a4ec00 c0307e68
-       f7a8b0a0 f657d200 f79e1a00 c02ff626 f79e1a00 f657d200 f79e0800 f657d200
-Call Trace:
- [<c0307cf5>] as_dispatch_request+0x135/0x270
- [<c036727d>] ips_queue+0xdd/0x170
- [<c0307e68>] as_next_request+0x38/0x50
- [<c02ff626>] elv_next_request+0x16/0x100
- [<c03432e8>] scsi_request_fn+0x38/0x2c0
- [<c0301467>] generic_unplug_device+0x67/0x70
- [<c03015c6>] blk_run_queues+0x86/0xa0
- [<c017c73d>] direct_io_worker+0x28d/0x3f0
- [<c033e9b5>] scsi_finish_command+0x75/0xb0
- [<c017c9f2>] blockdev_direct_IO+0x152/0x162
- [<c0160470>] blkdev_get_blocks+0x0/0x80
- [<c0160556>] blkdev_direct_IO+0x66/0x70
- [<c0160470>] blkdev_get_blocks+0x0/0x80
- [<c013d06d>] generic_file_direct_IO+0x9d/0xc0
- [<c013c8d6>] generic_file_aio_write_nolock+0x886/0xb30
- [<c010ba3e>] apic_timer_interrupt+0x1a/0x20
- [<c011d3ec>] schedule+0x2dc/0x5f0
- [<c0161606>] blkdev_file_aio_write+0x36/0x40
- [<c017e370>] aio_pwrite+0x40/0xc0
- [<c017e330>] aio_pwrite+0x0/0xc0
- [<c017d84a>] aio_run_iocb+0x8a/0x180
- [<c017e79d>] io_submit_one+0x1bd/0x220
- [<c017e8bc>] sys_io_submit+0xbc/0x140
- [<c010b04f>] syscall_call+0x7/0xb
-
-Code: 01 00 00 00 a1 00 8c 48 c0 83 ea 28 39 42 30 0f 49 fe eb b0 90 90 8d b4 26
-00 00 00 00 57 56 53 83 ec 10 8b 74 24 24 8b 5c 24 20 <8b> 7e 34 83 7e 04 02 0f
-84 04 01 00 00 89 1c 24 e8 bd f5 ff ff
+Andries
 
 
-Steps to reproduce:
-Benchmark can be obtained from:
-http://www-124.ibm.com/developerworks/opensource/linuxperf/rawread/rawread.html
-
-rawread -m 20 -p 160 -d 6 -n 102400 -x -z -t 13 -s 1024
-
-This invocation runs on 20 logical disks starting at /dev/sdf.  This test does
-not fail when run against only 1 disk.  Have not tried binary search to see how
-many disks it takes to cause the failure.
-
-
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	Thu Aug  7 21:24:45 2003
++++ b/drivers/ide/ide-disk.c	Thu Aug  7 21:29:06 2003
+@@ -1108,58 +1108,41 @@
+ 
+ /*
+  * See whether some part of the disk was set off as Host Protected Area.
+- * If so, report this, and possible enable access to it.
++ * If so, report this, and possibly enable access to it.
+  */
+ static void
+ do_add_hpa(ide_drive_t *drive) {
+-	unsigned int capacity;
+-	unsigned long set_max;
++	unsigned long long set_max;
+ 
+-	capacity = drive->capacity;
+-	set_max = idedisk_read_native_max_address(drive);
+-
+-	if (set_max > capacity) {
+-		/* Report */
+-		printk(KERN_INFO "%s: Host Protected Area detected.\n"
+-		       "    current capacity is %u sectors (%u MB)\n"
+-		       "    native  capacity is %lu sectors (%lu MB)\n",
+-		       drive->name, capacity,
+-		       (capacity - capacity/625 + 974)/1950,
+-		       set_max, (set_max - set_max/625 + 974)/1950);
+-#ifdef CONFIG_IDEDISK_STROKE
+-		/* Raise limit */
+-		set_max = idedisk_set_max_address(drive, set_max);
+-		if (set_max) {
+-			drive->capacity = set_max;
+-			printk(KERN_INFO "%s: Host Protected Area Disabled\n",
+-			       drive->name);
+-		}
+-#endif
+-	}
+-}
+-
+-static void
+-do_add_hpa48(ide_drive_t *drive) {
+-	unsigned long long set_max_ext;
++	if (idedisk_supports_lba48(drive->id))
++		set_max = idedisk_read_native_max_address_ext(drive);
++	else
++		set_max = idedisk_read_native_max_address(drive);
+ 
+-	set_max_ext = idedisk_read_native_max_address_ext(drive);
+-	if (set_max_ext > drive->capacity48) {
++	if (set_max > drive->capacity48) {
+ 		unsigned long long nativeMB, currentMB;
+ 
+ 		/* Report on additional space */
+-		nativeMB = sectors_to_MB(set_max_ext);
++		nativeMB = sectors_to_MB(set_max);
+ 		currentMB = sectors_to_MB(drive->capacity48);
+ 		printk(KERN_INFO
+ 		       "%s: Host Protected Area detected.\n"
+ 		       "    current capacity is %llu sectors (%llu MB)\n"
+ 		       "    native  capacity is %llu sectors (%llu MB)\n",
+ 		       drive->name, drive->capacity48, currentMB,
+-		       set_max_ext, nativeMB);
++		       set_max, nativeMB);
++
+ #ifdef CONFIG_IDEDISK_STROKE
+ 		/* Raise limit */
+-		set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
+-		if (set_max_ext) {
+-			drive->capacity48 = set_max_ext;
++		if (idedisk_supports_lba48(drive->id)) {
++			/* (void) idedisk_read_native_max_address_ext(drive);*/
++			set_max = idedisk_set_max_address_ext(drive, set_max);
++		} else {
++			/* (void) idedisk_read_native_max_address(drive); */
++			set_max = idedisk_set_max_address(drive, set_max);
++		}
++		if (set_max) {
++			drive->capacity48 = set_max;
+ 			printk(KERN_INFO
+ 			       "%s: Host Protected Area Disabled\n",
+ 			       drive->name);
+@@ -1169,8 +1152,7 @@
+ }
+ 
+ /*
+- * Compute drive->capacity, the amount accessible with CHS/LBA commands,
+- * and drive->capacity48, the amount accessible with LBA48 commands.
++ * Compute drive->capacity.
+  * Also sets drive->select.b.lba.
+  *
+  * Called with drive->id != NULL.
+@@ -1178,46 +1160,30 @@
+ static void init_idedisk_capacity(ide_drive_t *drive)
+ {
+ 	struct hd_driveid *id;
+-	unsigned long capacity;
+-	unsigned long long capacity48;
+ 
+ 	id = drive->id;
+ 
+ 	if (idedisk_supports_lba48(id)) {
+ 		/* drive speaks 48-bit LBA */
+-		drive->capacity48 = capacity48 = lba48_capacity(id);
+-		capacity = capacity48;		/* truncate to 32 bits */
+-		if (capacity == capacity48)
+-			drive->capacity = capacity;
+-		else
+-			drive->capacity = 0xffffffff;
++		drive->capacity48 = lba48_capacity(id);
+ 		drive->select.b.lba = 1;
+ 	} else if (idedisk_supports_lba(id) && lba_capacity_is_ok(id)) {
+ 		/* drive speaks 28-bit LBA */
+-		drive->capacity = capacity = id->lba_capacity;
+-		drive->capacity48 = 0;
++		drive->capacity48 = id->lba_capacity;
+ 		drive->select.b.lba = 1;
+ 	} else {
+ 		/* drive speaks CHS only */
+-		capacity = drive->cyl * drive->head * drive->sect;
+-		drive->capacity = capacity;
+-		drive->capacity48 = 0;
++		drive->capacity48 = drive->cyl * drive->head * drive->sect;
+ 		drive->select.b.lba = 0;
+ 	}
+ 
+-	if (idedisk_supports_host_protected_area(id)) {
+-		if (idedisk_supports_lba48(id))
+-			do_add_hpa48(drive);
+-		else
+-			do_add_hpa(drive);
+-	}
++	if (idedisk_supports_host_protected_area(id))
++		do_add_hpa(drive);
+ }
+ 
+ static sector_t idedisk_capacity (ide_drive_t *drive)
+ {
+-	if (idedisk_supports_lba48(drive->id))
+-		return (drive->capacity48 - drive->sect0);
+-	return (drive->capacity - drive->sect0);
++	return (drive->capacity48 - drive->sect0);
+ }
+ 
+ static ide_startstop_t idedisk_special (ide_drive_t *drive)
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	Wed Aug  6 23:02:38 2003
++++ b/include/linux/ide.h	Thu Aug  7 13:35:35 2003
+@@ -765,7 +765,6 @@
+ 	unsigned int	failures;	/* current failure count */
+ 	unsigned int	max_failures;	/* maximum allowed failure count */
+ 
+-	u32		capacity;	/* total number of sectors */
+ 	u64		capacity48;	/* total number of sectors */
+ 
+ 	int		last_lun;	/* last logical unit */

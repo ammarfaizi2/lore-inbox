@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135773AbREBSzK>; Wed, 2 May 2001 14:55:10 -0400
+	id <S133088AbREBTTY>; Wed, 2 May 2001 15:19:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135725AbREBSyz>; Wed, 2 May 2001 14:54:55 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:9358 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135760AbREBSyK>; Wed, 2 May 2001 14:54:10 -0400
-Date: Wed, 2 May 2001 14:54:05 -0400
-From: Bill Nottingham <notting@redhat.com>
+	id <S135256AbREBTTE>; Wed, 2 May 2001 15:19:04 -0400
+Received: from gateway.sequent.com ([192.148.1.10]:31788 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S133088AbREBTTA>; Wed, 2 May 2001 15:19:00 -0400
+From: Nivedita Singhvi <nivedita@sequent.com>
+Message-Id: <200105021918.MAA10107@eng4.sequent.com>
+Subject: netperf stream scaling; patches that help?
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Debuggers, KDB or KGDB?
-Message-ID: <20010502145405.B22385@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E14uzuI-0003wC-00@the-village.bc.nu> <200105021906.OAA03542@ccure.karaya.com>
-Mime-Version: 1.0
+Date: Wed, 2 May 2001 12:18:56 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105021906.OAA03542@ccure.karaya.com>; from jdike@karaya.com on Wed, May 02, 2001 at 02:06:31PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike (jdike@karaya.com) said: 
-> > > Is this sufficient to do driver development?  TUN/TAP doesn't let me
-> > > write 
-> > > ethernet drivers inside UML.
-> > For ISDN not really. For SCSI yes - scsi generic would let you write a
-> > virtual scsi adapter 'owning' some physical devices 
-> 
-> Fine, so go ahead and write a UML SCSI adapter...  
-> 
-> I would love to see this happen.  If you need UML help that's not on the site, 
-> let me know, and I'll be happy to do what I can.
+I'm trying to run a simple test on a pair of Linux 2.4.2 
+PC's that starts up simultaneous netperf tcp stream tests, 
+and find that I cant invoke more that 800 without running 
+into memory allocation failures. This wouldnt be strange 
+except that I find on the same systems, FreeBSD seems to 
+do twice as well (1600). I complete 500 concurrent netperf 
+tcp stream tests sending 64 byte packets successfully, but 
+again, FreeBSD completes a 1000 successfully. Also, Linux
+appears to hog around 300MB on the server side, whereas
+FreeBSD only appears to be using 3MB. Those are the bare
+numbers, details available, of course, but what I'd like 
+to do is repeat the Linux test with 2.4.4 and include some 
+VM patches that might possibly alleviate any memory 
+management issues I may be running into.
 
-There is the simulator SCSI, net, and serial drivers in the ia64
-tree. Dunno how similar that would be to what you need.
+This is between a 500MHz PIII Katmai and 333MHz PII
+Deschutes both with 512MB memory, over a 100Mb (3C905C)
+private nw.
+ 
+I'd appreciate any pointers to patches that might help,
+or suggestions in general to improve the Linux numbers.
+Especially any insight into whether this is a case of
+apples/oranges or whether I'm missing some trivial element
+here... 
 
-Bill
+I know of Ed Tomlinson's patch posted on this list on
+4/12, are there any others? I know Jonathan Morton posted
+some OOM patches, are those included in 2.4.4?
+
+thanks,
+Nivedita 
+
+---
+Nivedita Singhvi                        (503) 578-4580
+Linux Technology Center                 nivedita@us.ibm.com
+IBM Beaverton, OR                       nivedita@sequent.com

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281811AbRKQTjQ>; Sat, 17 Nov 2001 14:39:16 -0500
+	id <S281814AbRKQT7F>; Sat, 17 Nov 2001 14:59:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281812AbRKQTjE>; Sat, 17 Nov 2001 14:39:04 -0500
-Received: from smtp.jadedirect.com ([143.96.9.53]:27148 "EHLO
-	cnwchcm6.cnw.co.nz") by vger.kernel.org with ESMTP
-	id <S281811AbRKQTjA>; Sat, 17 Nov 2001 14:39:00 -0500
-Message-Id: <200111171938.IAA14721@cnwchcm6.cnw.co.nz>
-Date: Sat, 17 Nov 2001 19:38:57 -0000
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Alpha XLT 366 fails to boot kernel >= 2.4.14
-From: "Matthew Gregan" <mgregan@jade.co.nz>
-X-Mailer: TWIG 2.7.4
-Cc: <torvalds@transmeta.com>
+	id <S281815AbRKQT6z>; Sat, 17 Nov 2001 14:58:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45325 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281814AbRKQT6u>; Sat, 17 Nov 2001 14:58:50 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: i386 flags register clober in inline assembly
+Date: 17 Nov 2001 11:58:25 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9t6fh1$len$1@cesium.transmeta.com>
+In-Reply-To: <87y9l58pb5.fsf@fadata.bg> <200111171920.fAHJKjJ01550@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Gregan <mgregan@jade.co.nz> said:
+Followup to:  <200111171920.fAHJKjJ01550@penguin.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
+>
+> In article <20011117161436.B23331@atrey.karlin.mff.cuni.cz> you write:
+> >
+> >They don't need to be. On i386, the flags are (partly for historical reasons) clobbered
+> >by default.
+> 
+> However, this is one area where I would just be tickled pink if gcc were
+> to allow asm's to return status in eflags, even if that means that we
+> need to fix all our existing asms.
+> 
+> We have some really _horrid_ code where we use operations that
+> intrinsically set the flag bits, and we actually want to use them.
+> Using things like cmpxchg, and atomic decrement-and-test-with-zero have
+> these horrid asm statements that have to move the eflags value (usually
+> just one bit) into a register, so that we can tell gcc where it is.
+> 
 
-Linus, please consider including the attached patch in 2.4.15.
+The clean way to do that would be for gcc to implement _Bool, the C99
+boolean data type, and add a new kind of register for the flags, i.e.
 
-> My Alpha XLT 366 fails to boot kernels 2.4.14 and higher - the problem
-> appears to be related to the cpu_hz struct added in (I think)
-> 2.4.14-pre8 or detection of the CPU (EV5, EV56, etc.)
+_Bool c;
 
-I'm now fairly sure the problem lies in the min/max settings in cpu_hz.
+asm volatile(LOCK "subl %2,%0"
+    : "=m" (v->counter), "=zf" (c)
+    : "ir" (i), "0" (v->counter) : "memory", "cc");
 
-See: http://www.support.compaq.com/alpha-tools/info/system-codes.html
-
-There are EV5 CPUs listed from 250 up to 366 MHz, and EV56 CPUs listed 
-from 333 up to 667 MHz.
-
-> I have attached a patch to fix cpu_hz, which gets the machine booting
-> with 2.4.15-pre5.
-
-I've included an updated patch that sets the min/max values in cpu_hz in 
-arch/alpha/kernel/time.c to more correct values for EV5 and EV56 - I 
-haven't verified that the other CPU types have correct min/max values.
-
-diff -urN linux-2.4.15-pre5.orig/arch/alpha/kernel/time.c linux-2.4.15-pre5/arch/alpha/kernel/time.c
---- linux-2.4.15-pre5.orig/arch/alpha/kernel/time.c     Sun Nov 18 00:17:55 2001
-+++ linux-2.4.15-pre5/arch/alpha/kernel/time.c  Sun Nov 18 08:00:20 2001
-@@ -186,8 +186,8 @@
-                [EV4_CPU]    = {  150000000,  300000000 },
-                [LCA4_CPU]   = {  150000000,  300000000 },      /* guess */
-                [EV45_CPU]   = {  200000000,  300000000 },
--               [EV5_CPU]    = {  266000000,  333333333 },
--               [EV56_CPU]   = {  366000000,  667000000 },
-+               [EV5_CPU]    = {  250000000,  433000000 },
-+               [EV56_CPU]   = {  333000000,  667000000 },
-                [PCA56_CPU]  = {  400000000,  600000000 },      /* guess */
-                [PCA57_CPU]  = {  500000000,  600000000 },      /* guess */
-                [EV6_CPU]    = {  466000000,  600000000 },
-
-Cheers,
-Matthew.
-
+	-hpa
 -- 
-Matthew Gregan                                     Operations Consultant
-JADE Direct Central Systems                            NZ: 0 800 65 2266
-Aoraki Corporation Limited                             AU: 1 800 12 0181
-PO Box 20-152, Christchurch 8005                     Cell: +64 2977 8839
-New Zealand                                           Fax: +64 3358 7156
-
-
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

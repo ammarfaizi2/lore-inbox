@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTETTRl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 15:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTETTRl
+	id S263897AbTETTSk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 15:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTETTSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 15:17:41 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:26073 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263898AbTETTRj (ORCPT
+	Tue, 20 May 2003 15:18:40 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:39398 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263897AbTETTSh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 15:17:39 -0400
+	Tue, 20 May 2003 15:18:37 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16074.33371.411219.528228@gargle.gargle.HOWL>
-Date: Tue, 20 May 2003 21:30:35 +0200
-From: mikpe@csd.uu.se
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pat support in the kernel
-In-Reply-To: <20030520185409.GB941@hygelac>
-References: <20030520185409.GB941@hygelac>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: e100 driver
+Date: Tue, 20 May 2003 12:31:34 -0700
+Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E010107D71E@orsmsx402.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: e100 driver
+Thread-Index: AcMedc6gNs7YOnQHSh24Az7yEj+/aQAkB7sA
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: =?iso-8859-1?Q?David_G=F3mez?= <david@pleyades.net>,
+       "Hugo Mills" <hugo-lkml@carfax.org.uk>
+Cc: "Linux-kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 May 2003 19:31:35.0188 (UTC) FILETIME=[6CC8F540:01C31F06]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda <tripperda@nvidia.com>, <tripperda@nvidia.com> writes:
- > Hello all,
- > 
- > I've discussed adding Page Attribute Table (PAT) support to the kernel w/ a few developers offline. They were very supportive and suggested I bring the discussion to lkml so others could get involved.
+David Gómez [david@pleyades.net] wrote:
+> Is there some known problem in 2.4.20 with the e100 driver? 
+> I've been seen lately a lot of errors in my kernel logs, with 
+> the messages:
+> 
+> <31>May 19 09:05:42 kernel: hw tcp v4 csum failed
+> <31>May 19 09:11:11 kernel: icmp v4 hw csum failure
+> 
+> repeated several times. I've switched back to the eepro100 
+> driver and the checksum errors messages seems to go away...
 
-Not that I disagre with utilising the PAT, but I don't see anything in this code to
-deal with the widespread PAT indexing erratum in Intel's processors. I don't have
-the errata sheets here, but it definitely affected the PIIIs and I think also some P4s.
-(Large pages ignoring PAT index bit 2, or something like that.)
-
-/Mikael
+David/Hugo, can you try turning off Rx checksum offloading in e100?  Set the module parameter XsumRX=0 to turn it off.  Thanks.
+-scott

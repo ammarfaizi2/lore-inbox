@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVATPz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVATP72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVATPz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 10:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVATPzc
+	id S262170AbVATP72 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 10:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVATP7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 10:55:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45493 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262175AbVATPvb (ORCPT
+	Thu, 20 Jan 2005 10:59:02 -0500
+Received: from topaz.mcs.anl.gov ([140.221.57.209]:51102 "EHLO topaz")
+	by vger.kernel.org with ESMTP id S262180AbVATP6a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 10:51:31 -0500
-Date: Thu, 20 Jan 2005 07:51:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       tony.luck@intel.com, dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
-In-Reply-To: <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org>
-References: <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu>
- <20050118014752.GA14709@cse.unsw.EDU.AU> <16877.42598.336096.561224@wombat.chubb.wattle.id.au>
- <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
- <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
- <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org>
- <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
+	Thu, 20 Jan 2005 10:58:30 -0500
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: intel8x0 and 2.6.11-rc1
+References: <87hdlcc06e.fsf@topaz.mcs.anl.gov> <s5hfz0wrusn.wl@alsa2.suse.de>
+	<878y6oaysw.fsf@topaz.mcs.anl.gov> <s5hbrbkrt6c.wl@alsa2.suse.de>
+From: Narayan Desai <desai@mcs.anl.gov>
+Date: Thu, 20 Jan 2005 09:58:34 -0600
+In-Reply-To: <s5hbrbkrt6c.wl@alsa2.suse.de> (Takashi Iwai's message of "Thu,
+ 20 Jan 2005 16:55:55 +0100")
+Message-ID: <87zmz49jo5.fsf@topaz.mcs.anl.gov>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Takashi" == Takashi Iwai <tiwai@suse.de> writes:
 
+  Takashi> At Thu, 20 Jan 2005 09:46:23 -0600,
+  Takashi> Narayan Desai wrote:
+  >>
+  >> >>>>> "Takashi" == Takashi Iwai <tiwai@suse.de> writes:
+  >>
+  Takashi> At Wed, 19 Jan 2005 20:19:05 -0600,
+  Takashi> Narayan Desai wrote:
+  >> >>
+  >> >> I am running 2.6.11-rc1 (patched with software suspend2) and
+  >> >> no longer get any sound output from my sound card. My old
+  >> >> kernel
+  >> >> 2.6.10 (with slightly older software suspend 2 patches) works
+  >> >> perfectly. the hardware is recognized, and it appears to work,
+  >> >> other than the lack out of output. I have also checked the
+  >> >> standard volume levels type stuff.  Updating to the latest
+  >> >> alsa bk patch (from 2.6.11-rc1-mm1) doesn't fix it. Can anyone
+  >> >> suggest what the problem might be? my .config is
+  >> >> attached. thanks..
+  >>
+  Takashi> If you have "Headphone Jack Sense" mixer control, try to
+  Takashi> turn it off.
+  >>
+  >> That did the trick. thanks..
 
-On Thu, 20 Jan 2005, Peter Chubb wrote:
-> 
-> I suggest reversing the sense of the macros, and having read_can_lock()
-> and write_can_lock()
-> 
-> Meaning:
-> 	read_can_lock() --- a read_lock() would have succeeded
-> 	write_can_lock() --- a write_lock() would have succeeded.
+  Takashi> Glad to hear that.  What machine do you have?
 
-Yes. This has the advantage of being readable, and the "sense" of the test 
-always being obvious.
-
-We have a sense problem with the "trylock()" cases - some return "it was
-locked" (semaphores), and some return "I succeeded" (spinlocks), so not
-only is the sense not immediately obvious from the usage, it's actually
-_different_ for semaphores and for spinlocks.
-
-So I like "read_can_lock()", since it's also obvious what it returns.
-
-(And yes, we should fix the semaphore trylock return code, dammit.)
-
-		Linus
+ibm thinkpad t41p.
+ -nld

@@ -1,77 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbUBQAQc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 19:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUBQAQc
+	id S261799AbUBQARg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 19:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUBQARf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 19:16:32 -0500
-Received: from mail.tmr.com ([216.238.38.203]:6670 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261575AbUBQAQa (ORCPT
+	Mon, 16 Feb 2004 19:17:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:57505 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261799AbUBQAR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 19:16:30 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] remove obsolete onstream support from ide-tape in
- 2.6.3-rc3
-Date: 17 Feb 2004 00:15:38 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <c0rmfa$453$1@gatekeeper.tmr.com>
-References: <20040215221108.GA4957@serve.riede.org> <20040215153214.002dcc9a.pj@sgi.com>
-X-Trace: gatekeeper.tmr.com 1076976938 4259 192.168.12.62 (17 Feb 2004 00:15:38 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Mon, 16 Feb 2004 19:17:29 -0500
+Subject: [PATCH] Fix building both old & new radeonfb's
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1076977005.1056.124.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 17 Feb 2004 11:16:45 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040215153214.002dcc9a.pj@sgi.com>,
-Paul Jackson  <pj@sgi.com> wrote:
-| And another obsolete tape drive goes on my vintage shelf.
-| 
-| Willem - I notice off SourceForge a note:
-| 
-|   http://sourceforge.net/forum/forum.php?forum_id=333748
-| 
-|   Posted By: wriede
-|   Date: 2003-12-01 16:24
-|   Summary: osst, the Linux OnStream Tape driver now avalable on sf.net
-| 
-|   Following the unfortunate bankruptcy of OnStream, I have now completed
-|   the migration of the osst CVS repository, web site and mailing list to
-|   SourceForge.
-| 
-|   Willem Riede,
-|   osst maintainer.
-| 
-| How does this relate to your removal of onstream from 2.6?  I'm guessing
-| that you are maintaining onstream in 2.4, but not in 2.6 or beyond.  But
-| that's just a guess.
-| 
-| With onstream tape cartridges selling for (another guess - can't
-| actually _find_ any for sale anymore) at $4/Gbyte, and IDE drives at
-| under $1/Gbyte, using removable drives for backup makes more sense than
-| using onstream, anyway I can see to cut it.  And the chances of the IDE
-| interface going obsolete anytime soon seem refreshingly small.
+This fix build of "allyesconfig", old and new radeonfb's would
+collide on some symbols.
 
-Of course the chances of parallel IDE controllers going obsolete are
-higher. Archival storage seems to be more and more of a problem as
-hardware improves. I'm copying the contents of my old SCSI hard drives
-to CD (they fit), my old tapes to various media, and generally getting
-stuff current, but as soon as I stop making the effort I know my ability
-to read old stuff will vanish. Try and find devices for 8 inch floppies
-or even 5-1/4, and most systems don't come with 3-1/2 any more.
+Ben.
 
-My old "standard" tapes are being backed up on new media, my records and
-old tapes to newer media, etc. We are getting close to the point where
-we have room to store everything, but can't read anything more than
-about a decade old.
 
-Disk drives are cheap, but sensitive to temperature, vibration, magnetic
-field, and age. The life of optical is debated, and entropy is winning
-quickly. I don't have a solution, but I'm glad there is any working
-driver for old hardware!
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+===== drivers/video/fbmem.c 1.88 vs edited =====
+--- 1.88/drivers/video/fbmem.c	Tue Feb 17 04:58:08 2004
++++ edited/drivers/video/fbmem.c	Tue Feb 17 10:58:14 2004
+@@ -138,6 +138,8 @@
+ extern int tx3912fb_setup(char*);
+ extern int radeonfb_init(void);
+ extern int radeonfb_setup(char*);
++extern int radeonfb_old_init(void);
++extern int radeonfb_old_setup(char*);
+ extern int e1355fb_init(void);
+ extern int e1355fb_setup(char*);
+ extern int pvr2fb_init(void);
+@@ -226,7 +228,7 @@
+ 	{ "radeonfb", radeonfb_init, radeonfb_setup },
+ #endif
+ #ifdef CONFIG_FB_RADEON_OLD
+-	{ "radeonfb_old", radeonfb_init, radeonfb_setup },
++	{ "radeonfb_old", radeonfb_old_init, radeonfb_old_setup },
+ #endif
+ #ifdef CONFIG_FB_CONTROL
+ 	{ "controlfb", control_init, control_setup },
+===== drivers/video/radeonfb.c 1.37 vs edited =====
+--- 1.37/drivers/video/radeonfb.c	Fri Feb 13 04:14:53 2004
++++ edited/drivers/video/radeonfb.c	Tue Feb 17 10:57:34 2004
+@@ -234,7 +234,7 @@
+ /* these common regs are cleared before mode setting so they do not
+  * interfere with anything
+  */
+-reg_val common_regs[] = {
++static reg_val common_regs[] = {
+ 	{ OVR_CLR, 0 },	
+ 	{ OVR_WID_LEFT_RIGHT, 0 },
+ 	{ OVR_WID_TOP_BOTTOM, 0 },
+@@ -246,7 +246,7 @@
+ 	{ CAP0_TRIG_CNTL, 0 },
+ };
+ 
+-reg_val common_regs_m6[] = {
++static reg_val common_regs_m6[] = {
+ 	{ OVR_CLR,      0 },
+ 	{ OVR_WID_LEFT_RIGHT,   0 },
+ 	{ OVR_WID_TOP_BOTTOM,   0 },
+@@ -3134,19 +3134,19 @@
+ };
+ 
+ 
+-int __init radeonfb_init (void)
++int __init radeonfb_old_init (void)
+ {
+ 	return pci_module_init (&radeonfb_driver);
+ }
+ 
+ 
+-void __exit radeonfb_exit (void)
++void __exit radeonfb_old_exit (void)
+ {
+ 	pci_unregister_driver (&radeonfb_driver);
+ }
+ 
+ 
+-int __init radeonfb_setup (char *options)
++int __init radeonfb_old_setup (char *options)
+ {
+         char *this_opt;
+ 
+@@ -3174,8 +3174,8 @@
+ }
+ 
+ #ifdef MODULE
+-module_init(radeonfb_init);
+-module_exit(radeonfb_exit);
++module_init(radeonfb_old_init);
++module_exit(radeonfb_old_exit);
+ #endif
+ 
+ 
+===== drivers/video/aty/radeon_base.c 1.7 vs edited =====
+--- 1.7/drivers/video/aty/radeon_base.c	Mon Feb 16 14:56:24 2004
++++ edited/drivers/video/aty/radeon_base.c	Tue Feb 17 10:37:53 2004
+@@ -212,7 +212,7 @@
+ /* these common regs are cleared before mode setting so they do not
+  * interfere with anything
+  */
+-reg_val common_regs[] = {
++static reg_val common_regs[] = {
+ 	{ OVR_CLR, 0 },	
+ 	{ OVR_WID_LEFT_RIGHT, 0 },
+ 	{ OVR_WID_TOP_BOTTOM, 0 },
+@@ -224,7 +224,7 @@
+ 	{ CAP0_TRIG_CNTL, 0 },
+ };
+ 
+-reg_val common_regs_m6[] = {
++static reg_val common_regs_m6[] = {
+ 	{ OVR_CLR,      0 },
+ 	{ OVR_WID_LEFT_RIGHT,   0 },
+ 	{ OVR_WID_TOP_BOTTOM,   0 },
+
+

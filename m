@@ -1,40 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317180AbSGNWCD>; Sun, 14 Jul 2002 18:02:03 -0400
+	id <S317182AbSGNWGd>; Sun, 14 Jul 2002 18:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317181AbSGNWCC>; Sun, 14 Jul 2002 18:02:02 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26870 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317180AbSGNWCB>; Sun, 14 Jul 2002 18:02:01 -0400
-Subject: Re: BUG: pdcraid OOPS due to uninitialized variable access
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>,
-       Juan Quintela <quintela@mandrakesoft.com>,
-       Cooker list <cooker@linux-mandrake.com>
-In-Reply-To: <1026668086.3181.3.camel@localhost.localdomain>
-References: <1026668086.3181.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 15 Jul 2002 00:11:12 +0100
-Message-Id: <1026688272.13886.92.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317184AbSGNWGd>; Sun, 14 Jul 2002 18:06:33 -0400
+Received: from web10404.mail.yahoo.com ([216.136.130.96]:19977 "HELO
+	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317182AbSGNWG3>; Sun, 14 Jul 2002 18:06:29 -0400
+Message-ID: <20020714220922.61652.qmail@web10404.mail.yahoo.com>
+Date: Mon, 15 Jul 2002 08:09:22 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Status of DRI modules for i810 with > 2.4.19-pre6 
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-4066833-1026684562=:61393"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-14 at 18:34, Borsenkow Andrej wrote:
-> On both 2.4.18-6mdk (from 8.2) and in current cooker pdcraid oopses
-> immediately after insertion. The reason is usage of uninitialized
-> variable in drivers/ide/pdcraid.c:
-> 
-> I am sorry, I do not have vanilla kernel so I cannot check if bug is in
-> general kernel or Mandrake-specific.
+--0-4066833-1026684562=:61393
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-This appears to be broken vendor specific hack. This code doesn't appear
-in the base pdcraid code. I guess they tried to make the autodetect more
-accurate and got it wrong. It would be interesting to know what the goal
-was and why it wasnt posted to the maintainers ?
 
-Alan
+No, it is not fixed yet! I attched the dmesg.log but
+if required I will make the result through ksymoop. 
 
+Regards,
+
+
+=====
+Steve Kieu
+
+http://www.sold.com.au - SOLD.com.au
+- Find yourself a bargain!
+--0-4066833-1026684562=:61393
+Content-Type: application/octet-stream; name="dmesg.log"
+Content-Transfer-Encoding: base64
+Content-Description: dmesg.log
+Content-Disposition: attachment; filename="dmesg.log"
+
+TGludXggdmVyc2lvbiAyLjQuMTktcmMxLWFjMyAoc2tATGludXgpIChnY2Mg
+dmVyc2lvbiAyLjk2IDIwMDAwNzMxIChNYW5kcmFrZSBMaW51eCA4LjEgMi45
+Ni0wLjYzLjFtZGspKSAjMSBNb24gSnVsIDE1IDA5OjM0OjU2IFVUQyAyMDAy
+CkJJT1MtcHJvdmlkZWQgcGh5c2ljYWwgUkFNIG1hcDoKIEJJT1MtZTgyMDog
+MDAwMDAwMDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAwOWZjMDAgKHVzYWJsZSkK
+IEJJT1MtZTgyMDogMDAwMDAwMDAwMDA5ZmMwMCAtIDAwMDAwMDAwMDAwYTAw
+MDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMGYwMDAwIC0g
+MDAwMDAwMDAwMDEwMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAwMDAw
+MDAwMDAxMDAwMDAgLSAwMDAwMDAwMDA3ZjAwMDAwICh1c2FibGUpCiBCSU9T
+LWU4MjA6IDAwMDAwMDAwZmZiMDAwMDAgLSAwMDAwMDAwMTAwMDAwMDAwIChy
+ZXNlcnZlZCkKMTI3TUIgTE9XTUVNIGF2YWlsYWJsZS4KT24gbm9kZSAwIHRv
+dGFscGFnZXM6IDMyNTEyCnpvbmUoMCk6IDQwOTYgcGFnZXMuCnpvbmUoMSk6
+IDI4NDE2IHBhZ2VzLgp6b25lKDIpOiAwIHBhZ2VzLgpLZXJuZWwgY29tbWFu
+ZCBsaW5lOiBCT09UX0lNQUdFPTI0MTlyYzFhYzMgcm8gcm9vdD0zMDMKSW5p
+dGlhbGl6aW5nIENQVSMwCkRldGVjdGVkIDQwMC45MTcgTUh6IHByb2Nlc3Nv
+ci4KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUKQ2FsaWJyYXRpbmcgZGVs
+YXkgbG9vcC4uLiA3OTkuNTMgQm9nb01JUFMKTWVtb3J5OiAxMjY1NDhrLzEz
+MDA0OGsgYXZhaWxhYmxlICg5NjJrIGtlcm5lbCBjb2RlLCAzMTEyayByZXNl
+cnZlZCwgMjA0ayBkYXRhLCA4MGsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5
+IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMTYzODQgKG9yZGVyOiA1LCAx
+MzEwNzIgYnl0ZXMpCklub2RlIGNhY2hlIGhhc2ggdGFibGUgZW50cmllczog
+ODE5MiAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQpNb3VudCBjYWNoZSBoYXNo
+IHRhYmxlIGVudHJpZXM6IDIwNDggKG9yZGVyOiAyLCAxNjM4NCBieXRlcykK
+cmFtZnM6IG1vdW50ZWQgd2l0aCBvcHRpb25zOiA8ZGVmYXVsdHM+CnJhbWZz
+OiBtYXhfcGFnZXM9MTU4MTggbWF4X2ZpbGVfcGFnZXM9MCBtYXhfaW5vZGVz
+PTAgbWF4X2RlbnRyaWVzPTE1ODE4CkJ1ZmZlciBjYWNoZSBoYXNoIHRhYmxl
+IGVudHJpZXM6IDQwOTYgKG9yZGVyOiAyLCAxNjM4NCBieXRlcykKUGFnZS1j
+YWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDMyNzY4IChvcmRlcjogNSwgMTMx
+MDcyIGJ5dGVzKQpDUFU6IEJlZm9yZSB2ZW5kb3IgaW5pdCwgY2FwczogMDE4
+M2Y5ZmYgMDAwMDAwMDAgMDAwMDAwMDAsIHZlbmRvciA9IDAKQ1BVOiBMMSBJ
+IGNhY2hlOiAxNkssIEwxIEQgY2FjaGU6IDE2SwpDUFU6IEwyIGNhY2hlOiAx
+MjhLCkNQVTogQWZ0ZXIgdmVuZG9yIGluaXQsIGNhcHM6IDAxODNmOWZmIDAw
+MDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogICAgIEFmdGVyIGdlbmVy
+aWMsIGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAw
+CkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAxODNmOWZmIDAwMDAw
+MDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogSW50ZWwgQ2VsZXJvbiAoTWVu
+ZG9jaW5vKSBzdGVwcGluZyAwNQpFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFu
+ZCByZXN0b3JlLi4uIGRvbmUuCkNoZWNraW5nICdobHQnIGluc3RydWN0aW9u
+Li4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJWApt
+dHJyOiB2MS40MCAoMjAwMTAzMjcpIFJpY2hhcmQgR29vY2ggKHJnb29jaEBh
+dG5mLmNzaXJvLmF1KQptdHJyOiBkZXRlY3RlZCBtdHJyIHR5cGU6IEludGVs
+ClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGZiMzAw
+LCBsYXN0IGJ1cz0xClBDSTogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDEK
+UENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQpVbmtub3duIGJyaWRnZSByZXNv
+dXJjZSAyOiBhc3N1bWluZyB0cmFuc3BhcmVudApQQ0k6IFVzaW5nIElSUSBy
+b3V0ZXIgUElJWCBbODA4Ni8yNDIwXSBhdCAwMDoxZi4wCkxpbnV4IE5FVDQu
+MCBmb3IgTGludXggMi40CkJhc2VkIHVwb24gU3dhbnNlYSBVbml2ZXJzaXR5
+IENvbXB1dGVyIFNvY2lldHkgTkVUMy4wMzkKSW5pdGlhbGl6aW5nIFJUIG5l
+dGxpbmsgc29ja2V0CmFwbTogQklPUyB2ZXJzaW9uIDEuMiBGbGFncyAweDA3
+IChEcml2ZXIgdmVyc2lvbiAxLjE2KQpTdGFydGluZyBrc3dhcGQKcHR5OiAy
+NTYgVW5peDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwgZHJpdmVyIHZlcnNp
+b24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9QT1JUUyBTSEFSRV9J
+UlEgU0VSSUFMX1BDSSBlbmFibGVkCnR0eVMwMCBhdCAweDAzZjggKGlycSA9
+IDQpIGlzIGEgMTY1NTBBCnR0eVMwMSBhdCAweDAyZjggKGlycSA9IDMpIGlz
+IGEgMTY1NTBBCmJsb2NrOiAyNDAgc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD02
+MApVbmlmb3JtIE11bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lv
+bjogNi4zMQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQg
+Zm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgKUElJWDQ6
+IElERSBjb250cm9sbGVyIG9uIFBDSSBidXMgMDAgZGV2IGY5ClBJSVg0OiBj
+aGlwc2V0IHJldmlzaW9uIDEKUElJWDQ6IG5vdCAxMDAlIG5hdGl2ZSBtb2Rl
+OiB3aWxsIHByb2JlIGlycXMgbGF0ZXIKICAgIGlkZTA6IEJNLURNQSBhdCAw
+eGYwMDAtMHhmMDA3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1BLCBoZGI6RE1B
+CiAgICBpZGUxOiBCTS1ETUEgYXQgMHhmMDA4LTB4ZjAwZiwgQklPUyBzZXR0
+aW5nczogaGRjOnBpbywgaGRkOnBpbwpoZGE6IEZVSklUU1UgTVBGMzEwMkFU
+LCBBVEEgRElTSyBkcml2ZQpoZGI6IElERS9BVEFQSSBDRC1ST00gNTJYUywg
+QVRBUEkgQ0QvRFZELVJPTSBkcml2ZQppZGUwIGF0IDB4MWYwLTB4MWY3LDB4
+M2Y2IG9uIGlycSAxNApoZGE6IGhvc3QgcHJvdGVjdGVkIGFyZWEgPT4gMQpo
+ZGE6IDIwMDE1ODU2IHNlY3RvcnMgKDEwMjQ4IE1CKSB3LzUxMktpQiBDYWNo
+ZSwgQ0hTPTEyNDUvMjU1LzYzLCBVRE1BKDMzKQpQYXJ0aXRpb24gY2hlY2s6
+CiBoZGE6IGhkYTEgaGRhMiBoZGEzIGhkYTQKUFBQIGdlbmVyaWMgZHJpdmVy
+IHZlcnNpb24gMi40LjIKUFBQIERlZmxhdGUgQ29tcHJlc3Npb24gbW9kdWxl
+IHJlZ2lzdGVyZWQKTGludXggYWdwZ2FydCBpbnRlcmZhY2UgdjAuOTkgKGMp
+IEplZmYgSGFydG1hbm4KYWdwZ2FydDogTWF4aW11bSBtYWluIG1lbW9yeSB0
+byB1c2UgZm9yIGFncCBtZW1vcnk6IDk0TQphZ3BnYXJ0OiBEZXRlY3RlZCBh
+biBJbnRlbCBpODEwIENoaXBzZXQuCmFncGdhcnQ6IEFHUCBhcGVydHVyZSBp
+cyA2NE0gQCAweGQ4MDAwMDAwCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9y
+IE5FVDQuMApJUCBQcm90b2NvbHM6IElDTVAsIFVEUCwgVENQCklQOiByb3V0
+aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNTEyIGJ1Y2tldHMsIDRLYnl0ZXMK
+VENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxpc2hlZCA4MTky
+IGJpbmQgODE5MikKTkVUNDogVW5peCBkb21haW4gc29ja2V0cyAxLjAvU01Q
+IGZvciBMaW51eCBORVQ0LjAuClZGUzogTW91bnRlZCByb290IChleHQyIGZp
+bGVzeXN0ZW0pIHJlYWRvbmx5LgpGcmVlaW5nIHVudXNlZCBrZXJuZWwgbWVt
+b3J5OiA4MGsgZnJlZWQKQWRkaW5nIFN3YXA6IDcyMjU2ayBzd2FwLXNwYWNl
+IChwcmlvcml0eSAtMSkKTVNET1MgRlM6IElPIGNoYXJzZXQgaXNvODg1OS0x
+Ck1TRE9TIEZTOiBVc2luZyBjb2RlcGFnZSA4NTAKQWRkaW5nIFN3YXA6IDYx
+NDMyayBzd2FwLXNwYWNlIChwcmlvcml0eSAtMikKW2RybV0gQUdQIDAuOTkg
+b24gSW50ZWwgaTgxMCBAIDB4ZDgwMDAwMDAgNjRNQgpbZHJtXSBJbml0aWFs
+aXplZCBpODEwIDEuMS4wIDIwMDAwOTI4IG9uIG1pbm9yIDYzCm10cnI6IGJh
+c2UoMHhkODAwMDAwMCkgaXMgbm90IGFsaWduZWQgb24gYSBzaXplKDB4MTJj
+MDAwKSBib3VuZGFyeQpVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcg
+cmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDEwMDAwMWIKIHByaW50aW5n
+IGVpcDoKYzAxMjkyZjIKKnBkZSA9IDAwMDAwMDAwCk9vcHM6IDAwMDAKQ1BV
+OiAgICAwCkVJUDogICAgMDAxMDpbPGMwMTI5MmYyPl0gICAgTm90IHRhaW50
+ZWQKRUZMQUdTOiAwMDAxMzI0NgplYXg6IDAxMDAwMDAwICAgZWJ4OiBjNTQ3
+NTAwMCAgIGVjeDogYzExMTI3ZDAgICBlZHg6IDAwMDAwMDAwCmVzaTogYzEx
+MTI3ZDAgICBlZGk6IGM4OGM3MjYwICAgZWJwOiAwMDAwMDAwMCAgIGVzcDog
+YzY3MTllZTQKZHM6IDAwMTggICBlczogMDAxOCAgIHNzOiAwMDE4ClByb2Nl
+c3MgWCAocGlkOiAxMTEsIHN0YWNrcGFnZT1jNjcxOTAwMCkKU3RhY2s6IGM1
+NDc1MDAwIGMxMTEyN2QwIGM4OGMxMzkwIGMxMTEyN2QwIGM1YzAzMmMwIGM3
+YjQ1ODAwIGM4OGMxM2VmIGM4OGM3MjYwIAogICAgICAgYzU0NzUwMDAgMDAw
+MDAwMDAgYmZmZmY5NzggYzY3MTlmNTggYzg4YzE4Y2MgYzg4YzcyNjAgYzg4
+YzcyNjAgMDAwMDAwMDIgCiAgICAgICAwMDAwMDAwMCAwMDAwMDAwMCAwMDAw
+MDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAw
+MDAwMCAKQ2FsbCBUcmFjZTogWzxjODhjMTM5MD5dIFs8Yzg4YzEzZWY+XSBb
+PGM4OGM3MjYwPl0gWzxjODhjMThjYz5dIFs8Yzg4YzcyNjA+XSAKICAgWzxj
+ODhjNzI2MD5dIFs8Yzg4YzcyNjA+XSBbPGM4OGMwZTM0Pl0gWzxjMDE0NzQ4
+Nz5dIFs8YzAxMDg5NmI+XSAKCkNvZGU6IDBmIGI2IDUwIDFiIDhiIDFjIDk1
+IDQ4IDRlIDI0IGMwIDg5IGMyIDY5IGQyIDAxIDAwIDM3IDllIDhiIAogPDM+
+WFsxMTFdIGV4aXRlZCB3aXRoIHByZWVtcHRfY291bnQgMQo=
+
+--0-4066833-1026684562=:61393--

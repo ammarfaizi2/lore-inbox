@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267259AbSLKSKi>; Wed, 11 Dec 2002 13:10:38 -0500
+	id <S267252AbSLKSGV>; Wed, 11 Dec 2002 13:06:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267260AbSLKSKi>; Wed, 11 Dec 2002 13:10:38 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:29056 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267259AbSLKSKh>;
-	Wed, 11 Dec 2002 13:10:37 -0500
-Date: Wed, 11 Dec 2002 19:18:04 +0100
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 Changes doc update.
-Message-ID: <20021211181804.GA31103@gagarin>
-References: <20021211172559.GA8613@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021211172559.GA8613@suse.de>
-User-Agent: Mutt/1.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *18MBQq-0001Ex-00*ZM5BCBg2N.A* (0x63.nu)
+	id <S267253AbSLKSGV>; Wed, 11 Dec 2002 13:06:21 -0500
+Received: from [195.212.29.5] ([195.212.29.5]:20436 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S267252AbSLKSGT> convert rfc822-to-8bit; Wed, 11 Dec 2002 13:06:19 -0500
+From: rasman@uk.ibm.com
+Reply-To: rasman@uk.ibm.com
+Organization: IBM
+To: <chinnakka.b@bplmail.com>
+Subject: Re: Kernel Module
+Date: Wed, 11 Dec 2002 18:11:53 +0000
+User-Agent: KMail/1.4.1
+References: <2585.10.10.13.148.1039606840.squirrel@btlmail.bplmail.com>
+In-Reply-To: <2585.10.10.13.148.1039606840.squirrel@btlmail.bplmail.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <200212111811.53135.rasman@uk.ibm.com>
+X-MIMETrack: Itemize by SMTP Server on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 11/12/2002 18:14:00,
+	Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 11/12/2002 18:14:04,
+	Serialize complete at 11/12/2002 18:14:04
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 05:25:59PM +0000, Dave Jones wrote:
-> Modules.
-> ~~~~~~~~
-> - The in-kernel module loader got reimplemented.
-> - You need replacement module utilities from
->   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
-> - A backwards compatable set of module utilities is available
->   including v0.7 of the new-style utils in source RPM format from
->   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-5.src.rpm
+On Wednesday 11 Dec 2002 11:40 am, chinnakka.b@bplmail.com wrote:
+> Hello sir,
+> After building the kernel i tried to insert the modules
+> scsi_mod,sd_mod,usb- storage
+> It is giving could not find the kernel version the module was compiled for
+> what is wrong with this?
+> waiting for your response
+> regards
+> chinnakka
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Could be worth noting that debian sid contains a "module-init-tools".
+Did you change the kernel version? 
+If so did  you "make modules" followes by "make modules_install"?
+See the kernel README
+
 
 -- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+Richard J Moore
+RAS Team Lead - IBM Linux Technology Centre

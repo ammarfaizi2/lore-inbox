@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131239AbQLNUR3>; Thu, 14 Dec 2000 15:17:29 -0500
+	id <S132636AbQLNUT7>; Thu, 14 Dec 2000 15:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132807AbQLNURT>; Thu, 14 Dec 2000 15:17:19 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:27912 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S131239AbQLNURK>;
-	Thu, 14 Dec 2000 15:17:10 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200012141946.WAA03215@ms2.inr.ac.ru>
-Subject: Re: linux ipv6 questions.  bugs?
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Thu, 14 Dec 2000 22:46:26 +0300 (MSK)
-Cc: pete@research.NETsol.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <200012141937.TAA02604@raistlin.arm.linux.org.uk> from "Russell King" at Dec 14, 0 07:37:37 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S132807AbQLNUTt>; Thu, 14 Dec 2000 15:19:49 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:13299 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S132636AbQLNUTa>; Thu, 14 Dec 2000 15:19:30 -0500
+Date: Thu, 14 Dec 2000 11:48:52 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: DVD on Linux
+In-Reply-To: <3A374622.7167CA22@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.21.0012141148120.10916-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+nope, DVD discs all use UDF.
+it'd be nice if they used something more common, but hey...
 
-> bash-2.04# strace ping6 -I fe80::800:2b95:1d7b fe80::800:2b95:1d7b
+On Wed, 13 Dec 2000, Gregoire Favre wrote:
 
-ping6 -I eth0 fe80::800:2b95:1d7b
+> zink wrote:
+> 
+> >  The final 2.2.18 is out - I didn't see UDF option under filesystems, altough it should
+> > have been there - maybe we'll wait (for ages) untilfinal 2.4 is out.
+> 
+> I haven't used 2.2 for ages, but as far as I remember, you could just use iso9660 for DVD...
+> (Well since 2.2.n with n great enough...).
+> 
+> 	Greg
+> ________________________________________________________________
+> http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-String "fe80::800:2b95:1d7b" does not allow to guess interface.
-In fact, it can be address on your other link or even address
-of your neighbour on some link.
+-- 
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
-Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

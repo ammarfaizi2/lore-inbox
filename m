@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVCOUZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVCOU0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbVCOUZa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 15:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVCOUWc
+	id S261786AbVCOU0R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 15:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVCOU0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 15:22:32 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:33504 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S261477AbVCOUSx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 15:18:53 -0500
-Message-ID: <42374329.4030206@trash.net>
-Date: Tue, 15 Mar 2005 21:18:49 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050106 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alex Tribble <prat@rice.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export dev_get_flags in net/core/dev.c to fix missing
- symbols
-References: <1110916582.27963.1.camel@localhost.localdomain>
-In-Reply-To: <1110916582.27963.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 15 Mar 2005 15:26:02 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:8143 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261867AbVCOUWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 15:22:42 -0500
+Subject: Re: enabling IOAPIC on C3 processor?
+From: Lee Revell <rlrevell@joe-job.com>
+To: jerome lacoste <jerome.lacoste@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a2cf1f6050315040956a512a6@mail.gmail.com>
+References: <5a2cf1f6050315040956a512a6@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 15:22:36 -0500
+Message-Id: <1110918157.17931.18.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tribble wrote:
-> ChangeSet@1.2186, 2005-03-15 13:46:12-06:00, prat@prat.homelinux.net
->   Export dev_get_flags to fix missing symbols in ipv6.ko
+On Tue, 2005-03-15 at 13:09 +0100, jerome lacoste wrote:
+> I have a VIA Epia M10000 board that crashes very badly (and pretty
+> often, especially when using DMA). I want to fix that.
+> 
 
-The same patch is already in Linus' tree:
+Are the crashes associated with any particular workload or device?  My
+M6000 works perfectly.
 
-ChangeSet 1.2186, 2005/03/15 10:16:32-08:00, akpm@osdl.org
+The one big problem I had with is is the VIA Unichrome XAA driver had a
+FIFO related bug that caused it to stall the PCI bus, delaying
+interrupts for tens of ms unless "Option NoAccel" was used.
 
-	[NET]: Need to export dev_get_flags() to modules.
-	
-	Signed-off-by: Andrew Morton <akpm@osdl.org>
-	Signed-off-by: David S. Miller <davem@davemloft.net>
+This bug was fixed over 6 months ago though.
 
-Funny, you even hit the same ChangeSet number :)
+Lee
 
-Regards
-Patrick

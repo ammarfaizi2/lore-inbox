@@ -1,94 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263773AbTCVC1s>; Fri, 21 Mar 2003 21:27:48 -0500
+	id <S261438AbTCVCo0>; Fri, 21 Mar 2003 21:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263775AbTCVC1s>; Fri, 21 Mar 2003 21:27:48 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:7993
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S263773AbTCVC1q>; Fri, 21 Mar 2003 21:27:46 -0500
-Date: Fri, 21 Mar 2003 21:35:37 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aic7(censored) dying horribly in 2.5.65-mm2
-In-Reply-To: <Pine.LNX.4.50.0303212042000.28519-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0303212048200.28519-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303210202080.2133-100000@montezuma.mastecende.com>
- <411800000.1048276482@aslan.btc.adaptec.com>
- <Pine.LNX.4.50.0303211842370.28519-100000@montezuma.mastecende.com>
- <Pine.LNX.4.50.0303212042000.28519-100000@montezuma.mastecende.com>
+	id <S261460AbTCVCo0>; Fri, 21 Mar 2003 21:44:26 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:50053 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S261438AbTCVCoZ>;
+	Fri, 21 Mar 2003 21:44:25 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [BUG] 2.5.65-mm3 kernel BUG at fs/ext3/super.c:1795!
+References: <20030320235821.1e4ff308.akpm@digeo.com>
+	<8765qchhgo.fsf@lapper.ihatent.com>
+	<20030321123919.0b8b1b86.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 22 Mar 2003 03:55:30 +0100
+In-Reply-To: <20030321123919.0b8b1b86.akpm@digeo.com>
+Message-ID: <871y102jq5.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, please disregard that last oops i looked at the version numbers 
-and they can't have been right. i don't think i booted the right image.
+Andrew Morton <akpm@digeo.com> writes:
 
-Here are some oopses with 6.2.30, there does appear to be a relation wrt 
-interrupt routing because if i boot with noapic it passes the boot test 
-and appears to be functional. If you have any more suggestions please send 
-them my way, i shall also be trying a number of things.
+> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+> >
+> > Andrew Morton <akpm@digeo.com> writes:
+> > >
+> > > [SNIP]
+> > >
+> > 
+> > Disk I/O on my machine froze up during very light work after a few
+> > hours, luckily I had a window open on another machine so I could do a
+> > simple capture and save the info:
+> > 
+> > kernel BUG at fs/ext3/super.c:1795!
+> > invalid operand: 0000 [#1]
+> > CPU:    0
+> > EIP:    0060:[<c018b522>]    Not tainted VLI
+> > EFLAGS: 00010246
+> > EIP is at ext3_write_super+0x36/0x94
+> > eax: 00000000   ebx: c8834000   ecx: efb5904c   edx: efb59000
+> > esi: efb59000   edi: c8834000   ebp: c8835ecc   esp: c8835ec0
+> > ds: 007b   es: 007b   ss: 0068
+> > Process pdflush (pid: 7853, threadinfo=c8834000 task=ed0a5880)
+> > Stack: c8835ee4 00000287 efb5904c c8835ee4 c0153148 efb59000 00000077 51eb851f
+> >        c8835fcc c8835fa4 c0137fd0 c03892fc 007b9f47 007b168f 00000000 00000000
+> >        c8835ef4 00000000 00000001 00000000 00000001 00000000 00000053 00000000
+> > Call Trace:
+> >  [<c0153148>] sync_supers+0xde/0xea
+> >  [<c0137fd0>] wb_kupdate+0x68/0x161
+> >  [<c0118985>] schedule+0x1a4/0x3ac
+> >  [<c01386e8>] __pdflush+0xdc/0x1d8
+> >  [<c01387e4>] pdflush+0x0/0x15
+> >  [<c01387f5>] pdflush+0x11/0x15
+> >  [<c0137f68>] wb_kupdate+0x0/0x161
+> >  [<c0108e69>] kernel_thread_helper+0x5/0xb
+> 
+> How on earth did you do that?
+> 
+> sync_supers() does lock_super, then calls ext3_write_super.
+> 
+> ext3_write_super() does a down_trylock() on sb->s_lock and goes BUG
+> if it acquired the lock.
+> 
+> So you've effectively done this:
+> 
+> 	down(&sem);
+> 	if (down_trylock(&sem))
+> 		BUG();
+> 
+> This can only be a random memory scribble, a hardware bug or a
+> preempt-related bug in down_trylock().
 
-Cheers,
-	Zwane
+Heh. My "portable murphy field" if powerful. Honestly, all I did was
+to have a few gnome-terminals, an emacs or two, a few mozillas and a
+bit more up, same as always, and jut "just happened" (that's what all
+kids claim when they break stuff) :)
 
-0xc02ff2dc is in ahc_linux_run_complete_queue 
-(drivers/scsi/aic7xxx/aic7xxx_osm.c:687).
-682                      || (cmd->result & 0xFF) != SCSI_STATUS_OK)
-683                             with_errors++;
-684
-685                     cmd->scsi_done(cmd); <===
-686
-687                     if (with_errors > AHC_LINUX_MAX_RETURNED_ERRORS) {
-
-
-Bringing up loopback interface:  Unable to handle kernel paging request at virtual address 6b6b6b6b
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    2
-EIP:    0060:[<6b6b6b6b>]    Not tainted
-EFLAGS: 00010002 VLI
-EIP is at 0x6b6b6b6b
-eax: c168da10   ebx: 00000000   ecx: cbe32290   edx: 00000000
-esi: 00000001   edi: cb10dcac   ebp: 00000005   esp: cb10dc2c
-ds: 007b   es: 007b   ss: 0068
-Process ifup-routes (pid: 317, threadinfo=cb10c000 task=cbaa5360)
-Stack: c02ff2dc c168da10 c168da10 cbe32290 c0305807 cbe32290 c168da10 00000296 
-       cb10dcac c04a3dcc cbffe4f4 04000001 c010bb0d 00000005 cbe32290 cb10dcac 
-       c05060a0 cb10c000 cb10c000 00000005 c010be49 00000005 cb10dcac cbffe4f4 
-Call Trace:
- [<c02ff2dc>] ahc_linux_run_complete_queue+0x3c/0x50
- [<c0305807>] ahc_linux_isr+0x1d7/0x3a0
- [<c010bb0d>] handle_IRQ_event+0x2d/0x50
- [<c010be49>] do_IRQ+0x109/0x210
- [<c010a398>] common_interrupt+0x18/0x20
- [<c011ef53>] .text.lock.sched+0x10f/0x12c
- [<c011c5c0>] schedule+0x320/0x610
- [<c0119d80>] do_page_fault+0x210/0x47a
- [<c01a80b6>] do_get_write_access+0x5d6/0x720
- [<c011c900>] default_wake_function+0x0/0x20
- [<c015e2a4>] __bread+0x14/0x30
- [<c01a8249>] journal_get_write_access+0x49/0x70
- [<c019efd0>] ext3_reserve_inode_write+0x50/0xb0
- [<c01a7421>] get_transaction+0x91/0x100
- [<c019f048>] ext3_mark_inode_dirty+0x18/0x40
- [<c019f1ba>] ext3_dirty_inode+0x14a/0x180
- [<c017e7f3>] __mark_inode_dirty+0x143/0x150
- [<c0177fb5>] update_atime+0xb5/0xc0
- [<c013c79e>] __generic_file_aio_read+0x18e/0x1d0
- [<c013c4d0>] file_read_actor+0x0/0x140
- [<c013c821>] generic_file_aio_read+0x41/0x60
- [<c015b2cd>] do_sync_read+0x7d/0xb0
- [<c0110c56>] old_mmap+0xe6/0x140
- [<c015b3b1>] vfs_read+0xb1/0x1b0
- [<c015b73a>] sys_read+0x2a/0x40
- [<c0109477>] syscall_call+0x7/0xb
-
-Code:  Bad EIP value.
- <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
+mvh,
+A
 -- 
-function.linuxpower.ca
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

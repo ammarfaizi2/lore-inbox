@@ -1,85 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265413AbTLSAy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 19:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265415AbTLSAy1
+	id S265421AbTLSBBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 20:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265422AbTLSBBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 19:54:27 -0500
-Received: from bart.one-2-one.net ([217.115.142.76]:13577 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S265413AbTLSAyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 19:54:25 -0500
-Date: Fri, 19 Dec 2003 01:31:01 +0100 (CET)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: jt@hpl.hp.com
-cc: Andrew Morton <akpm@osdl.org>,
+	Thu, 18 Dec 2003 20:01:44 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:27821 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265421AbTLSBBn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 20:01:43 -0500
+Date: Thu, 18 Dec 2003 17:01:42 -0800
+To: Martin Diehl <lists@mdiehl.de>
+Cc: Andrew Morton <akpm@osdl.org>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.6.0
-In-Reply-To: <20031218231650.GA828@bougret.hpl.hp.com>
-Message-ID: <Pine.LNX.4.44.0312190113030.30804-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20031219010142.GA1907@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20031218231650.GA828@bougret.hpl.hp.com> <Pine.LNX.4.44.0312190113030.30804-100000@notebook.home.mdiehl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0312190113030.30804-100000@notebook.home.mdiehl.de>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Dec 2003, Jean Tourrilhes wrote:
-
-> > drivers/net/irda/
-> > ~~~~~~~~~~~~~~~~~
-> > 
-> > o dongle drivers need to be converted to sir-dev
+On Fri, Dec 19, 2003 at 01:31:01AM +0100, Martin Diehl wrote:
 > 
-> 	In (slow) progress ; tekram-sir patches on my web page.
+> I have converted dongle drivers on disk here. So far I was holding back 
+> basically due to:
+> * 2.6.0 freeze
+> * neither hardware nor testers to do even basic validation
+> * wait for tx-lock and rawmode fixes to get applied first so we would 
+>   hopefully get some more feedback and trust in the infrastructure.
 
-I have converted dongle drivers on disk here. So far I was holding back 
-basically due to:
-* 2.6.0 freeze
-* neither hardware nor testers to do even basic validation
-* wait for tx-lock and rawmode fixes to get applied first so we would 
-  hopefully get some more feedback and trust in the infrastructure.
+	Yep. Hopefully this will change as more user migrate to 2.6.X.
 
-If you would like to accept it now I'd sent patches this weekend.
+> If you would like to accept it now I'd sent patches this weekend.
 
-> > o new drivers (irtty-sir/smsc-ircc2/donauboe) need more testing
+	I'm flying tommorow, and when I'm away, I never read my e-mail.
+
+> > 	o IrCOMM disconnect race condition Oops ; todo
 > 
-> 	In (slow) progress ; Patch for irtty-sir on my web page.
+> After some user provided helpful information off-list I found out it gets 
+> triggered when the app doesn't close the ircomm-fd before exiting.
+> Just do "cat /dev/ircomm0" and kill -9 the cat to see.
+> 
+> Below my current experimental patch. It works for me and I've got an user
+> confirmation meanwhile. It's definedly an improvement and I do think it is 
+> as safe as we can get without reworking the whole ircomm-locking...
 
-Yes, tekram-sir is reportedly working now with those patches.
+	Yes, that is more or less what I had suggested.
+	Note that I'm unhappy about (self->flags & ASYNC_INITIALIZED),
+either it goes under spinlock or use test_bit().
 
-> 	o IrCOMM disconnect race condition Oops ; todo
+> Martin
 
-After some user provided helpful information off-list I found out it gets 
-triggered when the app doesn't close the ircomm-fd before exiting.
-Just do "cat /dev/ircomm0" and kill -9 the cat to see.
-
-Below my current experimental patch. It works for me and I've got an user
-confirmation meanwhile. It's definedly an improvement and I do think it is 
-as safe as we can get without reworking the whole ircomm-locking...
-
-Martin
-
-----------------------
-
-diff -urp linux-2.6.0-test9-bk22/net/irda/ircomm/ircomm_tty.c v2.6.0-test9-bk22/net/irda/ircomm/ircomm_tty.c
---- linux-2.6.0-test9-bk22/net/irda/ircomm/ircomm_tty.c	Wed Nov 19 12:33:50 2003
-+++ v2.6.0-test9-bk22/net/irda/ircomm/ircomm_tty.c	Wed Nov 19 15:47:23 2003
-@@ -982,6 +982,8 @@ static void ircomm_tty_shutdown(struct i
- 	if (!(self->flags & ASYNC_INITIALIZED))
- 		return;
- 
-+	ircomm_tty_detach_cable(self);		/* first it does is deleting wd-timer! */
-+
- 	spin_lock_irqsave(&self->spinlock, flags);
- 
- 	del_timer(&self->watchdog_timer);
-@@ -998,8 +1000,6 @@ static void ircomm_tty_shutdown(struct i
- 		self->tx_skb = NULL;
- 	}
- 
--	ircomm_tty_detach_cable(self);
--
- 	if (self->ircomm) {
- 		ircomm_close(self->ircomm);
- 		self->ircomm = NULL;
-
+	Jean

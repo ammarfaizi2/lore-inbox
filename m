@@ -1,49 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262210AbSL3Uxj>; Mon, 30 Dec 2002 15:53:39 -0500
+	id <S266701AbSL3U4s>; Mon, 30 Dec 2002 15:56:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262266AbSL3Uxj>; Mon, 30 Dec 2002 15:53:39 -0500
-Received: from mailproxy1.netcologne.de ([194.8.194.222]:15257 "EHLO
-	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
-	id <S262210AbSL3Uxj> convert rfc822-to-8bit; Mon, 30 Dec 2002 15:53:39 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: =?iso-8859-1?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
-Reply-To: joergprante@netcologne.de
-To: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: [PATCHSET] 2.4.21-pre2-jp15
-Date: Mon, 30 Dec 2002 22:00:37 +0100
-User-Agent: KMail/1.4.3
-References: <4.3.2.7.2.20021230212528.00b5fc80@pop.t-online.de>
-In-Reply-To: <4.3.2.7.2.20021230212528.00b5fc80@pop.t-online.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212302200.37424.joergprante@netcologne.de>
+	id <S266868AbSL3U4s>; Mon, 30 Dec 2002 15:56:48 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:14722
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266701AbSL3U4r>; Mon, 30 Dec 2002 15:56:47 -0500
+Subject: Re: Micron Samurai chipset in 2.4.x (ide-pci.c)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Brown <sbrown7@umbc.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.01.0212301528330.15488-100000@linux1.gl.umbc.edu>
+References: <Pine.LNX.4.44L.01.0212301528330.15488-100000@linux1.gl.umbc.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 21:46:37 +0000
+Message-Id: <1041284797.13956.133.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->          Sorry, the patch doesn't change anything.
->          I am compiling with PREEMPT off.
->          Looking at sysrq.c , I would say that a couple of
->          #ifdef's are missing. The code in the handle_preempt
->          function, I think should be ifdef'd on CONFIG_PREEMPT_LOG
->
->          Margit
-
-Hi Margit,
-
-you should enable preemptive kernel logging only if you selected preemptive 
-kernel.
-
-In the case of preempt logging turned off, the show_preempt_log() function 
-should evaluate to an empty function
-
-#define show_preempt_log()	do { } while(0)
-
-as defined in <linux/sched.h>
-
-Best regards,
-
-Jörg
+Thanks - I'll merge those changes into the base code.
 

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289899AbSA3QP1>; Wed, 30 Jan 2002 11:15:27 -0500
+	id <S289735AbSA3QN2>; Wed, 30 Jan 2002 11:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289891AbSA3QN3>; Wed, 30 Jan 2002 11:13:29 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:22484 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S289456AbSA3QMh>;
-	Wed, 30 Jan 2002 11:12:37 -0500
-Date: Wed, 30 Jan 2002 11:12:33 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: DervishD <raul@viadomus.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
-Message-ID: <20020130111233.A21325@havoc.gtf.org>
-In-Reply-To: <E16VtWb-0002kV-00@DervishD.viadomus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16VtWb-0002kV-00@DervishD.viadomus.com>; from raul@viadomus.com on Wed, Jan 30, 2002 at 01:07:37PM +0100
+	id <S289395AbSA3QNC>; Wed, 30 Jan 2002 11:13:02 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:53691 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289398AbSA3QLr>; Wed, 30 Jan 2002 11:11:47 -0500
+Date: Wed, 30 Jan 2002 18:06:42 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Michel Angelo da Silva Pereira <michelpereira@uol.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Oops with 2.4.18-pre3-ac2 with Intel ServerRAID Controller
+In-Reply-To: <E16VwfU-0007Xu-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0201301805200.5518-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 01:07:37PM +0100, DervishD wrote:
->     The problem is that I don't want to copy the definitions I need
-> from linux/fs.h, because this will lead to problems if those
-> definitions change. Anyway this is not an issue, because by changing
-> the running kernel those definitions in fact may not be valid...
-> 
->     Resuming: I don't know how properly address this problem.
+On Wed, 30 Jan 2002, Alan Cox wrote:
 
-Go ahead and copy.  If ioctl interfaces change, then binary
-compatibility just changed too.  By nature that will be changed
-infrequently, if at all.
+> Ok the oops is not nice. The timeouts point to i2o_scsi and/or the serveraid
+> in i2o mode not liking one another (it has an official native mode driver
+> too btw which is the one you wanted)
 
-	Jeff
+Is that the one supplied on Intel's site? Or is there a kernel supported 
+one?
 
-
+Thanks,
+	Zwane Mwaikambo
 
 

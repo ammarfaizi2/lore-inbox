@@ -1,188 +1,339 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTLDU4O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 15:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTLDU4N
+	id S263541AbTLDVBW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 16:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbTLDVBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 15:56:13 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:21896 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263369AbTLDUzp (ORCPT
+	Thu, 4 Dec 2003 16:01:22 -0500
+Received: from holomorphy.com ([199.26.172.102]:36305 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263541AbTLDVBE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 15:55:45 -0500
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-From: Craig Bradney <cbradney@zip.com.au>
-To: Jesse Allen <the3dfxdude@hotmail.com>
-Cc: Allen Martin <AMartin@nvidia.com>, b@netzentry.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1070570505.6571.36.camel@athlonxp.bradney.info>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F874@mail-sc-6.nvidia.com>
-	 <20031204200415.GA183@tesore.local>
-	 <1070570505.6571.36.camel@athlonxp.bradney.info>
-Content-Type: text/plain
-Message-Id: <1070571336.4079.0.camel@athlonxp.bradney.info>
+	Thu, 4 Dec 2003 16:01:04 -0500
+Date: Thu, 4 Dec 2003 13:01:01 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-wli-1
+Message-ID: <20031204210101.GZ8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031204200120.GL19856@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Dec 2003 21:55:36 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204200120.GL19856@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Then again.. returned to konsole to run dmesg.. bang.. dead.
+On Thu, Dec 04, 2003 at 12:01:20PM -0800, William Lee Irwin III wrote:
+> was doing for them. I also need to find a coherent way to incorporate
+> the cleanups for pte caching suggested by akpm without bloating the
+> pte cache on lowmem boxen
 
-This is ALL over the place
 
-Craig
+Maybe the pte caching cleanups should go something like this:
 
-On Thu, 2003-12-04 at 21:41, Craig Bradney wrote:
-> The biggest problem is we are getting very different results here
-> (understatement!).
-> 
-> I'm running UDMA 133 on round 80w cables.
-> 
-> I can do a grep on kernel source, eg from /usr/src/linux
-> grep -R linus *
-> grep -R kernel *
-> and it happily returns all information I asked for.
-> 
-> Right now, I am also running grep over a 4gb dvd I recently wrote from
-> within 2.6. No crash.. in fact.. its still going as I type this. I can
-> run hdparm -I while its grepping and see its on udma2.
-> 
-> 
-> The one thing I DID notice when I was testing with preempt on was the
-> something similar to the following from the dmesg that Ross Alexander
-> sent (dont have the dmesg output anymore :( ):
-> 
-> hda: IRQ probe failed (0xfffffffa)
-> hdb: IRQ probe failed (0xfffffffa)
-> hdb: IRQ probe failed (0xfffffffa)
-> 
-> 
-> Now it all runs through ok as shown below.
-> 
-> NFORCE2: IDE controller at PCI slot 0000:00:09.0
-> NFORCE2: chipset revision 162
-> NFORCE2: not 100% native mode: will probe irqs later
-> NFORCE2: BIOS didn't set cable bits correctly. Enabling workaround.
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> NFORCE2: 0000:00:09.0 (rev a2) UDMA133 controller
->     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: Maxtor 6Y080P0, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hdc: SONY DVD RW DRU-510A, ATAPI CD/DVD-ROM drive
-> hdd: SAMSUNG CD-ROM SC-152C, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: max request size: 128KiB
-> hda: 160086528 sectors (81964 MB) w/7936KiB Cache, CHS=65535/16/63,
-> UDMA(133)
->  /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 >
-> hdc: ATAPI 32X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.12
-> hdd: ATAPI 52X CD-ROM drive, 128kB Cache, DMA
-> 
-> In answer to Bob's email that has just come in.. I see no IRQ7 disabled
-> messages.. just IRQ7 -> 0:7
-> 
-> Uptime is now over 5 hours with a decent amount of time idling and being
-> busy. 
-> 
-> Craig
-> 
-> PS.
-> cat /proc/interrupts
->            CPU0
->   0:   20104881          XT-PIC  timer
->   1:      21139    IO-APIC-edge  i8042
->   2:          0          XT-PIC  cascade
->   8:          2    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
->  12:     192779    IO-APIC-edge  i8042
->  14:     171638    IO-APIC-edge  ide0
->  15:     101036    IO-APIC-edge  ide1
->  19:    1507163   IO-APIC-level  radeon@PCI:3:0:0
->  21:     276278   IO-APIC-level  ehci_hcd, NVidia nForce2, eth0
->  22:          3   IO-APIC-level  ohci1394
-> NMI:          0
-> LOC:   20104718
-> ERR:          0
-> MIS:          0
-> 
-> 
-> On Thu, 2003-12-04 at 21:04, Jesse Allen wrote:
-> > On Wed, Dec 03, 2003 at 09:11:37PM -0800, Allen Martin wrote:
-> > > I don't think there's any faulty nForce IDE hardware or we would have heard
-> > > about it from windows users (and we haven't).  
-> > 
-> > Ok.  I have never tested a motherboard driver for a problem like this.  But I'm starting to understand more.
-> > 
-> > I went ahead and tried more configurations.  I wish I had a pci ide card with 
-> > udma 100, but the one I have is being used =(.  So I just had to make do with 
-> > what I have.  The test is very simple, because it is very simple to trigger it. 
-> > I just grep something very large.  It locks up almost immediately with 2.6 + 
-> > apic + nvidia ide with dma enabled.
-> > 
-> > I ran grep on these devices:
-> > IDE hard disk at UDMA 100, 100 MB/s, flat cable, 80w.  grep on kernel source.
-> > same IDE hard disk with DMA disabled, 16 MB/s. grep on kernel source.
-> > SCSI hard disk at 20 MB/s. grep on kernel source.
-> > IDE 24x cdrom, 11 MB/s.  grepped whole cd-rom fs, about 300 MB.
-> > 
-> > During the test runs, I tried:
-> > bios update -- no difference (same results no matter what)
-> > preempt on/off -- no difference (same results)
-> > 
-> > The results (uniprocessor system):
-> > 1. under 2.6.0-test11 with nvidia ide, dma enabled, apic
-> > grep on IDE hard disk at UDMA 100 -- locks nearly immediately
-> > and later attempt, grep on cdrom -- doesn't lock up (still will lock up with 
-> > hard disk though)
-> > 
-> > 2. under 2.6.0-test11 with nvidia ide, dma, pic
-> > grep on IDE hard disk at UDMA 100 -- doesn't lock up
-> > 
-> > 3. under 2.4.23, with nvidia ide, dma enabled, apic
-> > grep on IDE hard disk at UDMA 100 -- doesn't lock up
-> > 
-> > 4. under 2.6.0-test11 with aic7xxx, ide completely disabled, apic
-> > grep on SCSI disk -- doesn't lock up
-> > 
-> > 5. under 2.6.0-test11 with nvidia ide, dma disabled, apic
-> > grep on IDE hard disk at 16 MB/s -- doesn't lock up
-> > 
-> > 
-> > So basically, I conclude that UDMA 100 will cause a lockup nearly immediately. 
-> > The slower interfaces speeds don't cause a lockup during the test, but that 
-> > doesn't mean the kernel will never lock up.  So DMA does produce a lockup 
-> > faster.  Either longer stresses are required (which means spending more time =( 
-> > I've only had the board for two days - heh heh), or more preferably, I need to
-> > test with another pci ide controller.  Whatever it is, it seems to be the high
-> > speeds like UDMA 100 or perhaps similarly stressing pci devices that will do it.
-> > 
-> > 
-> > > 
-> > > The problem with comparing the nForce IDE driver against the generic IDE
-> > > driver is that the generic IDE driver won't enable DMA, so the interrupt
-> > > rate will be much different.  If there's some interrupt race condition in
-> > > APIC mode, disabling DMA may mask it.
-> > > 
-> > 
-> > Yep, you're right.
-> > 
-> > 
-> > Jesse
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+diff -prauN wli-2.6.0-test11-30/arch/i386/mm/pgtable.c wli-2.6.0-test11-31/arch/i386/mm/pgtable.c
+--- wli-2.6.0-test11-30/arch/i386/mm/pgtable.c	2003-12-04 07:36:00.000000000 -0800
++++ wli-2.6.0-test11-31/arch/i386/mm/pgtable.c	2003-12-04 12:57:16.000000000 -0800
+@@ -1,5 +1,6 @@
+ /*
+  *  linux/arch/i386/mm/pgtable.c
++ *  highpte-compatible pte caching, William Irwin, IBM, June 2003
+  */
+ 
+ #include <linux/config.h>
+@@ -13,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/pagemap.h>
+ #include <linux/spinlock.h>
++#include <linux/init.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -176,7 +178,7 @@ static inline struct page *pte_alloc_rea
+ 	unsigned long flags;
+ 	struct page *page = NULL;
+ 
+-	smp_local_irq_save(flags);
++	local_irq_save(flags);
+ 	if (tlb->nr_pte_ready) {
+ 		int z;
+ 		for (z = MAX_ZONE_ID - 1; z >= 0; --z) {
+@@ -193,7 +195,7 @@ static inline struct page *pte_alloc_rea
+ 		tlb->ready_count[z]--;
+ 		tlb->nr_pte_ready--;
+ 	}
+-	smp_local_irq_restore(flags);
++	local_irq_restore(flags);
+ 	put_cpu();
+ 	return page;
+ }
+@@ -305,7 +307,7 @@ static void shrink_cpu_pagetable_cache(v
+ 	high = !!(gfp_mask & __GFP_HIGHMEM);
+ 	cpu = get_cpu();
+ 	tlb = &per_cpu(mmu_gathers, cpu);
+-	smp_local_irq_save(flags);
++	local_irq_save(flags);
+ 
+ 	if (tlb->nr_pte_active || tlb->nr_nonpte)
+ 		tlb_flush(tlb);
+@@ -342,11 +344,11 @@ static void shrink_cpu_pagetable_cache(v
+ 		free_pages_bulk(zone_table[zone], head, 0);
+ 	}
+ 
+-	smp_local_irq_restore(flags);
++	local_irq_restore(flags);
+ 	put_cpu();
+ }
+ 
+-void shrink_pagetable_cache(int gfp_mask)
++static int shrink_pagetable_cache(int nr_to_scan, unsigned int gfp_mask)
+ {
+ 	BUG_ON(irqs_disabled());
+ 
+@@ -357,8 +359,17 @@ void shrink_pagetable_cache(int gfp_mask
+ 
+ 	smp_call_function(shrink_cpu_pagetable_cache, (void *)gfp_mask, 1, 1);
+ 	preempt_enable();
++	return 1;
+ }
+ 
++static __init int init_pagetable_cache_shrinker(void)
++{
++	set_shrinker(1, shrink_pagetable_cache);
++	return 0;
++}
++
++__initcall(init_pagetable_cache_shrinker);
++
+ #define GLIBC_BUFFER	(32*1024*1024)
+ 
+ /*
+diff -prauN wli-2.6.0-test11-30/fs/dcache.c wli-2.6.0-test11-31/fs/dcache.c
+--- wli-2.6.0-test11-30/fs/dcache.c	2003-12-04 08:30:37.000000000 -0800
++++ wli-2.6.0-test11-31/fs/dcache.c	2003-12-04 12:39:07.000000000 -0800
+@@ -657,6 +657,9 @@ static int shrink_dcache_memory(int nr, 
+ 	int nr_unused;
+ 	const int unused_ratio = 1;
+ 
++	if (gfp_mask & __GFP_HIGHMEM)
++		return 0;
++
+ 	if (nr) {
+ 		/*
+ 		 * Nasty deadlock avoidance.
+diff -prauN wli-2.6.0-test11-30/fs/dquot.c wli-2.6.0-test11-31/fs/dquot.c
+--- wli-2.6.0-test11-30/fs/dquot.c	2003-11-26 12:44:45.000000000 -0800
++++ wli-2.6.0-test11-31/fs/dquot.c	2003-12-04 12:39:42.000000000 -0800
+@@ -386,6 +386,9 @@ static int shrink_dqcache_memory(int nr,
+ {
+ 	int ret;
+ 
++	if (gfp_mask & __GFP_HIGHMEM)
++		return 0;
++
+ 	spin_lock(&dq_list_lock);
+ 	if (nr)
+ 		prune_dqcache(nr);
+diff -prauN wli-2.6.0-test11-30/fs/inode.c wli-2.6.0-test11-31/fs/inode.c
+--- wli-2.6.0-test11-30/fs/inode.c	2003-12-04 08:20:27.000000000 -0800
++++ wli-2.6.0-test11-31/fs/inode.c	2003-12-04 12:41:30.000000000 -0800
+@@ -467,6 +467,9 @@ static void prune_icache(int nr_to_scan)
+  */
+ static int shrink_icache_memory(int nr, unsigned int gfp_mask)
+ {
++	if (gfp_mask & __GFP_HIGHMEM)
++		return 0;
++
+ 	if (nr) {
+ 		/*
+ 		 * Nasty deadlock avoidance.  We may hold various FS locks,
+diff -prauN wli-2.6.0-test11-30/fs/mbcache.c wli-2.6.0-test11-31/fs/mbcache.c
+--- wli-2.6.0-test11-30/fs/mbcache.c	2003-11-26 12:45:49.000000000 -0800
++++ wli-2.6.0-test11-31/fs/mbcache.c	2003-12-04 12:40:57.000000000 -0800
+@@ -176,6 +176,9 @@ mb_cache_shrink_fn(int nr_to_scan, unsig
+ 	struct list_head *l, *ltmp;
+ 	int count = 0;
+ 
++	if (gfp_mask & __GFP_HIGHMEM)
++		return 0;
++
+ 	spin_lock(&mb_cache_spinlock);
+ 	list_for_each(l, &mb_cache_list) {
+ 		struct mb_cache *cache =
+diff -prauN wli-2.6.0-test11-30/fs/xfs/quota/xfs_qm.c wli-2.6.0-test11-31/fs/xfs/quota/xfs_qm.c
+--- wli-2.6.0-test11-30/fs/xfs/quota/xfs_qm.c	2003-11-26 12:42:54.000000000 -0800
++++ wli-2.6.0-test11-31/fs/xfs/quota/xfs_qm.c	2003-12-04 12:38:37.000000000 -0800
+@@ -2206,6 +2206,8 @@ xfs_qm_shake(int nr_to_scan, unsigned in
+ {
+ 	int	ndqused, nfree, n;
+ 
++	if (gfp_mask & __GFP_HIGHMEM)
++		return 0;
+ 	if (!(gfp_mask & __GFP_WAIT))
+ 		return 0;
+ 	if (!xfs_Gqm)
+diff -prauN wli-2.6.0-test11-30/include/asm-i386/pgtable.h wli-2.6.0-test11-31/include/asm-i386/pgtable.h
+--- wli-2.6.0-test11-30/include/asm-i386/pgtable.h	2003-12-04 08:30:37.000000000 -0800
++++ wli-2.6.0-test11-31/include/asm-i386/pgtable.h	2003-12-04 12:52:58.000000000 -0800
+@@ -45,9 +45,6 @@ void pgd_dtor(void *, kmem_cache_t *, un
+ void pgtable_cache_init(void);
+ void paging_init(void);
+ 
+-#define HAVE_ARCH_PAGETABLE_CACHE
+-void shrink_pagetable_cache(int gfp_mask);
+-
+ #endif /* !__ASSEMBLY__ */
+ 
+ /*
+diff -prauN wli-2.6.0-test11-30/include/asm-i386/system.h wli-2.6.0-test11-31/include/asm-i386/system.h
+--- wli-2.6.0-test11-30/include/asm-i386/system.h	2003-12-03 18:30:38.000000000 -0800
++++ wli-2.6.0-test11-31/include/asm-i386/system.h	2003-12-04 12:50:45.000000000 -0800
+@@ -461,18 +461,6 @@ struct alt_instr { 
+ /* For spinlocks etc */
+ #define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
+ 
+-#ifdef CONFIG_SMP
+-#define smp_local_irq_save(x)		local_irq_save(x)
+-#define smp_local_irq_restore(x)	local_irq_restore(x)
+-#define smp_local_irq_disable()		local_irq_disable()
+-#define smp_local_irq_enable()		local_irq_enable()
+-#else
+-#define smp_local_irq_save(x)		do { (void)(x); } while (0)
+-#define smp_local_irq_restore(x)	do { (void)(x); } while (0)
+-#define smp_local_irq_disable()		do { } while (0)
+-#define smp_local_irq_enable()		do { } while (0)
+-#endif /* CONFIG_SMP */
+-
+ /*
+  * disable hlt during certain critical i/o operations
+  */
+diff -prauN wli-2.6.0-test11-30/include/asm-i386/tlb.h wli-2.6.0-test11-31/include/asm-i386/tlb.h
+--- wli-2.6.0-test11-30/include/asm-i386/tlb.h	2003-12-03 18:30:38.000000000 -0800
++++ wli-2.6.0-test11-31/include/asm-i386/tlb.h	2003-12-04 12:50:45.000000000 -0800
+@@ -115,7 +115,7 @@ void tlb_flush_mmu(struct mmu_gather *tl
+ 	tlb->need_flush = 0;
+ 	tlb_flush(tlb);
+ 
+-	smp_local_irq_save(flags);
++	local_irq_save(flags);
+ 
+ 	if (tlb->nr_nonpte) {
+ 		free_pages_and_swap_cache(tlb->nonpte, tlb->nr_nonpte);
+@@ -135,7 +135,7 @@ void tlb_flush_mmu(struct mmu_gather *tl
+ 	if (tlb->nr_pte_ready >= NR_PTE)
+ 		tlb_flush_ready(tlb);
+ 
+-	smp_local_irq_restore(flags);
++	local_irq_restore(flags);
+ }
+ 
+ static inline
+@@ -172,13 +172,13 @@ void tlb_remove_page(struct mmu_gather *
+ {
+ 	unsigned long flags;
+ 
+-	smp_local_irq_save(flags);
++	local_irq_save(flags);
+ 	tlb->need_flush = 1;
+ 	if (PagePTE(page))
+ 		tlb_remove_pte_page(tlb, page);
+ 	else
+ 		tlb_remove_nonpte_page(tlb, page);
+-	smp_local_irq_restore(flags);
++	local_irq_restore(flags);
+ }
+ 
+ #endif /* _I386_TLB_H */
+diff -prauN wli-2.6.0-test11-30/mm/vmscan.c wli-2.6.0-test11-31/mm/vmscan.c
+--- wli-2.6.0-test11-30/mm/vmscan.c	2003-12-04 07:13:42.000000000 -0800
++++ wli-2.6.0-test11-31/mm/vmscan.c	2003-12-04 12:52:58.000000000 -0800
+@@ -845,10 +845,6 @@ shrink_caches(struct zone *classzone, in
+ 	return ret;
+ }
+ 
+-#ifndef HAVE_ARCH_PAGETABLE_CACHE
+-#define shrink_pagetable_cache(gfp_mask)		do { } while (0)
+-#endif
+- 
+ /*
+  * This is the main entry point to direct page reclaim.
+  *
+@@ -901,17 +897,12 @@ int try_to_free_pages(struct zone *cz,
+ 		 */
+ 		wakeup_bdflush(total_scanned);
+ 
+-		/* shoot down some pagetable caches before napping */
+-		shrink_pagetable_cache(gfp_mask);
+-
+ 		/* Take a nap, wait for some writeback to complete */
+ 		blk_congestion_wait(WRITE, HZ/10);
+-		if (cz - cz->zone_pgdat->node_zones < ZONE_HIGHMEM) {
+-			shrink_slab(total_scanned, gfp_mask);
+-			if (reclaim_state) {
+-				nr_reclaimed += reclaim_state->reclaimed_slab;
+-				reclaim_state->reclaimed_slab = 0;
+-			}
++		shrink_slab(total_scanned, gfp_mask);
++		if (reclaim_state) {
++			nr_reclaimed += reclaim_state->reclaimed_slab;
++			reclaim_state->reclaimed_slab = 0;
+ 		}
+ 	}
+ 	if ((gfp_mask & __GFP_FS) && !(gfp_mask & __GFP_NORETRY))
+@@ -958,11 +949,12 @@ static int balance_pgdat(pg_data_t *pgda
+ 	for (priority = DEF_PRIORITY; priority; priority--) {
+ 		int all_zones_ok = 1;
+ 
+-		for (i = 0; i < pgdat->nr_zones; i++) {
++		for (i = pgdat->nr_zones - 1; i >= 0; i--) {
+ 			struct zone *zone = pgdat->node_zones + i;
+ 			int nr_mapped = 0;
+ 			int max_scan;
+ 			int to_reclaim;
++			int gfp_mask;
+ 
+ 			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+ 				continue;
+@@ -981,13 +973,20 @@ static int balance_pgdat(pg_data_t *pgda
+ 				max_scan = to_reclaim * 2;
+ 			if (max_scan < SWAP_CLUSTER_MAX)
+ 				max_scan = SWAP_CLUSTER_MAX;
+-			to_free -= shrink_zone(zone, max_scan, GFP_KERNEL,
++
++			if (i < ZONE_HIGHMEM)
++				gfp_mask = GFP_KERNEL;
++			else
++				gfp_mask = GFP_HIGHUSER;
++
++
++			to_free -= shrink_zone(zone, max_scan, gfp_mask,
+ 					to_reclaim, &nr_mapped, ps, priority);
+-			if (i < ZONE_HIGHMEM) {
+-				reclaim_state->reclaimed_slab = 0;
+-				shrink_slab(max_scan + nr_mapped, GFP_KERNEL);
+-				to_free -= reclaim_state->reclaimed_slab;
+-			}
++
++			reclaim_state->reclaimed_slab = 0;
++			shrink_slab(max_scan + nr_mapped, gfp_mask);
++			to_free -= reclaim_state->reclaimed_slab;
++
+ 			if (zone->all_unreclaimable)
+ 				continue;
+ 			if (zone->pages_scanned > zone->present_pages * 2)
+@@ -995,10 +994,8 @@ static int balance_pgdat(pg_data_t *pgda
+ 		}
+ 		if (all_zones_ok)
+ 			break;
+-		if (to_free > 0) {
+-			shrink_pagetable_cache(GFP_HIGHUSER);
++		if (to_free > 0)
+ 			blk_congestion_wait(WRITE, HZ/10);
+-		}
+ 	}
+ 
+ 	for (i = 0; i < pgdat->nr_zones; i++) {

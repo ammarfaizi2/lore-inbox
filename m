@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317415AbSINSYB>; Sat, 14 Sep 2002 14:24:01 -0400
+	id <S317422AbSINSXP>; Sat, 14 Sep 2002 14:23:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317434AbSINSYB>; Sat, 14 Sep 2002 14:24:01 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:9892 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317415AbSINSX7>; Sat, 14 Sep 2002 14:23:59 -0400
-Message-ID: <20020914182627.28529.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <pavel@ucw.cz>
+	id <S317434AbSINSXP>; Sat, 14 Sep 2002 14:23:15 -0400
+Received: from web40506.mail.yahoo.com ([66.218.78.123]:16675 "HELO
+	web40506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317422AbSINSXO>; Sat, 14 Sep 2002 14:23:14 -0400
+Message-ID: <20020914182804.28287.qmail@web40506.mail.yahoo.com>
+Date: Sat, 14 Sep 2002 11:28:04 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
+To: miquels@cistron.nl
 Cc: linux-kernel@vger.kernel.org
-Date: Sun, 15 Sep 2002 02:26:27 +0800
-Subject: Re: LMbench2.0 results
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@ucw.cz>
-[...]
-> I hope powermanagment is completely disabled this time.
-> 									Pavel
-Yes.
-Pavel, is there a way to disable apm at boot time with a lilo parameter?
+>Putting the drive in stand-by mode has the side effect of flushing
+>the cache.
+Maxtor's tech support says this is NOT true.
 
-             Paolo
--- 
-Get your free email from www.linuxmail.org 
+>So before poweroff, send the FLUSH CACHE command,
+>then send the standby command, hope that one of them works ..
+Problem is we're currently flushing the cache AFTER we do
+standby...
+
+>I put put-the-drive-in-standby-mode stuff in halt.c of sysvinit
+>after several reports of fs corruption at poweroff and it seems
+>to have fixed the problems for the people who reported them.
+That code is only executed if the '-h' option is passed to halt:
+Some distros (namely Slackware 7.x) pass the '-p' option instead
+(look in /etc/rc.d/rc.0).
 
 
-Powered by Outblaze
+Ok how about this: I'm current testing some patches against
+ide.c and friends. Why don't I just add ( and document ) a
+define called NO_STANDBY_ON_SHUTDOWN which would live in 
+ide.c. By default it would not be defined. Then I just wrap
+the standby code in an '#ifndef NO_STANDBY_ON_SHUTDOWN..#endif'
+block.
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132556AbRDOD0S>; Sat, 14 Apr 2001 23:26:18 -0400
+	id <S132565AbRDODjx>; Sat, 14 Apr 2001 23:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132568AbRDOD0H>; Sat, 14 Apr 2001 23:26:07 -0400
-Received: from mail.texoma.net ([209.151.96.3]:10231 "HELO mail.texoma.net")
-	by vger.kernel.org with SMTP id <S132556AbRDODZ4>;
-	Sat, 14 Apr 2001 23:25:56 -0400
-Message-ID: <3AD91491.1050906@texoma.net>
-Date: Sat, 14 Apr 2001 22:25:05 -0500
-From: Moses Mcknight <moses@texoma.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; 0.8.1) Gecko/20010323
-X-Accept-Language: en
+	id <S132568AbRDODjn>; Sat, 14 Apr 2001 23:39:43 -0400
+Received: from mail.gator.com ([63.197.87.182]:17419 "EHLO mail.gator.com")
+	by vger.kernel.org with ESMTP id <S132565AbRDODjg>;
+	Sat, 14 Apr 2001 23:39:36 -0400
+From: "George Bonser" <george@gator.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Disorder?
+Date: Sat, 14 Apr 2001 20:39:34 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJGENKCLAA.george@gator.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon runtime problems
-In-Reply-To: <E14oRie-000556-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+What's all this in syslog? I don't remember ever seeing it there before.
 
-> Can the folks who are seeing crashes running athlon optimised kernels all mail
-> me
-> 
-> -	CPU model/stepping
-
-AMD Athlon Thunderbird 850Mhz
-Stepping - 2
-
-
-> -	Chipset
-
-VIA KT133A chipset, Iwill KK266 MB.
-According to a couple other people this problem may only occur on this 
-motherboard.
-
-
-> -	Amount of RAM
-
-256 MB Corsair PC150
-
-
-> -	/proc/mtrr output
-
-reg: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-reg: base=0xd5000000 (3408MB), size=  16MB: write-combining, count=1
-
-
-> -	compiler used
-
-2.95.3 - Debian unstable package.
-
-
-> 
-> Alan
-
-When these errors occur, I never get to a shell prompt.  Is there a way 
-to save the errors or have them saved somewhere so I don't have to write 
-all that stuff down?  Also, how can I set the console buffer (what is it 
-called, where you can view previous screens with SHIFT + PgUP/DOWN?) to 
-hold more so I don't lose some of the errors?
-
-Thanks,
-Moses
-
-
+...
+Apr 14 13:58:31 foo kernel: Disorder0 3 5 f0 s2 rr1
+Apr 14 13:58:32 foo kernel: Disorder0 3 5 f0 s1 rr1
+Apr 14 13:58:41 foo kernel: Disorder0 3 8 f0 s0 rr1
+Apr 14 13:58:44 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:58:45 foo kernel: Disorder0 3 4 f0 s0 rr1
+Apr 14 13:58:47 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:58:55 foo kernel: Disorder3 1 5 f5 s2 rr0
+Apr 14 13:58:59 foo kernel: Undo Hoe 145.236.164.120/2007 c3 l0 ss2/2 p3
+Apr 14 13:59:00 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:59:01 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:59:02 foo kernel: Undo Hoe 145.236.164.120/2007 c3 l0 ss2/2 p2
+Apr 14 13:59:02 foo kernel: Disorder0 3 4 f0 s0 rr1
+Apr 14 13:59:03 foo kernel: Undo Hoe 145.236.164.120/2007 c3 l0 ss2/2 p1
+Apr 14 13:59:04 foo kernel: Undo retrans 145.236.164.120/2007 c2 l0 ss2/2
+p0
+Apr 14 13:59:11 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:59:15 foo kernel: Disorder0 3 4 f0 s0 rr1
+Apr 14 13:59:17 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:59:19 foo kernel: Disorder0 3 4 f0 s0 rr1
+Apr 14 13:59:21 foo kernel: Disorder0 3 4 f0 s0 rr1
+Apr 14 13:59:24 foo kernel: Disorder0 3 7 f0 s0 rr1
+Apr 14 13:59:25 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:59:37 foo kernel: Disorder0 3 5 f0 s0 rr1
+Apr 14 13:59:57 foo kernel: Disorder3 1 5 f5 s2 rr0
+...

@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287537AbSASW0t>; Sat, 19 Jan 2002 17:26:49 -0500
+	id <S287539AbSASWbJ>; Sat, 19 Jan 2002 17:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287539AbSASW0j>; Sat, 19 Jan 2002 17:26:39 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12817 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287537AbSASW03>;
-	Sat, 19 Jan 2002 17:26:29 -0500
-Date: Sat, 19 Jan 2002 20:26:01 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Rob Radez <rob@osinvestor.com>
-Cc: <linux-kernel@vger.kernel.org>, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: [PATCH] Andre's IDE Patch (4/7)
-In-Reply-To: <Pine.LNX.4.33.0201191503340.14950-100000@pita.lan>
-Message-ID: <Pine.LNX.4.33L.0201192024240.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287743AbSASWa7>; Sat, 19 Jan 2002 17:30:59 -0500
+Received: from greybeard95a.com ([64.81.53.76]:12028 "HELO parts-unknown.org")
+	by vger.kernel.org with SMTP id <S287539AbSASWa4>;
+	Sat, 19 Jan 2002 17:30:56 -0500
+Date: Sat, 19 Jan 2002 14:30:29 -0800
+From: David Benfell <benfell@parts-unknown.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Re: AOL in Negotiations to Buy Red Hat?
+Message-ID: <20020119223029.GA1690@home.parts-unknown.org>
+Reply-To: linux-kernel@vger.kernel.org
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0201190032090.8490-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-ripemd160;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0201190032090.8490-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
+X-stardate: [-30]7884.66
+X-moon: The Moon is Waxing Crescent (33% of Full)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jan 2002, Rob Radez wrote:
 
-> I could only compile test these.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Then I propose your patches need to get tested just as
-thoroughly as Andre's patch has been tested.
+On Sat, 19 Jan 2002 00:45:36 -0500, Werner Puschitz wrote:
+>=20
+> http://www.washtech.com/news/media/14759-1.html
+>=20
+Forgive the mind-numbing question but, it says, "But the AOL software
+could be configured to override Windows and launch a version of Red
+Hat's Linux operating system, sources said."
 
-Personally I'd rather see a large but months-old patch
-go into 2.4 than a bunch of fragments from that patch
-that haven't been tested separately...
+Now, my idea of overriding Windows is blowing it away, or at least
+making the system dual-boot.  I'm having trouble reconciling the
+concepts.  Can anyone shed some light?
 
-regards,
+--=20
+David Benfell
+benfell@parts-unknown.org
+---
+There's an old proverb that says just about whatever you want it to.
+                                [from fortune]
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-http://www.surriel.com/		http://distro.conectiva.com/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iQEXAwUBPEnzhXw5zqzgtjVOFAN4lwP/YWu1SS+H+j5BXhnzVx8v9hssab6/lasx
+m7a86yeVzGjzqpUC0pDExzAtrZL336KoqrC1bmfMAButOaJsfSeDSrbV/p664w7J
+vuObX7p/dM/mn/hOuEYL3EPmcJlHEM06owPxyMbPcYWcttcd5kMEadA2+3Mw/32p
+i2lnhxqguR8D/AwM/oaaEm7tpzvDImO515tOydsqB1yrQxKCP0DNQ3RVYYSXfBg+
+h6KPI4Z8FhXrmxEblmbrKufb2T40k4AJUkXOTqZ/lGUYS4Naq0rV2tyV0D/qb9Hf
+kBc1UcFXK+PrwP3a6fq+l+YjppKDZp/eQWu8wg61zR2UrvOvGKvLcMvG
+=Nr1O
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--

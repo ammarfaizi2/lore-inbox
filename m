@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTJQOBh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 10:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263476AbTJQOBh
+	id S263425AbTJQOQd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 10:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTJQOQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 10:01:37 -0400
-Received: from cafe.hardrock.org ([142.179.182.80]:54698 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S263475AbTJQOBf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 10:01:35 -0400
-Date: Fri, 17 Oct 2003 08:01:26 -0600 (MDT)
-From: James Bourne <jbourne@hardrock.org>
-To: Rik van Riel <riel@surriel.com>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][TRIVIAL] silence warning in reiserfs_ioctl
-In-Reply-To: <Pine.LNX.4.55L.0310131233460.27244@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0310170759250.20802-100000@cafe.hardrock.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Oct 2003 10:16:33 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:21421 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263425AbTJQOQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 10:16:32 -0400
+Date: Fri, 17 Oct 2003 10:16:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: jlnance@unity.ncsu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031017141629.GB8412@gtf.org>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws> <20031017013245.GA6053@ncsu.edu> <1066355235.3f8f4a2395fa0@horde.sandall.us> <20031017130729.GB2794@ncsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031017130729.GB2794@ncsu.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Oct 2003, Rik van Riel wrote:
-
-> Gcc is afraid we might fall off the end of the function without returning.
+On Fri, Oct 17, 2003 at 09:07:29AM -0400, jlnance@unity.ncsu.edu wrote:
+> On Thu, Oct 16, 2003 at 06:47:15PM -0700, Eric Sandall wrote:
 > 
-> diff -urNp linux-5110/fs/reiserfs/ioctl.c linux-10010/fs/reiserfs/ioctl.c
-> --- linux-5110/fs/reiserfs/ioctl.c
-> +++ linux-10010/fs/reiserfs/ioctl.c
-> @@ -84,6 +84,7 @@ int reiserfs_ioctl (struct inode * inode
->  	default:
->  		return -ENOTTY;
->  	}
-> +	return 0;
->  }
-
-Since the default (hit in case nothing else fits and where it would return)
-returns -ENOTTY, shouldn't the return be -ENOTTY?
-
-The function could almost at that point remove the default: case and return
--ENOTTY at the end of the function and still be correct...
-
-Of course, it's just wrong to not have the default case, but just as a
-point..
-
-Regards
-James
-
+> > It doesn't really matter that the hash collision is /less/ likely to ruin data
+> > than something in hardware as it adds an /extra/ layer of possible corruption,
+> > so you have a net gain in the possible corruption of your data.  Now, if you
+> > could write it so that there was /no/ possibility of data corruption, than it
+> > would be much more acceptable as it wouldn't add any extra likeliness of
+> > corruption than already exists.
 > 
->  /*
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> This assumes that the probability of there being a bug in the code which
+> checks for identical blocks is less than the probability of a hash collision.
+> I am not sure that is a good assumption.
 
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
-
+The complexity of a memcmp() is pretty low...

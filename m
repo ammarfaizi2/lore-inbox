@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281839AbRKWAfz>; Thu, 22 Nov 2001 19:35:55 -0500
+	id <S281840AbRKWAh0>; Thu, 22 Nov 2001 19:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281840AbRKWAfp>; Thu, 22 Nov 2001 19:35:45 -0500
-Received: from gedeon.silesia.pik-net.pl ([213.186.64.2]:62473 "EHLO
-	gedeon.silesia.pik-net.pl") by vger.kernel.org with ESMTP
-	id <S281839AbRKWAfj>; Thu, 22 Nov 2001 19:35:39 -0500
-Date: Fri, 23 Nov 2001 01:35:07 +0100
-From: Grzegorz Paszka <Grzegorz@Paszka.com>
-To: Steve Bergman <steve@rueb.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 1.5 GB memory problem with 2.4.x
-Message-ID: <20011123013507.B2553@pik-net.pl>
-In-Reply-To: <20011119012515.A27753@pik-net.pl> <3BF9A7A8.7050902@rueb.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3BF9A7A8.7050902@rueb.com>; from steve@rueb.com on Mon, Nov 19, 2001 at 06:45:28PM -0600
+	id <S281841AbRKWAhH>; Thu, 22 Nov 2001 19:37:07 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:2317 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S281840AbRKWAgt>; Thu, 22 Nov 2001 19:36:49 -0500
+Date: Thu, 22 Nov 2001 19:36:45 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
+In-Reply-To: <E16744i-0004zQ-00@localhost>
+Message-ID: <Pine.LNX.4.10.10111221926130.31054-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> CPUs, because the scheduling decision was moved away from where it really 
+> should take place: the scheduler. I'm sure I'm missing something, though.
 
-I hope my problem with 1.5GB RAM is solved.
-I've contacted with my motherboard vendor (Asus) and technical support suggested
-that I should upgrade bios. It's standard answer IMHO but it helped.
+only that it's nontrivial to estimate the migration costs, I think.
+at one point, around 2.3.3*, there was some effort at doing this - 
+or something like it.  specifically, the scheduler kept track of 
+how long a process ran on average, and was slightly more willing
+to migrate a short-slice process than a long-slice.  "short" was 
+defined relative to cache size and a WAG at dram bandwidth.
 
-I'm sorry that I cause confusion.
->From now I hope that everything will be OK.
+the rationale was that if you run for only 100 us, you probably
+don't have a huge working set.  that justification is pretty thin,
+and perhaps that's why the code gradually disappeared.
 
-Best regards.
--- 
-Grzegorz
+hmm, you really want to monitor things like paging and cache misses,
+but both might be tricky, and would be tricky to use sanely.
+a really simple, and appealing heuristic is to migrate a process
+that hasn't run for a long while - any cache state it may have had
+is probably gone by now, so there *should* be no affinity.
+
+regards, mark hahn.
+

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263765AbTGBAGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 20:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTGBAGe
+	id S264146AbTGBAIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 20:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTGBAIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 20:06:34 -0400
-Received: from smtp2.Stanford.EDU ([171.64.14.116]:49898 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S263765AbTGBAGc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 20:06:32 -0400
-To: linux-kernel@vger.kernel.org
-Subject: is it possible to keep mmap'd memory from being synced?
-Reply-To: blp@cs.stanford.edu
-From: Ben Pfaff <blp@cs.stanford.edu>
-Date: 01 Jul 2003 17:20:48 -0700
-Message-ID: <87smppye1r.fsf@pfaff.Stanford.EDU>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Jul 2003 20:08:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:39948 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264146AbTGBAIX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 20:08:23 -0400
+Date: Wed, 2 Jul 2003 02:22:44 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: James.Bottomley@steeleye.com, axboe@suse.de, grundler@parisc-linux.org,
+       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-Id: <20030702022244.030a8acc.ak@suse.de>
+In-Reply-To: <20030701.170323.59686965.davem@redhat.com>
+References: <1057077975.2135.54.camel@mulgrave>
+	<20030702015701.6007ac26.ak@suse.de>
+	<20030701.170323.59686965.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a way to keep mmap'd memory from being synced to disk?
-In particular, we're trying to build tools that operate on a lot
-of data that's security-sensitive.  The data is mapped into
-memory, and large parts of it are repeatedly decrypted in-place,
-operated on, and then re-encrypted in-place for final storage to
-disk.  During the time that the data is in plaintext form, we'd
-like it to not be written to disk.
+On Tue, 01 Jul 2003 17:03:23 -0700 (PDT)
+"David S. Miller" <davem@redhat.com> wrote:
 
-Will mlock() do what we want?  I know that it will keep the data
-from being evicted from memory, but will it also keep it from
-being written back to the mmap'd file?  (We're mmap'ing a real
-file, not /dev/zero, etc., because we do want to keep the data
-for later use.)
+>    From: Andi Kleen <ak@suse.de>
+>    Date: Wed, 2 Jul 2003 01:57:01 +0200
+>    
+>    The K8 IOMMU cannot support this virtually contiguous thing. The reason
+>    is that there is no guarantee that an entry in a sglist is a multiple
+>    of page size. And the aperture can only map 4K sized chunks, like 
+>    a CPU MMU. So e.g. when you have an sglist with multiple 1K entries there is 
+> What do you mean?  You map only one 4K chunk, and this is used
+> for all the sub-1K mappings.
 
-We don't want to use MAP_PRIVATE, both because we do want the
-data eventually to get written to disk and because we have
-multiple processes that want to interact doing this at once.
+How should this work when the 1K mappings are spread all over memory?
 
-It seems like not decrypting in-place would be another solution,
-but we'd rather not use the extra memory--we're talking about
-data on the order of 100 MB or so.
+Maybe I'm missing something but from James description it sounds like the 
+block layer assumes that it can pass in a sglist with arbitary elements 
+and get it back remapped to continuous DMA addresses.
 
-I'm posting this to linux-kernel because our software already
-involves a small kernel module, so if need be we're willing to
-add functionality to that module to help us do what we want.
-But the program's data manipulation goes on in userspace.
-
-Thanks,
-
-Ben.
-
--- 
-<blp@cs.stanford.edu> <pfaffben@msu.edu> <pfaffben@debian.org> <blp@gnu.org>
- Stanford Ph.D. Candidate - MSU Alumnus - Debian Maintainer - GNU Developer
-                              www.benpfaff.org
-
+-Andi

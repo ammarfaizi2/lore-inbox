@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286274AbRLTP0y>; Thu, 20 Dec 2001 10:26:54 -0500
+	id <S286275AbRLTPgq>; Thu, 20 Dec 2001 10:36:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286275AbRLTP0p>; Thu, 20 Dec 2001 10:26:45 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:44558 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S286274AbRLTP0e>;
-	Thu, 20 Dec 2001 10:26:34 -0500
-Date: Thu, 20 Dec 2001 10:26:03 -0500 (EST)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: <david@admin>
-To: Thomas Winischhofer <tw@webit.com>
-cc: <linux-kernel@vger.kernel.org>, <xpert@XFree86.Org>
-Subject: Re: SiS 630 - framebuffer fixed
-In-Reply-To: <3C21051E.DB2FB56@webit.com>
-Message-ID: <Pine.LNX.4.33.0112201019220.15155-100000@admin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286277AbRLTPgf>; Thu, 20 Dec 2001 10:36:35 -0500
+Received: from pD9E12E28.dip.t-dialin.net ([217.225.46.40]:36075 "EHLO
+	twinspark.cobolt.net") by vger.kernel.org with ESMTP
+	id <S286275AbRLTPgZ>; Thu, 20 Dec 2001 10:36:25 -0500
+Date: Thu, 20 Dec 2001 16:40:17 +0100
+From: Dennis Schoen <dennis@cobolt.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Consistant complete deadlock with kernel 2.4.16 on an Abit VP6 with dual 1 Gig CPUs and an ICP GDT RAID card
+Message-ID: <20011220154017.GE349@cobolt.net>
+Reply-To: Dennis Schoen <dennis@cobolt.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <OE272TUSzbAUfKRfcjc00005359@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OE272TUSzbAUfKRfcjc00005359@hotmail.com>
+User-Agent: Mutt/1.3.24i
+Mail-Copies-To: never
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001, Thomas Winischhofer wrote:
 
-> 
-> Hi,
-> 
-> after five days of struggle with reverse-engineered assembler code
-> transformed to C, I could fix the SiS framebuffer driver for use with
-> some LCD displays using a LVDS (Chromtel) video bridge. That is what
-> most laptops use, as for example the Gericoms (and some Claveos I have
-> heard).
-> 
-...
->  c) Always set the video memory to the maximum available. Low mem
-> situations are not handled well by DRM/DRI.
+I'm having the same problems on my:
 
-I've actually been following your progress via the Xpert list archives.  
-Good stuff.  I have an SiS 630 card not in a laptop, and I'll try your 
-code out later.  But my question regards DRM and something mentioned on 
-that list, TurboQueue...
+Dual PIII 650Mhz
+300Mb Ram
+3 Scsi Disk -> on one Scsi controller
+1 Scsi Burner and 1 Scsi CDRom -> on one Scsi controller
 
-When I use the DRM code with XFree 4.1 it usually freezes after about 30 
-seconds or so (in the teapot demo - sooner with tuxracer) and I think I've 
-tracked it down to the 'mWait3DCmdQueue' macro, which basically busy waits 
-for a certain register value.  It just so happens that the TurboQueue code 
-also happens to busy wait on this register, and it was causing hangs for 
-you with just 2d code (right?).
+The System justs hangs completely after a while, no MagSysrq
+response.
 
-Do you know anything about why these hangs were happening?
-
-I'll try your code tonight (although sisfb has always worked for me!) and 
-hopefully the CVS X code with DRM.  I'll let you know if it still works, 
-and send you my X startup log.
-
-
-David
-
-
--- 
-/==============================\
-| David Mansfield              |
-| david@cobite.com             |
-\==============================/
-
+Dennis

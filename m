@@ -1,97 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265292AbUAAAIY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 19:08:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUAAAIY
+	id S265305AbUAAAPx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 19:15:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUAAAPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 19:08:24 -0500
-Received: from shawmail.shawcable.com ([64.59.128.220]:50559 "EHLO
-	bpd2mo1no.prod.shawcable.com") by vger.kernel.org with ESMTP
-	id S265292AbUAAAIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 19:08:22 -0500
-Date: Wed, 31 Dec 2003 17:12:16 -0700
-From: Matthew Mastracci <mmastrac@canada.com>
-Subject: Removable USB device contents cached after removal?
-To: linux-kernel@vger.kernel.org
-Message-id: <3FF365E0.5090507@canada.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6a)
- Gecko/20031030
+	Wed, 31 Dec 2003 19:15:53 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:31504 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265305AbUAAAPw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 19:15:52 -0500
+Date: Thu, 1 Jan 2004 01:15:49 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Rob Love <rml@ximian.com>
+Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040101001549.GA17401@win.tue.nl>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <E1AbWgJ-0000aT-00@neptune.local> <20031231192306.GG25389@kroah.com> <1072901961.11003.14.camel@fur>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072901961.11003.14.camel@fur>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been working on getting my USB Atech 9-in-1 card reader working 
-with Linux.  Everything mounts, unmounts and reads fine, but I'm getting 
-a strange situation where the contents of the card seem to be buffered 
-after the media has been removed from the card reader.
+On Wed, Dec 31, 2003 at 03:19:22PM -0500, Rob Love wrote:
 
-The strange thing is that this only happens when the card itself has 
-been mounted, but it does *not* happen if the card is inserted and 
-removed without mounting.
+> We can get to the point where we don't even need the explicit concept of
+> device numbers, but just "any old unique value" to use as a cookie.  The
+> kernel can pull that number from anywhere, and notify user-space via
+> udev ala hotplug.
 
-I'm running kernel 2.6.0-1.107 from arjanv's RedHat builds.
+My plan has been to essentially use a hashed disk serial number
+for this "any old unique value". The problem is that "any old"
+is easy enough, but "unique" is more difficult.
+Naming devices is very difficult, but in some important cases,
+like SCSI or IDE disks, that would work and give a stable name.
 
-Here are the steps I use to reproduce it:
+The kernel must not invent consecutive numbers - that does not
+lead to stable names. Setting this up correctly is nontrivial.
 
-Working case (never mounted)
-
-1.  Insert card into reader.
-2.  dd if=/dev/sdd1 count=1024 bs=1 | hexdump
-	- results in correct filesystem dump
-3.  Remove card from reader.
-4.  cat /dev/sdd1 results in "No medium found"
-
-Non-working case:
-
-1.  Insert card into reader.
-2.  Mount card as directory somewhere in root filesystem, list contents 
-of card
-3.  dd if=/dev/sdd1 count=1024 bs=1024 | hexdump
-	- results in correct filesystem dump
-4.  Remove card from reader.
-5.  dd if=/dev/sdd1 count=1024 bs=1024 | hexdump
-	- same filesystem dump as before!
-6.  cd to mountpoint, contents are still available
-7.  dd if=/dev/sdd1 of=/dev/null
-         - approx 3MB of card data still available
-8.  umount the mountpoint from before
-9.  dd if=/dev/sdd1 of=/dev/null results in "No medium found"
-
-I can provide more information as required.  It appears as if the reader 
-is correctly determining that no medium is present, but the mountpoint's 
-existence somehow prevents userspace code from seeing this.
-
-Any ideas?
-
-Here's some dumps that might assist:
-
-[root@matt root]# lsmod | grep "usb"
-usb_storage            56384  1
-scsi_mod              107320  2 sd_mod,usb_storage
-usbcore                93148  7 usb_storage,hid,ohci_hcd,uhci_hcd,ehci_hcd
-
-"dd" on non-existant card (note that 8976 was the amount of data read 
-when the card was inserted):
-
-[root@matt root]# dd if=/dev/sdd1 of=/dev/null
-dd: reading `/dev/sdd1': Input/output error
-8976+0 records in
-8976+0 records out
-
-dmesg output after "dd" on non-existant card:
-
-Device sdd not ready.
-end_request: I/O error, dev sdd, sector 9001
-Buffer I/O error on device sdd1, logical block 8976
-Buffer I/O error on device sdd1, logical block 8977
-Buffer I/O error on device sdd1, logical block 8978
-Buffer I/O error on device sdd1, logical block 8979
-Buffer I/O error on device sdd1, logical block 8980
-Buffer I/O error on device sdd1, logical block 8981
-Buffer I/O error on device sdd1, logical block 8982
-Buffer I/O error on device sdd1, logical block 8983
-
-Matt.

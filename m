@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264921AbUEYPUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264963AbUEYPWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264921AbUEYPUW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 11:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUEYPUW
+	id S264963AbUEYPWG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 11:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUEYPWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 11:20:22 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:45203 "EHLO
-	kartuli.timesys") by vger.kernel.org with ESMTP id S264921AbUEYPTw
+	Tue, 25 May 2004 11:22:05 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:20390 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264964AbUEYPV5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 11:19:52 -0400
-Message-ID: <40B3642C.3070504@timesys.com>
-Date: Tue, 25 May 2004 11:20:12 -0400
-From: "La Monte H.P. Yarroll" <piggy@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, de-de
+	Tue, 25 May 2004 11:21:57 -0400
+Message-ID: <40B3641F.508@watson.ibm.com>
+Date: Tue, 25 May 2004 11:19:59 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Davide Libenzi <davidel@xmailserver.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <Pine.LNX.4.58.0405231159240.512@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0405231218110.25502@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0405231218110.25502@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Peter Williams <peterw@aurema.com>
+CC: Shailabh Nagar <nagar@watson.ibm.com>, kanderso@redhat.com,
+       Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, limin@sgi.com, jlan@sgi.com,
+       linux-kernel@vger.kernel.org, jh@sgi.com, Paul Jackson <pj@sgi.com>,
+       gh@us.ibm.com, Erik Jacobson <erikj@subway.americas.sgi.com>,
+       ralf@suse.de, Vivek Kashyap <kashyapv@us.ibm.com>,
+       lse-tech@lists.sourceforge.net, mason@suse.com
+Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
+References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com>	<40B2534E.3040302@watson.ibm.com> <40B2A78E.3060302@aurema.com> <40B2CB0E.8030606@aurema.com>
+In-Reply-To: <40B2CB0E.8030606@aurema.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Peter Williams wrote:
 
->On Sun, 23 May 2004, Davide Libenzi wrote:
->  
+> Peter Williams wrote:
 >
->>Andrew already puts the "From:" thing in the patch comment, so this should 
->>be simply a matter of replacing "From:" with "Signed-off-by:", preserving 
->>it in logs, and documenting the thing in the patch submission doc. No?
->>    
+>> Hubertus Franke wrote:
 >>
+>>>
+>>> One important input the PAGG team could give is some real
+>>> examples where actually multiple associations to different groups
+>>> is required and help us appreciate that position and let us
+>>> see how this would/could be done in CKRM.
+>>
+>>
+>>
+>> One example would be the implementation of CPU sets (or pools) a la 
+>> Solaris where there are named CPU pools to which processors and 
+>> processes are assigned.   Processors can be moved between CPU pools 
+>> and when this happens it is necessary to visit all the processes that 
+>> are assigned to the pools involved (one losing and one gaining the 
+>> processor) and change their CPU affinity masks to reflect the new 
+>> assignment of processors.  PAGG would be ideal for implementing this.
+>>
+>> At the same time, a resource management client could be controlling 
+>> resources allocated to processes based on some other criteria such as 
+>> the real user or the application being run without regard to which 
+>> CPU pool they are running in.
 >
->Yes and no.
 >
->Right now it is _Andrew_ that does the From: line from you. In the 
->sign-off procedure, it would be _you_ who add the "Signed-off-by:" line 
->for yourself.
+> Additionally, it seems to me that even within the field of resource 
+> management it is not necessarily the case that the same grouping is 
+> required for different resource types e.g. the grouping for control of 
+> CPU resources might be different to the grouping for control of 
+> network bandwidth allocation or disk space or disk I/O bandwidth, etc.
 >
->(And then Andrew would sign off on the fact that you signed off).
->
->Not a big difference, I agree. 
->  
->
-Andrew's From comment is already a little lossy, e.g. most LKSCTP patches
-show up as from Sridhar or DaveM even though there's a whole subproject
-of developers working behind Sridhar.
+> Peter
 
-I think the proposed process will increase the amount of explicit credit
-being recognized--a very good thing IMHO, since this is the core currency
-of our gift culture.
+Correct, that is in principle possible. We went through this discussion 
+on the mailing list  .. (Rik, Shailabh help me out here) and decided 
+that mostly that is
+not being required. The extra overhead of putting that we deemed 
+unnecessary.
 
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
+Instead, if really desired, one would require a different classtype for 
+each of those groupings. Note however, our entire infrastructure already 
+supports that in that RCFS would pick these specialized class types up, 
+provide the proper hierarchy as an FS subdirectory structure. For us it 
+was mainly a question how we can get the most out of the initial 
+prototype without having general users have to go and specify all kinds 
+of hierarchies, i.e. one per resource.
+
+-- Hubertus
+
 

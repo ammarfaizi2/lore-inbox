@@ -1,117 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266378AbTGEQCl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 12:02:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbTGEQCl
+	id S266380AbTGEQDk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 12:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266385AbTGEQDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 12:02:41 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8579
+	Sat, 5 Jul 2003 12:03:40 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9347
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266378AbTGEQCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 12:02:39 -0400
-Date: Sat, 5 Jul 2003 17:15:55 +0100
+	id S266380AbTGEQDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 12:03:22 -0400
+Date: Sat, 5 Jul 2003 17:16:38 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307051615.h65GFtxM002809@hraefn.swansea.linux.org.uk>
+Message-Id: <200307051616.h65GGcv7002815@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: PATCH: CMD640
+Subject: PATCH: (new) Turn on the IDE modular stuff in the Makefile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch seems to have vanished in the post first time around. It
-cleans up the CMD640 logic a little and sorts out the registration bits
-Its a requirement to making modular IDE work again
 
-diff --exclude-from /usr/src/exclude -u --recursive linux.22-bk2/drivers/ide/pci/cmd640.c linux.22-pre2-ac1/drivers/ide/pci/cmd640.c
---- linux.22-bk2/drivers/ide/pci/cmd640.c	2003-07-05 16:58:51.000000000 +0100
-+++ linux.22-pre2-ac1/drivers/ide/pci/cmd640.c	2003-06-29 16:10:16.000000000 +0100
-@@ -102,6 +102,7 @@
- #define CMD640_PREFETCH_MASKS 1
+This isnt perfect but it is a start
+
+diff --exclude-from /usr/src/exclude -u --recursive linux.22-bk2/drivers/ide/Makefile linux.22-pre2-ac1/drivers/ide/Makefile
+--- linux.22-bk2/drivers/ide/Makefile	2003-07-05 16:58:51.000000000 +0100
++++ linux.22-pre2-ac1/drivers/ide/Makefile	2003-06-29 16:10:17.000000000 +0100
+@@ -8,7 +8,6 @@
+ # In the future, some of these should be built conditionally.
+ #
  
- #include <linux/config.h>
-+#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/delay.h>
-@@ -120,7 +121,8 @@
- /*
-  * This flag is set in ide.c by the parameter:  ide0=cmd640_vlb
-  */
--int cmd640_vlb = 0;
+-O_TARGET := idedriver.o
+ 
+ export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o
+ 
+@@ -29,24 +28,25 @@
+ 
+ # Core IDE code - must come before legacy
+ 
+-obj-$(CONFIG_BLK_DEV_IDE)		+= ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o
+-obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
+-obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
+-obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
+-obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
++ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o
++ide-detect-objs	:= ide-probe.o ide-geometry.o
 +
-+static int cmd640_vlb = 0;
  
- /*
-  * CMD640 specific registers definition.
-@@ -716,7 +718,7 @@
- /*
-  * Probe for a cmd640 chipset, and initialize it if found.  Called from ide.c
-  */
--int __init ide_probe_for_cmd640x (void)
-+static void __init ide_probe_for_cmd640x (void)
- {
- #ifdef CONFIG_BLK_DEV_CMD640_ENHANCED
- 	int second_port_toggled = 0;
-@@ -731,13 +733,13 @@
- 	} else {
- 		cmd640_vlb = 0;
- 		/* Find out what kind of PCI probing is supported otherwise
--		   Justin Gibbs will sulk.. */
-+		   we break some Adaptec cards...  */
- 		if (pci_conf1() && probe_for_cmd640_pci1())
- 			bus_type = "PCI (type1)";
- 		else if (pci_conf2() && probe_for_cmd640_pci2())
- 			bus_type = "PCI (type2)";
- 		else
--			return 0;
-+			return;
- 	}
- 	/*
- 	 * Undocumented magic (there is no 0x5b reg in specs)
-@@ -745,7 +747,7 @@
- 	put_cmd640_reg(0x5b, 0xbd);
- 	if (get_cmd640_reg(0x5b) != 0xbd) {
- 		printk(KERN_ERR "ide: cmd640 init failed: wrong value in reg 0x5b\n");
--		return 0;
-+		return;
- 	}
- 	put_cmd640_reg(0x5b, 0);
+ ifeq ($(CONFIG_BLK_DEV_IDEPCI),y)
+-obj-$(CONFIG_BLK_DEV_IDE)		+= setup-pci.o
++ide-core-objs += setup-pci.o
+ endif
+ ifeq ($(CONFIG_BLK_DEV_IDEDMA_PCI),y)
+-obj-$(CONFIG_BLK_DEV_IDE)		+= ide-dma.o
++ide-core-objs += ide-dma.o
+ endif
+-obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
  
-@@ -760,7 +762,7 @@
- 	cmd640_chip_version = cfr & CFR_DEVREV;
- 	if (cmd640_chip_version == 0) {
- 		printk ("ide: bad cmd640 revision: %d\n", cmd640_chip_version);
--		return 0;
-+		return;
- 	}
++# Initialisation order:
++#	Core sets up
++#	Legacy drivers may register a callback
++#	Drivers are pre initialised
++#	Probe inits the drivers and driver callbacks
++#	Raid scans the devices
  
- 	/*
-@@ -874,6 +876,28 @@
- #ifdef CMD640_DUMP_REGS
- 	CMD640_DUMP_REGS;
- #endif
--	return 1;
-+	return;
-+}
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
+-obj-$(CONFIG_PROC_FS)			+= ide-proc.o
+-endif
++obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
+ 
+ ifeq ($(CONFIG_BLK_DEV_IDE),y)
+   obj-y		+= legacy/idedriver-legacy.o
+@@ -58,10 +58,28 @@
+   endif
+ endif
+ 
++obj-$(CONFIG_BLK_DEV_ISAPNP) 		+= ide-pnp.o
 +
-+static int __init cmd640_init(void)
-+{
-+	ide_register_driver(ide_probe_for_cmd640x);
-+	return 0;
-+}
++obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
++obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
++obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
++obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
 +
-+/*
-+ *	Called by the IDE core when compiled in and cmd640=vlb is
-+ *	selected.
-+ */
-+void init_cmd640_vlb(void)
-+{
-+	cmd640_vlb = 1;
- }
++obj-$(CONFIG_BLK_DEV_IDE) += ide-detect.o
  
-+module_init(cmd640_init);
+ ifeq ($(CONFIG_BLK_DEV_IDE),y)
+ # RAID must be last of all
+   obj-y		+= raid/idedriver-raid.o
+ endif
+ 
++list-multi	:= ide-core.o ide-detect.o
++O_TARGET := idedriver.o
 +
-+MODULE_AUTHOR("See Source");
-+MODULE_DESCRIPTION("IDE support for CMD640 controller");
-+MODULE_PARM(cmd640_vlb, "i");
-+MODULE_PARM_DESC(cmd640_vlb, "Set to enable scanning for VLB controllers");
-+MODULE_LICENSE("GPL");
+ include $(TOPDIR)/Rules.make
++
++ide-core.o:	$(ide-core-objs)
++	$(LD) -r -o $@ $(ide-core-objs)
++
++ide-detect.o:	$(ide-detect-objs)
++	$(LD) -r -o $@ $(ide-detect-objs)
++

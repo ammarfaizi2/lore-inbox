@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265441AbRF0XQY>; Wed, 27 Jun 2001 19:16:24 -0400
+	id <S265446AbRF0XRo>; Wed, 27 Jun 2001 19:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265443AbRF0XQO>; Wed, 27 Jun 2001 19:16:14 -0400
-Received: from 24-25-197-107.san.rr.com ([24.25.197.107]:8723 "HELO
-	acmay.homeip.net") by vger.kernel.org with SMTP id <S265441AbRF0XQD>;
-	Wed, 27 Jun 2001 19:16:03 -0400
-Date: Wed, 27 Jun 2001 16:16:00 -0700
-From: andrew may <acmay@acmay.homeip.net>
-To: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the best way for multiple net_devices
-Message-ID: <20010627161600.C23834@ecam.san.rr.com>
-In-Reply-To: <3B3A5852.AAEF9531@mandrakesoft.com> <20010627145201.A23834@ecam.san.rr.com> <3B3A5852.AAEF9531@mandrakesoft.com> <20010627151829.B23834@ecam.san.rr.com> <4.3.1.0.20010627153532.036e9320@mail1>
+	id <S265443AbRF0XRe>; Wed, 27 Jun 2001 19:17:34 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:26374 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S265445AbRF0XRZ>;
+	Wed, 27 Jun 2001 19:17:25 -0400
+Date: Thu, 28 Jun 2001 09:17:04 +1000
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: tom_gall@vnet.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+Message-ID: <20010628091704.B23627@krispykreme>
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com> <3B3A5B00.9FF387C9@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <4.3.1.0.20010627153532.036e9320@mail1>
+Content-Disposition: inline
+In-Reply-To: <3B3A5B00.9FF387C9@mandrakesoft.com>
+User-Agent: Mutt/1.3.18i
+From: anton@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 27, 2001 at 03:36:37PM -0700, Maksim Krasnyanskiy wrote:
+ 
+> Why not use sysdata like the other arches?
 > 
-> >Any examples of drivers and apps that do this cleanly. The ones I have seen are not.
-> TUN/TAP driver and tuncfg utility
-> http://vtun.sf.net/tun
+> Changing the meaning of dev->bus->number globally seems pointless.  If
+> you are going to do that, just do it the right way and introduce another
+> struct member, pci_domain or somesuch.
 
-OK, thanks that is nice, but I think adding support to get into the /dev
-namespace may be a little heavy for things like bonding or ipip.
+Thats 2.5 material. For 2.4 we should do as davem suggested and make
+the bus number unique. I do this by just adding 256 to each overlapping
+host bridge.
 
-I did not see tuncfg. From what I could see there were 2 ways to create
-new devices. There was a script with mknod and then the ioctl(fd, TUNSETIFF, 
-(void *) &ifr).
-
-I could do a similar ioctl for a pure net device but I still need a dummy
-socket for creating/destroying devices.
-
-I am going for an embedded system so I want to keep things light.
+Anton

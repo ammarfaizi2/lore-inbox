@@ -1,29 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130597AbRCEBzi>; Sun, 4 Mar 2001 20:55:38 -0500
+	id <S130610AbRCEB6S>; Sun, 4 Mar 2001 20:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130595AbRCEBzb>; Sun, 4 Mar 2001 20:55:31 -0500
-Received: from m22-mp1-cvx1b.col.ntl.com ([213.104.72.22]:54020 "EHLO
-	[213.104.72.22]") by vger.kernel.org with ESMTP id <S130590AbRCEBzW>;
-	Sun, 4 Mar 2001 20:55:22 -0500
-To: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>
+	id <S130605AbRCEB56>; Sun, 4 Mar 2001 20:57:58 -0500
+Received: from m22-mp1-cvx1b.col.ntl.com ([213.104.72.22]:55812 "EHLO
+	[213.104.72.22]") by vger.kernel.org with ESMTP id <S130604AbRCEB55>;
+	Sun, 4 Mar 2001 20:57:57 -0500
+To: <"jap3003+response"@ksu.edu>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Broken APM Support since 2.4.1-ac1
-In-Reply-To: <Pine.LNX.4.20.0103040055330.3231-100000@falcon.etf.bg.ac.yu>
+Subject: Re: APM, virtual console problem in 2.4.0
+In-Reply-To: <20010108131653.A27992@ksu.edu>
 From: John Fremlin <chief@bandits.org>
-Date: 05 Mar 2001 01:54:57 +0000
-In-Reply-To: Boris Dragovic's message of "Sun, 4 Mar 2001 00:56:35 +0100 (CET)"
-Message-ID: <m27l252d5a.fsf@boreas.yi.org.>
+Date: 05 Mar 2001 01:57:50 +0000
+In-Reply-To: Joseph Pingenot's message of "Mon, 8 Jan 2001 13:16:53 -0600"
+Message-ID: <m23dct2d0h.fsf@boreas.yi.org.>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Boris Dragovic <lynx@falcon.etf.bg.ac.yu> writes:
 
-> i have compaq presario 1245 and kernel 2.4.2 does not do power off on 
-> shutdown although all necessary kernel options are compiled in..
+Joseph Pingenot <jap3003@ksu.edu> writes:
+
+> When suspending my laptop (Toshiba Satellite 1605CDS; BIOS set to
+> suspend to disk) with Debian 2.2r2's 'apm -s', the screen blanks and
+> then the system locks up hard (not even the power button works).  In
 
 Go hassle Stephen Rothwell <sfr@linuxcare.com> about this. He loves
 feedback.

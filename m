@@ -1,47 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131415AbQLIMO1>; Sat, 9 Dec 2000 07:14:27 -0500
+	id <S130309AbQLIMYc>; Sat, 9 Dec 2000 07:24:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131530AbQLIMOR>; Sat, 9 Dec 2000 07:14:17 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:50798
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131415AbQLIMOG>; Sat, 9 Dec 2000 07:14:06 -0500
-Date: Sat, 9 Dec 2000 13:43:27 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Roberto Fichera <kernel@tekno-soft.it>
+	id <S129930AbQLIMYW>; Sat, 9 Dec 2000 07:24:22 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52229 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131574AbQLIMYP>; Sat, 9 Dec 2000 07:24:15 -0500
+Subject: Re: 2.2.18-25 and PS/2 Mouse
+To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+Date: Sat, 9 Dec 2000 11:55:43 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
-Message-ID: <20001209134327.C599@jaquet.dk>
-In-Reply-To: <20001208212910.E599@jaquet.dk> <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
-Mime-Version: 1.0
+In-Reply-To: <20001208212929.A10469@vger.timpanogas.org> from "Jeff V. Merkey" at Dec 08, 2000 09:29:29 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>; from kernel@tekno-soft.it on Sat, Dec 09, 2000 at 11:25:09AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E144ibR-0005Hf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2000 at 11:25:09AM +0100, Roberto Fichera wrote:
-[...]
-> >+       spin_lock(&mm->page_table_lock);
-> >         mm->rss++;
-> >+       spin_unlock(&mm->page_table_lock);
-> >
-> 
-> [...snip...]
-> 
-> Why we couldn't use atomic_inc(&mm->rss) here and below, avoiding to wrap
-> the inc with a spin_lock()/spin_unlock() ?
-> 
+> The mouse problems have gone away with the 2.2.18-25 pre-patch.  I 
+> am not seeing the problems anymore on the affected systems.  I am
 
-AFAIR, because for some architectures we can't rely on mm->rss fitting in
-an atomic_t. See davem's (somewhat short) post in this thread. Otherwise
-search the archives for the original thread treating this problem.
--- 
-        Rasmus(rasmus@jaquet.dk)
-
-Television is called a medium because it is neither rare nor well-done. 
-  -- Anonymous
+I think that is chance. There are no mouse driver changes from -24 to -25 8)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

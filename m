@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVBBWLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVBBWNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbVBBWLH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 17:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVBBVcF
+	id S262846AbVBBWNN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 17:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVBBWLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 16:32:05 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:47116 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262623AbVBBVVM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 16:21:12 -0500
-Date: Wed, 2 Feb 2005 13:20:42 -0800
-To: Bill Huey <bhuey@lnxw.com>
-Cc: "Jack O'Quin" <joq@io.com>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-Message-ID: <20050202212042.GA14023@nietzsche.lynx.com>
-References: <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <20050202111045.GA12155@nietzsche.lynx.com> <87is5ahpy1.fsf@sulphur.joq.us> <20050202211405.GA13941@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202211405.GA13941@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Wed, 2 Feb 2005 17:11:31 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:40836 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262569AbVBBVb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:31:58 -0500
+Date: Wed, 2 Feb 2005 13:31:42 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: A scrub daemon (prezeroing)
+In-Reply-To: <20050202163110.GB23132@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0502021328290.13966@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
+ <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
+ <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
+ <20050202163110.GB23132@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 01:14:05PM -0800, Bill Huey wrote:
-> Step one in this is to acknowlege that Unix scheduling semantics is
-> "inantiquated" with regard to media apps. Some notion of scoping needs to
+On Wed, 2 Feb 2005, Marcelo Tosatti wrote:
 
-bah, "inadequate".
+> > Nope the BTE is a block transfer engine. Its an inter numa node DMA thing
+> > that is being abused to zero blocks.
+> Ah, OK.
+> Is there a driver for normal BTE operation or is not kernel-controlled ?
 
-> be put in.
-> 
-> Everybody on the same page ?
+There is a function bte_copy in the ia64 arch. See
 
-bill
+arch/ia64/sn/kernel/bte.c
 
+> I wonder what has to be done to have active DMA engines be abused for zeroing
+> when idle and what are the implications of that. Some kind of notification mechanism
+> is necessary to inform idleness ?
+>
+> Someone should try implementing the zeroing driver for a fast x86 PCI device. :)
+
+Sure but I am on ia64 not i386. Find your own means to abuse your own
+chips ... ;-)

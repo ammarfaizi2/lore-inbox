@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272537AbRIPQzT>; Sun, 16 Sep 2001 12:55:19 -0400
+	id <S272546AbRIPQyi>; Sun, 16 Sep 2001 12:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272547AbRIPQzK>; Sun, 16 Sep 2001 12:55:10 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1287 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S272537AbRIPQzB>;
-	Sun, 16 Sep 2001 12:55:01 -0400
-Date: Sun, 16 Sep 2001 18:55:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: lkml@krimedawg.org, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: OOPS in scsi generic stuff 2.4.10-pre6
-Message-ID: <20010916185522.D9006@suse.de>
-In-Reply-To: <3BA4CB70.50B4A3AB@torque.net> <20010916182208.B9006@suse.de>
-Mime-Version: 1.0
+	id <S272537AbRIPQy2>; Sun, 16 Sep 2001 12:54:28 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:55305 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S272546AbRIPQyL>;
+	Sun, 16 Sep 2001 12:54:11 -0400
+Message-ID: <XFMail.20010916185020.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010916182208.B9006@suse.de>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33L.0109161330000.9536-100000@imladris.rielhome.conectiva>
+Date: Sun, 16 Sep 2001 18:50:20 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: broken VM in 2.4.10-pre9
+Cc: linux-kernel@vger.kernel.org, Ricardo Galli <gallir@m3d.uib.es>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 16 2001, Jens Axboe wrote:
-> It looks like a race in that sg_cmd_done_bh can be completed before
-> generic_unplug_device is called (and thus on a free'd scsi request). We
-> then pass an invalid queue to generic_unplug_device.
 
-(corrected version, scsi_allocate_request can of course fail)
+On 16-Sep-2001 Rik van Riel wrote:
+> On 16 Sep 2001, Michael Rothwell wrote:
+> 
+>> Is there a way to tell the VM to prune its cache? Or a way to limit
+>> the amount of cache it uses?
+> 
+> Not yet, I'll make a quick hack for this when I get back next
+> week. It's pretty obvious now that the 2.4 kernel cannot get
+> enough information to select the right pages to evict from
+> memory.
+> 
+In my experience you should try to run aide
+(ftp://ftp.cs.tut.fi/pub/src/gnu/aide-0.7.tar.gz) for tests. This is a case of
+one single process doing a file system consistency check and stopping all other
+processes cold due to swapout due to heavy cacheing. While aide runs the system
+just becomes unusable.
 
---- drivers/scsi/sg.c~	Sun Sep 16 18:17:20 2001
-+++ drivers/scsi/sg.c	Sun Sep 16 18:53:38 2001
-@@ -645,6 +645,7 @@
-     Scsi_Request        * SRpnt;
-     Sg_device           * sdp = sfp->parentdp;
-     sg_io_hdr_t         * hp = &srp->header;
-+    request_queue_t	* q;
- 
-     srp->data.cmd_opcode = cmnd[0];  /* hold opcode of command */
-     hp->status = 0;
-@@ -680,6 +681,7 @@
-     }
- 
-     srp->my_cmdp = SRpnt;
-+    q = &SRpnt->sr_device->request_queue;
-     SRpnt->sr_request.rq_dev = sdp->i_rdev;
-     SRpnt->sr_request.rq_status = RQ_ACTIVE;
-     SRpnt->sr_sense_buffer[0] = 0;
-@@ -715,7 +717,7 @@
- 		(void *)SRpnt->sr_buffer, hp->dxfer_len,
- 		sg_cmd_done_bh, timeout, SG_DEFAULT_RETRIES);
-     /* dxfer_len overwrites SRpnt->sr_bufflen, hence need for b_malloc_len */
--    generic_unplug_device(&SRpnt->sr_device->request_queue);
-+    generic_unplug_device(q);
-     return 0;
- }
- 
--- 
-Jens Axboe
 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

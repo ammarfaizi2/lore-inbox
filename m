@@ -1,73 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264338AbTICXbR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 19:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTICXbQ
+	id S264314AbTICXgt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 19:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTICXgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 19:31:16 -0400
-Received: from aragon.aalnet.aland.fi ([194.112.0.1]:61337 "EHLO
-	aragon.alcom.aland.fi") by vger.kernel.org with ESMTP
-	id S264433AbTICXbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 19:31:12 -0400
-From: "K. Hampf" <khampf@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Subject: Verified IDE performance issues in kernels newer than 2.4.20
-Date: Thu, 4 Sep 2003 02:31:10 +0300
-User-Agent: KMail/1.5.3
+	Wed, 3 Sep 2003 19:36:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42188 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264314AbTICXgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 19:36:44 -0400
+Date: Wed, 3 Sep 2003 16:34:08 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@ucw.cz>
+cc: <torvalds@transmeta.com>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+In-Reply-To: <20030903190442.GA2787@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0309031621380.944-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309040231.10040.khampf@users.sourceforge.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BRIEF:
-I discovered the 2.4.21 and  2.4.22 kernels give me roughly 15% of the 
-troughput compared to 2.4.20. Anyone working on this?
 
-Dear Sirs!
+> This patch reverts swsusp to known good state (before Patrick made his
+> untested changes to it). I had to do some changes to both swsusp.c and
+> power.c to keep it compilable. Please apply,
 
-I could not find any info about this issue that indicated you were aware of 
-this issue. So I decided to send you a report. I've confirmed the issue on 
-different i386 chipsets so I think it's a valid issue. Tried to mail the 
-maintaners bug-report e-mail (bugs@linux-ide.org) but failed on delivery, 
-"User unknown".
+Pavel, why do you have to be so difficult? I realize you're sore that I 
+modified the code you maintain and unintentionally broke. However, it does 
+not benefit either of us for you to intentionally break my code in return, 
+especially considering I've since fixed the outstanding problems in my 
+changes. 
 
-I'm a bit into tweaking kernels and I've made a discovery explaining getting 
-poor performance in ATA transfers. Both experienced by using apps and with 
-"hdparm -t -T" runs.
+> --- clean/kernel/power/main.c	2003-08-27 12:00:53.000000000 +0200
+> +++ linux/kernel/power/main.c	2003-09-03 20:57:00.000000000 +0200
+> @@ -178,25 +178,7 @@
+>  	if (pm_disk_mode == PM_DISK_FIRMWARE)
+>  		return pm_ops->enter(PM_SUSPEND_DISK);
+>  
+> -	if (!have_swsusp)
+> -		return -EPERM;
+> -
+> -	pr_debug("PM: snapshotting memory.\n");
+> -	in_suspend = 1;
+> -	if ((error = swsusp_save()))
+> -		goto Done;
+> -
+> -	if (in_suspend) {
+> -		pr_debug("PM: writing image.\n");
+> -		error = swsusp_write();
+> -		if (!error)
+> -			error = power_down(pm_disk_mode);
+> -		pr_debug("PM: Power down failed.\n");
+> -	} else
+> -		pr_debug("PM: Image restored successfully.\n");
+> -	swsusp_free();
+> - Done:
+> -	return error;
+> +	BUG();
+>  }
 
-I verified this under my VIA KT333 and a SiS 735 (SiS 5513IDE) chipsets. The 
-first on my Debian testing/unstable workstation, the latter on a 
-Debian/stable. It's not debian-kernel specific as I use both "vanilla" stable 
-kernel sources and debian sources, I know that I'm on to something.
+This is bullshit. It will not only introduce a compile warning, but it's
+not user-friendly (I can forward flames from Linus about adding gratuitous
+BUG()s to the kernel if you like). You also intentionally break my code,
+instead of doing something reasonable like
 
-I have no time to push the 2.4.20 IDE driver tree into 2.4.22 (tried quickly 
-but the include headers break and it would take some time for me to make it 
-work), I could however, if you take this bugreport seriously and make it 
-meaningful, do some runs on vanilla 2.4.20 and 2.4.22 kernels with hdparm and 
-send all results. All you need is to tell me. I will be able to test it on a 
-newer P4 SATA system too if that's supported when I get to it.
 
-I know this is not a proper nor well formatted bugreport but I could find no 
-info on wether you knew of this performance issue already and are working on 
-it, I'll throw you some extra info just to make you happy:
++	return 0; 
 
-Both test systems are Athlon architectures (T-bird 1.2GHz and an XP2100+). 
-I've confirmed the issue on different IDE chipsets and on both ATA66, ATA100 
-and ATA133 drives. I'm experienced with linux and hardware and know I'm not 
-ranting about some "might be" issue. I'm preparing my local LUG to test this 
-out a bit more, hopefully on other architectures than i386 also (SPARC and 
-Alpha I hope).
 
-If this is relevant to your work on the IDE driver (as I can't get in touch 
-with you guys directly) or you might think it's about some PCI issues or 
-other things, do not hesitate to contact me, I can include statistics and do 
-better testruns if you tell me it would be of any value to you and that you 
-are the ones to handle it.
+> @@ -228,6 +210,11 @@
+>  {
+>  	int error = 0;
+>  
+> +	if ((state == PM_SUSPEND_DISK) && (pm_disk_mode != PM_DISK_FIRMWARE)) {
+> +		software_suspend();
+> +		return -EAGAIN;
+> +	}
 
-Best Regards,
-K. Hampf <khampf@users.sourceforge.net>
+Why return -EAGAIN? 
+
+Why even call software_suspend() at all. That's not the right thing to do, 
+nor is it what I want to do (which I implied in saying that I would not 
+use it). And, you've broken the possiblity of using the actualy ACPI S4 
+low-power state. 
+
+...
+
+>  static int pm_resume(void)
+
+> +	software_resume();
+>  	return 0;
+>  }
+
+This is just silly, from a design point of view. You now have two 
+functions that do the same thing, one just calls the other. Why? 
+
+Please resubmit the patch without this crap, and I will not argue. 
+
+
+
+	Pat
 

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129741AbQKJTRg>; Fri, 10 Nov 2000 14:17:36 -0500
+	id <S129457AbQKJTRg>; Fri, 10 Nov 2000 14:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130553AbQKJTR0>; Fri, 10 Nov 2000 14:17:26 -0500
-Received: from ryouko.dgim.crc.ca ([142.92.39.75]:60043 "EHLO
-	ryouko.dgim.crc.ca") by vger.kernel.org with ESMTP
-	id <S129741AbQKJTRV>; Fri, 10 Nov 2000 14:17:21 -0500
-Date: Fri, 10 Nov 2000 14:15:57 -0500 (EST)
-From: "William F. Maton" <wmaton@ryouko.dgim.crc.ca>
-Reply-To: wmaton@ryouko.dgim.crc.ca
-To: Richard A Nelson <cowboy@vnet.ibm.com>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in   /var/spool/mqueue]
-In-Reply-To: <Pine.LNX.4.30.0011101405490.19584-100000@back40.badlands.lexington.ibm.com>
-Message-ID: <Pine.GSO.3.96LJ1.1b7.1001110141514.27803C-100000@ryouko.dgim.crc.ca>
+	id <S129741AbQKJTR1>; Fri, 10 Nov 2000 14:17:27 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:4110 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129457AbQKJTRO>; Fri, 10 Nov 2000 14:17:14 -0500
+Message-ID: <3A0C48CD.5E3F99DF@timpanogas.org>
+Date: Fri, 10 Nov 2000 12:13:17 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Richard A Nelson <cowboy@vnet.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue]
+In-Reply-To: <Pine.LNX.4.30.0011101409240.19584-100000@back40.badlands.lexington.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, Richard A Nelson wrote:
 
+Since I posted this on LKML, Claus over at sendmail.org seems more
+motivated to track it down.  (since it might appear on the front page of
+Linux today).  I would love your assistance Richard.  
+It could be a local problem since smrsh also seems to be f_cked up as
+well, but I am seeing the same thing with an out of the box RH6.2.
+
+Jeff
+
+Richard A Nelson wrote:
+> 
 > On Fri, 10 Nov 2000, Jeff V. Merkey wrote:
 > 
-> > "William F. Maton" wrote:
-> > >
-> > > What about sendmail 8.11.1?  Is the problem there too?
-> >
-> > Yes.  Plus 8.11.1 has problems talking to older sendmails sine it uses
-> > encryption.
+> > 8.11.1 has problems talking to older sendmails and qmail.  I've seen
+> > even worse problems on 8.11.1, and backreved it immediately, and the
+> > encryption stuff has a lot of build problems on Linux.
 > 
-> Eh?!? TLS is an optional, negotiated protocol started *after* the two
-> sendmails are communicating.
-
-You anticipated what I was about to type :-)
- 
-> I've not seen any problems, save a documented case with *one* third
-> party SMTP server (don't recall who it was).
-
-No problems here either...
-
+> Sounds like local build problems, possibly all the problems !
 > 
-> -- 
+> I can assist if you want to build 8.11.1 on Linux
+> --
 > Rick Nelson
-> Old MacLinus had a stack/l-i-n-u-x/and on this stack he had a trace/l-i-n-u-x
-> with an Oops-Oops here and an Oops-Oops there
-> here an Oops, there an Oops, everywhere an Oops-Oops.
-> 	-- tjimenez@site.gmu.edu, linux.dev.kernel
+> Life'll kill ya                         -- Warren Zevon
+> Then you'll be dead                     -- Life'll kill ya
 > 
-
-
-
-wfms
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

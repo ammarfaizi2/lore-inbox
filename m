@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268210AbUGXAzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268211AbUGXBDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268210AbUGXAzv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 20:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268211AbUGXAzv
+	id S268211AbUGXBDB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 21:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268212AbUGXBDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 20:55:51 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:11717 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268210AbUGXAzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 20:55:50 -0400
-Subject: Re: [FC1], 2.6.8-rc2 kernel, new motherboard problems
-From: Lee Revell <rlrevell@joe-job.com>
-To: Nuno Monteiro <nuno@itsari.org>
-Cc: Gene Heskett <gene.heskett@verizon.net>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040722184938.GA5232@hobbes.itsari.int>
-References: <Pine.LNX.4.44.0407211334260.3000-100000@mail.birdvet.org>
-	 <40FF4A15.7040100@charter.net>
-	 <200407220652.39575.gene.heskett@verizon.net>
-	 <200407220849.10594.gene.heskett@verizon.net>
-	 <20040722184938.GA5232@hobbes.itsari.int>
-Content-Type: text/plain
-Message-Id: <1090630549.1471.17.camel@mindpipe>
+	Fri, 23 Jul 2004 21:03:01 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:32937 "EHLO
+	mailfe04.swip.net") by vger.kernel.org with ESMTP id S268211AbUGXBDA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 21:03:00 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Sat, 24 Jul 2004 03:02:57 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Mario Lang <mlang@delysid.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User-space Keyboard input?
+Message-ID: <20040724010256.GA3757@bouh.is-a-geek.org>
+Mail-Followup-To: Mario Lang <mlang@delysid.org>,
+	linux-kernel@vger.kernel.org
+References: <87y8lb80yj.fsf@lexx.delysid.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 23 Jul 2004 20:55:49 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87y8lb80yj.fsf@lexx.delysid.org>
+User-Agent: Mutt/1.4.1i-nntp3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-22 at 14:49, Nuno Monteiro wrote:
-> On 2004.07.22 13:49, Gene Heskett wrote:
-> > 
-> > 00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet
-> > Controller (rev a1)
-> >         Subsystem: Biostar Microtech Int'l Corp: Unknown device 2301
-> 
-> > However, this, nor the xconfig helps, still don't indicate which
-> > driver I should be using, or where to get it if its not in the
-> > kernel's tree yet a/o 2.6.8-rc2.  So thats the next piece of data I
-> > need.
-> 
-> Hi Gene,
-> 
-> 
-> I believe you'll need forcedeth.c for this one. It's called "Reverse  
-> Engineered nForce Ethernet support", under Device Driver -> Networking ->  
-> Ethernet 10/100 Mbit.
+Hi Mario,
 
-Wow, nVidia won't release the specs for a *10/100 ethernet controller*? 
-Having to reverse engineer a network driver is ridiculous in this day
-and age.  I can understand binary-only graphics drivers, there is a lot
-of valuable IP in there, but this is a freaking network card.  What do
-they expect people to do?
+About modifiers, I submitted a patch to Dave to handle them
+properly.
 
-Maybe some bad press would set them straight.
+But ascii to scancode translation still depends on scancode to ascii
+translation performed by the kernel indeed and the question still
+applies. I'll have a look at uinput.
 
-Lee
-
+Regards,
+Samuel

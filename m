@@ -1,109 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262472AbSLFV3n>; Fri, 6 Dec 2002 16:29:43 -0500
+	id <S267618AbSLFVbV>; Fri, 6 Dec 2002 16:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267597AbSLFV3n>; Fri, 6 Dec 2002 16:29:43 -0500
-Received: from snow.ball.teaser.net ([213.91.6.13]:10761 "EHLO
-	snow.ball.reliam.net") by vger.kernel.org with ESMTP
-	id <S262472AbSLFV3l>; Fri, 6 Dec 2002 16:29:41 -0500
-Date: Fri, 6 Dec 2002 22:34:44 +0100
-From: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Mailer: The Bat! (v1.60q)
-Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Priority: 3 (Normal)
-Message-ID: <17730135168.20021206223444@uni.de>
+	id <S267621AbSLFVbV>; Fri, 6 Dec 2002 16:31:21 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:1796
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S267618AbSLFVbU>; Fri, 6 Dec 2002 16:31:20 -0500
+Date: Fri, 6 Dec 2002 16:42:06 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
 To: linux-kernel@vger.kernel.org
-Subject: [2.5.50] odd SCSI messages on shutdown
+Subject: [PROBLEM]: 2.5.50 w/ module-init-tools 0.9.1 and 0.8 - Invalid module
+ format w/ NEWS patch - SOLVED
+Message-ID: <Pine.LNX.4.44.0212061641320.806-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
+Someone mentioned to me about 'other' patches for 2.5.50
 
-on shutdown the following lines are displayed, but _not_ logged to
-/var/log/messages:
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/2.5.50-patches.bz2
 
-Going to halt the system ...
-Synchronizing SCSI caches: sda FAILED
-  status = 1, message = 00, host = 0, driver = 08
-  Current sd?: sense = 70  5
-ASC=20 ASCQ= 0
-Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x0e 0x00 0x00 0x00
-0x00 0x20 0x00 0x00 0xc0 0x00 0x00 0x00 0x00 0x00
-Power off.
+Just applied these and removed the NEWS patch.
 
+This fixed it :-)
 
-Information about my SCSIs:
+Shawn.
 
-/var/log/messages:
-==================
-Dec  6 21:00:24 brood kernel: SCSI subsystem driver Revision: 1.00
-Dec  6 21:00:24 brood kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
-Dec  6 21:00:24 brood kernel:         <Adaptec 2940 SCSI adapter>
-Dec  6 21:00:24 brood kernel:         aic7870: Single Channel A, SCSI Id=0, 16/253 SCBs
-Dec  6 21:00:24 brood kernel: 
-Dec  6 21:00:24 brood kernel: (scsi0:A:1): 10.000MB/s transfers (10.000MHz, offset 15)
-Dec  6 21:00:24 brood kernel:   Vendor: SEAGATE   Model: ST52160N          Rev: 0285
-Dec  6 21:00:24 brood kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Dec  6 21:00:24 brood kernel: SCSI device sda: drive cache: write back
-Dec  6 21:00:24 brood kernel: SCSI device sda: 4238282 512-byte hdwr sectors (2170 MB)
-Dec  6 21:00:24 brood kernel:  /dev/scsi/host0/bus0/target1/lun0: p1 p2
-Dec  6 21:00:24 brood kernel: Attached scsi disk sda at scsi0, channel 0, id 1, lun 0
-
-/proc/scsi/scsi:
-================
-Attached devices:
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: SEAGATE  Model: ST52160N         Rev: 0285
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-
-/proc/scsi/aic7xxx/0:
-=====================
-Adaptec AIC7xxx driver version: 6.2.4
-aic7870: Single Channel A, SCSI Id=0, 16/253 SCBs
-Channel A Target 0 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-Channel A Target 1 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-        Goal: 10.000MB/s transfers (10.000MHz, offset 15)
-        Curr: 10.000MB/s transfers (10.000MHz, offset 15)
-        Channel A Target 1 Lun 0 Settings
-                Commands Queued 155
-                Commands Active 0
-                Command Openings 1
-                Max Tagged Openings 0
-                Device Queue Frozen Count 0
-Channel A Target 2 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-Channel A Target 3 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-Channel A Target 4 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-Channel A Target 5 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-Channel A Target 6 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-Channel A Target 7 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 255)
-
-/proc/iomem:
-============
-...
-e4000000-e4000fff : Adaptec AHA-2940/2940W / AIC
-  e4000000-e4000fff : aic7xxx
-...
-
-/proc/ioports:
-==============
-...
-6000-60ff : Adaptec AHA-2940/2940W / AIC
-  6000-60ff : aic7xxx
-...
-
-any hints?
--- 
-cheers,
- Tobias
+On December 6, 2002 11:13 am, Shawn Starr wrote:
+> After patching 2.5.50 with the patch from the NEWS file, and recompiling
+> completely the kernel and modules I'm not able to load modules:
+>
+> file gameport.o:
+> gameport.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not
+> stripped
+>
+> insmod:
+> Error inserting `./gameport.o': -1 Invalid module format
+>
+> modprobe:
+> FATAL: Error inserting gameport (/lib/modules/2.5.50/kernel/gameport.o):
+> Invalid module format
+>
+> This occurs with 0.8 and 0.9.1
+>
+> Any solutions? I really need module support because there are some PnP
+> issues that I'm trying to help solve.
+>
+> Shawn.
 

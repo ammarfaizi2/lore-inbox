@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292252AbSBBIa5>; Sat, 2 Feb 2002 03:30:57 -0500
+	id <S292257AbSBBIkq>; Sat, 2 Feb 2002 03:40:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292253AbSBBIap>; Sat, 2 Feb 2002 03:30:45 -0500
-Received: from linuxhacker.ru ([212.16.0.238]:19205 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S292252AbSBBIaf>;
-	Sat, 2 Feb 2002 03:30:35 -0500
-Date: Sat, 2 Feb 2002 11:30:52 +0300
-Message-Id: <200202020830.g128UqJ05226@linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
-To: linux-kernel@vger.kernel.org, ry42@rz.uni-karlsruhe.de
-In-Reply-To: <1012499057.704.0.camel@hek411> <Pine.LNX.4.31.0201312133490.652-100000@hek411.hek.uni-karlsruhe.de>  <20020201085545.A1034@namesys.com> <1012601878.644.0.camel@hek411>
+	id <S292259AbSBBIkh>; Sat, 2 Feb 2002 03:40:37 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:4341 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S292257AbSBBIk3>; Sat, 2 Feb 2002 03:40:29 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <25095.1012637318@ocs3.intra.ocs.com.au> 
+In-Reply-To: <25095.1012637318@ocs3.intra.ocs.com.au> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 02 Feb 2002 08:40:11 +0000
+Message-ID: <23050.1012639211@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bahlinger <ry42@rz.uni-karlsruhe.de> wrote:
 
-MB> Because I don't have my first build of 2.5.3 any more, I had to compile
-MB> a new one without any patches applied to it. But now I get a completely
-MB> different behaviour: I can boot without problems and get those PAP-5580
-MB> oops after a few minutes uptime. I attached the oops message and the
-MB> output of ksymoops at the end of this mail.
-Ok, thank you. Though this one is already fixed.
+kaos@ocs.com.au said:
+>  There is also a problem with exported symbols.  To ld, EXPORT_SYMBOL
+> looks like a reference to the symbol, 
 
-MB> I think, the other oops (PAP-14030) happened because of those filesystem
-MB> corruptions I mentioned before. Maybe the fs corrupted during the first
-Sad, you cannot reproduce it anymore.
+Er, surely that's not a problem at all? This is desired behaviour?
 
->> > reiserfsck ran into a segfault when checking the semantic tree. And this
->> This means you need updated reiserfsprogs.
-MB> I use reiserfsprogs 3.x.0j as recommended by linux/Documentation/Changes
-We will eventually change that to something more recent.
+>  but the export entry is irrelevant,  what really matters is if any module
+> refers to those symbols.
 
-Bye,
-    Oleg
+Absolutely not.  If we mark a symbol EXPORT_SYMBOL, we want it exported. No 
+questions asked.
+
+The export entry _is_ relevant; furthermore it's the _only_ thing that's
+relevant, and there is no way of knowing if there's a module that isn't in
+the tree, or maybe even a module that _is_ in the tree but not compiled
+today, that needs the symbol in question.
+
+I sincerely hope it's just too early in the morning here and I'm 
+misunderstanding you :)
+
+--
+dwmw2
+
+

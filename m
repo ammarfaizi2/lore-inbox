@@ -1,85 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262178AbTDAH7z>; Tue, 1 Apr 2003 02:59:55 -0500
+	id <S262174AbTDAICW>; Tue, 1 Apr 2003 03:02:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262180AbTDAH7z>; Tue, 1 Apr 2003 02:59:55 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:41939 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S262178AbTDAH7x>; Tue, 1 Apr 2003 02:59:53 -0500
-Date: Tue, 1 Apr 2003 18:10:45 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-Message-ID: <20030401081045.GD1394@zip.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="0OAP2g/MAC+5xKAE"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S262180AbTDAICW>; Tue, 1 Apr 2003 03:02:22 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:24572
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262174AbTDAICU>; Tue, 1 Apr 2003 03:02:20 -0500
+Date: Tue, 1 Apr 2003 03:09:24 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.5] smp_call_function needs mb()
+Message-ID: <Pine.LNX.4.50.0304010305510.8773-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tested on afflicted 3way P133 system for 3days and on 8way P3 700 for 
+regression.
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Unable to handle kernel NULL pointer dereference at virtual address 00000200
+ printing eip:
+00000200
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    2
+EIP:    0060:[<00000200>]    Not tainted
+EFLAGS: 00210082
+EIP is at 0x200
+eax: 00000026   ebx: c7666000   ecx: c7666000   edx: c7666000
+esi: 00000200   edi: c034ad74   ebp: c0bc8000   esp: c7667fa8
+ds: 007b   es: 007b   ss: 0068
+Process rhn-applet (pid: 1654, threadinfo=c7666000 task=c0785340)
+Stack: c0116407 c034ad74 40a2d760 08458490 00000004 bfffec78 c010a41a 40a2d760 
+       00000000 00000000 08458490 00000004 bfffec78 0830d800 0000007b 0000007b 
+       fffffffb 40a23da4 00000073 00200202 bfffec48 0000007b 
+Call Trace:
+ [<c0116407>] smp_call_function_interrupt+0x57/0xb0
+ [<c034ad74>] sr_do_ioctl+0x124/0x250
+ [<c010a41a>] call_function_interrupt+0x1a/0x20
 
-I believe the patch below will apply to both the above (I know it does
-to 2.5.66 and 2.4.20-pre2 mm/shmem.c does not look any different so it
-should be fine. :)
+Code:  Bad EIP value.
+ <0>Kernel panic: Aiee, killing interrupt handler!
 
-Anyways, what this patch does is allow you to specify the max amount of
-memory tmpfs can use as a percentage of available real ram. This (in my
-eyes) is useful so that you do not have to remember to change the
-setting if you want something other then 50% and some of your ram does
-(and you can't replacew it immediately).
-
-Usage of this option is as follows:
-
-tmpfs      /dev/shm tmpfs  rw,size=63%,noauto            0 0
-
-This is taken from my working system and sets the tmpfs size to 63% of
-my real RAM (256MB). The end result is:
-
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/shm/tmp            160868      6776    154092   5% /tmp
-
-I've also tested remounting to silly values (and sane ones) and it all
-works fine with no oopses or freezes and the correct values appearing
-in df.
-
-All up I feel safer using this then a hard value.
-
-Please apply. :)
-
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to
-kill my dad."
-        - George W. Bush Jr, Leader of the United States Regime
-          September 26, 2002 (from a political fundraiser in Houston, Texas)
-
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="add-perc-tmpfs-size-2.5.66.patch"
-
---- linux/mm/shmem.c.old	Sun Mar 30 00:51:39 2003
-+++ linux/mm/shmem.c	Sun Mar 30 03:23:47 2003
-@@ -1630,6 +1630,12 @@
- 		if (!strcmp(this_char,"size")) {
- 			unsigned long long size;
- 			size = memparse(value,&rest);
-+			if (*rest == '%') {
-+				struct sysinfo si;
-+				si_meminfo(&si);
-+				size = (si.totalram << PAGE_CACHE_SHIFT) / 100 * size;
-+				rest++;
-+			}
- 			if (*rest)
- 				goto bad_val;
- 			*blocks = size >> PAGE_CACHE_SHIFT;
-
---0OAP2g/MAC+5xKAE--
+Index: linux-2.5.66/arch/i386/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.66/arch/i386/kernel/smp.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 smp.c
+--- linux-2.5.66/arch/i386/kernel/smp.c	24 Mar 2003 23:40:27 -0000	1.1.1.1
++++ linux-2.5.66/arch/i386/kernel/smp.c	28 Mar 2003 05:08:54 -0000
+@@ -522,7 +521,8 @@ int smp_call_function (void (*func) (voi
+ 
+ 	spin_lock(&call_lock);
+ 	call_data = &data;
+-	wmb();
++	mb();
++	
+ 	/* Send a message to all other CPUs and wait for them to respond */
+ 	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
+ 

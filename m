@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVBPXPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVBPXTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbVBPXPC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 18:15:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVBPXPC
+	id S262118AbVBPXTR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 18:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVBPXTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 18:15:02 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:34493 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S262106AbVBPXPA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 18:15:00 -0500
-Message-ID: <4213D3F8.2000904@free.fr>
-Date: Thu, 17 Feb 2005 00:15:04 +0100
-From: "Menyhart, Zoltan" <Zoltan.Menyhart@free.fr>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: dup_mmap() questions
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Feb 2005 18:19:17 -0500
+Received: from gprs214-36.eurotel.cz ([160.218.214.36]:58263 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262118AbVBPXTO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 18:19:14 -0500
+Date: Thu, 17 Feb 2005 00:18:12 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Stelian Pop <stelian@popies.net>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [PATCH, new ACPI driver] new sony_acpi driver
+Message-ID: <20050216231812.GA3865@elf.ucw.cz>
+References: <20050210161809.GK3493@crusoe.alcove-fr> <E1D0dqo-00041G-00@chiark.greenend.org.uk> <20050214105837.GE3233@crusoe.alcove-fr> <20050214203211.GA8007@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050214203211.GA8007@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We lock the semaphore of the old "mm" for write.
-Usually we do this when the corresponding VMA list is being modified.
-Does "dup_mmap()" modify the old VMA list ?
-Or would a "down_read(&oldmm->mmap_sem)" be enough ?
+Hi!
 
-Should not we lock for write the semaphore of the new "mm" ?
-It is on the "mmlist", it can be seen.
-The new "vma" is on the "anon" list and on the "vma_prio_tree",
-can it be done without holding for write the semaphore of the new "mm" ?
+> > > Related to that, I have a nastyish hack which lets the sonypi driver
+> > > generate ACPI events whenever a hotkey is pressed. Despite not strictly
+> > > being ACPI events, this makes it much easier to integrate sonypi stuff
+> > > with general ACPI support. I'll send it if you're interested.
+> > 
+> > Wouldn't be more useful to make the ACPI hotkeys generate an
+> > input event (like sonypi does) and integrate all this at the input
+> > level ?
+>  
+> Yes, I'd like to see that. The other possible way is have the input
+> layer generate ACPI events for power-related keys.
 
-Should not we hold for write the semaphore of the new "mm"
-when the new "vma" is actually added ?
-Is the "page_table_lock" enough ?
+No; ACPI events are ugly hack. They should die, die, die....
 
-Apparently, the argument "oldmm" is equal to "current->mm".
-Why do we pass it as an argument ?
+We should probably switch even stuff like acpi power button to input
+layer, etc.
 
-Thanks.
-
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,101 +1,302 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285745AbSAIL1N>; Wed, 9 Jan 2002 06:27:13 -0500
+	id <S286261AbSAILae>; Wed, 9 Jan 2002 06:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286238AbSAIL1E>; Wed, 9 Jan 2002 06:27:04 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:2894 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S285745AbSAIL07>; Wed, 9 Jan 2002 06:26:59 -0500
-Date: Wed, 9 Jan 2002 12:24:18 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Anton Blanchard <anton@samba.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020109122418.F1543@inspiron.school.suse.de>
-In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <20020108142117.F3221@inspiron.school.suse.de> <20020108133335.GB26307@krispykreme> <E16Nxjg-00009W-00@starship.berlin> <20020108162930.E1894@inspiron.school.suse.de> <1010523340.3225.87.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <1010523340.3225.87.camel@phantasy>; from rml@tech9.net on Tue, Jan 08, 2002 at 03:55:38PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S286238AbSAILa1>; Wed, 9 Jan 2002 06:30:27 -0500
+Received: from [211.22.166.50] ([211.22.166.50]:27401 "HELO wrt.com")
+	by vger.kernel.org with SMTP id <S286261AbSAILaI>;
+	Wed, 9 Jan 2002 06:30:08 -0500
+From: Q9CBGN1YleJ6M@ksts.seed.net.tw
+To: JwCe3f7@yahoo.com
+Subject: =?ISO-8859-1?Q?-=B3=CC-=B7s-=BA=F4-=B8=F4-=B0T-=AE=A7!!?= =?ISO-8859-1?Q?=BD=D0=B3t=A8=A3=A5=BB=ABH=AA=BA=A8=E2=AD=D3=A4=E5=A6r=AA=FE=A5=F3=C0=C9=BB=A1=A9=FA?= !! DbXRhuxDRZCC1SijMbZuvQsFr9D
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4H"
+X-Mailer: nmNStsFqnm6HbMK7C9
+X-Priority: 3
+X-MSMail-Priority: Normal
+Message-Id: <20020109113017Z286261-13996+2981@vger.kernel.org>
+Date: Wed, 9 Jan 2002 06:30:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 03:55:38PM -0500, Robert Love wrote:
-> On Tue, 2002-01-08 at 10:29, Andrea Arcangeli wrote:
-> 
-> > "extra schedule points all over the place", that's the -preempt kernel
-> > not the lowlatency kernel! (on yeah, you don't see them in the source
-> > but ask your CPU if it sees them)
-> 
-> How so?  The branch on drop of the last lock?  It's not a factor in
+This is a multi-part message in MIME format.
 
-exactly, this is the reschedule point I meant. Oh note that it's
-unlikely also in the lowlatecy patch. Please count the number of time
-you add this branch in the -preempt, and how many times we add this
-branch in the lowlat and then tell me who is adding rescheduling points
-in the kernel all over the place.
+------=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4H
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4HAA"
 
-> This makes me think the end conclusion would be that preemptive
-> multitasking in general is bad.  Why don't we increase the timeslice and
-> and tick period, in that case?
 
-that would increase performance, but we'd lost interactivity.
+------=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4HAA
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-> One can argue the complexity degrades performance, but tests show
-> otherwise.  In throughput and latency.  Besides, like I always say, its
+  =B3=CC =B7s =BA=F4=B8=F4 =B0T=AE=A7 !!!  
+ =BD=D0 =B3t=A8=A3 =A5=BB=ABH=AA=BA=A8=E2=AD=D3=A4=E5=A6r=AA=FE=A5=F3=C0=C9=BB=A1=A9=FA !!!
 
-which benchmarks? you should make sure the CPU spend all its cycles in
-the kernel to benchmark the perfrormance degradation (this is the normal
-case of webserving with a few gigabit ethernet cards using sendfile).
+------=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4HAA--
 
-> ride.  On the other hand, the patch has a _huge_ userbase and you can't
+------=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4H
+Content-Type: application/octet-stream;
+	name="C:\-大-補-帖-光-碟-說-明-.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="-大-補-帖-光-碟-說-明-.txt"
 
-I question this because it is too risky to apply. There is no way any
-distribution or production system could ever consider applying the
-preempt kernel and ship it in its next kernel update 2.4. You never know
-if a driver will deadlock because it is doing a test and set bit busy
-loop by hand instead of using spin_lock and you cannot audit all the
-device drivers out there. It is not like the VM that is self contained
-and that can be replaced without any caller noticing, this instead
-impacts every single driver out there and you'd need to audit all of
-them, which is not feasible I think and that should be done by giving
-everybody the time to test. This is also what makes preempt config
-option risky, if we go preempt we should force everybody to use it, at
-least during 2.5, so we get the useful feedback from testers of all the
-hardware, or nobody could trust -preempt.
++d35+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fnfDQr5+AGiYqJjomSiZaJmomeiaKJpnXdCTFVFoUBTS1mhQERC
+VKHjU3R1ZGlvoUDByrZSq/yrbqFAnXeiaaJoomeiZqJlomSiY6JioUAg+fgNCvn4AaFAoUChQMLF
+pNG4yamrpHWnQKvHqrqkVK3TqVSpd7r0p30gIKLwovyi/KL4oUeh/qH+orKity6i96Lwou+i9y6i
+66L3ovWhQCD5+A0K+fgJCQkJICAgICAgIKLwovyi/KL4oUeh/qH+ovui/KLpovqi/C6i6aL8of6i
+sqK3ICD5+A0K+fgJCQkJICAgICAgIKLwovyi/KL4oUeh/qH+ovWi96L4LqL8oveh/qKyorehQCCh
+QCD5+A0K+eP5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fnlDQr53fn5ot2i4KLSotOi4Pn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+d8NCvn4CQkJ
+CQkJCQkJICAgIPn4DQr5+CAgICAgICAgIKFAIKJ3oneid6J3oneid6G9obyhvaG8AcHKtlKr/Ktu
+IKG8ob2hvKG9oneid6J3oneid6J3oncgICAgoUAgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5
+4/n5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+eUNCiD53fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fnfDQog+fihvaG8ob2hvKG9
+obwgt3O2aaqxrmGkVa1xs+arZSy90LDIpbK41L5cpFWmQ6ZVtrW7oan6IKFJoUmhSSChvaG8ob2h
+vKG9obz5+A0KIPnj+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+eUNCqJ++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fmioQ0K+fgJ
+CQkJCQkJCQkgICAg+fgNCvn4obwgIMLFpNG4yamrpHWnQKvHpKe4yamrpdi//SyoQ6Trp/O3c6RA
+prgoqEOk66TetmkxMDB+MzUwpPkpLKfzt3Ok6bTBq2itcSD5+A0K+fggICAgqfOoQ6TrpKeisKbc
+orS4ubTBtqEspqy//aWrrbGkV6q+plequrjJqaum5ri5qdK7c6dApKekarjJqassIKS6rmWs27ft
+IPn4DQr5+CAgICC667FtLL3Qptum5rDRptK/78HKoUkJCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJ
+ICAgIPn4DQr5+KG8ICCl0anzpdirZbjJqaulq7P1LLdztmm4yamrpua4ubKzpmgswfa1TbdzpPm1
+b6bms3Sr17elrLCos7N0LKb9s27F6at+vegg+fgNCvn4ICAgILDRrnSko7v0LKywqL6ko7P0qM+l
+zqq6pKOofat+rHmkSizCxaTRuMmpq6R1p0Crx8HKpEqkp6hDpOu3c7ZppPksp6G3fCD5+A0K+fgg
+ICAgp0Cq7KhCpKfAy6xkpM60+rjVLKVIp0uk6avhrnu8V6d4wlosvdCp8aTfwcq2UqjPpc6hQyAg
+ICAgICAgICAgICAgICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgN
+Cvn4IAGhsKW7pHWnQKvHqHSmQ6X6utAsq0/D0qZwpFWhRwkJCQkJICAgIPn4DQr5+AkJCQkJCQkJ
+CSAgICD5+A0K+fggIDEuoWmrT8PSqdKms6h0pkOl+rrQICyl/rOhqM+lziBQSElMSVBTIK24p1Gu
++rCqr8Wk9MLFpPm/Tr/9oWoJICAgIPn4DQr5+CAgMi6haaW7pHWnQKvHpf6odKZDpfq60CAspf6z
+oazbrmWp86WrrbGkVyylacWqqPq/Tr/9pPmkp6ZVvHS1UAkgICAg+fgNCvn4CSCl+rrQvvcsq0/D
+0qbKpMCkp6bKpWnFqqj6LL3QqfGk36jPpc6hagkJCQkgICAg+fgNCvn4ICAzLqFpq0/D0qnSprOo
+dKZDpfq60CAstbS1TKX0pvOo7bKqoWoJCQkJICAgIPn4DQr5+CAgNC6haanSprOl+rrQv06//avh
+LKeht3ymQadAxaqo+rT6uNUstbS1TKrFpPmpzsNhpPmseaVYoWoJCSAgICD5+A0K+fggIDUuoWmr
+T8PSqdKms63sqqm576v+LK5NuMuzbsXppfq60CymyqTApKemyqVpsPWm5qFqCQkJICAgIPn4DQr5
++CAgNi6haatPw9Kp0qazuu6mWKnKLML4trXD/rNuxeml+rrQLKbKpMCkp6RDpFGlabD1puahagkJ
+ICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4IAGhaa1xpPm2
+t6q+oWoJCQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggICChvCCtccHKrsm90Lbx
+vGelu6R1p0Crx7r0r7ikV6SnrXHByrPmp1mlaaFDCQkJICAgIPn4DQr5+CAgIKG8IK1xpPmuySwg
+vdCqvbG1tvG8Z7F6sf2tccHKpKcgPKX6utC9c7i5PiCnWaVpLCCko6XOtvG8Z6X6utCzbsXpple6
+2aFD+fgNCvn4ICAgobwgrXHByqq6pfq60L1zuLksrLCmaKT5uMul+rrQrsksvuOuTcHKtlKqurv5
+ruYsrLAgpPm8xiCh0SCpd7v5LAkgICAg+fgNCvn4ICAgICAgqdKms6ZopPmpzqKxpPm4y6X6utAs
+p6Glaav8qXez5qT5wcq2Uiym/b3QqmC3TqFJpKOxb61uqESxTrF6q/ypdyAgICD5+A0K+fggICAg
+ICCqurNuxeksv06//aaos+ak+aZYv+il+rrQLKW7pHWnQKvHqMO1TKdAprm2tapBsMihSQkJICAg
+IPn4DQr5+CAgIKG8ILftsXqms7Nuxemoz6XOpFequqX0pvOw3cNELCC90LbxvGelu6+4pKew3cNE
+pM+sTbPmLCClu6+4sU4JICAgIPn4IA0K+fggICAgICC6yafWu1CxesFwtbihQwkJCQkJCQkgICAg
++fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggAaFppeap9qTopqGh
+agkJCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+CChvCClu6S9pXGl5qn2pOimoSyl
+/rOhscSlzrNmqOylSbTapOimoaXmqfYsp1m2bK50sGWzZqjsqbIsqMOlTqywpqy02iy2bKXz+fgN
+Cvn4ICAgILt7v/qko7t7pEgsrVmxeqZdpHWnQKnOqOSlpqZdr8AspWmr/Kl3sd+2oafru7wsptO1
+TKprv8um27viqPqqzCyl56VpqWX5+A0K+fggICAgsFWlTKRIpUm02qVOpqwsqc6mYq1xpPmuySyn
+aaSnpbukvaVxLKfvp+u7vKjkpUy/y6TNs0Kp0iylSKdLs3mmqKSjq0uhQ/n4DQr5+AkJCQkJCQkJ
+CSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4IAGhabNmqOyuybahoWoJCQkJCQkJICAgIPn4
+DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggobwgpqyo7LF6qrqtcbPmq+EsuWqk0aW7pL2lcbROt3yl
+SK2trsmxvri5qrqk6KahLLFOsXqquqVdu3GxSKVYLKz5CSAgICD5+A0K+fgJCQkJCQkJCQkgICAg
++fgNCvn4ICAgIKRUrdOkdadApNGrS6VpsGWo7LF6qrqk4rjMoUMJCQkJCSAgICD5+A0K+fgJCQkJ
+CQkJCQkgICAg+fgNCvn4IKG8IKZwtmyl86R3tle5TLNmqOyk6bTBpECk0aVIpFcswdmlvKasqOyu
+ySy90LF6sMilsqdpqr4spbukvaVxsU63fKXfp1kgICD5+A0K+fgJICAgICAgXl5eXl5eXl5eXl5e
+Xl5eXl5eXl4JCQkJCSAgICD5+A0K+fggICAgrLCxeqdAtmyl86xkuN8spUinS6m1u36n67u8LK57
+vFeneMJaoUMJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgN
+Cvn4IAGhaaX6utC7+a7moWoJCQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJ
+CQkJCQkgICAg+fgNCvn4CQGoQ6T5Li4uorKir6KvLi4upLgJCQkJCQkgICAg+fgNCvn4CQGm06VC
+pKO63rF6rXG0WKT5LLOjpKOlzqZBpUml9Kbzqrq5QrZPISEhISEhCQkJICAgIPn4DQr5+AkJCQkJ
+CQkJCSAgICD5+A0K+fgBoWmlda1urXGk+aW7pHWnQKvHtE63fLBlsXqkQKT5pfq60MFgpdi//SEh
+IaFqCQkJICAgIPn4DQr5+AGhaaW7pHWnQKvHrLCk6KtLp0C3fiyoQ6a4rXHByrvdorKk+aVIpFeh
+agkJCQkgICAg+fgNCvng+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn54g0K+fgJCQkJCQkJCQkgICAg+fgNCvn4
+ICAgAaG8pbukdadAq8equqRUrdOpVKl3uvSnfaywOqLwovyi/KL4oUeh/qH+orKity6i96Lwou+i
+9y6i66L3ovUJICAgIPn4DQr5+AkJCQkBovCi/KL8ovihR6H+of6i+6L8oumi+qL8LqLpovyh/qKy
+orcJICAgIPn4DQr5+AkJCQkBovCi/KL8ovihR6H+of6i9aL3ovguovyi96H+orKitwkgICAg+fgN
+CqKi+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5IL3Qq/Ygne6d7yDB5CzC97Z9pbu7oan6oUn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fmiow0K
 
-NOTE: I trust your work with spinlocks, locks around per-cpu data
-structures etc.. is perfect, I trust that part, as said it's the driver
-doing test and set bit that you cannot audit that is the problem here
-and that makes it potentially unstable, not your changes.  And also the
-per-cpu data structures sounds a little risky (but for example for UP
-that's not an issue).
 
-> question that.  You also can't question the benchmarks that show
-> improvements in average _and_ worst case latency _and_ throughput.
+------=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4H
+Content-Type: application/octet-stream;
+	name="C:\-換-妻-俱-樂-部-檔-案-.txt"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="-換-妻-俱-樂-部-檔-案-.txt"
 
-I don't question some benchmark is faster with -preempt, the interesting
-thing is to find why because it shouldn't be the case, Andrew for
-example mentioned software raid, there are good reasons for which
--preempt could be faster there, so we added a single sechdule point and
-we just have that case covered in 18pre2aa1, we don't need reschedule
-points all over the place like in -preempt to cover things like that.
-It is good to find them out so we can fix those bugs, I consider them
-bugs :).
++d35+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fnfDQr5+CAgIAGiYqJjomSiZaJmomeiaKJpnXehQKFApXjGV7Sr
+qWSt0bzWs6GkSrd8u6Gp+qFAnXeiaaJoomeiZqJlomSiY6JioUAgICAg+fgNCvn4AaV4xle0q6lk
+rdG81rOhqrqkVK3TqVSpd7r0p30gIKLwovyi/KL4oUeh/qH+ovui/KLpovqi/C6i6aL8of6i/KNA
+ovui7aNBICD5+A0K+fgJCQkJIKLwovyi/KL4oUeh/qH+ovWi96L4LqL8oveh/qL8o0Ci+6Lto0Eg
+ICAgICD5+A0K+fgJCQkJIKLwovyi/KL4oUeh/qH+ovyjQKL7ou2jQS6i96Lwou+i9y6i66L3ovUg
+ICD5+A0K+eP5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fnlDQr53fn5pXjGV7SrqWSt0bzWs6GkSrd8u6Gp+vn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+d8NCvn4CQkJ
+CQkJCQkJICAgIPn4DQr5+CAgIKJ3oneid6J3oneid6G9obyhvaG8AaV4xle0q6lkrdG81rOhpEq3
+fLuhqfogobyhvaG8ob2id6J3oneid6J3oneidyAgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5
+4/n5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+eUNCiD53fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fnfDQog+fggob2hvKG9obyh
+vaG8ILdztmm69KTNtfmlVatlLL3QsMilsrjUvlykVaZDplW2tbuhqfogoUmhSaFJIKG9obyhvaG8
+ob2hvCD5+A0KIPnj+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+eUNCqJ++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fmioQ0K+fgJ
+CQkJCQkJCQkgICAg+fgNCvn4pEAuIKFpq2WopaFqCQkJCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJ
+ICAgIPn4DQr5+CAgIKG8IKZipXjGV6rAt3ykpKFBtrDF6cV3tHKkQK/rs1G1+KywuFSn0qjDpKOz
+UbG1qPyhRqTXqOSsT6ZisULCp6tlpGmhQSAg+fgNCvn4CblEvHequqvkt1GlXbX2qU2t27J6qrq3
+TsPRq6y6QbhUwEShQbnvpGqmaLzGpEim06iloUGhdbWysUK0TqSjrW4gICAg+fgNCvn4CaZBqrGk
+RqF2rE+s+al3q1WmqKRAr+us3aproUOzb7rYptun2qf0v6Oqurt7qr6hQaispUi6Y6aop+3Ge6nK
+pNu3Uaq6+fgNCvn4CahIrau52sZMoUG576itoUKk36FCxkaqurC3sWSzo7d8prOtdK2xvHbFVKFB
+rW6sT7NCsnqlorftoUG577FCq8PD9qtZ+fgNCvn4Cafzt3yzeaaosf62y6RPoUMJCQkJCQkgICAg
++fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+CAgIKG8IKF1sUKrw7ROrE+mVqnKqfG/urlEp0+hdqq6
+0ejVwK1Jq+GhQavcpNakSLd8ue7EsajsoUGzb7rYwKOn7aq6ukGr1yAg+fgNCvn4CajkueqsT6ax
+uNGkRqnKt1Klzayhqrqvdb/NoUMJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4ICAg
+obwgpmKpyq2yqVK3TsPRt+25RKq6pNykQKVArPahQcJBpNams6RIpmK3c7FCt+2x36R+pEDAfLO9
+pPSkp8V3oUMJICAgIPn4DQr5+AmlQKtVuUS8d6SjpkGtbqhEpEitzKRAqr24VLykqOyxQsKntbKn
+9KFGrNukz6FBpmK2fanxqrqqwLd8uMyhQQkgICAg+fgNCvn4CaRIpc2m06bbpdGhQaZiqOKs27Gh
+xECquqtltKOkVaFBoXWrfsB8uFSqR6F2pq2kd7NRtfissL5kqVS3ULGhqrqw8qXb+fgNCvn4CaFD
+pv2sT7ty3/TC+bnvqrqm18XpsbXEsqFBrE+s26Ssq0il9KlNrNukrMXpq/Kquq915a6q7blGoUOk
+16jkrE+mYiAg+fgNCvn4CahntsO2s8P6pKekpKFBpGukSLPMp8ax5qq6tE6sT6ZitnDEb7FvpUjT
+VrjRpKe72qFBpmKoa6RIwOqvUK68tmmkp6vh+fgNCvn4CaFBpUi3W7ehvtWwyqSnq7qhQbdQqPyy
+e6VOrvi2T6rAt3yz2cL4wWOmo6SnpX6qurnnwFKhQwkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5
++A0K+fggICChvCCtbrFOs2+l97dRsebAo6ftpty3c7FCquypXaR+xMCp8aFBpKOz5qSjplilR6RI
+qcqhQabTpUKn86Vpr+Cxb62xue8gIPn4DQr5+Am3ULGhxLLBR6q6rbfASaFDpWqmra7JrdShQblB
+t36qwLd8tbK6Y6RVqrqkSK3MtLa5TaatsUKhQaZ+q0OkSKSjvdcgIPn4DQr5+Amoa6RroUGkaren
+pmKkUaS7oUKkQ6FCpEu3s7ROpbK2t6ijw9GsfanQquHA66ldqrqqpbz2tLqtUKFDpv2sT6FBICAg
+IPn4DQr5+AmktaTpqrqkdbDTqsC3fKSjpv2ysabmsd+xQqFBptOlQquwpaulzayhvsmtUKRIu1Ck
+SKSntqGyqML3qU2qxbXqoUEgIPn4DQr5+AmxQqtlqcq3UrW0ue+sT6lNv9OquqRIpc2quq2rrW6k
+uK/AoUMJCQkJICAgIPn4CQ0K+fgJCQkJCQkJCQkgICAg+fgNCvn4ICAgobwgvqi63rdzsUKq7Kld
+pWmv4KSjpkGsT8L5pOiqurLEpECmuKFBpv2xQqvDqWyy16xPqEOt06RIpEClzcP4sW+0WKZeICD5
++A0K+fgJqrqkaqTppGyhSbFCwqewo6RGrE+ssLXbwWO6vqq6pUCrVbv2pqGkp6V+oUGn86Wytre2
+qa2rqOSoxqFBpH6ko61QICD5+A0K+fgJt1y577/LpM2hQ6b9rE+hdax9qdCq4cDroXaquqfWvKK5
+76Rqs6Gl97dzsULFyqRIptOopaFBs6Okd7hnrE8JICAgIPn4DQr5+Amko6VppfikzqFDpmKzb63T
+rcixb6X+saGn66RKqrqvq7h0pOmkbLjMoUGtbqxPqK3F6aq6xXe0cq/KrnWhQai6qrq9VPn4DQr5
++AmsT7G9v7Okp6bcoUOkQKa4p7ms/LrJv7OqurFCwqehQaF1t1K8pLjRqfGhdqbbpWqlSKjTtE6z
+UbX4rLCko6Vpqc6vyvn4DQr5+AnD9sHkwPS4YKFDrEemuUJhY2hlbG9yCXBhcnR5oneid7FCwqer
+ZaRprLC3c62mqU2o5OWupM3BfKbmqroJICAgIPn4DQr5+AnBYbykrKO576J3one1tLnvrE+zzLJ6
+t1GquqZ3scahQwkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+CAgIKG8IEJhY2hlbG9y
+ICBwYXJ0ebNRtfissKhrpEilzqdAwXDDtLdQsaGquq2rrW679qahoUGow6ZirPyw6qbmpKems6Z+
+oUMg+fgNCvn4CbFCwqerZaRpqrqp8b+6puassKFBqMOlvLNRtfissKxPue+ldKRApWKquqSjqb6h
+QaTPptOsT7zQu3i127nvpOmr4SAg+fgNCvn4CbFCq8PD9qtZqrqtq7X4oUGpTblMqbmquqF1rH2p
+0KrhwOuhdqq6t064cazbw/6m/KFDoXWsfanQquHA66F2qrq3Trhx+fgNCvn4CaFBpmKp88LHpdG3
+c6RIqrqmvax5r0itSalNsKq86bBfpfGhQcX9qGuka6RAplC2aaRKsUKrZaW8tL+4Z776qrogICAg
++fgNCvn4CbBnvnm50qzJoUGkQLBfvFKz27Xbr3W3UqSjtPyquqz8p66rxailoUam3KnzQmFjaGVs
+b3IgIHBhcnR5oUGl0anzICAg+fgNCvn4CcXpt3yo7KS1pOmquqZ+u7SkSKFBpKO916hrpGumYrFC
+wqekp6tlpq20TqT0qMWl5r/EoUGmXaa5sU6o5Kl3puymYqFH+fgNCvn4CanatbSp6rTdpnWvyqZh
+vca7c6VqpEizV7ZaoUGn86Sjrmi32aazpLaoxqZhsU616rCwqrqq7Kldu/amoQkgICAg+fgNCvn4
+CajMvMu1ZbisxKqkQMK9oUG5/amzqd+x86bbtNu026RIqrq6QavXoUHB2a3ssULCp7jTprOquqF1
+qcqhdq1QqU297Kj9+fgNCvn4CaFDQmFjaGVsb3IgIHBhcnR5pKep0qVIs8ao/LmqwHmow6VCvaus
+sK23vOmhQbCjpEasT6jkpKSqusFhsf27pLRiICAg+fgNCvn4CaSnpX6hQafzrE+mYqnzpUi2sMXp
+xXe0cqj6pU6wsLjLqrqhdax9qdCq4b9CoXahQaZisnulTqrAt3ysT7PMqVql1SAg+fgNCvn4CaFC
+s8y428C1pM6zzKZYpUexobJ6sULCp6uspqGhQwkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5
++A0K+fggICChvCChdanKoXa7UKF1t1KhdqxPrNu7sqzbpqihQaRAr+ukSKfisUKrw6zdpqisT8V3
+tHKqurLXtbKhQanOqsylSKywICAgIPn4DQr5+AmhdanKoXasT6WytrezUbrypqmp86V0pEClYqq6
+qK3F6c9FwuqkV6FGpnCsT6rMoUGxQqvht1KxocP2q1mlsrVNt3wgIPn4DQr5+AnF3LFvrVfA36FD
+pl2ssLlEvHerSLH4qrrAo62ipE+2caFBpU+n2q3MqsC3fKZipaKk0aRXue+hdbFCq8PD9qtZoXYg
+IPn4DQr5+AmhQqF1sUKrw6XNrKGhdqTOoXWxQqvDqU2/06F2qrq7e6q+pViye7C+rnShQcP4qcek
+aq5hs6OmswkgICAg+fgNCvn4CaF1sUKrw6xPt1KxobxYudOhdqq6v/m7frdRqmuhQ61uuUamqKz8
+uqGqurFCq8OhQa26pf2xb6W/pbuyTbe9oUG0TrFx+fgNCvn4Ca7Ypb+/+bt+qrqpyrpBq9e2fals
+oUGow8Lnsk2xobykuNGp8bVMuG+hQbawxempyrdSprOyeqq6sPKlu7HQuHGhQyAg+fgNCvn4CQkJ
+CQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4pEcu
+IKFptKupZKyjue+h/qZQxXelzrt5treqvqFqCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4
+DQr5+CAgIKG8IKnKqfG/uqH+U3dpbmdpbmcJCQkJCQkgICAg+fgNCvn4CaF1U3dpbmdpbmehdqxP
+s8yw8qW7qrqz5qZyoUGkpKTlqr3EtrdOq+SnWaywoXWpyqnxv7qhdqFDtUy916xPCSAgICD5+A0K
++fgJtKupZKyjue+hQrSrqWSt0bzWs6GhQaVIpM6l9KbzprPD9rSrqWSqurjqsFSvuKFBs6Oms6zb
+t+2maKxPpUgJICAgIPn4DQr5+AmhdVN3aW5naW5noXazb63Tr+ClUqX3q/yvQbSrqWSvq8Xoqrqz
+5qZyqVKmV6FDrbOk86Rqw+Oo5adZpnCmual3uHGlpvn4DQr5+AmhR6F1qfOpyrH9pKSm26XRptum
+YqZhpuaoxqF2oUOlv6W7sk23vaFBqcqp8b+6reyo06SjuUysT8BIpN+p0rH9ptOkd/n4DQr5+Amh
+Q6xHprmhQaVfrPypyqnxv7qt0bzWs6Go87d8oV3CsrrZTkFTQ0GhQU5vcnRoCUFtZXJpY2FuICBT
+d2luZyAgICAg+fgNCvn4CUNsdWJzICBBc3NvY2lhdGlvbqFepF2xTlN3aW5naW5nqXe4caywoUeh
+dbtQsaGkSKFdqGukzalNpGukzaFepKelfqq6+fgNCvn4CaX0pvOkSLFxqMapyrdSwXDFd6FBqdq1
+tLbHss6quqRAue+kQKz5t3yhdqFDwrKopaSnoUG0TqxPrW4JICAgIPn4DQr5+Amhdad0q3Ku9rqp
+qcqlzayhoV1Fcm9tYW5jZaFeoXahQwkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+CAg
+IKG8IKq+pHakrLSrpqGh/kNsb3NlZCAgR3JvdXAgIE1hcnJpYWdlCQkJCSAgICD5+A0K+fgJtKOo
+7LSrqWSt0bzWs6GhQafOpqGko6RAptOorKFDqOSkpLPMwrKz5qRdrE+zzLS2uU2qurROrE8JICAg
+IPn4DQr5+Amhdaq+pHakrLSrpqGhdqFDq/ykVKStpm6kzaSntqGhQam8prmzo6azt068osLHue+k
+6Kq6pXSkQKVioUGko67JrNus+fn4DQr5+AmkQLBfpECmUL/GpWimbqTNpXSkQKViqrqm57/HoUGk
+rKzbt1K8vrJgtKGhQaVIpr2k9LJWplClxLJHoUKqZ9bfsrOkSPn4DQr5+Amu9qT0qNO0/r5pvFe2
+aaTNsaGhQ7HEpc6zb7rYoXXCWKVSrmGueKFdRXhwYW5kZWQgIEZhbWlseaFeoXapzgkgICAg+fgN
+Cvn4CaF1vPakwa5hrnihXUludGVudGlvbmFsICBGYW1pbHmhXqF2pOimoaxPpl2ssKazpEi7e6yw
+uGel0QkgICAg+fgNCvn4CaF1pnel/qnKt1Kw6aFdc2FmZSAgc2V4ICBjaXJjbGWhXqF2pKekuqFB
+pWmp8aTftmmm5gkJICAgIPn4DQr5+AmhdcXpskel5r/EoV1leGNoYW5nZSAgb2YgIGJvZGlseSAg
+Zmx1aWRzoV4gIKF2pVKl96jJqPwJCSAgICD5+A0K+fgJoXW1TLvZw6ql5re+oV1iYXJyaWVyLWZy
+ZWUgIGludGVyY291cnNloV4gIKF2oUOhdaq+pHakrLSrpqGhdqRIvMaraCD5+A0K+fgJpdGo4rnv
+saGrUbLVpqihdaV8raurtaFdUXVhZKFeoXawX7j1oUOm3Knzs2+nzqahpECpd61upmKqvqR2qH2q
+QqSntqH5+A0K+fgJtmmm5qq6reymXaFBrE+mXaywpqit+6SntqGlsra3v+2mdaF1rk2kbKnTv9Wh
+XUNvbmRvbSAgQ29tbWl0bWVudKFeoXb5+A0K+fgJoUGnWaZipnel/rDppKelfqnKpeahQaWytreo
+z6XOq0/ASa5NoUO37bVNoUGmd6X+sOmkp6S6qrqstqTNCSAgICD5+A0K+fgJoV1JbnRpbWF0ZSAg
+UGFydG5lcqFepbK2t67JsWCwt7FkwMusZKRApFWhQ8H2u6GnWatLrE+kT6bmxFmu5gkgICAg+fgN
+Cvn4CaRApNKkQKlkqO6kXaSjr+CrT8PSMTAwJaZ3pf6quqnKpuassKFBptOlda/gsGyoRLj7pnel
+/qq6qcqm5qywCSAgICD5+A0K+fgJoV1TYWZlciAgU2V4oV6hQwkJCQkJCSAgICD5+A0K+fgJCQkJ
+CQkJCQkgICAg+fgNCvn4ICAgobwgtKupZLjJtbm9daH+TGluZSAgTWFycmlhZ2UJCQkJCSAgICD5
++A0K+fgJoXWqvqR2pKy0q6ahoXaquqZus0KsT6Z3pf6hQ6b9ue+p86/dw8y8c8Hvqrqu9r+6qGuk
+a6jTu6GhQalssteko7D3ICD5+A0K+fgJwWG8pKFDs2+uya3UoUG0TqWytreozL5hoXW0q6lkuMm1
+ub11oV1MaW5lICBNYXJyaWFnZaFeoXaqurrrpN+nR7htoUP5+A0K+fgJUm9iZXJ0CUEuICBIZWlu
+bGVpbqSnpHC7oSAgoW1UaGUgIE1vb24gIElzICBBCUhhcnNoICBNaXN0cmVzc6FurE8g+fgNCvn4
+CbLEpECt07TAs2+62Kjuq9epUqZXqrqhQ7jJtbm9daxPq/ypyrdSpnel/rDpqXe0wanbxfOmfqtD
+t3Om5aFBxf20q6lk+fgNCvn4CaRqrmGueKSjwl/CWKVSoUGk6a9xrPy6oaFDCQkJCQkgICAg+fgN
+Cvn4CQkJCQkJCQkJICAgIPn4DQr5+CAgIKG8IMBIqcqwtaH+Q2FzdWFsCVNleAkJCQkJCSAgICD5
++A0K+fgJrW6sT7b7pUikV6TopqGktKTTu7mhQai6tE6ldaazoXXASKnKsLWhXWNhc3VhbAlzZXih
+XqF2pH6+QaZYCSAgICD5+A0K+fgJpc2pyqnxv7qquqdBoUGorLrZrLC0q6lkpUS4caSkqrqw8qW7
+sdC4cayjq0iue6FDpmK82qz8pmGwz6FBsWCmsyAgICD5+A0K+fgJpWKkvbZ9qrq0q6lkrdG81rOh
+oV1Td2luZ2luZyAgQ2x1YqFeqNG0q6lkq2mkaKFdc3dpbmdlcqFeqPOmULJdtmihQSD5+A0K+fgJ
+pECwX6F1vt69baFdc3BvcnQgIHNleKFeoXahQ7Nvw/6kZMHopsrB5aq6tKupZKfOpqGhQa2rwkmk
+o6ZipEi8xqbTrE/5+A0K+fgJt6epwKFDpXWtbqxPpEC4c6RIoUGl9LdOxf2xYbXbpr2yR6q6qKq7
+csLfxenE8br4vK+q08C/v+ahQazbpKylziAgICD5+A0K+fgJvEyuQqdtu1GhQsvup2yhQaVCpc6k
+VcXpqbymuanUp+i/xLNloUaw0btQplC81qrMpkCoybCqvOmhQaVIsl3Bbq72u3n5+A0K+fgJs9nE
+26dvs9uhQaRAplCy07LTtuW7RKm8prmu8K6noUGxcaSkueq97rSrqWSzzLDypbuqurr1u+KhRwkg
+ICAg+fgNCvn4Cazbs3uko6WytL+s28PRoUGs277Wp8mkV7Z9tW+orcXpt1CpeLhnxeehQbROrE+k
+aq5hpdiquqFDqfG/uqq6pdiquiAg+fgNCvn4CbROrE+m26XRoUK40anxqrqpyrdSoUOhdabKquGq
+p7vvoV1UcmlzZXh1YWyhXqF2qVS1Tbz2vnihQQkgICAg+fgNCvn4Cab9puauYbOjqr65RKFBrvCq
+XqR+rE+tq8JJoUOlda1upGquYcBxq7SmbqFBq9il36Zipa21paSsq0iw8sKmqrogICAg+fgNCvn4
+CaRUpEim5qFdpFOms6RUpli3fFRyYWlkoULFS6RUqKRUcmlhbmdsZbWlqrGqa6FepF2s27ftsPeq
+saFDpUKv4KZdICAg+fgNCvn4CbawpKS666+roUGqsbFvp/Oy071voUMJCQkJCQkgICAg+fgNCvn4
+CQkJCQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4
+pFQuIKFppbuvuKl2pq6hagkJCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+AkJCQkJ
+CQkJCSAgICD5+A0K+fggICChvCCmXaywpXjGV6SntKupZK23rvCow6W8pnC82qz8r+uysabmICil
++qxPrPyw6qW7pGe0Tqz5prMgMTIwILhVpEiw0aVbIPn4DQr5+Am5TLSrqWSt0bzWs6EpICwgqdKl
+SKV4xlems6a5plCmbqrMpWmo+rFvqrq0q6lkuOqwVKxPpNakp6RTpNYsCSAgICD5+A0K+fgJprPF
+sqnzprksIKW7r7issKRGtKOo0aZQpm6qzKfzpmikuKTGqrq46rBUqU2l5qx5tummYabTvc+lzS4J
+ICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJ
+ICAgIPn4DQr5+KV8LiChaaVbpEq3fK37pKemrLZPvNC3x6FqCQkJCQkJICAgIPn4DQr5+AkJCQkJ
+CQkJCSAgICD5+A0K+fggICChvCC3fK37tMGtraRAq9+lSKVipn60wa1wuuIsILZPpc6ssLdzpXi5
+9CA2MDAgpLi+4yAuCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5
++A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4pK0uIKFppVukSrd8rfukp7X5pVWsebV7oWoJCQkJCQkg
+ICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+CAgIKG8IDEutvG8Z7d8rfu46q7GOiC90KZipbuv
+uLr0rbaquiAit3O3fK37tfmlVartruYiIKSktvG8Z7F6qrq46q7GLiAgICAg+fgNCvn4CQkJCQkJ
+CQkJICAgIPn4DQr5+CAgIKG8IDIupqyo7LF6qrq46q7Gq+EspbuvuLd8pUggIrZsp72lTqass2a7
++SIgpOimobFIpVi3fK37pWQ6CSAgICD5+A0K+fgJt3yt+6VkpLqndKazsXqqurd8rfu9c7i5qU2x
+S71YLiAJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggICChvCAzLrd8rfumrKjst3yt
++6Vkq+EsILVupEqlu7r0r7ioyaj8plW62Ld8rfu/V6jJpKezzLdzuOqwVC4JICAgIPn4DQr5+AkJ
+CQkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+KS7
+LiChabFgqKOw3cNEoWoJCQkJCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggICChvCCn
+2qSjpu2mYqV4xlcsIKfapWmlSLDRpVu23CA/CQkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4
+DQr5+AlBOqvcqeq6cCwgpbuvuKV1ra2pd6l+pu2mYqV4xlequrr0pM2w0aVbt3yt+yAuCQkJICAg
+IPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggICChvCC3fK37pWSxSKjTrsmquqVduMukzrd8rful
+ZKW7qK2sT6dfprMgIrSrqWSt0bzWs6EiIKZyvMsgPwkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4
+DQr5+AlBOqywpEa3fK37qrrB9KhwxXa127dRLCC3fK37pWSlu6itpXWmsyAiuvS49K3RvNazoSIg
+pnK8yywJICAgIPn4DQr5+Amow7VMpfSm8yAitKupZCIgpnK8yywgvdCmVabst3yt+6Z3pN8gLgkJ
+CQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+CAgIKG8ILX5pVWkp6vhpmikW6VppUimrKjs
+t3yt+6VkID8JCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4CUE6rPkgMyCm3CA1IK3T
+pHWnQKTRLgkJCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4ICAgobwgpWKmfqq6t3yt
++7jqruasT7Fxrf6kQKTRtn2pbK1wuuIgPwkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5
++AlBOrFxsXqmrKjst3yt+6Vkq+EsssSkQKa4tW6kSqW7uvSvuK7JsF+64i4JCQkgICAg+fgNCvn4
+CQkJCQkJCQkJICAgIPn4DQr5+CAgIKG8IKZwqkelYqZ+qrq3fK37qOy0wavhLKVppUjE8qVkttwg
+PwkJCQkgICAg+fgNCvn4CQkJCQkJCQkJICAgIPn4DQr5+AlBOqZwqkeo7LTBq+EssXqlsra3rau3
+c6XTvdClW6RKt3yt+y4JCQkJICAgIPn4DQr5+AkJCQkJCQkJCSAgICD5+A0K+fggICChvCCw0aVb
+t3yt+6xPp1+lda2tqXek0qlkID8JCQkJCSAgICD5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvn4CUE6
+pXWtbrF6qrqpysZbqcC48qfarcys26ZQLCCko7resXqsT7PmqK2pzqxPpNKpZMDJLCCm06VCpHe4
+Z6aopn4sICAg+fgNCvn4CaehpWmlSKVbpEqn2q3Mqrq3fK37IC4JKKTSqWSmQKZQsNGlW67JLCCl
+0ajkpKSkQKRIpU6q7aVbpEq3fK37p1mlaSn5+A0K+fgJCQkJCQkJCQkgICAg+fgNCvng+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn54g0K+fihvKV4xle0q6lkrdG81rOhqrqkVK3TqVSpd7r0p32ssDqi8KL8ovyi
++KFHof6h/qL7ovyi6aL6ovwuoumi/KH+ovyjQKL7ou2jQfn4DQr5+AkJCQkgICCi8KL8ovyi+KFH
+of6h/qL1ovei+C6i/KL3of6i/KNAovui7aNBICAgIPn4DQr5+AkJCQkgICCi8KL8ovyi+KFHof6h
+/qL8o0Ci+6Lto0Euovei8KLvovcuouui96L1IPn4DQqiovn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5
++fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5oqMNCg==
 
-Again: I'm not completly against preempt, it can reach an mean latency
-much lower than mainline (it can reschedule immediatly in the middle of
-long copy-users for example), so it definitely has a value, it's just
-that I'm not sure if it worth it.
+------=_NextPart_Z29waHCKPcNb9k4xhc0QEAxO4H--
 
-Andrea
+
+

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264685AbTE1LXp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264687AbTE1LXp
+	id S264682AbTE1LWc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264684AbTE1LWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:23:45 -0400
-Received: from mxout2.netvision.net.il ([194.90.9.21]:18051 "EHLO
-	mxout2.netvision.net.il") by vger.kernel.org with ESMTP
-	id S264685AbTE1LXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:23:40 -0400
-Date: Wed, 28 May 2003 14:36:55 +0300
-From: Nir Livni <nirl@cyber-ark.com>
-Subject: fork() crashes on child but returns success on parent
-To: linux-kernel@vger.kernel.org
-Message-id: <E1298E981AEAD311A98D0000E89F45134B5694@ORCA>
-MIME-version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	Wed, 28 May 2003 07:22:32 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:43558 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264682AbTE1LWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:22:31 -0400
+Date: Wed, 28 May 2003 04:36:00 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70: CODA breaks boot
+Message-Id: <20030528043600.650a2f82.akpm@digeo.com>
+In-Reply-To: <20030528112437.GA442@elf.ucw.cz>
+References: <20030528112437.GA442@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 May 2003 11:35:47.0034 (UTC) FILETIME=[48105BA0:01C3250D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now I know for sure that the child crashes (SIGSEGV) before fork() returns.
-I could see it in the UML debugger.
-It does not use the signal handler I have set up of the SIGSEGV. It simply
-crashes and exits.
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> ...it oopses in kmem_cache_create, called from release_console_sem and
+>  coda_init_inodecache.
 
-Could this be any kernel problem ?
-Any ideas what should I do next to track this problem ?
+You'll be needing this one.
 
-> Subject: fork() returns on parent but not returns on child
-> 
-> 
-> Hi all,
-> I am experiencing a problem, where fork() returns succesfully 
-> on parent, but does not return on child. The child process 
-> simply "disappears". I believe it might have got a SIGSEGV 
-> (if it makes any sence) before fork() has returned.
-> 
-> I would like to track down this problem.
-> What I did so far is:
-> 1. I tried first to make sure there are no memory overruns 
-> using few tools. 2. I tried to look at strace output, but the 
-> problem does not occur if I use strace 3. I make a 
-> UserModeLinux machine and now I would like to breakpoint the 
-> created child before it crashes (assuming it really crashes)
-> 
-> How do I do that ?
-> 
-> Thanks,
-> Nir
-> 
+ fs/coda/inode.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN fs/coda/inode.c~coda-typo-fix fs/coda/inode.c
+--- 25/fs/coda/inode.c~coda-typo-fix	2003-05-27 22:27:11.000000000 -0700
++++ 25-akpm/fs/coda/inode.c	2003-05-27 22:27:27.000000000 -0700
+@@ -69,9 +69,9 @@ static void init_once(void * foo, kmem_c
+ int coda_init_inodecache(void)
+ {
+ 	coda_inode_cachep = kmem_cache_create("coda_inode_cache",
+-					     sizeof(struct coda_inode_info),
+-					     0, SLAB_HWCACHE_ALIGN||SLAB_RECLAIM_ACCOUNT,
+-					     init_once, NULL);
++				sizeof(struct coda_inode_info),
++				0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
++				init_once, NULL);
+ 	if (coda_inode_cachep == NULL)
+ 		return -ENOMEM;
+ 	return 0;
+
+_
+

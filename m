@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280430AbRK1UzO>; Wed, 28 Nov 2001 15:55:14 -0500
+	id <S278120AbRK1U5O>; Wed, 28 Nov 2001 15:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278120AbRK1UzF>; Wed, 28 Nov 2001 15:55:05 -0500
-Received: from paloma16.e0k.nbg-hannover.de ([62.181.130.16]:32646 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S280430AbRK1Uyv>; Wed, 28 Nov 2001 15:54:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Torrey Hoffman <torrey.hoffman@myrio.com>,
-        "'Andrew Morton'" <akpm@zip.com.au>
+	id <S278808AbRK1U5E>; Wed, 28 Nov 2001 15:57:04 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:12020 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278120AbRK1U4z>;
+	Wed, 28 Nov 2001 15:56:55 -0500
+Date: Wed, 28 Nov 2001 13:56:11 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "'lkml'" <linux-kernel@vger.kernel.org>
 Subject: Re: Unresponiveness of 2.4.16
-Date: Wed, 28 Nov 2001 21:51:28 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CAE2@mail0.myrio.com>
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CAE2@mail0.myrio.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011128205501Z280430-17409+20355@vger.kernel.org>
+Message-ID: <20011128135611.D856@lynx.no>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	'lkml' <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C03FE2F.63D7ACFD@zip.com.au> <Pine.LNX.4.21.0111281604390.15571-100000@freak.distro.conectiva> <3C054992.48F5C9E7@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3C054992.48F5C9E7@zip.com.au>; from akpm@zip.com.au on Wed, Nov 28, 2001 at 12:31:14PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 28. November 2001 20:42 schrieb Torrey Hoffman:
-> Yes, I just looked at the code in /fs/reiserfs/bitmap.c and
-> the comment block above the warning message specifically mentions
-> the low-latency patches.
->
-> I feel better now, looks like my filesystem is safe...
->
-> Torrey
+On Nov 28, 2001  12:31 -0800, Andrew Morton wrote:
+> write-cluster.patch
+> 	ext2 metadata prereading and various other hacks which
+> 	prevent writes from stumbling over reads, and thus ruining
+> 	write clustering.  This patch is in the early prototype stage
 
-So may I ask you to give 2.4.16 + preempt + lock-break (it is an additional 
-one which do the same as Andrew's low-latency) a try?
+Shouldn't the ext2_inode_preread() code use "ll_rw_block(READ_AHEAD,...)"
+just to be proper?
 
-Please run an MP3 or Ogg-Vorbis together with dbench. As you have a dual PIII 
-I am very interested. I will buy a dual Athlon XP/MP, soon.
-
-Thanks,
-	Dieter
-
-> Andrew Morton wrote:
-> [...]
->
-> > > fall over, and during the run I got the following error/
-> > > warning message printed about 20 times on the console
-> > > and in the kernel log:
-> > >
-> > > vs-4150: reiserfs_new_blocknrs, block not free<4>
-> >
-> > uh-oh.  I probably broke reiserfs in the low-latency patch.
-> >
-> > It's fairly harmless - we drop the big kernel lock, schedule
-> > away.  Upon resumption, the block we had decided to allocate
-> > has been allocated by someone else.  The filesystem emits a
-> > warning and goes off to find a different block.
-> >
-> > Will fix.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

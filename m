@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQKOLMc>; Wed, 15 Nov 2000 06:12:32 -0500
+	id <S129786AbQKOLX0>; Wed, 15 Nov 2000 06:23:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbQKOLMW>; Wed, 15 Nov 2000 06:12:22 -0500
-Received: from mean.netppl.fi ([195.242.208.16]:18702 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S129314AbQKOLMM>;
-	Wed, 15 Nov 2000 06:12:12 -0500
-Date: Wed, 15 Nov 2000 12:42:04 +0200
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] acenic driver update
-Message-ID: <20001115124204.A19484@netppl.fi>
-In-Reply-To: <200011140031.TAA13437@plonk.linuxcare.com> <20001114184505.X18364@esscom.com> <d3aeb1yhy8.fsf@lxplus015.cern.ch>
+	id <S129741AbQKOLXG>; Wed, 15 Nov 2000 06:23:06 -0500
+Received: from jalon.able.es ([212.97.163.2]:64468 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129652AbQKOLW6>;
+	Wed, 15 Nov 2000 06:22:58 -0500
+Date: Wed, 15 Nov 2000 11:52:50 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: net mods installed under misc in 2.2.18-pre21
+Message-ID: <20001115115250.A1231@werewolf.able.es>
+Reply-To: jamagallon@able.es
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <d3aeb1yhy8.fsf@lxplus015.cern.ch>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 15, 2000 at 05:31:27AM +0100, Jes Sorensen wrote:
-> >>>>> "Val" == Val Henson <vhenson@esscom.com> writes:
-> Val> Jes, I just downloaded the 0.48 acenic driver and it still has a
-> Val> reproducible null dereference bug.  Anyone can oops their machine
-> Val> by doing:
-> 
-> Bugger I think I lost your patch in the noise. Sorry about that, it'll
-> be in the next version.
-> 
-> Val> ifconfig <gige> mtu 9000 ping -f -s 60000 <remote gige host>
-> Val> ifconfig <gige> mtu 1500 ping -f -s 60000 <remote gige host>
-> 
-> Val> I don't have a fix for this.
-> 
-> Hmmm could be a firmware issue, I'll need to look at it. It is however
-> a kind of bug that only root can cause deliberately. Doing ifconfig
-> mtu foo ; ifconfig mtu bar is a little far from normal operation ;-)
-It seems like it's caused by the driver trying to 
-do things while it's still setting up the rings.
+Hi everyone.
 
-static void ace_rx_int(struct net_device *dev, u32 rxretprd, u32 rxretcsm)
-{
-	...
-        rip = &ap->skb->rx_jumbo_skbuff[skbidx];
-	...
-	skb = rip->skb;
-	skb_put(skb, retdesc->size); /* crash here */
-	...
-}
+I have noticed that some kernel modules are installed under
+/lib/modules/XXX/misc,
+instead of /net. I have been checking the drivers/net/Makefile (little knowledge
+of 
+kernel make infraestructure...), and MOD_LIST_NAME is set properly, but the only
+content of modules/NET_MODULES is dummy.o.
 
-while the driver might be doing this at the same time:
+There is no important issue, but that i build newer net drivers got from Scyld,
+and
+installed them under modules/XXX/net. But modprobe was still getting the old
+ones,
+because 'misc' is before 'net'...
 
-	for (i = 0; i < RX_JUMBO_RING_ENTRIES; i++) { 
-      	 	if (ap->skb->rx_jumbo_skbuff[i].skb) {
-	    	 	ap->rx_jumbo_ring[i].size = 0;
-			set_aceaddr(&ap->rx_jumbo_ring[i].addr,
-			dev_kfree_skb(ap->skb->rx_jumbo_skbuff[i].skb); 
-	 	 	ap->skb->rx_jumbo_skbuff[i].skb = NULL;
-              	}
-         }
+Kernel is plain standard kernel 2.2.17 + 2.2.18-pre21-patch + VM-patch + i2c-lm
+patch.
+
+I will dig into the makefiles, but someone has a clue ? Perhaps this also
+affects
+other modules.
+
 -- 
-Pekka Pietikainen
-
-
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

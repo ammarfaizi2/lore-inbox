@@ -1,72 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271713AbRHQReT>; Fri, 17 Aug 2001 13:34:19 -0400
+	id <S271705AbRHQRgJ>; Fri, 17 Aug 2001 13:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271710AbRHQReJ>; Fri, 17 Aug 2001 13:34:09 -0400
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:33543 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S271705AbRHQReB>; Fri, 17 Aug 2001 13:34:01 -0400
-Date: Fri, 17 Aug 2001 20:34:14 +0300
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: linux-kernel@vger.kernel.org
-Cc: Tim Moore <timothymoore@bigfoot.com>
-Subject: Re: 2.2.20pre series and booting problem
-Message-ID: <20010817203414.A14553@elektroni.ee.tut.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Tim Moore <timothymoore@bigfoot.com>
-In-Reply-To: <20010815172631.A17156@elektroni.ee.tut.fi> <3B7C58BB.6D67DD7A@bigfoot.com> <20010817081629.A3540@elektroni.ee.tut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010817081629.A3540@elektroni.ee.tut.fi>; from kaukasoi@elektroni.ee.tut.fi on Fri, Aug 17, 2001 at 08:16:29AM +0300
+	id <S271709AbRHQRf7>; Fri, 17 Aug 2001 13:35:59 -0400
+Received: from mail6.svr.pol.co.uk ([195.92.193.212]:33810 "EHLO
+	mail6.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S271705AbRHQRfx>; Fri, 17 Aug 2001 13:35:53 -0400
+Message-ID: <3B7D5603.8080805@humboldt.co.uk>
+Date: Fri, 17 Aug 2001 18:36:03 +0100
+From: Adrian Cox <adrian@humboldt.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <Pine.LNX.3.95.1010817130849.2216A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 17, 2001 at 08:16:29AM +0300, Petri Kaukasoina wrote:
-> On Thu, Aug 16, 2001 at 04:35:23PM -0700, Tim Moore wrote:
-> > Petri Kaukasoina wrote:
-> > > 
-> > > 2.2.20pre3 boots ok but pre5-pre9 do not:
-> > > 
-> > > Uncompressing Linux...
-> > > 
-> > > Out of memory
-> > > 
-> > >   -- System halted
-> > > 
+Richard B. Johnson wrote:
 > 
-> > make bzimage?
-> 
-> Yes, both zImage and bzImage gave the same error. (I should have mentioned
-> that, sorry.)
+> ** At this instant, you just killed everything in RAM with precharge **
 
-I was wrong. I must have made a mistake when I tried bzImage because now it
-works.
+I've done a bit more reading. The documentation I have here suggests the 
+precharge doesn't erase all of memory.  Precharge copies from the sense 
+amplifiers back into the current row. The erasure is a result of the 
+sense amplifiers losing their contents faster than the memory cells, but 
+even so only one of the 2^12 rows gets erased.
+-- 
+Adrian Cox   http://www.humboldt.co.uk/
 
-Up to 2.2.20pre3 zImage works ok. After that it doesn't work any longer, but
-bzImage does.
-
-For example this is a 2.2.19 zImage
-
--rw-r--r--    1 root     root       476269 Aug 11 23:32 vmlinuz-2.2.19
-
-which reports its size like this
-
-Memory: 47136k/49152k available (832k kernel code, 412k reserved, 728k data, 44k init)
-
-A 2.2.20pre9 built from the same .config doesn't boot from a zImage (tells
-Out of memory) but boots up ok from a bzImage. Its size is the same as above:
-
-Memory: 47136k/49152k available (832k kernel code, 412k reserved, 728k data, 44k init)
-
-When I leave almost everything out of .config, I get this minimal kernel:
-
--rw-r--r--    1 kaukasoi users      261818 Aug 17 20:01 zImage
-
-which reports this
-
-Memory: 47612k/49152k available (428k kernel code, 412k reserved, 668k data, 32k init)
-
-Even then zImage tells 'Out of memory' but bzImage boots up ok. So it seems
-that zImages don't work any longer.

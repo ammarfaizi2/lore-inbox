@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUEVO7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUEVPBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbUEVO7o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 10:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUEVO7o
+	id S261505AbUEVPBs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 11:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUEVPBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 10:59:44 -0400
-Received: from cantor.suse.de ([195.135.220.2]:2995 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261468AbUEVO7m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 10:59:42 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Trivial patch for quiet_cmd_modules_install_extra
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: The entire CHINESE WOMEN'S VOLLEYBALL TEAM all share ONE personality
- --
- and have since BIRTH!!
-Date: Sat, 22 May 2004 16:59:41 +0200
-Message-ID: <jey8nkzew2.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 22 May 2004 11:01:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12500 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261505AbUEVPBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 11:01:34 -0400
+Date: Sat, 22 May 2004 17:01:27 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: [2.6 patch] more comx removal
+Message-ID: <20040522150127.GS18564@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a cosmetical bug in the external module support during
-modules_install, so that the name of the installed module is actually
-displayed.
+The patch below removes the MAINTAINERS entry for the removed comx 
+driver.
 
-Andreas.
+Additionally, the following comx header files could be removed:
+  drivers/net/wan/mixcom.h
+  drivers/net/wan/hscx.h
+  drivers/net/wan/munich32x.h
+  drivers/net/wan/falc-lh.h
 
---- linux-2.6.5/scripts/Makefile.modinst.~1~	2004-05-21 14:25:54.000000000 +0200
-+++ linux-2.6.5/scripts/Makefile.modinst	2004-05-22 16:25:41.439829965 +0200
-@@ -27,7 +27,7 @@ $(filter-out ../% /%,$(modules)):
- 
- # Modules built outside just go into extra
- 
--quiet_cmd_modules_install_extra = INSTALL $(obj-m:.o=.ko)
-+quiet_cmd_modules_install_extra = INSTALL $@
-       cmd_modules_install_extra = mkdir -p $(MODLIB)/extra; \
- 			    	  cp $@ $(MODLIB)/extra
- 
+I've double-checked that none of them are used by any other driver.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+cu
+Adrian
+
+
+--- linux-2.6.6-mm5-full/MAINTAINERS.old	2004-05-22 14:48:10.000000000 +0200
++++ linux-2.6.6-mm5-full/MAINTAINERS	2004-05-22 16:59:35.000000000 +0200
+@@ -530,11 +530,6 @@
+ L:	linux-computone@lazuli.wittsend.com
+ S:	Supported
+ 
+-COMX/MULTIGATE SYNC SERIAL DRIVERS
+-P:	Pasztor Szilard
+-M:	Pasztor Szilard <don@itc.hu>
+-S:	Supported
+-
+ COSA/SRP SYNC SERIAL DRIVER
+ P:	Jan "Yenya" Kasprzak
+ M:	kas@fi.muni.cz

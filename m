@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVBWWBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVBWWDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVBWWBd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 17:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVBWWBA
+	id S261637AbVBWWDg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVBWWBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 17:01:00 -0500
-Received: from fire.osdl.org ([65.172.181.4]:17858 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261616AbVBWWAn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 17:00:43 -0500
-Date: Wed, 23 Feb 2005 14:00:45 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olof Johansson <olof@austin.ibm.com>
-cc: Jamie Lokier <jamie@shareable.org>, Joe Korty <joe.korty@ccur.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-In-Reply-To: <20050223191254.GA5608@austin.ibm.com>
-Message-ID: <Pine.LNX.4.58.0502231356580.18997@ppc970.osdl.org>
-References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org>
- <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
- <20050223144940.GA880@tsunami.ccur.com> <Pine.LNX.4.58.0502230751140.2378@ppc970.osdl.org>
- <20050223171015.GD10256@austin.ibm.com> <20050223182203.GA10931@mail.shareable.org>
- <Pine.LNX.4.58.0502231033540.2378@ppc970.osdl.org> <20050223184946.GA11473@mail.shareable.org>
- <20050223191254.GA5608@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Feb 2005 17:01:50 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:55697 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261635AbVBWWBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 17:01:19 -0500
+Subject: Re: kernel BUG at mm/rmap.c:483!
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Ammar T. Al-Sayegh" <ammar@kunet.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <003001c519f1$031afc00$7101a8c0@shrugy>
+References: <009d01c519e8$166768b0$7101a8c0@shrugy>
+	 <1109192040.6290.108.camel@laptopd505.fenrus.org>
+	 <003001c519f1$031afc00$7101a8c0@shrugy>
+Content-Type: text/plain
+Date: Wed, 23 Feb 2005 23:01:13 +0100
+Message-Id: <1109196074.6290.116.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 23 Feb 2005, Olof Johansson wrote:
+On Wed, 2005-02-23 at 16:45 -0500, Ammar T. Al-Sayegh wrote:
+> > On Wed, 2005-02-23 at 15:41 -0500, Ammar T. Al-Sayegh wrote:
+> >> Hi All,
+> >> 
+> >> I recently installed Fedora RC3 on a new server.
+> >> The kernel is 2.6.10-1.741_FC3smp. The server
+> >> crashes every few days. When I examine /var/log/messages,
+> >> I find the following line just before the crash:
+> >> 
+> >> Feb 22 23:50:35 hostname kernel: ------------[ cut here ]------------
+> >> Feb 22 23:50:35 hostname kernel: kernel BUG at mm/rmap.c:483!
+> >> 
+> >> No further debug lines are given to diagnose the
+> >> source of the 
+> > no oops at all?
 > 
-> How's this? I went with get_val_no_fault(), since it isn't really a
-> get_user.*() any more (ptr being passed in), and no_paging is a little
-> misleading (not all faults are due to paging).
+> No. Is there a way to enable the kernel to give more
+> diagnostic debug output next time this error happens?
 
-Applied with minor cosmetic changes. I'm like a dog who likes to pee on 
-things to show his territory, so I changed "get_val_no_fault" to 
-"get_futex_value_locked", and I made sure that the return value is 
-sensible (return 0 or -EFAULT rather than the "__memcpy_from_user()" 
-return value which is how many bytes we couldn't copy).
+not really; it was supposed to do that already
 
-Not that we care (we just check the return value against zero anyway,
-which is success in both cases), but the compiler should be able to
-optimize it away, and it might avoid some confusion down the line..
+> i2c_dev                13249  0 
+> i2c_core               24513  1 i2c_dev
 
-		Linus
+try for fun to not use i2c for a while
+
+> microcode              11489  0 
+same for microcode... try removing that so that the microcode of your
+system doesn't get updated at boot
+
+
+

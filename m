@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282949AbRK0VII>; Tue, 27 Nov 2001 16:08:08 -0500
+	id <S282964AbRK0VLi>; Tue, 27 Nov 2001 16:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282959AbRK0VH6>; Tue, 27 Nov 2001 16:07:58 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:20610 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S282949AbRK0VHy>; Tue, 27 Nov 2001 16:07:54 -0500
-Message-ID: <3C040117.1312599D@oracle.com>
-Date: Tue, 27 Nov 2001 22:09:43 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-i8k i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.1-pre2: modular nfs.o has unresolved symbols
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282959AbRK0VL2>; Tue, 27 Nov 2001 16:11:28 -0500
+Received: from ns.suse.de ([213.95.15.193]:26374 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282957AbRK0VLS>;
+	Tue, 27 Nov 2001 16:11:18 -0500
+To: andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16: "Address family not supported" on RH IBM T23
+In-Reply-To: <20011127200522.B27480@indexdata.dk.suse.lists.linux.kernel> <m168nl3-000OVrC@amadeus.home.nl.suse.lists.linux.kernel> <20011127153119.A25554@pimlott.ne.mediaone.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Nov 2001 22:11:14 +0100
+In-Reply-To: andrew@pimlott.ne.mediaone.net's message of "27 Nov 2001 21:47:38 +0100"
+Message-ID: <p73elmjsyvh.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.1-pre2; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.1-pre2/kernel/fs/nfs/nfs.o
-depmod: 	seq_escape
-depmod: 	seq_printf
+andrew@pimlott.ne.mediaone.net (Andrew Pimlott) writes:
+> 
+> And is CONFIG_RTNETLINK also necessary for ip?
 
---alessandro
+In vger (networking development tree) these options have just been removed
+and hardcoded to on. 
+It'll likely show up soon in the main tree soon.
 
- "we live as we dream alone / to break the spell we mix with the others
-  we were not born in isolation / but sometimes it seems that way"
-     (R.E.M., live intro to 'World Leader Pretend')
+If that were not the case it would be better to fix iproute2 to give a
+more meaningfull error message.
+
+-Andi
+

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263505AbUCTSQc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 13:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbUCTSQc
+	id S263500AbUCTSVM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 13:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263501AbUCTSVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 13:16:32 -0500
-Received: from web10401.mail.yahoo.com ([216.136.130.93]:20750 "HELO
-	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263505AbUCTSQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 13:16:31 -0500
-Message-ID: <20040320181630.27185.qmail@web10401.mail.yahoo.com>
-Date: Sat, 20 Mar 2004 10:16:30 -0800 (PST)
-From: "Michael W. Shaffer" <mwshaffer@yahoo.com>
-Subject: Kernel 2.6.4 Hang in utime() on swap file
-To: linux-kernel@vger.kernel.org
+	Sat, 20 Mar 2004 13:21:12 -0500
+Received: from imap.gmx.net ([213.165.64.20]:50609 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263500AbUCTSVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 13:21:11 -0500
+X-Authenticated: #21910825
+Message-ID: <405C8B39.8080609@gmx.net>
+Date: Sat, 20 Mar 2004 19:19:37 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
+       Device mapper devel list <dm-devel@redhat.com>
+Subject: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Debian Sarge system running a 2.6 kernel (tested with 2.6.2, 2.6.3,
-2.6.4 with the same behavior as described here), and am seeing un-killable
-hanging processes with our particular backup product.
+Hi,
 
-When the backup disk agent process is running, one the the last files it
-tries to back up is a swap file at the path /swapfile00. The read of the
-file appears to work fine, but then it wants to call utime() to reset the
-atime/mtime on the file, and at this point the process becomes infinitely
-hung, doing nothing, no more output from strace, never terminating.
+[sorry for the crosspost]
 
-This only occurs if the swapfile is actively in use when the backup runs. If
-I run swapoff to deactivate the swapfile, then the utime() call apparently
-completes and the process immediately finishes and exits normally. If the
-swapfile is not in use at all, everything works fine.
-
-As a workaround, I am just going to leave this swapfile inactive, since it's
-not really used much anyway. I do not observe this behavior on the same
-machine running a 2.4.21-xfs kernel.
+a few hours ago I read on lkml that development to support ATARAID
+variants as a dm target is underway. Is that correct? If not, I might be
+interested in writing such a target.
 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance Tax Center - File online. File on time.
-http://taxes.yahoo.com/filing.html
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+

@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262449AbSK0M1g>; Wed, 27 Nov 2002 07:27:36 -0500
+	id <S262469AbSK0M3R>; Wed, 27 Nov 2002 07:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbSK0M1g>; Wed, 27 Nov 2002 07:27:36 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:1803 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S262449AbSK0M1f>;
-	Wed, 27 Nov 2002 07:27:35 -0500
-Date: Wed, 27 Nov 2002 15:34:09 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Pavel Jan?k <Pavel@Janik.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI serial card with PCI 9052?
-Message-ID: <20021127123409.GB401@pazke.ipt>
-Mail-Followup-To: Pavel Jan?k <Pavel@Janik.cz>,
-	linux-kernel@vger.kernel.org
-References: <m3smxx1aaf.fsf@Janik.cz> <20021120095618.GB319@pazke.ipt> <m3fztrcinh.fsf@Janik.cz> <20021124114307.A25408@flint.arm.linux.org.uk> <m3vg2naupr.fsf@Janik.cz> <20021125094828.GA6016@pazke.ipt> <m3hee55qc6.fsf@Janik.cz> <m33cpn5jqm.fsf@Janik.cz> <20021127120647.GA401@pazke.ipt> <m3fztn430e.fsf@Janik.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
-Content-Disposition: inline
-In-Reply-To: <m3fztn430e.fsf@Janik.cz>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17 
+	id <S262464AbSK0M3R>; Wed, 27 Nov 2002 07:29:17 -0500
+Received: from web21508.mail.yahoo.com ([66.163.169.19]:2899 "HELO
+	web21508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262457AbSK0M3P>; Wed, 27 Nov 2002 07:29:15 -0500
+Message-ID: <20021127123634.84689.qmail@web21508.mail.yahoo.com>
+Date: Wed, 27 Nov 2002 12:36:34 +0000 (GMT)
+From: =?iso-8859-1?q?Neil=20Conway?= <nconway_kernel@yahoo.co.uk>
+Subject: Re: FS-corrupting IDE bug still in 2.4.20-rc3
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Cc: nconway_kernel@yahoo.co.uk
+In-Reply-To: <200211271158.13771.m.c.p@wolk-project.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marc...
 
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ --- Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
+> You may try that patch with a VIA boxen and I am quite sure you may
+> experience 
+> a bug that none of your harddisks may be recognized and result in a 
+> panic();
 
-On Wed, Nov 27, 2002 at 01:21:21PM +0100, Pavel Jan?k wrote:
->    From: Andrey Panin <pazke@orbita1.ru>
->    Date: Wed, 27 Nov 2002 15:06:47 +0300
->=20
-> Hi,
->=20
->    > > I find more info about that card - it is MP9050 by
->    > > http://www.megapower-int.com.tw/.
->    >=20
->    > Does it support baudrates more than 115200 per manufacturer descript=
-ion ?
->=20
-> they do not tell anything about their products :-(
+Aha...  Actually, if you read the patch, you'll see why that's no
+longer the case.  I had in fact forgotten that I'd had to patch the
+patch to make my VIA box boot (it was 6 months ago now!).  I now do "if
+(hwgroup) ..." in the test-for-busy section.  So, the new patch does
+NOT now cause panics on VIA.
 
-Hmm, how do they sell them ? :))
+> I had the same Fix in WOLK some time ago and many users with VIA
+> chipset 
+> complained that with the fix their mashine does not recognize any
+> harddisks 
+> and after trying to recognize they had a panic();
 
-BTW you can also report PCI ids of this card to the Linux PCI ID's Project=
-=20
-at http://pciids.sf.net/
+Yes, only some chipsets end up in ide_config_drive_speed() at bootup;
+notably the PIIX doesn't and the VIA does.  Mea culpa!  I should have
+posted the fixed patch perhaps, but then it was deprecated and I
+thought Andre had a better fix in hand.  (BTW, when you say you had
+"the same fix", you mean you fixed it independently or you used my
+patch from May '02?)
 
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---oC1+HKm2/end4ao3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> Maybe it's working for you with some VIA chipsets but I removed that
+> fix and 
+> after removal all users with VIA were happy. I've never heard of a FS
+> corruption of them.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Well, do they have the trigger ingredients?  You MUST have an IDE CDROM
+sharing a bus with a HDD.  Also, the perfect recipe for disk corruption
+is to reboot, and then log in to your chosen desktop, and while it's
+hammering the disk starting everything up, it should fire off
+"magicdev", which in turn loads ide-cd: BOOM.  RedHat 7.x with GNOME
+does things in this order.  YMMV.
 
-iD8DBQE95LvBBm4rlNOo3YgRAvIxAJ9zGSTPdSxB2+rQp+Ru2w9turWsIQCdE+gQ
-WJ9Frlc9U4BGXB4cOcdiomU=
-=vpRq
------END PGP SIGNATURE-----
+Neil
 
---oC1+HKm2/end4ao3--
+__________________________________________________
+Do You Yahoo!?
+Everything you'll ever need on one web page
+from News and Sport to Email and Music Charts
+http://uk.my.yahoo.com

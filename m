@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129043AbQKFSWy>; Mon, 6 Nov 2000 13:22:54 -0500
+	id <S129044AbQKFSbG>; Mon, 6 Nov 2000 13:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKFSWp>; Mon, 6 Nov 2000 13:22:45 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:56975 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129043AbQKFSWf>;
-	Mon, 6 Nov 2000 13:22:35 -0500
-Date: Mon, 6 Nov 2000 18:22:10 +0000 (GMT)
+	id <S129099AbQKFSa4>; Mon, 6 Nov 2000 13:30:56 -0500
+Received: from [193.120.224.170] ([193.120.224.170]:8592 "EHLO florence.itg.ie")
+	by vger.kernel.org with ESMTP id <S129044AbQKFSar>;
+	Mon, 6 Nov 2000 13:30:47 -0500
+Date: Mon, 6 Nov 2000 18:30:31 +0000 (GMT)
 From: Paul Jakma <paulj@itg.ie>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Woodhouse <dwmw2@infradead.org>, Dan Hollis <goemon@anime.net>,
         Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
         linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
-In-Reply-To: <28752.973510632@redhat.com>
-Message-ID: <Pine.LNX.4.21.0011061814350.31802-100000@rossi.itg.ie>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <E13sphu-0006O4-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0011061823560.31802-100000@rossi.itg.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, David Woodhouse wrote:
+On Mon, 6 Nov 2000, Alan Cox wrote:
 
-
-> * Sound module is autoloaded again, default to zero levels.
-
-so you use the 'post-install' option of modules.conf to run your
-mixer-level setting script.
-
-> 	This time it is _NOT_ fine. User is rightly pissed off :)
+> If the sound card is only used some of the time or setup and then used
+> for TV its nice to get the 60K + 128K DMA buffer back when you dont need it
+> especially on a low end box
 > 
 
-even better: is there any pressing need for /all/ modules to be
-auto-unloaded? things like sound modules should be statically loaded
-at boot time and never removed for 99% of workstations i think.
+so unload it then - aiui most soundcards will continue passing through
+the TV line? right?
 
-i'd also like to see dist's adopt a nice config file specifying which
-modules to statically load at boot-time. (i know i want i them
-loaded). then maybe info from depmod could be applied to remove
-redundant loads.
+or another argument: how common is this case that a box with such
+tight memory is used in such a multi-purpose way (sometimes it
+uses sounds, mostly not? and even then, for such a case, is it
+reasonable to assume the user should deal with the memory
+problems? (ie it's not unreasonable to expect them to have to do extra
+fiddling with mixer levels).
 
-> The inter_module_xxx() stuff would facilitate this quite nicely.
-> 
-
-but if userspace can do it just as easily... (in the case of sound
-modules anyway)
-
-> --
-> dwmw2
+but surely the vast majority of machines with soundcards have no good
+reason for unloading them?
 
 --paulj
 

@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314583AbSEMXGj>; Mon, 13 May 2002 19:06:39 -0400
+	id <S314514AbSEMXFx>; Mon, 13 May 2002 19:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314612AbSEMXGi>; Mon, 13 May 2002 19:06:38 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26646 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S314583AbSEMXGh>; Mon, 13 May 2002 19:06:37 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200205132306.g4DN6bb04733@devserv.devel.redhat.com>
-Subject: Re: Wine problems w/ 2.4.19-pre8-ac1
-To: aibara@ucsd.edu
-Date: Mon, 13 May 2002 19:06:37 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020513210339.GA8045@thibs.menloschool.org> from "Allen H. Ibara" at May 13, 2002 02:03:39 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314583AbSEMXFw>; Mon, 13 May 2002 19:05:52 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:61693 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S314514AbSEMXFv>; Mon, 13 May 2002 19:05:51 -0400
+Subject: Re: set_cpus_allowed() optimization
+From: Robert Love <rml@tech9.net>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020510130903.B1544@w-mikek2.des.beaverton.ibm.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 May 2002 16:05:46 -0700
+Message-Id: <1021331147.18799.2997.camel@summit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd like to report that vm86 handling still seems to be broken as
-> of 2.4.19-pre8-ac1.
+n Fri, 2002-05-10 at 13:09, Mike Kravetz wrote: 
+> Please consider the following optimization to set_cpus_allowed().
+> In the case where the task does not reside on a runqueue, is it
+> not safe/sufficient to simply set the task's cpu field?  This
+> would avoid scheduling the migration thread to perform the task.
 > 
-> Wine does not work properly until I copy arch/i386/kernel/vm86.c over from
-> a vanilla 2.4.18 tree (Although dosemu works fine without this).
+> Previously, set_cpus_allowed() was always called for a task that
+> resides on a runqueue.  With the introduction of the 'cpu affinity'
+> system calls, this is no longer the case.
 
-What sort of problems does it show ?
+I like!  I agree, if the task is not runnable then it should be
+sufficient to just set task->cpu as when it is activated it will be put
+into the runqueue based on ->cpu.
+
+There was a chance even without the CPU affinity runqueues a process
+would dequeue before set_cpus_allowed returned.  Look at the case in
+migration_thread where exactly what your patch does is done.  If !array,
+then the code just sets task->cpu and returns.
+
+Ingo?  Good?
+
+	Robert Love
+

@@ -1,119 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbTL1OhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 09:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTL1OhP
+	id S261567AbTL1Oow (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 09:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTL1Oow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 09:37:15 -0500
-Received: from web13308.mail.yahoo.com ([216.136.175.44]:51869 "HELO
-	web13308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261506AbTL1OhC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 09:37:02 -0500
-Message-ID: <20031228143700.8965.qmail@web13308.mail.yahoo.com>
-Date: Sun, 28 Dec 2003 06:37:00 -0800 (PST)
-From: reza kahar <rezakahar@yahoo.com>
-Subject: Fwd: need your help
-To: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-969214821-1072622220=:7600"
+	Sun, 28 Dec 2003 09:44:52 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:5128 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261567AbTL1Oov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 09:44:51 -0500
+Date: Sun, 28 Dec 2003 14:44:15 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Colin Ngam <cngam@sgi.com>
+Cc: Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+Message-ID: <20031228144415.B20391@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Colin Ngam <cngam@sgi.com>, Pat Gefre <pfg@sgi.com>, akpm@osdl.org,
+	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031223090227.A5027@infradead.org> <3FE85533.E026DE86@sgi.com> <20031223165506.A8624@infradead.org> <3FEC8F0B.A8C30677@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FEC8F0B.A8C30677@sgi.com>; from cngam@sgi.com on Fri, Dec 26, 2003 at 01:42:03PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-969214821-1072622220=:7600
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+On Fri, Dec 26, 2003 at 01:42:03PM -0600, Colin Ngam wrote:
+> Hi Christoph,
+> 
+> Yes I agree.  However, keep in mind that we are following the ia32/ia64
+> way of getting platforms initialized, via ACPI etc.  What you see as
+> drivers code in sn/io will probably not exist anymore.  All initialization
+> and configuration will be done at the System BIOS level and information
+> passed down to the Linux Kernel via ACPI.  This will take away much
+> code in the kernel.
 
+Well, I've heard this a few times now and life would definitly be simpler
+if you're going down that route.  OTOH we all know talk is cheap and code
+speaks, and do you really expect SGI to invest money into doing that for
+the now almost legacy SHUB/PIC based Altixens?  Well, even if SGI does this
+some day it won't really hurt us to get the code in shape first even if
+it's only use on MIPS IP27/IP35, wouldn't it?
 
-Note: forwarded message attached.
+> We believe that all that will be left in sn/io directory maybe files dealing with
+> DMA mappings(IOMMU).
 
-And Brian Bidulock, the one who made sctp open source
-for linux, said to me don't compile with gcc3
-I use linux Red Hat 9, i don't know in red hat 9 use
-what gcc..but, i don't know to how to change gcc. I've
-down loaded gcc-2.95.3 and gcc-3.3.2 but i 'm still in
-dificultness in istall of its.
-Any Help?
-Thank you very much
+That's one of the candidates that really should be shared with IP27 and the
+once someone does them the IP30 and IP35 ports.  Really, the basic dma mapping
+code is the same for Bridge/Xbridge/PIC/TIOCP so we should have one driver.
+And once all the IRIX I/O infrastructure depency is ripped out that part of
+pcibr is rather self-contained.  I can send you my latest variant of the
+dma mapping code if you want, but due tue all that stupid renaming of
+structure and macro names it won't compile in your tree.  See why I _really_
+_really_ dislike that silly renaming?  It breaks all those nice efforts
+for code-sharing without any gain.
 
-
-make[2]: Entering directory `/usr/src/linux/net'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686  
--DKBUILD_BASENAME=netsyms  -DEXPORT_SYMTAB -c
-netsyms.c
-In file included from
-/usr/src/linux/include/net/checksum.h:33,
-                 from netsyms.c:24:
-/usr/src/linux/include/asm/checksum.h:72:30: warning:
-multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:105:17: warning:
-multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:121:13: warning:
-multi-line string literals are deprecated
-/usr/src/linux/include/asm/checksum.h:161:17: warning:
-multi-line string literals are deprecated
-netsyms.c:385: `ipv4_specific' undeclared here (not in
-a function)
-netsyms.c:385: initializer element is not constant
-netsyms.c:385: (near initialization for
-`__ksymtab_ipv4_specific.value')
-make[2]: *** [netsyms.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/net'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/net'
-make: *** [_dir_net] Error 2
-
-
-
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
---0-969214821-1072622220=:7600
-Content-Type: message/rfc822
-
-Received: from [167.205.22.104] by web13301.mail.yahoo.com via HTTP; Sat, 27 Dec 2003 15:48:37 PST
-Date: Sat, 27 Dec 2003 15:48:37 -0800 (PST)
-From: reza kahar <rezakahar@yahoo.com>
-Subject: need your help
-To: Wolfgang.Friess@dlr.de
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Length: 922
-
-Hi Wolfgang,
-How do you do?
-My name reza,
-I read your email in archive milis 3 April 1996
-about undeclare symbols in net/netsyms.c
-you said that it's just a foolish configuration
-
-i've a same problem with you.. i tried to compile
-kernel 2.4.18 that have been patched with
-/usr/src/linux-sctp/patch-total-0.2.16.gz
-and there is in error when make bzImage at
-net/netsyms.c
-said "ipv4_specified undeclared here"
-
-Actually i have already sucsess compiled it before.But
-i haven't set CONFIG_SCTP. And i strated agai from
-beginig..and i set CONFIG_SCTP=m, but when i compile
-it, there is a problem in make bzImage that i've
-mentioned it above..
-
-I think, i do a foolish configuration, but i don't
-know, where is the problem
-can you help me?show me the way?
-your help is very needed
-
-Thank you verymuch
-
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
-
---0-969214821-1072622220=:7600--
+Even IRIX TOT uses the 'old' names, so what is the point of renaming them?

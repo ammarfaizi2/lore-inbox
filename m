@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317142AbSFWVlD>; Sun, 23 Jun 2002 17:41:03 -0400
+	id <S317144AbSFWVxq>; Sun, 23 Jun 2002 17:53:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317144AbSFWVlC>; Sun, 23 Jun 2002 17:41:02 -0400
-Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:50630
-	"EHLO awak") by vger.kernel.org with ESMTP id <S317142AbSFWVlB> convert rfc822-to-8bit;
-	Sun, 23 Jun 2002 17:41:01 -0400
-Subject: [OT] Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob Landley <landley@trommello.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>, Larry McVoy <lm@bitmover.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>, Cort Dougan <cort@fsmlabs.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E17LmrQ-0002vp-00@the-village.bc.nu>
-References: <E17LmrQ-0002vp-00@the-village.bc.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 23 Jun 2002 23:40:14 +0200
-Message-Id: <1024868414.1097.38.camel@bip>
+	id <S317148AbSFWVxp>; Sun, 23 Jun 2002 17:53:45 -0400
+Received: from host.greatconnect.com ([209.239.40.135]:43538 "EHLO
+	host.greatconnect.com") by vger.kernel.org with ESMTP
+	id <S317144AbSFWVxo>; Sun, 23 Jun 2002 17:53:44 -0400
+Subject: Re: kernel taint
+From: Samuel Flory <sflory@rackable.com>
+To: Qin Tao <qtao@cisunix.unh.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.44.0206231524160.455830-100000@hypatia.unh.edu>
+References: <Pine.OSF.4.44.0206231524160.455830-100000@hypatia.unh.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 23 Jun 2002 14:53:11 -0700
+Message-Id: <1024869196.2168.452.camel@flory.corp.rackablelabs.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le sam 22/06/2002 à 17:31, Alan Cox a écrit :
-> > A microkernel design was actually made to work once, with good performance.  
-> > It was about fifteen years ago, in the amiga.  Know how they pulled it off?  
-> > Commodore used a mutant ultra-cheap 68030 that had -NO- memory management 
-> > unit.
+  If this is a module in the RH kernel this may just be due to
+mislabeling of the license string.  What's the module?
+
+On Sun, 2002-06-23 at 12:37, Qin Tao wrote:
+> Hi,
 > 
-> Vanilla 68000 actually. And it never worked well - the UI folks had
-> to use a library not threads. The fs performance sucked
+> I am using redhat7.3 (kernel 2.4.18-3). When I tried to insert a
+> kernel module, I got the following warning message:
+> 
+> "Warning: loading mymodule.o will taint the kernel: forced load"
+> 
+> I didn't see this problem when I inserted the module to some earlier
+> version kernels, such as 2.4.15. Does anybody know what does the warning
+> message mean and how can I modify my module code to avoid that?
+> 
+> Thanks in advance.
+> 
+> Qin
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-<troll feeding>
-IIRC all simple UI things were done int the "input task" context (the
-task moving the mouse pointer, to simplify things) and more heavy duty
-had to be offloaded to the right task - using message passing of course.
-This was not the intended design, which was to make Intuition a real
-device (in the amiga sense, i.e. it could have its own task), but you
-know, AmigaOS was a commercial proprietary OS with deadlines and a
-complex history. That's why it had a really sucky fs, too (put your
-floppy in the drive, type dir, drink a coffee while listening to your
-disk being eaten, see the command output one-line-by-second).
-
-	Xav
 

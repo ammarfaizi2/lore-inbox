@@ -1,89 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284282AbRLRRCa>; Tue, 18 Dec 2001 12:02:30 -0500
+	id <S284254AbRLRQ5A>; Tue, 18 Dec 2001 11:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284258AbRLRRCV>; Tue, 18 Dec 2001 12:02:21 -0500
-Received: from mail8.cadvision.com ([207.228.64.93]:23571 "EHLO
-	mail8.cadvision.com") by vger.kernel.org with ESMTP
-	id <S284282AbRLRRCN>; Tue, 18 Dec 2001 12:02:13 -0500
-Message-ID: <004101c187e6$22629b40$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
-From: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1011218085823.10303A-100000@chaos.analogic.com>
-Subject: Re: Mounting a in-ROM filesystem efficiently
-Date: Tue, 18 Dec 2001 10:05:02 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S284258AbRLRQ4z>; Tue, 18 Dec 2001 11:56:55 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:45214 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S284254AbRLRQ4g>;
+	Tue, 18 Dec 2001 11:56:36 -0500
+Date: Tue, 18 Dec 2001 16:55:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Telford002@aol.com, linux-kernel@vger.kernel.org
+Subject: Re: TTY Driver Open and Close Logic
+Message-ID: <20011218165546.C13126@flint.arm.linux.org.uk>
+In-Reply-To: <e5.10e6703a.29509786@aol.com> <200112181416.fBIEGZM15494@pinkpanther.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200112181416.fBIEGZM15494@pinkpanther.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 18, 2001 at 02:16:35PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: Richard B. Johnson <root@chaos.analogic.com>
-To: Helge Hafting <helgehaf@idb.hist.no>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, December 18, 2001 7:00 AM
-Subject: Re: Mounting a in-ROM filesystem efficiently
+On Tue, Dec 18, 2001 at 02:16:35PM +0000, Alan Cox wrote:
+> Possibly so. But everyone who sent me a 2.2 patch to redo it broke stuff and
+> caused crashes and panics. Its worth doing for 2.5.x tho - along with proper
+> refcounting and killing the BKL
 
+The module use accounting for the tty layer are *disgusting* beyond
+belief, caused by the fact that if an open fails, the close method
+is called.  Let me paste the following code from the replacement
+serial drivers open method (note that the old driver only has to
+worry about itself):
 
-> On Tue, 18 Dec 2001, Helge Hafting wrote:
->
-> > "Richard B. Johnson" wrote:
-> >
-> > >
-> > > Security isn't a problem with embedded systems because everything
-> > > that could possibly be done is handled with a "monitor". There is
-> > > no shell. If there is no way to execute some foreign executable,
-> > > you don't have a security issue unless some dumb alleged software
-> > > engineer added some back-doors to the monitor.
-> >
-...
->
->    Embedded systems that perform critical functions such
->    as FMS (Flight Management Systems) have a reset button.
->    If it's screwing up, and they often do, the pilot not
->    flying says some four-letter prayers to be picked up
->    by the cockpit microphone, hits the reset switch, waits
->    for it to re-boot, and enters everything from scratch
->    again --usually the entire day's flight-plan routes,
->    taking nearly 1,000 key-strokes. Now, that's an embedded
->    system.
->
->
-> Cheers,
-> Dick Johnson
->
-> Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
->  Santa Claus is coming to town...
->           He knows if you've been sleeping,
->              He knows if you're awake;
->           He knows if you've been bad or good,
->              So he must be Attorney General Ashcroft.
->
-....
-Hmm, there are lots of embedded things with network capabilities.  Think of
-wireless access points, network routers and switches.  Even a network
-printer can cause network chaos if it would start to chatter on the net.
-Many of these things run FTP or HTTP servers for management purposes.
+        /*
+         * tty->driver.num won't change, so we won't fail here with
+         * tty->driver_data set to something non-NULL (and therefore
+         * we won't get caught by uart_close()).
+         */
+        retval = -ENODEV;
+        if (line >= tty->driver.num)
+                goto fail;
 
-However, figuring out how to hack into a non-standard piece of hardware
-using an unknown processor is a non-trivial problem - it is very difficult
-even if you designed the thing yourself and has all the info, but could
-therefore be done by a disgruntled ex-employee.
+        /*
+         * If we fail to increment the module use count, we can't have
+         * any other users of this tty (since this implies that the module
+         * is about to be unloaded).  Therefore, it is safe to set
+         * tty->driver_data to be NULL, so uart_close() doesn't bite us.
+         */
+        if (!try_inc_mod_count(drv->owner)) {
+                tty->driver_data = NULL;
+                goto fail;
+        }
 
-Exploiting well known network services  such as FTP and HTTP for dark
-purposes certainly should be a serious concern to manufactureres of these
-devices.
+        /*
+         * FIXME: This one isn't fun.  We can't guarantee that the tty isn't
+         * already in open, nor can we guarantee the state of tty->driver_data
+         */
+        info = uart_get(drv, line);
+        retval = -ENOMEM;
+        if (!info) {
+                if (tty->driver_data)
+                        goto out;
+                else
+                        goto fail;
+        }
+
+I don't like the second entry because it the potential to cause a null
+pointer dereference on a SMP machine.
+
+I definitely don't like the third either.
+
+However, to add to the dilemas, what if tty->driver_data has been set,
+the module unloaded, reloaded (with a different port configuration - ie,
+smaller tty->driver.num).  tty->driver_data may not be NULL.
+
+rs_close/uart_close use tty->driver_data to indicate whether the port has
+been opened, and whether we need to therefore decrement the count.  It's
+broken, but I regard the tty layer as broken for calling the driver close
+method when the open method has failed.
+
 --
-Herman Oosthuysen
-Herman@WirelessNetworksInc.com
-Suite 300, #3016, 5th Ave NE,
-Calgary, Alberta, T2A 6K4, Canada
-Phone: (403) 569-5688, Fax: (403) 235-3965
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

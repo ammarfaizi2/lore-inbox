@@ -1,41 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbUJYQLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbUJYQNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbUJYQLe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 12:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUJYQJB
+	id S262097AbUJYQNx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 12:13:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbUJYQMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 12:09:01 -0400
-Received: from cantor.suse.de ([195.135.220.2]:13489 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262032AbUJYQGH (ORCPT
+	Mon, 25 Oct 2004 12:12:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:54708 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262076AbUJYQKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 12:06:07 -0400
-Date: Mon, 25 Oct 2004 18:06:06 +0200
+	Mon, 25 Oct 2004 12:10:00 -0400
+Date: Mon, 25 Oct 2004 18:09:59 +0200
 From: Andi Kleen <ak@suse.de>
-To: Andreas Kleen <ak@suse.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 2/17] Generic backward compatibility includes for 4level
-Message-ID: <20041025160606.GA26306@verdi.suse.de>
-References: <417CAA05.mail3Y411778M@wotan.suse.de> <20041025103926.A31632@flint.arm.linux.org.uk>
+To: Paul Mundt <lethal@linux-sh.org>, Andreas Kleen <ak@suse.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 13/17] 4level support for sh
+Message-ID: <20041025160959.GB26306@verdi.suse.de>
+References: <417CAA06.mail3ZK11VJ7Y@wotan.suse.de> <20041025082232.GA1419@linux-sh.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041025103926.A31632@flint.arm.linux.org.uk>
+In-Reply-To: <20041025082232.GA1419@linux-sh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 10:39:26AM +0100, Russell King wrote:
-> On Mon, Oct 25, 2004 at 09:23:49AM +0200, Andreas Kleen wrote:
-> > +/* Included by architectures that don't have a fourth page table level.
-> > +
-> > +   pml4 is simply casted to pgd */
-> > +
-> > +#define pml4_ERROR(x) 
-> 
-> Don't we normally add do { } while (0) after empty macros which look like
-> a function?
+On Mon, Oct 25, 2004 at 11:22:33AM +0300, Paul Mundt wrote:
+> On Mon, Oct 25, 2004 at 09:23:50AM +0200, Andreas Kleen wrote:
+> > 4level support for sh
+> > 
+> > Converted, but doesn't compile for other reasons
+> > 
+> > Signed-off-by: Andi Kleen <ak@suse.de>
+> > 
+> I'll see about fixing up the build. On another note, it looks like these
+> got grouped in accidentally:
 
-iirc Rusty tried to come up with an example some time ago where it actually 
-made a difference, but failed. But I can change it. 
+Yes, scripting error. Here's an update patch without the bogus hunks: 
 
--Andi
+BTW separate objdir build seems to be totally broken on sh and 
+it adds random bogus symlinks to the source tree when you do 
+that. Perhaps you can fix that too.
 
+------------------------------------------------------------------------------------------
+
+
+4level support for sh
+
+Converted, but doesn't compile for other reasons
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/sh/mm/cache-sh4.c linux-2.6.10rc1-4level/arch/sh/mm/cache-sh4.c
+--- linux-2.6.10rc1/arch/sh/mm/cache-sh4.c	2004-10-25 04:47:14.000000000 +0200
++++ linux-2.6.10rc1-4level/arch/sh/mm/cache-sh4.c	2004-10-25 04:48:09.000000000 +0200
+@@ -301,7 +301,7 @@ void flush_cache_range(struct vm_area_st
+ 	unsigned long phys;
+ 	unsigned long d = 0;
+ 
+-	dir = pgd_offset(vma->vm_mm, p);
++	dir = pml4_pgd_offset(pml4_offset(vma->vm_mm, p), p);
+ 	pmd = pmd_offset(dir, p);
+ 
+ 	do {
+@@ -354,7 +354,7 @@ void flush_cache_page(struct vm_area_str
+ 	pte_t entry;
+ 	unsigned long phys;
+ 
+-	dir = pgd_offset(vma->vm_mm, address);
++	dir = pml4_pgd_offset(pml4_offset(vma->vm_mm, address), address);
+ 	pmd = pmd_offset(dir, address);
+ 	if (pmd_none(*pmd) || pmd_bad(*pmd))
+ 		return;
+diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/sh/mm/fault.c linux-2.6.10rc1-4level/arch/sh/mm/fault.c
+--- linux-2.6.10rc1/arch/sh/mm/fault.c	2004-10-19 01:55:06.000000000 +0200
++++ linux-2.6.10rc1-4level/arch/sh/mm/fault.c	2004-10-25 04:48:09.000000000 +0200
+@@ -209,13 +209,13 @@ asmlinkage int __do_page_fault(struct pt
+ #endif
+ 
+ 	if (address >= P3SEG && address < addrmax)
+-		dir = pgd_offset_k(address);
++		dir = pml4_pgd_offset(pml4_offset_k(address), address);
+ 	else if (address >= TASK_SIZE)
+ 		return 1;
+ 	else if (!current->mm)
+ 		return 1;
+ 	else
+-		dir = pgd_offset(current->mm, address);
++		dir = pml4_pgd_offset(pml4_offset(current->mm,address),address);
+ 
+ 	pmd = pmd_offset(dir, address);
+ 	if (pmd_none(*pmd))
+diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/sh/mm/hugetlbpage.c linux-2.6.10rc1-4level/arch/sh/mm/hugetlbpage.c
+--- linux-2.6.10rc1/arch/sh/mm/hugetlbpage.c	2004-06-16 12:22:52.000000000 +0200
++++ linux-2.6.10rc1-4level/arch/sh/mm/hugetlbpage.c	2004-10-25 04:48:09.000000000 +0200
+@@ -30,7 +30,7 @@ static pte_t *huge_pte_alloc(struct mm_s
+ 	pmd_t *pmd;
+ 	pte_t *pte = NULL;
+ 
+-	pgd = pgd_offset(mm, addr);
++	pgd = pml4_pgd_offset(pml4_offset(mm, addr), addr);
+ 	if (pgd) {
+ 		pmd = pmd_alloc(mm, pgd, addr);
+ 		if (pmd)
+@@ -45,7 +45,7 @@ static pte_t *huge_pte_offset(struct mm_
+ 	pmd_t *pmd;
+ 	pte_t *pte = NULL;
+ 
+-	pgd = pgd_offset(mm, addr);
++	pgd = pml4_pgd_offset(pml4_offset(mm, addr), addr);
+ 	if (pgd) {
+ 		pmd = pmd_offset(pgd, addr);
+ 		if (pmd)
+diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/sh/mm/init.c linux-2.6.10rc1-4level/arch/sh/mm/init.c
+--- linux-2.6.10rc1/arch/sh/mm/init.c	2004-10-19 01:55:06.000000000 +0200
++++ linux-2.6.10rc1-4level/arch/sh/mm/init.c	2004-10-25 04:48:09.000000000 +0200
+@@ -313,3 +313,14 @@ void free_initrd_mem(unsigned long start
+ }
+ #endif
+ 
++
++pgd_t *__pgd_alloc(struct mm_struct *mm, pml4_t *dummy, unsigned long addr)
++{
++	unsigned int pgd_size = (USER_PTRS_PER_PGD * sizeof(pgd_t));
++	pgd_t *pgd = (pgd_t *)kmalloc(pgd_size, GFP_KERNEL);
++
++	if (pgd)
++		memset(pgd, 0, pgd_size);
++
++	return pgd;
++}
+diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/sh/mm/ioremap.c linux-2.6.10rc1-4level/arch/sh/mm/ioremap.c
+--- linux-2.6.10rc1/arch/sh/mm/ioremap.c	2004-10-25 04:47:14.000000000 +0200
++++ linux-2.6.10rc1-4level/arch/sh/mm/ioremap.c	2004-10-25 04:48:09.000000000 +0200
+@@ -75,7 +75,7 @@ int remap_area_pages(unsigned long addre
+ 	unsigned long end = address + size;
+ 
+ 	phys_addr -= address;
+-	dir = pgd_offset_k(address);
++	dir = pml4_pgd_offset(pml4_offset_k(address), address);
+ 	flush_cache_all();
+ 	if (address >= end)
+ 		BUG();
+diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/sh/mm/pg-sh4.c linux-2.6.10rc1-4level/arch/sh/mm/pg-sh4.c
+--- linux-2.6.10rc1/arch/sh/mm/pg-sh4.c	2004-08-15 19:45:12.000000000 +0200
++++ linux-2.6.10rc1-4level/arch/sh/mm/pg-sh4.c	2004-10-25 04:48:09.000000000 +0200
+@@ -42,7 +42,7 @@ void clear_user_page(void *to, unsigned 
+ 					   _PAGE_HW_SHARED | _PAGE_FLAGS_HARD);
+ 		unsigned long phys_addr = PHYSADDR(to);
+ 		unsigned long p3_addr = P3SEG + (address & CACHE_ALIAS);
+-		pgd_t *dir = pgd_offset_k(p3_addr);
++		pgd_t *dir = pml4_pgd_offset(pml4_offset_k(p3_addr), p3_addr);
+ 		pmd_t *pmd = pmd_offset(dir, p3_addr);
+ 		pte_t *pte = pte_offset_kernel(pmd, p3_addr);
+ 		pte_t entry;
+@@ -81,7 +81,7 @@ void copy_user_page(void *to, void *from
+ 					   _PAGE_HW_SHARED | _PAGE_FLAGS_HARD);
+ 		unsigned long phys_addr = PHYSADDR(to);
+ 		unsigned long p3_addr = P3SEG + (address & CACHE_ALIAS);
+-		pgd_t *dir = pgd_offset_k(p3_addr);
++		pgd_t *dir = pml4_pgd_offset(pml4_offset_k(p3_addr), p3_addr);
+ 		pmd_t *pmd = pmd_offset(dir, p3_addr);
+ 		pte_t *pte = pte_offset_kernel(pmd, p3_addr);
+ 		pte_t entry;
+diff -urpN -X ../KDIFX linux-2.6.10rc1/drivers/macintosh/via-pmu.c linux-2.6.10rc1-4level/drivers/macintosh/via-pmu.c
+--- linux-2.6.10rc1/drivers/macintosh/via-pmu.c	2004-10-19 01:55:14.000000000 +0200
++++ linux-2.6.10rc1-4level/drivers/macintosh/via-pmu.c	2004-10-25 04:48:10.000000000 +0200
+@@ -2504,7 +2504,7 @@ powerbook_sleep_grackle(void)
+  		_set_L2CR(save_l2cr);
+ 	
+ 	/* Restore userland MMU context */
+-	set_context(current->active_mm->context, current->active_mm->pgd);
++	set_context(current->active_mm->context, (pml4_t *)current->active_mm->pml4);
+ 
+ 	/* Power things up */
+ 	pmu_unlock();
+@@ -2604,7 +2604,7 @@ powerbook_sleep_Core99(void)
+  		_set_L3CR(save_l3cr);
+ 	
+ 	/* Restore userland MMU context */
+-	set_context(current->active_mm->context, current->active_mm->pgd);
++	set_context(current->active_mm->context, (pgd_t *)current->active_mm->pml4);
+ 
+ 	/* Tell PMU we are ready */
+ 	pmu_unlock();
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-sh/mmu_context.h linux-2.6.10rc1-4level/include/asm-sh/mmu_context.h
+--- linux-2.6.10rc1/include/asm-sh/mmu_context.h	2004-10-25 04:47:37.000000000 +0200
++++ linux-2.6.10rc1-4level/include/asm-sh/mmu_context.h	2004-10-25 04:48:10.000000000 +0200
+@@ -133,7 +133,7 @@ static __inline__ void switch_mm(struct 
+ 				 struct task_struct *tsk)
+ {
+ 	if (likely(prev != next)) {
+-		unsigned long __pgdir = (unsigned long)next->pgd;
++		unsigned long __pgdir = (unsigned long)next->pml4;
+ 
+ 		__asm__ __volatile__("mov.l	%0, %1"
+ 				     : /* no output */
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-sh/page.h linux-2.6.10rc1-4level/include/asm-sh/page.h
+--- linux-2.6.10rc1/include/asm-sh/page.h	2004-10-25 04:47:37.000000000 +0200
++++ linux-2.6.10rc1-4level/include/asm-sh/page.h	2004-10-25 04:48:10.000000000 +0200
+@@ -139,6 +139,8 @@ static __inline__ int get_order(unsigned
+ 
+ #endif
+ 
++#include <asm-generic/nopml4-page.h>
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __ASM_SH_PAGE_H */
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-sh/pgalloc.h linux-2.6.10rc1-4level/include/asm-sh/pgalloc.h
+--- linux-2.6.10rc1/include/asm-sh/pgalloc.h	2004-08-15 19:45:49.000000000 +0200
++++ linux-2.6.10rc1-4level/include/asm-sh/pgalloc.h	2004-10-25 04:48:10.000000000 +0200
+@@ -23,16 +23,6 @@ static inline void pmd_populate(struct m
+ /*
+  * Allocate and free page tables.
+  */
+-static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+-{
+-	unsigned int pgd_size = (USER_PTRS_PER_PGD * sizeof(pgd_t));
+-	pgd_t *pgd = (pgd_t *)kmalloc(pgd_size, GFP_KERNEL);
+-
+-	if (pgd)
+-		memset(pgd, 0, pgd_size);
+-
+-	return pgd;
+-}
+ 
+ static inline void pgd_free(pgd_t *pgd)
+ {
+@@ -90,4 +80,6 @@ static inline void pte_free(struct page 
+ #define PG_mapped			PG_arch_1
+ #endif
+ 
++#include <asm-generic/nopml4-pgalloc.h>
++
+ #endif /* __ASM_SH_PGALLOC_H */
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-sh/pgtable.h linux-2.6.10rc1-4level/include/asm-sh/pgtable.h
+--- linux-2.6.10rc1/include/asm-sh/pgtable.h	2004-10-25 04:47:37.000000000 +0200
++++ linux-2.6.10rc1-4level/include/asm-sh/pgtable.h	2004-10-25 04:48:10.000000000 +0200
+@@ -41,7 +41,7 @@ extern unsigned long empty_zero_page[102
+ #define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
+ #define PGDIR_MASK	(~(PGDIR_SIZE-1))
+ 
+-#define USER_PTRS_PER_PGD	(TASK_SIZE/PGDIR_SIZE)
++#define USER_PGDS_IN_LAST_PML4	(TASK_SIZE/PGDIR_SIZE)
+ #define FIRST_USER_PGD_NR	0
+ 
+ #define PTE_PHYS_MASK	0x1ffff000
+@@ -231,10 +231,7 @@ static inline pte_t pte_modify(pte_t pte
+ 
+ /* to find an entry in a page-table-directory. */
+ #define pgd_index(address) (((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
+-#define pgd_offset(mm, address) ((mm)->pgd+pgd_index(address))
+-
+-/* to find an entry in a kernel page-table-directory */
+-#define pgd_offset_k(address) pgd_offset(&init_mm, address)
++#define pgd_index_k(address) pgd_index(address)
+ 
+ /* Find an entry in the third-level page table.. */
+ #define pte_index(address) \
+@@ -293,5 +290,7 @@ extern inline pte_t ptep_get_and_clear(p
+ 
+ #include <asm-generic/pgtable.h>
+ 
++#include <asm-generic/nopml4-pgtable.h>
++
+ #endif /* __ASM_SH_PAGE_H */
+ 

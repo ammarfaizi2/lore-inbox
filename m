@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbUAEPC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 10:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUAEPC4
+	id S261406AbUAEPKD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 10:10:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUAEPKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 10:02:56 -0500
-Received: from web13904.mail.yahoo.com ([216.136.175.67]:50528 "HELO
-	web13904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261193AbUAEPCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 10:02:54 -0500
-Message-ID: <20040105150252.13443.qmail@web13904.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Mon, 5 Jan 2004 07:02:52 -0800 (PST)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Any changes in Multicast code between 2.4.20 and 2.4.22/23 ?
-To: linux-net@vger.kernel.org
+	Mon, 5 Jan 2004 10:10:02 -0500
+Received: from mail.aei.ca ([206.123.6.14]:33266 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S261406AbUAEPJu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 10:09:50 -0500
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
+Subject: Re: 2.6.0 performance problems
+Date: Mon, 5 Jan 2004 10:09:46 -0500
+User-Agent: KMail/1.5.93
 Cc: linux-kernel@vger.kernel.org
+References: <87brpq7ct3.wl@canopus.ns.zel.ru> <200312300855.00741.edt@aei.ca> <87smiud180.wl@canopus.ns.zel.ru>
+In-Reply-To: <87smiud180.wl@canopus.ns.zel.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401051009.46293.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
+On January 05, 2004 07:33 am, Samium Gromoff wrote:
+> At Tue, 30 Dec 2003 08:55:00 -0500,
 >
->besides wishing everybody a Happy new Year 2004, I have one question.
->Have there been any changes in the multicast handling between 2.4.20
->and 2.4.22/23? Maybe specific to the "tg3" driver?
+> Ed Tomlinson wrote:
+> > On December 30, 2003 06:41 am, Samium Gromoff wrote:
+> > > Reality sucks.
+> > >
+> > > People are ignorant enough to turn blind eye to obvious vm regressions.
+> > >
+> > > No developers run 64M boxens anymore...
+> >
+> > No one is turning a blind eye.  Notice Linus has reponded to and is
+> > interested in this thread.  The vm is not perfect in all cases - in most
+> > cases it is faster though...
 >
->Reason for my question is that the Ganglia monitoring toolkit stopped
->working with 2.4.22/23 kernels. Apparently mulicatst get sent, but
->nothing is received.
+> "in most cases it is faster" is a big lie.
 >
->Any ideas?
->
->
->Thanks
->Martin
+> The reality is: on all usual one-way boxes 2.6 goes slower than 2.4 once
+> you start paging.
 
-Hi,
+I would argue that in most case you do not page or page very little - know that is 
+the case here.
 
- just realized the massive changes between 21 and 22. At least that is
-answered :-) Question remains why no MC packets arrive in 2.4.22 and
-later (checked with tcpdump). Is there anything that one has to enable
-when running a newer kernel?
+In any case it does point out what part of the system needs to be improved.
 
- One diffeernce is the output of "cat /proc/net/igmp". On my 2.4.20
-kernel it looks like:
-
-[qx29340@lpsdm16 ~]$ cat /proc/net/igmp
-Idx     Device    : Count Querier       Group    Users Timer  Reporter
-1       lo        :     0      V2
-                                010000E0     1 0:F63C1223            0
-2       eth0      :     1      V2
-                                010000E0     1 0:F63C1225            0
-3       eth1      :     2      V2
-                                470B02EF     1 0:F63C2428            1
-                                010000E0     1 0:F63C1225            0
-
- While on 2.4.22/23 it looks like:
-
-qx29340@lpsdm20 linux-2.4.23-1-msc]$ cat /proc/net/igmp
-Idx     Device    : Count Querier       Group    Users Timer Reporter
-1       lo        :     0      V2
-                                010000E0     1 0:FFFE5D5D           0
-2       eth0      :     1      V2
-                                010000E0     1 0:FFFE5D5D           0
-3       eth1      :     2      V2
-                                470B02EF     1 0:FFFF8D5D           0
-                                010000E0     1 0:FFFE5D5D           0
-
-
- The difference seems to be the "reporter" flag for the 470B02EF
-multicast group, which is exactely the adrress Ganglia uses.
-
-Any ideas
-Cheers
-Martin
-PS: Moved to linux-net
-
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de
+Ed

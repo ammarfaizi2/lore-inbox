@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272062AbRIQSwU>; Mon, 17 Sep 2001 14:52:20 -0400
+	id <S272464AbRIQTI5>; Mon, 17 Sep 2001 15:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272465AbRIQSwK>; Mon, 17 Sep 2001 14:52:10 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:6316 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S272062AbRIQSwD>;
-	Mon, 17 Sep 2001 14:52:03 -0400
-Message-ID: <3BA4B614.82E08CB@denise.shiny.it>
-Date: Sun, 16 Sep 2001 16:24:20 +0200
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.10-pre9 ppc)
-X-Accept-Language: en
+	id <S272511AbRIQTIs>; Mon, 17 Sep 2001 15:08:48 -0400
+Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:6151 "EHLO
+	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
+	id <S272464AbRIQTIn>; Mon, 17 Sep 2001 15:08:43 -0400
+From: chris@boojiboy.eorbit.net
+Message-Id: <200109172004.NAA14399@boojiboy.eorbit.net>
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+To: J.A.K.Mouw@ITS.TUDelft.NL, alan@lxorguk.ukuu.org.uk
+Date: Mon, 17 Sep 2001 13:04:14 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Roberto Ragusa <robertoragusa@technologist.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] A nicer nice scheduling
-In-Reply-To: <yam8658.2192.152344160@mail.inwind.it>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Ragusa wrote:
-> 
-> Hi,
-> 
-> please consider including this patch in the main kernel.
-> It was proposed on 11/04/2001 by Rik van Riel
-> ([test-PATCH] Re: [QUESTION] 2.4.x nice level)
-> 
-> This patch has been working great for me, I applied it to
-> every new kernel out.
-> 
-> Without this patch, a nice=19 busy-looping process is given
-> 15% of CPU cycles when there is a busy-looping nice=0 process. 
-> [...]
+Hello Alan and Erik,
 
-I think it's simpler to change NICE_TO_TICKS() macro in sched.c
+The Linux Kernel mailing list does not seem to be
+bearing any fruit with this APM/ACPI issue regarding
+clean power-off/reboot.  Are there any other groups
+that you are aware of that might have interest in
+investigating this bug?
 
+--Chris
 
-Bye.
+**************************************************
+I still have linux-2.4.9-ac9, with the dmi_scan.c patch,
+and the APM configured as you suggested.  My computer
+bios is set to ACPI=off (even with this 'on' the behavior
+is the same).
+
+shutdown -h    works correctly
+shutdown -r    hangs at "Restarting System".
 

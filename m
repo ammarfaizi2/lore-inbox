@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267878AbUGWSfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267877AbUGWSiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267878AbUGWSfy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:35:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267877AbUGWSfy
+	id S267877AbUGWSiW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUGWSiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:35:54 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:17561 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S267878AbUGWSfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:35:16 -0400
-Date: Fri, 23 Jul 2004 11:25:54 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Robert Love <rml@ximian.com>
-Subject: Re: [patch] kernel events layer
-Message-ID: <20040723182554.GA31701@hockin.org>
-References: <1090604517.13415.0.camel@lucy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090604517.13415.0.camel@lucy>
-User-Agent: Mutt/1.4.2i
+	Fri, 23 Jul 2004 14:38:22 -0400
+Received: from outgoing1.jumpy.it ([213.215.144.9]:42141 "EHLO mail.jumpy.it")
+	by vger.kernel.org with ESMTP id S267877AbUGWSiS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 14:38:18 -0400
+Date: Fri, 23 Jul 2004 18:37:16 +0000
+Message-ID: <40FC85FD00008E10@mail12.jumpyint.it>
+From: lorinalanglois@jumpy.it
+Subject: ASSISTANCE, PLS.
+To: lorinalanglois@jumpy.it
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 23, 2004 at 01:41:57PM -0400, Robert Love wrote:
-> OK, Kernel Summit and my OLS talk are over, so here are the goods.
+LORINA LANGLOIS
+ABIDJAN-IVORY COAST.
+WEST AFRICA.
 
-It's good to see something concrete in this vein.  Is this interface going
-to be intended for things like error states?  The first thing that jumps
-to mind is all the evlog stuff that was argued about last year.
+Dearest One,
+Good a thing to write you. I have a proposal for you-this however is
+not mandatory nor will I in any manner compel you to honour against
+your will.
+I am Lorina Langlois, 22years old and the only daughter of my late parents
 
-Is this interface intended to be used in the name of driver "hardening"
-and fault handling?
+Mr. and Mrs. Langlois .My father was a highly reputable business magnet-(acocoa
+merchant)who operated in the capital of Ivory coast during his
+days.
+It is sad to say that he passed away mysteriously in France during
+one of his business trips abroad on the 12th.Febuary 2000.Though his sudden
+death was linked or rather suspected to have been masterminded by an
+uncle of his who travelled with him at that time. But God knows the
+truth!
+My mother died when I was just 8 years old, and since then my father
+took me so special. Before his death on February 12th., 2000 he called his
 
-> +		send_kmessage(KMSG_POWER,
-> +			"/org/kernel/devices/system/cpu/temperature", "high",
-> +			"Cpu: %d\n", cpu);
+Secretary who accompanied him to the hospital and told him that he
+has the sum of two Two-million Four-Hundred-Thousand United State
+Dollars (USD$2.400,000) left in fixed deposit account in one of the leading
+banks in Africa.
 
-I have to ask why the path needs to include /org ?  It seems pretty much
-like useless stuff.  In fact, why does it need to specify /org/kernel?
-Userspace can safely assume that anything that comes out of the netlink
-socket is from the kernel, no?
+He further told me that he deposited the money in his name, and
+finally issued a written instruction to his lawyer whom he said is in
+possession of all the necessary but legal documents to this fund and the
+bank.
+I am a university undergraduate and I really don't know what to
+do. Now I want an account overseas where I can transfer this funds. This
+is because I have suffered a lot of set-backs as a result of incessant
+political crisis here in COTE D'IVOIRE, and the death of my father
+actually brought sorrow to my life.
+I am in a sincere desire of your humble assistance in this regard. Your
+suggestions and ideas will be highly appreciated.
 
-If userspace is going to use this "object" path as a globalish identifier,
-it can prepend hatever it needs.  Really, it should prepend some sort of
-network id, if this stuff is ever going to find a network, so eliminating
-the /org/kernel might just be precedent.
+ Now permit me to ask these few questions:-
+ 1. Can you honestly help me as your son?
+ 2. Can I completely trust you?
+ 3. What percentage of the total amount in question will be good for you
+    after the money is in your account?
+Please, Consider this and get back to me as soon as possible.
 
-At worst case, why type it in every call to send_kmessage?  If they ALL
-start with /org/kernel, just add that inside the send_kmessage() guts.
+ Thank you so much.
+ My sincere regards,
 
-Further, if you want to eliminate stupid typo errors, these paths cn be
-further macro-ized.
+ Lorina Langlois.
 
-	send_kmessage(KMSG_POWER, KMSUBSYS_CPU, "temperature", "high",
-		"Cpu: %d", cpu);
 
-KMSUBSYS_CPU can be recognized and expanded to "/devices/system/cpu".
-That way, no one ever misspels it, leaving you stuck with it.  Also note
-that requiring the caller to pass a '\n' seems pretty dumb.
+________________________________________
+Crea la tshirt con il tuo nick! http://www.mediasetshop.it/JumpyChat/
 
-Just my initial thoughts.  I need to read the paper, still.
 
-Tim

@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311688AbSCTHeR>; Wed, 20 Mar 2002 02:34:17 -0500
+	id <S312365AbSCTLPE>; Wed, 20 Mar 2002 06:15:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311691AbSCTHeH>; Wed, 20 Mar 2002 02:34:07 -0500
-Received: from www.wen-online.de ([212.223.88.39]:4100 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S311688AbSCTHeD>;
-	Wed, 20 Mar 2002 02:34:03 -0500
-Date: Wed, 20 Mar 2002 08:46:27 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Urban Widmark <urban@teststation.com>
-cc: Andreas Dilger <adilger@clusterfs.com>, John Jasen <jjasen1@umbc.edu>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-In-Reply-To: <Pine.LNX.4.44.0203192147590.27806-100000@cola.teststation.com>
-Message-ID: <Pine.LNX.4.10.10203200833560.1097-100000@mikeg.wen-online.de>
+	id <S312367AbSCTLOz>; Wed, 20 Mar 2002 06:14:55 -0500
+Received: from CPE-203-51-26-136.nsw.bigpond.net.au ([203.51.26.136]:19182
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S312365AbSCTLOk>; Wed, 20 Mar 2002 06:14:40 -0500
+Message-ID: <3C986F1B.6335F2A2@eyal.emu.id.au>
+Date: Wed, 20 Mar 2002 22:14:35 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre: CONFIG_PHONE_IXJ_PCMCIA
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, Urban Widmark wrote:
+In drivers/telephony/Config.in
 
-> I'm guessing that Mike ran tcpdump with no -s parameter. The tcpdump
+This option should not be offered unless CONFIG_PCMCIA was selected.
+While it does build, it ends up with unresolved symbols.
 
-Correct.
-
-> Like you say, if the tcpdump was running while the email was received on
-> Mike's box it is possible that it had that data in some buffer. When it
-> later got this message (in another buffer) and tried to decode it, it
-> decoded the length the message said it had and simply spewed out random
-> bytes from memory.
-
-Hmm.  There were other 'packets' containing binary data and ascii which I'm
-pretty sure was not part of any network traffic.
-
-I'll repeat this, and post a follow-up if I see anything which is definitely
-not received data.  For now, I'll assume that it's a harmless tcpdump booboo.
-
-	Thanks,
-
-	-Mike
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

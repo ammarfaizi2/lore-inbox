@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUCPVjq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUCPVjq
+	id S261729AbUCPVmj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUCPVmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:39:46 -0500
-Received: from mail.kroah.org ([65.200.24.183]:46746 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261712AbUCPVjp (ORCPT
+	Tue, 16 Mar 2004 16:42:39 -0500
+Received: from mail.tpgi.com.au ([203.12.160.61]:21219 "EHLO mail4.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S261729AbUCPVmf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:39:45 -0500
-Date: Tue, 16 Mar 2004 11:53:26 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Cc: Michael Hunold <hunold@convergence.de>
-Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client isolation
-Message-ID: <20040316195325.GA22473@kroah.com>
-References: <4056C805.8090004@convergence.de> <20040316154454.GA13854@kroah.com> <20040316201426.1d01f1d3.khali@linux-fr.org>
+	Tue, 16 Mar 2004 16:42:35 -0500
+Subject: Re: Remove pmdisk from kernel
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <20040316101715.GA2175@elf.ucw.cz>
+References: <20040315195440.GA1312@elf.ucw.cz>
+	 <20040315125357.3330c8c4.akpm@osdl.org> <20040315205752.GG258@elf.ucw.cz>
+	 <20040315132146.24f935c2.akpm@osdl.org>
+	 <1079379519.5350.20.camel@calvin.wpcb.org.au>
+	 <20040316005618.GB1883@elf.ucw.cz>
+	 <1079393256.2043.5.camel@calvin.wpcb.org.au>
+	 <20040316101715.GA2175@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1079465824.3403.23.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040316201426.1d01f1d3.khali@linux-fr.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Wed, 17 Mar 2004 08:37:04 +1300
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 08:14:26PM +0100, Jean Delvare wrote:
+Hi.
+
+On Tue, 2004-03-16 at 23:17, Pavel Machek wrote:
+> Hmm, you are right that with dead nfs server, kill -SIGSTOP will fail
+> on ls, and similary current refrigerator will fail. I think we can
+> live with that.
 > 
-> I guess that chip drivers would be allowed to define only one class
-> while adapters could possibly define more than one?
+> I agree that two-stage suspend is probably neccessary (userland first,
+> kernel than); but that should be possible without that big changes,
+> right?
 
-Not necessarily.  Just make the class a bit field, showing what kind of
-devices each expects to handle.
+It would certainly be simple to change to a two stage freeze. I don't
+think I've tried that, so I'll cut the code and give it a try.
 
-> We also would want to introduce an I2C_ADAP_CLASS_ANY define, which
-> would be what the eeprom driver would use, for example (since it can be
-> hosted on any kind of bus). Generic bus drivers such as i2c-parport
-> would also use I2C_ADAP_CLASS_ANY, since the nature of the hosted chips
-> is unknown.
+Regards,
 
-Sure:
-	#define I2C_ADAP_CLASS_ANY	0xffffffff
-works for me :)
+Nigel
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
 
-> Having clients define a class sounds also interesting from a
-> user-space's point of view. If we would export this information through
-> sysfs for example, programs such as "sensors" could limit their work to
-> chips of the correct class (I2C_ADAP_CLASS_SMBUS at the moment, but a
-> renaming is planned).
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
 
-That also is a good idea.
-
-thanks,
-
-greg k-h

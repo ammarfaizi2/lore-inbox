@@ -1,61 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270530AbTGVJgN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 05:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270625AbTGVJgN
+	id S269999AbTGVKBa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 06:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270493AbTGVKBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 05:36:13 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:6923 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S270530AbTGVJgI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 05:36:08 -0400
-Date: Tue, 22 Jul 2003 11:50:47 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Samuel Flory <sflory@rackable.com>
-cc: Charles Lepple <clepple@ghz.cc>, michaelm <admin@www0.org>,
-       <linux-kernel@vger.kernel.org>, <vojtech@suse.cz>
-Subject: Re: Make menuconfig broken
-In-Reply-To: <3F1C888B.8040500@rackable.com>
-Message-ID: <Pine.LNX.4.44.0307221146120.714-100000@serv>
-References: <20030721163517.GA597@www0.org> <32425.216.12.38.216.1058806931.squirrel@www.ghz.cc>
- <3F1C8739.2030707@rackable.com> <3F1C888B.8040500@rackable.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Jul 2003 06:01:30 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:57046 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269999AbTGVKB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 06:01:28 -0400
+Date: Tue, 22 Jul 2003 12:16:23 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: junkio@cox.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Port SquashFS to 2.6
+Message-ID: <20030722101623.GB29430@wohnheim.fh-wedel.de>
+References: <fa.k0do8p6.ch6pps@ifi.uio.no> <fa.hre90bn.e6k5pf@ifi.uio.no> <7vd6g3uvbc.fsf@assigned-by-dhcp.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <7vd6g3uvbc.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 21 Jul 2003, Samuel Flory wrote:
-
->   Try this in 2.6.0-test1:
-> rm .config
-> make mrproper
-> make menuconfig
+On Mon, 21 July 2003 19:52:39 -0700, junkio@cox.net wrote:
+> >>>>> "JE" == JörnEngel  <joern@wohnheim.fh-wedel.de> writes:
+>
+> JE> Depending on where and what you do,...
 > 
->   There is no option for CONFIG_VT, and CONFIG_VT_CONSOLE under 
-> character devices in "make menuconfig.
+> Well, isn't asking about address_space_operations.readpage
+> specific enough?
 
-Try enabling CONFIG_INPUT.
+Not for someone as lazy as me.  If you want to know for sure:
+- Figure out all possible path leading to that function.
+- Figure out all possible path called by that function.
+- Sum up all the stack allocated variable size for both.
+- Add the architecture-specific function call overhead, multiplied
+  by the number of functions on both paths.
 
-Vojtech, how about the patch below? This way CONFIG_VT isn't hidden behind 
-CONFIG_INPUT, but CONFIG_INPUT is selected if needed.
+Now you have the stack consumption that you were not responsible for,
+which depends on the architecture.  Substract that number from the
+total stack size, which is also architecture-specific and you know how
+much is left.  It is a lot of work and the hard part is finding all
+the possible paths.  If you have a good idea how to automate that,
+please tell me.  Else, we have to live with rules of thumb.
 
-Index: drivers/char/Kconfig
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.6/drivers/char/Kconfig,v
-retrieving revision 1.1.1.1
-diff -u -p -r1.1.1.1 Kconfig
---- drivers/char/Kconfig	14 Jul 2003 09:22:00 -0000	1.1.1.1
-+++ drivers/char/Kconfig	22 Jul 2003 08:08:26 -0000
-@@ -6,7 +6,7 @@ menu "Character devices"
- 
- config VT
- 	bool "Virtual terminal"
--	requires INPUT=y
-+	select INPUT
- 	---help---
- 	  If you say Y here, you will get support for terminal devices with
- 	  display and keyboard devices. These are called "virtual" because you
+> JE> ... also depends a bit on the architecture.  s390 has
+> JE> giant stacks because function call overhead is huge, ...
+> 
+> The discussion was about putting variables (or arrays or large
+> structs) the kernel programmer defines on the stack, and I do
+> not think architecture calling convention has much to do with
+> this.
+> 
+> If an architecture has a big stack usage per call that is
+> imposed by the ABI, and larger kernel stack is allocated
+> compared to other architectures because of this reason,
+> shouldn't there be about the same amount of usable space left
+> for the kernel programs within the allocated per-process kernel
+> stack space to use?  If that is not the case then the port to
+> that particular architecture would not be optimal, wouldn't it?
 
+You end up with all sorts of architecture dependent stuff when
+allocating stack.  A long is 4 or 8 bytes, same for pointers, the
+amount and size of saved registers differs, the size of the stack
+differs, some architectures have a seperate interrupt stack.
+
+If you look closely at the kernel, there is currently no way of
+telling whether it contains stack overflows waiting to happen, or not.
+We live with lots of hope and the comforting feeling that there were
+not many stack overflows in the past.  I wish we had better tools, but
+we don't.
+
+Jörn
+
+-- 
+The cheapest, fastest and most reliable components of a computer
+system are those that aren't there.
+-- Gordon Bell, DEC labratories

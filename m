@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273349AbRJIHWo>; Tue, 9 Oct 2001 03:22:44 -0400
+	id <S273463AbRJIH2z>; Tue, 9 Oct 2001 03:28:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273515AbRJIHWY>; Tue, 9 Oct 2001 03:22:24 -0400
-Received: from mailserv.intranet.GR ([146.124.14.106]:44453 "EHLO
-	mailserv.intranet.gr") by vger.kernel.org with ESMTP
-	id <S273349AbRJIHWN>; Tue, 9 Oct 2001 03:22:13 -0400
-Message-ID: <3BC2A65F.67B7D415@intracom.gr>
-Date: Tue, 09 Oct 2001 10:25:19 +0300
-From: Pantelis Antoniou <panto@intracom.gr>
-Organization: INTRACOM S.A.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.18pre21 ppc)
-X-Accept-Language: el, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Standard way of generating assembler offsets
-In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au>
-		<3BC1735F.41CBF5C1@intracom.gr> <20011008.024946.74749362.davem@redhat.com>
+	id <S273487AbRJIH2p>; Tue, 9 Oct 2001 03:28:45 -0400
+Received: from atlas15.dnp.fmph.uniba.sk ([158.195.25.215]:48007 "EHLO
+	melkor.dnp.fmph.uniba.sk") by vger.kernel.org with ESMTP
+	id <S273463AbRJIH2d>; Tue, 9 Oct 2001 03:28:33 -0400
+Date: Tue, 9 Oct 2001 09:28:58 +0200
+From: Radovan Garabik <garabik@melkor.dnp.fmph.uniba.sk>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] dead keys in unicode console mode
+Message-ID: <20011009092858.A15708@melkor.dnp.fmph.uniba.sk>
+In-Reply-To: <20011008215313.A11879@melkor.dnp.fmph.uniba.sk> <20011009041618.A6135@win.tue.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011009041618.A6135@win.tue.nl>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+On Tue, Oct 09, 2001 at 04:16:18AM +0200, Guest section DW wrote:
+> On Mon, Oct 08, 2001 at 09:53:13PM +0200, Radovan Garabik wrote:
+> > FWIW, this little patch makes it possible to
+> > use dead keys in unicode console mode.
+> > It is against 2.4.10, but should apply cleanly in
+> > broader range of kernel versions.
 > 
->    From: Pantelis Antoniou <panto@intracom.gr>
->    Date: Mon, 08 Oct 2001 12:35:27 +0300
+> >  struct kbdiacr {
+> > -        unsigned char diacr, base, result;
+> > +        unsigned char diacr, base;
+> > +        unsigned short int result; /* holds UCS2 value */
+> >  };
 > 
->    If anyone is interested I have already made a perl
->    script that produces assembler offsets from structure
->    members.
-> 
->    It doesn't need to run native since it reads the
->    header files, extract the structures and by using
->    objdump calculates the offsets automatically.
-> 
-> BTW, I assume you have already taken a look at how we
-> do this on Sparc64.  See arch/sparc64/kernel/check_asm.sh
-> and the "check_asm" target in arch/sparc64/kernel/Makefile
-> 
-> It also works in all cross-compilation etc. environments.
-> And I bet it would work on every platform with very minimal
-> changes, if any.
-> 
-> Franks a lot,
-> David S. Miller
-> davem@redhat.com
+> And now all existing binaries that use the KDGKBDIACR ioctl
+> dump core? And all existing binaries that use the KDSKBDIACR
+> ioctl do very strange things?
 
-I've look at your script and it kinda flew over my head.
+well, of course, existing binaries need to be recompiled,
+that's what sources are for...
+(and because unsigned char is subset of unsigned short, 
+often they do not need to be even modified - btw how many
+such binaries are there except of consoletools?)
 
-Would you mind explain this a bit?
+> 
+> If you want to do something like this, a new ioctl and a new
+> structure are necessary. If you design something new, keep
 
-Thanks
+More like complete redesign of console driver would be needed.
+that is what linuxconsole.sf.net tries to do
+
+> examples like Vietnamese in mind (with several accents on
+> one symbol). We do support that now in the 8-bit world,
+
+Think about someone who wants to use Vietnamese and Slovak
+together (or Slovak and Russian as I need. Or Slovak, Lithuanian
+and Russian - as one my friend needs. Or French and Hungarian as 
+other friend of mine needs. Or any other combination from 
+different ISO-8859 worlds). I converted my linux installation
+almost completely to using UTF-8, and this (dead keys) was
+a full stop, and I could forget about UTF-8.
+
+> but complete support of the 16-bit world still requires
+> some work. (And in the meantime Unicode has already gone beyond.)
+> 
+
+I do not argue.
+
+-- 
+ -----------------------------------------------------------
+| Radovan Garabik http://melkor.dnp.fmph.uniba.sk/~garabik/ |
+| __..--^^^--..__    garabik @ melkor.dnp.fmph.uniba.sk     |
+ -----------------------------------------------------------
+Antivirus alert: file .signature infected by signature virus.
+Hi! I'm a signature virus! Copy me into your signature file to help me spread!

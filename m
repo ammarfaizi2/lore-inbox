@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261222AbRERRP6>; Fri, 18 May 2001 13:15:58 -0400
+	id <S261201AbRERRSi>; Fri, 18 May 2001 13:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261219AbRERRPs>; Fri, 18 May 2001 13:15:48 -0400
-Received: from marine.sonic.net ([208.201.224.37]:21538 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S261201AbRERRPh>;
-	Fri, 18 May 2001 13:15:37 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Fri, 18 May 2001 10:15:33 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
+	id <S261219AbRERRS2>; Fri, 18 May 2001 13:18:28 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:12553 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261201AbRERRSK>;
+	Fri, 18 May 2001 13:18:10 -0400
+Date: Fri, 18 May 2001 13:17:07 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-Message-ID: <20010518101533.E10611@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> <20010518175843.A9347@caldera.de> <3B05473B.70606@reutershealth.com>
+Message-ID: <20010518131707.N14309@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010518115839.E14309@thyrsus.com> <E150mhR-0007Ig-00@the-village.bc.nu> <20010518123413.I14309@thyrsus.com> <3B0551B4.CB251F64@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.6i
-In-Reply-To: <3B05473B.70606@reutershealth.com>; from jcowan@reutershealth.com on Fri, May 18, 2001 at 12:00:59PM -0400
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B0551B4.CB251F64@redhat.com>; from arjanv@redhat.com on Fri, May 18, 2001 at 05:45:40PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 18, 2001 at 12:00:59PM -0400, John Cowan wrote:
-> Christoph Hellwig wrote:
-> Yes, I should have limited myself to pre-egcs versions.
+Arjan van de Ven <arjanv@redhat.com>:
+> I hereby volunteer to maintain at least make oldconfig and make config, 
+> and perhaps make menuconfig.
 
-Huh?
+That's the easy part; the CML1 config code may be ugly and broken, but
+at least it's relatively stable.  What you'd also have to do is maintain an
+entire CML1 ruleset in parallel with the canonical CML2 one.  That's 
+the hard part.
 
-It's been possible to have multiple versions of gcc installed for a very
-long time.  At least since 2.0 came out.
+I've been keeping the CML2 ruleset synced with CML1 for a year now. 
+It's been an ugly, nasty, horrible job -- *much* nastier, by an order
+of magnitude, than designing and writing the CML2 engine.  Going the
+other direction would be worse.  "Like chewing razor blades" is the
+simile that leaps to mind.
 
-Thu Dec 19 15:54:29 1991  K. Richard Pixley  (rich at cygnus.com)
-
-        * configure: added -V for version number option.
-
-
-mrc
+(And no, dropping back to CML1 format for the masters wouldn't be an
+option; it doesn't have the semantic strength to enable CML2's new
+capabilities.)
 -- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Certainly one of the chief guarantees of freedom under any government,
+no matter how popular and respected, is the right of the citizens to
+keep and bear arms.  [...] the right of the citizens to bear arms is
+just one guarantee against arbitrary government and one more safeguard
+against a tyranny which now appears remote in America, but which
+historically has proved to be always possible.
+        -- Hubert H. Humphrey, 1960

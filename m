@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266665AbSKLRky>; Tue, 12 Nov 2002 12:40:54 -0500
+	id <S266660AbSKLRkJ>; Tue, 12 Nov 2002 12:40:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266688AbSKLRky>; Tue, 12 Nov 2002 12:40:54 -0500
-Received: from dp.samba.org ([66.70.73.150]:19690 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266665AbSKLRku>;
-	Tue, 12 Nov 2002 12:40:50 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] module_name()
-Date: Wed, 13 Nov 2002 04:32:58 +1100
-Message-Id: <20021112174741.6073E2C2B2@lists.samba.org>
+	id <S266665AbSKLRkJ>; Tue, 12 Nov 2002 12:40:09 -0500
+Received: from kfw.debis.hu ([195.228.20.2]:7665 "EHLO dns.debis.hu")
+	by vger.kernel.org with ESMTP id <S266660AbSKLRkG> convert rfc822-to-8bit;
+	Tue, 12 Nov 2002 12:40:06 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: IDE TCQ
+Date: Tue, 12 Nov 2002 18:46:34 +0100
+Message-ID: <71EE24368CCFB940A79BD7002F14D760409348@exchange.uns.t-systems.tss>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: IDE TCQ
+Thread-Index: AcKKc2rbWVpTfTslS12DuHnf3U/5eA==
+From: =?iso-8859-2?Q?Sasi_P=E9ter?= <Peter.Sasi@t-systems.co.hu>
+To: <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I prefer this: it also has the advantage of ensuring the name of
-built-in modules is consistent across the kernel.
+Dear Jens,
 
-Thanks for the report,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I would like to ask a few simple question: what does it take to make use of this nifty feature?
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.47-module-alias/crypto/api.c working-2.5.47-modname/crypto/api.c
---- working-2.5.47-module-alias/crypto/api.c	2002-11-11 20:00:55.000000000 +1100
-+++ working-2.5.47-modname/crypto/api.c	2002-11-13 04:30:48.000000000 +1100
-@@ -263,8 +263,7 @@ static int c_show(struct seq_file *m, vo
- 	struct crypto_alg *alg = (struct crypto_alg *)p;
- 	
- 	seq_printf(m, "name         : %s\n", alg->cra_name);
--	seq_printf(m, "module       : %s\n", alg->cra_module ?
--					alg->cra_module->name : "[static]");
-+	seq_printf(m, "module       : %s\n", module_name(alg->cra_module));
- 	seq_printf(m, "blocksize    : %u\n", alg->cra_blocksize);
- 	
- 	switch (alg->cra_flags & CRYPTO_ALG_TYPE_MASK) {
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.47-module-alias/include/linux/module.h working-2.5.47-modname/include/linux/module.h
---- working-2.5.47-module-alias/include/linux/module.h	2002-11-12 22:43:55.000000000 +1100
-+++ working-2.5.47-modname/include/linux/module.h	2002-11-13 04:31:16.000000000 +1100
-@@ -293,6 +293,13 @@ static inline void module_put(struct mod
- 
- #endif /* CONFIG_MODULE_UNLOAD */
- 
-+static inline char *module_name(struct module *module)
-+{
-+	if (module)
-+		return module->name;
-+	return "[built-in]";
-+}
-+
- #define __unsafe(mod)							     \
- do {									     \
- 	if (mod && !(mod)->unsafe) {					     \
-@@ -315,6 +322,10 @@ do {									     \
- #define try_module_get(module) 1
- #define module_put(module) do { } while(0)
- 
-+static inline char *module_name(struct module *module)
-+{
-+	Return "[built-in]";
-+}
- #define __unsafe(mod)
- #endif /* CONFIG_MODULES */
- 
+My example:
+I have a box with an ABIT BH6 mainboard (Intel chipset, 2xUATA33 channels), A Leadtek WinFast CMD648 with 2xUATA66 channels, and a Promise Ultra100 TX2 2xUATA100.
+I have 3x IBM GXP120 120GB UATA100 IDE HDDs (have read you write these to be capable of TCQ).
+
+First set of questions:
+On which of the three different IDE controllers are the disks supposed to be doing TCQ?
+
+Is it limited to UATA100 and up?
+Is it limited to specific chipsets?
+Maybe a combination of these two?
+
+Is there any list of the disks that support TCQ?
+Or does that come compulsory with eg. UATA100?
+
+Second set of questions:
+Does it do any good to one-channel-one-disk setups?
+Is it supposed to do good to access time, operations/sec, throughput, random reqs rearrangement or what?
+Do you have any figures how much TCQ helps performace (e.g. in file serving case)?
+
+Now I see I piled up quite a few questions. Maybe it is more polite to ask you if you can recommend any reading on the topic on the web first?
+
+Maybe I should rather be asking Andre Hedrick about the internals of TCQ?
+
+I have CCd LKML, since others might also like some clarification around IDE TCQ. If you reply, please keep me CCd as well, since I am not subscribed to LKML currently.
+
+Thank you very much!
+
+Peter

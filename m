@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131791AbRCXUYK>; Sat, 24 Mar 2001 15:24:10 -0500
+	id <S131819AbRCXVXx>; Sat, 24 Mar 2001 16:23:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131798AbRCXUYA>; Sat, 24 Mar 2001 15:24:00 -0500
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:17405
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S131791AbRCXUXq>; Sat, 24 Mar 2001 15:23:46 -0500
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Paul Jakma <paulj@itg.ie>, Guest section DW <dwguest@win.tue.nl>
-Subject: Re: [PATCH] Prevent OOM from killing init
-Date: Sat, 24 Mar 2001 14:19:39 -0600
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Michael Peddemors <michael@linuxmagic.com>,
-        Stephen Clouse <stephenc@theiqgroup.com>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0103232013490.31380-100000@rossi.itg.ie>
-In-Reply-To: <Pine.LNX.4.33.0103232013490.31380-100000@rossi.itg.ie>
+	id <S131823AbRCXVXo>; Sat, 24 Mar 2001 16:23:44 -0500
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:48649 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S131820AbRCXVXg>; Sat, 24 Mar 2001 16:23:36 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com>
+	<vbaelvp3bos.fsf@mozart.stat.wisc.edu>
+	<20010322193549.D6690@unthought.net>
+	<vbawv9hyuj0.fsf@mozart.stat.wisc.edu>
+	<200103240502.VAA02673@penguin.transmeta.com>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Linus Torvalds's message of "Fri, 23 Mar 2001 21:02:31 -0800"
+Date: 24 Mar 2001 15:22:53 -0600
+Message-ID: <vba7l1ex3o2.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Message-Id: <01032414222102.03927@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Paul Jakma wrote:
->On Fri, 23 Mar 2001, Guest section DW wrote:
->
->> But yes, I am complaining because Linux by default is unreliable.
->
->no, your distribution is unreliable by default.
->
->> I strongly prefer a system that is reliable by default,
->> and I'll leave it to others to run it in an unreliable mode.
->
->currently, setting sensible user limits on my machines means i never
->get a hosed machine due to OOM. These limits are easy to set via
->pam_limits. (not perfect though, i think its session specific..)
+Linus Torvalds <torvalds@transmeta.com> writes:
+> >
+[ under kernel 2.4.2 ]
+> >
+> >    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
+> >                      
+> >    real    16m8.423s     real    8m2.417s     real    12m24.939s
+> >    user    15m23.710s    user    7m22.200s    user    10m14.420s
+> >    sys     0m48.730s     sys     0m41.040s    sys     2m13.910s 
+> >maps:    <250 lines           <250 lines          >3000 lines
+> >
+> >Obviously, the *real* problem is RedHat GCC 2.96.  If Linus bothers to
+> >write this patch (he probably already has),
+> 
+> Check out 2.4.3-pre7, I'd be interested to hear what the system time is
+> for that one.
 
-Process specific. Each forked process gets the same limits. You get OOM
-as soon as all processes together use more than the system capacity.
+Okay.  One note about the above results: as Zach pointed out, my
+2.95.3 number for "maps" was wrong.  I must have forgotten to collect
+the data but thought I had.  In fact, there are ~10 lines in "maps"
+for the 2.95.3 "cc1plus" process.  The other "maps" numbers for 3.0
+and 2.96 are correct, at least within an order of magnitude.
 
->granted, if the machine hasn't been setup with user limits, then linux
->doesn't deal at all well with OOM, so this should be fixed. but it can
->easily be argued that admin error in not configuring limits is the
->main cause for OOM.
+Under 2.4.3-pre7, I get the following disappointing numbers:
 
-Admin has no real control is the problem. Limits are only good for one
-process. As soon as that process forks one other process then the
-useage limit is twice the limit established.
+    CVS gcc 3.0:          Debian gcc 2.95.3:   RedHat gcc 2.96:
 
->> Andries
->
->regards,
->
->--paulj
+    real    16m10.660s    real    7m58.874s    real    10m36.368s
+    user    15m27.900s    user    7m23.090s    user    10m0.290s 
+    sys     0m48.400s     sys     0m40.350s    sys     0m40.790s 
+maps:   <20 lines             ~10 lines            ~10 lines
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
+A huge win for 2.96 and absolutely no benefit whatsoever for 3.0, even
+though it obviously had a 10-fold effect on maps counts.  On the
+positive side, there was no performance *hit* either.
 
-Any opinions expressed are solely my own.
+As a blind "have not looked at relevant kernel source" guess, this
+looks like a hash scaling problem to me: the hash size works great for
+~300 maps and falls apart in a major way at ~3000 maps, presumably
+when we get multiple hits per hash bin and start walking 10-member
+lists.
+
+How this translates into a course of action---some combination of
+keeping your patch, enlarging the hash, and performance tweaking the
+list-walking---I'm not sure.
+
+Kevin <buhr@stat.wisc.edu>

@@ -1,93 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAFAtD>; Fri, 5 Jan 2001 19:49:03 -0500
+	id <S129267AbRAFA6X>; Fri, 5 Jan 2001 19:58:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAFAsx>; Fri, 5 Jan 2001 19:48:53 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:18948 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129324AbRAFAsk>; Fri, 5 Jan 2001 19:48:40 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEBE@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'antirez@invece.org'" <antirez@invece.org>
-Cc: Greg KH <greg@wirex.com>, Heitzso <xxh1@cdc.gov>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'Johannes Erdfelt'" <johannes@erdfelt.com>
-Subject: RE: USB broken in 2.4.0
-Date: Fri, 5 Jan 2001 16:48:00 -0800 
+	id <S129324AbRAFA6N>; Fri, 5 Jan 2001 19:58:13 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:64017 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129267AbRAFA6D>; Fri, 5 Jan 2001 19:58:03 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.4.0-ac2
+Date: 5 Jan 2001 16:57:55 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <935qij$62d$1@cesium.transmeta.com>
+In-Reply-To: <E14Eale-000873-00@the-village.bc.nu> <20010105140246.A838@evaner.penguinpowered.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This rings a small bell with me.
-There was a change by Dan Streetman IIRC to limit
-usbdevfs bulk transfers to PAGE_SIZE (4 KB for x86,
-or 0x1000).  Anything larger than that returns
-an error (-EINVAL).
+Followup to:  <20010105140246.A838@evaner.penguinpowered.com>
+By author:    Evan Thompson <evaner@bigfoot.com>
+In newsgroup: linux.dev.kernel
+>
+> Hmm...seems as though Alan released 2.4.0-ac2 1 year ago (check out
+> the time stamps on ftp.kernel.org/pub/linux/kernel/people/alan/2.4/)
+>
 
-~Randy
-_______________________________________________
-|randy.dunlap_at_intel.com        503-677-5408|
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------
+zeus 1 % ls -l /pub/linux/kernel/people/alan/2.4/
+total 4400
+-rw-r--r--   1 korg     korg      1015191 Jan  4 17:44 patch-2.4.0-ac1.bz2
+-rw-r--r--   1 korg     korg          248 Jan  4 17:44 patch-2.4.0-ac1.bz2.sign
+-rw-r--r--   1 korg     korg      1211734 Jan  4 17:44 patch-2.4.0-ac1.gz
+-rw-r--r--   1 korg     korg          248 Jan  4 17:44 patch-2.4.0-ac1.gz.sign
+-rw-r--r--   1 korg     korg      1020542 Jan  5 09:21 patch-2.4.0-ac2.bz2
+-rw-r--r--   1 korg     korg          248 Jan  5 09:21 patch-2.4.0-ac2.bz2.sign
+-rw-r--r--   1 korg     korg      1219124 Jan  5 09:21 patch-2.4.0-ac2.gz
+-rw-r--r--   1 korg     korg          248 Jan  5 09:21 patch-2.4.0-ac2.gz.sign
 
-> -----Original Message-----
-> From: antirez [mailto:antirez@invece.org]
-> Sent: Friday, January 05, 2001 6:40 PM
-> To: antirez
-> Cc: Greg KH; Heitzso; 'linux-kernel@vger.kernel.org'; 
-> 'Johannes Erdfelt'
-> Subject: Re: USB broken in 2.4.0
-> 
-> 
-> On Sat, Jan 06, 2001 at 12:04:29AM +0100, antirez wrote:
-> > I'll do some test with the new 2.4 kernel to find if there 
-> is a problem
-> > in s10sh itself. A good test can be to try if the equivalent driver
-> > of gphoto works without problems using the 2.4 kernel 
-> (however it also
-> > uses the libusb). The s10sh bug may be not necessarly 
-> related to the USB
-> > subsystem.
-> 
-> Ok, the problem is the same that I ecountered developing the file
-> upload for the powershot USB driver performing a bulk write with
-> a big data size, but this time it is present even reading.
-> 
-> s10sh reads 0x1400 bytes at once downloading jpges from the
-> digicam, but the ioctl() that performs the bulk read fails with 2.4
-> using this size. If I resize it (for example to 0x300) it 
-> works without
-> problems (with high performace penality, of course, 60% of slow-down).
-> I don't know why. I checked at the time of the file upload the kernel
-> code finding nothing.
-> 
-> Anyway with the old releases of the USB subsystem libusb failed to
-> initialize the camera some time, now it seems fixed.
-> 
-> For the users: just edit usb.c and check the function USB_get_data(),
-> substituting all the occurrence of 0x1400 to 0x300 as a work-around.
-> 
-> Please CC: me since I'm not subscribed to the list.
-> 
-> regards,
-> antirez
-> 
-> -- 
-> Salvatore Sanfilippo              |                      
-> <antirez@invece.org>
-> http://www.kyuzz.org/antirez      |      PGP: finger 
-> antirez@tella.alicom.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
 
+This is why I hate FTP.  This ALWAYS happens to someone when their FTP
+client tries to be smart and convert dates incorrectly.
+
+       -hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

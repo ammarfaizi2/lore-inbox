@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbTFJSLU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTFJSLU
+	id S261292AbTFJSOn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTFJSOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:11:20 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:44606 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261182AbTFJSLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:11:19 -0400
-Date: Tue, 10 Jun 2003 11:25:41 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: george anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org, Eric.Piel@Bull.Net
-Subject: Re: [PATCH] Some clean up of the time code.
-Message-Id: <20030610112541.3f12586d.akpm@digeo.com>
-In-Reply-To: <3EE5FB06.1060207@mvista.com>
-References: <3EE52CA7.9010007@mvista.com>
-	<20030609182213.2072ca24.akpm@digeo.com>
-	<3EE5FB06.1060207@mvista.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Tue, 10 Jun 2003 14:14:43 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:2031 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S261292AbTFJSOj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:14:39 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jun 2003 18:25:01.0119 (UTC) FILETIME=[9ACF24F0:01C32F7D]
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Pavel Machek <pavel@suse.cz>, Patrick Mochel <mochel@osdl.org>
+Subject: Re: [RFC] New system device API
+Date: Tue, 10 Jun 2003 13:27:54 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+References: <20030609210706.GA508@elf.ucw.cz> <Pine.LNX.4.44.0306091412440.11379-100000@cherise> <20030609213247.GC508@elf.ucw.cz>
+In-Reply-To: <20030609213247.GC508@elf.ucw.cz>
+MIME-Version: 1.0
+Message-Id: <03061013275402.06462@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger <george@mvista.com> wrote:
+On Monday 09 June 2003 16:32, Pavel Machek wrote:
+> Hi!
 >
-> Andrew Morton wrote:
-> > george anzinger <george@mvista.com> wrote:
-> > 
-> >>-void do_settimeofday(struct timeval *tv)
-> >> +int do_settimeofday(struct timespec *tv)
-> >>  {
-> >> +	if ((unsigned long)tv->tv_nsec > NSEC_PER_SEC)
-> >> +		return -EINVAL;
-> >> +
-> > 
-> > 
-> > Should that be ">="?
-> > 
-> > Is there any reasonable way to avoid breaking existing
-> > do_settimeofday() implementations? That's just more grief all round.
-> 
-> Hm. Giving this more thought, the main reason for the change was to 
-> move to the timespec from the timeval, i.e. nanoseconds instead of 
-> microseconds.  The error check was put in because the function was 
-> already being changed.  The reason to move to the timespec is to 
-> complete the change made to xtime and to more correctly align with the 
-> POSIX clock_settime, both of which use timespec.
-> 
+> > > > So? A keyboard controller is not classified as a system device.
+> > >
+> > > Its not on pci, I guess it would end up as a system device...
+> >
+> > Huh? Since when is everything that's not PCI a system device? Please read
+> > the documentation, esp. WRT system and platform devices.
+>
+> Oh and btw keyboard controller is used for rebooting machine. Do you
+> still say it is not system device?
+> 								Pavel
 
-Well if it's really the Right Thing To Do then OK.  Was just checking.
+And here I thought it was the reset line on the bus... :-)
 
-About 30 do_settimeofday() implementations need to be repaired.
+There are lots of ways to do that without involving the keyboard. The old way
+was just to wire the serial break signal from the UART to the reset line...
+
+Would that suddenly make the serial interfaces system devices?
+
+What about that "wake on lan" business... does that make the network card a
+"system  device"?
+
+The only things I think of as "system device" is the CPU, the memory bus, and
+sometimes a thing called a system controller/bus arbiter. The memory bus 
+should provide access to any ROM needed for initial program storage.
+
+Outside of that, everything is a peripheral, and should be treated as such,
+even though the memory management unit is considered part of the CPU.

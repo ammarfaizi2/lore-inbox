@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282969AbRLQWR4>; Mon, 17 Dec 2001 17:17:56 -0500
+	id <S282948AbRLQWQQ>; Mon, 17 Dec 2001 17:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282968AbRLQWRr>; Mon, 17 Dec 2001 17:17:47 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:59399 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S282955AbRLQWRh>; Mon, 17 Dec 2001 17:17:37 -0500
-Date: Mon, 17 Dec 2001 14:17:19 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] block_ioctl EXPORT
-Message-ID: <Pine.LNX.4.10.10112171416240.11180-100000@www.transvirtual.com>
+	id <S282947AbRLQWQH>; Mon, 17 Dec 2001 17:16:07 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25606 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S282948AbRLQWPt>; Mon, 17 Dec 2001 17:15:49 -0500
+Date: Mon, 17 Dec 2001 19:00:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ken Brownfield <brownfld@irridia.com>
+Subject: Re: Linux 2.4.17-rc1
+In-Reply-To: <200112171817.fBHIHXj09903@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.21.0112171859540.3720-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Another missed exported function when the IDE layer is completely compiled
-modular. 
 
-  .-.                               .-.
-  oo|  Give Microsoft The Bird!!!!  oo|
- /`'\  Use Linux!!!                /`'\
-(_;/)                            (_;/)
------------------------------------------------------
+On Mon, 17 Dec 2001, Richard Gooch wrote:
 
---- /usr/src/linux-2.5.1/drivers/block/block_ioctl.c	Mon Dec 17 11:16:56 2001
-+++ linux/drivers/block/block_ioctl.c	Mon Dec 17 15:05:42 2001
-@@ -81,3 +81,5 @@
- #endif
- 	return err;
- }
-+
-+EXPORT_SYMBOL(block_ioctl);
+> Marcelo Tosatti writes:
+> > On Sun, 16 Dec 2001, Daniel Phillips wrote:
+> > > Will there be a rc2?
+> > 
+> > Yes there will.
+> > 
+> > There have been reiserfs bug reports (I'm waiting for the fix for
+> > -rc2), and I'm waiting for Richard's patch to fix a devfs update
+> > issue.
+> 
+> I've got the devfs patch ready, I'm just waiting for followups on bug
+> reports from people. 
+
+Ok, as soon as you get the reports from people, please send me the patch
+or tell me its broken :)
+
 

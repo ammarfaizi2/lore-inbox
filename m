@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbQLKMiy>; Mon, 11 Dec 2000 07:38:54 -0500
+	id <S129183AbQLKNRs>; Mon, 11 Dec 2000 08:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130304AbQLKMio>; Mon, 11 Dec 2000 07:38:44 -0500
-Received: from d1o974.telia.com ([212.181.169.241]:60175 "EHLO
-	d1o974.telia.com") by vger.kernel.org with ESMTP id <S129631AbQLKMif>;
-	Mon, 11 Dec 2000 07:38:35 -0500
-Date: Mon, 11 Dec 2000 13:08:00 +0100 (CET)
-From: Johan Bergström <johbe@telia.com>
-To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 EXT2 corruption (closed)
-In-Reply-To: <20001211092130.A9129@iapetus.localdomain>
-Message-ID: <Pine.LNX.3.96.1001211130514.21586A-100000@h193n3fls20o974.telia.com>
+	id <S129511AbQLKNRj>; Mon, 11 Dec 2000 08:17:39 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:60166 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S129183AbQLKNR1>; Mon, 11 Dec 2000 08:17:27 -0500
+Message-ID: <3A34D8EC.49C22DA1@evision-ventures.com>
+Date: Mon, 11 Dec 2000 14:38:52 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dietmar Kling <dietmar.kling@sam-net.de>
+CC: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
+In-Reply-To: <Pine.GSO.4.21.0012092014550.896-100000@weyl.math.psu.edu> <3A32F169.3E99C976@sam-net.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000, Frank van Maarseveen wrote:
-
-> On Mon, Dec 11, 2000 at 01:37:36AM +0100, Guest section DW wrote:
-> > 
-> > I see lots of messages from you about corruption in 2.4.0-test11
-> > but we all know very well that 2.4.0-test11 corrupts things
-> > and further evidence is not necessary.
-> > Hopefully all, or at least the most significant, problems
-> > have been solved now, so you should upgrade to the most
-> > recent test kernel and see how things are there.
-> > 
-> Thanks. test12-pre7 fixes this for me: it ran all night testing and
-> no problems so far.
+Dietmar Kling wrote:
 > 
-I'm running test12-pre7 and had a bad lockup a couple of days ago. Or
-actually it wasnt a lockup it was a "klonk" in the harddrive when I
-started netscape then the machine rebooted. And I had a corruption in the
-$HOME/.netscape/cache directory. No logged messages or anything anywhere.
-The machine just rebooted and I had to manually fsck /home.
-
-Johan
-> -- 
-> Frank
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> Ok guys i take your arguments...
+> (i really loved to hear them)
 > 
+> and i'd like to continue them in a
+> private discussion( but i am
+> tired now ... :) )
+> 
+> but a last one i cannot resist...
+> 
+> <sarcasm>
+> but why are your ideas not widespread and
+> so successful like kde,gnome,windows?
 
+Please don't put KDE into the same bunch as gnome or
+windows. KDE is in fact *well designed*! In esp. 2.0
+
+> maybe because they suck at some point?
+> </sarcasm>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

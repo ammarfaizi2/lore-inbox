@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269471AbUICJ2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269424AbUICJ1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269471AbUICJ2u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 05:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269616AbUICJ1m
+	id S269424AbUICJ1G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 05:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUICJZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:27:42 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7862 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269577AbUICJZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:25:42 -0400
-Date: Fri, 3 Sep 2004 11:25:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Free Ekanayaka <free@agnula.org>, Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-Message-ID: <20040903092547.GA18594@elte.hu>
-References: <20040902221402.GA29434@elte.hu> <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <87acw7bxkh.fsf@agnula.org> <1094198755.19760.133.camel@krustophenia.net>
+	Fri, 3 Sep 2004 05:25:17 -0400
+Received: from mp1-smtp-2.eutelia.it ([62.94.10.162]:39583 "EHLO
+	smtp.eutelia.it") by vger.kernel.org with ESMTP id S269616AbUICJYB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 05:24:01 -0400
+Date: Fri, 3 Sep 2004 11:24:35 +0200
+From: Luca Ferroni <fferroni@cs.unibo.it>
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Cc: linux-kernel@vger.kernel.org, miklos@szeredi.hu, renzo@cs.unibo.it,
+       frederik@a5.repetae.net
+Subject: Userspace framework (was: Re: silent semantic changes with reiser4)
+Message-Id: <20040903112435.0d754fac.fferroni@cs.unibo.it>
+In-Reply-To: <1094181768.9282.27.camel@sherbert>
+References: <rlrevell@joe-job.com>
+	<1094079071.1343.25.camel@krustophenia.net>
+	<200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
+	<1535878866.20040902214144@tnonline.net>
+	<20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
+	<1094155277.11364.92.camel@krustophenia.net>
+	<20040902204351.GE8653@atrey.karlin.mff.cuni.cz>
+	<1094158060.1347.16.camel@krustophenia.net>
+	<20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
+	<1094164385.6163.4.camel@localhost.localdomain>
+	<1094181768.9282.27.camel@sherbert>
+Organization: Ferrlabs
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094198755.19760.133.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Il Fri, 03 Sep 2004 04:22:48 +0100,  Gianni Tedesco <gianni@scaramanga.co.uk> ha scritto:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+> On Thu, 2004-09-02 at 23:33 +0100, Alan Cox wrote:
+> > On Iau, 2004-09-02 at 21:58, Pavel Machek wrote:
+> > > Uservfs.sf.net.
+> > > 
+> > > Unlike alan, I do not think that "do it all in library" is good
+> > > idea. I put it in the userspace as "codafs" server, and let
+> > > applications see it as a regular filesystem.
+> > 
+> > That works for me too, providing someone has fixed all the user mode fs
+> > deadlocks with paging
+> 
+> Aren't the deadlock scenarios only applicable for read/write mounted
+> filesystems ?
+> 
 
-> As of -R0 it's definitely stable on UP and SMP users are reporting the
-> same.  All known problems should be fixed, and there are no known
-> regressions.  You should probably post a UP version and have your
-> users test that before posting SMP packages, the latter are not quite
-> as well tested.
+AFAIK deadlock arises when kernel manages buffers:
+it has to free a buffer ==> choose a dirty one ==> if cleaning requires to make a call to
+network server and this last is waiting for a buffer (cleaning accomplished) ==>
+==> deadlock.
 
-Florian Schmidt reported a minor bug that prevents a successful build if
-!CONFIG_LATENCY_TRACE - i've uploaded -R1 that fixes this:
-  
- http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R1
+I think buffers are involved even in reading file system access.
+I think also that NFS is threatened by deadlock, not CodaFS.
 
-there are no other changes in -R1, and there are no known pending bugs
-currently.
+The problem with CodaFS is that it doesn't support random file access: 
+you have to download a whole file in coda cache directory even
+to read its first byte.
 
-for a packaged kernel i'd suggest to enable all the CONFIG_PREEMPT_*
-values in the .config, including CONFIG_PREEMPT_TIMING.
+I'm writing my laurea thesis about userspace file system,
+and two Interesting papers i found about this, are:
 
-CONFIG_LATENCY_TRACE can add overhead if active, so while it would be
-useful for initial packages to enable this .config option, i'd suggest
-to turn it off by default by changing 'tracing_enabled = 1' to
-'tracing_enabled = 0' in the patch. Then people can enable it and do
-precise tracing whenever they encounter a particular high latency on
-their system.
+http://a5.repetae.net/~frederik/avfs/frederik_surf_paper.pdf by Frederik Eaton
+and the more generic UFO paper
+http://www.usenix.org/publications/library/proceedings/ana97/alexandrov.html
 
-configuring the threaded/nonthreaded properties of IRQ handlers can be
-tricky. Perhaps a script could scan /proc (and/or /sys) for audio
-interrupts and make them directly executed? Unfortunately audio
-interrupt handler requests dont seem to be going through some central
-ALSA function so i see no easy way to somehow tag audio interrupts
-automatically and provide some /proc flag to make audio interrupts
-non-threaded by default.
+I think that LUFS (Linux User File System)  and FUSE (Filesystem in USErspace) 
+kernel modules are solutions to be considered for adding to Linux develop branch.
+They are similar, but FUSE is still maintained and improved, and it permit to create
+a custom daemon for each user filesystem (unlinke lufsd daemon which loads a 
+shared library). Communication kernel-user space is done through a special file descriptor,
+unlike LUFS socket.
+The only doubt is that FUSE is tuned for local file system performance, but I don't know
+if it is possible to develop network file system with this framework.
+LUFS is slower but more generic in this sense.
 
-	Ingo
+http://sourceforge.net/projects/avf
+
+There is more documentation in the tarball than in the home page.
+
+Ciao
+Luca

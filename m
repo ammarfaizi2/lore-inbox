@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129550AbRBCEYx>; Fri, 2 Feb 2001 23:24:53 -0500
+	id <S129053AbRBCEkU>; Fri, 2 Feb 2001 23:40:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131010AbRBCEYn>; Fri, 2 Feb 2001 23:24:43 -0500
-Received: from hibernia.clubi.ie ([212.17.32.129]:57735 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S129550AbRBCEYe>; Fri, 2 Feb 2001 23:24:34 -0500
-Date: Sat, 3 Feb 2001 04:25:20 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Jakub Jelinek <jakub@redhat.com>
-cc: "J . A . Magallon" <jamagallon@able.es>, Hans Reiser <reiser@namesys.com>,
-        Alan Cox <alan@redhat.com>, Chris Mason <mason@suse.com>,
-        Jan Kasprzak <kas@informatics.muni.cz>, <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>,
-        "Yury Yu . Rupasov" <yura@yura.polnet.botik.ru>
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-In-Reply-To: <20010202191701.Y16592@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.31.0102030420031.20193-100000@fogarty.jakma.org>
+	id <S129096AbRBCEkK>; Fri, 2 Feb 2001 23:40:10 -0500
+Received: from [65.192.23.216] ([65.192.23.216]:16644 "EHLO anomaly.xbill.org")
+	by vger.kernel.org with ESMTP id <S129053AbRBCEjz>;
+	Fri, 2 Feb 2001 23:39:55 -0500
+Date: Fri, 2 Feb 2001 20:39:41 -0800 (PST)
+From: Brian Wellington <bwelling@xbill.org>
+To: Brian May <bam@snoopy.apana.org.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fix for include/linux/fs.h in 2.4.0 kernels
+In-Reply-To: <848znojt10.fsf@snoopy.apana.org.au>
+Message-ID: <Pine.LNX.4.21.0102022039210.12394-100000@anomaly.xbill.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Feb 2001, Jakub Jelinek wrote:
+On 3 Feb 2001, Brian May wrote:
 
-> You can do:
-> if [ "$CC" = gcc ]; then
->   echo 'inline void f(unsigned int n){int i,j=-1;for(i=0;i<10&&j<0;i++)if((1UL<<i)==n)j=i;if(j<0)exit(0);}main(){f(64);exit(1);}' > test.c
->   gcc -O2 -o test test.c
->   if ./test; then echo "*** Please don't use this compiler to compile kernel"; fi
->   rm -f test.c test
-> fi
->
-> (the $CC = gcc test is there e.g. so that the test is not done when
-> cross-compiling or when there is a separate kernel compiler and userland
-> compiler (e.g. on sparc64). This test will barf on gcc-2.96 up to -67 and
->
-> 	Jakub
+> >>>>> "Keith" == Keith Owens <kaos@ocs.com.au> writes:
+> 
+>     >> {PB} This was necessary for libc5, but is not correct when
+>     >> using glibc. Including the kernel header files directly in user
+>     >> programs usually does not work (see question 3.5). glibc
+>     >> provides its own <net/*> and <scsi/*> header files to replace
+>     >> them, and you may have to remove any symlink that you have in
+>     >> place before you install glibc. However, /usr/include/asm and
+>     >> /usr/include/linux should remain as they were.
+>     >> 
+>     >> Keith, are you saying that glibc is wrong?
+> 
+>     Keith> Not me, Linus says that glibc is wrong.
+> 
+>     Keith>   "I've asked glibc maintainers to stop the symlink
+>     Keith> insanity for the last few years now, but it doesn't seem to
+>     Keith> happen.
+> 
+>     Keith>   Basically, that symlink should not be a symlink.  It's a
+>     Keith> symlink for historical reasons, none of them very good any
+>     Keith> more (and haven't been for a long time), and it's a
+>     Keith> disaster unless you want to be a C library developer.
+>     Keith> Which not very many people want to be.
+> 
+>     Keith>   The fact is, that the header files should match the
+>     Keith> library you link against, not the kernel you run on."
+> 
+> 
+> I read Keith's response as: the symlink is wrong.
+> I read the glib FAQ as:     the symlink is wrong.
+> I read Linus' response as:  the symlink is wrong.
+> 
+> Who is contradicting who here?
+> 
+> (perhaps that last sentence in the glibc FAQ is confusing, however the
+> rest of it clearly says that glibc contains its own version of those
+> files, and a symlink should *not* be used. I think the part "[...] you
+> may have to remove any symlink [...]" is clear enough).
 
-ehhmm..
+No, it clearly says that glibc contains its own versions of the net/* and
+scsi/* files, and that /usr/include/asm and /usr/include/linux should
+remain as they were.  Since they were symlinks in libc5 (which is what
+'originally' seems to be referring to), they should still be symlinks.
 
-[root@fogarty /tmp]# rpm -q gcc
-gcc-2.96-70
-[root@fogarty /tmp]# cat test.c
-inline void f(unsigned int n){int
-i,j=-1;for(i=0;i<10&&j<0;i++)if((1UL<<i)==n)j=i;if(j<0)exit(0);}main(){f(64);
-exit(1);}
-[root@fogarty /tmp]# gcc -o test test.c
-[root@fogarty /tmp]# ./test
+Brian (who really doesn't care either way)
 
-didn't barf here with 2.96-70.
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-One person's error is another person's data.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

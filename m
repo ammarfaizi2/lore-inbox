@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280820AbRKGP06>; Wed, 7 Nov 2001 10:26:58 -0500
+	id <S280823AbRKGP33>; Wed, 7 Nov 2001 10:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280818AbRKGP0t>; Wed, 7 Nov 2001 10:26:49 -0500
-Received: from main.sonytel.be ([195.0.45.167]:57004 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S280821AbRKGP0f>;
-	Wed, 7 Nov 2001 10:26:35 -0500
-Date: Wed, 7 Nov 2001 16:26:27 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <20011102074532.C708-100000@gerard>
-Message-ID: <Pine.GSO.4.21.0111071624270.550-100000@mullein.sonytel.be>
+	id <S280821AbRKGP3T>; Wed, 7 Nov 2001 10:29:19 -0500
+Received: from leeor.math.technion.ac.il ([132.68.115.2]:48282 "EHLO
+	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
+	id <S280823AbRKGP3G>; Wed, 7 Nov 2001 10:29:06 -0500
+Date: Wed, 7 Nov 2001 17:28:40 +0200 (IST)
+From: "Zvi Har'El" <rl@math.technion.ac.il>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, <linux-kernel@vger.kernel.org>,
+        <nyh@math.technion.ac.il>
+Subject: Re: ext3 vs resiserfs vs xfs
+In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.33.0111071726260.2977-100000@leeor.math.technion.ac.il>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, [ISO-8859-1] Gérard Roudier wrote:
-> On Thu, 1 Nov 2001, Geert Uytterhoeven wrote:
-> > [ About SCSI tape corruption with sym53c8xx, some months ago ]
-> >
-> > On Fri, 27 Jul 2001, Gérard Roudier wrote:
-> > > On Fri, 27 Jul 2001, Geert Uytterhoeven wrote:
-> > > > With some small modifications, I made 1.5a to work fine. No error burst. So the
-> > > > problem is introduced between 1.5a and 1.5g.
-> > >
-> > > Fine! But diffs between 1.5a and 1.5g are still large. :(
-> > > Results with 1.5c would have divided the diffs by about 2. :(
+On Wed, 7 Nov 2001, Alan Cox wrote:
 
-1.5c seems to be fine!
+> > I just set up a RedHat 7.2 box with ext3, and after a few tests/chrashes,
+> > I see no difference at all. After a chrash, it really wants to run fsck
+> > anyway. I've tried ReiserFS before, with no fsck after chrashes - is this
+>
+> Umm RH 7.2 after an unexpected shutdown will give you a 5 second count down
+> when you can choose to force an fsck - ext3 doesnt need an fsck but
+> sometimes folks might want to force it thats all
 
-Still have to try 1.5d, 1.5g1, 1.5g2 and 1.5g3.
-1.5e and 1.5f are nowhere available?
+I get this countdown, but after 5 seconds fsck starts anyway, without me
+hitting Y! Should I hit N, or should I change some config somewhere? Now each
+time my battery runs out, I need fsck!
 
-> As driver sym-2 is planned to replace sym53c8xx in the future, it would be
-> interesting to give it a try on your hardware. There are some source
-> available from ftp.tux.org, but I can provide you with a flat patch
-> against the stock kernel version you want. You may let me know.
-
-I just saw the sym-2 driver enter the ac-series. As soon as I have a recent
-2.4.x kernel on this box, I can give it a try...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Dr. Zvi Har'El     mailto:rl@math.technion.ac.il     Department of Mathematics
+tel:+972-54-227607                   Technion - Israel Institute of Technology
+fax:+972-4-8324654 http://www.math.technion.ac.il/~rl/     Haifa 32000, ISRAEL
+"If you can't say somethin' nice, don't say nothin' at all." -- Thumper (1942)
+                         Wednesday, 21 Heshvan 5762,  7 November 2001,  5:26PM
 

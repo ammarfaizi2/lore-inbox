@@ -1,77 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbUJZP01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbUJZP1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbUJZP01 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 11:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbUJZP01
+	id S262293AbUJZP1t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUJZP1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 11:26:27 -0400
-Received: from alog0342.analogic.com ([208.224.222.118]:896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262292AbUJZP0Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 11:26:24 -0400
-Date: Tue, 26 Oct 2004 11:26:19 -0400 (EDT)
-From: linux-os <root@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Timothy Miller <miller@techsource.com>
-cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Some discussion points open source friendly graphics [was:
- HARDWARE:   Open-Source-Friendly Graphics Cards -- Viable?]
-In-Reply-To: <417E6CF3.503@techsource.com>
-Message-ID: <Pine.LNX.4.53.0410261118120.338@chaos.analogic.com>
-References: <417D21C8.30709@techsource.com> <417D6365.3020609@pobox.com>
- <MPG.1be854649d4829f8989704@news.gmane.org> <417E6CF3.503@techsource.com>
+	Tue, 26 Oct 2004 11:27:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63977 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262293AbUJZP10 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:27:26 -0400
+Date: Tue, 26 Oct 2004 11:27:09 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Stephen Smalley <sds@epoch.ncsc.mil>, Kaigai Kohei <kaigai@ak.jp.nec.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] SELinux: fix sidtab locking bug
+Message-ID: <Xine.LNX.4.44.0410261120580.3811-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004, Timothy Miller wrote:
+This patch by Kaigai Kohei fixes a bug in the SELinux sidtab code, where 
+we do a spin_unlock_irq() while nested under another irq lock, which 
+enables interrupts and allows a deadlock to happen:
 
->
->
-> Giuseppe Bilotta wrote:
-> > Timothy Miller wrote:
-> >
-> >>>The reprogramability of the FPGA has many advantages, but
-> >>>reprogramability is not its primary purpose.  The primary reason to use
-> >>>an FPGA is to minimize NRE for manufacturing.  However, as a result,
-> >>>users will be able to download updates.  Additionally, those who are
-> >
-> >
-> > Jeff Garzik wrote:
-> >
-> >>Will the capability to apply these updates be included with the base card?
-> >>Will users need to purchase additional "update FPGA" hardware to do the
-> >>reprogramming?
-> >
-> >
-> > Also, what if the reprogramming goes wrong? Do I just throw the
-> > card away or will there be some form of recovery possible?
-> >
->
->
-> For those who are taking the risk of reprogramming it completely,
-> they'll already have read the schematics and instructions for using an
-> external device to program the PROM.
->
-> For everyone else, it's the same problem you get when programming a
-> motherboard goes awry.  When the BIOS is hosed, you can't use the MB
-> until you replace the chip.
->
-> For cost reasons, we likely wouldn't socket the chip, so you'd probably
-> have to send it in for an RMA.  We'd reprogram it, and send it back.  Or
-> if you have a friend with the right tools, they can do it.
->
+  sidtab_set() is called between POLICY_WRLOCK and POLICY_WRUNLOCK in 
+  services.c:1092. sidtab_set() uses SIDTAB_LOCK()/SIDTAB_UNLOCK(), but 
+  SIDTAB_UNLOCK() enables any interruptions because it's defined as 
+  spin_unlock_irq(). If an interruption occurs between SIDTAB_UNLOCK() and 
+  POLICY_WRUNLOCK, and interruption context try to hold the POLICY_RDLOCK, 
+  then a deadlock happen in the result.
 
-Normally you use a boundary-scan (JTAG) serial header so you can program,
-reprogram, debug the chip. FPGA development tools expect (require)
-this.
+The solution is to save & restore flags on the inner lock, per the patch 
+below.
 
-Check out http:/www.macraigor.com/full_gnu.htm for their GNU tools
-and devices, designed for Linux (and M$).
+Please apply.
+
+Signed-off-by: James Morris <jmorris@redhat.com>
+Signed-off-by: Stephen Smalley <sds@epoch.ncsc.mil>
+Signed-off-by: Kaigai Kohei <kaigai@ak.jp.nec.com>
+
+---
+
+ security/selinux/ss/sidtab.c |   21 +++++++++++++--------
+ 1 files changed, 13 insertions(+), 8 deletions(-)
+
+diff -purN -X dontdiff linux-2.6.9-mm1.p/security/selinux/ss/sidtab.c linux-2.6.9-mm1.w/security/selinux/ss/sidtab.c
+--- linux-2.6.9-mm1.p/security/selinux/ss/sidtab.c	2004-08-14 01:37:25.000000000 -0400
++++ linux-2.6.9-mm1.w/security/selinux/ss/sidtab.c	2004-10-22 11:53:03.152654328 -0400
+@@ -16,8 +16,8 @@
+ (sid & SIDTAB_HASH_MASK)
+ 
+ #define INIT_SIDTAB_LOCK(s) spin_lock_init(&s->lock)
+-#define SIDTAB_LOCK(s) spin_lock_irq(&s->lock)
+-#define SIDTAB_UNLOCK(s) spin_unlock_irq(&s->lock)
++#define SIDTAB_LOCK(s, x) spin_lock_irqsave(&s->lock, x)
++#define SIDTAB_UNLOCK(s, x) spin_unlock_irqrestore(&s->lock, x)
+ 
+ int sidtab_init(struct sidtab *s)
+ {
+@@ -237,12 +237,13 @@ int sidtab_context_to_sid(struct sidtab 
+ {
+ 	u32 sid;
+ 	int ret = 0;
++	unsigned long flags;
+ 
+ 	*out_sid = SECSID_NULL;
+ 
+ 	sid = sidtab_search_context(s, context);
+ 	if (!sid) {
+-		SIDTAB_LOCK(s);
++		SIDTAB_LOCK(s, flags);
+ 		/* Rescan now that we hold the lock. */
+ 		sid = sidtab_search_context(s, context);
+ 		if (sid)
+@@ -257,7 +258,7 @@ int sidtab_context_to_sid(struct sidtab 
+ 		if (ret)
+ 			s->next_sid--;
+ unlock_out:
+-		SIDTAB_UNLOCK(s);
++		SIDTAB_UNLOCK(s, flags);
+ 	}
+ 
+ 	if (ret)
+@@ -320,17 +321,21 @@ void sidtab_destroy(struct sidtab *s)
+ 
+ void sidtab_set(struct sidtab *dst, struct sidtab *src)
+ {
+-	SIDTAB_LOCK(src);
++	unsigned long flags;
++
++	SIDTAB_LOCK(src, flags);
+ 	dst->htable = src->htable;
+ 	dst->nel = src->nel;
+ 	dst->next_sid = src->next_sid;
+ 	dst->shutdown = 0;
+-	SIDTAB_UNLOCK(src);
++	SIDTAB_UNLOCK(src, flags);
+ }
+ 
+ void sidtab_shutdown(struct sidtab *s)
+ {
+-	SIDTAB_LOCK(s);
++	unsigned long flags;
++
++	SIDTAB_LOCK(s, flags);
+ 	s->shutdown = 1;
+-	SIDTAB_UNLOCK(s);
++	SIDTAB_UNLOCK(s, flags);
+ }
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                 98.36% of all statistics are fiction.

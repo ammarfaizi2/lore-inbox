@@ -1,101 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293276AbSDQQCI>; Wed, 17 Apr 2002 12:02:08 -0400
+	id <S293510AbSDQQKe>; Wed, 17 Apr 2002 12:10:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293337AbSDQQCH>; Wed, 17 Apr 2002 12:02:07 -0400
-Received: from seldon.terminus.sk ([195.146.17.130]:2947 "EHLO
-	seldon.terminus.sk") by vger.kernel.org with ESMTP
-	id <S293276AbSDQQCF>; Wed, 17 Apr 2002 12:02:05 -0400
-Date: Wed, 17 Apr 2002 18:06:48 +0200 (CEST)
-From: Marek Zelem <marek@terminus.sk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] + story;) on POSIX capabilities and SUID bit
-In-Reply-To: <a9g1fb$onq$1@abraham.cs.berkeley.edu>
-Message-ID: <Pine.LNX.4.33.0204171529380.25235-100000@seldon.terminus.sk>
+	id <S293596AbSDQQKd>; Wed, 17 Apr 2002 12:10:33 -0400
+Received: from pop.gmx.net ([213.165.64.20]:4120 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S293510AbSDQQKc>;
+	Wed, 17 Apr 2002 12:10:32 -0400
+Message-ID: <3CBD9063.BF11D4A9@gmx.net>
+Date: Wed, 17 Apr 2002 17:10:27 +0200
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: traditional bug: only one of two serial ports found on HP Vectra XM
+In-Reply-To: <3CBD382B.20432.3A9A82@localhost> <200204171128.g3HBS5X29316@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko wrote:
 
-On 16 Apr 2002, David Wagner wrote:
-
-> Marek Zelem  wrote:
-> >Our new formula:
-> >  * (***) pP' = (fP & X) | (fI & pI)
-> >  *       pI' = pP'
-> >  *       pE' = ((pP' & pE) | fP) & X & fE
+> On 17 April 2002 04:54, Ulrich Windl wrote:
+> > historically I believed Linux very much. When it said my HP Vecra XM
+> > only has one serial port I was surprised, but believed it. That was
+> > some years ago. 2.4.18 still says that there is one serial port:
+> >
+> > ttyS00 at 0x3f8 (irq=4) as a 16550A
+> >
+> > However recently I had to work on the backside of the PC and found
+> > two(!) serial ports labelled "Serial A" and "Serial B". So shouldn't
+> > both ports be detected?
 >
-> Can you say anything about why this is safe and doesn't introduce
-> vulnerabilities?  (The capabilities misfeature that caused sendmail
-> 8.10.1 to leak root privilege really drove home for me the subtlety of
-> this stuff.)
-
-New 'permitted' capabilities for process are computed by the same formula as
-the original because there is the primary aspiration to preserve the original
-POSIX formula.
-Most significat difference is in computation of 'inheritable' capabilities.
-Original formula just keeps process 'inheritable' capabilities untouched.
-(This fact was major problem of consolidate POSIX capabilities and SUID bit.)
-New formula set the 'inheritable' capabilities to correspond with the new
-'permitted'.
-There can occur four situations:
-	1) capability was in pI and will be in pI' - this correspond with
-		the original formula
-	2) capability wasn't in pI and will not be in pI' - this also
-		correspond with the original formula
-	3) capability was in pI and will not be in pI' - (so is not set
-		in new pP) - meaning: proces is NOT able to raise self pP by
-		executing "nosuid" binary. In this case is new formula
-		more restrictive then original.
-	4) capability wasn't in pI and will be in pI' - this can occure
-		only if this capability is in fP. In this case this
-		capability is also in pP'. And if is in 'permitted' caps
-		then process is allowed to add this capability into
-		'inheritable' caps. So we do nothin wrong if we set this
-		capability into pI'.
-Finally, difference in computation of pE' only aspirate to reflect pE.
-Major principle was preserved: pE' = pP' & fE. In new formula was pP'
-replaced by more complex term. But it's always true that
-	(((pP' & pE) | fP) & X & fE) IS SUBSET of (pP' & fE).
-So I think this is safe.
-
+> How about opening the case and checking whether those ports actually
+> connected to motherboard? Checking BIOS config?
+> Without waiting for another 'some years' :-)
 >
-> Also, the meaning of fE and fP seem backwards from what I would have
-> expected.  Maybe this reflects a lack in my understanding in capabilities,
-> but I thought 'effective' refers to capabilities you're allowed to invoke
-> at the moment, whereas 'permitted' refers to an upper bound on what
-> capabilities you're allowed enable in 'effective', consequently I would
-> have swapped the treatment of fE and fP.  Can you clear up my confusion?
+> Seriously, do you have any reason to think second port is really
+> exists beside physical connector?
 
-File capabilities are little different from process capabilities. Meaninig
-of file capabilities is:
-	fP - capafilities which are "forced" to process by exec().
-	     (sometimes called 'forced' capabilities)
-	fI - capabilities which is "allowed" to remain in process 'permited'.
-	     (sometimes called 'allowed' capabilities)
-	fE - capabilities which select which of 'permited' will be
-	     initially also 'effective'. (afrer exec() of course.)
-
->
-> Finally, what's the story behind the changes to CAP_INIT_EFF_SET and
-> CAP_INIT_INH_SET, and the business with CAP_SETPCAP?  If I understand
-> correctly, one side-effect of this change is that you've changed cap_bset
-> (X, the global bound on capabilities above) to add CAP_SETPCAP to it.
-> Is this safe?  What motivated this change?  Did I understand correctly?
-
-Yes, you understand correctly. Enabling CAP_SETPCAP is safe exactly as
-enabling the CAP_SYS_MODULE, which is enabled by default. Capability
-CAP_SYS_MODULE allows process to modify the cap_bset. Maybe I am wrong,
-but my opinion is not to do inconsequential restrictions. So, this is
-reason why I decide to change CAP_INIT_EFF_SET.
-
-					Marek Zelem
---
-  e-mail: marek@terminus.sk
-  web: http://www.terminus.sk/~marek/
-  pgp key: http://www.terminus.sk/~marek/gpg.txt
-
-
-
+If it exists, check if "lspnp" on a PNPBIOS enabled kernel would find your
+second port. There have been patches to find BIOS configured serial ports
+even if not at standard places.
 

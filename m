@@ -1,68 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbTDXLOW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 07:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbTDXLOW
+	id S261759AbTDXLOm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 07:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbTDXLOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 07:14:22 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:32983 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S261631AbTDXLOV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 07:14:21 -0400
-Date: Thu, 24 Apr 2003 23:13:17 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: Fix SWSUSP & !SWAP
-In-reply-to: <20030424024613.053fbdb9.akpm@digeo.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Pavel Machek <pavel@suse.cz>, cat@zip.com.au, mbligh@aracnet.com,
-       gigerstyle@gmx.ch, geert@linux-m68k.org,
+	Thu, 24 Apr 2003 07:14:42 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:48556 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S261759AbTDXLOi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 07:14:38 -0400
+Date: Thu, 24 Apr 2003 13:26:12 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Richard Zidlicky <rz@linux-m68k.org>
+cc: John Bradford <john@grabjohn.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Paul Mackerras <paulus@samba.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1051182797.2250.10.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay>
- <20030423235820.GB32577@atrey.karlin.mff.cuni.cz>
- <20030423170759.2b4e6294.akpm@digeo.com> <20030424001733.GB678@zip.com.au>
- <1051143408.4305.15.camel@laptop-linux>
- <20030423173720.6cc5ee50.akpm@digeo.com> <20030424091236.GA3039@elf.ucw.cz>
- <20030424022505.5b22eeed.akpm@digeo.com> <20030424093534.GB3084@elf.ucw.cz>
- <20030424024613.053fbdb9.akpm@digeo.com>
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <20030424094732.GA925@linux-m68k.org>
+Message-ID: <Pine.GSO.4.21.0304241309200.19942-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-24 at 21:46, Andrew Morton wrote:
-> > > Sorry, I still don't get it.  Go through the steps for me:
-> > > 
-> > > 1) suspend writes pages to disk
-> > > 
-> > > 2) machine is shutdown
-> > > 
-> > > 3) restart, journal replay
-
-Corruption comes here. The journal reply tidies things up that shouldn't
-be tidied up. They shouldn't be tidied up because once we reload the
-image, things should be in the same state as prior to suspend. If replay
-frees a block (thinking it wasn't properly linked or something similar),
-it introduces corruption.
-
-> swapfiles are not journalled - the swap a_ops write direct to the swapfile's
-> blocks with submit_bio().  Journal replay wouldn't touch the swapfile.
+On Thu, 24 Apr 2003, Richard Zidlicky wrote:
+> On Wed, Apr 23, 2003 at 09:19:07PM +0100, John Bradford wrote:
+> > Moving byte swapping out of the IDE layer also means that dumping the
+> > whole disk to a file will then give you non-byte swapped data, which
+> > could then be written back to a disk on another machine without a
+> > byte-swapped IDE interface.
+> > 
+> > It will also allow you to exchange tar archives on raw hard disk
+> > devices, and have them readable on non-byte swapped IDE interfaces
+> > :-).
 > 
-> I can see that locating the swapfile for the resume-time swapon could be a
-> problem, but the corruption thing still escapes me.
+> Linux is much better and will do all of that work perfectly since 
+> ages, just use hdX=swapdata on one of the machines. Trivially it 
+> is also possible to mount the partitions on either architecture.
 
-Regards,
+Note that the swapping works for PIO only, IIRC. For DMA mode, you're limited
+to the loop solution.
 
-Nigel
+> The issue is the distinction between drive control data (like SMART
+> and ident) and on disk data - currently the ide layer makes no clear
+> distinction between those varieties and thus in some cases the 
+> byteswapping must be done (or undone) in userspace.
+> 
+> There are some reasons why I am hesitant to move it out of IDE:
+> 
+> - IDE knows best what is control or on disk data and
+>   having separate ide-iops for them would be trivial
+> - partitioning loop devices smells like plenty of fun
+> - performance, for compatibility with current kernels
+>   we would byteswap in IDE and undo it in the loop layer
+> - don´t like to rely on utterly complicated boot ramdisks
 
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+After some more thinking, Alan's suggestion (always doing the swapping) isn't
+that bad. Except for the loop layer on old slow machines, which I'd like to
+avoid.
 
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
+If we always swap, we only have to un-swap when reading/writing platter data
+from native disks. No more swapping has to be done in ide_fix_driveid(), apart
+from the obvious conversion from little to big endian of the driveid structure
+itself, which we cannot avoid.
+
+Since both Atari and Q40/Q60 use PIO only, this affects ata_{in,out}put_data()
+only. It's quite easy to add a swap flag to ide_drive_t (configurable through
+hdX=swapdata), that is checked in ata_{in,out}put_data().  To improve
+performance, we wouldn't swap twice, but just call the new routines
+hwif->{IN,OUT}S[WL]_NOSWAP.
+
+Note that this would be the inverse logic of the current scheme, which swaps
+conditionally in atapi_{in,out}put_bytes().
+
+All of this can be protected by #ifdef CONFIG_IDE_BYTESWAPPED_HWIF. Influence
+on generic code is limited to ata_{in,out}put_data() and the new routines
+hwif->{IN,OUT}S[WL]_NOSWAP.
+
+Is this OK?
+
+For reference, I think this is the list of machines with a byteswapped IDE
+interface:
+  - Atari Falcon
+  - Q40/Q60
+  - Tivo
+
+Any others?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

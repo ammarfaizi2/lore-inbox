@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTEESnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbTEESnt
+	id S261214AbTEESuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTEESuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:43:49 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:21122 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261227AbTEESns (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:43:48 -0400
-Message-Id: <200305051856.h45IuFJC004011@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Timothy Miller <miller@techsource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: will be able to load new kernel without restarting? 
-In-Reply-To: Your message of "Mon, 05 May 2003 14:49:15 EDT."
-             <3EB6B22B.7090009@techsource.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <freemail.20030403212422.18231@fm9.freemail.hu> <20030503205656.GA19352@middle.of.nowhere> <200305032252.h43Mq7X9006633@turing-police.cc.vt.edu>
-            <3EB6B22B.7090009@techsource.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1868142314P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 05 May 2003 14:56:14 -0400
+	Mon, 5 May 2003 14:50:35 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:21508 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261214AbTEESuf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:50:35 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Jochen Hein <jochen@jochen.org>
+Subject: Re: [2.5.69, TR] compile error
+Date: Mon, 5 May 2003 21:02:22 +0200
+User-Agent: KMail/1.5.1
+References: <87bryh9ue3.fsf@echidna.jochen.org> <200305052033.10592.fsdeveloper@yahoo.de> <87smrtw7vl.fsf@echidna.jochen.org>
+In-Reply-To: <87smrtw7vl.fsf@echidna.jochen.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305052102.34437.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1868142314P
-Content-Type: text/plain; charset=us-ascii
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, 05 May 2003 14:49:15 EDT, Timothy Miller said:
+On Monday 05 May 2003 20:44, Jochen Hein wrote:
+> The following patch fixes it for me,
+[snip]
 
-> The only major issue is that the data structures used to manage 
-> processes would be different from one scheduler to the next.  One 
-> possible answer would be to have an unloading driver translate all of 
-> its process information into the default scheduler's format.  A newly 
-> loaded one would translate it to its own format.  Things that would be 
-> lost in the translation include interactivity information, etc.
-
-We just had a similar battle regarding LSM extended attributes on files,
-the biggest problem being what a module should do if it doesn't understand
-the formats and semantics of the previous module...
-
-It's certainly *doable* - the telcos have been doing this since whichever
-of the SSn systems was first programmable rather than hardwire logic.  The
-big question is whether it will still look like Linux if you implement it.
+thanks. For me, too.
 
 
---==_Exmh_-1868142314P
-Content-Type: application/pgp-signature
-
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 21:01:04 up  3:25,  2 users,  load average: 1.10, 1.07, 1.01
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+trPOcC3lWbTT17ARAlSGAJ9Da+YXyc0/6nGXwFV9TU53p4zEUQCg0Egb
-zWE/lR35Br9mdu2xVJ0Ykus=
-=ByWL
+iD8DBQE+trVKoxoigfggmSgRAql2AKCNz28Whjf9DHQLD7brA5mz7bExbwCeM5jt
+B0y8XFhZpuofPyCHBRpP0Cg=
+=AyQi
 -----END PGP SIGNATURE-----
 
---==_Exmh_-1868142314P--

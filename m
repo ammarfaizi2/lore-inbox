@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272233AbTGaAsc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 20:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272239AbTGaAsb
+	id S272239AbTGaAzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 20:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272247AbTGaAzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 20:48:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10913 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272233AbTGaAsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 20:48:31 -0400
-Date: Wed, 30 Jul 2003 17:36:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: root <root@rachel.trevorj.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Major 2.4 / 2.{5|6}-smp Scheduler Slow-ness
-Message-Id: <20030730173644.06d86b2a.akpm@osdl.org>
-In-Reply-To: <20030731002727.GA3827@rachel.trevorj.com>
-References: <20030731002727.GA3827@rachel.trevorj.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 30 Jul 2003 20:55:15 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:26752 "EHLO
+	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
+	id S272239AbTGaAzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 20:55:11 -0400
+Date: Thu, 31 Jul 2003 08:55:09 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Eugene Teo <eugene.teo@eugeneteo.net>, Rahul Karnik <rahul@genebrew.com>,
+       Stefano Rivoir <s.rivoir@gts.it>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0t2 Hangs randomly
+Message-ID: <20030731005509.GA11871@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <3F27817A.8000703@gts.it> <3F2861D3.4030703@genebrew.com> <20030731001336.GA725@eugeneteo.net> <200307311024.55830.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307311024.55830.kernel@kolivas.org>
+X-Operating-System: Linux 2.6.0-test2-mm1-kj1+O11.2int
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root <root@rachel.trevorj.com> wrote:
->
-> Ok, first of all, I have never been able to run a 2.4 kernel on this 
-> machine, it runs _very_ slow. By slow, i mean it takes literally HOURS 
-> to boot. I have tried 2.4.20,2.4.21, and also both with the openmosix 
-> patches.
+<quote sender="Con Kolivas">
+> On Thu, 31 Jul 2003 10:13, Eugene Teo wrote:
+> > <quote sender="Rahul Karnik">
+> >
+> > > Stefano Rivoir wrote:
+> > > >I'm experiencing hard rand lockups using kernel 2.6.0: they are not
+> > > >predictable, nor I can find a way to reproduce them. They can occur
+> > > >while working with an app, while browsing the fs (I use KDE) or
+> > > >while resuming after the screensaver, or anything else. They can
+> > > >occur after one hour or 15 minutes, and there's not any strange
+> > > >"jerkiness" activity before, nor an intense disk work.
+> > > >
+> > > >After the hang, the disk starts working for a while, then I have
+> > > >to reset w/button, and nothing is left on the various system logs.
+> > > >
+> > > >These hangs did not occur in 2.5 up to .75, but they come also
+> > > >with 2.6.0-mm1 (and plain 2.6.0-t1). I had a doubt about the
+> > > >soundcard, I've applied latest 0.9.6 alsa patch: the hangs are less
+> > > >frequent but still there.
+> > >
+> > > Can you reproduce these hangs without the AGP and DRI modules loaded?
+> >
+> > I am encountering the same with 2.6.0-test2 but the
+> > problem is, I patched it with a number of patches that
+> > I am unable to determine which patches/changes causes
+> > the random lockups. Actually I am suspecting it's O11.2int
+> > because I wasn't having any problems with it prior to
+> > this patch. will keep you guys updated.
 > 
-> Now, the 2.5/6 kernel runs beautifully, so i have been running both 
-> vanilla, and vanilla+mm patches, both run fine. Although, using the smp 
-> scheduler makes it do the exact same thing as 2.4, albeit a little 
-> faster. So this leads me into thinking *very* 
-> much so that this is a scheduler issue.
+> O11.2 backs out changes to bring them back to the default, so it can't be that 
+> specific patch. Also the original contributor describes the hangs with plain 
+> 2.6.0-t1 which includes none of my patches.
 
-boot with "profile=1", learn to use readprofile, post the results.
+I shall keep you guys updated. 
 
-
-irq 21: nobody cared!
-...
-handlers:
-[<c8a37620>] (snd_emu10k1_interrupt+0x0/0x3f0 [snd_emu10k1])
-Disabling IRQ #21
-
-This is fishy.  Try removing the sound driver from the kernel altogether. 
-And any other unneeded-to-boot drivers, come to that.
-
+> Con
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUIJKrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUIJKws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267350AbUIJKrK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 06:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUIJKrJ
+	id S267352AbUIJKws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 06:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIJKws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 06:47:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5355 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267350AbUIJKq6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 06:46:58 -0400
-Date: Fri, 10 Sep 2004 11:46:58 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix DHCP ipconfig.c
-Message-ID: <20040910104658.GN23987@parcelfarce.linux.theplanet.co.uk>
-References: <20040910104515.A22599@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Fri, 10 Sep 2004 06:52:48 -0400
+Received: from [213.85.13.118] ([213.85.13.118]:52608 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S267352AbUIJKwr (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Fri, 10 Sep 2004 06:52:47 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040910104515.A22599@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16705.34633.433179.600565@gargle.gargle.HOWL>
+Date: Fri, 10 Sep 2004 14:51:53 +0400
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Cc: Hugh Dickins <hugh@veritas.com>
+Subject: 2.6.9-rc1: page_referenced_one() CPU consumption
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 10:45:15AM +0100, Russell King wrote:
-> bk-curr seems to be a little sick here:
-> 
->   CC      net/ipv4/ipconfig.o
-> net/ipv4/ipconfig.c: In function `ic_bootp_recv':
-> net/ipv4/ipconfig.c:969: error: `i' undeclared (first use in this function)
-> net/ipv4/ipconfig.c:969: error: (Each undeclared identifier is reported only once
-> net/ipv4/ipconfig.c:969: error: for each function it appears in.)
-> 
-> and here's the medicine:
+Hello,
 
-And here's better one:
+in 2.6.9-rc1 page_referenced_one() is among top CPU consumers (which
+wasn't a case for 2.6.8-rc2) in the host kernel when running heavily
+loaded UML. readprofile -b shows that time is spent in
+spin_lock(&mm->page_table_lock), so, I reckon, recent "rmaplock: kill
+page_map_lock" changes are probably not completely unrelated.
 
-diff -urN RC9-rc1-bk16-base/net/ipv4/ipconfig.c RC9-rc1-bk16-current/net/ipv4/ipconfig.c
---- RC9-rc1-bk16-base/net/ipv4/ipconfig.c	2004-09-10 02:13:24.000000000 -0400
-+++ RC9-rc1-bk16-current/net/ipv4/ipconfig.c	2004-09-10 03:40:10.000000000 -0400
-@@ -966,9 +966,7 @@
- 				break;
- 
- 			case DHCPACK:
--				for (i = 0; (dev->dev_addr[i] == b->hw_addr[i])
--						&& (i < dev->addr_len); i++);
--				if (i < dev->addr_len)
-+				if (memcmp(b->hw_addr, dev->dev_addr, dev->addr_len) != 0)
- 					goto drop_unlock;
- 
- 				/* Yeah! */
+Without any deep investigation, one possible scenario is that multiple
+threads are doing (as part of direct reclaim),
+
+   refill_inactive_zone()
+       page_referenced()
+           page_referenced_file() /* (1) mapping->i_mmap_lock doesn't
+                                     serialize them */
+               page_referenced_one()
+                   spin_lock(&mm->page_table_lock) /* (2) everybody is
+                                                     serialized here */
+
+(1) and (2) will be true if we have one huge address space with a lot of
+VMAs, which seems to be exactly what UML does:
+
+$ wc /proc/<UML-host-pid>/maps
+4134 28931 561916
+
+This didn't happen before, because page_referenced_one() used to
+try-lock.
+
+Nikita.
+
+

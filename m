@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130453AbQKPPhE>; Thu, 16 Nov 2000 10:37:04 -0500
+	id <S129186AbQKPPvA>; Thu, 16 Nov 2000 10:51:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbQKPPgy>; Thu, 16 Nov 2000 10:36:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59186 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130453AbQKPPgq>; Thu, 16 Nov 2000 10:36:46 -0500
-Subject: Re: Modprobe local root exploit
-To: Torsten.Duwe@caldera.de
-Date: Thu, 16 Nov 2000 15:07:27 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <14867.60258.282676.883552@ns.caldera.de> from "Torsten Duwe" at Nov 16, 2000 03:12:50 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129245AbQKPPuv>; Thu, 16 Nov 2000 10:50:51 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:7950 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129186AbQKPPuq>;
+	Thu, 16 Nov 2000 10:50:46 -0500
+Date: Thu, 16 Nov 2000 16:20:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: John Cavan <johncavan@home.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: Patch to fix lockup on ppa insert
+Message-ID: <20001116162027.C597@suse.de>
+In-Reply-To: <3A13D4BA.AD4A580B@home.com> <3A13D8D6.8C12E31A@home.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wQdN-0007u0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <3A13D8D6.8C12E31A@home.com>; from johncavan@home.com on Thu, Nov 16, 2000 at 07:53:42AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd consider it "system internal", not visible to the user and hence 7-Bit
-> must suffice. I also strongly agree with Keith: treating strings that come
-> from the kernel as tainted is weird at least.
+On Thu, Nov 16 2000, John Cavan wrote:
+> > Similar to the imm patch, it's working for me.
+> > 
+> > John
+> 
+> Again... not all screwed up...
+> patch -ur linux.clean/drivers/scsi/ppa.h linux.current/drivers/scsi/ppa.h
+> --- linux.clean/drivers/scsi/ppa.h	Thu Sep 14 20:27:05 2000
+> +++ linux.current/drivers/scsi/ppa.h	Thu Nov 16 07:26:38 2000
+> @@ -170,7 +170,7 @@
+>  		eh_device_reset_handler:	NULL,			\
+>  		eh_bus_reset_handler:		ppa_reset,		\
+>  		eh_host_reset_handler:		ppa_reset,		\
+> -		use_new_eh_code:		1,			\
+> +		use_new_eh_code:		0,			\
 
-I would consider it to be an arbitary 8bit bytesequence. Fix the user space
+Wouldn't it be more interesting to fix the reason the new error
+handling code dies with imm and ppa?
 
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

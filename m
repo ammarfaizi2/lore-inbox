@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSGBQc5>; Tue, 2 Jul 2002 12:32:57 -0400
+	id <S316821AbSGBQaC>; Tue, 2 Jul 2002 12:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316823AbSGBQc4>; Tue, 2 Jul 2002 12:32:56 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18704 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316822AbSGBQc4>; Tue, 2 Jul 2002 12:32:56 -0400
-Date: Tue, 2 Jul 2002 12:29:36 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: alex@PolesApart.wox.org, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
-In-Reply-To: <20020624.080409.79615643.davem@redhat.com>
-Message-ID: <Pine.LNX.3.96.1020702120824.28259A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316822AbSGBQaB>; Tue, 2 Jul 2002 12:30:01 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:42710 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S316821AbSGBQaB>;
+	Tue, 2 Jul 2002 12:30:01 -0400
+Date: Tue, 2 Jul 2002 13:36:58 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-ID: <20020702133658.I2295@almesberger.net>
+References: <3D212757.5040709@quark.didntduck.org> <32193.1025585595@kao2.melbourne.sgi.com> <20020702024322.F2295@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020702024322.F2295@almesberger.net>; from wa@almesberger.net on Tue, Jul 02, 2002 at 02:43:22AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002, David S. Miller wrote:
+I wrote:
+> It's not really just the module information. If I can, say, get
+> callbacks from something even after I unregister, I may well
+> have destroyed the data I need to process the callbacks, and
+> oops or worse.
 
-> This has to do with facts, not opinions.  Since we lack the source to
-> their drivers, we have no idea if some bug in their driver is
-> scribbling over (ie. corrupting) memory.  It is therefore an unknown
-> which makes it a waste of time for us to pursue the bug report.
+Actually, if module exit synchronizes properly, even the
+return-after-removal case shouldn't exist, because we'd simply
+wait for this call to return.
 
-By that logic if source is freely available the kernel should not be
-marked tainted, even if the source license is not GPL, as in you can get
-it and use it to debug, but the license is something like BSD, or the
-Kermit limited redistribution, etc.
+Hmm, interesting. Did I just make the whole problem go away,
+or is travel fatigue playing tricks on my brain ? :-)
 
-I'm asking in general, not about just one particular binary-only driver.
+- Werner
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311928AbSCUN4n>; Thu, 21 Mar 2002 08:56:43 -0500
+	id <S312104AbSCUN5x>; Thu, 21 Mar 2002 08:57:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312104AbSCUN4Y>; Thu, 21 Mar 2002 08:56:24 -0500
-Received: from gear.torque.net ([204.138.244.1]:34309 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S311928AbSCUN4J>;
-	Thu, 21 Mar 2002 08:56:09 -0500
-Message-ID: <3C99E6C7.34F05AE7@torque.net>
-Date: Thu, 21 Mar 2002 08:57:27 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2 questions about SCSI initialization
-In-Reply-To: <20020321000553.A6704@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S312133AbSCUN5l>; Thu, 21 Mar 2002 08:57:41 -0500
+Received: from harley.unix-ag.uni-siegen.de ([141.99.42.44]:47849 "EHLO
+	harley.unix-ag.uni-siegen.de") by vger.kernel.org with ESMTP
+	id <S312104AbSCUN5T>; Thu, 21 Mar 2002 08:57:19 -0500
+Date: Thu, 21 Mar 2002 14:57:11 +0100
+From: Fionn Behrens <Fionn.Behrens@unix-ag.org>
+To: linux-kernel@vger.kernel.org
+Subject: SMP IRQ management issues in 2.4.x
+Message-Id: <20020321145711.47a90758.fionn@unix-ag.org>
+Organization: United Fools Of Bugaloo
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> 
-> Hello:
-> 
-> I've got two questions which I cannot answer just by reading
-> the code, so I need to refer to the institutional memory of
-> the hackerdom (Doug G. - I need your memory, too :)
-> 
-> The context is that I got a bug with oops by someone with 68 SCSI
-> disks, traceable to a scsi_build_commandblocks failure, with a
-> subsequent oops because the error patch calls scsi_unregister_device,
-> and scsi_unregister_device aborts with module reference check.
-> 
-> Now the questions:
-> 
-> #1: Why does scsi_build_commandblocks() allocate memory with
-> GFP_ATOMIC? It's not called from an interrupt or from a swap I/O
-> path as far as I can see.
 
-Pete,
-There has long been a preference in the scsi subsystem
-for using its own memory management ( scsi_malloc() )
-or the most conservative mm calls. GFP_ATOMIC may well
-be overkill in scsi_build_commandblocks(). However it
-might be wise to check that the calling context is indeed
-user_space since this can be called from all subsystems 
-that have a scsi pseudo device driver (e.g. ide-scsi, 
-usb-storage, 1394/sbp2, ...).
- 
-> #2: What does  if (GET_USE_COUNT(tpnt->module) != 0)  do in
-> scsi_unregister_device? The circomstances are truly bizzare:
-> a) the error code is NEVER used
-> b) it can be called either from module unload.
-> I would like to kill that check.
+After changing from 2.2.18 to 2.4.17 recently, I noticed that after booting 2.4 my interrupts were routed a lot less effectively than under 2.2
 
-Another badly named function since it is unregistering
-in upper level driver (e.g. sd). That "if" is to check
-if there are open file descriptors (or some other
-reason **) on the driver in question. That seems to be
-a sensible check. Whether it can every happen in that
-context, I'm not sure.
+I did not take it too seriously until the beginning of this week when I plugged in an extra Promise controller. I have a gigabyte 6BXD Dual Pentium Board which is a quite nice piece of hardware. Just the Award BIOS is crappy in that you cant assign IRQs directly to certain slots but only reserve certain interrupts from being distributed among the PCI Units. Anyway, until Linux 2.4, the kernel did cope quite well with that and distributed IRQs equally using the whole range of interrupts the IO-APIC delivers.
 
+Now, I have this Promise controller and my IRQ table looks like this:
 
-** The sg driver purposely holds its USE_COUNT > 0 even
-when all its file descriptors are closed iff there are
-outstanding commands for which the response has not
-yet arrived. [If this is not done, then a control-C on
-something like cdrecord followed by "rmmod sg" may
-cause an oops, especially during "fixating" mode.]
+           CPU0       CPU1
+  0:      21400      20144    IO-APIC-edge  timer
+  1:       1349       1173    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  5:          5          3    IO-APIC-edge  serial
+  8:          1          1    IO-APIC-edge  rtc
+ 12:       3138       3046    IO-APIC-edge  PS/2 Mouse
+ 14:        857       6088    IO-APIC-edge  ide0
+ 15:        452       3855    IO-APIC-edge  ide1
+ 16:      24354      24086   IO-APIC-level  aic7xxx, aic7xxx, aic7xxx, ide2,  
+                                                               ide3, nvidia
+ 18:        501        445   IO-APIC-level  EMU10K1
+ 19:        822        765   IO-APIC-level  usb-uhci, eth0
 
-Doug Gilbert
+Given that IRQs<6 are all locked for serial IO that means IRQ 7,9,11 and 17
+are completely unused but there are a whopping 6 devices on IRQ 16.
+
+Needless to say that Harddrives connected to ide2 and ide3 (Promise) constantly lose interrupts when used as long as X is running (nvidia), bringing the system to crawl.
+
+I have tried virtually everything to make Linux (and the BIOS) reconsider IRQ distribution and failed.
+And yes, all DMA stuff is properly set, the disks are recognized with their real size, partitioned and initialized correctly and so on. In fact they work like a charm as long as I don't use the graphics card.
+
+Is there any way to reassign IRQs under 2.4.x to stabilize the system?
+Is there any way to make Linux-2.4.x-SMP distribute IRQs in the same fashion
+Linux-2.2.x-SMP did?
+Any help appreciated (including pointers on what to patch in the kernel)
+
+Regards,
+        Fionn
+-- 
+I believe we have been called by history to lead the world.
+                                                       G.W. Bush, 2002-03-01

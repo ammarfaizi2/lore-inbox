@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbTDHN4w (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTDHN4w (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:56:52 -0400
-Received: from angband.namesys.com ([212.16.7.85]:6032 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP id S261449AbTDHN4v (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 09:56:51 -0400
-Date: Tue, 8 Apr 2003 18:08:20 +0400
-From: Oleg Drokin <green@namesys.com>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: reiserfs: fixup transaction size check for old filesystems [RESEND]
-Message-ID: <20030408180820.A17667@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id S261464AbTDHOBp (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 10:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTDHOBo (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 10:01:44 -0400
+Received: from elixir.e.kth.se ([130.237.48.5]:272 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id S261464AbTDHOBn (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 10:01:43 -0400
+To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Cc: linux-kernel@vger.kernel.org, mru@users.sourceforge.net
+Subject: Re: Emulating insns on Alpha
+References: <871y0doe68.fsf@student.uni-tuebingen.de>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 08 Apr 2003 16:13:04 +0200
+In-Reply-To: Falk Hueffner's message of "08 Apr 2003 05:34:23 +0200"
+Message-ID: <yw1xistpqdqn.fsf@manganonaujakasit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Falk Hueffner <falk.hueffner@student.uni-tuebingen.de> writes:
 
-   It turned out that recently introduced additional journal check
-   breaks journal replays on filesystems created with old reiserfs
-   tools that did not write journal parameters into superblock.
+> > Are there any patches around that emulate the BWX instruction set on
+> > older Alpha CPUs, or should I write it myself?
+> 
+> There's an ancient one at
+> http://www.alphalinux.org/archives/axp-list/October1999/0500.html,
+> although it's probably easier to write it from scratch. I'd write the
+> whole thing in C, the trap is already so expensive that it's of no use
+> trying to be clever when emulating the particular instructions (except
+> when you replace the instruction with a jump to a stub, which seems
+> somewhat hairy, but feasible).
 
-   Please pull from bk://thebsh.namesys.com/bk/reiser3-linux-2.4-jcheck-fix
+If you think that's hairy, take a look at this:
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/tc2/tc2/include/Attic/tc2_autoload.h?rev=1.1.2.5&only_with_tag=dev-0_4&content-type=text/vnd.viewcvs-markup
 
-Diffstat:
- journal.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Plain text patch:
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1101  -> 1.1102 
-#	fs/reiserfs/journal.c	1.26    -> 1.27   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/04/08	green@angband.namesys.com	1.1102
-# reiserfs: Fix recenly introduced journal sanity check that breaks replay on old filesystems.
-#   This fixes recently introduced transaction length check. Our
-#   initial checks missed the case of filesystem created with old
-#   reiserfsprogs that do not write max transaction length into
-#   superblock. Zeroes were written there, so all transactions were
-#   considered invalid.
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
---- a/fs/reiserfs/journal.c	Tue Apr  8 18:02:07 2003
-+++ b/fs/reiserfs/journal.c	Tue Apr  8 18:02:07 2003
-@@ -1401,7 +1401,7 @@
- 		     *newest_mount_id) ;
-       return -1 ;
-     }
--    if ( le32_to_cpu(desc->j_len) > sb_journal_trans_max(SB_DISK_SUPER_BLOCK(p_s_sb)) ) {
-+    if ( le32_to_cpu(desc->j_len) > JOURNAL_TRANS_MAX ) {
-       reiserfs_warning("journal-2018: Bad transaction length %d encountered, ignoring transaction\n", le32_to_cpu(desc->j_len));
-       return -1 ;
-     }
+-- 
+Måns Rullgård
+mru@users.sf.net

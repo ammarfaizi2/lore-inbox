@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262957AbREWCoB>; Tue, 22 May 2001 22:44:01 -0400
+	id <S262963AbREWDEr>; Tue, 22 May 2001 23:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262959AbREWCnv>; Tue, 22 May 2001 22:43:51 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32774 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262957AbREWCnn>; Tue, 22 May 2001 22:43:43 -0400
-Date: Tue, 22 May 2001 19:43:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries.Brouwer@cwi.nl
-cc: jgarzik@mandrakesoft.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <UTC200105230020.CAA79506.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.21.0105221940170.4713-100000@penguin.transmeta.com>
+	id <S262964AbREWDEh>; Tue, 22 May 2001 23:04:37 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:24484 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262963AbREWDEV>;
+	Tue, 22 May 2001 23:04:21 -0400
+Message-ID: <3B0B28A9.7556908D@mandrakesoft.com>
+Date: Tue, 22 May 2001 23:04:09 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <Pine.LNX.4.21.0105221936030.4713-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 23 May 2001 Andries.Brouwer@cwi.nl wrote:
->
-> > why not implement partitions as simply doing block remaps
+Linus Torvalds wrote:
 > 
-> Everybody agrees.
+> On Tue, 22 May 2001, Jeff Garzik wrote:
+> >
+> > Alan recently straightened me out with "EVMS/LVM is partitions done
+> > right"
+> >
+> > so... why not implement partitions as simply doing block remaps to the
+> > lower level device?  That's what EVMS/LVM/md are doing already.
+> 
+> Because we still need the partitioning code for backwards
+> compatibility. There's no way I'm going to use initrd to do partition
+> setup with lvmtools etc.
+> 
+> Also, lvm and friends are _heavyweight_. The partitioning stuff should be
+> _one_ add (and perhaps a range check) at bh submit time. None of this
+> remapping crap. We don't need no steenking overhead for something we need
+> to do anyway.
 
-No they don't.
+no no no.  Not -that- heavyweight.
 
-Look at the cost of lvm. Function calls, buffer head remapping, the
-works. You _need_ that for a generic LVM layer, but you sure as hell don't
-need it for simple partitioning.
+Partition support becomes a -peer- of LVM.
 
-Can LVM do it? Sure.
+Imagine a tiny blkdev driver that understood MS-DOS (and other) hardware
+partitions, and exported N block devices, representing the underlying
+device (whatever it is).  In fact, that might be even a -unifying-
+factor:  this tiny blkdev module -is- your /dev/disk.  For example,
 
-Do we need LVM to do it? No.
+/dev/sda <-> partition_blkdev <-> /dev/disk{0,1,2,3,4}
+/dev/hda <-> partition_blkdev <-> /dev/disk{5,6,7}
 
-Does LVM simplify anything? No.
+A nice side effect:  modular partition support, since its a normal
+blkdev just like anything yes.
 
-It doesn't get much simpler than a single line that does the
-equivalent of "bh->sector += offset". Most of the bulk of the code in the
-partitioning stuff is for actually parsing the partitions, and we need
-that to bootstrap. Maybe we can get rid of some of the more esoteric ones
-(ie pretty much everything except for the native partitioning code for
-each architecture) and tell people to use LVM for the rest.
+YES there is overhead, but if partitions are just another remapping
+blkdev, you get all this stuff for free.
 
-In short, there are _no_ advantages to involve LVM here.
+I do grant you that an offset at bh submit time is faster, but IMHO
+partitions -not- as a remapping blkdev are an ugly special case.
 
-		Linus
+Remapping to an unchanging offset in the make_request_fn can be fast,
+too...
 
+-- 
+Jeff Garzik      | "Are you the police?"
+Building 1024    | "No, ma'am.  We're musicians."
+MandrakeSoft     |

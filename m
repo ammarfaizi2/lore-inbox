@@ -1,40 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUHSTqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267311AbUHSTrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUHSTqH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267345AbUHSTqG
+	id S267311AbUHSTrl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267336AbUHSTrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:46:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19405 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267313AbUHSTpg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:45:36 -0400
-Date: Thu, 19 Aug 2004 12:42:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: jmerkey@comcast.net
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: kallsyms 2.6.8 address ordering
-Message-Id: <20040819124211.2e4d57e4.davem@redhat.com>
-In-Reply-To: <081920041927.27479.4124FF1B00008D3A00006B572200751150970A059D0A0306@comcast.net>
-References: <081920041927.27479.4124FF1B00008D3A00006B572200751150970A059D0A0306@comcast.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 19 Aug 2004 15:47:40 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:35018 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S267311AbUHSTr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:47:26 -0400
+Date: Thu, 19 Aug 2004 21:47:24 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi device numbering for ide devices)
+Message-ID: <20040819194724.GA10515@merlin.emma.line.org>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <200408191600.i7JG0Sq25765@tag.witbe.net> <200408191341.07380.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200408191341.07380.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Aug 2004 19:27:23 +0000
-jmerkey@comcast.net wrote:
+On Thu, 19 Aug 2004, Gene Heskett wrote:
 
-> jmerkey@drdos.com is blocked from posting to this list.  I have verified it though smtp, so I use 
-> my comcast.net account instead.  David Miller **WONT** respond to emails or the other list 
-> maintainers.  
+> Humm, I got many many losses of header stuff messages from:
+> [root@coyote cdrecord]# make --version
+> GNU Make 3.80
 
-Well, you're not in the by-hand SPAM filter, so it must be something else.
+The "bug" is not specific to GNU make 3.80 but can also be seen in
+3.78.1 for instance.
 
-? egrep drdos /opt/mail/db/smtp-policy.spam.manual
-? egrep jmerkey /opt/mail/db/smtp-policy.spam.manual
+The "bug" however is purely cosmetical.
 
-What message do you get back from direct smtp tests?
+GNU make writes a message that an "include" file is missing, but it
+finds it has a rule, generates the include file, pulls it in and
+continues as though the file had always been there.
+
+For instance if you have this Makefile:
+
+# BEGIN Makefile
+all:    hello
+hello.d:
+        makedepend -f- hello.c >$@
+include hello.d
+# END Makefile
+
+You'll get at "make" time:
+
+Makefile:5: hello.d: No such file or directory
+makedepend -f- hello.c >hello.d
+cc   hello.o   -o hello
+
+and a working hello program.
+
+Jörg's complaints about GNU make aren't false but aren't helpful either
+and certainly don't warrant waiting 15 seconds after that message.
+
+There is no bug, just this confusing "Makefile:5: hello.d: No such file
+or directory".
+
+> So apparently 3.80 is a regression in this case.
+
+No, it isn't.
+
+-- 
+Matthias Andree
+
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

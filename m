@@ -1,173 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313104AbSC1IvT>; Thu, 28 Mar 2002 03:51:19 -0500
+	id <S313109AbSC1JEu>; Thu, 28 Mar 2002 04:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313105AbSC1IvJ>; Thu, 28 Mar 2002 03:51:09 -0500
-Received: from web10107.mail.yahoo.com ([216.136.130.57]:40964 "HELO
-	web10107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313104AbSC1Iu7>; Thu, 28 Mar 2002 03:50:59 -0500
-Message-ID: <20020328085058.77333.qmail@web10107.mail.yahoo.com>
-Date: Thu, 28 Mar 2002 00:50:58 -0800 (PST)
-From: Ivan Gurdiev <ivangurdiev@yahoo.com>
-Subject: Re: Via-Rhine stalls - transmit errors
-To: Urban Widmark <urban@teststation.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
+	id <S313110AbSC1JEj>; Thu, 28 Mar 2002 04:04:39 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:2827 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S313109AbSC1JEZ>;
+	Thu, 28 Mar 2002 04:04:25 -0500
+Message-ID: <3CA2DBFF.70509@evision-ventures.com>
+Date: Thu, 28 Mar 2002 10:01:51 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, andersen@codepoet.org,
+        Jos Hulzink <josh@stack.nl>, jw schultz <jw@pegasys.ws>,
+        linux-kernel@vger.kernel.org
+Subject: Re: DE and hot-swap disk caddies
+In-Reply-To: <Pine.LNX.4.10.10203280012130.6661-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (sysrq to get stacktraces and run through ksymoops,
-or kernel debugger or
->  some deadlock detection thing, if no one gives you
-more specific
->  directions search for ikd)
+Andre Hedrick wrote:
+> Open collector ~= a Tri-State or a float.
 
-I don't have much experience with traces.
-I'd rather mess with the mainstream driver
-and try to merge code (read on..)
+TTL logics based on bipolar diffusion transistors?
+Certainly *not*. We are in CMOS land here where
+the term open collector even doesn't apply at all.
 
-> You need to follow the instructions on those pages,
-there are some
-> additional header files for backwards compatibility.
-I don't know if it
-> compiles under 2.4 but I think the idea is that it
-should.
+Only the DASP (master slave selection pin) is OC and thus
+most propably implemented by a bipolar transitor, which seems
+logical, since this line has to have a big fan-out current to
+basically enable quite a few gates.
 
-I don't need backwards compatibility.
-I have kernel 2.4.19-pre3.
-And it doesn't compile.
+> It does exist for the "DATA" lines, and those are not setup to float until
+> there is a referrence ground to set the buffer on the ATA drive.
+> ATAPI (best known by me is HP-Colorado 8GB tape) will suck power off the
+> ribbon if there is no line voltage applied to the Molex connector.
 
-> I believe the "something wicked" is for an
-error/uncommon event that isn't
-> handled and so the known events are filtered out.
+This is most possibly the hard wired resistor bridge used for termination
+which you see "sucking the power".
 
-     if (intr_status & (IntrPCIErr | IntrLinkChange |
-IntrMIIChange| IntrStatsMax | IntrTxAbort | 
-IntrTxUnderrun))
-    via_rhine_error(dev, intr_status);
+> I hate to say of you are core developing on a laptop, you are not playing
+> w/ native hardware.  Laptops to special things, period.
 
-Which ones aren't handled?
-The only one I see is PCI Error....
+Not at all. (BTW. I don't do my main developement on a notebook. Never
+said that.)
 
-> If you get a IntrTxAbort
-> by itself then a message isn't printed, but if you
-get a IntrTxAbort and
-> IntrTxDone you get some output (000a).
+> ATA does not goe the distance because they did not put line drivers of any
+> strength, the the $5.00 difference in the controllor on the bottom of the
 
-This is actually a great example of the
-'redundancies' I was talking about.
-You get both Abort and Done...
-Abort handler sends command CmdTxDemand.
-"Wicked" message handler excludes Abort
-but not Done, so it will: (1) print message,
-(2) send CmdTxDemand (once again)
+Did I say it was cheap CMOS and not TTL? Do you still wonder
+why the output drivers are not able to provide strong output currents?
 
->Possibly those flags are never set without also
-setting
-> another flag, like IntrRxErr,
+> drive.  Also I have cables which are 3 feet and run in mode 5 or Ultra100,
+> but you can be sure that it is a special HOST to provide the push and
+> power to make the distance.  It has 80c headers on the HOST side but 40c
+> IDC's on the device side.
 
-Why? Each interrupt should have its own bit
-in the bitmask.
+It is most likely that the special "host" provides only special
+partial termination. And the ribbons you use are most propably of
+low resistance (possibly silver plated copper cores).
+Otherwise the signals from the disks wouldn't be able to travel back.
 
->the driver doesn't want to do anything
-> special on a "IntrRxNoBuf" error anyway. 
-
-IntrRxEarly is not utilised in this driver
-IntrRxWakeUp is used to call rx function
-IntrRxNoBuf is used to call rx function
-IntrTxAborted is used to call tx function
-and NOT used to call error function(??)
-while it being used inside the error function
-for exclusion from "Wicked" messages.
-
-___________
-Ok.. on to other major issues:
-
-I tried merging some code from the linuxfet
-driver, and I managed to solve the stall problem
-and get some interesting speed results.
-
-I know what I did, but I am not certain
-exactly how it helps the problems. My lack
-of knowledge regarding the operation
-of the hardware is beginning to be frustrating.
-Perhaps you could help locate the problem...
-
-The summary:
-Tx aborted and Tx Underrun
-are handled differently in linuxfet.
-
-The kernel driver
-simply increases stats for aborts
-and ignores underruns in via_rhine_tx,
-and later sends CmdDemandTx for aborts,
-and increases threshold for Underrun
-in via_rhine_error.
-
-The linuxfet driver uses the following
-code to handle both aborts and underruns
-inside the interrupt handler
-(tx sequence...separated as a function
-in kernel driver)
-/*----------------------------------------------*/
-np->tx_ring[entry].tx_status = cpu_to_le32(DescOwn);
-                   
-writel(virt_to_bus(&np->tx_ring[entry]), ioaddr +
-TxRingPtr)
-;
-/* Turn on Tx On*/
-writew(CmdTxOn | np->chip_cmd, dev->base_addr +
-ChipCmd);   
-/* Stats counted in Tx-done handler, just restart Tx.
-*/
-writew(CmdTxDemand | np->chip_cmd, dev->base_addr +
-ChipCmd)
-;
-/*----------------------------------------------*/
-I am particularly curious about the ownership bits
-and the TxRingPtr save... no such thing
-in kernel via_rhine_tx...I don't think.
-
-Then the linuxfet driver doesn't do 
-anything for abort in the error handler
-and increases threshold for underrun.
-______________________________________
-I moved the code above to the kernel driver
-and made it handle aborts and underruns
-the same way. I disabled the CmdTxDemand
-for aborts in the error handler since it's now
-done in the tx function.
-
-This way, I fixed stalls on the Desktop.
-However, my laptop was still slow and stalling.
-(desktop->laptop transmit, laptop initiates.)
-
-I commented the underrun code in via_rhine_tx
-and it fixed all stalls, but speed decreased.
-
-I enabled underrun code in via_rhine_tx
-and commented underrun code in via_rhine_error-
-same results - decreased speed, no stalls.
-
-I wish I could explain all of this,
-but I have little knowledge of hardware operation.
-Apparently the handling of aborts is the cause
-of stalling. Previously I had logged ownership
-bits and stalls always occured when
-an ownership bit was set to 0, but transmit 
-stopped (result of abort, wrong handling?)
-The underrun code has effect on speed
-and on transmits initiated from my laptop..
-but I am too confused to comment about it.
-I am sure this is a horribly ignorant question,
-but what exactly is an underrun :)
-
-Thank you for all your help.
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/

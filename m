@@ -1,92 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbTKYLD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 06:03:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTKYLD3
+	id S262373AbTKYLDx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 06:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTKYLDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 06:03:29 -0500
-Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:12715 "HELO
-	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
-	id S262344AbTKYLD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 06:03:26 -0500
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG 2.4] NFS unlocking operation accesses invalid file struct 
-Date: Tue, 25 Nov 2003 20:00:32 +0900
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311252000.32094.mita@miraclelinux.com>
+	Tue, 25 Nov 2003 06:03:53 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:46210 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262373AbTKYLDu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 06:03:50 -0500
+Subject: Re: hyperthreading
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: lgb@lgb.hu
+Cc: AlberT@SuperAlberT.it, linux-kernel@vger.kernel.org
+In-Reply-To: <20031125100526.GE339@vega.digitel2002.hu>
+References: <20031125094419.GB339@vega.digitel2002.hu>
+	 <200311251048.53046.AlberT_NOSPAM_@SuperAlberT.it>
+	 <20031125100526.GE339@vega.digitel2002.hu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Gwc0fi9EJsZ0KHNUuTmc"
+Organization: Red Hat, Inc.
+Message-Id: <1069755396.5214.2.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 25 Nov 2003 11:16:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm investigating the reliabiblity of the NFS locking.
-I noticed that possible NFS locking related crash in the following situation:
+--=-Gwc0fi9EJsZ0KHNUuTmc
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-process A
-process B
-  -- A and B are sharing task's fd array.
-     (clone()d with CLONE_FILES)
+On Tue, 2003-11-25 at 11:05, G=C3=A1bor L=C3=A9n=C3=A1rt wrote:
+> On Tue, Nov 25, 2003 at 10:48:51AM +0100, Emiliano 'AlberT' Gabrielli wro=
+te:
+\
+> OK, but if this CPU does not support HT, then why 'ht' is shown at
+> flags in /proc/cpuinfo? It looks like quite illogical for me then ...
 
-file F
-  -- The file on NFS
+/proc/cpuinfo only reports what the cpu reports. The 'ht' flag means not
+HyperThreading per se. It means it listens to the "rep; nop" sequence
+for example. Also all Hyperthreading capable cpus have this flag set,
+but that is a one way relationship. Esp since this needs more support
+than just the cpu.
 
-file descriptor p (equivalent to file struct P)
-file descriptor q (equivalent to file struct Q)
+--=-Gwc0fi9EJsZ0KHNUuTmc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-  -- p and q are individual file descriptors for the file F
-     (not dup()-ed)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-file lock L
+iD8DBQA/wywExULwo51rQBIRAoGjAKCL583jRBbIQNJDs+ki4+s65u5WsgCdGwvV
+DaVRdP3SPCciPL+9mBoJqqo=
+=3wAo
+-----END PGP SIGNATURE-----
 
-  -- The file lock L has been locked via fcntl() for the file descriptor q by
-     the process B (connects with file struct Q)
-
-
-1. The process A closes the file descriptor p.
-
-In filp_close(), the process A closes file struct P, it unlocks all the
-file locks related to the i-node of the file F, which are held by the
-processes sharing the same fd array process A refers to. (locks_remove_posix)
-
-2. The process A unlocks the file lock L.
-
-First of all, the process A removes the file lock L from the list of the
-file locks related to the i-node of the file F. Then, it calls the `nfs_lock'
-to do the unlocking operation for its file-system dependent operation.
-
-3. While executing the `nfs_lock' with RPC procedure, the process A
-  sleep on there for a while.
-
-On the other side.
-4. The process B closes the file descriptor q.
-
-Because process A has already remove the entry of the file lock from the list,
-process B cannot find the entry so it just exit without doing anything about
-the list.
-System treats the closing operation carried out by the process B is done,
-while the process A is sleeping.
-The process B invalidates the file struct Q because it is no longer needed.
-
-But, the process A has not finished the operation of the unlocking 
-for file lock L yet.
-
-5. When the process A wakes up, it attempts to execute remaining unlocking
-   works, and accesses the file struct Q.
-
-Because the file struct Q is no longer valid, it is likely to cause NULL
-pointer dereference.
-Also, the file struct Q might be used by other files. in this case, the data
-contradiction would happen.
-
-Does anyone have a idea of how to fix it ?
-
-Regards,
--- 
-Akinobu Mita
-
+--=-Gwc0fi9EJsZ0KHNUuTmc--

@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281129AbRKGXyD>; Wed, 7 Nov 2001 18:54:03 -0500
+	id <S281142AbRKGXzd>; Wed, 7 Nov 2001 18:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281142AbRKGXxn>; Wed, 7 Nov 2001 18:53:43 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:45830 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S281129AbRKGXxl>;
-	Wed, 7 Nov 2001 18:53:41 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200111072353.fA7Nrd271036@saturn.cs.uml.edu>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-To: r.post@sara.nl (Remco Post)
-Date: Wed, 7 Nov 2001 18:53:39 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mail List)
-In-Reply-To: <200111071235.NAA24809@zhadum.sara.nl> from "Remco Post" at Nov 07, 2001 01:35:14 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S281158AbRKGXzX>; Wed, 7 Nov 2001 18:55:23 -0500
+Received: from marine.sonic.net ([208.201.224.37]:52000 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S281142AbRKGXzS>;
+	Wed, 7 Nov 2001 18:55:18 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Wed, 7 Nov 2001 15:55:14 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs resiserfs vs xfs
+Message-ID: <20011107155514.C27157@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au>, <3BE9AF15.50524856@zip.com.au> <20011107145229.A560@mikef-linux.matchmail.com> <3BE9BCC8.925A1234@zip.com.au> <3BE9C56D.3D31E185@idcomm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3BE9C56D.3D31E185@idcomm.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remco Post writes:
+On Wed, Nov 07, 2001 at 04:36:13PM -0700, D. Stimits wrote:
+> It might be interesting if modules.conf had a scheme similar to
+> versioning for System.map. E.G., search first for
+> /etc/modules.conf-2.4.9-6, and if not found, go for /etc/modules.conf
+> (as a fallback in case version-specific didn't exist).
 
-> the nice thing about text interface as opposed to a struct is that
-> the userland can parse a "CPU_FAMILY=6" as good as 0x6, but if you
-> decide to change the format of the /proc entry, with a binary
-> interface, this means you MUST update the userland as well, while
-> with a text interface and some trivial error processing, adding a
-> field would in the worst case mean that the userland app will not
-> profit from the new info, but it will NOT BREAK.
+It does, more or less, if you use the if directives:
 
-Add something to /proc/*/status between SigIgn and SigCgt.
-Stuff breaks because apps that use SigCgt must simply assume
-that it comes after SigIgn due to somebody changing the
-way SigCgt gets spelled. (it was SigCat maybe)
+if -f /etc/modules.conf-2.4.9-6
+	include /etc/modules.conf-2.4.9-6
+else
+	[regular stuff here
+endif
 
-I'd expect many apps to have stack overflows if you add stuff.
-Sure, you could say that's bad user code, but it happens.
+Or better yet, something like
 
-For a binary format, you DO NOT need to update user apps any
-more than you would for text. I don't see why people think
-this is so hard. Let's design a /proc/*/foo file.
+option foo one=this two=that
+if `uname -4` > 2.4.x 
+	add option foo three=blah
+endif
 
-#define FOO_PID 0
-#define FOO_PPID 1
-#define FOO_PGID 2
-#define FOO_SIG_IGN 3
-#define FOO_FILENAME 4
-#define FOO_STATE 5
-#define FOO_VM_LOCKED 6
-
-__u64 foo[7];
-
-Now you want to expand things. Fine. If anything goes from 16 bits
-to 32 bits, well, we already have padding for it. Suppose Linus
-finally sees the light about signals, adding an extra 64. In that
-case, we just add FOO_SIG_IGN_HIGH for the top bits and increase
-the array size by one. Old apps don't read that and don't care.
-The same goes for FOO_FILENAME, with old apps getting truncation
-at 8 bytes and new apps getting truncation at 16 bytes. Now maybe
-we decide that FOO_STATE is obsolete -- we all have hyperthreaded
-processors that handle thousands of threads and nothing ever blocks.
-No problem, just have the kernel supply a dummy value to keep the
-old apps happy.
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

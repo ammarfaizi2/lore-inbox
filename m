@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129339AbQJ3WEX>; Mon, 30 Oct 2000 17:04:23 -0500
+	id <S129463AbQJ3WGn>; Mon, 30 Oct 2000 17:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbQJ3WEN>; Mon, 30 Oct 2000 17:04:13 -0500
-Received: from devserv.devel.redhat.com ([207.175.42.156]:49169 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129339AbQJ3WEB>; Mon, 30 Oct 2000 17:04:01 -0500
-Date: Mon, 30 Oct 2000 17:02:12 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Peter Samuelson <peter@cadcamlab.org>,
-        Linux Kernel Developer <linux_developer@hotmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Recommended compiler? - Re: [patch] kernel/module.c (plus gratuitous rant)
-Message-ID: <20001030170212.X6207@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <dalecki@evision-ventures.com> <200010302050.e9UKo7312002@pincoya.inf.utfsm.cl>
+	id <S129691AbQJ3WGd>; Mon, 30 Oct 2000 17:06:33 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:30734 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129513AbQJ3WG0>;
+	Mon, 30 Oct 2000 17:06:26 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre7 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 17:01:20 CDT."
+             <39FDEFB0.B99B7E68@mandrakesoft.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200010302050.e9UKo7312002@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Mon, Oct 30, 2000 at 05:50:07PM -0300
+Date: Tue, 31 Oct 2000 09:06:20 +1100
+Message-ID: <10523.972943580@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 05:50:07PM -0300, Horst von Brand wrote:
-> Martin Dalecki <dalecki@evision-ventures.com> said:
-> > Peter Samuelson wrote:
-> 
-> [...]
-> 
-> > > * Red Hat "2.96" or CVS 2.97 will probably break any known kernel.
-> 
-> > Works fine for me and 2.4.0-test10-pre5... however there are tons of
-> > preprocessor warnings in some drivers.
-> 
-> CVS (from 20001028 or so) gave a 2.4.0.10.6/i686 that crashed on boot, no
-> time to dig deeper yet.
+On Mon, 30 Oct 2000 17:01:20 -0500, 
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>Keith Owens wrote:
+>> USB still gets unresolved symbols when part is in kernel, part is in
+>> modules and modversions are set.  Patch against 2.4.0-test10-pre7, only
+>> affects drivers/usb/Makefile.
+>
+>Or instead of all that, you could simply call the core init function
+>from init/main.c...
 
-CVS 2.97 is known to miscompile e.g. buffer.c.
+Does that work when all of usb is a module?  The point of __initcall is
+to avoid all the conditional code that used to be in main.c.
 
-	Jakub
+>Ya know, sorting those lists causes this problem, too...  usb.o is
+>listed first in the various lists, as is usbcore.o.  Is it possible to
+>avoid sorting?  Doing so will fix this, and also any other link order
+>breakage like this that exists, too.
+
+You have it backwards.  Rules.make does *not* sort, the link order is
+implicit in the declaration order of objects in the Makefiles.  For
+most makefiles, this kludge works, it does not work for USB.  See
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0010.3/0661.html
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

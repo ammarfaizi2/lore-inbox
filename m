@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269464AbUIRNJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269483AbUIRN2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269464AbUIRNJn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 09:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269491AbUIRNJn
+	id S269483AbUIRN2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 09:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269491AbUIRN2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 09:09:43 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:35820 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269464AbUIRNJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 09:09:36 -0400
-Date: Sat, 18 Sep 2004 15:09:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Manfred Spraul <manfred@colorfullife.com>
+	Sat, 18 Sep 2004 09:28:20 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:59149 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269483AbUIRN2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 09:28:18 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Mikael Pettersson <mikpe@csd.uu.se>, R.E.Wolff@BitWizard.nl, akpm@osdl.org
+Subject: Re: [PATCH][2.6.9-rc2] Specialix RIO driver gcc-3.4 fixes
+Date: Sat, 18 Sep 2004 16:28:10 +0300
+User-Agent: KMail/1.5.4
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-Message-ID: <20040918130917.GA21081@elte.hu>
-References: <414BCB5B.8020507@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200409181242.i8ICg0c9006579@harpo.it.uu.se>
+In-Reply-To: <200409181242.i8ICg0c9006579@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <414BCB5B.8020507@colorfullife.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200409181628.10896.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 18 September 2004 15:42, Mikael Pettersson wrote:
+> This patch fixes gcc-3.4 cast-as-lvalue warnings in the 2.6.9-rc2
+> kernel's Specialix RIO driver. This is a forward port of the fix
+> I made for the 2.4 kernel.
+> 
+> /Mikael
+> 
+> --- linux-2.6.9-rc2/drivers/char/rio/rio_linux.c.~1~	2004-03-11 14:01:27.000000000 +0100
+> +++ linux-2.6.9-rc2/drivers/char/rio/rio_linux.c	2004-09-18 14:27:33.000000000 +0200
+> @@ -1139,7 +1139,7 @@
+>        if (((1 << hp->Ivec) & rio_irqmask) == 0)
+>                hp->Ivec = 0;
+>        hp->CardP	= (struct DpRam *)
+> -      hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
+> +      (hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN));
 
-* Manfred Spraul <manfred@colorfullife.com> wrote:
+I think it's best to untangle assignments, it's easier to read this way:
 
-> Btw, Ingo forgot to mention sequence locks and percpu_counter as two
-> high-scalability locking primitives.
+	hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
+	hp->CardP = (struct DpRam *) hp->Caddr;
+--
+vda
 
-yeah.
-
-	Ingo

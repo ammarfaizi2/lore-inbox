@@ -1,80 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291297AbSCDEWd>; Sun, 3 Mar 2002 23:22:33 -0500
+	id <S291291AbSCDEXD>; Sun, 3 Mar 2002 23:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291291AbSCDEWX>; Sun, 3 Mar 2002 23:22:23 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9969
+	id <S291306AbSCDEWy>; Sun, 3 Mar 2002 23:22:54 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24561
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S291272AbSCDEWG>; Sun, 3 Mar 2002 23:22:06 -0500
-Date: Sun, 3 Mar 2002 18:49:11 -0800
+	id <S291291AbSCDEWm>; Sun, 3 Mar 2002 23:22:42 -0500
+Date: Sun, 3 Mar 2002 18:17:14 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: "T. A." <tkhoadfdsaf@hotmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question on the rmap VM
-Message-ID: <20020304024911.GC353@matchmail.com>
-Mail-Followup-To: "T. A." <tkhoadfdsaf@hotmail.com>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: James D Strandboge <jstrand1@rochester.rr.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 and undeletion
+Message-ID: <20020304021714.GB353@matchmail.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	James D Strandboge <jstrand1@rochester.rr.com>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <OE50LayI4TY7zD5J47O00005d3d@hotmail.com>
+In-Reply-To: <1014848170.18953.57.camel@hedwig.strandboge.cxm> <E16gCdF-00069W-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OE50LayI4TY7zD5J47O00005d3d@hotmail.com>
+In-Reply-To: <E16gCdF-00069W-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 03, 2002 at 04:17:31AM -0500, T. A. wrote:
-> Hi,
+On Wed, Feb 27, 2002 at 10:33:05PM +0000, Alan Cox wrote:
+> > /root/.bashrc /etc/fstab'), wouldn't 'cp' (or most any other app) first
+> > unlink the first file (/etc/fstab), then create and write the new one?
 > 
->     I have a question on the rmap VM.  What is the swap requierment for it?
-> I remember the previous Rik van Riel VM required twice the amount of
-> swapspace as memory to run effectively as many people were complaining about
-> that.  I read a while ago that the switch in 2.4.10 to the new AA VM fixed
-> that issue.  Will rmap bring back that 2x requirement?  Thanks.
+> Unlikely - It will truncate it and write over it. Try strace cp 8)
 
-All three 2.4 VMs run best with swap at the same size as ram.
+Doesn't truncate use the same inode after the trunc op?  If so, then using
+another inode after the trunc op would break unix semantics.  In order to
+work, you'd have to use a new inode (in .undelete, of course), copy, then do
+the actual trunc call. 
+This would make truncation expensive, whereas before it was pretty fast.
+Modifying unlink will probably suffice.
 
-Let me define some VM names:
-mainline (latest from Marcelo (currently based on an older version of -aa))
-rik-vscan (latest in 2.4.13-ac7 (ac8 has some probs))
-rik-rmap (latest patch from rik is still in development but stable (ie,
-         running in production for me))
--aa (andrea) (latest patch against mainline)
+Though, if truncate is modified for undelete, people could claim that our
+solution is better than others and can save data in more cases.  Also, it
+could be used as a rudamentary file versioning system. :)  This feature
+should be optional, and enabled only at the sysadmin's discression.
 
-The 2x ram requirement has been removed in all of the latest versions of the
-VM implementations.
+Hmm, truncating a large file would basically copy it, and that is what
+usually happens during a save operation.  So, this option needs some serious
+thinking before proceeding.
 
-Let's compare this part of the 2.2 VM with the base concept of what the 2.4
-VMs are doing.
+Also, it would put more stress on the cleanup facilities of undeletion
+because more data would pass through the undelete dir.  But, communication
+(however you want do to do that, be it socket or etc...) between the
+unlink/truncate calls and the cleanup system should make most possible races
+small or non-existant.
 
-2.2:
-  o swap page (4k on most arches) to disk
-  o swap page from disk
-  o remove from swap
-On a system that has a lot of swap activity it is common for the swap areas
-to become fragmented.  Also, if the same page needs to be swapped out again,
-(and hasn't been modified while in memory) it has to write to disk again.
-
-2.4:
-  o swap page (4k on most arches) to disk
-  o swap page from disk
-  o leave page in swap
-With this solution, the pages are left in place there is less chance to get
-a fragmented swap area.  Also, if the same page needs to be swapped out
-again, (and hasn't been modified while in memory) it is *not* written to
-disk again, just simply marked as swapped and freed for other purposes.
-
-===========
-
-Now, if the swap space is smaller than RAM, then when swap space gets low
-the kernel will have to start freeing pages that are both in swap and
-memory (remember, this is possible now in the 2.4 VMs).  This causes
-fragmentation and extra overhead and slows you down at what is probably the
-worst time possible to slow down.
-
-Of course I might've left something out, so if I did, please fill in the
-blanks...
-
-Hope this helps.
+I've probably left something out, so feel free to fill in the blanks.
 
 Mike

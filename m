@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267743AbSLGKP5>; Sat, 7 Dec 2002 05:15:57 -0500
+	id <S262201AbSLGK1D>; Sat, 7 Dec 2002 05:27:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267745AbSLGKP5>; Sat, 7 Dec 2002 05:15:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11021 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267743AbSLGKP4>;
-	Sat, 7 Dec 2002 05:15:56 -0500
-Message-ID: <3DF1CBFE.901@pobox.com>
-Date: Sat, 07 Dec 2002 05:22:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathaniel Russell <root@chartermi.net>
-CC: reddog83@chartermi.net, linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: [PATCH 2.4.20] Via 8233 Sound Support
-References: <Pine.LNX.4.44.0212070501130.1440-100000@reddog.example.net>
-In-Reply-To: <Pine.LNX.4.44.0212070501130.1440-100000@reddog.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267745AbSLGK1D>; Sat, 7 Dec 2002 05:27:03 -0500
+Received: from mx01.hotwire.com ([64.95.142.154]:49581 "HELO mx01")
+	by vger.kernel.org with SMTP id <S262201AbSLGK1C>;
+	Sat, 7 Dec 2002 05:27:02 -0500
+Date: 7 Dec 2002 10:34:35 -0000
+Message-ID: <20021207103435.13383.qmail@mx01>
+From: support@hotwire.com
+To: linux-kernel@vger.kernel.org
+References: <200212071029.gB7AT6wr023548@nycsmtp1out.rdc-nyc.rr.com>
+In-Reply-To: <200212071029.gB7AT6wr023548@nycsmtp1out.rdc-nyc.rr.com>
+X-Mailer: Support@HOTWIRE.COM Autoreply
+X-Loop: support@mx01
+Subject: Rejected E-mail > Re: Onmouseup   (Fwd By Digital Impact)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathaniel Russell wrote:
-> Ok i agree with you it turns out my mp3's i always listen to with my
-> Esoniq card dont wanna play with my Via card.
-> Well it's ok. So Jeff is my patch for the Via AGP card ok to add to the
-> Kernel ;) just a wounder.
+Thank you for contacting Hotwire.
 
-I have no idea :)  Find a 3D card, and test it, making sure that AGP and 
-DRM are both turned on.
+The email you sent had an attachment associated with it. You may or may not have been aware of this when you sent it. Due to the possibility of virus infection, we are unable to accept any email which contains an attachment.  Please visit our website at http://www.hotwire.com/customer-care/contact.jsp and use the Customer Care email form to send your email, this will ensure that no attachments or viruses are being sent.
 
-Also, Dave Jones did a really nice cleanup of agpgart in 2.5, so even 
-though there is no agpgart MAINTAINERS entry, I think he would be a good 
-target for patches :)  Even thought 2.5 agpgart is clearly different, 
-davej has a clue about it and could probably ack or apply 2.4 patches...
+If you need immediate assistance, please contact us directly with your questions or concerns at 1-877-HOTWIRE.   We would be more than happy to help you in any way possible.
 
-	Jeff
-
-
-
+Thank you for using Hotwire.

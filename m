@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRDMR5P>; Fri, 13 Apr 2001 13:57:15 -0400
+	id <S131505AbRDMR5P>; Fri, 13 Apr 2001 13:57:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131562AbRDMR5F>; Fri, 13 Apr 2001 13:57:05 -0400
-Received: from colorfullife.com ([216.156.138.34]:6163 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131508AbRDMR4z>;
-	Fri, 13 Apr 2001 13:56:55 -0400
-Message-ID: <000401c0c431$eba87020$5517fea9@local>
+	id <S131508AbRDMR5G>; Fri, 13 Apr 2001 13:57:06 -0400
+Received: from colorfullife.com ([216.156.138.34]:5907 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131505AbRDMR4x>;
+	Fri, 13 Apr 2001 13:56:53 -0400
+Message-ID: <001a01c0c437$cedd0310$5517fea9@local>
 From: "Manfred Spraul" <manfred@colorfullife.com>
 To: <dmircea@kappa.ro>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: No one wants to help me :-(
-Date: Fri, 13 Apr 2001 17:53:38 +0200
+Date: Fri, 13 Apr 2001 18:35:42 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -24,17 +24,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 > I was expecting to receive some replies to my last desperate messages:
+>
+> http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg35446.html
+> http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg36591.html
+>
+
+If you don't receive an answer, then it either indicates that the bug is
+too obvious or too difficult ;-)
 
 >
-linux-kernel@vger.kernel.org/msg35446.html">http://www.mail-archive.com/
-linux-kernel@vger.kernel.org/msg35446.html
-linux-kernel@vger.kernel.org/msg36591.html">http://www.mail-archive.com/
-linux-kernel@vger.kernel.org/msg36591.html
-
-
-> Maybe someone can see which is the real bug and fix it.
-
+>  Maybe someone can see which is the real bug and fix it.
 > Please help!
+>
+Has debug_timer_list() caught a few corrupted lists, could you post the
+results?
 
+--
+    Manfred
+P.S.: Outlook decided to ignore the 'send later', and I couldn't stop
+the empty message. Sorry.
 
 

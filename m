@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbTBJGun>; Mon, 10 Feb 2003 01:50:43 -0500
+	id <S263326AbTBJGx1>; Mon, 10 Feb 2003 01:53:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbTBJGun>; Mon, 10 Feb 2003 01:50:43 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:46549 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S263321AbTBJGum>; Mon, 10 Feb 2003 01:50:42 -0500
-Date: Sun, 09 Feb 2003 23:00:20 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 330] New: compile error ( imm.c )
-Message-ID: <47530000.1044860420@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263333AbTBJGx1>; Mon, 10 Feb 2003 01:53:27 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:55690 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S263326AbTBJGx0>; Mon, 10 Feb 2003 01:53:26 -0500
+From: David Woodhouse <dwmw2@infradead.org>
+To: Nandakumar NarayanaSwamy <nanda_kn@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030210054816.6191.qmail@webmail27.rediffmail.com>
+References: <20030210054816.6191.qmail@webmail27.rediffmail.com>
+Organization: 
+Message-Id: <1044860584.2943.264.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 10 Feb 2003 07:03:04 +0000
+Subject: Re: Re: File systems in embedded devices
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-02-10 at 05:48, Nandakumar NarayanaSwamy wrote:
+> I sent it correctly after typing the full mail. I think this is 
+> some problem in rediff mails itself.
 
-http://bugme.osdl.org/show_bug.cgi?id=330
+No, I was being sarcastic. There's no text below your quotation in this
+mail from you either. It's all at the top. Please don't do that.
 
-           Summary: compile error ( imm.c )
-    Kernel Version: 2.5.59-bk3
-            Status: NEW
-          Severity: low
-             Owner: andmike@us.ibm.com
-         Submitter: corporal_pisang@counter-strike.com.my
+You are still violating 
+	http://www.infradead.org/~dwmw2/email.html#references
+	http://www.infradead.org/~dwmw2/email.html#top-posting
+	http://www.infradead.org/~dwmw2/email.html#quote-selectively
+and probably also to a certain extent
+	http://www.infradead.org/~dwmw2/email.html#include
 
+> Anyway these are the my requirements:
+> 
+> 1) My application is coming around 8 MB. So need a file system 
+> about 12 MB to which i should be able to mount the root of the 
+> Linux kernel.
+> 
+> 2) I need read-only file system.
 
-Compile error.
+If you really only need it to be read-only, and assuming NOR flash, then
+cramfs on a flash device sounds like a sane option. If you have NAND
+flash then it's slightly more complicated -- you probably need a real
+writable file system which deals with NAND but you could use it in
+read-only mode.
 
-  gcc -Wp,-MD,drivers/scsi/.imm.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=athlon
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
--DKBUILD_BASENAME=imm -DKBUILD_MODNAME=imm -c -o drivers/scsi/.tmp_imm.o
-drivers/scsi/imm.c
-drivers/scsi/imm.c: In function `imm_send_command':
-drivers/scsi/imm.c:736: structure has no member named `host'
-drivers/scsi/imm.c: In function `imm_completion':
-drivers/scsi/imm.c:761: structure has no member named `host'
-drivers/scsi/imm.c: In function `imm_command':
-drivers/scsi/imm.c:848: structure has no member named `host'
-drivers/scsi/imm.c:870: structure has no member named `host'
-drivers/scsi/imm.c: In function `imm_interrupt':
-drivers/scsi/imm.c:886: structure has no member named `host'
-drivers/scsi/imm.c:933: structure has no member named `host'
-drivers/scsi/imm.c:935: structure has no member named `host'
-drivers/scsi/imm.c: In function `imm_engine':
-drivers/scsi/imm.c:946: structure has no member named `host'
-drivers/scsi/imm.c:975: structure has no member named `target'
-drivers/scsi/imm.c: In function `imm_queuecommand':
-drivers/scsi/imm.c:1085: structure has no member named `host'
-drivers/scsi/imm.c: In function `imm_abort':
-drivers/scsi/imm.c:1128: structure has no member named `host'
-drivers/scsi/imm.c: In function `imm_reset':
-drivers/scsi/imm.c:1160: structure has no member named `host'
-make[2]: *** [drivers/scsi/imm.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+> 3) Is it possible to create multiple ram disks of multiple file 
+> systems like CRAMFS, RAMDISK for a single kernel?
 
+Why? Where would these ramdisks be loaded from in the first place?
+Wouldn't you do better to use them directly from there rather than
+copying them into precious RAM?
+
+-- 
+dwmw2
 

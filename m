@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269514AbRGaWfP>; Tue, 31 Jul 2001 18:35:15 -0400
+	id <S269506AbRGaWbp>; Tue, 31 Jul 2001 18:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269517AbRGaWe5>; Tue, 31 Jul 2001 18:34:57 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:29704 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S269508AbRGaWei>; Tue, 31 Jul 2001 18:34:38 -0400
-Date: Tue, 31 Jul 2001 22:37:14 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: J Sloan <jjs@toyota.com>
-cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test
- mail]
-In-Reply-To: <3B671D57.2907823E@lexus.com>
-Message-ID: <Pine.LNX.4.33.0107312233070.9689-100000@tahallah.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269507AbRGaWbg>; Tue, 31 Jul 2001 18:31:36 -0400
+Received: from mx1.afara.com ([63.113.218.20]:64232 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S269506AbRGaWb1>;
+	Tue, 31 Jul 2001 18:31:27 -0400
+Subject: Re: OT: Virii on vger.kernel.org lists
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+To: Riley Williams <rhw@MemAlpha.CX>
+Cc: Craig Milo Rogers <rogers@ISI.EDU>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0107312312360.31582-100000@infradead.org>
+In-Reply-To: <Pine.LNX.4.33.0107312312360.31582-100000@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.11.99 (Preview Release)
+Date: 31 Jul 2001 15:31:19 -0700
+Message-Id: <996618679.24933.18.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 31 Jul 2001 22:28:24.0645 (UTC) FILETIME=[1CB41F50:01C11A10]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001, J Sloan wrote:
+On 31 Jul 2001 23:17:13 +0100, Riley Williams wrote:
 
-> There was talk that microsoft would kill any attempt to sell Openmail
-> to a 3rd party, since the idea is to eliminate alternatives to
-> exchange.
+>  1. Some virii are text attachments. Your fix doesn't deal wioth them.
 
-HP will continue to support OpemMail for at least five more years. Please,
-recommend it to your employers. If they get a significant income from
-people who take up OpenMail, it will wake up people at HP.
+huh?  how do you write an ASCII text virus.  if you can do that, I will
+give you a cookie.
 
-It would be nice if HP stuck it to M$ up the arse by releasing it as open
-source when the five years' are up.
+example, maybe:
 
--- 
-Hey, they *are* out to get you, but it's nothing personal.
+email receiver, please forward this message to everyone you know and
+then execute as root "rm -rf /"
 
-http://www.tahallah.demon.co.uk
+(if you refer to vbs text attachments, then that is a different story)
+
+>  2. The maintainer of the XXX driver just uploaded a large patch that
+>     fixes a major bug in their driver to the mailing list, and zip'd
+>     it up to reduce its size. You just bounced it...
+
+said driver writer should not be uploading huge patches to the mailing
+list anyways and instead should have a URL that points to the website or
+ftp site with the patch on it.  if it is zipped already, then sending in
+email defeats the purpose since I cannot view it in my email reader to
+see if it makes sense. I have to be proactive about viewing it, so it
+might as well be on a website or ftp site.
+
+-tduffy
 

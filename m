@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313821AbSDUVX1>; Sun, 21 Apr 2002 17:23:27 -0400
+	id <S313865AbSDUV3B>; Sun, 21 Apr 2002 17:29:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313850AbSDUVX0>; Sun, 21 Apr 2002 17:23:26 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:51882 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S313821AbSDUVX0>; Sun, 21 Apr 2002 17:23:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@yahoo.com>
-Reply-To: ivangurdiev@yahoo.com
-Organization: ( )
-To: Urban Widmark <urban@teststation.com>
-Date: Sun, 21 Apr 2002 15:16:40 -0600
-X-Mailer: KMail [version 1.2]
-Cc: LKML <linux-kernel@vger.kernel.org>
+	id <S313867AbSDUV3A>; Sun, 21 Apr 2002 17:29:00 -0400
+Received: from mail.uklinux.net ([80.84.72.21]:63238 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S313865AbSDUV27>;
+	Sun, 21 Apr 2002 17:28:59 -0400
+Envelope-To: <linux-kernel@vger.kernel.org>
+From: "Sean Rima" <fido@tcob1.net>
+To: linux-kernel@vger.kernel.org
+Subject: 3c509 problem in 2.4.3
+Message-ID: <MSGID_2=3a263=2f950_14789c87@fidonet.org>
+Date: Sunday, 21 Apr 2002 21:51:04 +0000
+X-Mailer: Internet Rex gateway (2.67 beta 1a)
+X-Fido-From: Sean Rima, 2:263/950
+X-Fido-To: All
 MIME-Version: 1.0
-Message-Id: <02042115164004.00745@cobra.linux>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="iso-8859-1"
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *16zOpY-0001is-00*5LG4QE41Mlg*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban,
+Originally to: All
 
-About the suggestion to make via_rhine_error handle more interrupts,
+I use a 3Com 3c509 which I have used okay under 2.2.20. However when I compiled abd installed 2.4.18, the card was no longer available. The card was installed via the 3Com utilty disk, and auto set, 
+which gave it settings of io 0x210 and IRQ 10. To use under 2.4.18 I have to boot dos, change it to io 0x200 and irq 7.
 
-enum intr_status_bits {
-        IntrRxDone=0x0001, IntrRxErr=0x0004, IntrRxEmpty=0x0020,
-        IntrTxDone=0x0002, IntrTxAbort=0x0008, IntrTxUnderrun=0x0010,
-        IntrPCIErr=0x0040,
-        IntrStatsMax=0x0080, IntrRxEarly=0x0100, IntrMIIChange=0x0200,
-        IntrRxOverflow=0x0400, IntrRxDropped=0x0800, IntrRxNoBuf=0x1000,
-        IntrTxAborted=0x2000, IntrLinkChange=0x4000,
-        IntrRxWakeUp=0x8000,
-        IntrNormalSummary=0x0003, IntrAbnormalSummary=0xC260,
-};
+Okay, this is not major but I have heard of others having problems with the 3c509 driver.
 
-RxEarly, RxOverflow, RxNoBuf are not handled
-(which brings up another question - how should they be handled 
-and where?? It doesn't seem to me that those should end up in error,
-sending CmdTxDemand. )
+Sean
 
-RxErr, RxWakeUp, RxDropped, RxEmpty call via_rhine_rx
-TxAbort, TxUnderrun,PCIErr, StatsMax, MIIChange call via_rhine_error
-TxAborted calls via_rgine_tx
-The others don't look like errors.
+--
+ Message from TCOB1, Ireland's best BBS
 
-
-Martin Eriksson,
-The reason my message said PCI Error and not unhandled
-is because it specifies a specific interrupt - IntrPCIErr.
-(basically the onle one that's left unhandled that can call via_rhine_error)
-
+<-> Gateway Information.
+This message originated from a Fidonet System (http://www.fidonet.org)
+and was gated at TCOB1 (http://www.tcob1.net)
+Please do not respond direct to this message but via the list
 
 

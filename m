@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285048AbRLFIIq>; Thu, 6 Dec 2001 03:08:46 -0500
+	id <S285036AbRLFIHg>; Thu, 6 Dec 2001 03:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285046AbRLFII1>; Thu, 6 Dec 2001 03:08:27 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:12182 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S285045AbRLFIIX>;
-	Thu, 6 Dec 2001 03:08:23 -0500
-Date: Thu, 06 Dec 2001 00:07:04 -0800 (PST)
-Message-Id: <20011206.000704.98557874.davem@redhat.com>
-To: kaos@ocs.com.au
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <12352.1007623285@kao2.melbourne.sgi.com>
-In-Reply-To: <E16BkER-0006J0-00@wagner>
-	<12352.1007623285@kao2.melbourne.sgi.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285044AbRLFIH1>; Thu, 6 Dec 2001 03:07:27 -0500
+Received: from web13105.mail.yahoo.com ([216.136.174.150]:7947 "HELO
+	web13105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S285036AbRLFIHT>; Thu, 6 Dec 2001 03:07:19 -0500
+Message-ID: <20011206080718.44536.qmail@web13105.mail.yahoo.com>
+Date: Thu, 6 Dec 2001 09:07:18 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re:(OT) Hi all...
+To: linuxlist@visto.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C07FBEF00038ACA@iso2.vistocorporation.com> (added by     administrator@vistocorporation.com)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Keith Owens <kaos@ocs.com.au>
-   Date: Thu, 06 Dec 2001 18:21:25 +1100
-   
-   Did you look at PERCPU_ADDR in ia64?  Much (all?) of the per cpu data
-   is in struct cpuinfo_ia64 which is at the same virtual address on all
-   cpus but with different physical addresses on each cpu.  Let the mmu do
-   the work.
+ --- rohit prasad <linuxlist@visto.com> a écrit : > 
+> Hi,, 
+> 
+>  
+>  Is this the right place to enquire about how to set
+> up my linux machine as a gateway for other
+> linux/windows machines for internet browsing and
+> email.
+> 
+> Do let me know soon.
+> TIA,
+> Rohit
+> 
+Hi
+Short answer: no
 
-What an absolutely aweful waste of a TLB entry.
+Long answer: http://www.ibiblio.org/LDP/
+Bye
+
+=====
+,-----.
+                       ," ^   ^ ",
+                       |  @   @  |
+             ----OOOO---------------OOOO----
+
+___________________________________________________________
+Nokia 5510 Drôle de look... et quel son !
+Cliquez sur http://fr.promotions.yahoo.com/nokia/ 
+Découvrez-le et tentez votre chance pour en gagner un ! 
+Fin du concours le 16 décembre.

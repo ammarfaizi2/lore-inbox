@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280297AbRKEHW1>; Mon, 5 Nov 2001 02:22:27 -0500
+	id <S280307AbRKEH0g>; Mon, 5 Nov 2001 02:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280296AbRKEHWK>; Mon, 5 Nov 2001 02:22:10 -0500
-Received: from 117.ppp1-1.hob.worldonline.dk ([212.54.84.117]:16768 "EHLO
+	id <S280306AbRKEH01>; Mon, 5 Nov 2001 02:26:27 -0500
+Received: from 117.ppp1-1.hob.worldonline.dk ([212.54.84.117]:18304 "EHLO
 	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S280291AbRKEHWE>; Mon, 5 Nov 2001 02:22:04 -0500
-Date: Mon, 5 Nov 2001 08:21:50 +0100
+	id <S280305AbRKEH0R>; Mon, 5 Nov 2001 02:26:17 -0500
+Date: Mon, 5 Nov 2001 08:26:02 +0100
 From: Jens Axboe <axboe@suse.de>
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: SYM-2 patches against latest kernels available
-Message-ID: <20011105082150.H2580@suse.de>
-In-Reply-To: <20011104195145.J10022@suse.de> <20011104174948.I2222-100000@gerard>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] disk throughput
+Message-ID: <20011105082602.I2580@suse.de>
+In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>, <3BE5F5BF.7A249BDF@zip.com.au> <20011104193232.A16679@mikef-linux.matchmail.com> <3BE60B51.968458D3@zip.com.au>, <3BE60B51.968458D3@zip.com.au> <20011105080635.D2580@suse.de> <3BE63C53.135106FC@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011104174948.I2222-100000@gerard>
+In-Reply-To: <3BE63C53.135106FC@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04 2001, G?rard Roudier wrote:
-> > > Didn't see any. Only the dma_addr_t thing can be 32 bit or 64 bit
-> > > depending on some magic. Apart this, the driver is asking for the
-> > > appropriate dma mask given the configured dma adressing mode.
-> >
-> > I've looked over the sym-2 and it is using pci_map_sg so it's 64-bit
-> > safe for sg transfers at least. For non-sg requests you are using
-> > pci_map_single, but you can't do any better because the mid layer is
-> > handing you virtual addresses in request_buffer currently anyways...
+On Sun, Nov 04 2001, Andrew Morton wrote:
+> Jens Axboe wrote:
+> > 
+> > On Sun, Nov 04 2001, Andrew Morton wrote:
+> > > The meaning of the parameter to elvtune is a complete mystery, and the
+> > > code is uncommented crud (tautology).  So I just used -r20000 -w20000.
+> > 
+> > It's the number of sectors that are allowed to pass a request on the
+> > queue, because of merges or inserts before that particular request. So
+> > you want lower than that probably, and you want READ latency to be
+> > smaller than WRITE latency too. The default I set is 8192/16384 iirc, so
+> > go lower than this -- -r512 -w1024 or even lower just to check the
+> > results.
 > 
-> If there is some platform-specific thing that allows to handle map_single
-> more right:), I can go with it. Would be fine to get IA64 and Alpha
-> actually PCI-64 bit safe even by using some software shoehorn for that. :)
-
-IA64 and Alpha is fine, the problem with the non-sg request is just
-32-bit archs with highmem support. For that we need to pass in
-page/offset values instead of a virtual address.
-
-> > > PS: There is some pci64* API on some arch., but nobody will want to
-> > > ever use it, in my opinion.
-> >
-> > You are doing it right :-)
+> Right, thanks.  With the ialloc.c one-liner I didn't touch
+> elvtune.  Defaults seem fine.
 > 
-> You mean as right as possible? :)
+> It should the number of requests which are allowed to pass a
+> request, not the number of sectors!
+> 
+> Well, you know what I mean:   Make it 
+> 
+> 	1 + nr_sectors_in_request / 1000
 
-Indeed :-)
+That has been tried, performance and latency wasn't good. But yes that
+is what we are really looking to account, the number of seeks.
+Approximately.
 
 -- 
 Jens Axboe

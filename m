@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTEGG2m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTEGG2m
+	id S262914AbTEGGdb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTEGGdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:28:42 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:13577 "EHLO
+	Wed, 7 May 2003 02:33:31 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:18441 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261825AbTEGG2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:28:41 -0400
-Date: Wed, 7 May 2003 07:41:11 +0100
+	id S262914AbTEGGda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:33:30 -0400
+Date: Wed, 7 May 2003 07:45:57 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: dwmw2@infradead.org, thomas@horsten.com, linux-kernel@vger.kernel.org
+To: Thomas Horsten <thomas@horsten.com>
+Cc: "ismail (cartman) donmez" <voidcartman@yahoo.com>,
+       "David S. Miller" <davem@redhat.com>, marcelo@conectiva.com.br,
+       hch@infradead.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
-Message-ID: <20030507074111.A9109@infradead.org>
+Message-ID: <20030507074557.A9197@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, dwmw2@infradead.org,
-	thomas@horsten.com, linux-kernel@vger.kernel.org
-References: <20030507072002.A7424@infradead.org> <20030506.221900.38693097.davem@redhat.com> <20030507072830.A7586@infradead.org> <20030506.222729.35034981.davem@redhat.com>
+	Thomas Horsten <thomas@horsten.com>,
+	"ismail (cartman) donmez" <voidcartman@yahoo.com>,
+	"David S. Miller" <davem@redhat.com>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+References: <20030506104956.A29357@infradead.org> <200305061640.13360.thomas@horsten.com> <200305070850.59912.voidcartman@yahoo.com> <200305070744.27207.thomas@horsten.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030506.222729.35034981.davem@redhat.com>; from davem@redhat.com on Tue, May 06, 2003 at 10:27:29PM -0700
+In-Reply-To: <200305070744.27207.thomas@horsten.com>; from thomas@horsten.com on Wed, May 07, 2003 at 07:44:27AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 10:27:29PM -0700, David S. Miller wrote:
->    From: Christoph Hellwig <hch@infradead.org>
->    Date: Wed, 7 May 2003 07:28:30 +0100
->    
->    rtnetlink.h is a bad example.  Just to use something you quoted earlier in
->    this thread..
->    
-> What is wrong with it?  Truly kernel-only elements are protected
-> with __KERNEL__ the rest are only the user visible and normal
-> C types that are necessary for using rtnetlink in user apps.
+On Wed, May 07, 2003 at 07:44:27AM +0100, Thomas Horsten wrote:
+> However I do not agree with that - I think it makes total sense for userland 
+> to include kernel headers when we are talking e.g. specific device driver 
+> interface. Imagine Joe Admin has firewall which is a pretty old Slackware 
+> with 2.2 kernel and wants to upgrade to 2.4 to get from ipchains to iptables 
+> (all just an example). He just downloads the 2.4 kernel and builds it, 
+> symlinks to /usr/src/linux so his /usr/include/linux and ../asm will point to 
+> the new kernel then he goes on to build the iptables userland binary - oops,
 
-If we have kernel declaration in those ABI headers you'd need an updated
-abi-headers package for each change in one of your prototypes, rendering
-it almost useless.
+That's highly broken because his libc was compiled against 2.2 headers.
+You must never use different headers in /usr/include/Pasm,linux} then those
+your libc was compiled against.
 
-For this to work you really need two classes of headers, one the defines
-ABIs and only ABIs and one that's for all kernel internal stuff.

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262613AbTJJU0B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 16:26:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTJJU0B
+	id S262108AbTJJUYe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 16:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTJJUYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 16:26:01 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:33958 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S262613AbTJJU0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 16:26:00 -0400
-Message-ID: <14095.165.89.84.90.1065817559.squirrel@www.genebrew.com>
-Date: Fri, 10 Oct 2003 16:25:59 -0400 (EDT)
-Subject: nforce2 unknown memory device
-From: "Rahul Karnik" <rahul@genebrew.com>
-To: gregor.burger@aon.at
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.0
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+	Fri, 10 Oct 2003 16:24:34 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:24073 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262108AbTJJUYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 16:24:33 -0400
+Date: Fri, 10 Oct 2003 22:33:45 +0200
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Joel.Becker@oracle.com
+Subject: Re: statfs() / statvfs() syscall ballsup...
+Message-ID: <20031010203345.GA1177@hh.idb.hist.no>
+References: <20031010172001.GA29301@ca-server1.us.oracle.com> <Pine.LNX.4.44.0310101024200.20420-100000@home.osdl.org> <20031010180535.GE29301@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031010180535.GE29301@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregor,
+On Fri, Oct 10, 2003 at 11:05:35AM -0700, Joel Becker wrote:
 
-I also have an NForce 2 based board on which I have successfully used both
-1GB of memory and an AGP video card (Radeon 9000). The unknown memory
-controllers do not seem to affect anything. Are you sure you have loaded
-the AGP modules (both agpgart and nvidia-agp)? As for all the memory not
-being detected, some memory is being reserved for kernel use -- how are
-you coming up with the numbers you sent?
+> 	The problem we have with msync() and friends is not 'quick
+> population', it's "page is in the page cache already; another node
+> writes to the storage; must mark page as !uptodate so as to force a
+> re-read from disk".  I can't find where sys_readahead() checks for
+> uptodate, so perhaps calling sys_readahead() on a range always causes
+> I/O.  Correct me if I missed it.
+>
+ 
+Wouldn't this be solvable by giving userspace a way of invalidating
+a range of mmapped pages?  I.e. a "minvalidate();" to use when
+the other node tells you it is about to write?
 
-Thanks,
-Rahul
---
-Rahul Karnik
-rahul@genebrew.com
+This will cause the pages to be paged in again on next reference,
+or you can issue a read in advance if you believe you'll need them.
+
+Helge Hafting

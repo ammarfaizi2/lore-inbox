@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317498AbSGVQSE>; Mon, 22 Jul 2002 12:18:04 -0400
+	id <S317600AbSGVQ0A>; Mon, 22 Jul 2002 12:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317600AbSGVQSD>; Mon, 22 Jul 2002 12:18:03 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:32011 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317498AbSGVQSC>; Mon, 22 Jul 2002 12:18:02 -0400
-Message-ID: <3D3C2FA1.2010703@evision.ag>
-Date: Mon, 22 Jul 2002 18:15:29 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
+	id <S317685AbSGVQ0A>; Mon, 22 Jul 2002 12:26:00 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:6373 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317600AbSGVQZ7>;
+	Mon, 22 Jul 2002 12:25:59 -0400
+Date: Mon, 22 Jul 2002 12:29:07 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit 
+In-Reply-To: <200207190019.g6J0JrM28129@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0207221216240.6045-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.27 read_write - take 2
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> 	<3D3C11DE.7010000@evision.ag> <1027356923.31787.47.camel@irongate.swansea.linux.org.uk>
-Content-Type: multipart/mixed;
- boundary="------------090509090901060700070806"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090509090901060700070806
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Alan Cox wrote:
-> On Mon, 2002-07-22 at 15:08, Marcin Dalecki wrote:
+
+On Thu, 18 Jul 2002, Richard Gooch wrote:
+
+> Alexander Viro writes:
+> > Call them well-behaving modules if you wish.  For these the answers
+> > are "yes"/"a lot of things can be"/"it's easy to handle".  What's
+> > left?  The pieces of code with really complex interfaces.  And guess
+> > what, race-prevention is complex for these guys - and it's not just
+> > about rmmod races.  E.g. parts of procfs, sysctls and devfs are
+> > still quite racy even if you compile everything into the tree and
+> > remove all module-related syscalls completely.
 > 
->>- It is fixing completely confused wild casting to 32 bits.
->>
->>- Actually adding a comment explaining the obscure code, which is
->>   relying on integer arithmetics overflow.
-> 
-> 
-> Better yet take the code from 2.4.19-rc3. The code you fixed up is still
-> wrong. Sincie iov_len is not permitted to exceed 2Gb (SuS v3, found by
-> the LSB test suite) the actual fix turns out to be even simpler and
-> cleaner than the one you did
+> Can you point to specific problems with the current devfs code?
 
-You are right. It makes sese, since readv and writev are
-supposed to return ssize_t. Fixed patch version attached.
+Sigh...  How many do you want?  Look, couple of days ago I'd done the
+following: picked a random number in range 1..`wc -l fs/devfs/base.c`,
+checked what function it was in (devfs_readdir()) and spent less than
+two minutes reading it before finding a bug (a leak - there's a couple
+of paths that grab an entry and return without releasing it).
 
+So tell me how many times I should repeat that exercise and while you
+are at it, tell me what stops you from doing the same.  Because you
+know, reading devfs code is something I'd rather avoid - it's not my
+idea of fun reading.  IF it will stop you from claiming "Al hadn't
+done public whippings lately, so devfs is bug-free" for a couple of
+months - by all means, tell how many bugs do I need to find and report
+to shut you up for a while.
 
-
---------------090509090901060700070806
-Content-Type: text/plain;
- name="read_write-2.5.27.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="read_write-2.5.27.diff"
-
-diff -urN linux-2.5.27/fs/read_write.c linux/fs/read_write.c
---- linux-2.5.27/fs/read_write.c	2002-07-22 17:51:25.000000000 +0200
-+++ linux/fs/read_write.c	2002-07-22 17:57:22.000000000 +0200
-@@ -306,12 +306,16 @@
- 	tot_len = 0;
- 	ret = -EINVAL;
- 	for (i = 0 ; i < count ; i++) {
--		size_t tmp = tot_len;
--		int len = iov[i].iov_len;
-+		ssize_t tmp = tot_len;
-+		ssize_t len = iov[i].iov_len;
-+
-+		/* check for SSIZE_MAX overflow */
- 		if (len < 0)
- 			goto out;
--		(u32)tot_len += len;
--		if (tot_len < tmp || tot_len < (u32)len)
-+
-+		tot_len += len;
-+		/* check for overflows */
-+		if (tot_len < tmp)
- 			goto out;
- 	}
- 
-
---------------090509090901060700070806--
+Richard, devfs code is _ripe_ with bugs; you can't spit into it without
+hitting one.  And excuse me, but when finding one is a matter of two
+minutes I can't believe that you are incapable of doing that on your own.
+It used to be annoying; by now it's beyond annoying - it's ridiculous.
 

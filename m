@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTGVBGi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 21:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbTGVBGi
+	id S267705AbTGVBR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 21:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269242AbTGVBR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 21:06:38 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:59019 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261773AbTGVBGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 21:06:37 -0400
-Date: Mon, 21 Jul 2003 21:21:37 -0400
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: hid: ctrl urb status -75?
-Message-ID: <20030722012137.GA7159@bittwiddlers.com>
+	Mon, 21 Jul 2003 21:17:29 -0400
+Received: from thunk.org ([140.239.227.29]:34500 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S267341AbTGVBR1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 21:17:27 -0400
+Date: Mon, 21 Jul 2003 21:04:01 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH][RFC] speeding up fsck -A
+Message-ID: <20030722010401.GA9641@think>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <87adb8dcpz.fsf@goat.bogus.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <87adb8dcpz.fsf@goat.bogus.local>
 User-Agent: Mutt/1.5.4i
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-X-Delivery-Agent: TMDA/0.75 (Ponder)
-X-Primary-Address: mharrell@bittwiddlers.com
-Reply-To: Matthew Harrell 
-	  <mharrell-dated-1059268898.4dcd80@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 21, 2003 at 01:01:44AM +0200, Olaf Dietsche wrote:
+> With this patch, I get a speedup of about 60%. During boot time it is
+> even more. Can someone please tell me, why and when this WNOHANG was
+> introduced. fsck seems to work fine without it.
 
-What does this error mean?  I'm attempting to plug in a USB keyboard I've got
-and it gives me the messages
+This isn't a kernel problem; you should have just sent it to me
+directly as an e2fsprogs maintainer, as documented in the README file
+in the e2fsprogs source tree, or in /usr/shared/doc/e2fsprogs/README
+on a Debian system, instead of bothering folks on the kernel list.
 
-  hub 1-0:0: new USB device on port 1, assigned address 3
-  input: USB HID v1.10 Keyboard [CHESEN USB Keyboard] on usb-0000:00:11.2-1
-  drivers/usb/input/hid-core.c: ctrl urb status -75 received
+In any case, thanks for reporting this bug; I've fixed it
+appropriately in the latest e2fsprogs sources.  The WNOHANG was
+introduced when I added support for the FSCK_MAX_INST environment
+variable, which allows to user to constrain the maximum number of
+child fsck's running at the same time, and FSCK_FORCE_ALL_PARALLEL.
+What I needed to do was to call wait_one in blocking mode the first
+time, and then call it in WNOHANG mode until all exited children have
+been reaped.  This is necessary so that fsck will start keep the
+necesary number of children in parallel at the same time.  What I did
+instead was to always call it with WNOHANG always, which caused a
+CPU-burning loop.  Oops.
 
-Other USB keyboards work fine so it must be something special with this one.
-This is under all kernels from 2.5.60 to 2.6.0-test1
+Anyway, this will be fixed in the next release, which will be soon at
+this point....
 
--- 
-  Matthew Harrell                          The Earth is like a tiny grain of
-  Bit Twiddlers, Inc.                       sand, only much, much heavier.
-  mharrell@bittwiddlers.com     
+						- Ted

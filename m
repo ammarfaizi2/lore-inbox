@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293094AbSCEMsw>; Tue, 5 Mar 2002 07:48:52 -0500
+	id <S293082AbSCEMuc>; Tue, 5 Mar 2002 07:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293082AbSCEMsn>; Tue, 5 Mar 2002 07:48:43 -0500
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:27080 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S293094AbSCEMsX>; Tue, 5 Mar 2002 07:48:23 -0500
-Date: Tue, 5 Mar 2002 13:48:20 +0100 (MET)
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-X-X-Sender: sithglan@faui02.informatik.uni-erlangen.de
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: SOLVED Re: 2.4.18: Problems with IP: kernel level autoconfiguration
-In-Reply-To: <Pine.GSO.4.44.0203051338470.6405-100000@faui02.informatik.uni-erlangen.de>
-Message-ID: <Pine.GSO.4.44.0203051347520.6405-100000@faui02.informatik.uni-erlangen.de>
+	id <S293099AbSCEMuW>; Tue, 5 Mar 2002 07:50:22 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:25258 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S293082AbSCEMuI>; Tue, 5 Mar 2002 07:50:08 -0500
+Date: Tue, 5 Mar 2002 14:35:35 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+In-Reply-To: <3C84BBE1.3020906@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0203051435080.15202-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have to specify the right kernel command line ;(
+On Tue, 5 Mar 2002, Martin Dalecki wrote:
 
-On Tue, 5 Mar 2002, Thomas Glanzmann wrote:
+> It can't be older then 2.5.4 becouse before it just wasn't there.
 
-> My 2.4.18 Kernel does not try to receive dhcp.
->
-> CONFIG_IP_PNP=y
-> CONFIG_IP_PNP_DHCP=y
-> CONFIG_IP_PNP_BOOTP=y
-> CONFIG_IP_PNP_RARP=y
->
-> Is there anything else out here which I have to enable in order to get things
-> work? Is there any further Documentation in the tree?
->
-> Greetings,
->
-> 		Thomas
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Yes it was before that. I recall the email too but can't find the 
+reference.
+
+	Zwane
+
 

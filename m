@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKIMv>; Mon, 11 Dec 2000 03:12:51 -0500
+	id <S129345AbQLKIVN>; Mon, 11 Dec 2000 03:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLKIMl>; Mon, 11 Dec 2000 03:12:41 -0500
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:32008 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S129314AbQLKIM2>; Mon, 11 Dec 2000 03:12:28 -0500
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Mon, 11 Dec 2000 08:41:57 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.4.0test11: "nanoseconds patch" (prerelease) available
-Message-ID: <3A34934D.11549.2458DA@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S129523AbQLKIVD>; Mon, 11 Dec 2000 03:21:03 -0500
+Received: from nycsmtp3fb.rdc-nyc.rr.com ([24.29.99.80]:28433 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S129345AbQLKIU5>;
+	Mon, 11 Dec 2000 03:20:57 -0500
+Message-ID: <000b01c06346$f8680100$0ac809c0@hotmail.com>
+From: "Anthony Barbachan" <barbacha@Hinako.AMBusiness.com>
+To: "Peter Samuelson" <peter@cadcamlab.org>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <001f01c06323$db434d00$0ac809c0@hotmail.com> <20001211001723.Z6567@cadcamlab.org>
+Subject: Re: Unable to compile the 2.2.18 kernel
+Date: Mon, 11 Dec 2000 02:50:02 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Thanks.  I missed that this time when I modified the Makefile.  I didn't pay
+close attention to the new script code in there to check for the kernel
+compiler.
 
-related to my question about having nanoseconds in xtime for Linux 2.5, 
-two (or three) people were interested, or at least managed to route 
-their message to me. As promised I have made an early release patch 
-against 2.4.0test11 available at
 
-ftp.kernel.org:/pub/linux/daemons/ntp/PPS/pps-2.4-pre1.tar.bz2 (63kB, 
-patch + digital signature)
+----- Original Message -----
+From: "Peter Samuelson" <peter@cadcamlab.org>
+To: "Anthony Barbachan" <barbacha@hinako.ambusiness.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Linux Kernel Mailing List"
+<linux-kernel@vger.kernel.org>
+Sent: Monday, December 11, 2000 1:17 AM
+Subject: Re: Unable to compile the 2.2.18 kernel
 
-The modified sources compile, link and boot (for arch/i386), but 
-consider this code as alpha quality, and don't use it for production 
-use. It is possible that it works perfectly, but I simply don't have 
-the experience.
 
-Fixes for any architectures are appreciated. Finally I want to get rid 
-of gettimeoffset() and a lot of redundant code.
+>
+> [Anthony Barbachan]
+> > I am unable to compile the latest kernel.  I have attached my kernel
+> > configuration and a copy of the output of where the compile fails.  I
+> > am looking into what is causing the compile failure, but have not
+> > been able to figure it out yet.  Still looking though.
+>
+> It looks like you overrode the 'CC' make variable, either by editing
+> the toplevel Makefile or at the command line.  This works fine in 2.4,
+> but in 2.2 you need to pass extra flags to the compiler:
+>
+>   make zImage
+CC="/usr/local/gcc-2.7.2.3/bin/gcc -I$(pwd)/include -D__KERNEL__"
+>
+> ...for example.
+>
+> Peter
+>
 
-I noticed that the ATM drivers access xtime directly. If jiffies are 
-not fine enough, do_gettimeofday() has to be called for now. If that's 
-too slow, we have to think about an alternative.
-
-Regards,
-Ulrich
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,110 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262751AbUC2Icq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 03:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUC2Icq
+	id S262764AbUC2Ilc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 03:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUC2Ilc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 03:32:46 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:44979 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262751AbUC2Icn (ORCPT
+	Mon, 29 Mar 2004 03:41:32 -0500
+Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:11430 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S262764AbUC2Ila (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 03:32:43 -0500
-Message-ID: <083001c41565$2844e360$fc82c23f@pc21>
-From: "Ivan Godard" <igodard@pacbell.net>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <048e01c413b3$3c3cae60$fc82c23f@pc21.suse.lists.linux.kernel><p73y8pm951k.fsf@nielsen.suse.de><07b501c41502$48bd4d20$fc82c23f@pc21> <20040329011416.591ad315.ak@suse.de>
-Subject: Re: Kernel support for peer-to-peer protection models...
-Date: Mon, 29 Mar 2004 00:09:22 -0800
+	Mon, 29 Mar 2004 03:41:30 -0500
+From: Claudio Martins <ctpm@rnl.ist.utl.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Re: usage of RealTek 8169 crashes my Linux system
+Date: Mon, 29 Mar 2004 09:41:27 +0100
+User-Agent: KMail/1.6.1
+Cc: Jeff Garzik <jgarzik@pobox.com>, silverbanana@gmx.de
+References: <40673495.3050500@gmx.de> <4067378B.7070102@pobox.com>
+In-Reply-To: <4067378B.7070102@pobox.com>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-Id: <200403290941.27765.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-interlinear
 
------ Original Message ----- 
-From: "Andi Kleen" <ak@suse.de>
-To: "Ivan Godard" <igodard@pacbell.net>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, March 28, 2004 3:14 PM
-Subject: Re: Kernel support for peer-to-peer protection models...
-
-
-> On Sun, 28 Mar 2004 12:21:36 -0800
-> "Ivan Godard" <igodard@pacbell.net> wrote:
->
+On Sunday 28 March 2004 21:37, Jeff Garzik wrote:
+> Bernd Fuhrmann wrote:
 > >
-> > > Maybe you can give each process an different address range, but AFAIK
-> > > the only people who have done this before are users of non MMU
-> > architectures.
-> > > It will probably require som changes in the portable part of the code.
-> > > Also porting glibc's ld.so to this will be likely no-fun.
-> >
-> > Each process gets a different range because each process gets a
-different
-> > native space. Within that space processes can use the same offsets, and
-> > typically will so as to avoid pointless relocation.
+> > Any idea how to fix it? Is that driver getting stable in the next months
+> > or are there obstacles that should make me buy a different NIC (like
+> > missing docs for that chipset and stuff like that)?
 >
-> fork() will be hard and/or inefficient this way.
-
-Why? The load image for the new process does not require relocation, so all
-that's necessary to spawn a process is to allocate a spaceID, map the
-excutable to that ID in the page tables, push one entry into the TLB, set a
-couple of hardware registers, and insert it into the readyq. When it get's
-control it will prompty fault in its code pages (if not already present),
-and execution from there on is normal. This process is essentially identical
-to what happens on a conventional, except because there is no aliasing of
-addreses (flat unified 64-bit model) you don't have to scrub the cache or
-TLB.
-
-> > > Overall it sounds like your architecture is not very well suited to
-> > > run Linux.
-> >
-> > We believe we can adopt the Linux protection model (i.e. the 386
-protection
-> > model) with no more work than any other port to a new architectire
-(ahem).
+> Does Andrew Morton's -mm patches fix it for you?
 >
-> Just FYI - Linux has been ported to several architectures with similar
-SASOS
-> capabilities in hardware (IA64 or ppc64 on iseries) and they have all
-opted to use
-> an conventional protection model.
+> 	Jeff
 
-Do you know why? Can you point me to the people who did these ports so I can
-ask?
 
-> > So long as 1) a driver has a driver-load-time defined region of working
-data
-> > space; 2) has a defined code region; 3) gets its buffer addresses etc.
-as
->
-> Just (1) alone is a illusion - linux drivers generally work on the shared
-> page pool, just like all other subsystems.
+ Hi,
 
-In 1) I'm talking about the driver's local state, not the pages it's trying
-to fill. That local state will be in the driver's space, and protected from
-interference by everybody else.
+  I'm also seeing hard crashes when using the r8169 driver, running a 32-bit 
+2.6.4-rc1 kernel on a AMD64 system with a MSI K8T motherboard (VIA KT800). It 
+has an onboard Realtek 8110S chip.
+  When I stopped using the r8169 module the crashes stopped. Now using a PCI 
+rtl8139 nic temporarily.
 
-The pages (I assume) are arguments to the driver, i.e. "Fill *here*", and
-the owner of the page will have exposed the page to the driver before or as
-part of making the call. Or the call was "Fill some page and return it", and
-the driver calls the physmem manager who allocates the page, exposes it to
-the driver, and reurns the address to the driver. When the driver is done it
-will hand off ownership of the page to the client.  I fully expect that the
-present code for this mechanism will have to be mangled, but I suspect that
-the kernel already implements some concept of "owner" for a physpage and we
-can hook the ownership transfer into our model.
+  Is there any way to apply these newer -netdev patches without resorting to 
+-mm tree? This is a production machine, so I'd rather stick to linus' 2.6.x, 
+but if there's no choice I'll try -mm...
 
-I hope :-)
+ Thanks in advance for your attention.
 
-Ivan
-
+Claudio
 

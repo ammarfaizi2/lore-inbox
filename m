@@ -1,110 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271620AbTGQXMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 19:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271626AbTGQXMQ
+	id S271619AbTGQXKa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 19:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271625AbTGQXKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 19:12:16 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:34837 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271620AbTGQXMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 19:12:08 -0400
-Message-ID: <3F1730C9.4020300@sbcglobal.net>
-Date: Thu, 17 Jul 2003 18:27:05 -0500
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Thu, 17 Jul 2003 19:10:30 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:11970 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S271619AbTGQXK3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 19:10:29 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 17 Jul 2003 16:18:06 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: asm (lidt) question
+In-Reply-To: <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
+References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
+ <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Kurt Roeckx <Q@ping.be>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Sb16 kernel parameters.
-References: <20030717220915.GA5046@ping.be>
-In-Reply-To: <20030717220915.GA5046@ping.be>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You'll need to use the kernel parameter 
-(Documentation/kernel-parameters.txt) snd-sb16 .
+On Thu, 17 Jul 2003, Davide Libenzi wrote:
 
-Looking at the docs in the Documentation/sound/alsa directory:
-
-  Module snd-sb16 and snd-sbawe
-  -----------------------------
-
-    Module for 16-bit SoundBlaster cards: SoundBlaster 16 (PnP),
-                                          SoundBlaster AWE 32 (PnP),
-                                          SoundBlaster AWE 64 PnP
-
-    port        - port # for SB DSP 4.x chip (0x220,0x240,0x260)
-    mpu_port    - port # for MPU-401 UART (0x300,0x330), -1 = disable
-    awe_port    - base port # for EMU8000 synthesizer (0x620,0x640,0x660)
-                   (snd-sbawe module only)
-    irq         - IRQ # for SB DSP 4.x chip (5,7,9,10)
-    dma8        - 8-bit DMA # for SB DSP 4.x chip (0,1,3)
-    dma16       - 16-bit DMA # for SB DSP 4.x chip (5,6,7)
-    mic_agc     - Mic Auto-Gain-Control - 0 = disable, 1 = enable (default)
-    csp         - ASP/CSP chip support - 0 = disable (default), 1 = enable
-    isapnp      - ISA PnP detection - 0 = disable, 1 = enable (default)
-   
-    Module supports up to 8 cards, autoprobe and ISA PnP.
-
-    Note: To use Vibra16X cards in 16-bit half duplex mode, you must
-          disable 16bit DMA with dma16 = -1 module parameter.
-          Also, all Sound Blaster 16 type cards can operate in 16-bit
-          half duplex mode through 8-bit DMA channel by disabling their
-          16-bit DMA channel.
-
-And at the end of the sb16.c file I found:
-
-#ifndef MODULE
-
-/* format is: snd-sb16=enable,index,id,isapnp,
-                       port,mpu_port,fm_port,
-                       irq,dma8,dma16,
-                       mic_agc,csp,
-                       [awe_port,seq_ports]
-
-Which is probably what format you'll need to use but I don't know much 
-about drivers...;-)
-I don't know what "id" stands for either...
-
-Good luck!
-
-
-Kurt Roeckx wrote:
-
->I have an sound blaster 16, but I'm unable to get it working with
->2.6.
+> On Thu, 17 Jul 2003, Randy.Dunlap wrote:
 >
->During boot I get:
->Advanced Linux Sound Architecture Driver Version 0.9.4 (Mon Jun
->09 12:01:18 2003 UTC).
->ALSA device list:
->  #0: Sound Blaster 16 at 0x220, irq 5, dma 1&5
+> >
+> > In arch/i386/kernel, inline asm for loading IDT (lidt) is used a few
+> > times, but with slightly different constraints and output/input
+> > definitions.  Are these OK, equivalent, or what?
+> >
+> > [rddunlap@dragon kernel]$ findc lidt
+> > ./cpu/common.c:484: __asm__ __volatile__("lidt %0": "=m" (idt_descr));
+> > ./traps.c:783:	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
+> >
+> > vs.
+> >
+> > ./reboot.c:186:	__asm__ __volatile__ ("lidt %0" : : "m" (real_mode_idt));
+> > ./reboot.c:261:	__asm__ __volatile__("lidt %0": :"m" (no_idt));
+> > ./suspend.c:95:	asm volatile ("lidt %0" :: "m" (saved_context.idt_limit));
 >
->Normally I'm using irq 7, and that has always worked for me, but
->for some reason it's selecting it.
->
->I'm still using my kernel parameter line from 2.4:
->sb=0x220,7,1,5
->
->And I tried some other things, but I'm unable to get it to work.
->
->
->How am I supposed to get the IRQ of the SB16 that's compiled in
->the kernel?
->
->
->Kurt
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+> I'd have said no looking at the syntax (input/output), but they indeed
+> generate the same code (just checked).
+
+Randy, I'd say that this :
+
+__asm__ __volatile__("lidt %0": "=m" (var));
+
+is better then :
+
+__asm__ __volatile__("lidt %0": :"m" (var));
+
+IMHO, since "var" is really an output parameter.
+
+
+
+- Davide
 

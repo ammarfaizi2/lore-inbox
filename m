@@ -1,33 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVCVOOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVCVORR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVCVOOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 09:14:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCVOOt
+	id S261263AbVCVORR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 09:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVCVORR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 09:14:49 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:454 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261262AbVCVOOs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 09:14:48 -0500
-Date: Tue, 22 Mar 2005 15:14:47 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 140 bugs, many of which are post-2.6.10 regressions - got a
- list?
-Message-ID: <Pine.LNX.4.61.0503221514370.32335@yvahk01.tjqt.qr>
+	Tue, 22 Mar 2005 09:17:17 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:23528 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261263AbVCVORI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 09:17:08 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: Samsung 40G drive locking up 2.6.11
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Tue, 22 Mar 2005 15:21:41 +0100
+References: <fa.gg9u7j2.1vm65hi@ifi.uio.no>
+User-Agent: KNode/0.7.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DDkGQ-0000t8-9g@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
 
-Jesper Juhl wrote:
->I'm wondering if you have a list of those bugs somewhere?
+> dd if=/dev/hdc of=/dev/null with this disk
+> kills the system. Drive may do it's work
+> for minute or two, but then it does 'klak' sound.
 
-I think I've found something in his tree...
-http://kernel.org/pub/linux/kernel/people/akpm/must-fix/
-Not sure if it is what you look for.
-
-
-Jan Engelhardt
--- 
+Did you try shdiag or hutil from samsung.com?

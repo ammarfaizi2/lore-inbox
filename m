@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266133AbRGGMJE>; Sat, 7 Jul 2001 08:09:04 -0400
+	id <S266135AbRGGMMY>; Sat, 7 Jul 2001 08:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266135AbRGGMIy>; Sat, 7 Jul 2001 08:08:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62985 "EHLO
+	id <S266157AbRGGMMO>; Sat, 7 Jul 2001 08:12:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64777 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266133AbRGGMIp>; Sat, 7 Jul 2001 08:08:45 -0400
-Subject: Re: kernel patch process
-To: m_satish@yahoo.com (Satish Kumar)
-Date: Sat, 7 Jul 2001 13:09:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, m_satish@yahoo.com
-In-Reply-To: <20010707062835.74777.qmail@web11507.mail.yahoo.com> from "Satish Kumar" at Jul 06, 2001 11:28:35 PM
+	id <S266151AbRGGMME>; Sat, 7 Jul 2001 08:12:04 -0400
+Subject: Re: 2.4.6 PCMCIA NET modular build breakage
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Sat, 7 Jul 2001 13:12:26 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010707101657.C10927@flint.arm.linux.org.uk> from "Russell King" at Jul 07, 2001 10:16:57 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Iqtc-0005kA-00@the-village.bc.nu>
+Message-Id: <E15Iqwk-0005kf-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can anyone let me know the steps for making/submitting
-> a linux kernel patch ? What is the difference between
+> Seems like its something that appeared between 2.4.5 and 2.4.6.  Anyone
+> know the correct fix, other than reversing the change?
 
-man diff 
-
-Use the diff -u options
-
-> an unofficial patch and an official patch ?
-
-I guess it depends who made it, who likes it and who you trust 8) 
-
+I build with all pcmcia network drivers modular on my test builds, what
+am I missing here ?

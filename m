@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319621AbSIMMuW>; Fri, 13 Sep 2002 08:50:22 -0400
+	id <S319632AbSIMMyf>; Fri, 13 Sep 2002 08:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319628AbSIMMuW>; Fri, 13 Sep 2002 08:50:22 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:28184 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S319621AbSIMMuV>; Fri, 13 Sep 2002 08:50:21 -0400
-Date: Fri, 13 Sep 2002 14:53:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Stephen Lord <lord@sgi.com>, Austin Gonyou <austin@coremetrics.com>,
-       Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.20pre5aa2
-Message-ID: <20020913125345.GO11605@dualathlon.random>
-References: <20020911201602.A13655@pc9391.uni-regensburg.de> <1031768655.24629.23.camel@UberGeek.coremetrics.com> <20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> <20020913002316.GG11605@dualathlon.random> <1031878070.1236.29.camel@snafu> <20020913005440.GJ11605@dualathlon.random> <3D8149F6.9060702@rackable.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8149F6.9060702@rackable.com>
-User-Agent: Mutt/1.3.27i
+	id <S319631AbSIMMyf>; Fri, 13 Sep 2002 08:54:35 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:52136 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319632AbSIMMyd>; Fri, 13 Sep 2002 08:54:33 -0400
+Date: Fri, 13 Sep 2002 09:59:04 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.5.34-mm3
+In-Reply-To: <3D819132.C7171BD9@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0209130955580.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 07:14:14PM -0700, Samuel Flory wrote:
-> include/asm-i386/page.h:#define __VMALLOC_RESERVE       (128 << 20)
-> include/asm/page.h:#define __VMALLOC_RESERVE    (128 << 20)
-> 
-> 
-> Andrea Arcangeli wrote:
-> 
-> >On Thu, Sep 12, 2002 at 07:47:48PM -0500, Stephen Lord wrote:
-> > 
-> >
-> >>How much memory is in the machine by the way? And Andrea, is the
-> >>vmalloc space size reduced in the 3G user space configuration?
-> >>   
-> >>
-> >
-> >it's not reduced, it's the usual 128m.
-> >
-> >BTW, I forgot to say that to really take advantage of CONFIG_2G one
-> >should increase __VMALLOC_RESERVE too, it's not directly in function of
-> >the CONFIG_2G.
-> >
-> 
-> So how much do you recommend increasing it?   Currently it's:
-> include/asm-i386/page.h:#define __VMALLOC_RESERVE       (128 << 20)
-> include/asm/page.h:#define __VMALLOC_RESERVE    (128 << 20)
+On Fri, 13 Sep 2002, Andrew Morton wrote:
 
-you can try to compile with CONFIG_3G and to set __VMALLOC_RESERVE to
-(512 << 20) and see if it helps. If it only happens a bit later then
-it's most probably an address space leak, should be easy to track down
-some debugging instrumentation.
+> Rik, I didn't include the iowait patch because we don't seem to have
+> a tarball of procps which supports it - the various diffs you have at
+> http://surriel.com/procps/ appear to be in an intermediate state wrt
+> cygnus CVS.
 
-Andrea
+Umm no, the latest patch I put up yesterday is fully in sync
+with the cygnus CVS tree ...
+
+> The code is in experimental/iowait.patch.  Could we have a snapshot
+> tarball of the support utilities please?
+
+... but I've put up a snapshot, if that makes you happy ;)
+The snapshot is of the latest procps code from procps CVS,
+including your patch to top.
+
+	http://surriel.com/procps/
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

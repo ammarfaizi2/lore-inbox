@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbUKKAlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbUKKBAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbUKKAlP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 19:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbUKKAlP
+	id S262075AbUKKBAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 20:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbUKKBAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 19:41:15 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:20127 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262072AbUKKAlL (ORCPT
+	Wed, 10 Nov 2004 20:00:25 -0500
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:34552 "EHLO
+	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S262075AbUKKBAV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 19:41:11 -0500
-Message-ID: <4192B523.9090507@g-house.de>
-Date: Thu, 11 Nov 2004 01:41:07 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
+	Wed, 10 Nov 2004 20:00:21 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: sfrench@samba.org
-Subject: Oops with CIFS (2.6.10-rc1-BK)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: The latest module tool issue
+Date: Wed, 10 Nov 2004 17:00:17 -0800
+Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AEC@wcosmb07.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Welcome to linux-kernel
+thread-index: AcTHh9i7Q23R9MxTRjSe1HcUBFtHJQAADNEw
+From: <yiding_wang@agilent.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <yiding_wang@agilent.com>
+X-OriginalArrivalTime: 11 Nov 2004 01:00:18.0670 (UTC) FILETIME=[CFF678E0:01C4C789]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I am using moudle-init-tools-3.1-pre6 with kernel 2.6.9. The new insmod seems have restrictions which failed loading driver module with parameters.
 
-hi,
+My module parameter is in the form of modname="*************** ****", a quite long one.
+Run - insmod modname.o modname="*********** *******" (with a script), it complains about the space and treats the string next to the space to be a "Unknown parameter".
 
-using smb mounts fairly seldom i only mount them with -t smb. today i
-mounted the share with -t cifs. the share was mounted successfully, i
-could use it and then the oops occured. i could not reproduce it up to now
-but i thought perhaps the output could be useful somehow. here it goes:
+By replacing the space with any character, then it complains 
+"modname: string parameter too long"
 
-http://nerdbynature.de/bits/prinz/cifs/dmesg.txt
-http://nerdbynature.de/bits/prinz/cifs/config.txt
+Same parameter string works fine under 2.4.25 with original insmod.
 
-thanks,
-Christian.
-- --
-BOFH excuse #108:
+Is this a bug or new insmod has restrictions? If it is restriction, it will bring a lot of trouble. 
 
-The air conditioning water supply pipe ruptured over the machine room
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Thanks!
 
-iD8DBQFBkrUj+A7rjkF8z0wRAihRAJ9sewwky182IxXaEF8tWclKaIdZ8wCg0Fvb
-2izQr8cfCTEfwnD3nVe1BCE=
-=fehY
------END PGP SIGNATURE-----
+Eddie

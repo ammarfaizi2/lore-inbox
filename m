@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRADWEZ>; Thu, 4 Jan 2001 17:04:25 -0500
+	id <S129324AbRADWIz>; Thu, 4 Jan 2001 17:08:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRADWEQ>; Thu, 4 Jan 2001 17:04:16 -0500
-Received: from jalon.able.es ([212.97.163.2]:22781 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129267AbRADWEB>;
-	Thu, 4 Jan 2001 17:04:01 -0500
-Date: Thu, 4 Jan 2001 23:03:48 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: So, what about kwhich on RH6.2?
-Message-ID: <20010104230348.E1148@werewolf.able.es>
-In-Reply-To: <20010104091241.B18973@gruyere.muc.suse.de> <E14EBZw-0005oG-00@the-village.bc.nu>
+	id <S130024AbRADWIp>; Thu, 4 Jan 2001 17:08:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:2316 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129324AbRADWI3>;
+	Thu, 4 Jan 2001 17:08:29 -0500
+Date: Thu, 4 Jan 2001 22:04:33 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Andreas Dilger <adilger@enel.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
+Message-ID: <20010104220433.T1290@redhat.com>
+In-Reply-To: <20010103121609.C1290@redhat.com> <Pine.GSO.4.21.0101031051080.15658-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E14EBZw-0005oG-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 04, 2001 at 15:41:17 +0100
-X-Mailer: Balsa 1.0.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.GSO.4.21.0101031051080.15658-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Jan 03, 2001 at 11:12:48AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 2001.01.04 Alan Cox wrote:
-> > On Thu, Jan 04, 2001 at 07:13:58PM +1100, Andrew Morton wrote:
-> > > Silly question:
-> > > 
-> > > can't we just hardwire `kgcc' into the build system and be done
-> > > with all this kwhich stuff?  It's just a symlink....
-> > 
-> > And break compilation on all non RedHat 7, non connectiva systems ? 
-> > Would you volunteer to handle the support load on l-k that would cause?
+On Wed, Jan 03, 2001 at 11:12:48AM -0500, Alexander Viro wrote:
 > 
-> Hardcoding kgcc is definitely not an option. 
+> On Wed, 3 Jan 2001, Stephen C. Tweedie wrote:
 > 
+> > Having preallocated blocks allocated immediately is deliberate:
+> > directories grow slowly and remain closed most of the time, so the
+> > normal preallocation regime of only preallocating open files and
+> > discarding preallocation on close just doesn't work.
+> 
+> Erm. For directories we would not have the call of discard_prealloc()
+> on close(2) - they have NULL ->release() anyway and for them it would
+> happen only on ext2_put_inode(), i.e. upon the final dput(). Which would
+> not happen while some descendent would stay in dcache.
+> 
+> IOW, if directory is really going to grow (which normally mean that we
+> are busily writing into files in it or its subdirectories) we will not
+> get discard_prealloc() until it's all over.
 
-In Mdk 7.2+ there is something called 'alternatives' that seems to be
-inherited-copied from Debian. I read aboce that RH and Conectiva have it.
-It allows
-you to have some gcc-2.95, gcc-2.96, and select a default gcc that
-points to the one desired. It has defaults and priorities.
-Same thing could be done with 'kgcc': kernel needs something called
-kgcc, its up to you to set it up.
+The problem with directories is that they don't always grow rapidly
+like that.  Spool directories are perfect examples of directories
+which grow sporadically over a long time, which is why we wanted
+persistent preallocation.
 
-In my case (mdk), kgcc is a binary from egcs-1.1.2. If I want to try
-building a kernel with gcc-2.96, I should uninstall egcs to let
-kernel miss kgcc and find gcc, or tweak kernel Makefiles.
+The most common instance where that happens to regular files is the
+case of log files, but those tend to be held open even while idle so
+the preallocation persists anyway.
 
-(OT: I still dont understand why egcs is still named egcs instead
-of gcc-2.91)
-
--- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
-
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

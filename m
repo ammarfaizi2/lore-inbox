@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287199AbSACM1l>; Thu, 3 Jan 2002 07:27:41 -0500
+	id <S287204AbSACMbV>; Thu, 3 Jan 2002 07:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287204AbSACM1Z>; Thu, 3 Jan 2002 07:27:25 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1541 "EHLO
+	id <S287200AbSACMbC>; Thu, 3 Jan 2002 07:31:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5637 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287199AbSACM0H>; Thu, 3 Jan 2002 07:26:07 -0500
-Subject: Re: kswapd etc hogging machine
-To: art@lsr.nei.nih.gov (Art Hays)
-Date: Thu, 3 Jan 2002 12:37:08 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201022214230.8413-100000@lsr-linux> from "Art Hays" at Jan 02, 2002 10:33:09 PM
+	id <S287204AbSACMa5>; Thu, 3 Jan 2002 07:30:57 -0500
+Subject: Re: ISA slot detection on PCI systems?
+To: balbir.singh@wipro.com (BALBIR SINGH)
+Date: Thu, 3 Jan 2002 12:40:29 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), esr@thyrsus.com,
+        dwmw2@infradead.org (David Woodhouse), davej@suse.de (Dave Jones),
+        Lionel.Bouton@free.fr (Lionel Bouton),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <AAEGIMDAKGCBHLBAACGBMEMNCCAA.balbir.singh@wipro.com> from "BALBIR SINGH" at Jan 03, 2002 05:37:51 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16M77M-0008CQ-00@the-village.bc.nu>
+Message-Id: <E16M7Ab-0008DP-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Machine- 4 processor 700Mhz Dell with 4G Ram and 6G swap space running
-> stock Redhat 7.2 distribution.  All disks are SCSI using ext2.
+> This would break things like cross-compilation. Not sure how many people
+> use it though. You will have to be on the machine for which you intend
+> to compile the kernel. If you are compiling the kernel for the same machine
+> then it is the best thing to happen, provided the software doing the
+> configuration for u is not broken
 
-What I/O - megaraid ?
-
-> I apologize if this is well known.  If there is a simple solution I would 
-> appreciate even a terse pointer to it.  Thanks.
-
-If you are running the 2.4.7 kernel from the distro make sure you get the
-errata one
+I'm really not too worried about Grandma cross compiling kernels

@@ -1,222 +1,324 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318523AbSGSOnU>; Fri, 19 Jul 2002 10:43:20 -0400
+	id <S315285AbSGSOwX>; Fri, 19 Jul 2002 10:52:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318526AbSGSOnU>; Fri, 19 Jul 2002 10:43:20 -0400
-Received: from holomorphy.com ([66.224.33.161]:27791 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318523AbSGSOnR>;
-	Fri, 19 Jul 2002 10:43:17 -0400
-Date: Fri, 19 Jul 2002 07:46:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: kernel-janitor-discuss@lists.sourceforge.net
-Subject: clean up show_free_areas()
-Message-ID: <20020719144617.GG1022@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316663AbSGSOwX>; Fri, 19 Jul 2002 10:52:23 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:33947 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S315285AbSGSOwU>; Fri, 19 Jul 2002 10:52:20 -0400
+From: Erich Focht <efocht@ess.nec.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@linuxia64.org>
+Subject: [PATCH]: scheduler complex macros fixes
+Date: Fri, 19 Jul 2002 16:55:07 +0200
+User-Agent: KMail/1.4.1
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_V34I8T6VRB7721QBGJAR"
+Message-Id: <200207191655.07285.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-show_free_areas() and show_free_areas_core() is a mess.
-(1) it uses a bizarre and ugly form of list iteration to walk buddy lists
-	use standard list functions instead
-(2) it prints the same information repeatedly once per-node
-	rationalize the braindamaged iteration logic
-(3) show_free_areas_node() is useless and not called anywhere
-	remove it entirely
-(4) show_free_areas() itself just calls show_free_areas_core()
-	remove show_free_areas_core() and do the stuff directly
-(5) SWAP_CACHE_INFO is always #defined, remove it
-(6) INC_CACHE_INFO() doesn't use the do { } while (0) construct
 
-$ diffstat ../00_show_free_areas_core-4 
- include/linux/mm.h   |    1 
- include/linux/swap.h |    3 --
- mm/numa.c            |    9 ------
- mm/page_alloc.c      |   73 ++++++++++++++++++++-------------------------------
- mm/swap_state.c      |    6 ----
- 5 files changed, 31 insertions(+), 61 deletions(-)
+--------------Boundary-00=_V34I8T6VRB7721QBGJAR
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 
+The attached patch fixes problems with the "complex" macros in the
+scheduler, as discussed about a week ago with Ingo on this mailing list.
+On some platforms (at least IA64, sparc64) the RQ lock must be released
+before the context switch in order to avoid a potential deadlock. The
+macros used in 2.5.26 are buggy and allow the load_balancer to steal the
+prev task right before the context switch occurs. If the prev task
+exits in the mean time, the kernel crashes.
 
-===== include/linux/mm.h 1.56 vs edited =====
---- 1.56/include/linux/mm.h	Thu Jul  4 09:17:35 2002
-+++ edited/include/linux/mm.h	Fri Jul 19 09:25:30 2002
-@@ -319,7 +319,6 @@
- extern struct page *mem_map;
+These fixes are already in Ingo's patches for the SCHED_BATCH extension
+but didn't make it into 2.5.26. They are a MUST for the platforms using
+complex macros, please consider applying...
+
+Regards,
+Erich
+
+--------------Boundary-00=_V34I8T6VRB7721QBGJAR
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="O1_schedfix-2.5.26.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="O1_schedfix-2.5.26.diff"
+
+diff -urNp linux-2.5.26/include/asm-arm/system.h linux-2.5.26-schedfix/include/asm-arm/system.h
+--- linux-2.5.26/include/asm-arm/system.h	Wed Jul 17 01:49:26 2002
++++ linux-2.5.26-schedfix/include/asm-arm/system.h	Fri Jul 19 15:44:20 2002
+@@ -64,10 +64,9 @@ extern asmlinkage void __backtrace(void)
+ struct thread_info;
+ extern struct task_struct *__switch_to(struct thread_info *, struct thread_info *);
  
- extern void show_free_areas(void);
--extern void show_free_areas_node(pg_data_t *pgdat);
+-#define prepare_arch_schedule(prev)		do { } while(0)
+-#define finish_arch_schedule(prev)		do { } while(0)
+-#define prepare_arch_switch(rq)			do { } while(0)
+-#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
++#define prepare_arch_switch(rq, next)	do { } while(0)
++#define finish_arch_switch(rq, prev)	spin_unlock_irq(&(rq)->lock)
++#define task_running(rq, p)		((rq)->curr == (p))
  
- extern int fail_writepage(struct page *);
- struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int unused);
-===== include/linux/swap.h 1.47 vs edited =====
---- 1.47/include/linux/swap.h	Sun Jun 16 15:50:18 2002
-+++ edited/include/linux/swap.h	Fri Jul 19 09:54:41 2002
-@@ -163,10 +163,7 @@
- /* linux/mm/page_alloc.c */
+ #define switch_to(prev,next,last)					\
+ 	do {			 					\
+diff -urNp linux-2.5.26/include/asm-i386/system.h linux-2.5.26-schedfix/include/asm-i386/system.h
+--- linux-2.5.26/include/asm-i386/system.h	Wed Jul 17 01:49:22 2002
++++ linux-2.5.26-schedfix/include/asm-i386/system.h	Fri Jul 19 15:44:10 2002
+@@ -11,10 +11,9 @@
+ struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
+ extern void FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
  
- /* linux/mm/swap_state.c */
--#define SWAP_CACHE_INFO
--#ifdef SWAP_CACHE_INFO
- extern void show_swap_cache_info(void);
--#endif
- extern int add_to_swap_cache(struct page *, swp_entry_t);
- extern void __delete_from_swap_cache(struct page *page);
- extern void delete_from_swap_cache(struct page *page);
-===== mm/numa.c 1.5 vs edited =====
---- 1.5/mm/numa.c	Sat May 25 16:25:47 2002
-+++ edited/mm/numa.c	Fri Jul 19 09:25:19 2002
-@@ -46,15 +46,6 @@
+-#define prepare_arch_schedule(prev)		do { } while(0)
+-#define finish_arch_schedule(prev)		do { } while(0)
+-#define prepare_arch_switch(rq)			do { } while(0)
+-#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
++#define prepare_arch_switch(rq, next)	do { } while(0)
++#define finish_arch_switch(rq, prev)	spin_unlock_irq(&(rq)->lock)
++#define task_running(rq, p)		((rq)->curr == (p))
  
- static spinlock_t node_lock = SPIN_LOCK_UNLOCKED;
+ #define switch_to(prev,next,last) do {					\
+ 	asm volatile("pushl %%esi\n\t"					\
+diff -urNp linux-2.5.26/include/asm-ia64/system.h linux-2.5.26-schedfix/include/asm-ia64/system.h
+--- linux-2.5.26/include/asm-ia64/system.h	Wed Jul 17 01:49:32 2002
++++ linux-2.5.26-schedfix/include/asm-ia64/system.h	Fri Jul 19 13:40:26 2002
+@@ -429,6 +429,10 @@ extern void ia64_load_extra (struct task
+ } while (0)
+ #endif
  
--void show_free_areas_node(pg_data_t *pgdat)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&node_lock, flags);
--	show_free_areas_core(pgdat);
--	spin_unlock_irqrestore(&node_lock, flags);
--}
--
- /*
-  * Nodes can be initialized parallely, in no particular order.
-  */
-===== mm/page_alloc.c 1.78 vs edited =====
---- 1.78/mm/page_alloc.c	Thu Jul  4 09:17:33 2002
-+++ edited/mm/page_alloc.c	Fri Jul 19 09:55:35 2002
-@@ -596,12 +596,11 @@
-  * We also calculate the percentage fragmentation. We do this by counting the
-  * memory on each free list with the exception of the first item on the list.
-  */
--void show_free_areas_core(pg_data_t *pgdat)
-+void show_free_areas(void)
- {
-- 	unsigned int order;
--	unsigned type;
--	pg_data_t *tmpdat = pgdat;
-+	pg_data_t *pgdat;
- 	struct page_state ps;
-+	int type;
- 
- 	get_page_state(&ps);
- 
-@@ -609,20 +608,20 @@
- 		K(nr_free_pages()),
- 		K(nr_free_highpages()));
- 
--	while (tmpdat) {
--		zone_t *zone;
--		for (zone = tmpdat->node_zones;
--			       	zone < tmpdat->node_zones + MAX_NR_ZONES; zone++)
--			printk("Zone:%s freepages:%6lukB min:%6lukB low:%6lukB " 
--				       "high:%6lukB\n", 
--					zone->name,
--					K(zone->free_pages),
--					K(zone->pages_min),
--					K(zone->pages_low),
--					K(zone->pages_high));
--			
--		tmpdat = tmpdat->node_next;
--	}
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+		for (type = 0; type < MAX_NR_ZONES; ++type) {
-+			zone_t *zone = &pgdat->node_zones[type];
-+			printk("Zone:%s "
-+				"freepages:%6lukB "
-+				"min:%6lukB "
-+				"low:%6lukB " 
-+				"high:%6lukB\n", 
-+				zone->name,
-+				K(zone->free_pages),
-+				K(zone->pages_min),
-+				K(zone->pages_low),
-+				K(zone->pages_high));
-+		}
- 
- 	printk("( Active:%lu inactive:%lu dirty:%lu writeback:%lu free:%u )\n",
- 		ps.nr_active,
-@@ -631,40 +630,28 @@
- 		ps.nr_writeback,
- 		nr_free_pages());
- 
--	for (type = 0; type < MAX_NR_ZONES; type++) {
--		struct list_head *head, *curr;
--		zone_t *zone = pgdat->node_zones + type;
-- 		unsigned long nr, total, flags;
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+		for (type = 0; type < MAX_NR_ZONES; type++) {
-+			list_t *elem;
-+			zone_t *zone = &pgdat->node_zones[type];
-+ 			unsigned long nr, flags, order, total = 0;
++#define prepare_arch_switch(rq, next)	do {spin_lock(&(next)->switch_lock); spin_unlock(&(rq)->lock);} while(0)
++#define finish_arch_switch(rq, prev)	do {spin_unlock_irq(&(prev)->switch_lock);} while(0)
++#define task_running(rq, p)	(((rq)->curr == (p)) || spin_is_locked(&(p)->switch_lock))
 +
-+			if (!zone->size)
-+				continue;
+ #endif /* __KERNEL__ */
  
--		total = 0;
--		if (zone->size) {
- 			spin_lock_irqsave(&zone->lock, flags);
--		 	for (order = 0; order < MAX_ORDER; order++) {
--				head = &(zone->free_area + order)->free_list;
--				curr = head;
-+			for (order = 0; order < MAX_ORDER; order++) {
- 				nr = 0;
--				for (;;) {
--					curr = curr->next;
--					if (curr == head)
--						break;
--					nr++;
--				}
--				total += nr * (1 << order);
-+				list_for_each(elem, &zone->free_area[order].free_list)
-+					++nr;
-+				total += nr << order;
- 				printk("%lu*%lukB ", nr, K(1UL) << order);
- 			}
- 			spin_unlock_irqrestore(&zone->lock, flags);
-+			printk("= %lukB)\n", K(total));
- 		}
--		printk("= %lukB)\n", K(total));
--	}
+ #endif /* __ASSEMBLY__ */
+diff -urNp linux-2.5.26/include/asm-ppc/system.h linux-2.5.26-schedfix/include/asm-ppc/system.h
+--- linux-2.5.26/include/asm-ppc/system.h	Wed Jul 17 01:49:32 2002
++++ linux-2.5.26-schedfix/include/asm-ppc/system.h	Fri Jul 19 15:44:35 2002
+@@ -83,10 +83,9 @@ extern void cacheable_memzero(void *p, u
+ struct device_node;
+ extern void note_scsi_host(struct device_node *, void *);
  
--#ifdef SWAP_CACHE_INFO
- 	show_swap_cache_info();
--#endif	
--}
--
--void show_free_areas(void)
--{
--	show_free_areas_core(pgdat_list);
+-#define prepare_arch_schedule(prev)		do { } while(0)
+-#define finish_arch_schedule(prev)		do { } while(0)
+-#define prepare_arch_switch(rq)			do { } while(0)
+-#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
++#define prepare_arch_switch(rq, next)	do { } while(0)
++#define finish_arch_switch(rq, prev)	spin_unlock_irq(&(rq)->lock)
++#define task_running(rq, p)		((rq)->curr == (p))
+ 
+ struct task_struct;
+ extern void __switch_to(struct task_struct *, struct task_struct *);
+diff -urNp linux-2.5.26/include/asm-s390/system.h linux-2.5.26-schedfix/include/asm-s390/system.h
+--- linux-2.5.26/include/asm-s390/system.h	Wed Jul 17 01:49:38 2002
++++ linux-2.5.26-schedfix/include/asm-s390/system.h	Fri Jul 19 15:44:03 2002
+@@ -18,10 +18,9 @@
+ #endif
+ #include <linux/kernel.h>
+ 
+-#define prepare_arch_schedule(prev)		do { } while (0)
+-#define finish_arch_schedule(prev)		do { } while (0)
+-#define prepare_arch_switch(rq)			do { } while (0)
+-#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
++#define prepare_arch_switch(rq, next)	do { } while(0)
++#define finish_arch_switch(rq, prev)	spin_unlock_irq(&(rq)->lock)
++#define task_running(rq, p)		((rq)->curr == (p))
+ 
+ #define switch_to(prev,next,last) do {					     \
+ 	if (prev == next)						     \
+diff -urNp linux-2.5.26/include/asm-s390x/system.h linux-2.5.26-schedfix/include/asm-s390x/system.h
+--- linux-2.5.26/include/asm-s390x/system.h	Wed Jul 17 01:49:38 2002
++++ linux-2.5.26-schedfix/include/asm-s390x/system.h	Fri Jul 19 15:44:28 2002
+@@ -18,10 +18,9 @@
+ #endif
+ #include <linux/kernel.h>
+ 
+-#define prepare_arch_schedule(prev)		do { } while (0)
+-#define finish_arch_schedule(prev)		do { } while (0)
+-#define prepare_arch_switch(rq)			do { } while (0)
+-#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
++#define prepare_arch_switch(rq, next)	do { } while(0)
++#define finish_arch_switch(rq, prev)	spin_unlock_irq(&(rq)->lock)
++#define task_running(rq, p)		((rq)->curr == (p))
+ 
+ #define switch_to(prev,next),last do {					     \
+ 	if (prev == next)						     \
+diff -urNp linux-2.5.26/include/asm-sparc64/system.h linux-2.5.26-schedfix/include/asm-sparc64/system.h
+--- linux-2.5.26/include/asm-sparc64/system.h	Wed Jul 17 01:49:22 2002
++++ linux-2.5.26-schedfix/include/asm-sparc64/system.h	Fri Jul 19 15:52:41 2002
+@@ -144,13 +144,12 @@ extern void __flushw_user(void);
+ #define flush_user_windows flushw_user
+ #define flush_register_windows flushw_all
+ 
+-#define prepare_arch_schedule(prev)	task_lock(prev)
+-#define finish_arch_schedule(prev)	task_unlock(prev)
+-#define prepare_arch_switch(rq)		\
+-do {	spin_unlock(&(rq)->lock);	\
+-	flushw_all();			\
+-} while (0)
+-#define finish_arch_switch(rq)		__sti()
++#define prepare_arch_switch(rq, next)	do {spin_lock(&(next)->switch_lock); \
++					    spin_unlock(&(rq)->lock);
++					    flushw_all(); \
++					} while(0)
++#define finish_arch_switch(rq, prev)	do {spin_unlock_irq(&(prev)->switch_lock);} while(0)
++#define task_running(rq, p)	(((rq)->curr == (p)) || spin_is_locked(&(p)->switch_lock))
+ 
+ #ifndef CONFIG_DEBUG_SPINLOCK
+ #define CHECK_LOCKS(PREV)	do { } while(0)
+diff -urNp linux-2.5.26/include/asm-x86_64/system.h linux-2.5.26-schedfix/include/asm-x86_64/system.h
+--- linux-2.5.26/include/asm-x86_64/system.h	Wed Jul 17 01:49:29 2002
++++ linux-2.5.26-schedfix/include/asm-x86_64/system.h	Fri Jul 19 15:44:42 2002
+@@ -13,10 +13,9 @@
+ #define LOCK_PREFIX ""
+ #endif
+ 
+-#define prepare_arch_schedule(prev)            do { } while(0)
+-#define finish_arch_schedule(prev)             do { } while(0)
+-#define prepare_arch_switch(rq)                        do { } while(0)
+-#define finish_arch_switch(rq)                 spin_unlock_irq(&(rq)->lock)
++#define prepare_arch_switch(rq, next)	do { } while(0)
++#define finish_arch_switch(rq, prev)	spin_unlock_irq(&(rq)->lock)
++#define task_running(rq, p)		((rq)->curr == (p))
+ 
+ #define __STR(x) #x
+ #define STR(x) __STR(x)
+diff -urNp linux-2.5.26/include/linux/init_task.h linux-2.5.26-schedfix/include/linux/init_task.h
+--- linux-2.5.26/include/linux/init_task.h	Wed Jul 17 01:49:25 2002
++++ linux-2.5.26-schedfix/include/linux/init_task.h	Fri Jul 19 13:42:23 2002
+@@ -78,6 +78,7 @@
+     pending:		{ NULL, &tsk.pending.head, {{0}}},		\
+     blocked:		{{0}},						\
+     alloc_lock:		SPIN_LOCK_UNLOCKED,				\
++    switch_lock:	SPIN_LOCK_UNLOCKED,				\
+     journal_info:	NULL,						\
  }
  
- /*
-===== mm/swap_state.c 1.33 vs edited =====
---- 1.33/mm/swap_state.c	Thu Jul  4 09:17:26 2002
-+++ edited/mm/swap_state.c	Fri Jul 19 09:58:00 2002
-@@ -42,8 +42,7 @@
- 	private_list:	LIST_HEAD_INIT(swapper_space.private_list),
- };
+diff -urNp linux-2.5.26/include/linux/sched.h linux-2.5.26-schedfix/include/linux/sched.h
+--- linux-2.5.26/include/linux/sched.h	Wed Jul 17 01:49:25 2002
++++ linux-2.5.26-schedfix/include/linux/sched.h	Fri Jul 19 13:40:26 2002
+@@ -359,6 +359,8 @@ struct task_struct {
+    	u32 self_exec_id;
+ /* Protection of (de-)allocation: mm, files, fs, tty */
+ 	spinlock_t alloc_lock;
++/* context-switch lock */
++	spinlock_t switch_lock;
  
--#ifdef SWAP_CACHE_INFO
--#define INC_CACHE_INFO(x)	(swap_cache_info.x++)
-+#define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
+ /* journalling filesystem info */
+ 	void *journal_info;
+diff -urNp linux-2.5.26/kernel/#sched.c.rej# linux-2.5.26-schedfix/kernel/#sched.c.rej#
+--- linux-2.5.26/kernel/fork.c	Wed Jul 17 01:49:25 2002
++++ linux-2.5.26-schedfix/kernel/fork.c	Fri Jul 19 13:40:26 2002
+@@ -675,6 +675,7 @@ struct task_struct *do_fork(unsigned lon
+ 		init_completion(&vfork);
+ 	}
+ 	spin_lock_init(&p->alloc_lock);
++	spin_lock_init(&p->switch_lock);
  
- static struct {
- 	unsigned long add_total;
-@@ -61,9 +60,6 @@
- 		swap_cache_info.find_success, swap_cache_info.find_total,
- 		swap_cache_info.noent_race, swap_cache_info.exist_race);
- }
--#else
--#define INC_CACHE_INFO(x)	do { } while (0)
--#endif
- 
- int add_to_swap_cache(struct page *page, swp_entry_t entry)
+ 	clear_tsk_thread_flag(p,TIF_SIGPENDING);
+ 	init_sigpending(&p->pending);
+diff -urNp linux-2.5.26/kernel/sched.c linux-2.5.26-schedfix/kernel/sched.c
+--- linux-2.5.26/kernel/sched.c	Wed Jul 17 01:49:29 2002
++++ linux-2.5.26-schedfix/kernel/sched.c	Fri Jul 19 16:09:39 2002
+@@ -306,7 +306,7 @@ void wait_task_inactive(task_t * p)
+ repeat:
+ 	preempt_disable();
+ 	rq = task_rq(p);
+-	if (unlikely(rq->curr == p)) {
++	if (unlikely(task_running(rq, p))) {
+ 		cpu_relax();
+ 		/*
+ 		 * enable/disable preemption just to make this
+@@ -317,7 +317,7 @@ repeat:
+ 		goto repeat;
+ 	}
+ 	rq = task_rq_lock(p, &flags);
+-	if (unlikely(rq->curr == p)) {
++	if (unlikely(task_running(rq, p))) {
+ 		task_rq_unlock(rq, &flags);
+ 		preempt_enable();
+ 		goto repeat;
+@@ -337,7 +337,7 @@ repeat:
+  */
+ void kick_if_running(task_t * p)
  {
+-	if (p == task_rq(p)->curr)
++	if ((task_running(task_rq(p), p)) && (p->cpu != smp_processor_id()))
+ 		resched_task(p);
+ }
+ #endif
+@@ -365,7 +365,7 @@ repeat_lock_task:
+ 		 * Fast-migrate the task if it's not running or runnable
+ 		 * currently. Do not violate hard affinity.
+ 		 */
+-		if (unlikely(sync && (rq->curr != p) &&
++		if (unlikely(sync && !task_running(rq, p) &&
+ 			(task_cpu(p) != smp_processor_id()) &&
+ 			(p->cpus_allowed & (1UL << smp_processor_id())))) {
+ 
+@@ -443,8 +443,7 @@ void sched_exit(task_t * p)
+ #if CONFIG_SMP || CONFIG_PREEMPT
+ asmlinkage void schedule_tail(task_t *prev)
+ {
+-	finish_arch_switch(this_rq());
+-	finish_arch_schedule(prev);
++	finish_arch_switch(this_rq(), prev);
+ }
+ #endif
+ 
+@@ -646,7 +645,7 @@ skip_queue:
+ 
+ #define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
+ 	((jiffies - (p)->sleep_timestamp > cache_decay_ticks) &&	\
+-		((p) != (rq)->curr) &&					\
++		((p) != (rq)->curr) &&	!task_running(rq, p)  &&	\
+ 			((p)->cpus_allowed & (1UL << (this_cpu))))
+ 
+ 	if (!CAN_MIGRATE_TASK(tmp, busiest, this_cpu)) {
+@@ -816,7 +815,6 @@ need_resched:
+ 	rq = this_rq();
+ 
+ 	release_kernel_lock(prev, smp_processor_id());
+-	prepare_arch_schedule(prev);
+ 	prev->sleep_timestamp = jiffies;
+ 	spin_lock_irq(&rq->lock);
+ 
+@@ -873,11 +871,11 @@ switch_tasks:
+ 		rq->nr_switches++;
+ 		rq->curr = next;
+ 	
+-		prepare_arch_switch(rq);
++		prepare_arch_switch(rq, next);
+ 		prev = context_switch(prev, next);
+ 		barrier();
+ 		rq = this_rq();
+-		finish_arch_switch(rq);
++		finish_arch_switch(rq, prev);
+ 	} else
+ 		spin_unlock_irq(&rq->lock);
+ 	finish_arch_schedule(prev);
+@@ -1106,7 +1104,7 @@ void set_user_nice(task_t *p, long nice)
+ 		 * If the task is running and lowered its priority,
+ 		 * or increased its priority then reschedule its CPU:
+ 		 */
+-		if ((NICE_TO_PRIO(nice) < p->static_prio) || (p == rq->curr))
++		if ((NICE_TO_PRIO(nice) < p->static_prio) || task_running(rq, p))
+ 			resched_task(rq->curr);
+ 	}
+ out_unlock:
+@@ -1779,7 +1777,7 @@ void set_cpus_allowed(task_t *p, unsigne
+ 	 * If the task is not on a runqueue (and not running), then
+ 	 * it is sufficient to simply update the task's cpu field.
+ 	 */
+-	if (!p->array && (p != rq->curr)) {
++	if (!p->array && !task_running(rq, p)) {
+ 		set_task_cpu(p, __ffs(p->cpus_allowed));
+ 		task_rq_unlock(rq, &flags);
+ 		goto out;
+
+--------------Boundary-00=_V34I8T6VRB7721QBGJAR--
+

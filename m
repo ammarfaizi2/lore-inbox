@@ -1,1572 +1,888 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVBFU2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVBFUan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVBFU2D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 15:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVBFU2D
+	id S261310AbVBFUan (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 15:30:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVBFUan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 15:28:03 -0500
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:29080 "EHLO
-	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261309AbVBFU0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 15:26:14 -0500
-Date: Sun, 6 Feb 2005 21:26:24 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: [OOPS] 2.6.10-ac9 while watching TV and disk IO
-Message-ID: <Pine.LNX.4.58.0502062109540.3200@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 6 Feb 2005 15:30:43 -0500
+Received: from farad.aurel32.net ([82.232.2.251]:17900 "EHLO farad.aurel32.net")
+	by vger.kernel.org with ESMTP id S261310AbVBFU0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 15:26:45 -0500
+Date: Sun, 6 Feb 2005 21:26:41 +0100
+From: =?iso-8859-15?Q?Aur=E9lien?= Jarno <aurelien@aurel32.net>
+To: Greg KH <greg@kroah.com>
+Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] I2C: New chip driver: sis5595 (resubmit)
+Message-ID: <20050206202641.GA31771@bode.aurel32.net>
+Mail-Followup-To: =?iso-8859-15?Q?Aur=E9lien?= Jarno <aurelien@aurel32.net>,
+	Greg KH <greg@kroah.com>, sensors@Stimpy.netroedge.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.5.6+20040907i (CVS)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This oops happened while watching TV and burning a CD. Other oopses (I
-guess, didn't verify at that time) happened while copying many large
-files and watching TV at the same time.
+Hi Greg,
+
+Please find below the new version of the patch against kernel
+2.6.11-rc3-mm1 to add the sis5595 driver (sensor part).
+
+As you suggested, I have changed the PCI part of the driver, taking the
+via686a driver as an example. I have also changed the comparison of 
+jiffies by using time_after.
+
+Please apply.
+
+Thanks,
+Aurelien
+
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+
+diff -urN linux-2.6.11-rc3-mm1.orig/drivers/i2c/chips/Kconfig linux-2.6.11-rc3-mm1/drivers/i2c/chips/Kconfig
+--- linux-2.6.11-rc3-mm1.orig/drivers/i2c/chips/Kconfig	2005-02-06 19:23:59.000000000 +0100
++++ linux-2.6.11-rc3-mm1/drivers/i2c/chips/Kconfig	2005-02-06 20:30:07.000000000 +0100
+@@ -262,6 +262,18 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called smsc47b397.
+ 
++config SENSORS_SIS5595
++	tristate "Silicon Integrated Systems Corp. SiS5595"
++	depends on I2C && PCI && EXPERIMENTAL
++	select I2C_SENSOR
++	select I2C_ISA
++	help
++	  If you say yes here you get support for the integrated sensors in
++	  SiS5595 South Bridges.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called sis5595.
++
+ config SENSORS_SMSC47M1
+ 	tristate "SMSC LPC47M10x and compatibles"
+ 	depends on I2C && EXPERIMENTAL
+diff -urN linux-2.6.11-rc3-mm1.orig/drivers/i2c/chips/Makefile linux-2.6.11-rc3-mm1/drivers/i2c/chips/Makefile
+--- linux-2.6.11-rc3-mm1.orig/drivers/i2c/chips/Makefile	2005-02-06 19:23:59.000000000 +0100
++++ linux-2.6.11-rc3-mm1/drivers/i2c/chips/Makefile	2005-02-06 20:30:07.000000000 +0100
+@@ -31,6 +31,7 @@
+ obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
+ obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
+ obj-$(CONFIG_SENSORS_RTC8564)	+= rtc8564.o
++obj-$(CONFIG_SENSORS_SIS5595)	+= sis5595.o
+ obj-$(CONFIG_SENSORS_SMSC47B397)+= smsc47b397.o
+ obj-$(CONFIG_SENSORS_SMSC47M1)	+= smsc47m1.o
+ obj-$(CONFIG_SENSORS_VIA686A)	+= via686a.o
+diff -urN linux-2.6.11-rc3-mm1.orig/drivers/i2c/chips/sis5595.c linux-2.6.11-rc3-mm1/drivers/i2c/chips/sis5595.c
+--- linux-2.6.11-rc3-mm1.orig/drivers/i2c/chips/sis5595.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.11-rc3-mm1/drivers/i2c/chips/sis5595.c	2005-02-06 21:14:44.000000000 +0100
+@@ -0,0 +1,794 @@
++/*
++    sis5595.c - Part of lm_sensors, Linux kernel modules
++		for hardware monitoring
++
++    Copyright (C) 1998 - 2001 Frodo Looijaard <frodol@dds.nl>,
++			Kyösti Mälkki <kmalkki@cc.hut.fi>, and
++			Mark D. Studebaker <mdsxyz123@yahoo.com>
++    Ported to Linux 2.6 by Aurelien Jarno <aurelien@aurel32.net> with
++    the help of Jean Delvare <khali@linux-fr.org>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++   SiS southbridge has a LM78-like chip integrated on the same IC.
++   This driver is a customized copy of lm78.c
++   
++   Supports following revisions:
++	Version		PCI ID		PCI Revision
++	1		1039/0008	AF or less
++	2		1039/0008	B0 or greater
++
++   Note: these chips contain a 0008 device which is incompatible with the
++	 5595. We recognize these by the presence of the listed
++	 "blacklist" PCI ID and refuse to load.
++
++   NOT SUPPORTED	PCI ID		BLACKLIST PCI ID	
++	 540		0008		0540
++	 550		0008		0550
++	5513		0008		5511
++	5581		0008		5597
++	5582		0008		5597
++	5597		0008		5597
++	5598		0008		5597/5598
++	 630		0008		0630
++	 645		0008		0645
++	 730		0008		0730
++	 735		0008		0735
++*/
++
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/ioport.h>
++#include <linux/pci.h>
++#include <linux/i2c.h>
++#include <linux/i2c-sensor.h>
++#include <linux/init.h>
++#include <asm/io.h>
++
++
++/* If force_addr is set to anything different from 0, we forcibly enable
++   the device at the given address. */
++static u16 force_addr;
++module_param(force_addr, ushort, 0);
++MODULE_PARM_DESC(force_addr,
++		 "Initialize the base address of the sensors");
++
++/* Addresses to scan.
++   Note that we can't determine the ISA address until we have initialized
++   our module */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++static unsigned int normal_isa[] = { 0x0000, I2C_CLIENT_ISA_END };
++
++/* Insmod parameters */
++SENSORS_INSMOD_1(sis5595);
++
++/* Many SIS5595 constants specified below */
++
++/* Length of ISA address segment */
++#define SIS5595_EXTENT 8
++/* PCI Config Registers */
++#define SIS5595_REVISION_REG 0x08
++#define SIS5595_BASE_REG 0x68
++#define SIS5595_PIN_REG 0x7A
++#define SIS5595_ENABLE_REG 0x7B
++
++/* Where are the ISA address/data registers relative to the base address */
++#define SIS5595_ADDR_REG_OFFSET 5
++#define SIS5595_DATA_REG_OFFSET 6
++
++/* The SIS5595 registers */
++#define SIS5595_REG_IN_MAX(nr) (0x2b + (nr) * 2)
++#define SIS5595_REG_IN_MIN(nr) (0x2c + (nr) * 2)
++#define SIS5595_REG_IN(nr) (0x20 + (nr))
++
++#define SIS5595_REG_FAN_MIN(nr) (0x3b + (nr))
++#define SIS5595_REG_FAN(nr) (0x28 + (nr))
++
++/* On the first version of the chip, the temp registers are separate.
++   On the second version,
++   TEMP pin is shared with IN4, configured in PCI register 0x7A.
++   The registers are the same as well.
++   OVER and HYST are really MAX and MIN. */
++
++#define REV2MIN	0xb0
++#define SIS5595_REG_TEMP 	(( data->revision) >= REV2MIN) ? \
++					SIS5595_REG_IN(4) : 0x27
++#define SIS5595_REG_TEMP_OVER	(( data->revision) >= REV2MIN) ? \
++					SIS5595_REG_IN_MAX(4) : 0x39
++#define SIS5595_REG_TEMP_HYST	(( data->revision) >= REV2MIN) ? \
++					SIS5595_REG_IN_MIN(4) : 0x3a
++
++#define SIS5595_REG_CONFIG 0x40
++#define SIS5595_REG_ALARM1 0x41
++#define SIS5595_REG_ALARM2 0x42
++#define SIS5595_REG_FANDIV 0x47
++
++/* Conversions. Limit checking is only done on the TO_REG
++   variants. */
++
++/* IN: mV, (0V to 4.08V)
++   REG: 16mV/bit */
++static inline u8 IN_TO_REG(unsigned long val)
++{
++	unsigned long nval = SENSORS_LIMIT(val, 0, 4080);
++	return (nval + 8) / 16;
++}
++#define IN_FROM_REG(val) ((val) *  16)
++
++static inline u8 FAN_TO_REG(long rpm, int div)
++{
++	if (rpm <= 0)
++		return 255;
++	return SENSORS_LIMIT((1350000 + rpm * div / 2) / (rpm * div), 1, 254);
++}
++
++static inline int FAN_FROM_REG(u8 val, int div)
++{
++	return val==0 ? -1 : val==255 ? 0 : 1350000/(val*div);
++}
++
++/* TEMP: mC (-54.12C to +157.53C)
++   REG: 0.83C/bit + 52.12, two's complement  */
++static inline int TEMP_FROM_REG(s8 val)
++{
++	return val * 830 + 52120;
++}
++static inline s8 TEMP_TO_REG(int val)
++{
++	int nval = SENSORS_LIMIT(val, -54120, 157530) ;
++	return nval<0 ? (nval-5212-415)/830 : (nval-5212+415)/830;
++}
++
++/* FAN DIV: 1, 2, 4, or 8 (defaults to 2)
++   REG: 0, 1, 2, or 3 (respectively) (defaults to 1) */
++static inline u8 DIV_TO_REG(int val)
++{
++	return val==8 ? 3 : val==4 ? 2 : val==1 ? 0 : 1;
++}
++#define DIV_FROM_REG(val) (1 << (val))
++
++/* For the SIS5595, we need to keep some data in memory. That
++   data is pointed to by sis5595_list[NR]->data. The structure itself is
++   dynamically allocated, at the time when the new sis5595 client is
++   allocated. */
++struct sis5595_data {
++	struct i2c_client client;
++	struct semaphore lock;
++
++	struct semaphore update_lock;
++	char valid;		/* !=0 if following fields are valid */
++	unsigned long last_updated;	/* In jiffies */
++	char maxins;		/* == 3 if temp enabled, otherwise == 4 */
++	u8 revision;		/* Reg. value */
++
++	u8 in[5];		/* Register value */
++	u8 in_max[5];		/* Register value */
++	u8 in_min[5];		/* Register value */
++	u8 fan[2];		/* Register value */
++	u8 fan_min[2];		/* Register value */
++	s8 temp;		/* Register value */
++	s8 temp_over;		/* Register value */
++	s8 temp_hyst;		/* Register value */
++	u8 fan_div[2];		/* Register encoding, shifted right */
++	u16 alarms;		/* Register encoding, combined */
++};
++
++static struct pci_dev *s_bridge;	/* pointer to the (only) sis5595 */
++
++static int sis5595_attach_adapter(struct i2c_adapter *adapter);
++static int sis5595_detect(struct i2c_adapter *adapter, int address, int kind);
++static int sis5595_detach_client(struct i2c_client *client);
++
++static int sis5595_read_value(struct i2c_client *client, u8 register);
++static int sis5595_write_value(struct i2c_client *client, u8 register, u8 value);
++static struct sis5595_data *sis5595_update_device(struct device *dev);
++static void sis5595_init_client(struct i2c_client *client);
++
++static struct i2c_driver sis5595_driver = {
++	.owner		= THIS_MODULE,
++	.name		= "sis5595",
++	.id		= I2C_DRIVERID_SIS5595,
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= sis5595_attach_adapter,
++	.detach_client	= sis5595_detach_client,
++};
++
++/* 4 Voltages */
++static ssize_t show_in(struct device *dev, char *buf, int nr)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", IN_FROM_REG(data->in[nr]));
++}
++
++static ssize_t show_in_min(struct device *dev, char *buf, int nr)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", IN_FROM_REG(data->in_min[nr]));
++}
++
++static ssize_t show_in_max(struct device *dev, char *buf, int nr)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", IN_FROM_REG(data->in_max[nr]));
++}
++
++static ssize_t set_in_min(struct device *dev, const char *buf,
++	       size_t count, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++	data->in_min[nr] = IN_TO_REG(val);
++	sis5595_write_value(client, SIS5595_REG_IN_MIN(nr), data->in_min[nr]);
++	return count;
++}
++
++static ssize_t set_in_max(struct device *dev, const char *buf,
++	       size_t count, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++	data->in_max[nr] = IN_TO_REG(val);
++	sis5595_write_value(client, SIS5595_REG_IN_MAX(nr), data->in_max[nr]);
++	return count;
++}
++
++#define show_in_offset(offset)					\
++static ssize_t							\
++	show_in##offset (struct device *dev, char *buf)		\
++{								\
++	return show_in(dev, buf, offset);			\
++}								\
++static DEVICE_ATTR(in##offset##_input, S_IRUGO, 		\
++		show_in##offset, NULL);				\
++static ssize_t							\
++	show_in##offset##_min (struct device *dev, char *buf)	\
++{								\
++	return show_in_min(dev, buf, offset);			\
++}								\
++static ssize_t							\
++	show_in##offset##_max (struct device *dev, char *buf)	\
++{								\
++	return show_in_max(dev, buf, offset);			\
++}								\
++static ssize_t set_in##offset##_min (struct device *dev,	\
++		const char *buf, size_t count)			\
++{								\
++	return set_in_min(dev, buf, count, offset);		\
++}								\
++static ssize_t set_in##offset##_max (struct device *dev,	\
++		const char *buf, size_t count)			\
++{								\
++	return set_in_max(dev, buf, count, offset);		\
++}								\
++static DEVICE_ATTR(in##offset##_min, S_IRUGO | S_IWUSR,		\
++		show_in##offset##_min, set_in##offset##_min);	\
++static DEVICE_ATTR(in##offset##_max, S_IRUGO | S_IWUSR,		\
++		show_in##offset##_max, set_in##offset##_max);
++
++show_in_offset(0);
++show_in_offset(1);
++show_in_offset(2);
++show_in_offset(3);
++show_in_offset(4);
++
++/* Temperature */
++static ssize_t show_temp(struct device *dev, char *buf)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp));
++}
++
++static ssize_t show_temp_over(struct device *dev, char *buf)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_over));
++}
++
++static ssize_t set_temp_over(struct device *dev, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	data->temp_over = TEMP_TO_REG(val);
++	sis5595_write_value(client, SIS5595_REG_TEMP_OVER, data->temp_over);
++	return count;
++}
++
++static ssize_t show_temp_hyst(struct device *dev, char *buf)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", TEMP_FROM_REG(data->temp_hyst));
++}
++
++static ssize_t set_temp_hyst(struct device *dev, const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	long val = simple_strtol(buf, NULL, 10);
++	data->temp_hyst = TEMP_TO_REG(val);
++	sis5595_write_value(client, SIS5595_REG_TEMP_HYST, data->temp_hyst);
++	return count;
++}
++
++static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp, NULL);
++static DEVICE_ATTR(temp1_max, S_IRUGO | S_IWUSR,
++		show_temp_over, set_temp_over);
++static DEVICE_ATTR(temp1_max_hyst, S_IRUGO | S_IWUSR,
++		show_temp_hyst, set_temp_hyst);
++
++/* 2 Fans */
++static ssize_t show_fan(struct device *dev, char *buf, int nr)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", FAN_FROM_REG(data->fan[nr],
++		DIV_FROM_REG(data->fan_div[nr])) );
++}
++
++static ssize_t show_fan_min(struct device *dev, char *buf, int nr)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf,"%d\n", FAN_FROM_REG(data->fan_min[nr],
++		DIV_FROM_REG(data->fan_div[nr])) );
++}
++
++static ssize_t set_fan_min(struct device *dev, const char *buf,
++		size_t count, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++	data->fan_min[nr] = FAN_TO_REG(val, DIV_FROM_REG(data->fan_div[nr]));
++	sis5595_write_value(client, SIS5595_REG_FAN_MIN(nr), data->fan_min[nr]);
++	return count;
++}
++
++static ssize_t show_fan_div(struct device *dev, char *buf, int nr)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", DIV_FROM_REG(data->fan_div[nr]) );
++}
++
++/* Note: we save and restore the fan minimum here, because its value is
++   determined in part by the fan divisor.  This follows the principle of
++   least suprise; the user doesn't expect the fan minimum to change just
++   because the divisor changed. */
++static ssize_t set_fan_div(struct device *dev, const char *buf,
++	size_t count, int nr)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	unsigned long min = FAN_FROM_REG(data->fan_min[nr],
++			DIV_FROM_REG(data->fan_div[nr]));
++	unsigned long val = simple_strtoul(buf, NULL, 10);
++	int reg = sis5595_read_value(client, SIS5595_REG_FANDIV);
++	switch (val) {
++	case 1: data->fan_div[nr] = 0; break;
++	case 2: data->fan_div[nr] = 1; break;
++	case 4: data->fan_div[nr] = 2; break;
++	case 8: data->fan_div[nr] = 3; break;
++	default:
++		dev_err(&client->dev, "fan_div value %ld not "
++			"supported. Choose one of 1, 2, 4 or 8!\n", val);
++		return -EINVAL;
++	}
++	
++	switch (nr) {
++	case 0:
++		reg = (reg & 0xcf) | (data->fan_div[nr] << 4);
++		break;
++	case 1:
++		reg = (reg & 0x3f) | (data->fan_div[nr] << 6);
++		break;
++	}
++	sis5595_write_value(client, SIS5595_REG_FANDIV, reg);
++	data->fan_min[nr] =
++		FAN_TO_REG(min, DIV_FROM_REG(data->fan_div[nr]));
++	sis5595_write_value(client, SIS5595_REG_FAN_MIN(nr), data->fan_min[nr]);
++	return count;
++}
++
++#define show_fan_offset(offset)						\
++static ssize_t show_fan_##offset (struct device *dev, char *buf)	\
++{									\
++	return show_fan(dev, buf, offset - 1);			\
++}									\
++static ssize_t show_fan_##offset##_min (struct device *dev, char *buf)	\
++{									\
++	return show_fan_min(dev, buf, offset - 1);			\
++}									\
++static ssize_t show_fan_##offset##_div (struct device *dev, char *buf)	\
++{									\
++	return show_fan_div(dev, buf, offset - 1);			\
++}									\
++static ssize_t set_fan_##offset##_min (struct device *dev,		\
++		const char *buf, size_t count)				\
++{									\
++	return set_fan_min(dev, buf, count, offset - 1);		\
++}									\
++static DEVICE_ATTR(fan##offset##_input, S_IRUGO, show_fan_##offset, NULL);\
++static DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR,		\
++		show_fan_##offset##_min, set_fan_##offset##_min);
++
++show_fan_offset(1);
++show_fan_offset(2);
++
++static ssize_t set_fan_1_div(struct device *dev, const char *buf,
++		size_t count)
++{
++	return set_fan_div(dev, buf, count, 0) ;
++}
++
++static ssize_t set_fan_2_div(struct device *dev, const char *buf,
++		size_t count)
++{
++	return set_fan_div(dev, buf, count, 1) ;
++}
++static DEVICE_ATTR(fan1_div, S_IRUGO | S_IWUSR,
++		show_fan_1_div, set_fan_1_div);
++static DEVICE_ATTR(fan2_div, S_IRUGO | S_IWUSR,
++		show_fan_2_div, set_fan_2_div);
++
++/* Alarms */
++static ssize_t show_alarms(struct device *dev, char *buf)
++{
++	struct sis5595_data *data = sis5595_update_device(dev);
++	return sprintf(buf, "%d\n", data->alarms);
++}
++static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
++ 
++/* This is called when the module is loaded */
++static int sis5595_attach_adapter(struct i2c_adapter *adapter)
++{
++	if (!(adapter->class & I2C_CLASS_HWMON))
++		return 0;
++	return i2c_detect(adapter, &addr_data, sis5595_detect);
++}
++
++int sis5595_detect(struct i2c_adapter *adapter, int address, int kind)
++{
++	int err = 0;
++	int i;
++	struct i2c_client *new_client;
++	struct sis5595_data *data;
++	char val;
++	u16 a;
++
++	/* Make sure we are probing the ISA bus!!  */
++	if (!i2c_is_isa_adapter(adapter))
++		goto exit;
++
++	if (force_addr)
++		address = force_addr & ~(SIS5595_EXTENT - 1);
++	/* Reserve the ISA region */
++	if (!request_region(address, SIS5595_EXTENT, sis5595_driver.name)) {
++		err = -EBUSY;
++		goto exit;
++	}
++	if (force_addr) {
++		dev_warn(&adapter->dev, "forcing ISA address 0x%04X\n", address);
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_write_config_word(s_bridge, SIS5595_BASE_REG, address))
++			goto exit_release;
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_read_config_word(s_bridge, SIS5595_BASE_REG, &a))
++			goto exit_release;
++		if ((a & ~(SIS5595_EXTENT - 1)) != address)
++			/* doesn't work for some chips? */
++			goto exit_release;
++	}
++
++	if (PCIBIOS_SUCCESSFUL !=
++	    pci_read_config_byte(s_bridge, SIS5595_ENABLE_REG, &val)) {
++		goto exit_release;
++	}
++	if ((val & 0x80) == 0) {
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_write_config_byte(s_bridge, SIS5595_ENABLE_REG,
++					  val | 0x80))
++			goto exit_release;
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_read_config_byte(s_bridge, SIS5595_ENABLE_REG, &val))
++			goto exit_release;
++		if ((val & 0x80) == 0) 
++			/* doesn't work for some chips! */
++			goto exit_release;
++	}
++
++	if (!(data = kmalloc(sizeof(struct sis5595_data), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit_release;
++	}
++	memset(data, 0, sizeof(struct sis5595_data));
++
++	new_client = &data->client;
++	new_client->addr = address;
++	init_MUTEX(&data->lock);
++	i2c_set_clientdata(new_client, data);
++	new_client->adapter = adapter;
++	new_client->driver = &sis5595_driver;
++	new_client->flags = 0;
++
++	/* Check revision and pin registers to determine whether 4 or 5 voltages */
++	pci_read_config_byte(s_bridge, SIS5595_REVISION_REG, &(data->revision));
++	/* 4 voltages, 1 temp */
++	data->maxins = 3;
++	if (data->revision >= REV2MIN) {
++		pci_read_config_byte(s_bridge, SIS5595_PIN_REG, &val);
++		if (!(val & 0x80))
++			/* 5 voltages, no temps */
++			data->maxins = 4;
++	}
++	
++	/* Fill in the remaining client fields and put it into the global list */
++	strlcpy(new_client->name, "sis5595", I2C_NAME_SIZE);
++
++	data->valid = 0;
++	init_MUTEX(&data->update_lock);
++
++	/* Tell the I2C layer a new client has arrived */
++	if ((err = i2c_attach_client(new_client)))
++		goto exit_free;
++	
++	/* Initialize the SIS5595 chip */
++	sis5595_init_client(new_client);
++
++	/* A few vars need to be filled upon startup */
++	for (i = 0; i < 2; i++) {
++		data->fan_min[i] = sis5595_read_value(new_client,
++					SIS5595_REG_FAN_MIN(i));
++	}
++
++	/* Register sysfs hooks */
++	device_create_file(&new_client->dev, &dev_attr_in0_input);
++	device_create_file(&new_client->dev, &dev_attr_in0_min);
++	device_create_file(&new_client->dev, &dev_attr_in0_max);
++	device_create_file(&new_client->dev, &dev_attr_in1_input);
++	device_create_file(&new_client->dev, &dev_attr_in1_min);
++	device_create_file(&new_client->dev, &dev_attr_in1_max);
++	device_create_file(&new_client->dev, &dev_attr_in2_input);
++	device_create_file(&new_client->dev, &dev_attr_in2_min);
++	device_create_file(&new_client->dev, &dev_attr_in2_max);
++	device_create_file(&new_client->dev, &dev_attr_in3_input);
++	device_create_file(&new_client->dev, &dev_attr_in3_min);
++	device_create_file(&new_client->dev, &dev_attr_in3_max);
++	if (data->maxins == 4) {
++		device_create_file(&new_client->dev, &dev_attr_in4_input);
++		device_create_file(&new_client->dev, &dev_attr_in4_min);
++		device_create_file(&new_client->dev, &dev_attr_in4_max);
++	}
++	device_create_file(&new_client->dev, &dev_attr_fan1_input);
++	device_create_file(&new_client->dev, &dev_attr_fan1_min);
++	device_create_file(&new_client->dev, &dev_attr_fan1_div);
++	device_create_file(&new_client->dev, &dev_attr_fan2_input);
++	device_create_file(&new_client->dev, &dev_attr_fan2_min);
++	device_create_file(&new_client->dev, &dev_attr_fan2_div);
++	device_create_file(&new_client->dev, &dev_attr_alarms);
++	if (data->maxins == 3) {
++		device_create_file(&new_client->dev, &dev_attr_temp1_input);
++		device_create_file(&new_client->dev, &dev_attr_temp1_max);
++		device_create_file(&new_client->dev, &dev_attr_temp1_max_hyst);
++	}
++	return 0;
++	
++exit_free:
++	kfree(data);
++exit_release:
++	release_region(address, SIS5595_EXTENT);
++exit:
++	return err;
++}
++
++static int sis5595_detach_client(struct i2c_client *client)
++{
++	int err;
++
++	if ((err = i2c_detach_client(client))) {
++		dev_err(&client->dev,
++		    "Client deregistration failed, client not detached.\n");
++		return err;
++	}
++
++	if (i2c_is_isa_client(client))
++		release_region(client->addr, SIS5595_EXTENT);
++
++	kfree(i2c_get_clientdata(client));
++
++	return 0;
++}
++
++
++/* ISA access must be locked explicitly. */
++static int sis5595_read_value(struct i2c_client *client, u8 reg)
++{
++	int res;
++
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	down(&data->lock);
++	outb_p(reg, client->addr + SIS5595_ADDR_REG_OFFSET);
++	res = inb_p(client->addr + SIS5595_DATA_REG_OFFSET);
++	up(&data->lock);
++	return res;
++}
++
++static int sis5595_write_value(struct i2c_client *client, u8 reg, u8 value)
++{
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	down(&data->lock);
++	outb_p(reg, client->addr + SIS5595_ADDR_REG_OFFSET);
++	outb_p(value, client->addr + SIS5595_DATA_REG_OFFSET);
++	up(&data->lock);
++	return 0;
++}
++
++/* Called when we have found a new SIS5595. */
++static void sis5595_init_client(struct i2c_client *client)
++{
++	u8 config = sis5595_read_value(client, SIS5595_REG_CONFIG);
++	if (!(config & 0x01))
++		sis5595_write_value(client, SIS5595_REG_CONFIG,
++				(config & 0xf7) | 0x01);
++}
++
++static struct sis5595_data *sis5595_update_device(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct sis5595_data *data = i2c_get_clientdata(client);
++	int i;
++
++	down(&data->update_lock);
++
++	if (time_after(jiffies, data->last_updated + HZ + HZ / 2)
++	    || !data->valid) {
++
++		for (i = 0; i <= data->maxins; i++) {
++			data->in[i] =
++			    sis5595_read_value(client, SIS5595_REG_IN(i));
++			data->in_min[i] =
++			    sis5595_read_value(client,
++					       SIS5595_REG_IN_MIN(i));
++			data->in_max[i] =
++			    sis5595_read_value(client,
++					       SIS5595_REG_IN_MAX(i));
++		}
++		for (i = 0; i < 2; i++) {
++			data->fan[i] =
++			    sis5595_read_value(client, SIS5595_REG_FAN(i));
++			data->fan_min[i] =
++			    sis5595_read_value(client,
++					       SIS5595_REG_FAN_MIN(i));
++		}
++		if (data->maxins == 3) {
++			data->temp =
++			    sis5595_read_value(client, SIS5595_REG_TEMP);
++			data->temp_over =
++			    sis5595_read_value(client, SIS5595_REG_TEMP_OVER);
++			data->temp_hyst =
++			    sis5595_read_value(client, SIS5595_REG_TEMP_HYST);
++		}
++		i = sis5595_read_value(client, SIS5595_REG_FANDIV);
++		data->fan_div[0] = (i >> 4) & 0x03;
++		data->fan_div[1] = i >> 6;
++		data->alarms =
++		    sis5595_read_value(client, SIS5595_REG_ALARM1) |
++		    (sis5595_read_value(client, SIS5595_REG_ALARM2) << 8);
++		data->last_updated = jiffies;
++		data->valid = 1;
++	}
++
++	up(&data->update_lock);
++
++	return data;
++}
++
++static struct pci_device_id sis5595_pci_ids[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_503) },
++	{ 0, }
++};
++
++MODULE_DEVICE_TABLE(pci, sis5595_pci_ids);
++
++static int blacklist[] __devinitdata = {
++	PCI_DEVICE_ID_SI_540,
++	PCI_DEVICE_ID_SI_550,
++	PCI_DEVICE_ID_SI_630,
++	PCI_DEVICE_ID_SI_645,
++	PCI_DEVICE_ID_SI_730,
++	PCI_DEVICE_ID_SI_735,
++	PCI_DEVICE_ID_SI_5511, /* 5513 chip has the 0008 device but
++				  that ID shows up in other chips so we
++				  use the 5511 ID for recognition */
++	PCI_DEVICE_ID_SI_5597,
++	PCI_DEVICE_ID_SI_5598,
++	0 };
++
++static int __devinit sis5595_pci_probe(struct pci_dev *dev,
++				       const struct pci_device_id *id)
++{
++	u16 val;
++	int *i;
++	int addr = 0;
++
++	for (i = blacklist; *i != 0; i++) {
++		struct pci_dev *dev;
++		dev = pci_get_device(PCI_VENDOR_ID_SI, *i, NULL);
++		if (dev) {
++			dev_err(&dev->dev, "Looked for SIS5595 but found unsupported device %.4x\n", *i);
++			pci_dev_put(dev);
++			return -ENODEV;
++		}
++	}
++	
++	if (PCIBIOS_SUCCESSFUL !=
++	    pci_read_config_word(dev, SIS5595_BASE_REG, &val))
++		return -ENODEV;
++	
++	addr = val & ~(SIS5595_EXTENT - 1);
++	if (addr == 0 && force_addr == 0) {
++		dev_err(&dev->dev, "Base address not set - upgrade BIOS or use force_addr=0xaddr\n");
++		return -ENODEV;
++	}
++	if (force_addr)
++		addr = force_addr;	/* so detect will get called */
++
++	if (!addr) {
++		dev_err(&dev->dev,"No SiS 5595 sensors found.\n");
++		return -ENODEV;
++	}
++	normal_isa[0] = addr;
++
++	s_bridge = pci_dev_get(dev);
++	if (i2c_add_driver(&sis5595_driver)) {
++		pci_dev_put(s_bridge);
++		s_bridge = NULL;
++	}
++
++	/* Always return failure here.  This is to allow other drivers to bind
++	 * to this pci device.  We don't really want to have control over the
++	 * pci device, we only wanted to read as few register values from it.
++	 */
++	return -ENODEV;
++}
++
++static struct pci_driver sis5595_pci_driver = {
++	.name            = "sis5595",
++	.id_table        = sis5595_pci_ids,
++	.probe           = sis5595_pci_probe,
++};
++
++static int __init sm_sis5595_init(void)
++{
++	return pci_register_driver(&sis5595_pci_driver);
++}
++
++static void __exit sm_sis5595_exit(void)
++{
++	pci_unregister_driver(&sis5595_pci_driver);
++	if (s_bridge != NULL) {
++		i2c_del_driver(&sis5595_driver);
++		pci_dev_put(s_bridge);
++		s_bridge = NULL;
++	}
++}
++
++MODULE_AUTHOR("Aurelien Jarno <aurelien@aurel32.net>");
++MODULE_DESCRIPTION("SiS 5595 Sensor device");
++MODULE_LICENSE("GPL");
++
++module_init(sm_sis5595_init);
++module_exit(sm_sis5595_exit);
+
+
+
+-- 
+  .''`.  Aurelien Jarno	              GPG: 1024D/F1BCDB73
+ : :' :  Debian GNU/Linux developer | Electrical Engineer
+ `. `'   aurel32@debian.org         | aurelien@aurel32.net
+   `-    people.debian.org/~aurel32 | www.aurel32.net
 
-Note1: /proc/ksyms does not exist. What to do?
 
-Note2: ksymoops prints this error message to /dev/stderr:
-	ksymoops: No such file or directory
-       This message should IMO include the file name.
 
-
-
-ksymoops 2.4.9 on i686 2.6.10-ac9.  Options used
-     -v /home/7eggert/l/linux/2.6/linux-2.6.10-ac9/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.10-ac9/ (default)
-     -m /home/7eggert/l/linux/2.6/linux-2.6.10-ac9/System.map (specified)
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel paging request at virtual address 3c73a7d9
-c01365e6
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c01365e6>]    Not tainted VLI
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010016   (2.6.10-ac9) 
-eax: 3c73a7d5   ebx: c7a7d000   ecx: c7a7de40   edx: d9f09020
-esi: dffb4860   edi: 00000017   ebp: dffb486c   esp: c1547e8c
-ds: 007b   es: 007b   ss: 0068
-Stack: dffb487c 0000001b dffbf970 dffbf970 dffb4860 d4d9db90 c14d5960 c013669d 
-       0000001b dffbf960 dffbf960 00000292 d4d9db90 00000080 c013687a d4d9dbdc 
-       c1547efc 00000020 c0163255 d4d9dbdc c016347f c1546000 c7a7de8c 00000080 
-Call Trace:
- [<c013669d>] cache_flusharray+0x4d/0xf0
- [<c013687a>] kmem_cache_free+0x3a/0x50
- [<c0163255>] destroy_inode+0x35/0x40
- [<c016347f>] dispose_list+0x1f/0xa0
- [<c0163896>] prune_icache+0x186/0x200
- [<c0163924>] shrink_icache_memory+0x14/0x40
- [<c013843f>] shrink_slab+0xff/0x160
- [<c01397fe>] balance_pgdat+0x1ee/0x2d0
- [<c0139998>] kswapd+0xb8/0xd0
- [<c0126c00>] autoremove_wake_function+0x0/0x50
- [<c0102512>] ret_from_fork+0x6/0x14
- [<c0126c00>] autoremove_wake_function+0x0/0x50
- [<c01398e0>] kswapd+0x0/0xd0
- [<c010082d>] kernel_thread_helper+0x5/0x18
-Code: 43 04 47 3b 7c 24 04 7d 64 8b 44 24 08 8b 15 d0 22 4f c0 8b 0c b8 8d 81 00 00 00 40 c1 e8 0c c1 e0 05 8b 5c 02 1c 8b 53 04 8b 03 <89> 50 04 89 02 c7 43 04 00 02 20 00 2b 4b 0c c7 03 00 01 10 00 
-
-
->>EIP; c01365e6 <free_block+76/e0>   <=====
-
->>ebx; c7a7d000 <pg0+7566000/3fae7400>
->>ecx; c7a7de40 <pg0+7566e40/3fae7400>
->>edx; d9f09020 <pg0+199f2020/3fae7400>
->>esi; dffb4860 <pg0+1fa9d860/3fae7400>
->>ebp; dffb486c <pg0+1fa9d86c/3fae7400>
->>esp; c1547e8c <pg0+1030e8c/3fae7400>
-
-Trace; c013669d <cache_flusharray+4d/f0>
-Trace; c013687a <kmem_cache_free+3a/50>
-Trace; c0163255 <destroy_inode+35/40>
-Trace; c016347f <dispose_list+1f/a0>
-Trace; c0163896 <prune_icache+186/200>
-Trace; c0163924 <shrink_icache_memory+14/40>
-Trace; c013843f <shrink_slab+ff/160>
-Trace; c01397fe <balance_pgdat+1ee/2d0>
-Trace; c0139998 <kswapd+b8/d0>
-Trace; c0126c00 <autoremove_wake_function+0/50>
-Trace; c0102512 <ret_from_fork+6/14>
-Trace; c0126c00 <autoremove_wake_function+0/50>
-Trace; c01398e0 <kswapd+0/d0>
-Trace; c010082d <kernel_thread_helper+5/18>
-
-This architecture has variable length instructions, decoding before eip
-is unreliable, take these instructions with a pinch of salt.
-
-Code;  c01365bb <free_block+4b/e0>
-00000000 <_EIP>:
-Code;  c01365bb <free_block+4b/e0>
-   0:   43                        inc    %ebx
-Code;  c01365bc <free_block+4c/e0>
-   1:   04 47                     add    $0x47,%al
-Code;  c01365be <free_block+4e/e0>
-   3:   3b 7c 24 04               cmp    0x4(%esp,1),%edi
-Code;  c01365c2 <free_block+52/e0>
-   7:   7d 64                     jge    6d <_EIP+0x6d>
-Code;  c01365c4 <free_block+54/e0>
-   9:   8b 44 24 08               mov    0x8(%esp,1),%eax
-Code;  c01365c8 <free_block+58/e0>
-   d:   8b 15 d0 22 4f c0         mov    0xc04f22d0,%edx
-Code;  c01365ce <free_block+5e/e0>
-  13:   8b 0c b8                  mov    (%eax,%edi,4),%ecx
-Code;  c01365d1 <free_block+61/e0>
-  16:   8d 81 00 00 00 40         lea    0x40000000(%ecx),%eax
-Code;  c01365d7 <free_block+67/e0>
-  1c:   c1 e8 0c                  shr    $0xc,%eax
-Code;  c01365da <free_block+6a/e0>
-  1f:   c1 e0 05                  shl    $0x5,%eax
-Code;  c01365dd <free_block+6d/e0>
-  22:   8b 5c 02 1c               mov    0x1c(%edx,%eax,1),%ebx
-Code;  c01365e1 <free_block+71/e0>
-  26:   8b 53 04                  mov    0x4(%ebx),%edx
-Code;  c01365e4 <free_block+74/e0>
-  29:   8b 03                     mov    (%ebx),%eax
-
-This decode from eip onwards should be reliable
-
-Code;  c01365e6 <free_block+76/e0>
-00000000 <_EIP>:
-Code;  c01365e6 <free_block+76/e0>   <=====
-   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
-Code;  c01365e9 <free_block+79/e0>
-   3:   89 02                     mov    %eax,(%edx)
-Code;  c01365eb <free_block+7b/e0>
-   5:   c7 43 04 00 02 20 00      movl   $0x200200,0x4(%ebx)
-Code;  c01365f2 <free_block+82/e0>
-   c:   2b 4b 0c                  sub    0xc(%ebx),%ecx
-Code;  c01365f5 <free_block+85/e0>
-   f:   c7 03 00 01 10 00         movl   $0x100100,(%ebx)
-
-Unable to handle kernel paging request at virtual address 00200204
-c01365e1
-*pde = 00000000
-Oops: 0000 [#2]
-CPU:    0
-EIP:    0060:[<c01365e1>]    Not tainted VLI
-EFLAGS: 00010016   (2.6.10-ac9) 
-eax: 0035a0c0   ebx: 00200200   ecx: dad06030   edx: c1000000
-esi: dffb4860   edi: 0000000a   ebp: dffb486c   esp: c14e9efc
-ds: 007b   es: 007b   ss: 0068
-Stack: dffb487c 0000000b dffbf970 dffbf970 dffbf960 0000000b dffb4860 c0136bd3 
-       dffb47fc dffb4860 c14e8000 00000002 c0136c6e dffb47fc c14e8000 dffb48d0 
-       c14da17c c04f21e0 c14e8000 c04f21e4 00000297 c012296d 00000000 c14e9f70 
-Call Trace:
- [<c0136bd3>] drain_array_locked+0x73/0xa0
- [<c0136c6e>] cache_reap+0x6e/0x1b0
- [<c012296d>] worker_thread+0x1ad/0x290
- [<c01100fc>] activate_task+0x5c/0x70
- [<c0136c00>] cache_reap+0x0/0x1b0
- [<c0110a40>] default_wake_function+0x0/0x10
- [<c0110a87>] __wake_up_common+0x37/0x60
- [<c0110a40>] default_wake_function+0x0/0x10
- [<c01227c0>] worker_thread+0x0/0x290
- [<c0126725>] kthread+0x95/0xd0
- [<c0126690>] kthread+0x0/0xd0
- [<c010082d>] kernel_thread_helper+0x5/0x18
-Code: 24 89 5e 1c 89 43 04 47 3b 7c 24 04 7d 64 8b 44 24 08 8b 15 d0 22 4f c0 8b 0c b8 8d 81 00 00 00 40 c1 e8 0c c1 e0 05 8b 5c 02 1c <8b> 53 04 8b 03 89 50 04 89 02 c7 43 04 00 02 20 00 2b 4b 0c c7 
-
-
->>EIP; c01365e1 <free_block+71/e0>   <=====
-
->>ecx; dad06030 <pg0+1a7ef030/3fae7400>
->>edx; c1000000 <pg0+ae9000/3fae7400>
->>esi; dffb4860 <pg0+1fa9d860/3fae7400>
->>ebp; dffb486c <pg0+1fa9d86c/3fae7400>
->>esp; c14e9efc <pg0+fd2efc/3fae7400>
-
-Trace; c0136bd3 <drain_array_locked+73/a0>
-Trace; c0136c6e <cache_reap+6e/1b0>
-Trace; c012296d <worker_thread+1ad/290>
-Trace; c01100fc <activate_task+5c/70>
-Trace; c0136c00 <cache_reap+0/1b0>
-Trace; c0110a40 <default_wake_function+0/10>
-Trace; c0110a87 <__wake_up_common+37/60>
-Trace; c0110a40 <default_wake_function+0/10>
-Trace; c01227c0 <worker_thread+0/290>
-Trace; c0126725 <kthread+95/d0>
-Trace; c0126690 <kthread+0/d0>
-Trace; c010082d <kernel_thread_helper+5/18>
-
-This architecture has variable length instructions, decoding before eip
-is unreliable, take these instructions with a pinch of salt.
-
-Code;  c01365b6 <free_block+46/e0>
-00000000 <_EIP>:
-Code;  c01365b6 <free_block+46/e0>
-   0:   24 89                     and    $0x89,%al
-Code;  c01365b8 <free_block+48/e0>
-   2:   5e                        pop    %esi
-Code;  c01365b9 <free_block+49/e0>
-   3:   1c 89                     sbb    $0x89,%al
-Code;  c01365bb <free_block+4b/e0>
-   5:   43                        inc    %ebx
-Code;  c01365bc <free_block+4c/e0>
-   6:   04 47                     add    $0x47,%al
-Code;  c01365be <free_block+4e/e0>
-   8:   3b 7c 24 04               cmp    0x4(%esp,1),%edi
-Code;  c01365c2 <free_block+52/e0>
-   c:   7d 64                     jge    72 <_EIP+0x72>
-Code;  c01365c4 <free_block+54/e0>
-   e:   8b 44 24 08               mov    0x8(%esp,1),%eax
-Code;  c01365c8 <free_block+58/e0>
-  12:   8b 15 d0 22 4f c0         mov    0xc04f22d0,%edx
-Code;  c01365ce <free_block+5e/e0>
-  18:   8b 0c b8                  mov    (%eax,%edi,4),%ecx
-Code;  c01365d1 <free_block+61/e0>
-  1b:   8d 81 00 00 00 40         lea    0x40000000(%ecx),%eax
-Code;  c01365d7 <free_block+67/e0>
-  21:   c1 e8 0c                  shr    $0xc,%eax
-Code;  c01365da <free_block+6a/e0>
-  24:   c1 e0 05                  shl    $0x5,%eax
-Code;  c01365dd <free_block+6d/e0>
-  27:   8b 5c 02 1c               mov    0x1c(%edx,%eax,1),%ebx
-
-This decode from eip onwards should be reliable
-
-Code;  c01365e1 <free_block+71/e0>
-00000000 <_EIP>:
-Code;  c01365e1 <free_block+71/e0>   <=====
-   0:   8b 53 04                  mov    0x4(%ebx),%edx   <=====
-Code;  c01365e4 <free_block+74/e0>
-   3:   8b 03                     mov    (%ebx),%eax
-Code;  c01365e6 <free_block+76/e0>
-   5:   89 50 04                  mov    %edx,0x4(%eax)
-Code;  c01365e9 <free_block+79/e0>
-   8:   89 02                     mov    %eax,(%edx)
-Code;  c01365eb <free_block+7b/e0>
-   a:   c7 43 04 00 02 20 00      movl   $0x200200,0x4(%ebx)
-Code;  c01365f2 <free_block+82/e0>
-  11:   2b 4b 0c                  sub    0xc(%ebx),%ecx
-Code;  c01365f5 <free_block+85/e0>
-  14:   c7                        .byte 0xc7
-
-
-1 error issued.  Results may not be reliable.
-
-----------------------------------------------------------------------------
-
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.10-ac9
-# Sat Jan 22 17:49:03 2005
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-
-#
-# General setup
-#
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-# CONFIG_AUDIT is not set
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_EMBEDDED is not set
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-# CONFIG_TINY_SHMEM is not set
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-# CONFIG_MODULE_UNLOAD is not set
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-# CONFIG_MODULE_SRCVERSION_ALL is not set
-# CONFIG_KMOD is not set
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_ELAN is not set
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUMM is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-CONFIG_MK7=y
-# CONFIG_MK8 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MEFFICEON is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-CONFIG_X86_HZ=1000
-# CONFIG_X86_GENERIC is not set
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_USE_3DNOW=y
-# CONFIG_HPET_TIMER is not set
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
-# CONFIG_X86_UP_APIC is not set
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-CONFIG_X86_CPUID=y
-
-#
-# Firmware Drivers
-#
-# CONFIG_EDD is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-# CONFIG_SOFTWARE_SUSPEND is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-# CONFIG_ACPI is not set
-CONFIG_ACPI_BLACKLIST_YEAR=0
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-CONFIG_PCI_GODIRECT=y
-# CONFIG_PCI_GOANY is not set
-CONFIG_PCI_DIRECT=y
-# CONFIG_PCI_LEGACY_PROC is not set
-# CONFIG_PCI_NAMES is not set
-# CONFIG_ISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
-
-#
-# PCCARD (PCMCIA/CardBus) support
-#
-# CONFIG_PCCARD is not set
-
-#
-# PC-card bridges
-#
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_BINFMT_ELF=y
-# CONFIG_BINFMT_AOUT is not set
-CONFIG_BINFMT_MISC=y
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=y
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_PARPORT_1284=y
-
-#
-# Plug and Play support
-#
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_CRYPTOLOOP is not set
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_SX8 is not set
-# CONFIG_BLK_DEV_UB is not set
-# CONFIG_BLK_DEV_RAM is not set
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_LBD=y
-# CONFIG_CDROM_PKTCDVD is not set
-
-#
-# IO Schedulers
-#
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_IDE_SATA is not set
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_IDE_GENERIC is not set
-# CONFIG_BLK_DEV_CMD640 is not set
-CONFIG_BLK_DEV_IDEPCI=y
-# CONFIG_IDEPCI_SHARE_IRQ is not set
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_GENERIC is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_ATIIXP is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_IT821X is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_ARM is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_CHR_DEV_ST=y
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_CHR_DEV_SG=y
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_MULTI_LUN is not set
-CONFIG_SCSI_CONSTANTS=y
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI Transport Attributes
-#
-# CONFIG_SCSI_SPI_ATTRS is not set
-# CONFIG_SCSI_FC_ATTRS is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_MEGARAID_NEWGEN is not set
-# CONFIG_MEGARAID_LEGACY is not set
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-CONFIG_SCSI_QLA2XXX=y
-# CONFIG_SCSI_QLA21XX is not set
-# CONFIG_SCSI_QLA22XX is not set
-# CONFIG_SCSI_QLA2300 is not set
-# CONFIG_SCSI_QLA2322 is not set
-# CONFIG_SCSI_QLA6312 is not set
-# CONFIG_SCSI_QLA6322 is not set
-# CONFIG_SCSI_DC395x is not set
-CONFIG_SCSI_DC390T=y
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-# CONFIG_BLK_DEV_MD is not set
-CONFIG_BLK_DEV_DM=y
-# CONFIG_DM_CRYPT is not set
-# CONFIG_DM_SNAPSHOT is not set
-# CONFIG_DM_MIRROR is not set
-# CONFIG_DM_ZERO is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-# CONFIG_NETLINK_DEV is not set
-CONFIG_UNIX=y
-# CONFIG_NET_KEY is not set
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_INET_AH is not set
-# CONFIG_INET_ESP is not set
-# CONFIG_INET_IPCOMP is not set
-# CONFIG_INET_TUNNEL is not set
-CONFIG_IP_TCPDIAG=y
-# CONFIG_IP_TCPDIAG_IPV6 is not set
-# CONFIG_IPV6 is not set
-# CONFIG_NETFILTER is not set
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-CONFIG_IP_SCTP=y
-# CONFIG_SCTP_DBG_MSG is not set
-# CONFIG_SCTP_DBG_OBJCNT is not set
-# CONFIG_SCTP_HMAC_NONE is not set
-# CONFIG_SCTP_HMAC_SHA1 is not set
-CONFIG_SCTP_HMAC_MD5=y
-# CONFIG_ATM is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_DECNET is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-# CONFIG_NET_CLS_ROUTE is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-CONFIG_NETPOLL=y
-# CONFIG_NETPOLL_RX is not set
-# CONFIG_NETPOLL_TRAP is not set
-CONFIG_NET_POLL_CONTROLLER=y
-# CONFIG_HAMRADIO is not set
-# CONFIG_IRDA is not set
-# CONFIG_BT is not set
-CONFIG_NETDEVICES=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-# CONFIG_HP100 is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_AMD8111_ETH is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_B44 is not set
-# CONFIG_FORCEDETH is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_E100 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_8139CP is not set
-# CONFIG_8139TOO is not set
-CONFIG_SIS900=y
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_VIA_VELOCITY is not set
-# CONFIG_TIGON3 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_IXGB is not set
-# CONFIG_S2IO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-# CONFIG_PPP is not set
-# CONFIG_SLIP is not set
-# CONFIG_NET_FC is not set
-# CONFIG_SHAPER is not set
-CONFIG_NETCONSOLE=y
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=y
-# CONFIG_INPUT_TSDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-CONFIG_GAMEPORT=m
-CONFIG_SOUND_GAMEPORT=m
-# CONFIG_GAMEPORT_NS558 is not set
-# CONFIG_GAMEPORT_L4 is not set
-# CONFIG_GAMEPORT_EMU10K1 is not set
-# CONFIG_GAMEPORT_VORTEX is not set
-# CONFIG_GAMEPORT_FM801 is not set
-# CONFIG_GAMEPORT_CS461X is not set
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-# CONFIG_SERIO_PCIPS2 is not set
-# CONFIG_SERIO_RAW is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_VSXXXAA is not set
-CONFIG_INPUT_JOYSTICK=y
-CONFIG_JOYSTICK_ANALOG=m
-# CONFIG_JOYSTICK_A3D is not set
-# CONFIG_JOYSTICK_ADI is not set
-# CONFIG_JOYSTICK_COBRA is not set
-# CONFIG_JOYSTICK_GF2K is not set
-# CONFIG_JOYSTICK_GRIP is not set
-# CONFIG_JOYSTICK_GRIP_MP is not set
-# CONFIG_JOYSTICK_GUILLEMOT is not set
-# CONFIG_JOYSTICK_INTERACT is not set
-# CONFIG_JOYSTICK_SIDEWINDER is not set
-# CONFIG_JOYSTICK_TMDC is not set
-# CONFIG_JOYSTICK_IFORCE is not set
-# CONFIG_JOYSTICK_WARRIOR is not set
-# CONFIG_JOYSTICK_MAGELLAN is not set
-# CONFIG_JOYSTICK_SPACEORB is not set
-# CONFIG_JOYSTICK_SPACEBALL is not set
-# CONFIG_JOYSTICK_STINGER is not set
-# CONFIG_JOYSTICK_TWIDDLER is not set
-CONFIG_JOYSTICK_DB9=m
-# CONFIG_JOYSTICK_GAMECON is not set
-# CONFIG_JOYSTICK_TURBOGRAFX is not set
-# CONFIG_JOYSTICK_JOYDUMP is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-# CONFIG_INPUT_UINPUT is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-# CONFIG_SERIAL_8250_CONSOLE is not set
-CONFIG_SERIAL_8250_NR_UARTS=4
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-# CONFIG_LEGACY_PTYS is not set
-# CONFIG_PRINTER is not set
-# CONFIG_PPDEV is not set
-# CONFIG_TIPAR is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-CONFIG_HW_RANDOM=y
-# CONFIG_NVRAM is not set
-# CONFIG_RTC is not set
-# CONFIG_GEN_RTC is not set
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_ATI is not set
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_AMD64 is not set
-# CONFIG_AGP_INTEL is not set
-# CONFIG_AGP_INTEL_MCH is not set
-# CONFIG_AGP_NVIDIA is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_AGP_VIA=y
-# CONFIG_AGP_EFFICEON is not set
-CONFIG_DRM=y
-CONFIG_DRM_TDFX=y
-# CONFIG_DRM_R128 is not set
-CONFIG_DRM_RADEON=y
-# CONFIG_DRM_MGA is not set
-# CONFIG_DRM_SIS is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-CONFIG_HANGCHECK_TIMER=y
-
-#
-# I2C support
-#
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-
-#
-# I2C Algorithms
-#
-CONFIG_I2C_ALGOBIT=y
-# CONFIG_I2C_ALGOPCF is not set
-# CONFIG_I2C_ALGOPCA is not set
-
-#
-# I2C Hardware Bus support
-#
-# CONFIG_I2C_ALI1535 is not set
-# CONFIG_I2C_ALI1563 is not set
-# CONFIG_I2C_ALI15X3 is not set
-# CONFIG_I2C_AMD756 is not set
-# CONFIG_I2C_AMD8111 is not set
-# CONFIG_I2C_I801 is not set
-# CONFIG_I2C_I810 is not set
-CONFIG_I2C_ISA=y
-# CONFIG_I2C_NFORCE2 is not set
-# CONFIG_I2C_PARPORT is not set
-# CONFIG_I2C_PARPORT_LIGHT is not set
-# CONFIG_I2C_PIIX4 is not set
-# CONFIG_I2C_PROSAVAGE is not set
-# CONFIG_I2C_SAVAGE4 is not set
-# CONFIG_SCx200_ACB is not set
-# CONFIG_I2C_SIS5595 is not set
-# CONFIG_I2C_SIS630 is not set
-# CONFIG_I2C_SIS96X is not set
-# CONFIG_I2C_STUB is not set
-CONFIG_I2C_VIA=y
-# CONFIG_I2C_VIAPRO is not set
-# CONFIG_I2C_VOODOO3 is not set
-# CONFIG_I2C_PCA_ISA is not set
-
-#
-# Hardware Sensors Chip support
-#
-CONFIG_I2C_SENSOR=y
-# CONFIG_SENSORS_ADM1021 is not set
-# CONFIG_SENSORS_ADM1025 is not set
-# CONFIG_SENSORS_ADM1026 is not set
-# CONFIG_SENSORS_ADM1031 is not set
-# CONFIG_SENSORS_ASB100 is not set
-# CONFIG_SENSORS_DS1621 is not set
-# CONFIG_SENSORS_FSCHER is not set
-# CONFIG_SENSORS_GL518SM is not set
-# CONFIG_SENSORS_IT87 is not set
-# CONFIG_SENSORS_LM63 is not set
-# CONFIG_SENSORS_LM75 is not set
-# CONFIG_SENSORS_LM77 is not set
-# CONFIG_SENSORS_LM78 is not set
-# CONFIG_SENSORS_LM80 is not set
-# CONFIG_SENSORS_LM83 is not set
-# CONFIG_SENSORS_LM85 is not set
-# CONFIG_SENSORS_LM87 is not set
-# CONFIG_SENSORS_LM90 is not set
-# CONFIG_SENSORS_MAX1619 is not set
-# CONFIG_SENSORS_PC87360 is not set
-# CONFIG_SENSORS_SMSC47M1 is not set
-CONFIG_SENSORS_VIA686A=y
-# CONFIG_SENSORS_W83781D is not set
-# CONFIG_SENSORS_W83L785TS is not set
-# CONFIG_SENSORS_W83627HF is not set
-
-#
-# Other I2C Chip support
-#
-# CONFIG_SENSORS_EEPROM is not set
-# CONFIG_SENSORS_PCF8574 is not set
-# CONFIG_SENSORS_PCF8591 is not set
-# CONFIG_SENSORS_RTC8564 is not set
-# CONFIG_I2C_DEBUG_CORE is not set
-# CONFIG_I2C_DEBUG_ALGO is not set
-# CONFIG_I2C_DEBUG_BUS is not set
-# CONFIG_I2C_DEBUG_CHIP is not set
-
-#
-# Dallas's 1-wire bus
-#
-# CONFIG_W1 is not set
-
-#
-# Misc devices
-#
-# CONFIG_IBM_ASM is not set
-
-#
-# Multimedia devices
-#
-CONFIG_VIDEO_DEV=y
-
-#
-# Video For Linux
-#
-
-#
-# Video Adapters
-#
-CONFIG_VIDEO_BT848=m
-# CONFIG_VIDEO_BWQCAM is not set
-# CONFIG_VIDEO_CQCAM is not set
-# CONFIG_VIDEO_W9966 is not set
-# CONFIG_VIDEO_CPIA is not set
-# CONFIG_VIDEO_SAA5246A is not set
-# CONFIG_VIDEO_SAA5249 is not set
-# CONFIG_TUNER_3036 is not set
-# CONFIG_VIDEO_STRADIS is not set
-# CONFIG_VIDEO_ZORAN is not set
-# CONFIG_VIDEO_SAA7134 is not set
-# CONFIG_VIDEO_MXB is not set
-# CONFIG_VIDEO_DPC is not set
-# CONFIG_VIDEO_HEXIUM_ORION is not set
-# CONFIG_VIDEO_HEXIUM_GEMINI is not set
-# CONFIG_VIDEO_CX88 is not set
-# CONFIG_VIDEO_OVCAMCHIP is not set
-
-#
-# Radio Adapters
-#
-# CONFIG_RADIO_GEMTEK_PCI is not set
-# CONFIG_RADIO_MAXIRADIO is not set
-# CONFIG_RADIO_MAESTRO is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-CONFIG_VIDEO_TUNER=m
-CONFIG_VIDEO_BUF=m
-CONFIG_VIDEO_BTCX=m
-CONFIG_VIDEO_IR=m
-
-#
-# Graphics support
-#
-CONFIG_FB=y
-CONFIG_FB_MODE_HELPERS=y
-# CONFIG_FB_TILEBLITTING is not set
-# CONFIG_FB_CIRRUS is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_ASILIANT is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-# CONFIG_FB_VESA is not set
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_I810 is not set
-# CONFIG_FB_INTEL is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON_OLD is not set
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-# CONFIG_FB_RADEON_DEBUG is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SAVAGE is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_KYRO is not set
-CONFIG_FB_3DFX=y
-# CONFIG_FB_3DFX_ACCEL is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONTS=y
-# CONFIG_FONT_8x8 is not set
-CONFIG_FONT_8x16=y
-# CONFIG_FONT_6x11 is not set
-# CONFIG_FONT_PEARL_8x8 is not set
-# CONFIG_FONT_ACORN_8x8 is not set
-# CONFIG_FONT_MINI_4x6 is not set
-# CONFIG_FONT_SUN8x16 is not set
-# CONFIG_FONT_SUN12x22 is not set
-
-#
-# Logo configuration
-#
-CONFIG_LOGO=y
-# CONFIG_LOGO_LINUX_MONO is not set
-# CONFIG_LOGO_LINUX_VGA16 is not set
-CONFIG_LOGO_LINUX_CLUT224=y
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Advanced Linux Sound Architecture
-#
-# CONFIG_SND is not set
-
-#
-# Open Sound System
-#
-CONFIG_SOUND_PRIME=y
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-CONFIG_SOUND_ES1371=m
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-CONFIG_SOUND_TVMIXER=m
-# CONFIG_SOUND_ALI5455 is not set
-# CONFIG_SOUND_FORTE is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_AD1980 is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_SUSPEND is not set
-# CONFIG_USB_OTG is not set
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-
-#
-# USB Host Controller Drivers
-#
-# CONFIG_USB_EHCI_HCD is not set
-# CONFIG_USB_OHCI_HCD is not set
-CONFIG_USB_UHCI_HCD=y
-# CONFIG_USB_SL811_HCD is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-
-#
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
-#
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-CONFIG_USB_STORAGE_RW_DETECT=y
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_ISD200 is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_HP8200e is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-
-#
-# USB Input Devices
-#
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-# CONFIG_USB_HIDDEV is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_MTOUCH is not set
-# CONFIG_USB_EGALAX is not set
-# CONFIG_USB_XPAD is not set
-# CONFIG_USB_ATI_REMOTE is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HPUSBSCSI is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_VICAM is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_KONICAWC is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_SE401 is not set
-# CONFIG_USB_SN9C102 is not set
-# CONFIG_USB_STV680 is not set
-# CONFIG_USB_PWC is not set
-
-#
-# USB Network Adapters
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_TIGL is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-# CONFIG_USB_CYTHERM is not set
-# CONFIG_USB_PHIDGETKIT is not set
-# CONFIG_USB_PHIDGETSERVO is not set
-# CONFIG_USB_TEST is not set
-
-#
-# USB ATM/DSL drivers
-#
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# MMC/SD Card support
-#
-CONFIG_MMC=y
-# CONFIG_MMC_DEBUG is not set
-CONFIG_MMC_BLOCK=y
-# CONFIG_MMC_WBSD is not set
-
-#
-# File systems
-#
-CONFIG_EXT2_FS=y
-# CONFIG_EXT2_FS_XATTR is not set
-# CONFIG_EXT3_FS is not set
-# CONFIG_JBD is not set
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-CONFIG_REISERFS_FS_XATTR=y
-CONFIG_REISERFS_FS_POSIX_ACL=y
-# CONFIG_REISERFS_FS_SECURITY is not set
-# CONFIG_JFS_FS is not set
-CONFIG_FS_POSIX_ACL=y
-# CONFIG_XFS_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_ROMFS_FS is not set
-# CONFIG_QUOTA is not set
-CONFIG_DNOTIFY=y
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=y
-# CONFIG_MSDOS_FS is not set
-CONFIG_VFAT_FS=y
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=y
-# CONFIG_NTFS_DEBUG is not set
-# CONFIG_NTFS_RW is not set
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVFS_FS=y
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-# CONFIG_DEVPTS_FS_XATTR is not set
-CONFIG_TMPFS=y
-CONFIG_TMPFS_XATTR=y
-CONFIG_TMPFS_SECURITY=y
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-CONFIG_HFS_FS=y
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-# CONFIG_NFS_V3 is not set
-CONFIG_NFS_V4=y
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SUNRPC=y
-CONFIG_SUNRPC_GSS=y
-CONFIG_RPCSEC_GSS_KRB5=y
-# CONFIG_RPCSEC_GSS_SPKM3 is not set
-CONFIG_SMB_FS=y
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp437"
-CONFIG_CIFS=y
-# CONFIG_CIFS_STATS is not set
-CONFIG_CIFS_XATTR=y
-CONFIG_CIFS_POSIX=y
-CONFIG_CIFS_EXPERIMENTAL=y
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_AFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ASCII is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Profiling support
-#
-# CONFIG_PROFILING is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_KERNEL is not set
-# CONFIG_FRAME_POINTER is not set
-CONFIG_EARLY_PRINTK=y
-# CONFIG_4KSTACKS is not set
-
-#
-# Security options
-#
-# CONFIG_KEYS is not set
-# CONFIG_SECURITY is not set
-
-#
-# Cryptographic options
-#
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-# CONFIG_CRYPTO_NULL is not set
-# CONFIG_CRYPTO_MD4 is not set
-CONFIG_CRYPTO_MD5=y
-# CONFIG_CRYPTO_SHA1 is not set
-# CONFIG_CRYPTO_SHA256 is not set
-# CONFIG_CRYPTO_SHA512 is not set
-# CONFIG_CRYPTO_WP512 is not set
-CONFIG_CRYPTO_DES=y
-# CONFIG_CRYPTO_BLOWFISH is not set
-# CONFIG_CRYPTO_TWOFISH is not set
-# CONFIG_CRYPTO_SERPENT is not set
-# CONFIG_CRYPTO_AES_586 is not set
-# CONFIG_CRYPTO_CAST5 is not set
-# CONFIG_CRYPTO_CAST6 is not set
-# CONFIG_CRYPTO_TEA is not set
-# CONFIG_CRYPTO_ARC4 is not set
-# CONFIG_CRYPTO_KHAZAD is not set
-# CONFIG_CRYPTO_ANUBIS is not set
-# CONFIG_CRYPTO_DEFLATE is not set
-# CONFIG_CRYPTO_MICHAEL_MIC is not set
-# CONFIG_CRYPTO_CRC32C is not set
-# CONFIG_CRYPTO_TEST is not set
-
-#
-# Library routines
-#
-# CONFIG_CRC_CCITT is not set
-CONFIG_CRC32=y
-# CONFIG_LIBCRC32C is not set
-CONFIG_ZLIB_INFLATE=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y

@@ -1,146 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVCYHPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVCYHSx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVCYHPB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 02:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVCYHPB
+	id S261483AbVCYHSx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 02:18:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCYHSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 02:15:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19112 "EHLO
+	Fri, 25 Mar 2005 02:18:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33448 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261475AbVCYHOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 02:14:35 -0500
-Message-ID: <4243BA4A.4050307@pobox.com>
-Date: Fri, 25 Mar 2005 02:14:18 -0500
+	id S261483AbVCYHSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 02:18:45 -0500
+Message-ID: <4243BB48.3010505@pobox.com>
+Date: Fri, 25 Mar 2005 02:18:32 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Tejun Heo <tj@home-tj.org>, Andrew Morton <akpm@osdl.org>
-Subject: [RFT, PATCH] sata_sil corruption / lockup fix
-Content-Type: multipart/mixed;
- boundary="------------040105080808040309020307"
+To: =?ISO-8859-1?Q?S=F8ren_Lott?= <soren3@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 
+References: <aa3a704505032423037a52ce53@mail.gmail.com>
+In-Reply-To: <aa3a704505032423037a52ce53@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040105080808040309020307
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Søren Lott wrote:
+> in the SATA kconfig menu, the help message from  
+> Intel PIIX/ICH SATA support says:
+> 
+>  CONFIG_SCSI_ATA_PIIX:
+> 
+> This option enables support for ICH5 Serial ATA.
+>  If PATA support was enabled previously, this enables
+>  support for select Intel PIIX/ICH PATA host controllers.
+> 
+> anyone care to clarify if this mean that having enabled:
+> 
+> CONFIG_IDE=y
+> CONFIG_BLK_DEV_IDE=y
+> 
+> i can use the PATA ports on a ICH5 controller through libata ?
+> if not, which is exactly the meaning of "If PATA support was enabled
+> previously" on this message ?
 
+I agree it is quite confusing wording.  Probably should remove all 
+reference to PATA in the CONFIG_SCSI_ATA_PIIX Kconfig entry.
 
-Silicon Image contributed a patch which should help some of the 
-situations that users were seeing.  If you are having problems with 
-sata_sil, please do try out this patch.
+The comment is referring to the somewhat-hidden fact that if you define 
+ATA_ENABLE_PATA in include/linux/libata.h, then libata will support your 
+Intel PIIX PATA controllers, in addition to the Intel PIIX SATA controllers.
 
-I'm concerned that the sata_sil blacklist has been growing beyond the 
-older Seagate drives which definitely had buggy firmware; concerned that 
-the Mod15Write fix was simply "fixing" the problem addressed by this 
-patch, simply by hiding the problem behind slow performance.  [note: the 
-only way to really know for sure is with ATA bus traces]
-
-On platforms where the SiI BIOS isn't executed (non-x86), this patch is 
-probably more critical.  On x86, it is purported to only be needed on a 
-single motherboard.
-
-Test results (to linux-ide@vger.kernel.org) would be appreciated, 
-particularly from users with newer Seagate drives.
-
-Finally, there are also a few reports of problems of "screaming 
-interrupts" on configurations with SiI 311x + Seagate NCQ drives.  This 
-is a separate problem, and I haven't looked into it yet.
+However, since ATAPI support isn't yet stable, this is of limited 
+usefulness.
 
 	Jeff
 
 
 
-
---------------040105080808040309020307
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-#
-# ChangeSet
-#   2005/03/24 23:32:42-05:00 Carlos.Pardo@siliconimage.com 
-#   [PATCH] sata_sil: Fix FIFO PCI Bus Arbitration
-#   
-#   This patch set default values for the FIFO PCI Bus Arbitration to avoid
-#   data corruption. The root cause is due to our PCI bus master handling
-#   mismatch with the chipset PCI bridge during DMA xfer (write data to the
-#   device). The patch is to setup the DMA fifo threshold so that there is
-#   no chance for the DMA engine to change protocol. We have seen this
-#   problem only on one motherboard.
-#   
-#   Signed-off-by: Silicon Image Corporation <cpardo@siliconimage.com>
-#   Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
-# 
-diff -Nru a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
---- a/drivers/scsi/sata_sil.c	2005-03-25 02:06:38 -05:00
-+++ b/drivers/scsi/sata_sil.c	2005-03-25 02:06:38 -05:00
-@@ -38,12 +38,21 @@
- #include <linux/libata.h>
- 
- #define DRV_NAME	"sata_sil"
--#define DRV_VERSION	"0.8"
-+#define DRV_VERSION	"0.9"
- 
- enum {
- 	sil_3112		= 0,
- 	sil_3114		= 1,
- 
-+	SIL_FIFO_R0		= 0x40,
-+	SIL_FIFO_W0		= 0x41,
-+	SIL_FIFO_R1		= 0x44,
-+	SIL_FIFO_W1		= 0x45,
-+	SIL_FIFO_R2		= 0x240,
-+	SIL_FIFO_W2		= 0x241,
-+	SIL_FIFO_R3		= 0x244,
-+	SIL_FIFO_W3		= 0x245,
-+
- 	SIL_SYSCFG		= 0x48,
- 	SIL_MASK_IDE0_INT	= (1 << 22),
- 	SIL_MASK_IDE1_INT	= (1 << 23),
-@@ -199,6 +208,13 @@
- MODULE_DEVICE_TABLE(pci, sil_pci_tbl);
- MODULE_VERSION(DRV_VERSION);
- 
-+static unsigned char sil_get_device_cache_line(struct pci_dev *pdev)
-+{
-+	u8 cache_line = 0;
-+	pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cache_line);
-+	return cache_line;
-+}
-+
- static void sil_post_set_mode (struct ata_port *ap)
- {
- 	struct ata_host_set *host_set = ap->host_set;
-@@ -341,6 +357,7 @@
- 	unsigned int i;
- 	int pci_dev_busy = 0;
- 	u32 tmp, irq_mask;
-+	u8 cls;
- 
- 	if (!printed_version++)
- 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
-@@ -404,6 +421,15 @@
- 		probe_ent->port[i].scr_addr = base + sil_port[i].scr;
- 		ata_std_ports(&probe_ent->port[i]);
- 	}
-+
-+	/* Initialize FIFO PCI bus arbitration */
-+	cls = sil_get_device_cache_line(pdev);
-+	cls >>= 3;
-+	cls++;  /* cls = (line_size/8)+1 */
-+	writeb(cls, mmio_base + SIL_FIFO_R0);
-+	writeb(cls, mmio_base + SIL_FIFO_W0);
-+	writeb(cls, mmio_base + SIL_FIFO_R1);
-+	writeb(cls, mmio_base + SIL_FIFO_W2);
- 
- 	if (ent->driver_data == sil_3114) {
- 		irq_mask = SIL_MASK_4PORT;
-
---------------040105080808040309020307--

@@ -1,63 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261328AbSIYXsh>; Wed, 25 Sep 2002 19:48:37 -0400
+	id <S261238AbSIYXrx>; Wed, 25 Sep 2002 19:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261487AbSIYXsh>; Wed, 25 Sep 2002 19:48:37 -0400
-Received: from mta03ps.bigpond.com ([144.135.25.135]:19952 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261328AbSIYXsf>; Wed, 25 Sep 2002 19:48:35 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Stian Jordet <liste@jordet.nu>, linux-kernel@vger.kernel.org
-Subject: Re: Mouse/Keyboard problems with 2.5.38
-Date: Thu, 26 Sep 2002 09:47:02 +1000
-User-Agent: KMail/1.4.5
-References: <1032996672.11642.6.camel@chevrolet>
-In-Reply-To: <1032996672.11642.6.camel@chevrolet>
+	id <S261328AbSIYXrw>; Wed, 25 Sep 2002 19:47:52 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:6856 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S261238AbSIYXrv>; Wed, 25 Sep 2002 19:47:51 -0400
+From: Richard Drummond <evilrich@ntlworld.com>
+Organization: Private
+To: linux-kernel@vger.kernel.org
+Subject: Kernel and Open Firmware problems with my G3 upgrade card
+Date: Thu, 26 Sep 2002 00:57:27 +0100
+User-Agent: KMail/1.4.7
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209260947.02597.bhards@bigpond.net.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_n1kk9B+Fx8OERv0"
+Message-Id: <200209260057.28056.evilrich@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Thu, 26 Sep 2002 09:31, Stian Jordet wrote:
-> But now I decided I should try again. I got 2.5.38 booted after some
-> initial trouble. But, I have a couple of weird problems. First, the
-> mouse. I have a Logitech Cordless Optical mouse. With kernel 2.4.x I use
-> MouseManPlusPS/2 as the XFree mouse-driver. Then I can use the wheel and
-> the fourth button just as expected. But with kernel 2.5.38 neither the
-> wheel or the fourth button works. I change protocol to IMPS/2 in XFree,
-> and everything works like expected, but the fourth button works just
-> like pussing the wheel (third button). This is excactly the same
-> behavior as with 2.4.20-pre7 (that's why I use MouseManPlusPS/2). Anyone
-> have a clue why this doesn't work with kernel 2.5.38?
-Input support was merged, that fundamentally changes the way input handling 
-works. The new input layer mousedev handler tries to guess which mode you 
-want. Maybe you want the explorer PS/2 protocol? Or wait for X to get a nice 
-event input driver.
+--Boundary-00=_n1kk9B+Fx8OERv0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Second problem, if I press SHIFT+PAGEUP, my computer freezes. It spits
-> out this message: "input: AT Set 2 keyboard on isa0060/serio0, and then
-> it's dead. I have a Logitech cordless keyboard.
-I'm using a logitech cordless too. However mine is on USB, and I guess you are 
-using some PS/2 connector? USB is much better tested, so there may be some 
-bugs.
+Hi=20
 
-Brad
+Not sure whether this is the right place to ask these question, but I've be=
+en=20
+searching for some answers for a while, and - because part of the problem i=
+s=20
+kernel-related - I'm gonna ask here anyway.
 
-- -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Aust. Tickets booked.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I upgraded my Old Word Mac recently (a Starmax Tanzania-based machine) with=
+ a=20
+Met@box G3 card. This is the type of expansion that plugs into the cache RA=
+M=20
+socket. It seems to be stable under Linux, but there are a few nagging=20
+problems.
 
-iD8DBQE9kkr2W6pHgIdAuOMRAhibAJ9ZJJoCQCvOExxTxQFYZvfN91mp3QCeJNDC
-WT/qGY0Dj7XogoVMJZ4jywo=
-=YG6j
------END PGP SIGNATURE-----
+1. The machine will no longer boot with Quik. It fails with one of those na=
+sty=20
+DEFAULT CLAIM messages,  and the usual OF hack to wait for disk spin-up mak=
+es=20
+no difference. To use Linux, I now have to boot MacOS and start Linux via=20
+BootX - which is a pain.
+
+2. The Kernel doesn't recognize this G3 processor properly. It claims the=20
+clock speed is 80MHz, when actually it's 260MHz; and it claims that the L2=
+=20
+cache's size is 256K, when actually it is 512K. (Output from /proc/cpuinfo =
+on=20
+kernel 2.4.19 attached.)
+
+I suspect these problems are related and are due to the fact that the versi=
+on=20
+of Open Firmware in this machine was never designed to handle a G3 processo=
+r=20
+and so the L2 cache doesn't get set up properly. Interestingly, OF reports=
+=20
+the CPU as a PowerPC,608 and there's no L2CR property present at all. I'm=20
+guessing the Quik booting problem is due to the improperly set-up cache=20
+interfering with disk access. The reason Linux boots from MacOS is that the=
+=20
+MacOS extension for this card sets up the L2 cache correctly, and so lets=20
+BootX load the kernel.=20
+
+My questions are:
+
+Is there some way to set the L2CR from OF - bearing in mind there's no l2cr=
+=20
+property in OF's CPU node? (BTW, the cache control utility under MacOS, who=
+se=20
+name escapes me, reports the L2CR's contents as 0xA910000.)
+
+Would be it feasible to modify the kernel to properly recognize the process=
+or=20
+on this card? (I suppose setting up the L2CR properly would at least get it=
+=20
+to report the cache size correctly. But what about the clock speed?)
+
+Any suggestions, anybody?
+
+Cheers,
+Rich
+
+--Boundary-00=_n1kk9B+Fx8OERv0
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="cpuinfo.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cpuinfo.txt"
+
+cpu		: 740/750
+temperature 	: 15-17 C (uncalibrated)
+clock		: 80MHz
+revision	: 2.2 (pvr 0008 0202)
+bogomips	: 519.37
+machine		: Power Macintosh
+motherboard	: AAPL,e826 MacRISC
+detected as	: 47 (Unknown OHare-based)
+pmac flags	: 00000000
+L2 cache	: 256K unified
+memory		: 144MB
+pmac-generation	: OldWorld
+
+--Boundary-00=_n1kk9B+Fx8OERv0--
 

@@ -1,87 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318356AbSGRX1p>; Thu, 18 Jul 2002 19:27:45 -0400
+	id <S318357AbSGRXdT>; Thu, 18 Jul 2002 19:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318357AbSGRX1p>; Thu, 18 Jul 2002 19:27:45 -0400
-Received: from [206.155.169.10] ([206.155.169.10]:27658 "EHLO spinbox.com")
-	by vger.kernel.org with ESMTP id <S318356AbSGRX1o>;
-	Thu, 18 Jul 2002 19:27:44 -0400
-Date: Thu, 18 Jul 2002 19:30:46 -0400 (EDT)
-From: Hayden Myers <hayden@spinbox.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2 to 2.4 migration
-Message-ID: <Pine.LNX.4.10.10207181918410.32173-100000@compaq.skyline.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318364AbSGRXdT>; Thu, 18 Jul 2002 19:33:19 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:9863 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S318357AbSGRXdS>;
+	Thu, 18 Jul 2002 19:33:18 -0400
+Date: Thu, 18 Jul 2002 16:36:13 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: [PATCH] spinlock assertion macros for 2.5.26
+Message-ID: <20020718233613.GC763939@sgi.com>
+Mail-Followup-To: Daniel Phillips <phillips@arcor.de>,
+	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
+	linux-kernel@vger.kernel.org,
+	kernel-janitor-discuss@lists.sourceforge.net
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17T4Qj-0002fN-00@starship> <20020717022213.GA734386@sgi.com> <E17UiO0-0004Jn-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17UiO0-0004Jn-00@starship>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're finally migrating to the 2.4 kernel due to hardware
-incompatibilities with the 2.4.  The 2.2 has worked better for us in the
-past as far as our application performs.  Our application is an adserver
-and becomes bogged down in 2.4 when sending files such as images across
-the wire.  They're in general between 20-50k in size.  I've been
-researching the differences between 2.4 and 2.2 and have noticed that a
-lot of work has gone into autotuning with 2.4 and I'm wondering if this is
-what's slowing things down.  When I do tcpdumps to see the traffic being
-sent to the client I'm noticing that the receiver window is almost always
-set to 6430 bytes.  When looking at the same transfer on our 2.2 boxes the
-receiver window is almost always over 31000 bytes.  I've tried to increase
-the size of the buffers using the proc settings that are provided however
-this hasn't seemed to make a difference even after restarting servers
-after each change the window is still 6430 bytes.  I've tried manually
-settting the size with setsockopt calls in the server code but this hasn't
-seemed to help.  I believe the problem is definately with sending the
-files over the line.  We files are read into the socket to be sent across
-the network byte by byte.  The boss says this is the best way to do it but
-I'm curious if this is so.  The code that reads the file into the socket
-to go across the network is below.
+On Wed, Jul 17, 2002 at 08:34:05AM +0200, Daniel Phillips wrote:
+> You could create linux/semaphore.h which includes asm/semaphore.h, making
+> the whole arrangement more similar to spinlocks.  That would be the manly
+> thing to do, however, manliness not necessarily being the fashion at the
+> moment, putting them in the arch-specific headers seems like the route of
+> least resistance.  One day, a prince on a white horse will come along and
+> clean up all the header files...
 
+Well, I'll at least take a stab at it, but I won't have time until
+next week.  Here's the current version of the macros against 2.5.26
+though, in case someone wants to add support for architectures other
+than ia64.
 
-int output_block(int socket, char *filename)
-{
-int fd, count = 0;
-size_t total_bytes = 0;
-/*size_t buf_cnt = 1460;*/
-size_t buf_cnt = 512;
-char buffer[buf_cnt];
-fd_set rfds;
-struct timeval tv;
+> > I thought Oliver's suggestion for tracking the order of spinlock
+> > acquisition was good, hopefully someone will take a stab at it along
+> > with Dave's FUNCTION_SLEEPS() implementation.
 
-   if ((fd = open(filename, O_RDONLY)) < 0) {
-      //fprintf(stderr, "Unable to open filename: %s\n", filename);
-      return(-1);
-   }
+It doesn't look like it would be too hard to do, but seems like it
+should be a seperate patch (maybe with more header file tweaking).
 
-   while ((count = read(fd, &buffer, buf_cnt)) > 0) {
+> On the minor niggle side, I think "MUST_HOLD" scans better than
+> "MUST_HOLD_SPIN", since the former is closer to the way we say it when
+> we're talking amongst ourselves.
 
-      FD_ZERO(&rfds);
-      FD_SET(socket, &rfds);
-      tv.tv_sec = 10;
-      tv.tv_usec = 0;
-      if (select(socket+1, NULL, &rfds, NULL, &tv) <= 0) {
-         //fprintf(stderr, "Output_block timeout\n");
-         break;
-      }
+Sure thing.  I fixed it up in this version.
 
-      if (writen(socket, buffer, count) <= 0)
-         break;
-      total_bytes += count;
-   }
+Thanks,
+Jesse
 
-   close(fd);
-   return(total_bytes);
-
-The application is a single threaded app using a multiprocess pre forking
-model if that helps any.  I'm really baffled as to why using the 2.4
-kernel is slowing us down.  Any help is appreciated.  Sorry if this has
-come up before.  I really have been looking for help for quite some time
-before posting this.
-
-Hayden Myers	
-Support Manager
-Skyline Network Technologies	
-hayden@spinbox.com
-(410)583-1337 option 2
-
-
+diff -Naur -X /home/jbarnes/dontdiff linux-2.5.26/fs/inode.c linux-2.5.26-lockassert/fs/inode.c
+--- linux-2.5.26/fs/inode.c	Tue Jul 16 16:49:38 2002
++++ linux-2.5.26-lockassert/fs/inode.c	Thu Jul 18 10:21:13 2002
+@@ -183,6 +183,8 @@
+  */
+ void __iget(struct inode * inode)
+ {
++	MUST_HOLD(&inode_lock);
++
+ 	if (atomic_read(&inode->i_count)) {
+ 		atomic_inc(&inode->i_count);
+ 		return;
+diff -Naur -X /home/jbarnes/dontdiff linux-2.5.26/include/asm-ia64/spinlock.h linux-2.5.26-lockassert/include/asm-ia64/spinlock.h
+--- linux-2.5.26/include/asm-ia64/spinlock.h	Tue Jul 16 16:49:25 2002
++++ linux-2.5.26-lockassert/include/asm-ia64/spinlock.h	Thu Jul 18 16:30:49 2002
+@@ -109,6 +109,7 @@
+ #define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
+ 
+ #define rwlock_init(x) do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++#define rwlock_is_locked(x) ((x)->read_counter != 0 || (x)->write_lock != 0)
+ 
+ #define _raw_read_lock(rw)							\
+ do {										\
+diff -Naur -X /home/jbarnes/dontdiff linux-2.5.26/include/linux/spinlock.h linux-2.5.26-lockassert/include/linux/spinlock.h
+--- linux-2.5.26/include/linux/spinlock.h	Tue Jul 16 16:49:33 2002
++++ linux-2.5.26-lockassert/include/linux/spinlock.h	Thu Jul 18 16:31:13 2002
+@@ -116,7 +116,19 @@
+ #define _raw_write_lock(lock)	(void)(lock) /* Not "unused variable". */
+ #define _raw_write_unlock(lock)	do { } while(0)
+ 
+-#endif /* !SMP */
++#endif /* !CONFIG_SMP */
++
++/*
++ * Simple lock assertions for debugging and documenting where locks need
++ * to be locked/unlocked.
++ */
++#if defined(CONFIG_DEBUG_SPINLOCK) && defined(CONFIG_SMP)
++#define MUST_HOLD(lock)			BUG_ON(!spin_is_locked(lock))
++#define MUST_HOLD_RW(lock)		BUG_ON(!rwlock_is_locked(lock))
++#else
++#define MUST_HOLD(lock)			do { } while(0)
++#define MUST_HOLD_RW(lock)		do { } while(0)
++#endif /* CONFIG_DEBUG_SPINLOCK && CONFIG_SMP */
+ 
+ #ifdef CONFIG_PREEMPT
+ 

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265086AbRFZSCg>; Tue, 26 Jun 2001 14:02:36 -0400
+	id <S265069AbRFZSVB>; Tue, 26 Jun 2001 14:21:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265085AbRFZSC1>; Tue, 26 Jun 2001 14:02:27 -0400
-Received: from gateway.sequent.com ([192.148.1.10]:6876 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S265074AbRFZSCN>; Tue, 26 Jun 2001 14:02:13 -0400
-Date: Tue, 26 Jun 2001 11:00:40 -0700
-From: Patrick Mansfield <patman@sequent.com>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: multi-path IO in SCSI mid-layer
-Message-ID: <20010626110040.A28555@eng2.sequent.com>
-Mime-Version: 1.0
+	id <S265074AbRFZSUw>; Tue, 26 Jun 2001 14:20:52 -0400
+Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:54011 "EHLO
+	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
+	id <S265069AbRFZSUl>; Tue, 26 Jun 2001 14:20:41 -0400
+Message-ID: <3B38D20D.87487840@acm.org>
+Date: Wed, 27 Jun 2001 04:18:53 +1000
+From: Gareth Hughes <gareth.hughes@acm.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] CREDITS update
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+My association with VA Linux Systems (and Precision Insight before that)
+ended last month.  At this stage, it is unclear whether I will continue
+working on the various open source 3D graphics projects (DRI, Mesa etc)
+or not.  My work is being transitioned to the remaining members of the
+PI group or, unfortunately, abandoned for the time being.
 
-I'm interested in multi-path IO in the linux scsi mid-layer.
+I hope to be able to continue working on the kernel, perhaps in slightly
+different areas though :-)
 
-Are there developers working on changes to the scsi layers/interfaces?
-I've seen references about such work, but no details.
+-- Gareth
 
-Anyone else interested in or working on multi-path IO in the mid-layer?
-
-I've looked at the code as to what changes might be required, and did
-a simple prototype to issue IO requests using multiple paths for one device -
-configuring one device in with multiple paths using SCSI INQUIRY page 0x83,
-and selecting a path (just round-robin) at scsi_submit_cmd() time.
-
-But, a decent multi-path IO implementation requires significant changes
-to the current linux scsi interfaces/structures - especially where no
-functional interfaces exist, such as the direct references to Scsi_Device
-host, and Scsi_Host host_queue.
-
--- 
-Patrick Mansfield
-patman@sequent.com
-patman@us.ibm.com
+--- linux/CREDITS       Thu May 17 23:34:54 2001
++++ linux.gh/CREDITS    Wed Jun 27 04:06:50 2001
+@@ -1256,12 +1256,11 @@
+ S: USA
+ 
+ N: Gareth Hughes
+-E: gareth@valinux.com
+-E: gareth@precisioninsight.com
++E: gareth.hughes@acm.org
+ D: Pentium III FXSR, SSE support
+-S: 11/187 West Street
+-S: Crows Nest NSW 2065
+-S: Australia
++D: Author/maintainer of most DRM drivers (especially ATI, MGA)
++D: Core DRM templates, general DRM and 3D-related hacking
++S: No fixed address
+ 
+ N: Kenn Humborg
+ E: kenn@wombat.ie

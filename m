@@ -1,158 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbTINFQa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 01:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbTINFQa
+	id S262310AbTINFjF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 01:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTINFjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 01:16:30 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24843
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262306AbTINFQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 01:16:27 -0400
-Date: Sat, 13 Sep 2003 21:58:41 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Erik Andersen <andersen@codepoet.org>
-cc: linux-kernel@vger.kernel.org
-Subject: freed_symbols [Re: People, not GPL  [was: Re: Driver Model]]
-In-Reply-To: <20030914043716.GA19223@codepoet.org>
-Message-ID: <Pine.LNX.4.10.10309132152510.16744-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Sun, 14 Sep 2003 01:39:05 -0400
+Received: from codepoet.org ([166.70.99.138]:10922 "EHLO mail.codepoet.org")
+	by vger.kernel.org with ESMTP id S262310AbTINFjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 01:39:03 -0400
+Date: Sat, 13 Sep 2003 23:39:02 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL  [was: Re: Driver Model]]
+Message-ID: <20030914053902.GA20198@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+References: <20030914043716.GA19223@codepoet.org> <Pine.LNX.4.10.10309132152510.16744-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10309132152510.16744-100000@master.linux-ide.org>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat Sep 13, 2003 at 09:58:41PM -0700, Andre Hedrick wrote:
+> 
+> Pretty Boy,
+> 
+> It is coming and the intent is to return all the stolen symbols.
+> It is free for anyone to use and enjoy the usage of Linux once again.
+> So everyone get in line and SUE ME for GPL'ed drivers.
 
-Pretty Boy,
+Do whatever you want.  Its your life.  Laugh at people, mock
+people, rant, rave, violtate licenses, wantever you want.
 
-It is coming and the intent is to return all the stolen symbols.
-It is free for anyone to use and enjoy the usage of Linux once again.
-So everyone get in line and SUE ME for GPL'ed drivers.
+When you are done making noise, please explain how a closed
+source binary only product that runs within the context of the
+Linux kernel is not a derivitive work, per the very definition
+given in the kernel COPYING file that grants you your limited
+rights for copying, distribution and modification,
 
+ -Erik
 
-/*
- * Original copyright notice:
- *
- * linux/kernel/freed_symbols.c
- *
- * Copyright (C) 2001-2003              Linux ATA Development
- *                                      Andre Hedrick <andre@linux-ide.org>
- *
- * GPL v2 and only version 2.
- */
-
-/*
- * kernel/signal.c:EXPORT_SYMBOL_GPL(dequeue_signal);
- * returned to kernel API
- */
-int freed_dequeue_signal(sigset_t *mask, siginfo_t *info)
-{
-        return dequeue_signal(mask, info);
-}
-
-EXPORT_SYMBOL(freed_dequeue_signal);
-
-/*
- * was kernel/context.c
- *
- * kernel/workqueue.c:EXPORT_SYMBOL_GPL(create_workqueue);
- * kernel/workqueue.c:EXPORT_SYMBOL_GPL(queue_work);
- * kernel/workqueue.c:EXPORT_SYMBOL_GPL(queue_delayed_work);
- * kernel/workqueue.c:EXPORT_SYMBOL_GPL(flush_workqueue);
- * kernel/workqueue.c:EXPORT_SYMBOL_GPL(destroy_workqueue);
- * returned to kernel API
- */
-
-struct workqueue_struct *freed_create_workqueue(const char *name)
-{
-        return create_workqueue(name);
-}
-
-int freed_queue_work(struct workqueue_struct *wq, struct work_struct *work)
-{
-        return queue_work(wq, work);
-}
-
-int freed_queue_delayed_work(struct workqueue_struct *wq,
-                struct work_struct *work, unsigned long delay)
-{
-        return queue_delayed_work(wq, work, delay);
-}
-
-void freed_flush_workqueue(struct workqueue_struct *wq)
-{
-        flush_workqueue(wq);
-}
-
-void freed_destroy_workqueue(struct workqueue_struct *wq)
-{
-        destroy_workqueue(wq);
-}
-
-EXPORT_SYMBOL(freed_create_workqueue);
-EXPORT_SYMBOL(freed_queue_work);
-EXPORT_SYMBOL(freed_queue_delayed_work);
-EXPORT_SYMBOL(freed_flush_workqueue);
-EXPORT_SYMBOL(freed_destroy_workqueue);
-
-
-static int freed_symbols_ioctl (struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
-{
-        if (!capable(CAP_SYS_ADMIN))
-                return -EACCES;
-
-        switch (cmd) {
-                default:
-                        return -EINVAL;
-        }
-        return 0;
-}
-
-static int freed_symbols_open (struct inode *inode, struct file *file)
-{
-        return 0;
-}
-
-static int freed_symbols_release (struct inode *inode, struct file *file)
-{
-        return 0;
-}
-
-static struct file_operations freed_symbols_fops = {
-        owner:          THIS_MODULE,
-        ioctl:          freed_symbols_ioctl,
-        open:           freed_symbols_open,
-        release:        freed_symbols_release,
-};
-
-static struct miscdevice freed_symbols_dev = {  FREED_SYMBOLS_MINOR,
-                                                "freed_symbols",
-                                                &freed_symbols_fops };
-
-static void __exit freed_symbols_exit (void)
-{
-        printk(KERN_INFO "freed_symbols_module: unloaded.\n");
-//      remove_proc_entry("driver/freed_symbols", NULL);
-        misc_deregister(&freed_symbols);
-}
-
-int __init freed_symbols_init (void)
-{
-        printk(KERN_INFO "freed_symbols_module: loaded.\n");
-        misc_register(&freed_symbols_dev);
-//      create_proc_read_entry("driver/freed_symbols", 0, 0, freed_symbols_read_proc, NULL);
-        return 0;
-}
-
-MODULE_LICENSE("GPL");
-module_init(freed_symbols_init);
-module_exit(freed_symbols_exit);
-
-
--------------------------------------------
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

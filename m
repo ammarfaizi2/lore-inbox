@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbUCHW72 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCHW72
+	id S261378AbUCHXCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCHXCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:59:28 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:10193 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S261393AbUCHW7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:59:25 -0500
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
-	instead of apic ack delay.
-From: Craig Bradney <cbradney@zip.com.au>
-To: a.verweij@student.tudelft.nl
-Cc: Ross Dickson <ross@datscreative.com.au>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       Daniel Drake <dan@reactivated.net>
-In-Reply-To: <Pine.GHP.4.44.0403082315490.3880-100000@elektron.its.tudelft.nl>
-References: <Pine.GHP.4.44.0403082315490.3880-100000@elektron.its.tudelft.nl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-s8vqQ/V/3OUFrAq6J2Hz"
-Message-Id: <1078786761.9399.15.camel@athlonxp.bradney.info>
+	Mon, 8 Mar 2004 18:02:13 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58889
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261378AbUCHXCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 18:02:07 -0500
+Date: Tue, 9 Mar 2004 00:02:47 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040308230247.GC12612@dualathlon.random>
+References: <20040308202433.GA12612@dualathlon.random> <Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org> <20040308132305.3c35e90a.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Mar 2004 23:59:21 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040308132305.3c35e90a.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 08, 2004 at 01:23:05PM -0800, Andrew Morton wrote:
+> There is an architectural concern: we're now treating anonymous pages
+> differently from file-backed ones.  But we already do that in some places
 
---=-s8vqQ/V/3OUFrAq6J2Hz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'm working on that.
 
-Hi Arjen
+> Other issues are how it will play with remap_file_pages(), and how it
+> impacts Ingo's work to permit remap_file_pages() to set page permissions on
+> a per-page basis.  This change provides large performance improvements to
 
-<snip>
+in the current form it should be using pte_chains still for nonlinear
+vmas, see the function that pretends to convert the page to be like
+anonymous memory (which simply means to use pte_chains for the reverse
+mappings).  I admit I didn't focus much on that part though, I trust
+Dave on that ;), since I want to drop it.
 
-> So far I have seen this only once, and I don't know what causes it.
->=20
-> Ross, I prefer using your old patch because it keeps my temperature withi=
-n
-> reasonable bounds when the case is closed. Sorry.
->=20
+What I want to do with the nonlinear vmas is to scan all the ptes in
+every nonlinear vma, so I don't have to allocate the pte_chain and the
+swapping procedure will simply be more cpu hungry under nonlinear vmas.
+I'm not interested to provide optimal performance in swapping nonlinear
+vmas, I prefer the fast path to be as fast as possible and without
+memory overhead. nonlinear vmas are supposed to speedup the workload. If
+one needs to swap efficiently, the vmas will do it (by carrying some
+memory overhead, like pte_chains would carry too).
 
-<snip>
+> UML, making it more viable for various virtual-hosting applications.  I
+> don't immediately see any reason why objrmap should kill that off, but if
+> it does we're in the position of trading off UML virtual server performance
+> against monster highmem viability.  That's less clear.
 
-I have put the idle=3DC1halt patch that Ross released a little while back
-now into Gentoo-dev-sources-2.6.3 as I reported to the list yesterday. I
-no longer use the old apic_tack=3D2 patch. I have been playing silly
-buggers with hardware, but so far the PC has made it to 11 hours and now
-7 hours with no issues.=20
+I still don't see objrmap as a highmem related things, by side effect of
+being more efficient avoids the needs of 4:4 too, but that's just a side
+effect.
 
-After those 11 hours I decided I'd change the PC setup in here and
-disconnected a fan and a hard drive and moved my server s/w (apache etc)
-to this PC so I only have one in here fpr now.
+the potential additional cpu consumtion with many vmas from the same
+file at different offsets is something I'm slightly concerned about too
+but my priority is to optimize the fast path, and the slowdown is not
+something I worry about too much since it should be still a lot better
+than the pagetable walk of 2.4 where one had to throw away the whole
+address space before one could free a shared page (and still it was far
+from being cpu bound). I'm also using objrmap in 2.4 to actually swap
+lots of shm, some of which having tons of vmas for the same file, and
+while the objrmap function remains at the top of the profiling, at least
+the swap_out loop is gone and avoid to trow away the whole address
+space. I mean it's still a lot more efficient than having to scan all
+the ptes in the system to find the right page, or like 2.4 stock is
+doing to throw away all the address space to swap 4k.
 
-Right now, CPU is at 34C which is only 1-3C higher than with the other
-patch, including having one less fan sucking air out the back of the
-box. Motherboard is actually lower (27C) than before (29C). Ambient room
-temp is normal.
-
-After those 11 hours, I am quite sure that on normal use (ie not
-compiling) the motherboard and cpu was 1-2C lower than with apic_tack=3D2.
-
-regards
-Craig
-
---=-s8vqQ/V/3OUFrAq6J2Hz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBATPrJi+pIEYrr7mQRAhXWAKCn3pn/h7lar8FLQE8Ltj/SMIIfXwCgn5cK
-n9+5qp8khYIZuE57NhFjRA4=
-=04RR
------END PGP SIGNATURE-----
-
---=-s8vqQ/V/3OUFrAq6J2Hz--
-
+and you know well that 2.6 swaps slower (or anyways not faster) than
+2.4, see the posts on linux-mm or the complains from the lowmem users,
+there are various bits involved into the swapping and paging that are
+more important than saving cpu during swapping, which is normally an I/O
+bound thing.

@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbULMVS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbULMVV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbULMVS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 16:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbULMVS0
+	id S261153AbULMVV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 16:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbULMVV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 16:18:26 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:32472 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261336AbULMVSX (ORCPT
+	Mon, 13 Dec 2004 16:21:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:23002 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261153AbULMVVO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 16:18:23 -0500
-Message-ID: <41BE0718.6070900@colorfullife.com>
-Date: Mon, 13 Dec 2004 22:18:16 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Mundt <lethal@Linux-SH.ORG>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ARCH_SLAB_MINALIGN for 2.6.10-rc3
-References: <41B37E06.3030702@colorfullife.com> <20041205222001.GB25689@linux-sh.org> <41B4D9F8.6000309@colorfullife.com> <20041206225934.GA30317@linux-sh.org> <41BC21E2.6000600@colorfullife.com> <20041212150906.GB15323@linux-sh.org>
-In-Reply-To: <20041212150906.GB15323@linux-sh.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 13 Dec 2004 16:21:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=J4+s+ZV1xmbYc5RtPn1dixHgJUOI8l9QiKg+3WP0Z/8x9Y/nXO51mEzQJHY1d8BoAhF1z/43Y/LYdvRLl684AmrzpHgma3yyFFcbHbtqBreY6E7mowmtIZK1JwiTLelwpC5jNO4a2Az7HsrFWW6zBVZXf5PbuQyOxdlHCvoblmU=
+Message-ID: <58cb370e0412131321694a6516@mail.gmail.com>
+Date: Mon, 13 Dec 2004 22:21:13 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Junio C Hamano <junkio@cox.net>
+Subject: Re: CD-ROM ide-dma blacklist amnesty drive
+Cc: linux-kernel@vger.kernel.org,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+In-Reply-To: <7v7jns2tu3.fsf@assigned-by-dhcp.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <cp78ct$d65$1@sea.gmane.org>
+	 <7v7jns2tu3.fsf@assigned-by-dhcp.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mundt wrote:
+On Wed, 08 Dec 2004 16:33:56 -0800, Junio C Hamano <junkio@cox.net> wrote:
+> Alexander E. Patrakov wrote:
+> 
+> >The "SAMSUNG CD-ROM SC-148F" drive is listed in drive_blacklist in
+> >ide-dma.c. However, this drive worked well with DMA enabled with earlier
+> >kernel versions (<=2.6.8.1) where the "via82cxxx" driver did not look at
+> >this blacklist. So the question: what was the reason for blacklisting this
+> >(apparently working) drive? Is it still valid?
+> 
+> This was discussed about two months ago without a firm
+> resolution as far as I can tell, in this thread:
+> 
+>     http://thread.gmane.org/gmane.linux.kernel/241862
+> 
+> Especially from Jens and Alan:
+> 
+>     http://article.gmane.org/gmane.linux.kernel/242226
+>     http://article.gmane.org/gmane.linux.kernel/242228
+> 
+> I've been meaning to start a "CD-ROM ide-dma blacklist amnesty
+> drive" ;-) The intent is to gather comments from owners of
+> blacklisted drives to see if those models still deserve to be on
+> the blacklist.
+> 
+> As for myself, I would vote for removing "PLEXTOR CD-R
+> PX-W8432T" (at least firmware "1.09") from the list.  This model
+> seems to work fine with DMA.  As Alexander does, I have been
+> running it on VIA motherboard which only recently started
+> looking at the ide-dma blacklist without trouble; that is,
+> before via82cxxx started caring.
 
->For instance, I've been using the following patch and this did help pin
->down a rather irritating bug in the sh64 switch_to().
->
->  
->
-[snip - useful patch]
-
-I agree with your patch. But I think the change is independant, so it 
-should remain a seperate patch. I've just sent my patch to Andrew for 
-merging, could you send your patch to Andrew after my change was merged?
-
---
-    Manfred
+Plextor drive removed from the blacklist, thanks

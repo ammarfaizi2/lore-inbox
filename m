@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbTDGVma (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbTDGVm3 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:42:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:21134 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263692AbTDGVmU (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 17:42:20 -0400
-Date: Mon, 7 Apr 2003 14:18:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: Frank Davis <fdavis@si.rr.com>, Gerd Knorr <kraxel@bytesex.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.5.67/patch] Unified Zoran Driver update (take#2)
-Message-ID: <20030407211841.GD3959@kroah.com>
-References: <1049747457.20974.23.camel@tux.bitfreak.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049747457.20974.23.camel@tux.bitfreak.net>
-User-Agent: Mutt/1.4.1i
+	id S263688AbTDGVlO (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263690AbTDGVlO (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:41:14 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:61158 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263688AbTDGVlM (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 17:41:12 -0400
+Message-ID: <C1B7430B33A4B14F80D29B5126C5E94701191AC5@orsmsx401.jf.intel.com>
+From: "Mroczek, Joseph T" <joseph.t.mroczek@intel.com>
+To: Abhishek Agrawal <abhishek@abhishek.agrawal.name>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Strange e1000
+Date: Mon, 7 Apr 2003 14:52:30 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 10:30:59PM +0200, Ronald Bultje wrote:
-> Hey Frank/Greg/Gerd,
-> 
-> on http://mjpeg.sourceforge.net/driver-zoran/linux-zoran-driver.patch.gz
-> you'll find a new patch which updates the kernel zoran driver to the
-> newest version in the repository. It's updated against the i2c changes
-> between 2.5.66 -> 2.5.67. Besides that, no changes since the last try.
 
-The i2c changes look fine to me.  I guess Gerd can send this patch on if
-it meets with his approval.
 
-thanks,
+On Fri, 2003-04-04 at 19:11, Paul Rolland wrote:
 
-greg k-h
+> Could it be possible that the 1000MBps FD on the e1000 side is
+> a local configuration, and that it needs some time to discuss with
+> the Netgear switch to negotiate correctly speed and duplex before
+> working correctly ? (i.e. 20 sec = negotiation time)
+Autoneg must be completed within 2 sec, or else it is considered as
+failed.
+
+It should be pointed out that there is a difference between completing
+autonegotation and being able to pass traffic to other devices in the
+network. The spanning tree and port fast settings have nothing to do with
+autonegotiation. With port fast disabled on these switches, autonegotation
+usually completes in the required 2s, but the switch does not pass frames to
+the rest of the network until spanning tree assures loop free topology. The
+NIC and switch port are actively passing traffic, but the switch is not
+forwarding that traffic.
+
+Hope this helps clarify.
+
+~joe

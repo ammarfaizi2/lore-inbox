@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264568AbUASLcM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264565AbUASLbu
+	id S264608AbUASLeG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 06:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbUASLcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:31:50 -0500
-Received: from dp.samba.org ([66.70.73.150]:36826 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264566AbUASLbj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:31:39 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>
-Cc: tmolina@cablespeed.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-mm4 
-In-reply-to: Your message of "Sat, 17 Jan 2004 10:52:39 -0800."
-             <20040117105239.0b94f2b3.akpm@osdl.org> 
-Date: Mon, 19 Jan 2004 18:16:50 +1100
-Message-Id: <20040119113132.D25A52C2AA@lists.samba.org>
+	Mon, 19 Jan 2004 06:32:22 -0500
+Received: from mail36.messagelabs.com ([193.109.254.211]:37018 "HELO
+	mail36.messagelabs.com") by vger.kernel.org with SMTP
+	id S264575AbUASLb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 06:31:57 -0500
+X-VirusChecked: Checked
+X-Env-Sender: okiddle@yahoo.co.uk
+X-Msg-Ref: server-17.tower-36.messagelabs.com!1074511912!3197532
+X-StarScan-Version: 5.1.15; banners=-,-,-
+X-VirusChecked: Checked
+X-StarScan-Version: 5.1.13; banners=.,-,-
+From: Oliver Kiddle <okiddle@yahoo.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: page allocation failure
+Date: Mon, 19 Jan 2004 12:36:02 +0100
+Message-ID: <7641.1074512162@gmcs3.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040117105239.0b94f2b3.akpm@osdl.org> you write:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> >  I was getting something like that on reboot a few days ago, I think it
-> >  was with 2.6.1-mm2.  I had to move on before debugging it fully, but
-> >  the impression I got (maybe vile calumny, sue me Rusty) was that the
-> >  new kthread_create for 2.6.1-mm's ksoftirqd was leaving it vulnerable
-> >  to shutdown kill, whereas other things (RCU in my traces) still needed
-> >  it around and assumed its task address still valid.
-> 
-> Yes.  ksoftirqd and the migration threads can now be killed off
-> with `kill -9'.
+There seems to be a problem with 2.6.1 on my machine. It will be fine
+for a matter of a few days and then this error will appear on the
+console. The message then appears repeatedly and continuously. The
+first I know is that my remote login shell ceases to respond. About the
+only thing I can do is switch between virtual consoles (until I hit the
+reset button).
 
-"That shouldn't happen".
+/var/log/messages shows:
+kernel: cat: page allocation failure. order:0, mode:0x20
 
-We block and flush all signals in workqueue.c.  How is that kill -9
-getting through?
+Then the same for lots of other processes (pdflush, syslogd, klogd,
+kswapd0, nfsd to name a few). I expect that after a point it is unable
+to even log stuff so syslog is quiet after a while.
 
-It also implies that previously ksoftirqd and migration threads would
-tight spin after kill -9, since they slept with TASK_INTERRUPTIBLE.
+It has happened three times now and on all occasions, I was untarring a
+huge file on an XFS partition. I assume the problem is something to do
+with VM. The machine has 1GB of RAM which should be plenty. For the
+most part it is just serving NFS and NIS (to no more than about 10
+clients).
 
-Will dig...
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The hardware is a Dell PowerEdge 600SC. It's a new machine that never
+ran 2.4 before. I can supply any other information that might help in
+diagnosing the problem. I don't subscribe so please CC me in any reply
+(but I'll keep an eye on the archives).
+
+If anyone can suggest any /proc variables I might change to reduce the
+risk of it doing this again, I would appreciate it. I tried increasing
+/proc/sys/vm/min_free_kbytes after the first time this happened. Not
+that I understand what that does: I searched the archives and it was
+mentioned in a vaguely relevant looking post.
+
+Cheers
+
+Oliver Kiddle

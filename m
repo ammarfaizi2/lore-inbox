@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136472AbRD3Hju>; Mon, 30 Apr 2001 03:39:50 -0400
+	id <S136473AbRD3Hqb>; Mon, 30 Apr 2001 03:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136473AbRD3Hjl>; Mon, 30 Apr 2001 03:39:41 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:43786 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S136472AbRD3Hj3>;
-	Mon, 30 Apr 2001 03:39:29 -0400
-Date: Mon, 30 Apr 2001 03:40:01 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: volodya@mindspring.com, Anton Altaparmakov <aia21@cam.ac.uk>,
-        John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-Message-ID: <20010430034001.A5520@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alexander Viro <viro@math.psu.edu>, volodya@mindspring.com,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	John Stoffel <stoffel@casc.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.20.0104300303530.4671-100000@node2.localnet.net> <Pine.GSO.4.21.0104300317250.4113-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0104300317250.4113-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Apr 30, 2001 at 03:23:15AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S136474AbRD3HqW>; Mon, 30 Apr 2001 03:46:22 -0400
+Received: from www.wen-online.de ([212.223.88.39]:2316 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S136473AbRD3HqG>;
+	Mon, 30 Apr 2001 03:46:06 -0400
+Date: Mon, 30 Apr 2001 09:45:41 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Frank de Lange <frank@unternet.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Severe trashing in 2.4.4
+In-Reply-To: <20010429200419.C11681@unternet.org>
+Message-ID: <Pine.LNX.4.33.0104300834030.601-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu>:
-> >From AFW FAQ:
-> 
-> Q11. What is the McQuary limit?
-> A11. "There once was a man from Nantucket,
->      who lost his .sig in a bucket.
->      Five lines was too long,
->      columns 80 just strong,
->      so he didn't know where to tuck it."
-> A11. The limit on signature size:  "4x80".
+On Sun, 29 Apr 2001, Frank de Lange wrote:
 
-I just added the following to the Jargon File masters:
+> On Sun, Apr 29, 2001 at 01:58:52PM -0400, Alexander Viro wrote:
+> > Hmm... I'd say that you also have a leak in kmalloc()'ed stuff - something
+> > in 1K--2K range. From your logs it looks like the thing never shrinks and
+> > grows prettu fast...
+>
+> Same goes for buffer_head:
+>
+> buffer_head        44236  48520     96 1188 1213    1 :  252  126
+>
+> quite high I think. 2.4.3 shows this, after about the same time and activity:
+>
+> buffer_head          891   2880     96   72   72    1 :  252  126
 
-@hd{McQuary limit} @p{} 4 lines of at most 80 characters each,
-   sometimes still cited on Usenet as the maximum acceptable size of a
-   @es{sig block}.  Before the great bandwidth explosion of the early
-   1990s, long sigs actually cost people running Usenet servers
-   significant amounts of money.  Nowadays social pressure against
-   long sigs is intended to avoid waste of human attention rather
-   than machine bandwidth.  Accordingly, the McQuary limit should 
-   be considered a rule of thumb rather than a hard limit; it's
-   best to avoid sigs that are large, repetitive, and distracting.
-   See also @es{warlording}.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+hmm:  do_try_to_free_pages() doesn't call kmem_cache_reap() unless
+there's no free page shortage.  If you've got a leak...
 
-What, then is law [government]? It is the collective organization of
-the individual right to lawful defense."
-	-- Frederic Bastiat, "The Law"
+	if (free_shortage()) {
+		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
+		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
+	} else {
+		/*
+		 * Illogical, but true. At least for now.
+		 *
+		 * If we're _not_ under shortage any more, we
+		 * reap the caches. Why? Because a noticeable
+		 * part of the caches are the buffer-heads,
+		 * which we'll want to keep if under shortage.
+		 */
+		kmem_cache_reap(gfp_mask);
+	}
+
+You might try calling it if free_shortage() + inactive shortage() >
+freepages.high or some such and then see what sticks out.  Or, for
+troubleshooting the leak, just always call it.
+
+Printk says we fail to totally cure the shortage most of the time
+once you start swapping.. likely the same for any sustained IO.
+
+	-Mike
+
+(if you hoard IO until you can't avoid it, there're no cleanable pages
+left in the laundry chute [bye-bye cache] except IO pages.. i digress;)
+

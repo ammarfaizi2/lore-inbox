@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132772AbRDKS2U>; Wed, 11 Apr 2001 14:28:20 -0400
+	id <S132790AbRDKSaA>; Wed, 11 Apr 2001 14:30:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132761AbRDKS2L>; Wed, 11 Apr 2001 14:28:11 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22788 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132742AbRDKS17>; Wed, 11 Apr 2001 14:27:59 -0400
-Date: Wed, 11 Apr 2001 11:27:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bernd Schmidt <bernds@redhat.com>
-cc: Andreas Franck <afranck@gmx.de>,
-        David Howells <dhowells@cambridge.redhat.com>, <andrewm@uow.edu.au>,
-        <bcrl@redhat.com>, <alan@lxorguk.ukuu.org.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2nd try: i386 rw_semaphores fix
-In-Reply-To: <Pine.LNX.4.30.0104111606010.1106-100000@host140.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.31.0104111118000.17733-100000@penguin.transmeta.com>
+	id <S132803AbRDKS3s>; Wed, 11 Apr 2001 14:29:48 -0400
+Received: from m307-mp1-cvx1c.col.ntl.com ([213.104.77.51]:23425 "EHLO
+	[213.104.77.51]") by vger.kernel.org with ESMTP id <S132761AbRDKS3U>;
+	Wed, 11 Apr 2001 14:29:20 -0400
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'John Fremlin'" <chief@bandits.org>, "'Pavel Machek'" <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE822@orsmsx35.jf.intel.com>
+From: John Fremlin <chief@bandits.org>
+Date: 11 Apr 2001 19:29:05 +0100
+In-Reply-To: "Grover, Andrew"'s message of "Wed, 11 Apr 2001 10:06:52 -0700"
+Message-ID: <m2d7aj9tou.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Grover, Andrew" <andrew.grover@intel.com> writes:
 
+[...]
 
-On Wed, 11 Apr 2001, Bernd Schmidt wrote:
-> >
-> > The example in there compiles out-of-the box and is much easier to
-> > experiment on than the whole kernel :-)
->
-> That example seems to fail because a "memory" clobber only tells the compiler
-> that memory is written, not that it is read.
+> > > > +		printk ("acpi: Power button pressed!\n");
+> > 
+> > [...]
+> > 
+> > > > +		printk("acpi: Sleep button pressed!\n");
+> > 
+> > Do you think you could keep the above part of the patch? It would be
+> > nice to know how much of ACPI was actually working ;-)
 
-The above makes no sense. The notion of "memory is written" is a true
-superset of the "memory is read", and must be a complete memory barrier
-(ie telling the compiler that "we read memory" is non-sensical: it can't
-give the compiler any more information).
+> I'm hesitant to do this, since 1) You can put those printk's in
+> yourself to find out if your particular system is working and 2) You
+> can just cat /proc/sys/event, hit a button, and you should see
+> output if it works.
 
-Because the memory clobber doesn't tell _what_ memory is clobbered, you
-cannot consider memory dead after the instruction. As such, the compiler
-HAS to treat a clobber as a "read-modify-write" - because on a very
-fundamental level it _is_. Clobbering memory is logically 100% equivalent
-to reading all of memory, modifying some of it, and writing the modified
-information back.
+Hmm. Pavel Machek could hardly be described as a newbie at hacking
+stuff, and yet he says, "I hunted bug for few hours, thinking that
+kernel does not get the event at all."
 
-(This is different from a "clobber specific register" thing, btw, where
-the compiler can honestly assuem that the register is dead after the
-instruction and contains no useful data. That is a write-only dependency,
-and means that gcc can validly use optimization techniques like removing
-previous dead writes to the register.)
+The printks are certainly clearer than cat'ing some binary garbage to
+the console and will help out the casual user who doesn't want to
+recompile kernel and reboot just to discover that the damn thing
+doesn't work.
 
-See? Do you see why a "memory" clobber is _not_ comparable to a "ax"
-clobber? And why that non-comparability makes a memory clobber equivalent
-to a read-modify-write cycle?
+[...]
 
-In short: I disagree 100%. A "memory" clobber -does- effectively tell the
-compiler that memory is read. If the compiler doesn't realize that, then
-it's a compiler bug waiting to happen. No ifs, buts of maybes.
+-- 
 
-			Linus
-
+	http://www.penguinpowered.com/~vii

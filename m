@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267106AbTGHKcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 06:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265759AbTGHKcz
+	id S264202AbTGHKrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 06:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbTGHKrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 06:32:55 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:36488 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S267106AbTGHKbh (ORCPT
+	Tue, 8 Jul 2003 06:47:55 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:31873 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S264202AbTGHKrJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 06:31:37 -0400
-Date: Tue, 8 Jul 2003 12:45:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Make synaptics support optional
-Message-ID: <20030708104551.GA209@elf.ucw.cz>
+	Tue, 8 Jul 2003 06:47:09 -0400
+Date: Tue, 8 Jul 2003 13:01:22 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: "Peter C. Ndikuwera" <pndiku@dsmagic.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Martin Schlemmer <azarah@gentoo.org>, Andrew Morton <akpm@osdl.org>,
+       smiler@lanil.mine.nu, KML <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.5.74-mm2 + nvidia (and others)
+Message-ID: <20030708110122.GA10756@vana.vc.cvut.cz>
+References: <1057590519.12447.6.camel@sm-wks1.lan.irkk.nu> <1057647818.5489.385.camel@workshop.saharacpt.lan> <20030708072604.GF15452@holomorphy.com> <200307081051.41683.schlicht@uni-mannheim.de> <20030708085558.GG15452@holomorphy.com> <1057657046.1819.11.camel@mufasa.ds.co.ug>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1057657046.1819.11.camel@mufasa.ds.co.ug>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jul 08, 2003 at 12:37:26PM +0300, Peter C. Ndikuwera wrote:
+> The VMware patches are ...
+> 
+> ftp://platan.vc.cvut.cz/pub/vmware/vmware-any-any-updateXX.tar.gz
 
-Synaptics support breaks mouse for me (HP omnibook xe3). I guess it
-should have its own config option, and perhaps it should be marked
-experimental...
+vmware-any-any-update35.tar.gz should work on 2.5.74-mm2 too.
+But it is not tested, I have enough troubles with 2.5.74 without mm patches...
 
-What about this patch?
-								Pavel
+> > On Tue, Jul 08, 2003 at 10:51:39AM +0200, Thomas Schlichter wrote:
+> > > Btw, what do you think about the idea of exporting the follow_pages()
+> > > function from mm/memory.c to kernel modules? So this could be used
+> > > for modules compiled for 2.[56] kernels and the old way just for 2.4
+> > > kernels...
+> > 
+> > I don't really have an opinion on it, but it's not my call.
 
---- /usr/src/tmp/linux/drivers/input/mouse/Kconfig	2003-06-24 12:27:47.000000000 +0200
-+++ /usr/src/linux/drivers/input/mouse/Kconfig	2003-07-08 12:33:47.000000000 +0200
-@@ -30,6 +30,12 @@
- 	  The module will be called psmouse. If you want to compile it as a
- 	  module, say M here and read <file:Documentation/modules.txt>.
- 
-+config MOUSE_SYNAPTICS
-+	tristate "Synaptics touchpad support"
-+	depends on INPUT_MOUSE && MOUSE_PS2
-+	help
-+	  Say Y if you want your touchpad not to work any more.
-+
- config MOUSE_SERIAL
- 	tristate "Serial mouse"
- 	depends on INPUT && INPUT_MOUSE && SERIO
-@@ -134,4 +140,3 @@
- 	  inserted in and removed from the running kernel whenever you want).
- 	  The module will be called logibm.o. If you want to compile it as a
- 	  module, say M here and read <file.:Documentation/modules.txt>.
--
---- /usr/src/tmp/linux/drivers/input/mouse/synaptics.c	2003-06-24 12:27:47.000000000 +0200
-+++ /usr/src/linux/drivers/input/mouse/synaptics.c	2003-07-08 12:32:36.000000000 +0200
-@@ -213,6 +213,9 @@
- {
- 	struct synaptics_data *priv;
- 
-+#ifndef CONFIG_MOUSE_SYNAPTICS
-+	return -1;
-+#endif;
- 	psmouse->private = priv = kmalloc(sizeof(struct synaptics_data), GFP_KERNEL);
- 	if (!priv)
- 		return -1;
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+vmmon started using 'get_user_pages' for locking pages some time ago. 
+Unfortunately userspace needs looking at VA->PA mapping from time to time 
+although it already retrieved this information at the time get_user_pages() 
+was invoked :-( It makes userspace simpler, and it was also much faster than
+any other solution before pmd/pte moved into the high memory.
+						Best regards,
+							Petr Vandrovec

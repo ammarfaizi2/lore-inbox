@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUIEHFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUIEHUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266292AbUIEHFP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 03:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUIEHFP
+	id S266296AbUIEHUN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 03:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUIEHUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 03:05:15 -0400
-Received: from dev.tequila.jp ([128.121.50.153]:24847 "EHLO dev.tequila.jp")
-	by vger.kernel.org with ESMTP id S266292AbUIEHFJ (ORCPT
+	Sun, 5 Sep 2004 03:20:13 -0400
+Received: from ozlabs.org ([203.10.76.45]:14539 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266296AbUIEHUI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 03:05:09 -0400
-Message-ID: <413ABA9E.5030809@tequila.co.jp>
-Date: Sun, 05 Sep 2004 16:05:02 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: external firewire dvd writer
-References: <413A799C.1000505@tequila.co.jp> <413A7B61.2000603@tequila.co.jp> <200409042153.20030.dtor_core@ameritech.net>
-In-Reply-To: <200409042153.20030.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Sep 2004 03:20:08 -0400
+Date: Sun, 5 Sep 2004 17:15:49 +1000
+From: Anton Blanchard <anton@samba.org>
+To: torvalds@transmeta.com, zwane@fsmlabs.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Correct ELF section used for out of line spinlocks
+Message-ID: <20040905071549.GH7716@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Dmitry Torokhov wrote:
-| On Saturday 04 September 2004 09:35 pm, Clemens Schwaighofer wrote:
+Hi,
 
-|
-|
-| Did you compile SCSI CD-ROM support? If you did try loading sr_mod. Works
+The vmlinux.lds is using .lock.text but __lockfunc was using
+.spinlock.text.
 
-oh blimey! I totaly forgot that. Of course thats the problem. Thanks for
-this hint :)
+Anton
 
-lg, clemens
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-iD8DBQFBOrqejBz/yQjBxz8RAulrAJ9RTePoFoCh+jx+blew8Hg5Zh4SjQCfQyor
-q17c0LM2y3B2xIuKo2drjHA=
-=CUxg
------END PGP SIGNATURE-----
+diff -puN include/linux/spinlock.h~fix_outofline_spinlocks include/linux/spinlock.h
+--- gr_work/include/linux/spinlock.h~fix_outofline_spinlocks	2004-09-05 02:05:53.243858818 -0500
++++ gr_work-anton/include/linux/spinlock.h	2004-09-05 02:06:06.177805993 -0500
+@@ -38,7 +38,7 @@
+ #ifdef CONFIG_SMP
+ #include <asm/spinlock.h>
+ 
+-#define __lockfunc fastcall __attribute__((section(".spinlock.text")))
++#define __lockfunc fastcall __attribute__((section(".lock.text")))
+ 
+ int __lockfunc _spin_trylock(spinlock_t *lock);
+ int __lockfunc _write_trylock(rwlock_t *lock);
+_

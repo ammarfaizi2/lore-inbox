@@ -1,72 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSKTQVG>; Wed, 20 Nov 2002 11:21:06 -0500
+	id <S261587AbSKTQWA>; Wed, 20 Nov 2002 11:22:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261561AbSKTQVG>; Wed, 20 Nov 2002 11:21:06 -0500
-Received: from thunk.org ([140.239.227.29]:36287 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261486AbSKTQVF>;
-	Wed, 20 Nov 2002 11:21:05 -0500
-Date: Wed, 20 Nov 2002 11:27:57 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: the random driver
-Message-ID: <20021120162757.GA1922@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-References: <3DDB3DED.A4C9DC56@digeo.com>
-Mime-Version: 1.0
+	id <S261561AbSKTQV7>; Wed, 20 Nov 2002 11:21:59 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:61997 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261587AbSKTQV4>; Wed, 20 Nov 2002 11:21:56 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200211201628.gAKGSwL03853@devserv.devel.redhat.com>
+Subject: Linux 2.2.23-rc2
+To: linux-kernel@vger.kernel.org
+Date: Wed, 20 Nov 2002 11:28:58 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DDB3DED.A4C9DC56@digeo.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 11:46:53PM -0800, Andrew Morton wrote:
-> a) It's racy.  The head and tail pointers have no SMP protection
->    and a race will cause it to dump 128 already-processed items
->    back into the entropy pool.
 
-Yeah, that's a real problem.  The random driver was never adequately
-or locked for SMP case.  We also have a problem on the output side;
-two processes that read from /dev/random at the same time can get the
-exact same value.  This is **bad**, especially if it is being used for
-UUID generation or for session key generation.
+Actually include the DoS fix this time
 
-The output side SMP locking is on my todo queue, but this week I'm in
-Atlanta dealing with IPSE Cat the the IETF meeting....  when I get
-back in Boston next week, I'll look at fixing this, but if someone
-wants to beat me to it, feel free....
+2.2.23-rc2
+o	Backport NT iret denial of service bugfix    (Marc-Christian Petersen)
 
-> b) It's weird.  What's up with this?
-> 
->         batch_entropy_pool[2*batch_head] = a;
->         batch_entropy_pool[(2*batch_head) + 1] = b;
-> 
->    It should be an array of 2-element structures.
+2.2.23-rc1
+o	Gameport support for ALi 5451			(Pascal Schmidt)
+	| Just missing PCI idents
+o	IP options IPOPT_END padding fix		(Jeff DeFouw)
+o	Make APM check more paranoid			(Solar Designer)
+o	Sanity check ixj requests as in 2.4		(Solar Designer)
+o	Fix printk warning in fat			(Solar Designer)
+o	Fix other print warnings in 2.2.22		(Solar Designer)
+o	ISDN multichannel ppp locking fix		(Herbert Xu)
+o	Fix sx driver compiled into kernel case		(Martin Pool)
+o	Backport ipfw sleep in spinlock in firewall	(James Morris)
+o	Update dmi_scan code to match 2.4/2.5		(Jean Delvare)
+o	Make agp debugging printk clearer		(Neale Banks)
 
-The entropy returned by the drivers is essentially just an arbitrary
-64 bit value.  It's treated as two 32 bit values so that we don't lose
-horribly given GCC's pathetic 64-bit code generator for the ia32
-platform. 
+2.2.22
+o	Fix HDLC bugs causing kernel printk warns	(Pavel)
 
-> d) It's punting work up to process context which could be performed
->    right there in interrupt context.
+2.2.22-rc3
+o	3ware IDE raid small update			(Adam Radford)
+o	Fix incorrect comments				(Solar Designer)
+o	Sanity check in isdn 				(Solar Designer)
+o	Type fixes for usb				(Solar Designer)
+o	Vmalloc corner case fix 			(Dave Miller)
 
-The idea was to trying to pacify the soft realtime nazi's that are
-stressing out over every single microsecond of interrupt latency.
-Realistically, it's about dozen memory memory cache misses, so it's
-not *that* bad.  Originally though the batched work was being done in
-a bottom-half handler, so there wasn't a process context switch
-overhead.  So perhaps we should rethink the design decision of
-deffering the work in the interests of reducing interrupt latency.
+2.2.22-rc2
+o	Fix isofs over loopback problems		(Balazs Takacs)
+o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
+o	Fix error reporting in OOM cases		(Julian Anastasov)
+o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
+o	Set atime on AF_UNIX sockets			(Solar Designer)
+o	Restore SPARC MD boot configuration		(Tomas Szepe)
+o	Multiple further sign/overflow fixes		(Solar Designer)
+o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
 
-> My suggestion, if anyone cares, is to convert the entropy pool
-> into smaller per-cpu buffers, protected by local_irq_save() only.
-> This way the global lock (which isn't there yet) only needs to
-> be taken when a CPU is actually dumping its buffer.
-
-Yeah, that's probably what we should do.
-
-						- Ted
+2.2.22-rc1
+o	Backport 2.4 neighbour sending fix		(Chris Friesen)
+o	Fix a sign handling slackness in apm		(Silvio Cesare)
+o	Fix a sign handling error in rio500		(Silvio Cesare)
+o	Indent depca ready for cleanups			(me)
+o	Update VIA C3 recognition			(Diego Rodriguez)
+o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
+o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
+o	3ware IDE RAID update				(Adam Radford)
+o	Note ioctl clash on 0x5402			(Pavel Machek)
+o	Typo fix					(Dan Aloni)
+o	Update Riley's contact info			(Riley Williams)
+o	Alpha ptrace fixes				(Solar Designer)
+o	Multiple security fix backports			(Solar Designer)

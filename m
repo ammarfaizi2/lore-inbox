@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289917AbSAPKDm>; Wed, 16 Jan 2002 05:03:42 -0500
+	id <S290405AbSAPKfv>; Wed, 16 Jan 2002 05:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289804AbSAPKDd>; Wed, 16 Jan 2002 05:03:33 -0500
-Received: from yeager.cse.Buffalo.EDU ([128.205.36.9]:43185 "EHLO
-	yeager.cse.Buffalo.EDU") by vger.kernel.org with ESMTP
-	id <S290321AbSAPKDV>; Wed, 16 Jan 2002 05:03:21 -0500
-Date: Wed, 16 Jan 2002 05:03:20 -0500 (EST)
-From: Nelson Mok <nmok@cse.Buffalo.EDU>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: USB Sandisk SDDR-31 problems in 2.4.9 - 2.4.17
-In-Reply-To: <Pine.SOL.4.30.0201100411100.25549-100000@yeager.cse.Buffalo.EDU>
-Message-ID: <Pine.SOL.4.30.0201160501390.7904-100000@yeager.cse.Buffalo.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290397AbSAPKfl>; Wed, 16 Jan 2002 05:35:41 -0500
+Received: from mail.merconic.com ([62.96.220.180]:61396 "HELO
+	mail.merconic.com") by vger.kernel.org with SMTP id <S290393AbSAPKf0>;
+	Wed, 16 Jan 2002 05:35:26 -0500
+Date: Wed, 16 Jan 2002 11:35:17 +0100
+From: "marc. h." <heckmann@hbe.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [problem captured] Re: cerberus on 2.4.17-rc2 UP
+Message-ID: <20020116113516.D4627@hbe.ca>
+In-Reply-To: <20020108164816.A5453@hbe.ca> <E16Nysp-0006tn-00@the-village.bc.nu> <3C3B579D.7B8E534F@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C3B579D.7B8E534F@zip.com.au>; from akpm@zip.com.au on Tue, Jan 08, 2002 at 12:33:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Nelson Mok wrote:
+ok, the ext3-2.4-0.9.17 patch fixes this bug. thank you. that means that
+2.4.17-rc2 with the patch applied makes it through a full *double* cerberus run
+succesfully. I also tried the same with ext2 and it made it through as well. I
+plan to try and 18-preX as well soon. If only such a test wasn't a day and a
+half long...
 
-> My system is currently an AMD Athlon with kernel 2.4.17, Adaptec 2940 PCI
-> SCSI card, Plextor 40X SCSI CD-ROM, Plextor 8x CD-R and the USB Sandisk
-> SDDR-31 compact flash reader.  With the 2.4.x series of the kernel, in
-> particular with RedHat's 2.4.9 kernel, 2.4.15, 2.4.16, and 2.4.17 I have
-> been experiencing the same two problems.
->
-> 1. the SCSI CD-ROM on my system works fine, that is until I mount the USB
-> cf reader.  After doing so, any attempts to mount a CD in the CD-ROM gives
-> me the message "mount: wrong fs type, bad option, bad superblock on
-> /dev/cdrom, or too many mounted file systems".  If the CD-ROM is already
-> mounted and I then mount the USB cf reader, the CD-ROM will no longer
-> respond...  unmounting and mounting the CD-ROM at this point seems to work
-> but any attempt to access the information is futile.  The physical eject
-> on the CD-ROM also ceases to function after this.  Tried removing all the
-> USB modules followed by the SCSI modules and then modprobe them all again
-> but doing that does not affect anything.  Only way to access my CD-ROM
-> again is a reboot of the machine.  The wierd thing to this is, it does not
-> affect my CD-R drive as it continues to work fine.  This happens again if
-> I were to repeat the above mentioned steps.
->
-> 2. after mounting the USB cf reader, the shutting down of the system
-> stalls for quite a bit at the point where it tries to unmount all the file
-> systems.  This occurs regardless of whether I unmounted the drive or not.
->
->
-> Lastly, I know both the CD-ROM and USB cf reader are fine as they have
-> worked fine under the later 2.2.x kernels, as well as in Windows.
+The only other thing that seems to effecting a lot of people (including a
+friend of mine) that I can't re-produce here, is the OOPses... A box that was
+stable with 2.4.12 oops'es in short time with 2.4.1[67]. The box in question is
+a Dell desktop running a netfilter firewall.
 
-To add to this, even after the system refuses to mount the CD-ROM, I can
-still control a musical CD through xmms...  skip tracks, play, stop, and
-pause the musical CD.
+-m
 
+On Tue, Jan 08, 2002 at 12:33:33PM -0800, Andrew Morton wrote:
+> Alan Cox wrote:
+> > 
+> > Other people have reported it too. Its clearly a kernel race
+> 
+> Yes, I can generate it at will on two quite different IDE machines
+> with the run-bash-shared-mapping script from
+> http://www.zip.com.au/~akpm/ext3-tools.tar.gz
+> 
+> It's on my list of things-to-do, filed under "hard".  It even happens
+> on uniprocessor, with unmask_irq=0.
+> 
+> Interestingly, I _think_ it only ever occurs against the
+> swap device.  But I need to confirm this.  Marc, do you
+> have swap on /dev/hda1?
+> 
+
+-- 
+	C3C5 9226 3C03 CDF7 2EF1  029F 4CAD FBA4 F5ED 68EB
+	key: http://people.hbesoftware.com/~heckmann/

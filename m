@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271722AbTG2NxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 09:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271729AbTG2NxH
+	id S271690AbTG2NvW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 09:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271694AbTG2NvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 09:53:07 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:55982
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271722AbTG2NxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 09:53:02 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Timothy Miller <miller@techsource.com>,
-       Daniel Phillips <phillips@arcor.de>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Date: Tue, 29 Jul 2003 23:57:19 +1000
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, ed.sweetman@wmich.edu,
-       eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271517.55549.phillips@arcor.de> <3F267CF9.40500@techsource.com>
-In-Reply-To: <3F267CF9.40500@techsource.com>
+	Tue, 29 Jul 2003 09:51:22 -0400
+Received: from [207.231.225.15] ([207.231.225.15]:57073 "EHLO mail")
+	by vger.kernel.org with ESMTP id S271690AbTG2NvU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 09:51:20 -0400
+Message-ID: <3F267BC4.8000507@infointeractive.com>
+Date: Tue, 29 Jul 2003 10:51:00 -0300
+From: Rob Shortt <rob@infointeractive.com>
+Organization: InfoInterActive Corp., An AOL Company
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DMA errors - 2.4.22-pre8 - SiS730 - WD800JB
+References: <3F266B99.1040507@infointeractive.com> <20030729153309.A25792@bouton.inet6-interne.fr>
+In-Reply-To: <20030729153309.A25792@bouton.inet6-interne.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307292357.19647.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003 23:56, Timothy Miller wrote:
-> First, since we're dealing with real-time and audio issues, is there any
+Lionel Bouton wrote:
+> On mar, jui 29, 2003 at 09:42:01 -0300, Rob Shortt wrote:
 
-Actually this is only a tiny part of this work and adequate improvement in 
-many different scheduler tweaks have already addressed this. This is now more 
-about maintaining good all round interactivity and fairness. Improving audio 
-beyond ordinary scheduling tweaks is another issue which may lead to some 
-form of soft user RR task. su tasks already can be reniced or made RR to 
-help.
+>>ECS K7SEM w/ Athlon XP 2100+
+> 
+> 
+> This is a SiS based mainboard.
+> SiS APIC support was still buggy last time I checked.
 
-> interactive processing in the desired time.  I don't think we should be
-> making scheduler tweaks to fix this corner case because it's impossible
-> to fix, no?
+Darn. :)
 
-Your concerns are well founded. However neither Ingo nor I (and all the other 
-contributors) are trying to make an audio app scheduler. At some stage a 
-modification will be made to the mainline kernel which will have adequate 
-audio performance in many (but not all) settings, and more importantly be 
-fair and interactive.
+>>Local APIC disabled by BIOS -- reenabling.
+>>Found and enabled local APIC!
+> 
+> 
+> Argh ?
 
-Con
+Yeah, that raised some flags for me as well.  I was hoping someone would 
+comment on it.
+
+> Usually disabling local APIC support solves this (sometimes with nasty
+> side-effects like huge perf drops or lost peripheral support).
+> 
+> You can quickly try to pass "noapic" to the kernel and report.
+
+Will do, thanks.
+
+> 
+> There are SiS APIC patches floating around, try looking in the mailing list
+> archives, there was a similar problem reported not long ago (for a SiS based
+> laptop).
+
+I will look for this as well.
+
+> 
+> Best regards,
+> 
+> LB.
+
+Thanks for your help, I will try these things later and report back.
+
+-Rob
 

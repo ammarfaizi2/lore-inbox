@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281160AbRKEOMz>; Mon, 5 Nov 2001 09:12:55 -0500
+	id <S281156AbRKEOR0>; Mon, 5 Nov 2001 09:17:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281158AbRKEOMp>; Mon, 5 Nov 2001 09:12:45 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:32011 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S281156AbRKEOMg>; Mon, 5 Nov 2001 09:12:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Ryan Hayle <hackel@walkingfish.com>, linux-kernel@vger.kernel.org
-Subject: Re: Poor IDE performance with VIA MVP3
-Date: Mon, 5 Nov 2001 16:12:00 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20011105005033.A10060@isis.visi.com>
-In-Reply-To: <20011105005033.A10060@isis.visi.com>
-MIME-Version: 1.0
-Message-Id: <01110516120000.00794@nemo>
-Content-Transfer-Encoding: 7BIT
+	id <S281158AbRKEORQ>; Mon, 5 Nov 2001 09:17:16 -0500
+Received: from as3-4-2.bi.s.bonet.se ([217.215.34.150]:41385 "EHLO
+	zodiac.debian.net") by vger.kernel.org with ESMTP
+	id <S281156AbRKEORA>; Mon, 5 Nov 2001 09:17:00 -0500
+From: Mikael Hedin <mikael.hedin@irf.se>
+To: linux-kernel@vger.kernel.org
+Reply-to: mikael.hedin@irf.se, linux-kernel@vger.kernel.org
+Subject: Disk corruption with VIA KT266 chipset
+X-Mailer: VM 6.92 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
+Message-Id: <E160kYc-0004Ol-00@zodiac.debian.net>
+Date: Mon, 05 Nov 2001 15:16:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 November 2001 06:50, Ryan Hayle wrote:
-> I have a VIA MVP3 (VT82C586B) controller on my motherboard, and am
-> experiencing extremely poor performance with a Maxtor 20G
-> (52049U4) drive.  It is an UDMA66-capable drive, but I'm only attempting
-> to use UDMA33 (with an 80-pin cable, as recommended).
->
-> The drive is detected and works just fine, with no errors reported,
-> however the acces is painfully slow.  hdparm -t varries from 970 K/sec to
-> 2.5 M/sec. (See below)
 
-Are you saying that hdparm -T -t is yielding wildly varying results?
-Looks similar to failing hd symptoms or bug in IDE layer causing retries
-after error/timeout. What's in the logs?
+[Please cc me on replies, I only read the list archives]
 
-> The drive is attached by itself to the first IDE channel.  On the second I
-> have a Maxtor 6.8G (90680D4) and a CDROM.  hdparm -t on the second drive
-> typically gives 8-9 M/sec.  I manually set this drive with hdparm -X34
-> (mdma2), otherwise it generates errors.
->
-> I have tried Linux 2.2.19, 2.4.12, and now 2.4.13, and all exhibit this
-> same behavior.  I was originally running with a 40-pin cable, and switched
-> it to the 80 to see if it might help, but it had no effect.  As some
-> background information, I was originally running linux off of the second
-> 6G drive, and opted to move it onto the 20G because it got better
-> performance.  Once I did this, however, the drive started performing
-> slowly like this, regardless of whether I'm booting to it or the 6G
-> drive.
->
-> Does this sound like it's just a hardware problem?  Has anyone experienced
-> anything similar to this?  Any advice would be greatly apreciated.
+Hi,
 
-Well, I had problems with drives refusing to do [u]dma.
-On my home machine I found out that compiling kernel with support for VIA 
-chipset allowed udma to work ok (hdparm -T -t = ~20mb/s). Without that 
-support, my hd was stuck in pio, ~6mb/s.
---
-vda
+I have a Soltek KT75DRV motherboard, with the VIA KT266 chipset, and
+in particular the VIA 8233 southbridge.  I use two IDE disks (one
+ATA100, one ATA33) with UDMA enabled and stock linux-2.4.13.  
+
+With heavy disk use, I get random corruptions.  E.g. "cp -a /usr /mnt;
+diff -ruq /usr /mnt" shows a couple of files that differ.  OTOH, "cp
+-a linux linux2; diff -ruq linux linux2" use to run fine as many times
+as you like.  Thus I suspect the error is prone to show up on large
+files transfers over DMA.
+
+I talked to Vojtech Pavlik, and we concluded the problem is the
+transfer between the VIA8233 and the memory (memtest86 show no
+errors.)
+
+I've replaced the motherboard once, without much difference, so it's
+probably not plain broken.
+
+Not using DMA solves the problem, but of course it's not what I want,
+I get hdparm -t reading around 2 MB/s :-(
+
+I'd be happy to try out any solution, I already had to reinstall the
+system a couple of times due to this.
+
+Regards,
+
+Micce
+
+BTW The sound (ALSA driver) of this board is horrible, but that might
+be as intended by Soltek;)
+
+-- 
+Mikael Hedin, MSc                   +46 (0)980 79176
+Swedish Institute of Space Physics  +46 (0)8 344979 (home)
+Box 812, S-981 28 KIRUNA, Sweden    +46 (0)70 5891533 (mobile)
+[gpg key fingerprint = 387F A8DB DC2A 50E3 FE26  30C4 5793 29D3 C01B 2A22]
+
+Nu lubbar vi på fjället hela dan och trivs med det
+			Jesse James '71
+
+militia explosion World Trade Center assassination Mossad $400 million
+in gold bullion COSCO FSF domestic disruption Monica Lewinsky genetic
+security jihad terrorist Area 51

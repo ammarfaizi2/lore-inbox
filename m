@@ -1,130 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129765AbRABBTV>; Mon, 1 Jan 2001 20:19:21 -0500
+	id <S129831AbRABBaY>; Mon, 1 Jan 2001 20:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130144AbRABBTL>; Mon, 1 Jan 2001 20:19:11 -0500
-Received: from va-ext.webmethods.com ([208.234.160.252]:6181 "EHLO
-	localhost.neuron.com") by vger.kernel.org with ESMTP
-	id <S129765AbRABBTE>; Mon, 1 Jan 2001 20:19:04 -0500
-Date: Mon, 1 Jan 2001 19:50:31 -0500 (EST)
-From: stewart@neuron.com
-To: linux-kernel@vger.kernel.org
-Subject: sync() broken for raw devices in 2.4.x??
-Message-ID: <Pine.LNX.4.10.10101011925130.1859-100000@localhost>
+	id <S130012AbRABBaP>; Mon, 1 Jan 2001 20:30:15 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:61445 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S129831AbRABBaB>;
+	Mon, 1 Jan 2001 20:30:01 -0500
+Message-ID: <3A50F77B.2EA2FF12@goingware.com>
+Date: Mon, 01 Jan 2001 21:32:43 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: VM thrashing in test13-pre4 with Netscape
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't know if this is a Netscape problem, or an XFree86 4.0.1 problem, or a
+kernel problem.  I hadn't noticed it with previous kernels so I thought I should
+mention it.
 
- I have a sync()/fdatasync() intensive application that is designed to work
- on both raw files and raw partitions. Today I upgraded my kernel to the
- new pre-release and found that my benchmark program would no longer finish
- when handed a raw partition. I've written a small Java program (my app is
- in Java) which demonstrates the bug. Make foo.dat a raw scsi partition to
- re-produce. In my case it's "mknod foo.dat b 8 18". 
+I'll download the latest kernel source tonight and try it out.
 
-// -----------------------------------------------------
-import java.io.*;
-public class sync {
-    public static void main(String args[]) throws Exception {
-        long ops = Long.parseLong(args[0]);
-        byte dat[] = new byte[Integer.parseInt(args[1])];
-        RandomAccessFile rf = new RandomAccessFile("foo.dat", "rw");
-        long time = System.currentTimeMillis();
-        long t2 = time;
-        for (int i=0; i<ops; i++) {
-            rf.write(dat);
-            rf.getFD().sync();
-            if (i%100 == 0) {
-                long tm = System.currentTimeMillis();
-                System.out.println("i="+i+"   sync avg ms="+((tm-t2)/100));
-                t2 = tm;
-            }
-        }
-        time = System.currentTimeMillis()-time;
-        System.out.println("time = "+time+"ms");
-        System.out.println(((ops*1000)/time)+" ops/sec");
-    }
-}
-// -----------------------------------------------------
+I'm using 2.4.0-test13-pre4 with XFree86 4.0.1 and Netscape Communicator 4.73. 
+The distro is slackware 7.1 on a Pentium III 667 MHz machine with an ASUS
+motherboard with a Via chipset and an Adaptec 29160 SCSI host bus adapter.  It
+has 128 MB of 133 MHz ram.
 
- I've included 2.2.17 as a baseline for comparison w/ 2.4.0-prerelease.
- Watch the avg sync times. The tests were run with the command-line:
+If I browse with Netscape for a while, after a while I start hearing a lot of
+disk activity and the response of the machine slows way down. "top" often shows
+kswapd as having the top CPU time.  In one instance of this, Netscape was using
+60% of the memory and XFree86 was using 40%.  (I'm not sure if this is the
+memory in use or percentage of all available memory).
 
-   java sync 10000 4096
+If I quit netscape the thrashing stops, and I can start it up again and run OK
+for a while, but it seems to start up again much sooner.  After a while I have
+to reboot.
 
+When it happens, the onset seems pretty sudden.  It doesn't appear like
+something's slowly leaking memory.  It feels more like something suddenly goes
+haywire.
 
- 2.2.17 on an ext2 file looks like this:
+Mike
+-- 
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
 
-i=0 sync avg ms=0
-i=100 sync avg ms=11
-i=200 sync avg ms=13
-...
-i=9700 sync avg ms=21
-i=9800 sync avg ms=21
-i=9900 sync avg ms=21
-time = 153510ms
-65 ops/sec
-
-
- 2.4.0 on an ext2 file looks like this:
-
-=0 sync avg ms=0
-i=100 sync avg ms=13
-i=200 sync avg ms=13
-...
-i=9700 sync avg ms=16
-i=9800 sync avg ms=16
-i=9900 sync avg ms=15
-time = 140780ms
-71 ops/sec
-
-
- OK, that's better. My benchmarks confirm that under ext2, 2.4.0 is
- generally superior, though I'm still getting some suspicious hangs.
- I'll report back on that if I can reproduce it with a sample program.
-
-
- 2.2.17 with a raw partition:
-
-i=0 sync avg ms=0
-i=100 sync avg ms=0
-i=200 sync avg ms=0
-...
-i=9700 sync avg ms=0
-i=9800 sync avg ms=1
-i=9900 sync avg ms=1
-time = 22825ms
-438 ops/sec
-
-
- 2.4.0 with a raw partition:
-
-i=0 sync avg ms=0
-i=100 sync avg ms=0
-i=200 sync avg ms=0
-...
-i=9700 sync avg ms=39
-i=9800 sync avg ms=39
-i=9900 sync avg ms=40
-time = 202406ms
-49 ops/sec
-
-
- OK, 2.4.0 gets progressively (visibly) slower as the test goes on. Even
- under 2.2.17 the test would cycle between 0-6ms over several thousand
- iterations. This could be sped up/slowed by changing the data volume.
- 2.4.0, however, never recovers and sync() times will become infinitely
- large. This explains why my benchmarks never complete.
-
- The system in this case is a dual p2-450 512MB ram and SCSI disks. I have
- not tested this with IDE drives under 2.4.0 nor have I performed these
- tests under other 2.4.x test kernels.
-
- Stewart
-
-
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

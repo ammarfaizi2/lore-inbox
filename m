@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUJRPI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUJRPQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUJRPI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 11:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUJRPI1
+	id S266578AbUJRPQF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 11:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUJRPQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 11:08:27 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:48020 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S266741AbUJRPIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 11:08:25 -0400
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [patch 1/1] SKAS3: fix mm->dumpable handling
-Date: Sat, 16 Oct 2004 17:08:26 +0200
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, uml@hno.marasystems.com,
-       mcr@sandelman.ottawa.on.ca
-References: <20041014161758.C4CF444BE@zion.localdomain>
-In-Reply-To: <20041014161758.C4CF444BE@zion.localdomain>
-MIME-Version: 1.0
+	Mon, 18 Oct 2004 11:16:05 -0400
+Received: from gprs214-57.eurotel.cz ([160.218.214.57]:18050 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266578AbUJRPQB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 11:16:01 -0400
+Date: Mon, 18 Oct 2004 17:10:53 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Nathan Lynch <nathanl@austin.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] i386 CPU hotplug updated for -mm
+Message-ID: <20041018151053.GA23069@elf.ucw.cz>
+References: <20041001204533.GA18684@elte.hu> <20041001204642.GA18750@elte.hu> <20041001143332.7e3a5aba.akpm@osdl.org> <Pine.LNX.4.61.0410091550300.2870@musoma.fsmlabs.com> <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410161708.27369.blaisorblade_spam@yahoo.it>
+In-Reply-To: <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 October 2004 18:17, blaisorblade_spam@yahoo.it wrote:
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>, Henrik
-> Nordstrom <uml@hno.marasystems.com>, Michael Richardson
-> <mcr@sandelman.ottawa.on.ca>
+Hi!
 
-> When a child mm is created by opening /proc/mm, without this patch its
-> mm->dumpable flag is left set to 0, even when there is no reason to do so.
->
-> This way, for instance, if <pid> is the pid of a userspace thread,
-> /proc/<pid> is only readable by root (which was the original reason letting
-> this be diagnosed by Michael Richardson).
 
-> Paolo and Henrik discussed about this in detail, finally Paolo wrote the
-> patch and sent it for comment.
-And Paolo (myself) fucked it up:
-
-> +		/* Let's be safe. If we are ptraced from a non-dumpable process,
-> +		 * let's not be dumpable. Don't try to be smart and turn
-> +		 * current->dumpable to 1: it may be unsafe.*/
-> +		if (!current->dumpable) {
-This should be current->mm->dumpable, not current->dumpable.
-> +			new->dumpable = 0;
-> +			wmb();
-> +		}
+> +#ifdef CONFIG_HOTPLUG_CPU
+> +#include <asm/nmi.h>
+> +/* We don't actually take CPU down, just spin without interrupts. */
+> +static inline void play_dead(void)
+> +{
+> +	/* Ack it */
+> +	__get_cpu_var(cpu_state) = CPU_DEAD;
 > +
->  		atomic_inc(&new->mm_users);
->  		child->mm = new;
->  		child->active_mm = new;
-> _
-Also, we have not studied the case of another process trying to ptrace and 
-SWITCH_MM a process already having some mm's (it cannot give it any already 
-existing mm, because it has not the file descriptor). It seems safe to me, 
-but I'm going to study this and put the result in next patch version.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+> +	/* We shouldn't have to disable interrupts while dead, but
+> +	 * some interrupts just don't seem to go away, and this makes
+> +	 * it "work" for testing purposes. */
+> +	/* Death loop */
+> +	while (__get_cpu_var(cpu_state) != CPU_UP_PREPARE)
+> +		cpu_relax();
+> +
+> +	local_irq_disable();
+> +	__flush_tlb_all();
+> +	cpu_set(smp_processor_id(), cpu_online_map);
+> +	enable_APIC_timer();
+> +	local_irq_enable();
+> +}
+> +#else
 
+Having real implementation of this one would be very welcome for
+suspend-to-{RAM,disk} on smp machines....
+
+Are there really no i386 machines whose hardware supports hotplug?
+
+							Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

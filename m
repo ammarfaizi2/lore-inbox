@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133109AbRDZFRr>; Thu, 26 Apr 2001 01:17:47 -0400
+	id <S133113AbRDZFge>; Thu, 26 Apr 2001 01:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133110AbRDZFRh>; Thu, 26 Apr 2001 01:17:37 -0400
-Received: from www.wen-online.de ([212.223.88.39]:64266 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S133109AbRDZFRZ>;
-	Thu, 26 Apr 2001 01:17:25 -0400
-Date: Thu, 26 Apr 2001 07:16:31 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104252352430.1101-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0104260644430.672-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S133110AbRDZFgY>; Thu, 26 Apr 2001 01:36:24 -0400
+Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:19702
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S133113AbRDZFgK>; Thu, 26 Apr 2001 01:36:10 -0400
+Subject: Re: 2.2.19 Realaudio masq problem
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Whit Blauvelt <whit@transpect.com>
+Cc: Dave Mielke <dave@mielke.cc>, Tim Moore <timothymoore@bigfoot.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010425181238.A1616@free.transpect.com>
+In-Reply-To: <Pine.LNX.4.30.0104251450550.1012-100000@dave.private.mielke.cc>
+	<988232207.32641.4.camel@nomade>  <20010425181238.A1616@free.transpect.com>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 26 Apr 2001 07:26:19 +0200
+Message-Id: <988262902.32639.6.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Marcelo Tosatti wrote:
+Le 25 Apr 2001 18:12:38 -0500, Whit Blauvelt a écrit :
+> On Wed, Apr 25, 2001 at 10:56:11PM +0200, Xavier Bestel wrote:
+> > Le 25 Apr 2001 14:52:56 -0400, Dave Mielke a écrit :
+> 
+> > > strace writes to standard error, not standard output, by default. Better yet,
+> > > though, use the -o option of strace to direct its output to a file, which
+> > > leaves the standard output streams alone for the aplication being traced.
+> 
+> Okay, so being unfamiliar with strace, I should be able to invoke something
+> like "strace -o log realplay some-realaudio-url"? And this should mean
+> something to me?
+> 
+> > I didn't follow this thread at all (just caught this last mail), but I
+> > use realplayer8 here, and I actually had to *rmmod* the realaudio
+> > masquerading module to make it stream audio from the internet on a
+> > masqueraded machine. The server is a debian with kernel 2.2.19, does
+> > NAT.
+> 
+> Thanks for reasuring me there's something broken in the module. Xavier, do
+> you happen to know what transport mode your realplay is using then? That
+> would show under View | Preferences | Transport. And if you hit the
+> Autoconfigure button therer, does it succeed? It doesn't for me either with
+> or without the module loaded, and it used to with a 2.2.17 kernel plus
+> realplay 7 rather than 8.
 
-> On Thu, 26 Apr 2001, Mike Galbraith wrote:
->
-> > > Comments?
-> >
-> > More of a question.  Neither Ingo's nor your patch makes any difference
-> > on my UP box (128mb PIII/500) doing make -j30.
->
-> Well, my patch incorporates Ingo's patch.
->
-> It is now integrated into pre7, btw.
->
-> >  It is taking me 11 1/2
-> >  minutes to do this test (that's horrible).  Any idea why?~
->
-> Not really.
+Well, it says 'Automatically select best transport', and Autoconfigure
+doesn't succeed. With or without ip_masq_raudio.
 
-(darn)
+> Of course, the masq module is only to handle udp - if real goes to tcp it
+> doesn't need it, so I suspect what Xavier's seeing is it working via tcp -
+> but perhaps some servers today refuse to do anything but udp connections?
 
-> If you have concurrent swapping activity, pre7 should improve the
-> performance since all swap IO is asynchronous now. Only paths which really
-> need to stop and wait for the swap data are doing it. (eg do_swap_page)
+I confirm it uses TCP for streaming (I just looked with ethereal). The
+problem is that when insmoding ip_masq_raudio on the firewall,
+realplayer just hangs when buffering - if the server only supported UDP,
+I suspect it would negociate TCP or something like that.
 
-I'll grab virgin pre7 in a few.
+Xav
 
-> > (I can get it to under 9 with MUCH extremely ugly tinkering.  I've done
-> > this enough to know that I _should_ be able to do 8 1/2 minutes ~easily)
->
-> Which kind of changes you're doing to get better performance on this test?
-
-Prevent cache collapse at all cost is #one.  Matching deactivation rate
-to launder/reclaim.. et al.  Trying HARD to give PG_referenced a chance
-to happen between aging scans [1].
-
-	-Mike
-
-1. pagecache is becoming swapcache and must be aged before anything is
-done.  Meanwhile we're calling refill_inactive_scan() so fast that noone
-has a chance to touch a page.   Age becomes a simple counter.. I think.
-When you hit a big surge, swap pages are at the back of all lists, so all
-of your valuable cache gets reclaimed before we write even one swap page.
 

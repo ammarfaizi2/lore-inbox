@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280817AbRLSSGd>; Wed, 19 Dec 2001 13:06:33 -0500
+	id <S281779AbRLSSSz>; Wed, 19 Dec 2001 13:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280960AbRLSSGX>; Wed, 19 Dec 2001 13:06:23 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:60678 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S280817AbRLSSGO>; Wed, 19 Dec 2001 13:06:14 -0500
-Date: Wed, 19 Dec 2001 12:06:09 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Dead2 <dead2@circlestorm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The direction linux is taking
-Message-ID: <20011219120609.B18888@asooo.flowerfire.com>
-In-Reply-To: <E16GLmv-0007d4-00@the-village.bc.nu> <026701c187d5$ec2472c0$67c0ecd5@dead2> <20011218123724.A32316@asooo.flowerfire.com> <01121909274103.01840@manta> <003301c18873$7d06f8b0$6c2876d9@dead2>
-Mime-Version: 1.0
+	id <S281691AbRLSSSo>; Wed, 19 Dec 2001 13:18:44 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5616 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S281478AbRLSSSe>; Wed, 19 Dec 2001 13:18:34 -0500
+Message-ID: <3C20D9DC.B14709FD@mvista.com>
+Date: Wed, 19 Dec 2001 10:18:04 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin A. Brooks" <martin@jtrix.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: asynchronus multiprocessing
+In-Reply-To: <1008776432.431.15.camel@unhygienix> <1008777560.431.19.camel@unhygienix>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <003301c18873$7d06f8b0$6c2876d9@dead2>; from dead2@circlestorm.org on Wed, Dec 19, 2001 at 10:56:53AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's one of the specific options I proposed.  I think it would be best
-if it were focussed on lkml reports rather than noise from everywhere,
-and also if it kept the maintainers' interface as simple and explicit as
-possible.  And yes, who is the question that I'm pondering as well.
+"Martin A. Brooks" wrote:
+> 
+> On Wed, 2001-12-19 at 15:40, Martin A. Brooks wrote:
+> > Has there been any talk of (or work on) AMP support in the kernel?
+> 
+> I meant /asymmetric/ MP. Sorry.
+> 
+I have heard of some work.  As I understand it they are making an API
+for cpu affinity.  It is real time, so they are also interested in the
+schedule routines around cpu affinity as well.
 
+What did you have in mind? 
 -- 
-Ken.
-brownfld@irridia.com
-
-On Wed, Dec 19, 2001 at 10:56:53AM +0100, Dead2 wrote:
-|  > What might take out a few birds with one stone is to have someone on
-| > > lkml become an "LKML MAINTAINER": collect patches and bug reports in a
-| > > central place.  This would include:
-| > >
-| > > 1) The patch and/or bug report
-| > > 2) The entire LKML thread, with "important" messages marked
-| > > 3) Personal input, prioritization, severity info, etc.
-| >
-| > Good idea but _who_ will do that?
-| 
-| Just a thought that popped into my head..
-| What about using some kind of BugTrack system for this?
-| Where people can report a bug, and file patches for them.
-| There would indeed be some situations where 2-3-4 maybe
-| more patches are filed to fix one bug. Then the maintainer
-| can easily look through the patches and descide what to use..
-| 
-| -=Dead2=-
-| 
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

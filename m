@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbUATW1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 17:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265885AbUATW1N
+	id S265856AbUATWQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 17:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265852AbUATWQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 17:27:13 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6118 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265883AbUATW1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 17:27:09 -0500
-Date: Tue, 20 Jan 2004 23:27:00 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: John Cherry <cherry@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.6.1-mm5 (compile stats)
-Message-ID: <20040120222700.GJ12027@fs.tum.de>
-References: <20040120000535.7fb8e683.akpm@osdl.org> <1074614919.31724.0.camel@cherrypit.pdx.osdl.net> <20040120215705.GG12027@fs.tum.de> <1074636910.16765.14.camel@cherrytest.pdx.osdl.net>
+	Tue, 20 Jan 2004 17:16:28 -0500
+Received: from email-out1.iomega.com ([147.178.1.82]:26347 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S265856AbUATWPL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 17:15:11 -0500
+Subject: [PATCH] fix blockdev --getro for sr, sd, ide-floppy devs
+From: John McKell <mckellj@iomega.com>
+To: Paul Bristow <paul@paulbristow.net>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Iomega Corp.
+Message-Id: <1074636909.3078.3.camel@lintest.iomegacorp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1074636910.16765.14.camel@cherrytest.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 20 Jan 2004 15:15:10 -0700
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Jan 2004 22:15:10.0552 (UTC) FILETIME=[DE676580:01C3DFA2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 02:15:10PM -0800, John Cherry wrote:
->...
-> > Regarding allnoconfig:
-> > allnoconfig is a completely pathological case. It says "n" to support 
-> > for ISA, MCA and PCI, and neither networking nor any block devices.
-> > Besides, it says "n" to ELF, a.out and other binary formats.
-> > Demanding that allnoconfig should compile (although the resulting kernel 
-> > is completely useless) sounds a bit like demanding that no change in the 
-> > kernel is allowed to cause regressions in the dbench results...
-> > It is useful to omit a common option like e.g. PCI and check whether the 
-> > kernel still compiles, but allnoconfig removes nearly everything and 
-> > compiles such a small part of the kernel, that it's hardly useful.
-> 
-> I realize that allnoconfig is pathological, but it has caught several
-> config errors.  One would never try to boot from such a config.  Builds
-> based on allnoconfig have one purpose and that purpose is to validate
-> that defines are not used in cases where they are NOT defined in the
-> configuration.  Developers will quite often code a feature or
-> architecture with the config parameters always ON.  When the config
-> option is turned OFF, I will find compile errors, undefined variables,
-> and the like. This is actually quite a valuable screen.
+This 2.6.1 patch works by setting gendisk->policy to the correct value
+during initialization as the various drivers decide whether or not the
+disk is writeable.  This patch persuades "blockdev --getro ..." to
+correctly report the read-only state of a newly inserted disk.  This
+patch applies to sr.c, sd.c and ide-floppy.c.  ide-cd.c already has
+this functionality built into it.
 
-The problem is that allnoconfig turns _everything_ off.
+Using an Iomega Zip drive as the test case...
 
-Cases like e.g. CONFIG_PROC_FS=n are interesting, but allnoconfig 
-doesn't really test them since allnoconfig also says "n" to all drivers.
+Without the patch, I always see: 
 
-> If developers feel that this has outlived its usefulness, I'll remove it
-> from the compile regressions.  However, all I have received at this
-> point have been requests to put an allnoconfig build into the
-> regressions.
+$ sudo blockdev --getro /dev/sda 
+0
+$
 
-I'd like to hear from the people requesting it why they consider it 
-useful.
+That's only correct for writeable disks though.  Only when the patch
+is applied do I see a write-protected disk described correctly:
 
-In my personal experience, compiling allyesconfig but with CONFIG_SMP=n 
-(which enables BROKEN_ON_SMP drivers), and compiling with gcc 2.95 are 
-more interesing (and more realistic) configurations than allnoconfig 
-that find many compile errors.
+$ sudo blockdev --getro /dev/sda 
+1
+$
 
-> John
+--John McKell
 
-cu
-Adrian
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
 

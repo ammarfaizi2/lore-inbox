@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264019AbUEHSCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUEHSCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264019AbUEHSCj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 14:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUEHSCj
+	id S264012AbUEHSCg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 14:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbUEHSCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 14:02:39 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:34471 "EHLO
+	Sat, 8 May 2004 14:02:35 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:33959 "EHLO
 	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S264019AbUEHSCe convert rfc822-to-8bit (ORCPT
+	id S264012AbUEHSCe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 8 May 2004 14:02:34 -0400
 From: Ingo Oeser <ioe-lkml@rameria.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-Date: Sat, 8 May 2004 20:00:17 +0200
+Subject: Re: [PATCH 2.6] to fix i2o_proc kernel panic on access of /proc/i2o/iop0/lct
+Date: Sat, 8 May 2004 17:39:43 +0200
 User-Agent: KMail/1.6.2
-Cc: Andi Kleen <ak@muc.de>,
-       Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-References: <1TfLX-4M4-9@gated-at.bofh.it> <m34qqshx31.fsf@averell.firstfloor.org>
-In-Reply-To: <m34qqshx31.fsf@averell.firstfloor.org>
+Cc: Markus Lidel <Markus.Lidel@shadowconnect.com>
+References: <409CC59B.3020500@shadowconnect.com>
+In-Reply-To: <409CC59B.3020500@shadowconnect.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: Text/Plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200405082000.23118.ioe-lkml@rameria.de>
+Message-Id: <200405081739.50871.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On Friday 07 May 2004 21:10, Andi Kleen wrote:
-> Admittedly there would still need to be some coordination in case you
-> would want to remove a whole building block of your machine like 
-> you said. An nice way to do this would be to add an atomic "to be removed"
-> state to the individual unregister mechanisms that prevents the 
-> device from being reregistered until removed.
- 
-This is also needed for "to be replaced" state.
-Imagine a node with b0rken CPU, where you still like to use its memory.
+Hi Markus,
 
-Both states can be the same actually ;-)
+On Saturday 08 May 2004 13:33, Markus Lidel wrote:
+> the patch fixes a bug in the i2o_proc.c module, where the kernel panics, 
+> if you access /proc/i2o/iop0/lct and read more then 1024 bytes of it.
+> 
+> The problem was, that no paging was implemented by the function. This is 
+> now solved.
+
+What about solving this properly and using the seq_file API for this
+problem class as anywhere else in the kernel?
+
+Code will also get much more readable by this ;-)
 
 
 Regards
 
 Ingo Oeser
 
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAnSA1U56oYWuOrkARAnjYAJ9CfcVGC9GnqlmvSpwRzI10jj7WGwCguKYq
-qtawhKJiy/j8r0d3qfqBrSw=
-=Z+oX
+iD8DBQFAnP9FU56oYWuOrkARAgpwAKDHengtnPOk9c8mj7uD8mZkMx/LjACfWHts
+utVH2yGfVRoJ7Sy8+bhJRBQ=
+=E50x
 -----END PGP SIGNATURE-----
 

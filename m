@@ -1,192 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270093AbTHGPyz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 11:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270081AbTHGPx1
+	id S270081AbTHGPzb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHGPxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 11:53:27 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:51923 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S270322AbTHGPwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 11:52:16 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Thu, 7 Aug 2003 17:52:13 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
+	Thu, 7 Aug 2003 11:53:01 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:145 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S270367AbTHGPwW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:52:22 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org, green@namesys.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030807175213.63a56f9b.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0308070942540.6582-100000@logos.cnet>
-References: <20030807041440.12341286.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308070942540.6582-100000@logos.cnet>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH] trivial 2.4/2.6 PCI name change/addition
+Date: Thu, 7 Aug 2003 09:52:15 -0600
+User-Agent: KMail/1.5.2
+Cc: Alex Williamson <alex_williamson@hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <davej@codemonkey.org.uk>
+References: <Pine.LNX.4.44.0308070932010.6582-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0308070932010.6582-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308070952.15049.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Aug 2003 09:45:36 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+On Thursday 07 August 2003 6:32 am, Marcelo Tosatti wrote:
+> On Wed, 6 Aug 2003, Bjorn Helgaas wrote:
+> > On Wednesday 06 August 2003 1:54 pm, Alex Williamson wrote:
+> > >    This patch renames the PCI-X adapter found in HP zx1 and sx1000
+> > > ia64 systems to something more generic and descriptive.  It also
+> > > adds an ID for the PCI adapter used in sx1000.  Patches against
+> > > 2.4.21+ia64 and 2.6.0-test2+ia64 attached.  Thanks,
+> > 
+> > I applied this for the 2.4 ia64 patch.
+> > 
+> > Marcelo, do we need to do anything else to get this in your tree?
+> 
+> 
+> Actually this doesnt apply cleanly to my tree Bjorn.
+> 
+> Can you please send me an updated patch? 
 
-> The decoded oops should be sufficient. 
-
-Well, how about this one:
-
-
-ksymoops 2.4.8 on i686 2.4.22-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-rc1/ (default)
-     -m /boot/System.map-2.4.22-rc1 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Unable to handle kernel paging request at virtual address 63eabdb3
-c0145f31 
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0145f31>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 00000000   ebx: 00000000   ecx: 00000061   edx: 63eabd93
-esi: 00000000   edi: 00001000   ebp: 00000000   esp: c34f7e60
-ds: 0018   es: 0018   ss: 0018
-Process kupdated (pid: 7, stackpage=c34f7000)
-Stack: 00000000 f7afb1f0 c0146018 00000000 c01312e9 00000000 c1849dd0 00001000
-       00001000 00000803 c014823a c1849dd0 00001000 00000000 f79b7fa4 00001e18
-       c0148428 f79b7fa4 00001e18 00001000 e9640000 00000000 00000803 00001000
-Call Trace:    [<c0146018>] [<c01312e9>] [<c014823a>] [<c0148428>] [<c0145b36>]
-  [<c0197328>] [<c019ceb9>] [<c019c4f5>] [<c0188e94>] [<c01498cb>] [<c014887c>]
-  [<c0148be9>] [<c0105000>] [<c010592e>] [<c0148af0>]
-Code: 8b 42 20 a3 30 c6 37 c0 8d 41 ff a3 34 c6 37 c0 c6 05 c0 bb
+Oops, sorry about that.  Here's an updated one.  It doesn't include
+the agpgart bit because you don't have the latest HP ZX1 gart
+code.  I'll try to get that merged up soon.
 
 
->>EIP; c0145f31 <get_unused_buffer_head+21/b0>   <=====
+===== drivers/pci/pci.ids 1.37 vs edited =====
+--- 1.37/drivers/pci/pci.ids	Sun Jun 29 09:10:14 2003
++++ edited/drivers/pci/pci.ids	Thu Aug  7 10:43:57 2003
+@@ -1348,6 +1348,7 @@
+ 		103c 1226  Keystone SP2
+ 		103c 1227  Powerbar SP2
+ 		103c 1282  Everest SP2
++	1054  PCI Local Bus Adapter
+ 	1064  79C970 PCnet Ethernet Controller
+ 	108b  Visualize FXe
+ 	10c1  NetServer Smart IRQ Router
+@@ -1359,7 +1360,8 @@
+ 	121c  NetServer PCI COM Port Decoder
+ 	1229  zx1 System Bus Adapter
+ 	122a  zx1 I/O Controller
+-	122e  zx1 Local Bus Adapter
++	122e  PCI-X/AGP Local Bus Adapter
++	127c  sx1000 I/O Controller
+ 	1290  Auxiliary Diva Serial Port
+ 	2910  E2910A PCIBus Exerciser
+ 	2925  E2925A 32 Bit, 33 MHzPCI Exerciser & Analyzer
+===== include/linux/pci_ids.h 1.67 vs edited =====
+--- 1.67/include/linux/pci_ids.h	Tue Aug  5 09:37:33 2003
++++ edited/include/linux/pci_ids.h	Thu Aug  7 10:38:29 2003
+@@ -589,11 +589,13 @@
+ #define PCI_DEVICE_ID_HP_DIVA1		0x1049
+ #define PCI_DEVICE_ID_HP_DIVA2		0x104A
+ #define PCI_DEVICE_ID_HP_SP2_0		0x104B
++#define PCI_DEVICE_ID_HP_PCI_LBA	0x1054
+ #define PCI_DEVICE_ID_HP_REO_SBA	0x10f0
+ #define PCI_DEVICE_ID_HP_REO_IOC	0x10f1
+ #define PCI_DEVICE_ID_HP_ZX1_SBA	0x1229
+ #define PCI_DEVICE_ID_HP_ZX1_IOC	0x122a
+-#define PCI_DEVICE_ID_HP_ZX1_LBA	0x122e
++#define PCI_DEVICE_ID_HP_PCIX_LBA	0x122e
++#define PCI_DEVICE_ID_HP_SX1000_IOC	0x127c
+ 
+ #define PCI_VENDOR_ID_PCTECH		0x1042
+ #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000
 
->>esp; c34f7e60 <_end+314cc40/3852ee40>
-
-Trace; c0146018 <create_buffers+28/100>
-Trace; c01312e9 <find_or_create_page+109/110>
-Trace; c014823a <grow_dev_page+7a/c0>
-Trace; c0148428 <grow_buffers+98/110>
-Trace; c0145b36 <getblk+46/80>
-Trace; c0197328 <journal_getblk+28/30>
-Trace; c019ceb9 <do_journal_end+139/bb0>
-Trace; c019c4f5 <flush_old_commits+135/1d0>
-Trace; c0188e94 <reiserfs_write_super+64/90>
-Trace; c01498cb <sync_supers+14b/170>
-Trace; c014887c <sync_old_buffers+3c/b0>
-Trace; c0148be9 <kupdate+f9/130>
-Trace; c0105000 <_stext+0/0>
-Trace; c010592e <arch_kernel_thread+2e/40>
-Trace; c0148af0 <kupdate+0/130>
-
-Code;  c0145f31 <get_unused_buffer_head+21/b0>
-00000000 <_EIP>:
-Code;  c0145f31 <get_unused_buffer_head+21/b0>   <=====
-   0:   8b 42 20                  mov    0x20(%edx),%eax   <=====
-Code;  c0145f34 <get_unused_buffer_head+24/b0>
-   3:   a3 30 c6 37 c0            mov    %eax,0xc037c630
-Code;  c0145f39 <get_unused_buffer_head+29/b0>
-   8:   8d 41 ff                  lea    0xffffffff(%ecx),%eax
-Code;  c0145f3c <get_unused_buffer_head+2c/b0>
-   b:   a3 34 c6 37 c0            mov    %eax,0xc037c634
-Code;  c0145f41 <get_unused_buffer_head+31/b0>
-  10:   c6 05 c0 bb 00 00 00      movb   $0x0,0xbbc0
-
-
-1 warning issued.  Results may not be reliable.
-
-
-After that I received this one:
-
-
-ksymoops 2.4.8 on i686 2.4.22-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-rc1/ (default)
-     -m /boot/System.map-2.4.22-rc1 (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
- NMI Watchdog detected LOCKUP on CPU1, eip c011a747, registers:
-CPU:    1
-EIP:    0010:[<c011a747>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000082
-eax: cef0b8dc   ebx: cef0b894   ecx: 00000001   edx: 00000003  
-esi: 00000008   edi: cef0b8dc   ebp: ec8efe48   esp: ec8efe28
-ds: 0018   es: 0018   ss: 0018
-Process tar (pid: 13603, stackpage=ec8ef000)
-Stack: 00000000 cef0b894 00000000 00000282 00000003 cef0b894 00000008 cef0b8dc
-       00000000 c01c4f41 00000000 cef0b894 00000000 0001679d cef0b894 00001000 
-       c0146c87 00000000 cef0b894 cef0b894 00000004 cef0b894 ec8ee000 00000001
-Call Trace:    [<c01c4f41>] [<c0146c87>] [<c013ae92>] [<c0119630>] [<c0130d7e>]
-  [<c017ff50>] [<c013146f>] [<c0131751>] [<c0131d50>] [<c0131ffc>] [<c0131d50>]
-  [<c014328b>] [<c010782f>]
-Code: 7e f9 e9 d9 ec ff ff 80 38 00 f3 90 7e f9 e9 5d ed ff ff 80 
-
-
->>EIP; c011a747 <.text.lock.sched+3f/178>   <=====
-
->>eax; cef0b8dc <_end+eb606bc/3852ee40>
->>ebx; cef0b894 <_end+eb60674/3852ee40>
->>edi; cef0b8dc <_end+eb606bc/3852ee40>
->>ebp; ec8efe48 <_end+2c544c28/3852ee40>
->>esp; ec8efe28 <_end+2c544c08/3852ee40>
-
-Trace; c01c4f41 <submit_bh+a1/c0>
-Trace; c0146c87 <block_read_full_page+2d7/2f0>
-Trace; c013ae92 <__alloc_pages+42/190>
-Trace; c0119630 <wait_for_completion+70/b0>
-Trace; c0130d7e <page_cache_read+be/e0>
-Trace; c017ff50 <reiserfs_get_block+0/1490>
-Trace; c013146f <generic_file_readahead+af/1a0>
-Trace; c0131751 <do_generic_file_read+1c1/470>
-Trace; c0131d50 <file_read_actor+0/110>
-Trace; c0131ffc <generic_file_read+19c/1b0>
-Trace; c0131d50 <file_read_actor+0/110>
-Trace; c014328b <sys_read+9b/180>
-Trace; c010782f <system_call+33/38>
-
-Code;  c011a747 <.text.lock.sched+3f/178>
-00000000 <_EIP>:
-Code;  c011a747 <.text.lock.sched+3f/178>   <=====
-   0:   7e f9                     jle    fffffffb <_EIP+0xfffffffb>   <=====
-Code;  c011a749 <.text.lock.sched+41/178>
-   2:   e9 d9 ec ff ff            jmp    ffffece0 <_EIP+0xffffece0>
-Code;  c011a74e <.text.lock.sched+46/178>
-   7:   80 38 00                  cmpb   $0x0,(%eax)
-Code;  c011a751 <.text.lock.sched+49/178>
-   a:   f3 90                     repz nop 
-Code;  c011a753 <.text.lock.sched+4b/178>
-   c:   7e f9                     jle    7 <_EIP+0x7>
-Code;  c011a755 <.text.lock.sched+4d/178>
-   e:   e9 5d ed ff ff            jmp    ffffed70 <_EIP+0xffffed70>
-Code;  c011a75a <.text.lock.sched+52/178>
-  13:   80 00 00                  addb   $0x0,(%eax)
-
-
-1 warning issued.  Results may not be reliable.
-
-
-There were no I/O errors or any other spectacular things happening. It just
-died while I was sitting right next to it during the verify run of tar.
-
-Regards,
-Stephan

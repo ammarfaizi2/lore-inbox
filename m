@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274200AbRISWBj>; Wed, 19 Sep 2001 18:01:39 -0400
+	id <S274205AbRISWEt>; Wed, 19 Sep 2001 18:04:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274202AbRISWBd>; Wed, 19 Sep 2001 18:01:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52485 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274200AbRISWBV>; Wed, 19 Sep 2001 18:01:21 -0400
-Subject: Re: NFS in 2.4.8/9ac
-To: ted@cypress.com (Thomas Dodd)
-Date: Wed, 19 Sep 2001 23:06:30 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <3BA90A57.6090803@cypress.com> from "Thomas Dodd" at Sep 19, 2001 04:12:55 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S274204AbRISWEm>; Wed, 19 Sep 2001 18:04:42 -0400
+Received: from adsl-66-122-62-224.dsl.sntc01.pacbell.net ([66.122.62.224]:848
+	"HELO top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S274202AbRISWEb>; Wed, 19 Sep 2001 18:04:31 -0400
+From: brian@worldcontrol.com
+Date: Wed, 19 Sep 2001 15:14:13 -0700
+To: Dan Hollis <goemon@anime.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Athlon bug stomper: perf. results
+Message-ID: <20010919151413.A11415@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Dan Hollis <goemon@anime.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010919133539.A11184@top.worldcontrol.com> <Pine.LNX.4.30.0109191329170.27640-100000@anime.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jpUE-0003z8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0109191329170.27640-100000@anime.net>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > eth0: Lite-On 82c168 PNIC rev 33 at 0xe400, 00:A0:CC:50:35:C2, IRQ 10
-> > (Tulip FA310TX card)
+On Wed, Sep 19, 2001 at 01:30:36PM -0700, Dan Hollis wrote:
+> On Wed, 19 Sep 2001 brian@worldcontrol.com wrote:
+> > Linux 2.4.9ac5 *without* althon bug stomper patch:
+> >     oopes to death on boot.
+> 
+> And without kernel athlon optimization, please.
+> 
+> It should be clear: run the athlon.c on a kernel WITHOUT athlon kernel
+> optimization, but with the 'athlon bug stomper patch' on and off.
 
-Same as mine
+Did I miss a simple program for turning the bit on and off?
 
-> Just a note: This is still a problem.
-> eventually I'll get a message about task slots.
+Or do I need to build appropriate kernels?
 
-Thats the NFS backlog filling. That itself does not indicate a problem of
-any kind just congestion - which if the card is getting tx timeouts and
-watchdog errors would be reasonable
+-- 
+Brian Litzinger <brian@worldcontrol.com>
 
-> On a new Athlon 1.4 box, with a LNE100TX NIC
-> it's there with the default kernel from Red Hat Linux 7.1
-> (2.4.2-2.i686.rpm), and on a P4-1.8GHz with the same NIC.
-
-Well 2.4.2 is in my prehistory pile. I dont know if this has been fixed
-or is known - Jeff Garzik may do.
-
-Alan
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

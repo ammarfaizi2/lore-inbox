@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261683AbTCQNi7>; Mon, 17 Mar 2003 08:38:59 -0500
+	id <S261612AbTCQNpF>; Mon, 17 Mar 2003 08:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261692AbTCQNi6>; Mon, 17 Mar 2003 08:38:58 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:58377 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261683AbTCQNi6>; Mon, 17 Mar 2003 08:38:58 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303171351.h2HDpmN1001061@81-2-122-30.bradfords.org.uk>
-Subject: Re: Read Hat 7.3 and 8.0 compilation problems
-To: davej@codemonkey.org.uk (Dave Jones)
-Date: Mon, 17 Mar 2003 13:51:48 +0000 (GMT)
-Cc: hus@design-d.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20030317134635.GA436@suse.de> from "Dave Jones" at Mar 17, 2003 12:46:41 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261659AbTCQNpF>; Mon, 17 Mar 2003 08:45:05 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:60300 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S261612AbTCQNpE>; Mon, 17 Mar 2003 08:45:04 -0500
+Date: Mon, 17 Mar 2003 14:55:14 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Vitezslav Samel <samel@mail.cz>
+cc: Matthew Wilcox <willy@debian.org>, Eric Piel <Eric.Piel@Bull.Net>,
+       <davidm@hpl.hp.com>, <linux-ia64@linuxia64.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] nanosleep() granularity bumps up in 2.5.64
+In-Reply-To: <20030317074526.GA21969@pc11.op.pod.cz>
+Message-ID: <Pine.LNX.4.33.0303171445110.23224-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Are you using the stock rh kernel sources? Did you install the
->  > glibc-kernheaders RPM? This contains severe RedHat braindamage:
->  > /usr/include/{asm,linux} aren't links into the kernel source tree,
->  > but directly installed. Remove the rpm and create the soft links
->  > to /usr/src/linux.
-> 
-> You have this completely backwards. /usr/include/{asm,linux} are
-> the headers from the kernel that the glibc was compiled against.
-> They should NOT never ever be symlinks to anywhere, but glibc's
-> own copies of the headers.
+On Mon, 17 Mar 2003, Vitezslav Samel wrote:
 
-Personally, I prefer:
+> On Fri, Mar 14, 2003 at 02:48:59PM +0000, Matthew Wilcox wrote:
+> > On Fri, Mar 14, 2003 at 03:34:36PM +0100, Eric Piel wrote:
+> > > I think lines like that from patch-2.5.64 are very suspicious to be
+> > > related to the bug:
+> > > +	base->timer_jiffies = INITIAL_JIFFIES;
+> > > +	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
+> > > +	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
+> > > +	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) & TVN_MASK;
+> > > +	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) &
+> > > TVN_MASK;
+> > > +	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) &
+> > > TVN_MASK;
+> >
+> > No, I don't think so.  Those lines are for starting `jiffies' at a very
+> > high number so we spot jiffie-wrap bugs early on.
+>
+>   The nanosleep() bug narrowed down to 2.5.63-bk2. That's version, the "initial
+> jiffies" patch went in. And yes, it's on i686 machine.
 
-/usr/local/-architecture-/include/sys-include/asm-architecture
-/usr/local/-architecture-/include/sys-include/linux
+You can easily check whether it's connected with this change by setting
+INITIAL_JIFFIES to zero. This should exactly recover the previous
+situation.
+I.e., something like the following (untested, hand-crafted) patch:
 
-If you install a lot of cross compilers, you might find that that
-layout is the most logical.
+--- linux-2.5.64/include/linux/time.h
++++ linux-2.5.64/include/linux/time.h
+@@ -28,7 +28,7 @@
+  * Have the 32 bit jiffies value wrap 5 minutes after boot
+  * so jiffies wrap bugs show up earlier.
+  */
+- #define INITIAL_JIFFIES ((unsigned int) (-300*HZ))
++ #define INITIAL_JIFFIES 0
 
-> This is not 'RedHat braindamage', it's the way things should be.
-> Making them symlinks is the only braindamage here.
+ /*
+  * Change timeval to jiffies, trying to avoid the
 
-Not sure if RedHat does this or not, but something that I would always
-recommend is avoided, is assuming that /usr/src/linux is a symbolic
-link to the current kernel source code.
 
-John.
+Tim
+

@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbTARGFU>; Sat, 18 Jan 2003 01:05:20 -0500
+	id <S262604AbTARGCr>; Sat, 18 Jan 2003 01:02:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbTARGFU>; Sat, 18 Jan 2003 01:05:20 -0500
-Received: from 115.8.237.216.globalpac.com ([216.237.8.115]:2283 "EHLO
-	mail.yessos.com") by vger.kernel.org with ESMTP id <S262780AbTARGFS>;
-	Sat, 18 Jan 2003 01:05:18 -0500
-Message-ID: <3E28F0B6.50008@tmsusa.com>
-Date: Fri, 17 Jan 2003 22:14:14 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01 (NSCD7.01)
-X-Accept-Language: en-us, en
+	id <S262780AbTARGCr>; Sat, 18 Jan 2003 01:02:47 -0500
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:12254
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id <S262604AbTARGCq>; Sat, 18 Jan 2003 01:02:46 -0500
+Message-ID: <3E28F016.4050404@tupshin.com>
+Date: Fri, 17 Jan 2003 22:11:34 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
-References: <15911.64825.624251.707026@harpo.it.uu.se> <Pine.LNX.4.44.0301171808010.15056-100000@chaos.physics.uiowa.edu> <20030118054504.GA909@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Larry McVoy <lm@bitmover.com>
+CC: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: Is the BitKeeper network protocol documented?
+References: <20030118043309.GA18658@bjl1.asuk.net> <20030118052919.GA22751@work.bitmover.com>
+In-Reply-To: <20030118052919.GA22751@work.bitmover.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A confirmation from the peanut gallery -
+Larry McVoy wrote:
 
-2.5.59 oopses during boot, 2.5.59 plus the
-vmlinux.lds.S  patch boots and runs fine -
-
-Also Red Hat 8.0 -
-
-Joe
-
-Christopher Faylor wrote:
-
->On Fri, Jan 17, 2003 at 06:11:01PM -0600, Kai Germaschewski wrote:
->  
->
->>On Fri, 17 Jan 2003, Mikael Pettersson wrote:
->>
->>    
->>
->>>This oops occurs for every module, not just af_packet.ko, at
->>>resolve_symbol()'s first call to __find_symbol().
->>>      
->>>
->>Okay, the details I received so far seem to indicate that the appended 
->>patch will fix it, though I didn't get actual confirmation it does.
->>
->>If you experience crashes when loading modules (and have RH 8 binutils), 
->>please give it a shot.
->>    
->>
->
->It isn't a scientific test since I also just added the 2.5.59-mm1
->patches, but applying this patch seemed to fix my problems.  I'm sending
->this from a kernel running 2.5.59 + mm1 + your patch, built with RH 8.0
->binutils.
->
->cgf
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+>As far as I can tell your complaint is that you can't have access to
+>the up to minute source view without using something which violates
+>your politics.
 >
 >  
 >
+I agree with your sentiment, but you mis-characterize one thing. Jamie 
+was stating that his interpretation of the BitKeeper license forbade him 
+to use the free version of BitKeeper because of some of his non-kernel 
+related activities. This does seem to be a fair interpretation of the 
+license, according to clause 3-d, and has nothing to do with his 
+politics. Jamie is stating that it would be illegal for him to use 
+BitKeeper. Whether or not you agree with the use of BitKeeper for linux 
+kernel maintenance, it would seem like this is an unnecessarily onerous 
+clause that prevents some individuals from participating on an equal 
+footing with everybody else.
+
+-Tupshin
+
+
+Clause 3-d:
+            Notwithstanding  any  other  terms  in  this  License, this
+            License is not available to You if You and/or your employer
+            develop,  produce, sell, and/or resell a product which con-
+            tains substantially similar capabilities of  the  BitKeeper
+            Software,  or,  in the reasonable opinion of BitMover, com-
+            petes with the BitKeeper Software.
 
 

@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264341AbTIJEhE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 00:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTIJEhE
+	id S264527AbTIJEry (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 00:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTIJEry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 00:37:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62633 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264341AbTIJEhA (ORCPT
+	Wed, 10 Sep 2003 00:47:54 -0400
+Received: from mta5.algx.net ([67.92.168.234]:53303 "EHLO chimta04.algx.net")
+	by vger.kernel.org with ESMTP id S264527AbTIJErw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 00:37:00 -0400
-Date: Tue, 9 Sep 2003 21:34:39 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pdc4030: return needs value; function needs return;
-Message-Id: <20030909213439.4723e2b0.rddunlap@osdl.org>
-In-Reply-To: <200309100314.26305.bzolnier@elka.pw.edu.pl>
-References: <20030909165414.2f0a5113.rddunlap@osdl.org>
-	<200309100314.26305.bzolnier@elka.pw.edu.pl>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 00:47:52 -0400
+Date: Tue, 09 Sep 2003 23:52:43 -0500
+From: Tony Jones <sir_tez@softhome.net>
+Subject: 2.6.0-test4-mm5 and Warcraft III - WineX
+To: linux-kernel@vger.kernel.org
+Message-id: <1063169563.21739.1.camel@thelight.sir-tez.org>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003 03:14:26 +0200 Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+In my testing of recent kernels 2.6.0-test5 and 2.6.0-test4-mm4 (mm6
+wouldn't cooperate with X for some reason and I didn't do much
+investigation) I've experied an easily replicable and highly annoying
+problem with Warcraft III and WineX 3.1 (prebuilt).
 
-| 
-| Hi,
-| 
-| On Wednesday 10 of September 2003 01:54, Randy.Dunlap wrote:
-| > @@ -317,7 +317,7 @@ int __init ide_probe_for_pdc4030(void)
-| >  #endif
-| >  		}
-| >  	}
-| > -#ifdef MODULE
-| > +#ifndef MODULE
-| >  	return 0;
-| >  #endif
-| >  }
-| 
-| This is wrong, we will now get warning for module instead of built-in.
-| Proper fix is to remove this #ifdef.
+After playing 1 or 2 games, or leaving the game idle in the chat room,
+the sound will eventually start to stutter and chop badly.  In the
+presence of this incredibly bad sound, the mouse and game respond just
+fine (kudos to the scheduler on that point).  Considering the game is
+played in "real-time" and is full of audio cues I hate to imagine that
+Con's scheduler will be the "official" scheduler of 2.6 without having
+this issue addressed.
 
-Yes, sorry about that.
-Here's the corrected patch for 2.6.0-test5.
+The kernels I use are tainted with nvidia's video drivers, 1.0.4496.  
 
---
-~Randy
+Nick's scheduler in 2.6.0-test4-mm5 seems to be the only thing capable
+of correcting this problem.  In general operation, mm5's scheduler
+seems better at handling about everything I threw at it, with a rare
+xmms skip once in a week of use.
 
+I'm not a developer but I'd love some feedback and or questions to
+help figure out why this happens with Con's scheduler patches in mm4
+and test5 to help improve 2.6.0 altogether.
 
-patch_name:	pdc4030_returns.patch
-patch_version:	2003-09-09.21:27:28
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	return needs a value; function needs a return;
-product:	Linux
-product_versions: 260-test5
-maintainer:	B.Zolnierkiewicz@elka.pw.edu.pl
-diffstat:	=
- drivers/ide/legacy/pdc4030.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
+Other stats:  gcc 3.2.3, AMD Athlon XP 2100+, 512MB RAM, ATA 100
+drive, GF4 Ti4200.   I'll also post CFLAGS upon request.
 
-diff -Naur ./drivers/ide/legacy/pdc4030.c~pdcleg ./drivers/ide/legacy/pdc4030.c
---- ./drivers/ide/legacy/pdc4030.c~pdcleg	2003-09-08 12:50:06.000000000 -0700
-+++ ./drivers/ide/legacy/pdc4030.c	2003-09-09 21:25:20.000000000 -0700
-@@ -304,7 +304,7 @@
- 
- #ifndef MODULE
- 	if (enable_promise_support == 0)
--		return;
-+		return 0;
- #endif
- 
- 	for (index = 0; index < MAX_HWIFS; index++) {
-@@ -317,9 +317,7 @@
- #endif
- 		}
- 	}
--#ifdef MODULE
- 	return 0;
--#endif
- }
- 
- static void __exit release_pdc4030(ide_hwif_t *hwif, ide_hwif_t *mate)

@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317636AbSGOUxA>; Mon, 15 Jul 2002 16:53:00 -0400
+	id <S317635AbSGOUwP>; Mon, 15 Jul 2002 16:52:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317638AbSGOUw6>; Mon, 15 Jul 2002 16:52:58 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:11649 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S317636AbSGOUw2>;
-	Mon, 15 Jul 2002 16:52:28 -0400
-Date: Mon, 15 Jul 2002 22:55:23 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
+	id <S317636AbSGOUwO>; Mon, 15 Jul 2002 16:52:14 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:13317 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S317635AbSGOUwM>; Mon, 15 Jul 2002 16:52:12 -0400
+Date: Mon, 15 Jul 2002 22:55:05 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-Subject: Can't compil 2.4.19-rc[34]
-Message-ID: <20020715205523.GA16091@ulima.unil.ch>
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020715205505.GC30630@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020712162306$aa7d@traf.lcs.mit.edu> <s5gsn2lt3ro.fsf@egghead.curl.com> <20020715173337$acad@traf.lcs.mit.edu> <s5gsn2kst2j.fsf@egghead.curl.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <s5gsn2kst2j.fsf@egghead.curl.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 15 Jul 2002, Patrick J. LoPresti wrote:
 
-after make dep; make bzImage:
+> In a correctly-written application, neither of these things can
+> happen.  (See my earlier message today on fsync() and MTAs.)  To get a
+> file onto disk reliably, the application must 1) flush the data, and
+> then 2) flush a "validity" indicator.  This could be a sequence like:
+> 
+>   create temp file
+>   flush data to temp file
+>   rename temp file
+>   flush rename operation
+> 
+> In this sequence, the file's existence under a particular name is the
+> indicator of its validity.
 
-scripts/split-include include/linux/autoconf.h include/config
-make -r -f tmp_include_depends all
-make[1]: Entering directory `/usr/src/linux-2.4'
-make[1]: *** No rule to make target
-`/usr/src/linux-2.4/fs/inflate_fs/infblock.h', needed by
-`/usr/src/linux-2.4/fs/inflate_fs/infcodes.h'.  Stop.
-make[1]: Leaving directory `/usr/src/linux-2.4'
-make: *** [tmp_include_depends] Error 2
-Exit 2
+Assume that most applications are broken then.
 
-And there is no /usr/src/linux-2.4/fs/inflate_fs/infcodes.h file...
+I assume that most will just call close() or fclose() and exit() right
+away. Does fclose() imply fsync()? 
 
-If I should provide other info, please write directly to me: I am not on
-the ml...
+Some applications will not even check the [f]close() return value...
 
-Thank you very much,
+> It is possible to make an application which relies on data=ordered
+> semantics; for example, skipping the "flush data to temp file" step
+> above.  But such an application would be broken for every version of
+> Unix *except* Linux in data=ordered mode.  I would call that an
+> incorrect application.
 
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+Or very specific, at least.
+
+> > Nope, battery backed caches don't make data=writeback more or less safe
+> > (with respect to the data anyway).  They do make data=ordered and
+> > data=journal more safe.
+> 
+> A theorist would say that "more safe" is a sloppy concept.  Either an
+> operation is safe or it is not.  As I said in my last message,
+> data=ordered (and data=journal) can reduce the risk for poorly written
+> apps.  But they cannot eliminate that risk, and for a correctly
+> written app, data=writeback is 100% as safe.
+
+IF that application uses a marker to mark completion. If it does not,
+data=ordered will be the safe bet, regardless of fsync() or not. The
+machine can crash BEFORE the fsync() is called.
+
+-- 
+Matthias Andree

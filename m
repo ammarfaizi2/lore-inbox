@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUIXPzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268860AbUIXQBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268824AbUIXPzT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 11:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268845AbUIXPzS
+	id S268860AbUIXQBN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 12:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268873AbUIXQBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 11:55:18 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:62179 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S268824AbUIXPzN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 11:55:13 -0400
-Date: Fri, 24 Sep 2004 08:55:34 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: janitor@sternwelten.at
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 02/26]  char/cyclades: replace 	schedule_timeout() with msleep_interruptible()
-Message-ID: <20040924155534.GA1757@us.ibm.com>
-References: <E1CAa9D-0007mL-31@sputnik>
+	Fri, 24 Sep 2004 12:01:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:45463 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268860AbUIXQBM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 12:01:12 -0400
+Date: Fri, 24 Sep 2004 09:00:05 -0700
+From: Greg KH <greg@kroah.com>
+To: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - adds missing checks in drivers/pci/probe.c.
+Message-ID: <20040924160005.GA32411@kroah.com>
+References: <20040920123326.753365b9.lcapitulino@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CAa9D-0007mL-31@sputnik>
-X-Operating-System: Linux 2.6.8.1 (i686)
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040920123326.753365b9.lcapitulino@conectiva.com.br>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 10:24:58PM +0200, janitor@sternwelten.at wrote:
+On Mon, Sep 20, 2004 at 12:33:26PM -0300, Luiz Fernando N. Capitulino wrote:
+> 
+>  Hi Greg,
+> 
+>  I noticed drivers/pci/probe.c::pci_scan_bus_parented() has some functions which
+> the return value is not checked.
+> 
+>  The patch bellow adds the check for device_register(), class_device_register(),
+> class_device_create_file() and sysfs_create_link().
+> 
+> (hope the error label names are not too ugly).
 > 
 > 
-> 
-> Any comments would be appreciated. 
-> 
-> Description: Use msleep_interruptible() instead of schedule_timeout()
-> to guarantee the task delays as expected.
-> 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> 
-> Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-> ---
-> 
->  linux-2.6.9-rc2-bk7-max/drivers/char/cyclades.c |    9 +++------
->  1 files changed, 3 insertions(+), 6 deletions(-)
-> 
-> diff -puN drivers/char/cyclades.c~msleep_interruptible-drivers_char_cyclades drivers/char/cyclades.c
-> --- linux-2.6.9-rc2-bk7/drivers/char/cyclades.c~msleep_interruptible-drivers_char_cyclades	2004-09-21 21:07:58.000000000 +0200
-> +++ linux-2.6.9-rc2-bk7-max/drivers/char/cyclades.c	2004-09-21 21:07:58.000000000 +0200
-> @@ -2717,8 +2717,7 @@ cy_wait_until_sent(struct tty_struct *tt
->  #ifdef CY_DEBUG_WAIT_UNTIL_SENT
->  	    printk("Not clean (jiff=%lu)...", jiffies);
->  #endif
-> -	    current->state = TASK_INTERRUPTIBLE;
-> -	    schedule_timeout(char_time);
-> +	    msleep_interruptible(msecs_to_jiffies(char_time));
+> Signed-off-by: Luiz Capitulino <lcapitulino@conectiva.com.br>
 
-Looks like the wrong macro was used here (should be jiffies_to_msecs()).
-Max, want me to send it to you again?
+Applied, thanks.
 
--Nish
+greg k-h

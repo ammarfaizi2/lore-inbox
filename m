@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVBDG13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVBDGeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVBDG13 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 01:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVBDG13
+	id S261819AbVBDGeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 01:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbVBDGeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 01:27:29 -0500
-Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:40283 "HELO
-	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263364AbVBDG1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 01:27:18 -0500
-Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock
-	in handle_mm_fault
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-In-Reply-To: <1107313778.5131.32.camel@npiggin-nld.site>
-References: <41E5B7AD.40304@yahoo.com.au>
-	 <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-	 <41E5BC60.3090309@yahoo.com.au>
-	 <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-	 <20050113031807.GA97340@muc.de>
-	 <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-	 <20050113180205.GA17600@muc.de>
-	 <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
-	 <20050114043944.GB41559@muc.de>
-	 <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
-	 <20050114170140.GB4634@muc.de>
-	 <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
-	 <41FF00CE.8060904@yahoo.com.au>
-	 <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
-	 <1107304296.5131.13.camel@npiggin-nld.site>
-	 <Pine.LNX.4.58.0502011718240.5549@schroedinger.engr.sgi.com>
-	 <1107308498.5131.28.camel@npiggin-nld.site>
-	 <Pine.LNX.4.58.0502011843570.6511@schroedinger.engr.sgi.com>
-	 <1107313778.5131.32.camel@npiggin-nld.site>
-Content-Type: text/plain
-Date: Fri, 04 Feb 2005 17:27:10 +1100
-Message-Id: <1107498430.5461.17.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Feb 2005 01:34:09 -0500
+Received: from fsmlabs.com ([168.103.115.128]:62880 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261819AbVBDGeD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 01:34:03 -0500
+Date: Thu, 3 Feb 2005 23:33:29 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Tony Lindgren <tony@atomide.com>
+cc: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+In-Reply-To: <20050204051929.GO14325@atomide.com>
+Message-ID: <Pine.LNX.4.61.0502032329150.26742@montezuma.fsmlabs.com>
+References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz>
+ <20050201204008.GD14274@atomide.com> <20050201212542.GA3691@openzaurus.ucw.cz>
+ <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz>
+ <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz>
+ <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-02 at 14:09 +1100, Nick Piggin wrote:
-> On Tue, 2005-02-01 at 18:49 -0800, Christoph Lameter wrote:
-> > On Wed, 2 Feb 2005, Nick Piggin wrote:
+On Thu, 3 Feb 2005, Tony Lindgren wrote:
 
-> > I mean we could just speculatively copy, risk copying crap and
-> > discard that later when we find that the pte has changed. This would
-> > simplify the function:
+> > > > It could also be that the reprogamming of PIT timer does not work on
+> > > > your machine. I chopped off the udelays there... Can you try
+> > > > something like this:
+> > > 
+> > > I added the udelays, but behaviour did not change.
 > > 
-> 
-> I think this may be the better approach. Anyone else?
-> 
+> > Yeah, and if the first patch was working better, that means the PIT
+> > interrupts work. I'll do another version of the patch where PIT
+> > interrupts work again without local APIC needed, let's see what
+> > happens with that.
 
-Not to say it is perfect either. Normal semantics say not to touch
-a page if it is not somehow pinned. So this may cause problems in
-corner cases (DEBUG_PAGEALLOC comes to mind... hopefully nothing else).
-
-But I think a plain read of the page when it isn't pinned is less
-yucky than writing into the non-pinned struct page.
-
-
-
+I see in the patch that you're reprogramming the PIT for a periodic mode 
+(2) but using dyn_tick->skip as the period. Is this intentional? I thought 
+you wanted a oneshot for that.

@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVAFTOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVAFTN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262977AbVAFTOW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVAFTOV
+	id S262970AbVAFTN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbVAFTLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:14:21 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:12716 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262972AbVAFTOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:14:07 -0500
-Date: Thu, 6 Jan 2005 19:13:55 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
-       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050106191355.GA23345@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Paul E. McKenney" <paulmck@us.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-	pbadari@us.ibm.com, markv@us.ibm.com,
-	viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com>
+	Thu, 6 Jan 2005 14:11:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54199 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262967AbVAFTJM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:09:12 -0500
+Date: Thu, 6 Jan 2005 14:07:04 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Bill Davidsen <davidsen@tmr.com>, "L. A. Walsh" <law@tlinx.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zap the ACPI shutdown bug (was Re: Reviving the concept of a stable series)
+Message-ID: <20050106190704.GA16373@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Barry K. Nathan" <barryn@pobox.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Bill Davidsen <davidsen@tmr.com>, "L. A. Walsh" <law@tlinx.org>,
+	linux-kernel@vger.kernel.org
+References: <41D91707.6040102@tlinx.org> <41D9C53A.3030503@tmr.com> <20050104130846.GD2708@holomorphy.com> <20050104182017.GE19167@redhat.com> <20050106182336.GB2390@ip68-4-98-123.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050106190538.GB1618@us.ibm.com>
+In-Reply-To: <20050106182336.GB2390@ip68-4-98-123.oc.oc.cox.net>
 User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 11:05:38AM -0800, Paul E. McKenney wrote:
-> Hello, Andrew,
-> 
-> Some export-removal work causes breakage for an out-of-tree filesystem.
-> Could you please apply the attached patch to restore the exports for
-> files_lock and set_fs_root?
+On Thu, Jan 06, 2005 at 10:23:36AM -0800, Barry K. Nathan wrote:
+ > If the "backport" jokes don't make sense yet, consider this dilemma: If
+ > a backported patch has not been committed upstream yet, then is it
+ > really a backport?
 
-What out of tree filesystem, and what the heck is it doing?
+In this case, the patch was taken from 2.6.9-mm.
+Whilst it's not officially 'upstream', and things do occasionally
+get merged there that don't move to Linus' tree, this one was
+chosen on the merits that it was a useful feature worthy of inclusion.
 
-Without proper explanation it's vetoed.
+Quite a few features have been beaten out this way.
+Ext3 reservations, 4K stacks to name two off the top of my head.
+All these have had exposure in Fedora testing trees which has turned
+up bugs no-one saw when they were in -mm. Had they not gotten
+that exposure, those features may have never got to where they
+are today.
 
-btw, any reason you put half the world in the Cc list?  Al and Andrew I
-see, but do the other people on the Cc list have to do with it?  And you
-forgot the person that killed the export.
+The odd part is.. this patch was included in our 2.6.8 tree
+without problems. It also didn't cause problems for everyone
+when it was in -mm (though some did see the same bug).
+
+Spooky.
+
+ > The following patch removes the ACPI shutdown bug from 2.6.9-1.724_FC3,
+ > at least in my testing on my affected system. The diff almost succeeds
+ > in speaking for itself, but to fully understand what it's saying, you
+ > will also need to grep a 2.6.10 Fedora kernel-2.6.spec file for "kexec".
+ > 
+ > -Barry K. Nathan <barryn@pobox.com>
+ > 
+ > --- kernel-2.6.spec.ACPI-shutdown-bug	2005-01-06 08:40:15.264970728 -0800
+ > +++ kernel-2.6.spec.no-ACPI-shutdown-bug	2005-01-06 08:40:08.629979400 -0800
+ > @@ -863,7 +863,7 @@
+ >  %patch1081 -p1
+ >  
+ >  # Kexec in preparation for kexec-based dump
+ > -%patch1090 -p1
+ > +#patch1090 -p1
+
+Thanks.  Had I not already dropped this when I updated our tree to 2.6.10,
+this would have been useful.
+
+		Dave
+

@@ -1,78 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSEKVwn>; Sat, 11 May 2002 17:52:43 -0400
+	id <S315199AbSEKWBS>; Sat, 11 May 2002 18:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315199AbSEKVwm>; Sat, 11 May 2002 17:52:42 -0400
-Received: from revdns.flarg.info ([213.152.47.19]:39040 "EHLO noodles.internal")
-	by vger.kernel.org with ESMTP id <S315191AbSEKVwm>;
-	Sat, 11 May 2002 17:52:42 -0400
-Date: Sat, 11 May 2002 22:53:34 +0100
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.15-dj1
-Message-ID: <20020511215334.GA2918@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315201AbSEKWBR>; Sat, 11 May 2002 18:01:17 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:52370 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315199AbSEKWBR>; Sat, 11 May 2002 18:01:17 -0400
+To: Jens Axboe <axboe@suse.de>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Linus Torvalds <torvalds@transmeta.com>, Lincoln Dale <ltd@cisco.com>,
+        Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Padraig Brady <padraig@antefacto.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jonathan Lahr <lahr@us.ibm.com>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14 IDE 56) 
+In-Reply-To: Your message of Sat, 11 May 2002 22:17:42 +0200.
+             <20020511201742.GA1106@suse.de> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <1284.1021156065.1@us.ibm.com>
+Date: Sat, 11 May 2002 15:27:45 -0700
+Message-Id: <E176fL7-0000Km-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clearing out the pending folder once again.
-I cheated a little this time, and took a bunch of pending items from
-Linus' bitkeeper tree in a vain hope to cut down merging time later.
-This also drops a few 'stagnant' items from my tree as well as those
-mentioned further down the changelog.
+In message <20020511201742.GA1106@suse.de>, > : Jens Axboe writes:
+> On Sat, May 11 2002, Gerrit Huizenga wrote:
+> > In message <20020511142434.GA1224@suse.de>, > : Jens Axboe writes:
+> > > On Sat, May 11 2002, Roy Sigurd Karlsbakk wrote:
+> > > > On Friday 10 May 2002 17:55, Linus Torvalds wrote:
+> > > > > On Fri, 10 May 2002, Lincoln Dale wrote:
+> > > > > > so O_DIRECT in 2.4.18 still shows up as a 55% performance hit versus no
+> > > > > > O_DIRECT. anyone have any clues?
+> > > > >
+> > > > > Yes.
+> > > > >
+> > > > > O_DIRECT isn't doing any read-ahead.
+> > > > >
+> > > > > For O_DIRECT to be a win, you need to make it asynchronous.
+> > > > 
+> > > > Will the use of O_DIRECT affect disk elevatoring?
+> > > 
+> > > No, the I/O scheduler can't even tell whether it's being handed
+> > > O_DIRECT buffers or not.
+> > 
+> > We tried disabling the elevator while doing Raw IO with DB2
+> > a couple of weeks ago.  The database performance degraded much
+> 
+> I'm curious how you did this -- did you disable sorting and merging, or
+> just sorting? Merging is pretty essential to getting decent I/O speeds
+> in current kernels.
+ 
+I believe sorting AND merging were turned off.  BTW, this was 2.4 only,
+our primary focus is getting product into people's hands this year.  We
+are hoping to play with the 2.5 IO scheduler, possibly in a few months.
 
-As usual,..
+> > more than expected.  Disks were FC connected Tritons or SCSI
+> > connected ServerRaid (or both?).  Oracle often asks for a patch
+> > to disable the elevator since they believe they can schedule IO
+> > better.  We didn't try with Oracle in this case, but DB2 and RAW
+> > IO without and elevator was not a good choice.
+> 
+> Due to excessive queue scan times, lock contention, or just slight waste
+> of cycles?
+ 
+A lot more interrupts on the RAID device, indicating a lot more
+IOs, probably a direct result of disabling merging.  Overall IO throughput
+dropped pretty dramatically, reducing database throughput.
 
-Patch against 2.5.15 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+A good indication to gen a patch with just sorting turned off and
+see where that gets us...
 
-Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
-
-Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
-known bugs that are also in mainline.
-
- -- Davej.
-
-2.5.15-dj1
-o   Several pipe cleanups.				(Manfred Spraul)
-o   Remove duplicated function in irlmp			(Adrian Bunk)
-o   Throw out some more bogons found whilst splitting.
-o   Compile warning fix for ikconfig.			(Adrian Bunk)
-o   Kill unused var in bpck6				(Adrian Bunk)
-o   Compilation fix for 586TSC				(Manfred Spraul)
-o   Add missing VM86 exception handlers.		(Manfred Spraul)
-o   Fix d_subdir counting in dcache_readdir		(Charles A. Clinton)
-    | Munged to apply to 2.5 by me.
-o   Fix exports in pci makefile.			(Greg KH)
-o   Convert pidhash to use list_t			(William Lee Irwin III)
-o   Fix compile warning in dnotify.			(Steven Rothwell)
-o   Fix zftape bit function abuse.			(Mikael Pettersson)
-o   Drop various USB bits.
-    | Larger updates in mainline soon.
-o   Do not increment TcpAttemptFails twice.		(David S. Miller)
-o   Remove pointless CONFIG_SYN_COOKIES ifdef.		(Christoph Hellwig)
-o   Fix export-objs usage in Makefiles.			(Keith Owens)
-o   Fix compile error with CONFIG_NET_CLS_POLICE	(David S. Miller)
-o   Fix JFS deadlock when flushing data during commit.	(Dave Kleikamp)
-o   kNFSd export_operations support for isofs.		(Neil Brown)
-o   Make setresuid/setresgid more consistent wrt fsuid	(Linus Torvalds)
-o   Fix tasklet leak in PPPoATM.			(Luca Barbieri)
-o   Update to IDE-60.					(Martin Dalecki)
-o   Minor NTFS clean ups.				(Anton Altaparmakov)
-o   Fix use after __init bug in 3c509.			(Kasper Dupont)
-o   Dump extended MSRs in P4/Xeon MCE handler.		(Zwane Mwaikambo)
-o   block_dev doesn't need f_version.			(Manfred Spraul)
-o   Remove unused vars from paride.			(Frank Davis)
-o   mmap() correctness fix.				("DervishD",
-							 David Gomez Espinosa)
-o   Incorrect sizeof in kmem_cache_sizes_init()		(Manfred Spraul)
-o   try_atomic_semop() cleanup.				(Manfred Spraul)
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+gerrit

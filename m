@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129983AbQLHXOA>; Fri, 8 Dec 2000 18:14:00 -0500
+	id <S132173AbQLHXSU>; Fri, 8 Dec 2000 18:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130198AbQLHXNv>; Fri, 8 Dec 2000 18:13:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:61701 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129983AbQLHXNf>; Fri, 8 Dec 2000 18:13:35 -0500
-Date: Fri, 8 Dec 2000 14:42:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
-In-Reply-To: <Pine.GSO.4.21.0012081715330.27010-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10012081437150.31310-100000@penguin.transmeta.com>
+	id <S132958AbQLHXSK>; Fri, 8 Dec 2000 18:18:10 -0500
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:54794 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S132173AbQLHXSD>; Fri, 8 Dec 2000 18:18:03 -0500
+Message-ID: <3A3164FB.EA5957B7@cc.gatech.edu>
+Date: Fri, 08 Dec 2000 17:47:23 -0500
+From: Josh Fryman <fryman@cc.gatech.edu>
+Organization: CoC, GaTech
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+CC: Ion Badulescu <ionut@cs.columbia.edu>,
+        Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.edu> <3A3162A0.825FA107@Hell.WH8.TU-Dresden.De>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> * put cable in *
+>
+> eth0: card reports no RX buffers.
+> eth0: card reports no resources.
+> eth0: card reports no RX buffers.
+> eth0: card reports no resources.
 
+you know, this might be entirely unrelated, but i had the exact same type of
+problem with a brand new machine running a not-so-brand new EE100 nic.   i
+couldn't figure out what was wrong, since it was a literal replacement with an
+earlier machine with the same general setup (except it was a pentium-90, this
+was a celeron-500-something) ... and in the p-90, that network card never gave
+a hiccup.
 
-On Fri, 8 Dec 2000, Alexander Viro wrote:
-> 
-> I'm quite aware of that fact ;-) However, you said 
-> 
->    On the other hand, I have this suspicion that there is an even simpler
->    solution: stop using the end_buffer_io_sync version for writes
->    altogether.
-> 
-> If that happens (i.e. if write requests resulting from prepare_write()/
-> commit_write()/bdflush sequence become async) we must stop unlocking pages
-> after commit_write(). Essentially it would become unlocker of the same
-> kind as readpage() and writepage() - callers must assume that page submitted
-> to commit_write() will eventually be unlocked.
+the only way i could get it to stop was to change the network infrastructure.
+this card was connected to a cisco catalyst 1000 24-port 10T switch and 2-port
+100T switch.  i stuck a generic repeater off one of the 100T ports, jacked the
+ee100 into the repeater, and the problem *went away*.
 
-You're right, we can't do that for anonymous buffers right now. Mea culpa.
+i thought it was just an anomaly.
 
-Looking more at this issue, I suspect that the easiest pretty solution
-that everybody can probably agree is reasonable is to either pass down the
-end-of-io callback to ll_rw_block as you suggested, or, preferably by just
-forcing the _caller_ to do the buffer locking, and just do the b_end_io
-stuff inside the buffer lock and get rid of all the races that way
-instead (and make ll_rw_block() verify that the buffers it is passed are
-always locked).
+if it will help, i can get the info from that machine and post it to this
+thread.
 
-		Linus
+cheers,
+
+josh fryman
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,77 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265915AbUATXe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbUATXe1
+	id S265860AbUATXS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:18:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265867AbUATXS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:34:27 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:52747 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265915AbUATXeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:34:23 -0500
-Date: Tue, 20 Jan 2004 23:34:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: akpm@osdl.org, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] Altix updates
-Message-ID: <20040120233417.A23173@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patrick Gefre <pfg@sgi.com>, akpm@osdl.org,
-	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-References: <200401152154.i0FLscIG023452@fsgi900.americas.sgi.com> <20040116144132.A24555@infradead.org> <400D6A5B.7090009@sgi.com> <20040120180851.A18872@infradead.org> <400D8BBF.7070005@sgi.com> <20040120202132.A20668@infradead.org> <400DAA76.2080103@sgi.com>
+	Tue, 20 Jan 2004 18:18:27 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29411 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265860AbUATXR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 18:17:26 -0500
+Date: Wed, 21 Jan 2004 00:17:18 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small doc fix for CONFIG_SWAP
+Message-ID: <20040120231718.GB6441@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <400DAA76.2080103@sgi.com>; from pfg@sgi.com on Tue, Jan 20, 2004 at 04:23:50PM -0600
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 04:23:50PM -0600, Patrick Gefre wrote:
-> I had one for bridge address/TIO, one for bridge address/nonTIO, one for 
-> soft address/TIO and one for soft address/nonTIO.
-> I thought that was what you were proposing. In any event, here's how the 
-> basic code looks (leaving out type defs/error checking/
-> etc) - the wrapper is embedded in the macro - note that we would always 
-> like to use the soft struct because it doesn't cost us a PIO
-> but in the event that the soft struct is not available the bridge 
-> address must be used:
+"swap" is more known than "Support for paging of anonymous memory".
+The patch below adds "(swap)" to the prompt of CONFIG_SWAP.
 
-(horrible piece of sh^H^H^code snipped)
+Please apply
+Adrian
 
-Eeek!
 
-So taking your pio cycle stuff into account, what about:
-
-void *
-__pcireg_xxx_get(bridge_t *bridge, int type)
-{
-     switch (type ) {
-        case BT_TIO:
-            return bridge_addr->ti_xxx;
-
-        case BT_PIC:
-            return bridge->addr->pic_xxx;
-
-        default:
-            /* */
-    }
-}
-
-and then have wrappers for both the plain bridge_t and the pcibr_soft.
-In fact I wonder why you want the one taking bridge_t at all, there is
-absolutely no reason why you should be able to get a bridge_t without
-getting at the pcibr_soft easily.
-> 
-> void *
-> pcireg_xxx_get(void *ptr)
-> {
->     if ( IS_IOADDR(ptr) )
->         return REAL_pcireg_xxx_get(ptr, IS_TIO(ptr) ? BT_TIO : BT_PIC);
->     else
->         return REAL_pcireg_xxx_get(ptr->bs_base, ptr->bs_bridge_type);
->        
-> }
-
-No, this is borked again.  The IS_IOADDR tests must go away.
-
+--- linux-2.6.1-mm5/init/Kconfig.old	2004-01-21 00:10:59.000000000 +0100
++++ linux-2.6.1-mm5/init/Kconfig	2004-01-21 00:11:10.000000000 +0100
+@@ -66,7 +66,7 @@
+ menu "General setup"
+ 
+ config SWAP
+-	bool "Support for paging of anonymous memory"
++	bool "Support for paging of anonymous memory (swap)"
+ 	depends on MMU
+ 	default y
+ 	help

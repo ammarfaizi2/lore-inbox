@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUJRU6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUJRU6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267353AbUJRU6i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUJRU6i
+	id S267306AbUJRU6J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUJRU6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:58:38 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:44928 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S267360AbUJRU63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 16:58:29 -0400
-Date: Mon, 18 Oct 2004 15:58:22 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-In-Reply-To: <20041018181826.GC2899@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410181557190.1218@gradall.private.brainfood.com>
-References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
- <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
- <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
- <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
- <20041018145008.GA25707@elte.hu> <Pine.LNX.4.58.0410181249150.1218@gradall.private.brainfood.com>
- <20041018181826.GC2899@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Oct 2004 16:58:08 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:32393 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267306AbUJRU5z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 16:57:55 -0400
+Date: Mon, 18 Oct 2004 15:57:04 -0500
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
+       Paul Mackerras <paulus@samba.org>
+Subject: [PATCH] ppc64: VMX memsetting incorrect size
+Message-ID: <20041018155704.036a674d@localhost>
+Organization: LTC
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Ingo Molnar wrote:
+Fixup of an incorrect memset() size for vmx in restore_sigcontext.
 
-> > However, after I reset the threshold to 50(and got a few small traces), I got
-> > this whopper.
-> >
-> > (XFree86/1129/CPU#0): new 4692 us maximum-latency critical section.
-> >  => started at timestamp 358506933: <call_console_drivers+0x76/0x140>
-> >  =>   ended at timestamp 358511625: <finish_task_switch+0x43/0xa0>
-> >  [<c0132480>] sub_preempt_count+0x60/0x90
->
-> interesting - this could be a printk (trace) done in a critical section
-> though. What does /proc/latency_trace tell, is it full of console code
-> functions?
+Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
 
-Too late, it's gone.  It'd be nice if there was some way to have history on
-that file.
+---
+
+
+diff -puN arch/ppc64/kernel/signal.c~vmx_memset_size arch/ppc64/kernel/signal.c
+--- linux-2.6-bk/arch/ppc64/kernel/signal.c~vmx_memset_size	Mon Oct 18 15:39:34 2004
++++ linux-2.6-bk-moilanen/arch/ppc64/kernel/signal.c	Mon Oct 18 15:39:47 2004
+@@ -210,7 +210,7 @@ static long restore_sigcontext(struct pt
+ 	if (v_regs != 0 && (regs->msr & MSR_VEC) != 0)
+ 		err |= __copy_from_user(current->thread.vr, v_regs, 33 * sizeof(vector128));
+ 	else if (current->thread.used_vr)
+-		memset(&current->thread.vr, 0, 33);
++		memset(&current->thread.vr, 0, 33 * sizeof(vector128));
+ 	/* Always get VRSAVE back */
+ 	if (v_regs != 0)
+ 		err |= __get_user(current->thread.vrsave, (u32 __user *)&v_regs[33]);
+
+_

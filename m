@@ -1,88 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287940AbSAHGQ2>; Tue, 8 Jan 2002 01:16:28 -0500
+	id <S287948AbSAHGaB>; Tue, 8 Jan 2002 01:30:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287941AbSAHGQT>; Tue, 8 Jan 2002 01:16:19 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:16059 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S287940AbSAHGQM>;
-	Tue, 8 Jan 2002 01:16:12 -0500
-Date: Tue, 8 Jan 2002 07:15:48 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Ivan Passos <ivan@cyclades.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-Message-ID: <20020108071548.J5235@khan.acc.umu.se>
-In-Reply-To: <3C38BC19.72ECE86@zip.com.au>, <3C34024A.EDA31D24@zip.com.au> <3C33E0D3.B6E932D6@zip.com.au> <3C33BCF3.20BE9E92@cyclades.com> <200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca> <200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca> <3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca> <3C3A7DA7.381D033D@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C3A7DA7.381D033D@zip.com.au>; from akpm@zip.com.au on Mon, Jan 07, 2002 at 09:03:35PM -0800
+	id <S287947AbSAHG3w>; Tue, 8 Jan 2002 01:29:52 -0500
+Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:34564 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287945AbSAHG3s>;
+	Tue, 8 Jan 2002 01:29:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
+Date: Tue, 8 Jan 2002 07:32:25 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, torvalds@transmeta.com,
+        viro@math.psu.edu, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+        Andreas Dilger <adilger@turbolabs.com>
+In-Reply-To: <5.1.0.14.2.20020107134718.025e4d90@pop.cus.cam.ac.uk> <E16NbmV-0001R0-00@starship.berlin> <3C3A12A5.196C81B7@mandrakesoft.com>
+In-Reply-To: <3C3A12A5.196C81B7@mandrakesoft.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16NpoB-00006w-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 09:03:35PM -0800, Andrew Morton wrote:
-> [ tty driver name breakage ]
+On January 7, 2002 10:27 pm, Jeff Garzik wrote:
+> Daniel Phillips wrote:
+> > On January 7, 2002 03:13 pm, Anton Altaparmakov wrote:
+> > > Of course fs which are not adapted would still just work with the fs_i()
+> > > and fs_sb() macros and/or using two separate pointers.
+> > 
+> > Yes, the fs_* macros are the really critical part of all this.  I'd like to
+> > get them in early, while we hash out the rest of it.  I think Jeff supports
+> > me in this, possibly Al as well.
 > 
-> Richard, can we please get this wrapped up?
-> 
-> My preferred approach is to change the driver naming scheme
-> so that we don't have to put printf control-strings everywhere.
-> We can remove a number of ifdefs that way.
+> agreed, from my side
 
-Wouldn't it be cleaner to have:
+OK, are we agreed that:
 
-#ifdef CONFIG_DEVFS_FS
-	serial_driver.name = "tts/";
-#else
-	serial_driver.name = "tts";
-#endif
+  - We're waiting for Al to merge ext/*alloc.c changes
 
-and
+  - When that's done we will apply what would be my unbork patches (2: ext2_i) and
+    (3: ext2_sb) to both 2.4.current and 2.5.current?  Subject to getting these two
+    patches into the form everybody likes, of course.
 
-	sprintf("buf, "%s%d", name, idx + tty->driver.name_base);
+  - We have some time in the interim to figure out how best to unbork fs.h, but we
+    all agree it needs to be done soon.
 
-respectively?!
-
-
-/David
-
-> So for serial.c:
-> 
-> --- linux-2.4.18-pre2/drivers/char/tty_io.c	Mon Jan  7 16:48:02 2002
-> +++ linux-akpm/drivers/char/tty_io.c	Mon Jan  7 20:56:38 2002
-> @@ -193,10 +193,13 @@ _tty_make_name(struct tty_struct *tty, c
->  
->  	if (!tty) /* Hmm.  NULL pointer.  That's fun. */
->  		strcpy(buf, "NULL tty");
-> -	else
-> -		sprintf(buf, name,
-> -			idx + tty->driver.name_base);
-> -		
-> +	else {
-> +#ifdef CONFIG_DEVFS_FS
-> +		sprintf(buf, "%s/%d", name, idx + tty->driver.name_base);
-> +#else
-> +		sprintf(buf, "%s%d", name, idx + tty->driver.name_base);
-> +#endif
-> +	}		
->  	return buf;
->  }
->  
-> --- linux-2.4.18-pre2/drivers/char/serial.c	Mon Jan  7 16:48:02 2002
-> +++ linux-akpm/drivers/char/serial.c	Mon Jan  7 20:58:09 2002
-> @@ -5387,7 +5387,7 @@ static int __init rs_init(void)
->  	serial_driver.driver_name = "serial";
->  #endif
->  #if (LINUX_VERSION_CODE > 0x2032D && defined(CONFIG_DEVFS_FS))
-> -	serial_driver.name = "tts/%d";
-> +	serial_driver.name = "tts";
->  #else
->  	serial_driver.name = "ttyS";
->  #endif
-
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+--
+Daniel

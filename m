@@ -1,49 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271812AbTHMW6M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 18:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271941AbTHMW6M
+	id S271972AbTHMXQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 19:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272000AbTHMXQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 18:58:12 -0400
-Received: from trolis.narbutas-ir-ko.lt ([213.197.143.58]:11954 "HELO
-	trolis.narbutas-ir-ko.lt") by vger.kernel.org with SMTP
-	id S271812AbTHMW6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 18:58:11 -0400
-Date: Thu, 14 Aug 2003 01:58:02 +0300 (EEST)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
-To: maney@pobox.com, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Martin Maney <maney@two14.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel@vger.kernel.org
+	Wed, 13 Aug 2003 19:16:54 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38564 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271972AbTHMXQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 19:16:51 -0400
+Message-Id: <200308132316.h7DNGao27969@mail.osdl.org>
+Date: Wed, 13 Aug 2003 16:16:33 -0700 (PDT)
+From: markw@osdl.org
+Subject: bounce buffers and i/o schedulers with aacraid
+To: piggin@cyberone.com.au, axboe@suse.de
+cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-References: <20030812213645.GA1079@furrr.two14.net> <Pine.LNX.4.44.0308131155090.4279-100000@localhost.localdomain>
- <20030813181330.GA1122@furrr.two14.net>
-In-Reply-To: <20030813181330.GA1122@furrr.two14.net>
-X-Mailer: Mahogany 0.65.0 'Claire', compiled for Linux 2.4.18-rc4 i686
-X-Qmail-Scanner-Message-ID: <106081549252728904@trolis.narbutas-ir-ko.lt>
-Message-Id: <S271812AbTHMW6L/20030813225811Z+15085@vger.kernel.org>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 13:13:30 -0500 Martin Maney <maney@two14.net> wrote:
+We're still trying to avoid bounce buffers with the aacraid driver and
+noticed something interesting in some profiles (which I'll copy farther
+down) with the deadline scheduler and AS.  Using our DBT-2 workload, we
+see with the deadline scheduler our patch to avoid bounce buffers
+doesn't change the profile much.  But with AS, we don't see
+bounce_copy_vec or __blk_queue_bounce near the top of the profile.  Any
+ideas why?
 
-> At this point the outcome was pretty much a foregone conclusion, but
-> yep, reverting to ".id" stopped the corruption for this test case.  As
-> Alan said, it "fixed" it only because that incorrect test happens to
-> force the driver to use the lower DMA speed.  I had been about to
-> report on that when your request for the explicit test arrived, but in
-> short it's that rc1 (and earlier) were disabling the "66" clock speed,
-> while rc2 was, correctly, finding no reason not to enable it.  The real
-> bug, be it hardware or software, is that enabling the higher speed
-> causes the corruption.
+This is with 2.6.0-test3 on a system with 4GB of memory.  The first pair
+of tables compares the deadline scheduler with our patch applied to the
+profile in the right side.  The second pair of tables compare AS with
+our patch applied to the profile on the right side.
 
-Do you have the latest Promise BIOS? If not, does it still happen with
-the latest one?
+You can see our patch here: 
+	http://www.osdl.org/cgi-bin/getpatch?id=2052
+or in color!
+	http://www.osdl.org/cgi-bin/getpatch?id=2052.html
 
-Regards,
-Nerijus
 
+
+METRICS OVER LAST 20 MINUTES:
+--------------- -------- ----- ---- -------- -----------------------------------
+Kernel          Elevator NOTPM CPU% Blocks/s URL                                
+--------------- -------- ----- ---- -------- -----------------------------------
+2.6.0-test3     deadline  1313 94.5   9582.1 http://khack.osdl.org/stp/277489/  
+2.6.0-test3     deadline  1304 94.1   9685.0 http://khack.osdl.org/stp/277494/  
+
+FUNCTIONS SORTED BY LOAD:
+-- ------------------------- ------- ------------------------- -------
+ # deadline 2.6.0-test3      ticks   deadline 2.6.0-test3      ticks  
+-- ------------------------- ------- ------------------------- -------
+ 1 default_idle              5470223 default_idle              5447766
+ 2 bounce_copy_vec             77961 bounce_copy_vec             85122
+ 3 schedule                    65916 schedule                    62840
+ 4 __blk_queue_bounce          30048 __blk_queue_bounce          24983
+ 5 do_softirq                  23265 scsi_request_fn             23950
+ 6 scsi_request_fn             22748 do_softirq                  23573
+ 7 __make_request              18727 __make_request              19055
+ 8 scsi_end_request            12207 scsi_end_request            12358
+ 9 sysenter_past_esp           10296 try_to_wake_up              10007
+10 try_to_wake_up              10132 sysenter_past_esp            9959
+
+
+
+METRICS OVER LAST 20 MINUTES:
+--------------- -------- ----- ---- -------- -----------------------------------
+Kernel          Elevator NOTPM CPU% Blocks/s URL                                
+--------------- -------- ----- ---- -------- -----------------------------------
+2.6.0-test3     as        1143 92.6   8848.5 http://khack.osdl.org/stp/277490/  
+2.6.0-test3     as        1175 91.4   8883.1 http://khack.osdl.org/stp/277493/  
+
+FUNCTIONS SORTED BY LOAD:
+-- ------------------------- ------- ------------------------- -------
+ # as 2.6.0-test3            ticks   as 2.6.0-test3            ticks  
+-- ------------------------- ------- ------------------------- -------
+ 1 default_idle              6089608 default_idle              6307410
+ 2 bounce_copy_vec             69264 schedule                    44346
+ 3 schedule                    63544 scsi_request_fn             25109
+ 4 scsi_request_fn             25617 __make_request              23740
+ 5 __make_request              23137 do_softirq                  20522
+ 6 __blk_queue_bounce          20156 scsi_end_request            15665
+ 7 do_softirq                  20012 try_to_wake_up               7979
+ 8 scsi_end_request            15821 dio_bio_end_io               7867
+ 9 sysenter_past_esp           10313 do_anonymous_page            7440
+10 try_to_wake_up               9227 ipc_lock                     6387
+
+
+-- 
+Mark Wong - - markw@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton, OR 97005
+(503) 626-2455 x 32 (office)
+(503) 626-2436      (fax)
+http://www.osdl.org/archive/markw/

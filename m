@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319327AbSHVLy3>; Thu, 22 Aug 2002 07:54:29 -0400
+	id <S319328AbSHVL6y>; Thu, 22 Aug 2002 07:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319328AbSHVLy3>; Thu, 22 Aug 2002 07:54:29 -0400
-Received: from [212.143.73.98] ([212.143.73.98]:35319 "EHLO
-	hawk.exanet-il.co.il") by vger.kernel.org with ESMTP
-	id <S319327AbSHVLy2> convert rfc822-to-8bit; Thu, 22 Aug 2002 07:54:28 -0400
-content-class: urn:content-classes:message
-Subject: RE: Hyperthreading
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 22 Aug 2002 14:58:33 +0200
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-Message-ID: <4913AB320D31DC4798D6FEF5F557351F6B9994@hawk.exanet-il.co.il>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Hyperthreading
-Thread-Index: AcJJQWsiZWlptd0SRHizvb32RWuW1gAmf03Q
-From: "Nir Soffer" <nirs@exanet.com>
-To: "Hugh Dickins" <hugh@veritas.com>, "James Bourne" <jbourne@mtroyal.ab.ca>
-Cc: "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       <linux-kernel@vger.kernel.org>
+	id <S319329AbSHVL6y>; Thu, 22 Aug 2002 07:58:54 -0400
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:8069 "EHLO
+	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
+	id <S319328AbSHVL6x>; Thu, 22 Aug 2002 07:58:53 -0400
+Subject: Re: ServerWorks OSB4 in impossible state
+From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Gonzalo Servat <gonzalo@unixpac.com.au>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Aug 2002 14:02:35 +0200
+Message-Id: <1030017756.9866.74.camel@biker.pdb.fsc.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 21 Aug 2002, James Bourne wrote:
-> > On Wed, 21 Aug 2002, Reed, Timothy A wrote:
-> > > 
-> > > Can anyone lead me to a good source of information on 
-> what options should be
-> > > in the kernel for hyperthreading??  I am still fighting with a
-> > > sub-contractor over kernel options.
-> > 
-> > As long as you have a P4 and use the P4 support you will get
-> > hyperthreading with 2.4.19 (CONFIG_MPENTIUM4=y).  2.4.18 
-> you have to also 
-> > turn it on with a lilo option of acpismp=force on the 
-> kernel command line.
+Am Don, 2002-08-22 um 10.51 schrieb Andre Hedrick:
+
+> The problem is we need a special DMA engine for this broken puppy.
+
+You certainly have much more insight into the problem than I. 
+I wonder if (something like) the simple patch I submitted before can
+be a temporary solution nevertheless. Please correct me if one of the
+following statements is wrong:
+
+1) The "4 byte shift" issue does not affect the CSB5 series.
+2) The tested condition inb(dma_base+0x02)&1 is valid if the
+   device doing the DMA reported an error status. Only if the
+   device reports success is there an indication of the "4 byte shift".
+3) The "4 byte shift" problem matters not for read-only devices like
+   CD-ROMS; at least it is no reason to stall the computer if it occurs
+   because data corruption is not an issue.
+
+If these assertions are true, the patch I sent will at least prevent
+people's machines from stalling unnecessarily. Even if one ore more are
+false, the remaining correct condition test(s) will narrow the set
+of machines that are stalled unnecessarily.
+
+> 508 + 4 is okay but 510 + 2 is not.
 > 
-> You do need CONFIG_SMP and a processor capable of HyperThreading,
-> i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
-> just appropriate to that processor in other ways.
-> 
-> Hugh
+> Now I have to remember why :-/
 
-Grepping for MPENTIUM4 in the tree only shows up that it causes the
-kernel to be compiled with -march=i686, much like M686 and  MPENTIUMIII.
-Are there more subtle ways it affects the kernel that I missed? (in the
-2.4.x tree)
+You sure have to go for the right solution.
+But if my patch was applied, ServerWorks chip sets would cause less
+grief to people until you have figured it out.
 
-Thanks,
-Nir.
+> Yeah I expect to take heat for this one from ServerWorks and it may cost
+> me later, but nobody else has got the guts to press the issue for the
+> correct solution.
 
---
-Nir Soffer -=- Software Engineer, Exanet Inc. -=-
-"Father, why are all the children weeping? / They are merely crying son
- O, are they merely crying, father? / Yes, true weeping is yet to come"
-        -- Nick Cave and the Bad Seeds, The Weeping Song
+Let me know if we can help. I have no personal contacts to ServerWorks,
+but we are a large customer of them and may be able to exert some
+additional pressure. The current situation (IDE DMA must be disabled)
+is hardly acceptable for us anyway.
+
+Martin
+
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+
+
+
+
+

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293437AbSB1RGp>; Thu, 28 Feb 2002 12:06:45 -0500
+	id <S293628AbSB1R3o>; Thu, 28 Feb 2002 12:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293445AbSB1RDm>; Thu, 28 Feb 2002 12:03:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13072 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293489AbSB1RBp>; Thu, 28 Feb 2002 12:01:45 -0500
-Date: Thu, 28 Feb 2002 08:59:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: recalc_sigpending() / recalc_sigpending_tsk() ?
-In-Reply-To: <22659.1014913885@redhat.com>
-Message-ID: <Pine.LNX.4.33.0202280854250.15607-100000@home.transmeta.com>
+	id <S293619AbSB1R1c>; Thu, 28 Feb 2002 12:27:32 -0500
+Received: from ex1.ncsa.uiuc.edu ([141.142.2.9]:36741 "EHLO ex1.ncsa.uiuc.edu")
+	by vger.kernel.org with ESMTP id <S293527AbSB1R0Z>;
+	Thu, 28 Feb 2002 12:26:25 -0500
+Date: Thu, 28 Feb 2002 11:25:22 -0600 (CST)
+From: Tanya Brethour <brethour@ncsa.uiuc.edu>
+Reply-To: Tanya Brethour <brethour@ncsa.uiuc.edu>
+To: linux-kernel@vger.kernel.org
+cc: brethour@ncsa.uiuc.edu
+Subject: ANNOUNCE: Web100 Alpha 1.0 Kernel Patch & Userland
+Message-ID: <Pine.SOL.3.95.1020228111015.23920C-100000@pecos.ncsa.uiuc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The Web100 Project would like to announce the release of its Alpha
+1.0 software, the first public release of software through the project.
+The software is available off our project web site (http://www.web100.org).
 
-On Thu, 28 Feb 2002, David Woodhouse wrote:
->
-> It seems that the name of the function was changed to recalc_sigpending_tsk()
-> and a new function called recalc_sigpending() was added.
+In short, the Web100 project aims to develop the tools needed to allow
+network users to transparently achieve high bandwidth data rates over
+networks. 
 
-Yes.
+The Web100 software implements a set of instrumentation in the TCP/IP
+stack of an operating system. The software is divided up into two, 
+separate pieces: 
+	1. A patch to the Linux kernel, which is responsible for
+	   exposing the data collected by the instrumentation. 
+	2. A shared library with a set of utilities (the userland), which
+	   allows the easy reading and manipulation of these instruments. 
 
-> Was there a reason for doing this, rather than just introducing the new
-> function with a different name, such as recalc_sigpending_cur()? It breaks
-> 2.4 source compatibility in a way that seems entirely gratuitous.
+In addition to the software release, Web100 programmers continue to refine
+TCP software so that users can automatically achieve the highest possible
+transfer rate. This effort has already led to a first draft of a new
+Internet Engineering Task Force standard 
+(http://www.ietf.org/internet-drafts/draft-mathis-rfc2012-extension-00.txt). 
+As the development of new standards progresses, Web100 researchers hope
+that other operating system vendors will adopt the Web100 enhancements.
+Such changes will make increased TCP traffic flows easier to handle and
+more transparent for the users of high-speed networks.
 
-I don't care. I care 1000% more about clean code than about backwards
-source level compatibility.
+The Web100 Project welcomes any comments or questions! Please feel free to
+contact us at info@web100.org.
 
-99% of all users did it for the current task, and for the current task
-only. And the non-local users were all in low-level core code (and should
-_not_ exist anywhere else - if some driver is playing around with another
-tasks signal state, that driver is so incredibly fundamentally broken that
-I don't even want to hear about it)
+---------------------
+The Web100 Project is a collaboration of the Pittsburgh Supercomputing
+Center, the National Center for Atmospheric Research and the National
+Center for Supercomputing Applications at the University of Illinois at
+Urbana-Champaign. It is funded by the National Science Foundation and
+Cisco Systems.
 
-In short, the 2.5.x interface is the correct one.
 
-> Before I have to go and do something evil in my compatmac.h to work round
-> this, is there any chance of putting the original recalc_sigpending() back?
 
-Not a chance in hell. The backwards compatibility looks like a trivial
-one-liner:
 
-   compat-2.4.h:
-	#define recalc_sigpending() recalc_sigpending(current)
 
-so what are you complaining about?
 
-		Linus
+
+
 

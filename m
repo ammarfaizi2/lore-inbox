@@ -1,32 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318797AbSHBL5c>; Fri, 2 Aug 2002 07:57:32 -0400
+	id <S318799AbSHBMEn>; Fri, 2 Aug 2002 08:04:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318803AbSHBL5c>; Fri, 2 Aug 2002 07:57:32 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31990 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318797AbSHBL5a>; Fri, 2 Aug 2002 07:57:30 -0400
-Subject: Re: Console scrolling in kernel 2.4.xx
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Knigge <Michael.Knigge@set-software.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020802.11011405@knigge.local.net>
-References: <20020802.11011405@knigge.local.net>
+	id <S318801AbSHBMEn>; Fri, 2 Aug 2002 08:04:43 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:30618 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S318799AbSHBMEm>;
+	Fri, 2 Aug 2002 08:04:42 -0400
+Subject: Re: A new ide warning message
+From: Stephen Lord <lord@sgi.com>
+To: martin@dalecki.de
+Cc: Jens Axboe <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D4A7178.7050307@evision.ag>
+References: <1028288066.1123.5.camel@laptop.americas.sgi.com>
+	<20020802114713.GD1055@suse.de>  <3D4A7178.7050307@evision.ag>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 02 Aug 2002 14:17:46 +0100
-Message-Id: <1028294266.18317.67.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 02 Aug 2002 07:05:38 -0500
+Message-Id: <1028289940.1123.19.camel@laptop.americas.sgi.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-02 at 12:01, Michael Knigge wrote:
-> With Linux 2.2.xxx there are no problems, but with Kernels 2.4.xx 
-> scrolling doesn't work :-((((
+On Fri, 2002-08-02 at 06:48, Marcin Dalecki wrote:
+> Uz.ytkownik Jens Axboe napisa?:
+> > On Fri, Aug 02 2002, Stephen Lord wrote:
+> > 
+> >>In 2.5.30 I started getting these warning messages out ide during
+> >>the mount of an XFS filesystem:
+> >>
+> >>ide-dma: received 1 phys segments, build 2
+> >>
+> >>Can anyone translate that into English please.
+> > 
+> > 
+> > Well I added that message when switching to the 2.5 style request
+> > mapping functions, and I think the message is perfectly clear :-). Never
+> > the less, it means that a segment that came into the ide layer with an
+> > advertised size of 1 segment was returned from blk_rq_map_sg() as having
+> > _two_. This can be a problem with dynamically allocated sg table (not
+> > that ide uses those, but still).
+> > 
+> > It's a bug and usually a critical one when this happens. I'd be inclined
+> > to think that Adam's changes in this path are to blame for this error.
+> 
+> Carefull carefull. it can be that the generic BIO code doesn't honour
+> the limits Adam was setting properly. And it can be of course
+> as well the XFS doesn't cooperate properly with those limits as well,
+> since ther kernel appears to be patched to support them.
+> 
 
-That sounds like you may have very old VSA1 firmware in the BIOS. Does
-it behave if you enable the VESA console and boot with a vesa bios
-framebuffer set ?
+Well, this is happening when reading the log up from disk during
+mount, we will be asking for somewhere around 32K of data at a
+time, but it might not be well aligned. I will instrument it and
+report back - will be a few hours, the box is at work and I just
+tripped it up in some other code, I cannot reset it from here.
+
+> It would be helpfull as well to know on which brand of host controller 
+> chip this was found. In esp. trm290 maybe?
+
+Since it is down I cannot give you the ide boot messages right now,
+but it is a Tyan Tiger BX motherboard using the built in IDE chipset,
+so pretty generic stuff.
+
+> > 
+> > Oh, and I'd be _really_ careful if you have trusted data on that drive
+> > (surely not when running 2.5 ide on it :-)
+> > 
+> 
+
+It's a scratch box, all it does is run development kernels and tests,
+I am keeping 2.5 in a cage right now.
+
+To answer your other question Jens, yes I can reproduce at will,
+once I go in to the office.
+
+Steve
 
 

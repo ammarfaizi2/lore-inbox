@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVAYPxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVAYPy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbVAYPxb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVAYPxb
+	id S261990AbVAYPy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:54:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVAYPy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:53:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:49363 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261985AbVAYPxY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:53:24 -0500
-Date: Tue, 25 Jan 2005 07:52:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Valdis.Kletnieks@vt.edu, John Richard Moser <nigelenki@comcast.net>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues 
-In-Reply-To: <41F6604B.4090905@tmr.com>
-Message-ID: <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org>
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org>
- <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com>
+	Tue, 25 Jan 2005 10:54:56 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:64939 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261990AbVAYPyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:54:25 -0500
+Message-ID: <41F66B61.6040101@grupopie.com>
+Date: Tue, 25 Jan 2005 15:53:05 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>, alexn@dsv.su.se,
+       kas@fi.muni.cz, linux-kernel@vger.kernel.org,
+       lennert.vanalboom@ugent.be
+Subject: OT Re: Memory leak in 2.6.11-rc1?
+References: <20050121161959.GO3922@fi.muni.cz> <1106360639.15804.1.camel@boxen> <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org> <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org> <1106528219.867.22.camel@boxen> <20050124204659.GB19242@suse.de> <20050124125649.35f3dafd.akpm@osdl.org> <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 25 Jan 2005, Bill Davidsen wrote:
+Linus Torvalds wrote:
 > 
-> Unfortunately if A depends on B to work at all, you have to put A and B 
-> in as a package.
+> On Mon, 24 Jan 2005, Andrew Morton wrote:
+> 
+>>Would indicate that the new pipe code is leaking.
+> 
+> 
+> Duh. It's the pipe merging.
 
-No. That's totally bogus. You can put in B on its own. You do not have to 
-make A+B be one patch.
+Have we just seen the "plumber" side of Linus?
 
-> There is no really good way (AFAIK) to submit a bunch of patches and
-> say "if any one of these is rejected the whole thing should be ignored."
+After all, he just fixed a "leaking pipe" :)
 
-But that's done ALL THE TIME. Claiming that there is no good way is not 
-only disingenious (we call them "numbers", and they start at 1, go to 2, 
-then 3. Then there's usually a 0-patch which only contains explanations 
-of the series), but it's clearly not true, since we have patches like that 
-weekly. 
 
-In the last seven days the kernel mailing list has seen at least four
-such series where patches depend at least partly on each other:
- - Kay Sievers: driver core: export MAJOR/MINOR to the hotplug (0-7)
- - Andreas Gruenbacher: NFSACL protocol extension for NFSv3 (0-13)
- - Roland Dreier: InfiniBand updates for 0-12
- - Roland McGrath: per-process timers (1-7)
+(sorry for the OT, just couldn't help it)
 
-and that was from just a quick look. It seems to be almost a daily 
-occurrence.
+-- 
+Paulo Marques - www.grupopie.com
 
-In short: listen to Arjan, because he is wise. And stop making totally 
-idiotic excuses that are clearly not true.
-
-		Linus
+"A journey of a thousand miles begins with a single step."
+Lao-tzu, The Way of Lao-tzu

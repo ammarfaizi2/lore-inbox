@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVBURqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVBURuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbVBURqd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 12:46:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVBURqd
+	id S262052AbVBURuc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 12:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVBURuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 12:46:33 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:42634 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262055AbVBURqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 12:46:31 -0500
-Date: Mon, 21 Feb 2005 18:46:23 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-Message-ID: <20050221174623.GA3619@merlin.emma.line.org>
-Mail-Followup-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu> <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu> <cv36kk$54m$1@gatekeeper.tmr.com> <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com> <1108998023.15518.93.camel@localhost.localdomain> <58cb370e0502210725520eee3@mail.gmail.com>
-Mime-Version: 1.0
+	Mon, 21 Feb 2005 12:50:32 -0500
+Received: from web50205.mail.yahoo.com ([206.190.38.46]:28306 "HELO
+	web50205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262052AbVBURu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 12:50:27 -0500
+Message-ID: <20050221175026.22737.qmail@web50205.mail.yahoo.com>
+Date: Mon, 21 Feb 2005 09:50:26 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [rsbac] Thoughts on the "No Linux Security Modules framework" old claims
+To: Lorenzo =?ISO-8859-1?Q?=20=22Hern=E1ndez=22?=
+	 =?ISO-8859-1?Q?=20=22Garc=EDa-Hierro=22?= <lorenzo@gnu.org>,
+       RSBAC Discussion and Announcements <rsbac@rsbac.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
+In-Reply-To: <1109006151.4100.91.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e0502210725520eee3@mail.gmail.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Feb 2005, Bartlomiej Zolnierkiewicz wrote:
 
-> Speaking about ide-scsi, it will be undeprecated after I fix the locking.
-> Rationale is that ide-scsi is _much_ simpler than ide-{cd,tape}.
-> [ although it doesn't support all the hardware that ide-{cd,tape} do ]
+--- Lorenzo Hernández García-Hierro <lorenzo@gnu.org>
+wrote:
 
-Good to read that. I've always wondered why Linux went backwards when all
-other systems added atapicam (FreeBSD) and similar, now I can stop
-wondering.
 
--- 
-Matthias Andree
+> > There are cases where Linux DAC and MAC cannot
+> live happily together, 
+> > because Linux DAC is too limited.
+> 
+> Agreed.
+
+OKay, I'll bite. MAC and DAC are seperate.
+How is it that (the limited nature of) the DAC
+behavior makes a system with both unhappy?
+
+
+=====
+Casey Schaufler
+casey@schaufler-ca.com
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Take Yahoo! Mail with you! Get it on your mobile phone. 
+http://mobile.yahoo.com/maildemo 

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270521AbRHSOvv>; Sun, 19 Aug 2001 10:51:51 -0400
+	id <S270319AbRHSPBx>; Sun, 19 Aug 2001 11:01:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270539AbRHSOvl>; Sun, 19 Aug 2001 10:51:41 -0400
-Received: from [194.102.102.3] ([194.102.102.3]:516 "EHLO ns1.Aniela.EU.ORG")
-	by vger.kernel.org with ESMTP id <S270521AbRHSOv1>;
-	Sun, 19 Aug 2001 10:51:27 -0400
-Date: Sun, 19 Aug 2001 17:51:27 +0300 (EEST)
-From: <lk@Aniela.EU.ORG>
-To: <linux-kernel@vger.kernel.org>
-Subject: reiserfs question
-Message-ID: <Pine.LNX.4.33.0108191745310.365-100000@ns1.Aniela.EU.ORG>
+	id <S270519AbRHSPBd>; Sun, 19 Aug 2001 11:01:33 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:11199
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S270319AbRHSPB0>; Sun, 19 Aug 2001 11:01:26 -0400
+Date: Sun, 19 Aug 2001 08:01:41 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: <lk@Aniela.EU.ORG>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs question
+In-Reply-To: <Pine.LNX.4.33.0108191745310.365-100000@ns1.Aniela.EU.ORG>
+Message-ID: <Pine.LNX.4.33.0108190757260.27721-100000@kobayashi.soze.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 19 Aug 2001 lk@Aniela.EU.ORG wrote:
 
-Hi,
+> I run slackware-linux 8.0 and when I restart my box without issuing the
+> halt command, I see the following message when the kernel boots:
+>
+> reiserfs: checking transaction log (device 03:01) ...
+> Warning, log replay starting on readonly filesystem
 
-I run slackware-linux 8.0 and when I restart my box without issuing the
-halt command, I see the following message when the kernel boots:
-
-reiserfs: checking transaction log (device 03:01) ...
-Warning, log replay starting on readonly filesystem
-Using r5 hash to sort names
-ReiserFS version 3.6.25
-VFS: Mounted root (reiserfs filesystem) readonly.
-Mounted devfs on /dev
-Freeing unused kernel memory: 184k freed
-Adding Swap: 100796k swap-space (priority -1)
-
-My question is: why does it says "Warning...." ? The boot scripts are the
-ones installed by slackware installer by default. Is the root filesystem
-supposed to be mounted read/write at boot (i ask this because when I had
-an ext2 partition it was mounted first readonly, and then readwrite) ?
+Perhaps you have a "read-only" line in the lilo.conf section for whatever
+kernel you're booting.  It's possible that initscripts are remounting the
+partition read-only, but not likely, and if you're using journalling, it's
+best to check your initscripts and get rid of all the junk that runs
+e2fsck and then remounts read-write.
 
 
-Regards,
-
-
+justin
 

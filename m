@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263867AbUDFP4M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUDFP4M
+	id S261779AbUDFP7W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbUDFP7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:56:12 -0400
-Received: from ns.suse.de ([195.135.220.2]:49854 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263897AbUDFP4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:56:07 -0400
-To: Juergen Salk <juergen.salk@gmx.de>
+	Tue, 6 Apr 2004 11:59:21 -0400
+Received: from bay2-f41.bay2.hotmail.com ([65.54.247.41]:38925 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261779AbUDFP7E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 11:59:04 -0400
+X-Originating-IP: [209.172.74.2]
+X-Originating-Email: [idht4n@hotmail.com]
+From: "David L" <idht4n@hotmail.com>
+To: dwmw2@infradead.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strip whitespace from EXTRAVERSION?
-References: <20040406144709.GC16564@oest181.str.klinik.uni-ulm.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: YOW!!  Everybody out of the GENETIC POOL!
-Date: Tue, 06 Apr 2004 17:56:05 +0200
-In-Reply-To: <20040406144709.GC16564@oest181.str.klinik.uni-ulm.de> (Juergen
- Salk's message of "Tue, 6 Apr 2004 16:47:09 +0200")
-Message-ID: <jeu0zx5cdm.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: mtd - No flash chips recognised.
+Date: Tue, 06 Apr 2004 08:59:03 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY2-F41f6pGYyyBjik0004c972@hotmail.com>
+X-OriginalArrivalTime: 06 Apr 2004 15:59:03.0871 (UTC) FILETIME=[156BE4F0:01C41BF0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Salk <juergen.salk@gmx.de> writes:
-
-> --- Makefile-orig       Tue Apr  6 14:13:06 2004
-> +++ Makefile    Tue Apr  6 14:45:29 2004
-> @@ -3,6 +3,7 @@
->  SUBLEVEL = 25
->  EXTRAVERSION =
 >
-> +EXTRAVERSION:=$(shell echo $(EXTRAVERSION) | sed -e 's/[ 	]//g')
+>2.6 supports the DiskOnChip 2000, Millennium and Millennium Plus. There
+>is no support yet for newer devices.
 
-EXTRAVERSION := $(strip $(EXTRAVERSION))
+Does anybody know when support for newer devices (Mobile DiskOnChip)
+might be available?  Most (all?) of the above devices are not recommended
+for new designs.
 
-Andreas.
+m-sys has a patch for <=2.4 series kernels, but not for 2.6.  Are those
+patches now part of the kernel or are they different implementations
+(presumably with different licensing)?  Do the m-sys patches support
+newer devices (just not newer kernels)?
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Thanks:
+
+                 David
+
+_________________________________________________________________
+Check out MSN PC Safety & Security to help ensure your PC is protected and 
+safe. http://specials.msn.com/msn/security.asp
+

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269515AbRHGWcY>; Tue, 7 Aug 2001 18:32:24 -0400
+	id <S269503AbRHGWdy>; Tue, 7 Aug 2001 18:33:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269178AbRHGWcO>; Tue, 7 Aug 2001 18:32:14 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:6921 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S269518AbRHGWcG>; Tue, 7 Aug 2001 18:32:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Mark Atwood <mra@pobox.com>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-Date: Wed, 8 Aug 2001 00:33:45 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <Pine.LNX.4.33.0108071925040.27407-100000@infradead.org> <m3g0b3v8zq.fsf@flash.localdomain>
-In-Reply-To: <m3g0b3v8zq.fsf@flash.localdomain>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <15UFO2-0nphWSC@fmrl03.sul.t-online.com>
+	id <S270201AbRHGWdi>; Tue, 7 Aug 2001 18:33:38 -0400
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:2063 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S269503AbRHGWca>; Tue, 7 Aug 2001 18:32:30 -0400
+Message-ID: <20010807235434.B2032@bug.ucw.cz>
+Date: Tue, 7 Aug 2001 23:54:34 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC][PATCH] parser for mount options
+In-Reply-To: <Pine.GSO.4.21.0108071227080.18565-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.GSO.4.21.0108071227080.18565-100000@weyl.math.psu.edu>; from Alexander Viro on Tue, Aug 07, 2001 at 01:02:05PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 August 2001 23:46, Mark Atwood wrote:
-> Userspace init scripts point the finger at kernel, saying "there is no
-> good and no well documented mapping method". Kernel points its finger
-> at userspace, saying "this is the way we do it" and "we cant guarantee
-> a perfect 100% mapping solution, so we're not even going to try for
-> 90%" and "futz with your drivers and modules.conf and init scripts
-> till you get something that works".
+Hi!
 
-I'm working on one a possible solution, the Device Registry 
-(www.tjansen.de/devreg). It solves this problem by assigning device ids to 
-physical devices. This allows you to identify a physical device, even after 
-you changed tge port.
+> 	Patch applies clean at least to -pre4 and -pre5.  Comments,
+> suggestions and flames are welcome.  I hope that it got enough
+> filesystems converted to be representative - adfs, autofs, devpts,
+> ext2, fat and isofs.
 
-Device ids can be used in two ways:
-1. user space apps can use the device id to find the device's node in /dev
-2. a user-space daemon can use the device ids to create stable symlinks to 
-the /dev nodes (this is not possible to ethernet ids though)
+fat and isofs have pretty ugly set of options:
 
-bye...
+nodots and dotsOK=no are same thing (oops, you've bug there). It would
+be nice to have just one name for each function. No need to do
+second-guessing in kernel.
 
+> +static match_table_t FAT_tokens = {
+> +	{Opt_check_r, "check=relaxed"},
+> +	{Opt_check_s, "check=strict"},
+> +	{Opt_check_n, "check=normal"},
+> +	{Opt_check_r, "check=r"},
+> +	{Opt_check_s, "check=s"},
+> +	{Opt_check_n, "check=n"},
+> +	{Opt_conv_b, "conv=binary"},
+> +	{Opt_conv_t, "conv=text"},
+> +	{Opt_conv_a, "conv=auto"},
+> +	{Opt_conv_b, "conv=b"},
+> +	{Opt_conv_t, "conv=t"},
+> +	{Opt_conv_a, "conv=a"},
+> +	{Opt_dots, "dots"},
+> +	{Opt_dots, "dotsOK=yes"},
+> +	{Opt_nodots, "nodots"},
+> +	{Opt_dots, "dotsOK=no"},
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+here's bug, btw.
+
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

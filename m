@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268249AbUHXCr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUHXCxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268249AbUHXCr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 22:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUHXCr4
+	id S267370AbUHXCxF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 22:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268277AbUHXCxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 22:47:56 -0400
-Received: from alt.aurema.com ([203.217.18.57]:30895 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S266491AbUHXCrx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 22:47:53 -0400
-Message-ID: <412AAC1D.5050104@bigpond.net.au>
-Date: Tue, 24 Aug 2004 12:46:53 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: [PATCH] V-5.0.1 Single Priority Array O(1) CPU Scheduler Evaluation
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 22:53:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39066 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267370AbUHXCxA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 22:53:00 -0400
+Date: Tue, 24 Aug 2004 03:52:59 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: James Morris <jmorris@redhat.com>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH][2/7] xattr consolidation - LSM hook changes
+Message-ID: <20040824025259.GC21964@parcelfarce.linux.theplanet.co.uk>
+References: <1093288398.27211.257.camel@moss-spartans.epoch.ncsc.mil> <Xine.LNX.4.44.0408232046290.16044-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0408232046290.16044-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 5.0.1 of various single priority array scheduler patches for the 
-2.6.8.1 kernel are now available for download and evaluation.  This is a 
-bug fix release to fix a problem whereby using non zero soft caps in 
-"pb" mode could cause a system hang.  Only spa_pb, zaphod and hydra 
-schedulers are effected.  Full patches and patches from 5.0 to 5.0.1 are 
-available as follows:
+On Mon, Aug 23, 2004 at 08:54:14PM -0400, James Morris wrote:
+> On Mon, 23 Aug 2004, Stephen Smalley wrote:
+> 
+> > On Mon, 2004-08-23 at 15:03, Christoph Hellwig wrote:
+> 
+> > > Given that the actual methods take a dentry this sounds like a bad design.
+> > > Can;t you just pass down the dentry through all of the ext2 interfaces?
+> > 
+> > Changing the methods to take an inode would be even better, IMHO, as the
+> > dentry is unnecessary.  That would simplify SELinux as well.
+> 
+> This could work for all in-tree filesystems with xattrs, except CIFS,
+> which passes the dentry to it's own build_path_from_dentry() function.  
+> 
+> (In this case, they probably want to use d_path() and have a vfsmnt added 
+> to the methods?).
 
-SPA_PB:
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-spa_pb_FULL-v5.0.1?download>
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-spa_pb-v5.0-to-v5.0.1?download>
-
-ZAPHOD:
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-spa_zaphod_FULL-v5.0.1?download>
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-spa_zaphod-v5.0-to-v5.0.1?download>
-
-HYDRA:
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-spa_hydra_FULL-v5.0.1?download>
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-spa_hydra-v5.0-to-v5.0.1?download>
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+No.  Think for a second and you'll see why - we are doing an operation that
+by definition should not depend on where we have mounted the filesystem in
+question.

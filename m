@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUFXNZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUFXN2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbUFXNZO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 09:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUFXNZO
+	id S264550AbUFXN2a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 09:28:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUFXN23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 09:25:14 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31154 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264461AbUFXNZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 09:25:10 -0400
-Date: Tue, 22 Jun 2004 17:32:32 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Egmont Koblinger <egmont@uhulinux.hu>, linux-kernel@vger.kernel.org
-Subject: Re: information leak in vga console scrollback buffer
-Message-ID: <20040622153231.GA698@openzaurus.ucw.cz>
-References: <Pine.LNX.4.58L0.0406122137480.20424@sziami.cs.bme.hu> <20040612204352.GA22347@taniwha.stupidest.org>
+	Thu, 24 Jun 2004 09:28:29 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:22533 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264550AbUFXN22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 09:28:28 -0400
+Subject: Re: 2.6.7-mm2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040624103923.C10623@flint.arm.linux.org.uk>
+References: <20040624014655.5d2a4bfb.akpm@osdl.org>
+	 <20040624103923.C10623@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 24 Jun 2004 15:28:20 +0200
+Message-Id: <1088083701.2442.2.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040612204352.GA22347@taniwha.stupidest.org>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 1.5.9.2 (1.5.9.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Using the standard vga console, it is easily possible to read some
-> > random pieces of texts that were scrolled out a long time ago (often
-> > you can see your boot messages or similar stuff even after switcing
-> > to another console or even to X. All you need is a local user access
-> > to the console.
+On Thu, 2004-06-24 at 10:39 +0100, Russell King wrote:
+> On Thu, Jun 24, 2004 at 01:46:55AM -0700, Andrew Morton wrote:
+> > Changes since 2.6.7-mm1:
+> > 
+> > 
+> >  bk-pcmcia.patch
 > 
-> Feature not bug.
+> Just a quick note to ask people to test 2.6.7-mm2 PCMCIA please.
 
-Read it again. Scrollback should be cleared by console switch,
-but it can be recovered using obscure escape sequence.
-
-Time for bugtraq?
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Just compiling it... Will keep the list members informed if something
+goes wrong.
 

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314106AbSDQVGK>; Wed, 17 Apr 2002 17:06:10 -0400
+	id <S314108AbSDQVRT>; Wed, 17 Apr 2002 17:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314108AbSDQVGJ>; Wed, 17 Apr 2002 17:06:09 -0400
-Received: from vger.timpanogas.org ([216.250.140.154]:38286 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S314106AbSDQVGI>; Wed, 17 Apr 2002 17:06:08 -0400
-Date: Wed, 17 Apr 2002 14:26:17 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Hyperthreading
-Message-ID: <20020417142617.B27778@vger.timpanogas.org>
-In-Reply-To: <Pine.LNX.4.44.0204171358380.21779-100000@skuld.mtroyal.ab.ca> <1833210000.1019077852@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314129AbSDQVRS>; Wed, 17 Apr 2002 17:17:18 -0400
+Received: from vsdc01.corp.publichost.com ([64.7.196.123]:64013 "EHLO
+	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
+	id <S314108AbSDQVRS>; Wed, 17 Apr 2002 17:17:18 -0400
+Message-ID: <3CBDE658.1030102@vitalstream.com>
+Date: Wed, 17 Apr 2002 14:17:12 -0700
+From: Rick Stevens <rstevens@vitalstream.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
+In-Reply-To: <20020417123044.GA8833@www.kroptech.com> <2673595977.1019032098@[10.10.2.3]> <20020417191718.GA8660@www.kroptech.com> <3CBDCD8D.1090802@vitalstream.com> <1831780000.1019076835@flay> <20020417204037.GA292@www.kroptech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17, 2002 at 02:10:52PM -0700, Martin J. Bligh wrote:
-> > That has balanced the timer irqs.  I've also enabled hyper threading
-> > (append="acpismp=force").
-> > ...
-> > And, you've gotta like this line:
-> > Total of 4 processors activated (14299.95 BogoMIPS).
+Adam Kropelin wrote:
+> On Wed, Apr 17, 2002 at 01:53:55PM -0700, Martin J. Bligh wrote:
 > 
-> Before you get too excited about that, how much performance boost do 
-> you actually get by turning on Hyperthreading? ;-)
+>>>of C and the "&&" operator say that "if the first is false, the
+>>>second needn't even be evaluated".  
+>>>
+>>That's what I would have thought.
+>>But I don't think it's the second part that causes the warning,
+>>it's the thing *inside* the if clause.
+>>
 > 
-
-In my testing with SCI, it speeds up some operations and with 3Ware 
-it increases throuput about 10 MB/S.  Not a lot but there is some 
-improvement (if you can get around the lockups during boot).
-
-Jeff
-
-
-> M.
+> Exactly.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+>>>Could that be what's causing the warning?
+>>>
+>>To my mind, that's why we should *not* be getting a warning ?
+>>
+> 
+> Indeed. The optimization step that (presumably) removes the body
+> of the if() must happen after the body has been fully evaluated.
+> Makes sense, I guess, now that I think about it...
+
+Right.  If the first condition of a logical AND statement is false,
+the remainder need not be evaluated at all.  Hence, the entire if
+statement can (and perhaps should) be eliminated by the compiler,
+since the condition is false.
+
+I didn't see what the actual message from the compiler was, but it
+was probably just a warning.
+----------------------------------------------------------------------
+- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
+- 949-743-2010 (Voice)                    http://www.vitalstream.com -
+-                                                                    -
+-     Never put off 'til tommorrow what you can forget altogether!   -
+----------------------------------------------------------------------
+

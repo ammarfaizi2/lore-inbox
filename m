@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbTF0WAH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbTF0WAG
+	id S264876AbTF0V7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 17:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbTF0V7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:00:06 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:43258 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264833AbTF0V7n
+	Fri, 27 Jun 2003 17:59:15 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:24491 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264870AbTF0V7K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 17:59:43 -0400
-Message-ID: <3EFCC166.1060000@austin.ibm.com>
-Date: Fri, 27 Jun 2003 17:12:54 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Fri, 27 Jun 2003 17:59:10 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 27 Jun 2003 15:11:53 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "David S. Miller" <davem@redhat.com>
+cc: mbligh@aracnet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+In-Reply-To: <20030627.150248.08328103.davem@redhat.com>
+Message-ID: <Pine.LNX.4.55.0306271509540.4457@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>
+ <20030627.143738.41641928.davem@redhat.com>
+ <Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com>
+ <20030627.150248.08328103.davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, linstab <linstab@osdl.org>,
-       ltp-results <ltp-results@lists.sourceforge.net>
-Subject: [BENCHMARK] 2.5.73-bk5 regression test results
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Jun 2003, David S. Miller wrote:
+
+>    From: Davide Libenzi <davidel@xmailserver.org>
+>    Date: Fri, 27 Jun 2003 15:02:00 -0700 (PDT)
+>
+>    David, your method is the dream of every software developer.
+>
+> It is not a dream, it works perfectly fine and has done so
+> for 5+ years of Linux maintainence.
+>
+> To make these things scale you MUST push the work out to other people,
+> you absolutely cannot centralize.  And here we're pushing it out to
+> the bug reporters, just like we push the work of patch maintainence to
+> the patch submitters.
+>
+> If they don't care about the bug and won't retransmit when their
+> stuff isn't being looked at, their bug isn't worth being looked
+> at.
+
+David, I'm not willing to waste both precious time arguing on this but I
+will leave you question to think about. Is a bug report more useful for
+the user of a "system" or for the "system" itself ?
 
 
-Nightly Regression Summary
-for
-2.5.73-bk4 vs 2.5.73-bk5
 
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N         2.5.73-bk4    2.5.73-bk5    report
-dbench.ext3           P            N              Y         2.5.73-bk4    2.5.73-bk5    report
-dbench.jfs            P            N              N         2.5.73-bk4    2.5.73-bk5    report
-dbench.reiser         P            N              N         2.5.73-bk4    2.5.73-bk5    report
-dbench.xfs            P            N              N         2.5.73-bk4    2.5.73-bk5    report
-kernbench             P            N              N         2.5.73-bk4    2.5.73-bk5    report
-lmbench               P            Y              Y         2.5.73-bk4    2.5.73-bk5    report
-rawiobench            P            N              Y         2.5.73-bk4    2.5.73-bk5    report
-specjbb               P            Y              Y         2.5.73-bk4    2.5.73-bk5    report
-specsdet              P            Y              N         2.5.73-bk4    2.5.73-bk5    report
-tbench                P            Y              Y         2.5.73-bk4    2.5.73-bk5    report
-tiobench.ext2         P            N              N         2.5.73-bk4    2.5.73-bk5    report
-tiobench.ext3         P            N              Y         2.5.73-bk4    2.5.73-bk5    report
-tiobench.jfs          P            N              N         2.5.73-bk4    2.5.73-bk5    report
-tiobench.reiser       P            Y              Y         2.5.73-bk4    2.5.73-bk5    report
-tiobench.xfs          P            N              N         2.5.73-bk4    2.5.73-bk5    report
-volanomark            P            N              N         2.5.73-bk4    2.5.73-bk5    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk5/2.5.73-bk4-vs-2.5.73-bk5/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-bk5
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73    2.5.73-bk5    report
-dbench.ext3           P            N              Y             2.5.73    2.5.73-bk5    report
-dbench.jfs            P            N              N             2.5.73    2.5.73-bk5    report
-dbench.reiser         P            N              N             2.5.73    2.5.73-bk5    report
-dbench.xfs            P            N              N             2.5.73    2.5.73-bk5    report
-kernbench             P            N              N             2.5.73    2.5.73-bk5    report
-lmbench               P            Y              Y             2.5.73    2.5.73-bk5    report
-rawiobench            P            Y              Y             2.5.73    2.5.73-bk5    report
-specjbb               P            Y              Y             2.5.73    2.5.73-bk5    report
-specsdet              P            Y              N             2.5.73    2.5.73-bk5    report
-tbench                P            N              Y             2.5.73    2.5.73-bk5    report
-tiobench.ext2         P            N              Y             2.5.73    2.5.73-bk5    report
-tiobench.ext3         P            N              Y             2.5.73    2.5.73-bk5    report
-tiobench.jfs          P            N              Y             2.5.73    2.5.73-bk5    report
-tiobench.reiser       P            Y              Y             2.5.73    2.5.73-bk5    report
-tiobench.xfs          P            N              Y             2.5.73    2.5.73-bk5    report
-volanomark            P            N              N             2.5.73    2.5.73-bk5    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk5/2.5.73-vs-2.5.73-bk5/
-
-Mark
-
-
+- Davide
 

@@ -1,171 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311273AbSCWUxW>; Sat, 23 Mar 2002 15:53:22 -0500
+	id <S286322AbSCWVM2>; Sat, 23 Mar 2002 16:12:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311275AbSCWUxP>; Sat, 23 Mar 2002 15:53:15 -0500
-Received: from ep09.kernel.pl ([212.87.11.162]:1394 "EHLO ep09.kernel.pl")
-	by vger.kernel.org with ESMTP id <S311273AbSCWUxB>;
-	Sat, 23 Mar 2002 15:53:01 -0500
-Date: Sat, 23 Mar 2002 21:52:56 +0100 (CET)
-From: Witek Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.7] Oops while connecting a device to USB port (khubd)
-Message-ID: <Pine.LNX.4.44.0203232149240.18904-200000@ep09.kernel.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1473552907-1421559304-1016916776=:18904"
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S291102AbSCWVMT>; Sat, 23 Mar 2002 16:12:19 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:38086 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S286322AbSCWVMI>;
+	Sat, 23 Mar 2002 16:12:08 -0500
+Date: Sat, 23 Mar 2002 22:10:58 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        marcelo Tosatti <marcelo@conectiva.com.br>, Alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Updated ATM patch for 2.4.19-pre4
+Message-ID: <20020323221058.B15111@fafner.intra.cogenit.fr>
+In-Reply-To: <5.1.0.14.2.20020322170653.0337b970@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Organisation: Marie's fan club - II
+X-Warning: scheduled downtime from 22PM to 2AM for 22/15 recovery
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Maksim Krasnyanskiy <maxk@qualcomm.com> :
+[...]
+> I updated ATM patch for 2.4.19-pre4. It includes couple of fixes that I 
+> missed in my first patch
+> and includes ATM Ethernet bridging support (RFC2684) implemented by Marcell 
+> GAL.
+> It is rather big for email. Here is the URL:
+>          http://bluez.sourceforge.net/patches/atm.patch-2.4.19-pre4.gz
 
---1473552907-1421559304-1016916776=:18904
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+1 - It won't compile with CONFIG_ATM_BR2684_IPFILTER=y (see error message 
+below). Suggested fix:
+ed net/atm/br2684.c <<EOF
+17a
+#include <linux/ip.h>
+.
+wq
+EOF
 
-Oops is happening when I'm loading a module while having scanner 
-connected to USB (HP SJ 4470c) or when the module is already loaded and 
-i'm connecting the scanner. It does not depend on usb modularization: if 
-usb is in core, oopsa happens at boot time.
-WK
-P.S. ksymoops output in attachment
+-> Error message:
+make[2]: Entering directory `/tmp/romieu/kernel/linux-2.4.19-pre4/net/atm'
+kgcc -D__KERNEL__ -I/tmp/romieu/kernel/linux-2.4.19-pre4/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe  -march=i686 -DMODULE  -DKBUILD_BASENAME=br2684  -c -o
+br2684.o br2684.c
+br2684.c: In function `packet_fails_filter':
+br2684.c:378: dereferencing pointer to incomplete type
+make[2]: *** [br2684.o] Error 1
+make[2]: Leaving directory `/tmp/romieu/kernel/linux-2.4.19-pre4/net/atm'
+make[1]: *** [_modsubdir_atm] Error 2
+make[1]: Leaving directory `/tmp/romieu/kernel/linux-2.4.19-pre4/net'
+make: *** [_mod_net] Error 2
 
---1473552907-1421559304-1016916776=:18904
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops.dec"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0203232152560.18904@ep09.kernel.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="oops.dec"
+2 - As the patch does many things, splitting it in parts would be nice imho.
 
-a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjUuNy4gIE9wdGlvbnMgdXNlZA0K
-ICAgICAtViAoZGVmYXVsdCkNCiAgICAgLWsgL3Byb2Mva3N5bXMgKGRlZmF1
-bHQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQogICAgIC1v
-IC9saWIvbW9kdWxlcy8yLjUuNy8gKGRlZmF1bHQpDQogICAgIC1tIC9ib290
-L1N5c3RlbS5tYXAtMi41LjcgKGRlZmF1bHQpDQoNCldhcm5pbmc6IFlvdSBk
-aWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBzeW1ib2wgaW5mb3JtYXRp
-b24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hlcyB0aGUg
-a2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcNCnJpZ2h0IG5v
-dyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Ig
-c3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUgY3VycmVudCBrZXJuZWwgYW5k
-L29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBsb2csIHlvdSBjYW4gZ2V0
-DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBrZXJu
-ZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZA0KbWFwLCBtb2R1bGVzLCBr
-c3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4N
-Cg0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wg
-aWRsZV9jcHVfUl9fdmVyX2lkbGVfY3B1IG5vdCBmb3VuZCBpbiBTeXN0ZW0u
-bWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29t
-cGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgaXBfY3RfYXR0YWNoX1Jf
-X3Zlcl9pcF9jdF9hdHRhY2ggbm90IGZvdW5kIGluIFN5c3RlbS5tYXAuICBJ
-Z25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21h
-cHMpOiBrc3ltc19iYXNlIHN5bWJvbCBpcF9yb3V0ZV9tZV9oYXJkZXJfUl9f
-dmVyX2lwX3JvdXRlX21lX2hhcmRlciBub3QgZm91bmQgaW4gU3lzdGVtLm1h
-cC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBh
-cmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5ldGxpbmtfYXR0YWNoX1Jf
-X3Zlcl9uZXRsaW5rX2F0dGFjaCBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4g
-IElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVf
-bWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5ldGxpbmtfZGV0YWNoX1JfX3Zl
-cl9uZXRsaW5rX2RldGFjaCBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4gIEln
-bm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFw
-cyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5ldGxpbmtfcG9zdF9SX192ZXJfbmV0
-bGlua19wb3N0IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcg
-a3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5
-bXNfYmFzZSBzeW1ib2wgbmZfZ2V0c29ja29wdF9SX192ZXJfbmZfZ2V0c29j
-a29wdCBub3QgZm91bmQgaW4gU3lzdGVtLm1hcC4gIElnbm9yaW5nIGtzeW1z
-X2Jhc2UgZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jh
-c2Ugc3ltYm9sIG5mX2hvb2tfc2xvd19SX192ZXJfbmZfaG9va19zbG93IG5v
-dCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBl
-bnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1i
-b2wgbmZfaG9va3NfUl9fdmVyX25mX2hvb2tzIG5vdCBmb3VuZCBpbiBTeXN0
-ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAo
-Y29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgbmZfcmVnaXN0ZXJf
-aG9va19SX192ZXJfbmZfcmVnaXN0ZXJfaG9vayBub3QgZm91bmQgaW4gU3lz
-dGVtLm1hcC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldhcm5pbmcg
-KGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIG5mX3JlZ2lzdGVy
-X3F1ZXVlX2hhbmRsZXJfUl9fdmVyX25mX3JlZ2lzdGVyX3F1ZXVlX2hhbmRs
-ZXIgbm90IGZvdW5kIGluIFN5c3RlbS5tYXAuICBJZ25vcmluZyBrc3ltc19i
-YXNlIGVudHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBrc3ltc19iYXNl
-IHN5bWJvbCBuZl9yZWdpc3Rlcl9zb2Nrb3B0X1JfX3Zlcl9uZl9yZWdpc3Rl
-cl9zb2Nrb3B0IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcg
-a3N5bXNfYmFzZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5
-bXNfYmFzZSBzeW1ib2wgbmZfcmVpbmplY3RfUl9fdmVyX25mX3JlaW5qZWN0
-IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFz
-ZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBz
-eW1ib2wgbmZfc2V0c29ja29wdF9SX192ZXJfbmZfc2V0c29ja29wdCBub3Qg
-Zm91bmQgaW4gU3lzdGVtLm1hcC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50
-cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9s
-IG5mX3VucmVnaXN0ZXJfaG9va19SX192ZXJfbmZfdW5yZWdpc3Rlcl9ob29r
-IG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFz
-ZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBz
-eW1ib2wgbmZfdW5yZWdpc3Rlcl9xdWV1ZV9oYW5kbGVyX1JfX3Zlcl9uZl91
-bnJlZ2lzdGVyX3F1ZXVlX2hhbmRsZXIgbm90IGZvdW5kIGluIFN5c3RlbS5t
-YXAuICBJZ25vcmluZyBrc3ltc19iYXNlIGVudHJ5DQpXYXJuaW5nIChjb21w
-YXJlX21hcHMpOiBrc3ltc19iYXNlIHN5bWJvbCBuZl91bnJlZ2lzdGVyX3Nv
-Y2tvcHRfUl9fdmVyX25mX3VucmVnaXN0ZXJfc29ja29wdCBub3QgZm91bmQg
-aW4gU3lzdGVtLm1hcC4gIElnbm9yaW5nIGtzeW1zX2Jhc2UgZW50cnkNCldh
-cm5pbmcgKGNvbXBhcmVfbWFwcyk6IGtzeW1zX2Jhc2Ugc3ltYm9sIHZtYWxs
-b2NfdG9fcGFnZV9SX192ZXJfdm1hbGxvY190b19wYWdlIG5vdCBmb3VuZCBp
-biBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5bXNfYmFzZSBlbnRyeQ0KT29w
-czogMDAwMA0KQ1BVOiAgICAwDQpFSVA6ICAgIDAwMTA6WzxlMzkxYTNmZj5d
-ICAgIE5vdCB0YWludGVkDQpVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3Bz
-IC10IGVsZjMyLWkzODYgLWEgaTM4Ng0KRUZMQUdTOiAwMDAxMDA4Mg0KZWF4
-OiBhN2E3YTdhNyAgIGVieDogYTdhN2E3ZDMgICBlY3g6IGRmMjQzMzljICAg
-ZWR4OiBkZTkwYzAzMA0KZXNpOiBkZTkwZjE4YyAgIGVkaTogZGU5MGMwMzAg
-ICBlYnA6IGRlOTBjMDMwICAgZXNwOiBkZTlkOWUxOA0KZHM6IDAwMTggICBl
-czogMDAxOCAgIHNzOiAwMDE4DQpTdGFjazogZGU5ZDgwMDAgMDAwMDAwNDYg
-ZmZlODAwNjkgMDAwMDAwMDAgZTM5MWE0YTMgZGYyNDMzOWMgZGU5MGMwMzAN
-CmRmNTUzY2Y0DQogICAgICAgMDBlMDAwMmQgZGU5MGQyMTAgZTM5MWFmNDcg
-ZGYyNDMzOWMgZGU5MGMwMzAgZGY1NTNjZjQgZGU5MGMwYzANCmRmNTUzY2Y0
-DQogICAgICAgMDAwMDAwMDEgZGYyNDkwMDAgZGY1NTNjZjQgZmZmZmZmZWEg
-MDAwMDAyODYgMDAwMDAwMDAgMDAwMDAwMDgNCjE4ODAwMDAwDQpDYWxsIFRy
-YWNlOiBbPGUzOTFhNGEzPl0gWzxlMzkxYWY0Nz5dIFs8ZTM5MWJlZDY+XSBb
-PGUzOTA5Y2NiPl0gWzxlMzkwOWRkZj5dDQogICBbPGUzOTA5ZjVmPl0gWzxl
-MzkwOWZmYj5dIFs8ZTM5MGFkYjI+XSBbPGUzOTBiODBlPl0gWzxlMzkwZDBm
-Yj5dDQpbPGUzOTE3MTA0Pl0NCiAgIFs8ZTM5MGQyYjk+XSBbPGUzOTE1M2Nh
-Pl0gWzxlMzkxNzEyYz5dIFs8ZTM5MGQ0Nzc+XSBbPGMwMTA3MTg4Pl0NCkNv
-ZGU6IDhiIDQ4IDJjIDM5IGNiIDc0IDE2IDhkIDQxIGQ0IDhiIDUwIDEwIDhi
-IDQ2IDEwIDhiIDA5IDhiIDQwDQoNCj4+RUlQOyBlMzkxYTNmZiA8W3VoY2ld
-X3VoY2lfaW5zZXJ0X3FoKzFmL2EwPiAgIDw9PT09PQ0KVHJhY2U7IGUzOTFh
-NGEzIDxbdWhjaV11aGNpX2luc2VydF9xaCsyMy80MD4NClRyYWNlOyBlMzkx
-YWY0NyA8W3VoY2lddWhjaV9zdWJtaXRfY29udHJvbCsyNTcvMjgwPg0KVHJh
-Y2U7IGUzOTFiZWQ2IDxbdWhjaV11aGNpX3N1Ym1pdF91cmIrMTY2LzJiMD4N
-ClRyYWNlOyBlMzkwOWNjYiA8W3VzYmNvcmVddXNiX3N1Ym1pdF91cmIrMmIv
-NDA+DQpUcmFjZTsgZTM5MDlkZGYgPFt1c2Jjb3JlXXVzYl9zdGFydF93YWl0
-X3VyYis5Zi8xYzA+DQpUcmFjZTsgZTM5MDlmNWYgPFt1c2Jjb3JlXXVzYl9p
-bnRlcm5hbF9jb250cm9sX21zZys1Zi84MD4NClRyYWNlOyBlMzkwOWZmYiA8
-W3VzYmNvcmVddXNiX2NvbnRyb2xfbXNnKzdiL2EwPg0KVHJhY2U7IGUzOTBh
-ZGIyIDxbdXNiY29yZV11c2Jfc2V0X2FkZHJlc3MrMjIvMzA+DQpUcmFjZTsg
-ZTM5MGI4MGUgPFt1c2Jjb3JlXXVzYl9uZXdfZGV2aWNlKzFlLzFiMD4NClRy
-YWNlOyBlMzkwZDBmYiA8W3VzYmNvcmVddXNiX2h1Yl9wb3J0X2Nvbm5lY3Rf
-Y2hhbmdlKzIxYi8yYzA+DQpUcmFjZTsgZTM5MTcxMDQgPFt1c2Jjb3JlXXVz
-Yl9hZGRyZXNzMF9zZW0rMC8xND4NClRyYWNlOyBlMzkwZDJiOSA8W3VzYmNv
-cmVddXNiX2h1Yl9ldmVudHMrMTE5LzJhMD4NClRyYWNlOyBlMzkxNTNjYSA8
-W3VzYmNvcmVdLnJvZGF0YS5zdGFydCsxZjRhLzFmNGM+DQpUcmFjZTsgZTM5
-MTcxMmMgPFt1c2Jjb3JlXWtodWJkX3dhaXQrNC9jPg0KVHJhY2U7IGUzOTBk
-NDc3IDxbdXNiY29yZV11c2JfaHViX3RocmVhZCszNy85MD4NClRyYWNlOyBj
-MDEwNzE4OCA8a2VybmVsX3RocmVhZCsyOC80MD4NCkNvZGU7ICBlMzkxYTNm
-ZiA8W3VoY2ldX3VoY2lfaW5zZXJ0X3FoKzFmL2EwPg0KMDAwMDAwMDAgPF9F
-SVA+Og0KQ29kZTsgIGUzOTFhM2ZmIDxbdWhjaV1fdWhjaV9pbnNlcnRfcWgr
-MWYvYTA+ICAgPD09PT09DQogICAwOiAgIDhiIDQ4IDJjICAgICAgICAgICAg
-ICAgICAgbW92ICAgIDB4MmMoJWVheCksJWVjeCAgIDw9PT09PQ0KQ29kZTsg
-IGUzOTFhNDAyIDxbdWhjaV1fdWhjaV9pbnNlcnRfcWgrMjIvYTA+DQogICAz
-OiAgIDM5IGNiICAgICAgICAgICAgICAgICAgICAgY21wICAgICVlY3gsJWVi
-eA0KQ29kZTsgIGUzOTFhNDA0IDxbdWhjaV1fdWhjaV9pbnNlcnRfcWgrMjQv
-YTA+DQogICA1OiAgIDc0IDE2ICAgICAgICAgICAgICAgICAgICAgamUgICAg
-IDFkIDxfRUlQKzB4MWQ+IGUzOTFhNDFjIDxbdWhjaV1fdWhjaV9pbnNlcnRf
-cWgrM2MvYTA+DQpDb2RlOyAgZTM5MWE0MDYgPFt1aGNpXV91aGNpX2luc2Vy
-dF9xaCsyNi9hMD4NCiAgIDc6ICAgOGQgNDEgZDQgICAgICAgICAgICAgICAg
-ICBsZWEgICAgMHhmZmZmZmZkNCglZWN4KSwlZWF4DQpDb2RlOyAgZTM5MWE0
-MDkgPFt1aGNpXV91aGNpX2luc2VydF9xaCsyOS9hMD4NCiAgIGE6ICAgOGIg
-NTAgMTAgICAgICAgICAgICAgICAgICBtb3YgICAgMHgxMCglZWF4KSwlZWR4
-DQpDb2RlOyAgZTM5MWE0MGMgPFt1aGNpXV91aGNpX2luc2VydF9xaCsyYy9h
-MD4NCiAgIGQ6ICAgOGIgNDYgMTAgICAgICAgICAgICAgICAgICBtb3YgICAg
-MHgxMCglZXNpKSwlZWF4DQpDb2RlOyAgZTM5MWE0MGYgPFt1aGNpXV91aGNp
-X2luc2VydF9xaCsyZi9hMD4NCiAgMTA6ICAgOGIgMDkgICAgICAgICAgICAg
-ICAgICAgICBtb3YgICAgKCVlY3gpLCVlY3gNCkNvZGU7ICBlMzkxYTQxMSA8
-W3VoY2ldX3VoY2lfaW5zZXJ0X3FoKzMxL2EwPg0KICAxMjogICA4YiA0MCAw
-MCAgICAgICAgICAgICAgICAgIG1vdiAgICAweDAoJWVheCksJWVheA0KDQoN
-CjE5IHdhcm5pbmdzIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxp
-YWJsZS4NCg==
---1473552907-1421559304-1016916776=:18904--
+3 - I have on my TODO a 'please ifconfig down before killing br2684ctl' BUG
+that Marcell Gal told me a few months ago (*spleen*). Did someone take care
+of it ?
 
+-- 
+Ueimor

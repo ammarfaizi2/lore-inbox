@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTESSa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 14:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTESSa3
+	id S262710AbTESSc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 14:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTESSc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 14:30:29 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28598
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262687AbTESSa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 14:30:28 -0400
-Subject: Re: Recent changes to sysctl.h breaks glibc
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Ford <david+cert@blue-labs.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Martin Schlemmer <azarah@gentoo.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EC91CF2.7020602@blue-labs.org>
-References: <1053289316.10127.41.camel@nosferatu.lan>
-	 <20030518204956.GB8978@holomorphy.com>
-	 <1053292339.10127.45.camel@nosferatu.lan>
-	 <20030519063813.A30004@infradead.org>
-	 <1053341023.9152.64.camel@workshop.saharact.lan>
-	 <20030519124539.B8868@infradead.org>
-	 <1053348984.9142.98.camel@workshop.saharact.lan>
-	 <20030519140617.A15587@infradead.org>  <3EC91CF2.7020602@blue-labs.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053366292.29227.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 May 2003 18:44:53 +0100
+	Mon, 19 May 2003 14:32:58 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:8713 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262710AbTESSc5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 14:32:57 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.5.69-bk1[23] kconfig loop
+Date: Mon, 19 May 2003 18:45:55 +0000 (UTC)
+Organization: Cistron
+Message-ID: <bab8p3$qt8$1@news.cistron.nl>
+References: <200305191821.h4JILlE12026@adam.yggdrasil.com>
+X-Trace: ncc1701.cistron.net 1053369955 27560 62.216.30.38 (19 May 2003 18:45:55 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-05-19 at 19:05, David Ford wrote:
-> How about not passing the buck off to "the vendor" and helping "this 
-> vendor" make sanitized headers.
+Adam J. Richter <adam@yggdrasil.com> wrote:
+>If I run "make oldconfig" under linux-2.5.69-bk12
+>and select "m" for CONFIG_USB_GADGET, I am asked a question
+>or two about USB gadget interfaces that I might want, and
+>then the build process gets into an infinite loop.  If I set
+>CONFIG_USB_GADGET to "n", then everything is fine.
 
-Nothing stops gentoo contributing - or you
+Same for -mm6 & -mm7 ;-)
+
+Danny
+
+-- 
+Miguel   | "I can't tell if I have worked all my life or if
+de Icaza |  I have never worked a single day of my life,"
 

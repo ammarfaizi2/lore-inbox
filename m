@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTJ2UGb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 15:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTJ2UGb
+	id S261595AbTJ2URn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 15:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbTJ2URn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 15:06:31 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:34822 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id S261575AbTJ2UGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 15:06:30 -0500
-Message-ID: <3FA01DB6.6080106@enterprise.bidmc.harvard.edu>
-Date: Wed, 29 Oct 2003 15:06:14 -0500
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030915
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Javier Villavicencio <jvillavicencio@arnet.com.ar>,
+	Wed, 29 Oct 2003 15:17:43 -0500
+Received: from gprs194-254.eurotel.cz ([160.218.194.254]:54915 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261595AbTJ2URm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 15:17:42 -0500
+Date: Wed, 29 Oct 2003 21:17:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ben Collins <bcollins@debian.org>
+Cc: Matthew J Galgoci <mgalgoci@parcelfarce.linux.theplanet.co.uk>,
        linux-kernel@vger.kernel.org
-Subject: Re: RadeonFB [Re: 2.4.23pre8 - ACPI Kernel Panic on boot]
-References: <Pine.LNX.4.44.0310291443180.1630-100000@logos.cnet>
-In-Reply-To: <Pine.LNX.4.44.0310291443180.1630-100000@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: sbp2 slab corruiton in 2.6-test9
+Message-ID: <20031029201731.GB1941@elf.ucw.cz>
+References: <Pine.LNX.4.44.0310261357100.16378-100000@parcelfarce.linux.theplanet.co.uk> <20031026141837.GA7904@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031026141837.GA7904@phunnypharm.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+Hi!
 
->There have been no radeonfb changes in 2.4.23-pre, what has been updated 
->is DRM.
->
->Are you using DRM? 
->  
->
-Sorry Marcelo, dain bramage on my part.  I meant 2.4.22-pre.  I think it 
-was -pre3 that upgraded drivers/video/radeonfb.c from version 0.1.4 to 
-version 0.1.8-ben
+> > I'm seeing slab corruption in 2.6-test9 when I do a 
+> > cat /proc/scsi/scsi
+> > 
+> 
+> Known. The fix is non-trivial, so I am holding off on it until 2.6.0
+> gets out.
 
-I guess the newer 0.1.8 is needed to support Radeon 9600's.  I'm curious 
-as to whether other people have the same massive screen corruption 
-problems returning from X as I do.  If not, probably best to keep the 
-new driver.  (Maybe I should go out and buy myself a new Radeon. :-)  I 
-have been using ATI's private DRI/DRM kernel module driver (fglrx) in 
-concert with XFree 4.2.0 for quite some time.
+You need to disable /proc/scsi/scsi at least, I guess. Its security
+hole...
 
-Kris
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

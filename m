@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbRF1BGf>; Wed, 27 Jun 2001 21:06:35 -0400
+	id <S265468AbRF1BFF>; Wed, 27 Jun 2001 21:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbRF1BG0>; Wed, 27 Jun 2001 21:06:26 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:27578 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S265469AbRF1BFQ>;
-	Wed, 27 Jun 2001 21:05:16 -0400
-Date: Thu, 28 Jun 2001 03:05:03 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106280105.DAA331227.aeb@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, andre@aslab.com
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-Cc: Gunther.Mayer@t-online.de, dhinds@zen.stanford.edu,
-        linux-kernel@vger.kernel.org
+	id <S265469AbRF1BEz>; Wed, 27 Jun 2001 21:04:55 -0400
+Received: from tsukuba.m17n.org ([192.47.44.130]:42458 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S265468AbRF1BEp>;
+	Wed, 27 Jun 2001 21:04:45 -0400
+Date: Thu, 28 Jun 2001 10:04:33 +0900 (JST)
+Message-Id: <200106280104.f5S14XA05644@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swapin flush cache bug
+In-Reply-To: <15162.32433.598824.599520@pizda.ninka.net>
+In-Reply-To: <200106270051.f5R0pkl19282@mule.m17n.org>
+	<Pine.LNX.4.21.0106270710050.1291-100000@freak.distro.conectiva>
+	<200106280007.f5S07qQ04446@mule.m17n.org>
+	<20010628012349.L1554@redhat.com>
+	<200106280041.f5S0fDr05278@mule.m17n.org>
+	<15162.32433.598824.599520@pizda.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Andre Hedrick <andre@aslab.com>
+David S. Miller wrote:
+ > The I/O completion must flush the cache, not the VM subsystem.
+ > 
+ > You must implement cache flushing at the DMA tranfer end point
+ > to fix the problem you are describing.
 
-    You know yourself first and all the screwed up ATAPI products that are
-    still using SFF-8020 that has been obsoleted before I start maintaining
-    the subsystem three plus years ago. 
+Thanks a lot.  I understand now.  
 
-Hi Andre -
+Aha, that's the reason why we have __flush_dcache_range() in ide_insw
+for Sparc64 implementation, isn't it?  I'll follow it for SuperH.
 
-Why precisely is complying to SFF-8020 broken?
-That was the standard. The standard that Microsoft required.
-Other people made a different standard, and claimed that theirs
-was better or more official or whatever, but reality is that
-the products were not manufactured following this so-called
-better standard.
-You are a good disciple of Hale, but it is no use ignoring the
-fact that a very large number of devices was made following SFF-8020.
-These devices are not necessarily screwed, they tend to work fine,
-although both ATA and ATAPI devices have their quirks.
-
-SFF-8020, later INF-8020, became part of ATA/ATAPI-4 (1998).
-The T13 people that merged SFF-8020 and produced ATA/ATAPI-4
-changed a few details about how a master is supposed to react
-when a nonexistent slave is selected. Nobody really noticed,
-and ATA/ATAPI-5 still had the same requirements. But then long
-discussions about this difference caused ATA/ATAPI-6 to go back
-to the original SFF-8020 requirements. Do you disagree with this
-description of history? If you agree then it is not SFF-8020
-but ATA/ATAPI-4 and ATA/ATAPI-5 that today must be considered broken
-in this respect. I am referring to Section 9.16.1 of these standards.
-
-Maybe there are other things in SFF-8020 that you consider broken?
-
-Andries
-
-
+I'll close the entry for MM bugzilla, it's not MM bug.
+-- 

@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264983AbUDUFvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264971AbUDUGCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264983AbUDUFvd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 01:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUDUFvd
+	id S264971AbUDUGCj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 02:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbUDUGCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 01:51:33 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:47030 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S264983AbUDUFvb (ORCPT
+	Wed, 21 Apr 2004 02:02:39 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:3996 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264971AbUDUGCe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 01:51:31 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: No luck getting 2.6.x kernel to work with ACPI on compaq laptop
-Date: Wed, 21 Apr 2004 05:51:30 +0000 (UTC)
-Organization: Cistron
-Message-ID: <c65252$9cs$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1082526690 9628 62.216.30.38 (21 Apr 2004 05:51:30 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Wed, 21 Apr 2004 02:02:34 -0400
+Date: Wed, 21 Apr 2004 11:30:21 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       suparna@in.ibm.com
+Subject: Re: Problem with Netpoll based netdumping and NAPI
+Message-ID: <20040421060021.GB3716@in.ibm.com>
+Reply-To: hari@in.ibm.com
+References: <20040419125148.GA4495@in.ibm.com> <20040419174254.GQ1175@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040419174254.GQ1175@waste.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My Compaq presario 700EA locks up dead during boot with
-ACPI enabled. With bootoption acpi=off (or not compiled into the kernel)
-the machine works just fine.
+Hi Matt,
 
-I put on acpi debug and typed over by hand (laptop's dont have serial
-ports these days anymore) :
+On Mon, Apr 19, 2004 at 12:42:54PM -0500, Matt Mackall wrote:
+> [changed cc: from linux-net to netdev]
+> 
+> On Mon, Apr 19, 2004 at 06:21:48PM +0530, Hariprasad Nellitheertha wrote:
+> > Hi All,
+> > 
+> > I am facing a problem while trying to network dump using LKCD. My 
+> > debugging so far indicates that this is due to both NAPI and NETPOLL 
+> > being enabled.
+> > 
+> > I am using LKCD on the 2.6.5 kernel and both the client and server are 
+> > i386 boxes. The dumping machine has an e100 card. I have built the kernel
+> > with both CONFIG_E100_NAPI and CONFIG_NET_POLL_CONTROLLER (and the other
+> > netpoll related options) selected.
+> > 
+> > LKCD uses netpoll for its network dump implementation. The problem we see
+> > is that the network dump driver does not receive any packet from the 
+> > card driver and hence dumping fails. In e100_intr(), we call 
+> > netif_rx_schedule() if we are using the NAPI feature. netif_rx_schedule, 
+> > in turn, ends up adding the processing of this packet to the NET_RX_SOFTIRQ 
+> > softirq.
+> 
+> Netpoll should be manually calling the NAPI poll function like this 
+> after calling the interrupt handler (in netpoll_poll()):
+> 
+>       /* If scheduling is stopped, tickle NAPI bits */
+>          if(trapped && np->dev->poll &&
+>             test_bit(__LINK_STATE_RX_SCHED, &np->dev->state))
+>                  np->dev->poll(np->dev, &budget);
+> 
+> Please ensure that LKCD is calling netpoll_set_trap(1) which tells it
+> that packet scheduling is stopped.
 
-ACPI: Subsystem revision 20040326
-tbxface-0017[03] acpi_load_tables: ACPI tables succesfully acquired
-Parsing all Control Methods: [......]
-Table [DSDT] (id F005) - 433 Objects with 44 Devices 109 Methods 15
-Regions
-Parsing all Control Methods: 
-Table [SSDT] (id f003) - 3 objects with 0 Devices 0 Methods 0 Regions
-ACPI: IRQ10 SCI: Edge set to level trigger
+This was indeed the problem. We were not calling netpoll_set_trap in LKCD.
+Adding this fixed the problem. Thanks so much for your help with this.
 
-After this the machine is dead in the water.
-No magic sysrq or anything.
+Regards, Hari
 
-Any ideas how to solve this issue ?
-I googled around a bit but found nothing usefull.
-I upgraded bios to latest available from compaq, with no different
-results.
+> 
+> I've tested this path primarily with tg3 and kgdb-over-ethernet, but
+> it should be functionally quite similar to e100 and lkcd.
+> 
+> -- 
+> Matt Mackall : http://www.selenic.com : Linux development and consulting
 
-Help/suggestions appreciated.
-
-Danny
 -- 
- /"\                        | Dying is to be avoided because
- \ /  ASCII RIBBON CAMPAIGN | it can ruin your whole career 
-  X   against HTML MAIL     | 
- / \  and POSTINGS          | - Bob Hope
-
+Hariprasad Nellitheertha
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287022AbRL2AUd>; Fri, 28 Dec 2001 19:20:33 -0500
+	id <S284916AbRL2ARx>; Fri, 28 Dec 2001 19:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285006AbRL2AUX>; Fri, 28 Dec 2001 19:20:23 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6158 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284905AbRL2AUQ>; Fri, 28 Dec 2001 19:20:16 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: andihartmann@freenet.de (Andreas Hartmann)
-Date: Sat, 29 Dec 2001 00:30:51 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Kernel-Mailingliste)
-In-Reply-To: <3C2CD326.100@athlon.maya.org> from "Andreas Hartmann" at Dec 28, 2001 09:16:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284905AbRL2ARo>; Fri, 28 Dec 2001 19:17:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4625 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284182AbRL2ARd>; Fri, 28 Dec 2001 19:17:33 -0500
+Message-ID: <3C2D0B86.1010705@zytor.com>
+Date: Fri, 28 Dec 2001 16:17:10 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andries.Brouwer@cwi.nl
+CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: zImage not supported for 2.2.20?
+In-Reply-To: <UTC200112290001.AAA139460.aeb@cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16K7Om-0002QI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Fix the VM-management in kernel 2.4.x. It's unusable. Believe
-> 	me! As comparison: kernel 2.2.19 didn't need nearly any swap for
-> 	the same operation!
-> The performance of kernel 2.4.18pre1 is very poor, which is no surprise, 
-> because the machine swaps nearly nonstop.
+Andries.Brouwer@cwi.nl wrote:
 
-Does the 2.4.9 Red Hat kernel (if yoiu are using RH) or 2.4.12-ac8 show the 
-same problem ?
+>>Does anyone have the patch to look at ?
+>>
+> 
+> See http://www.cck.uni-kl.de/misc/tecra710/toshiba-small.diff
+> 
+> Andries
+> 
+
+Okay, now we have a model number: Toshiba Tecra 710CDT; I think I can 
+actually get my hands on one if need be (we have one floating around 
+TMTA I believe.)
+
+I'm fairly certain the code as it exists is good.  If not, I would 
+rather like to add a WBINVD (which needs to be patched 
+out/conditionalized on i386, sigh) in between the low write and high 
+read in the A20 wait loop.
+
+	-hpa
+

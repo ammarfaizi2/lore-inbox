@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267648AbTAMJSr>; Mon, 13 Jan 2003 04:18:47 -0500
+	id <S267711AbTAMJWL>; Mon, 13 Jan 2003 04:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267683AbTAMJSr>; Mon, 13 Jan 2003 04:18:47 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11784 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267648AbTAMJSq>; Mon, 13 Jan 2003 04:18:46 -0500
-Date: Mon, 13 Jan 2003 09:27:34 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add module reference to struct tty_driver
-Message-ID: <20030113092734.C12379@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030113054708.GA3604@kroah.com>
+	id <S267721AbTAMJWL>; Mon, 13 Jan 2003 04:22:11 -0500
+Received: from almesberger.net ([63.105.73.239]:3592 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S267711AbTAMJWK>; Mon, 13 Jan 2003 04:22:10 -0500
+Date: Mon, 13 Jan 2003 06:30:53 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: some curiosities on the filesystems layout in kernel config
+Message-ID: <20030113063053.C6866@almesberger.net>
+References: <Pine.LNX.4.44.0301120053420.21687-100000@dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030113054708.GA3604@kroah.com>; from greg@kroah.com on Sun, Jan 12, 2003 at 09:47:09PM -0800
+In-Reply-To: <Pine.LNX.4.44.0301120053420.21687-100000@dell>; from rpjday@mindspring.com on Sun, Jan 12, 2003 at 01:00:40AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 09:47:09PM -0800, Greg KH wrote:
-> In digging into the tty layer locking, I noticed that the tty layer
-> doesn't handle module reference counting for any tty drivers.  Well, I've
-> known this for a long time, just finally got around to fixing it :)
-> Here's a patch against 2.5.56 that should fix this issue (works for
-> me...)
-> 
-> Comments?  If no one objects, I'll send it on to Linus, and add support
-> for this to a number of tty drivers that commonly get built as modules.
+Robert P. J. Day wrote:
+> 3) currently, since quotas are only supported for ext2, ext3 and
+>    reiserfs, shouldn't quotas depend on at least one of those
+>    being selected?
 
-I'd just ask whether you considered what happens when:
+The problem with expressing every last dependency is that you'll
+end up hiding too much.
 
-1. two people open the same tty
-2. the tty is hung up
-3. both people close the tty
+A less intrusive approach that doesn't require changes to the
+current configuration framework may be to add a section
+"Warnings" at the end, under which some pseudo-options would be
+enabled if some unusual combinations are found (e.g. CD-ROM
+drivers but no ISO9660 file system, PC architecture but no
+keyboard, etc.)
 
-(this isn't an indication that the patch is wrong, I'm just interested
-to know.)
-
-I'll test its behaviour later today - the current rules for incrementing/
-decrementing the tty driver module use counts are rediculous at present,
-and this patch would solve it nicely.
+- Werner
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,40 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbTC3OTA>; Sun, 30 Mar 2003 09:19:00 -0500
+	id <S261354AbTC3OpP>; Sun, 30 Mar 2003 09:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261319AbTC3OTA>; Sun, 30 Mar 2003 09:19:00 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:51469 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261309AbTC3OS7>;
-	Sun, 30 Mar 2003 09:18:59 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jonathan Abbey <jonabbey@arlut.utexas.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre6: mmx_memcpy not properly exposed to modules with Athlon 
-In-reply-to: Your message of "Sun, 30 Mar 2003 04:47:21 CST."
-             <20030330104720.GA27518@arlut.utexas.edu> 
+	id <S261357AbTC3OpP>; Sun, 30 Mar 2003 09:45:15 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:17795 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP
+	id <S261354AbTC3OpL>; Sun, 30 Mar 2003 09:45:11 -0500
+Date: Sun, 30 Mar 2003 16:56:06 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@fs.tum.de>, Jozef Kruger <jozefkruger@hotmail.com>
+Subject: [PATCH 2.5.66-BK] sonypi driver update
+Message-ID: <20030330165606.C10928@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	Jozef Kruger <jozefkruger@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 31 Mar 2003 00:30:08 +1000
-Message-ID: <22235.1049034608@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Mar 2003 04:47:21 -0600, 
-Jonathan Abbey <jonabbey@arlut.utexas.edu> wrote:
->I've had a good deal of trouble this evening trying to compile
->2.4.21-pre6 for the Athlon processor.  It appears that when the
->kernel's bzImage is built all is well, but building modules (for USB)
->results in unresolved references to _mmx_memcpy in the modules.
+Hi,
 
-To change cpu type -
+The attached patch:
+* fixes a hang problem when loading the driver on (at least) a 
+  PCG-FX105k. Thanks to Jozef Kruger for reporting the problem
+  and testing different versions of this fix.
+* fixes a .text.exit problem in the sonypi driver related to the
+  recent PM changes (thanks to Adrian Bunk for the patch).
 
-save .config
-make mrproper
-restore .config
-make menuconfig
-make dep - in a separate step from make *config
-make bzImage modules
+Linus, please apply.
 
-Kernel build gets confused by changing cpu type, especially if you
-make *config dep as one command.
+Stelian.
+
+===== drivers/char/sonypi.h 1.15 vs edited =====
+--- 1.15/drivers/char/sonypi.h	Tue Feb 18 12:33:04 2003
++++ edited/drivers/char/sonypi.h	Sun Mar 30 15:11:30 2003
+@@ -37,7 +37,7 @@
+ #ifdef __KERNEL__
+ 
+ #define SONYPI_DRIVER_MAJORVERSION	 1
+-#define SONYPI_DRIVER_MINORVERSION	18
++#define SONYPI_DRIVER_MINORVERSION	19
+ 
+ #define SONYPI_DEVICE_MODEL_TYPE1	1
+ #define SONYPI_DEVICE_MODEL_TYPE2	2
+===== drivers/char/sonypi.c 1.14 vs edited =====
+--- 1.14/drivers/char/sonypi.c	Tue Feb 18 12:33:10 2003
++++ edited/drivers/char/sonypi.c	Sun Mar 30 15:11:37 2003
+@@ -162,7 +162,7 @@
+ }
+ 
+ /* Disables the device - this comes from the AML code in the ACPI bios */
+-static void __devexit sonypi_type1_dis(void) {
++static void sonypi_type1_dis(void) {
+ 	u32 v;
+ 
+ 	pci_read_config_dword(sonypi_device.dev, SONYPI_G10A, &v);
+@@ -174,7 +174,7 @@
+ 	outl(v, SONYPI_IRQ_PORT);
+ }
+ 
+-static void __devexit sonypi_type2_dis(void) {
++static void sonypi_type2_dis(void) {
+ 	if (ec_write(SONYPI_SHIB, 0))
+ 		printk(KERN_WARNING "ec_write failed\n");
+ 	if (ec_write(SONYPI_SLOB, 0))
+@@ -697,14 +697,36 @@
+ 	}
+ 
+ 	for (i = 0; irq_list[i].irq; i++) {
+-		if (!request_irq(irq_list[i].irq, sonypi_irq, 
+-				 SA_SHIRQ, "sonypi", sonypi_irq)) {
+-			sonypi_device.irq = irq_list[i].irq;
+-			sonypi_device.bits = irq_list[i].bits;
++
++		sonypi_device.irq = irq_list[i].irq;
++		sonypi_device.bits = irq_list[i].bits;
++
++		/* Enable sonypi IRQ settings */
++		if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2)
++			sonypi_type2_srs();
++		else
++			sonypi_type1_srs();
++
++		sonypi_call1(0x82);
++		sonypi_call2(0x81, 0xff);
++		if (compat)
++			sonypi_call1(0x92); 
++		else
++			sonypi_call1(0x82);
++
++		/* Now try requesting the irq from the system */
++		if (!request_irq(sonypi_device.irq, sonypi_irq, 
++				 SA_SHIRQ, "sonypi", sonypi_irq))
+ 			break;
+-		}
++
++		/* If request_irq failed, disable sonypi IRQ settings */
++		if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2)
++			sonypi_type2_dis();
++		else
++			sonypi_type1_dis();
+ 	}
+-	if (!sonypi_device.irq ) {
++
++	if (!irq_list[i].irq) {
+ 		printk(KERN_ERR "sonypi: request_irq failed\n");
+ 		ret = -ENODEV;
+ 		goto out3;
+@@ -716,17 +738,6 @@
+ 		outb(0xf0, 0xb2);
+ #endif
+ 
+-	if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2)
+-		sonypi_type2_srs();
+-	else
+-		sonypi_type1_srs();
+-
+-	sonypi_call1(0x82);
+-	sonypi_call2(0x81, 0xff);
+-	if (compat)
+-		sonypi_call1(0x92); 
+-	else
+-		sonypi_call1(0x82);
+ 
+ 	printk(KERN_INFO "sonypi: Sony Programmable I/O Controller Driver v%d.%d.\n",
+ 	       SONYPI_DRIVER_MAJORVERSION,
+
+-- 
+Stelian Pop <stelian@popies.net>

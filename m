@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbTFKENb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 00:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFKENb
+	id S264083AbTFKETf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 00:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTFKETf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 00:13:31 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:58785 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S264085AbTFKENa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 00:13:30 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: Linux 2.4.21-rc1
-Date: Wed, 11 Jun 2003 01:27:07 -0300
-User-Agent: KMail/1.5.1
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva> <200304250006.53769.lucasvr@gobolinux.org> <20030607193542.GA12443@fs.tum.de>
-In-Reply-To: <20030607193542.GA12443@fs.tum.de>
+	Wed, 11 Jun 2003 00:19:35 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:42150 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264083AbTFKETe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 00:19:34 -0400
+Message-ID: <33002.4.64.196.31.1055305996.squirrel@www.osdl.org>
+Date: Tue, 10 Jun 2003 21:33:16 -0700 (PDT)
+Subject: [announce] linux kernel-janitor (KJ) patchsets
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306110127.07243.lucasvr@gobolinux.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 07 June 2003 16:35, Adrian Bunk wrote:
-> On Fri, Apr 25, 2003 at 12:06:53AM -0300, Lucas Correia Villa Real wrote:
-> > Hi,
->
-> Hi Lucas,
->
-> > I had some problems compiling the ramdisk driver:
-> >
-> > gcc -D__KERNEL__ -I/Depot/Sources/2.4.21-rc1/include -Wall
-> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
-> > -DMODULE -DMODVERSIONS -include
-> > /Depot/Sources/2.4.21-rc1/include/linux/modversions.h  -nostdinc
-> > -iwithprefix include -DKBUILD_BASENAME=rd  -c -o rd.o rd.c
-> > rd.c:88: `CONFIG_BLK_DEV_RAM_SIZE' undeclared here (not in a function)
-> > make[2]: *** [rd.o] Error 1
-> > make[2]: Leaving directory `/Depot/Sources/2.4.21-rc1/drivers/block'
-> > make[1]: *** [_modsubdir_block] Error 2
-> > make[1]: Leaving directory `/Depot/Sources/2.4.21-rc1/drivers'
-> > make: *** [_mod_drivers] Error 2
-> >
-> >
-> > The simple patch below can fix it, though. Is it ok to check against
-> > CONFIG_BLK_DEV_RAM_SIZE definition and redefine it if not found?
->
-> does this problem still exist in -rc7 ?
->
-> If yes, please send your .config .
 
-I have tryied with -rc8, and the problem is fixed now.
+Kernel-Janitor patchsets
+2003-06-10
+Draft version 1
+========================================
 
-Lucas
+1.  KJ patchsets
+
+The Kernel Janitors (KJ) project reviews patches, comments on them, screens
+and/or merges them, and creates patchsets that contain them. These patchsets
+are available for anyone to download and use.
+
+Patches should be sent to "kernel-janitor-discuss@lists.sf.net"
+for review.  Randy Dunlap (rddunlap@osdl.org) will compile-test
+them and merge them into the -kj patchset if they pass review.
+
+2.  KJ patchset review and approvals
+
+A patch must be approved by at least two (2) KJ project developers and
+receive no vetoes (rejects) before it is added to the -kj patchset.
+
+3.  KJ patch forwarding
+After a patch has been in the -kj patchset for 1 week (without problems) or
+on request from another Linux tree maintainer, it will be forwarded to the
+current Linux tree maintainer (Linus, Andrew, Marcelo, etc.) for merging.
+
+4.  Where hosted
+
+KJ patchsets are hosted at OSDL.org.  They will begin at
+http://www.osdl.org/archive/rddunlap/kj-patches/ ...
+but this is only a temporary location until a more permanent
+solution is available (soon).
+
+5.  Patchset type
+
+. merged and separated patches available as a diff (optionally bzip2-
+  compressed)
+. maybe a BK tree in the future, but that won't be the only format
+
+. separated (split) patches are forwarded to tree maintainers
+  so that credits for the patches are logged
+
+###
+~Randy
+
+
+

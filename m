@@ -1,75 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263930AbRFHI3T>; Fri, 8 Jun 2001 04:29:19 -0400
+	id <S262835AbRFHIr5>; Fri, 8 Jun 2001 04:47:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263932AbRFHI3J>; Fri, 8 Jun 2001 04:29:09 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:41344 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S263930AbRFHI3E>; Fri, 8 Jun 2001 04:29:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-Date: Fri, 8 Jun 2001 08:29:02 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9fq2ce$gkb$1@forge.intermeta.de>
-In-Reply-To: <9fnjh0$d1c$1@forge.intermeta.de> <E1583xV-0001f3-00@the-village.bc.nu>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 991988942 17629 212.34.181.4 (8 Jun 2001 08:29:02 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 8 Jun 2001 08:29:02 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S263932AbRFHIrr>; Fri, 8 Jun 2001 04:47:47 -0400
+Received: from t2.redhat.com ([199.183.24.243]:41980 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S262835AbRFHIri>; Fri, 8 Jun 2001 04:47:38 -0400
+To: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>,
+        Mike Coleman <mkc@mathdogs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PTRACE_ATTACH breaks wait4() 
+In-Reply-To: Message from Pavel Kankovsky <peak@argo.troja.mff.cuni.cz> 
+   of "Thu, 07 Jun 2001 22:39:43 +0200." <20010607223921.D94.0@argo.troja.mff.cuni.cz> 
+Date: Fri, 08 Jun 2001 09:47:20 +0100
+Message-ID: <28783.991990040@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+I have an idea for getting around this problem, but it's only half implemented
+at the moment (I use it for implementing a Wine server in the kernel). It
+involves having a list things called task ornaments attached to each
+process. Each ornament has a table of event notification methods (so it can be
+informed about fork, execve, signal and exit events). Signal event
+notification methods are able to prevent a signal from propegating further
+down the chain, and the parent's wait handler would be the last element in
+this list. When a process attaches with ptrace(), it would insert another
+ornament into this list, before the parent's ornament. This means (a) the
+process doesn't have to be reparented, and (b) more than one debugger can
+actually attach to a process (eg: strace and gdb both).
 
->> And this is legal according to the "Kernel GPL, Linus Torvalds edition
->> (TM)" which says "any loadable module can be binary only". Not "only
->> loadable modules which are drivers". It may not be the intention but
->> it is the fact.
+This would, however, mean that wait*() would have to not only look at a
+process's list of children, but also it's list of processes it has ornamented
+via ptrace
 
->Linus opinion on this is irrelevant. Neither I nor the FSF nor many others
->have released code under anything but the vanilla GPL. By merging such code
->Linus lost his ability to vary the license.
-
-Ok, this is a new opinion, because it voids the "using the published
-module ABI is unconditionally ok as stated again and again.
-
->So it comes down to the question of whether the module is linking (which is
->about dependancies and requirements) and what the legal scope is. Which
->is a matter for lawyers.
-
-And this would void DaveMs' argument, that only the "official in
-Linus' kernel published interface is allowed for binary modules". This
-would mean, that putting the posted, unofficial patch under GPL into
-the kernel and then using this interface for a binary module is just
-the same as using only the official ABI from a lawyers' point of
-view! 
-
-This would make DaveMs' position even less understandable, because
-there would be no difference for a proprietary vendor but keeping the
-patch out of the kernel makes life harder for people like the original
-poster that want to test new (open sourced) protocols like SCTP.
-
-> Anyone releasing binary only modules does so having made their own
-> appropriate risk assessment and having talked (I hope) to their
-> insurers
-
-Ugh, this is a sentence we're bound to read out of context on ZDNet
-and m$.com... =:-( (Linux head developer warns companies to do risk
-assessment before releasing drivers for Linux... Film at 11.)
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+David

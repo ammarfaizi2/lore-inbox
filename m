@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVA1O2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVA1O3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbVA1O2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 09:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVA1O2h
+	id S261413AbVA1O3S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 09:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVA1O2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 09:28:37 -0500
-Received: from styx.suse.cz ([82.119.242.94]:24521 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261411AbVA1O2N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 09:28:13 -0500
-Date: Fri, 28 Jan 2005 15:31:21 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Wiktor <victorjan@poczta.onet.pl>
-Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
-Subject: Re: AT keyboard dead on 2.6
-Message-ID: <20050128143121.GB12137@ucw.cz>
-References: <41F11F79.3070509@poczta.onet.pl> <d120d500050121074831087013@mail.gmail.com> <41F15307.4030009@poczta.onet.pl> <d120d500050121113867c82596@mail.gmail.com> <41F69FFE.2050808@poczta.onet.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F69FFE.2050808@poczta.onet.pl>
-User-Agent: Mutt/1.5.6i
+	Fri, 28 Jan 2005 09:28:44 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:53835 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261413AbVA1O2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 09:28:23 -0500
+Date: Fri, 28 Jan 2005 14:27:51 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andi Kleen <ak@suse.de>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Add CONFIG_X86_APIC_OFF for i386/UP
+In-Reply-To: <20050128133927.GC6703@wotan.suse.de>
+Message-ID: <Pine.LNX.4.61.0501281421410.7109@goblin.wat.veritas.com>
+References: <20050128133927.GC6703@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 08:37:34PM +0100, Wiktor wrote:
-> Hi,
+On Fri, 28 Jan 2005, Andi Kleen wrote:
 > 
-> here you are gzip-ed dmesg from booting 2.6.8.1 - i've been playing 
-> keyboard while booting, maybe interrupt reports will help you. also my 
-> .config part follows:
-> CONFIG_INPUT=y
-> CONFIG_INPUT_MOUSEDEV=y
-> CONFIG_SOUND_GAMEPORT=y
-> CONFIG_SERIO=y
-> CONFIG_SERIO_I8042=y
-> CONFIG_INPUT_KEYBOARD=y
-> CONFIG_KEYBOARD_ATKBD=y
-> no modules or other built-ins. maybe it is some simple way to fall back 
-> to old handling mechanism? in my system most of programs (i mean 
-> x-server) uses hardware directly (what means uses /dev/ttyS0 as mouse 
-> device). i'm grateful for any help.
+> This patch adds a new CONFIG_X86_APIC_OFF option. This is useful
+> for distribution UP kernels who should run with local APIC off by
+> default (because older machines often have broken mptables etc.).
+> 
+> But there are a few machines who don't boot with apic off so there
+> needs to be an command line option to enable it.
+> 
+> When X86_APIC_OFF is set the APIC code is compiled in, but is 
+> only enabled when "apic" or "lapic" is specified on the command line
+> (or a DMI scanner force enables it).
 
-This dmesg looks like the keyboard works perfectly OK. Do new lines
-appear in dmesg when you press keys while the system is running?
+I'm confused!  Why do we need X86_APIC_OFF config option (but code
+compiled in), with boot options "apic" or "lapic" to enable it,
+when we already have the code compiled in, with boot options
+"noapic" or "nolapic" to disable it?
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Hugh

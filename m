@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUITFJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUITGtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266117AbUITFJE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 01:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUITFJD
+	id S266115AbUITGtj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 02:49:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUITGtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 01:09:03 -0400
-Received: from web70208.mail.krs.yahoo.com ([202.165.108.67]:5560 "HELO
-	web70208.mail.krs.yahoo.com") by vger.kernel.org with SMTP
-	id S266115AbUITFI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 01:08:58 -0400
-Message-ID: <20040920050855.45521.qmail@web70208.mail.krs.yahoo.com>
-Date: Mon, 20 Sep 2004 14:08:55 +0900 (JST)
-From: Jeon <jmj119kr@yahoo.co.kr>
-Subject: gettimeofday() problem in kernel mode
+	Mon, 20 Sep 2004 02:49:39 -0400
+Received: from web50907.mail.yahoo.com ([206.190.38.127]:22154 "HELO
+	web50907.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266115AbUITGth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 02:49:37 -0400
+Message-ID: <20040920064414.52406.qmail@web50907.mail.yahoo.com>
+Date: Sun, 19 Sep 2004 23:44:14 -0700 (PDT)
+From: Linux Guy <kernelx001@yahoo.com>
+Subject: bug in fealnx kernel module <network>
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-I tried to modify kernel2-4-18 for checkpointing and
-recovering(s.t. fault tolerance)
-When I measure duration time for checkpointing and
-recovering in kernel mode, I found there is some
-problem with measuring accurate duration time using
-gettimeofday().
-My watch said ten seconds is past, but kernel said
-only 1 second!!
-Is there other method or function for figuring out
-duration time in kernel mode?
-Huh..
+I have a Realteck 8139 PCI fst ethernet adapter. It
+uses the fealnx kernel module.
+
+I have problems changing the mac address.
+
+normally after boot it works correctly. but after i
+change the mac address it doesnt respond.
+
+$ping xxx.xxx.xxx.xxx
+<ping reply>
+$ifconfig eth0 down
+$ifconfig eth0 hw ether xx:xx:xx:xx:xx:xx
+$ifconfig eth0 up
+$ping xxx.xxx.xxx.xxx
+<network host unreachable>
+
+This is very wierd. I had a dlink lan card and it used
+to work properly after changing the mac address. 
+
+Anyone knows why Realtek cards dont work after
+changing mac address...
+
+I have test this on a gentoo (2.6.7 kernel), slackware
+(2.4.26 kernel), knoppix live cd, pclinuxos live cd.
+
+Cya.
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+
+
+		
+_______________________________
+Do you Yahoo!?
+Declare Yourself - Register online to vote today!
+http://vote.yahoo.com

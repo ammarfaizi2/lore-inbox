@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131994AbQKSASp>; Sat, 18 Nov 2000 19:18:45 -0500
+	id <S131996AbQKSA3j>; Sat, 18 Nov 2000 19:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131996AbQKSASg>; Sat, 18 Nov 2000 19:18:36 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47121 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131994AbQKSAS3>; Sat, 18 Nov 2000 19:18:29 -0500
+	id <S132042AbQKSA3a>; Sat, 18 Nov 2000 19:29:30 -0500
+Received: from 3dyn88.com21.casema.net ([212.64.94.88]:42000 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S131996AbQKSA3S>;
+	Sat, 18 Nov 2000 19:29:18 -0500
+Date: Sun, 19 Nov 2000 01:53:00 +0100
+From: bert hubert <ahu@ds9a.nl>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: rdtsc to mili secs?
-Date: 18 Nov 2000 15:48:06 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v74fm$2d7$1@cesium.transmeta.com>
-In-Reply-To: <3A078C65.B3C146EC@mira.net> <20001116115730.A665@suse.cz> <8v1pfj$p5e$1@cesium.transmeta.com> <20001118211349.B382@bug.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Subject: Re: 2.4 sendfile() not doing as manpage promises?
+Message-ID: <20001119015259.A10773@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20001119001558.B10579@home.ds9a.nl> <Pine.LNX.4.30.0011181513290.5897-100000@anime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <Pine.LNX.4.30.0011181513290.5897-100000@anime.net>; from goemon@anime.net on Sat, Nov 18, 2000 at 03:15:28PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001118211349.B382@bug.ucw.cz>
-By author:    Pavel Machek <pavel@suse.cz>
-In newsgroup: linux.dev.kernel
+On Sat, Nov 18, 2000 at 03:15:28PM -0800, Dan Hollis wrote:
 
-> > Actually, on machines where RDTSC works correctly, you'd like to use
-> > that to detect a lost timer interrupt.
-> > 
-> > It's tough, it really is :(
+> > In that case, the wording of the manpage needs to be changed, as it
+> > implies that 'either or both' of the filedescriptors can be sockets.
 > 
-> Well, my patch did not do that but you probably want lost timer
-> interrupt detection so that you avoid false alarms.
+> Its quite clear.
 > 
-> But that means you can no longer detect speed change after 10msec:
+> DESCRIPTION
+>        This  call copies data between file descriptor and another
+>        file  descriptor  or  socket.   in_fd  should  be  a  file
+>        descriptor   opened  for  reading.   out_fd  should  be  a
+>        descriptor opened for writing or a connected socket.
 > 
-> going from 150MHz to 300MHz is very similar to one lost timer
-> interrupt.
-> 
+> in_fd must be a file, out_fd can be a file or socket.
 
-That's the point.
+My manpages must be outdated then, my manpage is from 1 Dec 1998. Thanks for
+the correction.
 
-	-hpa
+Regards,
+
+bert hubert
+
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

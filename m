@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269018AbRHMAVe>; Sun, 12 Aug 2001 20:21:34 -0400
+	id <S269589AbRHMAaZ>; Sun, 12 Aug 2001 20:30:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRHMAVY>; Sun, 12 Aug 2001 20:21:24 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:4369 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S269018AbRHMAVN>;
-	Sun, 12 Aug 2001 20:21:13 -0400
-Date: Sun, 12 Aug 2001 21:21:05 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Performance 2.4.8 is worse than 2.4.x<8
-In-Reply-To: <9l70hc$1sd$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0108122112090.6118-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S269593AbRHMAaP>; Sun, 12 Aug 2001 20:30:15 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9489 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269589AbRHMAaJ>; Sun, 12 Aug 2001 20:30:09 -0400
+Subject: Re: 2.4.9-pre1 unresolved symbols in fat.o/smbfs.o
+To: alessandro.suardi@oracle.com (Alessandro Suardi)
+Date: Mon, 13 Aug 2001 01:32:40 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <no.id> from "Alessandro Suardi" at Aug 13, 2001 02:05:19 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15W5eq-0006Y5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Aug 2001, Linus Torvalds wrote:
+> depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/fs/fat/fat.o
+> depmod: 	generic_file_llseek
+> depmod: *** Unresolved symbols in /lib/modules/2.4.9-pre1/kernel/fs/smbfs/smbfs.o
+> depmod: 	generic_file_llseek
+>  
 
-> Word of warning: there are some loads on which 2.4.7 will simply lock
-> up.  If you don't want to take all the new code, at least take the
-> changes to fs/buffer.c and refill_buffer() or whatever.
+Oops my fault. My kernel/ksyms goes
 
-I'll do my best to merge some of the obviously correct
-pieces of VM code from -linus to -ac.
+EXPORT_SYMBOL(vfs_unlink);
+EXPORT_SYMBOL(vfs_rename);
+EXPORT_SYMBOL(vfs_statfs);
+EXPORT_SYMBOL(generic_file_llseek);
+EXPORT_SYMBOL(generic_read_dir);
+EXPORT_SYMBOL(__pollwait);
+EXPORT_SYMBOL(poll_freewait);
 
-> That said, me and Marcelo are still working on making sure it's good
-> under _all_ loads..
 
-I wonder how much you'd be willing to give up in the
-common case in order to prevent the system from falling
-over under strange loads. Hypothetically speaking, that
-is, I don't really have anything in mind yet ;)
-
-cheers,
-
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+If you edit yours and drop that line in then rebuild from clean all should
+be well

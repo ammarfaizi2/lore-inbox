@@ -1,154 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbUCVMRE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 07:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUCVMRE
+	id S261907AbUCVM2a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 07:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUCVM23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 07:17:04 -0500
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:23551 "EHLO
-	kartuli.timesys") by vger.kernel.org with ESMTP id S261912AbUCVMQv
+	Mon, 22 Mar 2004 07:28:29 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:34178 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261907AbUCVM21
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 07:16:51 -0500
-Message-ID: <405ED918.2010803@timesys.com>
-Date: Mon, 22 Mar 2004 07:16:24 -0500
-From: "La Monte H.P. Yarroll" <piggy@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en, de-de
+	Mon, 22 Mar 2004 07:28:27 -0500
+Date: Mon, 22 Mar 2004 07:29:44 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: Jamie Lokier <jamie@shareable.org>, Robert_Hentosh@Dell.com,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spurious 8259A interrupt
+In-Reply-To: <200403211858.07445.hpj@urpla.net>
+Message-ID: <Pine.LNX.4.53.0403220713160.13879@chaos>
+References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com>
+ <20040319130609.GE2650@mail.shareable.org> <Pine.LNX.4.53.0403190825070.929@chaos>
+ <200403211858.07445.hpj@urpla.net>
 MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6] Fix sys_time() to get subtick correction from the new
- xtim
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a Scott Wood patch against 2.6.3.  He's shy, so I'm volunteering 
-to represent him in
-public :-).  The Change number and BUG number are TimeSys internal 
-references.
+On Sun, 21 Mar 2004, Hans-Peter Jansen wrote:
 
-Change 22531 by scott@scott-50 on 2004/01/22 15:30:22
+> On Friday 19 March 2004 14:48, Richard B. Johnson wrote:
+> >
+> > The IRQ7 spurious is usually an artifact of a crappy motherboard
+> > design where the CPU "thinks" it was interrupted, but the
+> > controller didn't wiggle the CPUs INT line.
+>
+> Thanks for the nice explanation, Richard.
+>
+> I even see them on my x86_64 box in 64 bit mode. (K8VT800 based)
+> Furtunately only occasionally.
+>
+> I thought, AMD took the chance to fix that kind of crap in the new
+> architecture, but obviously they failed in this respect :-(
+>
+> Pete
 
-        Use gettimeofday() rather than xtime.tv_sec in sys_time(),
-        since sys_stime() uses settimeofday() and thus subtracts
-        the subtick correction from the new xtime.
-       
-        Fixes BUG05331 Command line LTP test stime01 fails.
+It isn't CPU-specific. It's motherboard glitch specific. If there
+is ground-bounce on the motherboard or excessive induced
+coupling, the CPU may occasionally get hit with a logic-level
+that it "thinks" is an interrupt, even though no controller
+actually generated it. Sometimes you can find a power supply
+that helps. Power supplies can cause such problems if
+a dynamic load (from the CPU executing some variable-load
+pattern), coincides with some not-to-well damped pole in
+the power-supply regulator feedback. This can cause a
+periodic bounce (like 100 HZ) that causes logic levels
+to go into and out of spec during certain execution
+sequences. This can cause actual triggers to be sent
+to the CPUs maskable and non-maskable interrupt pins.
+Since the CPUs now-days have multiple levels of regulators,
+their voltages are relatively constant. This means their
+response to input logic levels won't track with something
+tied only to the primary regulator in the cheapie power
+supply.
 
-      stime() used settimeofday(), but time() did not use 
-gettimeofday().  Since
-      settimeofday() subtracts out the current intra-tick correction, 
-and nsec
-      was 0 (since stime() only allows seconds), this resulted in xtime 
-being
-      slightly earlier than the time that was set.  If time() had used 
-gettimeofday(),
-      the correction would have been applied, and everything would be fine.
-      However, instead time just reads the current xtime.tv_sec, so if 
-time() is
-      called immediately after stime(), you'll usually get a value one 
-second earlier.
+In any event, spurious interrupts are hardware events,
+not software. If you don't get too many of them they
+are not bothersome and might even be called "normal".
 
 
-diff -puN kernel/arch/ia64/ia32/sys_ia32.c~fix-all-time-sys_time 
-kernel/arch/ia64/ia32/sys_ia32.c
---- lkml/arch/ia64/ia32/sys_ia32.c~fix-all-time-sys_time        
-2004-03-16 10:01:23.000000000 -0500
-+++ lkml-piggy/arch/ia64/ia32/sys_ia32.c        2004-03-16 
-10:01:23.000000000 -0500
-@@ -1678,10 +1678,11 @@ asmlinkage long
- sys32_time (int *tloc)
- {
-        int i;
-+       struct timeval tv;
-+
-+       do_gettimeofday(&tv);
-+       i = tv.tv_sec;
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
--       /* SMP: This is fairly trivial. We grab CURRENT_TIME and
--          stuff it to user space. No side effects */
--       i = get_seconds();
-        if (tloc) {
-                if (put_user(i, tloc))
-                        i = -EFAULT;
-diff -puN -L kernel/arch/ia64/ia32/sys_ia32.c-orig /dev/null /dev/null
-diff -puN kernel/arch/parisc/kernel/sys_parisc32.c~fix-all-time-sys_time 
-kernel/arch/parisc/kernel/sys_parisc32.c
---- lkml/arch/parisc/kernel/sys_parisc32.c~fix-all-time-sys_time        
-2004-03-16 10:01:23.000000000 -0500
-+++ lkml-piggy/arch/parisc/kernel/sys_parisc32.c        2004-03-16 
-10:01:23.000000000 -0500
-@@ -388,14 +388,16 @@ static inline long get_ts32(struct times
-
- asmlinkage long sys32_time(compat_time_t *tloc)
- {
--    time_t now = get_seconds();
--    compat_time_t now32 = now;
-+       struct timeval tv;
-
--    if (tloc)
--       if (put_user(now32, tloc))
--               now32 = -EFAULT;
-+       do_gettimeofday(&tv);
-+       compat_time_t now32 = tv.tv_sec;
-
--    return now32;
-+       if (tloc)
-+               if (put_user(now32, tloc))
-+                       now32 = -EFAULT;
-+
-+       return now32;
- }
-
- asmlinkage int
-diff -puN -L kernel/arch/parisc/kernel/sys_parisc32.c-orig /dev/null 
-/dev/null
-diff -puN kernel/arch/x86_64/ia32/sys_ia32.c~fix-all-time-sys_time 
-kernel/arch/x86_64/ia32/sys_ia32.c
---- lkml/arch/x86_64/ia32/sys_ia32.c~fix-all-time-sys_time      
-2004-03-16 10:01:23.000000000 -0500
-+++ lkml-piggy/arch/x86_64/ia32/sys_ia32.c      2004-03-16 
-10:01:23.000000000 -0500
-@@ -833,10 +833,11 @@ sys32_writev(int fd, struct compat_iovec
- asmlinkage long sys32_time(int * tloc)
- {
-        int i;
-+       struct timeval tv;
-+
-+       do_gettimeofday(&tv);
-+       i = tv.tv_sec;
-
--       /* SMP: This is fairly trivial. We grab CURRENT_TIME and
--          stuff it to user space. No side effects */
--       i = get_seconds();
-        if (tloc) {
-                if (put_user(i,tloc))
-                        i = -EFAULT;
-diff -puN -L kernel/arch/x86_64/ia32/sys_ia32.c-orig /dev/null /dev/null
-diff -puN kernel/kernel/time.c~fix-all-time-sys_time kernel/kernel/time.c
---- lkml/kernel/time.c~fix-all-time-sys_time    2004-03-16 
-10:01:23.000000000 -0500
-+++ lkml-piggy/kernel/time.c    2004-03-16 10:01:23.000000000 -0500
-@@ -51,10 +51,11 @@ EXPORT_SYMBOL(sys_tz);
- asmlinkage long sys_time(int * tloc)
- {
-        int i;
-+       struct timeval tv;
-+
-+       do_gettimeofday(&tv);
-+       i = tv.tv_sec;
-
--       /* SMP: This is fairly trivial. We grab CURRENT_TIME and
--          stuff it to user space. No side effects */
--       i = get_seconds();
-        if (tloc) {
-                if (put_user(i,tloc))
-                        i = -EFAULT;
-diff -puN -L kernel/kernel/time.c-orig /dev/null /dev/null
-
-_
-
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
 

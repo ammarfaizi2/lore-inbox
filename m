@@ -1,83 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262171AbSJFUCJ>; Sun, 6 Oct 2002 16:02:09 -0400
+	id <S262193AbSJFUIU>; Sun, 6 Oct 2002 16:08:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262167AbSJFUCJ>; Sun, 6 Oct 2002 16:02:09 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11456 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262171AbSJFUCH>;
-	Sun, 6 Oct 2002 16:02:07 -0400
-Date: Sun, 6 Oct 2002 16:07:45 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] killing DEVFS_FL_AUTO_OWNER
-In-Reply-To: <200210061932.g96JW3527255@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0210061550100.25699-100000@weyl.math.psu.edu>
+	id <S262192AbSJFUIU>; Sun, 6 Oct 2002 16:08:20 -0400
+Received: from netlx010.civ.utwente.nl ([130.89.1.92]:65240 "EHLO
+	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S262193AbSJFUIT>; Sun, 6 Oct 2002 16:08:19 -0400
+Date: Sun, 6 Oct 2002 22:13:51 +0200 (CEST)
+From: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>
+To: Thomas Molina <tmolina@cox.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Report Status
+In-Reply-To: <Pine.LNX.4.44.0210050924470.10630-100000@dad.molina>
+Message-ID: <Pine.LNX.4.44.0210062210310.22565-100000@cam029208.student.utwente.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 5 Oct 2002, Thomas Molina wrote:
 
-
-On Sun, 6 Oct 2002, Richard Gooch wrote:
-
-> Well, I can't comment on the video1394 driver. I don't really know why
-> they are using DEVFS_FL_AUTO_OWNER. If their device node is safe to
-> have rw-rw-rw- (like with PTY slaves), then it's not a problem.
-> However, if the driver allows you to do Bad Things[tm] if you can read
-> or write to the device node, then the driver is buggy, and is abusing
-> DEVFS_FL_AUTO_OWNER.
 > 
-> So we should get input from the driver maintainer as to what the
-> intent is.
+> The following status report update can be found at:
+> http://members.cox.net/tmolina/kernprobs/021004-status.html
+> 
+> The latest update can be found at:
+> http://members.cox.net/tmolina/kernprobs/status.html
+> 
+> 
+>    Notes:
+>      * Items  marked  closed  or probable fix will be deleted after Linus
+>        issues the next patch version
+>      * Numerous  people  are reporting oops on boot in 2.5.39. It appears
+>        the problems are all caused by a bug in isapnp initialization. The
+>        fix is either to disable isapnp or patch in a workaround.
+> 
+> -------------------------------------------------------------------------
+>    fix available          02 Oct 2002 loadlin boot problem
+>   10. http://marc.theaimsgroup.com/?l=linux-kernel&m=103351848816172&w=2
+> 
+> I'm going to delete this one when Linus issues 2.5.41 unless someone 
+> objects.
 
-1) current implementation does _not_ reset uid/gid after the first open().
-It either stays as it was (until the d_delete) or gets reset to root.root.666
-(after d_delete) and stays that way.
+Someone posted a link to an updated version of loadlin. The updated 
+version works with 2.5.32+ kernels. So I can confirm the available fix.
+So either the updated version of loadlin or the linld bootloader will fix 
+this problem.
 
-Notice that your code that sets it is in the very end of devfs_open() - in
-the part that is run once.  df->open is never reset, so...
-
-Oh, BTW - you have
-
-	if (df->open) return 0;
-	df->open = TRUE;
-
-with no locking whatsoever - you'd reduced BKL-covered area so that it doesn't
-cover that place.  With obvious consequences...
-
-2) either applications do care to do chmod/chown (and in that case
-DEVFS_FL_AUTO_OWNER is simply irrelevant), or they are
-	* broken on non-devfs systems
-	* broken on devfs systems due to (1)
-
-Having world-readable video camera is an obvious security problem, so
-applications _must_ deal with that, for non-devfs systems if nothing
-else.
-
-3) this crap is the only thing that still uses DEVFS_FL_AUTO_OWNER.
+Greetz Mu
 
 
-IOW, we should remove it and send heads-up to driver authors.  End of
-story.
 
-Another thing: when you do devfs_register(), the thing creates intermediate
-directories.  However, devfs_unregister() on the same node doesn't undo
-the effect of devfs_register() - directories stay around, even if nothing
-else holds them.
-
-Proposal: add a counter to devfs entries of directories so that
-	* result of devfs_mk_dir would have it set to 1
-	* creation of child in a directory would increment it by 1
-	* removal of child would decrement it by 1
-	* when counter drops to 0 (which means that directory had
-been created implictly by devfs_register() and all children are gone)
-we unregister directory.  That, in turn, can cause unregistering its
-parent, etc.
-
-That would cut down the amount of work done in drivers (esp. block device
-drivers) and allow to simplify the ad-hackery in partitions/check.c.
-
-It's trivial to implement, so if you have objections to that - tell it now.
 

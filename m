@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262942AbUBZT0f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbUBZTYi
+	id S262961AbUBZTbu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbUBZTaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:24:38 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:11529 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S262942AbUBZTYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:24:17 -0500
-Date: Thu, 26 Feb 2004 20:24:08 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.local
-To: Alain Fauconnet <alain@ait.ac.th>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: smbfs broken in 2.4.25? (Too many open files in system)
-In-Reply-To: <20040226110903.GC621@ait.ac.th>
-Message-ID: <Pine.LNX.4.44.0402262000040.3800-100000@cola.local>
+	Thu, 26 Feb 2004 14:30:11 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:19154 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262965AbUBZT2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:28:46 -0500
+Message-ID: <403E48D3.5050805@watson.ibm.com>
+Date: Thu, 26 Feb 2004 14:28:19 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030829 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@redhat.com>
+CC: Peter Williams <peterw@aurema.com>, Nuno Silva <nuno.silva@vgertech.com>,
+       Timothy Miller <miller@techsource.com>, John Lee <johnl@aurema.com>,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <403D7531.5060309@aurema.com> <Pine.LNX.4.44.0402261054510.5629-200000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0402261054510.5629-200000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Feb 2004, Alain Fauconnet wrote:
+Rik van Riel wrote:
 
-> I get random 'Too many open files in system'. E.g.:
+> On Thu, 26 Feb 2004, Peter Williams wrote:
 > 
-> # /usr/local/samba/bin/smbmount //w98box/c /dosc -o password=xxxxx
-> # ls /dosc
-> /bin/ls: /dosc: Too many open files in system
-> (command repeated several times: hit up arrow and enter... and then:)
-> # ls /dosc
-> ASD.LOG*       BIN/          CONFIG.TXT*  MSDOS.SYS*       SUHDLOG.---*
-> AUTOEXEC.001*  BOOTLOG.DMA*  CONFIG.W95*  MSDOS.W95*       SUHDLOG.BAK*
-> (...works!)
-
-The "too many files" part is what smbfs translates the server error into.
-ethereal calls it a "Non specific error code" (ERRSRV/ERRerror).
-
-The problem here is that for some reason win98 doesn't always handle that 
-a client requests info on the / inode with too short interval. It 
-often understands the request (for me about 14 times out of 15), but 
-sometimes it just fails.
-
-
-2.4.25 has some code that was backported from 2.6, where the "win95" 
-codepath was changed. I need to check that, but it probably doesn't work 
-there either.
-
-Patch below works for me. It is copied from the smbfs readdir code that 
-happens to have the same problem with win9x.
-(Well, it's the same request so ... :)
-
-/Urban
+> 
+>>Another idea that we are playing with for handling programs like xmms 
+>>(i.e. programs that require gauranteed CPU bandwidth to perform well) is 
+>>the complement of caps namely per task CPU reservations.
+> 
+> 
+>>Of course, this won't solve the "need to be root" problem as this is 
+>>obviously the sort of control that should be reserved for root
+> 
+> 
+> Not necessarily.  We've just fixed this dilemma in the CKRM
+> project, using a resource class filesystem for this kind of
+> stuff.
+> 
+> A user could have a certain percentage of the CPU guaranteed
+> (especially the console user) and carve out part of his/her
+> guarantee for multimedia applications.
+> 
+> Please see the attached document, which is the 6th draft of
+> this particular CKRM design.  If you have any improvements
+> for this spec, feel free to let us know ;)
 
 
-diff -urN -X exclude linux-2.4.25-orig/fs/smbfs/proc.c linux-2.4.25-smbfs/fs/smbfs/proc.c
---- linux-2.4.25-orig/fs/smbfs/proc.c	Thu Feb 26 17:41:19 2004
-+++ linux-2.4.25-smbfs/fs/smbfs/proc.c	Thu Feb 26 20:21:21 2004
-@@ -2615,9 +2615,18 @@
- 	struct inode *inode = dir->d_inode;
- 	int result;
- 
-+ retry:
- 	result = smb_proc_getattr_trans2_std(server, dir, attr);
--	if (result < 0)
-+	if (result < 0) {
-+		if (server->rcls == ERRSRV && server->err == ERRerror) {
-+			/* a damn Win95 bug - sometimes it clags if you 
-+			   ask it too fast */
-+			current->state = TASK_INTERRUPTIBLE;
-+			schedule_timeout(HZ/5);
-+			goto retry;
-+		}
- 		goto out;
-+	}
- 
- 	/*
- 	 * None of the other getattr versions here can make win9x
+The CKRM API has also been posted separately as an RFC on lkml
+today...just in case its missed deep down in this thread !
+
+
+
+-- Shailabh
+
+
+
+
+
 

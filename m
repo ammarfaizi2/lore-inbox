@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130130AbRB1Ls6>; Wed, 28 Feb 2001 06:48:58 -0500
+	id <S130129AbRB1Lm5>; Wed, 28 Feb 2001 06:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130139AbRB1Lst>; Wed, 28 Feb 2001 06:48:49 -0500
-Received: from www.wen-online.de ([212.223.88.39]:47889 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130138AbRB1Lsj>;
-	Wed, 28 Feb 2001 06:48:39 -0500
-Date: Wed, 28 Feb 2001 12:48:21 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
-In-Reply-To: <Pine.LNX.4.21.0102280425030.7369-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0102281244290.551-100000@mikeg.weiden.de>
+	id <S130130AbRB1Lmq>; Wed, 28 Feb 2001 06:42:46 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39173 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130129AbRB1Lmf>; Wed, 28 Feb 2001 06:42:35 -0500
+Subject: Re: 2.4.2-ac6 hangs on boot w/AMD Elan SC520 dev board
+To: bmoyle@mvista.com (Brian Moyle)
+Date: Wed, 28 Feb 2001 11:45:40 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, bmoyle@mvista.com
+In-Reply-To: <200102280312.TAA13404@bia.mvista.com> from "Brian Moyle" at Feb 27, 2001 07:12:33 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Y539-0005XE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Feb 2001, Marcelo Tosatti wrote:
+> memory map that hangs (added debugging to setup.S to determine E820 map):
+>    hand-copied physical RAM map:
+>     bios-e820: 000000000009f400 @ 0000000000000000 (usable)
+>     bios-e820: 0000000000000c00 @ 000000000009f400 (reserved)
+>     bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
+>     bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
+>     bios-e820: 0000000000100000 @ 00000000fff00000 (reserved)
+>    (at this point, it appears to be in an infinite printk loop <?>)
+> 
+> I didn't spend much time looking into the printk loop, but it seems to 
+> end up there, even if CONFIG_DEBUG_BUGVERBOSE is not defined, as if the 
+> ".byte 0x0f,0x0b" is causing the loop to begin.
+> 
+> Any ideas/suggestions/comments?
 
-> On Wed, 28 Feb 2001, Mike Galbraith wrote:
->
-> > > > Have you tried to use SWAP_SHIFT as 4 instead of 5 on a stock 2.4.2-ac5 to
-> > > > see if the system still swaps out too much?
-> > >
-> > > Not yet, but will do.
->
-> But what about swapping behaviour?
->
-> It still swaps too much?
+Having been over the code the problem is indeed the bios reporting overlapping
+/duplicated ranges. That will cause a crash in mm/bootmem when we try and free
+the range twice.
 
-Yes.
+I suspect you need to add some code to take the E820 map and remove any
+overlaps from it, favouring ROM over RAM if the types disagree (for safety),
+and filter them before you register them with the bootmem in 
+arch/i386/kernel/setup.c
 
-(returning to study mode)
 
-	-Mike
 

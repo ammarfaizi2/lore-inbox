@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131461AbQLKBHO>; Sun, 10 Dec 2000 20:07:14 -0500
+	id <S131265AbQLKBIY>; Sun, 10 Dec 2000 20:08:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131265AbQLKBGy>; Sun, 10 Dec 2000 20:06:54 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:57026 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S130766AbQLKBGs>; Sun, 10 Dec 2000 20:06:48 -0500
-Date: Mon, 11 Dec 2000 02:36:05 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] test12-pre8 task queue fix batch
-Message-ID: <20001211023605.K7554@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3A341DE8.B996D54B@haque.net>
+	id <S132971AbQLKBIO>; Sun, 10 Dec 2000 20:08:14 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:382 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S131265AbQLKBIB>;
+	Sun, 10 Dec 2000 20:08:01 -0500
+Message-ID: <20001211013736.A18862@win.tue.nl>
+Date: Mon, 11 Dec 2000 01:37:36 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11 EXT2 corruption: mixing up file contents
+In-Reply-To: <20001210161723.A1060@iapetus.localdomain> <20001210183101.A6947@iapetus.localdomain> <20001210213500.A17413@iapetus.localdomain> <20001210224402.A913@iapetus.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A341DE8.B996D54B@haque.net>; from mhaque@haque.net on Sun, Dec 10, 2000 at 07:20:56PM -0500
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20001210224402.A913@iapetus.localdomain>; from Frank van Maarseveen on Sun, Dec 10, 2000 at 10:44:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2000 at 07:20:56PM -0500, Mohammad A. Haque wrote:
-> Lets see if this is the gist of them...
- 
-At least one more to fix:
+On Sun, Dec 10, 2000 at 10:44:02PM +0100, Frank van Maarseveen wrote:
 
-diff -ru linux-2.4.0-test12-pre8/drivers/isdn/hisax/config.c linux/drivers/isdn/hisax/config.c
---- linux-2.4.0-test12-pre8/drivers/isdn/hisax/config.c Sun Dec 10 20:38:55 2000+++ linux/drivers/isdn/hisax/config.c      Mon Dec 11 01:04:16 2000
-@@ -1180,7 +1180,7 @@
-        cs->tx_skb = NULL;
-        cs->tx_cnt = 0;
-        cs->event = 0;
--       cs->tqueue.next = 0;
-+       INIT_LIST_HEAD(&cs->tqueue.list);
-        cs->tqueue.sync = 0;
-        cs->tqueue.data = cs;
+Dag Frank -
 
+I see lots of messages from you about corruption in 2.4.0-test11
+but we all know very well that 2.4.0-test11 corrupts things
+and further evidence is not necessary.
+Hopefully all, or at least the most significant, problems
+have been solved now, so you should upgrade to the most
+recent test kernel and see how things are there.
 
-
-Regards 
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

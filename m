@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131265AbQLKBIY>; Sun, 10 Dec 2000 20:08:24 -0500
+	id <S130766AbQLKBMz>; Sun, 10 Dec 2000 20:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132971AbQLKBIO>; Sun, 10 Dec 2000 20:08:14 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:382 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S131265AbQLKBIB>;
-	Sun, 10 Dec 2000 20:08:01 -0500
-Message-ID: <20001211013736.A18862@win.tue.nl>
-Date: Mon, 11 Dec 2000 01:37:36 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 EXT2 corruption: mixing up file contents
-In-Reply-To: <20001210161723.A1060@iapetus.localdomain> <20001210183101.A6947@iapetus.localdomain> <20001210213500.A17413@iapetus.localdomain> <20001210224402.A913@iapetus.localdomain>
+	id <S132971AbQLKBMg>; Sun, 10 Dec 2000 20:12:36 -0500
+Received: from rmx325-mta.mail.com ([165.251.48.53]:26062 "EHLO
+	rmx325-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S130766AbQLKBMd>; Sun, 10 Dec 2000 20:12:33 -0500
+Message-ID: <390158470.976495326591.JavaMail.root@web346-wra.mail.com>
+Date: Sun, 10 Dec 2000 19:42:03 -0500 (EST)
+From: Frank Davis <fdavis112@juno.com>
+To: linux-kernel@vger.kernel.org
+Subject: INIT_LIST_HEAD marco audit
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20001210224402.A913@iapetus.localdomain>; from Frank van Maarseveen on Sun, Dec 10, 2000 at 10:44:02PM +0100
+Content-Transfer-Encoding: 7bit
+X-Mailer: mail.com
+X-Originating-IP: 151.201.242.214
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 10, 2000 at 10:44:02PM +0100, Frank van Maarseveen wrote:
+Hello all,
+        It looks like we need to perform an audit of test12-pre8 and find all the changes where INIT_LIST_HEAD should now be used.  Does anyone have a complete list of all the problem drivers, as well as a list of the ones that have already been fixed? If so, please post it to l-k . I don't mind maintaining a list of those patches..Just send them to fdavis112@juno.com .
+Regards,
+-Frank
 
-Dag Frank -
 
-I see lots of messages from you about corruption in 2.4.0-test11
-but we all know very well that 2.4.0-test11 corrupts things
-and further evidence is not necessary.
-Hopefully all, or at least the most significant, problems
-have been solved now, so you should upgrade to the most
-recent test kernel and see how things are there.
-
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

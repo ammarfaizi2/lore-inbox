@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267199AbUIJINc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUIJIQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267199AbUIJINc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 04:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUIJINc
+	id S266895AbUIJIQw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 04:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUIJIQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 04:13:32 -0400
-Received: from gizmo02ps.bigpond.com ([144.140.71.12]:21479 "HELO
-	gizmo02ps.bigpond.com") by vger.kernel.org with SMTP
-	id S267199AbUIJINU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 04:13:20 -0400
-Message-ID: <4141621D.7020301@bigpond.net.au>
-Date: Fri, 10 Sep 2004 18:13:17 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
-References: <413FA9AE.90304@bigpond.net.au> <20040909010610.28ca50e1.akpm@osdl.org> <4140EE3E.5040602@bigpond.net.au> <20040909171450.6546ee7a.akpm@osdl.org> <4141092B.2090608@bigpond.net.au> <20040909200650.787001fc.akpm@osdl.org> <41413F64.40504@bigpond.net.au> <20040909231858.770ab381.akpm@osdl.org> <414149A0.1050006@bigpond.net.au> <20040909235217.5a170840.akpm@osdl.org> <41415B15.1050402@bigpond.net.au> <20040910005454.23bbf9fb.akpm@osdl.org>
-In-Reply-To: <20040910005454.23bbf9fb.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 04:16:52 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:57051 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266895AbUIJIQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 04:16:51 -0400
+Date: Fri, 10 Sep 2004 17:18:46 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH] missing pci_disable_device()
+In-reply-to: <20040909173349.GA14633@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org, bjorn.helgaas@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <41416366.8070000@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <413D0E4E.1000200@jp.fujitsu.com>
+ <1094550581.9150.8.camel@localhost.localdomain>
+ <413E7925.1010801@jp.fujitsu.com>
+ <1094647195.11723.5.camel@localhost.localdomain>
+ <413FF05B.8090505@jp.fujitsu.com> <20040909062009.GD10428@kroah.com>
+ <41403075.1010103@jp.fujitsu.com> <20040909173349.GA14633@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Greg KH wrote:
 > 
-> Could you see if this patch fixes the above crash?
+> I like Alan's advice.  Also, a patch for the uhci-hcd driver would be
+> nice to have :)
 > 
-> --- 25/fs/isofs/rock.c~rock-kludge	2004-09-10 00:52:30.394468656 -0700
-> +++ 25-akpm/fs/isofs/rock.c	2004-09-10 00:53:14.544756792 -0700
-> @@ -62,7 +62,7 @@
->  }                                     
->  
->  #define MAYBE_CONTINUE(LABEL,DEV) \
-> -  {if (buffer) kfree(buffer); \
-> +  {if (buffer) { kfree(buffer); buffer = NULL; } \
->    if (cont_extent){ \
->      int block, offset, offset1; \
->      struct buffer_head * pbh; \
-> _
-> 
-> 
-> I sure hope it does, so I don't have to look at rock.c again.
 
-It does and no sign of the oops or scheduling while atomic messages.  I 
-still have the original four patches applied.  I'll try again with an 
-unpatched bk16 and let you know the results shortly.
+Sure, I'll make a patch for the uhci-hcd driver (and ehci-hcd,
+e1000, etc. also).
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Thanks,
+Kenji Kaneshige
 

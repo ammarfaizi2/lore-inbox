@@ -1,67 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbTIMXXK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 19:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbTIMXXK
+	id S262262AbTIMXSV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 19:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTIMXSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 19:23:10 -0400
-Received: from c-24-118-26-196.mn.client2.attbi.com ([24.118.26.196]:33152
-	"EHLO x1-6-00-03-6d-12-44-dd.comcast.net") by vger.kernel.org
-	with ESMTP id S262239AbTIMXXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 19:23:07 -0400
-Date: Sat, 13 Sep 2003 18:22:54 -0500 (CDT)
-From: Scott Hoffman <scott781@comcast.net>
-To: linux-kernel@vger.kernel.org, <arjanv@redhat.com>
-Subject: Oops report, 2.6.0-test5-smp
-Message-ID: <Pine.LNX.4.44.0309131810150.1510-100000@x1-6-00-03-6d-12-44-dd.comcast.net>
+	Sat, 13 Sep 2003 19:18:21 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17419
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262262AbTIMXSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 19:18:18 -0400
+Date: Sat, 13 Sep 2003 16:00:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: David Schwartz <davids@webmaster.com>,
+       Pascal Schmidt <der.eremit@email.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: People, not GPL  [was: Re: Driver Model]
+In-Reply-To: <1063490941.9402.14.camel@dhcp23.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10309131532330.16744-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  After booting into 2.6 with hdd=ide-scsi, then trying to rmmod ide-scsi, 
-I get the following Oops:
 
-x1 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000024
-x1 kernel:  printing eip:
-x1 kernel: c017f217
-x1 kernel: *pde = 00000000
-x1 kernel: Oops: 0002 [#1]
-x1 kernel: CPU:    1
-x1 kernel: EIP:    0060:[<c017f217>]    Not tainted
-x1 kernel: EFLAGS: 00010202
-x1 kernel: EIP is at simple_rmdir+0x27/0x50
-x1 kernel: eax: 00000000   ebx: ccb61e20   ecx: ccb61e40   edx: ffffffd9
-x1 kernel: esi: ccb308f4   edi: ccb5b3a8   ebp: ccb61e20   esp: cb283ebc
-x1 kernel: ds: 007b   es: 007b   ss: 0068
-x1 kernel: Process rmmod (pid: 1429, threadinfo=cb282000 task=ccc4ece0)
-x1 kernel: Stack: ccb61e20 ccb30354 ccb30960 ccb308f4 c019929c ccb308f4 ccb61e20 ccb61d14 
-x1 kernel:        ccb61e40 ccb61e20 00000880 c0199396 ccb61e20 ccb61d14 cf590154 c03605a8 
-x1 kernel:        d084abe0 c01c3893 cf590154 c0360560 cf590154 cf590130 c02175f1 cf590154 
-x1 kernel: Call Trace:
-x1 kernel:  [<c019929c>] remove_dir+0x6c/0xa0
-x1 kernel:  [<c0199396>] sysfs_remove_dir+0xb6/0x110
-x1 kernel:  [<c01c3893>] kobject_del+0x43/0x70
-x1 kernel:  [<c02175f1>] device_del+0x81/0xb0
-x1 kernel:  [<d0847fed>] idescsi_cleanup+0x4d/0x60 [ide_scsi]
-x1 kernel:  [<c0243df1>] ide_unregister_driver+0x71/0xbe
-x1 kernel:  [<d0848b57>] exit_idescsi_module+0x27/0x2b [ide_scsi]
-x1 kernel:  [<c0139c1e>] sys_delete_module+0x15e/0x1c0
-x1 /sbin/hotplug: no runnable /etc/hotplug/scsi_host.agent is installed
-x1 kernel:  [<c0151bb3>] do_munmap+0x153/0x1c0
-x1 kernel:  [<c010ac7f>] syscall_call+0x7/0xb
-x1 kernel: 
-x1 kernel: Code: ff 48 24 89 34 24 89 5c 24 04 e8 aa ff ff ff 31 d2 ff 4e 24 
-x1 /sbin/hotplug: no runnable /etc/hotplug/scsi_device.agent is installed
-x1 /sbin/hotplug: no runnable /etc/hotplug/scsi.agent is installed
-x1 login(pam_unix)[1365]: authentication failure; logname=LOGIN uid=0 euid=0 tty=tty2 ruser= rhost=  user=root
+Alan,
 
-  The kernel and latest modutils are installed from 
-people.redhat.com/arjanv/2.5, otherwise the system is RH9 on dual athlons.  
-  So, is this just a user and/or userspace error?  The system seems stable 
-enough afterwards, but will not shutdown cleanly.
+Taking you at face value, as always in the past, how does one parse
+between "usage"/"enforcement"?
 
---
-Scott Hoffman
+Can a non-gpl object call, use, and it work "EXPORT_SYMBOL_GPL"?
+
+If EXPORT_SYMBOL_GPL allows functionality, then it does not "enforce" any
+license issues.  If it is called and then allowed to quietly fail or not
+function unless the caller's associated LICENSE is "GPL", then it does
+enforce, restrict and prevents 'functional' usage.
+
+If this is a "NEW SYMBOL" one may have an arguement to hold.
+
+If it is an "OLD SYMBOL", or the old one is removed and replaced with an
+random new one, yet the core functionality of the operations are the same,
+the intent is to break or terminate usage.
+
+If EXPORT_SYMBOL_GPL is to be a notifier to let end-user be aware that a
+binary vendor may be operating in a grey region of "derived" work, fine.
+Allow it to operate but make noise.
+
+Pretend it is doing the NOVELL thing of exceeding license count, and make
+noise.
+
+It is all to simple to bypass, and if the TAINTING issues for detection
+is truly only to ignore issues from non-gpl sourced drivers, then great.
+
+I know you have killfiled me by now, but how goes business school for the
+MBA?  Does this mean you are going to quit Linux?
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Sat, 13 Sep 2003, Alan Cox wrote:
+
+> On Sad, 2003-09-13 at 22:19, David Schwartz wrote:
+> >  
+> > > If people put GPL_ONLY symbol exports in their code, that's their call
+> > > to make, is it not? It's their code and they're free to say "well, this
+> > > is my code, and if you use this symbol, I consider your stuff to be a
+> > > derived work". Once again it's up to the lawyers to decide whether
+> > > this has legal value or not.
+> > 
+> > 	If it has legal value, then it's an additional restriction.
+> 
+> If it has legal value in showing the work is derivative thats not an
+> additional restriction. Its merely showing the intent of the author. If 
+> someone creates a work and its found to be derivative and they didnt
+> make it GPL compatible they get sued, thats also not an additional
+> restriction its what the GPL says anyway.
+> 
+> That is the whole point of EXPORT_SYMBOL_GPL, it doesn't enforce
+> anything and Linus was absolutely specific it should not do the
+> enforcing. Its a hint and a support filter.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272169AbRH3MFt>; Thu, 30 Aug 2001 08:05:49 -0400
+	id <S272175AbRH3MLa>; Thu, 30 Aug 2001 08:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272170AbRH3MFk>; Thu, 30 Aug 2001 08:05:40 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:25605 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S272169AbRH3MFa>; Thu, 30 Aug 2001 08:05:30 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S272173AbRH3MLT>; Thu, 30 Aug 2001 08:11:19 -0400
+Received: from zeke.inet.com ([199.171.211.198]:26092 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S272170AbRH3MLF>;
+	Thu, 30 Aug 2001 08:11:05 -0400
+Message-ID: <3B8E2C35.1956DF51@inet.com>
+Date: Thu, 30 Aug 2001 07:06:13 -0500
+From: "Jordan Breeding" <jordan.breeding@inet.com>
+Reply-To: Jordan <ledzep37@home.com>,
+        Jordan Breeding <jordan.breeding@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Having problems with 2.4.9-ac
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15246.11218.125243.775849@gargle.gargle.HOWL>
-Date: Thu, 30 Aug 2001 16:04:34 +0400
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs: how to mount without journal replay?
-In-Reply-To: <20010826130858.A39@toy.ucw.cz>
-In-Reply-To: <20010826130858.A39@toy.ucw.cz>
-X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
- > Hi!
- > 
- > For recovering broken machine, I'd like to mount without replaying journal.
+I have reported having problems shuting down and rebooting my SMP
+machine before.  Before the 2.4.8/9 series or ac kernels the last kernel
+which could correctly reboot or shut down my machine had been
+2.4.6-ac2.  I was very surprised when 2.4.8-ac10 was actually able to do
+so as well.  If I issued any of the various commands to shut the box
+down it would correctly get to the "Shutting down the machine" or
+similar message and then issue Power Down and the box would go down,
+also it would correctly get to the "Please wait while the machine
+reboots..." and then would reboot.  Since 2.4.8-ac10 I have tried
+2.4.8-ac12 as well as 2.4.9-ac1 and 2.4.9-ac3 none of which can
+correctly reboot or shut down anymore.  What might the problem be?  I
+don't want to go back to 2.4.8-ac10 if at all possible, 2.4.9-ac3 is one
+of if not the most stable 2.4 kernel I have run in a long time.  Thank
+you for whatever help you can give, let me know if I can provide more
+data.
 
-You cannot mount without replaying even in read-only mode, because
-file-system meta-data are possibly inconsistent.
-
- > [reiserfs panics while replaying journal; seems there are still some bugs
- > hidden in there]. Unfortunately, "nolog" option does not seem imlemented.
-
-There is a patch allowing to mount reiserfs if there was io error during
-journal replay on mount. It is included into 2.4.9-ac* tree (it was sent
-to Linus several times, but this did not avail).
-
-Can you send to Reiserfs mail-list <Reiserfs-List@Namesys.COM> more
-detailed information about your case, like ksymoopsed stack trace, etc.
-
- > Are there experimental to do that?
- > 								Pavel
- > PS: Please CC me.
-
-Nikita.
-
- > -- 
- > Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
- > details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
- > 
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
+Jordan Breeding

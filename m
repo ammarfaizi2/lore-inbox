@@ -1,118 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUGOAcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266072AbUGOAei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266013AbUGOAcl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 20:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUGOAcY
+	id S266072AbUGOAei (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 20:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266031AbUGOAeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 20:32:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62955 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266013AbUGOAJR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 20:09:17 -0400
-Subject: Re: [PATCH] I2C update for 2.6.8-rc1
-In-Reply-To: <10898500311477@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Jul 2004 17:07:12 -0700
-Message-Id: <10898500313698@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
+	Wed, 14 Jul 2004 20:34:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6272 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266025AbUGOASr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 20:18:47 -0400
+Date: Wed, 14 Jul 2004 17:16:51 -0700
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver Core patches for 2.6.8-rc1
+Message-ID: <20040715001651.GA20161@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1784.13.10, 2004/07/09 15:07:03-07:00, greg@kroah.com
+Hi,
 
-I2C: sparse cleanups for a few i2c drivers.
+Here are a some driver core and assorted patches for 2.6.8-rc1.
+They contain:
+	- some driver core fixes.
+	- a raw.c fix
+	- a root_plug.c fix
+	- add a new attribute for block devices.
 
+Most of these have all been in the last few -mm tree releases.
 
- drivers/i2c/busses/i2c-elektor.c |    6 +++---
- drivers/i2c/chips/adm1031.c      |   29 +++++++++++++----------------
- 2 files changed, 16 insertions(+), 19 deletions(-)
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
 
+thanks,
 
-diff -Nru a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
---- a/drivers/i2c/busses/i2c-elektor.c	2004-07-14 16:59:33 -07:00
-+++ b/drivers/i2c/busses/i2c-elektor.c	2004-07-14 16:59:33 -07:00
-@@ -143,7 +143,7 @@
- 		}
- 	}
- 	if (irq > 0) {
--		if (request_irq(irq, pcf_isa_handler, 0, "PCF8584", 0) < 0) {
-+		if (request_irq(irq, pcf_isa_handler, 0, "PCF8584", NULL) < 0) {
- 			printk(KERN_ERR "i2c-elektor: Request irq%d failed\n", irq);
- 			irq = 0;
- 		} else
-@@ -244,7 +244,7 @@
-  fail:
- 	if (irq > 0) {
- 		disable_irq(irq);
--		free_irq(irq, 0);
-+		free_irq(irq, NULL);
- 	}
- 
- 	if (!mmapped)
-@@ -258,7 +258,7 @@
- 
- 	if (irq > 0) {
- 		disable_irq(irq);
--		free_irq(irq, 0);
-+		free_irq(irq, NULL);
- 	}
- 
- 	if (!mmapped)
-diff -Nru a/drivers/i2c/chips/adm1031.c b/drivers/i2c/chips/adm1031.c
---- a/drivers/i2c/chips/adm1031.c	2004-07-14 16:59:33 -07:00
-+++ b/drivers/i2c/chips/adm1031.c	2004-07-14 16:59:33 -07:00
-@@ -101,10 +101,6 @@
- static int adm1031_detect(struct i2c_adapter *adapter, int address, int kind);
- static void adm1031_init_client(struct i2c_client *client);
- static int adm1031_detach_client(struct i2c_client *client);
--static inline u8 adm1031_read_value(struct i2c_client *client, u8 reg);
--static inline int
--adm1031_write_value(struct i2c_client *client, u8 reg, unsigned int value);
--
- static struct adm1031_data *adm1031_update_device(struct device *dev);
- 
- /* This is the driver that will be inserted */
-@@ -116,7 +112,19 @@
- 	.detach_client = adm1031_detach_client,
- };
- 
--static int adm1031_id = 0;
-+static int adm1031_id;
-+
-+static inline u8 adm1031_read_value(struct i2c_client *client, u8 reg)
-+{
-+	return i2c_smbus_read_byte_data(client, reg);
-+}
-+
-+static inline int
-+adm1031_write_value(struct i2c_client *client, u8 reg, unsigned int value)
-+{
-+	return i2c_smbus_write_byte_data(client, reg, value);
-+}
-+
- 
- #define TEMP_TO_REG(val)		(((val) < 0 ? ((val - 500) / 1000) : \
- 					((val + 500) / 1000)))
-@@ -847,17 +855,6 @@
- 	}
- 	kfree(client);
- 	return 0;
--}
--
--static inline u8 adm1031_read_value(struct i2c_client *client, u8 reg)
--{
--	return i2c_smbus_read_byte_data(client, reg);
--}
--
--static inline int
--adm1031_write_value(struct i2c_client *client, u8 reg, unsigned int value)
--{
--	return i2c_smbus_write_byte_data(client, reg, value);
- }
- 
- static void adm1031_init_client(struct i2c_client *client)
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+ drivers/base/Kconfig             |    2 -
+ drivers/base/bus.c               |   39 ++++++++++++++++++++-
+ drivers/base/core.c              |   10 +++++
+ drivers/base/driver.c            |   19 ++++++++++
+ drivers/base/platform.c          |   72 +++++++++++++++++++++++++++++++++++++--
+ drivers/block/genhd.c            |   11 +++++
+ drivers/char/raw.c               |   15 ++++----
+ drivers/pci/hotplug/rpaphp_vio.c |    9 ++++
+ include/linux/device.h           |    4 ++
+ lib/kobject.c                    |    7 ++-
+ security/root_plug.c             |    6 +--
+ 11 files changed, 175 insertions(+), 19 deletions(-)
+-----
+
+<mika:osdl.org>:
+  o Upgrade security/root_plug.c to new module parameter syntax
+
+Andrew Morton:
+  o raw.c cleanups
+
+Dmitry Torokhov:
+  o Driver core: Fix OOPS in device_platform_unregister
+  o Driver core: add driver_find helper to find a driver by its name
+  o Driver core: kset_find_obj should increment refcount of the found object
+  o Driver core: add default driver attributes to struct bus_type
+  o Driver core: add platform_device_register_simple to register platform
+
+Greg Kroah-Hartman:
+  o Driver Core: remove extra space in Kconfig file
+
+Olaf Hering:
+  o add removeable sysfs block device attribute
 

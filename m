@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267209AbRGPG0r>; Mon, 16 Jul 2001 02:26:47 -0400
+	id <S267208AbRGPGYR>; Mon, 16 Jul 2001 02:24:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267210AbRGPG0h>; Mon, 16 Jul 2001 02:26:37 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:51720 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S267209AbRGPG0c>; Mon, 16 Jul 2001 02:26:32 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
+	id <S267209AbRGPGYI>; Mon, 16 Jul 2001 02:24:08 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19716 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267208AbRGPGX4>; Mon, 16 Jul 2001 02:23:56 -0400
 To: linux-kernel@vger.kernel.org
-Date: Mon, 16 Jul 2001 08:26:23 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.4.4: USB problem with disabled device
-Message-ID: <3B52A524.28783.7B673@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+From: Daniel Quinlan <quinlan@transmeta.com>
+Subject: Re: cramfs
+Date: 15 Jul 2001 23:23:52 -0700
+Organization: Transmeta Corporation
+Message-ID: <6yhewd8k93.fsf@sodium.transmeta.com>
+In-Reply-To: <3B21A4F7.6040303@digitalme.com>
+X-Trace: palladium.transmeta.com 995264632 1182 127.0.0.1 (16 Jul 2001 06:23:52 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 16 Jul 2001 06:23:52 GMT
+Original-Sender: quinlan@transmeta.com
+X-Newsreader: Gnus v5.7/Emacs 20.4
+Cache-Post-Path: palladium.transmeta.com!unknown@sodium.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"Trever L. Adams" <vichu@digitalme.com> writes:
 
-a small problem: On my brother's PC with an Asus P2B and an non-PnP ISA 
-SoundBlaster 16 there was a problem with sound not working any more:
+> I hate to ask this, however here goes.  I am doing some remote upgrading 
+> and some other really funky stuff to some boxes I keep up.
+> 
+> Part of these are total system upgrades and I need to move data out of 
+> the way while still having a working box.  I decided that cramfs may be 
+> the way to do this.  If you can tell me no and point me to a resource on 
+> how to do this, I would LOVE to hear about it.
+> 
+> However, the question is, how can I tell lilo to tell the kernel too 
+> boot off a cramfs file system?  I have already created the file with 
+> /etc /bin /sbin /dev and /lib from a working system, doing the correct 
+> deletions and other such changes.  I have a 15 meg cramfs that should do 
+> the trick.
+> 
+> Thank you for any help you can offer.
 
-His SB used IRQ 5 (hardwired) and he had disabled the USB device in 
-BIOS. However SuSE Linux 7.2 detected the USB device and loaded the 
-module. As it seemed, even though IRQ 5 was marked as reserved in BIOS, 
-the disabled USB device also had IRQ 5. At least that's what the module 
-allocated. Later the sound module complained about IRQ 5 not being 
-available.
+You want "cramfsboot" to boot cramfs root partitions directly.
+(You'll also need the cramfs patch which is part of the Midori Linux
+kernel package.)
 
-I have no idea what the effect of disabling a device in BIOS means to 
-the hardware, or what can be done in the driver about it. I just wanted 
-to let you know.
+ftp://midori.transmeta.com/midori-1.0.0-beta2/apps/cramfsboot-0.2_ML1.0.0-beta2-5.mlz
 
-Ulrich
-P.S. Not subscribed to linux-kernel...
+(It's a tarball.)
 
+There are also several packages that handle upgrades of cramfs
+partitions, etc.
+
+- Dan

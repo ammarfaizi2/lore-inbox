@@ -1,51 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267096AbTGGRTg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 13:19:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267119AbTGGRTe
+	id S267123AbTGGR0s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 13:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267136AbTGGR0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 13:19:34 -0400
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.42]:20902 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S267096AbTGGRT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 13:19:26 -0400
-Date: Mon, 07 Jul 2003 13:33:43 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: RFC: another approach for 64-bit network stats
-In-reply-to: <3F09A57D.8030003@candelatech.com>
-To: Ben Greear <greearb@candelatech.com>, Patrick McHardy <kaber@trash.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Message-id: <200307071333.48179.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <3F097E4D.1080707@trash.net> <3F09A57D.8030003@candelatech.com>
+	Mon, 7 Jul 2003 13:26:48 -0400
+Received: from mail.gmx.net ([213.165.64.20]:8161 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267123AbTGGR0h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 13:26:37 -0400
+Message-ID: <3F09B0B6.5060605@gmx.at>
+Date: Mon, 07 Jul 2003 19:41:10 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: Wil Reichert <wilreichert@yahoo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: highpoint driver problem, 2.4.21-ac4
+References: <4V9E.47E.39@gated-at.bofh.it>	<4V9E.47E.37@gated-at.bofh.it>	<4WyE.5oC.19@gated-at.bofh.it>	<3F04823A.5030403@gmx.at>	<20030703184427.3cb71051.wilreichert@yahoo.com>	<3F074C25.5060004@gmx.at> <20030706132507.240683d1.wilreichert@yahoo.com>
+Content-Type: multipart/mixed;
+ boundary="------------070802060408070109060909"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------070802060408070109060909
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Monday 07 July 2003 12:53, Ben Greear wrote:
-> I think that you should consider providing a new API as opposed to
-> breaking existing APIs.
+Wil Reichert wrote:
+ >> could you try the attachted patch, and report if this changes
+ >> something?
+ >
+ >
+ > Applied patch & rebuilt with hpt366 as a module.  No more oops, dmesg
+ > prints the following:
+ >
+ > HPT372A: IDE controller at PCI slot 01:0b.0 HPT372A: chipset revision
+ > 2 HPT372A: not 100% native mode: will probe irqs later hpt: HPT372N
+ > detected, using 372N timing. FREQ: 126 PLL: 45 hpt: no known IDE
+ > timings, disabling DMA. hpt: no known IDE timings, disabling DMA.
 
-Do you mean reworking the network statistics side of networking?
+it looks like the controller is detected as a HPT372N instead of a 
+HPT372A. the attached patch disables this check.
 
-Jeff.
+ >
+ > It has 2 drives attached to it, neither seems to be found.
+ >
+ > Other things: the 2.5.xx seems to work ok and my board supports some
+ > 'RAID 1.5' which seems to be nothing more than PR crap and some
+ > firmware hacks.  Could that cause problems?
 
-- -- 
-Please avoid sending me Word or PowerPoint attachments.
- See http://www.fsf.org/philosophy/no-word-attachments.html 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+raid 15 is a mirrored raid 5, which should provide high availability and 
+good performance (even in the case of a disk failure). but in this case 
+it is nothing more than a software solution. ;)
 
-iD8DBQE/Ca77wFP0+seVj/4RArtOAJwNVhV9PNgyli/d93n4ocCaRZzxmACeMdr8
-9W0vfMOt76DNXq2t4Phoye0=
-=8LGV
------END PGP SIGNATURE-----
+ >
+ > Wil
+
+bye,
+wilfried
+
+--------------070802060408070109060909
+Content-Type: text/plain;
+ name="linux-2.4.21-ac4-ignore-hpt372n.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.4.21-ac4-ignore-hpt372n.patch"
+
+--- linux/drivers/ide/pci/hpt366.c.orig	2003-07-07 19:19:25.000000000 +0200
++++ linux/drivers/ide/pci/hpt366.c	2003-07-07 19:19:55.000000000 +0200
+@@ -889,8 +889,10 @@ static int __init init_hpt37x(struct pci
+ 		did = inb(dmabase + 0x22);
+ 		rid = inb(dmabase + 0x28);
+ 	
++#if 0
+ 		if((did == 4 && rid == 6) || (did == 5 && rid > 1))
+ 			is_372n = 1;
++#endif
+ 	}
+ 		
+ 	/*
+
+--------------070802060408070109060909--
 

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269533AbTCDT51>; Tue, 4 Mar 2003 14:57:27 -0500
+	id <S269526AbTCDULy>; Tue, 4 Mar 2003 15:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269534AbTCDT51>; Tue, 4 Mar 2003 14:57:27 -0500
-Received: from pusa.informat.uv.es ([147.156.10.98]:16283 "EHLO
-	pusa.informat.uv.es") by vger.kernel.org with ESMTP
-	id <S269533AbTCDT50>; Tue, 4 Mar 2003 14:57:26 -0500
-Date: Tue, 4 Mar 2003 21:07:44 +0100
-To: Vergoz Michael <mvergoz@sysdoor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 'cooked' packets
-Message-ID: <20030304200744.GA20975@pusa.informat.uv.es>
-References: <3E6504FA.2090707@sysdoor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E6504FA.2090707@sysdoor.com>
-User-Agent: Mutt/1.3.28i
-From: uaca@alumni.uv.es
+	id <S269527AbTCDULy>; Tue, 4 Mar 2003 15:11:54 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:22924 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S269526AbTCDULv>; Tue, 4 Mar 2003 15:11:51 -0500
+Date: Tue, 4 Mar 2003 14:22:13 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: Greg KH <greg@kroah.com>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>, <mochel@osdl.org>
+Subject: Re: Displaying/modifying PCI device id tables via sysfs
+In-Reply-To: <1046753776.12441.92.camel@iguana>
+Message-ID: <Pine.LNX.4.44.0303041414270.23375-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 08:56:42PM +0100, Vergoz Michael wrote:
-> Hi list,
+On 3 Mar 2003, Matt Domsch wrote:
+
+> /sys
+> `-- bus
+>     `-- pci
+>         `-- drivers
+>             `-- 3c59x
+>                 |-- dynamic_id_0  (these are simple DRIVER_ATTRs)
+>                 |-- dynamic_id_1
+>                 |-- dynamic_id_2
+>                 `-- new_id
 > 
-> I want to know, why Linux have a "cooked" packets capture encapsulation 
-> ??@#!
+> Where dynamic_id_[012] are new dynamic entries, created by writing
+> values into new_id.  Both file types would be of the format (analogous
+> to pci_show_resources):
+> echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > new_id
+> with fields being vendor, device, subvendor, subdevice, class,
+> class_mask.
 
-Take a look at pcap-linux.c (libpcap library)
+I dont' think what you actually want is changing the id table - after all, 
+it's only walked when registering the driver (+ hotplug).
 
-this is not a pure kernel issue, probably you should ask to linux-net mailing
-list
+What you really want is a way to call the drivers' probe routine for a 
+device which isn't in its tables.
 
-	Ulisses
-                Debian GNU/Linux: a dream come true
------------------------------------------------------------------------------
-"Computers are useless. They can only give answers."            Pablo Picasso
+So why not simply
 
---->	Visita http://www.valux.org/ para saber acerca de la	<---
---->	Asociación Valenciana de Usuarios de Linux		<---
- 
+echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > .../3c59x/probe
+
+It shares one caveat with the approach above, i.e. struct pci_device_id
+has a field called "unsigned long driver_data", and as such is really hard
+to fill from userspace. I think in the common case it's not used and can
+be just set to zero, but if the driver e.g. expects it to point to a
+driver-private structure describing the device, you lose.
+
+And you need one more thing, i.e. the ability to load a driver without
+hardware being present. E.g. pci_module_init() is supposed to return
+-ENODEV when modular and no hardware is found. Actually, it doesn't
+anymore, since someone (I think you, Pat ;) broke it.
+
+--Kai
+
+
+
+

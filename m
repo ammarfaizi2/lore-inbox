@@ -1,57 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTI2MAU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 08:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbTI2MAT
+	id S263213AbTI2MJl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 08:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263218AbTI2MJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 08:00:19 -0400
-Received: from pop.gmx.net ([213.165.64.20]:11722 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263203AbTI2MAQ convert rfc822-to-8bit
+	Mon, 29 Sep 2003 08:09:41 -0400
+Received: from guard.arkoon.net ([62.161.237.193]:60937 "EHLO
+	akguard.arkoon.net") by vger.kernel.org with ESMTP id S263213AbTI2MJj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 08:00:16 -0400
-X-Authenticated: #11949556
-From: Michael Schierl <schierlm-usenet@gmx.de>
+	Mon, 29 Sep 2003 08:09:39 -0400
+X-Lotus-FromDomain: ARKOON
+From: dfages@arkoon.net
 To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test4,5,6] [APM] when do you expect to get APM working again?
-Date: Mon, 29 Sep 2003 13:59:05 +0200
-Reply-To: schierlm@gmx.de
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S263203AbTI2MAQ/20030929120016Z+1564@vger.kernel.org>
+Message-ID: <C1256DB0.0042BC40.00@arkoon-mail.arkoon.net>
+Date: Mon, 29 Sep 2003 14:08:54 +0200
+Subject: [BUG/PATCH] CONFIG_NET_HW_FLOWCONTROL and SMP
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
 Hi,
+by testing the CONFIG_NET_HW_FLOWCONTROL (NIC Hardware throttling) on
+a SMP system, I found a bug in net/core/dev.c : the netdev_dropping
+variable can be set to a negative value (the result is that a CPU can
+be locked in "throttle" state).
+This bug seems to exist in 2.4 and in 2.6 kernels.
 
-i'm using an Acer Travelmate 210 TEV notebook. (Celeron 700).
+Here's a typical scenario :
 
-I don't use any acpi, swsuspend, suspend-to-disk, only apm. (ACPI did
-not work in test3, and since then I did not change anything on my
-config, always did just 'make oldconfig'.
+- Throttling --> (CPU 0)queue->throttle==1 && (CPU 1)queue->throttle==1
+     && netdev_dropping == 2
+- 1st packet Unthrottle ( in net_rx_action() ), received by CPU 0
+     --> (CPU 0)queue->throttle==1 && (CPU 1)queue->throttle==1
+     && netdev_dropping == 1
+- 2nd packet Unthrottle ( in net_rx_action() ), received by CPU 0
+     --> (CPU 0)queue->throttle==0 && (CPU 1)queue->throttle==1
+     && netdev_dropping == 0
+- 3nd packet Unthrottle ( in net_rx_action() ), received by CPU 1
+     --> (CPU 0)queue->throttle==0 && (CPU 1)queue->throttle==0
+     && netdev_dropping == -1
 
-with kernels test1 to test3 i could say 'apm -s' to go to standby mode
-and the computer woke up properly afterwards (with 2.4.20 kernel it
-went down "properly" but crashed when it should wake up again).
+and so on...
 
-Now, since test4 (up to test6) when i do an 'apm -s', i see messages
-about the cdrom and the hd going down (i hear the hd going down as
-well), but then neither the screen blanks nor the "Zzz" LED
-(displaying that the notebook is in standby mode) goes on. I cannot do
-anything then except pressing the power button long then - no way to
-wake it up any more.
+The problem is that the (CPU)queue->throttle should be set to zero every
+time the netdev_dropping variable is decremented.
 
-I read something about test4's power management totally f*cked up on
-test4, so I did not "complain" then, but waited a bit first.
 
-is that problem known? Should I try any patches?
+Here's a patch for the 2.4.19 kernel (tested with success) :
 
-TIA,
+--- linux-2.4.19/net/core/dev.c.orig     Mon Sep 29 12:49:14 2003
++++ linux-2.4.19/net/core/dev.c    Tue Sep 23 18:35:35 2003
+@@ -1519,8 +1519,8 @@
 
-Michael
--- 
-"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
-Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
-Fingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
-http://home.arcor.de/mschierlm/mschierlm.asc
+ #ifdef CONFIG_NET_HW_FLOWCONTROL
+     if (queue->throttle && queue->input_pkt_queue.qlen < no_cong_thresh ) {
++         queue->throttle = 0;
+          if (atomic_dec_and_test(&netdev_dropping)) {
+-              queue->throttle = 0;
+               netdev_wakeup();
+               goto softnet_break;
+          }
+
+
+
+
+I haven't done a patch for 2.4.22 (as we currently use 2.4.19) but the same
+modification should be applied around lines 1572 to 1577 of net/core/dev.c
+
+For 2.6.0-test5, the lines to modified are arount 1631 to 1637.
+
+Regards,
+---
+Daniel FAGES
+ARKOON Network Security    http://www.arkoon.net
+
+

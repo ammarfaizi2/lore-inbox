@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTDVTQr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 15:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263372AbTDVTQr
+	id S263388AbTDVTSH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 15:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbTDVTSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 15:16:47 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:58785 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263369AbTDVTQq
+	Tue, 22 Apr 2003 15:18:07 -0400
+Received: from c-51a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.81]:57472
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S263388AbTDVTSE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 15:16:46 -0400
-Message-ID: <3EA59949.6040104@free.fr>
-Date: Tue, 22 Apr 2003 21:34:33 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Tue, 22 Apr 2003 15:18:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.68] cirrusfb on alpha does not compile
+References: <20030422190837.GA20925@rollcage.bzimage.de>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 22 Apr 2003 21:29:37 +0200
+In-Reply-To: <20030422190837.GA20925@rollcage.bzimage.de>
+Message-ID: <yw1xr87uuy8u.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc1 : aic7xxx deadlock on boot on my machine
-References: <3EA4FF4C.2030702@free.fr>	 <200304221036.19274.m.c.p@wolk-project.de> <1051020692.14881.12.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1051020692.14881.12.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2003-04-22 at 09:36, Marc-Christian Petersen wrote:
-> 
->>>So I hope, it will be updated in rc2...
->>
->>I'll _bet_ that the new well good code from Justin won't make it into 2.4 
->>earlier than 2.4.22-pre1.
-> 
-> 
-> Its not the good code that worries me - its what bits of it turn out to
-> be buggy
+Norbert Tretkowski <tretkowski@bzimage.de> writes:
 
-On the other hand, probably mainy/every server with  dual scsi cards 
-(one for 160 Mbps and other for slow devices as tape, cdrom, ...) will 
-probably not boot with actual good blessed code :-)
+>   gcc -Wp,-MD,drivers/video/.cirrusfb.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-alia
+> sing -fno-common -pipe -mno-fp-regs -ffixed-8 -msmall-data -mcpu=ev56 -Wa,-mev6 -fomit-frame-pointer -nostdinc -iwithprefix in
+> clude    -DKBUILD_BASENAME=cirrusfb -DKBUILD_MODNAME=cirrusfb -c -o drivers/video/cirrusfb.o drivers/video/cirrusfb.c
+> drivers/video/cirrusfb.c:66:25: video/fbcon.h: No such file or directory
+> drivers/video/cirrusfb.c:67:29: video/fbcon-mfb.h: No such file or directory
+> drivers/video/cirrusfb.c:68:30: video/fbcon-cfb8.h: No such file or directory
+> drivers/video/cirrusfb.c:69:31: video/fbcon-cfb16.h: No such file or directory
+> drivers/video/cirrusfb.c:70:31: video/fbcon-cfb24.h: No such file or directory
+> drivers/video/cirrusfb.c:71:31: video/fbcon-cfb32.h: No such file or directory
 
-Never mind :
-	1) I have warned and done my debugging duty by sending a kdbg backtrace,
-	2) I suggested a possible fix,
-	3) I have a solution for myself,
-
-
+None of the fb drivers seem to compile on Alpha.  If noone else does
+it, I'll look into it some day.  I'm not promising to fix it, though.
 
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
-
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
+Måns Rullgård
+mru@users.sf.net

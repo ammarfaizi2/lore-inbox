@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVBCAqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262792AbVBCApD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbVBCAqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 19:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbVBCAot
+	id S262792AbVBCApD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 19:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbVBCApC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 19:44:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:27494 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262860AbVBCAmT (ORCPT
+	Wed, 2 Feb 2005 19:45:02 -0500
+Received: from maxipes.logix.cz ([217.11.251.249]:44196 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S262359AbVBCAlK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 19:42:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=V8RxSeV5qwQLpEAu6sl2x4Snup9MuFkQVnQMJdc800rqI0wGW6AR/ZjCwOWkxNz0FYUuoellkyWBkKEzdRYJgwaPwwuhMCx4R1NVrgfyWkNsFnTMzqtk1rJH0dNJaojhCc0RJiHoPwVOiJQnlb5xek/8xLJxAJ9dZGn3sfhe7rE=
-Message-ID: <58cb370e05020216427757693b@mail.gmail.com>
-Date: Thu, 3 Feb 2005 01:42:18 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 12/29] ide: add ide_hwgroup_t.polling
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20050202025538.GM621@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 2 Feb 2005 19:41:10 -0500
+Message-ID: <42017316.4070805@logix.cz>
+Date: Thu, 03 Feb 2005 13:40:54 +1300
+From: Michal Ludvig <michal@logix.cz>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: "David S. Miller" <davem@davemloft.net>, James Morris <jmorris@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       dm-crypt@saout.de, cryptoapi@lists.logix.cz
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to	crypto_tfm
+References: <Xine.LNX.4.44.0502021728140.5000-100000@thoron.boston.redhat.com>	 <1107386909.19339.9.camel@ghanima>	 <20050202153449.1e92c29a.davem@davemloft.net> <1107390095.19339.26.camel@ghanima>
+In-Reply-To: <1107390095.19339.26.camel@ghanima>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050202024017.GA621@htj.dyndns.org>
-	 <20050202025538.GM621@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005 11:55:38 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> > 12_ide_hwgroup_t_polling.patch
-> >
-> >       ide_hwgroup_t.polling field added.  0 in poll_timeout field
-> >       used to indicate inactive polling but because 0 is a valid
-> >       jiffy value, though slim, there's a chance that something
-> >       weird can happen.
+Fruhwirth Clemens wrote:
 
-Is there really a possibility of something weird?
+ > Especially, if James ask me to redo Michal's conflicting patches
+ > (done btw), which are totally off-topic for me.
 
-I'm not claiming that I like this way of coding but poll_timeout
-is assigned either to '0' or to 'jiffies + WAIT_WORSTCASE'.
+Great, thanks! Has the interface for multiblock modules changed or 
+should my old modules work with it with no more effort?
 
-Bartlomiej
+Unfortulately I don't have a PadLock system running at the moment (it is 
+still somewhere down in a wooden box after my moving), but if you send 
+me the patch I could at least try to compile with my parts.
+
+Thanks for that!
+
+Michal Ludvig

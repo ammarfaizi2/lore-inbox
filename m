@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135170AbQL3VPR>; Sat, 30 Dec 2000 16:15:17 -0500
+	id <S135488AbQL3Vlt>; Sat, 30 Dec 2000 16:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135535AbQL3VPI>; Sat, 30 Dec 2000 16:15:08 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:35589 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S135170AbQL3VOv>; Sat, 30 Dec 2000 16:14:51 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200012302043.VAA10260@green.mif.pg.gda.pl>
-Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
-To: Frank.Olsen@stonesoft.com, neilb@cse.unsw.edu.au (Neil Brown)
-Date: Sat, 30 Dec 2000 21:43:56 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org (kernel list)
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S135508AbQL3Vlk>; Sat, 30 Dec 2000 16:41:40 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:58876 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S135488AbQL3VlX>;
+	Sat, 30 Dec 2000 16:41:23 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200012302110.eBULAgt04974@webber.adilger.net>
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <Pine.LNX.4.10.10012301214210.1017-100000@penguin.transmeta.com>
+ "from Linus Torvalds at Dec 30, 2000 12:21:50 pm"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Sat, 30 Dec 2000 14:10:41 -0700 (MST)
+CC: Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus writes:
+> In short, I don't see _those_ kinds of issues. I do see error reporting as
+> a major issue, though. If we need to do proper low-level block allocation
+> in order to get correct ENOSPC handling, then the win from doing deferred
+> writes is not very big.
 
-> On Friday December 29, Frank.Olsen@stonesoft.com wrote:
-> > Hi -- could you please CC me if you reply to this mail.
-> > 
-> > A:     /exports/A                                 - Redhat 7.0
-> > B1/B2: mount /exports/A on /export/A from A       - Redhat 6.2
-> > C:     mount /exports/A on /mnt/A from B1 or B2   - Redhat 6.2
-> > 
-> > I use knfsd/nfs-utils on each machine.
-> > 
-> > bash# ls /mnt/A
-> > /mnt/A/A.txt: No such file or directory
-> 
-> This is not a supported configuration.  You cannot export NFS mounted
-> filesystems with NFS. The protocol does not cope, and it
-> implementation doesn't even try.
-> NFS is for export local filesystems only.
+It should be relatively light-weight to call into the filesystem simply
+to allocate a "count" of blocks needed for the current file.  It may
+even be possible to do delayed inode allocation.  This would defer
+the inode/block bitmap searching/allocation on ext2 until the file
+was actually written - only the free_blocks/free_inodes count in the
+superblock would be decremented, and we would get ENOSPC immediately
+if we don't have enough space for the file.  On fsck, these values are
+recalculated from the group descriptors on ext2, so it wouldn't be a
+problem if the system crashed with pre-allocated blocks.
 
-As I understand problem is somewhere else.
-If this is intentionally unsupported configuration - OK. So why the error
-appears ? The directory should be empty then.
+It would definitely be a win on ext2 and XFS, and if it isn't possible
+on other filesystems, it should at least not be a loss.
 
-If the configuration is unsupported at the moment and the  A.txt file is
-located on A, some code that attempts to read re-exported files/directories
-should be turned off (eg. #if 0).
+We would need to ensure we also keep enough space for indirect blocks
+and such, so we need to pass more information than just the number of
+blocks added (i.e. how big the file already is).
 
-If the A.txt file is local for B1/B2 hosts, it is (IMHO) an obvious bug.
-Sucgh a file should be hidden at the act of mounting. For both local and
-remote access.
-
-Neil, could you tell us where the A.txt file is *really* located ?
-
-Regards 
-   Andrzej
-
-BTW. AFAIR, I observed similar behaviour (files are visible but
-     inaccessible) while mounting a local filesystem at a busy directory
-     (eg.: mount /dev/fd0 .;ls -l) even in 2.2...
-
+Cheers, Andreas
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265063AbSKJSxe>; Sun, 10 Nov 2002 13:53:34 -0500
+	id <S265065AbSKJS5M>; Sun, 10 Nov 2002 13:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265064AbSKJSxe>; Sun, 10 Nov 2002 13:53:34 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51462 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265063AbSKJSxd>; Sun, 10 Nov 2002 13:53:33 -0500
-Date: Sun, 10 Nov 2002 10:59:55 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: vojtech@ucw.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Voyager subarchitecture for 2.5.46
-In-Reply-To: <20021110163012.GB1564@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0211101050170.9581-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265066AbSKJS5M>; Sun, 10 Nov 2002 13:57:12 -0500
+Received: from mail.hometree.net ([212.34.181.120]:37249 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265065AbSKJS5L>; Sun, 10 Nov 2002 13:57:11 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
+Date: Sun, 10 Nov 2002 19:03:57 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aqmait$tmb$1@forge.intermeta.de>
+References: <Pine.LNX.4.44.0211091308250.10475-100000@montezuma.mastecende.com> <Pine.LNX.4.44.0211091044060.12487-100000@home.transmeta.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1036955037 30640 212.34.181.4 (10 Nov 2002 19:03:57 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 10 Nov 2002 19:03:57 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-On Sun, 10 Nov 2002, Pavel Machek wrote:
-> 
-> Unfortunately, this means "bye bye vsyscalls for gettimeofday".
 
-Not necessarily. All of the fastpatch and the checking can be done by the
-vsyscall, and if the vsyscall notices that there is a backwards jump in
-time it just gives up and does a real system call. The vsyscall does need
-to figure out the CPU it's running on somehow, but that should be solvable
-- indexing through the thread ID or something.
+> - a kernel compiled for TSC-only. This one simply will not _work_ without 
+>   a TSC, since it is statically compiled for the TSC case. Here, "notsc"
+>   simply cannot do anything, so it just prints a message saying that it 
+>   doesn't work.
 
-That said, I suspect that the real issue with vsyscalls is that they don't
-really make much sense. The only system call we've ever found that matters
-at all is gettimeofday(), and the vsyscall implementation there looks like
-a "cool idea, but doesn't really matter (and complicates things a lot)".
+IMHO, if you boot a "TSC-only" kernel on a machine without TSC, the correct
+answer should be 
 
-The system call overhead tends to scale up very well with CPU speed (the
-one esception being the P4 which just has some internal problems with "int
-0x80" and slowed down compared to a PIII).
+Panic: This kernel is compiled for TSC-only. No TSC found.
+Machine halted.
 
-So I would just suggest not spending a lot of effort on it, considering
-the problems it already has. 
+Same goes IMHO for "i686 on lower", "i586 on lower" and so on. 
 
-		Linus
+Everything else leads to strange effects and hard to decipher bug
+reports. If in doubt, boot i386 compiled kernel.
 
+	Regards
+		Henning
+
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

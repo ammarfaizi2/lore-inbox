@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbUJYMDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbUJYMLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbUJYMDg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 08:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbUJYMDg
+	id S261769AbUJYMLS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 08:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUJYMLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 08:03:36 -0400
-Received: from lucidpixels.com ([66.45.37.187]:33155 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261768AbUJYMDd (ORCPT
+	Mon, 25 Oct 2004 08:11:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:41961 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261769AbUJYMLQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 08:03:33 -0400
-Date: Mon, 25 Oct 2004 08:03:32 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Kernel 2.6.9 Page Allocation Failures w/TSO+rollup.patch
-In-Reply-To: <417CE49B.4060308@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0410250744440.9868@p500>
-References: <Pine.LNX.4.61.0410250645540.9868@p500> <417CE49B.4060308@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 25 Oct 2004 08:11:16 -0400
+Date: Mon, 25 Oct 2004 14:12:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041025121210.GA6555@elte.hu>
+References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417CDE90.6040201@cybsft.com> <20041025111046.GA3630@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041025111046.GA3630@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It does not cause any noticable problems that I know of, I guess it is 
-just a bit disturbing.
 
-> Anyway, how often are you getting the messages? 
-It depends what I am doing, sometimes they happen after 20-30 minutes, 
-othertimes it takes a day or two.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> How many ethernet cards in the system?
+> > >[ NOTE: there's one known bug in this release: selinux on one of my
+> > >testsystems broke, it hangs during bootup. With CONFIG_SECURITY disabled
+> > >it works fine. I'm working on the fix. So please keep CONFIG_SECURITY
+> > >disabled for the time being. ]
+> > >
+> > Does this include all models of security or just the selinux stuff?
+> 
+> i have only tried selinux. (which is installed/enabled by default on
+> FC3 so it's easy for me to test on an out of box distro.)
 
-There are 4 ethernet cards in the system.
-1) 3c905b (on-board)
-2) 3c905b (PCI)
-3) 3c900 Combo (PCI)
-4) Intel 82541GI/PI (PCI)
+i think i found the bug - now selinux boots fine. I've uploaded -V0.1
+with the fix included. This fix could solve a number of other complaints
+as well.
 
-> Can you run a kernel with sysrq support, and do `SysRq+M`
-> (close to when the allocation failure happens if possible, but
-> otherwise on a normally running system after it has been up
-> for a while). Then send in the dmesg.
-Ok, I will try this.
-
-On Mon, 25 Oct 2004, Nick Piggin wrote:
-
-> Justin Piszcz wrote:
->> I guess people who get this should just stick with 2.6.8.1?
->> 
->
-> Does it cause any noticable problems? If not, then stay with
-> 2.6.9.
->
-> However, it would be nice to get to the bottom of it. It might
-> just be happening by chance on 2.6.9 but not 2.6.8.1 though...
->
-> Anyway, how often are you getting the messages? How many
-> ethernet cards in the system?
->
-> Can you run a kernel with sysrq support, and do `SysRq+M`
-> (close to when the allocation failure happens if possible, but
-> otherwise on a normally running system after it has been up
-> for a while). Then send in the dmesg.
->
-> Thanks,
-> Nick
->
+	Ingo

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSJQMDX>; Thu, 17 Oct 2002 08:03:23 -0400
+	id <S261573AbSJQMXO>; Thu, 17 Oct 2002 08:23:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSJQMDS>; Thu, 17 Oct 2002 08:03:18 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:52229 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S261411AbSJQLgR>;
-	Thu, 17 Oct 2002 07:36:17 -0400
-Message-ID: <3DAEA20B.6040501@domdv.de>
-Date: Thu, 17 Oct 2002 13:42:03 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en
+	id <S261585AbSJQMXO>; Thu, 17 Oct 2002 08:23:14 -0400
+Received: from iris.mc.com ([192.233.16.119]:4286 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S261573AbSJQMXN>;
+	Thu, 17 Oct 2002 08:23:13 -0400
+Message-Id: <200210171229.IAA22940@mc.com>
+Content-Type: text/plain; charset=US-ASCII
+From: mbs <mbs@mc.com>
+To: linux-kernel@vger.kernel.org
+Subject: George Anzinger's high res timers and posix timers
+Date: Thu, 17 Oct 2002 08:34:55 -0400
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] 2.5.42: remove capable(CAP_SYS_RAWIO) check from
- open_kmem
-References: <3DA985E6.6090302@colorfullife.com>	<87adliuyp6.fsf@goat.bogus.local> <3DA99A8B.5050102@colorfullife.com>	<873crauw1m.fsf@goat.bogus.local> <3DA9A796.4070600@colorfullife.com> <87y992805n.fsf@goat.bogus.local>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>What about writing a small wrapper application that drops all
->>priveleges except CAP_RAWIO, switches to user to the user you want,
->>then execs the target application that needs to access /dev/kmem?
-> 
-> 
-> I just tried this, but I didn't succeed. :-(
-> 
-> 
->>Or store the capabilities in the filesystem, but I don't know which
->>filesystem supports that.
-> 
-> 
-> There's none so far.
-> 
+Linus (marcello too),
 
-Not exactly. Well, not really a filesystem. But there's already security 
-use of this feature you want to remove. Think LSM. Look at e.g. LIDS. Im 
-using this additional protection already under 2.4.x to prevent uid 0 
-processes to access /dev/mem and /dev/kmem where not explicitely 
-granted. Please, _don't_ remove the capability check because you don't 
-see any use for it as there _is_ already use for it.
+	please please please please apply George's patches.
 
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+	increasing HZ to 1000 is a painful hack that hurts us all in excange for a 
+very small benefit to a very limited set of services.
 
+	George's solution provides high res timers for those services and users that 
+want it without penalizing those who don't.
+
+	please please please.
+
+	if nothing else, put it in with default config to off.
+ 
+--	Mark Salisbury
+	

@@ -1,98 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129927AbRAKP26>; Thu, 11 Jan 2001 10:28:58 -0500
+	id <S129790AbRAKPhl>; Thu, 11 Jan 2001 10:37:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132138AbRAKP2t>; Thu, 11 Jan 2001 10:28:49 -0500
-Received: from pat.uio.no ([129.240.130.16]:22707 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S129927AbRAKP2i>;
-	Thu, 11 Jan 2001 10:28:38 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Compatibility issue with 2.2.19pre7
-In-Reply-To: <20010110013755.D13955@suse.de> <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk> <20010110163158.F19503@athlon.random>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 11 Jan 2001 16:28:28 +0100
-In-Reply-To: Andrea Arcangeli's message of "Wed, 10 Jan 2001 16:31:58 +0100"
-Message-ID: <shszogy2jmr.fsf@charged.uio.no>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
+	id <S129927AbRAKPhb>; Thu, 11 Jan 2001 10:37:31 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:16646 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129790AbRAKPhU>; Thu, 11 Jan 2001 10:37:20 -0500
+Date: Thu, 11 Jan 2001 16:37:03 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Daniel Phillips <phillips@innominate.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FS callback routines
+Message-ID: <20010111163703.A3000@pcep-jamie.cern.ch>
+In-Reply-To: <3A5A4958.CE11C79B@goingware.com> <3A5B0D0C.719E69F@innominate.de> <20010110115632.E30055@pcep-jamie.cern.ch> <3A5DC376.D9E5103F@innominate.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5DC376.D9E5103F@innominate.de>; from phillips@innominate.de on Thu, Jan 11, 2001 at 03:30:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
+Daniel Phillips wrote:
+>         DN_OPEN       A file in the directory was opened
+> 
+> You open the top level directory and register for events.  When somebody
+> opens a subdirectory of the top level directory, you receive
+> notification and register for events on the subdirectory, and so on,
+> down to the file that is actually modified.
 
-     > As far I can see the only reason size makes sense to be 32bit
-     > is to get some more strict behaviour in the below code (to
-     > avoid discarding the most significant 16bits in sanity checks
-     > like this):
+If it worked, and I'm not sure the timing would be reliable enough, the
+daemon would only have to have open every directory being accessed by
+every program in the system.  Hmm.  Seems like overkill when you're only
+interested in files that are being modified.
 
-     > nlm4_decode_fh(u32 *p, struct nfs_fh *f) {
-     >         memset(f->data, 0, sizeof(f->data));
-     >         f-> size = ntohl(*p++);
-     >         if (f->size > NFS_MAXFHSIZE) {
-     >                 printk(KERN_NOTICE
-     >                         "lockd: bad fhandle size %d (should be
-     >                         <=%d)\n",
-     >                         f-> size, NFS_MAXFHSIZE);
-     >                 return NULL;
-     >         }
-     >         memcpy(f->data, p, f->size);
-     >         return p + XDR_QUADLEN(f->size);
-     > }
+It would be much, much more reliable to do a walk over d_parent in
+dnotify.c.  Your idea is a nice way to flag kernel dentries such that
+you don't do d_parent walks unnecessarily.
 
-I agree, and if that's the only problem, then the appended patch will
-fix it without any need to change struct nfs_fh.
-
-As for the issue of casting 'fh->data' as a 'struct knfsd' then that
-is a perfectly valid operation.
-The fh->data is a cookie as far as the client is concerned, and hence
-it will pass back exactly whatever the server sent it (alignment and
-all).
-
-IOW: the knfsd server copied a struct knfsd and sent it off to the
-client, and now the exact same server is receiving a completely
-unadulterated version of said struct knfsd for use by the lockd server
-routines.
-Unless somebody is using one compiler for the knfsd directory and then
-a completely different one for lockd, I fail to see why this should
-result in structure alignment problems on PPC or on any other
-platform.
-
-Cheers,
-   Trond
-
-
-
-
-
---- fs/lockd/xdr4.c.orig	Thu Jan 11 15:52:44 2001
-+++ fs/lockd/xdr4.c	Thu Jan 11 15:53:37 2001
-@@ -83,16 +83,19 @@
- static u32 *
- nlm4_decode_fh(u32 *p, struct nfs_fh *f)
- {
-+	unsigned int size;
-+
- 	memset(f->data, 0, sizeof(f->data));
--	f->size = ntohl(*p++);
--	if (f->size > NFS_MAXFHSIZE) {
-+	size = ntohl(*p++);
-+	if (size > NFS_MAXFHSIZE) {
- 		printk(KERN_NOTICE
- 			"lockd: bad fhandle size %x (should be %d)\n",
--			f->size, NFS_MAXFHSIZE);
-+			size, NFS_MAXFHSIZE);
- 		return NULL;
- 	}
--      	memcpy(f->data, p, f->size);
--	return p + XDR_QUADLEN(f->size);
-+	f->size = size;
-+      	memcpy(f->data, p, size);
-+	return p + XDR_QUADLEN(size);
- }
- 
- static u32 *
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

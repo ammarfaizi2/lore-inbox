@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbRERXKK>; Fri, 18 May 2001 19:10:10 -0400
+	id <S261600AbRERXdx>; Fri, 18 May 2001 19:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbRERXJ7>; Fri, 18 May 2001 19:09:59 -0400
-Received: from [203.36.158.121] ([203.36.158.121]:15364 "EHLO
-	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
-	id <S261599AbRERXJs>; Fri, 18 May 2001 19:09:48 -0400
-Date: Sat, 19 May 2001 09:09:39 +1000
-From: Daniel Stone <daniel@kabuki.openfridge.net>
-To: mirabilos <eccesys@topmail.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CML 1 is ok
-Message-ID: <20010519090939.A675@kabuki.openfridge.net>
-Mail-Followup-To: mirabilos <eccesys@topmail.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010518220028.B139BA5AD65@www.topmail.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010518220028.B139BA5AD65@www.topmail.de>; from eccesys@topmail.de on Sat, May 19, 2001 at 12:00:28AM +0200
-Organisation: Sadly lacking
+	id <S261601AbRERXdn>; Fri, 18 May 2001 19:33:43 -0400
+Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:49778
+	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
+	id <S261600AbRERXdk>; Fri, 18 May 2001 19:33:40 -0400
+Message-ID: <3B05B152.3000904@fugmann.dhs.org>
+Date: Sat, 19 May 2001 01:33:38 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac9 i686; en-US; rv:0.9+) Gecko/20010513
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Q: procfs entry.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 12:00:28AM +0200, mirabilos wrote:
-> netfilter: I _liked_ ipfwadm
-> because I hate to always re-learn when a new kernel comes out.
+Hi again.
 
-Netfilter is going to stay. Rusty knew from early on in ipchains development
-that the whole concept was wrong, but Alan told him to continue on, get it
-into 2.2, and then do a new one for 2.4. There's a document detailing this
-somewhere, I just can't forget where.
+I have a question about the function parsed for reading a procfs entry.
 
-> our company will soon ship a product still using ipfwadm (I
-> started with 2.0.33, going to .36 and 2.4.0-testX).
-> It's a pity this M$ism to not support it forever (they just
-> stopped supporting DOS! and GW-BASIC *snief*)
+I've used the skeleton from drivers/char/misc.c, and all works 
+perfectly, but I see a potential flaw.
 
-This is entirely incorrect and FUD. If enable Netfilter, look in the
-Netfilter options, disable conntrack and IP tables support, you have
-(*gasp!*) ipchains compatability, as well as (*ohmygod!*) ipfwadm
-compatability.
- 
-> -mirabilos
-> 
-> PS: Don't answer plz as I'll be offline for a time.
->     _And_ I mean this honest, even it might considered sp.m
 
-The FUD has to be corrected.
 
--- 
-Daniel Stone
-daniel@kabuki.openfridge.net
+static int misc_read_proc(char *buf, char **start, off_t offset,
+                           int len, int *eof, void *private)
+{
+.
+.
+	written=0;
+         for (p = misc_list.next; p != &misc_list && written < len;
+		p = p->next) {
+
+                 written += sprintf(buf+written, "%3i %s\n",p->minor,
+			p->name ?: "");
+                 if (written < offset) {
+                         offset -= written;
+                         written = 0;
+                 }
+         }
+.
+.
+
+
+As I see it, there is a possibility to write beyond buf+len.
+(if len<5)
+If so is it ok, or should this be avoided at all cost?
+
+TIA
+Anders Fugmann
+
+
+

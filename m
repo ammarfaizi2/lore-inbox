@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293510AbSDMTVB>; Sat, 13 Apr 2002 15:21:01 -0400
+	id <S293276AbSDMT0X>; Sat, 13 Apr 2002 15:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293596AbSDMTVA>; Sat, 13 Apr 2002 15:21:00 -0400
-Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:4736 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S293510AbSDMTU7>;
-	Sat, 13 Apr 2002 15:20:59 -0400
-Date: Sat, 13 Apr 2002 12:21:05 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.16] Clock locking bugs?
-Message-ID: <20020413192105.GA853@netnation.com>
-In-Reply-To: <20020114180215.GA20200@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S293596AbSDMT0X>; Sat, 13 Apr 2002 15:26:23 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20107 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S293276AbSDMT0W>; Sat, 13 Apr 2002 15:26:22 -0400
+Date: Sat, 13 Apr 2002 13:26:16 -0600
+Message-Id: <200204131926.g3DJQGI06532@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: RAID superblock confusion
+In-Reply-To: <15540.59659.114876.390224@notabene.cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hrm...Just had this happen on my dual celeron desktop, exactly the same
-problem.  Kernel 2.5.7.  Everything I typed in an rxvt was one character
-lagged. :)
+Neil Brown writes:
+> On Wednesday April 10, rgooch@ras.ucalgary.ca wrote:
+> > 
+> > The device is set up (i.e. SCSI host driver is loaded) long before I
+> > do raidstart /dev/md/0
+> 
+> raidstart simply does not and cannot work reliably when your device
+> numbers change around.  It takes the first device listed in
+> /etc/raidtab and gives it to the kernel.
+> The kernel reads the superblock, finds some device numbers and tries
+> to attach those devices.  If device number have changed, you loose.
 
-Simon-
+Sounds to me like the flaw is in the ioctl(2) interface, in that it
+doesn't allow passing all the block devices in the RAID set. If it
+allowed you to pass all the block devices, then it could check if all
+the signatures on each block device match.
 
-On Mon, Jan 14, 2002 at 10:02:15AM -0800, Simon Kirby wrote:
+I tried the alternative of setting persistent-superblock=0 in
+/etc/raidtab, but the stupid thing complained because it found a
+superblock. Sigh.
 
-> Just had a server's clock stop at 9:02:30am.  Very interesting
-> results:
-> 
-> [sroot@pro:/]# cat /proc/interrupts
->            CPU0       CPU1       
->   0:  172839353  172896882    IO-APIC-edge  timer
->   1:        578        522    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   4:      22002      21840    IO-APIC-edge  serial
->  10:  581309135  580556518   IO-APIC-level  eth0
->  12:   63077142   63023533   IO-APIC-level  aic7xxx
-> NMI:          0          0 
-> LOC:  345979794  345980089 
-> ERR:          0
-> MIS:          0
-> 
-> ...
-> 
-> [sroot@pro:/]# cat /proc/interrupts
->            CPU0       CPU1       
->   0:  172839353  172896882    IO-APIC-edge  timer
->   1:        578        522    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   4:      22002      21840    IO-APIC-edge  serial
->  10:  581309219  580556518   IO-APIC-level  eth0
->  12:   63077142   63023533   IO-APIC-level  aic7xxx
-> NMI:          0          0 
-> LOC:  345979883  345980178 
-> ERR:          0
-> MIS:          0
-> 
-> Alan says this is due to locking problems with the timer I/O code. 
-> 
-> On the console were a lot of "set_rtc_mmss: can't update from 79 to 32"
-> type messages that have always happened on SMP kernels with ntpd.
-> 
-> Has anybody created any patches for this?
-> 
-> Simon-
-> 
-> [  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-> [       sim@stormix.com       ][       sim@netnation.com        ]
-> [ Opinions expressed are not necessarily those of my employers. ]
+If there was only a "do as I say, regardless" mode, I would be happy.
+This programmer-knows-best attitude smacks of M$.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

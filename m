@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266167AbUF3GsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUF3HDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUF3GsR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 02:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUF3GsQ
+	id S266155AbUF3HDr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 03:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUF3HDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 02:48:16 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:35676 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266167AbUF3GsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 02:48:09 -0400
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: s390(64) per_cpu in modules (ipv6)
-X-Message-Flag: Warning: May contain useful information
-References: <20040629233537.523db68c@lembas.zaitcev.lan>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 29 Jun 2004 23:46:08 -0700
-In-Reply-To: <20040629233537.523db68c@lembas.zaitcev.lan> (Pete Zaitcev's
- message of "Tue, 29 Jun 2004 23:35:37 -0700")
-Message-ID: <528ye5lf0v.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Wed, 30 Jun 2004 03:03:47 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:36764 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266155AbUF3HDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 03:03:46 -0400
+Message-ID: <40E265CF.9040307@yahoo.com.au>
+Date: Wed, 30 Jun 2004 17:03:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 Jun 2004 06:46:08.0376 (UTC) FILETIME=[EC65D780:01C45E6D]
+To: "Christopher S. Aker" <caker@theshore.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4 and 2.6.7 page allocation failure / e1000 related ?
+References: <003c01c45e6b$a2323ed0$0201a8c0@hawk>
+In-Reply-To: <003c01c45e6b$a2323ed0$0201a8c0@hawk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Pete> It seems to work fine, but I'm wondering if a better fix can
-    Pete> be found.  Ideas?
+Christopher S. Aker wrote:
+> Hello,
+> 
+> I've had this appear in dmesg a few times on a number of different systems, all
+> identical hardware: SuperMicro 6013P-i dual Xeon, with 4GB of RAM, built-in e1000
+> NICs connected via 100Mbit switch.
+> 
+> It doesn't appear to cause any ill effects.  I haven't provided all the variations
+> of the messages, but the consistent thing between them are the e1000_* calls.
+> This isn't an OOM situation, the machines are only a handful of MB into swap (if
+> that).
+> 
 
-Not sure if it will work (and I don't have an s390 toolchain handy!)
-but this (static variable used only by asm) seems to be exactly the
-situation that __attribute_used__ is intended for.
+It shouldn't cause any problems, although an order 0 failure
+shouldn't be happening often.
 
- - Roland
+It is possible we want to increase /proc/sys/vm/min_free_kbytes
+a bit, or increase the amount of extra memory a __GFP_HIGH
+allocation can get access to.
 
+You could try the increasing former and see if that helps.

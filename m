@@ -1,442 +1,357 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264919AbSKUWCi>; Thu, 21 Nov 2002 17:02:38 -0500
+	id <S264857AbSKUWAy>; Thu, 21 Nov 2002 17:00:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264920AbSKUWCi>; Thu, 21 Nov 2002 17:02:38 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:5068 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S264919AbSKUWCN>;
-	Thu, 21 Nov 2002 17:02:13 -0500
-Message-ID: <003701c291aa$a3b28a10$94d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: "Patrick Mochel" <mochel@osdl.org>,
-       "Rusty Lynch" <rusty@linux.co.intel.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0211211352100.913-200000@localhost.localdomain>
-Subject: Re: [BUG] sysfs on 2.5.48 unable to remove files while in use
-Date: Thu, 21 Nov 2002 14:07:00 -0800
+	id <S264907AbSKUWAx>; Thu, 21 Nov 2002 17:00:53 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:37342 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S264857AbSKUWAt>; Thu, 21 Nov 2002 17:00:49 -0500
+Message-ID: <3DDD58C1.9020503@unix-os.sc.intel.com>
+Date: Thu, 21 Nov 2002 14:05:53 -0800
+From: Rohit Seth <rseth@unix-os.sc.intel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       torvalds@transmeta.com, rohit.seth@intel.com
+Subject: hugetlb page patch for 2.5.48-bug fixes
+Content-Type: multipart/mixed;
+ boundary="------------080100060507020703050208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Ok, I've had a chance to play with it a bit..
->
-> The kprobes patch didn't apply to current -bk. Attached is an updated
-> patch. I also have some comments on your 'noisy' patch, but first..
->
+This is a multi-part message in MIME format.
+--------------080100060507020703050208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Very cool.  Bitkeeper is one of those things I never bothered
-with yet (mainly because I feel some comfortable with CVS.)
-It looks like it might be worth going through ramp-up time
-on bk to keep up with changes to the kernel.
+Linus, Andrew,
 
-> > I can see this with a little kprobes example code that I have
-> > been playing with that will create entries like:
-> >
-> > /sysfsroot/noisy/0xc0107ae0/sys_fork
-> >
-> > when someone uses that driver to insert a kernel probe
-> > at 0xc0107ae0 that will printk "sys_fork".
->
-> It seems that having a pure sysfs implementation would be superior,
-> instead of having to use a character device to write to. After looking
-> into this, I realize that a couple of pieces of infrastructure are needed,
-> so I'm working on that, and will post a modified version of your module
-> once I'm done..
+Attached is the hugetlbpage patch for 2.5.48 containing following main 
+changes:
 
-I look forward to seeing it.
+1) Bug fixes (mainly in the unsuccessful attempts of hugepages).
+2) Removal of Radix Tree field in key structure (as it is not needed).
+3) Include the IPC_LOCK for permission to use hugepages.
+4) Increment the key_counts during forks.
 
->
-> > What I have noticed, is that if I create a new probe
-> > (which will create the sysfs entry), open a new shell and
-> > cd to /sysfsroot/noisy/0xc0107ae0, and then use my
-> > driver to remove the probe (which will remove the
-> > sysfs entry), then /sysfsroot/noisy/0xc0107ae0 doesn't
-> > go away after I cd out of the shell.
-> >
-> > >From then on any attempts to create new sysfs entries
-> > do not show up in /sysfsroot/ until I unload/load my driver
-> > again.
-> >
-> > It seems like this could be an issue with some real code
-> > (not just this stupid play code of mine), like maybe hotswap
-> > code that updates sysfs entries.
->
-> Yes, it was a real bug. I've mucked with the method to do file and
-> directory deletion, and it turns out that the way I was doing it was
-> wrong. I've gone back to mimmicking vfs_unlink() and vfs_rmdir(), which I
-> shouldn't have diverged from in the first place. (doing d_delete() after
-> low-level unlinking, instead of d_invalidate() before it).
->
-> Appended to this email is my current working patch to sysfs, including
-> fixes discussed and posted yesterday. I've pushed these to Linus, though
-> he appears to be away. I'll push again, with this fix in the next day or
-> so.
->
-> Please try this patch and let me know if you still experience the problem
-> you're seeing.
->
-It looks like the patch is against the bk tree, and does not apply cleanly
-to
-strait 2.5.48.  I don't know how much has changed to sysfs/inode.c, but
-I can see where the last hunk is looking too far up, so I'll try it anyway.
+thanks,
+rohit
 
-In the meantime I'll be grabbing bk so I can see what everyone is looking
-at.
 
-> Concerning your patch:
 
-Thanks for taking the time to look at my module.  The reason I created
-it was to get familiar with the 2.5 kernel, so this feedback is very
-helpful.
+--------------080100060507020703050208
+Content-Type: text/plain;
+ name="patch2548.1121"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch2548.1121"
 
-I'll take a stab at the changes.
+--- linux-2.5.48/include/linux/hugetlb.h	Sun Nov 17 20:29:45 2002
++++ linux-2.5.48.work//include/linux/hugetlb.h	Thu Nov 21 11:49:57 2002
+@@ -4,7 +4,17 @@
+ #ifdef CONFIG_HUGETLB_PAGE
+ 
+ struct ctl_table;
+-struct hugetlb_key;
++struct hugetlb_key {
++	struct page *root;
++	loff_t size;
++	atomic_t count;
++	spinlock_t lock;
++	int key;
++	int busy;
++	uid_t uid;
++	gid_t gid;
++	umode_t mode;
++};
+ 
+ static inline int is_vm_hugetlb_page(struct vm_area_struct *vma)
+ {
+--- linux-2.5.48/arch/i386/mm/hugetlbpage.c	Sun Nov 17 20:29:55 2002
++++ linux-2.5.48.work/arch/i386/mm/hugetlbpage.c	Thu Nov 21 12:12:18 2002
+@@ -19,6 +19,8 @@
+ #include <asm/tlb.h>
+ #include <asm/tlbflush.h>
+ 
++#include <linux/sysctl.h>
++
+ static long    htlbpagemem;
+ int     htlbpage_max;
+ static long    htlbzone_pages;
+@@ -29,18 +31,6 @@
+ 
+ #define MAX_ID 	32
+ 
+-struct hugetlb_key {
+-	struct radix_tree_root tree;
+-	atomic_t count;
+-	spinlock_t lock;
+-	int key;
+-	int busy;
+-	uid_t uid;
+-	gid_t gid;
+-	umode_t mode;
+-	loff_t size;
+-};
+-
+ static struct hugetlb_key htlbpagek[MAX_ID];
+ 
+ static void mark_key_busy(struct hugetlb_key *hugetlb_key)
+@@ -81,7 +71,7 @@
+ 		spin_lock(&htlbpage_lock);
+ 		hugetlb_key = find_key(key);
+ 		if (!hugetlb_key) {
+-			if (!capable(CAP_SYS_ADMIN) || !in_group_p(0))
++			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_IPC_LOCK) && !in_group_p(0))
+ 				hugetlb_key = ERR_PTR(-EPERM);
+ 			else if (!(flag & IPC_CREAT))
+ 				hugetlb_key = ERR_PTR(-ENOENT);
+@@ -96,7 +86,7 @@
+ 					hugetlb_key = &htlbpagek[i];
+ 					mark_key_busy(hugetlb_key);
+ 					hugetlb_key->key = key;
+-					INIT_RADIX_TREE(&hugetlb_key->tree, GFP_ATOMIC);
++					hugetlb_key->root = NULL;
+ 					hugetlb_key->uid = current->fsuid;
+ 					hugetlb_key->gid = current->fsgid;
+ 					hugetlb_key->mode = prot;
+@@ -107,7 +97,6 @@
+ 			hugetlb_key = ERR_PTR(-EAGAIN);
+ 			spin_unlock(&htlbpage_lock);
+ 		} else if (check_size_prot(hugetlb_key, len, prot, flag) < 0) {
+-			hugetlb_key->key = 0;
+ 			hugetlb_key = ERR_PTR(-EINVAL);
+ 		} 
+ 	} while (hugetlb_key == ERR_PTR(-EAGAIN));
+@@ -120,7 +109,10 @@
+ {
+ 	unsigned long index;
+ 	unsigned long max_idx;
++	struct page *page, *prev;
+ 
++	if (key == NULL)
++		return;
+ 	if (!atomic_dec_and_test(&key->count)) {
+ 		spin_lock(&htlbpage_lock);
+ 		clear_key_busy(key);
+@@ -129,16 +121,19 @@
+ 	}
+ 
+ 	max_idx = (key->size >> HPAGE_SHIFT);
++	page = key->root;
+ 	for (index = 0; index < max_idx; ++index) {
+-		struct page *page = radix_tree_lookup(&key->tree, index);
+ 		if (!page)
+ 			continue;
+-		huge_page_release(page);
++		prev = page;
++		page = (struct page *)page->private;
++		prev->private = 0UL;
++		huge_page_release(prev);
+ 	}
+ 	spin_lock(&htlbpage_lock);
+ 	key->key = 0;
+ 	clear_key_busy(key);
+-	INIT_RADIX_TREE(&key->tree, GFP_ATOMIC);
++	key->root = NULL;
+ 	spin_unlock(&htlbpage_lock);
+ }
+ 
+@@ -247,7 +242,7 @@
+ 		vma->vm_end = end;
+ 	}
+ 	spin_unlock(&mm->page_table_lock);
+-      out_error1:
++out_error1:
+ 	return -1;
+ }
+ 
+@@ -259,7 +254,10 @@
+ 	struct page *ptepage;
+ 	unsigned long addr = vma->vm_start;
+ 	unsigned long end = vma->vm_end;
++	struct hugetlb_key *key = vma->vm_private_data;
+ 
++	if ( key )
++		atomic_inc(&key->count);
+ 	while (addr < end) {
+ 		dst_pte = huge_pte_alloc(dst, addr);
+ 		if (!dst_pte)
+@@ -352,6 +350,8 @@
+ 	spin_unlock(&htlbpage_lock);
+ 	for (address = start; address < end; address += HPAGE_SIZE) {
+ 		pte = huge_pte_offset(mm, address);
++		if (pte_none(*pte))
++			continue;
+ 		page = pte_page(*pte);
+ 		huge_page_release(page);
+ 		pte_clear(pte);
+@@ -381,25 +381,10 @@
+ 	return 0;
+ }
+ 
+-struct page *key_find_page(struct hugetlb_key *key, unsigned long index)
+-{
+-	struct page *page = radix_tree_lookup(&key->tree, index);
+-	if (page)
+-		get_page(page);
+-	return page;
+-}
+-
+-int key_add_page(struct page *page, struct hugetlb_key *key, unsigned long index)
+-{
+-	int error = radix_tree_insert(&key->tree, index, page);
+-	if (!error)
+-		get_page(page);
+-	return error;
+-}
+-
+-static int prefault_key(struct hugetlb_key *key, struct vm_area_struct *vma)
++static int prefault_key(struct hugetlb_key *key, struct vm_area_struct *vma, unsigned long *temp)
+ {
+ 	struct mm_struct *mm = current->mm;
++	struct page *page, *prev;
+ 	unsigned long addr;
+ 	int ret = 0;
+ 
+@@ -408,21 +393,18 @@
+ 
+ 	spin_lock(&mm->page_table_lock);
+ 	spin_lock(&key->lock);
++	prev = page = key->root;
+ 	for (addr = vma->vm_start; addr < vma->vm_end; addr += HPAGE_SIZE) {
+-		unsigned long idx;
+ 		pte_t *pte = huge_pte_alloc(mm, addr);
+-		struct page *page;
+ 
+ 		if (!pte) {
++			spin_unlock(&key->lock);
+ 			ret = -ENOMEM;
+ 			goto out;
+ 		}
+ 		if (!pte_none(*pte))
+ 			continue;
+ 
+-		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
+-			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
+-		page = key_find_page(key, idx);
+ 		if (!page) {
+ 			page = alloc_hugetlb_page();
+ 			if (!page) {
+@@ -430,13 +412,20 @@
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
+-			key_add_page(page, key, idx);
++			if (key->root == NULL)
++				key->root = page;
++			else
++				prev->private = (unsigned long)page;
+ 		}
++		get_page(page);
+ 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
++		prev = page;
++		page = (struct page *)page->private;
+ 	}
+ 	spin_unlock(&key->lock);
+ out:
+ 	spin_unlock(&mm->page_table_lock);
++	*temp = addr;
+ 	return ret;
+ }
+ 
+@@ -446,6 +435,7 @@
+ 	struct vm_area_struct *vma;
+ 	struct hugetlb_key *hugetlb_key;
+ 	int retval = -ENOMEM;
++	unsigned long temp;
+ 
+ 	hugetlb_key = alloc_key(key, len, prot, flag );
+ 	spin_unlock(&htlbpage_lock);
+@@ -455,17 +445,18 @@
+ 	addr = do_mmap_pgoff(NULL, addr, len, (unsigned long) prot,
+ 			MAP_NORESERVE|MAP_FIXED|MAP_PRIVATE|MAP_ANONYMOUS, 0);
+ 	if (IS_ERR((void *) addr))
+-		goto out_release;
++		goto out;
+ 
+ 	vma = find_vma(mm, addr);
+ 	if (!vma) {
+ 		retval = -EINVAL;
+-		goto out_release;
++		goto out;
+ 	}
+ 
+-	retval = prefault_key(hugetlb_key, vma);
++	retval = prefault_key(hugetlb_key, vma, &temp);
++	addr = temp;
+ 	if (retval)
+-		goto out;
++		goto out_release;
+ 
+ 	vma->vm_flags |= (VM_HUGETLB | VM_RESERVED);
+ 	vma->vm_ops = &hugetlb_vm_ops;
+@@ -474,7 +465,7 @@
+ 	clear_key_busy(hugetlb_key);
+ 	spin_unlock(&htlbpage_lock);
+ 	return retval;
+-out:
++out_release:
+ 	if (addr > vma->vm_start) {
+ 		unsigned long raddr;
+ 		raddr = vma->vm_end;
+@@ -482,10 +473,8 @@
+ 		zap_hugepage_range(vma, vma->vm_start, vma->vm_end - vma->vm_start);
+ 		vma->vm_end = raddr;
+ 	}
+-	spin_lock(&mm->page_table_lock);
+ 	do_munmap(mm, vma->vm_start, len);
+-	spin_unlock(&mm->page_table_lock);
+-out_release:
++out:
+ 	hugetlb_release_key(hugetlb_key);
+ 	return retval;
+ }
+@@ -533,10 +522,8 @@
+ 
+ static int alloc_private_hugetlb_pages(int key, unsigned long addr, unsigned long len, int prot, int flag)
+ {
+-	if (!capable(CAP_SYS_ADMIN)) {
+-		if (!in_group_p(0))
+-			return -EPERM;
+-	}
++	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_IPC_LOCK) && !in_group_p(0))
++		return -EPERM;
+ 	addr = do_mmap_pgoff(NULL, addr, len, prot,
+ 			MAP_NORESERVE|MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, 0);
+ 	if (IS_ERR((void *) addr))
+--- linux-2.5.48/arch/i386/kernel/sys_i386.c	Sun Nov 17 20:29:56 2002
++++ linux-2.5.48.work/arch/i386/kernel/sys_i386.c	Thu Nov 21 12:01:08 2002
+@@ -294,17 +294,17 @@
+ {
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+-	struct hugetlb_key *key;
+ 	int retval;
+ 
+-	vma = find_vma(current->mm, addr);
+-	if (!vma || !(vma->vm_flags & VM_HUGETLB) || vma->vm_start != addr)
+-		return -EINVAL;
+ 	down_write(&mm->mmap_sem);
+-	key = (struct hugetlb_key *)vma->vm_private_data;
++	vma = find_vma(current->mm, addr);
++	if (!vma || !(vma->vm_flags & VM_HUGETLB) || vma->vm_start != addr) {
++		retval =  -EINVAL;
++		goto out;
++	}
+ 	retval = do_munmap(vma->vm_mm, addr, vma->vm_end - addr);
++out:
+ 	up_write(&mm->mmap_sem);
+-	hugetlb_release_key(key);
+ 	return retval;
+ }
+ #else
 
->
-> > +config NOISY
->
-> 'Noisy' seems like such a generic name, and the description doesn't seem
-> to imply its dependence on kprobes. Maybe KPROBES_NOISY? And, you should
-> put it under KPROBES, under DEBUG_KERNEL.
->
-
-yea, I don't put much thought into a name, or where would show up
-in the config.  I'll change it.
-
-> > diff -urN linux-2.5.48-kprobes/drivers/char/noisy.c
-> > linux-2.5.48-kprobes-patched/drivers/char/noisy.c
->
-> > +static struct list_head probe_list;
-> > +struct nprobe {
-> > + struct list_head list;
-> > + struct kprobe probe;
-> > + char message[MAX_MSG_SIZE + 1];
-> > + struct attribute attr;
-> > + struct kobject kobj;
-> > +};
->
-> struct subsystem has a list, and kobject and entry, so you don't have to
-> do it yourself..
->
-> > +static ssize_t noisy_write(struct file *file, const char *buf, size_t
-> > count,
-> > +    loff_t *ppos)
-> > +{
-> > + struct nprobe *n = 0;
-> > + size_t ret = -ENOMEM;
-> > + char *tmp = 0;
-> > +
-> > + if (count > MAX_MSG_SIZE) {
-> > + printk(KERN_CRIT
-> > +        "noisy: Input buffer (%i bytes) is too big!\n",
-> > +        count);
-> > + ret = -EINVAL;
-> > + goto out;
-> > + }
-> > +
-> > + tmp = kmalloc(count + 1, GFP_KERNEL);
-> > + if (!tmp) {
-> > + ret = -ENOMEM;
-> > + goto out;
-> > + }
->
-> This should be memset to 0.
->
-> > + n = kmalloc(sizeof(struct nprobe), GFP_KERNEL);
-> > + if (!n) {
-> > + ret = -ENOMEM;
-> > + goto out;
-> > + }
-> > + memset(n, '\0', sizeof(struct nprobe));
-> > +
-> > + if (copy_from_user((void *)tmp, (void *)buf, count)) {
-> > + ret = -ENOMEM;
-> > + goto out;
-> > + }
-> > + tmp[count] = '\0';
-> > +
-> > + if (2 != sscanf(tmp, "0x%x %s", &(n->probe).addr, n->message)) {
-> > + ret = -EINVAL;
-> > + goto out;
-> > + }
->
-> You don't free n if you get an error from copy_from_user() or sscanf().
->
-> > + (n->attr).name = n->message;
-> > + (n->attr).mode = S_IRUGO;
->
-> Instead of doing this, you should just declare a static attribute called
-> 'message' and have the contents be the message. This will save you from
-> initializing it each time, and save you 4 bytes in struct nprobe.
-> Something like this should work:
->
->
-> struct noisy_attribute {
-> struct attribute attr;
-> ssize_t (*read)(struct nprobe *,char *,size_t,loff_t);
-> };
->
-> static ssize_t noisy_attr_show(struct kobject * kobj, struct attribute *
-> attr,
->        char * page, size_t count, loff_t off)
-> {
-> struct nprobe * n = container_of(kobj,struct nprobe,kobj);
-> struct noisy_attribute * noisy_attr = container_of(attr,struct
-> noisy_attribute,attr);
-> ssize_t ret = 0;
-> return noisy_attr->show ? noisy_attr->show(n,page,count,off);
-> }
->
-> static struct sysfs_ops noisy_sysfs_ops = {
-> .show = noisy_attr_show,
-> };
->
->
-> /* Default Attribute */
-> static ssize_t noisy_message_read(struct nprobe * n, char * page, size_t
-> count, loff_t off)
-> {
-> return off ? snprintf(page,MAX_MSG_SIZE,"%s",n->message);
-> }
->
-> static struct noisy_attribute attr_message = {
-> .attr = { .name = "message", .mode = S_IRUGO },
-> };
->
-> static struct attribute * default_attrs[] = {
-> &attr_message.attr,
-> NULL,
-> };
->
-> /*
->  * sysfs stuff
->  */
->
-> struct subsystem noisy_subsys = {
-> .kobj = { .name = "noisy" },
-> .default_attrs = default_attrs,
-> .sysfs_ops = noisy_sysfs_ops,
-> };
->
->
-> Note that this will also save you from manually having to create and
-> teardown the file when the kobject is registered and unregistered.
->
->
-> -pat
->
-> --- linux-2.5-virgin/fs/sysfs/inode.c Wed Nov 20 12:13:06 2002
-> +++ linux-2.5-core/fs/sysfs/inode.c Thu Nov 21 13:51:32 2002
-> @@ -23,6 +23,8 @@
->   * Please see Documentation/filesystems/sysfs.txt for more information.
->   */
->
-> +#undef DEBUG
-> +
->  #include <linux/list.h>
->  #include <linux/init.h>
->  #include <linux/pagemap.h>
-> @@ -94,9 +96,10 @@
->
->   if (!dentry->d_inode) {
->   inode = sysfs_get_inode(dir->i_sb, mode, dev);
-> - if (inode)
-> + if (inode) {
->   d_instantiate(dentry, inode);
-> - else
-> + dget(dentry);
-> + } else
->   error = -ENOSPC;
->   } else
->   error = -EEXIST;
-> @@ -142,17 +145,6 @@
->   return error;
->  }
->
-> -static int sysfs_unlink(struct inode *dir, struct dentry *dentry)
-> -{
-> - struct inode *inode = dentry->d_inode;
-> - down(&inode->i_sem);
-> - dentry->d_inode->i_nlink--;
-> - up(&inode->i_sem);
-> - d_invalidate(dentry);
-> - dput(dentry);
-> - return 0;
-> -}
-> -
->  /**
->   * sysfs_read_file - read an attribute.
->   * @file: file pointer.
-> @@ -173,17 +165,11 @@
->  sysfs_read_file(struct file *file, char *buf, size_t count, loff_t *ppos)
->  {
->   struct attribute * attr = file->f_dentry->d_fsdata;
-> - struct sysfs_ops * ops = NULL;
-> - struct kobject * kobj;
-> + struct sysfs_ops * ops = file->private_data;
-> + struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
->   unsigned char *page;
->   ssize_t retval = 0;
->
-> - kobj = file->f_dentry->d_parent->d_fsdata;
-> - if (kobj && kobj->subsys)
-> - ops = kobj->subsys->sysfs_ops;
-> - if (!ops || !ops->show)
-> - return 0;
-> -
->   if (count > PAGE_SIZE)
->   count = PAGE_SIZE;
->
-> @@ -234,16 +220,11 @@
->  sysfs_write_file(struct file *file, const char *buf, size_t count, loff_t
-*ppos)
->  {
->   struct attribute * attr = file->f_dentry->d_fsdata;
-> - struct sysfs_ops * ops = NULL;
-> - struct kobject * kobj;
-> + struct sysfs_ops * ops = file->private_data;
-> + struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
->   ssize_t retval = 0;
->   char * page;
->
-> - kobj = file->f_dentry->d_parent->d_fsdata;
-> - if (kobj && kobj->subsys)
-> - ops = kobj->subsys->sysfs_ops;
-> - if (!ops || !ops->store)
-> - return -EINVAL;
->
->   page = (char *)__get_free_page(GFP_KERNEL);
->   if (!page)
-> @@ -275,21 +256,72 @@
->   return retval;
->  }
->
-> -static int sysfs_open_file(struct inode * inode, struct file * filp)
-> +static int check_perm(struct inode * inode, struct file * file)
->  {
-> - struct kobject * kobj;
-> + struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
-> + struct attribute * attr = file->f_dentry->d_fsdata;
-> + struct sysfs_ops * ops = NULL;
->   int error = 0;
->
-> - kobj = filp->f_dentry->d_parent->d_fsdata;
-> - if ((kobj = kobject_get(kobj))) {
-> - struct attribute * attr = filp->f_dentry->d_fsdata;
-> - if (!attr)
-> - error = -EINVAL;
-> - } else
-> - error = -EINVAL;
-> + if (!kobj || !attr)
-> + goto Einval;
-> +
-> + if (kobj->subsys)
-> + ops = kobj->subsys->sysfs_ops;
-> +
-> + /* No sysfs operations, either from having no subsystem,
-> + * or the subsystem have no operations.
-> + */
-> + if (!ops)
-> + goto Eaccess;
-> +
-> + /* File needs write support.
-> + * The inode's perms must say it's ok,
-> + * and we must have a store method.
-> + */
-> + if (file->f_mode & FMODE_WRITE) {
-> +
-> + if (!(inode->i_mode & S_IWUGO))
-> + goto Eperm;
-> + if (!ops->store)
-> + goto Eaccess;
-> +
-> + }
-> +
-> + /* File needs read support.
-> + * The inode's perms must say it's ok, and we there
-> + * must be a show method for it.
-> + */
-> + if (file->f_mode & FMODE_READ) {
-> + if (!(inode->i_mode & S_IRUGO))
-> + goto Eperm;
-> + if (!ops->show)
-> + goto Eaccess;
-> + }
-> +
-> + /* No error? Great, store the ops in file->private_data
-> + * for easy access in the read/write functions.
-> + */
-> + file->private_data = ops;
-> + goto Done;
-> +
-> + Einval:
-> + error = -EINVAL;
-> + goto Done;
-> + Eaccess:
-> + error = -EACCES;
-> + goto Done;
-> + Eperm:
-> + error = -EPERM;
-> + Done:
->   return error;
->  }
->
-> +static int sysfs_open_file(struct inode * inode, struct file * filp)
-> +{
-> + return check_perm(inode,filp);
-> +}
-> +
->  static int sysfs_release(struct inode * inode, struct file * filp)
->  {
->   struct kobject * kobj = filp->f_dentry->d_parent->d_fsdata;
-> @@ -541,7 +573,8 @@
->   /* make sure dentry is really there */
->   if (victim->d_inode &&
->       (victim->d_parent->d_inode == dir->d_inode)) {
-> - sysfs_unlink(dir->d_inode,victim);
-> + simple_unlink(dir->d_inode,victim);
-> + d_delete(victim);
->   }
->   }
->   up(&dir->d_inode->i_sem);
-> @@ -599,19 +632,16 @@
->   list_for_each_safe(node,next,&dentry->d_subdirs) {
->   struct dentry * d = list_entry(node,struct dentry,d_child);
->   /* make sure dentry is still there */
-> - if (d->d_inode)
-> - sysfs_unlink(dentry->d_inode,d);
-> + if (d->d_inode) {
-> + simple_unlink(dentry->d_inode,d);
-> + d_delete(dentry);
-> + }
->   }
->
-> - d_invalidate(dentry);
-> - if (simple_empty(dentry)) {
-> - dentry->d_inode->i_nlink -= 2;
-> - dentry->d_inode->i_flags |= S_DEAD;
-> - parent->d_inode->i_nlink--;
-> - }
->   up(&dentry->d_inode->i_sem);
-> - dput(dentry);
-> -
-> + d_invalidate(dentry);
-> + simple_rmdir(parent->d_inode,dentry);
-> + d_delete(dentry);
->   up(&parent->d_inode->i_sem);
->   dput(parent);
->  }
-> @@ -622,4 +652,3 @@
->  EXPORT_SYMBOL(sysfs_remove_link);
->  EXPORT_SYMBOL(sysfs_create_dir);
->  EXPORT_SYMBOL(sysfs_remove_dir);
-> -MODULE_LICENSE("GPL");
->
+--------------080100060507020703050208--
 

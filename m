@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUGETyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUGET5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUGETyA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 15:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUGETyA
+	id S261378AbUGET5b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 15:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUGET5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 15:54:00 -0400
-Received: from pra69-d108.gd.dial-up.cz ([193.85.69.108]:64128 "EHLO
-	penguin.localdomain") by vger.kernel.org with ESMTP id S261347AbUGETx7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 15:53:59 -0400
-Date: Mon, 5 Jul 2004 21:53:01 +0200
-To: Timothy Miller <theosib@hotmail.com>
+	Mon, 5 Jul 2004 15:57:31 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:56993 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261378AbUGET53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 15:57:29 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Andrew Morton <akpm@osdl.org>, Norbert Preining <preining@logic.at>
+Subject: Re: 2.6.7-mm6 and usb deadlock (and synaptics)
+Date: Mon, 5 Jul 2004 22:06:35 +0200
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: HELP:  Cannot get ALSA working on via82xx
-Message-ID: <20040705195301.GB23211@penguin.localdomain>
-Mail-Followup-To: Timothy Miller <theosib@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <BAY1-F133LSW50Pfs56000059d7@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20040705131002.GA14768@gamma.logic.tuwien.ac.at> <20040705123243.7527e923.akpm@osdl.org>
+In-Reply-To: <20040705123243.7527e923.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <BAY1-F133LSW50Pfs56000059d7@hotmail.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: sebek64@post.cz (Marcel Sebek)
+Message-Id: <200407052206.35692.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 12:06:26AM -0400, Timothy Miller wrote:
-> Right now, the state is that regular digital audio works, but MIDI refuses 
-> to work, and some other audio channel is on which produces random clicks 
-> and other such noise.
-> 
-I wasn't able to get MIDI working too, I guess that these onboard sound
-cards doesn't have support for it (but I really don't know).
+On Monday 05 of July 2004 21:32, Andrew Morton wrote:
+> Norbert Preining <preining@logic.at> wrote:
+> > Hi Andrew!
+> >
+> > With 2.6.7-mm6 my laptop stops working completely. Ooops while booting.
+> >
+> > Reverting
+> > - usb-locking-fix.patch
+> > - bk-usb.patch
+> > makes it work.
 
-The random noise could be caused by wrong mixer setting. Try save mixer
-settings when you are using OSS, and restore them while running ALSA
-(you can use oss-preserve for it).
+No USB problems here (dual Opteron w/ NUMA w/o preemption - hardware info 
+attached).  I've checked both 1.1 (pendrive) and 2.0 (external HDD) and both 
+work just fine.
+
+I'm not sure, but it seems to me that the problems may be related to UHCI 
+drivers (I have OHCI) - just guessing. :-)
+
+Yours,
+rjw
 
 -- 
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
-
+Rafael J. Wysocki
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

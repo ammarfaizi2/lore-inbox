@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274872AbRJRLxI>; Thu, 18 Oct 2001 07:53:08 -0400
+	id <S274972AbRJRMPz>; Thu, 18 Oct 2001 08:15:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274920AbRJRLw6>; Thu, 18 Oct 2001 07:52:58 -0400
-Received: from noc.easyspace.net ([62.254.202.67]:18704 "EHLO
-	noc.easyspace.net") by vger.kernel.org with ESMTP
-	id <S274872AbRJRLwp>; Thu, 18 Oct 2001 07:52:45 -0400
-Date: Thu, 18 Oct 2001 12:52:39 +0100
-From: Sam Vilain <sam@vilain.net>
-To: linux-kernel@vger.kernel.org
-Subject: ds: no socket drivers loaded! in 2.4.x
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S275043AbRJRMPp>; Thu, 18 Oct 2001 08:15:45 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:260 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S274972AbRJRMPe>;
+	Thu, 18 Oct 2001 08:15:34 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15uBj5-0006lx-00@hoffman.vilain.net>
+Message-ID: <15310.51180.802846.33348@cargo.ozlabs.ibm.com>
+Date: Thu, 18 Oct 2001 22:15:40 +1000 (EST)
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: libz, libbz2, ramfs and cramfs
+In-Reply-To: <15310.33191.397106.8530@cargo.ozlabs.ibm.com>
+In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com>
+	<3BCBE29D.CFEC1F05@alacritech.com>
+	<9qjfki$ob5$1@cesium.transmeta.com>
+	<15310.18125.367838.562789@cargo.ozlabs.ibm.com>
+	<3BCE4BB5.8060603@zytor.com>
+	<15310.33191.397106.8530@cargo.ozlabs.ibm.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hoffman:/root# modprobe ds 
-/lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o: init_module: Operation not permitted
-Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-/lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o: insmod /lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o failed
-/lib/modules/2.4.12-scv/kernel/drivers/pcmcia/ds.o: insmod ds failed
-hoffman:/root# dmesg | tail -1
-ds: no socket drivers loaded!
+I wrote:
 
-This is on a Dell Inspiron 4000 FWIW.  I'm using 2.4.12-ac3, but had
-exactly the same problem with plain 2.4.9 and every other 2.4 kernel I've
-tried.
+> I added a deflateOutputPending routine which returns the number of
+> bytes of data that the compressor has pending to give to you.
 
-I've put my .config, and output from a few other commands at:
+I just checked and in fact ppp_deflate doesn't use this.
 
-http://sam.vilain.net/no-socket/
+> I added a check so that it is legal to set strm->next_out to NULL and
+> the de/compressor will just discard its output data.  This is useful
+> on the sending side for PPP-deflate because there are situations where
+> the transmitted data has to be added to the compressor's history but
+> may not be transmitted in compressed form.
 
-Any ideas?
+ppp_deflate doesn't use next_out = NULL in this case, but it does use
+next_out = NULL when we are compressing a packet and the compressed
+packet turns out to be larger than the uncompressed.  With deflate
+there is a limit on how much larger the compressed packet would be, so
+it would be possible to give it a small extra buffer on the stack
+instead of using next_out = NULL.
 
-Sam.
+If we were going to standardize on a newer zlib in the kernel, I could
+change ppp_deflate to cope with that without too much pain, I think.
+The main thing I would want to add is a way to check what state the
+decompressor is in at the end of each packet - we want
+strm->state->blocks->mode == LENS at that point, which is not
+something that can be checked using the existing zlib interface.
+
+Paul.

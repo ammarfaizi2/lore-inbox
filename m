@@ -1,49 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280471AbRJaUIk>; Wed, 31 Oct 2001 15:08:40 -0500
+	id <S280469AbRJaULU>; Wed, 31 Oct 2001 15:11:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280470AbRJaUIb>; Wed, 31 Oct 2001 15:08:31 -0500
-Received: from mail.myrio.com ([63.109.146.2]:12026 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S280469AbRJaUIK>;
-	Wed, 31 Oct 2001 15:08:10 -0500
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAA7@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Roy Sigurd Karlsbakk'" <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: EM8400/8401 support?
-Date: Wed, 31 Oct 2001 12:08:30 -0800
+	id <S280472AbRJaULJ>; Wed, 31 Oct 2001 15:11:09 -0500
+Received: from cliff.mcs.anl.gov ([140.221.9.17]:20611 "EHLO mcs.anl.gov")
+	by vger.kernel.org with ESMTP id <S280470AbRJaUKw>;
+	Wed, 31 Oct 2001 15:10:52 -0500
+Message-ID: <3BE058E8.F9DC0FC1@mcs.anl.gov>
+Date: Wed, 31 Oct 2001 14:02:48 -0600
+From: JP Navarro <navarro@mcs.anl.gov>
+Organization: Argonne National Laboratory
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Raid/Adaptec/SCSI errors, obvious explanation isn't
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+We can consistently generate 1-2 of the following errors per hour:
 
-> strange...
-> I found a package called NetStream2000-0.2.047.1.tar.gz with 
-> these drivers
-> with source on Sigma's site. 
+Oct 31 10:08:30 ccfs2 kernel: SCSI disk error : host 2 channel 0 id 9 lun 0
+return code = 800
+Oct 31 10:08:30 ccfs2 kernel: Current sd08:51: sense key Hardware Error
+Oct 31 10:08:30 ccfs2 kernel: Additional sense indicates Internal target failure
+Oct 31 10:08:30 ccfs2 kernel:  I/O error: dev 08:51, sector 35371392
 
-That GPL'ed source code (from the "kernelmode" directory of the tarball)
-contains only the source for the interface between the driver and the
-kernel.  Compiling that gives you a small module, but AFIK, there is no way
-(well, no documentation) to use that module to actually do anything useful
-or interesting.  
+The errors occur on most of the 14 SCSI disks on two JBODs.
+Multiple errors on the same disk always reference different sectors.
 
-To actually do anything (like decode MPEG-2 video) with the hardware, you
-use the large (400K) closed-source libEM8400.so library.  That library talks
-to the hardware using the module.  I suppose you could try to
-reverse-engineer that by observing all the communication between the lib and
-the driver, but that's probably not allowed.
+The errors occur 1-2 per hour when we rsync a remote machine to a local
+file-system.
+We've produced this error only once running Bonnie++.
+No other I/O activity (cp, nfs serving, etc) has caused an error.
 
-So, in short: The only documentation is on how to use libEM8400, and that's
-closed source.  But hey, it works, so things could be worse.  
+Our hardware config:
+   IBM NetFinity 5100 with Dual 866 MHz CPUs (86584RY)
+   NetGear GA620 Gigabit Ethernet
+   Two IBM EXP15 Fast Wide Ultra SCSI JBODs
+   Adaptec 2940 Ultra SCSI adapters
+   Each JBOD has 7 x 36 GB 7200 RPM IBM Ultrastar 36XP drives (DRHS-36D)
+   Adaptec BIOS configured for 40 MB/s
 
-(I suppose one could have an discussion on the legality of this GPL'ed
-kernel module / closed driver, but I'm sure most readers of the list are
-sick and tired of amateur legal discussion, I guess Sigma's lawyers decided
-it was legal, and they know better than me.)
+Our software config:
+   RedHat 7.1
+   Kernel 2.4.9-ac9
 
-Torrey
+The 14 disks are configured at two 7 disk RAID0 volumes of EXT3. We've
+reproduced the problem with one RAID0 volume per JBOD, and also splitting
+volumes so they span both JBODs (4 disks on one and 3 on the other).  We did
+this because we suspect the errors may be caused by excessive I/O load on a
+JBOD.
+   
+This error started happening *after* we upgraded to the above from the following
+s/w:
+   RedHat 6.2
+   Kernel 2.4.2
+   Two RAID0 volumes with ReiserFS
+
+Previous postings have suggested hardware (disk) failures or a bug in the RAID
+<-> Adaptec driver interaction.  We think disk failures are unlikely since they
+are happening on multiple disks and only after a software upgrade.
+
+We once tested 15K drives on these EXP15 JBODs and encountered SCSI disks/driver
+errors, so we've suspected some type of JBOD problem under high load.
+
+Anyhow, does anyone have a clue as to what might be causing these errors, what
+tests we could conduct to shed light on the problem, or additional information
+we could provide that would be useful.
+
+We're considering running the following tests:
+
+- reduce the SCSI disk transfer rates to below 40 MB/s
+- try 2 and 3 disk RAID0/EXT3 file-systems
+- other kernels?
+
+Regards,
+
+JP Navarro

@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267952AbTBYPU2>; Tue, 25 Feb 2003 10:20:28 -0500
+	id <S267968AbTBYPUx>; Tue, 25 Feb 2003 10:20:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267968AbTBYPU2>; Tue, 25 Feb 2003 10:20:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27659 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267952AbTBYPU0>; Tue, 25 Feb 2003 10:20:26 -0500
-Date: Tue, 25 Feb 2003 07:27:26 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andreas Schwab <schwab@suse.de>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-In-Reply-To: <je7kbo5y9y.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.44.0302250712110.10210-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267970AbTBYPUx>; Tue, 25 Feb 2003 10:20:53 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:48006 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267968AbTBYPUv>;
+	Tue, 25 Feb 2003 10:20:51 -0500
+Date: Tue, 25 Feb 2003 16:32:13 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dejan Muhamedagic <dejan@hello-penguin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm issues (2)
+Message-ID: <20030225153213.GI29467@dualathlon.random>
+References: <20030225131328.A8651@smp.colors.kwc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030225131328.A8651@smp.colors.kwc>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 25 Feb 2003, Andreas Schwab wrote:
-> |> 
-> |> The point is that the compiler should see that the run-time value of i is 
-> |> _obviously_never_negative_ and as such the warning is total and utter 
-> |> crap.
+On Tue, Feb 25, 2003 at 01:13:28PM +0100, Dejan Muhamedagic wrote:
+> Hello,
 > 
-> This requires a complete analysis of the loop body, which means that the
-> warning must be moved down from the front end (the common type of the
-> operands only depends on the type of the operands, not of any current
-> value of the expressions).
-
-So? Gcc does that anyway. _Any_ good compiler has to.
-
-And if the compiler isn't good enough to do it, then the compiler 
-shouldn't be warning about something that it hasn't got a clue about.
-
-> |>    and anybody who writes 'array[5UL]' is considered a stupid git and a 
-> |>    geek. Face it.
+> The new kernel 2.4.21-pre4aa3 is running now, but the box behaves
+> similarly.  It still swaps quite a lot and much more than the rmap
+> vm.  Both servers are under the same load.
 > 
-> But array[-1] is wrong.  An array can never have a negative index (I'm
-> *not* talking about pointers).
+> One difference is the amount of free memory:
+> 
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in cs  us  sy  id
+> aa:
+>  0  7  0 5773620 202416 118076 2069716 5330 746  5330   766 4845 5597  12  14  74
+> rmap:
+>  0  0  0 3498044  13572   4144 4754596  74   0    75     6  642 598   5   3  92
+> 
+> The aa kernel keeps ~200MB out of 6GB of memory unused.  I'm not
+> sure, but if we could reduce it perhaps there would be much less
+> swapping.  Is there a way to achieve this?
 
-You're wrong.
+that is a feature, it guarantees highmem unfreeable allocations like
+pagetables can't eat all your normal zone. You can reduce the 200MB with
+this boot command:
 
-Yes, when declaring an array, you cannot use "array[-1]". But that's not 
-because the thing is unsigned: the standard says that the array 
-declaration has to be a "integer value larger than zero". It is not 
-unsigned: it's _positive_.
+	lower_zone_reserve=256,256
 
-However, in _indexing_ an array (as opposed to declaring it), "array[-1]" 
-is indeed perfectly fine, and is defined by the C language to be exactly 
-the same as "*(array-1)". And negative values are perfectly fine, even for 
-arrays. Trivial example:
+As to decrease the swapping I just told you how to do that tweaking
+vm_mapped_ratio.
 
-	int x[2][2];
+> 
+> Another notable difference between the two vm versions is that the
+> rmap vm maintains about 80% of memory on the active list and the
+> aa vm much less: between 4% and 12%.  The rmap vm must use more
+> CPU, but these servers have a lot of processing power so it is not
+> noticeable.
 
-	int main(int argc, char **argv)
-	{
-		return x[1][-1];
-	}
+the theory was that rmap would reduce the cpu utilization but of course
+the patch don't do juts rmap.
 
-
-the above is actually a well-defined C program, and 100%
-standards-conforming ("strictly conforming").
-
-		Linus
-
+Andrea

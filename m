@@ -1,66 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUHMK3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269069AbUHMKah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269059AbUHMK3y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUHMK1S
+	id S269069AbUHMKah (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269068AbUHMKaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:27:18 -0400
-Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:52263
-	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S269059AbUHMKXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:23:15 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml@lpbproduction.scom, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040813101928.GE8135@elte.hu>
-References: <20040726082330.GA22764@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
-	 <200408122149.41490.lkml@lpbproductions.com>
-	 <1092390820.6815.11.camel@twins>  <20040813101928.GE8135@elte.hu>
-Content-Type: text/plain
-Date: Fri, 13 Aug 2004 12:23:03 +0200
-Message-Id: <1092392583.17555.1.camel@twins>
+	Fri, 13 Aug 2004 06:30:30 -0400
+Received: from dea.vocord.ru ([194.220.215.4]:38546 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S269058AbUHMK1r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 06:27:47 -0400
+Subject: Re: [2.6 patch] let W1 select NET
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040813101717.GS13377@fs.tum.de>
+References: <20040813101717.GS13377@fs.tum.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7yVYhr7+ziMIpUOonO7M"
+Organization: MIPT
+Message-Id: <1092393095.12729.424.camel@uganda>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 13 Aug 2004 14:31:35 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-13 at 12:19 +0200, Ingo Molnar wrote:
-> * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-> 
-> > > arch/i386/kernel/traps.c: In function `do_nmi':
-> > > arch/i386/kernel/traps.c:539: error: syntax error before "do"
-> 
-> > This fixes it.
-> > 
-> > --- ./include/asm-i386/hardirq.h~       2004-08-13 11:17:38.668333125 +0200
-> > +++ ./include/asm-i386/hardirq.h        2004-08-13 11:51:40.835968747 +0200
-> > @@ -73,7 +73,7 @@
-> >  #define hardirq_endlock()      do { } while (0)
-> >  
-> >  #define irq_enter()            add_preempt_count(HARDIRQ_OFFSET)
-> > -#define nmi_enter()            (irq_enter())
-> > +#define nmi_enter()            irq_enter()
-> 
-> yep - thx, this fix too will be in -O7. It seems this compilation error
-> only happens with older gcc and i'm using 3.3.
-> 
-> 	Ingo
-FYI,
 
-peter@twins ~ $ gcc --version
-gcc (GCC) 3.3.4 20040623 (Gentoo Linux 3.3.4-r1, ssp-3.3.2-2, pie-8.7.6)
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+--=-7yVYhr7+ziMIpUOonO7M
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-and it hits here too.
+On Fri, 2004-08-13 at 14:17, Adrian Bunk wrote:
+> W1=3Dy and Net=3Dn fails with the following compile error:
+>=20
+> <--  snip  -->
+>=20
+> ...
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o(.text+0x5efa38): In function `w1_alloc_dev':
+> : undefined reference to `netlink_kernel_create'
+> drivers/built-in.o(.text+0x5efac1): In function `w1_alloc_dev':
+> : undefined reference to `sock_release'
+> drivers/built-in.o(.text+0x5efb31): In function `w1_free_dev':
+> : undefined reference to `sock_release'
+> drivers/built-in.o(.text+0x5f0014): In function `w1_netlink_send':
+> : undefined reference to `alloc_skb'
+> drivers/built-in.o(.text+0x5f00cd): In function `w1_netlink_send':
+> : undefined reference to `netlink_broadcast'
+> drivers/built-in.o(.text+0x5f0131): In function `w1_netlink_send':
+> : undefined reference to `skb_over_panic'
+> make: *** [.tmp_vmlinux1] Error 1
+>=20
+> <--  snip  -->
+>=20
+>=20
+> The patch below fixes this issue by letting W1 select NET.
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
+Sure.
+W1 requires netlink and thus CONFIG_NET.
+
+Thank you.
+I've applied your patch to my tree=20
+and will send it to GregKH -> Andrew Morton.
+
+>=20
+> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+>=20
+> --- linux-2.6.8-rc4-mm1-full-3.4/drivers/w1/Kconfig.old	2004-08-13 12:00:=
+05.000000000 +0200
+> +++ linux-2.6.8-rc4-mm1-full-3.4/drivers/w1/Kconfig	2004-08-13 12:11:31.0=
+00000000 +0200
+> @@ -2,6 +2,7 @@
+> =20
+>  config W1
+>  	tristate "Dallas's 1-wire support"
+> +	select NET
+>  	---help---
+>  	  Dallas's 1-wire bus is usefull to connect slow 1-pin devices=20
+>  	  such as iButtons and thermal sensors.
+--=20
+	Evgeniy Polyakov ( s0mbre )
+
+Crash is better than data corruption. -- Art Grabowski
+
+--=-7yVYhr7+ziMIpUOonO7M
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBHJiHIKTPhE+8wY0RAsH6AJ9vBZVJ+kmk84VPSRLon7hO9ZbzUwCeJ3oO
+1wx2lqvyW513atME90rWJ8Q=
+=9jkB
+-----END PGP SIGNATURE-----
+
+--=-7yVYhr7+ziMIpUOonO7M--
 

@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132365AbRANTfh>; Sun, 14 Jan 2001 14:35:37 -0500
+	id <S132545AbRANTlK>; Sun, 14 Jan 2001 14:41:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132545AbRANTf1>; Sun, 14 Jan 2001 14:35:27 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:35449
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S132365AbRANTfT>; Sun, 14 Jan 2001 14:35:19 -0500
-Date: Sun, 14 Jan 2001 20:35:09 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Roman.Hodek@informatik.uni-erlangen.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make drivers/scsi/atari_scsi.c check request_irq (240p3)
-Message-ID: <20010114203509.D602@jaquet.dk>
-In-Reply-To: <20010114195323.B602@jaquet.dk>
+	id <S135293AbRANTlB>; Sun, 14 Jan 2001 14:41:01 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:43272 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S132545AbRANTkv>; Sun, 14 Jan 2001 14:40:51 -0500
+Date: Sun, 14 Jan 2001 20:38:23 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+Message-ID: <20010114203823.A17160@pcep-jamie.cern.ch>
+In-Reply-To: <20010112204626.A2740@suse.cz> <E14HDqv-0005Fm-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010114195323.B602@jaquet.dk>; from rasmus@jaquet.dk on Sun, Jan 14, 2001 at 07:53:23PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14HDqv-0005Fm-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 12, 2001 at 11:43:23PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again and sorry for the noise.
+Alan Cox wrote:
+> I think its significant that two reports I have are FIC PA-2013 but not all.
+> What combination of chips is on the 2013 ?
 
-Hans Grobler kindly pointed me towards scsi_unregister which I heppily had
-ignored. The following patch includes this function in the exit paths.
-Otherwise it is identical to the earlier one.
+Reading through my mail logs, I know a board, either FIC PA-2011 or FIC
+PA-2007 (I seem to have changed my mind somewhere in history) with a
+6.4G Quantum Fireball ST, 64MB RAM and an AMD K6-233.  The chipset
+reports as VIA VP2/97; sorry, I do not have access to get the PCI IDs.
 
+It locks up with DMA enabled, typically after a few hours, and has done
+that since 2.1 kernel days.
 
---- linux-ac9/drivers/scsi/atari_scsi.c.org	Sun Jan 14 19:41:56 2001
-+++ linux-ac9/drivers/scsi/atari_scsi.c	Sun Jan 14 20:29:30 2001
-@@ -690,19 +690,29 @@
- 		/* This int is actually "pseudo-slow", i.e. it acts like a slow
- 		 * interrupt after having cleared the pending flag for the DMA
- 		 * interrupt. */
--		request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
--		            "SCSI NCR5380", scsi_tt_intr);
-+		if (!request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
-+				 "SCSI NCR5380", scsi_tt_intr)) {
-+			printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting",IRQ_TT_MFP_SCSI);
-+			scsi_unregister(atari_scsi_host);
-+			atari_stram_free(atari_dma_buffer);
-+			atari_dma_buffer = 0;
-+			return 0;
-+		}
- 		tt_mfp.active_edge |= 0x80;		/* SCSI int on L->H */
- #ifdef REAL_DMA
- 		tt_scsi_dma.dma_ctrl = 0;
- 		atari_dma_residual = 0;
--#endif /* REAL_DMA */
--#ifdef REAL_DMA
- #ifdef CONFIG_TT_DMA_EMUL
- 		if (MACH_IS_HADES) {
--			request_irq(IRQ_AUTO_2, hades_dma_emulator,
--				    IRQ_TYPE_PRIO, "Hades DMA emulator",
--				    hades_dma_emulator);
-+			if (!request_irq(IRQ_AUTO_2, hades_dma_emulator,
-+					 IRQ_TYPE_PRIO, "Hades DMA emulator",
-+					 hades_dma_emulator)) {
-+				printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting (MACH_IS_HADES)",IRQ_AUTO_2);
-+				scsi_unregister(atari_scsi_host);
-+				atari_stram_free(atari_dma_buffer);
-+				atari_dma_buffer = 0;
-+				return 0;
-+			}
- 		}
- #endif
- 		if (MACH_IS_MEDUSA || MACH_IS_HADES) {
-@@ -719,9 +729,8 @@
- 			 * the rest data bug is fixed, this can be lowered to 1.
- 			 */
- 			atari_read_overruns = 4;
--		}
--#endif
--		
-+		}		
-+#endif /*REAL_DMA*/
- 	}
- 	else { /* ! IS_A_TT */
- 		
+Unfortunately it locks up with Mandrake 7.2 which is not very old (based
+on 2.2.17 kernels -- it's not my PC any more but I installed Mandrake on
+it recently).
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+Kernel option "ide=nodma" fixes this -- no lockups.
 
-Without censorship, things can get terribly confused in the
-public mind. -General William Westmoreland, during the war in Viet Nam
+After that "hdparm -X34 -d1" enables DMA and the board remains reliable.
+I observed one lockup in several years, while X was starting so it could
+have been X.  -X34 does not change the results of "hdparm -t".
+
+Note that "hdparm -X34 -d1" enables old DMA, not UDMA.  (The board was
+advertised as UDMA capable but it isn't AFAIK).
+
+enjoy,
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

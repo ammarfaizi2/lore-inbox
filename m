@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270600AbRHQTbS>; Fri, 17 Aug 2001 15:31:18 -0400
+	id <S270584AbRHQToC>; Fri, 17 Aug 2001 15:44:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270618AbRHQTbJ>; Fri, 17 Aug 2001 15:31:09 -0400
-Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:33710 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S270584AbRHQTa7>; Fri, 17 Aug 2001 15:30:59 -0400
-Message-ID: <016f01c12752$ee012ae0$103147ab@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "Michael H. Warfield" <mhw@wittsend.com>,
-        "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200108171913.f7HJDKi00416@wildsau.idv-edu.uni-linz.ac.at> <20010817152159.A15459@alcove.wittsend.com>
-Subject: Re: min() and max() in kernel.h ?
-Date: Fri, 17 Aug 2001 12:29:27 -0700
+	id <S270618AbRHQTnx>; Fri, 17 Aug 2001 15:43:53 -0400
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:65186 "EHLO
+	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S270584AbRHQTni>; Fri, 17 Aug 2001 15:43:38 -0400
+Date: Fri, 17 Aug 2001 12:42:46 -0700 (PDT)
+From: Brian Beattie <bbeattie@sequent.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: Brian Beattie <bbeattie@sequent.com>, linux-kernel@vger.kernel.org
+Subject: Re: md/multipath: Multipath, Multiport support and prototype patch
+ for round robin routing (fwd)
+Message-ID: <Pine.PTX.4.10.10108171239370.25286-100000@eng2.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Aug 17, 2001 at 09:13:20PM +0200, Herbert Rosmanith wrote:
-> Please review the flamefest threads in this forum going under the
-> subjects of "2.4.9 does not compile" and related "[PATCH]".  That will
-> answer who what when and why, as well as giving you a suitable case of
-> characters to throw stones, or whatever else is handy, at.
->
-> Rather interesting that Linus ducked out of town just in time
-> for this...  :->
+Having a little trouble wity the email setup oin my laptop, (the first
+mail was sent on 7/23 but hid in my laptop untill I came back from
+vacation 8/15 :) ).
 
-which is the reason why he is smarter than DaveM? :-)
+Anyway here is my reply while I work on the laptop :).
 
-> > /herp
->
-> Mike
-> --
->  Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
->   (The Mad Wizard)      |  (678) 463-0932   |
-http://www.wittsend.com/mhw/
->   NIC whois:  MHW9      |  An optimist believes we live in the best of all
->  PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
->
+Brian Beattie
+IBM Linux Technology Center - MPIO/SAN
+bbeattie@sequent.com
+503.578.5899  Des2-3C-5
+
+---------- Forwarded message ----------
+Date: Thu, 16 Aug 2001 17:42:24 -0700
+From: Brian Beattie <bbeattie@beaverton.ibm.com>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Brian Beattie <bbeattie@beaverton.ibm.com>, linux-kernel@vger.kernel.org,
+     mingo@redhat.com
+Subject: Re: md/multipath: Multipath,
+     Multiport support and prototype patch for round robin routing
+
+On Wed, Aug 15, 2001 at 10:34:53PM +0200, Christoph Hellwig wrote:
+> In article <20010723133242.B970@dyn9-47-16-69.des.beaverton.ibm.com> you wrote:
+
+> 
+> The second comment actually goes to you, Brian:  could you please try to
+> create unified diffs (diff -u)?  It's sooo much easier to read..
+> 
+
+I'm just back from vacation and still getting back into the groove,
+I'll try to do that and post it in a day or two.
+
+
+> > + 
+> > + static struct multipath_dev_table multipath_dev_template = {
+> > +         "",
+> > + 	{
+> > + 		{MULTIPATH_ROUTING, "routing", NULL, sizeof(int), 0644,
+> > + 			NULL, &proc_dointvec},
+> 
+> Shouldn't this be a property of the md device, instead of a sysctl?
+> I planned to write that information in the md superblock for my design.
+
+I'm not sure what you mean here.  This is not a really complete thing
+here.  Adding the information to the superblock sounds, like a good idea,
+but I'm also looking at dynamically modifying the operating parameters.
+
+> 
+> 	Christoph
+> 
+> -- 
+> Of course it doesn't work. We've performed a software upgrade.
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Brian Beattie
+IBM Linux Technology Center - MPIO/SAN
+bbeattie@sequent.com
+503.578.5899  Des2-3C-5
 

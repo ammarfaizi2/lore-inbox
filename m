@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264023AbTFVIZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 04:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTFVIZq
+	id S264025AbTFVIf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 04:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbTFVIf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 04:25:46 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:21168 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264023AbTFVIZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 04:25:45 -0400
-Date: Sun, 22 Jun 2003 10:39:01 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+	Sun, 22 Jun 2003 04:35:28 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59398 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264025AbTFVIfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 04:35:24 -0400
+Date: Sun, 22 Jun 2003 09:49:10 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Andrew Morton <akpm@digeo.com>,
        Geert Uytterhoeven <geert@linux-m68k.org>, alan@lxorguk.ukuu.org.uk,
        perex@suse.cz, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Isapnp warning
-Message-ID: <20030622083901.GA25120@wohnheim.fh-wedel.de>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com> <Pine.LNX.4.44.0306211652130.1980-100000@home.transmeta.com> <20030622001101.GB10801@conectiva.com.br> <20030622014102.GB29661@dingdong.cryptoapps.com>
+Message-ID: <20030622094910.A10063@flint.arm.linux.org.uk>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Chris Wedgwood <cw@f00f.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Andrew Morton <akpm@digeo.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>, alan@lxorguk.ukuu.org.uk,
+	perex@suse.cz, linux-kernel@vger.kernel.org
+References: <20030621125111.0bb3dc1c.akpm@digeo.com> <Pine.LNX.4.44.0306211652130.1980-100000@home.transmeta.com> <20030622001101.GB10801@conectiva.com.br> <20030622014102.GB29661@dingdong.cryptoapps.com> <20030622014345.GD10801@conectiva.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030622014102.GB29661@dingdong.cryptoapps.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030622014345.GD10801@conectiva.com.br>; from acme@conectiva.com.br on Sat, Jun 21, 2003 at 10:43:45PM -0300
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 June 2003 20:41:02 -0500, Chris Wedgwood wrote:
-> On Sat, Jun 21, 2003 at 09:11:01PM -0300, Arnaldo Carvalho de Melo wrote:
-> 
-> > Humm, I'd love to do that, i.e. to make gcc 3 required, lots of good
-> > stuff like this one, anonymous structs, etc, etc, lots of stuff
-> > could be done in an easier way, but are we ready to abandon gcc
-> > 2.95.*? Can anyone confirm if gcc 2.96 accepts this?
-> 
-> What *requires* 2.96 still?  Is it a large number of people or obscure
-> architecture?
+On Sat, Jun 21, 2003 at 10:43:45PM -0300, Arnaldo Carvalho de Melo wrote:
+> I don't know, I was just trying to figure out the impact of requiring gcc 3
+> to compile the kernel. I never used gcc 2.96 btw.
 
-Try these two litter things in Assembler code:
+So, for ARM, we end up with the following gcc versions which appear to
+work:
 
-#define LONG_MACRO	\
-asm			\
-#ifdef something	\
-asm			\
-#else			\
-asm			\
-asm			\
-#endif			\
-asm
+	- gcc 2.95.3 + patch
+	- gcc 2.95.4
+	- gcc 3.2.2 + patch
+	- gcc 3.2.3 + patch
+	- gcc 3.3
 
-Compiles just fine with all 3.x I've tried.
+(Some of the gcc people may beg to differ, but the above list results
+from many reports and real life experiences from several people.)
 
-	jump	92f
-	...
-81:	...
-	...
-92	...
-
-Again, compiles just fine.
-
-Both are clearly wrong and should not be in the source code.  But
-Assembler bugs are subtle, nasty and Code Checkers for Assembler are
-rare.  My vote is to keep 2.95+ support.
-
-Jörn
+>From what I understand, the gcc people are not all that happy about
+the gcc 3.2.x patch, based upon the fact that it has not been applied.
+It is also possible that gcc 3.3 happens to work because the bug got
+hidden by other changes, or, the real bug did get fixed.  No one seems
+to know.  Certainly the bugzilla entry remains open and unresolved.
 
 -- 
-"Error protection by error detection and correction."
--- from a university class
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

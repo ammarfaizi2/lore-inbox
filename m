@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265019AbSLLTK7>; Thu, 12 Dec 2002 14:10:59 -0500
+	id <S265008AbSLLTNW>; Thu, 12 Dec 2002 14:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbSLLTK7>; Thu, 12 Dec 2002 14:10:59 -0500
-Received: from host136-27.pool217141.interbusiness.it ([217.141.27.136]:14606
-	"EHLO mdvsrvsmtp01.north.h3g.it") by vger.kernel.org with ESMTP
-	id <S264877AbSLLTK5> convert rfc822-to-8bit; Thu, 12 Dec 2002 14:10:57 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Kernel bug handling TCP_RTO_MAX?
-Date: Thu, 12 Dec 2002 20:15:42 +0100
-Message-ID: <047ACC5B9A00D741927A4A32E7D01B73D66176@RMEXC01.h3g.it>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel bug handling TCP_RTO_MAX?
-thread-index: AcKiEsQqYuHs0uDZQieYDM6iK+0WiQ==
-From: "Andreani Stefano" <stefano.andreani.ap@h3g.it>
-To: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-X-OriginalArrivalTime: 12 Dec 2002 19:15:42.0468 (UTC) FILETIME=[DD3D2C40:01C2A212]
+	id <S265066AbSLLTNW>; Thu, 12 Dec 2002 14:13:22 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:20101 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265008AbSLLTNV>;
+	Thu, 12 Dec 2002 14:13:21 -0500
+Date: Thu, 12 Dec 2002 19:20:59 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: BoehmeSilvio <Boehme.Silvio@afb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-ac1 KT400 AGP support
+Message-ID: <20021212192059.GC6039@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	BoehmeSilvio <Boehme.Silvio@afb.de>, linux-kernel@vger.kernel.org
+References: <2F4E8F809920D611B0B300508BDE95FE29444E@AFB91>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2F4E8F809920D611B0B300508BDE95FE29444E@AFB91>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem: I need to change the max value of the TCP retransmission timeout. 
+On Thu, Dec 12, 2002 at 07:04:02PM +0100, BoehmeSilvio wrote:
+ > Hi !
+ > 
+ > Hopefully I'm right here.....
+ > 
+ > I have some trouble to get agpgart working in kernel 2.4.20-ac1.
+ > 
+ > My setup:
+ > - ASUS A7V8X with VIA KT400 Chip (AGP 8X)
+ > - ATI Radeon 9700 PRO (also AGP 8X)
+ > 
+ > The original 2.4.20 kernel doesn't know this chipset, so I tried the
+ > 2.4.20-ac1, which has some patches for the KT400.
+ > 
+ > With 2.4.20-ac1 I get the following error:
+ > 
+ > agpgart: Maximum main memory to use for agp memory: 690M
+ > agpgart: Detected Via Apollo KT-400 chipset
+ > agpgart: unable to determine aperture size
 
-Background: According to Karn's exponential backoff algorithm, when the receiver doesn't acknowledge packets for a while, the sender should retransmit the latest not acknowledged packet several times increasing the delay (RTO) since this delay reaches the Max Retransmission Timeout Value. 
+Currently AGPGART doesn't support AGP 3.0 (which is needed for X8 mode)
 
-Testing environment: Red Hat Linux release 7.2 (Enigma), Kernel 2.4.7-10 on an i686, Kernel 2.4.7-10.
+		Dave
 
-Test details: I supposed this timeout in Linux was TCP_RTO_MAX, so I changed in /include/net/tcp.h the following line:
-
-#define TCP_RTO_MAX	((unsigned)(6*HZ)) //It was: ((unsigned)(120*HZ))
-
-Then I recompiled the kernel, rebooted the machine and tested the solution. The result I obtained was the same I had before this modification. 
-
-I'm confident there isn't an error in the testing procedure because I already tested with a Solaris server the same procedure (changing the tcp_rexmit_interval_max variable) and it works. I'm just trying to reproduce the modification of that parameter in Linux. 
-
-Could it be a bug on the RTO calculation algorithm, or there is something I mistook?
-
-This is the first time I get into the linux kernel, so please be patient!
-
-Thanks,
-
-Stefano.
-
--------------------------------
-        Stefano Andreani
-    Freelance ICT Consultant
-      H3G IOT Team - Italy
-      tel. +39 347 8215965
-   stefano.andreani.ap@h3g.it
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,56 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262886AbUDAM3U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 07:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbUDAM3U
+	id S262890AbUDAMe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 07:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbUDAMe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 07:29:20 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:62637 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262886AbUDAM3N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 07:29:13 -0500
-Date: Thu, 1 Apr 2004 14:29:12 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Bill Davidsen <davidsen@tmr.com>, Len Brown <len.brown@intel.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Willy Tarreau <willy@w.ods.org>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-In-Reply-To: <20040331150219.GC18990@mail.shareable.org>
-Message-ID: <Pine.LNX.4.55.0404011423070.3675@jurand.ds.pg.gda.pl>
-References: <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4>
- <4069D3D2.2020402@tmr.com> <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
- <20040331150219.GC18990@mail.shareable.org>
-Organization: Technical University of Gdansk
+	Thu, 1 Apr 2004 07:34:26 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:29384 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262890AbUDAMeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 07:34:16 -0500
+From: "Rui Santos" <rsantos@grupopie.com>
+To: "'mohanlal jangir'" <mohanlal@samsung.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: UART detection?
+Date: Thu, 1 Apr 2004 13:36:36 +0100
+Organization: GrupoPIE, Portugal S.A.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <009401c417db$da971e70$7f476c6b@sisodomain.com>
+Thread-Index: AcQX38aU7zBfXhEMT9iNMovbFOH+2wABWaQg
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-Id: <20040401123419.152B1337F4@rd-server.pie.domain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Mar 2004, Jamie Lokier wrote:
+Hi,
 
-> >  Well, "cmpxchg", "xadd", etc. can be easily emulated with an aid of a
-> > spinlock.  With SMP operation included.
-> 
-> Nope.  Len Brown wrote:
-> 
-> > Linux uses this locking mechanism to coordinate shared access
-> > to hardware registers with embedded controllers,
-> > which is true also on uniprocessors too.
-> 
-> You can't do that with a spinlock.  The embedded controllers would
-> need to know about the spinlock.
+I do not fully understand what you mean by 'detect this inside a kernel
+module'. I think you want to compile it as a module and the modprobe it to
+get the module messages.
 
- Hmm, does it mean we support x86 systems where an iomem resource has to
-be atomically accessible by a CPU and a peripheral controller?
+If you compile the serial as a module on:
+- Device Drivers -> Character Devices -> Serial Drivers -> 8250/16550 Serial
+	you will get a module called serial.o
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Remember that if you want do use modprobe to redirect the module messages,
+You need to turn off the 'Automatic Module loadind when compiling the
+kernel. You can do this ao Loadable Module Support -> Automatic Kernel
+Module Loading.
+
+Hope it helps
+Regards,
+Rui Santos
+
+
+
+-----Mensagem original-----
+De: mohanlal jangir [mailto:mohanlal@samsung.com] 
+Enviada: quinta-feira, 1 de Abril de 2004 12:24
+Para: Rui Santos
+Cc: linux-kernel@vger.kernel.org
+Assunto: Re: UART detection?
+
+I want to detect this inside a kernel module. Any way to do it?
+
+Regards
+Mohanlal
+
+----- Original Message -----
+From: "Rui Santos" <rsantos@grupopie.com>
+To: "'mohanlal jangir'" <mohanlal@samsung.com>
+Sent: Thursday, April 01, 2004 4:56 PM
+Subject: RE: UART detection?
+
+
+> Hi,
+>
+> You can find them on the kernel boot messages.
+> Something like: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+>
+> This log is usualy found at /var/log/messages
+>
+> Regards
+> Rui Santos
+>
+>
+> -----Mensagem original-----
+> De: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] Em nome de mohanlal jangir
+> Enviada: quinta-feira, 1 de Abril de 2004 12:02
+> Para: linux-kernel@vger.kernel.org
+> Assunto: UART detection?
+>
+> How can I find in a kernel module, how many UARTs are present in my
+system?
+> And how can I find their IO address and IRQ?
+>
+> Regards
+> Mohanlal
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
+
+
+

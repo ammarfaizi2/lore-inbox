@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSDZLJe>; Fri, 26 Apr 2002 07:09:34 -0400
+	id <S313819AbSDZLSA>; Fri, 26 Apr 2002 07:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313819AbSDZLJd>; Fri, 26 Apr 2002 07:09:33 -0400
-Received: from matrix2.enst.fr ([137.194.2.14]:9103 "HELO smtp2.enst.fr")
-	by vger.kernel.org with SMTP id <S313773AbSDZLJc>;
-	Fri, 26 Apr 2002 07:09:32 -0400
-Date: Fri, 26 Apr 2002 13:09:30 +0200
-From: Cedric Ware <cedric.ware@enst.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [testpoint] Linux 2.2.21rc3 + ext3 + lfs
-Message-ID: <20020426130930.A15494@enst.fr>
-In-Reply-To: <E16s4xz-0008Uq-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S313821AbSDZLR7>; Fri, 26 Apr 2002 07:17:59 -0400
+Received: from [193.231.212.86] ([193.231.212.86]:12298 "HELO fm.radiototal.ro")
+	by vger.kernel.org with SMTP id <S313819AbSDZLR6>;
+	Fri, 26 Apr 2002 07:17:58 -0400
+From: <RAV@fm.radiototal.ro>
+To: alex@radiototal.ro
+Cc: linux-kernel@vger.kernel.org
+Subject: RAV AntiVirus scan results
+Date: Fri, 26 Apr 2002 14:17:49 +0300
+Importance: high
+X-Priority: 1
+X-Mailer: ravmd/8.3.2
+Message-Id: <20020426111749.EEC2E145DC@fm.radiototal.ro>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+RAV AntiVirus for Linux i686 version: 8.3.2 (snapshot-20020108)
+Copyright (c) 1996-2001 GeCAD The Software Company. All rights reserved.
+58 more days to evaluate.
+Running on host: fm.radiototal.ro
 
-	Hello,
+-----------------------
+ RAV Antivirus results
+-----------------------
 
-FYI, this kernel seems to work all right with the following patches :
+The infected file was saved to quarantine with name: 1019819866-RAV11604.
+The file (part0001:value.exe) attached to mail (with subject:Undeliverable mail--"contextual navigation info ") sent by alex@radiototal.ro to linux-kernel@vger.kernel.org, 
+is infected with virus: Win32/Klez.H@mm.
+Cannot clean this file.
+The file was successfully deleted by RAV AntiVirus.
+------------------------
+this is a copy of the e-mail header:
 
-ext3-0.0.7a (ftp://ftp.kernel.org/pub/linux/kernel/people/sct/)
-lfs-1.1 (http://www.moldybread.net/patch/kernel-2.2/ without ea support)
+Received: from Ukdspifax (unknown [192.168.1.5])
 
-It has been running for about 24 hours on a standard uniprocessor x86
-PC workstation.  BTW, is there a timetable for the release of 2.2.21?
 
-						Thank you,
-						Cedric Ware.
+
+Scan engine 8.5 (Standard) for i386.
+Last update: Wed Apr 24 10:42:51 2002
+Scanning for 66310 malwares (viruses, trojans and worms).
+
+To get a free 60-days evaluation version of RAV AntiVirus v8
+(yet fully functional) please visit:
+
+   http://www.ravantivirus.com
+
 

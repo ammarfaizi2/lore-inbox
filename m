@@ -1,334 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263078AbTDYGwV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 02:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbTDYGwV
+	id S263131AbTDYG76 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 02:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263132AbTDYG75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 02:52:21 -0400
-Received: from chambertin.convergence.de ([212.84.236.2]:46092 "EHLO
-	chambertin.convergence.de") by vger.kernel.org with ESMTP
-	id S263078AbTDYGwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 02:52:16 -0400
-Message-ID: <3EA8DDF9.2050003@convergence.de>
-Date: Fri, 25 Apr 2003 09:04:25 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
-X-Accept-Language: de-at, de, en-us, en
+	Fri, 25 Apr 2003 02:59:57 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6528 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263131AbTDYG74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 02:59:56 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304250714.h3P7EdUF000366@81-2-122-30.bradfords.org.uk>
+Subject: Re: versioned filesystems in linux (was Re: kernel support for non-english user messages)
+To: stewartsmith@mac.com (Stewart Smith)
+Date: Fri, 25 Apr 2003 08:14:39 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), root@chaos.analogic.com,
+       fdavis@si.rr.com (Frank Davis),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+       john@grabjohn.com (John Bradford)
+In-Reply-To: <03FA0FB7-76AC-11D7-BE62-00039346F142@mac.com> from "Stewart Smith" at Apr 25, 2003 09:25:20 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: top stack (l)users for 2.5.68
-References: <20030422185532.GB12947@wohnheim.fh-wedel.de>
-In-Reply-To: <20030422185532.GB12947@wohnheim.fh-wedel.de>
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050309020908040006060606"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050309020908040006060606
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+> > When are we going to see versioned filesystems in Linux?  That was a
+> > standard feature in VMS.
+> 
+> This is (part of) what I'm doing for my honors project this year - so 
+> possibly something (might) be around and (almost) working by the end of 
+> the year. The real big trick is remote efficiency - but what's the fun 
+> of research if there isn't something tricky?
+> 
+> If people are actually really interested in it, I might make it a bit 
+> more of a focus :)
 
-Hello Jörn,
+I'm certainly interested in it.
 
- > 45 functions for 2.5.68, 44 for 2.5.67. The new one is this:
- > 0xc0881136 mxb_init_done:                                sub 
-$0x51c,%esp
- >
- > Michael, are there any reasons not to make saa7740_init static, global
- > or both? The memory is gone forever either way.
-
-No, there are no reasons. Please apply my patch to drivers/media/video.
-It does the following:
-
-- make initialization data for helper chipsets (saa7111 and saa7740) 
-static and global
-
-Additionally fixes:
-- don't use irq driven i2c transfer when saa7740 is present (this screws 
-up the i2c bus and may hang the computer)
-- add MODULE_DEVICE_TABLE to allow /sbin/hotplug to handle the device
-
- > Moreover, wouldn't this be a candidate for __init and __initdata
- > respectively?
-
-Probably. I'll investigate this and include it in the next major update.
-
- > Jörn
-
-Please note that my name is Michael Hunold, *not* Martin Hunold. 8-)
-
-CU
-Michael.
-
-
---------------050309020908040006060606
-Content-Type: text/plain;
- name="mxb.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mxb.patch"
-
---- /usr/src/linux-2.5.68/drivers/media/video/mxb.c	2003-04-22 12:08:17.000000000 +0200
-+++ mxb.c	2003-04-24 19:34:20.000000000 +0200
-@@ -177,6 +173,9 @@
- 	int	cur_mute;	/* current mute status */
- };
- 
-+static
-+struct saa7146_extension extension;
-+
- static int mxb_vbi_bypass(struct saa7146_dev* dev)
- {
- 	struct mxb* mxb = (struct mxb*)dev->ext_priv;
-@@ -269,6 +268,95 @@
- 	return 0;
- }
- 
-+/* some init data for the saa7740, the so-called 'sound arena module'. 
-+   there are no specs available, so we simply use some init values */
-+static struct {
-+	int	length;
-+	char	data[9];
-+} mxb_saa7740_init[] = {
-+	{ 3, { 0x80, 0x00, 0x00 } },{ 3, { 0x80, 0x89, 0x00 } },
-+	{ 3, { 0x80, 0xb0, 0x0a } },{ 3, { 0x00, 0x00, 0x00 } },
-+	{ 3, { 0x49, 0x00, 0x00 } },{ 3, { 0x4a, 0x00, 0x00 } },
-+	{ 3, { 0x4b, 0x00, 0x00 } },{ 3, { 0x4c, 0x00, 0x00 } },
-+	{ 3, { 0x4d, 0x00, 0x00 } },{ 3, { 0x4e, 0x00, 0x00 } },
-+	{ 3, { 0x4f, 0x00, 0x00 } },{ 3, { 0x50, 0x00, 0x00 } },
-+	{ 3, { 0x51, 0x00, 0x00 } },{ 3, { 0x52, 0x00, 0x00 } },
-+	{ 3, { 0x53, 0x00, 0x00 } },{ 3, { 0x54, 0x00, 0x00 } },
-+	{ 3, { 0x55, 0x00, 0x00 } },{ 3, { 0x56, 0x00, 0x00 } },
-+	{ 3, { 0x57, 0x00, 0x00 } },{ 3, { 0x58, 0x00, 0x00 } },
-+	{ 3, { 0x59, 0x00, 0x00 } },{ 3, { 0x5a, 0x00, 0x00 } },
-+	{ 3, { 0x5b, 0x00, 0x00 } },{ 3, { 0x5c, 0x00, 0x00 } },
-+	{ 3, { 0x5d, 0x00, 0x00 } },{ 3, { 0x5e, 0x00, 0x00 } },
-+	{ 3, { 0x5f, 0x00, 0x00 } },{ 3, { 0x60, 0x00, 0x00 } },
-+	{ 3, { 0x61, 0x00, 0x00 } },{ 3, { 0x62, 0x00, 0x00 } },
-+	{ 3, { 0x63, 0x00, 0x00 } },{ 3, { 0x64, 0x00, 0x00 } },
-+	{ 3, { 0x65, 0x00, 0x00 } },{ 3, { 0x66, 0x00, 0x00 } },
-+	{ 3, { 0x67, 0x00, 0x00 } },{ 3, { 0x68, 0x00, 0x00 } },
-+	{ 3, { 0x69, 0x00, 0x00 } },{ 3, { 0x6a, 0x00, 0x00 } },
-+	{ 3, { 0x6b, 0x00, 0x00 } },{ 3, { 0x6c, 0x00, 0x00 } },
-+	{ 3, { 0x6d, 0x00, 0x00 } },{ 3, { 0x6e, 0x00, 0x00 } },
-+	{ 3, { 0x6f, 0x00, 0x00 } },{ 3, { 0x70, 0x00, 0x00 } },
-+	{ 3, { 0x71, 0x00, 0x00 } },{ 3, { 0x72, 0x00, 0x00 } },
-+	{ 3, { 0x73, 0x00, 0x00 } },{ 3, { 0x74, 0x00, 0x00 } },
-+	{ 3, { 0x75, 0x00, 0x00 } },{ 3, { 0x76, 0x00, 0x00 } },
-+	{ 3, { 0x77, 0x00, 0x00 } },{ 3, { 0x41, 0x00, 0x42 } },
-+	{ 3, { 0x42, 0x10, 0x42 } },{ 3, { 0x43, 0x20, 0x42 } },
-+	{ 3, { 0x44, 0x30, 0x42 } },{ 3, { 0x45, 0x00, 0x01 } },
-+	{ 3, { 0x46, 0x00, 0x01 } },{ 3, { 0x47, 0x00, 0x01 } },
-+	{ 3, { 0x48, 0x00, 0x01 } },
-+	{ 9, { 0x01, 0x03, 0xc5, 0x5c, 0x7a, 0x85, 0x01, 0x00, 0x54 } },
-+	{ 9, { 0x21, 0x03, 0xc5, 0x5c, 0x7a, 0x85, 0x01, 0x00, 0x54 } },
-+	{ 9, { 0x09, 0x0b, 0xb4, 0x6b, 0x74, 0x85, 0x95, 0x00, 0x34 } },
-+	{ 9, { 0x29, 0x0b, 0xb4, 0x6b, 0x74, 0x85, 0x95, 0x00, 0x34 } },
-+	{ 9, { 0x11, 0x17, 0x43, 0x62, 0x68, 0x89, 0xd1, 0xff, 0xb0 } },
-+	{ 9, { 0x31, 0x17, 0x43, 0x62, 0x68, 0x89, 0xd1, 0xff, 0xb0 } },
-+	{ 9, { 0x19, 0x20, 0x62, 0x51, 0x5a, 0x95, 0x19, 0x01, 0x50 } },
-+	{ 9, { 0x39, 0x20, 0x62, 0x51, 0x5a, 0x95, 0x19, 0x01, 0x50 } },
-+	{ 9, { 0x05, 0x3e, 0xd2, 0x69, 0x4e, 0x9a, 0x51, 0x00, 0xf0 } },
-+	{ 9, { 0x25, 0x3e, 0xd2, 0x69, 0x4e, 0x9a, 0x51, 0x00, 0xf0 } },
-+	{ 9, { 0x0d, 0x3d, 0xa1, 0x40, 0x7d, 0x9f, 0x29, 0xfe, 0x14 } },
-+	{ 9, { 0x2d, 0x3d, 0xa1, 0x40, 0x7d, 0x9f, 0x29, 0xfe, 0x14 } },
-+	{ 9, { 0x15, 0x73, 0xa1, 0x50, 0x5d, 0xa6, 0xf5, 0xfe, 0x38 } },
-+	{ 9, { 0x35, 0x73, 0xa1, 0x50, 0x5d, 0xa6, 0xf5, 0xfe, 0x38 } },
-+	{ 9, { 0x1d, 0xed, 0xd0, 0x68, 0x29, 0xb4, 0xe1, 0x00, 0xb8 } },
-+	{ 9, { 0x3d, 0xed, 0xd0, 0x68, 0x29, 0xb4, 0xe1, 0x00, 0xb8 } },
-+	{ 3, { 0x80, 0xb3, 0x0a } },
-+	{-1, { 0} }
-+};
-+
-+static unsigned char mxb_saa7111_init[25] = {
-+	0x00,
-+	
-+	0x00,	  /* 00 - ID byte */
-+	0x00,	  /* 01 - reserved */
-+
-+	/*front end */
-+	0xd8,	  /* 02 - FUSE=x, GUDL=x, MODE=x */
-+	0x23,	  /* 03 - HLNRS=0, VBSL=1, WPOFF=0, HOLDG=0, GAFIX=0, GAI1=256, GAI2=256 */
-+	0x00,	  /* 04 - GAI1=256 */
-+	0x00,	  /* 05 - GAI2=256 */
-+
-+	/* decoder */
-+	0xf0,	  /* 06 - HSB at  xx(50Hz) /  xx(60Hz) pixels after end of last line */
-+	0x30,	  /* 07 - HSS at  xx(50Hz) /  xx(60Hz) pixels after end of last line */
-+	0xa8,	  /* 08 - AUFD=x, FSEL=x, EXFIL=x, VTRC=x, HPLL=x, VNOI=x */
-+	0x02,	  /* 09 - BYPS=x, PREF=x, BPSS=x, VBLB=x, UPTCV=x, APER=x */
-+	0x80,	  /* 0a - BRIG=128 */
-+	0x47,	  /* 0b - CONT=1.109 */
-+	0x40,	  /* 0c - SATN=1.0 */
-+	0x00,	  /* 0d - HUE=0 */
-+	0x01,	  /* 0e - CDTO=0, CSTD=0, DCCF=0, FCTC=0, CHBW=1 */
-+	0x00,	  /* 0f - reserved */
-+	0xd0,	  /* 10 - OFTS=x, HDEL=x, VRLN=x, YDEL=x */
-+	0x8c,	  /* 11 - GPSW=x, CM99=x, FECO=x, COMPO=x, OEYC=1, OEHV=1, VIPB=0, COLO=0 */
-+	0x80,	  /* 12 - xx output control 2 */
-+	0x30,	  /* 13 - xx output control 3 */
-+	0x00,	  /* 14 - reserved */
-+	0x15,	  /* 15 - VBI */
-+	0x04,	  /* 16 - VBI */
-+	0x00,	  /* 17 - VBI */
-+};
-+
- /* bring hardware to a sane state. this has to be done, just in case someone
-    wants to capture from this device before it has been properly initialized.
-    the capture engine would badly fail, because no valid signal arrives on the
-@@ -277,100 +365,13 @@
- {
- 	struct mxb* mxb = (struct mxb*)dev->ext_priv;
- 	
--	struct {
--		int	length;
--		char	data[9];
--	} saa7740_init[] = {
--		{ 3, { 0x80, 0x00, 0x00 } },{ 3, { 0x80, 0x89, 0x00 } },
--		{ 3, { 0x80, 0xb0, 0x0a } },{ 3, { 0x00, 0x00, 0x00 } },
--		{ 3, { 0x49, 0x00, 0x00 } },{ 3, { 0x4a, 0x00, 0x00 } },
--		{ 3, { 0x4b, 0x00, 0x00 } },{ 3, { 0x4c, 0x00, 0x00 } },
--		{ 3, { 0x4d, 0x00, 0x00 } },{ 3, { 0x4e, 0x00, 0x00 } },
--		{ 3, { 0x4f, 0x00, 0x00 } },{ 3, { 0x50, 0x00, 0x00 } },
--		{ 3, { 0x51, 0x00, 0x00 } },{ 3, { 0x52, 0x00, 0x00 } },
--		{ 3, { 0x53, 0x00, 0x00 } },{ 3, { 0x54, 0x00, 0x00 } },
--		{ 3, { 0x55, 0x00, 0x00 } },{ 3, { 0x56, 0x00, 0x00 } },
--		{ 3, { 0x57, 0x00, 0x00 } },{ 3, { 0x58, 0x00, 0x00 } },
--		{ 3, { 0x59, 0x00, 0x00 } },{ 3, { 0x5a, 0x00, 0x00 } },
--		{ 3, { 0x5b, 0x00, 0x00 } },{ 3, { 0x5c, 0x00, 0x00 } },
--		{ 3, { 0x5d, 0x00, 0x00 } },{ 3, { 0x5e, 0x00, 0x00 } },
--		{ 3, { 0x5f, 0x00, 0x00 } },{ 3, { 0x60, 0x00, 0x00 } },
--		{ 3, { 0x61, 0x00, 0x00 } },{ 3, { 0x62, 0x00, 0x00 } },
--		{ 3, { 0x63, 0x00, 0x00 } },{ 3, { 0x64, 0x00, 0x00 } },
--		{ 3, { 0x65, 0x00, 0x00 } },{ 3, { 0x66, 0x00, 0x00 } },
--		{ 3, { 0x67, 0x00, 0x00 } },{ 3, { 0x68, 0x00, 0x00 } },
--		{ 3, { 0x69, 0x00, 0x00 } },{ 3, { 0x6a, 0x00, 0x00 } },
--		{ 3, { 0x6b, 0x00, 0x00 } },{ 3, { 0x6c, 0x00, 0x00 } },
--		{ 3, { 0x6d, 0x00, 0x00 } },{ 3, { 0x6e, 0x00, 0x00 } },
--		{ 3, { 0x6f, 0x00, 0x00 } },{ 3, { 0x70, 0x00, 0x00 } },
--		{ 3, { 0x71, 0x00, 0x00 } },{ 3, { 0x72, 0x00, 0x00 } },
--		{ 3, { 0x73, 0x00, 0x00 } },{ 3, { 0x74, 0x00, 0x00 } },
--		{ 3, { 0x75, 0x00, 0x00 } },{ 3, { 0x76, 0x00, 0x00 } },
--		{ 3, { 0x77, 0x00, 0x00 } },{ 3, { 0x41, 0x00, 0x42 } },
--		{ 3, { 0x42, 0x10, 0x42 } },{ 3, { 0x43, 0x20, 0x42 } },
--		{ 3, { 0x44, 0x30, 0x42 } },{ 3, { 0x45, 0x00, 0x01 } },
--		{ 3, { 0x46, 0x00, 0x01 } },{ 3, { 0x47, 0x00, 0x01 } },
--		{ 3, { 0x48, 0x00, 0x01 } },
--		{ 9, { 0x01, 0x03, 0xc5, 0x5c, 0x7a, 0x85, 0x01, 0x00, 0x54 } },
--		{ 9, { 0x21, 0x03, 0xc5, 0x5c, 0x7a, 0x85, 0x01, 0x00, 0x54 } },
--		{ 9, { 0x09, 0x0b, 0xb4, 0x6b, 0x74, 0x85, 0x95, 0x00, 0x34 } },
--		{ 9, { 0x29, 0x0b, 0xb4, 0x6b, 0x74, 0x85, 0x95, 0x00, 0x34 } },
--		{ 9, { 0x11, 0x17, 0x43, 0x62, 0x68, 0x89, 0xd1, 0xff, 0xb0 } },
--		{ 9, { 0x31, 0x17, 0x43, 0x62, 0x68, 0x89, 0xd1, 0xff, 0xb0 } },
--		{ 9, { 0x19, 0x20, 0x62, 0x51, 0x5a, 0x95, 0x19, 0x01, 0x50 } },
--		{ 9, { 0x39, 0x20, 0x62, 0x51, 0x5a, 0x95, 0x19, 0x01, 0x50 } },
--		{ 9, { 0x05, 0x3e, 0xd2, 0x69, 0x4e, 0x9a, 0x51, 0x00, 0xf0 } },
--		{ 9, { 0x25, 0x3e, 0xd2, 0x69, 0x4e, 0x9a, 0x51, 0x00, 0xf0 } },
--		{ 9, { 0x0d, 0x3d, 0xa1, 0x40, 0x7d, 0x9f, 0x29, 0xfe, 0x14 } },
--		{ 9, { 0x2d, 0x3d, 0xa1, 0x40, 0x7d, 0x9f, 0x29, 0xfe, 0x14 } },
--		{ 9, { 0x15, 0x73, 0xa1, 0x50, 0x5d, 0xa6, 0xf5, 0xfe, 0x38 } },
--		{ 9, { 0x35, 0x73, 0xa1, 0x50, 0x5d, 0xa6, 0xf5, 0xfe, 0x38 } },
--		{ 9, { 0x1d, 0xed, 0xd0, 0x68, 0x29, 0xb4, 0xe1, 0x00, 0xb8 } },
--		{ 9, { 0x3d, 0xed, 0xd0, 0x68, 0x29, 0xb4, 0xe1, 0x00, 0xb8 } },
--		{ 3, { 0x80, 0xb3, 0x0a } },
--		{-1, { 0} }
--	};
--	
--	unsigned char init[25] = {
--		0x00,
--		
--		0x00,	  /* 00 - ID byte */
--		0x00,	  /* 01 - reserved */
--
--		/*front end */
--		0xd8,	  /* 02 - FUSE=x, GUDL=x, MODE=x */
--		0x23,	  /* 03 - HLNRS=0, VBSL=1, WPOFF=0, HOLDG=0, GAFIX=0, GAI1=256, GAI2=256 */
--		0x00,	  /* 04 - GAI1=256 */
--		0x00,	  /* 05 - GAI2=256 */
--
--		/* decoder */
--		0xf0,	  /* 06 - HSB at  xx(50Hz) /  xx(60Hz) pixels after end of last line */
--		0x30,	  /* 07 - HSS at  xx(50Hz) /  xx(60Hz) pixels after end of last line */
--		0xa8,	  /* 08 - AUFD=x, FSEL=x, EXFIL=x, VTRC=x, HPLL=x, VNOI=x */
--		0x02,	  /* 09 - BYPS=x, PREF=x, BPSS=x, VBLB=x, UPTCV=x, APER=x */
--		0x80,	  /* 0a - BRIG=128 */
--		0x47,	  /* 0b - CONT=1.109 */
--		0x40,	  /* 0c - SATN=1.0 */
--		0x00,	  /* 0d - HUE=0 */
--		0x01,	  /* 0e - CDTO=0, CSTD=0, DCCF=0, FCTC=0, CHBW=1 */
--		0x00,	  /* 0f - reserved */
--		0xd0,	  /* 10 - OFTS=x, HDEL=x, VRLN=x, YDEL=x */
--		0x8c,	  /* 11 - GPSW=x, CM99=x, FECO=x, COMPO=x, OEYC=1, OEHV=1, VIPB=0, COLO=0 */
--		0x80,	  /* 12 - xx output control 2 */
--		0x30,	  /* 13 - xx output control 3 */
--		0x00,	  /* 14 - reserved */
--		0x15,	  /* 15 - VBI */
--		0x04,	  /* 16 - VBI */
--		0x00,	  /* 17 - VBI */
--	};
--
- 	struct i2c_msg msg;
- 
- 	int i = 0, err = 0;
- 	struct	tea6415c_multiplex vm;	
- 
- 	/* write configuration to saa7111a */
--	i = i2c_master_send(mxb->saa7111a, init, sizeof(init));
-+	i = i2c_master_send(mxb->saa7111a, mxb_saa7111_init, sizeof(mxb_saa7111_init));
- 	if (i < 0) {
- 		printk("failed to initialize saa7111a. this should never happen.\n");
- 	}
-@@ -420,16 +421,22 @@
- 	   engineered. */
- 	msg.addr = 0x1b;
- 	msg.flags = 0;
--	msg.len = saa7740_init[0].length;
--	msg.buf = &saa7740_init[0].data[0];
-+	msg.len = mxb_saa7740_init[0].length;
-+	msg.buf = &mxb_saa7740_init[0].data[0];
- 
- 	if( 1 == (err = i2c_transfer(&mxb->i2c_adapter, &msg, 1))) {
-+		/* the sound arena module is a pos, that's probably the reason
-+		   philips refuses to hand out a datasheet for the saa7740...
-+		   it seems to screw up the i2c bus, so we disable fast irq
-+		   based i2c transactions here and rely on the slow and safe
-+		   polling method ... */
-+		extension.flags &= ~SAA7146_USE_I2C_IRQ;
- 		for(i = 1;;i++) {
--			msg.len = saa7740_init[i].length;		
-+			msg.len = mxb_saa7740_init[i].length;		
- 			if( -1 == msg.len ) {
- 				break;
- 			}
--			msg.buf = &saa7740_init[i].data[0];
-+			msg.buf = &mxb_saa7740_init[i].data[0];
- 			if( 1 != (err = i2c_transfer(&mxb->i2c_adapter, &msg, 1))) {
- 				DEB_D(("failed to initialize 'sound arena module'.\n"));
- 				goto err;
-@@ -1003,9 +1010,6 @@
- };
- 
- static
--struct saa7146_extension extension;
--
--static
- struct saa7146_pci_extension_data mxb = {
-         .ext_priv = "Multimedia eXtension Board",
-         .ext = &extension,
-@@ -1024,6 +1028,8 @@
- 	}
- };
- 
-+MODULE_DEVICE_TABLE(pci, pci_tbl);
-+
- static
- struct saa7146_ext_vv vv_data = {
- 	.inputs		= MXB_INPUTS,
-
---------------050309020908040006060606--
-
+John.

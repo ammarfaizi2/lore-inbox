@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261291AbSJCTqk>; Thu, 3 Oct 2002 15:46:40 -0400
+	id <S261301AbSJCTsw>; Thu, 3 Oct 2002 15:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbSJCTqk>; Thu, 3 Oct 2002 15:46:40 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45523 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261291AbSJCTqk>; Thu, 3 Oct 2002 15:46:40 -0400
-Date: Thu, 3 Oct 2002 16:51:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: jbradford@dial.pipex.com, <jgarzik@pobox.com>, <kessler@us.ibm.com>,
-       <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-       <saw@saw.sw.com.sg>, <rusty@rustcorp.com.au>,
-       <richardj_moore@uk.ibm.com>
-Subject: Re: [OT] 2.6 not 3.0 - (WAS Re: [PATCH-RFC] 4 of 4 - New problem
- logging macros, SCSI RAIDdevice)
-In-Reply-To: <Pine.LNX.4.44.0210030852330.2066-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0210031650000.1909-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261306AbSJCTsw>; Thu, 3 Oct 2002 15:48:52 -0400
+Received: from [66.70.28.20] ([66.70.28.20]:42252 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S261301AbSJCTsv>; Thu, 3 Oct 2002 15:48:51 -0400
+Date: Thu, 3 Oct 2002 21:44:31 +0200
+From: DervishD <raul@pleyades.net>
+To: Jordan Crouse <jordanc@censoft.com>
+Cc: Dexter Filmore <Dexter.Filmore@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: IDE subsystem issues with 2.4.18/19
+Message-ID: <20021003194431.GC114@DervishD>
+References: <20021004140144.418a8569.Dexter.Filmore@gmx.de> <20021003093316.59d65c3b.jordanc@censoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021003093316.59d65c3b.jordanc@censoft.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades Net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Oct 2002, Linus Torvalds wrote:
+    Hi Jordan (& Dexter)
 
-> The memory management issues would qualify for 3.0, but my argument
-> there is really that I doubt everybody really is happy yet.
+> I had the same problem on the same motherboard with a 
+> Goldstar LG DVD/CD-RW drive.
 
-I'm absolutely convinced some people won't be happy, simply
-because of the fundamental limitations of global page replacement.
-However, Andrew Morton has done a great job and the 2.5 VM seems
-to be looking as good as anything we've had before.
+    I have a VIA 586B, and I have the same problem with a LG CD-ROM
+drive. Sometimes when ripping audio from CD's the drive seems to
+'freeze'. The only solution is opening the drive and unloading the
+modules. My Plextor CD-RW works OK in any condition ;))))
 
-For me 3.0 arguments would be Ingo's threading stuff, not anything
-else.
-
-regards,
-
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+    Raúl

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264915AbSKVPCG>; Fri, 22 Nov 2002 10:02:06 -0500
+	id <S264939AbSKVPIj>; Fri, 22 Nov 2002 10:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264939AbSKVPCG>; Fri, 22 Nov 2002 10:02:06 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:48621 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264915AbSKVPCF>; Fri, 22 Nov 2002 10:02:05 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Qt 3.1 and xconfig
-References: <3DDC6AD0.40906@iinet.net.au>
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-From: Markus Plail <plail@web.de>
-Date: Fri, 22 Nov 2002 16:09:03 +0100
-In-Reply-To: <3DDC6AD0.40906@iinet.net.au> (Nero's message of "Thu, 21 Nov
- 2002 16:10:40 +1100")
-Message-ID: <87d6oxvdyo.fsf@web.de>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i686-pc-linux-gnu)
-MIME-Version: 1.0
+	id <S264943AbSKVPIj>; Fri, 22 Nov 2002 10:08:39 -0500
+Received: from ip68-0-152-218.tc.ph.cox.net ([68.0.152.218]:10727 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S264939AbSKVPIi>; Fri, 22 Nov 2002 10:08:38 -0500
+Date: Fri, 22 Nov 2002 08:15:43 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][RESEND x 2] Don't ask about "Enhanced Real Time Clock Support" on some archs
+Message-ID: <20021122151543.GO779@opus.bloom.county>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nero  writes:
->If you link against qt 3.1 (and this will be common soon, KDE 3.1
->requires it), you can't change any of the options. There is a warning
->when it is running:
->[error messages]
+The following patch adds an explicit no list of arches who do not want
+to have the "Enhanced Real Time Clock Support" RTC driver asked.  This
+adds PPC32 (who for a long time had their own 'generic' RTC driver, and
+then have adopted the genrtc driver) and PARISC (who have always used
+the genrtc driver).
 
-It works just fine here. QT 3.1.0.
+The problem is that on some archs there is no hope of this driver
+working, and having it compiled into the kernel can cause many different
+problems.  On the other hand, there are some arches for whom that driver
+does work, on some platforms.  So having an explicit yes list would
+result in some rather ugly statements.
 
-regards
-Markus
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
+===== drivers/char/Kconfig 1.1 vs edited =====
+--- 1.1/drivers/char/Kconfig	Tue Oct 29 18:16:55 2002
++++ edited/drivers/char/Kconfig	Wed Nov 13 07:56:39 2002
+@@ -1053,6 +1053,7 @@
+ 
+ config RTC
+ 	tristate "Enhanced Real Time Clock Support"
++	depends on !PPC32 && !PARISC
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you

@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284886AbRLKDnI>; Mon, 10 Dec 2001 22:43:08 -0500
+	id <S284882AbRLKDms>; Mon, 10 Dec 2001 22:42:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284874AbRLKDnA>; Mon, 10 Dec 2001 22:43:00 -0500
-Received: from mail.igrin.co.nz ([202.49.244.12]:36111 "EHLO mail.igrin.co.nz")
-	by vger.kernel.org with ESMTP id <S284875AbRLKDmn>;
-	Mon, 10 Dec 2001 22:42:43 -0500
-Message-Id: <3.0.6.32.20011211164149.00b7ba20@mail.igrin.co.nz>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Tue, 11 Dec 2001 16:41:49 +1300
-To: linux-kernel@vger.kernel.org
-From: Simon Byrnand <simon@igrin.co.nz>
-Subject: Bug in disk Quota's on 2.2.19 (and maybe other kernels) ?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S284871AbRLKDmi>; Mon, 10 Dec 2001 22:42:38 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:33800 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S284882AbRLKDm1>; Mon, 10 Dec 2001 22:42:27 -0500
+Date: Mon, 10 Dec 2001 22:42:27 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200112110342.fBB3gQe19601@devserv.devel.redhat.com>
+To: jomast@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: USB + PCI - IRQ = kernel bug??
+In-Reply-To: <mailman.1008041221.4721.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1008041221.4721.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone, please CC any replies as I'm not on the list.
+> what i find interesting is that no interrupts are being sent
+> see for yourself here --> http://quail.no-ip.com/interrupts.txt
 
-I've just started using Disk Quotas with Redhat 6.2, and 2.2.19 kernel, ext2.
+Your BIOS is broken.
 
-Everything is working ok except I notice an anomoly - if I have an apache
-log file (which is kept open while apache is running) which is owned by a
-normal user account, and I chown it to root, the quotas are not updated to
-reflect the fact that the user who used to own the file should have less
-space "used" from their quota. There should be a decrease in the amount of
-space used in their quota by the size of the file.
+> i've removed just about all devices from the system.... and there is no 
+> change....
 
-If I then chown the file back to them again there *is* an increase in space
-used on their quota. chowning the file back to root again a second time
-*does* cause a decrease in space used from their quota, but only back to
-the previous incorrect amount.
+You should have posted the log as it looks _after_ pulling
+the SCSI card.
 
-If I then run quotacheck -avug to force a manual refresh of all the quotas,
-the discrepancy is corrected.
+Another thing to try is to use a 2.7.9-x kernel from RH updates
+for 7.2 and use "apic" parameter. See if that helps.
 
-Whats going on here ? Is the quota code buggy ? Is this something which has
-been fixed in 2.4 ?
-
-Not having used quotas under Linux before I don't know if I'm missing
-something obvious.
-
-Regards,
-Simon
-
-
+-- Pete

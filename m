@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUHMKze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUHMKyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUHMKze (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUHMKzB
+	id S264183AbUHMKyl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUHMKyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:55:01 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:55741 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262380AbUHMKyf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:54:35 -0400
-Date: Fri, 13 Aug 2004 12:54:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+	Fri, 13 Aug 2004 06:54:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59079 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265087AbUHMKyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 06:54:18 -0400
+Date: Fri, 13 Aug 2004 12:54:12 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
 Subject: Re: [2.6 patch] let W1 select NET
-In-Reply-To: <1092394019.12729.441.camel@uganda>
-Message-ID: <Pine.LNX.4.58.0408131253000.20634@scrub.home>
-References: <20040813101717.GS13377@fs.tum.de>  <Pine.LNX.4.58.0408131231480.20635@scrub.home>
- <1092394019.12729.441.camel@uganda>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040813105412.GW13377@fs.tum.de>
+References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408131231480.20635@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 13, 2004 at 12:32:55PM +0200, Roman Zippel wrote:
 
-On Fri, 13 Aug 2004, Evgeniy Polyakov wrote:
+> Hi,
 
-> On Fri, 2004-08-13 at 14:32, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Fri, 13 Aug 2004, Adrian Bunk wrote:
-> > 
-> > >  config W1
-> > >  	tristate "Dallas's 1-wire support"
-> > > +	select NET
-> > 
-> > What's wrong with a simple dependency?
+Hi Roman,
+
+> On Fri, 13 Aug 2004, Adrian Bunk wrote:
 > 
-> W1 requires NET, and thus depends on it.
-> If you _do_ want W1 then you _do_ need network and then NET must be
-> selected.
+> >  config W1
+> >  	tristate "Dallas's 1-wire support"
+> > +	select NET
+> 
+> What's wrong with a simple dependency?
 
-A simple "depends on NET" does this as well, I see no reason to abuse 
-select.
+it's common practice to make it easier for people configuring the kernel 
+to use select instead of depends in such cases.
 
-bye, Roman
+It's also relatively safe since NET itself doesn't has any dependencies.
+
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131424AbRDWG41>; Mon, 23 Apr 2001 02:56:27 -0400
+	id <S131472AbRDWHpb>; Mon, 23 Apr 2001 03:45:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131446AbRDWG4R>; Mon, 23 Apr 2001 02:56:17 -0400
-Received: from hood.tvd.be ([195.162.196.21]:53153 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S131424AbRDWGz7>;
-	Mon, 23 Apr 2001 02:55:59 -0400
-Date: Mon, 23 Apr 2001 08:54:44 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jes Sorensen <jes@linuxcare.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-        Philip Blundell <philb@gnu.org>, junio@siamese.dhis.twinsun.com,
-        Manuel McLure <manuel@mclure.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac12
-In-Reply-To: <d366fw29sv.fsf@lxplus015.cern.ch>
-Message-ID: <Pine.LNX.4.05.10104230853400.14679-100000@callisto.of.borg>
+	id <S131479AbRDWHpW>; Mon, 23 Apr 2001 03:45:22 -0400
+Received: from ash.lnxi.com ([207.88.130.242]:37620 "EHLO DLT.linuxnetworx.com")
+	by vger.kernel.org with ESMTP id <S131472AbRDWHpK>;
+	Mon, 23 Apr 2001 03:45:10 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Longstanding elf fix (2.4.3 fix)
+In-Reply-To: <m31yqk8oas.fsf@DLT.linuxnetworx.com> <15075.40500.408470.152332@pizda.ninka.net>
+From: ebiederman@lnxi.com (Eric W. Biederman)
+Date: 23 Apr 2001 01:44:57 -0600
+In-Reply-To: "David S. Miller"'s message of "Sun, 22 Apr 2001 20:15:00 -0700 (PDT)"
+Message-ID: <m3snj0giva.fsf@DLT.linuxnetworx.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Apr 2001, Jes Sorensen wrote:
-> >>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> Alan> The recommended compilers for non x86 are different too - eg you
-> Alan> need 2.96 gcc for IA64, you need 2.95 not egcs for mips and so
-> Alan> on.
+"David S. Miller" <davem@redhat.com> writes:
+
+> Eric W. Biederman writes:
+>  > In building a patch for 2.4.3 I also discovered that we are not taking 
+>  > the mmap_sem around do_brk in the exec paths.
 > 
-> In principle you just need 2.7.2.3 for m68k, but someone decided to
-> raise the bar for all architectures by putting a check in a common
-> header file.
+> Does that really matter?  
 
-Late 2.3.x proved to be very unstable for user applications (daily cron always
-segfaulted somewhere), until I upgraded from 2.7.2.3 to 2.95.2 from Debian.
+In the library loader I can certainly see it making a difference.
 
-Gr{oetje,eeting}s,
+> Who else can get at the address space?
+>  We are a singly referenced address space at that point... perhaps ptrace?
 
-						Geert
+In practice I don't see it being a big deal.  But reliable code is
+made by closing all of the little loop holes.  
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+It also improves consistency as all of the calls to do_mmap are
+already protected in the exec paths. 
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+And of course since much of the code in the kernel is built on the
+copy a good example neglecting the locking without a big comment,
+invites trouble elsewhere like in elf_load_library.  Where we could
+have multiple threads running.  
 
+Eric

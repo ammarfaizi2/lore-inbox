@@ -1,53 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268275AbRGZR0l>; Thu, 26 Jul 2001 13:26:41 -0400
+	id <S268371AbRGZRZc>; Thu, 26 Jul 2001 13:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268462AbRGZR0b>; Thu, 26 Jul 2001 13:26:31 -0400
-Received: from pD951F257.dip.t-dialin.net ([217.81.242.87]:61832 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S268400AbRGZR01>; Thu, 26 Jul 2001 13:26:27 -0400
-Date: Thu, 26 Jul 2001 19:26:32 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010726192632.B17244@emma1.emma.line.org>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010726174844.W17244@emma1.emma.line.org> <Pine.LNX.4.33L.0107261311210.20326-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0107261311210.20326-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.19i
+	id <S268275AbRGZRZV>; Thu, 26 Jul 2001 13:25:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32783 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267750AbRGZRZJ>; Thu, 26 Jul 2001 13:25:09 -0400
+Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
+To: wingc@engin.umich.edu (Christopher Allen Wing)
+Date: Thu, 26 Jul 2001 18:25:47 +0100 (BST)
+Cc: sentry21@cdslash.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0107261312450.6405-100000@bayarea.engin.umich.edu> from "Christopher Allen Wing" at Jul 26, 2001 01:21:01 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15PotP-0004AG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Rik van Riel wrote:
+> I am assuming that the problem here was that fsck restored a lost inode to
+> lost+found, but the inode had been corrupted and had the immutable bit
+> set.
 
-> The MTA depends on behaviour which is undefined. Now you
-> want to go blame the OS ?
-
-No, the behaviour is defined on certain systems. Not sure if that
-comprises all supported systems.
-
-I'm not blaming anybody besides Linux which does not offer the "noasync"
-(FreeBSD) compromise between sync and async. I don't see any reason why
-this option cannot be there. Is it too expensive too implement? No-one
-said so.
-
-I cannot tell if and how the MTA authors checked all their supported OSs
-how they handle metadata updates.
-
-> If you care about your email, probably you should either
-> teach these people about standards like POSIX or SuS
-> (and tell them to not rely on undefined behaviour) or
-> switch to an MTA which isn't broken in various ways ;)
-
-Wee. And then, I tell the system to comply with that as well, don't I?
-;)
-
--- 
-Matthias Andree
+Which would actually be an fsck bug, since such an inode isnt legal and cant
+be fixed by normal means
+ 

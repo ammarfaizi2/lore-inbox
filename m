@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSEHLCh>; Wed, 8 May 2002 07:02:37 -0400
+	id <S312998AbSEHLNl>; Wed, 8 May 2002 07:13:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313032AbSEHLCg>; Wed, 8 May 2002 07:02:36 -0400
-Received: from holomorphy.com ([66.224.33.161]:35201 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S313019AbSEHLCf>;
-	Wed, 8 May 2002 07:02:35 -0400
-Date: Wed, 8 May 2002 04:01:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin.Knoblauch" <Martin.Knoblauch@teraport.de>
-Cc: rml@tech9.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] preemptive kernel for 2.4.19-pre7-ac4
-Message-ID: <20020508110115.GW32767@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin.Knoblauch" <Martin.Knoblauch@teraport.de>, rml@tech9.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205081259.17948.Martin.Knoblauch@teraport.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S313019AbSEHLNk>; Wed, 8 May 2002 07:13:40 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:11649 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S312998AbSEHLNj>; Wed, 8 May 2002 07:13:39 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bjorn Wesen <bjorn.wesen@axis.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] IDE 58
+Date: Wed, 8 May 2002 13:12:56 +0200
+Message-Id: <20020508111256.27246@smtp.wanadoo.fr>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 08, 2002 at 12:59:17PM +0200, Martin.Knoblauch wrote:
-> What about lock-break for the -ac series? Or does this conflict with rmap 
-> and/or O(1)?
+(resent, I had the date screwed up previously, sorry about the
+inconvenience).
 
-Speaking from experience, it's trivial to port it to either of those, or
-a combination of both.
+>I don't see why all IDE-interfaces in the world have to be I/O-mapped just 
+>because the first PC implementations used that. Sure it was an extended 
+>ISA-bus but the ISA bus is long gone and we don't all run PC's anymore 
+>either.
+>
+>So the simple abstraction we need to hit IDE-bus registers is a macro or 
+>inline, instead of a call of an I/O-primitive. It was too much work to 
+>abstract this when I inserted the CRIS-arch IDE-driver in the first place 
+>so I found a workaround but now seems like a better time..
+
+No, not a macro. There are cases where you want different access methods
+on the same machine. For example, pmacs can have the "mac-io" (ide-pmac)
+controller, which is MMIO based, _and_ a PCI-based legacy IDE controller
+using inx/outx like IOs. (A typical example is the Blue&White G3 who has
+both on the motherboard).
+
+Ultimately, you want the hwif (or what it becomes in 2.5) provide a set
+of functions for accessing taskfile registers and doing the PIO data
+stream read/writes (that is replace inb/outb and insw/outsw).
 
 
-Cheers,
-Bill

@@ -1,120 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbUFKJjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUFKJpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbUFKJjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 05:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbUFKJjI
+	id S263763AbUFKJpn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 05:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbUFKJpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 05:39:08 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:23305 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262897AbUFKJjB convert rfc822-to-8bit (ORCPT
+	Fri, 11 Jun 2004 05:45:43 -0400
+Received: from gprs214-150.eurotel.cz ([160.218.214.150]:27008 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263763AbUFKJpm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 05:39:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Subject: Re: UDP sockets bound to ANY send answers with wrong src ip address
-Date: Fri, 11 Jun 2004 12:30:35 +0300
-X-Mailer: KMail [version 1.4]
-Cc: netdev@oss.sgi.com, linux-net@vger.kernel.org, davem@redhat.com,
-       pekkas@netcore.fi, jmorris@redhat.com, linux-kernel@vger.kernel.org,
-       yoshfuji@linux-ipv6.org
-References: <200406091425.39324.vda@port.imtp.ilyichevsk.odessa.ua> <20040609.212430.123946645.yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040609.212430.123946645.yoshfuji@linux-ipv6.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406111230.35481.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 11 Jun 2004 05:45:42 -0400
+Date: Fri, 11 Jun 2004 11:45:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dealing with buggy hardware (was: b44 and 4g4g)
+Message-ID: <20040611094523.GB13834@elf.ucw.cz>
+References: <20040531202104.GA8301@ee.oulu.fi> <20040605200643.GA2210@ee.oulu.fi> <20040605131923.232f8950.davem@redhat.com> <20040609122905.GA12715@ee.oulu.fi> <20040610200504.GG4507@openzaurus.ucw.cz> <20040610203442.GA27762@ee.oulu.fi> <20040610211217.GA6634@elf.ucw.cz> <20040611061730.GA8081@ee.oulu.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040611061730.GA8081@ee.oulu.fi>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 June 2004 15:24, YOSHIFUJI Hideaki wrote:
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> says:
-> > I observe that UDP sockets listening on ANY
-> > send response packets with ip addr derived from
-> > ip address of interface which is used to send 'em
-> > instead of using dst ip address of client's packet.
->
-> use IP_PKTINFO when responding the client.
+Hi!
 
-Thanks!
-With your help and some googling I've found and adapted 
-code to get dst ip of UDP packet.
+> > Okay, this is probably other problem. When the bug hit, what are the symptoms?
+> Total immediate crash without an oops. When the RX ring skbufs are allocated
+> with GFP_DMA receives work, but any transmits from > 1GB cause a link
+> down/link up (which is just about all of them). With GPF_DMA bounce
+> buffers those start working too.
+> 
+> > > (Or the issue isn't fully understood yet, figuring out what breaks and what
+> > > doesn't was basically just trial and error :-/ )
+> > 
+> > Can you try the driver from broadcom? bcom4400, or how is it
+> > called. Its extremely ugly, but might get this kind of stuff right...
+> Tried that, it breaks with 4:4 and >1GB in exactly the same way :-)
 
-Small test program successfully ran and reported correct
-dst addresses of incoming UDP packets.
-
-Now, I am trying to fix (or shall I say 'improve'?) dnscache.
-You may find some code below my sig. It's a start.
-
-The problem is, how to _send replies_ with correct src ip?
-I can bind a temporary socket to needed src address,
-do a sendto(), then close socket. This will work,
-but this can introduce a race - any incoming
-packet to this (ip,port) will inadvertently
-be classified as belonging to temp socket!
-This is going to be a nasty bug, manifesting
-itself only under load.
-
-I looked into sendmsg(). Looks like ther is no way to
-indicate source ip.
-
-Shall I use some other technique?
---
-vda
-
-#if defined IP_RECVDSTADDR
-# define DSTADDR_SOCKOPT IP_RECVDSTADDR
-# define DSTADDR_DATASIZE (CMSG_SPACE(sizeof(struct in_addr)))
-# define dstaddr(x) (CMSG_DATA(x))
-#elif defined IP_PKTINFO
-# define DSTADDR_SOCKOPT IP_PKTINFO
-# define DSTADDR_DATASIZE (CMSG_SPACE(sizeof(struct in_pktinfo)))
-# define dstaddr(x) (&(((struct in_pktinfo *)(CMSG_DATA(x)))->ipi_addr))
-#else
-# error "can't determine socket option"
-#endif
-
-int socket_recv4_dst(int s,char *buf,int len,char ip[4],uint16 *port, char ipdst[4])
-{
-  int r;
-
-  struct iovec iov[1];
-  struct sockaddr_in sa;
-  union control_data cmsg;
-  struct cmsghdr *cmsgptr;
-  struct msghdr msg;
-
-  iov[0].iov_base = buf;
-  iov[0].iov_len = len;
-
-  memset(&msg, 0, sizeof msg);
-  msg.msg_name = &sa;
-  msg.msg_namelen = sizeof sa;
-  msg.msg_iov = iov;
-  msg.msg_iovlen = 1;
-  msg.msg_control = &cmsg;
-  msg.msg_controllen = sizeof cmsg;
-
-  { // FIXME: we need to do it ONCE! move it into socket_bind4_dstaddropt()
-    int sockopt;
-    sockopt = 1;
-    if (setsockopt(s, IPPROTO_IP, DSTADDR_SOCKOPT, &sockopt, sizeof sockopt) == -1)
-      return -1;
-  }
-
-  //r = recvfrom(s,buf,len,0,(struct sockaddr *) &sa,&dummy);
-  r = recvmsg(s, &msg, 0);
-  if (r == -1) return -1;
-  // Here we retrieve destination IP and memorize it
-  for (cmsgptr = CMSG_FIRSTHDR(&msg);
-  cmsgptr != NULL;
-  cmsgptr = CMSG_NXTHDR(&msg, cmsgptr)) {
-    if (cmsgptr->cmsg_level == IPPROTO_IP
-    && cmsgptr->cmsg_type == DSTADDR_SOCKOPT) {
-      byte_copy(ipdst,4,(char *) dstaddr(cmsgptr));
-    }
-  }
-
-  return r;
-}
-
+You might want to report them, then look at diff between latest and
+previous versions :-)))).
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

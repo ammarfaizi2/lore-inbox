@@ -1,83 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264219AbTIIQaX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 12:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264220AbTIIQaX
+	id S263497AbTIIQog (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 12:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264224AbTIIQog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 12:30:23 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32778 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264219AbTIIQaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 12:30:19 -0400
-Date: Tue, 9 Sep 2003 17:30:14 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Fedor Karpelevitch <fedor@karpelevitch.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test5]oops inserting PCMCIA card
-Message-ID: <20030909173014.E4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Fedor Karpelevitch <fedor@karpelevitch.net>,
-	linux-kernel@vger.kernel.org
-References: <200309081630.19263.fedor@karpelevitch.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Sep 2003 12:44:36 -0400
+Received: from smtp7.wanadoo.fr ([193.252.22.29]:5978 "EHLO
+	mwinf0204.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263497AbTIIQoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 12:44:32 -0400
+From: kinarky <kinarky@free.fr>
+Reply-To: kinarky@free.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: crash log with 2.4.22 kernel and usb modem
+Date: Tue, 9 Sep 2003 18:31:22 +0200
+User-Agent: KMail/1.5.3
+References: <200309090733.02884.kinarky@free.fr> <20030909151521.GB4499@kroah.com>
+In-Reply-To: <20030909151521.GB4499@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309081630.19263.fedor@karpelevitch.net>; from fedor@karpelevitch.net on Mon, Sep 08, 2003 at 04:30:19PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200309091831.22907.kinarky@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 04:30:19PM -0700, Fedor Karpelevitch wrote:
-> Unable to handle kernel paging request at virtual address d08721c0
->  printing eip:
-> c020b80a
-> *pde = 013ae067
-> *pte = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[pci_match_device+10/160]    Not tainted
-> EFLAGS: 00010286
-> EIP is at pci_match_device+0xa/0xa0
-> eax: d08721c0   ebx: cdbf9334   ecx: 00000002   edx: d08721c0
-> esi: d08afe88   edi: cdbf9334   ebp: cdef3e14   esp: cdef3e10
-> ds: 007b   es: 007b   ss: 0068
-> Process pccardd (pid: 765, threadinfo=cdef2000 task=cdd7db40)
-> Stack: d08afe60 cdef3e54 c020c14a d08721c0 cdbf9334 0000006b 000005ed 00000088 
->        c0202fdf c3cd8d54 d0827b80 00000282 0000002e 0248a870 d08afe88 cdbf9388 
->        ffffffed cdef3e70 c025a95a cdbf9388 d08afe88 d08afed4 cdbf9388 c037e7f8 
-> Call Trace:
->  [pci_bus_match+42/816] pci_bus_match+0x2a/0x330
->  [kset_hotplug+751/960] kset_hotplug+0x2ef/0x3c0
->  [bus_match+42/112] bus_match+0x2a/0x70
->  [device_attach+82/176] device_attach+0x52/0xb0
->  [bus_add_device+117/192] bus_add_device+0x75/0xc0
->  [device_add+209/272] device_add+0xd1/0x110
->  [pci_bus_add_devices+583/976] pci_bus_add_devices+0x247/0x3d0
->  [__crc___wait_on_buffer+2481555/2542871] cardbus_assign_irqs+0xc1/0xd0 [pcmcia_core]
->  [__crc___wait_on_buffer+2481762/2542871] cb_alloc+0xc0/0x100 [pcmcia_core]
->  [__crc___wait_on_buffer+2467213/2542871] socket_setup+0x11b/0x170 [pcmcia_core]
->  [__crc___wait_on_buffer+2467471/2542871] socket_insert+0xad/0x150 [pcmcia_core]
->  [__crc___wait_on_buffer+2468209/2542871] socket_detect_change+0x4f/0x80 [pcmcia_core]
->  [__crc___wait_on_buffer+2468851/2542871] pccardd+0x251/0x320 [pcmcia_core]
->  [default_wake_function+0/48] default_wake_function+0x0/0x30
->  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
->  [default_wake_function+0/48] default_wake_function+0x0/0x30
->  [__crc___wait_on_buffer+2468258/2542871] pccardd+0x0/0x320 [pcmcia_core]
->  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-> 
-> Code: 8b 0a 85 c9 74 74 83 f9 ff 74 2e 0f b7 43 24 39 c1 74 26 31 
+> Are you using the userspace or kernel driver for the speedtouch modem?
 
-This isn't a PCMCIA nor CardBus problem.
+	i am using the kernel driver speedtch
 
-If its in pci_bus_match, I'll place my bets on a PCI driver whose
-pci_driver structure is marked __initdata, or whose pci_device_id table
-is marked __initdata.
+> And can you run that oops through ksymoops and send the output to us?
+	
+	i ran "ksymoops oopslogfile" while using the same kernel that i used with the 	
+bug, i don't know exactly if it's what you expected. here's the output :
 
-Which modules do you have loaded?
+	ksymoops 2.4.9 on i686 2.4.22-6mdk.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-6mdk/ (default)
+     -m /boot/System.map-2.4.22-6mdk (default)
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_ksyms_lsmod): module ext3 is in lsmod but not in ksyms, 
+probabl
+y no symbols exported
+Sep  9 06:34:36 masteur kernel: kernel BUG at slab.c:815!
+Sep  9 06:34:36 masteur kernel: invalid operand: 0000
+Sep  9 06:34:36 masteur kernel: CPU:    0
+Sep  9 06:34:36 masteur kernel: EIP:    0010:[kmem_cache_create+573/912]    
+Tain
+ted: P
+Sep  9 06:34:36 masteur kernel: EIP:    0010:[<c01f69bd>]    Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+Sep  9 06:34:36 masteur kernel: EFLAGS: 00010246
+Sep  9 06:34:36 masteur kernel: eax: 00000000   ebx: c184add4   ecx: c184acf4
+edx: c184acf4
+Sep  9 06:34:36 masteur kernel: esi: c184acee   edi: f0839dc8   ebp: c015d538
+esp: d98cfee4
+Sep  9 06:34:36 masteur kernel: ds: 0018   es: 0018   ss: 0018
+Sep  9 06:34:36 masteur kernel: Process insmod (pid: 6338, stackpage=d98cf000)
+Sep  9 06:34:36 masteur kernel: Stack: fffffffc 0000001c fffffff4 f083ad08 
+00000
+019 ffffffea f083986a f0839dba
+Sep  9 06:34:36 masteur kernel:        0000003c 00000020 00000000 00000000 
+00000
+000 f0835000 c01d7b90 f083acfc
+Sep  9 06:34:36 masteur kernel:        00000001 081419b8 00005c30 00000060 
+00000
+060 00000004 00000001 ef344bc0
+Sep  9 06:34:36 masteur kernel: Call Trace:
+Sep  9 06:34:37 masteur kernel:  [<f083ad08>] __ksymtab+0x0/0x28 [uhci]
+Sep  9 06:34:37 masteur kernel:  [<f083986a>] uhci_hcd_init+0x6a/0xf0 [uhci]
+Sep  9 06:34:37 masteur kernel:  [<f0839dba>] .rodata.str1.1+0x3e1/0x407 
+[uhci]
+Sep  9 06:34:37 masteur kernel:  [<c01d7b90>] sys_init_module+0x610/0x680 
+[kerne                l]
+Sep  9 06:34:37 masteur kernel:  [<f083acfc>] .kmodtab+0x0/0xc [uhci]
+Sep  9 06:34:37 masteur kernel:  [<f0835060>] uhci_show_td+0x0/0x1a0 [uhci]
+Sep  9 06:34:37 masteur kernel:  [<c01c3093>] system_call+0x33/0x40 [kernel]
+Sep  9 06:34:37 masteur kernel: Code: 0f 0b 2f 03 6b b0 34 c0 8b 12 81 fa e4 
+38                 10 c0 75 d3 8d 43
+
+
+>>EIP; c01f69bd <kmem_cache_create+23d/390>   <=====
+
+>>ebx; c184add4 <_end+1430cbb/303e7f47>
+>>ecx; c184acf4 <_end+1430bdb/303e7f47>
+>>edx; c184acf4 <_end+1430bdb/303e7f47>
+>>esi; c184acee <_end+1430bd5/303e7f47>
+>>edi; f0839dc8 <[uhci].text.end+3f0/11a8>
+>>ebp; c015d538 <cache_chain_sem+0/10>
+>>esp; d98cfee4 <_end+194b5dcb/303e7f47>
+
+Trace; f083ad08 <[uhci]__module_license+4d/d25>
+Trace; f083986a <[uhci]uhci_hcd_init+6a/f0>
+Trace; f0839dba <[uhci].text.end+3e2/11a8>
+Trace; c01d7b90 <sys_init_module+610/680>
+Trace; f083acfc <[uhci]__module_license+41/d25>
+Trace; f0835060 <[uhci]uhci_show_td+0/1a0>
+Trace; c01c3093 <system_call+33/40>
+
+Code;  c01f69bd <kmem_cache_create+23d/390>
+00000000 <_EIP>:
+Code;  c01f69bd <kmem_cache_create+23d/390>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01f69bf <kmem_cache_create+23f/390>
+   2:   2f                        das
+Code;  c01f69c0 <kmem_cache_create+240/390>
+   3:   03 6b b0                  add    0xffffffb0(%ebx),%ebp
+Code;  c01f69c3 <kmem_cache_create+243/390>
+   6:   34 c0                     xor    $0xc0,%al
+Code;  c01f69c5 <kmem_cache_create+245/390>
+   8:   8b 12                     mov    (%edx),%edx
+Code;  c01f69c7 <kmem_cache_create+247/390>
+   a:   81 fa e4 38 10 c0         cmp    $0xc01038e4,%edx
+Code;  c01f69cd <kmem_cache_create+24d/390>
+  10:   75 d3                     jne    ffffffe5 <_EIP+0xffffffe5>
+Code;  c01f69cf <kmem_cache_create+24f/390>
+  12:   8d 43 00                  lea    0x0(%ebx),%eax
+
+
+2 warnings issued.  Results may not be reliable.
+

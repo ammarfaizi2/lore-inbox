@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUFEVNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUFEVOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUFEVNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 17:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUFEVNZ
+	id S262422AbUFEVOR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 17:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUFEVOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 17:13:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43702 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262406AbUFEVNU (ORCPT
+	Sat, 5 Jun 2004 17:14:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:29385 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262422AbUFEVOK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 17:13:20 -0400
-Date: Sat, 5 Jun 2004 14:13:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>, Ulrich Drepper <drepper@redhat.com>
-cc: Russell Leighton <russ@elegant-software.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-In-Reply-To: <20040605205547.GD20716@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.58.0406051405110.7010@ppc970.osdl.org>
-References: <40C1E6A9.3010307@elegant-software.com>
- <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
- <20040605205547.GD20716@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 5 Jun 2004 17:14:10 -0400
+Date: Sat, 5 Jun 2004 23:14:09 +0200
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: Olaf Hering <olh@suse.de>
+Subject: Re: [PATCH] compat bug in sys_recvmsg, MSG_CMSG_COMPAT check missing
+Message-ID: <20040605211409.GC1134@suse.de>
+References: <20040605204334.GA1134@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040605204334.GA1134@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Sat, Jun 05, Olaf Hering wrote:
 
-
-On Sat, 5 Jun 2004, Arjan van de Ven wrote:
 > 
-> ... or glibc internally caches the getpid() result and doesn't notice the
-> app calls clone() internally... strace seems to show 1 getpid() call total
-> not 2.
+> packet_recvmsg() gets the flags from the compat_sys_socketcall(), but it
+> does not check for the active MSG_CMSG_COMPAT bit. As a result, it
+> returns -EINVAL and makes the user rather unhappy
 
-Why the hell does glibc do that totally useless optimization?
+possible related bugs are in:
 
-It's a classic "optimize for benchmarks" thing - evil. I don't see any
-real app caring, and clearly apps _do_ fail when you get it wrong, as
-shown by Russell.
+ipx_sendmsg
+pfkey_recvmsg
+x25_sendmsg
+ax25_sendmsg
+irda_sendmsg
+irda_sendmsg_dgram
+irda_sendmsg_ultra
+rose_sendmsg
+atalk_sendmsg
+dn_recvmsg
+dn_sendmsg
+econet_sendmsg
+wanpipe_sendmsg
+nr_sendmsg
 
-And it's really easy to get it wrong. You can't just invalidate the cache
-when you see a "clone()" - you have to make sure that you never ever cache
-it ever after either.
 
-Uli, if Arjan is right, then please fix this. It's a buggy and pointless 
-optimization. Anybody who optimizes purely for benchmarks should be 
-ashamed of themselves.
+-- 
+USB is for mice, FireWire is for men!
 
-		Linus
-
-
+sUse lINUX ag, nÜRNBERG

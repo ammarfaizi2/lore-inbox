@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312939AbSDOQYr>; Mon, 15 Apr 2002 12:24:47 -0400
+	id <S312928AbSDOQXm>; Mon, 15 Apr 2002 12:23:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312943AbSDOQYq>; Mon, 15 Apr 2002 12:24:46 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:36108 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312939AbSDOQYp>;
-	Mon, 15 Apr 2002 12:24:45 -0400
-Date: Mon, 15 Apr 2002 08:24:12 -0700
+	id <S312943AbSDOQXl>; Mon, 15 Apr 2002 12:23:41 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:35084 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S312928AbSDOQXl>;
+	Mon, 15 Apr 2002 12:23:41 -0400
+Date: Mon, 15 Apr 2002 08:23:10 -0700
 From: Greg KH <greg@kroah.com>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.8 OOPS usb-uhci
-Message-ID: <20020415152412.GI21356@kroah.com>
-In-Reply-To: <3CBABB92.8000307@wanadoo.fr>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OOPS: USB disconnect
+Message-ID: <20020415152310.GH21356@kroah.com>
+In-Reply-To: <3CBA8506.AE090B97@delusion.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,12 +22,14 @@ Reply-By: Mon, 18 Mar 2002 12:46:54 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 01:37:54PM +0200, Pierre Rousselet wrote:
-> PIII 650 UP. kernel tainted by speedtch.o (usb Speedtouch Alcatel driver).
+On Mon, Apr 15, 2002 at 09:45:10AM +0200, Udo A. Steinberg wrote:
+> 
+> Hi Greg,
+> 
+> I got the following oops with 2.5.8. Everything worked fine under 2.5.7.
 
-Bleah, please send any problems with this driver to the authors of the
-driver, as I have no idea of what that driver does (or even if it has
-been properly converted to the 2.5 USB api changes.)
+What USB devices and drivers are you using?
+Which USB device did you remove when the oops happened?
 
 thanks,
 

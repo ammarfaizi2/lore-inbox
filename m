@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVA2TTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVA2TOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVA2TTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 14:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVA2TP1
+	id S261551AbVA2TOw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 14:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVA2TMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 14:15:27 -0500
-Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:45952 "EHLO
-	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261558AbVA2TOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 14:14:25 -0500
-To: linux-kernel@vger.kernel.org, ftdi-usb-sio-devel@sourceforge.net
-Subject: patch - ftdi_sio.c floods my logs with "write request of 0 bytes"
-From: "Elias Oltmanns" <oltmanns@uni-bonn.de>
-Date: Sat, 29 Jan 2005 19:14:18 +0000
-Message-ID: <873bwkcak5.fsf@denkblock.local>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Sat, 29 Jan 2005 14:12:48 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:64462 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261542AbVA2TIP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 14:08:15 -0500
+Subject: [PATCH 3/3] Fix 'event field not found' message filling logs
+In-Reply-To: <11070171283097@twilight.ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Sat, 29 Jan 2005 17:45:28 +0100
+Message-Id: <1107017128578@twilight.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/for-linus
 
-unfortunately, I'm everything else but a developer, so please be a bit
-patient with me.
+===================================================================
 
-As indicated by the subject, I got annoyed by the error message
-mentioned flooding my log files. Comparing ftdi_sio.c to some of the
-other usb->serial converter drivers, I decided to apply the following
-small patch:
+ChangeSet@1.1977.1.3, 2005-01-29 13:09:24+01:00, vojtech@silver.ucw.cz
+  input: Ignore non-LED events in hid-input hidinput_event(). This gets rid
+         of the "event field not found" message caused by EV_MSC type events.
+  
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
-________
---- linux-2.6.10.orig/drivers/usb/serial/ftdi_sio.c	2004-12-24 21:35:24.000000000 +0000
-+++ linux-2.6.10/drivers/usb/serial/ftdi_sio.c	2005-01-29 17:10:11.000000000 +0000
-@@ -1518,7 +1518,7 @@
- 	dbg("%s port %d, %d bytes", __FUNCTION__, port->number, count);
+
+ hid-input.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+===================================================================
+
+diff -Nru a/drivers/usb/input/hid-input.c b/drivers/usb/input/hid-input.c
+--- a/drivers/usb/input/hid-input.c	2005-01-29 17:37:11 +01:00
++++ b/drivers/usb/input/hid-input.c	2005-01-29 17:37:11 +01:00
+@@ -492,6 +492,9 @@
+ 	if (type == EV_FF)
+ 		return hid_ff_event(hid, dev, type, code, value);
  
- 	if (count == 0) {
--		err("write request of 0 bytes");
-+		dbg("%s - write request of 0 bytes", __FUNCTION__);
- 		return 0;
- 	}
- 	
-________
++	if (type != EV_LED)
++		return -1;
++
+ 	if ((offset = hid_find_field(hid, type, code, &field)) == -1) {
+ 		warn("event field not found");
+ 		return -1;
 
-It solved my problem but I can't judge, of course, whether the use of
-err() instead of dbg() is justified or even common in this place, as,
-for instance, ftdi_sio.c is considered experimental. Therefore I would
-be grateful to get a short response.
-
-Thank you very much in advance,
-
-Elias

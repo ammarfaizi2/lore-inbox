@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUKCSjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbUKCSqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUKCSjM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 13:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbUKCSjF
+	id S261798AbUKCSqf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 13:46:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUKCSqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 13:39:05 -0500
-Received: from mail.timesys.com ([65.117.135.102]:55630 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261800AbUKCSjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 13:39:00 -0500
-Message-ID: <4189329F.2020405@timesys.com>
-Date: Wed, 03 Nov 2004 14:33:51 -0500
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>
-In-Reply-To: <20041103105840.GA3992@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Nov 2004 18:33:10.0500 (UTC) FILETIME=[9200C240:01C4C1D3]
+	Wed, 3 Nov 2004 13:46:35 -0500
+Received: from verein.lst.de ([213.95.11.210]:12519 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261798AbUKCSqa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 13:46:30 -0500
+Date: Wed, 3 Nov 2004 19:46:25 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] deprecate cli, sti & friends
+Message-ID: <20041103184625.GA24462@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+We provided compat wrappers for !CONFIG_SMP builds for ages, but I think
+it's time to get the last folks to notice this can't stay so forever..
 
->    The new PI code covers all synchronization objects in Linux (on
->    PREEMPT_REALTIME): spinlocks, rwlocks, semaphores and rwsems. 
->    Feedback on the design of this code would be welcome, and patches as
->    well, if you have a better scheme. The code is pretty modular so feel 
->    free to experiment with alternative schemes.
 
-I didn't see closure being performed of a possible blocked-owner
-dependency chain, but only promotion of the immediate owner.  It
-is possible for a mutex owner to itself be blocked on another mutex
-requiring promotion of the latter mutex owner(s).
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 
--- 
-john.cooper@timesys.com
+
+--- 1.33/include/linux/interrupt.h	2004-10-28 09:40:01 +02:00
++++ edited/include/linux/interrupt.h	2004-11-03 19:30:33 +01:00
+@@ -61,12 +61,30 @@
+  * Temporary defines for UP kernels, until all code gets fixed.
+  */
+ #ifndef CONFIG_SMP
+-# define cli()			local_irq_disable()
+-# define sti()			local_irq_enable()
+-# define save_flags(x)		local_save_flags(x)
+-# define restore_flags(x)	local_irq_restore(x)
+-# define save_and_cli(x)	local_irq_save(x)
+-#endif
++static inline void __deprecated cli(void)
++{
++	local_irq_disable();
++}
++static inline void __deprecated sti(void)
++{
++	local_irq_enable();
++}
++static inline void __deprecated save_flags(unsigned long *x)
++{
++	local_save_flags(*x);
++}
++#define save_flags(x) save_flags(&x);
++static inline void __deprecated restore_flags(unsigned long x)
++{
++	local_irq_restore(x);
++}
++
++static inline void __deprecated save_and_cli(unsigned long *x)
++{
++	local_irq_save(*x);
++}
++#define save_and_cli(x)	local_irq_save(&x)
++#endif /* CONFIG_SMP */
+ 
+ /* SoftIRQ primitives.  */
+ #define local_bh_disable() \

@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVBLDEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVBLDTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVBLDEu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 22:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVBLDEu
+	id S262380AbVBLDTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 22:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVBLDTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 22:04:50 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:1776 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262377AbVBLDEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 22:04:47 -0500
-Message-ID: <420D724D.7080302@acm.org>
-Date: Fri, 11 Feb 2005 21:04:45 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix IPMI LAN bridging
-Content-Type: multipart/mixed;
- boundary="------------020002030508010107000001"
+	Fri, 11 Feb 2005 22:19:12 -0500
+Received: from nevyn.them.org ([66.93.172.17]:43423 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S262380AbVBLDTG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 22:19:06 -0500
+Date: Fri, 11 Feb 2005 22:19:04 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Blocking behavior changed for pipes in 2.6.11-rc3
+Message-ID: <20050212031904.GA18380@nevyn.them.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020002030508010107000001
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This program [cribbed loosely from tst-cancel17.c in glibc] has changed
+behavior with the recent pipe changes.  It used to block; which makes sense.
+It gets the maximum buffer size for the pipe (or a page if that's larger),
+and writes that many bytes plus two to it.  It reads one back.  The write
+"shouldn't" have room to finish.
 
+Checking the POSIX language for _PC_PIPE_BUF I think this is OK - it doesn't
+say that no more bytes than that can be written at once, just that this is
+the maximum which are guaranteed to be written atomically.  So I'm guessing
+this change is a feature, not a bug.  Right?
 
+[snip]
 
---------------020002030508010107000001
-Content-Type: text/plain;
- name="ipmi-lan-addr-len.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi-lan-addr-len.diff"
+#include <errno.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-The size of LAN bridged messages was not being returned properly from
-the function that calculated address sizes.  This fixes the problem.
+void *
+tf (void *fd)
+{
+  int *fds = fd;
+  char mem[1];
+  read (fds[0], mem, 1);
+}
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+int
+main (void)
+{
+  pthread_t th;
+  int len;
+  int fds[2];
 
-Index: linux-2.6.11-rc3/drivers/char/ipmi/ipmi_msghandler.c
-===================================================================
---- linux-2.6.11-rc3.orig/drivers/char/ipmi/ipmi_msghandler.c
-+++ linux-2.6.11-rc3/drivers/char/ipmi/ipmi_msghandler.c
-@@ -480,6 +480,9 @@
- 		return sizeof(struct ipmi_ipmb_addr);
- 	}
- 
-+	if (addr_type == IPMI_LAN_ADDR_TYPE)
-+		return sizeof(struct ipmi_lan_addr);
-+
- 	return 0;
- }
- 
+  if (pipe (fds) != 0)
+    {
+      puts ("pipe failed");
+      return 1;
+    }
 
---------------020002030508010107000001--
+  size_t len2 = fpathconf (fds[1], _PC_PIPE_BUF);
+  size_t page_size = sysconf (_SC_PAGESIZE);
+  len2 = (len2 < page_size ? page_size : len2) + 1 + 1;
+  char *mem2 = malloc (len2);
+
+  pthread_create (&th, NULL, tf, fds);
+  write (fds[1], mem2, len2);
+
+  return 0;
+}
+
+[/snip]
+
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

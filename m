@@ -1,28 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275989AbRJUMZw>; Sun, 21 Oct 2001 08:25:52 -0400
+	id <S275990AbRJUMaM>; Sun, 21 Oct 2001 08:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275990AbRJUMZm>; Sun, 21 Oct 2001 08:25:42 -0400
-Received: from relay.swspn.net.au ([203.87.88.2]:50445 "EHLO
-	relay.swspn.net.au") by vger.kernel.org with ESMTP
-	id <S275989AbRJUMZX>; Sun, 21 Oct 2001 08:25:23 -0400
-Message-Id: <4.3.2.7.2.20011021222816.00c60270@mail.ispdr.net.au>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sun, 21 Oct 2001 22:29:47 +1000
-To: linux-kernel@vger.kernel.org
-From: Anthony <aslan@ispdr.net.au>
-Subject: Are we still alive?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S276018AbRJUMaD>; Sun, 21 Oct 2001 08:30:03 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9231 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275990AbRJUM3s>; Sun, 21 Oct 2001 08:29:48 -0400
+Subject: Re: PATCH: linux-2.4.13-pre5/drivers/message/i2o directory adjustments
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sun, 21 Oct 2001 13:36:07 +0100 (BST)
+Cc: adam@yggdrasil.com (Adam J. Richter), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <3BD08458.840944F2@mandrakesoft.com> from "Jeff Garzik" at Oct 19, 2001 03:51:52 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vHpn-0006Be-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone. Just a test message to see if we're still alive? This list is 
-usually really active, and I haven't had an E-Mail from it for 2 days! No 
-need for anyone to respond to this... :)
+> I prefer this patch:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.13/i2o-build-2.4.13.5.patch.gz
+> 
+> I missed the drivers/Makefile change though.
 
+I have i2o patches for Linus pending. Please be patient, I ended up dealing
+with builders and being away at a show
 
-----------------------------
-Anthony (aslan@ispdr.net.au)
-----------------------------
-
+Alan

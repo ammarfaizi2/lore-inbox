@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271698AbRICNRa>; Mon, 3 Sep 2001 09:17:30 -0400
+	id <S271707AbRICN0V>; Mon, 3 Sep 2001 09:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271697AbRICNRV>; Mon, 3 Sep 2001 09:17:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51985 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271694AbRICNRG>; Mon, 3 Sep 2001 09:17:06 -0400
-Subject: Re: Linux 2.4.9-ac6
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Mon, 3 Sep 2001 14:21:04 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010903150529.J699@athlon.random> from "Andrea Arcangeli" at Sep 03, 2001 03:05:29 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S271708AbRICN0L>; Mon, 3 Sep 2001 09:26:11 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:2564 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S271707AbRICNZy>;
+	Mon, 3 Sep 2001 09:25:54 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Ghozlane Toumi" <gtoumi@messel.emse.fr>
+Date: Mon, 3 Sep 2001 15:25:42 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15dtey-0001i0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re:Re: matroxfb problems with dualhead G400
+CC: <linux-kernel@vger.kernel.org>,
+        "Linux Fbdev development list" 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        bgilbert@backtick.net
+X-mailer: Pegasus Mail v3.40
+Message-ID: <267E1FC1E0F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> what's the point of such information? If something I would understand to
-> specify the licence of a module when it's _not_ GPL.
+On  3 Sep 01 at 15:15, Ghozlane Toumi wrote:
+> > You must boot your kernel with 'video=scrollback:0'. Otherwise your
+> > kernel die sooner or later... JJ's scrollback code does not cope with
+> > more than one visible console, so you must disable it if you have more
+> > than one display in the box.
 
-Because vendors will Im sure neglect to put non-GPL optional tags on their
-code. While putting GPL tags on non GPL code is not going to make their
-lawyers happy 8)
+> could we somehow detect in register_framebuffer that whe're going
+> multihead and disable software scrolling ?
+> 
+> I didn't look at the code so i don't know if it's feasible , just a
+> suggestion ..
 
-Alan
+Unfortunately once scrollback gets enabled (and allocates its scrollback
+buffers, fills couple of pointers here and there), it is not trivial to 
+disable it again. If someone feels for doing that, do that. But I think
+that changing default scrollback value from 32768 to 0 is better - as
+you'll still have scrollback if your hardware can do it.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
+                                    
+                                            

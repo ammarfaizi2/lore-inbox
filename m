@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbTEHJ7U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 05:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTEHJ7U
+	id S261272AbTEHKDT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 06:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTEHKDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 05:59:20 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:34575 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261275AbTEHJ7T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 05:59:19 -0400
-Date: Thu, 8 May 2003 12:08:32 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       chas williams <chas@locutus.cmf.nrl.navy.mil>, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ATM] [PATCH] unbalanced exit path in Forerunner HE he_init_one()
-Message-ID: <20030508120832.A26472@electric-eye.fr.zoreil.com>
-References: <200305071813.h47IDpc9010906@hera.kernel.org> <20030508010146.A20715@electric-eye.fr.zoreil.com> <20030508060640.A24325@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030508060640.A24325@infradead.org>; from hch@infradead.org on Thu, May 08, 2003 at 06:06:40AM +0100
-X-Organisation: Marie's fan club - III
+	Thu, 8 May 2003 06:03:19 -0400
+Received: from routeree.utt.ro ([193.226.8.102]:29060 "EHLO klesk.etc.utt.ro")
+	by vger.kernel.org with ESMTP id S261272AbTEHKDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 06:03:18 -0400
+Message-ID: <52559.194.138.39.56.1052389206.squirrel@webmail.etc.utt.ro>
+Date: Thu, 8 May 2003 13:20:06 +0300 (EEST)
+Subject: Q: Anticipatory scheduler docs
+From: "Szonyi Calin" <sony@etc.utt.ro>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> :
-[...]
-> Btw, this driver badly wants a cleanup of the ifdef mess.  Look
+Hello everyone
 
-It may happen some day in the future.
+Where can I find documentation about the anticipatory scheduler
+and about tuning it ?
 
-[...]
-> ifdefs all over the place.  Who reviewed this driver before
-> inclusion?
+Thanks
 
-Happy relaxed people :o)
+Bye
+Calin
 
---
-Ueimor
+-- 
+# fortune
+fortune: write error on /dev/null --- please empty the bit bucket
+
+
+-----------------------------------------
+This email was sent using SquirrelMail.
+   "Webmail for nuts!"
+http://squirrelmail.org/
+
+

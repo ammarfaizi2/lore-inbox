@@ -1,120 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264737AbSKEJhj>; Tue, 5 Nov 2002 04:37:39 -0500
+	id <S264738AbSKEJry>; Tue, 5 Nov 2002 04:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264738AbSKEJhj>; Tue, 5 Nov 2002 04:37:39 -0500
-Received: from redrock.inria.fr ([138.96.248.51]:49876 "HELO redrock.inria.fr")
-	by vger.kernel.org with SMTP id <S264737AbSKEJhe>;
-	Tue, 5 Nov 2002 04:37:34 -0500
-To: linux-kernel@vger.kernel.org, weissg@vienna.at,
-       dbrownell@users.sourceforge.net
-Subject: Problem with USB-OHCI (2.4.20-pre10-ac2) and Sony Picturebook PCG-C1MHP
-SCF: #mh/Mailbox/outboxDate: Tue, 5 Nov 2002 10:36:02 +0100
+	id <S264739AbSKEJry>; Tue, 5 Nov 2002 04:47:54 -0500
+Received: from redrock.inria.fr ([138.96.248.51]:54484 "HELO redrock.inria.fr")
+	by vger.kernel.org with SMTP id <S264738AbSKEJrt>;
+	Tue, 5 Nov 2002 04:47:49 -0500
+To: linux-kernel@vger.kernel.org, stelian.pop@fr.alcove.com,
+       m.ashley@unsw.edu.au, jun1m@mars.dti.ne.jp, t-kinjo@tc4.so-net.ne.jp,
+       tridge@valinux.com
+Subject: 2.4.20-pre10-ac2, Sony PCG-C1MHP and Sonypi
+SCF: #mh/Mailbox/outboxDate: Tue, 5 Nov 2002 10:46:20 +0100
 From: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
-Message-Id: <20021105103602.7c1282fa.Manuel.Serrano@sophia.inria.fr>
+Message-Id: <20021105104620.7c1282fa.Manuel.Serrano@sophia.inria.fr>
 Organization: Inria
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: 05 Nov 2002 10:38:14 +0100
+Date: 05 Nov 2002 10:48:29 +0100
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello there,
 
-Here is the description of my third problems with my Sony Picturebook 
-PCG-C1MHP computer. I'm sorry to annoy everybody with my problems. I'm
-afraid that this bug report is not even the last one...
-
+Here is the description of my fourth problem with my Sony Picturebook 
+PCG-C1MHP computer. 
 
 [1.] One line summary of the problem:
 =====================================
 
-USB error message at boot-time and the USB mouse randomly disappears.
+Incompatibility between USB and SONYPI.
 
 
 [2.] Full description of the problem/report:
 ============================================
 
-At boot time, I have the following error (warning?) messages:
+Sonypi and USB modules seems to be incompatible. That is, if I don't load
+any USB kernel modules, using Sonypi works perfectly (I mostly use it
+to access the LCD brightness). If I load USB modules, then Sonypi reports
+errors:
 
 -----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-usb-ohci.c: USB OHCI at membase 0xcf85a000, IRQ 9
-usb-ohci.c: usb-00:0f.0, Acer Laboratories Inc. [ALi] USB 1.1 Controller
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-PCI: Found IRQ 9 for device 00:14.0
-usb-ohci.c: USB OHCI at membase 0xc00e0000, IRQ 9
-usb-ohci.c: usb-00:14.0, Acer Laboratories Inc. [ALi] USB 1.1 Controller (#2)
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb.c: registered new driver hiddev
-usb.c: registered new driver hid
-hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
-hid-core.c: USB HID support drivers
-mice: PS/2 mouse device common for all mice
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
-Power Resource: found
-ACPI: AC Adapter found
-ACPI: Battery socket found, battery present
-ACPI: Thermal Zone found
-hub.c: new USB device 00:0f.0-1, assigned address 2
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,1), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,5), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,7), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-8139too Fast Ethernet driver 0.9.26
-PCI: Found IRQ 9 for device 00:0b.0
-PCI: Sharing IRQ 9 with 00:0a.0
-PCI: Sharing IRQ 9 with 00:12.0
-eth0: RealTek RTL8139 Fast Ethernet at 0xcf87e800, 08:00:46:47:62:d4, IRQ 9
-eth0:  Identified 8139 chip type 'RTL-8139C'
-eth0: Setting 100mbps half-duplex based on auto-negotiated partner ability 40a1.
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Found IRQ 9 for device 00:12.0
-PCI: Sharing IRQ 9 with 00:0a.0
-PCI: Sharing IRQ 9 with 00:0b.0
-Yenta IRQ list 0cb8, PCI irq9
-Socket status: 30000006
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb.c: USB device not responding, giving up (error=-110)
-hub.c: new USB device 00:0f.0-1, assigned address 3
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb.c: USB device not responding, giving up (error=-110)
+sonypi: unknown event port1=0x2f,port2=0x0a
+sonypi: Sony Programmable I/O Controller Driver v1.13.
+sonypi: detected type2 model, verbose = on, fnkeyinit = off, camera = on, compa
+t = off, nojogdial = off
+sonypi: unknown event port1=0x2f,port2=0x08
+sonypi: enabled at irq=11, port1=0x1080, port2=0x1084
+sonypi: device allocated minor is 63
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
+sonypi command failed at sonypi.c : sonypi_ecrset (line 115)
+sonypi command failed at sonypi.c : sonypi_ecrget (line 126)
 -----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
 
-I have no idea of the meaning and the implication of these messages. Does
-it means that the USB bus is not handled correctly. I have tried two
-USB things. The first is downloading pictures from a camera. This works
-perfectly. The second thing I'm doing is using an USB mouse. This 
-works but at a certain moment I "loose" the mouse. That is, after a
-certain amount time that varies from one session to another (it can be
-5 minutes or event 5 hours). That is, after a certain period X does not
-handle the USB mouse anymore. When this occurs, if I quite X and restart
-X, the USB mouse re-work!
+The weird thing is that setting a new value (with sonypi_ecrset) is still
+operated. One more time, if I don't load any of the USB modules, I don't
+see all these error (warning) messages from sonypi.
 
 [3.] Keywords (i.e., modules, networking, kernel):
 ==================================================
 
-Sony Picture book, USB, mouse
+Sony Picture book, USB, Sonypi
 
 
 [4.] Kernel version (from /proc/version):
@@ -130,13 +90,12 @@ NA
 [6.] A small shell script or example program which triggers the problem:
 ========================================================================
 
-NA
+For instance, using jogdiald
 
 [7.] Environment
 ================
 
 Sony Picturebook PCG-C1MHP, Crusoe TM5800, ide disk IC25N030ATCS04-0
-ATA/ATAPI IDE	: IDE PCI Bus Master ALi M5229
 
 [7.1.] Software (add the output of the ver_linux script here):
 ==============================================================
@@ -189,7 +148,8 @@ bogomips        : 1717.04
 [7.3.] Module information (from /proc/modules):
 ===============================================
 
-Module                  Size  Used by    Not tainted
+owens:.../drivers/usb> cat /proc/modules 
+sonypi                  7240   0
 trident                25556   1 (autoclean)
 ac97_codec              9640   0 (autoclean) [trident]
 soundcore               3364   3 (autoclean) [trident]
@@ -230,6 +190,7 @@ owens:.../src/linux-2.4.20-rc1> cat /proc/ioports
 03f6-03f6 : Acer Laboratories Inc. [ALi] M5229 IDE
   03f6-03f6 : ide0
 0cf8-0cff : PCI conf1
+1080-109f : Sony Programable I/O Device
 1400-140f : Acer Laboratories Inc. [ALi] M5229 IDE
 1800-18ff : Acer Laboratories Inc. [ALi] M5451 PCI AC-Link Controller Audio Device
   1800-18ff : ALi Audio Accelerator
@@ -436,7 +397,7 @@ owens:.../src/linux-2.4.20-rc1> sudo lspci -vv
 
 -----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
 
-Sincerely,
+Please, let me know if there is something I can to help. Sincerely,
 
 --
 Manuel Serrano

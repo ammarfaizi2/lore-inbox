@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbUDTJcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbUDTKBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbUDTJcy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 05:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUDTJcy
+	id S262381AbUDTKBW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 06:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUDTKBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 05:32:54 -0400
-Received: from mail.tammen.info ([62.225.14.106]:22284 "EHLO mail.tammen.de")
-	by vger.kernel.org with ESMTP id S262441AbUDTJcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 05:32:53 -0400
-From: Heinz Ulrich Stille <hus@design-d.de>
-Organization: design_d gmbh
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Total freeze switching X->fb (matrox)
-Date: Tue, 20 Apr 2004 11:32:43 +0200
-User-Agent: KMail/1.6.1
-References: <1JtQg-3hH-7@gated-at.bofh.it> <1JtQj-3hH-19@gated-at.bofh.it> <200404191659.i3JGxv03006802@phobos.cs.tu-berlin.de>
-In-Reply-To: <200404191659.i3JGxv03006802@phobos.cs.tu-berlin.de>
+	Tue, 20 Apr 2004 06:01:22 -0400
+Received: from eomer.warman.nask.pl ([193.59.201.24]:20687 "EHLO
+	eomer.warman.nask.pl") by vger.kernel.org with ESMTP
+	id S262381AbUDTKBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 06:01:20 -0400
+Subject: ['Watchdog': denied attachment]
+X-Priority: 3 (Normal)
+Date: Tue, 20 Apr 2004 11:50:45 +0200
+From: Mail.Administrator@pl.ey.com
+To: linux-kernel@vger.kernel.org
+Reply-To: Mail.Administrator@pl.ey.com
+Message-ID: <OFDFE138F3.84253A86-ONC1256E7C.00361612@pl.ey.com>
+X-MIMETrack: Serialize by Router on PL010/SVR/ErnstYoung/PL(Release 6.0.3|September 26, 2003) at
+ 04/20/2004 11:57:43 AM
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200404201132.43931.hus@design-d.de>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add me to the list... Matrox G400, AMD Irongate chipset.
-It never seems to happen when X shuts down on it's own or when it
-just startet up, that is, when I switch from the login screen.
 
-MfG, Ulrich
 
--- 
-Heinz Ulrich Stille / Tel.: +49-541-9400463 / Fax: +49-541-9400450
-design_d gmbh / Lortzingstr. 2 / 49074 Osnabrück / www.design-d.de
+
+
+GROUP securiQ.Watchdog
+Server: PL010
+-----------------------------------------------------------------------
+
+This email contained a denied attachment (illegal size or type). The
+attachment has been removed and NOT SENT to the recipient. Please check the
+attachment for viruses before resending it.
+-----------------------------------------------------------------------
+
+Mail-Info
+
+From:              linux-kernel@vger.kernel.org
+To:                academyofbusiness@pl.ey.com
+Rec.: academyofbusiness@pl.ey.com
+Date:              04/20/2004 11:54:09 AM
+Subject:           Re: document
+
+-----------------------------------------------------------------------
+file is denied:     .xx.pif
+
+
+
+

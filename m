@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130015AbRBIWlO>; Fri, 9 Feb 2001 17:41:14 -0500
+	id <S130866AbRBIWnO>; Fri, 9 Feb 2001 17:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130940AbRBIWkz>; Fri, 9 Feb 2001 17:40:55 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5900 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130015AbRBIWkp>; Fri, 9 Feb 2001 17:40:45 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [beta patch] SSE copy_page() / clear_page()
-Date: 9 Feb 2001 14:40:20 -0800
-Organization: Transmeta Corporation
-Message-ID: <961rkk$fgm$1@penguin.transmeta.com>
-In-Reply-To: <3A846C84.109F1D7D@colorfullife.com>
+	id <S130940AbRBIWnE>; Fri, 9 Feb 2001 17:43:04 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:36367 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S130866AbRBIWmo>; Fri, 9 Feb 2001 17:42:44 -0500
+Message-ID: <3A847252.54AD7579@Hell.WH8.TU-Dresden.De>
+Date: Fri, 09 Feb 2001 23:42:26 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac9 i686)
+X-Accept-Language: en, de-DE
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.1ac9
+In-Reply-To: <E14RLSq-00083m-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A846C84.109F1D7D@colorfullife.com>,
-Manfred Spraul  <manfred@colorfullife.com> wrote:
->
->* use sse for normal memcopy. Then main advantage of sse over mmx is
->that only the clobbered registers must be saved, not the full fpu state.
->
->* verify that the code doesn't break SSE enabled apps.
->I checked a sse enabled mp3 encoder and Mesa.
+Hi,
 
-Ehh..  Did you try this with pending FPU exceptions that have not yet
-triggered?
+Alan Cox wrote:
+> 
+>         ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
+> 2.4.1-ac9
+> o       Merge with Linus 2.4.2pre2
 
-I have this strong suspicion that your kernel will lock up in a bad way
-of you have somebody do something like divide by zero without actually
-touching a single FP instruction after the divide (so that the error has
-happened, but has not yet been raised as an exception). 
+I've noticed that -ac9 comes with the "Disable PCI-Master-Read-Caching
+on VIA" patch that Peter Horton posted a while back. I don't know
+whether it was applied in Linus' or your tree first, but is it
+actually verified to fix anything?
 
-And when it hits your SSE copy routines with the pending error, it will
-likely loop forever on taking the fault in kernel space. 
+AFAIR Peter Horton later posted that it didn't fix a thing for him and
+Petr Vandrovec tracked down his corruption issue to a Promise driver
+problem. I see no corruption with Master-Read-Caching enabled here and
+unless someone can verify that it really is the culprit, the patch
+is probably completely redundant.
 
-Basically, kernel use of MMX and SSE are a lot harder to get right than
-many people seem to realize.  Why do you think I threw out all the
-patches that tried to do this?
-
-And no, the bug won't show up in any normal testing.  You'll never know
-about it until somebody malicious turns your machine into a doorstop. 
-
-Finally, did you actually see any performance gain in any benchmarks?
-
-		Linus
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

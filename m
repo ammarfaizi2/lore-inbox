@@ -1,71 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263182AbSJBQ7b>; Wed, 2 Oct 2002 12:59:31 -0400
+	id <S263158AbSJBQyo>; Wed, 2 Oct 2002 12:54:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263185AbSJBQ7b>; Wed, 2 Oct 2002 12:59:31 -0400
-Received: from packet.digeo.com ([12.110.80.53]:32137 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263182AbSJBQ73>;
-	Wed, 2 Oct 2002 12:59:29 -0400
-Message-ID: <3D9B2734.D983E835@digeo.com>
-Date: Wed, 02 Oct 2002 10:04:52 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
-X-Accept-Language: en
+	id <S263171AbSJBQyo>; Wed, 2 Oct 2002 12:54:44 -0400
+Received: from dsl-213-023-022-021.arcor-ip.net ([213.23.22.21]:34690 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S263158AbSJBQyk>;
+	Wed, 2 Oct 2002 12:54:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dave McCracken <dmccr@us.ibm.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Snapshot of shared page tables
+Date: Wed, 2 Oct 2002 19:00:19 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <45850000.1033570655@baldur.austin.ibm.com> <E17wmit-0001bH-00@starship>
+In-Reply-To: <E17wmit-0001bH-00@starship>
 MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
-Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
-References: <20021002023901.GA91171@compsoc.man.ac.uk> <20021002032327.GA91947@compsoc.man.ac.uk> <20021002141435.A18377@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Oct 2002 17:04:52.0643 (UTC) FILETIME=[D30CAF30:01C26A35]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17wmrE-0001bS-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
+On Wednesday 02 October 2002 18:51, Daniel Phillips wrote:
+> On Wednesday 02 October 2002 16:57, Dave McCracken wrote:
+> > 
+> > Ok, here it is.  This patch works for my simple tests, both under UP and
+> > SMP, including under memory pressure.  I'd appreciate anyone who'd like to
+> > take it and beat on it.  Please let me know of any problems you find.
+> > 
+> > The patch is against this morning's 2.5 BK tree.
 > 
-> On Wed, Oct 02, 2002 at 04:23:27AM +0100, John Levon wrote:
-> > --- linux-linus/fs/locks.c    Sat Sep 28 15:56:28 2002
-> > +++ linux/fs/locks.c  Wed Oct  2 04:15:54 2002
-> > @@ -727,11 +727,11 @@
-> >       }
-> >       unlock_kernel();
-> >
-> > -     if (found)
-> > -             yield();
-> > -
-> >       if (new_fl->fl_type == F_UNLCK)
-> >               return 0;
-> > +
-> > +     if (found)
-> > +             yield();
-> >
-> >       lock_kernel();
-> >       for_each_lock(inode, before) {
-> >
-> > "fixes" the problem (a simultaneous kernel compile is going on; it's a
-> > 2-way SMP machine). What is the yield for ? What's the right fix (if
-> > any) ? This turns our app's main loop from a second or two into a
-> > 90-second behemoth.
-> 
-> I'm pretty sure this is correct.  There's no particular reason to yield()
-> if we're unlocking.
-> 
-> I wonder if yield() is the correct call to make anyway.  We certainly need
-> to schedule() to allow any higher-priority task the opportunity to run.
-> But if we're the highest-priority task downgrading our write-lock to
-> a read-lock which permits other tasks the opportunity to run, i see no
-> reason we should _yield_ to them.
-> 
+> Interesting, you substituted pte_page_lock(ptepage) for mm->page_table_lock.
+> Could you wax poetic about that, please?
 
-sched_yield() sementics changed a lot.  It used to mean "take a quick
-nap", but it now means "go to the back of the runqueue and stay there
-for absolutely ages".  The latter is a closer interpretation of the spec,
-but it has broken stuff which was tuned to the old behaviour.
+Never mind, I see the logic.  This reflects the fact that page_table_lock
+is insufficient protection when pte pages are shared.  So you solved that
+problem and at the same time improved the scalability for the general case
+immensely, without adding any new overhead.  Very nice!
 
-It's not really clear why that yield is in there at all?  Unless that
-code is really, really slow (milliseconds) then probably it should just
-be deleted.
-
-If there really is a solid need to hand the CPU over to some now-runnable
-higher-priority process then a cond_resched() will suffice.
+-- 
+Daniel

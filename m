@@ -1,93 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUGQW6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUGQXH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUGQW6l (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 18:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUGQW6M
+	id S262328AbUGQXH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 19:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUGQXEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 18:58:12 -0400
-Received: from digitalimplant.org ([64.62.235.95]:33769 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S262547AbUGQWfU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 18:35:20 -0400
-Date: Sat, 17 Jul 2004 15:35:14 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: linux-kernel@vger.kernel.org
-cc: pavel@ucw.cz
-Subject: [10/25] Merge pmdisk and swsusp
-Message-ID: <Pine.LNX.4.50.0407171529250.22290-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 Jul 2004 19:04:54 -0400
+Received: from smtp.gentoo.org ([156.56.111.197]:19163 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S262328AbUGQWj1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 18:39:27 -0400
+Date: Sat, 17 Jul 2004 23:36:54 +0100
+From: Ciaran McCreesh <ciaranm@gentoo.org>
+To: augustus@linuxhardware.org
+Cc: linux-kernel@vger.kernel.org, tseng@gentoo.org,
+       jnagyjr@joseph-a-nagy-jr.homelinux.org
+Subject: Re: vim doesn't like the command line
+Message-Id: <20040717233654.102579e1@snowdrop.home>
+In-Reply-To: <Pine.LNX.4.58.0407142340560.7017@penguin.linuxhardware.org>
+References: <Pine.LNX.4.58.0407142340560.7017@penguin.linuxhardware.org>
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-ChangeSet 1.1852, 2004/07/17 11:12:12-07:00, mochel@digitalimplant.org
+On Wed, 14 Jul 2004 23:44:16 -0400 (EDT) augustus@linuxhardware.org
+wrote:
+| This is odd but it seems that vim 6.3 does not function properly with 
+| kernel 2.6.8-rc1.  It will not take command line arguement filenames. 
+| No matter what you pass it, it always goes to the file browser.  This
+| is not the case with 2.6.7 kernels.  Any ideas?  I have attached my
+| kernel .config.
 
-[Power Mgmt] Remove arch/i386/power/pmdisk.S
+I've been trying to track this down as well. Kinda tricky, since it
+WORKSFORME(TM). The following may be of help to you:
+
+http://bugs.gentoo.org/show_bug.cgi?id=57378
+
+Basically, argv is getting nuked by something.
+
+Seems rebuilding without a -march in CFLAGS fixes it for some people,
+reason unknown...
+
+-- 
+Ciaran McCreesh : Gentoo Developer (Sparc, MIPS, Vim, Fluxbox)
+Mail            : ciaranm at gentoo.org
+Web             : http://dev.gentoo.org/~ciaranm
 
 
- arch/i386/power/pmdisk.S |   56 -----------------------------------------------
- 1 files changed, 56 deletions(-)
+--Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-diff -Nru a/arch/i386/power/pmdisk.S b/arch/i386/power/pmdisk.S
---- a/arch/i386/power/pmdisk.S	2004-07-17 14:51:21 -07:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,56 +0,0 @@
--/* Originally gcc generated, modified by hand */
--
--#include <linux/linkage.h>
--#include <asm/segment.h>
--#include <asm/page.h>
--
--	.text
--
--ENTRY(pmdisk_arch_suspend)
--	cmpl $0,4(%esp)
--	jne .L1450
--
--	movl %esp, saved_context_esp
--	movl %ebx, saved_context_ebx
--	movl %ebp, saved_context_ebp
--	movl %esi, saved_context_esi
--	movl %edi, saved_context_edi
--	pushfl ; popl saved_context_eflags
--
--	call pmdisk_suspend
--	jmp .L1449
--	.p2align 4,,7
--.L1450:
--	movl $swsusp_pg_dir-__PAGE_OFFSET,%ecx
--	movl %ecx,%cr3
--
--	movl	pagedir_nosave,%ebx
--	xorl	%eax, %eax
--	xorl	%edx, %edx
--	.p2align 4,,7
--.L1455:
--	movl	4(%ebx,%edx),%edi
--	movl	(%ebx,%edx),%esi
--
--	movl	$1024, %ecx
--	rep
--	movsl
--
--	movl	%cr3, %ecx;
--	movl	%ecx, %cr3;  # flush TLB
--
--	incl	%eax
--	addl	$16, %edx
--	cmpl	nr_copy_pages,%eax
--	jb .L1455
--	.p2align 4,,7
--.L1453:
--	movl saved_context_esp, %esp
--	movl saved_context_ebp, %ebp
--	movl saved_context_ebx, %ebx
--	movl saved_context_esi, %esi
--	movl saved_context_edi, %edi
--	pushl saved_context_eflags ; popfl
--	call pmdisk_resume
--.L1449:
--	ret
+iD8DBQFA+aoN96zL6DUtXhERAif+AJ0W6U9ajVQPHPLSW4P02gLwISaBZwCeMgK+
+sTi/pL+gSBostwCUsdTr5u4=
+=wvyE
+-----END PGP SIGNATURE-----
+
+--Signature=_Sat__17_Jul_2004_23_36_54_+0100_1.Va.6Mvb1lZy/M/--

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292327AbSBPJNu>; Sat, 16 Feb 2002 04:13:50 -0500
+	id <S292329AbSBPJQb>; Sat, 16 Feb 2002 04:16:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292328AbSBPJNk>; Sat, 16 Feb 2002 04:13:40 -0500
-Received: from [193.154.7.22] ([193.154.7.22]:39488 "EHLO
-	freedom.icomedias.com") by vger.kernel.org with ESMTP
-	id <S292327AbSBPJN3> convert rfc822-to-8bit; Sat, 16 Feb 2002 04:13:29 -0500
-Subject: AW: Need to force IDE geometry
-Date: Sat, 16 Feb 2002 10:13:20 +0100
+	id <S292330AbSBPJQV>; Sat, 16 Feb 2002 04:16:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13582 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292329AbSBPJQI>;
+	Sat, 16 Feb 2002 04:16:08 -0500
+Message-ID: <3C6E2355.AA514ECA@mandrakesoft.com>
+Date: Sat, 16 Feb 2002 04:16:05 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <D143FBF049570C4BB99D962DC25FC2D203B821@freedom.icomedias.com>
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-X-MS-TNEF-Correlator: 
-Thread-Topic: Need to force IDE geometry
-Thread-Index: AcG2yi0vJFzBy0/fTj6sO91tYdMYTg==
-From: "Martin Bene" <martin.bene@icomedias.com>
-To: <Andries.Brouwer@cwi.nl>, <john@mwk.co.nz>, <linux-kernel@vger.kernel.org>
-Cc: <andre@linux-ide.org>, <hugo@firstlinux.net>
+To: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+CC: linux-kernel@vger.kernel.org, kaos@ocs.com.au
+Subject: Re: kbuild [which is not only CML2]
+In-Reply-To: <3C6E1F90.40404@dplanet.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andries,
+"Giacomo A. Catenazzi" wrote:
+> The discussion was also on lkml, ESR asked to kbuild
+> people to give some comments, using also the feed-back
+> of lkml.
+> As you noticed, in lkml the discussion went into flames,
+> fogetting the important points.
+> [As this flame is going forgetting kbuild-2.5..]]
 
-> Your question is based on your assumptions about geometry
-> and LBA. But your assumptions are incorrect, and therefore
-> your questions do not make sense. Please tell what you do
-> and what error messages you get.
+No need for a huge long e-mail to make a basic point:
+Don't lump CML2 and Keith's kbuild work together.
 
-For some reasons the c/h/s settings reported for LBA disks depend on ide device number: /hda uses 255 heads, 63 sectors while /dev/hdc and above use 16 head, 63 sectors.
+I agree, and this is a good point.
 
-hda: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=9345/255/63, UDMA(33)
-hdb: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=148945/16/63, UDMA(33)
-hdc: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=148945/16/63, UDMA(33)
 
-As you can see, this means you end up with different reported drive geometries for identical disks. Esp. if you want to use software raid this is a major nuisance. The usual workaround is to change head/cylinder settings when first partitioning the drive and let linux change the geometry during partition table check.
+> Tell us what is wrong in kbuild-2-5 and in CML2. Don't flame!
 
-Partition check:
- hda: hda1 hda2 < hda5 hda6 > hda3
- hdb: [PTBL] [9345/255/63] hdb1 hdb2 < hdb5 hdb6 > hdb3
- hdc: [PTBL] [9345/255/63] hdc1 hdc2 < hdc5 hdc6 > hdc3
+We've been doing that for CML2.  For months, actually.
 
-While this works, it's quite unintuitive and confusing; correct behaviour would be to treat all disks identicaly regardless of device number.
+kbuild (again, as you point out) is quite another matter.  Perhaps we
+can point Keith to post a test patch against 2.5.5-pre1, for us to
+review and comment on? 
 
-Bye, Martin
+I believe there are probably still some issues to resolve, but I would
+love to see a better makefile system for 2.5.
+
+Regards,
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | "Why is it that attractive girls like you
+Building 1024    |  always seem to have a boyfriend?"
+MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+                 |             - BBC TV show "Coupling"

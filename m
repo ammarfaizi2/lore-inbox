@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbUK0FRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbUK0FRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbUK0FRe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 00:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUK0DzZ
+	id S262140AbUK0FRd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 00:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbUK0Dzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:55:25 -0500
+	Fri, 26 Nov 2004 22:55:37 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262510AbUKZTd3 (ORCPT
+	by vger.kernel.org with ESMTP id S262509AbUKZTd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:33:29 -0500
-Date: Fri, 26 Nov 2004 01:01:09 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 51/51: Notes
-Message-ID: <20041126000109.GK2909@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101300987.5805.402.camel@desktop.cunninghams>
+	Fri, 26 Nov 2004 14:33:27 -0500
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+From: David Woodhouse <dwmw2@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Alexandre Oliva <aoliva@redhat.com>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sources.redhat.com
+In-Reply-To: <12983.1101470307@redhat.com>
+References: <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
+	 <19865.1101395592@redhat.com>
+	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <12983.1101470307@redhat.com>
+Content-Type: text/plain
+Message-Id: <1101470443.8191.9438.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101300987.5805.402.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Fri, 26 Nov 2004 12:00:43 +0000
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2004-11-26 at 11:58 +0000, David Howells wrote:
+> How about calling the interface headers "kapi*/" instead of "user*/". In case
+> you haven't guessed, "kapi" would be short for "kernel-api".
 
-> When I started, I thought I did have 51 patches, really! One of them
-> turned out to be a couple of things I intend to reverse :>
+I don't think that change really makes any difference. The nomenclature
+really isn't _that_ important.
 
-:-))))
-
-> In posting all of this, I recognise of course that no one else
-> understands how it all fits together. I'm hoping that those who care
-> enough will ask questions that I'll happily answer, learn from and
-> through which I'll improve the code.
-> 
-> For now, though, I'm going to bed.
-
-I still had not fallen asleep at keyboard, and that is pretty
-amazing...
-
-It is just too big. suspend2 is small operating system on its own, and
-that is not good thing :-(. 
-
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+dwmw2
+

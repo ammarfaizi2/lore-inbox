@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUIWP0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUIWPiW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUIWP0i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 11:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUIWP0i
+	id S266304AbUIWPiW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 11:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUIWPiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 11:26:38 -0400
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:13723
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S266296AbUIWP0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 11:26:36 -0400
-Message-ID: <4152EB1C.5020406@ppp0.net>
-Date: Thu, 23 Sep 2004 17:26:20 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
+	Thu, 23 Sep 2004 11:38:22 -0400
+Received: from ozlabs.org ([203.10.76.45]:50151 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266304AbUIWPiV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 11:38:21 -0400
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: linux1394-devel@lists.sourceforge.net, bcollins@debian.org
-Subject: Re: Oops in dv1394_remove_host (inkl. fix)
-References: <4152E890.5030500@ppp0.net>
-In-Reply-To: <4152E890.5030500@ppp0.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16722.60814.732208.93234@cargo.ozlabs.ibm.com>
+Date: Thu, 23 Sep 2004 08:36:46 -0700
+From: Paul Mackerras <paulus@samba.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Linas Vepstas <linas@austin.ibm.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org, anton@samba.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
+In-Reply-To: <20040922231700.GE30109@MAIL.13thfloor.at>
+References: <20040920221933.GB1872@austin.ibm.com>
+	<20040920223121.GC1872@austin.ibm.com>
+	<200409211407.09764.vda@port.imtp.ilyichevsk.odessa.ua>
+	<20040921161216.GD1872@austin.ibm.com>
+	<20040922231700.GE30109@MAIL.13thfloor.at>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer wrote:
-> I was playing around with dummyphp. When removing the pci device
-> of ohci1394 I got an oops due to the missing initialization
-> of the .name attribute of the dummy driver (I think).
+Herbert Poetzl writes:
 
-Indeed, I just tested it and it really fixes the issue :-)
+> well, I'd like to know if full whitespace cleanup
+> (trailing and indentation) _is_ something which
+> is interesting for linux mainline ...
 
-Jan
+It's like this... you get to clean up the white space in a file (if
+you want) IF you are also doing some useful work on the file - but the
+whitespace cleanup and the useful work need to be separate patches in
+order to ease later tracking of what changed.
+
+Paul.

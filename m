@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbUCOUCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 15:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbUCOUCL
+	id S262741AbUCOUHr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 15:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbUCOUHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 15:02:11 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:9670 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262732AbUCOUCF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 15:02:05 -0500
-Date: Mon, 15 Mar 2004 12:02:04 -0800
-From: Andy Isaacson <adi@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BK/Web improvements (includes patch server)
-Message-ID: <20040315200204.GH8249@bitmover.com>
-References: <200403150616.i2F6Gu2Z030020@work.bitmover.com> <20040315114142.GA22039@codepoet.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040315114142.GA22039@codepoet.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Mar 2004 15:07:47 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:6109 "EHLO intra.cyclades.com")
+	by vger.kernel.org with ESMTP id S262741AbUCOUHp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 15:07:45 -0500
+Date: Mon, 15 Mar 2004 17:06:37 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: "Cress, Andrew R" <andrew.r.cress@intel.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "Yury V. Umanets" <umka@namesys.com>,
+       "Guo, Min" <min.guo@intel.com>,
+       =?iso-8859-2?Q?Tvrtko_A=2E_Ur=B9ulin?= <tvrtko@croadria.com>,
+       <linux-kernel@vger.kernel.org>, <cgl_discussion@lists.osdl.org>
+Subject: RE: [cgl_discussion] Re: About Replaceable OOM Killer
+In-Reply-To: <E5DA6395B8F9614EB7A784D628184B200E34E8@hdsmsx402.hd.intel.com>
+Message-ID: <Pine.LNX.4.44.0403151705200.2855-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry for the dup, Erik.]
 
-On Mon, Mar 15, 2004 at 04:41:42AM -0700, Erik Andersen wrote:
-> On Sun Mar 14, 2004 at 10:16:56PM -0800, Larry McVoy wrote:
-> > I've made a few changes to the BK/Web service on BK/Bits.  There are some
-[snip]
->     <obligitory request for yet more stuff which is
->     almost certain to piss you off since you just
->     gave me yet-another-something-for-free>
+Yury, others,
 
-Yeah, you should send those messages to me, rather than Larry, 'cuz I
-don't get pissed when people say "thanks for bending over, now bend over
-farther".
+I do think the a "replaceable OOM killer" is a valid and useful thing. 
 
-:)
+You should change your efforts to make such a feature be accepted in 2.6,
+though.
 
-> I'm curious if you might consider adding a diff -Nur style
-> patch vs the last tagged version?  I often go to:
->     http://www.kernel.org/pub/linux/kernel/v2.4/testing/cset/
+On Mon, 15 Mar 2004, Cress, Andrew R wrote:
 
-This is most profitably done outside of bkbits -- the kernel.org URLs
-you point to should work (there's no reason they can't be made to go)
-and it's hard to see the payoff to bkbits to providing it internally.
+> Right, once it is really OOM, you are SOL :-)  Really the only thing you can do at this point in the kernel is to not allocate any more memory, and functions that require more memory just don't work, and the recovery is to reboot..
+> 
+> IMO, the best answer is to detect a nearly-OOM, or trending-toward-OOM condition before it gets so bad.
+> This would allow userland actions, but would require more customization to tune the detection criteria, which would also imply a userland implementation of the monitoring.  We've found that PCP works pretty well for this type of thing.
+> See http://oss.sgi.com/projects/pcp/ and http://pcp4cgl.sourceforge.net/.  We did some work with this for CGL 1.0.
+> 
+> Andy Cress
+> 
+> -----Original Message-----
+> From: cgl_discussion-bounces@lists.osdl.org [mailto:cgl_discussion-bounces@lists.osdl.org] On Behalf Of Pavel Machek
+> Sent: Monday, March 08, 2004 6:02 AM
+> To: Yury V. Umanets
+> Cc: Guo, Min; Tvrtko A. Ur¹ulin; linux-kernel@vger.kernel.org; cgl_discussion@lists.osdl.org
+> Subject: [cgl_discussion] Re: About Replaceable OOM Killer
+> 
+> 
+> Hi!
+> 
+> > > Though it hasn't been updated for a while because nobody cares...
+> > IMHO problem with OOM killer is that it always will do wrong choice. So,
+> > it should be either plugin based or allow to configure it and this
+> > means, that it will become more complex and buggy. Does not it mean,
+> > that OOM killer should be moved to user space?
+> > 
+> > How about to export OOM event to user space? It might be done in manner
+> > like hotplug script is used.
+> 
+> When you are OOM, you really can't exec userland script...
+> 
+> 
 
-Gotta remember, bkbits is more than just kernel stuff.  We're probably
-not going to add code that is only useful to the kernel project.
-
-The stuff larry added this weekend, by comparison, is stuff that makes
-our lives better and has a payoff for us and our customers, while
-simultaneously making life better for bkbits users.  Win-win.  (Or is
-that win-win-win?)
-
-> Of course, an alternative solution would be for someone to fix
-> the kernel.org testing/cset/ scripts to not get wedged...
-
-Yeah, go bug somebody else. :)
-
-No, seriously, thanks for the feedback, and I'm glad the patch server
-looks to be useful.  I just hope it doesn't suck too much bandwidth.
-
--andy

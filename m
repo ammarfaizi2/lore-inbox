@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUCJTGe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:06:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUCJTGe
+	id S262774AbUCJTIx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 14:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUCJTIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:06:34 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:12748 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262574AbUCJTGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:06:30 -0500
-To: David Ford <david+challenge-response@blue-labs.org>
-Cc: root@chaos.analogic.com, "Randy.Dunlap" <rddunlap@osdl.org>,
-       "Godbole, Amarendra (GE Consumer & Industrial)" 
-	<Amarendra.Godbole@ge.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>
-	<20040310100215.1b707504.rddunlap@osdl.org>
-	<Pine.LNX.4.53.0403101324120.18709@chaos>
-	<404F6375.3080500@blue-labs.org>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 10 Mar 2004 11:06:28 -0800
-In-Reply-To: <404F6375.3080500@blue-labs.org>
-Message-ID: <52ad2o4j4b.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	Wed, 10 Mar 2004 14:08:53 -0500
+Received: from mail.kroah.org ([65.200.24.183]:13784 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262774AbUCJTIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 14:08:50 -0500
+Date: Wed, 10 Mar 2004 11:06:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Corey Minyard <minyard@acm.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, "Davis, Todd C" <todd.c.davis@intel.com>,
+       sensors@stimpy.netroedge.com, "Simon G. Vogl" <simon@tk.uni-linz.ac.at>
+Subject: Re: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
+Message-ID: <20040310190648.GB18892@kroah.com>
+References: <20040307223221.0f2db02e.akpm@osdl.org> <20040309013917.GH14833@fs.tum.de> <404F3BC3.2090906@acm.org> <20040310185105.GS14833@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Mar 2004 19:06:29.0198 (UTC) FILETIME=[CB015EE0:01C406D2]
+Content-Disposition: inline
+In-Reply-To: <20040310185105.GS14833@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> Really, your mail reading software should be capable of
-    David> wrapping things by itself, we really have progressed from
-    David> yesteryear.
+On Wed, Mar 10, 2004 at 07:51:05PM +0100, Adrian Bunk wrote:
+> On Wed, Mar 10, 2004 at 10:01:07AM -0600, Corey Minyard wrote:
+> >...
+> > I have included a patch from Todd Davis at Intel that adds this function 
+> > to the I2C driver.  I believe Todd has been working on getting this in 
+> > through the I2C driver writers, although the patch is fairly non-intrusive.
+> > 
+> > However, I have no real way to test this patch.
+> >...
+> 
+> I can only confirm that it fixes the compilation...
+> 
+> 
+> The patch to i2c-core.c is strange:
 
-The problem is that if (say) you use 100 character lines, then someone
-reading it in an 80-column window sees 80-char line, 20-char line, etc
-etc and it's very annoying to read.  If you make every paragraph one
-huge line, then when someone wants to quote your message, they have to
-wrap the quote themselves.
+And dumb, and incorrect :(
 
-Keeping email lines to about 70 characters is still the best policy.
+thanks,
 
- - Roland
+greg k-h

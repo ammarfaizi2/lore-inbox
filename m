@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbUKVUUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbUKVUYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUKVUUt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 15:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbUKVUUl
+	id S262533AbUKVUYL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 15:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbUKVUYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 15:20:41 -0500
-Received: from ozlabs.org ([203.10.76.45]:31461 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262556AbUKVUSc (ORCPT
+	Mon, 22 Nov 2004 15:24:11 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:10479 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262519AbUKVUWV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 15:18:32 -0500
-Subject: Re: [2.6 patch] MODULE_PARM_: remove the __deprecated
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041122155619.GG19419@stusta.de>
-References: <20041122155619.GG19419@stusta.de>
-Content-Type: text/plain
-Date: Tue, 23 Nov 2004 07:18:27 +1100
-Message-Id: <1101154707.4842.16.camel@localhost.localdomain>
+	Mon, 22 Nov 2004 15:22:21 -0500
+Date: Mon, 22 Nov 2004 14:21:45 -0600
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: gjwucherpfennig@gmx.net, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+Message-ID: <20041122202144.GA12858@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <200411221454.iAMEs1t02247@freya.yggdrasil.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411221454.iAMEs1t02247@freya.yggdrasil.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-22 at 16:56 +0100, Adrian Bunk wrote:
-> Hi Rusty,
+On Mon, Nov 22, 2004 at 10:54:01PM +0800, Adam J. Richter wrote:
+> I wrote:
+> >        Please correct me if I am wrong, but, as far as I can tell,
+> >in 2.6.10-rc2-bk6, a struct dentry is held for each node in the sysfs
+> >tree at all times.  I infer this from noticing that sysfs_drop_dentry
+> >and sysfs_hash_and_remove in fs/sysfs/inode.c only seem to be called
+> >on operations to delete a node.  If I've missed something and the dentry
+> >structures are all or mostly released, I would love to be corrected about
+> >it as that would be really good news to me.
 > 
-> I know you will not like this patch, but I consider it important since 
-> the current beghavior is pretty annoying.
 
-Damn straight.  But I never intended this to happen; this patch was one
-of a series.
+The new code doesnot pin the leaf nodes but still pins (by having an extra 
+ref count will creation) the non-leaf nodes or directory dentry and inode. 
+The non-directory (leaf nodes) dentry and inodes are freed as per the normal 
+VFS/dcache cache eviction policies. Dentries not in use, will be pruned under 
+memory pressure and eventually evict inodes also.
 
-I went through and fixed up many of them but naturally such a patch was
-fragile, huge, and even broke some stuff.
+> 	I should correct myself, although this correction suggests
+> that sysfs currently uses slightly _more_ memory than I previously
+> thought in the case of my computer (1100 directories and 2305
+> non-directories in sysfs).
+> 
+> 	In 2.6.10-rc2-bk6, it looks like sysfs releases the dname
+> structures as well in the case of a file (attribute) or symlink,
+> but keeps these structures *and* a struct inode for every directory
+> (kobject).  So, it looks like the non-swappable memory usage of my
+> /sys is actually about 900kB.
+> 
+> 			directories		non-directories
+> 	dentry		144			0
+> 	inode		344			0
+> 	sysfs_dirent	36			36
+> 
+> 	Bytes per:	524			36
+> 	#of nodes:	1100			2305
+> 	Subtotal:	576,400			82,980
+> 
+> 	Total:		659,380 bytes
+> 
+> 
+> 	Perhaps the code that allows non-directories in sysfs to free
+> their inode and dname structures will in the future be extended to allow
+> directories do so also, which would reduce that total to 122kB.
 
-As a result, Andrew dropped the patch, which is fair, but leaves us with
-the current state.
+Extending this to directories introduces lots of race conditions in 
+maintaining the coherancy between VFS dentry tree and sysfs_dirent
+based tree. It could be doable but not without complications.
 
-I'll go through those patches again today and resent against -mm.
+Thanks
+Maneesh
 
-Rusty.
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+Maneesh Soni
+Linux Technology Center, 
+IBM Austin
+email: maneesh@in.ibm.com
+Phone: 1-512-838-1896 Fax: 
+T/L : 6781896

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281738AbRKQWXU>; Sat, 17 Nov 2001 17:23:20 -0500
+	id <S281777AbRKQWZa>; Sat, 17 Nov 2001 17:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281739AbRKQWXK>; Sat, 17 Nov 2001 17:23:10 -0500
-Received: from mx1out.umbc.edu ([130.85.253.51]:28877 "EHLO mx1out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S281738AbRKQWWy>;
-	Sat, 17 Nov 2001 17:22:54 -0500
-Date: Sat, 17 Nov 2001 17:22:53 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: SiS630 chipsets && linux 2.4.x kernel == snails pace?
-Message-ID: <Pine.SGI.4.31L.02.0111171716420.12044432-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281792AbRKQWZY>; Sat, 17 Nov 2001 17:25:24 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:56052
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281777AbRKQWZF>; Sat, 17 Nov 2001 17:25:05 -0500
+Date: Sat, 17 Nov 2001 14:24:59 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Rock Gordon <rockgordon@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Executing binaries on new filesystem
+Message-ID: <20011117142459.J21354@mikef-linux.matchmail.com>
+Mail-Followup-To: Rock Gordon <rockgordon@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011117221821.66121.qmail@web14809.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011117221821.66121.qmail@web14809.mail.yahoo.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 17, 2001 at 02:18:21PM -0800, Rock Gordon wrote:
+> Hi,
+> 
+> I've written a modest filesystem for fun, it works
+> pretty ok, but when I try to execute binaries from it,
+> bash says "cannot execute binary file" ... If I copy
+> the same binary elsewhere, it executes perfectly.
+> 
 
-I have a few systems that use the SIS630 host bridge, the 5513 IDE bridge,
-etc, etc, etc, and they are slooooooowwww under 2.4.x, whereas 2.2.19
-performance seems to be fairly decent.
+There's probably a way for the FS to tell the rest of the kernel that the
+file is executable....  You'll probably need to set that for all files.
+That is, unless you have a chmod interface for your "FS for fun"...
 
-It does appear that support for the SiS5513 was added sometime recently,
-or I've just gone blind ... But trying (2 hr make dep on 2.4.14) to get a
-kernel with SiS5513 support started.
-
-Anyway, various configs, system information, dmesg, and so forth can be
-found at http://www.realityfailure.org/~jjasen/SiS630, as I'm gonna be
-here for a while. :(
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
+Mike

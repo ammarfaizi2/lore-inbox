@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUJNQuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUJNQv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266820AbUJNQuw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 12:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266802AbUJNQuw
+	id S266802AbUJNQv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 12:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUJNQv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 12:50:52 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:15564 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S266786AbUJNQup
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 12:50:45 -0400
-To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
-       tony.luck@intel.com
-Subject: [PATCH] General purpose zeroed page slab
-From: "Martin K. Petersen" <mkp@wildopensource.com>
-Organization: Wild Open Source, Inc.
-Date: Thu, 14 Oct 2004 12:50:43 -0400
-Message-ID: <yq1oej5s0po.fsf@wilson.mkp.net>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Oct 2004 12:51:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41894 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266802AbUJNQvX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 12:51:23 -0400
+Subject: Re: ext3 error with 2.6.9-rc4
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Andreas Dilger <adilger@clusterfs.com>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20041012142943.GD920@zip.com.au>
+References: <20041012142943.GD920@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1097772670.2120.57.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Oct 2004 17:51:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-A while back Bill Irwin converted the page table code on ppc64 to use
-a zeroed page slab.  I recently did the same on ia64 and got a
-significant performance improvement in terms of fault time (4 usec ->
-700 nsec).
+On Tue, 2004-10-12 at 15:29, CaT wrote:
+> The fs is on a 200gb seagate hd on a promise pci card (20267 - latest
+> firmware). It's hdh1. I was tarring a fs on hde1 onto hdh1. It ran for a
+> bit and then stopped with my kern.log providing the following error:
+> 
+> Oct 13 00:12:03 nessie kernel: EXT3-fs: mounted filesystem with ordered data mode.
+> Oct 13 00:17:03 nessie kernel: EXT3-fs error (device hdh1): ext3_readdir: bad entry in directory #3522561: rec_len is smaller than minimal - offset=4084, inode=3523431, rec_len=0, name_len=0
 
-This cache needs to be initialized fairly early on and so far we've
-called it from pgtable_cache_init() on both archs.  However, Tony Luck
-thought it might be useful to have a general purpose slab cache with
-zeroed pages.  And other architectures might decide to use it for
-their page tables too.
+All this really tells us is that there's something bogus on disk, not
+how it got there.  
 
-Consequently here's a patch that puts this functionality in slab.c.
+There are tools like "dt" which may help identify whether there's data
+going bad on the way to disk, or whether it might be a fs fault.
 
-Signed-off-by: Martin K. Petersen <mkp@wildopensource.com>
+http://www.bit-net.com/~rmiller/dt.html
 
--- 
-Martin K. Petersen	Wild Open Source, Inc.
-mkp@wildopensource.com	http://www.wildopensource.com/
-
-diff -urN -X /usr/people/mkp/bin/dontdiff linux-pristine/include/linux/slab.h zero-slab/include/linux/slab.h
---- linux-pristine/include/linux/slab.h	2004-10-11 14:57:20.000000000 -0700
-+++ zero-slab/include/linux/slab.h	2004-10-13 17:49:29.000000000 -0700
-@@ -115,6 +115,7 @@
- extern kmem_cache_t	*signal_cachep;
- extern kmem_cache_t	*sighand_cachep;
- extern kmem_cache_t	*bio_cachep;
-+extern kmem_cache_t	*zero_page_cachep;
- 
- extern atomic_t slab_reclaim_pages;
- 
-diff -urN -X /usr/people/mkp/bin/dontdiff linux-pristine/mm/slab.c zero-slab/mm/slab.c
---- linux-pristine/mm/slab.c	2004-10-11 14:57:20.000000000 -0700
-+++ zero-slab/mm/slab.c	2004-10-13 17:49:57.000000000 -0700
-@@ -716,6 +716,13 @@
- 
- static struct notifier_block cpucache_notifier = { &cpuup_callback, NULL, 0 };
- 
-+kmem_cache_t *zero_page_cachep;
-+
-+static void zero_page_ctor(void *pte, kmem_cache_t *cache, unsigned long flags)
-+{
-+	memset(pte, 0, PAGE_SIZE);
-+}
-+
- /* Initialisation.
-  * Called after the gfp() functions have been enabled, and before smp_init().
-  */
-@@ -837,6 +844,16 @@
- 	/* The reap timers are started later, with a module init call:
- 	 * That part of the kernel is not yet operational.
- 	 */
-+
-+	/* General purpose cache of zeroed pages */
-+	zero_page_cachep = kmem_cache_create("zero_page_cache",
-+					     PAGE_SIZE, 0,
-+					     SLAB_HWCACHE_ALIGN | 
-+					     SLAB_MUST_HWCACHE_ALIGN,
-+					     zero_page_ctor,
-+					     NULL);
-+	if (!zero_page_cachep)
-+		panic("could not create zero_page_cache!\n");
- }
- 
- static int __init cpucache_init(void)
+--Stephen
 

@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269256AbTGJMlG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 08:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269258AbTGJMlG
+	id S269255AbTGJMjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 08:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269256AbTGJMjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 08:41:06 -0400
-Received: from ns.suse.de ([213.95.15.193]:13584 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269256AbTGJMlD (ORCPT
+	Thu, 10 Jul 2003 08:39:23 -0400
+Received: from news.cistron.nl ([62.216.30.38]:25611 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S269255AbTGJMjV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 08:41:03 -0400
-Date: Thu, 10 Jul 2003 14:55:43 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] minor optimization for EXT3
-Message-ID: <20030710125543.GB26892@wotan.suse.de>
-References: <87smpeigio.fsf@gw.home.net.suse.lists.linux.kernel> <20030710042016.1b12113b.akpm@osdl.org.suse.lists.linux.kernel> <87y8z6gyt3.fsf@gw.home.net.suse.lists.linux.kernel> <p73of02pn6s.fsf@oldwotan.suse.de> <87vfuagwa5.fsf@gw.home.net>
+	Thu, 10 Jul 2003 08:39:21 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: 2.5.74-mm3 OOM killer fubared ?
+Date: Thu, 10 Jul 2003 12:54:01 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bejnl9$m9l$1@news.cistron.nl>
+References: <bejhrj$dgg$1@news.cistron.nl> <20030710112728.GX15452@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87vfuagwa5.fsf@gw.home.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1057841641 22837 62.216.29.200 (10 Jul 2003 12:54:01 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 04:51:30PM +0000, Alex Tomas wrote:
->  AK> Also dtimes in free inodes  can be now lost, can't they? Did you check 
->  AK> if that causes problems in fsck?  [my understanding was that ext2/3 fsck relies on the 
->  AK> dtime to make some heuristics when recovering files work better]
-> 
-> freed inodes will be lost. I've checked filesystem by fsck after lots of creations/removals.
-> it seems OK.
+In article <20030710112728.GX15452@holomorphy.com>,
+William Lee Irwin III  <wli@holomorphy.com> wrote:
+>On Thu, Jul 10, 2003 at 11:14:59AM +0000, Miquel van Smoorenburg wrote:
+>> Enough memory free, no problems at all .. yet every few minutes
+>> the OOM killer kills one of my innfeed processes.
+>> I notice that in -mm3 this was deleted relative to -vanilla:
+>> 
+>> -
+>> -       /*
+>> -        * Enough swap space left?  Not OOM.
+>> -        */
+>> -       if (nr_swap_pages > 0)
+>> -               return;
+>> .. is that what causes this ? In any case, that should't vene matter -
+>> there's plenty of memory in this box, all buffers and cached, but that
+>> should be easily freed ..
+>
+>This means we're calling into it more often than we should be.
+>Basically, we hit __alloc_pages() with __GFP_WAIT set, find nothing
+>we're allowed to touch, dive into try_to_free_pages(), fall through
+>scanning there, sleep in blk_congestion_wait(), wake up again, try
+>to shrink_slab(), find nothing there either, repeat that 11 more times,
+>and then fall through to out_of_memory()... and this happens at at
+>least 10Hz.
+>
+>        since = now - lastkill;
+>        if (since < HZ*5)
+>                goto out_unlock;
+>
+>try s/goto out_unlock/goto reset/ and let me know how it goes.
 
-iirc the dtime is used so that fsck can relink all non deleted inodes to lost+found
-when a directory is corrupted. Without dtime there is no way to distingush
-deleted and non deleted files, and just relinking everything would be quite
-nasty.
+But that will only change the rate at which processes are killed,
+not the fact that they are killed in the first place, right ?
 
-With your patch this heuristic would lose some files.
+As I said I've got plenty memory free ... perhaps I need to tune
+/proc/sys/vm because I've got so much streaming I/O ? Possibly,
+there are too many dirty pages so cleaning them out faster might
+help (and let pflushd do it instead of my single-threaded app)
 
-That's more important for ext2 than ext3 of course, but even on ext3 
-you could get a corrupted directory when you're unlucky (e.g. io error or similar)
+# cd /proc/sys/vm
+# echo 200 > dirty_writeback_centisecs
+# echo 60 > dirty_ratio
+# echo 500 > dirty_expire_centisecs
 
--Andi
+I'll let it run like this for a while first.
+
+If this helps, perhaps it means that the VM doesn't write out
+dirty pages fast enough when low on memory ?
+
+Mike.
+

@@ -1,42 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280890AbRKYNem>; Sun, 25 Nov 2001 08:34:42 -0500
+	id <S280600AbRKYNf6>; Sun, 25 Nov 2001 08:35:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280891AbRKYNeb>; Sun, 25 Nov 2001 08:34:31 -0500
-Received: from ns0.ipal.net ([206.97.148.120]:2746 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S280890AbRKYNeQ>;
-	Sun, 25 Nov 2001 08:34:16 -0500
-Date: Sun, 25 Nov 2001 07:34:10 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Releases
-Message-ID: <20011125073410.B26870@vega.ipal.net>
-In-Reply-To: <20011125012507.C6414@osdlab.org> <12023.1006683861@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12023.1006683861@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S280666AbRKYNfv>; Sun, 25 Nov 2001 08:35:51 -0500
+Received: from femail45.sdc1.sfba.home.com ([24.254.60.39]:14769 "EHLO
+	femail45.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S280600AbRKYNfe>; Sun, 25 Nov 2001 08:35:34 -0500
+Message-ID: <3C00F2E9.13488AAB@didntduck.org>
+Date: Sun, 25 Nov 2001 08:32:25 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Small asm cleanups
+Content-Type: multipart/mixed;
+ boundary="------------B753385E6E25AAFCBBD317CB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 09:24:21PM +1100, Keith Owens wrote:
+This is a multi-part message in MIME format.
+--------------B753385E6E25AAFCBBD317CB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-| Have you been following the kbuild 2.5 developments[1]?  Linus has
-| agreed that this change will go in early in the 2.5 cycle, that will
-| impact on all automated testing for 2.5.  There will be both good and
-| bad impacts, the bad is the initial changeover, the good is a much
-| cleaner build process and the ability to build multiple configurations
-| from a single source tree.
-
-Some of us have this ability with our own stuff already.  I've been
-doing automated multi-config builds since 2.0.  But it will be nice
-to not have to track a moving target anymore.  There will be a bigger
-initial bump for some of us, but hopefully all the features will be
-in there.
+Changes two asm's to use appropriate macros, and relaxes constraints on
+another.
 
 -- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
+
+						Brian Gerst
+--------------B753385E6E25AAFCBBD317CB
+Content-Type: text/plain; charset=us-ascii;
+ name="diff-asm2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-asm2"
+
+diff -urN linux-2.5.1-pre1/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
+--- linux-2.5.1-pre1/arch/i386/kernel/traps.c	Sun Sep 30 15:26:08 2001
++++ linux/arch/i386/kernel/traps.c	Sun Nov 25 01:02:08 2001
+@@ -697,7 +697,7 @@
+  */
+ asmlinkage void math_state_restore(struct pt_regs regs)
+ {
+-	__asm__ __volatile__("clts");		/* Allow maths ops (or we recurse) */
++	clts();		/* Allow maths ops (or we recurse) */
+ 
+ 	if (current->used_math) {
+ 		restore_fpu(current);
+diff -urN linux-2.5.1-pre1/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-2.5.1-pre1/arch/i386/mm/init.c	Sun Nov 11 13:09:32 2001
++++ linux/arch/i386/mm/init.c	Sun Nov 25 01:02:08 2001
+@@ -333,7 +333,7 @@
+ {
+ 	pagetable_init();
+ 
+-	__asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swapper_pg_dir)));
++	__asm__( "movl %0,%%cr3\n" ::"r"(__pa(swapper_pg_dir)));
+ 
+ #if CONFIG_X86_PAE
+ 	/*
+diff -urN linux-2.5.1-pre1/drivers/net/hamradio/baycom_epp.c linux/drivers/net/hamradio/baycom_epp.c
+--- linux-2.5.1-pre1/drivers/net/hamradio/baycom_epp.c	Mon Sep 10 12:04:53 2001
++++ linux/drivers/net/hamradio/baycom_epp.c	Sun Nov 25 01:02:08 2001
+@@ -807,10 +807,11 @@
+ /* --------------------------------------------------------------------- */
+ 
+ #ifdef __i386__
++#include <asm/msr.h>
+ #define GETTICK(x)                                                \
+ ({                                                                \
+ 	if (cpu_has_tsc)                                          \
+-		__asm__ __volatile__("rdtsc" : "=a" (x) : : "dx");\
++		rdtscl(x);                                        \
+ })
+ #else /* __i386__ */
+ #define GETTICK(x)
+
+--------------B753385E6E25AAFCBBD317CB--
+

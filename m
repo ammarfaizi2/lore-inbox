@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289824AbSBKTU3>; Mon, 11 Feb 2002 14:20:29 -0500
+	id <S290211AbSBKTV3>; Mon, 11 Feb 2002 14:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290211AbSBKTUU>; Mon, 11 Feb 2002 14:20:20 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55046 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289824AbSBKTT6>; Mon, 11 Feb 2002 14:19:58 -0500
-Date: Mon, 11 Feb 2002 14:19:00 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Steve Snyder <steves@formation.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Why won't my HD do DMA I/O?
-In-Reply-To: <KMEBIOGPEGOACPDOHPEEMEAMCAAA.steves@formation.com>
-Message-ID: <Pine.LNX.3.96.1020211141639.642D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290218AbSBKTVV>; Mon, 11 Feb 2002 14:21:21 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:6290 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S290211AbSBKTVG>;
+	Mon, 11 Feb 2002 14:21:06 -0500
+Date: Mon, 11 Feb 2002 13:17:44 -0600
+From: John Hesterberg <jh@sgi.com>
+To: torvalds@transmeta.com, marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: driver location for platform-specific drivers
+Message-ID: <20020211131744.A16032@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Steve Snyder wrote:
+Linus & Marcelo,
 
-> I should have noted this in my original post but, yes, I have enabled DMA in
-> the kernel:
-> 
-> # grep DMA /usr/src/linux-2.4.17/.config | grep -v '#'
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> CONFIG_BLK_DEV_ADMA=y
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> CONFIG_IDEDMA_AUTO=y
-> 
-> Thanks for the response.
+For SGI's upcoming Linux platform (nicknamed Scalable Node, or SN),
+we have some platform specific device drivers.  Where should these go?
+I see several precedents in the current kernels.
 
-Since I'm guessing at things which are unlikely, and I believe you said
-"only one drive" has this, did you check the cable type, seating, and
-condition? Putting in new hardware is such fun, I've found many inobvious
-ways to do it almost perfectly ;-)
+    1) Integrate in drivers/*.
+       Integrate SN drivers into appropriate directories.
+       Put them directly in char, net, misc, etc., as appropriate.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+    2) Company (sgi) directory.
+       There is already an sgi directory, strangely enough.
+       I *think* this was meant to be a platform directory for the
+       discontinued SGI 320/540 Visual Workstations.  However, maybe
+       it was intended to be a new precedent of company specific
+       directories.  In this case, we'd probably create a platform
+       directory under the company directory, so there would likely
+       be drivers/sgi/sn (some of our SN drivers are here today in
+       our internal development tree).  However, there is no other
+       precedent for "company" subdirectories under drivers.  Apple
+       didn't do it.  IBM didn't do it.  HP hasn't done it.  Was the
+       drivers/sgi directory really intended to start a new
+       precedent of company specific directories under drivers?
 
+    3) New platform directory.
+       Create a platform directory for SN, probably drivers/sn.
+       There is precedence for this with the drivers/macintosh
+       and drivers/s390.  Also, as noted, the SGI Visual Workstation
+       drivers are in drivers/sgi.  In this case, it might also make
+       sense to rename drivers/sgi to drivers/visws to indicate
+       these are drivers for the Visual Workstation platform, and
+       not generic SGI drivers.
+
+    4) New architecture directory.
+       Another suggestion is to create an architecture directory,
+       in this case drivers/ia64/{char,net,etc.}/.
+
+I'm happy with whatever you'll accept.  To give you something to
+either agree with or shoot down, I'll suggest #3.  SGI's Scalable
+Node product will be different enough, with enough platform specific
+drivers, that it justifies it's own subdirectory, and that this
+should be called drivers/sn.
+
+John Hesterberg
+jh@sgi.com

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315595AbSE2WFq>; Wed, 29 May 2002 18:05:46 -0400
+	id <S315547AbSE2WOB>; Wed, 29 May 2002 18:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315593AbSE2WFp>; Wed, 29 May 2002 18:05:45 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:38153 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315547AbSE2WFo>;
-	Wed, 29 May 2002 18:05:44 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200205292205.g4TM5e8348005@saturn.cs.uml.edu>
-Subject: Re: [PATCH] intel-x86 model config cleanup
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Wed, 29 May 2002 18:05:40 -0400 (EDT)
-Cc: jamagallon@able.es (J.A. Magallon),
-        linux-kernel@vger.kernel.org (Lista Linux-Kernel),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de,
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <3CF53C34.2080300@mandrakesoft.com> from "Jeff Garzik" at May 29, 2002 04:38:12 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S315593AbSE2WOA>; Wed, 29 May 2002 18:14:00 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:46084 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315547AbSE2WOA>; Wed, 29 May 2002 18:14:00 -0400
+Date: Thu, 30 May 2002 00:13:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.2.21 sparc] raid(-1|0) boot support lost in time?
+Message-ID: <20020529221347.GA2591@louise.pinerecords.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: GNU/Linux 2.4.19-pre9 SMP
+X-Architecture: sparc
+X-Uptime: 2:47
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
+Hi Alan,
 
-> +choice 'Processor vendor' \
-> +	"AMD			CONFIG_VENDOR_AMD \
-> +	 Cyrix			CONFIG_VENDOR_CYRIX \
-> +	 Generic		CONFIG_VENDOR_GENERIC \
-> +	 IDT			CONFIG_VENDOR_IDT \
-> +	 Intel			CONFIG_VENDOR_INTEL \
-> +	 NationalSemiconductor	CONFIG_VENDOR_NATSEMI \
-> +	 RiSE			CONFIG_VENDOR_RISE \
-> +	 Transmeta		CONFIG_VENDOR_TRANSMETA \
-> +	 VIA			CONFIG_VENDOR_VIA"	Generic
-> +
-> +if [ "$CONFIG_VENDOR_AMD" = "y" ]; then
-> +	choice 'Processor family' \
-> +	"386				CONFIG_M386 \
-> +	 486				CONFIG_M486 \
-> +	 K5/5x86			CONFIG_M586 \
-> +	 K6/K6-II/K6-III		CONFIG_MK6 \
-> +	 Athlon/Duron		CONFIG_MK7" Athlon
-> +fi
+I believe the following to have been forgotten about somehow.
+Or is it omitted on purpose for some reason that I've missed?
+
+T.
 
 
-This is still a mess. It's better to have one boolean
-per processor, and order the processors by the year
-in which they were most commonly sold.
+diff -urN linux-2.2.21.vanilla/arch/sparc/config.in linux-2.2.21/arch/sparc/config.in
+--- linux-2.2.21.vanilla/arch/sparc/config.in	Sun Mar 25 18:37:30 2001
++++ linux-2.2.21/arch/sparc/config.in	Thu May 30 00:05:31 2002
+@@ -93,6 +93,9 @@
+   tristate '   RAID-1 (mirroring) mode' CONFIG_MD_MIRRORING
+   tristate '   RAID-4/RAID-5 mode' CONFIG_MD_RAID5
+ fi
++if [ "$CONFIG_MD_LINEAR" = "y" -o "$CONFIG_MD_STRIPED" = "y" ]; then
++  bool '      Boot support (linear, striped)' CONFIG_MD_BOOT
++fi
+ 
+ tristate 'RAM disk support' CONFIG_BLK_DEV_RAM
+ if [ "$CONFIG_BLK_DEV_RAM" = "y" -o "$CONFIG_BLK_DEV_RAM" = "m" ]; then

@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUIWQMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUIWQ0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266488AbUIWQMk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUIWQMi
+	id S266513AbUIWQ0k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUIWQ0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:12:38 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:7312 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S266477AbUIWQI6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:08:58 -0400
-Date: Thu, 23 Sep 2004 18:08:57 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linas Vepstas <linas@austin.ibm.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org, anton@samba.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
-Message-ID: <20040923160857.GB12071@MAIL.13thfloor.at>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	Linas Vepstas <linas@austin.ibm.com>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org, anton@samba.org,
-	Andrew Morton <akpm@osdl.org>
-References: <20040920221933.GB1872@austin.ibm.com> <20040920223121.GC1872@austin.ibm.com> <200409211407.09764.vda@port.imtp.ilyichevsk.odessa.ua> <20040921161216.GD1872@austin.ibm.com> <20040922231700.GE30109@MAIL.13thfloor.at> <16722.60814.732208.93234@cargo.ozlabs.ibm.com>
+	Thu, 23 Sep 2004 12:26:40 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:17830 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266513AbUIWQZr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:25:47 -0400
+Date: Thu, 23 Sep 2004 11:25:32 -0500
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: linuxppc64-dev@ozlabs.org
+Subject: Re: Hotplug: crash in sys_clone()/do_fork()
+Message-ID: <20040923162532.GC18954@austin.ibm.com>
+References: <20040922201401.GA18954@austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16722.60814.732208.93234@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040922201401.GA18954@austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 08:36:46AM -0700, Paul Mackerras wrote:
-> Herbert Poetzl writes:
+ More info...
+
+On Wed, Sep 22, 2004 at 03:14:01PM -0500, Linas Vepstas was heard to remark:
 > 
-> > well, I'd like to know if full whitespace cleanup
-> > (trailing and indentation) _is_ something which
-> > is interesting for linux mainline ...
+> I'm tripping over a race condition involving file handling.  
+> I can consistently crash here:
 > 
-> It's like this... you get to clean up the white space in a file (if
-> you want) IF you are also doing some useful work on the file - but the
-> whitespace cleanup and the useful work need to be separate patches in
-> order to ease later tracking of what changed.
+> TASK: c0000000fd6dc040[10448] 'ifdown' THREAD: c0000000f3310000
+> Call Trace: Sep 22 14:29:21 marulp1 kernel: [c0000000f3313b10] [c0000000000506c4] .copy_files+0x400/0x414 (unreliable)
+> [c0000000f3313bd0] [c00000000005161c] .copy_process+0x660/0x12bc
+> [c0000000f3313ce0] [c000000000052318] .do_fork+0xa0/0x25c
+> [c0000000f3313dc0] [c0000000000159c8] .sys_clone+0x5c/0x74
+> [c0000000f3313e30] [c000000000010a88] .ppc_clone+0x8/0xc
+> 
+> The problem seems to be that one of the file pointers is breifly
+> set to (int32)-1 even on a 64-bit machine.  The part of copy_process()
+> that gets mashed by this is:
+> 
+>    for (i = open_files; i != 0; i--) {
+>       struct file *f = *old_fds++;
+>       if (f)
+>          get_file(f);  <==  derefs f, which is -1
+>       *new_fds++ = f;
+>    }
+> 
+> By inserting if(f==(void*)0xffffffffUL) printk ...
+> I can find out that i=230 is the one with the problem and open_files=256!
+> I haven't yet found who set struct file * to a -1.
+> 
+> I'm generting this behaviour with a hotplug event that is causing ifdown 
+> and ifup to run simultaneously.  (The device driver was shut down and 
+> restarted, causing simultaneous hotplug events).  Although the above 
+> stack shows ifdown getting clobbered, I've also seen pci.agent be
+> the process that suffers.
+> 
+> The problem goes away if I insert a sleep of about half-a-second or more
+> between the device driver shutdown and startup.
+> 
+> Affected machine is a ppc64 power4 box.  I've seen the problem 
+> for a long time (months?), including monday's bk clone of 
+> bkbits of 2.6.9-rc2; waiting for this bug "to fix itself" doesn't 
+> seem to  be working.  
 
-ah, okay, so a larger patch cleaning up the
-whitespace issues in let's say linux/kernel or
-linux/fs would not be appreciated ...
+By adding appropriate printk's to copy_files(), it appears that
+many many processes have a -1 in the highest non-zero fd pointer.
+The crash that I see seems to happen when there is another nearby
+fd that is open, (nearby==within the same 8-bit bitmask) so that the
+"open_files" value is larger than/equal-to the highest non-zero
+fd pointer (which is set to -1), thus leading to crash.  The "race"
+is that these high fd's normally close pretty quickly, and thus,
+"open_files" usually has a much smaller value.
 
-thanks for the info,
-Herbert
-
-> Paul.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--linas

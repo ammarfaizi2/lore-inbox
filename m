@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbUKJL5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUKJMBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbUKJL5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 06:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbUKJL5L
+	id S261692AbUKJMBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 07:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbUKJMBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 06:57:11 -0500
-Received: from viking.sophos.com ([194.203.134.132]:50187 "EHLO
-	viking.sophos.com") by vger.kernel.org with ESMTP id S261739AbUKJL5A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 06:57:00 -0500
-MIME-Version: 1.0
-X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
-  |February 13, 2003) at 10/11/2004 11:56:47,
-	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
- 13, 2003) at 10/11/2004 11:56:47,
-	Serialize complete at 10/11/2004 11:56:47,
-	S/MIME Sign failed at 10/11/2004 11:56:47: The cryptographic key was not
- found,
-	S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12
-  |February 13, 2003) at 10/11/2004 11:56:54,
-	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 5.0.12  |February
- 13, 2003) at 10/11/2004 11:56:54,
-	Serialize complete at 10/11/2004 11:56:54,
-	S/MIME Sign failed at 10/11/2004 11:56:54: The cryptographic key was not
- found,
-	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.2|June 01, 2004) at
- 10/11/2004 11:56:58,
-	Serialize complete at 10/11/2004 11:56:58
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Pedro Larroy <piotr@larroy.com>,
-       Robert Love <rml@novell.com>
-Subject: Re: ** Re: Ideas for a new io scheduler for desktop
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OFE75D45B1.08A243FC-ON80256F48.00415FBD-80256F48.0041A2B8@sophos.com>
-From: tvrtko.ursulin@sophos.com
-Date: Wed, 10 Nov 2004 11:56:54 +0000
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 10 Nov 2004 07:01:32 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:33166 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261692AbUKJMBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 07:01:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=qFseue/Li90EqGklxgtt8R9456SArXGWZHHUjXSrL6DrKX85D+1vmcpN8aHfRauPmIwQWnvBN7J/+0SdSLPb+JEUSsZRSUjnYSBAj+EVaW4Nqz/92hZ+kx6NjEVbImTsJl+bvtOUiGc/01rpq6AqoDTD/YHcp38LowUW2IQPYHM=
+Message-ID: <64b1faec041110040117a80877@mail.gmail.com>
+Date: Wed, 10 Nov 2004 13:01:31 +0100
+From: Sylvain <autofr@gmail.com>
+Reply-To: Sylvain <autofr@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: question about MM on x86
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->BTW, I saw the same problem, though not with reading, but with writing
->to disk. See thread (well nobody answered to it yet):
->
->[2.6.10-rc1 and prev] System unuseable while writing to disk
->
->It really takes away the fun... :(
+Hi,
 
-I am experiencing the same problem on my laptop. Audio skips while writing 
-bursts. I think it is the same for me ever since I switched to 2.6. (2.6.5 
-onwards).
- 
+I am interested in the way memory management is implemented on x86,
+specially the low level part.
 
+I search: where physical address are computed when a new Frame new to
+be allocated but I can't find out. (alogithm to find out the next
+frame free?? other the next frame to reuse??)
+
+Please, can somebody  familiar with the code point me to very prescise
+function, or give me some hint.
+
+Thanks in advance,
+
+Sylvain

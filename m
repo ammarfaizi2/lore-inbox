@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272144AbTHDS64 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272152AbTHDS64
+	id S272164AbTHDTMz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTHDTMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:58:56 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:9732 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S272144AbTHDS6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:58:38 -0400
-Subject: Re: [PATCH] O13int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: kernel@kolivas.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060023104.889.7.camel@teapot.felipe-alfaro.com>
-References: <200307280112.16043.kernel@kolivas.org>
-	 <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu>
-	 <20030728114041.2c8ce156.akpm@osdl.org>
-	 <1060023104.889.7.camel@teapot.felipe-alfaro.com>
+	Mon, 4 Aug 2003 15:12:54 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:62621 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272161AbTHDTMw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:12:52 -0400
+Subject: Re: milstone reached: ia64 linux builds out of Linus' tree
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030804114546.10786f84.davem@redhat.com>
+References: <200308041737.h74HbdCf015443@napali.hpl.hp.com>
+	 <20030804113144.47fcc112.davem@redhat.com>
+	 <16174.43161.252794.244789@napali.hpl.hp.com>
+	 <20030804114546.10786f84.davem@redhat.com>
 Content-Type: text/plain
-Message-Id: <1060023516.511.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 04 Aug 2003 20:58:36 +0200
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060024077.719.26.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Aug 2003 20:07:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-04 at 20:51, Felipe Alfaro Solana wrote:
-> Bad news, I guess...
-> 
-> I'm experiencing XMMS skips with 2.6.0-test2-mm4 + O13int patch. They
-> are easily reproducible when browsing through the menus of
-> KDE/Konqueror.
-> 
-> My KDE session is configured with the Keramik style, using XRender
-> transparencies and drop-down shadows for the menus. When browsing the
-> "Bookmarks" Konqueror drop-down menu, XMMS pauses audio playback very
-> briedly. The skip starts at the moment at which I click the "Bookmarks"
-> menu and lasts until the menu is displayed completely on the screen. My
-> Konqueror "Bookmarks" menu is really big, occupying almost the entire
-> screen height (over 700 pixels).
-> 
-> The XMMS skips can also be reproduced while navigating through web pages
-> that require a lot of CPU horsepower, like for example,
-> http://www.3dwallpapers.com. When browsing through the nice wallpapers
-> at the site, Konqueror hogs the CPU and XMMS starts skipping.
-> 
-> Both scenarios can be reproduced with either XMMS or MPlayer, so I guess
-> is not an isolated problem with an specific player. Also, the XMMS skips
-> are not reproducible with previous releases of your scheduler patches.
-> 
-> Hope this helps!
+On Llu, 2003-08-04 at 19:45, David S. Miller wrote:
+> My point was that if some random single monkey like me can keep a
+> loser platform like sparc64 still building in Linus's tree, a group of
+> several trained professionals should be able to fare much better :)
 
-OK, I had the X server reniced at -20... Renicing the X server at +0
-makes the XMMS skips disappear. At least, with X at +0 I've been able to
-reproduce them anymore.
-
+Right but ia64 - for better or worse started off as a hideously
+divergent tree that did really stupid things like redefine GFP_DMA. It
+may be that ia64 should have aimed in a different direction from day one
+but having finally ended up in the right place *is* a milestone.
 

@@ -1,88 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265715AbUFXV1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265654AbUFXV3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265715AbUFXV1o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265696AbUFXV1o
+	id S265654AbUFXV3v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbUFXV3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:27:44 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:60375 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S265676AbUFXV0G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:26:06 -0400
-Date: Thu, 24 Jun 2004 17:26:00 -0400
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Yaroslav Halchenko <yoh@psychology.rutgers.edu>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: alienware hardware
-Message-ID: <20040624212600.GW728@washoe.rutgers.edu>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	Yaroslav Halchenko <yoh@psychology.rutgers.edu>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040624191026.GP728@washoe.rutgers.edu> <200406242315.56213.vda@port.imtp.ilyichevsk.odessa.ua> <20040624202626.GS728@washoe.rutgers.edu> <200406242358.55782.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 24 Jun 2004 17:29:50 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:13232 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265654AbUFXVZn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:25:43 -0400
+Date: Thu, 24 Jun 2004 17:25:37 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jeremy Katz <jeremy.katz@gmail.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
+       Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       katzj@redhat.com
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
+Message-ID: <20040624212537.GB1265@havoc.gtf.org>
+References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com> <20040621060435.GA28384@kroah.com> <cb5afee10406210914451dc6@mail.gmail.com> <cb5afee10406231415293e90c0@mail.gmail.com> <20040623220303.GD6548@kroah.com> <40DA2272.8050106@pobox.com> <20040624205936.GA2009@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406242358.55782.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040624205936.GA2009@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 11:58:55PM +0300, Denis Vlasenko wrote:
-> Do a
+On Thu, Jun 24, 2004 at 01:59:37PM -0700, Greg KH wrote:
+> Could we determine this in 2.4?
 
-> # strace -p 1501
+Yes -- by each driver exporting its own procfs node, with its own
+private format different from all the others :)
 
-> and you'll se what's going on
 
-can you please help me to understand the dump?
+> Anyway, how about this assuming sx8 is a pci driver:
+> 	- look in /sys/bus/pci/drivers/sx8/
+> 	- for every device listed in that directory do:
+> 		- `tree | grep block` or however you want to search the
+> 		  tree for the block symlink, find is probably nicer
+> 		  here.
+> 		- that gives you the base block device, then go into the
+> 		  /sys/block/FOUND_BLOCK_DEVICE to find the individual
+> 		  partitions if needed.
+> 
+> Or work backwards if you want to:
+> 	- tally up every /sys/block/*/device symlink, and see if they
+> 	  point to a device owned by the sx8 driver.
+> 
+> Does that work for you?
 
-time strace -p 2586
-Process 2586 attached - interrupt to quit
-brk(0)                                  = 0x8dff000
-brk(0x8e21000)                          = 0x8e21000
-brk(0)                                  = 0x8e21000
-brk(0x8e43000)                          = 0x8e43000
-brk(0)                                  = 0x8e43000
-brk(0x8e65000)                          = 0x8e65000
-brk(0)                                  = 0x8e65000
-brk(0x8e87000)                          = 0x8e87000
-brk(0)                                  = 0x8e87000
-brk(0x8ea9000)                          = 0x8ea9000
-brk(0)                                  = 0x8ea9000
-brk(0x8ecb000)                          = 0x8ecb000
-brk(0)                                  = 0x8ecb000
-brk(0x8eed000)                          = 0x8eed000
-brk(0)                                  = 0x8eed000
-brk(0x8f0f000)                          = 0x8f0f000
-brk(0)                                  = 0x8f0f000
-brk(0x8f30000)                          = 0x8f30000
-brk(0)                                  = 0x8f30000
-brk(0x8f52000)                          = 0x8f52000
-Process 2586 detached
+Jeremy?
 
-real    0m6.927s
-user    0m0.032s
-sys     0m0.004s
+	Jeff
 
-if I dump longer than the rest kinda flies so it is slows down just
-after
-open("/var/lib/dpkg/available", O_RDONLY) = 4
-fstat64(4, {st_mode=S_IFREG|0644, st_size=12398100, ...}) = 0
-mmap2(NULL, 12398100, PROT_READ, MAP_SHARED, 4, 0) = 0x40157000
-brk(0)                                  = 0x840e000
-brk(0x8430000)                          = 0x8430000
-brk(0)                                  = 0x8430000
-....
 
-I will check once more when it 'delays'
-
--- 
-                                                  Yaroslav Halchenko
-                  Research Assistant, Psychology Department, Rutgers
-          Office  (973) 353-5440 x263
-   Ph.D. Student  CS Dept. NJIT
-             Key  http://www.onerussian.com/gpg-yoh.asc
- GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
 

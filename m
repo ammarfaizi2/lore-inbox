@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265867AbTFSRnT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265868AbTFSRnS
+	id S265876AbTFSRvb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:51:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbTFSRva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:43:18 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:27094 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265867AbTFSRnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:43:18 -0400
-Date: Thu, 19 Jun 2003 10:58:17 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Steven Pratt <slpratt@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 umount hangs
-Message-Id: <20030619105817.51613df2.akpm@digeo.com>
-In-Reply-To: <3EF1EC73.4070305@austin.ibm.com>
-References: <3EF1EC73.4070305@austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 19 Jun 2003 13:51:30 -0400
+Received: from lmout02.st1.spray.net ([212.78.202.121]:5374 "EHLO
+	lmout02.st1.spray.net") by vger.kernel.org with ESMTP
+	id S265876AbTFSRvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 13:51:24 -0400
+From: "John Graham" <john.graham@spray.no>
+To: linux-kernel@vger.kernel.org
+Message-ID: <1056045873016503@lycos-europe.com>
+X-Mailer: LycosMail 
+X-Originating-IP: [129.241.135.0]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jun 2003 17:57:17.0179 (UTC) FILETIME=[38BDCCB0:01C3368C]
+Subject: Re: SCM domains
+Date: Thu, 19 Jun 2003 20:04:33 +0100
+Content-Type: multipart/mixed; boundary="=_NextPart_Lycos_0165031056045873_ID"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Pratt <slpratt@austin.ibm.com> wrote:
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
+
+--=_NextPart_Lycos_0165031056045873_ID
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
++  Larry McVoy
 >
-> Has anyone else seen hangs trying to umount ext3 volumes?
+> if someone can think of a cool name
+>
 
-Nope.
+What about usrsrclinux.org?
 
->  I am seeing 
-> this repeatedly after running tiobench on an ext3 volume.  This was only 
-> showing up in the mm tree, but as of 2.5.72-bk2 I am now seeing it in 
-> the mainline.
+ - JG
 
-It would have been nice to have heard about it before this...
 
-Could you please debug it a bit?  sysrq-T, etc?
+_________________________________________________________
+Finn dine gamle klassekamerater p&#229; http://klassekamerater.nettavisen.no
 
-Does the system hang, or does the umount hang?
+
+
+--=_NextPart_Lycos_0165031056045873_ID--
 

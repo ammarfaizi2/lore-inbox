@@ -1,98 +1,322 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262410AbTCRV3h>; Tue, 18 Mar 2003 16:29:37 -0500
+	id <S262539AbTCRVeZ>; Tue, 18 Mar 2003 16:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262539AbTCRV3h>; Tue, 18 Mar 2003 16:29:37 -0500
-Received: from holomorphy.com ([66.224.33.161]:17280 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262410AbTCRV3f>;
-	Tue, 18 Mar 2003 16:29:35 -0500
-Date: Tue, 18 Mar 2003 13:40:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm1
-Message-ID: <20030318214013.GA1240@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030318031104.13fb34cc.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030318031104.13fb34cc.akpm@digeo.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S262551AbTCRVeZ>; Tue, 18 Mar 2003 16:34:25 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:45551 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262539AbTCRVeT>;
+	Tue, 18 Mar 2003 16:34:19 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 18 Mar 2003 22:45:14 +0100 (MET)
+Message-Id: <UTC200303182145.h2ILjEB29313.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] dev_t [1/3]
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 03:11:04AM -0800, Andrew Morton wrote:
-> . An updated version of Russell's PCMCIA patches
-> . Lots more anticipatory scheduler work.
-> . It turns out that calling disk request_fns from timer/tasklet context is
->   not permitted because a few old drivers like to sleep in that function. 
->   keventd cannot be used for this because it can deadlock.  So another
->   kernel thread per CPU has been reluctantly added.
+Now that 2.5.65 is out, the next dev_t patch.
+It was a bit large and unreadable, so I split it into
+three clean pieces. Afterwards, since many people ask
+for this, a fourth patch that actually changes the
+type of dev_t (not to be applied yet, that is just for
+playing).
 
-So far so good. There are couple of non-critical things I noticed.
-On my home machine, 600MHz Athlon w/768MB RAM, Adaptec 39160 + U160 disk
+The first patch is the cdev-kill patch that I sent out
+earlier. It is no use having two forms of chardev registration
+in the source, and my version of the path of small modifications
+does not pass through this version, although the final result
+will not be that different. So, kill cdev_cachep, cdev_cache_init,
+cdfind, cdget, cdput, inode->i_cdev, struct char_device.
+All of this is dead code today.
 
-         pte_chain:     4644KB     4661KB   99.64
-      dentry_cache:      987KB     1275KB   77.47
-   radix_tree_node:      988KB     1233KB   80.14
-reiser_inode_cache:      755KB     1181KB   63.93
-biovec-BIO_MAX_PAGES:    768KB      780KB   98.46
-         size-4096:      624KB      624KB   100.0 
-       inode_cache:      457KB      457KB   100.0 
-               pgd:      432KB      432KB   100.0 
+The second patch removes MAX_CHRDEV.
 
+The third patch polishes linux/major.h.
 
-shpte really blew the doors off of pte_chains for my home box and
-slightly more than halved pagetable space. It really helps keep things
-from swapping, a good 4-6 MB of pte_chain + pagetable space. I wish for
-it back relatively often.
+The fourth patch, not to be applied, changes the type of dev_t.
 
-OTOH objrmap appears to have blown page_*_rmap() functions off the
-profiles on the execution time front.
+Andries
 
-Window wiggle test times (ms):
-
-  inter-arrival    service     response
-  -------------    -------     --------
-     113.828        0.093        4.702
-     113.828        0.093        4.702
-     113.828        0.093        4.702
-     113.828        0.093        4.702
-     113.828        0.093        4.702
-      56.762        0.090        4.593
-      56.762        0.090        4.593
-      56.762        0.090        4.593
-      56.762        0.090        4.593
-      56.762        0.090        4.593
-     106.250        0.088        4.545
-      51.944        0.135        6.133
-      34.006        0.172        7.345
-      27.087        0.194        7.276
-      26.807        0.120        6.549
-      27.975        0.128        6.721
-      31.292        0.161        7.278
-      32.952        0.147        6.692
-      32.952        0.147        6.692
-      32.952        0.147        6.692
-      32.952        0.147        6.692
-      32.952        0.147        6.692
-
-This is really the only visible task scheduling pathology. The user
-observable effect is that now transparent xterms "flash" when being
-wiggled, where before they merely showed some refresh jitter. But it's
-a vast net improvement; good work on mingo's part.
-
-I've not been noticing the more refined aspects of io scheduling.
-Basically once deadline-iosched hit, my home machine was very happy,
-and the gains after mostly slight. There's some of app startup time
-that appears to have been trimmed down that may have come from this.
-I noticed it while booting but by and large I don't spawn new large
-tasks regularly, so it sort of doesn't do as much for me as others.
-It could also be due to the prefaulting or a combined effect.
-
-
--- wli
+--------------- 01-cdev-kill ---------------
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/char_dev.c b/fs/char_dev.c
+--- a/fs/char_dev.c	Tue Mar 18 11:48:22 2003
++++ b/fs/char_dev.c	Tue Mar 18 21:14:21 2003
+@@ -23,110 +23,10 @@
+ 
+ /* serial module kmod load support */
+ struct tty_driver *get_tty_driver(kdev_t device);
+-#define isa_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
++#define is_a_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
+ #define need_serial(ma,mi) (get_tty_driver(mk_kdev(ma,mi)) == NULL)
+ #endif
+ 
+-#define HASH_BITS	6
+-#define HASH_SIZE	(1UL << HASH_BITS)
+-#define HASH_MASK	(HASH_SIZE-1)
+-static struct list_head cdev_hashtable[HASH_SIZE];
+-static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
+-static kmem_cache_t * cdev_cachep;
+-
+-#define alloc_cdev() \
+-	 ((struct char_device *) kmem_cache_alloc(cdev_cachep, SLAB_KERNEL))
+-#define destroy_cdev(cdev) kmem_cache_free(cdev_cachep, (cdev))
+-
+-static void init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
+-{
+-	struct char_device *cdev = (struct char_device *) foo;
+-
+-	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+-	    SLAB_CTOR_CONSTRUCTOR)
+-		memset(cdev, 0, sizeof(*cdev));
+-}
+-
+-void __init cdev_cache_init(void)
+-{
+-	int i;
+-	struct list_head *head = cdev_hashtable;
+-
+-	i = HASH_SIZE;
+-	do {
+-		INIT_LIST_HEAD(head);
+-		head++;
+-		i--;
+-	} while (i);
+-
+-	cdev_cachep = kmem_cache_create("cdev_cache",
+-					 sizeof(struct char_device),
+-					 0, SLAB_HWCACHE_ALIGN, init_once,
+-					 NULL);
+-	if (!cdev_cachep)
+-		panic("Cannot create cdev_cache SLAB cache");
+-}
+-
+-/*
+- * Most likely _very_ bad one - but then it's hardly critical for small
+- * /dev and can be fixed when somebody will need really large one.
+- */
+-static inline unsigned long hash(dev_t dev)
+-{
+-	unsigned long tmp = dev;
+-	tmp = tmp + (tmp >> HASH_BITS) + (tmp >> HASH_BITS*2);
+-	return tmp & HASH_MASK;
+-}
+-
+-static struct char_device *cdfind(dev_t dev, struct list_head *head)
+-{
+-	struct list_head *p;
+-	struct char_device *cdev;
+-	list_for_each(p, head) {
+-		cdev = list_entry(p, struct char_device, hash);
+-		if (cdev->dev != dev)
+-			continue;
+-		atomic_inc(&cdev->count);
+-		return cdev;
+-	}
+-	return NULL;
+-}
+-
+-struct char_device *cdget(dev_t dev)
+-{
+-	struct list_head * head = cdev_hashtable + hash(dev);
+-	struct char_device *cdev, *new_cdev;
+-	spin_lock(&cdev_lock);
+-	cdev = cdfind(dev, head);
+-	spin_unlock(&cdev_lock);
+-	if (cdev)
+-		return cdev;
+-	new_cdev = alloc_cdev();
+-	if (!new_cdev)
+-		return NULL;
+-	atomic_set(&new_cdev->count,1);
+-	new_cdev->dev = dev;
+-	spin_lock(&cdev_lock);
+-	cdev = cdfind(dev, head);
+-	if (!cdev) {
+-		list_add(&new_cdev->hash, head);
+-		spin_unlock(&cdev_lock);
+-		return new_cdev;
+-	}
+-	spin_unlock(&cdev_lock);
+-	destroy_cdev(new_cdev);
+-	return cdev;
+-}
+-
+-void cdput(struct char_device *cdev)
+-{
+-	if (atomic_dec_and_lock(&cdev->count, &cdev_lock)) {
+-		list_del(&cdev->hash);
+-		spin_unlock(&cdev_lock);
+-		destroy_cdev(cdev);
+-	}
+-}
+-
+ struct device_struct {
+ 	const char * name;
+ 	struct file_operations * fops;
+@@ -144,7 +44,8 @@
+ 	read_lock(&chrdevs_lock);
+ 	for (i = 0; i < MAX_CHRDEV ; i++) {
+ 		if (chrdevs[i].fops) {
+-			len += sprintf(page+len, "%3d %s\n", i, chrdevs[i].name);
++			len += sprintf(page+len, "%3d %s\n",
++				       i, chrdevs[i].name);
+ 		}
+ 	}
+ 	read_unlock(&chrdevs_lock);
+@@ -152,13 +53,14 @@
+ }
+ 
+ /*
+-	Return the function table of a device.
+-	Load the driver if needed.
+-	Increment the reference count of module in question.
+-*/
+-static struct file_operations * get_chrfops(unsigned int major, unsigned int minor)
++ *	Return the function table of a device.
++ *	Load the driver if needed.
++ *	Increment the reference count of module in question.
++ */
++static struct file_operations *
++get_chrfops(unsigned int major, unsigned int minor)
+ {
+-	struct file_operations *ret = NULL;
++	struct file_operations *ret;
+ 
+ 	if (!major || major >= MAX_CHRDEV)
+ 		return NULL;
+@@ -167,10 +69,12 @@
+ 	ret = fops_get(chrdevs[major].fops);
+ 	read_unlock(&chrdevs_lock);
+ #ifdef CONFIG_KMOD
+-	if (ret && isa_tty_dev(major)) {
++	if (ret && is_a_tty_dev(major)) {
+ 		lock_kernel();
+ 		if (need_serial(major,minor)) {
+ 			/* Force request_module anyway, but what for? */
++			/* The reason is that we may have a driver for
++			   /dev/tty1 already, but need one for /dev/ttyS1. */
+ 			fops_put(ret);
+ 			ret = NULL;
+ 		}
+@@ -189,7 +93,8 @@
+ 	return ret;
+ }
+ 
+-int register_chrdev(unsigned int major, const char * name, struct file_operations *fops)
++int register_chrdev(unsigned int major, const char *name,
++		    struct file_operations *fops)
+ {
+ 	if (major == 0) {
+ 		write_lock(&chrdevs_lock);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/dcache.c b/fs/dcache.c
+--- a/fs/dcache.c	Tue Mar 18 11:48:22 2003
++++ b/fs/dcache.c	Tue Mar 18 21:14:21 2003
+@@ -1562,7 +1562,6 @@
+ EXPORT_SYMBOL(d_genocide);
+ 
+ extern void bdev_cache_init(void);
+-extern void cdev_cache_init(void);
+ 
+ void __init vfs_caches_init(unsigned long mempages)
+ {
+@@ -1583,5 +1582,4 @@
+ 	files_init(mempages); 
+ 	mnt_init(mempages);
+ 	bdev_cache_init();
+-	cdev_cache_init();
+ }
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/devfs/base.c b/fs/devfs/base.c
+--- a/fs/devfs/base.c	Tue Mar 18 11:48:22 2003
++++ b/fs/devfs/base.c	Tue Mar 18 21:14:21 2003
+@@ -2119,7 +2119,6 @@
+     if ( S_ISCHR (de->mode) )
+     {
+ 	inode->i_rdev = to_kdev_t(de->u.cdev.dev);
+-	inode->i_cdev = cdget(de->u.cdev.dev);
+     }
+     else if ( S_ISBLK (de->mode) )
+     {
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/inode.c b/fs/inode.c
+--- a/fs/inode.c	Tue Mar 18 11:48:22 2003
++++ b/fs/inode.c	Tue Mar 18 21:14:48 2003
+@@ -128,7 +128,6 @@
+ 		memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
+ 		inode->i_pipe = NULL;
+ 		inode->i_bdev = NULL;
+-		inode->i_cdev = NULL;
+ 		inode->i_rdev = to_kdev_t(0);
+ 		inode->i_security = NULL;
+ 		if (security_inode_alloc(inode)) {
+@@ -242,10 +241,6 @@
+ 		inode->i_sb->s_op->clear_inode(inode);
+ 	if (inode->i_bdev)
+ 		bd_forget(inode);
+-	else if (inode->i_cdev) {
+-		cdput(inode->i_cdev);
+-		inode->i_cdev = NULL;
+-	}
+ 	inode->i_state = I_CLEAR;
+ }
+ 
+@@ -1293,7 +1288,6 @@
+ 	if (S_ISCHR(mode)) {
+ 		inode->i_fop = &def_chr_fops;
+ 		inode->i_rdev = to_kdev_t(rdev);
+-		inode->i_cdev = cdget(rdev);
+ 	} else if (S_ISBLK(mode)) {
+ 		inode->i_fop = &def_blk_fops;
+ 		inode->i_rdev = to_kdev_t(rdev);
+@@ -1302,5 +1296,6 @@
+ 	else if (S_ISSOCK(mode))
+ 		inode->i_fop = &bad_sock_fops;
+ 	else
+-		printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n", mode);
++		printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n",
++		       mode);
+ }
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Tue Mar 18 11:48:23 2003
++++ b/include/linux/fs.h	Tue Mar 18 21:14:21 2003
+@@ -329,12 +329,6 @@
+ 	struct address_space	*assoc_mapping;	/* ditto */
+ };
+ 
+-struct char_device {
+-	struct list_head	hash;
+-	atomic_t		count;
+-	dev_t			dev;
+-};
+-
+ struct block_device {
+ 	struct list_head	bd_hash;
+ 	atomic_t		bd_count;
+@@ -386,7 +380,6 @@
+ 	struct list_head	i_devices;
+ 	struct pipe_inode_info	*i_pipe;
+ 	struct block_device	*i_bdev;
+-	struct char_device	*i_cdev;
+ 
+ 	unsigned long		i_dnotify_mask; /* Directory notify events */
+ 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
+@@ -1044,8 +1037,6 @@
+ extern int bd_acquire(struct inode *inode);
+ extern void bd_forget(struct inode *inode);
+ extern void bdput(struct block_device *);
+-extern struct char_device *cdget(dev_t);
+-extern void cdput(struct char_device *);
+ extern int blkdev_open(struct inode *, struct file *);
+ extern int blkdev_close(struct inode *, struct file *);
+ extern struct file_operations def_blk_fops;
+diff -u --recursive --new-file -X /linux/dontdiff a/kernel/ksyms.c b/kernel/ksyms.c
+--- a/kernel/ksyms.c	Tue Mar 18 11:48:23 2003
++++ b/kernel/ksyms.c	Tue Mar 18 21:14:21 2003
+@@ -202,8 +202,6 @@
+ EXPORT_SYMBOL(set_blocksize);
+ EXPORT_SYMBOL(sb_set_blocksize);
+ EXPORT_SYMBOL(sb_min_blocksize);
+-EXPORT_SYMBOL(cdget);
+-EXPORT_SYMBOL(cdput);
+ EXPORT_SYMBOL(bdget);
+ EXPORT_SYMBOL(bdput);
+ EXPORT_SYMBOL(bd_claim);

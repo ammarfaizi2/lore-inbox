@@ -1,98 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266686AbTBDQ7e>; Tue, 4 Feb 2003 11:59:34 -0500
+	id <S266693AbTBDRPz>; Tue, 4 Feb 2003 12:15:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266693AbTBDQ7e>; Tue, 4 Feb 2003 11:59:34 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:10750 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S266686AbTBDQ7b>;
-	Tue, 4 Feb 2003 11:59:31 -0500
-Date: Tue, 4 Feb 2003 18:09:03 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Update of Documentation/magic-number.txt
-Message-ID: <20030204170903.GH10207@pasky.ji.cz>
-Mail-Followup-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267285AbTBDRPz>; Tue, 4 Feb 2003 12:15:55 -0500
+Received: from h-64-105-35-85.SNVACAID.covad.net ([64.105.35.85]:55207 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266693AbTBDRPx>; Tue, 4 Feb 2003 12:15:53 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 4 Feb 2003 09:25:17 -0800
+Message-Id: <200302041725.JAA16768@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] Module alias and device table support.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Roman Zippel wrote:
+>Currently the kernel has two mechanisms to request a module (modprobe and 
+>hotplug) and these also have different ways to map the request to a module 
+>name.
 
-  this patch (against 2.5.59) updates Documentation/magic-number.txt to the
-current state of kernel. It includes changes both before 2.5.50 (which were
-included in few previous versions of this patch, which were unfortunately
-ignored) and the changes after (those I noticed), until 2.5.59. Note that I
-will probably make another update after few further kernel releases.
+	I don't know if I'm disagreeing with you, but I'd like to
+bring up the following point.
 
-  I hope the patch is ok, there should be no problems with it. Please apply.
+	The kernel notifying the user level that a new device has been
+plugged is a often a separate event from the kernel needing a module
+for that device.
 
- magic-number.txt |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+	When a USB disk is detected, the computer should update its
+list of devices to check when an attempt it made to access an
+undefined disk, put a new icon on the desktop, and see if there are
+any user defined scripts for the event, which would probably include a
+default script to update the desktop user interface with this
+information.  There is not necessarily any need at that point to load
+a module at that point as you don't know that the user is going to
+actually access the disk (it may just have been attached when the USB
+controller was detected, and might not be accessed at all before the
+computer is shut down).
 
-  Kind regards,
-				Petr Baudis
+	When a program attempts to access an undefined disk, including
+testing the existence of a partition, then the system should start
+loading modules for the unbound devices that potentially may have disk
+drives.
 
---- linux/Documentation/magic-number.txt	Tue Feb  4 15:36:01 2003
-+++ linux+pasky/Documentation/magic-number.txt	Tue Feb  4 17:42:52 2003
-@@ -43,13 +43,13 @@
- 					<mailto: kgb@knm.org.pl>
- 					29 Jul 1998
- 
--Updated the magic table to Linux 2.5.45. Right over the feature freeze,
--but it is possible that some new magic numbers will sneak into the
--kernel before 2.6.x yet.
-+Updated the magic table to Linux 2.5.59. It is after the feature freeze,
-+but it is possible that some new magic numbers will sneak into the
-+kernel before 2.6.x yet.
- 
- 					Petr Baudis
- 					<pasky@ucw.cz>
--					03 Nov 2002
-+					04 Feb 2003
- 
- Magic Name            Number      Structure            File
- ===========================================================================
-@@ -91,10 +91,11 @@
- RPORT_MAGIC           0x00525001  r_port            drivers/char/rocket_int.h
- LSEMAGIC              0x05091998  lse               drivers/fc4/fc.c
- GDTIOCTL_MAGIC        0x06030f07  gdth_iowr_str     drivers/scsi/gdth_ioctl.h
-+RPCAUTH_CRED_MAGIC    0x0f4aa4f0  rpc_cred          include/linux/sunrpc/auth.h
- RIO_MAGIC             0x12345678  gs_port           drivers/char/rio/rio_linux.c
- SX_MAGIC              0x12345678  gs_port           drivers/char/sx.h
- NBD_REQUEST_MAGIC     0x12560953  nbd_request       include/linux/nbd.h
--RED_MAGIC2            0x170fc2a5  (any)             mm/slab.c
-+RED_ACTIVE            0x170fc2a5  (any)             mm/slab.c
- BAYCOM_MAGIC          0x19730510  baycom_state      drivers/net/baycom_epp.c
- ISDN_X25IFACE_MAGIC   0x1e75a2b9  isdn_x25iface_proto_data
-                                                     drivers/isdn/isdn_x25iface.h
-@@ -108,6 +109,7 @@
- CTC_ASYNC_MAGIC       0x49344C01  ctc_tty_info      drivers/s390/net/ctctty.c
- ISDN_NET_MAGIC        0x49344C02  isdn_net_local_s  drivers/isdn/i4l/isdn_net_lib.h
- SAVEKMSG_MAGIC2       0x4B4D5347  savekmsg          arch/*/amiga/config.c
-+TIMER_MAGIC           0x4b87ad6e  timer_list        include/linux/timer.h
- STLI_BOARDMAGIC       0x4bc6c825  stlibrd           include/linux/istallion.h
- CS_STATE_MAGIC        0x4c4f4749  cs_state          sound/oss/cs46xx.c
- SLAB_C_MAGIC          0x4f17a36d  kmem_cache_s      mm/slab.c
-@@ -118,7 +120,8 @@
- SCC_MAGIC             0x52696368  gs_port           drivers/char/scc.h
- SAVEKMSG_MAGIC1       0x53415645  savekmsg          arch/*/amiga/config.c
- GDA_MAGIC             0x58464552  gda               include/asm-mips64/sn/gda.h
--RED_MAGIC1            0x5a2cf071  (any)             mm/slab.c
-+GCT_NODE_MAGIC        0x59584c47  gct6_node         include/asm-alpha/gct.h
-+RED_INACTIVE          0x5a2cf071  (any)             mm/slab.c
- STL_PORTMAGIC         0x5a7182c9  stlport           include/linux/stallion.h
- HDLCDRV_MAGIC         0x5ac6e778  hdlcdrv_state     include/linux/hdlcdrv.h
- EPCA_MAGIC            0x5c6df104  channel           include/linux/epca.h
-@@ -129,6 +132,7 @@
- M3_CARD_MAGIC         0x646e6f50  m3_card           sound/oss/maestro3.c
- SLOT_MAGIC            0x67267321  slot              drivers/hotplug/cpqphp.h
- SLOT_MAGIC            0x67267322  slot              drivers/hotplug/acpiphp.h
-+SLOT_MAGIC            0x67267322  slot              drivers/hotplug/cpci_hotplug.h
- LO_MAGIC              0x68797548  nbd_device        include/linux/nbd.h
- M3_STATE_MAGIC        0x734d724d  m3_state          sound/oss/maestro3.c
- STL_PANELMAGIC        0x7ef621a1  stlpanel          include/linux/stallion.h
+	It is also possible that the appropriate kernel module is
+already compiled in or loaded, but the user interface should be
+notified that a new device has been plugged in, say, to pop up a video
+window by default whenever a USB camera is plugged in.
+
+	Granted, some users may want a policy of immediately loading
+all potentially relevant kernel modules when hardware is detected,
+just for the user interface benefits of the kernel printk's and devfs
+entries, and they should easily be able to set that, and that should
+probably be the default policy for the case where a kernel module is
+matched, but the hotplug system does not see that the device is of a
+class that will automatically be loaded later by some subsequent
+event such as a specific devfs lookup or an attempt to access an
+undefined networking interface.
+
+	For some devices, the events set in motion by hotplug may
+never result in a kernel module being loaded.  For example, plugging
+in a video card might result in invocation of an X server that just
+maps in the card's IO registers and a memory window, or some USB devices
+may be controlled by user level programs through /proc/bus/usb.
+
+	That said, we could perhaps should shave a few lines from the
+kernel by unifying the call_usermodehelper clients a bit more
+(hotplug, request_module and my mini-devfs if and when that goes in),
+but something like hotplug should be the surviving interface rather
+than request_module, because hotplug passes other important
+information, such as the type of event and the type of facility being
+requested.
+
+	The additional information in the hotplug interface makes it
+much easier to write scripts that can do useful things for event types
+or module types that haven't been written yet and can help security by
+ensuring that only modules of the appropriate type are loaded (so that
+a user cannot do something like "ifconfig scsi_debug" to get the kernel
+to load an arbitrary module).  As an example of extensibility, imagine
+that if we define a new "suspend" hotplug event for device type
+"ieee1394", the hotplug handler might know enough to exec
+"/usr/libexec/hotplug/drivers/ieee1934 suspend /proc/sys/ieee1394/dev2342",
+or the user interface might know enough to recognized the "suspend"
+event and change the color of some icon, even though it doesn't know
+what ieee1394 is.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265226AbUHHJRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUHHJU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbUHHJRb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 05:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUHHJRb
+	id S265230AbUHHJU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 05:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUHHJU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 05:17:31 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:21892 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S265226AbUHHJR3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 05:17:29 -0400
-To: Jan Knutar <jk-lkml@sci.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
-	<1091916508.19077.24.camel@localhost.localdomain>
-	<yw1xu0ve1qqa.fsf@kth.se> <200408080533.40147.jk-lkml@sci.fi>
-	<20040808074747.GK16937@khan.acc.umu.se>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Date: Sun, 08 Aug 2004 11:17:28 +0200
-In-Reply-To: <20040808074747.GK16937@khan.acc.umu.se> (David Weinehall's
- message of "Sun, 8 Aug 2004 09:47:47 +0200")
-Message-ID: <yw1xllgq0z13.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sun, 8 Aug 2004 05:20:56 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:4028 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265230AbUHHJUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 05:20:55 -0400
+Message-ID: <4115F0FA.30503@colorfullife.com>
+Date: Sun, 08 Aug 2004 11:23:06 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall <tao@debian.org> writes:
+rmk wrote:
 
-> On Sun, Aug 08, 2004 at 05:33:39AM +0300, Jan Knutar wrote:
->> On Sunday 08 August 2004 02:19, Måns Rullgård wrote:
->> > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
->> > 
->> > > BTW while I remember cdrecord has a bug with hardcoded iso8859-1
->> > > copyright symbols in it which mean your copyright banner is invalid
->> > > unicode on a UTF-8 locale.
->> > 
->> > Does that also invalidate the copyright?
->> > 
->> 
->> I was under the impression that printing copyright symbols isn't required.
->> You have copyright on what you write unless you explicitly assign it away,
->> which supposedly isn't even possible in some parts of the world, that is,
->> you always retain copyright nomatter what.
->> 
->> <insert standard IANAL(IACOTW) disclaimer>
+>Due to tail call optimisation, its difficult to work out exactly what's
+>going on, but the first seems to be a kfree call from the erase callback
+>(possibly jffs2_erase_callback).  The second function is the call to
+>jffs2_free_full_dirent() in jffs2_garbage_collect_deletion_dirent().
 >
-> In *some* countries your copyright claim is strengthened by having
-> a "Copyright" and/or "©" clause.  Writing (C) has no legal effect
-> however, so you should always write out the full word, like so:
+>  
 >
-> Copyright © 2004 Foo Bar, Baz Inc.
+I'd concentrate on cfi_intelext_erase_varsize+0x58/0x64:
+When slab encounters a corruption, it dumps three objects: the corrupted 
+one, the previous one and the next one. Theoretically, a write 
+before/after the end of the object could corrupt the neighboring object, 
+but probably the first function is the relevant one.
 
-Seems like I didn't make the joke clear enough, though with legalities
-you can never be too careful.
+Could you double check that gcc did a tail optimization in 
+cfi_intelext_erase_varsize?
+I don't understand how this is possible: cfi_intelext_erase_varsize 
+returns (int)0, instr->callback is a void function.
+And even if there is a tail optimization: how would that affect the call 
+address of the kfree() call? Perhaps gcc automatically inlined something?
 
--- 
-Måns Rullgård
-mru@kth.se
+--
+    Manfred

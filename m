@@ -1,46 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267253AbTBDM3a>; Tue, 4 Feb 2003 07:29:30 -0500
+	id <S267248AbTBDMsP>; Tue, 4 Feb 2003 07:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbTBDM3a>; Tue, 4 Feb 2003 07:29:30 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:8602 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267246AbTBDM33>;
-	Tue, 4 Feb 2003 07:29:29 -0500
-Date: Tue, 4 Feb 2003 12:33:58 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] vmalloc, kmalloc - 2.4.x
-Message-ID: <20030204123358.GB29160@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1044284924.2402.12.camel@gregs> <1044289102.21009.1.camel@irongate.swansea.linux.org.uk> <1044286828.2397.26.camel@gregs> <1044292722.21009.9.camel@irongate.swansea.linux.org.uk> <1044312846.28406.31.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1044312846.28406.31.camel@imladris.demon.co.uk>
-User-Agent: Mutt/1.4i
+	id <S267252AbTBDMsP>; Tue, 4 Feb 2003 07:48:15 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:45818 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S267248AbTBDMsO>; Tue, 4 Feb 2003 07:48:14 -0500
+Message-ID: <3E3FB8CE.4020304@quark.didntduck.org>
+Date: Tue, 04 Feb 2003 07:57:50 -0500
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5 snapshots broken
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 10:54:06PM +0000, David Woodhouse wrote:
+I don't know who is responsible for the snapshots, but they aren't 
+showing any of the recent changes in the BK tree since Linus came back 
+from vacation.
 
- > GCC is likewise perfectly entitled to use floating point even if you
- > only used integers in the source. There's a good reason why the SH port
- > builds with '-mno-implicit-fp' and why all other ports should have this
- > _before_ it becomes a problem rather than afterwards.
+--
+				Brian Gerst
 
-I was wondering about this yesterday when toying with the -march options
-we now pass. With (for eg) -march=c3, we now tell gcc it can emit 3dnow
-instructions if it wants, likewise SSE/SSE2 in other -march options.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

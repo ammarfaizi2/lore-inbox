@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275087AbRJJIj1>; Wed, 10 Oct 2001 04:39:27 -0400
+	id <S275094AbRJJIpS>; Wed, 10 Oct 2001 04:45:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275096AbRJJIjS>; Wed, 10 Oct 2001 04:39:18 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:13833 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S275087AbRJJIi7>; Wed, 10 Oct 2001 04:38:59 -0400
-Message-ID: <3BC40913.7ED222C1@idb.hist.no>
-Date: Wed, 10 Oct 2001 10:38:43 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre5 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org
-Subject: Re: dynamic swap prioritizing
-In-Reply-To: <3BC373A8.CD94917B@baldauf.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S275096AbRJJIpI>; Wed, 10 Oct 2001 04:45:08 -0400
+Received: from hastur.andastra.de ([212.172.44.2]:30733 "HELO mail.andastra.de")
+	by vger.kernel.org with SMTP id <S275094AbRJJIoz>;
+	Wed, 10 Oct 2001 04:44:55 -0400
+Date: Wed, 10 Oct 2001 10:45:42 +0200
+From: Sebastian Benoit <ben-lists@andastra.de>
+To: "Trever L. Adams" <trever_adams@yahoo.com>
+Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+Message-ID: <20011010104542.N15766@smtp.andastra.de>
+Mail-Followup-To: Sebastian Benoit <ben-lists@andastra.de>,
+	"Trever L. Adams" <trever_adams@yahoo.com>,
+	"Jeffrey W. Baker" <jwbaker@acm.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110091005540.209-100000@desktop> <1002648616.2580.18.camel@aurora>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="oJAv8lSwuaQsYd0G"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1002648616.2580.18.camel@aurora>; from trever_adams@yahoo.com on Tue, Oct 09, 2001 at 01:30:14PM -0400
+X-Cthulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xuan Baldauf wrote:
-> 
-> Hello,
-> 
-> I have a linux box with 3 harddisks of different
-> characteristics (size, seek time, throughput), each capable
-[algorithm for changing swap priorities]
-> 
-> Does the linux kernel already implement such an
-> optimization? Is it planned?
-> 
-It doesn't already.  I am not sure this is a kernel thing
-either.  Changing swap priorities could be done by userspace
-programs if there were a syscall or /proc interface
-for it.  
 
-You could then have a script changing priorities when you start your
-database for example.  Or a daemon making changes based on 
-statistics.
+--oJAv8lSwuaQsYd0G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Helge Hafting
+Trever L. Adams(trever_adams@yahoo.com)@2001.10.09 13:30:14 +0000:
+> The big problems I have are a few websites and digitalme.com (all
+> services... web, mail, etc.).
+
+Whats the content of /proc/sys/net/ipv4/tcp_ecn ?
+
+/Benno
+
+--=20
+Sebastian Benoit <ben-lists@andastra.de>
+OpenPGP-Key ID 0x82AE75E4                            =20
+fingerprint 0BDA 0CB7 9BCA AF77 28EE  D91A 396D 93BC 82AE 75E
+
+The trouble with political jokes is that they get elected.
+
+--oJAv8lSwuaQsYd0G
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7xAq1OW2TvIKudeQRAnmLAJ9jB6GWLCBawVp5HaJ19s5fcHuqzACfbDzH
+sxsUt6pmaWVZ33anxaGwArE=
+=HISk
+-----END PGP SIGNATURE-----
+
+--oJAv8lSwuaQsYd0G--

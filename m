@@ -1,82 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290733AbSARQ07>; Fri, 18 Jan 2002 11:26:59 -0500
+	id <S290734AbSARQdt>; Fri, 18 Jan 2002 11:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290735AbSARQ0t>; Fri, 18 Jan 2002 11:26:49 -0500
-Received: from f4.law14.hotmail.com ([64.4.21.4]:59922 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290734AbSARQ0f>;
-	Fri, 18 Jan 2002 11:26:35 -0500
-X-Originating-IP: [203.145.133.194]
-From: "Raman S" <raman_s_@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: int 0x40
-Date: Fri, 18 Jan 2002 08:26:29 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F49lHiu3fQtYdVzDpub0001e2cc@hotmail.com>
-X-OriginalArrivalTime: 18 Jan 2002 16:26:29.0293 (UTC) FILETIME=[E1FB9DD0:01C1A03C]
+	id <S290735AbSARQdk>; Fri, 18 Jan 2002 11:33:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20487 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290734AbSARQd3>; Fri, 18 Jan 2002 11:33:29 -0500
+Subject: Re: I2O kernel oops with Promise SuperTrak SX6000
+To: S.Zimmermann@tu-harburg.de (Sebastian Zimmermann)
+Date: Fri, 18 Jan 2002 16:45:31 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <3C483460.70100@tu-harburg.de> from "Sebastian Zimmermann" at Jan 18, 2002 03:42:40 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Rc8x-0007Ha-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I relatively new to the kernel and am trying to understand how the linux 
-kernel handles interrupts. For this I attempted to
-create an int 0x40 by adding a set_system_gate(64, &system_call) in traps.c. 
-I verfied by giving out print statements within set_system_gate that 64 is 
-being set during initialization (though it isnt a surprise that it is being 
-set).  But when i give an int 0x40 in a user level assembly program I get 
-segmentation fault, (a SIGSEGV signal is sent to the process).  I have tried 
-adding another function in entry.S called my_system_call and reproducing the 
-code in system_call with a jmp ret_from_sys_call  at the end. Also tried 
-giving an empty C function for my_system_call all with the same result.
+> When the system is powered up, the SuperTrak BIOS is initializing the 
+> adapter. If we manually *abort* the initialization, Linux will boot 
+> without problems and we can use the hardware raid.
+> 
+> However, if we let the controller initialze the adapter (that is the 
+> default), the kernel will always Oops when I2O is loaded:
 
-My assembly prints out hello world, from the linux assembly how to, 
-reproduced here
-If i replace int 0x80 with my int 0x40 I end up with a segmentation fault. 
-Is there any thing other than set_system_gate and writing the my_system_call 
-handler, that i need to do to have a successful int 0x40? I had tried
-   a) commenting out just the deference of the system handler function 
-within system_call (call *sys_call_table(0, %eax, 4) )
-   b) using &system_call itself in set_system_gate
-  but still the same situation.
+Please try 2.4.18pre3-ac first of all. That has one small detail changed
+that may matter.
 
-Any suggestions will be appreciated.
+> My guess is that the i2o module tries to initialize the board. When it 
+> already was initialized by the BIOS, the system crashes.
 
-Thanks
-Raman
-
-
-.data					# section declaration
-
-msg:
-	.string	"Hello, world!\n"	# our dear string
-	len = . - msg			# length of our dear string
-
-.text					# section declaration
-
-			# we must export the entry point to the ELF linker or
-    .global _start	# loader. They conventionally recognize _start as their
-			# entry point. Use ld -e foo to override the default.
-
-_start:
-
-# write our string to stdout
-
-	movl	$len,%edx	# third argument: message length
-	movl	$msg,%ecx	# second argument: pointer to message to write
-	movl	$1,%ebx		# first argument: file handle (stdout)
-	movl	$4,%eax		# system call number (sys_write)
-	int	$0x80		# call kernel
-
-# and exit
-
-	movl	$0,%ebx		# first argument: exit code
-	movl	$1,%eax		# system call number (sys_exit)
-	int	$0x80		# call kernel
-
-
-
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
+At the moment I've no idea. The i2o code is entitled to reinit the board 
+should it want to, and the supertrak 100 certainly works with 18pre3-ac3.
 

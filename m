@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbTIXQES (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 12:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTIXQES
+	id S261442AbTIXQJu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 12:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbTIXQJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 12:04:18 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:20915 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261440AbTIXQEQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 12:04:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs - which driver for a device?
-Date: Wed, 24 Sep 2003 09:03:21 +0000
-User-Agent: KMail/1.4.1
-References: <20030924020344.55460.qmail@web14905.mail.yahoo.com>
-In-Reply-To: <20030924020344.55460.qmail@web14905.mail.yahoo.com>
+	Wed, 24 Sep 2003 12:09:49 -0400
+Received: from web12606.mail.yahoo.com ([216.136.173.229]:45489 "HELO
+	web12606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261442AbTIXQJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 12:09:49 -0400
+Message-ID: <20030924160948.31778.qmail@web12606.mail.yahoo.com>
+Date: Wed, 24 Sep 2003 18:09:48 +0200 (CEST)
+From: =?iso-8859-1?q?emmanuel=20ALLAUD?= <eallaud@yahoo.fr>
+Subject: A proper way to yield for interactive tasks
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200309240903.22042.dsteklof@us.ibm.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi all,
+this way was brought on the XFree-devel list : say you
+have a video driver which wants to feed a video card
+using DMA (in general using big chunks ~1MB for
+performance reasons). Once the buffer is filled up,
+you know this will take time to be processed by the
+card, so you want to release the CPU, but you don't
+want to wait too long for getting the CPU back for
+interactivity reason. People are using sched_yield for
+now (not all I guess), is that the good solution?
+I must add that this is all in user-space, and the DMA
+case is not the only case where we need to yield but
+not too long.
+I have seen things related in the archives but I did
+not find something clear on that matter.
+TIA
+Bye
+Manu
 
-Hi,
+PS : could you please CC me, I am not subscribed to
+this list (and my mailbox is already crowded ;-)
 
-On Wednesday 24 September 2003 02:03 am, Jon Smirl wrote:
-> In sysfs it is easy to see which devices a driver is supporting.
-> For example /sys/bus/pci/drivers/e1000 links to 0000:02:0c.0 in my system.
->
-> But how do you go the other way; starting from 0000:02:0c.0 to determine
-> the driver? Is the best solution to loop though the drivers directories
-> searching for the device? Or would it be better to change sysfs to add an
-> attribute to each device containing the driver name?
->
-> In /proc/bus/pci/devices the driver name is the last field.
-
-
-Have you looked at libsysfs? You can query for a sysfs_device, which includes 
-the name of the driver. Libsysfs' goal is to provide an easy interface for 
-retrieving such information. The library should also reduce the need for 
-adding extra references or attributes in the kernel. 
-
-Libsysfs is included in the sysfsutils package that also contains systool, a 
-command to view system information exposed through sysfs. 
-
-Sysfsutils can be found at:
-
-http://linux-diag.sourceforge.net/
-
-Thanks,
-
-Dan
-
-
-
-> =====
-> Jon Smirl
-> jonsmirl@yahoo.com
->
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! SiteBuilder - Free, easy-to-use web site design software
-> http://sitebuilder.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

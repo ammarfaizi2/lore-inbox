@@ -1,63 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129826AbRAJGC7>; Wed, 10 Jan 2001 01:02:59 -0500
+	id <S129764AbRAJGNL>; Wed, 10 Jan 2001 01:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129764AbRAJGCu>; Wed, 10 Jan 2001 01:02:50 -0500
-Received: from chao.ucsd.edu ([132.239.50.139]:19166 "HELO chao.ucsd.edu")
-	by vger.kernel.org with SMTP id <S129431AbRAJGCk>;
-	Wed, 10 Jan 2001 01:02:40 -0500
-Date: Tue, 9 Jan 2001 22:02:37 -0800
-From: "John H. Robinson, IV" <jhriv@ucsd.edu>
-To: BUGTRAQ@SECURITYFOCUS.COM
+	id <S132585AbRAJGMv>; Wed, 10 Jan 2001 01:12:51 -0500
+Received: from rebel.rebel.net.au ([203.20.69.66]:25696 "EHLO rebel.net.au")
+	by vger.kernel.org with ESMTP id <S129764AbRAJGMo>;
+	Wed, 10 Jan 2001 01:12:44 -0500
+Date: Wed, 10 Jan 2001 16:40:59 +1030
+From: lloy0076@rebel.net.au
+Message-Id: <200101100610.QAA01273@rebel.net.au>
+To: BUGTRAQ@SECURITYFOCUS.COM, jhriv@ucsd.edu
+Subject: Re: [reiserfs-list] Re: [BUGTRAQ] major security bug in reiserfs (may affect SuSE Linux)
 Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [BUGTRAQ] major security bug in reiserfs (may affect SuSE Linux)
-Message-ID: <20010109220237.D23132@ucsd.edu>
-Mail-Followup-To: BUGTRAQ@SECURITYFOCUS.COM, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-In-Reply-To: <20010110004201.A308@cerebro.laendle>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010110004201.A308@cerebro.laendle>; from pcg@GOOF.COM on Wed, Jan 10, 2001 at 12:42:01AM +0100
-X-ddate: Today is Prickle-Prickle, the 9th day of Chaos in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 12:42:01AM +0100, Marc Lehmann wrote:
-> 
-> Basically, you do:
-> 
-> mkdir "$(perl -e 'print "x" x 768')"
 
-[jaqque@osiris:/tmp/chk]% uname -a            
-Linux osiris 2.2.18 [classified] Sat Jan 6 11:19:04 PST 2001 i586 unknown
-[jaqque@osiris:/tmp/chk]% mkdir "$(perl -e 'print "x" x 768')"
-[jaqque@osiris:/tmp/chk]% ls -la
-total 2
-drwxrwxr-x    3 jaqque   jaqque        819 Jan  9 21:55 .
-drwxrwxrwt   10 root     root          371 Jan  9 21:54 ..
-drwxrwxr-x    2 jaqque   jaqque         35 Jan  9 21:55 x...
-[jaqque@osiris:/tmp/chk]% rm -rf x*
-[jaqque@osiris:/tmp/chk]% mkdir "$(perl -e 'print "x" x 4033')"
-mkdir: cannot create directory `x....x': File name too long
-[jaqque@osiris:/tmp/chk]% mkdir "$(perl -e 'print "x" x 4032')"
-[jaqque@osiris:/tmp/chk]% rm -rf x*
-[jaqque@osiris:/tmp/chk]% mkdir "$(perl -e 'print "x" x 4032')"
-mkdir: cannot create directory `x....x': File exists
-zsh: exit 255   mkdir "$(perl -e 'print "x" x 4032')"
-[jaqque@osiris:/tmp/chk]% ls -la
-total 4
-drwxrwxr-x    3 jaqque   jaqque       4083 Jan  9 21:56 .
-drwxrwxrwt   10 root     root          371 Jan  9 21:54 ..
-[jaqque@osiris:/tmp/chk]% 
+No oops maybe, BUT if you setup an evil script to make so many that the various kernel structures got too full (or it filled the whole partition/disk up) then....
+
+And at 650Mhz my computer could do that quite easily...
 
 
-no oops, but a directory that cannot be removed.
-
--john
-
-linux kernel 2.2.18 with reiserfs-3.5.29 patch
+DL
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

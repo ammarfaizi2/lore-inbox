@@ -1,52 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289172AbSBXCIV>; Sat, 23 Feb 2002 21:08:21 -0500
+	id <S289191AbSBXCKb>; Sat, 23 Feb 2002 21:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289191AbSBXCIL>; Sat, 23 Feb 2002 21:08:11 -0500
-Received: from pD957B36C.dip.t-dialin.net ([217.87.179.108]:43016 "EHLO
-	enigma.deepspace.net") by vger.kernel.org with ESMTP
-	id <S289172AbSBXCIA>; Sat, 23 Feb 2002 21:08:00 -0500
-Message-Id: <200202240206.DAA19045@enigma.deepspace.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Wolly <wwolly@gmx.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: IDE DMA hard lock at boot time (KT266A chpiset)
-Date: Sun, 24 Feb 2002 03:06:01 +0100
-X-Mailer: KMail [version 1.2.1]
-In-Reply-To: <Pine.LNX.4.33.0202231740270.23868-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0202231740270.23868-100000@coffee.psychology.mcmaster.ca>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S289210AbSBXCKM>; Sat, 23 Feb 2002 21:10:12 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:11158 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S289191AbSBXCKB>; Sat, 23 Feb 2002 21:10:01 -0500
+Date: Sat, 23 Feb 2002 21:09:58 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: floppy in 2.4.17
+In-Reply-To: <3C77CD19.2040501@wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0202232108370.11437-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
 
-Thank you very much for your quick responses to my problem. 
+	Hello Pierre ,  pnp is completely disabled in my kernel .
+		Hth ,  JimL
 
-Due to your help I was now able to solve both problems. 
+# grep -i pnp /usr/src/linux/.config
 
-Now everything works great (including UDMA and the ethernet NIC 
-and ACPI)
-[however, the rtl8139 still refuses to work, but I can use the eepro100]. 
+# CONFIG_PNP is not set
+# CONFIG_ISAPNP is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
 
-The three core things were: 
-- switch off apic stuff
-- you may enable ACPI but you must _disable_ ide power down 
-  in the BIOS (seems to be a bug somewhere)
-- This message is normal and can be ignored: 
-  PCI: No IRQ known for interrupt pin A of device 00:11.1. Please try using 
-    pci=biosirq.
 
-Regards,
-Wolly
+On Sat, 23 Feb 2002, Pierre Rousselet wrote:
 
-[Sorry; everyone who did not CC me did not reach me because I seem 
-to be `mysteriously' unsubscribed from lkml since Feb 01 when my 
-mail box ran out of space...]
+> Have you tried booting with "pnpbios=no-res" ?
+>
+>
+> Mr. James W. Laferriere wrote:
+> > 	Hello All ,  More info ...  Hth ,  JimL
+> >
+> > On Sat, 23 Feb 2002, Mr. James W. Laferriere wrote:
+> >
+> >>	Hello J.A. , Nice name .  I have verified that the floppy drive
+> >>	under 2.4.18-pre3 is in the same shape . Hth ,  JimL
+> >>
+> >
+> >># fdformat /dev/fd0u1440		,  Hmmm ,  Move little tab .
+> >>/dev/fd0u1440: Read-only file system
+> >># fdformat /dev/fd0u1440		,  Hmmm ......
+> >>/dev/fd0u1440: Read-only file system
+> >># tar -ztvf /dev/fd0			,  Hmmm ,  J.A.'s right .
+> >>(hang ..wait several minutes..)^C
+> >>tar (grandchild): Read error on /dev/fd0: Input/output error
+> >>tar (grandchild): At beginning of tape, quitting now
+> >>tar (grandchild): Error is not recoverable: exiting now
+> >>
+> >>gzip: stdin: unexpected end of file
+> >>tar: Child returned status 1
+> >>tar: Error exit delayed from previous errors
+> >>
+> >
+> > VFS: Disk change detected on device fd(2,28)
+> > VFS: Disk change detected on device fd(2,28)
+> > VFS: Disk change detected on device fd(2,28)
+> > VFS: Disk change detected on device fd(2,28)
+> > VFS: Disk change detected on device fd(2,0)
+> > end_request: I/O error, dev 02:00 (floppy), sector 0
+> > end_request: I/O error, dev 02:00 (floppy), sector 0
+> > end_request: I/O error, dev 02:00 (floppy), sector 2
+> > end_request: I/O error, dev 02:00 (floppy), sector 4
+> > end_request: I/O error, dev 02:00 (floppy), sector 6
+> >
+> >
+> >
+> >>On Sat, 23 Feb 2002, J.A. Magallon wrote:
+> >>
+> >>
+> >>>Hi.
+> >>>
+> >>>I am getting problems with floppy drive in 2.4.17.
+> >>>All started with floppy not working in 18-rc4, went back to 17
+> >>>and still does not work. Just plain 2.4.17, no patching.
+> >>>
+> >>>mkfs -t ext2 /dev/fd0 just hangs forever.
+> >>>
+> >>>mkfs -v -t ext2 /dev/fd0 gives:
+> >>>
+> >>>mke2fs 1.26 (3-Feb-2002)
+> >>>mkfs.ext2: bad blocks count - /dev/fd0
+> >>>
+> >>>Hardware:
+> >>>
+> >>>Floppy drive(s): fd0 is 1.44M
+> >>>FDC 0 is a post-1991 82077
+> >>>ide-floppy driver 0.97.sv
+> >>>
+> >>>???
+> >>>
+> >>>TIA
+> >>>
+>
+>
+>
+>
+> Pierre
+> --
+> ------------------------------------------------
+>   Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+> ------------------------------------------------
+>
 
-> maybe I wasn't clear on this: your problem seems to be irq-routing
-> or irq lossage.  others have reported the same thing, and have fixed
-> it by turning off the (spurious UP apic usage), turning off apics
-> in bios, etc.
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269387AbRHYOuB>; Sat, 25 Aug 2001 10:50:01 -0400
+	id <S269372AbRHYOvM>; Sat, 25 Aug 2001 10:51:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269372AbRHYOtv>; Sat, 25 Aug 2001 10:49:51 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:42001 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S269387AbRHYOth>; Sat, 25 Aug 2001 10:49:37 -0400
-Date: Sat, 25 Aug 2001 17:52:24 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <17711481589.20010825175224@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: smbmount problems
+	id <S269404AbRHYOvB>; Sat, 25 Aug 2001 10:51:01 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:2191 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S269372AbRHYOuy>; Sat, 25 Aug 2001 10:50:54 -0400
+Date: Sat, 25 Aug 2001 07:51:04 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ben Ford <ben@kalifornia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010825075104.P14302@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <E15a1IJ-000KjA-00@f10.mail.ru> <20010823135318.Z14302@cpe-24-221-152-185.az.sprintbbd.net> <3B87256C.4050503@kalifornia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3B87256C.4050503@kalifornia.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixed smbmount problems by carefully reinstalling kernel and samba.
+On Fri, Aug 24, 2001 at 09:11:24PM -0700, Ben Ford wrote:
+> Tom Rini wrote:
+> 
+> >On Fri, Aug 24, 2001 at 12:41:39AM +0400, Samium Gromoff wrote:
+> >
+> >>  1. I heard a lot of arguments why _not_ to include
+> >> python. Also alot of arguments why _ignore_ the arguments
+> >> to _not_ include python.
+> >>   BUT! No arguments why to _include_ it...
+> >> kinda disbalance as i see.
+> >
+> >The main reason to include it, is that that's what it was done in.
+> 
+> That is never an excuse.
 
-The only thing left is this:
-mount -t smbfs -o noexec //server/e /mnt
-does not honor noexec! All files appear rwxr-xr-x.
+Then write it in something else.
+
 -- 
-Best regards,
-VDA                          mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

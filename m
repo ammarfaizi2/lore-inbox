@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbUKLAGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbUKLAGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbUKLAGL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbUKKW4V
+	id S262416AbUKLAGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbUKKW4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:56:21 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:59064 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262410AbUKKWtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 17:49:17 -0500
-Subject: Re: Reiser{3,4}: problem with the copyright statement
-From: Stephen Pollei <stephen_pollei@comcast.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20041111214554.GB2310@stusta.de>
-References: <20041111012333.1b529478.akpm@osdl.org> 
-	<20041111214554.GB2310@stusta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-o9fNtjruZLyH0ytVHBc5"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Nov 2004 14:51:37 -0800
-Message-Id: <1100213504.8355.27.camel@fury>
+	Thu, 11 Nov 2004 17:56:30 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:48824
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262411AbUKKWtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 17:49:35 -0500
+Date: Thu, 11 Nov 2004 14:36:23 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: David Howells <dhowells@redhat.com>
+Cc: akpm@osdl.org, arnd@arndb.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix usage of setup_arg_pages() in IA64, MIPS, S390 and
+ Sparc64
+Message-Id: <20041111143623.05f1d92a.davem@davemloft.net>
+In-Reply-To: <2555.1100085859@redhat.com>
+References: <2555.1100085859@redhat.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Nov 2004 11:24:19 +0000
+David Howells <dhowells@redhat.com> wrote:
 
---=-o9fNtjruZLyH0ytVHBc5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> The attached patch fixes the usage of setup_arg_pages() in the IA64, MIPS,
+> S390 and Sparc64 arches. This function now takes an extra parameter: the
+> initial top of stack. This is useful in uClinux when there's no fixed location
+> to which the stack pointer can be initialised.
 
-On Thu, 2004-11-11 at 13:45, Adrian Bunk wrote:
-> If you add your code to governed files, and don't
-> want it to be owned by Hans Reiser, put your copyright label on that
-> code ... All portions of governed files not labeled otherwise are owned
-> by Hans Reiser, and ... and leaving the sentence in stating that
-> licensing is governed by the statement in this file, you accept this.
-
-> Besides the fact that giving the copyright completely away is nothing=20
-> that is legally possible in at least Germany, ...
-
-Han's method is also very likely nugatory within the USA.
-
-http://copyright.gov/title17/92chap2.html#204 clearly states that to
-transfer title of copyrighted work requires a written instrument of
-conveyance. That instrument of conveyance has to be signed and should in
-many ways look a lot like a deed or title for real estate -- ie. it must
-denote the boundaries of the transaction in a specific and explicit
-manner. In this instance it would probably be required to state in as
-unambiguous manner as possible which files and which versions this
-transfer is to cover. In the case of patches to preexisting files; it
-should also be specific as to which lines are to be covered unless one
-writes it in a style like a "Quit Claim Deed".
-
-
---=20
-http://dmoz.org/profiles/pollei.html
-http://sourceforge.net/users/stephen_pollei/
-http://www.orkut.com/Profile.aspx?uid=3D2455954990164098214
-http://stephen_pollei.home.comcast.net/
-GPG Key fingerprint =3D EF6F 1486 EC27 B5E7 E6E1  3C01 910F 6BB5 4A7D 9677
-
---=-o9fNtjruZLyH0ytVHBc5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQBBk+z4kQ9rtUp9lncRAipOAJ49nINyHbTPz6xDUXIQOmunwWdrYQCfXnXI
-TPua4uqxx1The08UNOF2sOo=
-=6GaK
------END PGP SIGNATURE-----
-
---=-o9fNtjruZLyH0ytVHBc5--
-
+The sparc64 part looks perfectly fine to me.

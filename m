@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129121AbRBBKjk>; Fri, 2 Feb 2001 05:39:40 -0500
+	id <S129078AbRBBKmU>; Fri, 2 Feb 2001 05:42:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129224AbRBBKjb>; Fri, 2 Feb 2001 05:39:31 -0500
-Received: from mail.delrom.ro ([193.231.234.28]:38412 "HELO mail.delrom.ro")
-	by vger.kernel.org with SMTP id <S129121AbRBBKj0>;
-	Fri, 2 Feb 2001 05:39:26 -0500
-Date: Fri, 2 Feb 2001 12:38:49 +0200
-From: Silviu Marin-Caea <silviu@delrom.ro>
+	id <S129224AbRBBKmK>; Fri, 2 Feb 2001 05:42:10 -0500
+Received: from expanse.dds.nl ([194.109.10.118]:21522 "EHLO expanse.dds.nl")
+	by vger.kernel.org with ESMTP id <S129078AbRBBKlw>;
+	Fri, 2 Feb 2001 05:41:52 -0500
+Date: Fri, 2 Feb 2001 11:41:02 +0100
+From: Ookhoi <ookhoi@dds.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Installation on RAID volume (Mylex controller)
-Message-Id: <20010202123849.5631f308.silviu@delrom.ro>
-X-Mailer: Sylpheed version 0.4.60 (GTK+ 1.2.8; Linux 2.4.1; i686)
-Organization: Delta Romania
+Subject: vaio doesn't boot with 2.4.1-ac1, stops at PCI: Probing PCI hardware
+Message-ID: <20010202114102.E484@ookhoi.dds.nl>
+Reply-To: ookhoi@dds.nl
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.5.0.8)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.14i
+X-Uptime: 1:01pm  up 5 min,  3 users,  load average: 0.07, 0.14, 0.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to install on a RAID volume controlled by a Mylex 170.
+Hi!
 
-Built an image of a 2.4.1 with DAC960/DAC1100 "compiled in" and copied
-it over vmlinuz on a Red Hat 7 boot diskette (boot.img).
+Kernel 2.4.1-ac1 doesn't boot on a vaio c1ve (crusoe). I boot a kernel
+via the usb floppy drive, and it ends with:
 
-I entered this at the boot prompt
+...
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+PCI: PCI BIOS revision 2.10 entry at 0xfd98e, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
 
-boot: linux root=/dev/rd/c0d0
+Here it hangs hard. It used to boot with 2.4.0 and 2.4.1-prex  Should I
+try to determine which patch made the fatal change? Should I send my
+.config? Is there something I can try? Tia!
 
-DAC960 appears to detect correctly the volume
-[...]
-Kernel panic: I have no root and I want to scream
-[...]
-DAC960#0: Logical Drive 0 (/dev/rd/c0d0) Found
-DAC960#0: Logical Drive 0 (/dev/rd/c0d0) Online
-
-It seems the kernel wants a root before it becomes Online.
-
-What now?
-
--- 
-Systems and Network Administrator - Delta Romania
-Phone +4093-267961
+		Ookhoi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

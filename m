@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263056AbTKERhp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 12:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTKERhp
+	id S263039AbTKERgv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 12:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTKERgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 12:37:45 -0500
-Received: from D71e5.d.pppool.de ([80.184.113.229]:696 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S263056AbTKERhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 12:37:41 -0500
-Subject: Re: Re:No backlight control on PowerBook G4
-From: Daniel Egger <degger@fhm.edu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dustin Lang <dalang@cs.ubc.ca>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1067896476.692.36.camel@gaston>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
-	 <1067896476.692.36.camel@gaston>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ChXNSSkHfqOeGJeke7CE"
-Message-Id: <1067976347.945.4.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 04 Nov 2003 21:05:47 +0100
+	Wed, 5 Nov 2003 12:36:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61574 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263039AbTKERgs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 12:36:48 -0500
+Date: Wed, 5 Nov 2003 09:36:28 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Matt <dirtbird@ntlworld.com>, <herbert@gondor.apana.org.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [MOUSE] Alias for /dev/psaux
+In-Reply-To: <20031105170217.GA27752@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0311050920080.11208-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ChXNSSkHfqOeGJeke7CE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Wed, 5 Nov 2003, Vojtech Pavlik wrote:
+> 
+> Regarding removing all extension support from the psmouse driver in the
+> kernel, well, then we can ditch the input core completely, because the
+> only way to make your mouse wheel work will be to let X access the PS/2
+> port directly again, with all the problems that causes.
 
-Am Mon, den 03.11.2003 schrieb Benjamin Herrenschmidt um 22:54:
+The alternative approach is to _not_ try to autodetect and leave it in a
+sane default state - or at least leaving the detection to a minimum, but
+having sane ways of letting the user set the thing.
 
-> > Interesting, will try. I've a whole bunch of more pressing problems wit=
-h
-> > my new baby, though. X is completely broken, no matter which X modeline=
-s
-> > I configure I get nothing but sizzle on the screen, it seems that the
-> > mode setup for the LVDS with the 9600 Mobility is bork.
+As an example, the old psaux driver allowed the user to _send_ to the
+mouse, not just receive. That made it possible for user mode to autodetect
+the mouse, and set the settings. The input-mode mouse driver totally drops
+that feature - which forces the kernel to get it right.
 
-Just checked. It doesn't work with the  latest (Linus) 2.6-test and
-radeonfb. Do you have any special patches in your tree for radeonfb?
+That's a very fragile design: making feedback impossible means that you
+have to always get it right - which in turn tends to be fundamentally
+impossible (ie new mice etc). And right now we force the user to make the
+choice at _boot_ time, which means that the installer can't even ask the
+user.
 
-BTW: It took me quite a while to figure out that the only working image
-with yaboot was the zImage.chrp. The normal vmlinux doesn't contain a
-valid ELF signature (according to yaboot) and the seemingly obvious
-vmlinux.elf-pmac goes boom while trying to decompress the kernel.
+Also, some of the autodetect code is less intrusive. For example, if the
+mouse driver decides it's a Logitech mouse, it will have set the
+resolution down to zero, but it will have left the reporting rate at the
+default.
 
---=20
-Servus,
-       Daniel
+In contrast, an unrecognized mouse will have gone through the intellimouse
+test, which will have set the rate down to 80 (in addition to having the
+resolution set down to the lowest setting by the Logitech detect code). So
+now some mice get even _worse_ behaviour. Or at least different.
 
---=-ChXNSSkHfqOeGJeke7CE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+Right now we can't make big changes, but it would be good to think about 
+the issues.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+And we could make the defaults a bit nicer and less likely to screw up.
 
-iD8DBQA/qAaachlzsq9KoIYRAoGfAKC5IuOE/TTsBFY9xvPn81WstmMEFgCeIow9
-MD7Sf6Ldp8zg9xTOxsyEMEk=
-=jfj1
------END PGP SIGNATURE-----
-
---=-ChXNSSkHfqOeGJeke7CE--
+		Linus
 

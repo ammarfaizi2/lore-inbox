@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTHWTPK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 15:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbTHWTPJ
+	id S263685AbTHWTSz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 15:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263699AbTHWTSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 15:15:09 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:65256 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262567AbTHWTPE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 15:15:04 -0400
-Date: Sat, 23 Aug 2003 12:14:58 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: *sigh* something is wrong with bkcvs again
-Message-ID: <20030823191458.GA25535@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org
-References: <20030823012724.GC31894@vitelus.com>
+	Sat, 23 Aug 2003 15:18:55 -0400
+Received: from pixy-gw.netlab.is.tsukuba.ac.jp ([130.158.83.98]:14342 "HELO
+	pixy.netlab.is.tsukuba.ac.jp") by vger.kernel.org with SMTP
+	id S263685AbTHWTSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 15:18:52 -0400
+To: vmlinuz386@yahoo.com.ar
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [PATCH][resend] 6/13 2.4.22-rc2 fix __FUNCTION__ warnings
+ drivers/scsi/pcmcia
+In-Reply-To: <20030822041522.0daf7ff6.vmlinuz386@yahoo.com.ar>
+References: <20030822041522.0daf7ff6.vmlinuz386@yahoo.com.ar>
+X-Mailer: Mew version 1.94.2 on Emacs 19.34 / Mule 2.3 (SUETSUMUHANA)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030823012724.GC31894@vitelus.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030824041845U.yokota@netlab.is.tsukuba.ac.jp>
+Date: Sun, 24 Aug 2003 04:18:45 +0900
+From: Yokota Hiroshi <yokota@netlab.is.tsukuba.ac.jp>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is your message recast in the context of the kernel, or at least 
-this is what it sounded like to me:
+ Hello, Gerardo.
 
-    *Sigh*.  The kernel oops *again*.  How dare you give me this kernel
-    for free and then break it.  Fix it, right now, and I'd like an
-    apology along with the fix.  Hurry up.
+ Thanks for your patch. This probrem is fixed on Kernel 2.6.0-test4.
+And you can get independent source code from
+http://www.netlab.is.tsukuba.ac.jp/~yokota/izumi/ninja/
 
-Maybe you didn't intend it to sound like that and you'd like to rephrase it.
 
-On Fri, Aug 22, 2003 at 06:27:24PM -0700, Aaron Lehmann wrote:
-> At the *root* of a fresh checkout:
-> 
-> $ head -2 Makefile 
-> #
-> # Copyright (c) 2000-2003 Silicon Graphics, Inc.  All Rights Reserved.
-> 
-> It's the XFS makefile...
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+Subject: [PATCH][resend] 6/13 2.4.22-rc2 fix __FUNCTION__ warnings drivers/scsi/pcmcia
+Date: Fri, 22 Aug 2003 04:15:22 -0300
+
+> Hi people,
+> this patch fix the warning: concatenation of string literals with __FUNCTION__ is deprecated
+
+
 ---
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+YOKOTA Hiroshi
+E-mail: yokota@netlab.is.tsukuba.ac.jp
+WWW:    http://www.netlab.is.tsukuba.ac.jp/~yokota/

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbTLXQkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 11:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTLXQkW
+	id S263661AbTLXQs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 11:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLXQs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 11:40:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53739 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263606AbTLXQkV (ORCPT
+	Wed, 24 Dec 2003 11:48:57 -0500
+Received: from main.gmane.org ([80.91.224.249]:14042 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263661AbTLXQs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 11:40:21 -0500
-Date: Wed, 24 Dec 2003 08:35:40 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: sumit_uconn@lycos.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: undefined reference error
-Message-Id: <20031224083540.40a04c0d.rddunlap@osdl.org>
-In-Reply-To: <BCLLEMEMOFNOFJAA@mailcity.com>
-References: <BCLLEMEMOFNOFJAA@mailcity.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 24 Dec 2003 11:48:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: allow process or user to listen on priviledged ports?
+Date: Wed, 24 Dec 2003 17:43:09 +0100
+Message-ID: <bscg1m$1eg$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.1) Gecko/20031008
+X-Accept-Language: de, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Dec 2003 10:52:10 -0500 "Sumit Narayan" <sumit_uconn@lycos.com> wrote:
+Hi,
 
-| Hi,
-| 
-| Pretty out of the place I am, and beg your pardon. I have modified my kernel 2.6.0 with few new functions in fs/kernthread.c, which required a header file linux/kernthread.h.
-| 
-| On compilation, I get this error:
-| 
-| fs/built-in.o(.text+0x242f1): In function 'stop_kernthread' :
-|  : undefined reference to 'lock_kernel'
-| make: ***[.tmp_vmlinux1] Error 1
-| 
-| Could someone help me out with this.
-| Thanks in advance.
+don't blame me for asking such a question in the LKML, but i already 
+asked it in other linux-newsgroups. i haven't got any real answer yet.
 
-Add this line near the top of the source file, with the other
-#include lines:
+my problem is, that i want an application to listen on a priviledged 
+port (e.g. port 80) and to run as a "normal" unpriviledged user (e.g. 
+wwwrun). Well - how? The application is not a C/C++-application, so i 
+cannot ask the author (myself) to implement a mechanism to switch the 
+userid (e.g. like apache does it).
 
-#include <linux/smp_lock.h>
+So is there any machanism to bind that permission (to listen on a 
+priviledged tcp-port) to a specific user or a specific process?
+
+The application is written in Java. Of course Java could implement 
+userid-switching, but the linux could also have an ACL for that. So 
+please don't answer with "go and ask Sun for that feature". I already 
+considered that.
+
+Thx
+   Sven
 
 
---
-~Randy
-MOTD:  Always include version info.

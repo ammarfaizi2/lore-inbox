@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbTAGNbu>; Tue, 7 Jan 2003 08:31:50 -0500
+	id <S261829AbTAGNby>; Tue, 7 Jan 2003 08:31:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbTAGNbu>; Tue, 7 Jan 2003 08:31:50 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:38541 "EHLO
+	id <S267375AbTAGNbx>; Tue, 7 Jan 2003 08:31:53 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:39565 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S261799AbTAGNbt>; Tue, 7 Jan 2003 08:31:49 -0500
+	id <S261829AbTAGNbv>; Tue, 7 Jan 2003 08:31:51 -0500
 From: Richard Stallman <rms@gnu.org>
-To: lm@bitmover.com
-CC: acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
-In-reply-to: <20030106173705.GP1386@work.bitmover.com> (message from Larry
-	McVoy on Mon, 6 Jan 2003 09:37:05 -0800)
-Subject: Re: Nvidia and its choice to read the GPL "differently"
+To: billh@gnuppy.monkey.org
+CC: mark@mark.mielke.cc, lm@bitmover.com, linux-kernel@vger.kernel.org,
+       paul@clubi.ie, riel@conectiva.com.br, billh@gnuppy.monkey.org
+In-reply-to: <20030106173949.GA1712@gnuppy.monkey.org>
+	(billh@gnuppy.monkey.org)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Reply-to: rms@gnu.org
-References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <E18Vaoa-0002Pm-00@fencepost.gnu.org> <20030106173705.GP1386@work.bitmover.com>
-Message-Id: <E18Vtxy-0002c2-00@fencepost.gnu.org>
-Date: Tue, 07 Jan 2003 08:40:26 -0500
+References: <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org>
+Message-Id: <E18Vtxz-0002cB-00@fencepost.gnu.org>
+Date: Tue, 07 Jan 2003 08:40:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    It is the ultimate in hypocrisy to ask others for something you aren't 
-    willing to do yourself.  I, for one, will remind you of this every time
-    you bring up GNU/Linux in this list.
+    > See http://www.gnu.org/gnu/linux-and-gnu.html for the history of GNU.
 
-These two cases are similar, but not in the way you think.  In both
-cases a large structure that is basically GNU or of GNU has a
-component that is Linux or of Linux.
+    I hate to say it to you, but that URL reads like the typical BSD arguments
+    that I get, where embittered engineers whine about how a kernel is key to
+    and entire software development process. Both HURD and the BSDs are simply
+    irrelevant to the entire GNU/GPL phenomenon as we know it
 
-So why do we treat them differently?  In general, there's no ethical
-obligation to cite each and every component of a larger structure in
-the structure's name.  But in the case of "GNU/Linux" there are some
-specific reasons why it is useful and proper to mention "Linux" in the
-name.  See http://www.gnu.org/gnu/gnu-linux-faq.html#justgnu.
+It is true that the Hurd is mostly irrelevant to the success of
+GNU/Linux and the free software community today.  Nearly everyone who
+uses GNU uses it with Linux, very few with the Hurd.  I use it with
+Linux.
 
+But the fact that you focus on the Hurd, when the Hurd is not the
+issue, suggests a possible misunderstanding.  Are you identifying the
+success of GNU with the success of the Hurd?  The Hurd is just one part
+of GNU, just one of many programs we developed for GNU.  The success
+of GNU doesn't require the Hurd.
 
+Some GNU packages have failed completely, and been abandoned.  You
+have probably never heard of them.  But the GNU system overall is a
+great success despite that.
+
+    I mean, FreeBSD is a free system, yet why didn't it create an entire movement
+    of free software like Linux did ?
+
+Linux alone didn't do this.  It was the combination of GNU and Linux
+that did this.
+
+I don't know why the BSD systems did not become as popular; perhaps
+it's because they became available some years later.
 

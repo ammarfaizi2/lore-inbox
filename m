@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293465AbSB1VsL>; Thu, 28 Feb 2002 16:48:11 -0500
+	id <S293722AbSB1XGg>; Thu, 28 Feb 2002 18:06:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310124AbSB1Vqf>; Thu, 28 Feb 2002 16:46:35 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:21385 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S310120AbSB1Vot>;
-	Thu, 28 Feb 2002 16:44:49 -0500
-Date: Thu, 28 Feb 2002 23:46:18 +0200 (EET)
-From: Teodor Iacob <theo@astral.kappa.ro>
-X-X-Sender: <theo@linux.kappa.ro>
-Reply-To: <Teodor.Iacob@astral.kappa.ro>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Chris Rankin <cj.rankin@ntlworld.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.18 : lots of "state D" processes
-In-Reply-To: <20020228183120.C1705@inspiron.school.suse.de>
-Message-ID: <Pine.LNX.4.31.0202282344430.5329-100000@linux.kappa.ro>
+	id <S310194AbSB1XEb>; Thu, 28 Feb 2002 18:04:31 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8204 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S310193AbSB1XBP>; Thu, 28 Feb 2002 18:01:15 -0500
+Date: Thu, 28 Feb 2002 18:52:25 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Dennis, Jim" <jdennis@snapserver.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Congrats Marcelo,
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com>
+Message-ID: <Pine.LNX.4.21.0202281849450.2391-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Ok it seems with your patch against 2.4.19-pre1 I don't get those "state
-D" processes, but my printer didn't print anything either, maybe is just
-something setup related, I'll try to figure it out. I shall repeat some
-more tests with rmap12g also. Btw I had the USB compiled as module and got
-the printer up with "modprobe printer".
+On Tue, 26 Feb 2002, Dennis, Jim wrote:
 
-Teo
+> Marcelo,
+> 
+>  Contratulations on your first "official" kernel release.  It seems to
+> have gone
+>  well (except for some complaints on slashdot about -rc4 SPARC patches
+> missing from
+>  the patch, but apparently in the full tarball).
+> 
+>  Now I need to know about the status of several unofficial patches:
+> 
+> 	XFS
 
-On Thu, 28 Feb 2002, Andrea Arcangeli wrote:
+Want to see stable in -ac first.
 
-> On Thu, Feb 28, 2002 at 12:38:13PM +0200, Teodor Iacob wrote:
-> > Hello,
-> >
-> > I got a few stats "D" process also with 2.4.19-pre1-rmap12g, the processes
-> > were using my usb printer, which actually I never got it to work anyway
-> > because this was the first kernel to try to make it work, and ofc I
-> > couldn't kill the processes, but the reboot went cleanly.
->
-> Can you reproduce on 2.4.19pre1aa1?
->
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1.bz2
->
-> Andrea
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> 	LVM
+
+Its on 2.4 already.
+
+> 	i2c
+> 	Crypto
+> 	FreeS/WAN KLIPS
+> 	LIDS
+
+I think its not possible to distribute crypto stuff in the stock kernel.
+
+Am I wrong? 
+
+> 	rmap
+
+I need to see it running in production for more time.
+
+>  Marcelo, there were some i2c updates included in the lmsensors package,
+> have they
+>  submitted those to you for integration into 2.4.19?
+
+Nope. I could well integrate lm_sensors in the future.
+
 

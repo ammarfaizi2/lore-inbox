@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130271AbRCCE3k>; Fri, 2 Mar 2001 23:29:40 -0500
+	id <S130346AbRCCFsZ>; Sat, 3 Mar 2001 00:48:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130274AbRCCE3a>; Fri, 2 Mar 2001 23:29:30 -0500
-Received: from x86unx3.comp.nus.edu.sg ([137.132.90.2]:27330 "EHLO
-	x86unx3.comp.nus.edu.sg") by vger.kernel.org with ESMTP
-	id <S130271AbRCCE31>; Fri, 2 Mar 2001 23:29:27 -0500
-Date: Sat, 3 Mar 2001 12:28:42 +0800
-From: Zou Min <zoum@comp.nus.edu.sg>
-To: linux-kernel@vger.kernel.org
-Subject: Re: MM docs...
-Message-ID: <20010303122842.A18850@comp.nus.edu.sg>
-Mail-Followup-To: Zou Min <zoum@comp.nus.edu.sg>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S130347AbRCCFsP>; Sat, 3 Mar 2001 00:48:15 -0500
+Received: from host11.optimumdata.dsl.radiks.net ([207.232.85.172]:63247 "EHLO
+	subby.optimumdata.com") by vger.kernel.org with ESMTP
+	id <S130346AbRCCFsA>; Sat, 3 Mar 2001 00:48:00 -0500
+Date: Fri, 2 Mar 2001 23:46:52 -0600 (CST)
+From: <phil@optimumdata.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Linux Advanced Routing and Trafic Control <lartc@mailman.ds9a.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: [LARTC] 1 adsl + 1 sdsl + masq + simultaneous incomming
+ routes]
+In-Reply-To: <3AA06720.77D94BFE@matchmail.com>
+Message-ID: <Pine.LNX.4.32.0103022338210.473-100000@subby.optimumdata.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any chance that some knowledgeable people could write docs for
-> the public functions in 2.4's linux/mm directory?
+On Fri, 2 Mar 2001, Mike Fedyk wrote:
 
-I am currently doing some memory-related research. I would be very grateful
-if someone could write such documents.
+> There has to be a better way.
 
-Btw, may I know some significant differences in terms of MM between kernel
-2.4 and kernel 2.2.1x family?
+It's the one I use; it works and works well.
 
-Thanks in advance!
+Asking someone who deals with "network appliance" routers (ie Cisco) might
+lead to some ideas.  But the Cisco folks I asked recommended the solution
+I told you about.  You might have better luck asking someone else.
+
+> I'm forwarding this to LKML.  Maybe they have a better idea...
+
+netdev@oss.sgi.com (or something like that) is actually a better place
+
+> I know the kernel keeps a route cache, is there something like a reverse MASQ
+> feature somewhere.  Storing which incoming route + port number and keeping a
+> dynamic list...
 
 -- 
-Cheers!
---Zou Min 
-
-zoum@comp.nus.edu.sg			URL: http://www.comp.nus.edu.sg/~zoum
------------------------------------------------------------------------------
-I don't always know what I'm talking about, but I'm always pretty much
-convinced that I'm right.
-		-- musician Mojo Nixon
+-----------------------------------------------------------------------
+Phil Brutsche                                      phil@optimumdata.com
 

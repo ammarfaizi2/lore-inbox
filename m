@@ -1,54 +1,57 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154288-31090>; Fri, 18 Dec 1998 04:24:22 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:4483 "EHLO smtp1.cern.ch" ident: "TIMEDOUT") by vger.rutgers.edu with ESMTP id <154394-31090>; Fri, 18 Dec 1998 04:19:06 -0500
-To: MOLNAR Ingo <mingo@chiara.csoma.elte.hu>
-Cc: Matt Kemner <kemner@live.networx.net.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.rutgers.edu
-Subject: Re: 2.0.37pre3 won't boot
-References: <Pine.LNX.3.96.981218100345.765A-100000@chiara.csoma.elte.hu>
-From: Jes Sorensen <Jes.Sorensen@cern.ch>
-Date: 18 Dec 1998 11:03:38 +0100
-In-Reply-To: MOLNAR Ingo's message of "Fri, 18 Dec 1998 10:09:56 +0100 (CET)"
-Message-ID: <d31zlxsr5x.fsf@valhall.cern.ch>
-X-Mailer: Quassia Gnus v0.37/Emacs 20.2
+Received: by vger.rutgers.edu id <154269-31090>; Sat, 19 Dec 1998 09:47:14 -0500
+Received: from 8dyn47.delft.casema.net ([195.96.123.47]:26648 "EHLO rosie.BitWizard.nl" ident: "root") by vger.rutgers.edu with ESMTP id <154209-31090>; Sat, 19 Dec 1998 09:46:25 -0500
+Message-Id: <199812191537.QAA03388@cave.bitwizard.nl>
+Subject: Re: mmap() is slower than read() on SCSI/IDE on 2.0 and 2.1
+In-Reply-To: <19981218010838.D28066@cerebro.laendle> from Marc Lehmann at "Dec 18, 98 01:08:38 am"
+To: pcg@goof.com (Marc Lehmann)
+Date: Sat, 19 Dec 1998 16:37:34 +0100 (MET)
+Cc: linux-kernel@vger.rutgers.edu
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
->>>>> "Ingo" == MOLNAR Ingo <mingo@chiara.csoma.elte.hu> writes:
+Marc Lehmann wrote:
+> On Thu, Dec 17, 1998 at 06:52:50AM +0000, Linus Torvalds wrote:
+> > Umm, the easiest hint is probably to just look at the faulting address. 
+> > We have it available, after all. 
+> > 
+> > I suspect that such a simple heuristic would be fairly accurate, and it
+> > can be coupled with other heuristics to further increase the accuracy. 
+> 
+> file copy, yes. But grep (and probably lots of others) don't access memory
+> sequentially (as faster search algorithms exist)
 
-Ingo> On Fri, 18 Dec 1998, Matt Kemner wrote:
+A fast search algorithm, touches memory every n bytes where n is the
+size of the largest constant string that you're searching for. 
 
->> However I just compiled and installed 2.0.37pre3 on one of my
->> PRODUCTION machines, and am getting the same error - it will
->> uncompress, tell me it's booting the kernel, and then I get
->> nothing. This machine is an intel P166 Classic on a HX board, 96MB
->> RAM, Stallion host adapter with 4x16 tty panels.
+That way "n" is typically small, so that you end up hitting the first
+n bytes pretty often.
 
-Ingo> i am currently debugging a similar problem, and the funny thing
-Ingo> is that if the kernel is compiled on my box, the system boots,
-Ingo> if it's compiled on the failing system, it doesnt ... So just
-Ingo> about the only remaining variable is binutils. What version of
-Ingo> binutils do you have, especially the version of as86 and ld86?
-Ingo> the one i have is:
+If you're acessing 
 
-Hmmmm there was a modification in a late 2.8.1.0.x binutils that
-changed the behavior of the alignment of segments when linking. It
-struck us on the m68k by preventing 2.0.x kernels from booting so I
-did a nasty hack and reverted the patch for the binutils RPM on the
-m68k.
+	struct blabla {
+        int ...
+	float ...
+	char [];
+	}
 
-Dunno if it is related, but I attached the patch below.
+mmapped from a file, you might be looking for a certain float. As long
+as you're doing a linear search, you'll again hit the first few bytes
+of a page pretty often.
 
-Jes
 
---- binutils-2.9.1.0.4/ld/scripttempl/elf.sc~	Tue Feb 17 20:36:01 1998
-+++ binutils-2.9.1.0.4/ld/scripttempl/elf.sc	Thu Jul 23 17:57:41 1998
-@@ -165,7 +165,6 @@
-    *(.bss)
-    *(COMMON)
-   }
--  ${RELOCATING+. = ALIGN(${ELFSIZE} / 8);}
-   ${RELOCATING+_end = . ;}
-   ${RELOCATING+PROVIDE (end = .);}
- 
+				Roger.
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*   Never blow in a cat's ear because if you do, usually after three or  *
+*   four times, they will bite your lips!  And they don't let go for at  *
+*   least a minute. -- Lisa Coburn, age 9
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

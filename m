@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289015AbSBSACO>; Mon, 18 Feb 2002 19:02:14 -0500
+	id <S289025AbSBSACN>; Mon, 18 Feb 2002 19:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289018AbSBSACE>; Mon, 18 Feb 2002 19:02:04 -0500
-Received: from rgminet1.oracle.com ([148.87.122.30]:7413 "EHLO
-	rgminet1.oracle.com") by vger.kernel.org with ESMTP
-	id <S289017AbSBSABu>; Mon, 18 Feb 2002 19:01:50 -0500
-Message-ID: <3C719641.3040604@oracle.com>
-Date: Tue, 19 Feb 2002 01:03:13 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
+	id <S289015AbSBSACE>; Mon, 18 Feb 2002 19:02:04 -0500
+Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:14737 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289018AbSBSABx>;
+	Mon, 18 Feb 2002 19:01:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [TEST] page tables filling non-highmem
+Date: Tue, 19 Feb 2002 01:06:14 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+        rsf@us.ibm.com
+In-Reply-To: <20020215045106.GB26322@holomorphy.com> <E16cnOQ-0000LC-00@starship.berlin> <20020218141545.P7940@athlon.random>
+In-Reply-To: <20020218141545.P7940@athlon.random>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: gnome-terminal acts funny in recent 2.5 series
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16cxnS-0000xk-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running Ximian-latest for rh72/i386, latest 2.5 kernels (including
-  2.5.4-pre2, 2.5.4, 2.5.5-pre1).
+On February 18, 2002 02:15 pm, Andrea Arcangeli wrote:
+> On Mon, Feb 18, 2002 at 01:59:42PM +0100, Daniel Phillips wrote:
+> > Could you describe your page table deadlock-avoidance algorithm in more
+> > detail please?
+> 
+> There is nothing specific with the pagetables. If the lowmem was eat by
+> skb instead of ptes you'd deadlock the very same way. The kernel will
+> just see lots of cache in highmem and of swap available (not to tell the
+> kernel never knows how much of such cache is really freeable or how much
+> of the mappings are swappable and that's the very next problem that will
+> leads to the same deadlock) and it will think there's "freeable" memory
+> available and it will keep looping.  That's simply plain broken. The
+> only way if there's something freeable is to try to free it and if we
+> fail we say "oom". You cannot say if there's something freeable by
+> checking the cache size or the number of free swap pages, no-way.
+> 
+> If in 2.5 we want perfect accounting of freeable resources instead, fine
+> with me (that would math guarantee to never fail allocations if there's
+> at least one page freeable, while right now you only can calculate a
+> probabilistic measure), but it has to be _perfect_, and with 2.4 there
+> isn't such perfect accounting, so we definitely cannot rely on cache
+> size and swap available to know if to trigger oom or not. That's totally
+> broken and it will deadlock. I care about those minor theorical things
+> too, I want everything calculated and under control, I hate
+> approximations that can leads to deadlocks, and it pays off eventually.
 
-Symptom:
-   - clicking on the panel icon for gnome-terminal shows a flicker
-      of the terminal window coming up then the window disappears.
-     No leftover processes.
+You're right, we have to get serious about doing what it takes to have a
+precise accounting of pinned memory.  What are we going to do, count the
+number of 1->2 and 2->1 transitions on page->count?  Or should we have a
+pin/unpin_page(page) api?  Or what?
 
-What works 100%:
-   - regular xterm in 2.5.x
-   - gnome-terminal in 2.4.x (x in .17, .18-pre9, .18-rc2)
-
-More info:
-   - doesn't happen 100% of the time, but close
-   - trying to start gnome-terminal either vanilla or with the
-      parameters in the icon from an xterm causes
-       * gnome-terminal window comes up, but no shell prompt; the
-          window *does not* disappear and program is in a CPU loop
-       * program detaches from calling xterm even when '&' is
-          not used
-       * calling xterm's tty is left in a funny state (sometimes
-          stty sane^J is required, sometimes tput reset)
-
-Any ideas would be quite welcome - I can go back and try and narrow
-  down what kernel breaks gnome-terminal if nothing comes up.
-
-
-Thanks,
-
---alessandro
-
-  "If your heart is a flame burning brightly
-    you'll have light and you'll never be cold
-   And soon you will know that you just grow / You're not growing old"
-                               (Husker Du, "Flexible Flyer")
-
+-- 
+Daniel

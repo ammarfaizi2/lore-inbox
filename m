@@ -1,132 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129706AbQKMNEA>; Mon, 13 Nov 2000 08:04:00 -0500
+	id <S129673AbQKMNI7>; Mon, 13 Nov 2000 08:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129787AbQKMNDu>; Mon, 13 Nov 2000 08:03:50 -0500
-Received: from 24.68.3.210.on.wave.home.com ([24.68.3.210]:8437 "EHLO
-	phlegmish.com") by vger.kernel.org with ESMTP id <S129773AbQKMNDf>;
-	Mon, 13 Nov 2000 08:03:35 -0500
-From: David Won <phlegm@home.com>
-Date: Mon, 13 Nov 2000 07:59:24 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-To: Gregory Maxwell <greg@linuxpower.cx>
-In-Reply-To: <00111214191100.01043@phlegmish.com> <20001112171230.B32489@xi.linuxpower.cx>
-In-Reply-To: <20001112171230.B32489@xi.linuxpower.cx>
-Subject: Re: Newby help. Tons and tons of Oops
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <00111307592400.01166@phlegmish.com>
-Content-Transfer-Encoding: 8bit
+	id <S129488AbQKMNIu>; Mon, 13 Nov 2000 08:08:50 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:37896 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129481AbQKMNIk>; Mon, 13 Nov 2000 08:08:40 -0500
+Date: Mon, 13 Nov 2000 14:06:41 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: aprasad@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: reliability of linux-vm subsystem
+Message-ID: <20001113140641.A11229@arthur.ubicom.tudelft.nl>
+In-Reply-To: <CA256996.004352F8.00@d73mta05.au.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <CA256996.004352F8.00@d73mta05.au.ibm.com>; from aprasad@in.ibm.com on Mon, Nov 13, 2000 at 05:29:48PM +0530
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
+X-Loop: erik@arthur.ubicom.tudelft.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran it for overnight without an error. I'm not sure if it is supposed to 
-show an error on screen or not but it didn't. I also had my usual pile of 
-Oops overnight as well. 116 of them. :(
+On Mon, Nov 13, 2000 at 05:29:48PM +0530, aprasad@in.ibm.com wrote:
+> When i run following code many times.
+> System becomes useless till all of the instance of this programming are
+> killed by vmm.
 
-I'm running 2.4.0test11pre3. but the kernel shipped with Redhat 7 doesn't 
-work either. When I was running 2.2.15 and RedHat 6.2 before upgrading it 
-worked great. Never had an oops ever.
-I ran a memory checker under dos as well and it didn't find anything. Any 
-tips?
+Good, so the OOM killer works.
+
+> Till that time linux doesn't accept any command though it switches from one
+> VT to another but its useless.
+
+VT swithing is done by the kernel itself, not by a process.
+
+> The above programme is run as normal user previleges.
+> Theoretically load should increase but system should services other users
+> too.
+
+No. The system would *like* to service other processes, but it *can't*
+because it is trashing.
+
+> but this is not behaving in that way.
+> ___________________________________________________________________
+> main()
+> {
+>      char *x[1000];
+>      int count=1000,i=0;
+>      for(i=0; i <count; i++)
+>           x[i] = (char*)malloc(1024*1024*10); /*10MB each time*/
+> 
+> }
+> _______________________________________________________________________
+> If i run above programm for 10 times , then system is useless for around
+> 5-7minutes on PIII/128MB.
+
+Sounds quite normal to me. If you don't enforce process limits, you
+allow a normal user to thrash the system.
 
 
-On Sunday 12 November 2000 17:12, you wrote:
-> Step 1: Run memtest (search freshmeat) overnight.
-> Step 2: If the kernel that ships with your distribution works (you didn't
->          say) then continue using it, it is most likely superior (and
-> 	 certantly better supported) the the most current Linus kernel.
->         If you must run a kernel other then the one shipped with your
-> distro, you must name it's version in your bug report to l-k. There are
-> 	 several versions that could be called 'most current':
-> 	 2.2.17, 2.2.18preX, 2.4.0test10, 2.4.0test11pre3.
->
->
-> From reading the opps below, I highly suspect you will discover resolution
-> during step 1.
->
-> On Sun, Nov 12, 2000 at 02:19:11PM -0500, David Won wrote:
-> > I'm not really that much of a newby (2 years of linux) but I am a newby
-> > to kernel dumps.
-> > I'm running Redhat 7 with the latest kernel compiled using kgcc. I get
-> > many many oops, lockups and mysterious reboots. Can anybody help me
-> > determine what is causing this from ksymoops output below. I thought it
-> > might be something with my swapper file so I deleted and recreated the
-> > partition. I still have the same problem. This system was rock solid
-> > under 6.2 but is pretty much useless now. This is pnly the last couple of
-> > Oops after a reboot. I have dozens in my messages file. :(
-> >
-> > Nov 12 14:10:08 phlegmish kernel: Unable to handle kernel paging request
-> > at virtual address ff57da13
-> > Nov 12 14:10:08 phlegmish kernel: c012fe98
-> > Nov 12 14:10:08 phlegmish kernel: *pde = 00000000
-> > Nov 12 14:10:08 phlegmish kernel: Oops: 0002
-> > Nov 12 14:10:08 phlegmish kernel: CPU:    0
-> > Nov 12 14:10:08 phlegmish kernel: EIP:    0010:[<c012fe98>]
-> > Nov 12 14:10:08 phlegmish kernel: EFLAGS: 00210286
-> > Nov 12 14:10:08 phlegmish kernel: eax: c6550800   ebx: fffffff7   ecx:
-> > 00000001   edx: ff57d9ff
-> > Nov 12 14:10:08 phlegmish kernel: esi: 0000003c   edi: 0000003c   ebp:
-> > bffff5f0   esp: c0d55fb0
-> > Nov 12 14:10:08 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-> > Nov 12 14:10:08 phlegmish kernel: Process bash (pid: 875,
-> > stackpage=c0d55000) Nov 12 14:10:08 phlegmish kernel: Stack: c012f319
-> > c0d54000 0000003c 080cd40c c010a407 00000001 080cd40c 0000003c
-> > Nov 12 14:10:08 phlegmish kernel:        0000003c 080cd40c bffff5f0
-> > 00000004 0000002b 0000002b 00000004 400fb6a4
-> > Nov 12 14:10:08 phlegmish kernel:        00000023 00200206 bffff5c0
-> > 0000002b Nov 12 14:10:08 phlegmish kernel: Call Trace: [<c012f319>]
-> > [<c010a407>] Nov 12 14:10:08 phlegmish kernel: Code: ff 42 14 89 d0 c3 89
-> > f6 8b 4c 24 04 ff 49 14 0f 94 c0 84 c0
-> >
-> > >>EIP; c012fe98 <fget+20/28>   <=====
-> >
-> > Trace; c012f319 <sys_write+15/c8>
-> > Trace; c010a407 <system_call+33/38>
-> > Code;  c012fe98 <fget+20/28>
-> > 00000000 <_EIP>:
-> > Code;  c012fe98 <fget+20/28>   <=====
-> >    0:   ff 42 14                  incl   0x14(%edx)   <=====
-> > Code;  c012fe9b <fget+23/28>
-> >    3:   89 d0                     mov    %edx,%eax
-> > Code;  c012fe9d <fget+25/28>
-> >    5:   c3                        ret
-> > Code;  c012fe9e <fget+26/28>
-> >    6:   89 f6                     mov    %esi,%esi
-> > Code;  c012fea0 <put_filp+0/38>
-> >    8:   8b 4c 24 04               mov    0x4(%esp,1),%ecx
-> > Code;  c012fea4 <put_filp+4/38>
-> >    c:   ff 49 14                  decl   0x14(%ecx)
-> > Code;  c012fea7 <put_filp+7/38>
-> >    f:   0f 94 c0                  sete   %al
-> > Code;  c012feaa <put_filp+a/38>
-> >   12:   84 c0                     test   %al,%al
-> >
-> > Nov 12 14:10:08 phlegmish kernel: Unable to handle kernel paging request
-> > at virtual address 8b103f15
-> > Nov 12 14:10:08 phlegmish kernel: c012ef56
-> > Nov 12 14:10:08 phlegmish kernel: *pde = 00000000
-> > Nov 12 14:10:08 phlegmish kernel: Oops: 0000
-> > Nov 12 14:10:08 phlegmish kernel: CPU:    0
-> > Nov 12 14:10:08 phlegmish kernel: EIP:    0010:[<c012ef56>]
-> > Nov 12 14:10:08 phlegmish kernel: EFLAGS: 00210282
-> > Nov 12 14:10:08 phlegmish kernel: eax: 8b103f01   ebx: 8b103f01   ecx:
-> > 8b103f01   edx: 00000400
-> > Nov 12 14:10:08 phlegmish kernel: esi: 00000000   edi: c437c420   ebp:
-> > 00000001   esp: c0d55e84
-> > Nov 12 14:10:08 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-> > Nov 12 14:10:08 phlegmish kernel: Process bash (pid: 875,
-> > stackpage=c0d55000) Nov 12 14:10:08 phlegmish kernel: Stack: 00000007
-> > 00000000 c011b3ba 8b103f01 c437c420 c55210e0 c0d54000 0000000b
-> > Nov 12 14:10:08 phlegmish kernel:        ff57da13 c011b9ba c437c420
-> > 00000000 000003fd c01129f0 c010a8be 0000000b
-> > Nov 12 14:10:08 phlegmish kernel:        c0112d16 c021155e
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

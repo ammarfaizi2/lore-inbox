@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUIKS7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268285AbUIKTBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268281AbUIKS7E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 14:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUIKS7E
+	id S268285AbUIKTBG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 15:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268288AbUIKTBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 14:59:04 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:37764 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268281AbUIKS7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 14:59:00 -0400
-From: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: kernel execution not deterministic
-Date: Sat, 11 Sep 2004 16:02:41 -0300
-User-Agent: KMail/1.6.2
-Cc: ramosf@cos.ufrj.br
-MIME-Version: 1.0
+	Sat, 11 Sep 2004 15:01:06 -0400
+Received: from verein.lst.de ([213.95.11.210]:35481 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268285AbUIKS7X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 14:59:23 -0400
+Date: Sat, 11 Sep 2004 20:59:18 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] small <linux/hardirq.h> tweaks
+Message-ID: <20040911185918.GA22494@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409111602.41169.ramos_fabiano@yahoo.com.br>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
-
-I wrote a module to trace the instructions executed by the kernel
-to service a system call. Its just a eflags setting bit at the start of
-the syscall handler and a debug handler that increments a counter.
-
-The thing is that the syscalls are sometimes taking more or less
-instructions to execute. Why is that? Is it expected? Or a probably
-made a mistake?
+ - I misspelled CONFIG_PREEMPT CONFIG_PREEPT as various people noticed.
+   But in fact that ifdef should just go, else we'll get drivers that
+   compile with CONFIG_PREEMPT but not without sooner or later.
+ - remove unused hardirq_trylock and hardirq_endlock
 
 
-TIA,
-Fabiano
+--- 1.1/include/linux/hardirq.h	2004-09-08 08:32:57 +02:00
++++ edited/include/linux/hardirq.h	2004-09-10 16:11:31 +02:00
+@@ -2,9 +2,7 @@
+ #define LINUX_HARDIRQ_H
+ 
+ #include <linux/config.h>
+-#ifdef CONFIG_PREEPT
+ #include <linux/smp_lock.h>
+-#endif
+ #include <asm/hardirq.h>
+ 
+ #define __IRQ_MASK(x)	((1UL << (x))-1)
+@@ -28,9 +26,6 @@
+ #define in_irq()		(hardirq_count())
+ #define in_softirq()		(softirq_count())
+ #define in_interrupt()		(irq_count())
+-
+-#define hardirq_trylock()	(!in_interrupt())
+-#define hardirq_endlock()	do { } while (0)
+ 
+ #ifdef CONFIG_PREEMPT
+ # define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())

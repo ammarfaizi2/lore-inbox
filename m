@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUEQQip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUEQQuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUEQQip (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 12:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEQQin
+	id S261551AbUEQQuR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 12:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbUEQQuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 12:38:43 -0400
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:24510 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S261907AbUEQQiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 12:38:19 -0400
-Date: Mon, 17 May 2004 09:38:13 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Robert Picco <Robert.Picco@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm3
-Message-ID: <20040517163813.GH6763@smtp.west.cox.net>
-References: <20040516025514.3fe93f0c.akpm@osdl.org> <20040517161432.GG6763@smtp.west.cox.net> <40A8E8A1.2090404@hp.com>
+	Mon, 17 May 2004 12:50:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31123 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261551AbUEQQuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 12:50:13 -0400
+Date: Mon, 17 May 2004 12:49:47 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, Rene Herman <rene.herman@keyaccess.nl>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [RFT][PATCH] ide-disk.c: more write cache fixes
+Message-ID: <20040517164947.GC15849@devserv.devel.redhat.com>
+References: <200405132116.44201.bzolnier@elka.pw.edu.pl> <40A4B482.3040706@keyaccess.nl> <20040516195811.GH20505@devserv.devel.redhat.com> <200405162220.23971.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40A8E8A1.2090404@hp.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200405162220.23971.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 17, 2004 at 12:30:25PM -0400, Robert Picco wrote:
-
-> Tom Rini wrote:
+On Sun, May 16, 2004 at 10:20:23PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > Have again attached a 'rollup' patch against vanilla 2.6.6, including
+> > > this, Andrew's SYSTEM_SHUTDOWN split and the quick "don't switch of
+> > > spindle if rebooting" hack. Again, just in case anyone finds it useful.
+> >
+> > This reintroduces corruption on my thinkpad 600.
 > 
-> >On Sun, May 16, 2004 at 02:55:14AM -0700, Andrew Morton wrote:
-> >
-> > 
-> >
-> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm3/
-> >>
-> >>- A few VM changes, getting things synced up better with Andrea's work.
-> >>
-> >>- A new kgdb stub, for ia64 (what happened to the grand unified kgdb
-> >> project?)
-> >>   
-> >>
-> >
-> >No one asked the ia64 folks who did that work "Hey, have you looked at
-> >the grand unified kgdb project on kgdb.sf.net ?" would be my guess.
-> >
-> >Having said that, if you're willing to go with a slightly late
-> >initalizing (I saw part of the early_param work get dropped again I
-> >think, so I'm gonna guess you don't wanna deal with that again yet) KGDB
-> >for i386 and PPC32, I can whip something up vs 2.6.6 in a day or so.
+> [ this corruption was fixed by kernel 2.6.6 ]
 > 
-> I did the ia64 port and started with Andrew's 2.6.4-mm2 i386 sources.  
-> I'm assuming the long term strategy is to move to a unified kgdb being 
-> done on sourceforge?  If so, I'll take a look at this.
+> Please see if reverting changes to ide_device_shutdown() helps.
 
-My long term strategy is to get everyone using the version on
-sourceforge that splits out the common portions of the stub from the
-arch-specific portions.  If you could go ahead and get ia64 working on
-this as well I'd appreciate it.
+Something odd going on. I need to look further into this. I'm not sure
+now its specifically this patch
 
-Right now it's still vs 2.6.5, but I'm going to try and fix that today
-or tomorrow to be vs 2.6.6.
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

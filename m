@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272187AbRH3M1b>; Thu, 30 Aug 2001 08:27:31 -0400
+	id <S272192AbRH3Mgm>; Thu, 30 Aug 2001 08:36:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272184AbRH3M1V>; Thu, 30 Aug 2001 08:27:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:23682 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S272186AbRH3M1F>; Thu, 30 Aug 2001 08:27:05 -0400
-Date: Thu, 30 Aug 2001 08:27:17 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Do-Han Kim <shinywind@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bit field endian vs endian
-In-Reply-To: <F206lZz02H67yRLVbND00001b0c@hotmail.com>
-Message-ID: <Pine.LNX.3.95.1010830081352.30715A-100000@chaos.analogic.com>
+	id <S272194AbRH3Mgc>; Thu, 30 Aug 2001 08:36:32 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:1796 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S272192AbRH3MgV>; Thu, 30 Aug 2001 08:36:21 -0400
+Date: Thu, 30 Aug 2001 18:28:21 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Reg-mounting of minix file system
+Message-ID: <Pine.LNX.4.10.10108301828090.17070-100000@blrmail>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Aug 2001, Do-Han Kim wrote:
 
-> Hello,
-> In the linux kernel source tcp.h
-> bit field endian is appeared.
-> if the machine is the big endian machine, highest bit is alligned in the 
-> lowest location in byte?
-> 
-> Thank you.
+Hi,
+I did an "rmmod minix" to remove the minix module from the kernel
+and then tried to mount the partition on a mount point using minix
+filesystem. I gave the command 
 
-Big endian:
+mount -t minix /dev/sdb1 /dummy....
 
-Given:  unsigned long = 0xdeadface;
-           Low memory <---        ---> High memory
+.but found that it got mounted without
+error, though I have already removed the minix module from the kernel. So
+again I unmounted the fs and took an strace of the same command and a part
+of the output was the following:
 
-It looks in memory, just like you typed it with your editor.
-BUT... The high vs. low bits of the individual bytes are not
-changed. In other words, 0xde, the high byte, still has 'd'
-as the high nibble and 'e' as the low nibble. Therefore the
-MSB of a longword, in big endian format, is truly at the lowest
-memory location occupied by that longword.
 
-Cheers,
-Dick Johnson
+-----------------------
+lstat("/etc/mtab", {st_mode=S_IFREG|0644, st_size=118, ...}) = 0
+rt_sigprocmask(SIG_BLOCK, ~[TRAP SEGV], NULL, 8) = 0
+ mount("/dev/sdb1","/dummy", "minix", 0xc0ed0000, 0) = -1 ENOSYS (Function not i mplemented)
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+mount("/dev/sdb1", "/dummy", "minix", 0xc0ed0000, 0) = -1 ENOSYS (Function
+not i mplemented)
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+ mount("/dev/sdb1", "/dummy", "minix", 0xc0ed0000, 0) = 0
+---------------------------
+In the above it succeds only the third time. 
+
+My doubts are:
+1. How did the kernel get the minix filesystem when I have already removed
+the module from the kernel?
+
+2. Where does the modules get loaded from when we use an insmod? Is it
+from "/lib/modules/<kernel version>/fs/" for the filesystem?
+
+Please help me with the answer.
+
+Thanks in advance,
+A
+Warm regards,
+sathish.j
+
+
 
 

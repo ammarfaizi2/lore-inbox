@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264042AbTFILtc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 07:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTFILtb
+	id S264082AbTFILvH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 07:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFILvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 07:49:31 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:412 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S264042AbTFILt3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 07:49:29 -0400
-Date: Mon, 9 Jun 2003 13:57:58 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-In-Reply-To: <Pine.LNX.4.50.0306051352500.3503-100000@montezuma.mastecende.com>
-Message-ID: <Pine.GSO.3.96.1030609135224.2806A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jun 2003 07:51:07 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:29450 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264082AbTFILvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 07:51:01 -0400
+Date: Mon, 9 Jun 2003 13:04:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: 2.5 kbuild: use of '-z muldefs' for LD?
+Message-ID: <20030609130438.A6417@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jaroslav Kysela <perex@suse.cz>,
+	LKML <linux-kernel@vger.kernel.org>,
+	ALSA development <alsa-devel@alsa-project.org>,
+	kbuild-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44.0306091342400.1323-100000@pnote.perex-int.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0306091342400.1323-100000@pnote.perex-int.cz>; from perex@suse.cz on Mon, Jun 09, 2003 at 01:56:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jun 2003, Zwane Mwaikambo wrote:
-
-> >  You may have a valid SMP table and discrete local APICs (i82489DX) which
-> > are not reported in CPU capability bits.  The "nolocalapic" option should
-> > handle them, too.  Otherwise it would be a surprising inconsistency. 
+On Mon, Jun 09, 2003 at 01:56:59PM +0200, Jaroslav Kysela wrote:
+> one object file for more targets. Example:
 > 
-> Good point, out of interest, have you come across broken system like that? 
+> ------
+> snd-ice1712-objs := ice1712.o delta.o hoontech.o ews.o ak4xxx.o
+> snd-ice1724-objs := ice1724.o amp.o revo.o aureon.o ak4xxx.o
+> 
+> # Toplevel Module Dependency
+> obj-$(CONFIG_SND_ICE1712) += snd-ice1712.o
+> obj-$(CONFIG_SND_ICE1724) += snd-ice1724.o
+> ------
+> 
+> The ak4xxx.o module is shared and has defined a few public functions.
+> Unfortunately, the default build-in.o rule fails when targets are 
+> requested to be included into the solid kernel because the public 
+> functions are duplicated in snd-ice1712.o and snd-ice17124.o.
+> 
+> I can instruct the ld compiler to ignore the multiple definitions using 
+> '-z muldefs':
+> 
+> EXTRA_LDFLAGS = -z muldefs
+> 
+> But it seems like a hack for me.
+> Does anybody have another idea to solve my problem?
 
- So far I've met three users of i82489DX-based systems, two of whom helped
-me making them work with 2.4.  So at least at the beginning of 2.4.x they
-used to work; hopefully nothing has got broken since then (I try to
-monitor changes, but without real hardware to do testing something might
-have slipped in unnoticed).  I don't know if these people have kept
-upgrading their kernels nor whether they still use the systems.  There
-were no bug reports, either, which basically may mean anything. 
+Move ak4xxx.o out of the multi-obj rules.  Just declare a new helper-
+config option CONFIG_SND_AK4XXX that gets defined by all drivers
+using it and add
 
- Why do you consider the systems broken?
+obj-$(CONFIG_SND_AK4XXX)	+= ak4xxx.o
 
-> Regardless i'll update the patch.
-
- Great!
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+You'll just have to make sure to export all symbols in 2.5

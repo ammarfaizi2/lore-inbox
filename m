@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbUBMBuL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266645AbUBMBuK
+	id S266652AbUBMBwS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:52:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266675AbUBMBwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:50:10 -0500
-Received: from mail.shareable.org ([81.29.64.88]:16002 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266619AbUBMBuG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:50:06 -0500
-Date: Fri, 13 Feb 2004 01:49:53 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: dsaxena@plexity.net, mporter@kernel.crashing.org, lists@mdiehl.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] dma_sync_to_device
-Message-ID: <20040213014953.GB25499@mail.shareable.org>
-References: <20040211061753.GA22167@plexity.net> <Pine.LNX.4.44.0402110729510.2349-100000@notebook.home.mdiehl.de> <20040211111800.A5618@home.com> <20040211103056.69e4660e.davem@redhat.com> <20040211185725.GA25179@plexity.net> <20040211110853.492f479b.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040211110853.492f479b.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 12 Feb 2004 20:52:18 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:22291 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S266652AbUBMBwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 20:52:11 -0500
+Date: Fri, 13 Feb 2004 02:52:02 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Michael Frank <mhf@linuxmail.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+In-Reply-To: <20040212153802.65adae84.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.44.0402130244560.11774-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> It is different.  pci_dma_sync_single(..., DMA_TO_DEVICE), on MIPS for example,
-> would do absolutely nothing.  At mapping time, the local cpu cache was flushed,
-> and assuming the MIPS pci controllers don't have caches of their own there is
-> nothing to flush there either.
+> | +Usage of the apostrophe <'> in kernel messages is deprecated
+> | +
+> | +Mis-spellings allowed in kernel messages are:
+> | +
+> | +	dont, cant
+> | +
+> | +Printing numbers in parenthesis ie (%d) is deprecated
 > 
-> Whereas pci_dma_sync_device_single() would flush the dirty lines from the cpu
-> caches.  In fact, it will perform the same CPU cache flushes as pci_map_single()
-> did, using MIPS as the example again.
+> I don't know that we reached any concensus on these.  I think
+> that these comments are just noise (IMO of course).
+> I guess I'll spell out "do not" and "cannot".
 
-The names are a bit confusing.
-How about changing them to:
+Precisely - since are we supposed to now accept "Id" as "I'd", "Ill" as 
+"I'll", etc?  What about cases where the apostrophe can't be decontracted 
+- like Fred's source code - how do we remove the apostrophe there?  Change 
+it to Freds?  That will likely in some cases change the meaning: it's/its, 
+etc to name just one.
 
-    pci_dma_sync_single         => pci_dma_sync_for_cpu
-    pci_dma_sync_device_single  => pci_dma_sync_for_device
+This is pointless - you won't manage to remove all single quotes anyway.
 
--- Jamie
+One side considers "dont" and "cant" to look like someone illiterate was 
+typing and will do everything in their power to keep the quotes in and 
+perceived spelling errors out.
+The other side obviously considers any single quote to be a source of 
+great eye discomfort will try for the opposite effect.
+
+This is in many ways a pointless debate - you won't manage to convince 
+people either one nor the other way.
+
+These are comments - they can and often do contain 8-bit characters anyway 
+- containing single quotes is not that great a problem - they already 
+contain single backslashes - or should we escape those as well?
+
+Cheers,
+MaZe.
+
+

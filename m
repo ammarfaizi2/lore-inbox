@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUFUJRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUFUJZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUFUJRp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 05:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUFUJRp
+	id S266173AbUFUJZt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 05:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUFUJZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 05:17:45 -0400
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:50065 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S266170AbUFUJRn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 05:17:43 -0400
-From: "Matt H." <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproduction.scom
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-bk way too fast
-Date: Mon, 21 Jun 2004 02:17:26 -0700
-User-Agent: KMail/1.6.52
-Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <40D64DF7.5040601@pobox.com> <20040621014837.6b52fa2e.akpm@osdl.org>
-In-Reply-To: <20040621014837.6b52fa2e.akpm@osdl.org>
+	Mon, 21 Jun 2004 05:25:48 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:38819 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S266173AbUFUJZr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 05:25:47 -0400
+Message-ID: <40D6A994.7080404@tequila.co.jp>
+Date: Mon, 21 Jun 2004 18:25:40 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, norberto+linux-kernel@bensa.ath.cx,
+       jgarzik@pobox.com
+Subject: Re: 2.6.7-bk way too fast
+References: <40D64DF7.5040601@pobox.com> <200406210018.04883.lkml@lpbproductions.com> <20040621001612.176bf8e1.akpm@osdl.org> <200406210115.46159.lkml@lpbproductions.com> <40D69A3F.8060501@tequila.co.jp>
+In-Reply-To: <40D69A3F.8060501@tequila.co.jp>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406210217.27389.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That fixes it perfectly here, 
+Clemens Schwaighofer wrote:
+| Matt H. wrote:
+| | I tried from a fresh  2.6.7-mm1 tree  with your patch ( I had to fix
+| up the
+| | 2nd half of your patch by hand since  it wouldve rejected ).  The
+results
+| | were the same though.
+|
+| same for me. I just recomed from scratch and with ACPI debug on.
+|
+| I also will check the "vanilla 2.6.7" kernel (is compiling right now).
+| but those ACPI changes are only in the mm tree as I can see
 
-Thanks.
+the vanilla 2.6.7 doesn't show this fast-clock problems.
 
-Matt H.
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-On Monday 21 June 2004 1:48 am, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> > Something is definitely screwy with the latest -bk.
->
-> Would you believe that there is a totally separate bug in the latest -mm
-> which has exactly the same symptoms?
->
-> mark_offset_tsc() does
->
-> 	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ))
-> 		jiffies_64++;
->
-> which is doing abs(unsigned long).
->
-> Which works OK if abs() in a function, but I made it a macro.
->
-> This fixes it up.
->
->
-> diff -puN include/linux/kernel.h~abs-fix-fix include/linux/kernel.h
-> --- 25/include/linux/kernel.h~abs-fix-fix	2004-06-21 01:42:24.283873616
-> -0700 +++ 25-akpm/include/linux/kernel.h	2004-06-21 01:43:08.150204920
-> -0700 @@ -55,7 +55,12 @@ void __might_sleep(char *file, int line)
->  #endif
->
->  #define abs(x) ({				\
-> -		typeof(x) __x = (x);		\
-> +		int __x = (x);			\
-> +		(__x < 0) ? -__x : __x;		\
-> +	})
-> +
-> +#define labs(x) ({				\
-> +		long __x = (x);			\
->  		(__x < 0) ? -__x : __x;		\
->  	})
->
-> _
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+iD8DBQFA1qmUjBz/yQjBxz8RAuIlAKDkIn/jZrHiAYdrXJNhSYTQuSxxyQCfebWo
+jRoDhEplMB1SLE5BRTv/LKE=
+=IHBr
+-----END PGP SIGNATURE-----

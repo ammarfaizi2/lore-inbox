@@ -1,109 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130195AbQLITMK>; Sat, 9 Dec 2000 14:12:10 -0500
+	id <S130218AbQLITOV>; Sat, 9 Dec 2000 14:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130218AbQLITMA>; Sat, 9 Dec 2000 14:12:00 -0500
-Received: from styx.cs.kuleuven.ac.be ([134.58.40.3]:13480 "EHLO
-	styx.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S130195AbQLITLr>; Sat, 9 Dec 2000 14:11:47 -0500
-Date: Sat, 9 Dec 2000 19:38:01 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Philipp Rumpf <prumpf@tux.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: PA-RISC fb fixes
-Message-ID: <Pine.LNX.4.10.10012091931540.1555-100000@cassiopeia.home>
+	id <S131182AbQLITOL>; Sat, 9 Dec 2000 14:14:11 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:33810 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130218AbQLITOF>;
+	Sat, 9 Dec 2000 14:14:05 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7
+In-Reply-To: <Pine.LNX.4.10.10012090924390.1574-100000@penguin.transmeta.com>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Dec 2000 19:43:37 +0100
+In-Reply-To: Linus Torvalds's message of "9 Dec 2000 18:29:57 +0100"
+Message-ID: <oupofyl8mg6.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-  - stifb doesn't use resource management (yet?), so it must be initialized
-    later for consistency (as indicated by the comments in fbmem.c)
-  - Remove superfluous NULL data
 
---- linux-2.4.0-test12-pre7/drivers/video/fbmem.c.orig	Sat Dec  9 14:18:21 2000
-+++ linux-2.4.0-test12-pre7/drivers/video/fbmem.c	Sat Dec  9 19:29:07 2000
-@@ -200,9 +200,6 @@
- 	 * management!
- 	 */
- 
--#ifdef CONFIG_FB_STI
--	{ "stifb", stifb_init, stifb_setup },
--#endif
- #ifdef CONFIG_FB_OF
- 	{ "offb", offb_init, NULL },
- #endif
-@@ -264,6 +261,9 @@
- 	 * Generic drivers that don't use resource management (yet)
- 	 */
- 
-+#ifdef CONFIG_FB_STI
-+	{ "stifb", stifb_init, stifb_setup },
-+#endif
- #ifdef CONFIG_FB_VGA16
- 	{ "vga16", vga16fb_init, vga16fb_setup },
- #endif 
---- linux-2.4.0-test12-pre7/drivers/video/stifb.c.orig	Sat Dec  9 14:18:21 2000
-+++ linux-2.4.0-test12-pre7/drivers/video/stifb.c	Sat Dec  9 19:31:04 2000
-@@ -146,7 +146,6 @@
- 	set_par:	sti_set_par,
- 	getcolreg:	sti_getcolreg,
- 	setcolreg:	sti_setcolreg,
--	pan_display:	NULL,
- 	blank:		sti_blank,
- 	set_disp:	sti_set_disp
- };
-@@ -218,13 +217,10 @@
- 
- static struct fb_ops stifb_ops = {
- 	owner:		THIS_MODULE,
--	fb_open:	NULL,
--	fb_release:	NULL,
- 	fb_get_fix:	fbgen_get_fix,
- 	fb_get_var:	fbgen_get_var,
- 	fb_set_var:	fbgen_set_var,
- 	fb_get_cmap:	fbgen_get_cmap,
- 	fb_set_cmap:	fbgen_set_cmap,
- 	fb_pan_display:	fbgen_pan_display,
--	fb_ioctl:	NULL
- };
---- linux-2.4.0-test12-pre7/drivers/video/sticon-bmode.c.orig	Sat Dec  9 14:18:21 2000
-+++ linux-2.4.0-test12-pre7/drivers/video/sticon-bmode.c	Sat Dec  9 19:30:40 2000
-@@ -440,9 +440,7 @@
- 	con_set_palette:	sticon_set_palette,
- 	con_scrolldelta:	sticon_scrolldelta,
- 	con_set_origin: 	sticon_set_origin,
--	con_save_screen:	NULL,
- 	con_build_attr:		sticon_build_attr,
--	con_invert_region:	NULL,
- 	con_screen_pos:		sticon_screen_pos,
- 	con_getxy:		sticon_getxy,
- };
---- linux-2.4.0-test12-pre7/drivers/video/sticon.c.orig	Sat Dec  9 14:18:21 2000
-+++ linux-2.4.0-test12-pre7/drivers/video/sticon.c	Sat Dec  9 19:30:47 2000
-@@ -208,9 +208,7 @@
- 	con_set_palette:	sticon_set_palette,
- 	con_scrolldelta:	sticon_scrolldelta,
- 	con_set_origin: 	sticon_set_origin,
--	con_save_screen:	NULL,
- 	con_build_attr:		sticon_build_attr,
--	con_invert_region:	NULL,
- 	con_screen_pos:		sticon_screen_pos,
- 	con_getxy:		sticon_getxy,
- };
+> > 	Modulo the comments above - fine with me. However, there is stuff in
+> > drivers/md that I don't understand. Ingo, could you comment on the use of
+> > ->b_end_io there?
+> 
+> I already sent him mail about it for the same reason. 
 
-Gr{oetje,eeting}s,
+How about sending mail to all the journaling FS groups too? -- the change is surely
+to break all the JFS which use usually b_end_io to submit the data after the journal
+has been flushed.
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

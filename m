@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269675AbUJGV5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUJGWB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269675AbUJGV5k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268357AbUJGV4Z
+	id S268080AbUJGWB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269356AbUJGWAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:56:25 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:17357 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S268360AbUJGVyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:54:21 -0400
-Message-ID: <4165B265.2050506@drdos.com>
-Date: Thu, 07 Oct 2004 15:17:25 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
-In-Reply-To: <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 18:00:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:18876 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268080AbUJGV6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:58:17 -0400
+Date: Thu, 7 Oct 2004 14:40:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
+Subject: Re: Driver core change request
+Message-ID: <20041007214004.GA23570@kroah.com>
+References: <200410062354.18885.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410062354.18885.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
+On Wed, Oct 06, 2004 at 11:54:18PM -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> I am reworking my sysfs serio patches (trying to get dynamic psmouse
+> protocol switching) and I am wondering if we could export device_attach
+> function. Serio system allows user to request device rescan - force current
+> driver to let go off the device and find another suitable driver. Also user
+> can manually request device to be disconnected/connected to a driver. By
+> having device_attach exported I could get rid of some duplicated code.
 
-> On Oct 07, 2004, at 15:21, Jeff V. Merkey wrote:
->
->> This offer must be accepted by **ALL** copyright holders and...
->
->
-> This will never happen. Even if there is just _one_ GPL idealist who
-> doesn't give a rat's ass about receiving money for their kernel code,
-> you can't get your license. Given that, I know several people who
-> wouldn't give you a license no matter how much you offered them
-> for it.
->
-> Cheers,
-> Kyle Moffett
+driver_attach() is global, so I don't have a problem with making
+device_attach() global either.  Just send me a patch :)
 
+> Also serio allows user to request a specific driver to be bound to a device
+> in case there are several options (psmouse/serio_raw for example). To do
+> that and not poke in the driver core guts too much I need something like the
+> following:
+> 
+> int driver_probe_device(struct device_driver *dev, struct device *dev)
+> {
+>         int error;
+>         
+> 	dev->driver = drv;
+>         if (drv->probe) {
+>         	if ((error = drv->probe(dev))) {
+>                 	dev->driver = NULL;
+>                         return error;
+>                 }
+> 	}
+>         device_bind_driver(dev);
+>         return 0;
+> }
+> 
+> 
+> static int bus_match(struct device * dev, struct device_driver * drv)
+> {
+>         if (dev->bus->match(dev, drv))
+> 		return driver_probe_device(drv, dev);
+> 
+>         return -ENODEV;
+> }
+> 
+> I.e driver_probe_device is exported. Does it have a chance to be accepted?
 
-Then their code could be removed from the snapshot, and the folks who 
-were more
-interested in being smart rather than being right would get the $$$. 
-That's easy.
+What's wrong with doing what the pci core does in this situation and
+call driver_attach()?
 
-Jeff
+thanks,
 
+greg k-h

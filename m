@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVCJBy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVCJCUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbVCJBy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVCJBuc
+	id S261525AbVCJCUz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVCJCUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:50:32 -0500
-Received: from fire.osdl.org ([65.172.181.4]:29901 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262705AbVCJBe0 (ORCPT
+	Wed, 9 Mar 2005 21:20:50 -0500
+Received: from gate.crashing.org ([63.228.1.57]:27846 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261525AbVCJCPa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 20:34:26 -0500
-Date: Wed, 9 Mar 2005 17:33:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Direct io on block device has performance regression on 2.6.x
- kernel
-Message-Id: <20050309173351.0d69de25.akpm@osdl.org>
-In-Reply-To: <200503100111.j2A1BBg27931@unix-os.sc.intel.com>
-References: <20050309144458.2cbc554e.akpm@osdl.org>
-	<200503100111.j2A1BBg27931@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 9 Mar 2005 21:15:30 -0500
+Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
+       antonb@au1.ibm.com, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <422FA817.4060400@ca.ibm.com>
+References: <422FA817.4060400@ca.ibm.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 13:10:20 +1100
+Message-Id: <1110420620.32525.145.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> Andrew Morton wrote on Wednesday, March 09, 2005 2:45 PM
->  > >
->  > > > Did you generate a kernel profile?
->  > >
->  > >  Top 40 kernel hot functions, percentage is normalized to kernel utilization.
->  > >
->  > >  _spin_unlock_irqrestore		23.54%
->  > >  _spin_unlock_irq			19.27%
->  >
->  > Cripes.
->  >
->  > Is that with CONFIG_PREEMPT?  If so, and if you disable CONFIG_PREEMPT,
->  > this cost should be accounting the the spin_unlock() caller and we can see
->  > who the culprit is.   Perhaps dio->bio_lock.
+On Wed, 2005-03-09 at 19:51 -0600, Omkhar Arasaratnam wrote:
+> Seems with 2.6.11 the sym53c8xx kernel module incorrectly identifies the
+> cache being misconfigured on a p630 (ppc64, POWER4+). 2.6.9 correctly
+> brings up this adaptor as does AIX with absolutely no indication of a
+> misconfigured cache.
 > 
->  CONFIG_PREEMPT is off.
-> 
->  Sorry for all the confusion, I probably shouldn't post the first profile
->  to confuse people.  See 2nd profile that I posted earlier (copied here again).
-> 
->  scsi_request_fn		7.54%
->  finish_task_switch	6.25%
->  __blockdev_direct_IO	4.97%
->  __make_request		3.87%
->  scsi_end_request		3.54%
->  dio_bio_end_io		2.70%
->  follow_hugetlb_page	2.39%
->  __wake_up			2.37%
->  aio_complete		1.82%
+> Doing a simple diff I see ALOT of changes between 2.6.9 and 2.6.11
+> pertaining to this module. Any ideas?
 
-What are these percentages?  Total CPU time?  The direct-io stuff doesn't
-look too bad.  It's surprising that tweaking the direct-io submission code
-makes much difference.
+Are you sure it's plain 2.6.11 and not some bk clone of after 2.6.11 was
+released ?
 
-hm.  __blockdev_direct_IO() doesn't actually do much.  I assume your damn
-compiler went and inlined direct_io_worker() on us.
+I just found a bug in the ppc64 ioremap code that got triggered by
+the set_pte_at() patch that went into bk after 2.6.11 and that triggers
+exactly that error, but I couldn't see anything wrong in 2.6.11 proper.
+
+BTW, Linus: Any chance you ever change something to version or
+extraversion in bk just after a release ? I know I already ask and it
+degenerated into a flamefest, and I don't know if that is specifically
+the case now, but I keep getting report of people saying "I have a bug
+in 2.6.xx" while in fact, they have some kind of bk clone of sometime
+after 2.6.xx...
+
+Ben.
+
 

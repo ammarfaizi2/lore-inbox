@@ -1,108 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTLIA5k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 19:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTLIA5k
+	id S262161AbTLIAw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 19:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTLIAw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 19:57:40 -0500
-Received: from relay-2v.club-internet.fr ([194.158.96.113]:26065 "EHLO
-	relay-2v.club-internet.fr") by vger.kernel.org with ESMTP
-	id S262164AbTLIA5h convert rfc822-to-8bit (ORCPT
+	Mon, 8 Dec 2003 19:52:57 -0500
+Received: from mail.kroah.org ([65.200.24.183]:19382 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262161AbTLIAwx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 19:57:37 -0500
-From: pinotj@club-internet.fr
-To: torvalds@osdl.org, nathans@sgi.com
-Cc: neilb@cse.unsw.edu.au, manfred@colorfullife.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Date: Tue,  9 Dec 2003 01:57:35 CET
+	Mon, 8 Dec 2003 19:52:53 -0500
+Date: Mon, 8 Dec 2003 16:51:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sysfs support for vcs devices (was Re: State of devfs in 2.6?)
+Message-ID: <20031209005136.GA31863@kroah.com>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet2.1070931455.23402.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031208233428.GA31370@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Results about testing on test11 this week-end.
-Things didn't go exactly as expected, unfortunately, but there are interesting results.
-First, I confirm that use of patch-xfs with patch-slab (and without CONFIG_DEBUG_SLAB) makes my system boot normaly.
-I don't mention it after, but I always used the patch-printk to get more verbosity in case of slab oops.
+On Mon, Dec 08, 2003 at 03:34:28PM -0800, Greg KH wrote:
+> On Tue, Dec 09, 2003 at 12:04:08AM +0100, Andreas Jellinghaus wrote:
+> >  - 18 vcc/ devices
+> 
+> Hm, good catch.  I wonder why these aren't getting picked up in
+> /sys/class/tty as they are tty devices.  I thought they used to be
+> there...
 
-I. Test on "small" kernel (http://cercle-daejeon.homelinux.org/misc/config-small2.txt except in first part of A.2.)
+Ah, they really aren't tty devices, they are char devices.  That's why
+they never have showed up.
 
- A. With XFS (and without Ext3)
+Anyway, here's a patch against 2.6.0-test11 that adds sysfs support for
+all of the vcs devices.  Now udev has support for them :)
 
-  1. no patch
-  I couldn't reproduce the oops and I have no explanation at this time. I changed some parameters in the config (mostly debug to have same config for all kernels) but even with the config I used before, I didn't succeed to trigger the oops again. I first thought it was CONFIG_DEBUG_SLAB that may be the main problem of this story (and explain last tests) but I got same non-oops with CONFIG_DEBUG_SLAB=y. It doesn't mean that config change corrects the problem, though. Previous test with CONFIG_PREEMPT=y/n
-shown that it could be very tricky to get the oops sometimes. More tests are needed here.
+thanks for pointing these out,
 
-  2. patch-xfs & patch-slab
-  Oops during first compile. The first test, it was kswapd who complained. I thought it could be a side effect of my config (CONFIG_SWAP=n) and not enough RAM, even if it looked strange. That's why I decided to use config-small2.txt for all the tests (that I remade). In this case, I got a very similar oops, from `ld`:
+greg k-h
 
-  ---
-  ld: page allocation failure. order:0, mode:0x8d0
-  Unable to handle kernel NULL pointer dereference at virtual address 00000074
-  c01d4cbd
-  *pde = 00000000
-  Oops: 0002 [#1]
-  CPU:    0
-  EIP:    0060:[_xfs_trans_alloc+149/160]    Not tainted
-  EIP:    0060:[<c01d4cbd>]    Not tainted
-  ---
+# add /sys/class/vc support for the vcs devices.
 
-  Full oops: http://cercle-daejeon.homelinux.org/misc/oops-small2-xfs-patched.txt
-  First config used: http://cercle-daejeon.homelinux.org/misc/config-small.txt
-   and oops of kswapd http://cercle-daejeon.homelinux.org/misc/oops-small-xfs-patched.txt
-
-  3. patch-bio
-  No oops triggered
-
- B. With Ext3 (and without XFS)
-
-  1. no patch
-  same as I.A.1
-  2. patch-xfs & patch-slab
-  Compilations looked good but I got a lot of errors in my logs:
-
-  ---
-  kernel: ld: page allocation failure. order:0, mode:0x50
-  last message repeated 31 times
-  klogd: page allocation failure. order:0, mode:0x50
-  last message repeated 63 times
-  kswapd0: page allocation failure. order:0, mode:0x50
-  ENOMEM in journal_alloc_journal_head, retrying.
-  ion failure. order:0, mode:0x50
-  kswapd0: page allocation failure. order:0, mode:0x50
-  last message repeated 291 times
-  ---
-
-  Full log: http://cercle-daejeon.homelinux.org/misc/error-small2-ext3-patched.txt
-  NB: I made a `swapoff -a && mkswap /dev/hda3 && swapon -a` a few days before, so swap should be clean
-
-  3. patch-bio
-  As A.3, no oops triggered
-
-II. Tests on "big" kernel, support for XFS and Ext3 (http://cercle-daejeon.homelinux.org/misc/config-big.txt)
-
- A. no patch
- Same as I.A.1
-
- B. patch-xfs & patch-slab
- Oops very similar with I.A.2
- Full oops: http://cercle-daejeon.homelinux.org/misc/oops-big-patched.txt
-
- C. patch-bio
- Here is the interesting thing. Till now, I didn't saw any problem with patch bio, but this time, very easily, I got kind of double triple Lutz, starting by the infamous "BUG at mm/slab.c". There is almost 800 lines.
- Full oops: http://cercle-daejeon.homelinux.org/misc/oops-big-patch-bio-full.txt
- Oops via ksymoops: Full oops: http://cercle-daejeon.homelinux.org/misc/oops-big-patch-bio.txt
-
-III. Conclusion
-
-Well, it's not really easy to find a pattern here. Change in configuration can modify behavior of the oops but we can not correlate these with one setting. I will try to get back the oops by changing config.
-Tests in I. confirm that it's not an XFS-only problem but seems to affect page allocation for fs in general.
-I hope these oops will be clearer to you. I still have no problem with test9.
-
-Jerome Pinot
-(Hope it missed nothing)
-
+diff -Nru a/drivers/char/vc_screen.c b/drivers/char/vc_screen.c
+--- a/drivers/char/vc_screen.c	Mon Dec  8 16:49:54 2003
++++ b/drivers/char/vc_screen.c	Mon Dec  8 16:49:54 2003
+@@ -36,6 +36,7 @@
+ #include <linux/kbd_kern.h>
+ #include <linux/console.h>
+ #include <linux/smp_lock.h>
++#include <linux/device.h>
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
+ #include <asm/unaligned.h>
+@@ -469,6 +470,85 @@
+ 	.open		= vcs_open,
+ };
+ 
++/* vc class implementation */
++
++struct vc_dev {
++	struct list_head node;
++	dev_t dev;
++	struct class_device class_dev;
++};
++#define to_vc_dev(d) container_of(d, struct vc_dev, class_dev)
++
++static LIST_HEAD(vc_dev_list);
++static spinlock_t vc_dev_list_lock = SPIN_LOCK_UNLOCKED;
++
++static void release_vc_dev(struct class_device *class_dev)
++{
++	struct vc_dev *vc_dev = to_vc_dev(class_dev);
++	kfree(vc_dev);
++}
++
++static struct class vc_class = {
++	.name		= "vc",
++	.release	= &release_vc_dev,
++};
++
++static ssize_t show_dev(struct class_device *class_dev, char *buf)
++{
++	struct vc_dev *vc_dev = to_vc_dev(class_dev);
++	return print_dev_t(buf, vc_dev->dev);
++}
++static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
++
++static int vc_add_class_device(dev_t dev, char *name, int minor)
++{
++	struct vc_dev *vc_dev = NULL;
++	int retval;
++
++	vc_dev = kmalloc(sizeof(*vc_dev), GFP_KERNEL);
++	if (!vc_dev)
++		return -ENOMEM;
++	memset(vc_dev, 0x00, sizeof(*vc_dev));
++
++	vc_dev->dev = dev;
++	vc_dev->class_dev.class = &vc_class;
++	snprintf(vc_dev->class_dev.class_id, BUS_ID_SIZE, name, minor);
++	retval = class_device_register(&vc_dev->class_dev);
++	if (retval)
++		goto error;
++	class_device_create_file(&vc_dev->class_dev, &class_device_attr_dev);
++	spin_lock(&vc_dev_list_lock);
++	list_add(&vc_dev->node, &vc_dev_list);
++	spin_unlock(&vc_dev_list_lock);
++	return 0;
++error:
++	kfree(vc_dev);
++	return retval;
++}
++
++static void vc_remove_class_device(int minor)
++{
++	struct vc_dev *vc_dev = NULL;
++	struct list_head *tmp;
++	int found = 0;
++
++	spin_lock(&vc_dev_list_lock);
++	list_for_each(tmp, &vc_dev_list) {
++		vc_dev = list_entry(tmp, struct vc_dev, node);
++		if (MINOR(vc_dev->dev) == minor) {
++			found = 1;
++			break;
++		}
++	}
++	if (found) {
++		list_del(&vc_dev->node);
++		spin_unlock(&vc_dev_list_lock);
++		class_device_unregister(&vc_dev->class_dev);
++	} else {
++		spin_unlock(&vc_dev_list_lock);
++	}
++}
++
+ void vcs_make_devfs(struct tty_struct *tty)
+ {
+ 	devfs_mk_cdev(MKDEV(VCS_MAJOR, tty->index + 1),
+@@ -477,19 +557,26 @@
+ 	devfs_mk_cdev(MKDEV(VCS_MAJOR, tty->index + 129),
+ 			S_IFCHR|S_IRUSR|S_IWUSR,
+ 			"vcc/a%u", tty->index + 1);
++	vc_add_class_device(MKDEV(VCS_MAJOR, tty->index + 1), "vcs%u", tty->index + 1);
++	vc_add_class_device(MKDEV(VCS_MAJOR, tty->index + 129), "vcsa%u", tty->index + 1);
+ }
+ void vcs_remove_devfs(struct tty_struct *tty)
+ {
+ 	devfs_remove("vcc/%u", tty->index + 1);
+ 	devfs_remove("vcc/a%u", tty->index + 1);
++	vc_remove_class_device(tty->index + 1);
++	vc_remove_class_device(tty->index + 129);
+ }
+ 
+ int __init vcs_init(void)
+ {
+ 	if (register_chrdev(VCS_MAJOR, "vcs", &vcs_fops))
+ 		panic("unable to get major %d for vcs device", VCS_MAJOR);
++	class_register(&vc_class);
+ 
+ 	devfs_mk_cdev(MKDEV(VCS_MAJOR, 0), S_IFCHR|S_IRUSR|S_IWUSR, "vcc/0");
+ 	devfs_mk_cdev(MKDEV(VCS_MAJOR, 128), S_IFCHR|S_IRUSR|S_IWUSR, "vcc/a0");
++	vc_add_class_device(MKDEV(VCS_MAJOR, 0), "vcs", 0);
++	vc_add_class_device(MKDEV(VCS_MAJOR, 128), "vcsa", 128);
+ 	return 0;
+ }

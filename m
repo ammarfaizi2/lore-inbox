@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUJIVSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUJIVUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267447AbUJIVSj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 17:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267423AbUJIVSj
+	id S267404AbUJIVUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 17:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUJIVUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 17:18:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51595 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267447AbUJIVSi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 17:18:38 -0400
-Date: Sat, 9 Oct 2004 14:16:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: SDiZ <gmane@sdiz.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc3-mm3 kernel oops..
-Message-Id: <20041009141647.14d91f34.akpm@osdl.org>
-In-Reply-To: <ck935s$83k$1@sea.gmane.org>
-References: <ck935s$83k$1@sea.gmane.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 9 Oct 2004 17:20:39 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:928 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267404AbUJIVUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 17:20:30 -0400
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+From: Lee Revell <rlrevell@joe-job.com>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1xk6u0hw2m.fsf@mru.ath.cx>
+References: <41677E4D.1030403@mvista.com>  <yw1xk6u0hw2m.fsf@mru.ath.cx>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1097356829.1363.7.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 09 Oct 2004 17:20:30 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SDiZ <gmane@sdiz.net> wrote:
->
-> I have just compiled  2.6.9-rc3-mm3 on gentoo linux,
->  When I start KDE, artsd dies and give this error:
+On Sat, 2004-10-09 at 09:15, Måns Rullgård wrote:
+> I got this thing to build by adding a few EXPORT_SYMBOL, patch below.
+> Now it seems to be running quite well.  I am, however, getting
+> occasional "bad: scheduling while atomic!" messages, all alike:
+> 
 
-You'll need to do
+I am getting the same message.   Also, leaving all the default debug
+options on, I got this debug output, but it did not coincide with the
+"bad" messages.
 
-cd /usr/src/linux
-wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm3/broken-out/optimize-profile-path-slightly.patch
-patch -R -p1 < optimize-profile-path-slightly.patch
+Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+Mtx: dd84e644 [773] pri (0) inherit from [3] pri(92)
+Mtx dd84e644 task [773] pri (92) restored pri(0). Next owner [3] pri (92)
+
+Lee
 

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263528AbTJLUVM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 16:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTJLUVM
+	id S263529AbTJLU0a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 16:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTJLU0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 16:21:12 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:8700 "EHLO
-	cluless.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263528AbTJLUVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 16:21:10 -0400
-Date: Sun, 12 Oct 2003 16:21:07 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cluless.boston.redhat.com
-To: asdfd esadd <retu834@yahoo.com>
-cc: Kenn Humborg <kenn@linux.ie>, <Valdis.Kletnieks@vt.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 thoughts: common well-architected object model
-In-Reply-To: <20031011183405.38980.qmail@web13007.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0310121620290.31963-100000@cluless.boston.redhat.com>
+	Sun, 12 Oct 2003 16:26:30 -0400
+Received: from smtp1.songnet.fi ([194.100.2.121]:52533 "EHLO smtp1.songnet.fi")
+	by vger.kernel.org with ESMTP id S263529AbTJLU01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 16:26:27 -0400
+Message-ID: <1065990395.3f89b8fb73015@mail.hellfish.org>
+Date: Sun, 12 Oct 2003 23:26:35 +0300
+From: anlar@hellfish.org
+To: linux-kernel@vger.kernel.org
+Subject: Future of the security features
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 130.234.192.229
+X-Service-Provided-by: Hellfish
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Oct 2003, asdfd esadd wrote:
+I have been playing with the Grsecurity (www.grsecurity.org) patches now for a
+while and I wouldn't run a server anymore without it. I noticed from the kernel
+list archives that the inclusion of features like Pax have been discussed
+before and as I have understood, this might be a good time to try to get the
+matter hot again.
 
-> So let me restate the need again for a:
+There are a lot of nice security improving patches for the kernel. Pax against
+many of the overflows in software for instance could be one nice day saving
+feature. Making such features upstream would not cure the situation alone. I
+believe though that it would help generally in making our computing safer.
 
-Again?  Again no reason or justification?
+Just take a look at all the small tweaks and improvements that are available
+for
+instance in Grsecurity. Whoa. Not bad. Would break some (poorly designed
+mostly) software though if forced on. (The only really problematic in my
+experience has been the Xfree86 server but even it can be fixed afaik to run
+with all the Grsecurity patches.)
 
-       0   2   4   6   8   10
-  
-                        /
-                       /
-                      /
-                     /
-                    /
-                   /
-                  /
-           TROLL-O-METER
+The Linux kernel could be tweaked to be one nasty animal (can penguins be
+nasty?) guarding the security. Linux based systems could be a lot more secure
+with "some light tweaking" and now it is mostly up to the kernel developers.
+So, why not?
 
+To remind you, even Windowses are going that way. Including that kind of
+features. (No, not yet available. They just recompiled some of their software
+with stack protection stuff that is on the newest compilers of theirs.) You
+don't want the Linux to be laughed at. :) Heh.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
 

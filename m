@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284987AbSBMOZ4>; Wed, 13 Feb 2002 09:25:56 -0500
+	id <S284732AbSBMObo>; Wed, 13 Feb 2002 09:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284732AbSBMOZo>; Wed, 13 Feb 2002 09:25:44 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:26613
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S284933AbSBMOZi>; Wed, 13 Feb 2002 09:25:38 -0500
-Message-ID: <3C6A775A.3090906@debian.org>
-Date: Wed, 13 Feb 2002 15:25:30 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Carlo <carlo@senior.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with menuconfig after installation of IPSec ( FreeS/WAN )
-In-Reply-To: <fa.hehsqiv.ji8r2g@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285073AbSBMObY>; Wed, 13 Feb 2002 09:31:24 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:20753 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S284732AbSBMObT>; Wed, 13 Feb 2002 09:31:19 -0500
+Date: Wed, 13 Feb 2002 15:31:14 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Johan.J.Vikerskog@telia.se
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compiling error which nobody has been able to help me with yet.
+Message-ID: <20020213143114.GJ17096@arthur.ubicom.tudelft.nl>
+In-Reply-To: <H000297a0cbdc66d.1013593341.tms3.han.telia.se@MHS>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <H000297a0cbdc66d.1013593341.tms3.han.telia.se@MHS>
+User-Agent: Mutt/1.3.27i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlo wrote:
+On Wed, Feb 13, 2002 at 10:42:21AM +0100, Johan.J.Vikerskog@telia.se wrote:
+> I try to compile 2.2.16 om a celeron 433 and i get the following error 
+> message all the time even
+> if i have SMP totally disabled.
+> 
+> `smp_num_cpus` undeclared (first use in this function)
+> 
+> And some similial rows.
+> Nothing yet has managed to help me with this.
+> 
+> And please note that SMP is disabled. I DONT have several CPU's.
 
-> After install of FreeS/WAN 1.95 ( IPSec )   ( make menugo ) , when I try to
-> select Networking Options from menuconfig, the following screen apears...
-> 
-> Menuconfig has encountered a possible error in one of the kernel's
-> configuration files and is unable to continue.  Here is the error
-> report:
-> 
->  Q> scripts/Menuconfig: MCmenu7: command not found
-> 
-> Please report this to the maintainer <mec@shout.net>.  You may also
-> send a problem report to <linux-kernel@vger.kernel.org>.
-> 
-> Please indicate the kernel version you are trying to configure and
-> which menu you were trying to enter when this error occurred.
-> 
-> make: *** [menuconfig] Error 1
-> 
-> I am running kernel 2.2.19 on Slackware 8 distro 
-> 
-> What can I do ? 
-> 
+<obvious answer>
+Try linux-2.2.20.
+</obvious answer>
 
 
-This seem like a script error in configuration file (no or
-missplaced 'fi'.)
-Try 'make xconfig' (xconfig have a better error checking)
+Erik
 
-	giacomo
-
-
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

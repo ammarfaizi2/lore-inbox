@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261834AbSJZCns>; Fri, 25 Oct 2002 22:43:48 -0400
+	id <S261837AbSJZCs2>; Fri, 25 Oct 2002 22:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbSJZCns>; Fri, 25 Oct 2002 22:43:48 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36318 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261834AbSJZCns>; Fri, 25 Oct 2002 22:43:48 -0400
-Date: Sat, 26 Oct 2002 04:50:01 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: John Levon <levon@movementarian.org>, Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Minimum modutils version
-In-Reply-To: <20020930202619.GA31858@compsoc.man.ac.uk>
-Message-ID: <Pine.NEB.4.44.0210260447071.14144-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S261839AbSJZCs2>; Fri, 25 Oct 2002 22:48:28 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:54943 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261837AbSJZCsX>; Fri, 25 Oct 2002 22:48:23 -0400
+Date: Fri, 25 Oct 2002 19:51:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Robert Love <rml@tech9.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>, colpatch@us.ibm.com
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+Message-ID: <2964027205.1035575518@[10.10.2.3]>
+In-Reply-To: <20021026004726.GC1676@werewolf.able.es>
+References: <20021026004726.GC1676@werewolf.able.es>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Sep 2002, John Levon wrote:
+>> processor : 0  processor : 2  processor : 4  processor  : 6 
+>> package   : 0  package   : 0  package   : 0  package    : 0  
+>> core      : 0  core      : 1  core      : 2  core       : 3  
+>> 
+>> processor : 1  processor : 3  processor : 5  processor  : 7 
+>> package   : 1  package   : 1  package   : 1  package    : 1  
+>> core      : 0  core      : 1  core      : 2  core       : 3  
+>> 
+> 
+> Er, while you're at it, would it be worthy to add ad:
+> 
+> node:	x
+> 
+> for NUMA boxes ?
 
-> Documentation/Changes claims modutils 2.4.2 is still acceptable. However
-> it seems at least 2.4.10 is needed for EXPORT_SYMBOL_GPL. What should
-> Changes be changed to ?
+We also need to indicate other things here though, which is why
+Matt Dobson implemented a more complete topology description
+under driverfs. If you're really interested in that level of 
+detail from userspace, you probably also want to know things 
+like whether the evil twins share a TLB cache or L1/L2 cache.
+I can't help feeling that's the more correct & complete solution
+to the problem. His patches are in the latest -mm tree, and would
+need some more work to be extended to hyperthreading, but that
+seems like the better way (for 2.5 at least).
 
-Sounds reasonable.
-
-Keith:
-What's your opinion on the following patch for 2.4 (and a similar one for
-2.5)?
-
-
---- linux-2.4.19/Documentation/Changes.old	2002-10-26 04:44:26.000000000 +0200
-+++ linux-2.4.19/Documentation/Changes	2002-10-26 04:45:06.000000000 +0200
-@@ -52,7 +52,7 @@
- o  Gnu make               3.77                    # make --version
- o  binutils               2.9.1.0.25              # ld -v
- o  util-linux             2.10o                   # fdformat --version
--o  modutils               2.4.2                   # insmod -V
-+o  modutils               2.4.10                  # insmod -V
- o  e2fsprogs              1.25                    # tune2fs
- o  jfsutils               1.0.12                  # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
-
-> regards
-> john
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
+M.
 

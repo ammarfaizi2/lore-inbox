@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318421AbSGRW1t>; Thu, 18 Jul 2002 18:27:49 -0400
+	id <S318399AbSGRWWI>; Thu, 18 Jul 2002 18:22:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318422AbSGRW1t>; Thu, 18 Jul 2002 18:27:49 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:23278 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S318421AbSGRW1r>; Thu, 18 Jul 2002 18:27:47 -0400
+	id <S318402AbSGRWWI>; Thu, 18 Jul 2002 18:22:08 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:21517 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318399AbSGRWVz>; Thu, 18 Jul 2002 18:21:55 -0400
+Date: Thu, 18 Jul 2002 19:24:49 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+cc: Robert Love <rml@tech9.net>, <linux-mm@kvack.org>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Szakacsits Szabolcs <szaka@sienet.hu>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0207181923180.12241-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0207181923180.12241-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Jul 2002 15:30:22 -0700
-Message-Id: <1027031422.1555.161.camel@sinai>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.30.0207181900390.30902-100000@divine.city.tvnet.hu>
+Message-ID: <Pine.LNX.4.44L.0207181923180.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-18 at 15:24, Rik van Riel wrote:
+On Thu, 18 Jul 2002, Szakacsits Szabolcs wrote:
 
-> I see no reason to not merge this (useful) part. Not only
-> is it useful on its own, it's also a necessary ingredient
-> of whatever "complete solution" to control per-user resource
-> limits.
+> And my point was that, this is only part of the solution
+> making Linux a more reliable
 
-I am glad we agree here - resource limits and strict overcommit are two
-separate solutions to various problems.  Some they solve individually,
-others they solve together.
+I see no reason to not merge this (useful) part. Not only
+is it useful on its own, it's also a necessary ingredient
+of whatever "complete solution" to control per-user resource
+limits.
 
-I may use one, the other, both, or neither.  A clean abstract solution
-allows this.
+regards,
 
-	Robert Love
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

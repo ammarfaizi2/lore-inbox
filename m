@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbQLVUB1>; Fri, 22 Dec 2000 15:01:27 -0500
+	id <S132237AbQLVUBh>; Fri, 22 Dec 2000 15:01:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132237AbQLVUBR>; Fri, 22 Dec 2000 15:01:17 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:64004 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129944AbQLVUBA>; Fri, 22 Dec 2000 15:01:00 -0500
-Date: Fri, 22 Dec 2000 13:25:41 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Pauline Middelink <middelin@polyware.nl>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-Message-ID: <20001222132541.A1555@vger.timpanogas.org>
-In-Reply-To: <20001221144247.A10273@vger.timpanogas.org> <E149DKS-0003cX-00@the-village.bc.nu> <20001221154446.A10579@vger.timpanogas.org> <20001221155339.A10676@vger.timpanogas.org> <20001222093928.A30636@polyware.nl> <20001222111105.B14232@vger.timpanogas.org> <20001222113530.A14479@vger.timpanogas.org> <20001222202137.A27844@gruyere.muc.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001222202137.A27844@gruyere.muc.suse.de>; from ak@suse.de on Fri, Dec 22, 2000 at 08:21:37PM +0100
+	id <S132256AbQLVUB1>; Fri, 22 Dec 2000 15:01:27 -0500
+Received: from NS2.pcscs.com ([207.96.110.42]:32778 "EHLO linux01.pcscs.com")
+	by vger.kernel.org with ESMTP id <S131512AbQLVUBQ>;
+	Fri, 22 Dec 2000 15:01:16 -0500
+Message-ID: <007c01c06c4d$aef446e0$2b6e60cf@pcscs.com>
+From: "Charles Wilkins" <chas@pcscs.com>
+To: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
+Cc: <linux-raid@vger.kernel.org>
+Subject: Fw: max number of ide controllers?
+Date: Fri, 22 Dec 2000 14:30:46 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 08:21:37PM +0100, Andi Kleen wrote:
-> On Fri, Dec 22, 2000 at 11:35:30AM -0700, Jeff V. Merkey wrote:
-> > The real question is how to guarantee that these pages will be contiguous
-> > in memory.  The slab allocator may also work, but I think there are size
-> > constraints on how much I can get in one pass.
-> 
-> You cannot guarantee it after the system has left bootup stage. That's the
-> whole reason why bigphysarea exists.
-> 
-> -Andi
 
-I am wondering why the drivers need such a big contiguous chunk of memory.
-For message passing operatings, they should not.  Some of 
-the user space libraries appear to need this support.  I am going through 
-this code today attempting to determine if there's a way to reduce this 
-requirement or map the memory differently.   I am not using these cards
-for a ccNUMA implementation, although they have versions of these 
-adapters that can provide this capability, but for message passing with 
-small windows of coherence between machines with push/pull DMA-style
-behavior for high speed data transfers.  99.9% of the clustering 
-stuff on Linux uses this model, so this requirement perhaps can be
-restructured to be a better fit for Linux.
 
-Just having the patch in the kernel for bigphysarea support would solve
-this issue if it could be structured into a form Alan finds acceptable.
-Absent this, we need a workaround that's more tailored for the 
-requirments for Linux apps.
+> > Charles Wilkins wrote:
+> >
+> > Is there a max number of ide controllers that linux-2.2.18 can
+> > support?
+>
 
-Jeff
+Andrzej M. Krzysztofowicz says,
+
+>"Linux supports up to 10 IDE channels, however channel numbers of PCI
+controllers seem to be assigned first."
+
+Warren Young says,
+>"Kernel 2.2 is limited to 4 IDE controllers."
+
+ok, so which is it kernel guys, 4 or 10 IDE controllers for the 2.2.x
+kernel?
+
+> I know 2.4 supports a maximum of 10 controllers, but each controller has
+> to use a different I/O port.  The standard ones are 0x1F0 and 0x170.
+> The mobo controllers you have probably are fixed to use the common I/O
+> ports.  If the Promise controller can be set to use uncommon port
+> values, you'll be able to use 4 controllers.
+
+you didn't read the other posts . . .
+
+> The Creative card is probably a loss, because it's probably fixed at I/O
+> port 0x170 (second channel).
+
+well, i know this SB32 card can operating on at least 3 different io ports .
+. .
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

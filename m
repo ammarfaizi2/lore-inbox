@@ -1,102 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUI2OIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUI2OMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268446AbUI2OIK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUI2OIK
+	id S268430AbUI2OMo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUI2OMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:08:10 -0400
-Received: from hhlx01.vscom.de ([62.145.30.242]:56725 "EHLO
-	hhlx01.visionsystems.de") by vger.kernel.org with ESMTP
-	id S268446AbUI2OHU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:07:20 -0400
-From: Roland =?utf-8?q?Ca=C3=9Febohm?= 
-	<roland.cassebohm@VisionSystems.de>
-Organization: Vision Systems GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Re: Serial driver hangs
-Date: Wed, 29 Sep 2004 16:07:07 +0200
-User-Agent: KMail/1.6.2
-Cc: Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de> <200409291509.39187.roland.cassebohm@visionsystems.de> <415AB5E1.8060406@microgate.com>
-In-Reply-To: <415AB5E1.8060406@microgate.com>
-MIME-Version: 1.0
+	Wed, 29 Sep 2004 10:12:43 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:2782 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S268430AbUI2OMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:12:05 -0400
+Date: Wed, 29 Sep 2004 16:11:51 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: heap-stack-gap for 2.6
+Message-ID: <20040929141151.GJ4084@dualathlon.random>
+References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com> <20040927130919.GE28865@dualathlon.random> <20040928194351.GC5037@devserv.devel.redhat.com> <20040928221933.GG4084@dualathlon.random> <20040929060521.GA6975@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409291607.07493.roland.cassebohm@visionsystems.de>
-X-OriginalArrivalTime: 29 Sep 2004 14:07:08.0368 (UTC) FILETIME=[9B5F7500:01C4A62D]
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.80
+In-Reply-To: <20040929060521.GA6975@devserv.devel.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 29. September 2004 15:17 schrieb Paul Fulghum:
-> Roland Caßebohm wrote:
-> > I have made a little test, at which the receive interrupt
-> > is disabled in that state. It seems to be no improvement
-> > to the solution of just trow away the bytes of the FIFO.
-> > In both cases characters got lost.
->
-> How did you reenable the receive interrupt in your test?
+On Wed, Sep 29, 2004 at 08:05:21AM +0200, Arjan van de Ven wrote:
+> oh? you mean that 1Mb gap between stack and topdown? Every ISV I talked to
+> said they could get more VA space with topdown than with the suse
+> mmaped_base hack... :)
 
-I have added a routine to "struct tty_driver" for restarting 
-the RX interrupt after TTY_DONT_FLIP bit is cleared in 
-read_chan().
+/*
+ * Top of mmap area (just below the process stack).
+ *
+ * Leave an at least ~128 MB hole.
+ */
+#define MIN_GAP (128*1024*1024)
+#define MAX_GAP (TASK_SIZE/6*5)
 
->>>>>>>>>>>>
-        clear_bit(TTY_DONT_FLIP, &tty->flags);
-       	if (tty->driver.restart_rx)
-               tty->driver.restart_rx(tty);
->>>>>>>>>>>>
+where does your 1M comes from? it's a minimum 128Mbytes.
 
-and in the interrupt routine I have disabled the RX interrupt, 
-if TTY_DONT_FLIP is set.
+> MAP_FIXED is to be used only on things YOU mmaped before. 
 
->>>>>>>>>>>>
-            if (tty->flip.count >= TTY_FLIPBUF_SIZE)
-            {
-                info->IER &= ~UART_IER_RDI;
-                serial_outp(info, UART_IER, info->IER);
-                return;     // if TTY_DONT_FLIP is set
-            }
->>>>>>>>>>>>
+where is that written?
 
-and tty->driver.restart_rx() is:
+> > isn't the whole point of topdown to gain ~1G more of RAM. A 1G area that
+> > couldn't possibly be used before
+> 
+> wrong; brk() is there which is also used by malloc() and internally by the C
+> library.
 
->>>>>>>>>>>>
-static void rs_restart_rx(struct tty_struct *tty)
-{
-    struct async_struct *info = (struct async_struct 
-*)tty->driver_data;
-    unsigned long flags;
+that's malloc, but mmaps don't fit into it.
 
-    if (serial_paranoia_check(info, tty->device, 
-"rs_restart_rx"))
-        return;
+So sure, apps where careful about malloc, but not about mmap. mmap was
+guaranteed not to mess in the area below 1G, now it does and can break
+stuff.
 
-    save_flags(flags); cli();
-    if (!(info->IER & UART_IER_RDI)) {
-        info->IER |= UART_IER_RDI;
-        serial_out(info, UART_IER, info->IER);
-    }
-    restore_flags(flags);
-}
->>>>>>>>>>>>
+> do you have proof for that?
 
-It seems to take to long time in read_chan(). Do you now what 
-is the exact reason of locking the filp buffer with the 
-TTY_DONT_FLIP flag? For a short look I would say the buffers 
-are safe locked by the spinlock tty->read_lock.
+do I need to write the exploited testcase? just let me know, it'll take
+only a few minutes.
 
-Roland
--- 
-___________________________________________________
+as usual, since the screwup generated by topdown would be random and at
+runtime, one cannot exclude it could generate a security compromise.
 
-VS Vision Systems GmbH, Industrial Image Processing
-Dipl.-Ing. Roland Caßebohm
-Aspelohe 27A, D-22848 Norderstedt, Germany
-Mail: roland.cassebohm@visionsystems.de
-http://www.visionsystems.de
-___________________________________________________
+Amittedly it sounds very unlikely that can break stuff, but it can.
+
+> You missed that you can only use MAP_FIXED on mmaps YOU mmaped before.
+> That's true for basically all operating systems because the runtime
+> (including C library) is allowed to malloc, to brk(), to mmap etc etc.
+
+small malloc works below the 1G area, but it's the application that has
+to use malloc. I'm talking about an application that uses heavy mmap,
+MAP_FIXED below 1G and _never_ mallocs. It's up to you to call malloc,
+if you didn't, you had the guarantee that you could use the space near
+1G. The mapped_base is the safe API to tell the kernel it can use the
+memory below 1G for the heap.
+
+now the best thing is the ADDR_COMPAT_LAYOUT personality, that is what
+can make it safe, and I hope it's enabled by default on all apps, but
+I'm afraid it's the other way around, i.e. that the application will be
+marked "compatible" after it breaks at runtime. Plus the testing will be
+decreased since most people runs with unlimited stack (which defaults to
+bottomup beahviour).
+
+the single fact you added ADDR_COMPAT_LAYOUT means you're very well
+aware there are apps that will break, or there would be no point for a
+"COMPAT" option, if it was really backwards compatible by default, or do
+I misunderstand the semantics of ADDR_COMPAT_LAYOUT personality?

@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267477AbUHTRf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268420AbUHTRi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267477AbUHTRf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268408AbUHTRf2
+	id S268420AbUHTRi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268429AbUHTRi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:35:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:62921 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267477AbUHTRfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:35:17 -0400
-Date: Fri, 20 Aug 2004 10:35:11 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernbench on 512p
-Message-ID: <20040820173511.GI11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
-References: <200408191216.33667.jbarnes@engr.sgi.com> <20040819230315.GE11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Aug 2004 13:38:59 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:25547 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S268420AbUHTRiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:38:24 -0400
+From: mita akinobu <amgta@yacht.ocn.ne.jp>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3 (build failture w/ CONFIG_NUMA)
+Date: Sat, 21 Aug 2004 02:38:32 +0900
+User-Agent: KMail/1.5.4
+References: <20040820031919.413d0a95.akpm@osdl.org>
+In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040819230315.GE11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200408210238.32922.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 04:03:15PM -0700, William Lee Irwin III wrote:
-> Not tremendously intelligent, as concurrent readers of /proc/profile
-> can render each other's results gibberish, however, this should
-> mitigate some of the cacheline bouncing of prof_buffer.
-> Some kind of proper IO should be possible given sufficient effort, but
-> I gave up immediately when my first attempt didn't work, and this
-> should be enough for getting /proc/profile to stop bouncing madly for
-> users that can tolerate the concurrent IO constraint. I suppose that
-> in principle one could hackishly guard collation and copying of
-> prof_buffer with a semaphore in the per-cpu case. I'll work on fixing
-> this eventually.
-> Use perpcu_profile on the kernel command line to activate the feature.
+I had tried to compile with CONFIG_NUMA and got this error:
 
-This fixes the degenerate collate_per_cpu_profiles() behavior jbarnes
-saw with this patch alone.
+  CC      kernel/sched.o
+kernel/sched.c: In function `sched_domain_node_span':
+kernel/sched.c:4001: error: invalid lvalue in unary `&'
+make[1]: *** [kernel/sched.o] Error 1
+make: *** [kernel] Error 2
+
+Below patch fixes this.
 
 
-Index: mm2-2.6.8.1/kernel/profile.c
-===================================================================
---- mm2-2.6.8.1.orig/kernel/profile.c	2004-08-19 15:11:40.000000000 -0700
-+++ mm2-2.6.8.1/kernel/profile.c	2004-08-20 09:32:08.986630798 -0700
-@@ -251,16 +251,15 @@
+--- linux-2.6.8.1-mm3/kernel/sched.c.orig	2004-08-21 00:32:26.000000000 +0900
++++ linux-2.6.8.1-mm3/kernel/sched.c	2004-08-21 00:36:41.000000000 +0900
+@@ -3998,7 +3998,10 @@ cpumask_t __init sched_domain_node_span(
  
- static void collate_per_cpu_profiles(void)
- {
--	unsigned long i;
-+	int cpu;
- 
--	for (i = 0; i < prof_len; ++i)  {
--		int cpu;
-+	memset(prof_buffer, 0, prof_len * sizeof(atomic_t));
-+	for_each_online_cpu(cpu) {
-+		unsigned long i;
-+		atomic_t *buf per_cpu(cpu_prof_buffer, cpu);
- 
--		atomic_set(&prof_buffer[i], 0);
--		for_each_online_cpu(cpu) {
--			atomic_t *buf = per_cpu(cpu_prof_buffer, cpu);
--			atomic_add(atomic_read(&buf[i]), &prof_buffer[i]);
--		}
-+		for (i = 0; i < prof_len; ++i)
-+			prof_buffer[i].counter += atomic_read(&buf[i]);
+ 	for (i = 0; i < size; i++) {
+ 		int next_node = find_next_best_node(node, used_nodes);
+-		cpus_or(span, span, node_to_cpumask(next_node));
++		cpumask_t  nodemask;
++
++		nodemask = node_to_cpumask(next_node);
++		cpus_or(span, span, nodemask);
  	}
- }
  
+ 	return span;
+

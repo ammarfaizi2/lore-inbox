@@ -1,58 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265019AbTFLWBe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265020AbTFLWBe
+	id S265006AbTFLWFP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265020AbTFLWFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:01:34 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:10473 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S265019AbTFLWB3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:01:29 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Muthian Sivathanu" <muthian_s@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: limit resident memory size
-Date: Thu, 12 Jun 2003 15:15:13 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEBMDKAA.davids@webmaster.com>
+	Thu, 12 Jun 2003 18:05:15 -0400
+Received: from mail.gmx.net ([213.165.64.20]:17637 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265006AbTFLWFH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:05:07 -0400
+Message-ID: <3EE8FC4C.7080404@gmx.de>
+Date: Fri, 13 Jun 2003 00:18:52 +0200
+From: Frederik Reiss <frederikreiss@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030610
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: When CDPATH enviroment variable is set the "asm" symlink is placed
+ in the wrong directory
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030612205557.5874.qmail@web40602.mail.yahoo.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When the CDPATH enviroment variable is set in the bash (
+http://www.caliban.org/bash/index.shtml#bashtips )
+the "asm" symlink is placed in /usr/src/linux/ and not in
+/usr/src/linux/include/ where it should be.
 
-> I would like to limit the maximum resident memory size
-> of a process within a threshold, i.e. if its virtual
-> memory footprint exceeds this threshold, it needs to
-> swap out pages *only* from within its VM space.
+Steps to reproduce:
+1. export CDPATH="/mnt"
+2. extract a fresh kernel source or delete the include/asm symlink
+3. cd /usr/src/linux-2.4.20/
+4. make xconfig
+5. quit "make xconfig"
 
-	Why? If you think this is a good way to be nice to other processes, you're
-wrong.
+Actual result:
+Now there is a symlink with the name "asm" in /usr/src/linux-2.4.20/
+which points to asm-i386 what is wrong.
+Because of the "asm" symlink is in the wrong directory the kernel
+compilation fails.
 
-> First, is there a way this can be done at application
-> level ? The setrlimit interface seems to contain an
-> option for specifying max resident set size, but it
-> doesnt seem like it is implemented as of 2.4 -- am I
-> wrong ?
+Expected result:
+The symlink should be in /usr/src/linux/include/
 
-> If the kernel doesnt currently support it, is there an
-> efficient way (data structure etc) to traverse the
-> resident set of a *process* in lru fashion ?  All the
-> page replacement and swapping code work on the entire
-> page lists -- is there any simple way to group these
-> per process ?
+Other infos:
+I have tried this with the kernel 2.4.20 and 2.4.21-rc8
+I am curently running Debian woody 3.0 with the 2.4.21-rc2 kernel.
 
-	One process paging and swapping excessively will hurt other processes that
-aren't. What's your outer problem? What you're trying to do doesn't seem to
-have any rational purpose.
+<drd@bigbad>:~$ bash --version
+GNU bash, version 2.05a.0(1)-release (i386-pc-linux-gnu)
+Copyright 2001 Free Software Foundation, Inc.
 
-	DS
+<drd@bigbad>:~$ uname -a
+Linux bigbad 2.4.21-rc2-bigb #1 Die Mai 20 22:08:10 CEST 2003 i686 unknown
 
+
+<drd@bigbad>:~$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 1
+model name      : AMD-K7(tm) Processor
+stepping        : 2
+cpu MHz         : 503.526
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de tsc msr pae mce cx8 sep mtrr pge mca cmov
+pat mmx syscall mmxext 3dnowext 3dnow
+bogomips        : 1002.70
+
+
+<drd@bigbad>:~$ lspci
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate]
+System Controller (rev 25)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] AGP
+Bridge (rev 01)
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+(rev 1b)
+00:04.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 0e)
+00:04.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 20)
+00:0e.0 RAID bus controller: Promise Technology, Inc. 20267 (rev 02)
+00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
+00:0f.1 Input device controller: Creative Labs SB Live! (rev 08)
+00:10.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139
+(rev 10)
+00:11.0 Multimedia video controller: Brooktree Corporation Bt878 (rev 11)
+00:11.1 Multimedia controller: Brooktree Corporation Bt878 (rev 11)
+01:05.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX
+DDR) (rev b2)
+
+-- 
+(German philosopher) Georg Wilhelm Hegel, on his deathbed, complained,
+"Only one man ever understood me."  He fell silent for a while and then 
+added,
+"And he didn't understand me."
 

@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265792AbSKAWTi>; Fri, 1 Nov 2002 17:19:38 -0500
+	id <S265798AbSKAWWd>; Fri, 1 Nov 2002 17:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265795AbSKAWTi>; Fri, 1 Nov 2002 17:19:38 -0500
-Received: from almesberger.net ([63.105.73.239]:37128 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265792AbSKAWTg>; Fri, 1 Nov 2002 17:19:36 -0500
-Date: Fri, 1 Nov 2002 19:25:45 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-Message-ID: <20021101192545.F2599@almesberger.net>
-References: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com> <Pine.LNX.4.44.0211011218560.26353-100000@dlang.diginsite.com>
+	id <S265799AbSKAWWd>; Fri, 1 Nov 2002 17:22:33 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:17926 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265798AbSKAWWb>;
+	Fri, 1 Nov 2002 17:22:31 -0500
+Date: Fri, 1 Nov 2002 14:25:50 -0800
+From: Greg KH <greg@kroah.com>
+To: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>
+Cc: Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing-List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-pre10-ac2: proc_bus_pci_dir unresolved in pci_hotplug.o module
+Message-ID: <20021101222550.GD18015@kroah.com>
+References: <20021101150129.A15230@skunk.physik.uni-erlangen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211011218560.26353-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Fri, Nov 01, 2002 at 12:21:35PM -0800
+In-Reply-To: <20021101150129.A15230@skunk.physik.uni-erlangen.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Cc: trimmed ]
+On Fri, Nov 01, 2002 at 03:01:29PM +0100, Christian Vogel wrote:
+> Hi,
+> 
+> when insmodding the pci_hotplug.o module I get unresolved symbol
+> proc_bus_pci_dir on Kernel 2.4.20-pre10-ac2.
+> 
+> The symbol is declared extern here:
+> 
+> drivers/hotplug/pci_hutplug_core.c (line 131) has:
+>         extern struct proc_dir_entry *proc_bus_pci_dir
+> 
+> The symbol is defined here:
+> 
+> drivers/pci/proc.c (line 372) has:
+>         struct proc_dir_entry *proc_bus_pci_dir
+> 
+> Probably some EXPORT_SYMBOL(proc_bus_pci_dir) is missing
+> in the latter file?...
 
-David Lang wrote:
-> One question I have is how much of the driver problem you refer to is
-> becouse of optimizations that the various drivers have, could you fall
-> back to the simplest, works-with-everything,
-> all-timeouts-longer-then-the-slowest-disk slug of a driver that could be
-> used to do this dump?
+It is exported in the main 2.4.20-rc1 tree, so hopefully the next time
+Alan syncs up he will get this fix.
 
-Welcome to the wonderful world of code duplication. And don't forget
-the "simplified" TCP/IP stack for network dumps. Uh, USB-attached
-storage, anyone ? :-)
+thanks,
 
-Special-case dump drivers make perfect sense in isolated cases (e.g.
-narrowly specified boxes) or as a band-aid solution.
-
-But for a general solution, it seems more appropriate to me to solve
-the problem of moving the kernel data from the damaged system to an
-intact system only once, e.g. using the MCORE approach, than over
-and over again for all possible types of hardware and attachment
-methods.
-
-The only inherent weakness I see in MCORE is the need to reliably
-reset a device, either to the point where it is operational (if
-used in the process of dumping), or at least to the point where it
-doesn't get in the way (if not used for the dump, e.g. video, HID,
-etc.).
-
-But this should still be significantly easier than introducing
-"dumb" versions for all drivers. Besides, having a way for cleanly
-shutting down or resetting devices is desirable in other contexts,
-too (e.g. kexec).
-
-- Werner (disclaimer: not affiliated with Mission Critical Linux,
-	 any vendor, or any other form of gainful employment)
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+greg k-h

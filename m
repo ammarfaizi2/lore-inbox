@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSLaPgm>; Tue, 31 Dec 2002 10:36:42 -0500
+	id <S263256AbSLaPvB>; Tue, 31 Dec 2002 10:51:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbSLaPgm>; Tue, 31 Dec 2002 10:36:42 -0500
-Received: from itg-gw.cr008.cwt.esat.net ([193.120.242.226]:8710 "EHLO
-	dunlop.admin.ie.alphyra.com") by vger.kernel.org with ESMTP
-	id <S263228AbSLaPgl>; Tue, 31 Dec 2002 10:36:41 -0500
-Date: Tue, 31 Dec 2002 15:44:58 +0000 (GMT)
-From: Paul Jakma <paulj@alphyra.ie>
-X-X-Sender: paulj@dunlop.admin.ie.alphyra.com
-To: Mark Rutherford <mark@justirc.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <3E11B980.ED768C23@justirc.net>
-Message-ID: <Pine.LNX.4.44.0212311541160.12063-100000@dunlop.admin.ie.alphyra.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263276AbSLaPvB>; Tue, 31 Dec 2002 10:51:01 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61828
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263256AbSLaPvA>; Tue, 31 Dec 2002 10:51:00 -0500
+Subject: Re: [STATUS 2.5]  December 24, 2002
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212311428.38516.roy@karlsbakk.net>
+References: <63942A45-1722-11D7-8DC6-000393950CC2@karlsbakk.net>
+	<200212302319.54390.roy@karlsbakk.net>
+	<1041289888.13684.178.camel@irongate.swansea.linux.org.uk> 
+	<200212311428.38516.roy@karlsbakk.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Dec 2002 16:41:21 +0000
+Message-Id: <1041352881.17411.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Dec 2002, Mark Rutherford wrote:
+On Tue, 2002-12-31 at 13:28, Roy Sigurd Karlsbakk wrote:
+> > > I've submitted a few bug reports. will they be considered?
+> >
+> > The bug reports are all there on record and useful. It depends if Jens
+> > has time to fix it, or someone else does the job before we begin the
+> > final stabilizing freeze
+> 
+> then perhaps it should go into the STATUS 2.5 ?
 
-> well, change 'us' to 'Linux users'
-> why? well we can use our expensive hardware.
-
-"what you get for christmas?"
-
-"a lump of coal"
-
-at least you get /something/. however, you didnt get what counts,
-programming info for the card.
-
-PS: do you think Linux PPC or Alpha users are happy that NVidia
-provide drivers?
-
-> to some, thats all that matters.
-> personally, I would like to see the code :)
-
-regards,
--- 
-Paul Jakma	Sys Admin	Alphyra
-	paulj@alphyra.ie
-Warning: /never/ send email to spam@dishone.st or trap@dishone.st
+Maybe
 

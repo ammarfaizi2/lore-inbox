@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbUCNQeF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 11:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUCNQeF
+	id S261432AbUCNQml (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 11:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUCNQml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 11:34:05 -0500
-Received: from [61.48.16.49] ([61.48.16.49]:55192 "ehlo yahoo.com.cn")
-	by vger.kernel.org with ESMTP id S261458AbUCNQdN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 11:33:13 -0500
-From: "ZHL jewelry" <liyo1978@yahoo.com.cn>
-Subject: business for you
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: liyo1978@yahoo.com.cn
-Date: Mon, 15 Mar 2004 00:33:15 +0800
-X-Priority: 3
-X-Mailer: FoxMail 3.11 Release [cn]
-Message-Id: <S261458AbUCNQdN/20040314163331Z+62@vger.kernel.org>
+	Sun, 14 Mar 2004 11:42:41 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:197 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261432AbUCNQmh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 11:42:37 -0500
+Date: Sun, 14 Mar 2004 17:32:56 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: patches@x86-64.org, kernel list <linux-kernel@vger.kernel.org>,
+       Cpufreq mailing list <cpufreq@www.linux.org.uk>, davej@redhat.com,
+       paul.devriendt@amd.com
+Subject: Re: powernow-k8 updates
+Message-ID: <20040314163256.GA24433@dominikbrodowski.de>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>, patches@x86-64.org,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Cpufreq mailing list <cpufreq@www.linux.org.uk>, davej@redhat.com,
+	paul.devriendt@amd.com
+References: <20040309214830.GA1240@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Disposition: inline
+In-Reply-To: <20040309214830.GA1240@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How are you!
 
-I am the sales manager of the ZhongHengLong jewelry group . our company mainly 
-is a manufacturer, and has been founded for many years, the factory covers more than 500 acre 
-and  has more than 1,000 employees, The main products of the company contain "925" sterling 
-silver jewelry and ornaments with various natural precious stone studded,moderate and superior 
-pearl ornaments,natural jadeite,rubies and sapphires, diamond ornements, crystal handicrafts, 
-gold and silver decorations, silver cutlery and gifts£¬ etc.; We export the handicrafts and 
-jewelry to nations as Europe, the United States, Canada, and there are more than 50 domestic 
-chain stores. 
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- We hope to cooperate with more domestic and international friends for the wider market. 
- Web site of our company:       http:// www.upfeeling.com. 
- If you have intention to cooperate with us, please contact us. 
+On Wed, Mar 03, 2004 at 01:07:20PM +0100, Pavel Machek wrote:
+> [Is it okay to post it to the lists for more testing and/or
+> inclusion?]
+                                                                           =
+    =20
+I prefer patches to files to comment on.
+                                                                           =
+    =20
+> +config X86_POWERNOW_K8_ACPI
+> +     tristate "AMD Opteron/Athlon64 PowerNow! using ACPI"
+> +     depends on CPU_FREQ && EXPERIMENTAL
+depends on ... && ACPI ?
+                                                                           =
+    =20
+See also the other mail discussing how to handle the two methods to detect
+speed.
+                                                                           =
+    =20
+Unfortunately, I consider this new ACPI driver to be in an "unmergeable"
+state, as the extra "polling" is unneccessary if the ACPI perflib is used,
+the extra parsing of ACPI tables can fail much too easily, and the whole
+driver is too fragile with regard to ACPI interaction.
 
-Address :Room 1110,No.1 Building,The Newstart Apartment,No.5 in Road Changchunqiao,Haidian
- District,Beijing,China.
- 
-Zip code :100089
- 
-Contact person: Zhong Huang(Mr.)
+	Dominik
 
-Add: No10 11/F, 1#NewStart, No.5 ChangChunQiao Road, Haidian District, Beijing, 100089 P. R. China
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Tel: (8610) 82562788,82562787/89-18 
+iD8DBQFAVIk4Z8MDCHJbN8YRAky1AKCQ6eb8DsX+qb7B4pdIsVTMVrBgXACgjylG
+CssNp956xVtZuNtt+UFts1M=
+=szQp
+-----END PGP SIGNATURE-----
 
-
-Fax: (8610) 82563221
-
-
-Mobile: 13051076228 
-
-Yahoo ID:liudesheng1118
-
-E-mail: 
-business@upfeeling.com, 
-huangzhong19731128@yahoo.com.cn, 
-service@upfeeling.com 
-
-English website£º http://www.upfeeling.com/zhl/enzhl/index.htm
-website£º 
-http://www.upfeeling.com 
-http://www.upfeeling.cn
-http://www.upfeeling.com.cn
-
+--huq684BweRXVnRxX--

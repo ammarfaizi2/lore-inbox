@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUFRPnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUFRPmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUFRPnc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUFRPnC
+	id S265260AbUFRPmw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUFRPkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:43:02 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:60669 "EHLO
-	damned.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S265212AbUFRPke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:40:34 -0400
-To: linux-kernel@vger.kernel.org
-Subject: acpi S3 never wakes up
-Message-Id: <20040618154025.15708106@damned.travellingkiwi.com>
-Date: Fri, 18 Jun 2004 16:40:25 +0100 (BST)
-From: hamish@travellingkiwi.com (Hamie)
+	Fri, 18 Jun 2004 11:40:36 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:53636 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S265285AbUFRPji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 11:39:38 -0400
+Message-Id: <200406181539.i5IFd8BV004328@eeyore.valparaiso.cl>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: Re: [Bug 2905] New: Aironet 340 PCMCIA card not working since 2.6.7 
+In-Reply-To: Message from Jesper Juhl <juhl-lkml@dif.dk> 
+   of "Fri, 18 Jun 2004 00:42:29 +0200." <Pine.LNX.4.56.0406180040050.15935@jjulnx.backbone.dif.dk> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Fri, 18 Jun 2004 11:39:07 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl <juhl-lkml@dif.dk> said:
+> Guennadi Liakhovetski <g.liakhovetski@gmx.de> said:
+> > -			skb = dev_alloc_skb( len + hdrlen + 2 );
+> > +			skb = dev_alloc_skb( len + hdrlen + 2 + 2 );
+> 
+> nitpicking, but why not
+> 	skb = dev_alloc_skb( len + hdrlen + 4 );
+> ?
 
-Hi.
-
-I have an IBM r50p that I'd really really really like to have ACPI usable on. The battery works fine, the temp shows fine, the processor speeds up & slows down. All great, until I try to suspend (to RAM or to disk).
-
-Firstly to RAM.
-
-I hit Fn=F4 (Or cat 3 > /proc/acpi/sleep). System says I'm suspending. & goes to sleep. Fine so far. Unlike APM, the Fn key doesn't wake it up any more, so I press the power button. It LOOKS like it's starting up again, fan starts, CD spins, but no display... Doesn't matter whether I'm running X, or from the console. After wakup, nothing seems to work. Fn-F4 will send me to sleep again though... CTRL-ALT-Fx, does nothing...
-
-Now should I get the lock icon again (I lock my machine with a poweron pass BIOS + Disk, NOT supervisor) like on APM? Or not? SHould I come up directly back where I was before? Or something else? Anyone know? I've seen reference to people having success, but I've had nothing but bad luck with ACPi & suspending so far.
-
-Anyone got any ideas? I really really really hate having to boot my laptop 3x a day...
-
-Oh. I've tried all kinds of kernels. Current is 2.6.6 and 2.6.7, both do exactly the same thing.
-
-TIA
-
-Hamish., 
+- It makes no difference (C forces constant expresions to be computed at
+  compile time)
+- It _does_ matter if the 2 + 2 is clearer than 4
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

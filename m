@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131398AbQKNUyx>; Tue, 14 Nov 2000 15:54:53 -0500
+	id <S131167AbQKNU6X>; Tue, 14 Nov 2000 15:58:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131424AbQKNUyn>; Tue, 14 Nov 2000 15:54:43 -0500
-Received: from spike2.i405.net ([63.229.23.90]:524 "EHLO spike2.i405.net")
-	by vger.kernel.org with ESMTP id <S131398AbQKNUyf>;
-	Tue, 14 Nov 2000 15:54:35 -0500
-Message-ID: <0066CB04D783714B88D83397CCBCA0CD4963@spike2.i405.net>
-From: "Stephen Gutknecht (linux-kernel)" <linux-kernel@i405.com>
-To: linux-kernel@vger.kernel.org
-Subject: newbie, 2.4.0 on Asus CUSL2 (Intel 815E chipset with onboard vide
-	o)
-Date: Tue, 14 Nov 2000 12:23:43 -0800
+	id <S131379AbQKNU6O>; Tue, 14 Nov 2000 15:58:14 -0500
+Received: from rasputin.trustix.com ([195.139.104.66]:15111 "HELO
+	rasputin.trustix.com") by vger.kernel.org with SMTP
+	id <S131167AbQKNU55>; Tue, 14 Nov 2000 15:57:57 -0500
+Message-ID: <3A11931E.99319EC7@trustix.com>
+Date: Tue, 14 Nov 2000 20:31:42 +0100
+From: Lars Gaarden <larsg@trustix.com>
+Organization: Trustix AS
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: [Off topic] UK patent office wants comments on software patent laws.
+In-Reply-To: <C61D06525A1@vcnet.vc.cvut.cz> <20001114183953.F8707@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the prior help on getting the kernel to compile; real newbie
-mistake of not finding the right options in the "make menuconfig" screens.
+Off topic for lkml, I know. But since software
+patents could have a huge impact on open source,
+UK residents on this list should be aware that
+the UK patent office is currently asking for
+comments on changes to the patent law regarding
+software and business patents.
 
-I can now compile 2.4.0-test, but it hangs on the first line of loading.
+>From their page:
 
- -- I have tried 2.4.0-test10 and 2.4.0-test11-pre4
- -- If I only do my network adapter, it compiles and boots fine.  It is when
-I add my desired settings (via "make menuconfig") for video support that the
-compiled kernel hangs at system boot.
+"Should Patents be Granted for Computer Software or
+Ways of Doing Business?"
 
-I have documented the exact procedure I use to compile the kernel at:
+"We want to know what you think about this so that
+Government policy is evidence-based and relevant to
+business, commerce, and consumers - in other words
+to you. So, whether you are in the software industry,
+financial services, are a software user, a consumer,
+or are otherwise interested, we want to hear from you."
 
-  http://www.roundsparrow.com/Linux/240oni815/
+http://www.patent.gov.uk/snews/notices/softcons.html
+news://discuss.patent.gov.uk/patentoffice.softpat
 
-Help from other CUSL2 owners (or Intel 815E chipset) appreciated.    Feel
-free to keep replies off the main list, as this may be a training issue more
-than a kernel one :)
-
-  Stephen Gutknecht
-  Renton, Washington
+-- 
+LarsG
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

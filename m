@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129107AbQJ0Ov2>; Fri, 27 Oct 2000 10:51:28 -0400
+	id <S129077AbQJ0O4s>; Fri, 27 Oct 2000 10:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQJ0OvR>; Fri, 27 Oct 2000 10:51:17 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:35346 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S129077AbQJ0OvH>; Fri, 27 Oct 2000 10:51:07 -0400
-Message-ID: <39F995E8.FE7324BA@didntduck.org>
-Date: Fri, 27 Oct 2000 10:49:12 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick van de Lageweg <patrick@bitwizard.nl>
-CC: Andrew Morton <andrewm@uow.edu.au>,
+	id <S129209AbQJ0O4h>; Fri, 27 Oct 2000 10:56:37 -0400
+Received: from 13dyn85.delft.casema.net ([212.64.76.85]:63492 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129077AbQJ0O40>; Fri, 27 Oct 2000 10:56:26 -0400
+Message-Id: <200010271456.QAA04258@cave.bitwizard.nl>
+Subject: Re: [PROPOSED PATCH] ATM refcount + firestream
+In-Reply-To: <39F995E8.FE7324BA@didntduck.org> from Brian Gerst at "Oct 27, 2000
+ 10:49:12 am"
+To: Brian Gerst <bgerst@didntduck.org>
+Date: Fri, 27 Oct 2000 16:56:11 +0200 (MEST)
+CC: Patrick van de Lageweg <patrick@bitwizard.nl>,
+        Andrew Morton <andrewm@uow.edu.au>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Rogier Wolff <wolff@bitwizard.nl>,
         Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [PROPOSED PATCH] ATM refcount + firestream
-In-Reply-To: <Pine.LNX.4.21.0010271631330.16544-100000@panoramix.bitwizard.nl>
-Content-Type: text/plain; charset=us-ascii
+From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick van de Lageweg wrote:
+Brian Gerst wrote:
+> > > +       struct module *owner;
+> > > +       struct module *owner;
+> > > bix:/home/morton>
+> > 
+> > We use it throught the fops_get/fops_put macros to in/decrease the mod
+> > counter. See the definitions for those macros (include/linux/fs.h)
+> > 
+> >         Patrick
 > 
-> On Fri, 27 Oct 2000, Andrew Morton wrote:
-> 
-> > Patrick van de Lageweg wrote:
-> > >
-> > > Hi all,
-> > >
-> > > Here is the second try for the atm refcount problem. I've made made
-> > > several enhancement over the previos patch. Can you take a look at it if
-> > > I've missed anything? (This time it also includes the driver for the
-> > > firestream card. That's why the patch is so large. It's gziped and
-> > > uuencoded).
-> >
-> > Patrick, I looked at the modules stuff and you do not
-> > appear to be actually _using_ it anywhere:
-> >
-> > bix:/home/morton> grep owner patch
-> > +  owner:       THIS_MODULE,
-> > +       owner:          THIS_MODULE
-> > +       owner:          THIS_MODULE,
-> > +       owner:        THIS_MODULE,
-> > +  owner:       THIS_MODULE,
-> > +       owner:          THIS_MODULE,
-> > +   owner:      THIS_MODULE,
-> > +       struct module *owner;
-> > +       struct module *owner;
-> > bix:/home/morton>
-> 
-> We use it throught the fops_get/fops_put macros to in/decrease the mod
-> counter. See the definitions for those macros (include/linux/fs.h)
-> 
->         Patrick
+> This will break horribly if fops_put/get are changed to inlines instead
+> of macros.  They are only supposed to be used on struct file_operations.
 
-This will break horribly if fops_put/get are changed to inlines instead
-of macros.  They are only supposed to be used on struct file_operations.
+Oh?
 
---
+Anyway, we'll get nice warnings about wrong type of argument when that
+happens.
 
-				Brian Gerst
+I was the one who found the fops_get/put code useful as a guideline
+and also in fact as the code to call.
+
+So the question is: What is the defined interface for fops_get/put: Is
+it "it's a macro that... " or is it "it's a function (possibly a macro
+for efficiency) that.... "?
+
+				Roger. 
+
+P.S. Apologies for Patrick's bad quoting habits: He had to catch a
+train and forgot to delete the rest of the quoted mail.
+
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*       Common sense is the collection of                                *
+******  prejudices acquired by age eighteen.   -- Albert Einstein ********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

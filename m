@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbUFNEPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbUFNEYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbUFNEPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 00:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUFNEPQ
+	id S261857AbUFNEYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 00:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUFNEYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 00:15:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261851AbUFNEPG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 00:15:06 -0400
-Date: Sun, 13 Jun 2004 21:14:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
+	Mon, 14 Jun 2004 00:24:23 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:31507 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261857AbUFNEYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 00:24:21 -0400
+Date: Mon, 14 Jun 2004 06:21:39 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: ndiamond@despammed.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [1/12] don't dereference netdev->name before register_netdev()
-Message-Id: <20040613211416.6b2503c9.akpm@osdl.org>
-In-Reply-To: <20040614003331.GP1444@holomorphy.com>
-References: <20040614003148.GO1444@holomorphy.com>
-	<20040614003331.GP1444@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: Panics need better handling
+Message-ID: <20040614042139.GD29808@alpha.home.local>
+References: <200406140223.i5E2N1k18221@mailout.despammed.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406140223.i5E2N1k18221@mailout.despammed.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
->  * Removed dev->name lookups before register_netdev
->  This fixes Debian BTS #234817.
->  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=234817
-> 
->  	From: Shaul Karl <shaulk@actcom.net.il>
->  	To: submit@bugs.debian.org
->  	Subject: Reports about eth%%d at boot
->  	Message-ID: <20040225225611.GA3532@rakefet>
-> 
->    The problem is that most reports at boot time about the eth modules
->  use %%d instead of the interface number. For example,
-> 
->      eth%%d: NE2000 found at 0x280, using IRQ 5.
->      NE*000 ethercard probe at 0x240: 00 c0 f0 10 eb 56
+Hi,
 
-This generates a storm of rejects against Jeff's current tree.  This patch
-fixes more than Jeff's tree does, but in some places does it slightly
-differently.
+On Sun, Jun 13, 2004 at 09:23:01PM -0500, ndiamond@despammed.com wrote:
+> Is there
+> any chance in getting the 24 most
+> important lines of panic information
+> displayed last, and putting the cursor
+> at the end of the 24th line thereof, so
+> that 24 valuable lines of panic
+> information can be visible?
 
-It needs to be split up and generally chewed through.
+You could try kmsgdump, which Randy Dunlap ported to 2.6 :
+
+   http://developer.odsl.org/rddunlap/kmsgdump/
+
+Upon panic, it switches real mode, uses the bios to change display to text
+mode (which does not work for every video card, but still most of them),
+then put you in an interactive screen in which you can scroll the last
+32 kB of kernel messages, then decide to dump them on a floppy disk or
+print them on a parallel printer. This can also be configured to dump
+automatically without user interaction and automatically reboot once
+done.
+
+Clearly what you need it seems,
+Willy
+

@@ -1,88 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVBTMfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVBTMi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbVBTMfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 07:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVBTMfh
+	id S261826AbVBTMi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 07:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVBTMi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 07:35:37 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:65379 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261825AbVBTMf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 07:35:27 -0500
-Message-ID: <4218840D.6030203@yahoo.com.au>
-Date: Sun, 20 Feb 2005 23:35:25 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] page table iterators
-References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston> <20050217230342.GA3115@wotan.suse.de> <20050217153031.011f873f.davem@davemloft.net> <20050217235719.GB31591@wotan.suse.de>
-In-Reply-To: <20050217235719.GB31591@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Feb 2005 07:38:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64265 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261826AbVBTMiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 07:38:21 -0500
+Date: Sun, 20 Feb 2005 12:38:17 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Martin Drohmann <m_droh01@uni-muenster.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why does printk helps PCMCIA card to initialise?
+Message-ID: <20050220123817.A12696@flint.arm.linux.org.uk>
+Mail-Followup-To: Martin Drohmann <m_droh01@uni-muenster.de>,
+	linux-kernel@vger.kernel.org
+References: <42187819.5050808@uni-muenster.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42187819.5050808@uni-muenster.de>; from m_droh01@uni-muenster.de on Sun, Feb 20, 2005 at 12:44:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thu, Feb 17, 2005 at 03:30:31PM -0800, David S. Miller wrote:
-> 
->>On Fri, 18 Feb 2005 00:03:42 +0100
->>Andi Kleen <ak@suse.de> wrote:
->>
->>
->>>And to be honest we only have about 6 or 7 of these walkers
->>>in the whole kernel. And 90% of them are in memory.c
->>>While doing 4level I think I changed all of them around several
->>>times and it wasn't that big an issue.  So it's not that we
->>>have a big pressing problem here... 
->>
->>It's super error prone.  A regression added by your edit of these
-> 
-> 
-> Actually it was in Nick's code (PUD layer ;-).  But I won't argue
-> that my code didn't have bugs too...
-> 
-> 
+On Sun, Feb 20, 2005 at 12:44:25PM +0100, Martin Drohmann wrote:
+>  #ifdef CONFIG_PCI
+>         if (s->cb_dev) {
+>                 ret = pci_bus_alloc_resource(s->cb_dev->bus, res, num, 1,
+>                                              min, 0, pcmcia_align, &data);
+>         } else
+>  #endif
+> -        printk("This line will never be printed, but it helps!!!");
 
-I won't look back to see where the error came from :) But
-yeah it is equally (if not more) likely to have come from
-me. And it probably did happen because all the code is
-slightly different and hard to understand.
+If you added this, you've done much more than just adding it.  Look 
+two lines above and realise that you've just changed what the "else"
+clause conditionalises.
 
->>walkers for the 4level changes was only discovered and fixed
->>yesterday by the ppc folks.
->>
->>I absolutely support any change which consolidates these things.
-> 
-> 
-> The problem is just that these walker macros when they
-> do all the lazy walking stuff will be quite complicated.
-> And I don't really want another uaccess.h-like macro mess.
-> 
-> Yes currently they look simple, but that will change.
-> 
+>                 ret = allocate_resource(&ioport_resource, res, num, min, 
+> ~0UL,
+>                                         1, pcmcia_align, &data);
 
-But even in that case, it will still be better to have the
-extra complexity once in the macro rather than throughout mm/
+So, with your printk in place, we try pci_bus_alloc_resource.  If that
+succeeds or fails, we completely stomp on that with allocate_resource.
+Bad.  Very bad.
 
-> Open coding is probably the smaller evil.
-> 
-> And they're really not changed that often.
-> 
+The first thing that needs solving is why you're getting the "odd IO
+request" crap.  That may explain why the resource can't be allocated.
 
-It is not so much a matter of changing, so much as having 10
-slightly different implementations.
-
-I think it should be easier to go from the iterators patch to
-perhaps more complex iterators, or some open coding, etc etc.
-rather than try to put a big complex pt walker on top of these
-10 different open coded implementations.
-
-But perhaps I'm missing something you're not - I'd need to see
-the lazy walking code I guess.
-
-Nick
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

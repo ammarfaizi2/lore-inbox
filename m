@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281281AbRKETKa>; Mon, 5 Nov 2001 14:10:30 -0500
+	id <S281285AbRKETWZ>; Mon, 5 Nov 2001 14:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281282AbRKETKV>; Mon, 5 Nov 2001 14:10:21 -0500
-Received: from scully-a0.index.hu ([217.20.130.10]:7940 "HELO dap.index")
-	by vger.kernel.org with SMTP id <S281281AbRKETKA>;
-	Mon, 5 Nov 2001 14:10:00 -0500
-Date: Mon, 5 Nov 2001 20:09:58 +0100 (CET)
-From: PALLAI Roland <dap@omnis.hu>
-X-X-Sender: <dap@dap.index>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel oops on "hdparm -R"
-Message-ID: <Pine.LNX.4.33.0111051847030.719-100000@dap.index>
+	id <S281286AbRKETWN>; Mon, 5 Nov 2001 14:22:13 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:26634 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S281285AbRKETWF>; Mon, 5 Nov 2001 14:22:05 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: task `ifconfig' exit_signal 17 in reparent_to_init
+Date: Mon, 5 Nov 2001 21:21:58 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01110521215800.00884@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.4.13. In my bootscript messages I see
 
- When I try to add a new IDE disk to the channel 1 with the command
-"hdparm -R 0x170 0 0 /dev/hda", I've got a kernel oops (and freeze)..
-It's works fine _once_, if there wasn't any detected disk on channel
-before.
+* Configuring loopback: 127.0.0.1
+* Attempting to configure eth0 by contacting a DHCP server...
+dhcpcd: your IP address = 172.16.42.84
+* Configuring eth1: 172.16.241.2
+- ifconfig eth1
+task `ifconfig' exit_signal 17 in reparent_to_init   <-----
 
-my config:
- kernel 2.4.9 - 2.4.14pre7 (I've tried many of them)
- PIIX and VIA motherboards (shows same error)
-
-
+Dunno is it normal or what, thought somebody will find this info useful...
+eth1 is configured and working fine (I'm connecting to NFS server over it).
 --
-  DaP
-
-
+vda

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264760AbSLMPN6>; Fri, 13 Dec 2002 10:13:58 -0500
+	id <S264743AbSLMPNC>; Fri, 13 Dec 2002 10:13:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbSLMPN6>; Fri, 13 Dec 2002 10:13:58 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:53894 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264760AbSLMPN4>; Fri, 13 Dec 2002 10:13:56 -0500
-Date: Fri, 13 Dec 2002 10:23:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andrew Walrond <andrew@walrond.org>
-cc: linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-Subject: Re: Symlink indirection
-In-Reply-To: <3DF9F780.1070300@walrond.org>
-Message-ID: <Pine.LNX.3.95.1021213101227.2190A-100000@chaos.analogic.com>
+	id <S264760AbSLMPNC>; Fri, 13 Dec 2002 10:13:02 -0500
+Received: from 195-219-31-160.sp-static.linix.net ([195.219.31.160]:3968 "EHLO
+	r2d2.office") by vger.kernel.org with ESMTP id <S264743AbSLMPNB>;
+	Fri, 13 Dec 2002 10:13:01 -0500
+Message-ID: <3DF9FAB1.5070504@walrond.org>
+Date: Fri, 13 Dec 2002 15:20:17 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Symlink indirection
+References: <3DF9F780.1070300@walrond.org> <200212131611.04355.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Dec 2002, Andrew Walrond wrote:
+Thanks Marc
 
-> Quick question;
+5 is very low isn't it? Certainly marginal for an application I have in 
+mind.
+
+What's the reasoning behind it being a) 5 and b) so low?
+
+Marc-Christian Petersen wrote:
+> On Friday 13 December 2002 16:06, Andrew Walrond wrote:
 > 
-> Is the number of allowed levels of symlink indirection (if that is the 
-> right phrase; I mean symlink -> symlink -> ... -> file) dependant on the 
-> kernel, or libc ? Where is it defined, and can it be changed?
+> Hi Andrew,
 > 
-> TIA
-> Andrew
 > 
-
-Since a symlink is just a file containing a name, the resulting path
-length is simply the maximum path length that user-space tools allow.
-This should be defined as "PATH_MAX". Posix defines this as 255 characters
-but I think posix requires that this be the minimum and all file-name
-handling buffers must be at least PATH_MAX in length.
-
-A hard link is just another directory-entry for the same file. This,
-therefore follows the same rules. There must be enough space on the
-device to contain the number of directory entries, as well as enough
-buffer length in the tools necessary to manipulate these "nested"
-directories, which are not really "nested" at all. 
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+>>Is the number of allowed levels of symlink indirection (if that is the
+>>right phrase; I mean symlink -> symlink -> ... -> file) dependant on the
+>>kernel, or libc ? Where is it defined, and can it be changed?
+> 
+> 
+> fs/namei.c
+> 
+>  if (current->link_count >= 5)
+> 
+> change to a higher value.
+> 
+> So, the answer is: Kernel :)
+> 
+> ciao, Marc
+> 
 
 

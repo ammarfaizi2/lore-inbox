@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263732AbUCXOwD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 09:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUCXOwD
+	id S263735AbUCXO5h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 09:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUCXO5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 09:52:03 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11151
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263732AbUCXOwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 09:52:00 -0500
-Date: Wed, 24 Mar 2004 15:52:53 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       mjy@geizhals.at, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040324145253.GG2065@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com> <20040320121423.GA9009@dualathlon.random> <20040320145111.GD2045@holomorphy.com> <20040320150311.GN9009@dualathlon.random> <s5hfzby1h6n.wl@alsa2.suse.de>
-Mime-Version: 1.0
+	Wed, 24 Mar 2004 09:57:37 -0500
+Received: from pileup.ihatent.com ([217.13.24.22]:30472 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S263735AbUCXO5b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 09:57:31 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm2
+References: <20040323232511.1346842a.akpm@osdl.org>
+From: Alexander Hoogerhuis <alexh@boxed.no>
+Date: Wed, 24 Mar 2004 15:57:24 +0100
+In-Reply-To: <20040323232511.1346842a.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 23 Mar 2004 23:25:11 -0800")
+Message-ID: <87smfynvhn.fsf@dorker.boxed.no>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hfzby1h6n.wl@alsa2.suse.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 24, 2004 at 02:57:20PM +0100, Takashi Iwai wrote:
-> At Sat, 20 Mar 2004 16:03:11 +0100,
-> Andrea Arcangeli wrote:
-> > 
-> > On Sat, Mar 20, 2004 at 06:51:11AM -0800, William Lee Irwin III wrote:
-> > > I may have missed one of his posts where he gave the results from the
-> > > RT test suite. I found a list of functions with some kind of numbers,
-> > > though I didn't see a description of what those numbers were and was
-> > > looking for something more detailed (e.g. the output of the RT
-> > > instrumentation things he had with and without preempt). This is all
-> > > mostly curiosity and sort of hoping this gets carried out vaguely
-> > > scientifically anyway, so I'm not really arguing one way or the other.
-> > 
-> > agreed. what I've seen so far is a great number of graphs, they were
-> > scientific enough for my needs and covering real life different
-> > workloads, but I'm not sure what Takashi published exactly, you may want
-> > to discuss it with him.
-> 
-> sorry, there is no exact descrption (yet) in public, except for the
-> pdf of slides i presented ago:
-> 
-> 	http://www.alsa-project.org/~iwai/audio-latency.pdf
+Andrew Morton <akpm@osdl.org> writes:
+>
+> [SNIP]
+>
+ 
+I'm getting this oops when booting my shiny new HP nc6000 laptop
+(PM-1.6 with integrated bluetooth and stuff) with bluetooth enabled:
 
-this is what I meant. To be fair I've also seen lots of raw input data,
-but you represented all the interesting points in the presentation.
+Bluetooth: HCI device and connection manager initialized
+Bluetooth: HCI socket layer initialized
+Bluetooth: HCI USB driver ver 2.5
+drivers/usb/core/usb.c: registered new driver hci_usb
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+e08c56be
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+CPU:    0
+EIP:    0060:[<e08c56be>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.5-rc2-mm2)
+EIP is at usb_disable_interface+0x11/0x3f [usbcore]
+eax: dea7f000   ebx: 00000000   ecx: c03a1310   edx: deb39080
+esi: 00000001   edi: 00000000   ebp: deb65d50   esp: deb65d40
+ds: 007b   es: 007b   ss: 0068
+Process khubd (pid: 5147, threadinfo=deb65000 task=deb423b0)
+Stack: dea7f000 dea7f000 00000001 00000002 deb65d88 e08c5904 00000001 00000002
+       00000001 00000000 00000000 00001388 00000000 ddab4db0 deb39080 00000000
+       ddab4b80 ddab4c38 deb65e34 e09419da 00000246 deb65dd8 00000018 00000003
+Call Trace:
+ [<e08c5904>] usb_set_interface+0x92/0x143 [usbcore]
+ [<e09419da>] hci_usb_probe+0x226/0x46e [hci_usb]
+ [<c01a675e>] inode_doinit_with_dentry+0x3e/0x59a
+ [<e08c0064>] usb_probe_interface+0x56/0x63 [usbcore]
+ [<c01fb727>] bus_match+0x35/0x5e
+ [<c01fb78f>] device_attach+0x3f/0x8f
+ [<c0166129>] dput+0x1c/0x252
+ [<c01fb945>] bus_add_device+0x67/0x9f
+ [<c01fa9d8>] device_add+0x94/0x128
+ [<e08c5c6d>] usb_set_configuration+0x1c9/0x251 [usbcore]
+ [<e08c0f87>] usb_new_device+0x23f/0x3ae [usbcore]
+ [<c011c8a7>] printk+0x121/0x172
+ [<e08c26c3>] hub_port_connect_change+0x172/0x265 [usbcore]
+ [<e08c2a3e>] hub_events+0x288/0x2fa [usbcore]
+ [<e08c2ae0>] hub_thread+0x30/0xdd [usbcore]
+ [<c0118aa1>] default_wake_function+0x0/0xc
+ [<e08c2ab0>] hub_thread+0x0/0xdd [usbcore]
+ [<c0105269>] kernel_thread_helper+0x5/0xb
+                                                                                                                               
+Code: 00 00 00 89 d1 c7 44 97 44 00 00 00 00 d3 e0 09 47 3c eb db 89 f8 ff d6
+eb d5 55 89 e5 57 31 ff 56 53 83 ec 04 89 45 f0 8b 5a 04 <80> 7b 04 00 74 20
+31 f6 8b 43 0c 83
+c7 01 0f b6 54 30 02 83 c6
 
-> it uses its own kernel module to generate irqs from RTC and to trace
-> stacks.
-> 
-> i'll show the results of the recent kernels tomorrow...
 
-cool ;)
+fwiw,
+Alexander
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

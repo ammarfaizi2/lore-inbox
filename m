@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275361AbTHMT0x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 15:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275362AbTHMT0w
+	id S275351AbTHMTXy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 15:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275353AbTHMTXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 15:26:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56551 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S275361AbTHMT0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 15:26:50 -0400
-Date: Wed, 13 Aug 2003 21:26:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: John Cherry <cherry@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test3 (compile statistics)
-Message-ID: <20030813192642.GJ569@fs.tum.de>
-References: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org> <1060643227.30492.13.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060643227.30492.13.camel@cherrypit.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Aug 2003 15:23:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:2301 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S275351AbTHMTWg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 15:22:36 -0400
+Message-ID: <3F355F12.4040609@mvista.com>
+Date: Sat, 09 Aug 2003 13:52:34 -0700
+From: George Anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ed Sweetman <ed.sweetman@wmich.edu>
+CC: rob@landley.net, Daniel Phillips <phillips@arcor.de>,
+       Eugene Teo <eugene.teo@eugeneteo.net>,
+       LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200308061728.04447.rob@landley.net> <200308071642.55517.phillips@arcor.de> <200308071651.07522.rob@landley.net> <3F32C752.4000403@wmich.edu>
+In-Reply-To: <3F32C752.4000403@wmich.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 04:07:08PM -0700, John Cherry wrote:
-> Compile statistics: 2.6.0-test3
-> Compiler: gcc 3.2.2
-> Script: http://developer.osdl.org/~cherry/compile/compregress.sh
+Ed Sweetman wrote:
+> >>
 > 
->                bzImage       bzImage        modules
->              (defconfig)  (allmodconfig) (allmodconfig)
-> 
-> 2.6.0-test3  0 warnings     7 warnings    984 warnings
->...                          ^^^^^^^^^^
+> the problem is you want a process that works like it was run on a single 
+> tasking OS on an operating system that is built from the ground up to be 
+>  a multi-user multi-tasking OS and you want both to work perfectly at 
+> peak performance and you want it to know when you want which to work at 
+> peak performance automatically.
 
-This number is misleading.
-
-As a result of the "uniq" in your script the warning
-
-  include/linux/mca-legacy.h:10:2: warning: #warning "MCA legacy - 
-  please move your driver to the new sysfs api"
-
-that occurs in 8 different files is counted only once although this 
-problem is in eight different files.
-
-> John
-
-cu
-Adrian
+Well said :)
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

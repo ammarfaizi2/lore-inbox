@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265245AbUAJQVk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 11:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUAJQVj
+	id S265244AbUAJQTc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 11:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUAJQTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 11:21:39 -0500
-Received: from [216.127.68.117] ([216.127.68.117]:5522 "HELO 216.127.68.117")
-	by vger.kernel.org with SMTP id S265245AbUAJQTy (ORCPT
+	Sat, 10 Jan 2004 11:19:32 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:13702
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S265244AbUAJQT2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 11:19:54 -0500
-Message-ID: <40002620.2060205@meerkatsoft.com>
-Date: Sun, 11 Jan 2004 01:19:44 +0900
-From: Alex <alex@meerkatsoft.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
-To: Christian Kivalo <valo@valo.at>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Cannot boot after new Kernel Build
-References: <NMEHJKFGFEGJPIPOLFFEIEBEDEAA.valo@valo.at>
-In-Reply-To: <NMEHJKFGFEGJPIPOLFFEIEBEDEAA.valo@valo.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jan 2004 11:19:28 -0500
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3eku74whi.fsf@averell.firstfloor.org>
+References: <1cpDr-5az-11@gated-at.bofh.it> <1csrv-Er-9@gated-at.bofh.it>
+	 <m3eku74whi.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1073751567.1146.47.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 11:19:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-yes I already tried /dev/hda3 but still get the same errors when booting.
+På lau , 10/01/2004 klokka 11:08, skreiv Andi Kleen:
+> Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+> 
+> > The correct solution to this problem is (b). I.e. we convert mount to
+> > use TCP as the default if it is available. That is consistent with what
+> > all other modern implementations do.
+> 
+> Please do that. Fragmented UDP with 16bit ipid is just russian roulette at 
+> today's network speeds.
 
-Alex
+I fully agree.
 
-Christian Kivalo wrote:
+Chuck Lever recently sent an update for the NFS 'mount' utility to
+Andries. Among other things, that update changes this default. We're
+still waiting for his comments.
 
->>Hi,
->>I tried changing the fstab, removing the LABLE from the grub.conf,
->>removing initrd from it and also tried to boot with
->>/dev/hda3.  Nothing
->>works, still the same problem.
->>    
->>
->
->hi!
->
->you don't have to change your fstab, there should everything ok with you
->fstab.
->
->you should change the root= entry in your grub configuration to your
->actual root partition. if you don't know what partition your root is on,
->do a 'df' and look where '/' is mounted on.
->
->the second line of df output should read somewhat similar to:
->/dev/sda2              4806936   1611232   2951516  36% /
->
->that's my fileserver where /dev/sda2 is mounted as '/'.
->
->your root= in grub config should read somewhat like this:
->root=/dev/hda1)
->
->hth
->christian
->
->  
->
->>Alex
->>
->>    
->>
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-
-
+Cheers,
+  Trond

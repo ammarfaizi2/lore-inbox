@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268005AbTBYP4Y>; Tue, 25 Feb 2003 10:56:24 -0500
+	id <S268000AbTBYP4O>; Tue, 25 Feb 2003 10:56:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268006AbTBYP4Y>; Tue, 25 Feb 2003 10:56:24 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:18195 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S268005AbTBYP4X>; Tue, 25 Feb 2003 10:56:23 -0500
-Date: Tue, 25 Feb 2003 16:06:34 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address Autoconfiguration in IPv6
-Message-ID: <20030225160634.A4525@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
-	davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
-References: <20030223.223114.65976206.davem@redhat.com> <20030224.155852.611429637.yoshfuji@linux-ipv6.org> <20030223.225251.119557134.davem@redhat.com> <20030226.003625.90530451.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030226.003625.90530451.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Wed, Feb 26, 2003 at 12:36:25AM +0900
+	id <S268005AbTBYP4N>; Tue, 25 Feb 2003 10:56:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24590 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268000AbTBYP4M>; Tue, 25 Feb 2003 10:56:12 -0500
+Date: Tue, 25 Feb 2003 08:02:15 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Schwab <schwab@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+In-Reply-To: <jevfz84bee.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.44.0302250742400.10210-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 12:36:25AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
-> +#
-> +if [ "$CONFIG_IPV6_PRIVACY" = "y" ]; then
-> +  if [ "$CONFIG_IPV6" = "y" ]; then
-> +    define_tristate CONFIG_MD5 y
-> +  else
-> +    define_tristate CONFIG_MD5 m
-> +  fi
-> +else
-> +  tristate 'MD5 digest support' CONFIG_MD5
-> +fi
 
-Config.in files use three-space indents.
+On Tue, 25 Feb 2003, Andreas Schwab wrote:
+> |> 
+> |> So? Gcc does that anyway. _Any_ good compiler has to.
+> 
+> But the point is that determining the common type does not require _any_
+> kind of data flow analysis, and this is the place where the unsigned
+> warning is generated.
 
-> +obj-$(CONFIG_MD5) += md5.o
-> +ifeq ($(CONFIG_MD5),y)
-> +  export-objs += md5.o
-> +endif
+Go back and read my mail. In fact, go back and read just about _any_ of my 
+mails on the subject. Gop back and read the part you snipped:
 
-this is wrong, objects are added to export-objs unconditional.
+ "And if the compiler isn't good enough to do it, then the compiler 
+  shouldn't be warning about something that it hasn't got a clue about."
 
-> +
-> +#ifdef CONFIG_MD5
-> +EXPORT_SYMBOL(MD5Init);
-> +EXPORT_SYMBOL(MD5Update);
-> +EXPORT_SYMBOL(MD5Final);
-> +EXPORT_SYMBOL(MD5Transform);
-> +#endif
+In other words, either gcc should do it right, or it should not be done at 
+all. Right now the warning IS GENERATED IN THE WRONG PLACE. Your argument 
+seems to be "but that's the place it is generated" is a total 
+non-argument. It's just stating a fact, and it's exactly that fact that 
+causes the BUG IN GCC.
 
-Please remove the ifdef, it doesn't make any sense.
+> |> Trivial example:
+> |> 
+> |> 	int x[2][2];
+> |> 
+> |> 	int main(int argc, char **argv)
+> |> 	{
+> |> 		return x[1][-1];
+> |> 	}
+> |> 
+> |> 
+> |> the above is actually a well-defined C program, and 100%
+> |> standards-conforming ("strictly conforming").
+> 
+> This isn't as trivial as it seems.  Look in comp.std.c for recent
+> discussions on this topic (out-of-array references). 
 
+It is as trivial as it seems, and this is _not_ an out-of-array reference.  
+Sorry. C very clearly specifies the layout of arrays (6.5.2.1: last
+subscript varies fastest, together with sizeof(array) = sizeof(entry)*n),
+which _guarantees_ that the pointers involved in the above calculations
+are all within the object, and thus there is _zero_ undefined behaviour.
 
-Also I really wonder whether we want to add just md5.c to 2.4 or
-backport the cryptoapi core with md5 as the only algorithm so far..
+So if they argued about this on comp.std.c, they either had clueless
+people there (in addition to the ones that obviously aren't ;), _or_ you
+misunderstood the argument.
+
+		Linus
+

@@ -1,43 +1,68 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154363AbQDHT7U>; Sat, 8 Apr 2000 15:59:20 -0400
-Received: by vger.rutgers.edu id <S154258AbQDHT7A>; Sat, 8 Apr 2000 15:59:00 -0400
-Received: from colorfullife.com ([216.156.138.34]:3023 "EHLO colorfullife.com") by vger.rutgers.edu with ESMTP id <S154415AbQDHT6p>; Sat, 8 Apr 2000 15:58:45 -0400
-Message-ID: <38EF9135.2A42DC6E@colorfullife.com>
-Date: Sat, 08 Apr 2000 22:06:13 +0200
-From: Manfred Spraul <manfreds@colorfullife.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.14 i686)
-X-Accept-Language: en, de
+Received: by vger.rutgers.edu via listexpand id <S154363AbQDHVD2>; Sat, 8 Apr 2000 17:03:28 -0400
+Received: by vger.rutgers.edu id <S154356AbQDHVDJ>; Sat, 8 Apr 2000 17:03:09 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:15125 "EHLO deliverator.sgi.com") by vger.rutgers.edu with ESMTP id <S154258AbQDHVCv>; Sat, 8 Apr 2000 17:02:51 -0400
+From: kanoj@google.engr.sgi.com (Kanoj Sarcar)
+Message-Id: <200004082111.OAA73647@google.engr.sgi.com>
+Subject: Re: zap_page_range(): TLB flush race
+To: manfreds@colorfullife.com (Manfred Spraul)
+Date: Sat, 8 Apr 2000 14:11:05 -0700 (PDT)
+Cc: linux-kernel@vger.rutgers.edu, linux-mm@kvack.org
+In-Reply-To: <38EF9135.2A42DC6E@colorfullife.com> from "Manfred Spraul" at Apr 08, 2000 10:06:13 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu, linux-mm@kvack.org
-Subject: zap_page_range(): TLB flush race
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-it seems we have a smp race in zap_page_range():
+> 
+> it seems we have a smp race in zap_page_range():
+> 
+> When we remove a page from the page tables, we must call:
+> 
+> 	flush_cache_page();
+> 	pte_clear();
+> 	flush_tlb_page();
+> 	free_page();
+> 
+> We must not free the page before we have called flush_tlb_xy(),
+> otherwise the second cpu could access memory that already freed.
+> 
+> but zap_page_range() calls free_page() before the flush_tlb() call.
+> 
+> Is that really a bug, has anyone a good idea how to fix that?
 
-When we remove a page from the page tables, we must call:
+Why do you think this is a bug? After the pte_clear, we need to flush
+tlb, so that if anyone wants to drag in the mapping (by accessing the
+virtual address), he will fault (since translation is not in tlb) and 
+wait on mmap_sem. After that, when zap_page_range has freed the page, 
+and released the mmap_sem, the faulter will find he was trying to access 
+what is now invalid memory and get a signal/killed.
 
-	flush_cache_page();
-	pte_clear();
-	flush_tlb_page();
-	free_page();
+But a race does exist in establish_pte(), when the flush_tlb happens
+_before_ the set_pte(), another thread might drag in the old translation
+on a different cpu.
 
-We must not free the page before we have called flush_tlb_xy(),
-otherwise the second cpu could access memory that already freed.
+> 
+> filemap_sync() calls flush_tlb_page() for each page, but IMHO this is a
+> really bad idea, the performance will suck with multi-threaded apps on
+> SMP.
 
-but zap_page_range() calls free_page() before the flush_tlb() call.
+The best you can do probably is a flush_tlb_range?
 
-Is that really a bug, has anyone a good idea how to fix that?
+Kanoj
 
-filemap_sync() calls flush_tlb_page() for each page, but IMHO this is a
-really bad idea, the performance will suck with multi-threaded apps on
-SMP.
-
-Perhaps build a linked list, and free later?
-We could abuse the next pointer from "struct page".
---
-	Manfred
+> 
+> Perhaps build a linked list, and free later?
+> We could abuse the next pointer from "struct page".
+> --
+> 	Manfred
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux.eu.org/Linux-MM/
+> 
 
 
 -

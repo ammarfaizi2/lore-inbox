@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285498AbSAUMlK>; Mon, 21 Jan 2002 07:41:10 -0500
+	id <S285516AbSAUMla>; Mon, 21 Jan 2002 07:41:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285516AbSAUMlA>; Mon, 21 Jan 2002 07:41:00 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4750 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S285498AbSAUMkn>;
-	Mon, 21 Jan 2002 07:40:43 -0500
-Date: Mon, 21 Jan 2002 15:38:07 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Dave Jones <davej@suse.de>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Boot hang in 2.5.3-pre2
-In-Reply-To: <20020121132858.C2729@suse.de>
-Message-ID: <Pine.LNX.4.33.0201211533400.8699-100000@localhost.localdomain>
+	id <S285720AbSAUMlL>; Mon, 21 Jan 2002 07:41:11 -0500
+Received: from mailhost.uni-koblenz.de ([141.26.64.1]:16815 "EHLO
+	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
+	id <S285593AbSAUMkw>; Mon, 21 Jan 2002 07:40:52 -0500
+Message-Id: <200201211240.g0LCef201970@bliss.uni-koblenz.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Rainer Krienke <krienke@uni-koblenz.de>
+Organization: Uni Koblenz
+To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Date: Mon, 21 Jan 2002 13:40:41 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: nfs@lists.sourceforge.net
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201171855.g0HIt1314492@devserv.devel.redhat.com>
+In-Reply-To: <200201171855.g0HIt1314492@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 21 Jan 2002, Dave Jones wrote:
-
->  >   Hi, Linus. FYI: 2.5.3-pre2 hangs during boot. The last couple of
->  > messages I get are:
->  > Based upon Swansea University Computer Society NET3.039
->  > apm: BIOS version 1.2 Flags 0x03 (Driver version 1.15)
->  > apm: disabled - APM is not SMP safe (power off active).
+On Thursday, 17. January 2002 19:55, Pete Zaitcev wrote:
+> >[from linux-kernel]
+> > I have to increase the number of anonymous filesystems the kernel can
+> > handle and found the array unnamed_dev_in_use fs/super.c and changed the
+> > array size from the default of 256 to 1024. Testing this patch by
+> > mounting more and more NFS-filesystems I found that still no more than
+> > 800 NFS mounts are possible. One more mount results in the kernel saying:
+> >
+> > Jan 17 14:03:11 gl kernel: RPC: Can't bind to reserved port (98).
+> > Jan 17 14:03:11 gl kernel: NFS: cannot create RPC transport.
+> > Jan 17 14:03:11 gl kernel: nfs warning: mount version older than kernel
 >
->  Ingo's scheduler patches solved this one for me (and others).
+> I did that. You also need a small fix to mount(8) that adds
+> a mount argument "-o nores". I've got an RPM at my website.
+>
+> Initially I did a sysctl, but Trond M. asked for a mount
+> argument, in case you have to mount from several servers,
+> some of which require reserved ports, some do not.
+> Our NetApps work ok with non-reserved ports on clients.
+>
 
-the bug is the following: the 2.5.3-pre2 kernel in essence includes the
--I3 patch. The -I3 scheduler doesnt have the task migration fixes yet, but
-has the improved load-balancer. And exactly this improved load-balancer
-makes task-migration much more likely to happen during bootup =>
-triggering it for ksoftirqd migration, resulting in a hang.
+Anyone has the patch Pete mentioned above for mount. He mailed the kernel 
+patches but I am unable to find the mount fix he talked about.
 
-older versions had the migration bug as well, but the first iteration of
-the load-balancer was much less accurate at balancing runqueues, so it
-didnt trigger the bug.
-
-	Ingo
-
+Thanks Rainer
+-- 
+---------------------------------------------------------------------
+Rainer Krienke                     krienke@uni-koblenz.de
+Universitaet Koblenz, 		   http://www.uni-koblenz.de/~krienke
+Rechenzentrum,                     Voice: +49 261 287 - 1312
+Rheinau 1, 56075 Koblenz, Germany  Fax:   +49 261 287 - 1001312
+---------------------------------------------------------------------

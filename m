@@ -1,64 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbTIUSy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 14:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTIUSy4
+	id S262536AbTIUTED (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 15:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbTIUTED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 14:54:56 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:65477
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261988AbTIUSyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 14:54:55 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: Keyboard oddness.
-Date: Sun, 21 Sep 2003 14:51:39 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200309201633.22414.rob@landley.net> <20030921001838.A3619@pclin040.win.tue.nl>
-In-Reply-To: <20030921001838.A3619@pclin040.win.tue.nl>
+	Sun, 21 Sep 2003 15:04:03 -0400
+Received: from smtp4.hy.skanova.net ([195.67.199.133]:41412 "EHLO
+	smtp4.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S262536AbTIUTD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 15:03:58 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: [PATCH 1/2] synaptics: Don't try to handle more than eight multi buttons
+From: Peter Osterlund <petero2@telia.com>
+Date: 21 Sep 2003 21:03:51 +0200
+Message-ID: <m2wuc2t148.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309211451.39180.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 September 2003 18:18, Andries Brouwer wrote:
-> On Sat, Sep 20, 2003 at 04:33:22PM -0400, Rob Landley wrote:
-> > I've mentioned my keyboard repeat problems before.  I grepped through the
-> > logs and found a whole bunch of these type messages:
-> >
-> > Aug 17 05:28:48 atkbd.c: Unknown key (set 2, scancode 0x1d0,
-> > on isa0060/serio0) pressed.
-> > Aug 19 09:06:51 atkbd.c: Unknown key (set 2, scancode 0x8e,
-> > on isa0060/serio0) pressed.
->
-> ...
->
-> These are key releases for keys i8042.c didnt know were down.
-> If otherwise your keyboard functions well, this is harmless.
+This patch from Dmitry is not yet in Linus's tree. Please apply.
+Dmitry's original email was:
 
-It doesn't.  It's missing key release events left and right.  About twice an 
-hour a key well get "stuck".  X is okay once you press a second key, but if a 
-VT gets a key stuck, it doesn't come back.
+Peter,
 
-> > Sep  2 13:37:52 atkbd.c: Unknown key (set 0, scancode 0xfc,
-> > on isa0060/serio1) pressed.
-> > Sep  2 13:37:52 atkbd.c: Unknown key (set 0, scancode 0xfc,
-> > on isa0060/serio1) pressed.
->
-> I suppose these are error codes from your mouse.
-> If so, it is a bug that they ever went to atkbd.c.
+Peter Berg Larsen pointed to me that with regard to multi-button 
+capabilities the spec says: "If nExtBtm is greater than 8 ... nExtbtm 
+should be considered to be invalid and treated as zero."
 
-The mouse sometimes sticks as well, just like the keyboard.  (Click and the 
-button is held down for no reason.)
+The patch below should fix that. I also sent it to Vojtech with my 
+reconnect patch.
 
-I suspect the bug is actually in the new input core...
+Dmitry
 
-> Andries
+ linux-petero/drivers/input/mouse/synaptics.c |   21 +++++++++++++++++----
+ 1 files changed, 17 insertions(+), 4 deletions(-)
 
-Rob
+diff -puN drivers/input/mouse/synaptics.c~synaptics-multi-btn-fix2 drivers/input/mouse/synaptics.c
+--- linux/drivers/input/mouse/synaptics.c~synaptics-multi-btn-fix2	2003-09-21 14:55:14.000000000 +0200
++++ linux-petero/drivers/input/mouse/synaptics.c	2003-09-21 14:55:14.000000000 +0200
+@@ -164,7 +164,8 @@ static void print_ident(struct synaptics
+ 
+ 	if (SYN_CAP_EXTENDED(priv->capabilities)) {
+ 		printk(KERN_INFO " Touchpad has extended capability bits\n");
+-		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
++		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
++		    SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) <= 8)
+ 			printk(KERN_INFO " -> %d multi-buttons, i.e. besides standard buttons\n",
+ 			       (int)(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)));
+ 		else if (SYN_CAP_FOUR_BUTTON(priv->capabilities))
+@@ -352,7 +353,11 @@ int synaptics_init(struct psmouse *psmou
+ 	if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
+ 		switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+ 		default:
+-			printk(KERN_ERR "This touchpad reports more than 8 multi-buttons, don't know how to handle.\n");
++			/*
++			 * if nExtBtn is greater than 8 it should be considered
++			 * invalid and treated as 0
++			 */
++			break;
+ 		case 8:
+ 			set_bit(BTN_7, psmouse->dev.keybit);
+ 			set_bit(BTN_6, psmouse->dev.keybit);
+@@ -437,7 +442,11 @@ static void synaptics_parse_hw_state(uns
+ 		    ((buf[3] & 2) ? !hw->right : hw->right)) {
+ 			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+ 			default:
+-				; /* we did comment while initialising... */
++				/*
++				 * if nExtBtn is greater than 8 it should be
++				 * considered invalid and treated as 0
++				 */
++				break;
+ 			case 8:
+ 				hw->b7 = ((buf[5] & 0x08)) ? 1 : 0;
+ 				hw->b6 = ((buf[4] & 0x08)) ? 1 : 0;
+@@ -516,7 +525,11 @@ static void synaptics_process_packet(str
+ 	if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
+ 		switch(SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+ 		default:
+-			; /* we did comment while initialising... */
++			/*
++			 * if nExtBtn is greater than 8 it should be considered
++			 * invalid and treated as 0
++			 */
++			break;
+ 		case 8:
+ 			input_report_key(dev, BTN_7,       hw.b7);
+ 			input_report_key(dev, BTN_6,       hw.b6);
+
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

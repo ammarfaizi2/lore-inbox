@@ -1,68 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264152AbTDWRfS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 13:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbTDWRfS
+	id S264154AbTDWR1M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 13:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTDWRZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 13:35:18 -0400
-Received: from pdbn-d9bb86a9.pool.mediaWays.net ([217.187.134.169]:2057 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S264152AbTDWRfN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 13:35:13 -0400
-Date: Wed, 23 Apr 2003 19:47:10 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Pat Suwalski <pat@suwalski.net>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030423174710.GA12744@citd.de>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423172120.GA12497@citd.de> <3EA6947D.9080106@suwalski.net> <1527920000.1051118798@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1527920000.1051118798@flay>
-User-Agent: Mutt/1.3.27i
+	Wed, 23 Apr 2003 13:25:51 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30928 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264145AbTDWRZ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 13:25:26 -0400
+Date: Wed, 23 Apr 2003 19:37:19 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linux-ide.org>, Jens Axboe <axboe@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.67-ac2 direct-IO for IDE taskfile ioctl (0/4)
+Message-ID: <Pine.SOL.4.30.0304231933360.10502-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 10:26:38AM -0700, Martin J. Bligh wrote:
-> >> I can only guess why. My buest guess is that not all
-> >> sound-configurations are the same, on some systems the "defaults" could
-> >> much to loud. (e.g. waking the neigbours when you restart you computer
-> >> at night)
-> > 
-> > This is certainly the case. When I was packaging OSS for Xandros, our initial default was 50 percent. We eventualyl made it about 30, because even that was too loud on a laptop we were testing. There was little coherance between the various soundcards.
-> > 
-> > Waking the neighbors is the smallest problem. Blowing a speaker or makign the user deaf if quite another.
-> > 
-> > Yes, it's a distro problem. My Gentoo was build "-alsa" and so the alsa-sound init script does not 'go'. A simple rebuild will solve the problem.
-> 
-> I agree it's a disto problem to save and restore.
-> 
-> But I fail to understand how the distro can magically set a sensible 
-> default, and yet we're unable to do so inside the kernel ? Setting it
-> to something like 10 (or other very quiet setting) would seem reasonable.
-> Then at least the poor user would have a clue what the problem was.
-> 
-> As to "There was little coherance between the various soundcards", yes
-> this probably needs to be a per-soundcard setting for sensible defaults.
-> I presume this is what the distros do?
-> 
-> Defaulting to silence seems user-malevolent ... 
 
-The problem is (normaly) a "one time while installing"-problem. So don't
-see the point. The "helper" that finds out the soundcard, should also do
-a "find out the default volume to use"-round with the user.
+Hey,
+
+Another bunch of patches:
+
+(1) Enhance bio_(un)map_user() and add blk_rq_bio_prep().
+(2) Pass bdev to IDE ioctl handlers.
+(3) Add support for rq->bio based taskfile.
+(4) Use direct-IO in ide_taskfile_ioctl() and in ide_cmd_ioctl().
+
+[ more detailed changelogs inside patches ]
+
+They are incremental to 2.5.67-ac1/2 and previously posted tf-ioctls patches,
+you can find all patches at:
+	http://home.elka.pw.edu.pl/~bzolnier/patches/2.5.67-ac2/
 
 
+Now HDIO_DRIVE_TASKFILE and HDIO_DRIVE_CMD (taskfile version) ioctls
+use direct-IO to user memory if it is possible (user memory buffer address
+and transfer length must be both aligned to hardsector size = 512).
+
+As a result ioctl generated IO request with aligned user buffer use
+the same code path as fs generated IO request, which gives possibility
+of testing IDE code used for fs-requests from user space.
+
+These patches also make possible to use taskfile ioctl for up to 32 MB big
+lba48 requests, since now we don't need to allocate kernel buffer for them.
+[ There may be still some small glitches to fix. ]
+
+Alignment of user buffer address is a limitation to removing code using
+kernel buffer approach. If user buffer is not aligned it can can happen
+that one hardware sector is mapped to diffirent bio-s.
+[ However I have an idea how to deal with this issue. :-) ]
 
 
+I have tested HDIO_DRIVE_TASKFILE ioctl after changes and both direct-IO
+and normal transfers are working fine, here are results from DiskPerf:
 
-Bis denn
+# with direct-IO
+./DiskPerf /dev/hda
 
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+Device: WDC WD800JB-00CRA1 Serial Number: WD-WMAxxxxxxxxx
+LBA 0 DMA Read Test                      = 78.34 MB/Sec (3.19 Seconds)
+Outer Diameter Sequential DMA Read Test  = 45.52 MB/Sec (5.49 Seconds)
+Inner Diameter Sequential DMA Read Test  = 25.91 MB/Sec (9.65 Seconds)
+
+# with kernel buffer
+./DiskPerf /dev/hda
+
+Device: WDC WD800JB-00CRA1 Serial Number: WD-WMAxxxxxxxxx
+LBA 0 DMA Read Test                      = 69.81 MB/Sec (3.58 Seconds)
+Outer Diameter Sequential DMA Read Test  = 44.83 MB/Sec (5.58 Seconds)
+Inner Diameter Sequential DMA Read Test  = 25.94 MB/Sec (9.64 Seconds)
+
+
+Example how to align user buffer for HDIO_DRIVE_TASKFILE and direct-IO:
+
+with kernel buffer:
+	ide_task_request_t reqtask;
+	unsigned char task[sizeof(reqtask)+reqtask.out_size+reqtask.in_size];
+
+	and &task were used as ioctl argument
+direct-IO:
+	#define HARDSECTOR_SIZE	512
+	#define ALIGN(x,a)	(((x)+(a)-1)&~((a)-1))
+	#define TASK_ALIGN(x)	(ALIGN((unsigned long)(x), HARDSECTOR_SIZE) \
+				 +HARDSECTOR_SIZE-sizeof(ide_task_request_t))
+
+	ide_task_request_t reqtask;
+	unsigned char task[sizeof(reqtask)+reqtask.out_size+reqtask.in_size
+			   +2*HARDSECTOR_SIZE];
+	unsigned char *taskptr = (unsigned char *)TASK_ALIGN(task);
+
+	and use taskptr as ioctl argument
+
+	[ Yes, I know it is ugly ]
+
+--
+Bartlomiej Zolnierkiewicz
+
 

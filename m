@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132125AbRDNXna>; Sat, 14 Apr 2001 19:43:30 -0400
+	id <S132485AbRDNXtK>; Sat, 14 Apr 2001 19:49:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132485AbRDNXnV>; Sat, 14 Apr 2001 19:43:21 -0400
-Received: from die-macht.oph.RWTH-Aachen.DE ([137.226.147.190]:6978 "EHLO
-	die-macht") by vger.kernel.org with ESMTP id <S132125AbRDNXnD>;
-	Sat, 14 Apr 2001 19:43:03 -0400
-Message-ID: <3AD8E07D.9EC19CC1@die-macht.oph.rwth-aachen.de>
-Date: Sun, 15 Apr 2001 01:42:53 +0200
-From: Stefan Becker <stefan@die-macht.oph.rwth-aachen.de>
-Reply-To: stefan@oph.rwth-aachen.de
-Organization: OPH
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RealTek 8139 driver updated, tested requested
-In-Reply-To: <3AD842B3.A4C82698@mandrakesoft.com>
+	id <S132557AbRDNXtB>; Sat, 14 Apr 2001 19:49:01 -0400
+Received: from www.inreko.ee ([195.222.18.2]:51586 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S132485AbRDNXsr>;
+	Sat, 14 Apr 2001 19:48:47 -0400
+Date: Sun, 15 Apr 2001 02:04:34 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: cacook@freedom.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DPT PM3755F Fibrechannel Host Adapter
+Message-ID: <20010415020433.B13190@l-t.ee>
+In-Reply-To: <20010414233426Z131976-682+268@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010414233426Z131976-682+268@vger.kernel.org>; from cacook@freedom.net on Sat, Apr 14, 2001 at 05:33:02PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Apr 14, 2001 at 05:33:02PM -0600, cacook@freedom.net wrote:
+> I have been unable to set up a module for my DPT fibrechannel host adapter, partly through unavailability, and partly through inexperience.
 
-Jeff Garzik wrote:
-> A new version of the ethernet driver for RTL-8139-based 10/100 boards
-> has been posted at
-> 
->         http://sourceforge.net/projects/gkernel/
-> 
-> This update includes a couple major bugfixes, and I am interested in
-> getting the widest testing possible for it.
+There is a nice suppary of current DPT driver status on Kernel
+Traffic #113:
 
-No problems so far. It works fine since 10 hours.
-No more "too much work on interrupt" messages.
+http://kt.zork.net/kernel-traffic/kt20010330_113.html#3
 
-Thanks,
-Stefan
+-- 
+marko
+

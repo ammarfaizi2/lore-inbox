@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLWQRS>; Sat, 23 Dec 2000 11:17:18 -0500
+	id <S129340AbQLWQTi>; Sat, 23 Dec 2000 11:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLWQRJ>; Sat, 23 Dec 2000 11:17:09 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:29575 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129267AbQLWQQ7>;
-	Sat, 23 Dec 2000 11:16:59 -0500
-Message-Id: <m149qsR-000OXQC@amadeus.home.nl>
-Date: Sat, 23 Dec 2000 16:46:31 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: Arjan Filius <iafilius@xs4all.nl>
-Subject: Re: "undefined reference" atm_lane_init & atm_mpoa_init with test13-pre4
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com> <Pine.LNX.4.30.0012231600450.17383-100000@sjoerd.sjoerdnet>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S129535AbQLWQT2>; Sat, 23 Dec 2000 11:19:28 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:20494 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129340AbQLWQTS>;
+	Sat, 23 Dec 2000 11:19:18 -0500
+Message-ID: <3A44C8F7.53BB069D@innominate.de>
+Date: Sat, 23 Dec 2000 16:47:03 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <Pine.LNX.4.21.0012221730270.3382-100000@freak.distro.conectiva> <84320000.977527131@coffee>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.30.0012231600450.17383-100000@sjoerd.sjoerdnet> you wrote:
-> net/network.o(.text+0x3ff92): undefined reference to `atm_lane_init'
-> net/network.o(.text+0x40039): undefined reference to `atm_mpoa_init'
+Chris Mason wrote:
+> It is enough to leave buffer heads we don't flush on the dirty list (and
+> redirty the page), they'll get written by a future loop through
+> flush_dirty_pages, or by page_launder.  We could use ll_rw_block instead,
+> even though anon pages do have a writepage with this patch (just check if
+> page->mapping == &anon_space_mapping).
 
-Hi,
+anon_space_mapping... this is really useful.  This would make a nice
+patch on its own.
 
-The patch below should fix that.
-
-Greetings,
-   Arjan van de Ven
-
---- linux/net/atm/Makefile	Fri Dec 22 18:22:15 2000
-+++ ../0/linux/net/atm/Makefile	Fri Dec 22 19:01:03 2000
-@@ -37,6 +37,11 @@
- obj-$(CONFIG_ATM) += lec.o lane_mpoa_init.o
- endif
- 
-+ifeq ($(CONFIG_ATM_LANE),m)
-+obj-$(CONFIG_ATM) += lane_mpoa_init.o
-+obj-m += lec.o 
-+endif
-+
- ifeq ($(CONFIG_ATM_MPOA),y)
- obj-$(CONFIG_ATM) += mpoa.o
- endif
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVCOGs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVCOG6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVCOGs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 01:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVCOGs2
+	id S262286AbVCOG6U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 01:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVCOG6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 01:48:28 -0500
-Received: from fire.osdl.org ([65.172.181.4]:37340 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262285AbVCOGsZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 01:48:25 -0500
-Date: Mon, 14 Mar 2005 22:48:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: shai@scalex86.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Per cpu irq stat
-Message-Id: <20050314224803.37cd21fe.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
-References: <Pine.LNX.4.58.0503142230050.11651@server.graphe.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Mar 2005 01:58:20 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:20997 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262286AbVCOG6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 01:58:17 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Alexander Gran <alex@zodiac.dnsalias.org>,
+       "E.Gryaznova" <grev@namesys.com>
+Subject: Re: Fw: 2.6.11-rc5-mm1: reiser4 eating cpu time
+Date: Tue, 15 Mar 2005 08:57:36 +0200
+User-Agent: KMail/1.5.4
+Cc: reiserfs-dev <reiserfs-dev@namesys.com>, linux-kernel@vger.kernel.org
+References: <20050303184456.534aedb6.akpm@osdl.org> <4230582F.2050503@namesys.com> <200503131424.33498@zodiac.zodiac.dnsalias.org>
+In-Reply-To: <200503131424.33498@zodiac.zodiac.dnsalias.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503150857.37419.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <christoph@lameter.com> wrote:
->
-> The definition of the irq_stat as an array means that the individual
->  elements of the irq_stat array are located on one NUMA node requiring
->  internode traffic to access irq_stat from other nodes. This patch makes
->  irq_stat a per_cpu variable which allows most accesses to be local.
+On Sunday 13 March 2005 15:24, Alexander Gran wrote:
+> Hi, 
+> 
+> Well, of course it cannot handle that large files (I wouldn't expect that, 
+> either). My Problem is that when I open the file, it's not just kwrite but 
+> other processes that need so much cpu time. That kwrite is eating cpu is ok. 
+> I cannot reproduce the behaviour for some reason however. 
+> So for short what's now (2.6.11-mm3) hapening:
+> I open a file of 150MB with kwrite. Kwrite start using all cpu it can get
+> After some seconds pdflush kicks in. Kwrite seems to wait, and pdflush is 
+> eating cpu cyles. These 2 alternate for some time, until file is loaded. 
 
-OK...
+I bet kwrite does something silly.
 
-The wordwrapping monster got at your patch, but I fixed it up.
+Use strace -tt to find out whether kwrite spends that much CPU
+by doing zillions of syscalls or not. 
+--
+vda
 
->  +DEFINE_PER_CPU(irq_cpustat_t, irq_stat)
->  ____cacheline_maxaligned_in_smp;
-
-Why is this marked ____cacheline_maxaligned_in_smp?

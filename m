@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263428AbRFXAGL>; Sat, 23 Jun 2001 20:06:11 -0400
+	id <S265651AbRFXAOM>; Sat, 23 Jun 2001 20:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264690AbRFXAFw>; Sat, 23 Jun 2001 20:05:52 -0400
-Received: from t2.redhat.com ([199.183.24.243]:51698 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263428AbRFXAFv>; Sat, 23 Jun 2001 20:05:51 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <0106221013280M.00692@localhost.localdomain> 
-In-Reply-To: <0106221013280M.00692@localhost.localdomain>  <20010621160309.A6744@thyrsus.com> <20010622094934.A13075@thyrsus.com> <9gvj2g$khc$1@picard.cistron.nl> 
-To: landley@webofficenow.com
-Cc: wichert@cistron.nl (Wichert Akkerman), linux-kernel@vger.kernel.org
-Subject: Re: Missing help entries in 2.4.6pre5 
-Mime-Version: 1.0
+	id <S265654AbRFXAOC>; Sat, 23 Jun 2001 20:14:02 -0400
+Received: from durham-24-086.biz.dsl.gtei.net ([4.3.24.86]:62849 "HELO
+	amanda.mallet-assembly.org") by vger.kernel.org with SMTP
+	id <S265651AbRFXANu>; Sat, 23 Jun 2001 20:13:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <E15DZbq-0008D8-00@roo.home>
+	<01062310075401.00696@localhost.localdomain>
+From: Michael Alan Dorman <mdorman@debian.org>
+Date: 23 Jun 2001 20:13:13 -0400
+In-Reply-To: <01062310075401.00696@localhost.localdomain>
+Message-ID: <877ky2ohuu.fsf@amanda.mallet-assembly.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Jun 2001 01:05:45 +0100
-Message-ID: <31580.993341145@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley <landley@webofficenow.com> writes:
+> That would be the X version of emacs.  And there's the explanation
+> for the split between GNU and X emacs: it got forked and the
+> closed-source version had a vew years of divergent development
+> before opening back up, by which point it was very different to
+> reconcile the two code bases.
 
-landley@webofficenow.com said:
->  There's a really simple solution to that.  Eric can just make up his
-> own help  file entries that are wildly inaccurate and actively
-> insulting to whoever it  is who owns the symbol. 
+No, sorry, wrong, for at least a couple of reasons reasons:
 
-Heh. Lets not be too harsh though. Chasing people who add config options
-without help text is a thankless task for the most part, but I'm grateful to
-ESR for doing it. I must admit I was actually counting on him to catch the
-ones I'd missed.
+ 1) XEmacs, being constrained to be under the same license (GPL) as
+    its progenitor, GNU Emacs, could never have been closed-source.
 
-It was only when he ignored my patch which removed an offending symbol and
-explained the status of a couple of false positives, and kept asking about
-them instead of placing them on his 'ignore' list that it became irritating.
+ 2) Lucid Emacs, the version of Emacs that becamse XEmacs, was not
+    started until ca. 1992
 
-I objected, he assures me they're on the ignore list now, and we're all 
-happy.
+    I refer you to http://www.jwz.org/doc/emacs-timeline.html for
+    documentation---JWZ was Mr. Lucid Emacs for quite a time.
 
---
-dwmw2
+In 1987, there are any number of things that it could have been---I'd
+guess either Unipress Emacs or perhaps Gosling Emacs.
 
-
+Mike.

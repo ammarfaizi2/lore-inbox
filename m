@@ -1,86 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVAMREf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVAMRGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVAMREf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVAMRCl
+	id S261178AbVAMRGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVAMQma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:02:41 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:50194 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261230AbVAMRBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:01:37 -0500
+	Thu, 13 Jan 2005 11:42:30 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:34020 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261231AbVAMQlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:41:18 -0500
 Subject: Re: thoughts on kernel security issues
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: "Barry K. Nathan" <barryn@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <878y6xr9gr.fsf@deneb.enyo.de>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
 	 <20050112185133.GA10687@kroah.com>
 	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
 	 <20050112161227.GF32024@logos.cnet>
 	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
 	 <20050112205350.GM24518@redhat.com>
 	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
-	 <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com>
-	 <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org>
-	 <20050113082320.GB18685@infradead.org>
-	 <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org>
+	 <20050113032506.GB1212@redhat.com>
+	 <20050113035331.GC9176@beowulf.thanes.org>
+	 <20050113053807.GE4378@ip68-4-98-123.oc.oc.cox.net>
+	 <878y6xr9gr.fsf@deneb.enyo.de>
 Content-Type: text/plain
-Date: Thu, 13 Jan 2005 18:01:02 +0100
-Message-Id: <1105635662.6031.35.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <1105630353.4644.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 13 Jan 2005 15:36:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 08:38 -0800, Linus Torvalds wrote:
-> 
-> NOTE! I'd personally hate some of the security things. For example, I
-> think the "randomize code addresses" is absolutely horrible, just
-> because
-> of the startup overhead it implies (specifically no pre-linking). I
-> also
-> immensely dislike exec-shield because of the segment games it plays -
-> I
-> think it makes sense in the short run but not in the long run, so I
-> much
-> prefer that one as a "vendor feature", not as a "core feature". 
+On Iau, 2005-01-13 at 08:59, Florian Weimer wrote:
+> This is the exception.  Usually, changelogs are cryptic, often
+> deliberately so.  Do you still remember Alan's DMCA protest
+> changelogs?
 
-I think you are somewhat misguided on these: the randomisation done in
-FC does NOT prohibit prelink for working, with the exception of special
-PIE binaries. Does this destroy the randomisation? No: prelink *itself*
-randomizes the addresses when creating it's prelink database (which is
-in fedora once every two weeks with a daily incremental run inbetween;
-the bi-weekly run is needed anyway to properly deal with new and updated
-software, the daily runs are stopgapping only). This makes all *systems*
-different, even though runs of the same app on the same machine right
-after eachother are the same for the library addresses only.
-That does not destroy the value of randomisation; it limits it slightly,
-since this ONLY matters for libraries, not for the stack or heap and the
-other things that get randomized. 
+They were not cryptic, just following the law to the point it claimed
+neccessary....
 
-As for the segment limits (you call them execshield, but execshield is
-actually a whole bunch of stuff that happens to include segment limits;
-a bit like tree and forrest ;) yes they probably should remain a vendor
-feature, no argument about that.
+That aside right now because Linus doesn't give us heads up we vendor
+spend our time scanning all Linus' diffs and playing spot the security
+fix because we know the bad guys do the same, and they are rather good
+at it. Its useful anyway - eg its how we found that base kernels have
+broken AX.25, and several other patches got tagged for immediate revert
+in the -ac tree (and of course reported back upstream to l/k) but its a
+pain to have to do it this way.
 
+Having a list that fed such notices on to vendor-sec with a date fixed
+by them is a real possible improvement - thats how we work with many
+other projects. I also don't see any reason that Linus or Andrew
+wouldn't be able to become a CAN issuing authority for security
+advisories.
+
+Alan
 

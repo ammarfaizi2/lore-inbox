@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315479AbSENIoL>; Tue, 14 May 2002 04:44:11 -0400
+	id <S315487AbSENIsl>; Tue, 14 May 2002 04:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315487AbSENIoK>; Tue, 14 May 2002 04:44:10 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24074 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S315479AbSENIoK>; Tue, 14 May 2002 04:44:10 -0400
-Date: Tue, 14 May 2002 10:44:07 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Changelogs on kernel.org
-Message-ID: <20020514084407.GC1842@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020513144519.GC5134@louise.pinerecords.com> <Pine.LNX.4.44.0205131759480.5254-100000@alumno.inacap.cl> <20020513234125.GD713@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
+	id <S315514AbSENIsk>; Tue, 14 May 2002 04:48:40 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:57225 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315487AbSENIsj> convert rfc822-to-8bit; Tue, 14 May 2002 04:48:39 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+To: Denis Oliver Kropp <dok@directfb.org>
+Subject: Re: [PATCH] vmwarefb 0.5.0
+Date: Tue, 14 May 2002 10:48:12 +0200
+X-Mailer: KMail [version 1.4]
+Organization: Linux-Systeme GmbH
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200205141048.12576.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 May 2002, Tomas Szepe wrote:
+Hi Denis,
 
-> > - Added an usage note
-> > - Changed CMODE environment variable for a command line argument
-> 
-> Thanks, but the idea behind CMODE is that it's possible to set the
-> output mode and still have the script act both as a filter and file
-> eater (multiple changelogs on cmdline are ok of course) w/o having
-> to handle the eating "explicitly."
-> 
-> Plus one can put "export CMODE=something" in ~/.profile and forget
-> about the modes entirely.
-> 
-> Here comes 0.92 (s/LOWER CAPS/lower case/ as pointed out by
-> Kai Henningsen). Let's call it a candidate for inclusion in
-> scripts/. Linus?
 
-Too early. It's undocumented, for example.
+diff -uraN linux-2.4.19-pre8/include/linux/fb.h linux/include/linux/fb.h
+--- linux-2.4.19-pre8/include/linux/fb.h	Tue May 14 05:11:14 2002
++++ linux/include/linux/fb.h	Tue May 14 01:24:06 2002
+@@ -96,6 +96,8 @@
+ #define FB_ACCEL_3DLABS_PERMEDIA3 37	/* 3Dlabs Permedia 3		*/
+ #define FB_ACCEL_ATI_RADEON	38	/* ATI Radeon family		*/
+ 
++#define FB_ACCEL_VMWARE_SVGA	50	/* VMware Virtual SVGA Graphics */
++#define FB_ACCE
+^ ^ ^ Where is the rest? :) Looks like incomplete. Or is it only one add?
+
+I want to test it.
+
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+

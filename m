@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130616AbRCPQVm>; Fri, 16 Mar 2001 11:21:42 -0500
+	id <S130660AbRCPQbc>; Fri, 16 Mar 2001 11:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130618AbRCPQVd>; Fri, 16 Mar 2001 11:21:33 -0500
-Received: from [64.41.138.173] ([64.41.138.173]:36274 "EHLO
-	simon.digitalimpact.com") by vger.kernel.org with ESMTP
-	id <S130616AbRCPQVX>; Fri, 16 Mar 2001 11:21:23 -0500
-Message-ID: <3AB23D6A.E0B072C8@digitalimpact.com>
-Date: Fri, 16 Mar 2001 08:20:58 -0800
-From: "Shane Y. Gibson" <sgibson@digitalimpact.com>
-Organization: Digital Impact, Inc.
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S130656AbRCPQbW>; Fri, 16 Mar 2001 11:31:22 -0500
+Received: from mxic1.isus.emc.com ([168.159.211.82]:16143 "EHLO
+	mxic1.isus.emc.com") by vger.kernel.org with ESMTP
+	id <S130617AbRCPQbK>; Fri, 16 Mar 2001 11:31:10 -0500
+Message-ID: <93F527C91A6ED411AFE10050040665D0560664@corpusmx1.us.dg.com>
+From: Sane_Purushottam@emc.com
+To: linux-kernel@vger.kernel.org
+Subject: fork and pthreads
+Date: Fri, 16 Mar 2001 11:34:04 -0500
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-CC: andrewm@uow.edu.au, kaos@ocs.com.au
-Subject: Re: Oops 0000 and 0002 on dual PIII 750 2.4.2 SMP platform
-In-Reply-To: <Pine.LNX.4.21.0103152311030.4543-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
->
-> Can you please try to reproduce it with the following patch against 2.4.2?
+I am having a strange problem.
 
-Marcelo (et al),
+I have a big daemon program to which I am trying to add multi-threading.
 
-I'll give it a whirl with the patch.  Should I also
-try setting `nmi_watchdog=0' in lilo.conf, as Andrew
-Morton suggests?
+At the begining, after some sanity check, this program does a double fork to
+create a deamon.
 
-Additionally, I'll upgrade my version of ksymoops.
-Unfortunately, I won't get a chance to test all of
-this until Monday; at which time I'll report back to
-the group.
+After that it listens for the client on the port. Whenever the client
+connects, it creates a new thread using
+pthread-create.
 
-v/r
-Shane
- 
---
-Shane Y. Gibson                    sgibson@digitalimpact.com
-Network Architect                  (408) 447-8253  work
-IT Data Center Operations          (408) 447-8298  fax
-Digital Impact, Inc.               (650) 302-0193  cellular
-                                   (888) 786-4863  pager
+The problem is, the thread (main thread) calling pthread-create hangs
+indefinetely in __sigsuspend. The newly created thread however, runs
+normally to completion.
 
- "Outlook not so good." That magic 8-ball knows everything!
-  I'll ask about Exchange Server next.           -- unknown
+I wrote few test programs trying to simulate this behaviour but all of them
+worked as expected.
+
+Does anyone know, what's going on ??
+
+Nitin Sane
+sane_purushottam@emc.com
+*(508)382-7319
+

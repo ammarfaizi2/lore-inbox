@@ -1,67 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVDBK4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVDBLFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVDBK4h (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 05:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVDBK4h
+	id S261378AbVDBLFu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 06:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVDBLFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 05:56:37 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:15015 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261358AbVDBK4b (ORCPT
+	Sat, 2 Apr 2005 06:05:49 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:51695 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261378AbVDBLFp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 05:56:31 -0500
-Message-ID: <424E7BC9.592007E1@tv-sign.ru>
-Date: Sat, 02 Apr 2005 15:02:33 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, mingo@elte.hu,
-       christoph@lameter.com, kenneth.w.chen@intel.com
-Subject: Re: [RFC][PATCH] timers fixes/improvements
-References: <424D373F.1BCBF2AC@tv-sign.ru> <20050402020700.16221f6f.akpm@osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Sat, 2 Apr 2005 06:05:45 -0500
+Date: Sat, 2 Apr 2005 13:05:40 +0200 (MEST)
+Message-Id: <200504021105.j32B5eN2018794@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org, wingc@engin.umich.edu
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Oleg Nesterov <oleg@tv-sign.ru> wrote:
-> >
-> > +void fastcall init_timer(struct timer_list *timer)
-> >  +{
-> >  +    timer->entry.next = NULL;
-> >  +    timer->_base = &per_cpu(tvec_bases,
-> >  +                    __smp_processor_id()).t_base;
-> >  +    timer->magic = TIMER_MAGIC;
-> >  +}
-> 
-> __smp_processor_id() is not implemented on all architectures.  I'll switch
-> this to _smp_processor_id().
+On Fri, 1 Apr 2005 18:24:00 -0500 (EST), Christopher Allen Wing wrote:
+>I also see messages from the kernel like:
+>
+>	APIC error on CPU0: 00(40)
+>	APIC error on CPU0: 40(40)
+>
+>so I'd guess that something is wrong in the way that the machine is set
+>up. Perhaps the BIOS or ACPI tables are just defective.
 
-Wow, I did not know.
+Those are "received illegal vector" errors, and they
+typically indicate hardware flakiness or BIOS issues.
 
-> It's a rather odd thing which you're doing there.  Why does a
-> not-yet-scheduled timer need a ->_base?
+Could be inadequate power supply, inadequate cooling,
+a BIOS bug (please check for updates), a too new CPU
+(again, check for a BIOS update), or simply a poorly-
+designed mainboard.
 
-Because all locking goes through timer_list->base->lock now.
-That is why timer_list->lock can be deleted. The timer is
-always locked via loc_timer_base().
-
-timer->base == NULL only temporally when __mod_timer() does
-while switching timer's base:
-	base = lock_timer_base(timer);
-	timer->base = NULL;
-	unlock(base->lock);
-		// Nobody can use this timer, lock_timer_base()
-		// will spin waiting for ->base != 0
-	lock(new_base->lock);
-	timer->base = new_base;
-	unlock(new_base);
-
-So ->base == NULL means that timer itself is locked, not it's
-base. That is why __mod_timer() do not need to hold 2 spinlocks
-at once.
-
-Oleg.
+/Mikael

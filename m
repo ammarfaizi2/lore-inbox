@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270124AbRHGHe4>; Tue, 7 Aug 2001 03:34:56 -0400
+	id <S270131AbRHGHuj>; Tue, 7 Aug 2001 03:50:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270126AbRHGHex>; Tue, 7 Aug 2001 03:34:53 -0400
-Received: from CS.BU.EDU ([128.197.10.2]:8360 "EHLO cs.bu.edu")
-	by vger.kernel.org with ESMTP id <S270124AbRHGHeo>;
-	Tue, 7 Aug 2001 03:34:44 -0400
-From: Jeffrey Considine <jconsidi@cs.bu.edu>
-Message-Id: <200108070734.f777YpE08994@csb.bu.edu>
-Subject: Re: Encrypted Swap
-To: johnpol@2ka.mipt.ru
-Date: Tue, 7 Aug 2001 03:34:51 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200108070705.f7775xl27094@www.2ka.mipt.ru> from "Evgeny Polyakov" at Aug 07, 2001 11:08:38 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S270132AbRHGHu2>; Tue, 7 Aug 2001 03:50:28 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:5138 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S270131AbRHGHuU>; Tue, 7 Aug 2001 03:50:20 -0400
+Message-ID: <3B6F9D78.412AB717@idb.hist.no>
+Date: Tue, 07 Aug 2001 09:49:12 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre4 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: Steve VanDevender <stevev@efn.org>, rmack@mackman.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <20010807042810.A23855@foobar.toppoint.de>
+		<Pine.LNX.4.33.0108062047310.17919-100000@kobayashi.soze.net> <15215.27296.959612.765065@localhost.efn.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> Hmmm, let us suppose, that i copy your crypted partition per bit to my
-> >> disk.
-> >> After it I will disassemble your decrypt programm and will find a key....
-> >>
-> >> In any case, if anyone have crypted data, he MUST decrypt them.
-> >> And for it he MUST have some key.
-> >> If this is a software key, it MUST NOT be encrypted( it's obviously,
-> >> becouse in other case, what will decrypt this key?) and anyone, who have
-> >> PHYSICAL access to the machine, can get this key.
-> >> Am I wrong?
+Steve VanDevender wrote:
+> 
+> Justin Guyett writes:
+>  > On Tue, 7 Aug 2001, David Spreen wrote:
+>  >
+>  > > I was just searching for swap-encryption-solutions in the lkml-archive.
+>  > > Did I get the point saying ther's no way to do swap encryption
+>  > > in linux right now? (Well, a swapfile in an encrypted kerneli
+>  > > partition r something like that is not really what I want to
+>  > > do I think).
+>  >
+>  > What's the benefit?  
+[...] 
+> It does prevent one means of recovering possibly security-critical
+> information for attackers who do have physical access to the machine.
 
-The key can be locked into memory. Locking just the key is better than
-running setuid root to lock the whole application.
+The encrypted swap device protects against the guy who steals the
+harddisk.  It doesn't really protect against someone with physical
+access though.
 
-> RM> I think the point you are missing is that encrypted swap only needs to be
-> RM> accessible for one power cycle.  Thus the computer can generate a key at
-> No, computer can not do this.
-> This will do some program,and this program is not crypted.
-> Yes?
-> We disassemle this program, get algorithm and regenerate a key in evil machine?
-> Am i wrong?
+I can remove RAM live, and read it in another device.  Or replace
+the cpu with an interface that simply reads all the RAM
+addresses.  Sure, I'll leave a crashed machine, but I have
+your precious data.  A smp machine might even survive the
+cpu replacement and continue with one less cpu and
+a frozen process.
 
-Waiting for entropy (mentionned by RM I think) would take care of
-this. However, I imagine it takes a while to build up enough random
-bits, especially if no users are logged on and the network isn't
-up. Stalling for entropy before setting up the swap partition is
-probably not a good idea. Switching keys from predictable to really
-random or delaying encryption sounds expensive and/or messy and would
-leave a small window right after booting where the swap file could be
-decrypted relatively easily.
+Having the RAM contents will of course provide what I need to
+decrypt the swap device and all mounted filesystems too.
 
-Perhaps a cheaper alternative that wouldn't really slow down most
-applications would be to add a flag set by a system call toggling
-whether the page was encrypted in the swap file. That way most
-applications don't see a performance difference. If the flag was
-inheritable, the security paranoid could use a shell or wrapper to set
-it and run everything through that.
 
-jef
+
+Helge Hafting

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264730AbSK0UBM>; Wed, 27 Nov 2002 15:01:12 -0500
+	id <S264739AbSK0UCH>; Wed, 27 Nov 2002 15:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSK0UBM>; Wed, 27 Nov 2002 15:01:12 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:59012 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264730AbSK0UBK>;
-	Wed, 27 Nov 2002 15:01:10 -0500
-Subject: [Announce] OSDL Scalable Test Platform Release 2.00
-From: Craig Thomas <craiger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: Bryce Harrington <bryce@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 27 Nov 2002 12:08:30 -0800
-Message-Id: <1038427710.11153.22.camel@bullpen>
+	id <S264745AbSK0UCH>; Wed, 27 Nov 2002 15:02:07 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:62184 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264739AbSK0UCA>; Wed, 27 Nov 2002 15:02:00 -0500
+Date: Wed, 27 Nov 2002 21:09:01 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Frederik Dannemare <tux@sentinel.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Limiting max cpu usage per user (old Conectiva patch)
+Message-ID: <20021127200901.GA1143@admingilde.org>
+Mail-Followup-To: Frederik Dannemare <tux@sentinel.dk>,
+	linux-kernel@vger.kernel.org
+References: <3DE49A66.4020208@sentinel.dk>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+Content-Disposition: inline
+In-Reply-To: <3DE49A66.4020208@sentinel.dk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OSDL has released a new version of the Scalable Test Platform, an
-automated test environment that allows a developer to test kernel
-patches on a variety of hardware platforms against a number of
-performance tests. 
 
-The code and documentation is at:
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-http://sourceforge.net/projects/stp/
+hi :)
 
-OSDL's instance of STP is at:
+On Wed, Nov 27, 2002 at 11:11:50AM +0100, Frederik Dannemare wrote:
+> do we have an effective way to limit max cpu usage per user?
 
-http://www.osdl.org/stp.
- 
-Types of tests to exercise a kernel patch include:
- 
-    * memory stress 
-    * scheduler
-    * file system
-    * database
-    * system calls
-    * synthetic microbenchmarks
+i'm working on a resource container implementation for linux
+for my diploma thesis.
 
-Changes to the new release include the following:
- 
-    * New installation toolkit
-    * Major revision to backend
-    * Minor bug fixes to web interface
-    * Much new documentation on Web and in kit
- 
-We encourage the community to use the framework at OSDL to test your
-patches.  Become an OSDL associate (free signup) at www.osdl.org
-and take advantage of the the various platforms offered in the lab.
+resource container provide a hierarchical way to account and
+limit resources.
+this way not only per user limits can be achieved, but any
+policy you can think of (per service, per client, ...)
 
--- 
-Craig Thomas
+the work is due january, but interested people could have
+a look at the (undocumented for now ;) source earlier.
 
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE95SZdj/Eaxd/oD7IRAhmuAKCEvCNiiZchBF6/7TPUq6b0OVJzhwCbBH+A
+i/2LNG/bOYfTvxyUk4QtgJ0=
+=nZil
+-----END PGP SIGNATURE-----
+
+--6c2NcOVqGQ03X4Wi--

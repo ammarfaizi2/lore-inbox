@@ -1,64 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUFOIBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265359AbUFOIFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUFOIBG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 04:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUFOIBG
+	id S265359AbUFOIFr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 04:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUFOIFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 04:01:06 -0400
-Received: from main.gmane.org ([80.91.224.249]:3213 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265354AbUFOIBC (ORCPT
+	Tue, 15 Jun 2004 04:05:47 -0400
+Received: from elin.scali.no ([62.70.89.10]:15494 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id S265362AbUFOIF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 04:01:02 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sean Legassick <sean@informage.net>
-Subject: Re: Toshiba keyboard lockups
-Date: Tue, 15 Jun 2004 09:51:01 +0200
-Message-ID: <cam9p7$n7c$1@sea.gmane.org>
-References: <40A162BA.90407@sun.com>            <200405121149.37334.rjwysocki@sisk.pl>            <40C7880C.4000401@sun.com>            <200406101915.i5AJFCBu197611@car.linuxhacker.ru> <efc4b1ba19898906eb0aec7ac9c22fcd@stdbev.com>
+	Tue, 15 Jun 2004 04:05:29 -0400
+Subject: Does exec-shield with -fpie  work?
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Scali AS
+Message-Id: <1087286723.3156.35.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 15 Jun 2004 10:05:23 +0200
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: wbs-200-227.telkomadsl.co.za
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-In-Reply-To: <efc4b1ba19898906eb0aec7ac9c22fcd@stdbev.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Munro wrote:
->>Not sure if I have exact problem like you do, but at least I have
->>something similar. Once in a while keyboard suddenly stopps working,
->>touchpad still work though (I have Toshiba Satellite Pro (centrino
->>based) laptop here). 
+Hi 
 
-I know that "me toos" are of limited use, but I have also been 
-experiencing this problem. I can give some specific details, and on 
-request am willing to work to produce additional diagnostics / test 
-patches etc.
+I'm using FC2 with 2.6.5-1.358 and 2.6.6-1.435 kernels (same behavior)
 
-I am using a Toshiba Satellite 2410-603 with a P4 M processor, and I 
-have experienced difficulties with Gentoo-patched 2.6.3 sources, 
-Gentoo-patched 2.6.5 sources and vanilla 2.6.6 sources, with 
-CONFIG_PREEMPT both on and off.
+exec-shield enables (If I understand correctly):
 
-Of the three, 2.6.3 seems the least affected - although I do get 
-occasional keyboard lockups, if I use the mouse for a few seconds the 
-keyboard becomes re-enabled. On both the 2.6.5 and 2.6.6 kernels a 
-keyboard lockup seems permanent, although I haven't tried leaving it for 
-more than a minute or two.
+[root@pc-16 te]# cat /proc/sys/kernel/exec-shield
+1
+[root@pc-16 te]# cat /proc/sys/kernel/exec-shield-randomize 
+1
 
-I too can see warnings from atkbd.c in the kernel messages (on all three 
-kernel versions) reporting 'Unknown key pressed' and 'too many keys 
-pressed'.
 
-I am well aware that Toshiba keyboards are buggy - under 2.4 kernels I 
-experienced multiple key event problems, so I think what's being asked 
-here on this thread is not that the keyboard driver be "fixed" as such, 
-but that, if possible, it is extended to work around the buggy hardware.
+Have a little test program that print out the addresses of a couple of
+symbols:
+#include <strings.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-Thanks,
 
-Sean
+main()
+{
+   char * a = "hei hei";
+   char * b = "hei hei alle sammen";
+   int rc;
+
+   rc = strcmp(a, b);
+
+   printf ("main %p strcmp %p\n", main, strcmp);
+   printf ("getpid %p malloc %p\n", getpid, malloc);
+   printf ("stack syms: a = %p  b = %p rc = %p\n", &a, &b, &rc);
+
+};
+
+
+Now I run it several times and while the stack addrs is randiomized,
+libc only alternate between two addresses and main() is always at the
+same place, I though part of the idea was to really randomize the shared
+lib addrs as well as the main prog sym addrs? :
+
+
+te pc-16 ~ 70> !gcc
+gcc -fPIE -fpic -o ./testsc ./testsc.c
+
+
+
+te pc-16 ~ 71> ./testsc
+main 0x80483f8 strcmp 0x4b91e0
+getpid 0x4d9ea0 malloc 0x4b3010
+stack syms: a = 0xfef7eb20  b = 0xfef7eb1c rc = 0xfef7eb18
+te pc-16 ~ 72> ./testsc
+main 0x80483f8 strcmp 0x4b91e0
+getpid 0x4d9ea0 malloc 0x4b3010
+stack syms: a = 0xfee4dd80  b = 0xfee4dd7c rc = 0xfee4dd78
+te pc-16 ~ 73> ./testsc
+main 0x80483f8 strcmp 0x4b91e0
+getpid 0x4d9ea0 malloc 0x4b3010
+stack syms: a = 0xfee49dd0  b = 0xfee49dcc rc = 0xfee49dc8
+te pc-16 ~ 74> ./testsc
+main 0x80483f8 strcmp 0x1771e0
+getpid 0x197ea0 malloc 0x171010
+stack syms: a = 0xfef68540  b = 0xfef6853c rc = 0xfef68538
+te pc-16 ~ 75> ./testsc
+main 0x80483f8 strcmp 0x4b91e0
+getpid 0x4d9ea0 malloc 0x4b3010
+stack syms: a = 0xfef4c980  b = 0xfef4c97c rc = 0xfef4c978
+te pc-16 ~ 76> ./testsc
+main 0x80483f8 strcmp 0x4b91e0
+getpid 0x4d9ea0 malloc 0x4b3010
+stack syms: a = 0xfef4bd40  b = 0xfef4bd3c rc = 0xfef4bd38
+te pc-16 ~ 77> ./testsc
+main 0x80483f8 strcmp 0x1771e0
+getpid 0x197ea0 malloc 0x171010
+stack syms: a = 0xfef44620  b = 0xfef4461c rc = 0xfef44618
+te pc-16 ~ 78> 
+
+
+
+
+-- 
+
+Terje Eggestad
+Senior Software Engineer
+dir. +47 22 62 89 61
+mob. +47 975 31 57
+fax. +47 22 62 89 51
+terje.eggestad@scali.com
+
+Scali - www.scali.com
+High Performance Clustering
 

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284835AbRLDAUy>; Mon, 3 Dec 2001 19:20:54 -0500
+	id <S278450AbRLDBWF>; Mon, 3 Dec 2001 20:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284775AbRLDAQs>; Mon, 3 Dec 2001 19:16:48 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22464 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284936AbRLCSiw>; Mon, 3 Dec 2001 13:38:52 -0500
-Date: Mon, 3 Dec 2001 11:38:20 -0700
-Message-Id: <200112031838.fB3IcKn23184@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v202 available
+	id <S284831AbRLDAUy>; Mon, 3 Dec 2001 19:20:54 -0500
+Received: from leeloo.zip.com.au ([203.12.97.48]:20236 "EHLO
+	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
+	id <S284834AbRLDAR5>; Mon, 3 Dec 2001 19:17:57 -0500
+Message-ID: <3C0C1628.5D73F05A@zip.com.au>
+Date: Mon, 03 Dec 2001 16:17:44 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan-Hendrik Palic <jan.palic@linux-debian.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: EXT3 - freeze ups during disk writes
+In-Reply-To: <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain> <E16AX5E-0006pH-00@calista.inka.de>,
+			<E16AX5E-0006pH-00@calista.inka.de> <20011203085258.A4072@billgotchy.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 202 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+Jan-Hendrik Palic wrote:
+> 
+> The IBook freezed and I reseted it .. but I had to install the whole
+> system .. the yaboot wasn't able to find a kernel on the / Partition.
+> (ext3 too) :)
+> 
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
-
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
-
-NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
-
-This is against 2.5.1-pre5. Highlights of this release:
-
-- Fixed bug in <devfsd_close>: was dereferencing freed pointer
-
-- Added process group check for devfsd privileges
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+An unrecovered ext3 filesystem is probably unrecognisable to
+yaboot.  I'm told that yaboot 1.3.5 and later have changes which
+permit booting from unrecovered ext3 filesystems.

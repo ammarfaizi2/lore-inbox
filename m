@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbTHSVWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbTHSVVo
+	id S261501AbTHSVSC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 17:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTHSVPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:21:44 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:27096 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261336AbTHSVSG (ORCPT
+	Tue, 19 Aug 2003 17:15:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47521 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261388AbTHSVLj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:18:06 -0400
-Subject: Re: redhat 2.4.20 kernel 3.5G patch, bug report on my previous
-	2.4.18 kernel 3.5G patch
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Chuck Luciano <chuck@mrluciano.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <NFBBKNADOLMJPCENHEALCENAGLAA.chuck@mrluciano.com>
-References: <NFBBKNADOLMJPCENHEALCENAGLAA.chuck@mrluciano.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061327818.25944.48.camel@nighthawk>
+	Tue, 19 Aug 2003 17:11:39 -0400
+Date: Tue, 19 Aug 2003 13:56:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: andersen@codepoet.org
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, russo.lutions@verizon.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: cache limit
+Message-Id: <20030819135639.5df1c1c6.akpm@osdl.org>
+In-Reply-To: <20030819133211.GA27047@codepoet.org>
+References: <3F41AA15.1020802@verizon.net>
+	<200308190533.h7J5XoL06419@Port.imtp.ilyichevsk.odessa.ua>
+	<20030818232024.20c16d1f.akpm@osdl.org>
+	<20030819133211.GA27047@codepoet.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 Aug 2003 14:16:58 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-19 at 10:55, Chuck Luciano wrote:
-> Again, I've been kinda lazy about adding the configuration stuff,
-> but, this patch applied to kernel-2.4.20-18.7.src.rpm will give
-> you a kernel where PAGE_OFFSET can be set with 2 MB granularity
-> instead of 1GB.
+Erik Andersen <andersen@codepoet.org> wrote:
+>
+> On Mon Aug 18, 2003 at 11:20:24PM -0700, Andrew Morton wrote:
+> > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> > >
+> > > There was a discussion (and patches) in the middle of 2.5 series
+> > >  about O_STREAMING open flag which mean "do not aggressively cache
+> > >  this file". Targeted at MP3/video playing, copying large files and such.
+> > > 
+> > >  I don't know whether it actually was merged. If it was,
+> > >  your program can use it.
+> > 
+> > It was not.  Instead we have fadvise.  So it would be appropriate to change
+> > applications such as rsync to optionally run
+> > 
+> > 	posix_fadvise(fd, 0, -1, POSIX_FADV_DONTNEED)
+> > 
+> > against file descriptors just before closing them, so all the pagecache
+> > gets thrown away.  (Well, most of the pagecache - dirty pages won't get
+> > dropped - the app must fsync the files by hand first if it wants this)
+> 
+> This is not supported in 2.4.x though, right?
 
-This sounds familar from somewhere.  A little attribution to the source
-of the code would be nice. :) 
+No, it is not.
 
-> BTW, there is a defect in the 2.4.18 version of this patch in the
-> function get_pgd_slow which doesn't handle the partial PGD
-> properly. In 2.4.20 the fix for this problem is in the function 
-> pgd_alloc. I will probably not have time to back port this fix to
-> 2.4.18.
+> What if I don't want to fill up the pagecache with garbage in the
+> first place?
 
-Actually, I would just do what we did in 2.5 and throw away *_pgd_fast()
-functions and just use a slab constructor and destructor to handle it
-for you.
-
-> Anyway, for your fun and amusement, the 2.4.20 patch is working 
-> and ready for use. I haven't tried seeing just how far I can push
-> PAGE_OFFSET yet, but I'd like to see how close I can get to 
-> 0xf0000000 and maybe beyond.
-
-I know I've done at least 0xf8000000 on 2.5.  
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Call fadvise(POSIX_FADV_DONTNEED) more frequently or use O_DIRECT.
 

@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314143AbSEBAQv>; Wed, 1 May 2002 20:16:51 -0400
+	id <S314146AbSEBAVq>; Wed, 1 May 2002 20:21:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314144AbSEBAQu>; Wed, 1 May 2002 20:16:50 -0400
-Received: from jalon.able.es ([212.97.163.2]:6339 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314143AbSEBAQt>;
-	Wed, 1 May 2002 20:16:49 -0400
-Date: Thu, 2 May 2002 02:16:43 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] intel eths for 2.4 [was: Plan for e100-e1000 in mainline]
-Message-ID: <20020502001643.GE1698@werewolf.able.es>
-In-Reply-To: <20020501010828.GA1753@werewolf.able.es> <3CCF796C.5090401@mandrakesoft.com> <20020501234644.GA1698@werewolf.able.es> <3CD0827B.1050902@mandrakesoft.com>
+	id <S314149AbSEBAVq>; Wed, 1 May 2002 20:21:46 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:27811 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S314146AbSEBAVp>;
+	Wed, 1 May 2002 20:21:45 -0400
+Date: Thu, 2 May 2002 10:20:11 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+        Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020502002010.GA14243@krispykreme>
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship> <20020501042341.G11414@dualathlon.random> <20020501180547.GA1212440@sgi.com> <20020502011750.M11414@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.5
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> so ia64 is one of those archs with a ram layout with huge holes in the
+> middle of the ram of the nodes? I'd be curious to know what's the
+> hardware advantage of designing the ram layout in such a way, compared
+> to all other numa archs that I deal with. Also if you know other archs
+> with huge holes in the middle of the ram of the nodes I'd be curious to
+> know about them too. thanks for the interesting info!
 
-On 2002.05.02 Jeff Garzik wrote:
->J.A. Magallon wrote:
->
->>On 2002.05.01 Jeff Garzik wrote:
->>
->>>I expect Intel's Q/A to green light their current driver.  With a few 
->>>patches it should be ready for 2.4.x soon.
->>>
->
->>I did it, taking drivers from 2.5.12, and at least it compiles.
->>I have to try in the real box, but I don't think there were any problems,
->>at least the same than 2.5....
->>
->>Marcelo, is there any chance to get this in next -pre or in .19 ?
->>
->
->When they are suitable for Marcelo, I'm going to send them to Marcelo.
->
->As I wrote in the quoted message, they need some more patches, and I'm 
->also interested in feedback from Intel Q/A (which is scheduled for 
->sometime this week).
->
+>From arch/ppc64/kernel/iSeries_setup.c:
 
-Oops, sorry, I misunderstood something.
+ * The iSeries may have very large memories ( > 128 GB ) and a partition
+ * may get memory in "chunks" that may be anywhere in the 2**52 real
+ * address space.  The chunks are 256K in size.
 
->If you are interesting in maintaining 2.4.x patches for a short time, go 
->for it.  But I would rather not have a almost-ready e100 go to Marcelo 
->and get released in 2.4.19 in incomplete form.  It's out there, it's 
->public, let's leave at that for a little while.
->
+Also check out CONFIG_MSCHUNKS code and see why I'd love to see a generic
+solution to this problem.
 
-OK, just forget all about -pre and .19.
-
-If somebody wants to try them, look at one other post about -jam9.
-It is the same story, I need them for some new boxen (e1000) and I prefer
-to have all in the same tree than apart, so took those from 2.5
-instead of Intel's.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam9 #2 SMP mié may 1 12:09:38 CEST 2002 i686
+Anton

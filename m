@@ -1,157 +1,291 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSLMEjg>; Thu, 12 Dec 2002 23:39:36 -0500
+	id <S261364AbSLMEnv>; Thu, 12 Dec 2002 23:43:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbSLMEjg>; Thu, 12 Dec 2002 23:39:36 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:59879 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261349AbSLMEjT>;
-	Thu, 12 Dec 2002 23:39:19 -0500
-Message-ID: <3DF965E4.95DEA1F9@us.ibm.com>
-Date: Thu, 12 Dec 2002 20:45:24 -0800
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-Mailer: Mozilla 4.78 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andreani Stefano <stefano.andreani.ap@h3g.it>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
-References: <047ACC5B9A00D741927A4A32E7D01B73D66178@RMEXC01.h3g.it> <1039727809.22174.38.camel@irongate.swansea.linux.org.uk> <3DF94565.2C582DE2@us.ibm.com> <20021213033928.GK32122@mea-ext.zmailer.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S261354AbSLMEnv>; Thu, 12 Dec 2002 23:43:51 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:17056 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261353AbSLMEno>;
+	Thu, 12 Dec 2002 23:43:44 -0500
+Date: Fri, 13 Dec 2002 15:51:23 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: willy@debian.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][COMPAT] consolidate sys32_new[lf]stat - parisc
+Message-Id: <20021213155123.5082a535.sfr@canb.auug.org.au>
+In-Reply-To: <20021213153439.1f3e466e.sfr@canb.auug.org.au>
+References: <20021213153439.1f3e466e.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio wrote:
+Hi Willy,
 
-> > Assuming you are on a local lan, your round trip
-> > times are going to be much less than 200 ms, and
-> > so using the TCP_RTO_MIN of 200ms ("The algorithm
-> > ensures that the rto cant go below that").
-> 
->   The RTO steps in only when there is a need to RETRANSMIT.
->   For that reason, it makes no sense to place its start
->   any shorter.
+Here is the parisc part of the patch.  Unfortunately, I realise this
+breaks on parisc (there is an assumption that the compatibility
+syscall routine names start with sys32_).  I will fix this in the
+next patch (hopefully).
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Not sure I understood your point clearly here - that things
-are going to be broken, so dont kick it off too early?
-
-For the most part, dropped packets are recovered by fast 
-retransmit getting triggered. So when the retransmission 
-timer goes off, I'd agree things are in all likelihood 
-messed up. BUT..the default TCP_TIMEOUT_INIT = 300ms, which
-is what the timeout calculation engine is fed to begin
-with. After that, the actual measured round trip times
-smooth out and help make the retransmit timeout accurate.
-
-TCP_RTO_MIN is the lower bound for the rto. On fast
-lans, though, if measured round trip times are say .01ms, 
-and our MIN is 200ms, thats a thousand times the value - which 
-means that we are reacting to events  too far back in time
-on the fast lan scale.  If there was congestion
-way back then, does that reflect conditions now?? 
-
-
-> > So the minimum total time to time out a tcp connection
-> > (barring application close) would be ~13 minutes in the
-> > default case and 66 seconds with a modified TCP_RTO_MAX
-> > of 6*HZ.
-> 
->   You can have this by doing carefull non-blocking socket
->   coding, and protocol traffic monitoring along with
->   protocol level keepalive ping-pong packets to have
->   something flying around  (like NJE ping-pong, not
->   that every IBM person knows what that is/was..)
-
-Er, this IBMer is unfortunately rather underinformed on that
-subject ;) I'll look it up, but I can guestimate what you are 
-referring to..True, but for the most part, getting every 
-application to be performant and knowledgeable about 
-network conditions and program accordingly is hard :). And 
-if by protocol level you mean transport level, then we're back to 
-altering the protocol. Wouldnt pingpongs just add to the
-traffic under all conditions (I admit this is a rather lame point :)).
-
->   We try not to kill overloaded network routers while they
->   are trying to compensate some line breakage and doing
->   large-scale network topology re-routing.
-
-Good point! :). I have little experience with Internet router traffic
-snarls, and am certainly not arguing for a major alteration to
-TCP exponential backoff :). See below..(the environment I was
-thinking of..)
-
-> > Particularly since we also retransmit 15 times, cant we conclude
-> > "Its dead, Jim" earlier??
-> 
->   No.  I have had LAN spanning-tree flaps taking 60 seconds
->   (actually a bit over 30 seconds), and years ago Linux's
->   TCP code timed out in that.  It was most annoying to
->   use some remote system thru such a network...
-
-Urgh. Bletch. OK. But minor nit here - how often does that 
-happen? Whats the right thing to do in that situation?
-Which situation should we optimize our settings for?
-I accept, though, that we need that kind of time frame..
-
->   When things _fail_ in the lan, what would be sensible value ?
->   How long will such abnormality last ?
-
-Hmm, good questions, but ones I'm going to handwave at :).
-
-One, my assumption that the ratio of the (say) ave expected
-round trip times to the rto value should be around the same -
-i.e why not be as conservative/aggressive as the normal default:
-
-our default init rto is 300, so currently we're going to timeout
-on anything thats a 100ms over the min of 200. that is far
-less conservative than setting an rto of 200 when your round
-trip time is a thousand or 10,000 times less..does that make sense?
+diff -ruN 2.5.51-32bit.1/arch/parisc/kernel/ioctl32.c 2.5.51-32bit.2/arch/parisc/kernel/ioctl32.c
+--- 2.5.51-32bit.1/arch/parisc/kernel/ioctl32.c	2002-12-10 15:26:49.000000000 +1100
++++ 2.5.51-32bit.2/arch/parisc/kernel/ioctl32.c	2002-12-12 14:05:05.000000000 +1100
+@@ -1366,9 +1366,9 @@
  
-The other assumption that I'm operating under is that when
-things fail talking to a directly attached host - its because
-that host has died (even if its only the app or the NIC, whatever).
-i.e. the situation is that your connection is going to break,
-except you are going to futilely retransmit 15 times and
-wait an interminably long time before you do..hence the 
-advantage of learning whats happening quickly..
+ struct loop_info32 {
+ 	int			lo_number;      /* ioctl r/o */
+-	__kernel_dev_t32	lo_device;      /* ioctl r/o */
++	compat_dev_t	lo_device;      /* ioctl r/o */
+ 	unsigned int		lo_inode;       /* ioctl r/o */
+-	__kernel_dev_t32	lo_rdevice;     /* ioctl r/o */
++	compat_dev_t	lo_rdevice;     /* ioctl r/o */
+ 	int			lo_offset;
+ 	int			lo_encrypt_type;
+ 	int			lo_encrypt_key_size;    /* ioctl w/o */
+@@ -1577,7 +1577,7 @@
+ 	set_fs(old_fs);
  
->   In overload, resending quickly won't help a bit, just raise
->   the backoff (and prolong overload.)
-
-See above..
-
->   Loosing a packet sometimes, and that way needing to retransmit
->   is the gray area I can't define quickly.  If it is rare, it
->   really does not matter.  If it happens often, there could be
->   so serious trouble that having quicker retransmit will only
->   aggreviate the trouble more.
-
-Thats true..
-
->   You are looking for "STP" perhaps ?
->   It has a feature of waking all streams retransmits, in between
->   particular machines, when at least one STP frame travels in between
->   the hosts.
-> 
->   I can't find it now from my RFC collection.  Odd at that..
->   Neither as a draft.  has it been abandoned ?
-
-Learn something new every day :). Thanks for the ptr. I'll
-look it up..
-
-> > It would be wonderful if we could tune TCP on a per-interface or a
-> > per-route basis (everything public, for a start, considered the
-> > internet, and non-routable networks (10, etc), could be configured
-> > suitably for its environment. (TCP over private LAN - rfc?). Trusting
-> > users would be a big issue..
-> >
-> > Any thoughts? How stupid is this? Old hat??
-> 
->   More and more of STP ..
-
-thanks,
-Nivedita
+ 	if (err >= 0)
+-		err = put_user(kuid, (__kernel_uid_t32 *)arg);
++		err = put_user(kuid, (compat_uid_t *)arg);
+ 
+ 	return err;
+ }
+@@ -1864,7 +1864,7 @@
+ } lv_status_byindex_req32_t;
+ 
+ typedef struct {
+-	__kernel_dev_t32 dev;
++	compat_dev_t dev;
+ 	u32   lv;
+ } lv_status_bydev_req32_t;
+ 
+@@ -3628,7 +3628,7 @@
+ HANDLE_IOCTL(EXT2_IOC32_SETVERSION, do_ext2_ioctl)
+ #if 0
+ /* One SMB ioctl needs translations. */
+-#define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, __kernel_uid_t32)
++#define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, compat_uid_t)
+ HANDLE_IOCTL(SMB_IOC_GETMOUNTUID_32, do_smb_getmountuid)
+ #endif
+ HANDLE_IOCTL(ATM_GETLINKRATE32, do_atm_ioctl)
+diff -ruN 2.5.51-32bit.1/arch/parisc/kernel/sys_parisc32.c 2.5.51-32bit.2/arch/parisc/kernel/sys_parisc32.c
+--- 2.5.51-32bit.1/arch/parisc/kernel/sys_parisc32.c	2002-12-10 17:03:26.000000000 +1100
++++ 2.5.51-32bit.2/arch/parisc/kernel/sys_parisc32.c	2002-12-12 17:23:57.000000000 +1100
+@@ -389,9 +389,9 @@
+ struct flock32 {
+ 	short l_type;
+ 	short l_whence;
+-	__kernel_off_t32 l_start;
+-	__kernel_off_t32 l_len;
+-	__kernel_pid_t32 l_pid;
++	compat_off_t l_start;
++	compat_off_t l_len;
++	compat_pid_t l_pid;
+ };
+ 
+ 
+@@ -674,7 +674,7 @@
+ }
+ 
+ asmlinkage int
+-sys32_wait4(__kernel_pid_t32 pid, unsigned int * stat_addr, int options,
++sys32_wait4(compat_pid_t pid, unsigned int * stat_addr, int options,
+ 	    struct rusage32 * ru)
+ {
+ 	if (!ru)
+@@ -692,41 +692,13 @@
+ 	}
+ }
+ 
+-struct stat32 {
+-	__kernel_dev_t32		st_dev;		/* dev_t is 32 bits on parisc */
+-	__kernel_ino_t32		st_ino;		/* 32 bits */
+-	__kernel_mode_t32	st_mode;	/* 16 bits */
+-	__kernel_nlink_t32		st_nlink;	/* 16 bits */
+-	unsigned short	st_reserved1;	/* old st_uid */
+-	unsigned short	st_reserved2;	/* old st_gid */
+-	__kernel_dev_t32		st_rdev;
+-	__kernel_off_t32		st_size;
+-	compat_time_t	st_atime;
+-	unsigned int	st_spare1;
+-	compat_time_t	st_mtime;
+-	unsigned int	st_spare2;
+-	compat_time_t	st_ctime;
+-	unsigned int	st_spare3;
+-	int		st_blksize;
+-	int		st_blocks;
+-	unsigned int	__unused1;	/* ACL stuff */
+-	__kernel_dev_t32		__unused2;	/* network */
+-	__kernel_ino_t32		__unused3;	/* network */
+-	unsigned int	__unused4;	/* cnodes */
+-	unsigned short	__unused5;	/* netsite */
+-	short		st_fstype;
+-	__kernel_dev_t32		st_realdev;
+-	unsigned short	st_basemode;
+-	unsigned short	st_spareshort;
+-	__kernel_uid_t32		st_uid;
+-	__kernel_gid_t32		st_gid;
+-	unsigned int	st_spare4[3];
+-};
+-
+-static int cp_new_stat32(struct kstat *stat, struct stat32 *statbuf)
++int cp_compat_stat(struct kstat *stat, struct compat_stat *statbuf)
+ {
+ 	int err;
+ 
++	if (stat->size > MAX_NON_LFS)
++		return -EOVERFLOW;
++
+ 	err  = put_user(stat->dev, &statbuf->st_dev);
+ 	err |= put_user(stat->ino, &statbuf->st_ino);
+ 	err |= put_user(stat->mode, &statbuf->st_mode);
+@@ -734,8 +706,6 @@
+ 	err |= put_user(0, &statbuf->st_reserved1);
+ 	err |= put_user(0, &statbuf->st_reserved2);
+ 	err |= put_user(stat->rdev, &statbuf->st_rdev);
+-	if (stat->size > MAX_NON_LFS)
+-		return -EOVERFLOW;
+ 	err |= put_user(stat->size, &statbuf->st_size);
+ 	err |= put_user(stat->atime, &statbuf->st_atime);
+ 	err |= put_user(0, &statbuf->st_spare1);
+@@ -763,42 +733,9 @@
+ 	return err;
+ }
+ 
+-asmlinkage long sys32_newstat(char * filename, struct stat32 *statbuf)
+-{
+-	struct kstat stat;
+-	int error = vfs_stat(filename, &stat);
+-
+-	if (!error) 
+-		error = cp_new_stat32(&stat, statbuf);
+-	
+-	return error;
+-}
+-
+-asmlinkage long sys32_newlstat(char * filename, struct stat32 *statbuf)
+-{
+-	struct kstat stat;
+-	int error = vfs_lstat(filename, &stat);
+-
+-	if (!error)
+-		error = cp_new_stat32(&stat, statbuf);
+-
+-	return error;
+-}
+-
+-asmlinkage long sys32_newfstat(unsigned int fd, struct stat32 *statbuf)
+-{
+-	struct kstat stat;
+-	int error = vfs_fstat(fd, &stat);
+-
+-	if (!error)
+-		error = cp_new_stat32(&stat, statbuf);
+-
+-	return error;
+-}
+-
+ struct linux32_dirent {
+ 	u32	d_ino;
+-	__kernel_off_t32	d_off;
++	compat_off_t	d_off;
+ 	u16	d_reclen;
+ 	char	d_name[1];
+ };
+@@ -2619,7 +2556,7 @@
+ 	char			ex_client[NFSCLNT_IDMAX+1];
+ 	char			ex_path[NFS_MAXPATHLEN+1];
+ 	__kernel_dev_t		ex_dev;
+-	__kernel_ino_t32	ex_ino;
++	compat_ino_t	ex_ino;
+ 	int			ex_flags;
+ 	__kernel_uid_t		ex_anon_uid;
+ 	__kernel_gid_t		ex_anon_gid;
+@@ -2629,7 +2566,7 @@
+ struct nfsctl_fhparm32 {
+ 	struct sockaddr		gf_addr;
+ 	__kernel_dev_t		gf_dev;
+-	__kernel_ino_t32	gf_ino;
++	compat_ino_t	gf_ino;
+ 	int			gf_version;
+ };
+ 
+diff -ruN 2.5.51-32bit.1/include/asm-parisc/compat.h 2.5.51-32bit.2/include/asm-parisc/compat.h
+--- 2.5.51-32bit.1/include/asm-parisc/compat.h	2002-12-10 16:38:08.000000000 +1100
++++ 2.5.51-32bit.2/include/asm-parisc/compat.h	2002-12-12 16:14:20.000000000 +1100
+@@ -11,6 +11,14 @@
+ typedef s32		compat_ssize_t;
+ typedef s32		compat_time_t;
+ typedef s32		compat_clock_t;
++typedef s32		compat_pid_t;
++typedef u32		compat_uid_t;
++typedef u32		compat_gid_t;
++typedef u16		compat_mode_t;
++typedef u32		compat_ino_t;
++typedef u32		compat_dev_t;
++typedef s32		compat_off_t;
++typedef u16		compat_nlink_t;
+ 
+ struct compat_timespec {
+ 	compat_time_t	tv_sec;
+@@ -22,4 +30,35 @@
+ 	s32		tv_usec;
+ };
+ 
++struct compat_stat {
++	compat_dev_t	st_dev;		/* dev_t is 32 bits on parisc */
++	compat_ino_t	st_ino;		/* 32 bits */
++	compat_mode_t	st_mode;	/* 16 bits */
++	compat_nlink_t	st_nlink;	/* 16 bits */
++	u16		st_reserved1;	/* old st_uid */
++	u16		st_reserved2;	/* old st_gid */
++	compat_dev_t	st_rdev;
++	compat_off_t	st_size;
++	compat_time_t	st_atime;
++	u32		st_spare1;
++	compat_time_t	st_mtime;
++	u32		st_spare2;
++	compat_time_t	st_ctime;
++	u32		st_spare3;
++	s32		st_blksize;
++	s32		st_blocks;
++	u32		__unused1;	/* ACL stuff */
++	compat_dev_t	__unused2;	/* network */
++	compat_ino_t	__unused3;	/* network */
++	u32		__unused4;	/* cnodes */
++	u16		__unused5;	/* netsite */
++	short		st_fstype;
++	compat_dev_t	st_realdev;
++	u16		st_basemode;
++	u16		st_spareshort;
++	compat_uid_t	st_uid;
++	compat_gid_t	st_gid;
++	u32		st_spare4[3];
++};
++
+ #endif /* _ASM_PARISC_COMPAT_H */
+diff -ruN 2.5.51-32bit.1/include/asm-parisc/posix_types.h 2.5.51-32bit.2/include/asm-parisc/posix_types.h
+--- 2.5.51-32bit.1/include/asm-parisc/posix_types.h	2002-12-10 15:42:51.000000000 +1100
++++ 2.5.51-32bit.2/include/asm-parisc/posix_types.h	2002-12-12 15:57:18.000000000 +1100
+@@ -57,15 +57,7 @@
+ 
+ #if defined(__KERNEL__) && defined(__LP64__)
+ /* Now 32bit compatibility types */
+-typedef unsigned int		__kernel_dev_t32;
+-typedef unsigned int		__kernel_ino_t32;
+-typedef unsigned short		__kernel_mode_t32;
+-typedef unsigned short		__kernel_nlink_t32;
+-typedef int			__kernel_off_t32;
+-typedef int			__kernel_pid_t32;
+ typedef unsigned short		__kernel_ipc_pid_t32;
+-typedef unsigned int		__kernel_uid_t32;
+-typedef unsigned int		__kernel_gid_t32;
+ typedef int			__kernel_daddr_t32;
+ typedef unsigned int		__kernel_caddr_t32;
+ #endif

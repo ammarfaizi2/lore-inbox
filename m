@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132868AbRDXI73>; Tue, 24 Apr 2001 04:59:29 -0400
+	id <S132894AbRDXJGK>; Tue, 24 Apr 2001 05:06:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132894AbRDXI7T>; Tue, 24 Apr 2001 04:59:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60680 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132868AbRDXI7J>;
-	Tue, 24 Apr 2001 04:59:09 -0400
-Date: Tue, 24 Apr 2001 10:58:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kurt Garloff <kurt@garloff.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: read perf improved by mounting ext2?
-Message-ID: <20010424105858.C9357@suse.de>
-In-Reply-To: <20010424013150.A6892@garloff.etpnet.phys.tue.nl>
+	id <S132900AbRDXJGA>; Tue, 24 Apr 2001 05:06:00 -0400
+Received: from [202.54.26.202] ([202.54.26.202]:31927 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S132894AbRDXJF4>;
+	Tue, 24 Apr 2001 05:05:56 -0400
+X-Lotus-FromDomain: HSS
+From: alad@hss.hns.com
+To: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <65256A38.0030863F.00@sandesh.hss.hns.com>
+Date: Tue, 24 Apr 2001 14:24:06 +0530
+Subject: Re: Delay Function
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010424013150.A6892@garloff.etpnet.phys.tue.nl>; from kurt@garloff.de on Tue, Apr 24, 2001 at 01:31:50AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24 2001, Kurt Garloff wrote:
-> I get it. But not over the whole disk.
-> Doing a read speed measurement on /dev/hda, I constantly get ~16 MB/s.
-> Not bad, but less than I'd expect. Measuring single partitions, some show
-> the same, some show significantly more, 26MB/s--18MB/s, depending on the
-> position of the partition on disk. Those look good!
-> 
-> There are enough partitions to see a clear pattern: Those with mounted ext2
-> filesystems perform better. Umounting them does not harm, they just need to
-> have been mounted once. reiser or (v)fat however don't improve anything.
-> swap does, as does a ext2 over raid5.
 
-You wouldn't happen to have 4kB ext2 filesystems on those? When ext2
-mounts, it sets the soft blocksize to that then, I would expect this to
-give at least some benefit over using 1kB blocks (as your IDE partition
-otherwise would have).
 
--- 
-Jens Axboe
+
+
+
+
+
+Rajeev Nigam <rajeev.nigam@dcmtech.co.in> on 04/24/2001 03:29:04 PM
+
+To:   linux-kernel@vger.kernel.org
+cc:    (bcc: Amol Lad/HSS)
+
+Subject:  Delay Function
+
+
+
+
+What function i have to use to put a delay in a driver at kernel mode
+between reading from and writing to com port.
+
+Looking forward for ur help.
+
+Thanx & Regards
+Rajeev Nigam
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
 

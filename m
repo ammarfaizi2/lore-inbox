@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbUDMErX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 00:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263228AbUDMErX
+	id S263340AbUDMEvf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 00:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUDMEvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 00:47:23 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:32886 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S263325AbUDMErT
+	Tue, 13 Apr 2004 00:51:35 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:50541 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S263340AbUDMEv0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 00:47:19 -0400
-Date: Tue, 13 Apr 2004 06:54:19 +0200
+	Tue, 13 Apr 2004 00:51:26 -0400
+Date: Tue, 13 Apr 2004 06:58:26 +0200
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Vasquez <praka@users.sourceforge.net>, linux-kernel@vger.kernel.org,
-       sam@ravnborg.org, Marcus Hartig <m.f.h@web.de>
+To: Marcus Hartig <m.f.h@web.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.5-mm4
-Message-ID: <20040413045419.GA2199@mars.ravnborg.org>
-Mail-Followup-To: Andrew Vasquez <praka@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org, sam@ravnborg.org,
-	Marcus Hartig <m.f.h@web.de>
-References: <407AEBB0.1050305@web.de> <20040412195636.GB12665@mars.ravnborg.org> <20040412201524.GA31684@praka.local.home>
+Message-ID: <20040413045826.GB2199@mars.ravnborg.org>
+Mail-Followup-To: Marcus Hartig <m.f.h@web.de>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <407AEBB0.1050305@web.de> <20040412195636.GB12665@mars.ravnborg.org> <407B00AE.7010306@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040412201524.GA31684@praka.local.home>
+In-Reply-To: <407B00AE.7010306@web.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 12, 2004 at 01:15:24PM -0700, Andrew Vasquez wrote:
-> With 2.6.5-mm4 a similar command fails with:
+On Mon, Apr 12, 2004 at 10:48:46PM +0200, Marcus Hartig wrote:
 > 
-> 	-bash-2.05b# make -C /usr/src/linux-2.6.5-mm4 SUBDIRS=$PWD modules
-> 	make: Entering directory `/usr/src/linux-2.6.5-mm4'
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/ql2300.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/ql2300_fw.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_os.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_init.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_mbx.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_iocb.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_isr.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_gs.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_dbg.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_sup.o
-> 	  CC [M]  /root/Drivers/8.x/80000b12-pre14/qla_rscn.o
-> 	  LD [M]  /root/Drivers/8.x/80000b12-pre14/qla2xxx.o
-> 	/bin/sh: line 1:
-> 	/root/Drivers/8.x/80000b12-pre14/.tmp_versions/qla2xxx.mod: No such
-> 	file or directory
+> LD [M]  /usr/src/nv/nvidia.o
+> /bin/sh: line 1: /usr/src/nv/.tmp_versions/nvidia.mod: No such file or 
+> directory  Building modules, stage 2.
+> make[1]: Leaving directory `/usr/src/linux-2.6.5-mm4'
+> nvidia.ko failed to build!
+> make: *** [module] Error 1
 
-The external module support failed to create the directory:
-$PWD/.tmp_version
+Thanks for the report.
 
-It was no deleted during make clean either - thats why it slipped through.
-Here is a patch to fix it.
+kbuild fails to create the .tmp_version directory in the
+directory where the module is being built.
+The reason to create it there is to avoid trying to write in a RO
+kernel src directory. And also to avoid cluttering up the .tmp_versions
+directory for the kernel if you build more than one module.
 
 	Sam
 
+Patch to fix it:
 --- linux-2.6.5/Makefile	2004-04-12 20:58:30.000000000 +0200
 +++ extmod/Makefile	2004-04-12 20:46:24.000000000 +0200
 @@ -787,12 +787,6 @@ endef

@@ -1,82 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264291AbTKKVbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 16:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTKKVbp
+	id S263785AbTKKVl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 16:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTKKVl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 16:31:45 -0500
-Received: from ppp-62-245-162-69.mnet-online.de ([62.245.162.69]:7041 "EHLO
-	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
-	id S264291AbTKKVbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 16:31:43 -0500
-To: Erik Andersen <andersen@codepoet.org>
-Cc: Julien Oster <lkml-20031111@mc.frodoid.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A7N8X (Deluxe) Madness
-From: Julien Oster <lkml-20031111@mc.frodoid.org>
-Organization: FRODOID.ORG
-X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
-Date: Tue, 11 Nov 2003 22:31:42 +0100
-In-Reply-To: <20031111210922.GA10102@codepoet.org> (Erik Andersen's message
- of "Tue, 11 Nov 2003 14:09:22 -0700")
-Message-ID: <frodoid.frodo.87ekwezj5t.fsf@usenet.frodoid.org>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-References: <frodoid.frodo.87r80eznz9.fsf@usenet.frodoid.org>
-	<20031111200922.GA9276@codepoet.org>
-	<frodoid.frodo.87k766zmak.fsf@usenet.frodoid.org>
-	<20031111210922.GA10102@codepoet.org>
+	Tue, 11 Nov 2003 16:41:56 -0500
+Received: from mail1-106.ewetel.de ([212.6.122.106]:18820 "EHLO
+	mail1.ewetel.de") by vger.kernel.org with ESMTP id S263785AbTKKVlw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 16:41:52 -0500
+Date: Tue, 11 Nov 2003 22:41:41 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <Pine.LNX.4.44.0311110950250.30657-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0311112227100.1011-100000@neptune.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen <andersen@codepoet.org> writes:
+On Tue, 11 Nov 2003, Linus Torvalds wrote:
 
-Hello Erik,
+> 	# Write it out
+> 	dd if=testfile of=/dev/hdc bs=4096 count=1
 
->> > Does it help if you go into the BIOS and set the IDE controller
->> > to "Compatible Mode" rather than "Enhanced Mode"?
+dd behaves strangly on the MO drive. I've tried with 2.6.0-test9 and
+the patch appended to the end of this mail.
 
-> I have an ASUS mb with that option, but I just checked
-> your manual and it indeed does not have that option.
+# dd if=testfile of=/dev/hde bs=4096 count=1
+dd: writing `/dev/hde': no space left on device
+1+0 records in
+0+0 records out
 
-Unfortunately, yes...
+# dd if=/dev/hde of=mofile bs=4096 count=1
+0+0 records in
+0+0 records out
 
-> Anyway, the problem I had was that I had my SATA ports
-> as well as all usb devices sharing the same interrupt
-> and the resulting interrupt storm was easily seen by
-> watching /proc/interrupts
+Mounting the disc read-only works, however, and I can read all the data
+on it without problems.
 
-Well, I guess, that may be the point. With APIC enabled, I have a lot
-of interrupts available. Without APIC, there are only those available
-ever since the IBM AT. So, an excerpt of /proc/interrupts without APIC
-looks like that:
+Mounting read-write yields the same old problem:
 
- 10:     224131          XT-PIC  ide2, ide3, usb-ohci, usb-ohci, eth0, EMU10K1
- 11:          0          XT-PIC  NVidia nForce2
- 14:      61649          XT-PIC  ide0
- 15:      60954          XT-PIC  ide1
+# mount -t ext2 /dev/hde /mnt/mo
+# echo "bar" > /mnt/mo/foo
+# umount /mnt/mo
 
-As you see, IRQ 10 ist really crowded with stuff. ide2 and ide3 are my
-SATA channels, on USB there's my mouse and sometimes my mobile phone
-or my pocket pc, eth0 is one quite heavily used ethernet card and my
-soundcard... well, sometimes it's playing music.
+kernel BUG at fs/buffer.c:2658!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c014e11c>]    Not tainted
+EFLAGS: 00010202
+EIP is at submit_bh+0x15c/0x180
+eax: 00000010   ebx: e5365360   ecx: c0332b74   edx: e7fe2a40
+esi: 00000001   edi: c0334ca0   ebp: e5ad9ecc   esp: e5ad9ebc
+ds: 007b   es: 007b   ss: 0068
+Process umount (pid: 918, threadinfo=e5ad8000 task=e6134d00)
+Stack: c0334ca0 e5ad9ed8 e5c2d400 e5365360 e5ad9eec c014e22e 00000001 e5365360 
+       c014c0d3 c15e6708 e5c2d400 e72d3b80 e5ad9f00 c0191faf e5365360 e72d3b80 
+       e6f1e40c e5ad9f20 c0190fdd e72d3b80 e5c2d400 e72d3b80 e72d3b80 e72d3bcc 
+Call Trace:
+ [<c014e22e>] sync_dirty_buffer+0x5e/0xc0
+ [<c014c0d3>] mark_buffer_dirty+0x33/0x50
+ [<c0191faf>] ext2_sync_super+0x4f/0x60
+ [<c0190fdd>] ext2_put_super+0x9d/0xb0
+ [<c014f858>] generic_shutdown_super+0xf8/0x110
+ [<c01500fd>] kill_block_super+0x1d/0x50
+ [<c014f6c4>] deactivate_super+0x44/0x70
+ [<c016269c>] sys_umount+0x3c/0xa0
+ [<c0162719>] sys_oldumount+0x19/0x20
+ [<c010addf>] syscall_call+0x7/0xb
 
-And I just typed "ifconfig eth2 up" (I have a 4-port DEC network card
-in my workstation), today it's unused, but just to see:
+Code: 0f 0b 62 0a a6 c7 2f c0 e9 c1 fe ff ff 0f 0b 61 0a a6 c7 2f 
 
- 10:     233008          XT-PIC  ide2, ide3, usb-ohci, usb-ohci, eth0, EMU10K1, eth2
+After that, the MO is dead, "reboot" doesn't do anything, and all that
+I can do is press the reset button or use Alt-SysRq-B. Trying to sync
+with SysRq-S or remount r/o with SysRq-U don't work anymore at this
+point.
 
-Uh.
+Rebooted into 2.4/ide-scsi and ran e2fsck. The directory entry made it
+to disk, nothing else.
 
-With ISA cards, long time ago, I was able to select the interrupt for
-each card myself, either through jumpers or later by using PnP. Is
-there any such possibility for PCI, or do I just have to accept what
-the kernel or the mainboard is giving me?
+Rebooted into 2.6/ide-scsi. Mounting read-only once again works 
+flawlessly. Mounted read-write, then wrote a small file as above. Tried
+to umount. umount sat there in D state for about half a minute, then 
+ide-scsi aborted the operation and an ATAPI reset took place. After that, 
+umount completed. Again mounting it read-only confirmed that the file made 
+it to disk correctly.
 
-Just balancing my devices on the available interrupts might already
-help. Currently, according to /proc/interrupts, IRQ 3, 4 and 7 are
-completely unused!
+Then I tried "e2fsck -f /dev/sda". This hung the machine almost
+immediately. Even Alt-SysRq stopped working. Going back to 2.4 and
+running e2fsck there shows that the filesystem on the MO is clean, and
+a forced fsck doesn't find anything suspicious.
+ 
+>> I didn't see problems with using ide-scsi/sd for that drive in 2.5.7x,
+>> by the way, so I'm not so sure ide-scsi is really broken for that
+>> purpose.
+> It would be interesting to hear if ide-scsi works. 
 
-Regards,
-Julien
+See above, it doesn't.
+
+
+--- drivers/cdrom/cdrom.c.orig	Tue Nov 11 22:21:25 2003
++++ drivers/cdrom/cdrom.c	Tue Nov 11 21:49:19 2003
+@@ -426,7 +426,8 @@
+ 	if ((fp->f_flags & O_NONBLOCK) && (cdi->options & CDO_USE_FFLAGS))
+ 		ret = cdi->ops->open(cdi, 1);
+ 	else {
+-		if ((fp->f_mode & FMODE_WRITE) && !CDROM_CAN(CDC_DVD_RAM))
++		if ((fp->f_mode & FMODE_WRITE) &&
++			!(CDROM_CAN(CDC_DVD_RAM) || CDROM_CAN(CDC_MO_DRIVE)))
+ 			return -EROFS;
+ 
+ 		ret = open_for_data(cdi);
+--- drivers/ide/ide-cd.c.orig	Tue Nov 11 22:21:38 2003
++++ drivers/ide/ide-cd.c	Tue Nov 11 21:26:11 2003
+@@ -3211,7 +3211,8 @@
+ 
+ 	nslots = ide_cdrom_probe_capabilities (drive);
+ 
+-	if (CDROM_CONFIG_FLAGS(drive)->dvd_ram)
++	if (CDROM_CONFIG_FLAGS(drive)->dvd_ram
++		|| CDROM_CONFIG_FLAGS(drive)->mo_drive)
+ 		set_disk_ro(drive->disk, 0);
+ 
+ #if 0
+
+
+-- 
+Ciao,
+Pascal
+

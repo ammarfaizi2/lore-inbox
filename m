@@ -1,89 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266173AbUAUXG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUAUXG0
+	id S266124AbUAUWzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 17:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266123AbUAUWzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:06:26 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13299 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266173AbUAUXGT
+	Wed, 21 Jan 2004 17:55:38 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:33796 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S266122AbUAUWzf convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:06:19 -0500
-Message-ID: <400F05D2.4010607@mvista.com>
-Date: Wed, 21 Jan 2004 15:05:54 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Wed, 21 Jan 2004 17:55:35 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>
+Subject: modular ide + fixed legacy/ppc doesn't work when non modular on ppc
+Date: Wed, 21 Jan 2004 23:54:45 +0100
+User-Agent: KMail/1.5.94
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: PPC KGDB changes and some help?
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org>
-In-Reply-To: <20040121184217.GU13454@stop.crashing.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401212354.45957.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
-> 
-> 
->>Hi,
->>
->>Here it is: ppc kgdb from timesys kernel is available at
->>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
->>
->>This is my attempt at extracting kgdb from TimeSys kernel. It works well in 
->>TimeSys kernel, so blame me if above patch doesn't work.
-> 
-> 
-> Okay, here's my first patch against this.
-> ===== kernel/kgdbstub.c 1.1 vs edited =====
-> --- 1.1/kernel/kgdbstub.c	Wed Jan 21 10:13:17 2004
-> +++ edited/kernel/kgdbstub.c	Wed Jan 21 10:53:38 2004
-> @@ -1058,9 +1058,6 @@
->  	kgdb_serial->write_char('+');
->  
->  	linux_debug_hook = kgdb_handle_exception;
-> -	
-> -	if (kgdb_ops->kgdb_init)
-> -		kgdb_ops->kgdb_init();
->  
->  	/* We can't do much if this fails */
->  	register_module_notifier(&kgdb_module_load_nb);
-> @@ -1104,6 +1101,11 @@
->  	if (!kgdb_enter) {
->  		return;
->  	}
-> +
-> +	/* Let the arch do any initalization it needs to */
-> +	if (kgdb_ops->kgdb_init)
-> +		kgdb_ops->kgdb_init();
-> +
->  	if (!kgdb_serial) {
->  		printk("KGDB: no gdb interface available.\n"
->  		       "kgdb can't be enabled\n");
-> 
-> I'm not sure why you were calling the arch-specific init so late in the
-> process, but since it's a nop on both i386 and x86_64 (so perhaps it
-> should be removed for both of these?), this change doesn't matter to
-> them.  But it does make the PPC code cleaner, IMHO.
 
-I agree.  Lets dump all the init calls/code.  I have not seen anything yet that 
-can not be done as a side effect of the first call, or better yet, at compile time.
+I'm trying to compile 2.6.2-rc1 with fixed modular ide patch (Bartlomiej patch + legacy/ppc fixes posted here)
+(http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/2.6.1-modular-ide-lkml.patch?rev=1.1.2.1)
+but with non-modular config.
 
-I am willing to be shown a valid case, however.  Remember, I want to be able to 
-do a breakpoint() as the first line of C code in the kernel.  (works with the mm 
-kgdb).
-> 
+Unfortunately on PPC:
+
+[builder@an2 linux-2.6.2-rc1]$ make bzImage SUBDIRS=drivers/ide V=1
+make -f scripts/Makefile.build obj=scripts
+mkdir -p .tmp_versions
+make -f scripts/Makefile.build obj=arch/ppc/kernel arch/ppc/kernel/asm-offsets.s
+make[1]: `arch/ppc/kernel/asm-offsets.s' is up to date.
+make -f scripts/Makefile.build obj=drivers/ide
+make -f scripts/Makefile.build obj=drivers/ide/arm
+make -f scripts/Makefile.build obj=drivers/ide/legacy
+make -f scripts/Makefile.build obj=drivers/ide/pci
+  gcc -Wp,-MD,drivers/ide/ppc/.pmac.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Iarch/ppc -D__KERNEL__ -Iinclude  -Iarch/ppc -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -Iarch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -O2 -fomit-frame-pointer     -DKBUILD_BASENAME=pmac -DKBUILD_MODNAME=ide_core -c -o drivers/ide/ppc/pmac.o drivers/ide/ppc/pmac.c
+drivers/ide/ppc/pmac.c:49:24: ide-timing.h: No such file or directory
+drivers/ide/ppc/pmac.c: In function `set_timings_udma_ata6':
+drivers/ide/ppc/pmac.c:716: warning: implicit declaration of function `ide_timing_find_mode'
+drivers/ide/ppc/pmac.c:716: warning: initialization makes pointer from integer without a cast
+drivers/ide/ppc/pmac.c:721: error: dereferencing pointer to incomplete type
+drivers/ide/ppc/pmac.c: In function `pmac_ide_dma_check':
+drivers/ide/ppc/pmac.c:1756: error: `XFER_MWDMA' undeclared (first use in this function)
+drivers/ide/ppc/pmac.c:1756: error: (Each undeclared identifier is reported only once
+drivers/ide/ppc/pmac.c:1756: error: for each function it appears in.)
+drivers/ide/ppc/pmac.c:1758: error: `XFER_UDMA' undeclared (first use in this function)
+drivers/ide/ppc/pmac.c:1760: error: `XFER_UDMA_66' undeclared (first use in this function)
+drivers/ide/ppc/pmac.c:1762: error: `XFER_UDMA_100' undeclared (first use in this function)
+drivers/ide/ppc/pmac.c:1765: warning: implicit declaration of function `ide_find_best_mode'
+make[1]: *** [drivers/ide/ppc/pmac.o] Error 1
+
+-I is missing, so fix goes here (tested)
+
+[builder@an2 linux-2.6.2-rc1]$ diff -u drivers/ide/Makefile~ drivers/ide/Makefile
+--- drivers/ide/Makefile~       2004-01-21 20:24:01.000000000 +0000
++++ drivers/ide/Makefile        2004-01-21 22:44:35.000000000 +0000
+@@ -8,6 +8,9 @@
+ # In the future, some of these should be built conditionally.
+ #
+ # First come modules that register themselves with the core
++
++EXTRA_CFLAGS            += -Idrivers/ide
++
+ obj-$(CONFIG_BLK_DEV_IDE)              += pci/
+
+ ide-core-y += ide.o ide-default.o ide-io.o ide-iops.o ide-lib.o ide-probe.o \
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux

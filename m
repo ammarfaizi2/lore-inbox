@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313307AbSDQSzh>; Wed, 17 Apr 2002 14:55:37 -0400
+	id <S313334AbSDQS6X>; Wed, 17 Apr 2002 14:58:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313312AbSDQSzg>; Wed, 17 Apr 2002 14:55:36 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:49109 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S313307AbSDQSzf>;
-	Wed, 17 Apr 2002 14:55:35 -0400
-Date: Wed, 17 Apr 2002 18:51:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Steffen Persvold <sp@scali.com>
-Cc: James Bourne <jbourne@MtRoyal.AB.CA>, <linux-kernel@vger.kernel.org>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Jeff Nguyen <jeff@aslab.com>
+	id <S313422AbSDQS6W>; Wed, 17 Apr 2002 14:58:22 -0400
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:45070 "EHLO
+	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S313334AbSDQS6U>; Wed, 17 Apr 2002 14:58:20 -0400
+Date: Wed, 17 Apr 2002 12:56:28 -0600 (MDT)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
 Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <Pine.LNX.4.30.0204172050410.31755-100000@elin.scali.no>
-Message-ID: <Pine.LNX.4.44.0204171851020.5170-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.44.0204171507300.23328-100000@elte.hu>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.44.0204171237010.21779-100000@skuld.mtroyal.ab.ca>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Apr 2002, Ingo Molnar wrote:
 
-On Wed, 17 Apr 2002, Steffen Persvold wrote:
+> 
+> On Wed, 17 Apr 2002, James Bourne wrote:
+> > So, the timer isn't being balanced still, others are (is there a
+> > specific case in your patch for irq 0 (< 1)?  I couldn't see it but it
+> > almost looks as though it's being missed..)
+> 
+> it's a separate bug, solved by a separate patch.
+> 
 
-> Are any of these patches going into the mainline kernel soon ?
+Where would I find this separate patch?  Is there something I could do
+some testing on?
 
-my irqbalance patch is in Linus' tree already, it should show up in the
-next 2.5.9-pre kernel.
+Thanks and regards
+James
 
-	Ingo
+> 	Ingo
+> 
+
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
+
 

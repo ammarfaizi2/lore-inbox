@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVBFSfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVBFSk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbVBFSfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 13:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVBFSfh
+	id S261273AbVBFSk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 13:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVBFSk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 13:35:37 -0500
-Received: from gprs215-170.eurotel.cz ([160.218.215.170]:13034 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261272AbVBFSfI (ORCPT
+	Sun, 6 Feb 2005 13:40:57 -0500
+Received: from cantor.suse.de ([195.135.220.2]:26522 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261268AbVBFSik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 13:35:08 -0500
-Date: Sun, 6 Feb 2005 19:34:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick, version 050127-1
-Message-ID: <20050206183430.GB1139@elf.ucw.cz>
-References: <20050201230357.GH14274@atomide.com> <20050202141105.GA1316@elf.ucw.cz> <20050203030359.GL13984@atomide.com> <20050203105647.GA1369@elf.ucw.cz> <20050203164331.GE14325@atomide.com> <20050204051929.GO14325@atomide.com> <20050205230017.GA1070@elf.ucw.cz> <20050206023344.GA15853@atomide.com> <20050206081137.GA994@elf.ucw.cz> <20050206171041.GC13936@atomide.com>
+	Sun, 6 Feb 2005 13:38:40 -0500
+Date: Sun, 6 Feb 2005 19:38:34 +0100
+From: Andi Kleen <ak@suse.de>
+To: Pawe?? Sikora <pluto@pld-linux.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
+Message-ID: <20050206183834.GC18245@wotan.suse.de>
+References: <20050206113635.GA30109@wotan.suse.de> <200502061303.12377.pluto@pld-linux.org> <20050206124701.GD30109@wotan.suse.de> <200502061907.28165.pluto@pld-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050206171041.GC13936@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200502061907.28165.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> [1] glibc-2.3.4 kill buggy bins at the load time.
+>     (please look into: elf/dl-load.c, elf/dl-support.c, elf/rtld.c)
 
-> > > > Ok, works slightly better: time no longer runs 2x too fast. When TSC
-> > > > is used, I get same behaviour  as before ("sleepy machine"). With
-> > > > "notsc", machine seems to work okay, but I still get 1000 timer
-> > > > interrupts a second.
-> > > 
-> > > Sounds like dyn-tick did not get enabled then, maybe you don't have
-> > > CONFIG_X86_PM_TIMER, or don't have ACPI PM timer on your board?
-> > 
-> > I do have CONFIG_X86_PM_TIMER enabled, but it seems by board does not
-> > have such piece of hardware:
-> > 
-> > pavel@amd:/usr/src/linux-mm$ dmesg | grep -i "time\|tick\|apic"
-> > PCI: Setting latency timer of device 0000:00:11.5 to 64
-> > pavel@amd:/usr/src/linux-mm$ 
-> > 
-> > [Strange, I should see some messages about apic, no?]
-> 
-> Yeah, looks like you don't have a local APIC then? Let me test the
-> patch here with just PIT timer only.
-> 
-> It also looks like you don't have TSC either? Or do you still have
-> notsc cmdline option?
+I don't see how that can work for arbitary code executed in some
+arbitary mmap. 
 
-It definitely does have TSC, it is athlon64. It was probably disabled
-in this particular run.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Please explain.
+
+>     This works on i386/PaX systems too (hardware NX isn't required).
+
+But it's for the 99.99999% of other users who don't use such
+weird third party patches.
+
+> The execstack req. disappeard (~99% of broken sources).
+
+My problem is basically that the effort of fixing these
+sources seems to be shifted to x86-64 now in mainstream
+linux. And I don't like that.
+
+-Andi

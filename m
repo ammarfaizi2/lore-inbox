@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbRBHGSz>; Thu, 8 Feb 2001 01:18:55 -0500
+	id <S130109AbRBHGfl>; Thu, 8 Feb 2001 01:35:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129307AbRBHGSp>; Thu, 8 Feb 2001 01:18:45 -0500
-Received: from lochinvar.ece.neu.edu ([129.10.60.161]:31184 "EHLO
-	lochinvar.ece.neu.edu") by vger.kernel.org with ESMTP
-	id <S129281AbRBHGS0> convert rfc822-to-8bit; Thu, 8 Feb 2001 01:18:26 -0500
-Date: Thu, 8 Feb 2001 01:18:10 -0500 (EST)
-From: Mauricio Martinez <mmartine@ECE.NEU.EDU>
-To: linux-kernel@vger.kernel.org
-Subject: Module usage count - sound
-Message-ID: <Pine.GSO.4.21.0102080109220.24634-100000@bach>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S129959AbRBHGfb>; Thu, 8 Feb 2001 01:35:31 -0500
+Received: from [203.36.158.121] ([203.36.158.121]:50833 "EHLO
+	piro.kabuki.eyep.net") by vger.kernel.org with ESMTP
+	id <S129558AbRBHGf2>; Thu, 8 Feb 2001 01:35:28 -0500
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+From: Daniel Stone <daniel@kabuki.eyep.net>
+To: Chris Mason <mason@suse.com>
+Cc: David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+In-Reply-To: <479040000.981564496@tiny>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 08 Feb 2001 17:34:44 +1100
+Mime-Version: 1.0
+Message-Id: <E14QkfM-0004EL-00@piro.kabuki.eyep.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 07 Feb 2001 11:48:16 -0500, Chris Mason wrote:
+> 
+> 
+> On Wednesday, February 07, 2001 08:38:54 AM -0800 David Rees
+> <dbr@spoke.nols.com> wrote:
+> 
+> > On Wed, Feb 07, 2001 at 10:47:09AM -0500, Chris Mason wrote:
+> >> 
+> >> Ok, how about we list the known bugs:
+> >> 
+> >> zeros in log files, apparently only between bytes 2048 and 4096 (not
+> >> reproduced yet).
+> > 
+> > Could this bug be related to the reported corruption that people with
+> > new VIA chipsets have been also reporting on ext2?  It seems similar
+> > because of the location of the corruption:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=98147483712620&w=2
+> > 
+> > Anyway, it can't hurt to ask the bug reported if they're using a
+> > newer VIA chipset and see if they will upgrade their BIOS which seems
+> > to fix the problem.
+> 
+> I'd love to blame this on VIA problems, but people are seeing it on other
+> chipsets too ;-)  
+> 
+> People who report this aren't seeing general corruption, just zeros in
+> files of specific sizes.  So, it really should be a reiserfs bug.
 
-Kernel 2.4.1
+I run Reiser on all but /boot, and it seems to enjoy corrupting my
+mbox'es randomly.
+Using the old-style Reiser FS format, 2.4.2-pre1, Evolution, on a CMD640
+chipset with the fixes enabled.
+This also occurs in some log files, but I put it down to syslogd
+crashing or something.
 
-I have sound support, OSS and my soundcard (sb) configured as modules
+d
 
-If I just play a sound on /dev/dsp, I get the following after the program
-exits:
+-- 
+Daniel Stone
+Linux Kernel Developer
+daniel@kabuki.eyep.net
 
-mixcoac:~> cat /proc/modules
-sb                      2000   0 (autoclean)
-sb_lib                 33504   0 (autoclean) [sb]
-uart401                 6224   0 (autoclean) [sb_lib]
-sound                  55280   0 (autoclean) [sb_lib uart401]
-soundcore               3664   5 (autoclean) [sb_lib sound]
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
+K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
+D+ G e->++ h!(+) r+(%) y? UF++
+------END GEEK CODE BLOCK------
 
-This means that the sound modules are not longer used and thus,
-removable. Everything OK so far.
 
-The problem occurs when /dev/dsp is blocked by the above described
-process, and another process (say SOX, XMMS and such) attempts to write
-to the same device. After the two of them finish, the usage count is not
-reset for some reason, like
-
-mixcoac:~> cat /proc/modules
-sb                      2000   1 (autoclean)
-sb_lib                 33504   0 (autoclean) [sb]
-uart401                 6224   0 (autoclean) [sb_lib]
-sound                  55280   0 (autoclean) [sb_lib uart401]
-soundcore               3664   5 (autoclean) [sb_lib sound]
-
-So, the module cannot be removed and stays loaded forever.
-
-This problem is 100% reproductable.
-
-What's wrong? any ideas?
-
----------------------------------------------------------------------------
-Mauricio Martínez      Northeastern University    mmartine@ece.neu.edu
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVA2TKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVA2TOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVA2TKx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 14:10:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVA2TIo
+	id S261535AbVA2TOv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 14:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVA2TMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 14:08:44 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:61390 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261532AbVA2TII (ORCPT
+	Sat, 29 Jan 2005 14:12:19 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:63950 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261544AbVA2TIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 14:08:08 -0500
-Date: Fri, 28 Jan 2005 19:41:22 +0100
+	Sat, 29 Jan 2005 14:08:15 -0500
+Date: Sat, 29 Jan 2005 12:28:05 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Wiktor <victorjan@poczta.onet.pl>, linux-kernel@vger.kernel.org
-Subject: Re: AT keyboard dead on 2.6
-Message-ID: <20050128184122.GB2640@ucw.cz>
-References: <41F11F79.3070509@poczta.onet.pl> <d120d500050121074831087013@mail.gmail.com> <41F15307.4030009@poczta.onet.pl> <d120d500050121113867c82596@mail.gmail.com> <41F69FFE.2050808@poczta.onet.pl> <20050128143121.GB12137@ucw.cz> <d120d50005012806467cc5ee03@mail.gmail.com>
+To: Andries.Brouwer@cwi.nl
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] document atkbd.softraw
+Message-ID: <20050129112805.GC2268@ucw.cz>
+References: <200501282323.j0SNNFF23250@apps.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d50005012806467cc5ee03@mail.gmail.com>
+In-Reply-To: <200501282323.j0SNNFF23250@apps.cwi.nl>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 09:46:41AM -0500, Dmitry Torokhov wrote:
-> On Fri, 28 Jan 2005 15:31:21 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Tue, Jan 25, 2005 at 08:37:34PM +0100, Wiktor wrote:
-> > > Hi,
-> > >
-> > > here you are gzip-ed dmesg from booting 2.6.8.1 - i've been playing
-> > > keyboard while booting, maybe interrupt reports will help you. also my
-> > > .config part follows:
-> > > CONFIG_INPUT=y
-> > > CONFIG_INPUT_MOUSEDEV=y
-> > > CONFIG_SOUND_GAMEPORT=y
-> > > CONFIG_SERIO=y
-> > > CONFIG_SERIO_I8042=y
-> > > CONFIG_INPUT_KEYBOARD=y
-> > > CONFIG_KEYBOARD_ATKBD=y
-> > > no modules or other built-ins. maybe it is some simple way to fall back
-> > > to old handling mechanism? in my system most of programs (i mean
-> > > x-server) uses hardware directly (what means uses /dev/ttyS0 as mouse
-> > > device). i'm grateful for any help.
-> > 
-> > This dmesg looks like the keyboard works perfectly OK. Do new lines
-> > appear in dmesg when you press keys while the system is running?
-> >
+On Sat, Jan 29, 2005 at 12:23:15AM +0100, Andries.Brouwer@cwi.nl wrote:
+
+> Document atkbd.softraw (and shorten a few long lines nearby).
+
+Thanks, applied.
+
+> --- a/Documentation/kernel-parameters.txt	2004-12-29 03:39:42.000000000 +0100
+> +++ b/Documentation/kernel-parameters.txt	2005-01-29 00:21:07.000000000 +0100
+> @@ -222,15 +222,19 @@ running once the system is up.
+>  
+>  	atascsi=	[HW,SCSI] Atari SCSI
+>  
+> -	atkbd.extra=	[HW] Enable extra LEDs and keys on IBM RapidAccess, EzKey
+> -			and similar keyboards
+> +	atkbd.extra=	[HW] Enable extra LEDs and keys on IBM RapidAccess,
+> +			EzKey and similar keyboards
+>  
+>  	atkbd.reset=	[HW] Reset keyboard during initialization
+>  
+>  	atkbd.set=	[HW] Select keyboard code set 
+>  			Format: <int> (2 = AT (default) 3 = PS/2)
+>  
+> -	atkbd.scroll=	[HW] Enable scroll wheel on MS Office and similar keyboards
+> +	atkbd.scroll=	[HW] Enable scroll wheel on MS Office and similar
+> +			keyboards
+> +
+> +	atkbd.softraw=	[HW] Choose between synthetic and real raw mode
+> +			Format: <bool> (0 = real, 1 = synthetic (default))
+>  	
+>  	atkbd.softrepeat=
+>  			[HW] Use software keyboard repeat
 > 
-> It does no report any IDs but ACKs GETID command. Not very nice...
- 
-Very old AT keyboards can do that.
 
 -- 
 Vojtech Pavlik

@@ -1,100 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVAXWmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVAXWhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVAXWmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVAXWlm
+	id S261704AbVAXWhn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVAXWhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:41:42 -0500
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:38374 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S261701AbVAXWjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:39:13 -0500
-Message-Id: <200501242238.j0OMcru4017742@ginger.cmf.nrl.navy.mil>
-To: Mike Westall <westall@cs.clemson.edu>
-cc: Lukasz Trabinski <lukasz@oceanic.wsisiz.edu.pl>,
-       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Bartlomiej Solarz <solarz@wsisiz.edu.pl>
-Reply-To: chas3@users.sourceforge.net
-Reply-To: chas3@users.sourceforge.net
-Subject: Re: [Linux-ATM-General] Kernel 2.6.10 and 2.4.29 Oops fore200e (fwd) 
-In-reply-to: Your message of "Mon, 24 Jan 2005 17:27:23 EST."
-             <41F5764B.8050308@cs.clemson.edu> 
-Date: Mon, 24 Jan 2005 17:38:54 -0500
-From: "chas williams - CONTRACTOR" <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-1.6
+	Mon, 24 Jan 2005 17:37:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14054 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261704AbVAXWgA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:36:00 -0500
+Date: Mon, 24 Jan 2005 14:35:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Jens Axboe <axboe@suse.de>, alexn@dsv.su.se, kas@fi.muni.cz,
+       linux-kernel@vger.kernel.org, lennert.vanalboom@ugent.be
+Subject: Re: Memory leak in 2.6.11-rc1?
+In-Reply-To: <20050124125649.35f3dafd.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>
+References: <20050121161959.GO3922@fi.muni.cz> <1106360639.15804.1.camel@boxen>
+ <20050123091154.GC16648@suse.de> <20050123011918.295db8e8.akpm@osdl.org>
+ <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org>
+ <1106528219.867.22.camel@boxen> <20050124204659.GB19242@suse.de>
+ <20050124125649.35f3dafd.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the author sent me the latest version of the driver and i
-got it applied.  the driver does has some useful changes
-along with this broken change.  i suggest udelay() since
-it preserves the author's original intent.
 
-i intend to submit a patch this week.  i probably wont
-fix the ambassador since i cant test the change.
 
-In message <41F5764B.8050308@cs.clemson.edu>,Mike Westall writes:
->You could also just revert to kernel 2.4.25 or
->earlier.  Someone who was apparently oblivious
->to the fact that device driver send routines
->were "routinely" called in irq context and/or
->that it was a <very bad thing> to call schedule()
->under such circumstances slipped that one in
->sometime between 2.4.25 which is OK and 2.4.28
->where it is broken.
->
->In 2.4.25 and earlier it was a simple busy wait loop
->in which "goto retry_here;" immediately followed
->the "if" statement.  This was safe, albeit MP unfriendly
->because of the spin_lock()/unlock() on each iteration.
->
->I'd say just delete the if and drop the damn
->packet.
->
->At any rate someone who has access to the golden code
->should fix this one way or another ASAP because its
->definitely seriously broken the way it is now.
->
->Mike
->
->
->chas williams - CONTRACTOR wrote:
->> In message <Pine.LNX.4.61L.0501210835270.6993@lt.wsisiz.edu.pl>,Lukasz Trabinsk
->> i writes:
->> 
->>>Sorry, but I don;t understand, what line, i am not kernel guru. :/
->> 
->> 
->> look for the following code:
->> 
->>            /* retry once again? */
->>             if(--retry > 0) {
->>                 schedule();
->>                 goto retry_here;
->>             }
->> 
->> 
->> change schedule() to udelay(50) and see if things are 'better'.
->> 
->> 
->>>Is was happened on 2.4.29, too. It is a interrupt problem?
->> 
->> 
->> its calling a routine that might sleep while in the transmit routine.
->> this is not allow.
->> 
->> 
->> -------------------------------------------------------
->> This SF.Net email is sponsored by: IntelliVIEW -- Interactive Reporting
->> Tool for open source databases. Create drag-&-drop reports. Save time
->> by over 75%! Publish reports on the web. Export to DOC, XLS, RTF, etc.
->> Download a FREE copy at http://www.intelliview.com/go/osdn_nl
->> _______________________________________________
->> Linux-atm-general mailing list
->> Linux-atm-general@lists.sourceforge.net
->> https://lists.sourceforge.net/lists/listinfo/linux-atm-general
->> 
->> 
->
->
->
+On Mon, 24 Jan 2005, Andrew Morton wrote:
+> 
+> Would indicate that the new pipe code is leaking.
+
+Duh. It's the pipe merging.
+
+		Linus
+
+----
+--- 1.40/fs/pipe.c	2005-01-15 12:01:16 -08:00
++++ edited/fs/pipe.c	2005-01-24 14:35:09 -08:00
+@@ -630,13 +630,13 @@
+ 	struct pipe_inode_info *info = inode->i_pipe;
+ 
+ 	inode->i_pipe = NULL;
+-	if (info->tmp_page)
+-		__free_page(info->tmp_page);
+ 	for (i = 0; i < PIPE_BUFFERS; i++) {
+ 		struct pipe_buffer *buf = info->bufs + i;
+ 		if (buf->ops)
+ 			buf->ops->release(info, buf);
+ 	}
++	if (info->tmp_page)
++		__free_page(info->tmp_page);
+ 	kfree(info);
+ }
+ 

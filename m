@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbUBXD77 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 22:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbUBXD77
+	id S262152AbUBXERd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 23:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUBXERd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 22:59:59 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:53381 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S262152AbUBXD75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 22:59:57 -0500
-Date: Mon, 23 Feb 2004 21:00:00 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: jabbera@student.umass.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: libata/iswraid DMA Timeout
-Message-ID: <20040224040000.GA12298@bounceswoosh.org>
-Mail-Followup-To: jabbera@student.umass.edu, linux-kernel@vger.kernel.org
-References: <1077580276.403a91f4094fe@mail-www4.oit.umass.edu>
-Mime-Version: 1.0
+	Mon, 23 Feb 2004 23:17:33 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:49874 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262152AbUBXERc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 23:17:32 -0500
+Message-ID: <403ACEFC.4070208@cyberone.com.au>
+Date: Tue, 24 Feb 2004 15:11:40 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
+References: <20040222172200.1d6bdfae.akpm@osdl.org> <40395ACE.4030203@cyberone.com.au> <20040222175507.558a5b3d.akpm@osdl.org> <40396ACD.7090109@cyberone.com.au> <40396DA7.70200@cyberone.com.au> <4039B4E6.3050801@cyberone.com.au> <4039BE41.1000804@cyberone.com.au> <20040223005948.10a3b325.akpm@osdl.org> <20040223224723.GA27639@dingdong.cryptoapps.com>
+In-Reply-To: <20040223224723.GA27639@dingdong.cryptoapps.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1077580276.403a91f4094fe@mail-www4.oit.umass.edu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, Feb 23 at 18:51, jabbera@student.umass.edu wrote:
->Sorry never posted to this list so bear with me. 
->I am currently using kernel version 2.4.25 i386 with libata and iswraid. 
->Note: iswraid is for 2.4.22, but it applied to 2.4.25 without issue. 
-> 
->I am not sure which patch this problem is in relation to, but here is the 
->information. 
-> 
->I was using a php script to move a bunch of my files around the file system 
->when my system locks up and I see: 
->ata1: DMA timeout, stat 0x21 
->ATA: abnormal status 0x59 on port 0xC407 
 
-0x59 is the status that the drive sends when it has a block in error
-and wants to transmit said block.  The LBA in the task file after the
-bad block is transferred is the location of the error.
+Chris Wedgwood wrote:
 
-I think that the drive you're copying from had a hard ECC error.
-Maybe see if you can try to read all the files on that drive and see
-if you can find a bad block.
+>On Mon, Feb 23, 2004 at 12:59:48AM -0800, Andrew Morton wrote:
+>
+>
+>>We've never clearly defined whether pages_high == free_pages means
+>>the zone is under limits.  According to __alloc_pages() it means
+>>that the zone is not under limits, so you've fixed two bugs there.
+>>
+>
+>FWIW 2.6.3-mm3 with the above fix right now seems to behave much
+>better in my non-contrived cases than previous kernels I've tested
+>with.
+>
 
-
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
+Out of interest, what is the worst you can make it do with
+contrived cases?
 

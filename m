@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262327AbSIPPsY>; Mon, 16 Sep 2002 11:48:24 -0400
+	id <S262414AbSIPPuv>; Mon, 16 Sep 2002 11:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262338AbSIPPsY>; Mon, 16 Sep 2002 11:48:24 -0400
-Received: from stone.bestlinux.net ([194.126.122.26]:3079 "EHLO deimos")
-	by vger.kernel.org with ESMTP id <S262327AbSIPPsX>;
-	Mon, 16 Sep 2002 11:48:23 -0400
-Message-ID: <3D861182.2090909@sot.com>
-Date: Mon, 16 Sep 2002 19:14:42 +0200
-From: Yaroslav Popovitch <yp@sot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic (2.4.19-release) at sched.c:566
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262483AbSIPPuv>; Mon, 16 Sep 2002 11:50:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:46866 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262414AbSIPPus>;
+	Mon, 16 Sep 2002 11:50:48 -0400
+Date: Mon, 16 Sep 2002 17:55:45 +0200
+From: Dave Jones <davej@suse.de>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com,
+       torvalds@transmeta.com, alan@redhat.com, mingo@redhat.com
+Subject: Re: [PATCH] Summit patch for 2.5.34
+Message-ID: <20020916175545.A21875@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	James Cleverdon <jamesclv@us.ibm.com>, linux-kernel@vger.kernel.org,
+	James.Bottomley@steeleye.com, torvalds@transmeta.com,
+	alan@redhat.com, mingo@redhat.com
+References: <200209122035.14678.jamesclv@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209122035.14678.jamesclv@us.ibm.com>; from jamesclv@us.ibm.com on Thu, Sep 12, 2002 at 08:35:14PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I prepared boot kernel for  cdboot image and got such error message.
+On Thu, Sep 12, 2002 at 08:35:14PM -0700, James Cleverdon wrote:
+ > Patch that allows IBM x440 boxes to on-line all CPUs and interrupt routing for 
+ > x360s.   Fixed x360 ID bug.
 
+Couple questions/comments.
 
-Schelduling in interrupt
-kernel BUG at sched.c:566!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0116f59>]   Not tainted
-EFLAGS: 00010296
- 
-eax: 00000018   ebx: c0106c70  ecx: 00000001 edx: 00000001
-esi: 00000000   edi: c0242000  ebp: c0243fd4 esp: c0243fac
-ds: 0018  es: 0018  ss: 0018
-Process swapper (pid: 0, stackpage=c0243000)
-Stack: c01fed7e 00098700 c0105000 c0242000 00000000 00000000 00000018 
-c0106c70
-       00098700 c0105000 0008e000 c0106d04 00000000 c0244687 c01f6f40 
-00003ffc
-       00003ffc 00003ffc 00003ffc c0264440 c01001c9
- 
-Call Trace: [<c0105000>] [<c0106c70>] [<c0105000>] [<c0106d04>]
- 
-Code: 0f 0b 36 02 76 ed 1f c0 5b e9 87 fb ff ff 0f 0b 2f 02 76 ed
-Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
+- Is this the same summit code as is in 2.4-ac ?
+  (Ie, the one that boots on non summit systems too)
+- I believe the way forward here is to work with James Bottomley,
+  who has a nice abstraction of the areas your patch touches for
+  his Voyager sub-architecture.
+  Linus has however been completley silent on the x86-subarch idea
+  despite heavyweights like Alan and Ingo adding their support...
+  If you go this route, James' base needs to go in first
+  (converting just the in-kernel visws support). After which, adding
+  support for Voyager, Summit and any other wacky x86esque hardware
+  is a simple non-intrusive patch that touches subarch specific areas.
+- Some of the code you've added looks along the lines of..
+
+   if (numaq)
+      foo();
+   else if (summit)
+      foo2();
+   else 
+      foo3();
+
+  Would it be over-abstracting to have some form of APIC struct,
+  defining pointers to various routines instead of lots of ugly
+  if's/switches/fall-through's.
+
+However, the last point may be completley pointless after adapting to
+use what James B has come up with..
+
+        Dave
 
 -- 
-Mr. Yaroslav Popovitch     			- tel. +372 6419975
-SOT Finnish Software Engineering Ltd.   	- fax  +372 6419876
-Kreutzwaldi 7-4, 10124  TALLINN         	- http://www.sot.com/
-ESTONIA                                 	- http://sotlinux.net/
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

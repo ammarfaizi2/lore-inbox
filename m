@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271638AbRICSOx>; Mon, 3 Sep 2001 14:14:53 -0400
+	id <S271764AbRICSfa>; Mon, 3 Sep 2001 14:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271764AbRICSOm>; Mon, 3 Sep 2001 14:14:42 -0400
-Received: from u-150-20.karlsruhe.ipdial.viaginterkom.de ([62.180.20.150]:9601
-	"EHLO dea.linux-mips.net") by vger.kernel.org with ESMTP
-	id <S271638AbRICSOc>; Mon, 3 Sep 2001 14:14:32 -0400
-Date: Mon, 3 Sep 2001 15:14:21 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Richard.Zidlicky@stud.informatik.uni-erlangen.de, thunder7@xs4all.nl,
-        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs on parisc architecture
-Message-ID: <20010903151421.A3078@dea.linux-mips.net>
-In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com>; from Ulrich.Weigand@de.ibm.com on Mon, Sep 03, 2001 at 02:08:43PM +0200
-X-Accept-Language: de,en,fr
+	id <S271765AbRICSfT>; Mon, 3 Sep 2001 14:35:19 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:49808 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S271764AbRICSfJ>;
+	Mon, 3 Sep 2001 14:35:09 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 3 Sep 2001 18:35:25 GMT
+Message-Id: <200109031835.SAA33971@vlet.cwi.nl>
+To: hch@caldera.de, torvalds@transmeta.com
+Subject: Re: [PATCH] cleanup gendisk handling
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 03, 2001 at 02:08:43PM +0200, Ulrich Weigand wrote:
+    From hch@ns.caldera.de Mon Sep  3 20:06:04 2001
 
-> >From what I recall when we were looking into reiserfs on S/390,
-> the core problem was that reiserfs tried to do *atomic* operations
-> on non-aligned words.  This isn't supported by the hardware on
-> S/390 (normal non-aligned accesses just work).
-> 
-> I don't really see how this can be fixed in a trap handler; how
-> would the handler guarantee atomicity?
+    Hi Linus,
 
-Spinlocks.  Now that'd so infinitly ugly that I'd rather fix Reiserfs.
-It's another proof that reiserfs design was done without too much
-consideration of portability so I speculate we'll continue to see such
-bugs.
+    as you probably know the gendisk handling in the current kernel is a
+    horrible mess.  All driver have to do the linked list handling themselves,
+    etc..
 
-  Ralf
+    Andries has a patchset on kernel.org that addresses most of this issues -
+    but it does very large API changes and is thus not acceptable for 2.4.
+
+    The appended patch tries to cleanup the gendisk handling for the in-kernel
+    driver a LOT, keeping all old APIs for posssible out-of-tree drivers.
+
+Hmm - this looks almost identical to my patch 07.
+Yes, a nice patch :-)
+
+Andries
+
+
+[BTW - I don't think the API changes are so large.
+Now patch 01 has been applied.
+Something very similar to 02 seems also a good candidate.
+Maybe I have time Friday or Saturday to rediff.]
+
+

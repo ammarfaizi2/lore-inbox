@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUHYKJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUHYIx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266003AbUHYKJP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 06:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUHYKJO
+	id S262329AbUHYIx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 04:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUHYIx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 06:09:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54416 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266003AbUHYKHg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 06:07:36 -0400
-Date: Wed, 25 Aug 2004 03:05:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Mikael Starvik" <mikael.starvik@axis.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 PATCH] CRIS architecture update
-Message-Id: <20040825030544.781889d6.akpm@osdl.org>
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66818F513@exmail1.se.axis.com>
-References: <BFECAF9E178F144FAEF2BF4CE739C66818F513@exmail1.se.axis.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 25 Aug 2004 04:53:28 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:5857 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S262329AbUHYIx0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 04:53:26 -0400
+Message-ID: <412C5350.5020502@ttnet.net.tr>
+Date: Wed, 25 Aug 2004 11:52:32 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net,
+       marcelo.tosatti@cyclades.com
+Subject: Re: PANIC [2.4.27] usb-storage
+References: <4127AF46.6090908@ttnet.net.tr> <20040824154753.503d0fc9@lembas.zaitcev.lan>
+In-Reply-To: <20040824154753.503d0fc9@lembas.zaitcev.lan>
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
 Content-Transfer-Encoding: 7bit
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mikael Starvik" <mikael.starvik@axis.com> wrote:
->
+Pete Zaitcev wrote:
+> On Sat, 21 Aug 2004 23:23:34 +0300
+> "O.Sezer" <sezeroz@ttnet.net.tr> wrote:
 > 
->    * CRIS architecture updated to 2.6.8.1.
->    * Performance improvements in MMU refill and multiple interrupt handling
+> 
+>>Unable to handle kernel paging request at virtual address e0ce6d90
+> 
+> 
+>>>>EIP; e0ce6d90 <[usb-storage]usb_stor_CBI_irq+0/70>   <=====
+> 
+> 
+> Something unmapped a page where the module code resided. Are you sure
+> you haven't tried to run rmmod? Bad idea.
+> 
+> -- Pete
+> 
 
-These were all wordwrapped by your email client.
+I was pretty confident that I told this happens upon modprobe -r
+or rmmod (at least in the previous messages). The problem is not
+(or at least shouldn't be) rmmod:
+With a "healthy" disk nothing happens upon rmmod usb-storage even
+if the disk is still plugged in (you can't mount the disk, that's
+what happens). With this beast, even after scsi reports it offlined
+=== [Edit:] even still after I unplug the disk =====
+the disk, usb-uhci still tries messing with irqs; please see the
+dmesg output.
 
-When you resend, please ensure that each patch has a meaningful Subject:,
-rather than just "2.6 [PATCH %d/6] CRIS architecture update".  Thanks.
-
+Ozkan

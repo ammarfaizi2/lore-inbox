@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274000AbRISEBd>; Wed, 19 Sep 2001 00:01:33 -0400
+	id <S273999AbRISEU0>; Wed, 19 Sep 2001 00:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273998AbRISEBY>; Wed, 19 Sep 2001 00:01:24 -0400
-Received: from [24.254.60.24] ([24.254.60.24]:47808 "EHLO
-	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S273997AbRISEBI>; Wed, 19 Sep 2001 00:01:08 -0400
-Message-ID: <3BA819C2.35829D39@didntduck.org>
-Date: Wed, 19 Sep 2001 00:06:26 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: en
+	id <S274001AbRISEUQ>; Wed, 19 Sep 2001 00:20:16 -0400
+Received: from pool-151-196-235-135.balt.east.verizon.net ([151.196.235.135]:29201
+	"EHLO vaio.greennet") by vger.kernel.org with ESMTP
+	id <S273999AbRISEUI>; Wed, 19 Sep 2001 00:20:08 -0400
+Date: Wed, 19 Sep 2001 00:21:38 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: eepro list <eepro100@scyld.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [eepro100] eepro100 driver (2.4 kernel) fails with S2080 Tomcat
+ i815t motherboard.
+In-Reply-To: <3BA800DD.8C72F065@candelatech.com>
+Message-ID: <Pine.LNX.4.10.10109190016140.19173-100000@vaio.greennet>
 MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
-        linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-Subject: Re: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
-In-Reply-To: <Pine.LNX.4.31.0109171725140.26090-100000@sisley.ri.silicomp.fr> <E15j2BM-0007WU-00@the-village.bc.nu> <20010919044203.A20143@kushida.degree2.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> 
-> Alan Cox wrote:
-> > > The "rep;nop" line looks dubious, since the IA-32 programmer's manual from
-> > > Intel (year 2001) mentions that the behaviour of REP is undefined when it
-> > > is not used with string opcodes. BTW, according to the same manual, REP is
-> > > supposed to modify ecx, but it looks like is is not the case here... which
-> > > is fortunate, since ecx is never saved. :-)
-> >
-> > rep nop is a pentium IV operation. Its retroactively after testing defined
-> > to be portable and ok.
-> 
-> Are we sure that the value of ECX doesn't matter on a 386?  Or does it
-> count down doing nops ECX times on a 386?
+On Tue, 18 Sep 2001, Ben Greear wrote:
 
-Older processors ignore the rep prefix when used with non-string
-opcodes.  %ecx should not be affected.
+> I have a Tyan motherboard (S2080 Tomcat i815t) with 2 built-in NICs.
+> 
+> The manual claims this:
+> 
+> "One Intel 82559 LAN controller
+>  One ICH2 LAN controller"
+> 
+> Seems that the eepro driver tries to bring up both of
+> them, and fails to read the eeprom on the second one it
+> scans.  One visible result is that the MAC is all FF's.
 
---
-						Brian Gerst
+Does the diagnostic program correctly read the EEPROM on both cards?
+If so, my driver release should work with the cards.
+
+> eth0: Intel Corporation 82557 [Ethernet Pro 100] (#3), 00:E0:81:03:B9:7B, IRQ 10.
+> eth1: Intel Corporation 82557 [Ethernet Pro 100] (#2), 00:90:27:65:39:1B, IRQ 3.
+> eth2: Intel Corporation 82557 [Ethernet Pro 100], 00:90:27:65:37:8A, IRQ 9.
+> eth3: Invalid EEPROM checksum 0xff00, check settings before activating this device!
+> eth3: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 11.
+
+> [root@lanf2 /root]# eepro100-diag -aaeemmf eth3
+
+The diagnostic does not (and cannot) know which card is "eth3".
+(Consider the case where no driver is loaded.)
+
+You must specify the interface to examine with e.g. "-#3" 
+
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
+

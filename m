@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265321AbSLJTdf>; Tue, 10 Dec 2002 14:33:35 -0500
+	id <S265681AbSLJT6M>; Tue, 10 Dec 2002 14:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbSLJTdf>; Tue, 10 Dec 2002 14:33:35 -0500
-Received: from delta.acabtu.com.mx ([200.33.20.90]:64389 "EHLO
-	delta.acabtu.com.mx") by vger.kernel.org with ESMTP
-	id <S265321AbSLJTdf>; Tue, 10 Dec 2002 14:33:35 -0500
-Message-ID: <3DF6418F.B73A93E5@acabtu.com.mx>
-Date: Tue, 10 Dec 2002 13:33:35 -0600
-From: Karina <kgs@acabtu.com.mx>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Trouble with kernel 2.4.18-18.7.x
+	id <S265713AbSLJT6M>; Tue, 10 Dec 2002 14:58:12 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:516 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265681AbSLJT6K>;
+	Tue, 10 Dec 2002 14:58:10 -0500
+Date: Mon, 9 Dec 2002 22:49:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: #! incompatible -- binfmt_script.c broken?
+Message-ID: <20021209214953.GA1624@elf.ucw.cz>
+References: <9633612287A@vcnet.vc.cvut.cz> <20021206090234.GA1940@zaurus> <3DF4DEC0.3030800@zytor.com> <20021209182605.GA22747@atrey.karlin.mff.cuni.cz> <at2qin$fgn$1@cesium.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.0(snapshot 20020828) (delta)
+Content-Disposition: inline
+In-Reply-To: <at2qin$fgn$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, i've just installed kernel 2.4.18-18.7.x  (from RPM) and now it
-seems there are problems with my scsi devices.
-I have attached an adaptec scsi  AIC7XXX adapter, the system detects the
-device, but in the logs appears messages: "blk: queue c24afa18, I/0
-limit 4095Mb (mask0xfffffff)", these messages didn't appear before with
-my old kernel.
+Hi!
 
-Also, there are another messages in the dmesg results:
+> > > > Why can't we simply have /bin/bash_that_splits_args_itself
+> > > 
+> > > We could, but it would in practice mean doing an extra exec() for each
+> > > executable.  This seems undesirable.
+> > 
+> > Only for executables that need argument spliting... For such scripts I
+> > guess we can get handle the overhead.
+> > 
+> 
+> We probably can, but a better question is really: what are the
+> semantics that users expect?  Given that Unices are by and large
+> inconsistent, we should pick the behaviour that makes sense to the
+> most people.  I suspect that most people would expect whitespace
+> partition.
 
-kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter errno = 2
-
-When i try to list or do something with my tape the message: st0 block
-limits 1 - 16777215 bytes appears...
-
-Sorry i'm new in this ?
-
-Is this a bug ? a big one ? should i use instead my old kernel ?
-
-Thanks in advance,
-
-Karina.
-
-
+Most people would also expect " and ' to work, and $FOO to work
+:-(. So I believe keeping it simple is right.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAKREr>; Thu, 11 Jan 2001 12:04:47 -0500
+	id <S129834AbRAKRKh>; Thu, 11 Jan 2001 12:10:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbRAKREi>; Thu, 11 Jan 2001 12:04:38 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:7172 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S130893AbRAKREb>;
-	Thu, 11 Jan 2001 12:04:31 -0500
-Date: Thu, 11 Jan 2001 19:04:16 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Is ECN useful yet?
-Message-ID: <20010111190416.E25659@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.30.0101111627330.5727-100000@svea.tellus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101111627330.5727-100000@svea.tellus>; from tori@tellus.mine.nu on Thu, Jan 11, 2001 at 04:36:32PM +0100
+	id <S129842AbRAKRKS>; Thu, 11 Jan 2001 12:10:18 -0500
+Received: from dsl081-146-215-chi1.dsl-isp.net ([64.81.146.215]:516 "EHLO
+	manetheren.eigenray.com") by vger.kernel.org with ESMTP
+	id <S129834AbRAKRKJ>; Thu, 11 Jan 2001 12:10:09 -0500
+Date: Thu, 11 Jan 2001 10:45:13 -0600 (CST)
+From: Paul Cassella <pwc@speakeasy.net>
+To: Andrew Morton <andrewm@uow.edu.au>, Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: 2.4.0-ac3 write() to tcp socket returning errno of -3 (ESRCH:
+ "No such process")
+In-Reply-To: <Pine.LNX.4.21.0101090727000.834-100000@localhost>
+Message-ID: <Pine.LNX.4.21.0101111023090.716-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2001 at 04:36:32PM +0100, Tobias Ringstrom wrote:
-> Does anyone know if ECN is supported by the Internet backbone routers yet,
-> i.e. will I gain anything by enabling ECN in my Linux boxes at this point?
-> (except pushing this excellent technology, of course).
+On Tue, 9 Jan 2001, Paul Cassella wrote:
 
-  No, at least not according to Cisco pages:
+> and mss_now seems to be less than skb->len when the printk happens.  My
+> copy of K&R is at work; could that comparison be being done unsigned
+> because of skb->len?  I wouldn't think so, but the alternative seems
+> somewhat worse...
 
-  http://www.cisco.com/warp/public/759/ipj_3-2/ipj_3-2_tcp.html
-  http://www.cisco.com/warp/public/759/ipj_3-3/ipj_3-3_futureTCP.html 
+That'll teach me to post about integral promotions ...
 
-> /Tobias
+> +		printk(KERN_ERR "%s:%d:%s: err is unexpectedly %d.\n", file, line, func, ret);
 
-/Matti Aarnio
+... and hand-edit patches before breakfast.
+
+
+I'm not familiar enough with the tcp code to know if this patch (against
+-ac6) is a solution, band-aid, or, in fact, wrong, but I've run with it
+(on -ac3) and haven't seen the errors for over twelve hours, which is
+three times longer than it had been able to go without it coming up.
+
+--- tcp.c.orig	Thu Jan 11 08:54:50 2001
++++ tcp.c	Thu Jan 11 08:56:42 2001
+@@ -954,7 +954,7 @@
+ 			 */
+ 			skb = sk->write_queue.prev;
+ 			if (tp->send_head &&
+-			    (mss_now - skb->len) > 0) {
++			    (signed int)(mss_now - skb->len) > 0) {
+ 				copy = skb->len;
+ 				if (skb_tailroom(skb) > 0) {
+ 					int last_byte_was_odd = (copy % 4);
+
+
+Or would this be better?
+
++			    (unsigned int)mss_now > skb->len) {
+
+Or making mss_now unsigned in the first place?
+
+-- 
+Paul Cassella
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129260AbQKWRkR>; Thu, 23 Nov 2000 12:40:17 -0500
+        id <S129248AbQKWRkS>; Thu, 23 Nov 2000 12:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129248AbQKWRkI>; Thu, 23 Nov 2000 12:40:08 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40967 "EHLO
+        id <S129210AbQKWRkI>; Thu, 23 Nov 2000 12:40:08 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38663 "EHLO
         neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129768AbQKWRj2>; Thu, 23 Nov 2000 12:39:28 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: "Hyper-Mount" option possible???
-Date: 23 Nov 2000 09:09:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vjivr$gri$1@cesium.transmeta.com>
-In-Reply-To: <3A1D3DF9.9199C744@earthlink.net>
+        id <S129767AbQKWRhF>; Thu, 23 Nov 2000 12:37:05 -0500
+Date: Thu, 23 Nov 2000 09:06:45 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, andrewm@uow.edu.au,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 3c59x: Using bad IRQ 0
+In-Reply-To: <Pine.LNX.4.21.0011212252300.30223-300000@svea.tellus>
+Message-ID: <Pine.LNX.4.10.10011230901580.7992-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A1D3DF9.9199C744@earthlink.net>
-By author:    Robert L Martin <robertlmarti@earthlink.net>
-In newsgroup: linux.dev.kernel
->
-> Not on list just throwing an idea out.
-> One thing that "bugs" me is if a given drive has more than one partion
-> each partion has to be mounted seperatly.
-> With CDs this also means you can not mount "split" cds in full if you
-> want to. Soo  Given that Super-Mount is already taken, How about (in
-> 2.5??)  hashing out a Hypermount option.
-> The way it could work is if you mount a full drive say "hdd" and have
-> each partion mounted on a tree from the mount point
-> of the drive.
+
+
+On Tue, 21 Nov 2000, Tobias Ringstrom wrote:
+> > 
+> > Tobias, can you confirm that calling pci_enable_device before reading
+> > dev->irq fixes the 3c59x.c problem for you?
 > 
+> Nope. The interrupts do not seem to get through. Packets are transmitted,
+> but that's it. I've copied the interesting parts from dmesg:
+> 
+> 3c59x.c:LK1.1.11 13 Nov 2000  Donald Becker and others. http://www.scyld.com/network/vortex.html $Revision: 1.102.2.46 $
+> See Documentation/networking/vortex.txt
+> PCI: Enabling device 00:0a.0 (0014 -> 0017)
+> PCI: Assigned IRQ 9 for device 00:0a.0
+> eth0: 3Com PCI 3c905C Tornado at 0xa400,  00:01:02:b4:18:e4, IRQ 9
 
-This sounds a lot like cdfs.
+Ok, the VIA stuff is happy, and enables the irq routing. The fact that the
+irq's don't actually seem to ever actually appear means that the enable
+sequence is probably slightly buggy.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Can you do two things?
+
+ - enable DEBUG in arch/i386/kernel/pci-i386.h. This should make the code
+   print out what the pirq table entries are etc.
+
+ - add the line "eisa_set_level_irq(irq);" to pirq_via_set() just before
+   the "return 1;"
+
+Jeff, you had complete VIA docs, right? Can you check that whatever 
+Tobias' ends up having output from the debug stuff looks sane?
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

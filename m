@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266256AbUANA0l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 19:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUANA0l
+	id S266283AbUANAca (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 19:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUANAc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 19:26:41 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49092 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266256AbUANA0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 19:26:39 -0500
-Date: Wed, 14 Jan 2004 01:26:38 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jim Houston <jhouston@new.localdomain>
-Cc: mpm@selenic.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       amitkale@emsyssoft.com
-Subject: Re: netpoll bug - kgdboe on x86_64
-Message-ID: <20040114002638.GA4146@atrey.karlin.mff.cuni.cz>
-References: <20040114001830.60F5DC60FC@h00e098094f32.ne.client2.attbi.com>
+	Tue, 13 Jan 2004 19:32:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64438 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266283AbUANAcW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 19:32:22 -0500
+Date: Tue, 13 Jan 2004 16:32:05 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: john moser <bluefoxicy@linux.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: initializing a task
+Message-ID: <20040113163205.B30560@osdlab.pdx.osdl.net>
+References: <20040113152026.34ADA3966@sitemail.everyone.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040114001830.60F5DC60FC@h00e098094f32.ne.client2.attbi.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040113152026.34ADA3966@sitemail.everyone.net>; from bluefoxicy@linux.net on Tue, Jan 13, 2004 at 07:20:26AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* john moser (bluefoxicy@linux.net) wrote:
+> I'm having severe severe issues with my jail.  Inside do_fork() I have
+> code for
 
-[Hmm, nice return address, Jim]
+Did you look at the INIT_TASK() macro for initialization.  Also, you may
+take a look at another jail implementation (done to emulate BSD jails)
+done as a security module.
+										http://mail.immunix.com/pipermail/linux-security-module/2003-December/4990.html
 
-> I'm trying to get kgdboe working on x86_64.  I noticed that
-> netpoll_rx is calling the rx_hook with negative values for the length.
-> The attached patch fixes the problem. 
-
-I was able to make -mm stuff work on i386, and there were not any
-strange problems. (Hope this encourages you :-)
-
-
-
-> Jim Houston - Concurrent Computer Corp.
-> 
-> ---
-> 
-> --- 2.6.1-rc1-mm2.orig/net/core/netpoll.c	2004-01-05 13:15:31.000000000 -0500
-> +++ 2.6.1-rc1-mm2/net/core/netpoll.c	2004-01-13 18:58:09.311479928 -0500
-> @@ -400,7 +400,7 @@ int netpoll_rx(struct sk_buff *skb)
->  
->  		if (np->rx_hook)
->  			np->rx_hook(np, ntohs(uh->source),
-> -				    (char *)(uh+1), ulen-sizeof(uh)-4);
-> +				    (char *)(uh+1), ulen-sizeof(struct udphdr));
->  
->  		return 1;
->  	}
-
+thanks
+-chris
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

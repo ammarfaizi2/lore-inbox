@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUK3MUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbUK3MT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUK3MUF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 07:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUK3MUF
+	id S262048AbUK3MT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 07:19:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUK3MT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 07:20:05 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:41133 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262050AbUK3MTF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 07:19:05 -0500
-Message-Id: <200411301218.iAUCI4o7003833@laptop11.inf.utfsm.cl>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       Alexandre Oliva <aoliva@redhat.com>, torvalds@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__ 
-In-Reply-To: Message from Matthew Wilcox <matthew@wil.cx> 
-   of "Fri, 26 Nov 2004 14:19:35 -0000." <20041126141935.GA29035@parcelfarce.linux.theplanet.co.uk> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 30 Nov 2004 09:18:04 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 30 Nov 2004 07:19:59 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:65284 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262048AbUK3MSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 07:18:55 -0500
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for
+	CONFIG_XEN
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, "David S. Miller" <davem@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <1101816850.2640.43.camel@laptop.fenrus.org>
+References: <E1CZ6op-0005QS-00@mta1.cl.cam.ac.uk>
+	 <1101816850.2640.43.camel@laptop.fenrus.org>
+Content-Type: text/plain
+Message-Id: <1101817125.2640.45.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 30 Nov 2004 13:18:45 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <matthew@wil.cx> said:
-> On Fri, Nov 26, 2004 at 12:00:43PM +0000, David Woodhouse wrote:
-> > On Fri, 2004-11-26 at 11:58 +0000, David Howells wrote:
+On Tue, 2004-11-30 at 13:14 +0100, Arjan van de Ven wrote:
+> On Tue, 2004-11-30 at 12:09 +0000, Ian Pratt wrote:
+> > > On Tue, 2004-11-30 at 08:56 +0000, Ian Pratt wrote:
+> > > 
+> > > > In the Xen case, we actually need to use io_remap_page_range for
+> > > > all /dev/mem accesses, so as to be able to map the BIOS area, DMI
+> > > > tables etc.
+> > > 
+> > > look at the /dev/mem patches in the -mm tree... there might be
+> > > infrastructure there that is useful to you
+> > 
+> > Thanks for the pointer. Having looked through, it's orthogonal
+> > and can't help us, though doesn't conflict with our patch either
+> > (fuzz 2).
+> 
+> well.. it makes all non-ram unaccessible... so what's left is only the
 
-> > > How about calling the interface headers "kapi*/" instead of "user*/".
-> > > In case you haven't guessed, "kapi" would be short for "kernel-api".
+eh too many negatives. it makes all kernel ram unaccessible.
 
-> > I don't think that change really makes any difference. The nomenclature
-> > really isn't _that_ important.
 
-> Indeed.  We could also make this transparent to userspace by using a script
-> to copy the user-* headers to /usr/include.  Something like this:
-
-And get them promptly out of sync with glibc &c when the kernel changes.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

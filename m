@@ -1,46 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUGHL6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUGHMAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263820AbUGHL6w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 07:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbUGHL6w
+	id S264610AbUGHMAh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 08:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbUGHMAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 07:58:52 -0400
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:53399 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S263820AbUGHL6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 07:58:51 -0400
-Date: Thu, 8 Jul 2004 13:58:50 +0200
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: Willy Weisz <weisz@vcpc.univie.ac.at>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kaya <kaya@emailkaya.com>
-Subject: Re: APIC error on CPU0:60(60)
-Message-ID: <20040708115849.GA32540@boogie.lpds.sztaki.hu>
-References: <40EBFAF7.1080505@vcpc.univie.ac.at> <200407071914.44496.mbuesch@freenet.de>
+	Thu, 8 Jul 2004 08:00:37 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:33665 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S264610AbUGHMAY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 08:00:24 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Thu, 8 Jul 2004 13:55:11 +0200
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: tom st denis <tomstdenis@yahoo.com>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: 0xdeadbeef vs 0xdeadbeefL
+Message-ID: <20040708115511.GA4391@iram.es>
+References: <20040707184737.GA25357@infradead.org> <20040707185340.42091.qmail@web41112.mail.yahoo.com> <20040708093249.GC32629@iram.es> <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200407071914.44496.mbuesch@freenet.de>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+In-Reply-To: <20040708111521.GK12308@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 07:14:41PM +0200, Michael Buesch wrote:
+On Thu, Jul 08, 2004 at 12:15:21PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Thu, Jul 08, 2004 at 11:32:50AM +0200, Gabriel Paubert wrote:
+> 
+> > Yes, I know and I use BK. But given the fact that you insult me for 
+> > better knowing C rules than you, I'm seriously considering switch 
+> > to subversion or arch instead.
+> > 
+> > Argh, I've mentioned BK. There should be a Goldwin's law equivalent
+> > for BitKeeper on lkml ;-)
+> 
+> Godwin, surely?
 
-> I can't say if the reason is not a faulty CPU. Maybe,
-> maybe not. Who knows.
+Right, should have looked the name up.
 
-Well, I have a machine which produces "APIC error" messages only if the
-kernel has been configured with CONFIG_PCI_USE_VECTOR enabled. Without
-CONFIG_PCI_USE_VECTOR, I get no APIC errors. The machine has a single
-1.7GHz P4 in it, and the kernel has ACPI, APIC and IO-APIC support all
-enabled. I can provide more detailed information if needed but it will
-take some time since the machine is not connected to any network.
+> 
+> Anyway, if you think that suckversion authors knew C...  Try to read their
+> decoder/parser/whatever you call the code handling the data stream obtained
+> from other end of connection.  _Especially_ when it comes to signedness
+> (of integers, mostly).
 
-Gabor
+I did not read it, neither did I read BitKeeper's code for 
+obvious reasons.
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+> 
+> > - the aforementioned fgetc/getc/getchar issues.
+> 
+> ... have nothing to do with char; getc() has more legitimate return values
+> than char can represent.  
+
+Only one more, unless I missed something.
+
+> No matter whether it's signed or unsigned, if
+> you have
+> 	... char c;
+> 	...
+> 	c = getc();
+> you have a bug - Dirichlet Principle bites you anyway.
+
+Indeed, but unfortunately you don't hit the problem with 
+pure ASCII on x86. That's one of the reasons for which 
+a lot of code ported to archs where char is unsigned by
+default is simply compiled with -fsigned-char instead of 
+correcting the bugs. 
+
+The remaining case (char 0xff) is infrequent, at least 
+for Latin-[19] encodings in the languages I know, and 
+never happens with UTF-8 AFAICT. 
+
+Heck, even the 2.4 ppc kernel is compiled with 
+-fsigned-char, for $DEITY's sake. 
+
+	Regards,
+	Gabriel
+

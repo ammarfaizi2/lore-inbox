@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317658AbSGKFaq>; Thu, 11 Jul 2002 01:30:46 -0400
+	id <S317672AbSGKFmk>; Thu, 11 Jul 2002 01:42:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317672AbSGKFaq>; Thu, 11 Jul 2002 01:30:46 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:52730 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S317658AbSGKFap>;
-	Thu, 11 Jul 2002 01:30:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Jesse Barnes <jbarnes@sgi.com>, Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: spinlock assertion macros
-Date: Thu, 11 Jul 2002 07:31:09 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17SPsV-00028p-00@starship> <20020710233616.GA696482@sgi.com>
-In-Reply-To: <20020710233616.GA696482@sgi.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17SWXm-0002BL-00@starship>
+	id <S317674AbSGKFmj>; Thu, 11 Jul 2002 01:42:39 -0400
+Received: from h-64-105-137-27.SNVACAID.covad.net ([64.105.137.27]:10170 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317672AbSGKFmj>; Thu, 11 Jul 2002 01:42:39 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 10 Jul 2002 22:44:48 -0700
+Message-Id: <200207110544.WAA20858@adam.yggdrasil.com>
+To: acme@conectiva.com.br
+Subject: Re: Rusty's module talk at the Kernel Summit
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 July 2002 01:36, Jesse Barnes wrote:
-> On Thu, Jul 11, 2002 at 12:24:06AM +0200, Daniel Phillips wrote:
-> > Acme, which is to replace all those above-the-function lock coverage
-> > comments with assert-like thingies:
-> > 
-> >    spin_assert(&pagemap_lru_lock);
-> > 
-> > And everbody knows what that does: when compiled with no spinlock
-> > debugging it does nothing, but with spinlock debugging enabled, it oopses
-> > unless pagemap_lru_lock is held at that point in the code.  The practical
-> > effect of this is that lots of 3 line comments get replaced with a
-> > one line assert that actually does something useful.  That is, besides
-> > documenting the lock coverage, this thing will actually check to see if
-> > you're telling the truth, if you ask it to.
-> > 
-> > Oh, and they will stay up to date much better than the comments do,
-> > because nobody needs to to be an ueber-hacker to turn on the option and
-> > post any resulting oopses to lkml.
-> 
-> Sounds like a great idea to me.  Were you thinking of something along
-> the lines of what I have below or perhaps something more
-> sophisticated?  I suppose it would be helpful to have the name of the
-> lock in addition to the file and line number...
+>Date: Thu, 11 Jul 2002 00:01:54 -0300
+>From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 
-I was thinking of something as simple as:
+>BTW, where are these patches for IPv4 modularisation? I'd love to take a look
+>and try it... Adam? Is it available for 2.5.latest?
 
-   #define spin_assert_locked(LOCK) BUG_ON(!spin_is_locked(LOCK))
+	I have to catch a plane to Beijing in the morning and I
+haven't packed and the internet connectivity in the rooms there is
+flakey (possibly due to their router, which is running a Linux 2.2
+kernel, by the way).  So, please excuse my sloppy approach, as this
+might otherwise take weeks.
 
-but in truth I'd be happy regardless of the internal implementation.  A note
-on names: Linus likes to shout the names of his BUG macros.  I've never been
-one for shouting, but it's not my kernel, and anyway, I'm happy he now likes
-asserts.  I bet he'd like it more spelled like this though:
+	I have made a diff of linux/{net,drivers/net} against 2.5.25,
+which should show my ipv4 modularization changes, although there are a
+bunch of other changes that are irrelevant (unrelated changes to
+various net device drivers) and some that might be relevant (e.g.,
+disintegrating drivers/net/net_init.c, modularizing some media level
+network protocols).
 
-   MUST_HOLD(&lock);
+	The diff is FTPable from
 
-And, dare I say it, what I'd *really* like to happen when the thing triggers
-is to get dropped into kdb.  Ah well, perhaps in a parallel universe...
+	ftp://ftp.yggdrasil.com/private/adam/kernel/netdiff-2.5.25.gz
 
-When one of these things triggers I do think you want everything to come to
-a screeching halt, since, to misquote Matrix, "you're already dead", and you
-don't want any one-per-year warnings to slip off into the gloomy depths of
-some forgotten log file.
+	In case I missed something, I have also placed a complete .tar.gz
+kernel snapshot at
 
--- 
-Daniel
+	ftp://ftp.yggdrasil.com/private/adam/kernel/linux-2.5.25.ygg.tar.gz
+
+	ipv4 modularization would need to be looked over by the lkml
+crowd and cleaned up before being sent to Linus.  I probably got lots
+of details wrong.  As I mentioned in a previous email, I thought that
+there was a modularized ipv4 already working its way to Linus from the
+vger cvs tree (don't know if it still exists), which I presumed would
+have had a lot more programmer power alreadya applied to it.  Perhaps
+Dave Miller could comment on whether I misunderstood the situation
+and, if there were other ipv4 modularization patches floating around,
+whether he or anyone else knows their current status.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+

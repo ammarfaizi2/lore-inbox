@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129543AbQLKIxy>; Mon, 11 Dec 2000 03:53:54 -0500
+	id <S129655AbQLKI4E>; Mon, 11 Dec 2000 03:56:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129655AbQLKIxo>; Mon, 11 Dec 2000 03:53:44 -0500
-Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:17288 "EHLO
-	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
-	id <S129543AbQLKIxk>; Mon, 11 Dec 2000 03:53:40 -0500
-Date: Mon, 11 Dec 2000 09:21:30 +0100
-From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11 EXT2 corruption (closed)
-Message-ID: <20001211092130.A9129@iapetus.localdomain>
-In-Reply-To: <20001210161723.A1060@iapetus.localdomain> <20001210183101.A6947@iapetus.localdomain> <20001210213500.A17413@iapetus.localdomain> <20001210224402.A913@iapetus.localdomain> <20001211013736.A18862@win.tue.nl>
+	id <S129700AbQLKIzy>; Mon, 11 Dec 2000 03:55:54 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:36607 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129655AbQLKIzn>; Mon, 11 Dec 2000 03:55:43 -0500
+Message-Id: <5.0.2.1.2.20001211080948.03fedb80@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 11 Dec 2000 08:19:05 +0000
+To: Ion Badulescu <ionut@cs.columbia.edu>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: eepro100 driver update for 2.4
+Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012101901030.5164-100000@age.cs.columbia.ed
+ u>
+In-Reply-To: <3A341B3F.B5D962A8@Hell.WH8.TU-Dresden.De>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20001211013736.A18862@win.tue.nl>; from dwguest@win.tue.nl on Mon, Dec 11, 2000 at 01:37:36AM +0100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 11, 2000 at 01:37:36AM +0100, Guest section DW wrote:
-> 
-> I see lots of messages from you about corruption in 2.4.0-test11
-> but we all know very well that 2.4.0-test11 corrupts things
-> and further evidence is not necessary.
-> Hopefully all, or at least the most significant, problems
-> have been solved now, so you should upgrade to the most
-> recent test kernel and see how things are there.
-> 
-Thanks. test12-pre7 fixes this for me: it ran all night testing and
-no problems so far.
+At 03:16 11/12/2000, Ion Badulescu wrote:
+>On Mon, 11 Dec 2000, Udo A. Steinberg wrote:
+>Anton Altaparmakov wrote:
+> > > My card is an Ether Express Pro 100, lcpci says: Intel Corporation 82557
+> > > [Ethernet Pro 100] (rev 04)
+>
+>So it's an i82558 A-step. That's interesting, the patch shouldn't have
+>made any difference on an i82558, at least according to the documentation.
+
+I'll give test12-pre7 a try without the patch and see if the messages 
+reappear. - With the patch it the box has been running all night without a 
+single no resources message from the EEPro.
+
+> > > and lspci -n gives: class 0200: 10b7:9004
+>
+>Umm.. I don't think so. :) This a 3Com 3c900B. You probably got the wrong
+>entry, in case you have multiple cards in that box.
+
+Sorry. Slipped by one line (box has several network cards - only the eepro 
+gives the no resources messages, the 3com's are fine). The right one line 
+is: 0200: 8086:1229 (rev 04)
+
+Anton
+
 
 -- 
-Frank
+      "Education is what remains after one has forgotten everything he 
+learned in school." - Albert Einstein
+-- 
+Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
+Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
+Cambridge CB2 3BU    ICQ: 8561279
+United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

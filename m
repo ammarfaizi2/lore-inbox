@@ -1,99 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUKZVSc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264008AbUKZUHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbUKZVSc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbUKZVO4
+	id S264008AbUKZUHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:07:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264007AbUKZUGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 16:14:56 -0500
-Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:17217 "EHLO
-	mailrelay02.tugraz.at") by vger.kernel.org with ESMTP
-	id S264117AbUKZVMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 16:12:48 -0500
-From: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-To: reiserfs-list@namesys.com
-Subject: Re: file as a directory
-Date: Fri, 26 Nov 2004 22:13:57 +0100
-User-Agent: KMail/1.7.1
-Cc: Hans Reiser <reiser@namesys.com>,
-       Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org
-References: <2c59f00304112205546349e88e@mail.gmail.com> <1101379820.2838.15.camel@grape.st-and.ac.uk> <41A773CD.6000802@namesys.com>
-In-Reply-To: <41A773CD.6000802@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 15:06:12 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262608AbUKZTfO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:35:14 -0500
+Date: Thu, 25 Nov 2004 20:28:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
+Message-ID: <20041125192834.GB1302@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101296414.5805.286.camel@desktop.cunninghams> <20041124132949.GB13145@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411262213.58242.christian.mayrhuber@gmx.net>
+In-Reply-To: <20041124132949.GB13145@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 November 2004 19:19, Hans Reiser wrote:
-> For the case Peter cites, yes, it does add clutter to the pathname to 
-> say "..metas" (actually, it is "...." now in the current reiser4, not 
-> "..metas").  This is because you aren't looking for metafile 
-> information, you are looking for a subset and describing the subset, and 
-> that just requires a file-directory plugin that can handle the name of 
-> that subset and parse the file to find it.
+
+> > Here we add simple hooks so that the user can interact with suspend
+> > while it is running. (Hmm. The serial console condition could be
+> > simplified :>). The hooks allow you to do such things as:
+> > 
+> > - cancel suspending
+
+I can understand that you want this one. I do not think uglyness is
+worth it, through.
+
+> > - change the amount of detail of debugging info shown
+
+Use sysrq-X as you do during runtime.
+
+> > - change what debugging info is shown
+> > - pause the process
+> > - single step
+
+Usefull for developing swsusp but not for using it. Should live as a
+separate patch.
+
+> > - toggle rebooting instead of powering down
+
+This is prety much nonsensical. You can do echo reboot > disk. If you
+forget to do it, all you have to do is press power after it powers
+down. That's about as much work as pressing 'R' while you are
+suspending, right?
+
+Please drop this one.
+
+> And why would we want this?  If the users calls the suspend call
+> he surely wants to suspend, right?
 > 
+> After all we don't have inkernel hooks to allow a user to read instead
+> write after calling sys_write.
 
-Regarding namespace unification + XPath:
-For files: cat /etc/passwd/[. = "joe"] should work like in XPath.
-But what to do with directories?
-Would 'cat /etc/[. = "passwd"]' output the contents of the passwd file
-or does it mean to output the file '[. = "passwd"]'?
-If the first is the case then you have to prohibit filenames looking 
-like '[foo bar]'.
-
-If the shells wouldn't like * for themself, I'd suggest something like
-cat /etc/*[. = "passwd"]
-This means: list all contents and show the ones where filename = "passwd".
-
-For the contents of /etc/passwd the following could become possible:
-'cat /etc/passwd/*[. = "joe"]
-'cat /etc/passwd/*[@shell = "/bin/tcsh"]
-The XPath could behave similiar as if applied to the following XML:
-<entries>
-  <root passwd="x" shell="/bin/sh" .... />
-  ...
-  <joe passwd="x" shell="/bin/tcsh" uid="500" gid="500" .... />
-</entries>
-The output from the cat's above return the line of joe's entry:
-joe:x:500:500:joe:/home/joe:/bin/tcsh
-
-To change all tcsh entries to bash:
-echo -n "/bin/bash" > /etc/passwd/*[@shell = "/bin/tcsh"]/@shell
-
-I hope I'm not offending, but my impression is now that
-XPath stuff fits better into some shell providing
-a XPath view of the filesystem, than into the kernel.
-
---------------------------------------------------------------------
-
-What about mapping the contents of files into "pure" posix namespace?
-XML is basically a tree, too.
-Notes: 
-1) "...." below is the entry to reiser4 namespace.
-2) # denotes a shell command
-For example:
-
-# cd /etc/passwd/
-# ls -a *
-. .. .... joe root
-# cd joe
-# ls
-gid home passwd shell uid
-# cat shell
-/bin/tcsh
-# cd ../....
-# ls 
-plugins 
-
-I guess an implementation in reiser4 would require some
-mime-type/file extension dispatcher plus a special
-directory plugin for each mime-type.
-
+:-))))))))).
+								Pavel
 -- 
-lg, Chris
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

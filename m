@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTEMTjF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 15:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbTEMTjF
+	id S262324AbTEMTf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 15:35:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbTEMTf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 15:39:05 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:60924 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262328AbTEMTjE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 15:39:04 -0400
-Date: Tue, 13 May 2003 21:51:06 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 must-fix list, v2
-In-Reply-To: <20030513163854.A27407@infradead.org>
-Message-ID: <Pine.GSO.4.21.0305132140200.13355-100000@vervain.sonytel.be>
+	Tue, 13 May 2003 15:35:29 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:13273 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262324AbTEMTf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 15:35:28 -0400
+Date: Tue, 13 May 2003 21:48:13 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
+Message-ID: <Pine.LNX.4.51.0305132143570.19932@dns.toxicfilms.tv>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, Christoph Hellwig wrote:
-> On Tue, May 13, 2003 at 02:57:08PM +0100, Alan Cox wrote:
-> > SH3/SH3-64 need resynching, as do some other ports. No impact on
-> > mainstream platforms hopefully
-> 
-> That brings up another issue:  what ports do regularly work with 2.5
-> mainline?  I've been working with David to get all those core changes ia64
-> needs (and there's still a lot) sorted out so maybe 2.6 will work out of
-> the box.  I guess some other arches (parisc, mips?) will need similar
-> work.
+Hi,
 
-Just FYI... For the m68k port, I have ca. 150 KiB of patches in Linus' INBOX
-(if they're still there, mainly irqreturn_t stuff), and about 100 KiB of
-postponed stuff I'm not gonna send (i.e. things that are not ready for
-submission yet, or that are too controversial).
+on 2.5.69-dj1 (so it's a 2.5.69-bk5 kernel) i found these two in my kernel
+log, which i have not seen before. There are just 2 occurences of that.
+Is that something about a hardware failure, or something else?
 
-Amiga (non-SCSI) and Q40/Q60 should work fairly well in 2.5.x, except that
-early userspace (launching of /sbin/init) got broken in 2.5.67 or 2.5.68.
 
-For comparison, 2.4.x has no stuff in Marcelo's INBOX, and about the same 100
-KiB of postponed stuff. Not counting Michael Müller's new TekXpress port, which
-is not even in Linux/m68k CVS (http://linux-m68k-cvs.apia.dhs.org/) yet.
+15:04:01 pysiak kernel: hdb: dma_timer_expiry: dma status == 0x64
+15:04:01 pysiak kernel: hdb: lost interrupt
+15:04:01 pysiak kernel: hdb: dma_intr: bad DMA status (dma_stat=70)
+15:04:01 pysiak kernel: hdb: dma_intr: status=0x50 { DriveReady SeekComplete }
+15:04:01 pysiak kernel:
+17:14:04 pysiak kernel: hdb: dma_timer_expiry: dma status == 0x64
+17:14:04 pysiak kernel: hdb: lost interrupt
+17:14:04 pysiak kernel: hdb: dma_intr: bad DMA status (dma_stat=70)
+17:14:04 pysiak kernel: hdb: dma_intr: status=0x50 { DriveReady SeekComplete }
 
-Gr{oetje,eeting}s,
 
-						Geert
+/dev/hdb:
+ multcount    = 16 (on)
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
+ geometry     = 38792/16/63, sectors = 39102336, start = 0
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Regards,
+Maciej
 

@@ -1,91 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265006AbUGGIjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUGGIy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265006AbUGGIjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 04:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUGGIhi
+	id S264984AbUGGIy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 04:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbUGGIy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 04:37:38 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:18383 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S265007AbUGGIax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 04:30:53 -0400
-Date: Wed, 07 Jul 2004 17:32:09 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: [PATCH 3/4][Diskdump]Update patches
-In-reply-to: <EC463FC08D159indou.takao@soft.fujitsu.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <11C463FCE4EACFindou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.55
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <EC463FC08D159indou.takao@soft.fujitsu.com>
+	Wed, 7 Jul 2004 04:54:57 -0400
+Received: from tartu.cyber.ee ([193.40.6.68]:22030 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id S264984AbUGGIy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 04:54:56 -0400
+From: Meelis Roos <mroos@linux.ee>
+To: jesse@cola.voip.idv.tw, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7+BK bad: scheduling while atomic! (ALSA?)
+In-Reply-To: <1089168049.3892.19.camel@libra>
+User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.7 (i686))
+Message-Id: <E1Bi8BA-0006m2-62@rhn.tartu-labor>
+Date: Wed, 07 Jul 2004 11:53:24 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch for aic7xxx driver.
+WcJS> I got similar output here when I try to run xmms with alsa plugin.
+WcJS> Solved with modified sound/core/control.c. Maybe you can try this tiny
+WcJS> patch. :)
 
+This works, thanks! alsamixer no longer segfaults on exit.
 
-diff -Nur linux-2.6.7.org/drivers/scsi/aic7xxx/aic7xxx_osm.c linux-2.6.7/drivers/scsi/aic7xxx/aic7xxx_osm.c
---- linux-2.6.7.org/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-06-22 10:27:49.000000000 +0900
-+++ linux-2.6.7/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-07-07 14:16:22.000000000 +0900
-@@ -774,6 +774,8 @@
- static int	   ahc_linux_bus_reset(Scsi_Cmnd *);
- static int	   ahc_linux_dev_reset(Scsi_Cmnd *);
- static int	   ahc_linux_abort(Scsi_Cmnd *);
-+static int	   ahc_linux_sanity_check(struct scsi_device *);
-+static void	   ahc_linux_poll(struct scsi_device *);
- 
- /*
-  * Calculate a safe value for AHC_NSEG (as expressed through ahc_linux_nseg).
-@@ -1315,6 +1317,8 @@
- 	.slave_alloc		= ahc_linux_slave_alloc,
- 	.slave_configure	= ahc_linux_slave_configure,
- 	.slave_destroy		= ahc_linux_slave_destroy,
-+	.dump_sanity_check	= ahc_linux_sanity_check,
-+	.dump_poll		= ahc_linux_poll,
- };
- 
- /**************************** Tasklet Handler *********************************/
-@@ -3868,6 +3872,41 @@
- 	return IRQ_RETVAL(ours);
- }
- 
-+static int
-+ahc_linux_sanity_check(struct scsi_device *device)
-+{
-+	struct ahc_softc *ahc;
-+	struct ahc_linux_device *dev;
-+
-+	ahc = *(struct ahc_softc **)device->host->hostdata;
-+	dev = ahc_linux_get_device(ahc, device->channel,
-+				   device->id, device->lun,
-+					   /*alloc*/FALSE);
-+	if (dev == NULL)
-+		return -ENXIO;
-+	if (ahc->platform_data->qfrozen || dev->qfrozen)
-+		return -EBUSY;
-+	if (spin_is_locked(&ahc->platform_data->spin_lock))
-+		return -EBUSY;
-+	return 0;
-+}
-+
-+static void
-+ahc_linux_poll(struct scsi_device *device)
-+{
-+	struct ahc_softc *ahc;
-+	struct ahc_linux_device *dev;
-+
-+	ahc = *(struct ahc_softc **)device->host->hostdata;
-+	ahc_intr(ahc);
-+	while ((dev = ahc_linux_next_device_to_run(ahc)) != NULL) {
-+		TAILQ_REMOVE(&ahc->platform_data->device_runq, dev, links);
-+		dev->flags &= ~AHC_DEV_ON_RUN_LIST;
-+		ahc_linux_check_device_queue(ahc, dev);
-+	}
-+	ahc_linux_run_complete_queue(ahc);
-+}
-+
- void
- ahc_platform_flushwork(struct ahc_softc *ahc)
- {
+I actually had 2 problems, the other one being xruns with snd_via82xx
+driver and these are still present.
+
+-- 
+Meelis Roos

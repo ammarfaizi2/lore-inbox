@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSGYQ0K>; Thu, 25 Jul 2002 12:26:10 -0400
+	id <S314811AbSGYQWv>; Thu, 25 Jul 2002 12:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315337AbSGYQ0K>; Thu, 25 Jul 2002 12:26:10 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61942 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315266AbSGYQ0K>; Thu, 25 Jul 2002 12:26:10 -0400
-Subject: Re: [PATCH] generalized spin_lock_bit, take two
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3D3F61A2.10661C93@zip.com.au>
-References: <1027556989.927.1646.camel@sinai> 
-	<3D3F61A2.10661C93@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Jul 2002 09:29:21 -0700
-Message-Id: <1027614561.1697.11.camel@sinai>
+	id <S315214AbSGYQWv>; Thu, 25 Jul 2002 12:22:51 -0400
+Received: from tolkor.SGI.COM ([192.48.180.13]:35984 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S314811AbSGYQWu>;
+	Thu, 25 Jul 2002 12:22:50 -0400
+Date: Thu, 25 Jul 2002 11:25:21 -0500
+From: Nathan Straz <nstraz@sgi.com>
+To: John August <johna@babel.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 Fuji 1300 usb-storage problem
+Message-ID: <20020725162521.GA10675@sgi.com>
+Mail-Followup-To: John August <johna@babel.apana.org.au>,
+	linux-kernel@vger.kernel.org
+References: <20020725102955.A700@babel.apana.org.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020725102955.A700@babel.apana.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-24 at 19:25, Andrew Morton wrote:
+On Thu, Jul 25, 2002 at 10:29:55AM +1000, John August wrote:
+> Note that it does not get as far as identifying the partition table,
+> and the Model is indicated as FinePix 1400Zoom, when its in fact a 1300,
+> and previously it was "USB-DRIVEUNIT" as the model.
 
-> I did some testing yesterday with fork/exec/exit-intensive
-> workloads and the contention rate on pte_chain_lock was 0.3%,
-> so the efficiency problems which Linus described are unlikely
-> to bite us in this particular application.  But if the usage
-> of spin_lock_bit() were to widen, some platforms may be impacted.
+Maybe the 1300 doesn't have as broken a USB implementation as the 1400
+does.  In linux/drivers/usb/storage/unusual_devs.h there is an entry for
+the 1400.
 
-At this point (with Linus asking me to keep the "pte_chain_lock()"
-interface) I do not really care so long as we not compile the actual
-locking on UP.
+UNUSUAL_DEV(  0x04cb, 0x0100, 0x0000, 0x2210,
+                "Fujifilm",
+                "FinePix 1400Zoom",
+                US_SC_8070, US_PR_CBI, NULL, US_FL_FIX_INQUIRY),
 
-Will you take this patch, then?
+The third and fourth numbers are the range of product identifiers to
+consider unusual.  0x0000 - 0x2210 is probably a little broad.  Try
+changing that to 0x2210 - 0x2210 and see if your 1300 works again.
 
-	Robert Love
-
-diff -urN linux-2.5.28/include/linux/page-flags.h linux/include/linux/page-flags.h
---- linux-2.5.28/include/linux/page-flags.h	Wed Jul 24 14:03:21 2002
-+++ linux/include/linux/page-flags.h	Thu Jul 25 09:27:01 2002
-@@ -228,6 +228,8 @@
- #define ClearPageDirect(page)		clear_bit(PG_direct, &(page)->flags)
- #define TestClearPageDirect(page)	test_and_clear_bit(PG_direct, &(page)->flags)
- 
-+#ifdef CONFIG_SMP
-+
- /*
-  * inlines for acquisition and release of PG_chainlock
-  */
-@@ -253,6 +255,20 @@
- 	preempt_enable();
- }
- 
-+#else
-+
-+static inline void pte_chain_lock(struct page *page)
-+{
-+	preempt_disable();
-+}
-+
-+static inline void pte_chain_unlock(struct page *page)
-+{
-+	preempt_enable();
-+}
-+
-+#endif
-+
- /*
-  * The PageSwapCache predicate doesn't use a PG_flag at this time,
-  * but it may again do so one day.
-
+-- 
+Nate Straz                                              nstraz@sgi.com
+sgi, inc                                           http://www.sgi.com/
+Linux Test Project                                  http://ltp.sf.net/

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263452AbRFCQB5>; Sun, 3 Jun 2001 12:01:57 -0400
+	id <S263711AbRFCWKs>; Sun, 3 Jun 2001 18:10:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263338AbRFCPGh>; Sun, 3 Jun 2001 11:06:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3589 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263210AbRFCPG3>; Sun, 3 Jun 2001 11:06:29 -0400
-Subject: Re: Linux 2.4.5-ac7
-To: nico@cam.org (Nicolas Pitre)
-Date: Sun, 3 Jun 2001 16:03:58 +0100 (BST)
-Cc: green@linuxhacker.ru (Oleg Drokin), laughing@shared-source.org (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106031053110.1312-100000@xanadu.home> from "Nicolas Pitre" at Jun 03, 2001 10:56:53 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263786AbRFCWKj>; Sun, 3 Jun 2001 18:10:39 -0400
+Received: from ns01.vbnet.com.br ([200.230.208.6]:34027 "EHLO
+	iron.vbnet.com.br") by vger.kernel.org with ESMTP
+	id <S263711AbRFCV2d>; Sun, 3 Jun 2001 17:28:33 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Carlos E Gorges <carlos@techlinux.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 245-ac7 i2c Config.in fix ( please ignore the previous message )
+Date: Sun, 3 Jun 2001 18:27:56 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01060318083600.25690@shark.techlinux>
+In-Reply-To: <01060318083600.25690@shark.techlinux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E156ZQ6-0004Pr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01060318275601.25690@shark.techlinux>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If it ever gets to a stability point where it's worth including in Alan's
-> tree, then the dependency could easily be modified to be "USB requires PCI
-> or SA1111".  In the mean time I keep that hairball in my tree.
 
-Even cleaner might be
+Please ignore the previous message, 
+this is a problem caused by sensors patch.
 
-USB requires nothing
-usb-ohci requires PCI (which it definitely does now with the API's it uses)
-usb-uchi requires PCI 
-uhci requires PCI
-[other controllers]
+cya;
 
-USB devices requires a USB controller was selected
+-- 
+	 _________________________
+	 Carlos E Gorges          
+	 (carlos@techlinux.com.br)
+	 Tech informática LTDA
+	 Brazil                   
+	 _________________________
 

@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263834AbRFLXd4>; Tue, 12 Jun 2001 19:33:56 -0400
+	id <S263874AbRFLX7R>; Tue, 12 Jun 2001 19:59:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263851AbRFLXdr>; Tue, 12 Jun 2001 19:33:47 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:27008 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S263834AbRFLXdd>; Tue, 12 Jun 2001 19:33:33 -0400
+	id <S263881AbRFLX7H>; Tue, 12 Jun 2001 19:59:07 -0400
+Received: from jalon.able.es ([212.97.163.2]:29149 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S263874AbRFLX6y>;
+	Tue, 12 Jun 2001 19:58:54 -0400
+Date: Wed, 13 Jun 2001 01:48:01 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: "Albert D . Cahalan" <acahalan@cs.uml.edu>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org,
+        ognen@gene.pbi.nrc.ca
+Subject: Re: threading question
+Message-ID: <20010613014801.A17093@werewolf.able.es>
+In-Reply-To: <XFMail.20010612144449.davidel@xmailserver.org> <200106122158.f5CLwTR253610@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: "Craig Lyons" <craigl@promise.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Getting A Patch Into The Kernel
-Date: Tue, 12 Jun 2001 14:32:31 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <005101c0f38f$e2000960$bd01a8c0@promise.com>
-In-Reply-To: <005101c0f38f$e2000960$bd01a8c0@promise.com>
-MIME-Version: 1.0
-Message-Id: <01061214323100.01850@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200106122158.f5CLwTR253610@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Tue, Jun 12, 2001 at 23:58:29 +0200
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 June 2001 18:34, Craig Lyons wrote:
 
-> We have a patch that fixes this and are wondering if it
-> is possible to get this patch into the kernel, and if so, how this would be
-> done?
+On 20010612 Albert D. Cahalan wrote:
+> 
+> In that case, this could be a hardware issue. Note that he seems
+> to be comparing an x86 PC against SGI MIPS, Sun SPARC, and Compaq
+> Alpha hardware.
+> 
+> His data set is most likely huge. It's DNA data.
+> 
+> The x86 box likely has small caches, a fast core, and a slow bus.
+> So most of the time the CPU will be stalled waiting for a memory
+> operation.
+> 
 
-Well, you start by reading this:
+Perhaps is just synchronization of caches. 
+say you want to sum all the elements of a vector in parallele split in
+two pieces:
 
-http://www.linuxhq.com/kernel/v2.4/doc/SubmittingPatches.html
+int total=0;
+thread 1:
+	for fist half
+		total += v[i]
+thread 2:
+	for second half
+		total += v[i]
 
-Which basically says that you post it here, with a title along the lines of:
+and you tought: 'well, I need a mutex for access to total. that will slow
+down things, lets use separate counters':
 
-"[PATCH] promise IDE raid support".
+int bigtotal;
+int total[2];
+thread 1:
+	for fist half
+		total[0] += v[i]
+thread 2:
+	for second half
+		total[1] += v[i]
 
-Start the body of your email with a brief description of the patch (the above 
-is fine, mentioning that this is an official patch from promise is nice), and 
-then include the patch itself at the end of the email in plain text.  (Linus 
-won't read Mime attachments, although others sometimes do and forward them to 
-him.  Sometimes.)
+bigtotal = total[0]+total[1]
 
-You do know how to make a unified diff using "diff -u", right?  (I'm assuming 
-you have an includeable patch already prepared?)
+The problem ? total[0] and total[1] are nearby one of each other. So in
+the same cache line. So on every write to total[?], even if they are
+independent, system has to synchrnize caches.
 
-Also, try to use an email program that doesn't mangle whitespace.  (It's a 
-nit-pick, but it's good hygiene.)  The difference between spaces and tabs is 
-generally considered to be a good thing to maintain.
+Big iron (SGI, Sparc), has special hardware, but cheap PC mobos...
 
-Rob
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac13 #1 SMP Sun Jun 10 21:42:28 CEST 2001 i686

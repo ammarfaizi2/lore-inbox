@@ -1,67 +1,103 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317441AbSFHUEn>; Sat, 8 Jun 2002 16:04:43 -0400
+	id <S317421AbSFHUV1>; Sat, 8 Jun 2002 16:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317443AbSFHUEm>; Sat, 8 Jun 2002 16:04:42 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:48515 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S317441AbSFHUEl>;
-	Sat, 8 Jun 2002 16:04:41 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 8 Jun 2002 22:04:42 +0200 (MEST)
-Message-Id: <UTC200206082004.g58K4gV27229.aeb@smtp.cwi.nl>
-To: jgarzik@mandrakesoft.com
-Subject: eth problems
-Cc: linux-kernel@vger.kernel.org
+	id <S317436AbSFHUV0>; Sat, 8 Jun 2002 16:21:26 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:58637
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317421AbSFHUVZ>; Sat, 8 Jun 2002 16:21:25 -0400
+Date: Sat, 8 Jun 2002 13:06:22 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Nick Evgeniev <nick@octet.spb.ru>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
+In-Reply-To: <Pine.LNX.3.96.1020604143643.5024C-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.10.10206081305390.1190-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two flaws and a problem:
 
-Flaw 1:
-The boot messages reveal what cards have been assigned what
-ethN number for some, but not all cards. E.g.,
+Because there is an entire set of new calls to deal with cfa or flash.
+It really takes a new subdriver.
 
-# dmesg | grep eth
-eth0: 3c5x9 at 0x300, 10baseT port, address ..., IRQ 10.
-eth2: RealTek RTL8139 Fast Ethernet at 0xd080d000, ..., IRQ 9
-eth2:  Identified 8139 chip type 'RTL-8139A'
-eth3: i82596 ...
-#
+On Tue, 4 Jun 2002, Bill Davidsen wrote:
 
-What is eth1? This information seems not easily available.
+> On Wed, 29 May 2002, Nick Evgeniev wrote:
+> 
+> > Hi,
+> > 
+> > I wrote about ide problems with 2.4.19-pre8 a few days ago (it just trashed
+> > filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was a
+> > little bit better though every 5-8 hours I've got ide errors in log (at
+> > least it didn't crash my reiserfs volumes yet):
+> 
+> I see a lot of the 0x58 with taskfile enabled, are you doing that? I even
+> see it mounting an "IDE" compact flash! I ran out of time to try w/o
+> taskfile_io.
+> 
+> > >-----------------------------
+> > May 27 14:38:02 vzhik kernel: hdg: status error: status=0x58 { DriveReady
+> > SeekComplete DataRequest }
+> > May 27 14:38:02 vzhik kernel:
+> > May 27 14:38:02 vzhik kernel: hdg: drive not ready for command
+> > May 27 14:38:02 vzhik kernel: hdg: status error: status=0x58 { DriveReady
+> > SeekComplete DataRequest }
+> > May 27 14:38:02 vzhik kernel:
+> > May 27 14:38:02 vzhik kernel: hdg: drive not ready for command
+> > May 27 17:08:05 vzhik kernel: hdg: drive_cmd: status=0xd0 { Busy }
+> > May 27 17:08:05 vzhik kernel:
+> > May 27 17:08:05 vzhik kernel: hdg: status error: status=0x58 { DriveReady
+> > SeekComplete DataRequest }
+> > >-----------------------------
+> > But now I've got even more bugs in log like:
+> > >-----------------------------
+> > May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 37713311 4
+> > May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 37713343 4
+> > May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 37713375 4
+> > May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 37713407 2
+> > May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 38161563 4
+> > May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 38161595 4
+> > May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 38161627 4
+> > May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 38161659 4
+> > May 29 11:28:07 vzhik kernel: raid0_make_request bug: can't convert block
+> > across chunks or bigger than 16k 37713308 4
+> > >-----------------------------
+> > 
+> > I don't even think about trying 2.4.19-pre9 since it doesn't has any ide
+> > related issues in its changelist.
+> > The question is -- What I have to try to get WORKING ide driver under
+> > "STABLE" kernel?
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> -- 
+> bill davidsen <davidsen@tmr.com>
+>   CTO, TMR Associates, Inc
+> Doing interesting things with little computers since 1979.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-I once gave a patch - can dig it up again if there is any interest.
-The kernel should report, preferably in a uniform way,
-ethN: Vendor Model, MAC address, ...
+Andre Hedrick
+LAD Storage Consulting Group
 
-Flaw 2:
-Debugging output:
-
-phy=0, phyx=24, mii_status=0xffff
-phy=1, phyx=0, mii_status=0xffff
-...
-phy=24, phyx=23, mii_status=0xffff
-phy=25, phyx=25, mii_status=0xffff
-...
-phy=31, phyx=31, mii_status=0xffff
-  ***WARNING*** No MII transceivers found!
-
-
-Problem:
-[The above two flaws apply to many kernel versions.
-However, today, upon booting 2.5.20 net connection failed.]
-
-...
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-00:0d.0: 3Com PCI 3c590 Vortex 10Mbps at 0xb400. Vers LK1.1.17
-00:0d.0: Overriding PCI latency timer (CFLT) setting of 32, new value is 248.
-...
-NETDEV WATCHDOG: eth1: transmit timed out
-eth1: transmit timed out, tx_status 00 status e000.
-diagnostics: net 0cc0 media 88c0 dma 00000021 fifo 0000
-Flags; bus-master 1, dirty 0(0) current 16(0)
-...
-eth1: Resetting the Tx ring pointer.
-...
-
-Andries

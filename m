@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289336AbSA1T1d>; Mon, 28 Jan 2002 14:27:33 -0500
+	id <S289338AbSA1T3E>; Mon, 28 Jan 2002 14:29:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289338AbSA1T1X>; Mon, 28 Jan 2002 14:27:23 -0500
-Received: from holomorphy.com ([216.36.33.161]:25497 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S289336AbSA1T1P>;
-	Mon, 28 Jan 2002 14:27:15 -0500
-Date: Mon, 28 Jan 2002 11:28:23 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com, reiserfs-dev@namesys.com
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-Message-ID: <20020128112823.G899@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-	reiserfs-dev@namesys.com
-In-Reply-To: <Pine.LNX.4.33.0201281005480.1609-100000@penguin.transmeta.com> <Pine.LNX.4.33L.0201281626340.32617-100000@imladris.surriel.com>
+	id <S289339AbSA1T2z>; Mon, 28 Jan 2002 14:28:55 -0500
+Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:32496
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S289338AbSA1T2k>; Mon, 28 Jan 2002 14:28:40 -0500
+Date: Mon, 28 Jan 2002 19:28:36 +0000
+From: Mark Zealey <mark@zealos.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+Message-ID: <20020128192836.GB28473@itsolve.co.uk>
+In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com> <3C54D1CB.23664.50D4C3@localhost> <E16VHH9-0000Ba-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.33L.0201281626340.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Mon, Jan 28, 2002 at 04:37:02PM -0200
-Organization: The Domain of Holomorphy
+In-Reply-To: <E16VHH9-0000Ba-00@starship.berlin>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux sunbeam 2.4.17-wli2 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 28 Jan 2002, Linus Torvalds wrote:
->> (Also, I'd like to understand why some people report so much better
->> times on dbench, and some people reports so much _worse_ times with
->> dbench. Admittedly dbench is a horrible benchmark, but still.. Is it
->> just the elevator breakage, or is it rmap itself?)
+On Mon, Jan 28, 2002 at 08:17:06PM +0100, Daniel Phillips wrote:
 
-On Mon, Jan 28, 2002 at 04:37:02PM -0200, Rik van Riel wrote:
-> We're still looking into this.  William Irwin is running a
-> nice script to see if the settings in /proc/sys/vm/bdflush
-> have an observable influence on dbench.
+> > I also tried this header in a regular application. This failed to return 
+> > the modulus although it works in a module.
+> > 
+> > Is this asm syntax documented anywhere ? 
+> 
+> It's painful, isn't it?  And no, I don't know where it's documented.
 
-They have observable effects, but the preliminary results (the
-runs are so time-intensive the repetitions needed to average out
-dbench's wild fluctuations are going to take a while) seem to
-give me three intuitions:
+I've had these docs for some time, can't remember where I got them from:
+http://pkl.net/~mark/GCC_INLINE_ASM_HOWTO
+http://pkl.net/~mark/rmiyagi-inline-asm.txt
 
-(1) the bdflush logic is brittle and/or not sufficiently adaptive
-(2) dbench results fluctuate so wildly it's difficult to
-	reproduce results accurately
-(3) dbench results fluctuate so wildly it obscures the true
-	performance curve
+They're quite good. the rest is experiance..
 
-The winner of the first round seems to be 7 0 0 0 500 3000 28 0 0
+-- 
 
-Cheers,
-Bill
+Mark Zealey
+mark@zealos.org
+mark@itsolve.co.uk
+
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
+!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
+
+(www.geekcode.com)

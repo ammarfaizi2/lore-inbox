@@ -1,225 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSAEBOG>; Fri, 4 Jan 2002 20:14:06 -0500
+	id <S280825AbSAEBP0>; Fri, 4 Jan 2002 20:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286210AbSAEBN5>; Fri, 4 Jan 2002 20:13:57 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:8632 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S286179AbSAEBNo>; Fri, 4 Jan 2002 20:13:44 -0500
-Date: Sat, 5 Jan 2002 01:15:44 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj12
-Message-ID: <20020105011544.A18640@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S286198AbSAEBPP>; Fri, 4 Jan 2002 20:15:15 -0500
+Received: from elin.scali.no ([62.70.89.10]:31751 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S286196AbSAEBOz>;
+	Fri, 4 Jan 2002 20:14:55 -0500
+Message-ID: <3C3651E4.777EABA@scali.no>
+Date: Sat, 05 Jan 2002 02:07:48 +0100
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-ac18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tommy Reynolds <reynolds@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Short question about the mmap method
+In-Reply-To: <3C360FD5.91285F5D@scali.no> <20020104145949.682d51c4.reynolds@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Assorted fixes, updates & Merges.
+Tommy Reynolds wrote:
+> 
+> Uttered "Steffen Persvold" <sp@scali.no>, spoke thus:
+> 
+> > Hi lkml readers,
+> >
+> > I have a question regarding drivers implementing the mmap and nopage methods.
+> > In some references I've read that pages in kernel allocated memory (either
+> > allocated with kmalloc, vmalloc or__get_free_pages) should be set to reserved
+> > (mem_map_reserve or set_bit(PG_reserved, page->flags) before they can be
+> > mmap'ed to guarantee that they can't be swapped out. Is this true ?
+> 
+> [kv]malloc memory is _never_ subject to paging and can be mmap'ed with a
+> vengeance without resorting to mucking about with marking pages or the like.
+> 
+> You're working too hard ;-)
+> 
 
-Patch against 2.5.1 vanilla is available from:
-ftp://ftp.xx.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
-
-Enjoy,
-  -- Davej.
-
-2.5.1-dj12
-o   Merge 2.5.2pre7
-o   Enable alternative PTE routines.			(Andrea Arcangeli)
-o   Reschedule during inode flushes under mem pressure.	(Andrea Arcangeli)
-o   More kdev_t compile fixes.				(Andries Brouwer,
-					 		 Jonathan Corbet,
-							 Luc Van Oostenryck, Me)
-o   Further include file cleanups.			(Me)
-o   aic7xxx nseg bugfix.				(Jens Axboe, Others)
-o   Fix panic on corrupted reiserfs.			(Oleg Drokin)
-o   Fix reiserfs taildata corruption on mempressure.	(Oleg Drokin)
-o   Fix kreiserfsd sleep timeout thinko.		(Oleg Drokin)
-o   apic.c LVTERR fixes.				(Mikael Pettersson)
-o   Merge correct & updated sg driver.			(Doug Gilbert)
-o   Add NetGear EA201 to ne2k ISAPNP clones.		(Chris Rankin)
-o   Various 53c700 fixes.				(James Bottomley)
+OK, thanks. But I found out that if you want to use remap_page_range on kmalloc'ed memory you need
+to set the reserve bit first. Without it, it just doesn't work. When using the nopage method no
+reserving is necessary.
 
 
-2.5.1-dj11
-o   Merge up to 2.5.2pre6
-    | Plus various compile fixes.		(Me, Jeff Garzik,
-		    				 Frank Davis, Martin Dalecki)
-o   Don't enable APIC on newer Dell laptops.	(Mikael Pettersson)
-o   Add more missing MODULE_LICENSE tags.	(Me)
-o   Report out-of-spec SMP Athlons.		(Me)
-    | Flames to /dev/null
-o   More fbdev/console clean up.		(James Simmons)
-o   Sync up with latest bootproto.		(H. Peter Anvin)
-o   Reiserfs Sparc alignment fix.		(Alexander Zarochentcev)
-o   Remove some bogus headers left around.	(Christoph Hellwig)
-o   Fix wanrouter build.			(Me)
-o   Various bio surgery on SCSI drivers.	(Arnaldo Carvalho de Melo)
-o   Reiserfs getblk cleanups.			(Christoph Hellwig)
-o   make DASD use generic BLKGETSIZE{64} again	(Christoph Hellwig)
-o   Fix devfs & tty breakage.			(James Simmons)
+What about my question regarding locking the mm spinlock table before traversing the page table (for
+vmalloc'ed memory). Any ideas there ?
 
-
-2.5.1-dj10
-o   Remove one of the NFS changes. Better fix in mainline.	(Me)
-o   Add switch to enable 486 string copies.			(Me)
-    | 486 users please try this out, and give feedback
-    | so we can see how broken this actually is.
-    | It's in the 'kernel hacking' menu.
-o   JFFS2 corruption fix.			(David Woodhouse)
-o   Bridging CONFIG_INET cleanup.		(Lennert Buytenhek)
-o   Bridging recursion bugfix.			(Lennert Buytenhek)
-o   Fix up port state handling.			(Lennert Buytenhek)
-o   Improved fbdev init.			(James Simmons)
-o   PNPOS simple bootflag fix.			(Thomas Hood)
-o   Drop most of the USB changes on Greg's request.
-    | Newer versions should appear in -linus soon.
-    | Some bits still remain, but if I've broke it, blame
-    | me and not Greg.
-o   Experimental preload_cache() function.	(Me)
-o   Ugly hack to file_read_actor() to use the above	(Me)
-    | Just playing, this needs more work.
-
-
-2.5.1-dj9
-o   Merge up to 2.5.2pre4.
-    | Also fix up a bunch of build errors.
-o   Add support for Sony DSC-P5 to USB unusual devs.	(Gregor Jasny)
-o   First part of new console locking infrastructure.	(James Simmons)
-o   Cleaner/Lighter fbdev api.				(James Simmons,
-							 Geert Uytterhoeven)
-o   Don't coredump framebuffer contents.		(Andrew Morton)
-o   Fix hang on close of serial tty.			(Russell King)
-o   Remove the set_current_state() patch, needs work.	(Me)
-o   Drop ICH2 addition to ioapic Whitelist. 		(Me)
-o   Do the asm/segment.h crapectomy properly.		(David Woodhouse)
-o   Reactivate the PNPBIOS Configure.help entry.
-
-
-2.5.1-dj8
-o   Remove leftover EISA cruft in x86 ksyms.		(Me)
-o   Add a missing part of the split visws support.	(Me)
-o   Make reiserfs partitions mountable again.		(Al Viro,
-							 Andrew Morton, Me)
-o   Make x86 math emulation work with dynamic LDT.	(Manfred Spraul)
-o   Fix problems with tdfxfb & high pixelclocks.	(Jurriaan)
-    | Only tested on PCI 4500, feedback to thunder7@xs4all.nl
-o   Replace text.lock with .subsection			(Keith Owens)
-o   Remove Cyrix SLOP workaround.			(Me)
-    | Can be done in userspace/initramfs.
-o   Merge pnpbios support.				(Thomas Hood)
-    | Should work, but may be nice to bend into shape
-    | to fit the new driverfs model at some point.
-
-
-2.5.1-dj7
-o   Merge 2.5.2pre3
-    | Drop some of the reiserfs changes. Looks like -dj has
-    | a more complete set of fixes from 2.4. This is getting
-    | a little hairy, so handle with care.
-o   Make rootfs compile.				(Me)
-o   Dynamically grow LDT.				(Manfred Spraul)
-o   Randomness for ext2 generation numbers.		(Manfred Spraul)
-o   Give Manfreds threaded coredump a retry.		(Manfred Spraul)
-o   Add missing ad1848 formats.				(Alan Cox)
-o   Make ide-floppy compile without PROC_FS.		(Robert Love)
-o   generic_serial, rio_linux, serial_tx3912,		(Rasmus Andersen)
-    sh-sci and sx drivers janitor work.
-o   opl3sa2 Power management support & update.		(Zwane Mwaikambo)
-    | Add Zwane to MAINTAINERS for this too.
-o   Fix buggy MODINC i2o_config macro.			(Andreas Dilger)
-o   Cyclades driver /proc/ioports oops fix.		(Andrew Morton)
-    | Untested afaik, but looks sane.
-    | rmmod cyclades.o ; cat /proc/ioports to see if this works.
-o   SX driver, DCD-HylaFAX problem solved.		(Heinz-Ado Arnolds)
-o   Only look in 1KB of EBDA for MP table.		(Zwane Mwaikambo) 
-    | Follows the MP1.4 Spec closer, let me know of any
-    | SMP problems if any with this change.
-o   Better fix for the sunrpc 'missing include'.	(David Woodhouse)
-o   Remove bogus <asm/segment.h> includes.		(David Woodhouse)
-o   ps2esdi spinlock typo.				(Me)
-
-
-2.5.1-dj6
-o   Merge 2.5.2pre2
-    | Includes updated for 2.5 SCSI debug driver.	(Douglas Gilbert)
-o   Merge 2.4.18pre1
-o   Missing include in sunrpc sched.c			(David S. Miller)
-o   Remove incorrect devinit's from bttv & USB.		(Andrew Morton)
-o   Remove redundant EISA_bus__is_a_macro macro.	(Me)
-o   Split visws support to setup-visws.c		(Me)
-    | Can someone with one of these beasts test this, and maybe
-    | even *gulp* maintain it ?
-o   pc110pad spinlock thinko				(Peter T. Breuer)
-o   Fix reiserfs + highmem possible oops.		(Oleg Drokin)
-o   Fix reiserfs fsx breakage.				(Oleg Drokin)
-o   Make IPV6 accept timestamps in response to SYNs.	(Alexey Kuznetsov)
-o   NCR5380_timer_fn needs to be static.		(Rasmus Andersen)
-o   CONFIG_SERIAL_ACPI is IA64 only.			(Me)
-
-
-2.5.1-dj5
-o   Sync up to 2.5.2pre1
-o   Merge 2.4.17final.
-o   Gravis ultrasound PnP update		(Andrey Panin)
-
-
-2.5.1-dj4
-o   Merge with 2.4.17-rc2
-    | Most was already here, more or less just fixes for
-    | reiserfs & netfilter, and some VM changes.
-
-
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
-
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
-
-
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
-
-
+Regards,
 -- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best   
+ mailto:sp@scali.no  |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.12.2 -         
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >300MBytes/s and <4uS latency

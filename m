@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129295AbQKYO1n>; Sat, 25 Nov 2000 09:27:43 -0500
+        id <S129434AbQKYO2X>; Sat, 25 Nov 2000 09:28:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129434AbQKYO1d>; Sat, 25 Nov 2000 09:27:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:25720 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129295AbQKYO1S>; Sat, 25 Nov 2000 09:27:18 -0500
-Date: Sat, 25 Nov 2000 14:57:01 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chip Salzenberg <chip@valinux.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Ville Herva <vherva@mail.niksula.cs.hut.fi>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] blindingly stupid 2.2 VM bug
-Message-ID: <20001125145701.A12719@athlon.random>
-In-Reply-To: <20001119100100.A54301@niksula.cs.hut.fi> <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva> <20001124152831.A5696@valinux.com>
-Mime-Version: 1.0
+        id <S131227AbQKYO2O>; Sat, 25 Nov 2000 09:28:14 -0500
+Received: from mailgw2.netvision.net.il ([194.90.1.9]:23488 "EHLO
+        mailgw2.netvision.net.il") by vger.kernel.org with ESMTP
+        id <S129434AbQKYO2G>; Sat, 25 Nov 2000 09:28:06 -0500
+Message-ID: <3A1FC5C2.BE94DBB8@netvision.net.il>
+Date: Sat, 25 Nov 2000 15:59:30 +0200
+From: Oren Held <orenh2@netvision.net.il>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [BUG?] test11 - oops on loading some modules
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001124152831.A5696@valinux.com>; from chip@valinux.com on Fri, Nov 24, 2000 at 03:28:31PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+               /* Only lower priority if we didn't make progress. */
-+               if (count == loopcount)
-+                       --priority;
-+               loopcount = count;
+Hello !
 
-If the while loops around the page-recycling-methods were missing we would
-have just noticed as soon as we needed to recycle some byte of cache.
+I patched my test10 directly to test11 (I didn't use the PREs, so I
+can't
+say which exact version caused my problem, though if it's
+important I can check that). Anyway, after I saw the problem, I
+downloaded the whole kernel tree to see if it's not just some patching
+problem, but it still happens:
 
-+       /* Return success if we have enough free memory or we freed a page. */
-+       if (nr_free_pages > freepages.low)
-+               return 1;
+Some of the modules I load (bttv.o , eepro.o , ide-scsi.o), return a
+kernel oops, and since then I see them in lsmod stuck in that position:
+bttv                   55460   1  (initializing)
 
-This anti-kill-flood check is just handled by the GFP layer (you don't
-need to replicate it here in the memory balancing layer). It's currently
-done against freepages.high to stay conservative (it's meant to catch
-a task killed while we were blocked; a task killed will certainly
-raise nr_free_pages over freepages.high).
+It seems to me like a problem with modules loading (some of these
+modules weren't changed since test10)..
+Here's an example of the oops that bttv.o returns:
 
-+       return count < SWAP_CLUSTER_MAX;
+----
+bttv0: model: BT848A(Fly Video II) [insmod option]
+Unable to handle kernel paging request at virtual address 00010000
+printing eip:
+c8852050
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c8852050>]
+EFLAGS: 00010202
+eax: 00010000   ebx: c8868748   ecx: fffffffb   edx: c886b110
+esi: c88683bc   edi: c8868660   ebp: c8868748   esp: c7455e88
+ds: 0018   es: 0018   ss: 0018
+Process insmod (pid: 403, stackpage=c7455000)
+Stack: c8858169 c8868660 c8868748 c88683bc c8868666 c8868660 c885c2b7
+c8868660
+       c8868500 00000001 c8868500 00000001 c8868665 c88648e5 00000000
+00000282
+       c8868500 c887d000 0000d8a4 c8861e5b c8868500 00000000 c8868500
+c12ed400
+Call Trace: [<c8858169>] [<c8868660>] [<c8868748>] [<c88683bc>]
+[<c8868666>] [<c8868660>] [<c885c2b7>]
+[<c8868660>] [<c8868500>] [<c8868500>] [<c8868665>] [<c88648e5>]
+[<c8868500>] [<c887d000>] [<c8861e5b>]
+[<c8868500>] [<c8868500>] [<c8862b0e>] [<c8868500>] [<c8866a20>]
+[<c0188049>] [<c8866988>] [<c8866a20>]
+[<c01880a4>] [<c8866a20>] [<c885c000>] [<c8862bf5>] [<c8866a20>]
+[<c011ba1d>] [<c885a000>] [<c885c060>]
+[<c010a5cb>]
+Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f0 ff 09 0f
 
-This will make oom handling less graceful and if memory balancing
-fails wrongly when the machine isn't truly oom this will only hide the problem
-(and if there's a real problem like we had with MAP_SHARED and
-always-async-kpiod [fixed by VM-global] it won't even be enough to hide it).
+----
 
+Bye,
+Oren.
 
-VM-global-*-7 has no known bugs AFIK.
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

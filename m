@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261434AbRERSfL>; Fri, 18 May 2001 14:35:11 -0400
+	id <S261430AbRERSkL>; Fri, 18 May 2001 14:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261430AbRERSfB>; Fri, 18 May 2001 14:35:01 -0400
-Received: from jalon.able.es ([212.97.163.2]:50093 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S261434AbRERSe7>;
-	Fri, 18 May 2001 14:34:59 -0400
-Date: Fri, 18 May 2001 20:34:46 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC, AMD-K6/2 -mcpu=586...
-Message-ID: <20010518203446.A1066@werewolf.able.es>
-In-Reply-To: <m2u22ibww6.fsf@sympatico.ca> <m2d796twqe.fsf@sympatico.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <m2d796twqe.fsf@sympatico.ca>; from bpringle@sympatico.ca on Fri, May 18, 2001 at 19:04:09 +0200
-X-Mailer: Balsa 1.1.4
+	id <S261444AbRERSkB>; Fri, 18 May 2001 14:40:01 -0400
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:60288
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S261430AbRERSjw>; Fri, 18 May 2001 14:39:52 -0400
+Date: Fri, 18 May 2001 11:39:40 -0700
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Message-Id: <200105181839.f4IIdeQ01446@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: firenza@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: java/old_mmap allocation problems...
+In-Reply-To: <20010518083305.C7657@telecoma.net>
+In-Reply-To: <20010518083305.C7657@telecoma.net>
+Reply-To: whitney@math.berkeley.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In mailing-lists.linux-kernel, you wrote:
 
-On 05.18 Bill Pringlemeir wrote:
-> 
-> Why don't the build scripts run a dummy file to determine where the 
-> floating point registers should be placed?
-> 
-> ...
-> const int value = offsetof(struct task_struct, thread.i387.fxsave) & 15;
-> ...
-> 
+>i'm having problems to convince java (1.3.1) to allocate more
+>than 1.9gb of memory on 2.4.2-ac2 (SMP/6gb phys mem) or more
+>than 1.1gb on 2.2.18 (SMP/2gb phys mem)...
 
-That is not the problem. The problem is that the registers have to lay
-in a defined way, transcribed to a C struct, and that pgcc lays badly that
-struct.
+Take a look at a thread from January starting at this point:
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.4-ac11 #2 SMP Fri May 18 12:27:06 CEST 2001 i686
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0101.1/0407.html
+
+Basically the constraint you see is due to how Linux sets up the 4GB
+address space on 32-bit i386 hardware.  If you need more than 1.9GB on
+2.4.x, it's not too hard to change a couple constants in the kernel to
+allow somewhat more.  Feel free to email me for more details if it is
+not clear after reading the above thread.
+
+Cheers, Wayne
 

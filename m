@@ -1,53 +1,74 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154265AbPKHUYM>; Mon, 8 Nov 1999 15:24:12 -0500
-Received: by vger.rutgers.edu id <S154237AbPKHUPW>; Mon, 8 Nov 1999 15:15:22 -0500
-Received: from dukat.scot.redhat.com ([195.89.149.246]:1909 "EHLO dukat.scot.redhat.com") by vger.rutgers.edu with ESMTP id <S154428AbPKHUO0>; Mon, 8 Nov 1999 15:14:26 -0500
-From: "Stephen C. Tweedie" <sct@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14375.12057.128547.565786@dukat.scot.redhat.com>
-Date: Mon, 8 Nov 1999 20:14:17 +0000 (GMT)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.rutgers.edu>, Stephen Tweedie <sct@redhat.com>
-Subject: Re: map_user_kiobuf question
-In-Reply-To: <382355AA.6B6C450C@mandrakesoft.com>
-References: <382355AA.6B6C450C@mandrakesoft.com>
+Received: by vger.rutgers.edu via listexpand id <S153996AbPKILq7>; Tue, 9 Nov 1999 06:46:59 -0500
+Received: by vger.rutgers.edu id <S153956AbPKILql>; Tue, 9 Nov 1999 06:46:41 -0500
+Received: from nms.rz.uni-kiel.de ([134.245.1.2]:55175 "HELO nms.rz.uni-kiel.de") by vger.rutgers.edu with SMTP id <S153954AbPKILqI> convert rfc822-to-8bit; Tue, 9 Nov 1999 06:46:08 -0500
+Message-ID: <382808C3.CA4E1BB7@physik.uni-kiel.de>
+Date: Tue, 09 Nov 1999 12:42:59 +0100
+From: Sven Niedner <niedner@physik.uni-kiel.de>
+Reply-To: linux-study@gimli.psychologie.uni-kiel.de
+Organization: Institut =?iso-8859-1?Q?f=FCr?= Angewandte und Experimentelle Physik
+X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.5 i686)
+X-Accept-Language: en
+To: linux-kernel@vger.rutgers.edu
+Cc: linux-study@psychologie.uni-kiel.de, Stefanie Hermann <mail@hermann-stolze.de>
+Subject: ANNOUNCE: Studying the Linux process (psychologically)
+MIME-version: 1.0
+Content-type: text/plain; charset="iso-8859-1"
+Content-transfer-encoding: 8BIT
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hi,
 
-In article <382355AA.6B6C450C@mandrakesoft.com>, Jeff Garzik
-<jgarzik@mandrakesoft.com> writes:
+Hi Net,
 
-> What type of address gets passed to the third argument of
-> map_user_kiobuf?
+we are planning a questionnaire study on the Linux
+development process and therefore need your input.
 
-> can I do something like
+The goals of our study are:
 
-> 	addr = vmalloc (size);
-> 	...
-> 	map_user_kiobuf (xxx, iobuf, (unsigned long) addr, xxx);
-> 	[ ... mess around with iobuf'd pages ... ]
-> 	unmap_kiobuf (iobuf);
+* to understand the motivations of Linux developers
 
-No --- and you wouldn't want to.
+* to analyze how cooperation in a successful Open Source
+  project works
 
-map_user_kiobuf() checks that the user has got permission to access the
-requested pages, but vmalloc returns pages which are only visible from
-kernel space.
+* to make these working principles explicit so that they can be
+  further discused, optimized, and perhaps also transfered to
+  other Open Source projects
 
-The whole point about kiobufs is that they abstract away the mechanism
-used to select the pages concerned.  A consumer of kiobufs doesn't know
-where the pages came from originally.  If you want to populate the
-kiobuf with kernel pages, you can do so: it's just a different kiobuf
-populating function.
+* to provide a solid statistical base for theories of e.g. ESR
 
-Thanks for raising this, though: I'll add virtual and physical page
-mapping functions for kiobufs.
+The study itself will follow Open Source principles. This means 
+that all information and data of our study will be publicly 
+available at the project's homepage:
 
---Stephen
+        http://www.psychologie.uni-kiel.de/linux-study
 
+(There is also more information about our project.)
+
+Moreover, the development of the questionnaire itself will 
+follow Open Source principles in order to better integrate 
+the various experiences of Linux developers. Therefore, we 
+are anxious to learn more about your thoughts and ideas which 
+processes, principles, or motivations you think are necessary
+to enable successful software development in the Linux community.
+
+Since such a discussion is off-topic on linux-kernel, we invite 
+interested developers to join our mailing list:
+
+         linux-study@mlab.psychologie.uni-kiel.de
+
+To subscribe to the linux-study mailing list, send a mail 
+containing "subscribe linux-study" (without quotes) to
+majordomo@mlab.psychologie.uni-kiel.de .
+
+Looking forward to your ideas and comments,
+
+Sven Niedner   Stefanie Hermann   Guido Hertel
+
+-- 
+Sven Niedner, Institut für Experimentelle und Angewandte Physik
+Physics of Toroidal Plasmas,
+http://www.psychologie.uni-kiel.de/~niedner
+REAL fortran programmers can program fortran in any language.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

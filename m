@@ -1,221 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316902AbSGCElQ>; Wed, 3 Jul 2002 00:41:16 -0400
+	id <S316900AbSGCEku>; Wed, 3 Jul 2002 00:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316903AbSGCElP>; Wed, 3 Jul 2002 00:41:15 -0400
-Received: from smtp.adiglobal.com ([66.207.47.93]:52239 "EHLO
-	mail.adiglobal.com") by vger.kernel.org with ESMTP
-	id <S316902AbSGCElL>; Wed, 3 Jul 2002 00:41:11 -0400
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+	id <S316906AbSGCEkt>; Wed, 3 Jul 2002 00:40:49 -0400
+Received: from [212.100.64.68] ([212.100.64.68]:58896 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S316900AbSGCEks>;
+	Wed, 3 Jul 2002 00:40:48 -0400
+From: "Mr.Ezra  Koffi" <ezrak@maktoob.com>
+Date: Wed, 03 Jul 2002 06:43:07
 To: linux-kernel@vger.kernel.org
-Date: Wed, 3 Jul 2002 00:41:42 -0400
+Subject: Business Relationship
 MIME-Version: 1.0
-Subject: [STATUS 2.5]  July 3, 2002
-Message-ID: <3D224846.25078.6D61F713@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020703044048Z316900-685+2443@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here goes the latest kernel status update:
-           http://www.kernelnewbies.org/status/
 
-Of note the week is the addition to the list of SCTP, the third 
-general purpose transport protocol (after TCP and UDP) from the 
-IETF.  A linux kernel implementation is in the works - you can 
-download an alpha version - courtesy of the lksctp team.
+Dear Sir,
+I MR. EZRA KOFFI have decided to bestow this trust on you.During our investigation and auditing in this bank, my department came across a very huge sum of money belonging to a deceased person who died on november 1997 in a plane crash and the fund has been dormant in his account with this Bank without any claim of the fund in our custody either from his family or relation before our discovery  to this development.
 
-Anything you'd like me to add or remove from the list after the
-kernel summit discussions? 
-Cheers,
+Although personally,I keep this information secret within myself and partners to enable the whole plans and idea be profitable and successful. During the time of execution. The said amount was US$10M(Ten million united states dollars).
 
--- Guillaume
+As it may interest you to know, I got your impressive information through the business directory at chamber of commerce and Industry here in Lome- Togo where I was seaching for a good relaible contact to do the business with.I was elated the time I saw your address  to propose the business to you.
 
+Meanwhile all the whole arrangement to put claim over this fund as the bonafide next of kin to the deceased, get the required approval and transfer this money to a foreign account has been put in place and directives and needed information will be relayed to you as soon as you indicate your interest and willingness to assist us and also benefit your self to this great business opportunity.
 
-------------------------------------------
-Linux Kernel 2.5 Status  -  July 3rd, 2002
-(Latest kernel release is 2.5.24)
+In fact I could have done this deal alone but because of my position in this country as a civil servant,we are not allowed to operate a foreign account and would eventually raise an eye brow on my side during the time of transfer because I work in this bank. This is the actual reason why it will require a second party or fellow who will forward claims as the next of kin with affidavit of trust of oath to the Bank and also present a foreign account where he will need the money to be re-transferred into on his request as it may be after due verification and larification by the correspondent branch of the bank,where the whole money will be remitted from to your own designation bank account.
 
+I will not fail to inform you that this transaction is 100% risk free. The sharing rate of this money will be discussed later upon your favourable response showing your zealous determination to assist us but the first priority is your total acceptance and commitment to assist.
 
-Features:
+Please,you have been adviced to keep top secret as we are still in service and intend to retire from service after we conclude this deal with you. I will be monitoring the whole situation here in this bank until you confirm the money in your account and ask us to come down to your country for subsequent sharing of the fund according to percentages previously indicated and further investment,either in your country or any country you advice us to invest in.All other necessary information will be sent to you when I hear from you.
 
-Merged
-o in 2.5.1+   Rewrite of the block IO (bio) layer             (Jens Axboe)
-o in 2.5.2    Initial support for USB 2.0                     (David 
-Brownell, Greg Kroah-Hartman, etc.)
-o in 2.5.2    Per-process namespaces, late-boot cleanups      (Al Viro, 
-Manfred Spraul)
-o in 2.5.2+   New scheduler for improved scalability          (Ingo Molnar)
-o in 2.5.2+   New kernel device structure (kdev_t)            (Linus 
-Torvalds, etc.)
-o in 2.5.3    IDE layer update                                (Andre Hedrick)
-o in 2.5.3    Support reiserfs external journal               (Reiserfs team)
-o in 2.5.3    Generic ACL (Access Control List) support       (Nathan Scott)
-o in 2.5.3    PnP BIOS driver                                 (Alan Cox, 
-Thomas Hood, Dave Jones, etc.)
-o in 2.5.3+   New driver model & unified device tree          (Patrick Mochel)
-o in 2.5.4    Add preempt kernel option                       (Robert Love, 
-MontaVista team)
-o in 2.5.4    Support for Next Generation POSIX Threading     (NGPT team)
-o in 2.5.4+   Porting all input devices over to input API     (Vojtech 
-Pavlik, James Simmons)
-o in 2.5.5    Add ALSA (Advanced Linux Sound Architecture)    (ALSA team)
-o in 2.5.5    Pagetables in highmem support                   (Ingo Molnar, 
-Arjan van de Ven)
-o in 2.5.5    New architecture: AMD 64-bit (x86-64)           (Andi Kleen, 
-x86-64 Linux team)
-o in 2.5.5    New architecture: PowerPC 64-bit (ppc64)        (Anton 
-Blanchard, ppc64 team)
-o in 2.5.5+   IDE subsystem rewrite                           (Martin Dalecki)
-o in 2.5.6    Add JFS (Journaling FileSystem from IBM)        (JFS team)
-o in 2.5.6    per_cpu infrastructure                          (Rusty Russell)
-o in 2.5.6    HDLC (High-level Data Link Control) update      (Krzysztof 
-Halasa)
-o in 2.5.6    smbfs Unicode and large file support            (Urban Widmark) 
-o in 2.5.7    New driver API for Wireless Extensions          (Jean 
-Tourrilhes)
-o in 2.5.7    Video for Linux (V4L) redesign                  (Gerd Knorr)
-o in 2.5.7    Futexes (Fast Lightweight Userspace Semaphores) (Rusty Russell, 
-etc.)
-o in 2.5.7+   NAPI network interrupt mitigation               (Jamal Hadi 
-Salim, Robert Olsson, Alexey Kuznetsov)
-o in 2.5.7+   ACPI (Advanced Configuration & Power Interface) (Andy Grover, 
-ACPI team)
-o in 2.5.8    Syscall interface for CPU task affinity         (Robert Love)
-o in 2.5.8    Radix-tree pagecache                            (Momchil 
-Velikov, Christoph Hellwig)
-o in 2.5.8+   Delayed disk block allocation                   (Andrew Morton)
-o in 2.5.9    Smarter IRQ balancing                           (Ingo Molnar)
-o in 2.5.11   Replace old NTFS driver with NTFS TNG driver    (Anton 
-Altaparmakov)
-o in 2.5.11   Fast walk dcache                                (Hanna Linder)
-o in 2.5.11+  Rewrite of the framebuffer layer                (James Simmons)
-o in 2.5.12+  Rewrite of the buffer layer                     (Andrew Morton)
-o in 2.5.14   Support for IDE TCQ (Tagged Command Queueing)   (Jens Axboe)
-o in 2.5.14   Bluetooth support (no longer experimental!)     (Maxim 
-Krasnyansky, Bluetooth team)
-o in 2.5.17   New quota system supporting plugins             (Jan Kara)
-o in 2.5.17+  Move ISDN4Linux to CAPI based interface         (Kai 
-Germaschewski, ISDN4Linux team)
-o in 2.5.18   Software suspend (to disk & RAM)                (Pavel Machek)
-o in 2.5.23   More complete IEEE 802.2 stack                  (Arnaldo, Jay 
-Schullist, from Procom donated code)
-o in 2.5.23+  Hotplug CPU support                             (Rusty Russell)
-
-o in -dj      Rewrite of the console layer                    (James Simmons)
-o in -dj      New MTRR (Memory Type Range Register) driver    (Patrick Mochel)
-o in -dj      Add support for CPU clock/voltage scaling       (Erik Mouw, 
-Dave Jones, Russell King, Arjan van de Ven)
-o in -ac      Strict address space accounting                 (Alan Cox)
-o in -ac      PCMCIA Zoom video support                       (Alan Cox)
-o in -ac      More complete NetBEUI stack                     (Arnaldo 
-Carvalho de Melo, from Procom donated code)
-o in -ac      Improved i2o (Intelligent Input/Ouput) layer    (Alan Cox)
-
-o Ready       Better event logging for enterprise systems     (Larry Kessler, 
-evlog team)
-o Ready       Linux booting ELF images                        (Eric Biederman)
-o Ready       First pass at LinuxBIOS support                 (Eric Biederman)
-o Ready       Build option for Linux Trace Toolkit (LTT)      (Karim Yaghmour)
-o Ready       New kernel build system (kbuild 2.5)            (Keith Owens)
-o Ready       Read-Copy Update Mutual Exclusion               (Dipankar 
-Sarma, Rusty Russell, Andrea Arcangeli, LSE Team)
-o Ready       USB gadget support                              (Stuart Lynne, 
-Greg Kroah-Hartman)
-o Ready       Scalable CPU bitmasks                           (Russ Weight)
-o Ready       Add hardware sensors drivers                    (lm_sensors 
-team)
-
-o Beta        Serial driver restructure                       (Russell King)
-o Beta        New IO scheduler                                (Jens Axboe)
-o Beta        Add XFS (A journaling filesystem from SGI)      (XFS team)
-o Beta        New VM with reverse mappings                    (Rik van Riel)
-o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, 
-Robert Love, etc.)
-o Beta        Add Linux Security Module (LSM)                 (LSM team)
-o Beta        Per-mountpoint read-only, union-mounts, unionfs (Al Viro)
-o Beta        EVMS (Enterprise Volume Management System)      (EVMS team)
-o Beta        LVM (Logical Volume Manager) v2.0               (LVM team)
-o Beta        Dynamic Probes                                  (Suparna 
-Bhattacharya, dprobes team)
-o Beta        Page table sharing                              (Daniel 
-Phillips)
-o Beta        ext2/ext3 online resize support                 (Andreas Dilger)
-o Beta        Add User-Mode Linux (UML)                       (Jeff Dike)
-o Beta        UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, 
-Peter Osterlund)
-o Beta        Asynchronous IO (aio) support                   (Ben LaHaise)
-o Beta        Direct pagecache <-> BIO disk I/O               (Andrew Morton)
-
-o Alpha       Better support of high-end NUMA machines        (NUMA team)
-o Alpha       Full compliance with IPv6                       (Alexey 
-Kuznetzov, Jun Murai, Yoshifuji Hideaki, USAGI team)
-o Alpha       UMSDOS (Unix under MS-DOS) Rewrite              (Al Viro)
-o Alpha       Scalable Statistics Counter                     (Ravikiran 
-Thirumalai)
-o Alpha       Linux Kernel Crash Dumps                        (Matt Robinson, 
-LKCD team)
-o Alpha       Add support for NFS v4                          (NFS v4 team)
-o Alpha       ext2/ext3 large directory support: HTree index  (Daniel 
-Phillips, Christopher Li, Ted Ts'o)
-o Alpha       Remove use of the BKL (Big Kernel Lock)         (Alan Cox, 
-Robert Love, Neil Brown, Dave Hansen, etc.)
-o Alpha       Zerocopy NFS                                    (Hirokazu 
-Takahashi)
-o Alpha       Change all drivers to new driver model          (All 
-maintainers)
-o Alpha       Remove the 2TB block device limit               (Peter Chubb)
-* Alpha       SCTP (Stream Control Transmission Protocol)     (lksctp team)
-
-o Started     Overhaul PCMCIA support                         (David 
-Woodhouse, David Hinds)
-o Started     Reiserfs v4                                     (Reiserfs team)
-o Started     Serial ATA support                              (Andre Hedrick)
-o Started     InfiniBand support                              (InfiniBand 
-team)
-
-o Draft #2    New lightweight library (klibc)                 (Greg Kroah-
-Hartman)
-o Draft #3    Replace initrd by initramfs                     (H. Peter 
-Anvin, Al Viro)
-o Planning    Add thrashing control                           (Rik van Riel)
-o Planning    Remove all hardwired drivers from kernel        (Alan Cox, etc.)
-o Planning    Generic parameter/command line interface        (Keith Owens)
-o Planning    New mount API                                   (Al Viro)
-
-
-Cleanups:
-
-Merged
-o in 2.5.3    Break Configure.help into multiple files        (Linus Torvalds)
-o in 2.5.3    Untangle sched.h & fs.h include dependancies    (Dave Jones, 
-Roman Zippel)
-o in 2.5.4    Per network protocol slabcache & sock.h         (Arnaldo 
-Carvalho de Melo)
-o in 2.5.4    Per filesystem slabcache & fs.h                 (Daniel 
-Phillips, Jeff Garzik, Al Viro)
-o in 2.5.6    Killing kdev_t for block devices                (Al Viro)
-o in 2.5.18+  ->getattr() ->setattr() ->permission() changes  (Al Viro)
-o in 2.5.21   Split up x86 setup.c into managable pieces      (Patrick Mochel)
-o in 2.5.23+  Major MD tool (RAID 5) cleanup                  (Neil Brown)
-
-o Ready       Switch to ->get_super() for file_system_type    (Al Viro)
-
-o Beta        file.h and INIT_TASK                            (Benjamin 
-LaHaise)
-o Beta        Proper UFS fixes, ext2 and locking cleanups     (Al Viro)
-o Beta        Lifting limitations on mount(2)                 (Al Viro)
-o Beta        Remove dcache_lock                              (Maneesh Soni, 
-IBM team)
-
-o Started     Reorder x86 initialization                      (Dave Jones, 
-Randy Dunlap)
-
-Have some free time and want to help?  Check out the Kernel Janitor 
-TO DO list for a list of source code cleanups you can work on.  
-A great place to start learning more about kernel internals!
+Best Regard,
+MR. EZRA KOFFI.
 
 
 

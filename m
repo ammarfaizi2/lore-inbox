@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263904AbRFMRkE>; Wed, 13 Jun 2001 13:40:04 -0400
+	id <S263473AbRFMRde>; Wed, 13 Jun 2001 13:33:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263934AbRFMRjy>; Wed, 13 Jun 2001 13:39:54 -0400
-Received: from cpe-66-1-45-23.az.sprintbbd.net ([66.1.45.23]:1286 "EHLO
-	deming-os.org") by vger.kernel.org with ESMTP id <S263904AbRFMRji>;
-	Wed, 13 Jun 2001 13:39:38 -0400
-Message-ID: <3B27A546.A64F8B00@lycosmail.com>
-Date: Wed, 13 Jun 2001 10:39:19 -0700
-From: Russ Lewis <russl@lycosmail.com>
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S263904AbRFMRdX>; Wed, 13 Jun 2001 13:33:23 -0400
+Received: from 20dyn128.com21.casema.net ([213.17.90.128]:12305 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S263473AbRFMRdI>;
+	Wed, 13 Jun 2001 13:33:08 -0400
+Date: Wed, 13 Jun 2001 19:31:39 +0200
+From: bert hubert <ahu@ds9a.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Has it been done: User Script File System?
+Subject: Re: threading question
+Message-ID: <20010613193139.A10072@home.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> <Pine.GSO.4.10.10106121200330.20809-100000@orbit-fe.eng.netapp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.10.10106121200330.20809-100000@orbit-fe.eng.netapp.com>; from kmacy@netapp.com on Tue, Jun 12, 2001 at 12:06:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any filesystem in Linux that uses user scripts/executables to
-implement the various function calls?  What I'm thinking of is something
-along the lines of a file system module that, when it receives a call
-from VFS, passes the information out to a user-mode daemon which could
-then run scripts or executables to answer the question.  The daemon
-would then return the answer to the module, and the module would answer
-VFS.
+On Tue, Jun 12, 2001 at 12:06:40PM -0700, Kip Macy wrote:
+> This may sound like flamebait, but its not. Linux threads are basically
+> just processes that share the same address space. Their performance is
+> measurably worse than it is on most commercial Unixes and FreeBSD.
 
-The reason I'm wondering is that I have a lot of brainstorms about
-things that might be cool to implement as filesystems, but I don't want
-to take the time to have to implement a full filesystem for each
-(especially considering the number of bugs and kernel panics I'm likely
-to encounter in the process).  What I'd really like to do is something
-like this:
+Thread creation may be a bit slow. But the kludges to provide posix threads
+completely from userspace also hurt. Notably, they do not scale over
+multiple CPUs.
 
-mount -t userfs   /etc/myfs.conf   /myfs
+> They are not, or at least two years ago, were not POSIX compliant
+> (they behaved badly with respect to signals). The impoverished
 
-Where /etc/myfs.conf would have something like this:
+POSIX threads are silly with respect to signals. I do almost all my
+programming these days with pthreads and I find that I really do not miss
+signals at all.
 
-lookup:  /usr/bin/myfslookup
-open:   /usr/bin/myfsopen
-etc...
+> from Larry McVoy's home page attributed to Alan Cox illustrates this
+> reasonably well: "A computer is a state machine. Threads are for people
+> who can't program state machines." Sorry for not being more helpful.
 
-I know that it would be very slow, and might require some modifications
-to VFS to make it work (in addition to the module I'd have to write),
-but it would be really nice to be able to throw together a very simple
-utility filesystem without having to worry about crashing the kernel.
+I got that response too. When I pressed kernel people for details it turns
+out that they think having hundreds of runnable threads/processes (mostly
+the same thing under Linux) is wasteful. The scheduler is just not optimised
+for that.
 
-Does Linux have anything even remotely like this?  If not, I might (if I
-can spare the time) play around with something like this of my own.
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

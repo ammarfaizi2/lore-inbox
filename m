@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318265AbSG3N0d>; Tue, 30 Jul 2002 09:26:33 -0400
+	id <S318268AbSG3Nby>; Tue, 30 Jul 2002 09:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318266AbSG3N0d>; Tue, 30 Jul 2002 09:26:33 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:63670 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318265AbSG3N0c>; Tue, 30 Jul 2002 09:26:32 -0400
-Date: Tue, 30 Jul 2002 18:59:51 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: async-io API registration for 2.5.29
-Message-ID: <20020730185951.B2909@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20020730054111.GA1159@dualathlon.random> <20020730084939.A8978@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020730084939.A8978@redhat.com>; from bcrl@redhat.com on Tue, Jul 30, 2002 at 08:49:39AM -0400
+	id <S318270AbSG3Nbx>; Tue, 30 Jul 2002 09:31:53 -0400
+Received: from ns.suse.de ([213.95.15.193]:34067 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318268AbSG3Nbw>;
+	Tue, 30 Jul 2002 09:31:52 -0400
+To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] eepro 0.13a
+References: <20020730125601.GT16077@cathedrallabs.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Jul 2002 15:35:16 +0200
+In-Reply-To: Aristeu Sergio Rozanski Filho's message of "30 Jul 2002 14:58:35 +0200"
+Message-ID: <p73sn21s5ij.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 08:49:39AM -0400, Benjamin LaHaise wrote:
-> 
->  Anyways, the core is pretty much ready, so 
 
-Hey Ben, That sounds great. Have been looking forward to it 
-to find out how much has changed and if you've left anything 
-for us to do :) (other than docs and driver fixes :( ) 
+> @@ -633,37 +633,37 @@
+>  
+>  	i = inb(dev->base_addr + ID_REG);
+>  	printk(KERN_DEBUG " id: %#x ",i);
+> -	printk(KERN_DEBUG " io: %#x ", (unsigned)dev->base_addr);
+> +	printk(" io: %#x ", (unsigned)dev->base_addr);
+>  
+>  	switch (lp->eepro) {
+>  		case LAN595FX_10ISA:
+> -			printk(KERN_INFO "%s: Intel EtherExpress 10 ISA\n at %#x,",
+> +			printk("%s: Intel EtherExpress 10 ISA\n at %#x,",
+>  					dev->name, (unsigned)dev->base_addr);
 
-I did have an updated version of the bio traversal patch 
-(for 2.5.29) that avoids modifications to the bv_offset/bv_len
-fields by the block layer, though I don't know if you 
-still need it. Besides, you probably wouldn't run into
-those cases often, as the partial request completions 
-are probably rare. But just as a fyi ... 
+[more cases deleted]
 
-Regards
-Suparna
+This surely can't be right. Why are you dropping all the KERN_*s ?
 
-> 
+-Andi

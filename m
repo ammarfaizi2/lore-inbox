@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264883AbSKVOSZ>; Fri, 22 Nov 2002 09:18:25 -0500
+	id <S264877AbSKVOPZ>; Fri, 22 Nov 2002 09:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264939AbSKVOSZ>; Fri, 22 Nov 2002 09:18:25 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:5260 "EHLO
+	id <S264878AbSKVOPZ>; Fri, 22 Nov 2002 09:15:25 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:1164 "EHLO
 	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S264883AbSKVOSS>; Fri, 22 Nov 2002 09:18:18 -0500
-Date: Fri, 22 Nov 2002 15:25:18 +0100
+	id <S264877AbSKVOPO>; Fri, 22 Nov 2002 09:15:14 -0500
+Date: Fri, 22 Nov 2002 15:22:09 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH 2.5.48+bk] meye driver update
-Message-ID: <20021122152518.C21526@deep-space-9.dsnet>
+Subject: [PATCH 2.5.48+BK] sonypi driver update
+Message-ID: <20021122152209.B21526@deep-space-9.dsnet>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -26,440 +26,848 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch updates the MotionEye camera driver to the latest version.
+This patch updates the sonypi driver to the latest version.
 
 The most important changes are:
-	- allocate buffers on open(), not module load;
-	- correct some failed allocation paths;
-	- use wait_event;
-	- C99 structs inits;
+	* add suspend/resume support to the sonypi driver (not
+	  based on driverfs however) (Florian Lohoff);
+	* add "Zoom" and "Thumbphrase" buttons (Francois Gurin);
+	* add camera and lid events for C1XE (Kunihiko IMAI);
+	* add a mask parameter letting the user choose what kind
+	  of events he wants;
+	* use ACPI ec_read/ec_write when available in order to 
+	  play nice when latest ACPI is enabled;
+	* several source cleanups.
 
 Linus, please apply.
 
 Stelian.
 
-===== Documentation/video4linux/meye.txt 1.4 vs edited =====
---- 1.4/Documentation/video4linux/meye.txt	Mon Jul 15 19:03:08 2002
-+++ edited/Documentation/video4linux/meye.txt	Fri Nov  8 15:32:10 2002
+===== Documentation/sonypi.txt 1.8 vs edited =====
+--- 1.8/Documentation/sonypi.txt	Wed May  1 22:41:20 2002
++++ edited/Documentation/sonypi.txt	Fri Nov 22 13:48:03 2002
 @@ -1,6 +1,7 @@
- Vaio Picturebook Motion Eye Camera Driver Readme
- ------------------------------------------------
+ Sony Programmable I/O Control Device Driver Readme
+ --------------------------------------------------
 -	Copyright (C) 2001 Stelian Pop <stelian.pop@fr.alcove.com>, Alcôve
 +	Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
 +	Copyright (C) 2001-2002 Alcôve <www.alcove.com>
- 	Copyright (C) 2000 Andrew Tridgell <tridge@samba.org>
+ 	Copyright (C) 2001 Michael Ashley <m.ashley@unsw.edu.au>
+ 	Copyright (C) 2001 Junichi Morita <jun1m@mars.dti.ne.jp>
+ 	Copyright (C) 2000 Takaya Kinjo <t-kinjo@tc4.so-net.ne.jp>
+@@ -15,14 +16,14 @@
+ 	- capture button events (only on Vaio Picturebook series)
+ 	- Fn keys
+ 	- bluetooth button (only on C1VR model)
+-	- back button (PCG-GR7/K model)
+-	- lid open/close events (Z600NE model)
++	- programmable keys, back, help, zoom, thumbphrase buttons, etc.
++	  (when available)
  
- This driver enable the use of video4linux compatible applications with the
-@@ -52,7 +53,7 @@
- 				or
- 			xawtv -c /dev/video0 -geometry 320x240
+ Those events (see linux/sonypi.h) can be polled using the character device node
+ /dev/sonypi (major 10, minor auto allocated or specified as a option).
  
--	motioneye (<http://www.alcove-labs.org/en/software/meye/>)
-+	motioneye (<http://popies.net/meye/>)
- 		for getting ppm or jpg snapshots, mjpeg video
+ A simple daemon which translates the jogdial movements into mouse wheel events
+-can be downloaded at: <http://www.alcove-labs.org/en/software/sonypi/>
++can be downloaded at: <http://popies.net/sonypi/>
  
- Private API:
-===== include/linux/meye.h 1.1 vs edited =====
---- 1.1/include/linux/meye.h	Tue Feb  5 20:10:31 2002
-+++ edited/include/linux/meye.h	Fri Nov  8 15:26:15 2002
+ This driver supports also some ioctl commands for setting the LCD screen
+ brightness and querying the batteries charge information (some more 
+@@ -43,7 +44,7 @@
+ to /etc/modules.conf file, when the driver is compiled as a module or by
+ adding the following to the kernel command line (in your bootloader):
+ 
+-	sonypi=minor[,verbose[,fnkeyinit[,camera[,compat[,nojogdial]]]]]
++	sonypi=minor[,verbose[,fnkeyinit[,camera[,compat[,mask]]]]]
+ 
+ where:
+ 
+@@ -64,15 +65,36 @@
+ 			with it and it shouldn't be required anyway if 
+ 			ACPI is already enabled).
+ 
+-	verbose:	print unknown events from the sonypi device
++	verbose:	set to 1 to print unknown events received from the 
++			sonypi device.
++			set to 2 to print all events received from the 
++			sonypi device.
+ 
+ 	compat:		uses some compatibility code for enabling the sonypi
+ 			events. If the driver worked for you in the past
+ 			(prior to version 1.5) and does not work anymore,
+ 			add this option and report to the author.
+ 
+-	nojogdial:	gives more accurate PKEY events on those Vaio models
+-			which don't have a jogdial (like the FX series).
++	mask:		event mask telling the driver what events will be
++			reported to the user. This parameter is required for some 
++			Vaio models where the hardware reuses values used in 
++			other Vaio models (like the FX series who does not
++			have a jogdial but reuses the jogdial events for
++			programmable keys events). The default event mask is
++			set to 0xffffffff, meaning that all possible events will be
++			tried. You can use the following bits to construct
++			your own event mask (from drivers/char/sonypi.h):
++				SONYPI_JOGGER_MASK 		0x0001
++				SONYPI_CAPTURE_MASK 		0x0002
++				SONYPI_FNKEY_MASK 		0x0004
++				SONYPI_BLUETOOTH_MASK 		0x0008
++				SONYPI_PKEY_MASK 		0x0010
++				SONYPI_BACK_MASK 		0x0020
++				SONYPI_HELP_MASK 		0x0040
++				SONYPI_LID_MASK 		0x0080
++				SONYPI_ZOOM_MASK 		0x0100
++				SONYPI_THUMBPHRASE_MASK 	0x0200
++				SONYPI_MEYE_MASK		0x0400
+ 
+ Module use:
+ -----------
+===== include/linux/sonypi.h 1.5 vs edited =====
+--- 1.5/include/linux/sonypi.h	Wed Oct 30 15:48:16 2002
++++ edited/include/linux/sonypi.h	Thu Nov 21 23:45:49 2002
 @@ -1,7 +1,9 @@
  /* 
-  * Motion Eye video4linux driver for Sony Vaio PictureBook
+  * Sony Programmable I/O Control Device driver for VAIO
   *
 - * Copyright (C) 2001 Stelian Pop <stelian.pop@fr.alcove.com>, Alcôve
 + * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
 + *
 + * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
   *
-  * Copyright (C) 2000 Andrew Tridgell <tridge@valinux.com>
+  * Copyright (C) 2001 Michael Ashley <m.ashley@unsw.edu.au>
   *
-===== drivers/media/video/meye.h 1.5 vs edited =====
---- 1.5/drivers/media/video/meye.h	Fri May  3 01:16:53 2002
-+++ edited/drivers/media/video/meye.h	Mon Nov 18 11:54:26 2002
+@@ -85,6 +87,10 @@
+ #define SONYPI_EVENT_JOGDIAL_VFAST_UP		47
+ #define SONYPI_EVENT_JOGDIAL_VFAST_DOWN_PRESSED	48
+ #define SONYPI_EVENT_JOGDIAL_VFAST_UP_PRESSED	49
++#define SONYPI_EVENT_ZOOM_PRESSED		50
++#define SONYPI_EVENT_THUMBPHRASE_PRESSED	51
++#define SONYPI_EVENT_MEYE_FACE			52
++#define SONYPI_EVENT_MEYE_OPPOSITE		53
+ 
+ /* get/set brightness */
+ #define SONYPI_IOCGBRT		_IOR('v', 0, __u8)
+===== drivers/char/sonypi.h 1.11 vs edited =====
+--- 1.11/drivers/char/sonypi.h	Wed Oct 30 15:48:24 2002
++++ edited/drivers/char/sonypi.h	Fri Nov 22 13:56:48 2002
 @@ -1,7 +1,9 @@
  /* 
-  * Motion Eye video4linux driver for Sony Vaio PictureBook
+  * Sony Programmable I/O Control Device driver for VAIO
   *
 - * Copyright (C) 2001 Stelian Pop <stelian.pop@fr.alcove.com>, Alcôve
 + * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
 + *
 + * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
   *
-  * Copyright (C) 2000 Andrew Tridgell <tridge@valinux.com>
+  * Copyright (C) 2001 Michael Ashley <m.ashley@unsw.edu.au>
   *
-@@ -29,7 +31,7 @@
- #define _MEYE_PRIV_H_
+@@ -35,10 +37,16 @@
+ #ifdef __KERNEL__
  
- #define MEYE_DRIVER_MAJORVERSION	1
--#define MEYE_DRIVER_MINORVERSION	4
-+#define MEYE_DRIVER_MINORVERSION	5
+ #define SONYPI_DRIVER_MAJORVERSION	 1
+-#define SONYPI_DRIVER_MINORVERSION	14
++#define SONYPI_DRIVER_MINORVERSION	15
  
- /****************************************************************************/
- /* Motion JPEG chip registers                                               */
-===== drivers/media/video/meye.c 1.12 vs edited =====
---- 1.12/drivers/media/video/meye.c	Thu May 23 18:07:44 2002
-+++ edited/drivers/media/video/meye.c	Fri Nov 22 15:01:02 2002
-@@ -1,7 +1,9 @@
- /* 
-  * Motion Eye video4linux driver for Sony Vaio PictureBook
-  *
-- * Copyright (C) 2001 Stelian Pop <stelian.pop@fr.alcove.com>, Alcôve
-+ * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
-+ *
-+ * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
-  *
-  * Copyright (C) 2000 Andrew Tridgell <tridge@valinux.com>
-  *
-@@ -169,16 +171,28 @@
- 	meye.mchip_ptable[MCHIP_NB_PAGES] = pci_alloc_consistent(meye.mchip_dev, 
- 								 PAGE_SIZE, 
- 								 &meye.mchip_dmahandle);
--	if (!meye.mchip_ptable[MCHIP_NB_PAGES])
-+	if (!meye.mchip_ptable[MCHIP_NB_PAGES]) {
-+		meye.mchip_dmahandle = 0;
- 		return -1;
-+	}
- 
- 	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
- 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
- 		meye.mchip_ptable[i] = pci_alloc_consistent(meye.mchip_dev, 
- 							    PAGE_SIZE,
- 							    pt);
--		if (!meye.mchip_ptable[i])
-+		if (!meye.mchip_ptable[i]) {
-+			int j;
-+			pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
-+			for (j = 0; j < i; ++j) {
-+				pci_free_consistent(meye.mchip_dev,
-+						    PAGE_SIZE,
-+						    meye.mchip_ptable[j], *pt);
-+				pt++;
-+			}
-+			meye.mchip_dmahandle = 0;
- 			return -1;
-+		}
- 		pt++;
- 	}
- 	return 0;
-@@ -189,11 +203,13 @@
- 	int i;
- 
- 	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
--	for (i = 0; i < MCHIP_NB_PAGES; i++)
-+	for (i = 0; i < MCHIP_NB_PAGES; i++) {
- 		if (meye.mchip_ptable[i])
- 			pci_free_consistent(meye.mchip_dev, 
- 					    PAGE_SIZE, 
- 					    meye.mchip_ptable[i], *pt);
-+		pt++;
-+	}
- 
- 	if (meye.mchip_ptable[MCHIP_NB_PAGES])
- 		pci_free_consistent(meye.mchip_dev, 
-@@ -569,6 +585,16 @@
- 	mchip_load_tables();
- }
- 
-+/* sets the DMA parameters into the chip */
-+static void mchip_dma_setup(u32 dma_addr) {
-+	int i;
++#define SONYPI_DEVICE_MODEL_TYPE1	1
++#define SONYPI_DEVICE_MODEL_TYPE2	2
 +
-+	mchip_set(MCHIP_MM_PT_ADDR, dma_addr);
-+	for (i = 0; i < 4; i++)
-+		mchip_set(MCHIP_MM_FIR(i), 0);
-+	meye.mchip_fnum = 0;
++#include <linux/config.h>
+ #include <linux/types.h>
+ #include <linux/pci.h>
++#include <linux/pm.h>
++#include <linux/acpi.h>
+ #include "linux/sonypi.h"
+ 
+ /* type1 models use those */
+@@ -145,25 +153,23 @@
+ #define SONYPI_CAMERA_REVISION 			8
+ #define SONYPI_CAMERA_ROMVERSION 		9
+ 
+-/* key press event data (ioport2) */
+-#define SONYPI_TYPE1_JOGGER_EV		0x10
+-#define SONYPI_TYPE2_JOGGER_EV		0x08
+-#define SONYPI_TYPE1_CAPTURE_EV		0x60
+-#define SONYPI_TYPE2_CAPTURE_EV		0x08
+-#define SONYPI_TYPE1_FNKEY_EV		0x20
+-#define SONYPI_TYPE2_FNKEY_EV		0x08
+-#define SONYPI_TYPE1_BLUETOOTH_EV	0x30
+-#define SONYPI_TYPE2_BLUETOOTH_EV	0x08
+-#define SONYPI_TYPE1_PKEY_EV		0x40
+-#define SONYPI_TYPE2_PKEY_EV		0x08
+-#define SONYPI_BACK_EV			0x08
+-#define SONYPI_LID_EV			0x38
++/* Event masks */
++#define SONYPI_JOGGER_MASK			0x00000001
++#define SONYPI_CAPTURE_MASK			0x00000002
++#define SONYPI_FNKEY_MASK			0x00000004
++#define SONYPI_BLUETOOTH_MASK			0x00000008
++#define SONYPI_PKEY_MASK			0x00000010
++#define SONYPI_BACK_MASK			0x00000020
++#define SONYPI_HELP_MASK			0x00000040
++#define SONYPI_LID_MASK				0x00000080
++#define SONYPI_ZOOM_MASK			0x00000100
++#define SONYPI_THUMBPHRASE_MASK			0x00000200
++#define SONYPI_MEYE_MASK			0x00000400
+ 
+ struct sonypi_event {
+ 	u8	data;
+ 	u8	event;
+ };
+-
+ /* The set of possible jogger events  */
+ static struct sonypi_event sonypi_joggerev[] = {
+ 	{ 0x1f, SONYPI_EVENT_JOGDIAL_UP },
+@@ -180,7 +186,7 @@
+ 	{ 0x43, SONYPI_EVENT_JOGDIAL_VFAST_DOWN_PRESSED },
+ 	{ 0x40, SONYPI_EVENT_JOGDIAL_PRESSED },
+ 	{ 0x00, SONYPI_EVENT_JOGDIAL_RELEASED },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
+ };
+ 
+ /* The set of possible capture button events */
+@@ -189,7 +195,7 @@
+ 	{ 0x07, SONYPI_EVENT_CAPTURE_PRESSED },
+ 	{ 0x01, SONYPI_EVENT_CAPTURE_PARTIALRELEASED },
+ 	{ 0x00, SONYPI_EVENT_CAPTURE_RELEASED },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
+ };
+ 
+ /* The set of possible fnkeys events */
+@@ -215,7 +221,7 @@
+ 	{ 0x34, SONYPI_EVENT_FNKEY_S },
+ 	{ 0x35, SONYPI_EVENT_FNKEY_B },
+ 	{ 0x36, SONYPI_EVENT_FNKEY_ONLY },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
+ };
+ 
+ /* The set of possible program key events */
+@@ -223,7 +229,7 @@
+ 	{ 0x01, SONYPI_EVENT_PKEY_P1 },
+ 	{ 0x02, SONYPI_EVENT_PKEY_P2 },
+ 	{ 0x04, SONYPI_EVENT_PKEY_P3 },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
+ };
+ 
+ /* The set of possible bluetooth events */
+@@ -231,21 +237,74 @@
+ 	{ 0x55, SONYPI_EVENT_BLUETOOTH_PRESSED },
+ 	{ 0x59, SONYPI_EVENT_BLUETOOTH_ON },
+ 	{ 0x5a, SONYPI_EVENT_BLUETOOTH_OFF },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
+ };
+ 
+ /* The set of possible back button events */
+ static struct sonypi_event sonypi_backev[] = {
+ 	{ 0x20, SONYPI_EVENT_BACK_PRESSED },
++	{ 0, 0 }
++};
++
++/* The set of possible help button events */
++static struct sonypi_event sonypi_helpev[] = {
+ 	{ 0x3b, SONYPI_EVENT_HELP_PRESSED },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
+ };
+ 
++
+ /* The set of possible lid events */
+ static struct sonypi_event sonypi_lidev[] = {
+ 	{ 0x51, SONYPI_EVENT_LID_CLOSED },
+ 	{ 0x50, SONYPI_EVENT_LID_OPENED },
+-	{ 0x00, 0x00 }
++	{ 0, 0 }
++};
++
++/* The set of possible zoom events */
++static struct sonypi_event sonypi_zoomev[] = {
++	{ 0x3a, SONYPI_EVENT_ZOOM_PRESSED },
++	{ 0, 0 }
++};
++
++/* The set of possible thumbphrase events */
++static struct sonypi_event sonypi_thumbphraseev[] = {
++	{ 0x3a, SONYPI_EVENT_THUMBPHRASE_PRESSED },
++	{ 0, 0 }
++};
++
++/* The set of possible motioneye camera events */
++static struct sonypi_event sonypi_meyeev[] = {
++	{ 0x00, SONYPI_EVENT_MEYE_FACE },
++	{ 0x01, SONYPI_EVENT_MEYE_OPPOSITE },
++	{ 0, 0 }
++};
++
++struct sonypi_eventtypes {
++	int			model;
++	u8			data;
++	unsigned long		mask;
++	struct sonypi_event *	events;
++} sonypi_eventtypes[] = {
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x70, SONYPI_MEYE_MASK, sonypi_meyeev },
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x30, SONYPI_LID_MASK, sonypi_lidev },
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x60, SONYPI_CAPTURE_MASK, sonypi_captureev },
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x10, SONYPI_JOGGER_MASK, sonypi_joggerev },
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x20, SONYPI_FNKEY_MASK, sonypi_fnkeyev },
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x30, SONYPI_BLUETOOTH_MASK, sonypi_blueev },
++	{ SONYPI_DEVICE_MODEL_TYPE1, 0x40, SONYPI_PKEY_MASK, sonypi_pkeyev },
++
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x38, SONYPI_LID_MASK, sonypi_lidev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_JOGGER_MASK, sonypi_joggerev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_CAPTURE_MASK, sonypi_captureev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_FNKEY_MASK, sonypi_fnkeyev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_BLUETOOTH_MASK, sonypi_blueev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_PKEY_MASK, sonypi_pkeyev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_BACK_MASK, sonypi_backev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_HELP_MASK, sonypi_helpev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_ZOOM_MASK, sonypi_zoomev },
++	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_THUMBPHRASE_MASK, sonypi_thumbphraseev },
++
++	{ 0, 0, 0, 0 }
+ };
+ 
+ #define SONYPI_BUF_SIZE	128
+@@ -259,9 +318,6 @@
+ 	unsigned char buf[SONYPI_BUF_SIZE];
+ };
+ 
+-#define SONYPI_DEVICE_MODEL_TYPE1	1
+-#define SONYPI_DEVICE_MODEL_TYPE2	2
+-
+ struct sonypi_device {
+ 	struct pci_dev *dev;
+ 	u16 irq;
+@@ -275,15 +331,46 @@
+ 	struct sonypi_queue queue;
+ 	int open_count;
+ 	int model;
++#if CONFIG_PM
++	struct pm_dev *pm;
++#endif
+ };
+ 
+-#define wait_on_command(quiet, command) { \
+-	unsigned int n = 10000; \
++#define ITERATIONS_LONG		10000
++#define ITERATIONS_SHORT	10
++
++#define wait_on_command(quiet, command, iterations) { \
++	unsigned int n = iterations; \
+ 	while (--n && (command)) \
+ 		udelay(1); \
+ 	if (!n && (verbose || !quiet)) \
+ 		printk(KERN_WARNING "sonypi command failed at %s : %s (line %d)\n", __FILE__, __FUNCTION__, __LINE__); \
+ }
++
++#if !defined(CONFIG_ACPI)
++extern int verbose;
++
++static inline int ec_write(u8 addr, u8 value) {
++	wait_on_command(1, inb_p(SONYPI_CST_IOPORT) & 3, ITERATIONS_LONG);
++	outb_p(0x81, SONYPI_CST_IOPORT);
++	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2, ITERATIONS_LONG);
++	outb_p(addr, SONYPI_DATA_IOPORT);
++	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2, ITERATIONS_LONG);
++	outb_p(value, SONYPI_DATA_IOPORT);
++	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2, ITERATIONS_LONG);
++	return 0;
 +}
 +
- /* setup for DMA transfers - also zeros the framebuffer */
- static int mchip_dma_alloc(void) {
- 	if (!meye.mchip_dmahandle)
-@@ -579,18 +605,10 @@
++static inline int ec_read(u8 addr, u8 *value) {
++	wait_on_command(1, inb_p(SONYPI_CST_IOPORT) & 3, ITERATIONS_LONG);
++	outb_p(0x80, SONYPI_CST_IOPORT);
++	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2, ITERATIONS_LONG);
++	outb_p(addr, SONYPI_DATA_IOPORT);
++	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2, ITERATIONS_LONG);
++	*value = inb_p(SONYPI_DATA_IOPORT);
++	return 0;
++}
++#endif /* !CONFIG_ACPI */
  
- /* frees the DMA buffer */
- static void mchip_dma_free(void) {
--	if (meye.mchip_dmahandle)
-+	if (meye.mchip_dmahandle) {
-+		mchip_dma_setup(0);
- 		ptable_free();
+ #endif /* __KERNEL__ */
+ 
+===== drivers/char/sonypi.c 1.11 vs edited =====
+--- 1.11/drivers/char/sonypi.c	Mon Nov 18 04:59:01 2002
++++ edited/drivers/char/sonypi.c	Fri Nov 22 13:46:41 2002
+@@ -1,7 +1,9 @@
+ /*
+  * Sony Programmable I/O Control Device driver for VAIO
+  *
+- * Copyright (C) 2001 Stelian Pop <stelian.pop@fr.alcove.com>, Alcôve
++ * Copyright (C) 2001-2002 Stelian Pop <stelian@popies.net>
++ *
++ * Copyright (C) 2001-2002 Alcôve <www.alcove.com>
+  *
+  * Copyright (C) 2001 Michael Ashley <m.ashley@unsw.edu.au>
+  *
+@@ -39,6 +41,7 @@
+ #include <linux/poll.h>
+ #include <linux/delay.h>
+ #include <linux/wait.h>
++#include <linux/acpi.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -53,7 +56,7 @@
+ static int fnkeyinit; /* = 0 */
+ static int camera; /* = 0 */
+ static int compat; /* = 0 */
+-static int nojogdial; /* = 0 */
++static unsigned long mask = 0xffffffff;
+ 
+ /* Inits the queue */
+ static inline void sonypi_initq(void) {
+@@ -113,29 +116,14 @@
+         return result;
+ }
+ 
+-static void sonypi_ecrset(u8 addr, u8 value) {
+-
+-	wait_on_command(1, inb_p(SONYPI_CST_IOPORT) & 3);
+-	outb_p(0x81, SONYPI_CST_IOPORT);
+-	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2);
+-	outb_p(addr, SONYPI_DATA_IOPORT);
+-	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2);
+-	outb_p(value, SONYPI_DATA_IOPORT);
+-	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2);
 -}
 -
--/* sets the DMA parameters into the chip */
--static void mchip_dma_setup(void) {
--	int i;
+-static u8 sonypi_ecrget(u8 addr) {
 -
--	mchip_set(MCHIP_MM_PT_ADDR, meye.mchip_dmahandle);
--	for (i = 0; i < 4; i++)
--		mchip_set(MCHIP_MM_FIR(i), 0);
--	meye.mchip_fnum = 0;
-+	}
+-	wait_on_command(1, inb_p(SONYPI_CST_IOPORT) & 3);
+-	outb_p(0x80, SONYPI_CST_IOPORT);
+-	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2);
+-	outb_p(addr, SONYPI_DATA_IOPORT);
+-	wait_on_command(0, inb_p(SONYPI_CST_IOPORT) & 2);
+-	return inb_p(SONYPI_DATA_IOPORT);
+-}
+-
+-static u16 sonypi_ecrget16(u8 addr) {
+-	return sonypi_ecrget(addr) | (sonypi_ecrget(addr + 1) << 8);
++static int ec_read16(u8 addr, u16 *value) {
++	u8 val_lb, val_hb;
++	if (ec_read(addr, &val_lb))
++		return -1;
++	if (ec_read(addr + 1, &val_hb))
++		return -1;
++	*value = val_lb | (val_hb << 8);
++	return 0;
  }
  
- /* stop any existing HIC action and wait for any dma to complete then
-@@ -698,7 +716,7 @@
+ /* Initializes the device - this comes from the AML code in the ACPI bios */
+@@ -162,9 +150,12 @@
+ }
+ 
+ static void __devinit sonypi_type2_srs(void) {
+-	sonypi_ecrset(SONYPI_SHIB, (sonypi_device.ioport1 & 0xFF00) >> 8);
+-	sonypi_ecrset(SONYPI_SLOB,  sonypi_device.ioport1 & 0x00FF);
+-	sonypi_ecrset(SONYPI_SIRQ,  sonypi_device.bits);
++	if (ec_write(SONYPI_SHIB, (sonypi_device.ioport1 & 0xFF00) >> 8))
++		printk(KERN_WARNING "ec_write failed\n");
++	if (ec_write(SONYPI_SLOB,  sonypi_device.ioport1 & 0x00FF))
++		printk(KERN_WARNING "ec_write failed\n");
++	if (ec_write(SONYPI_SIRQ,  sonypi_device.bits))
++		printk(KERN_WARNING "ec_write failed\n");
+ 	udelay(10);
+ }
+ 
+@@ -182,15 +173,18 @@
+ }
+ 
+ static void __devexit sonypi_type2_dis(void) {
+-	sonypi_ecrset(SONYPI_SHIB, 0);
+-	sonypi_ecrset(SONYPI_SLOB, 0);
+-	sonypi_ecrset(SONYPI_SIRQ, 0);
++	if (ec_write(SONYPI_SHIB, 0))
++		printk(KERN_WARNING "ec_write failed\n");
++	if (ec_write(SONYPI_SLOB, 0))
++		printk(KERN_WARNING "ec_write failed\n");
++	if (ec_write(SONYPI_SIRQ, 0))
++		printk(KERN_WARNING "ec_write failed\n");
+ }
+ 
+ static u8 sonypi_call1(u8 dev) {
+ 	u8 v1, v2;
+ 
+-	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2);
++	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2, ITERATIONS_LONG);
+ 	outb(dev, sonypi_device.ioport2);
+ 	v1 = inb_p(sonypi_device.ioport2);
+ 	v2 = inb_p(sonypi_device.ioport1);
+@@ -200,9 +194,9 @@
+ static u8 sonypi_call2(u8 dev, u8 fn) {
+ 	u8 v1;
+ 
+-	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2);
++	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2, ITERATIONS_LONG);
+ 	outb(dev, sonypi_device.ioport2);
+-	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2);
++	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2, ITERATIONS_LONG);
+ 	outb(fn, sonypi_device.ioport1);
+ 	v1 = inb_p(sonypi_device.ioport1);
+ 	return v1;
+@@ -211,11 +205,11 @@
+ static u8 sonypi_call3(u8 dev, u8 fn, u8 v) {
+ 	u8 v1;
+ 
+-	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2);
++	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2, ITERATIONS_LONG);
+ 	outb(dev, sonypi_device.ioport2);
+-	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2);
++	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2, ITERATIONS_LONG);
+ 	outb(fn, sonypi_device.ioport1);
+-	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2);
++	wait_on_command(0, inb_p(sonypi_device.ioport2) & 2, ITERATIONS_LONG);
+ 	outb(v, sonypi_device.ioport1);
+ 	v1 = inb_p(sonypi_device.ioport1);
+ 	return v1;
+@@ -237,7 +231,7 @@
+ /* Set brightness, hue etc */
+ static void sonypi_set(u8 fn, u8 v) {
  	
- 	mchip_hic_stop();
- 	mchip_subsample();
--	mchip_dma_setup();
-+	mchip_dma_setup(meye.mchip_dmahandle);
+-	wait_on_command(0, sonypi_call3(0x90, fn, v));
++	wait_on_command(0, sonypi_call3(0x90, fn, v), ITERATIONS_SHORT);
+ }
  
- 	mchip_set(MCHIP_HIC_MODE, MCHIP_HIC_MODE_STILL_CAP);
- 	mchip_set(MCHIP_HIC_CMD, MCHIP_HIC_CMD_START);
-@@ -741,7 +759,7 @@
- 	mchip_hic_stop();
- 	mchip_subsample();
- 	mchip_set_framerate();
--	mchip_dma_setup();
-+	mchip_dma_setup(meye.mchip_dmahandle);
+ /* Tests if the camera is ready */
+@@ -311,79 +305,30 @@
+ /* Interrupt handler: some event is available */
+ void sonypi_irq(int irq, void *dev_id, struct pt_regs *regs) {
+ 	u8 v1, v2, event = 0;
+-	int i;
+-	u8 sonypi_jogger_ev, sonypi_fnkey_ev;
+-	u8 sonypi_capture_ev, sonypi_bluetooth_ev;
+-	u8 sonypi_pkey_ev;
+-
+-	if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2) {
+-		sonypi_jogger_ev = SONYPI_TYPE2_JOGGER_EV;
+-		sonypi_fnkey_ev = SONYPI_TYPE2_FNKEY_EV;
+-		sonypi_capture_ev = SONYPI_TYPE2_CAPTURE_EV;
+-		sonypi_bluetooth_ev = SONYPI_TYPE2_BLUETOOTH_EV;
+-		sonypi_pkey_ev = nojogdial ? SONYPI_TYPE2_PKEY_EV 
+-					   : SONYPI_TYPE1_PKEY_EV;
+-	}
+-	else {
+-		sonypi_jogger_ev = SONYPI_TYPE1_JOGGER_EV;
+-		sonypi_fnkey_ev = SONYPI_TYPE1_FNKEY_EV;
+-		sonypi_capture_ev = SONYPI_TYPE1_CAPTURE_EV;
+-		sonypi_bluetooth_ev = SONYPI_TYPE1_BLUETOOTH_EV;
+-		sonypi_pkey_ev = SONYPI_TYPE1_PKEY_EV;
+-	}
++	int i, j;
  
- 	meye.mchip_mode = MCHIP_HIC_MODE_CONT_OUT;
+ 	v1 = inb_p(sonypi_device.ioport1);
+ 	v2 = inb_p(sonypi_device.ioport2);
  
-@@ -801,7 +819,7 @@
- 	mchip_vrj_setup(0x3f);
- 	mchip_subsample();
- 	mchip_set_framerate();
--	mchip_dma_setup();
-+	mchip_dma_setup(meye.mchip_dmahandle);
- 
- 	meye.mchip_mode = MCHIP_HIC_MODE_CONT_COMP;
- 
-@@ -823,7 +841,7 @@
- 	while (1) {
- 		v = mchip_get_frame();
- 		if (!(v & MCHIP_MM_FIR_RDY))
+-	if ((v2 & sonypi_pkey_ev) == sonypi_pkey_ev) {
+-		for (i = 0; sonypi_pkeyev[i].event; i++)
+-			if (sonypi_pkeyev[i].data == v1) {
+-				event = sonypi_pkeyev[i].event;
+-				goto found;
+-			}
+-	}
+-	if ((v2 & sonypi_jogger_ev) == sonypi_jogger_ev) {
+-		for (i = 0; sonypi_joggerev[i].event; i++)
+-			if (sonypi_joggerev[i].data == v1) {
+-				event = sonypi_joggerev[i].event;
+-				goto found;
+-			}
+-	}
+-	if ((v2 & sonypi_capture_ev) == sonypi_capture_ev) {
+-		for (i = 0; sonypi_captureev[i].event; i++)
+-			if (sonypi_captureev[i].data == v1) {
+-				event = sonypi_captureev[i].event;
+-				goto found;
+-			}
+-	}
+-	if ((v2 & sonypi_fnkey_ev) == sonypi_fnkey_ev) {
+-		for (i = 0; sonypi_fnkeyev[i].event; i++)
+-			if (sonypi_fnkeyev[i].data == v1) {
+-				event = sonypi_fnkeyev[i].event;
+-				goto found;
+-			}
+-	}
+-	if ((v2 & sonypi_bluetooth_ev) == sonypi_bluetooth_ev) {
+-		for (i = 0; sonypi_blueev[i].event; i++)
+-			if (sonypi_blueev[i].data == v1) {
+-				event = sonypi_blueev[i].event;
+-				goto found;
+-			}
+-	}
+-	if ((v2 & SONYPI_BACK_EV) == SONYPI_BACK_EV) {
+-		for (i = 0; sonypi_backev[i].event; i++)
+-			if (sonypi_backev[i].data == v1) {
+-				event = sonypi_backev[i].event;
+-				goto found;
+-			}
+-	}
+-	if ((v2 & SONYPI_LID_EV) == SONYPI_LID_EV) {
+-		for (i = 0; sonypi_lidev[i].event; i++)
+-			if (sonypi_lidev[i].data == v1) {
+-				event = sonypi_lidev[i].event;
++	if (verbose > 1)
++		printk(KERN_INFO 
++		       "sonypi: event port1=0x%02x,port2=0x%02x\n", v1, v2);
++
++	for (i = 0; sonypi_eventtypes[i].model; i++) {
++		if (sonypi_device.model != sonypi_eventtypes[i].model)
++			continue;
++		if ((v2 & sonypi_eventtypes[i].data) != sonypi_eventtypes[i].data)
++			continue;
++		if (! (mask & sonypi_eventtypes[i].mask))
++			continue;
++		for (j = 0; sonypi_eventtypes[i].events[j].event; j++) {
++			if (v1 == sonypi_eventtypes[i].events[j].data) {
++				event = sonypi_eventtypes[i].events[j].event;
+ 				goto found;
+ 			}
++		}
+ 	}
++
+ 	if (verbose)
+ 		printk(KERN_WARNING 
+ 		       "sonypi: unknown event port1=0x%02x,port2=0x%02x\n",v1,v2);
+@@ -545,72 +490,77 @@
+ 	down(&sonypi_device.lock);
+ 	switch (cmd) {
+ 	case SONYPI_IOCGBRT:
+-		val8 = sonypi_ecrget(SONYPI_LCD_LIGHT);
+-		if (copy_to_user((u8 *)arg, &val8, sizeof(val8))) {
+-			ret = -EFAULT;
 -			goto out;
-+			return;
- 		switch (meye.mchip_mode) {
- 
- 		case MCHIP_HIC_MODE_CONT_OUT:
-@@ -856,12 +874,11 @@
- 
- 		default:
- 			/* do not free frame, since it can be a snap */
++		if (ec_read(SONYPI_LCD_LIGHT, &val8)) {
++			ret = -EIO;
++			break;
+ 		}
++		if (copy_to_user((u8 *)arg, &val8, sizeof(val8)))
++			ret = -EFAULT;
+ 		break;
+ 	case SONYPI_IOCSBRT:
+ 		if (copy_from_user(&val8, (u8 *)arg, sizeof(val8))) {
+ 			ret = -EFAULT;
 -			goto out;
-+			return;
- 		} /* switch */
- 
- 		mchip_free_frame();
++			break;
+ 		}
+-		sonypi_ecrset(SONYPI_LCD_LIGHT, val8);
++		if (ec_write(SONYPI_LCD_LIGHT, val8))
++			ret = -EIO;
+ 		break;
+ 	case SONYPI_IOCGBAT1CAP:
+-		val16 = sonypi_ecrget16(SONYPI_BAT1_FULL);
+-		if (copy_to_user((u16 *)arg, &val16, sizeof(val16))) {
+-			ret = -EFAULT;
+-			goto out;
++		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++			ret = -EIO;
++			break;
+ 		}
++		if (copy_to_user((u16 *)arg, &val16, sizeof(val16)))
++			ret = -EFAULT;
+ 		break;
+ 	case SONYPI_IOCGBAT1REM:
+-		val16 = sonypi_ecrget16(SONYPI_BAT1_LEFT);
+-		if (copy_to_user((u16 *)arg, &val16, sizeof(val16))) {
+-			ret = -EFAULT;
+-			goto out;
++		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++			ret = -EIO;
++			break;
+ 		}
++		if (copy_to_user((u16 *)arg, &val16, sizeof(val16)))
++			ret = -EFAULT;
+ 		break;
+ 	case SONYPI_IOCGBAT2CAP:
+-		val16 = sonypi_ecrget16(SONYPI_BAT2_FULL);
+-		if (copy_to_user((u16 *)arg, &val16, sizeof(val16))) {
+-			ret = -EFAULT;
+-			goto out;
++		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++			ret = -EIO;
++			break;
+ 		}
++		if (copy_to_user((u16 *)arg, &val16, sizeof(val16)))
++			ret = -EFAULT;
+ 		break;
+ 	case SONYPI_IOCGBAT2REM:
+-		val16 = sonypi_ecrget16(SONYPI_BAT2_LEFT);
+-		if (copy_to_user((u16 *)arg, &val16, sizeof(val16))) {
+-			ret = -EFAULT;
+-			goto out;
++		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++			ret = -EIO;
++			break;
+ 		}
++		if (copy_to_user((u16 *)arg, &val16, sizeof(val16)))
++			ret = -EFAULT;
+ 		break;
+ 	case SONYPI_IOCGBATFLAGS:
+-		val8 = sonypi_ecrget(SONYPI_BAT_FLAGS) & 0x07;
+-		if (copy_to_user((u8 *)arg, &val8, sizeof(val8))) {
+-			ret = -EFAULT;
+-			goto out;
++		if (ec_read(SONYPI_BAT_FLAGS, &val8)) {
++			ret = -EIO;
++			break;
+ 		}
++		val8 &= 0x07;
++		if (copy_to_user((u8 *)arg, &val8, sizeof(val8)))
++			ret = -EFAULT;
+ 		break;
+ 	case SONYPI_IOCGBLUE:
+ 		val8 = sonypi_device.bluetooth_power;
+-		if (copy_to_user((u8 *)arg, &val8, sizeof(val8))) {
++		if (copy_to_user((u8 *)arg, &val8, sizeof(val8)))
+ 			ret = -EFAULT;
+-			goto out;
+-		}
+ 		break;
+ 	case SONYPI_IOCSBLUE:
+ 		if (copy_from_user(&val8, (u8 *)arg, sizeof(val8))) {
+ 			ret = -EFAULT;
+-			goto out;
++			break;
+ 		}
+ 		sonypi_setbluetoothpower(val8);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
  	}
 -out:
+ 	up(&sonypi_device.lock);
+ 	return ret;
  }
- 
- /****************************************************************************/
-@@ -889,6 +906,7 @@
- 
- static int meye_release(struct inode *inode, struct file *file) {
- 	mchip_hic_stop();
-+	mchip_dma_free();
- 	video_exclusive_release(inode,file);
- 	return 0;
- }
-@@ -957,7 +975,6 @@
- 
- 	case VIDIOCSYNC: {
- 		int *i = arg;
--		DECLARE_WAITQUEUE(wait, current);
- 
- 		if (*i < 0 || *i >= gbuffers)
- 			return -EINVAL;
-@@ -967,18 +984,9 @@
- 		case MEYE_BUF_UNUSED:
- 			return -EINVAL;
- 		case MEYE_BUF_USING:
--			add_wait_queue(&meye.grabq.proc_list, &wait);
--			current->state = TASK_INTERRUPTIBLE;
--			while (meye.grab_buffer[*i].state == MEYE_BUF_USING) {
--				schedule();
--				if(signal_pending(current)) {
--					remove_wait_queue(&meye.grabq.proc_list, &wait);
--					current->state = TASK_RUNNING;
--					return -EINTR;
--				}
--			}
--			remove_wait_queue(&meye.grabq.proc_list, &wait);
--			current->state = TASK_RUNNING;
-+			if (wait_event_interruptible(meye.grabq.proc_list,
-+						     (meye.grab_buffer[*i].state != MEYE_BUF_USING)))
-+				return -EINTR;
- 			/* fall through */
- 		case MEYE_BUF_DONE:
- 			meye.grab_buffer[*i].state = MEYE_BUF_UNUSED;
-@@ -1095,7 +1103,6 @@
- 
- 	case MEYEIOC_SYNC: {
- 		int *i = arg;
--		DECLARE_WAITQUEUE(wait, current);
- 
- 		if (*i < 0 || *i >= gbuffers)
- 			return -EINVAL;
-@@ -1105,18 +1112,9 @@
- 		case MEYE_BUF_UNUSED:
- 			return -EINVAL;
- 		case MEYE_BUF_USING:
--			add_wait_queue(&meye.grabq.proc_list, &wait);
--			current->state = TASK_INTERRUPTIBLE;
--			while (meye.grab_buffer[*i].state == MEYE_BUF_USING) {
--				schedule();
--				if(signal_pending(current)) {
--					remove_wait_queue(&meye.grabq.proc_list, &wait);
--					current->state = TASK_RUNNING;
--					return -EINTR;
--				}
--			}
--			remove_wait_queue(&meye.grabq.proc_list, &wait);
--			current->state = TASK_RUNNING;
-+			if (wait_event_interruptible(meye.grabq.proc_list,
-+						     (meye.grab_buffer[*i].state != MEYE_BUF_USING)))
-+				return -EINTR;
- 			/* fall through */
- 		case MEYE_BUF_DONE:
- 			meye.grab_buffer[*i].state = MEYE_BUF_UNUSED;
-@@ -1211,20 +1209,20 @@
- }
- 
- static struct file_operations meye_fops = {
--	owner:		THIS_MODULE,
--	open:		meye_open,
--	release:	meye_release,
--	mmap:		meye_mmap,
--	ioctl:		meye_ioctl,
--	llseek:		no_llseek,
-+	.owner		= THIS_MODULE,
-+	.open		= meye_open,
-+	.release	= meye_release,
-+	.mmap		= meye_mmap,
-+	.ioctl		= meye_ioctl,
-+	.llseek		= no_llseek,
+@@ -621,7 +571,7 @@
+ 	.poll		= sonypi_misc_poll,
+ 	.open		= sonypi_misc_open,
+ 	.release	= sonypi_misc_release,
+-	.fasync 	= sonypi_misc_fasync,
++	.fasync		= sonypi_misc_fasync,
+ 	.ioctl		= sonypi_misc_ioctl,
  };
  
- static struct video_device meye_template = {
--	owner:		THIS_MODULE,
--	name:		"meye",
--	type:		VID_TYPE_CAPTURE,
--	hardware:	VID_HARDWARE_MEYE,
--	fops:		&meye_fops,
-+	.owner		= THIS_MODULE,
-+	.name		= "meye",
-+	.type		= VID_TYPE_CAPTURE,
-+	.hardware	= VID_HARDWARE_MEYE,
-+	.fops		= &meye_fops,
+@@ -629,6 +579,51 @@
+ 	-1, "sonypi", &sonypi_misc_fops
  };
  
- static int __devinit meye_probe(struct pci_dev *pcidev, 
-@@ -1244,15 +1242,9 @@
- 	meye.mchip_dev = pcidev;
- 	memcpy(&meye.video_dev, &meye_template, sizeof(meye_template));
++#if CONFIG_PM
++static int sonypi_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data) {
++	static int old_camera_power;
++
++	switch (rqst) {
++	case PM_SUSPEND:
++		sonypi_call2(0x81, 0); /* make sure we don't get any more events */
++		if (camera) {
++			old_camera_power = sonypi_device.camera_power;
++			sonypi_camera_off();
++		}
++		if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2)
++			sonypi_type2_dis();
++		else
++			sonypi_type1_dis();
++#if !defined(CONFIG_ACPI)
++		/* disable ACPI mode */
++		if (fnkeyinit)
++			outb(0xf1, 0xb2);
++#endif
++		break;
++	case PM_RESUME:
++#if !defined(CONFIG_ACPI)
++		/* Enable ACPI mode to get Fn key events */
++		if (fnkeyinit)
++			outb(0xf0, 0xb2);
++#endif
++		if (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE2)
++			sonypi_type2_srs();
++		else
++			sonypi_type1_srs();
++		sonypi_call1(0x82);
++		sonypi_call2(0x81, 0xff);
++		if (compat)
++			sonypi_call1(0x92); 
++		else
++			sonypi_call1(0x82);
++		if (camera && old_camera_power)
++			sonypi_camera_on();
++		break;
++	}
++	return 0;
++}
++#endif
++
+ static int __devinit sonypi_probe(struct pci_dev *pcidev) {
+ 	int i, ret;
+ 	struct sonypi_ioport_list *ioport_list;
+@@ -720,14 +715,14 @@
+ 	       SONYPI_DRIVER_MINORVERSION);
+ 	printk(KERN_INFO "sonypi: detected %s model, "
+ 	       "verbose = %s, fnkeyinit = %s, camera = %s, "
+-	       "compat = %s, nojogdial = %s\n",
++	       "compat = %s, mask = 0x%08lx\n",
+ 	       (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE1) ?
+ 			"type1" : "type2",
+ 	       verbose ? "on" : "off",
+ 	       fnkeyinit ? "on" : "off",
+ 	       camera ? "on" : "off",
+ 	       compat ? "on" : "off",
+-	       nojogdial ? "on" : "off");
++	       mask);
+ 	printk(KERN_INFO "sonypi: enabled at irq=%d, port1=0x%x, port2=0x%x\n",
+ 	       sonypi_device.irq, 
+ 	       sonypi_device.ioport1, sonypi_device.ioport2);
+@@ -735,6 +730,10 @@
+ 		printk(KERN_INFO "sonypi: device allocated minor is %d\n",
+ 		       sonypi_misc_device.minor);
  
--	if (mchip_dma_alloc()) {
--		printk(KERN_ERR "meye: mchip framebuffer allocation failed\n");
--		ret = -ENOMEM;
--		goto out2;
--	}
--
- 	if ((ret = pci_enable_device(meye.mchip_dev))) {
- 		printk(KERN_ERR "meye: pci_enable_device failed\n");
--		goto out3;
-+		goto out2;
- 	}
- 
- 	meye.mchip_irq = pcidev->irq;
-@@ -1260,14 +1252,14 @@
- 	if (!mchip_adr) {
- 		printk(KERN_ERR "meye: mchip has no device base address\n");
- 		ret = -EIO;
--		goto out4;
-+		goto out3;
- 	}
- 	if (!request_mem_region(pci_resource_start(meye.mchip_dev, 0),
- 			        pci_resource_len(meye.mchip_dev, 0),
- 				"meye")) {
- 		ret = -EIO;
- 		printk(KERN_ERR "meye: request_mem_region failed\n");
--		goto out4;
-+		goto out3;
- 	}
- 
- 	pci_read_config_byte(meye.mchip_dev, PCI_REVISION_ID, &revision);
-@@ -1280,14 +1272,14 @@
- 	if ((ret = request_irq(meye.mchip_irq, meye_irq, 
- 			       SA_INTERRUPT | SA_SHIRQ, "meye", meye_irq))) {
- 		printk(KERN_ERR "meye: request_irq failed (ret=%d)\n", ret);
--		goto out5;
-+		goto out4;
- 	}
- 
- 	meye.mchip_mmregs = ioremap(mchip_adr, MCHIP_MM_REGS);
- 	if (!meye.mchip_mmregs) {
- 		printk(KERN_ERR "meye: ioremap failed\n");
- 		ret = -EIO;
--		goto out6;
-+		goto out5;
- 	}
- 	
- 	/* Ask the camera to perform a soft reset. */
-@@ -1309,7 +1301,7 @@
- 
- 		printk(KERN_ERR "meye: video_register_device failed\n");
- 		ret = -EIO;
--		goto out7;
-+		goto out6;
- 	}
- 	
- 	printk(KERN_INFO "meye: Motion Eye Camera Driver v%d.%d.\n",
-@@ -1343,17 +1335,15 @@
- 	sonypi_camera_command(SONYPI_COMMAND_SETCAMERAAGC, 48);
- 
++#if CONFIG_PM
++	sonypi_device.pm = pm_register(PM_PCI_DEV, 0, sonypi_pm_callback);
++#endif
++
  	return 0;
--out7:
--	iounmap(meye.mchip_mmregs);
- out6:
--	free_irq(meye.mchip_irq, meye_irq);
-+	iounmap(meye.mchip_mmregs);
- out5:
-+	free_irq(meye.mchip_irq, meye_irq);
-+out4:
- 	release_mem_region(pci_resource_start(meye.mchip_dev, 0),
- 			   pci_resource_len(meye.mchip_dev, 0));
--out4:
--	pci_disable_device(meye.mchip_dev);
+ 
  out3:
--	mchip_dma_free();
-+	pci_disable_device(meye.mchip_dev);
- out2:
- 	sonypi_camera_command(SONYPI_COMMAND_SETCAMERA, 0);
- out1:
-@@ -1371,7 +1361,6 @@
+@@ -746,6 +745,11 @@
+ }
  
- 	free_irq(meye.mchip_irq, meye_irq);
- 
--
- 	iounmap(meye.mchip_mmregs);
- 
- 	release_mem_region(pci_resource_start(meye.mchip_dev, 0),
-@@ -1398,10 +1387,10 @@
- MODULE_DEVICE_TABLE(pci, meye_pci_tbl);
- 
- static struct pci_driver meye_driver = {
--	name:		"meye",
--	id_table:	meye_pci_tbl,
--	probe:		meye_probe,
--	remove:		__devexit_p(meye_remove),
-+	.name		= "meye",
-+	.id_table	= meye_pci_tbl,
-+	.probe		= meye_probe,
-+	.remove		= __devexit_p(meye_remove),
- };
- 
- static int __init meye_init_module(void) {
-@@ -1441,7 +1430,7 @@
- __setup("meye=", meye_setup);
- #endif
+ static void __devexit sonypi_remove(void) {
++
++#if CONFIG_PM
++	pm_unregister(sonypi_device.pm);
++#endif
++
+ 	sonypi_call2(0x81, 0); /* make sure we don't get any more events */
+ 	if (camera)
+ 		sonypi_camera_off();
+@@ -803,7 +807,7 @@
+ 	compat = ints[5];
+ 	if (ints[0] == 5)
+ 		goto out;
+-	nojogdial = ints[6];
++	mask = ints[6];
+ out:
+ 	return 1;
+ }
+@@ -815,7 +819,7 @@
+ module_init(sonypi_init_module);
+ module_exit(sonypi_cleanup_module);
  
 -MODULE_AUTHOR("Stelian Pop <stelian.pop@fr.alcove.com>");
 +MODULE_AUTHOR("Stelian Pop <stelian@popies.net>");
- MODULE_DESCRIPTION("video4linux driver for the MotionEye camera");
+ MODULE_DESCRIPTION("Sony Programmable I/O Control Device driver");
  MODULE_LICENSE("GPL");
  
-	
-	
+@@ -830,7 +834,7 @@
+ MODULE_PARM_DESC(camera, "set this if you have a MotionEye camera (PictureBook series)");
+ MODULE_PARM(compat,"i");
+ MODULE_PARM_DESC(compat, "set this if you want to enable backward compatibility mode");
+-MODULE_PARM(nojogdial, "i");
+-MODULE_PARM_DESC(nojogdial, "set this if you have a Vaio without a jogdial (like the fx series)");
++MODULE_PARM(mask, "i");
++MODULE_PARM_DESC(mask, "set this to the mask of event you want to enable (see doc)");
+ 
+ EXPORT_SYMBOL(sonypi_camera_command);
 -- 
 Stelian Pop <stelian@popies.net>

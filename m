@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129121AbQJaKGR>; Tue, 31 Oct 2000 05:06:17 -0500
+	id <S129730AbQJaKGs>; Tue, 31 Oct 2000 05:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129831AbQJaKGH>; Tue, 31 Oct 2000 05:06:07 -0500
-Received: from north.net.CSUChico.EDU ([132.241.66.18]:32774 "EHLO
-	north.net.csuchico.edu") by vger.kernel.org with ESMTP
-	id <S129121AbQJaKFz>; Tue, 31 Oct 2000 05:05:55 -0500
-Date: Tue, 31 Oct 2000 02:05:49 -0800
-From: John Kennedy <jk@csuchico.edu>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: test10-pre7
-Message-ID: <20001031020549.A9250@north.csuchico.edu>
-In-Reply-To: <Pine.LNX.4.10.10010301128380.5551-100000@penguin.transmeta.com> <Pine.GSO.4.21.0010301505590.1177-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.21.0010301505590.1177-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Oct 30, 2000 at 03:34:44PM -0500
+	id <S129797AbQJaKGj>; Tue, 31 Oct 2000 05:06:39 -0500
+Received: from atapco.demon.co.uk ([194.222.134.57]:5649 "EHLO
+	gate.atapco.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129730AbQJaKGX>; Tue, 31 Oct 2000 05:06:23 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200010310937.JAA07048@brick.arm.linux.org.uk>
+Subject: Re: test10-pre7
+To: kaos@ocs.com.au (Keith Owens)
+Date: Tue, 31 Oct 2000 09:37:09 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <12109.972949137@ocs3.ocs-net> from "Keith Owens" at Oct 31, 2000 10:38:57 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens writes:
+> kbuild 2.5 splits link order into three categories.  Those that must
+> come first, in the order they are specified - LINK_FIRST.  Those that
+> must come last, in the order they are specified - LINK_LAST.
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
+Keith, this sounds like a K-ludge.
 
-On Mon, Oct 30, 2000 at 03:34:44PM -0500, Alexander Viro wrote:
-> Unfortunately, it doesn't fix the thing. ->sync_page() is called ...
-> Minimal patch (against -pre7) follows. It still leaves sync_page() problem
-> open - any suggestions on that one are very welcome. ...
+Take the instance where we need to link a.o first, z.o second, f.o third
+and p.o fourth.  How does LINK_FIRST / LINK_LAST guarantee this?
 
-  I needed to patch your patch to get it to compile.
+LINK_FIRST = a.o z.o
+LINK_LAST = f.o p.o
 
+But then what guarantees that 'a.o' will be linked before 'z.o'?
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=PATCH
+A first/last implementation can *not* specify precisely a link order without
+guaranteeing that the order of the LINK_FIRST *and* the LINK_LAST objects
+is preserved, which incidentally is the same requirement for the obj-y
+implementation.
 
---- ./mm/filemap.c.OLD	Mon Oct 30 23:00:35 2000
-+++ ./mm/filemap.c	Mon Oct 30 23:11:26 2000
-@@ -2313,9 +2313,9 @@
- 				void *data)
- {
- 	struct page *page;
-+	int err;
- retry:
- 	page = __read_cache_page(mapping, index, filler, data);
--	int err;
- 
- 	if (IS_ERR(page) || Page_Uptodate(page))
- 		goto out;
-
---7JfCtLOvnd9MIVvH--
+I don't see what this LINK_FIRST / LINK_LAST gains us other than more
+complexity for zero gain.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | |   http://www.arm.linux.org.uk/~rmk/aboutme.html    /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbTEGGln (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTEGGln
+	id S262933AbTEGGnH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTEGGnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:41:43 -0400
-Received: from pc1-cmbg4-4-cust110.cmbg.cable.ntl.com ([81.96.70.110]:54276
-	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
-	id S262961AbTEGGlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:41:42 -0400
-Message-ID: <3EB8AD41.5010605@thekelleys.org.uk>
-Date: Wed, 07 May 2003 07:52:49 +0100
-From: Simon Kelley <srk@thekelleys.org.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Simon Kelley <simon@thekelleys.org.uk>,
-       "J. Bruce Fields" <bfields@fieldses.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@transmeta.com
-Subject: Re: Binary firmware in the kernel - licensing issues.
-References: <3EB79ECE.4010709@thekelleys.org.uk>	 <20030506121954.GO24892@mea-ext.zmailer.org>	 <20030506151644.GA19898@fieldses.org>  <3EB7D7D9.2050603@thekelleys.org.uk> <1052234481.1202.20.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1052234481.1202.20.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 02:43:07 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:26377 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262933AbTEGGnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:43:06 -0400
+Date: Wed, 7 May 2003 07:55:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: thomas@horsten.com, voidcartman@yahoo.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
+Message-ID: <20030507075536.A9467@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@redhat.com>, thomas@horsten.com,
+	voidcartman@yahoo.com, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+References: <200305070850.59912.voidcartman@yahoo.com> <200305070744.27207.thomas@horsten.com> <20030507074557.A9197@infradead.org> <20030506.224405.26296708.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030506.224405.26296708.davem@redhat.com>; from davem@redhat.com on Tue, May 06, 2003 at 10:44:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2003-05-06 at 16:42, Simon Kelley wrote:
-> 
->>Then, as you say, I need to know if the kernel developers have given
->>permission to distribute a work which combines Atmel's blob with
->>their source.[1]
-> 
-> 
-> Either the GPL does or it doesn't.
-<snip>
-> Na.. firmware stuff needs sorting out, but from the conversations I've
-> seem so far that involved people with a knowledge of law thats by
-> putting the firmware out of the kernel entirely
-> 
+On Tue, May 06, 2003 at 10:44:05PM -0700, David S. Miller wrote:
+>    That's highly broken because his libc was compiled against 2.2
+>    headers.  You must never use different headers in
+>    /usr/include/Pasm,linux} then those your libc was compiled against.
+>    
+> While I understand this problem, this line of reasoning simply does
+> not apply for headers that libc/glibc/whatever are agnostic about.
 
-Either the GPL allows this or it doesn't or maybe it is just not clear.
-If it is in fact silent or ambiguous on the issue then Linus is a much 
-more useful resource than Lawyers. If he pronounces firmware blobs OK
-and doesn't get sued by a significant number of the other copyright
-holders then the decision is set. Similary it's unlikely that anyone
-else would risk it if Linus says it is not OK.
-
-Same procedure as that which caused Linus's "Binary-only modules can
-link to the kernel without voilating the GPL" pronouncement.
-
-Linus?
-
-Cheers,
-
-Simon
-
+That's how it should be.  We had tons of problems due to mismatchig
+headers (usually it was "just" compile breakage because older libc
+headers / compilers couldn't cope with constructs used in new kernel
+headers) in the past and the only way to fix this is really don't 
+ever use mismatching headers.  This is not just related to kernels,
+for example Oracle ()at least up to 8i) ships .o files for their product
+that were compiled on some development box but then link them at
+installation time to the user's system libc.  You can guess how this
+breaks :)

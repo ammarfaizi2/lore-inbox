@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUIFUyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUIFU6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266173AbUIFUyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 16:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUIFUyd
+	id S266311AbUIFU6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 16:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUIFU6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 16:54:33 -0400
-Received: from host207-193-149-62.serverdedicati.aruba.it ([62.149.193.207]:52386
-	"EHLO chernobyl.investici.org") by vger.kernel.org with ESMTP
-	id S266173AbUIFUyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 16:54:31 -0400
-Message-ID: <413CCE84.3090605@ngi.it>
-Date: Mon, 06 Sep 2004 22:54:28 +0200
-From: Alessandro Sappia <a.sappia@ngi.it>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+	Mon, 6 Sep 2004 16:58:12 -0400
+Received: from damned.travellingkiwi.com ([81.6.239.220]:40555 "EHLO
+	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S266311AbUIFU6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 16:58:08 -0400
+Message-ID: <413CCF79.2080407@travellingkiwi.com>
+Date: Mon, 06 Sep 2004 21:58:33 +0100
+From: Hamie <hamish@travellingkiwi.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA Driver 1.0-6111 fix
-References: <200409050203.i8523X6W031952@localhost.localdomain>
-In-Reply-To: <200409050203.i8523X6W031952@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+Subject: Re: New proposed DRM interface design
+References: <20040904102914.B13149@infradead.org>	 <4139C8A3.6010603@tungstengraphics.com>	 <9e47339104090408362a356799@mail.gmail.com>	 <4139FEB4.3080303@tungstengraphics.com>	 <9e473391040904110354ba2593@mail.gmail.com>	 <1094386050.1081.33.camel@localhost.localdomain>	 <9e47339104090508052850b649@mail.gmail.com>	 <1094398257.1251.25.camel@localhost.localdomain>	 <9e47339104090514122ca3240a@mail.gmail.com>	 <1094417612.1936.5.camel@localhost.localdomain>	 <9e4733910409051511148d74f0@mail.gmail.com> <1094425142.2125.2.camel@localhost.localdomain>
+In-Reply-To: <1094425142.2125.2.camel@localhost.localdomain>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Lee Revell <rlrevell@joe-job.com> said:
-> 
->>Tim Fairchild <tim@bcs4me.com> said:
-[...]
->>I suspect many of these users are ricers who tweak CFLAGS and compare
->>benchmark scores all day, and cannot bear to use the open source driver
->>if it will make their machine 1% slower.  I was surprised to find that
->>apparently there are open source ATI 3D drivers after all but some
->>people are petitioning ATI anyway because these 'aren't as good' as the
->>binary ones.  So fix it already, this is open source, and if you can't,
->>then please learn to write code or STFU.
-> 
+Alan Cox wrote:
 
-I've just discovered that open source driver for ATI exists.
-I hope you mean driver for chipset R300+ (which ATI refuses to
-give out information of). I already know there are open source driver
-for <=R250.
-If you know where to find R300+ driver (supporting 3D) i would be glad
-to you to point me to them, googling i found nothing.
+>On Sul, 2004-09-05 at 23:11, Jon Smirl wrote:
+>  
+>
+>>What is the advantage to continuing a development model where two
+>>groups of programmers work independently, with little coordination on
+>>two separate code bases trying to simultaneously control the same
+>>piece of hardware? This is a continuous source of problems. Why can't
+>>we fix the development model to stop this?
+>>    
+>>
+>
+>I don't see that as much of a problem. The mess arises from some simple
+>lacks in the objects in kernel and the methods required to co-ordinate.
+>Lots of drivers are written by a lot of people in the kernel and they
+>work just fine. The ext3 authors don't spend their lives co-ordinating
+>with SCSI driver authors, they just get the API right.
+>
+>  
+>
 
-Thanks a lot
+Sorry, but I think that's (Possibly?) a really really bad & misleading 
+example... Apples & Apples vs Chocolate & Milkshakes... The dual screen 
+problem with DRM & fb is two drivers accessing (Sometimes) the same 
+hardware. The ext3 vs SCSI is a filesystem, that sits on-top of a disk 
+device that may just be SCSI.. Or IDE..
 
-Alessandro Sappia
+The fs -> SCSI interface is a logical one.
 
--- 
-Alessandro Sappia
+Unless you can have fb sitting on top of DRM of course... (I discount 
+DRM on-top of fb, because of the D == Direct... No other reason :)...
+
+Does it make sens to have fb ontop of DRM at all? Anyone?
 
 
+regards
+  Hamish.
 

@@ -1,38 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312854AbSDKXKy>; Thu, 11 Apr 2002 19:10:54 -0400
+	id <S312855AbSDKXTD>; Thu, 11 Apr 2002 19:19:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312855AbSDKXKx>; Thu, 11 Apr 2002 19:10:53 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:1287 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S312854AbSDKXKw>; Thu, 11 Apr 2002 19:10:52 -0400
-Date: Fri, 12 Apr 2002 00:10:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-Message-ID: <20020412001002.A29540@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <a94r5k$m23$1@penguin.transmeta.com> <Pine.GSO.4.21.0204111629370.21089-100000@weyl.math.psu.edu> <3CB5FFB5.693E7755@zip.com.au> <20020411225536.GE8062@turbolinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S313012AbSDKXTC>; Thu, 11 Apr 2002 19:19:02 -0400
+Received: from mail-2.zoominternet.net ([63.67.120.5]:36535 "HELO
+	mail-2.zoominternet.net") by vger.kernel.org with SMTP
+	id <S312855AbSDKXTB>; Thu, 11 Apr 2002 19:19:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roach <roach@netacs.net>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        Stijn Verrept <sverrept@vub.ac.be>
+Subject: Re: KVM Switch bug
+Date: Thu, 11 Apr 2002 19:31:00 -0400
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204111625440.14557-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200204111931.00460.roach@netacs.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 04:55:36PM -0600, Andreas Dilger wrote:
-> At one time Linus proposed having an array of dirty bits for a page,
-> which would allow us to mark only parts of a page dirty (say down to
-> the sector level).  I believe this was in the discussion about moving
-> the block devices to the page cache around 2.4.10.
+	I have both a dell kvm and a belkin kvm switch and they work fine with the 
+dell kvm requiring me to hit the print screen again to get the keyboard to 
+work some times. 
 
-The early XFS code used to do this for kiobuf-based block I/O, but it
-got dropped around 2.4.8 IIRC.  The new page->private handling from akpm
-which seems to be merged in Linus' BK tree (Linus: please push it to
-bkbits.net, thanks :)) can be used to do the same if and only if we don't
-need the buffer_heads attached to the page.
+
+On Thursday 11 April 2002 04:27 pm, Mr. James W. Laferriere wrote:
+> Hello Stijn ,  Using a belkin here .  So far no problems .  But if
+> 	I do things with power on/off at same time swap console I can get
+> 	the KVM confused .  But I have to really try to do so .
+> 		Hth ,  JimL
+>
+> On Thu, 11 Apr 2002, Stijn Verrept wrote:
+> > Hi,
+> > When switching using a KVM switch I loose keyboard (only in Linux so it's
+> > not hardware related)
+> > I'm using a ADDERView KVM switch (used to connect multiple PC's to one
+> > key / mouse / screen).  After looking on the internet I have found lots
+> > of other users having the same problem, with other KVM switches.
+> > This happens both in console as in X.  Keyboard and mouse I use are both
+> > PS/2. Using Linux version: 2.4.18-6mdk (gcc version 2.96 20000731)
+> > I think anything else is pretty irrelavant.
+> > Kind regards,
+> > Stijn Verrept.
+> > BTW Can I get any feedback on this?
+>
+>        +------------------------------------------------------------------+
+>
+>        | James   W.   Laferriere | System    Techniques | Give me VMS     |
+>        | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+>        | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+>
+>        +------------------------------------------------------------------+
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

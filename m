@@ -1,45 +1,54 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154044-31090>; Thu, 17 Dec 1998 10:29:50 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:2262 "EHLO saturn.cs.uml.edu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154112-31090>; Thu, 17 Dec 1998 10:28:15 -0500
-Date: Thu, 17 Dec 1998 11:09:30 -0500 (EST)
-Message-Id: <199812171609.LAA01324@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.rutgers.edu
-Subject: Re: autofs vs. Sun automount -- new fs proposal
+Received: by vger.rutgers.edu id <154288-31090>; Fri, 18 Dec 1998 04:24:22 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:4483 "EHLO smtp1.cern.ch" ident: "TIMEDOUT") by vger.rutgers.edu with ESMTP id <154394-31090>; Fri, 18 Dec 1998 04:19:06 -0500
+To: MOLNAR Ingo <mingo@chiara.csoma.elte.hu>
+Cc: Matt Kemner <kemner@live.networx.net.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.rutgers.edu
+Subject: Re: 2.0.37pre3 won't boot
+References: <Pine.LNX.3.96.981218100345.765A-100000@chiara.csoma.elte.hu>
+From: Jes Sorensen <Jes.Sorensen@cern.ch>
+Date: 18 Dec 1998 11:03:38 +0100
+In-Reply-To: MOLNAR Ingo's message of "Fri, 18 Dec 1998 10:09:56 +0100 (CET)"
+Message-ID: <d31zlxsr5x.fsf@valhall.cern.ch>
+X-Mailer: Quassia Gnus v0.37/Emacs 20.2
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+>>>>> "Ingo" == MOLNAR Ingo <mingo@chiara.csoma.elte.hu> writes:
 
-Peter Benie writes:
-> Stefan Monnier <monnier+misc/news@tequila.cs.yale.edu> wrote:
->> pjb1008@cam.ac.uk (Peter Benie) wrote:
+Ingo> On Fri, 18 Dec 1998, Matt Kemner wrote:
 
->>> I don't actually see the point of implementing a read-only loopback
->>> mount. There are already protection mechanisms in the kernel to
->>> prevent one user from writing to another user's files. If you need to
->>> run a program so that it cannot write to any files, just run the
->>> program under a different uid.
->>
->> Following the same reasoning: why allow things like `chmod u-w' since
->> the user can change it back anyway !
-> 
-> Huh? I can't see how that follows, and I don't understand the point
-> that you're trying to make.
-> 
-> What I'm saying is that there are standard ways under Unix to stop
-> programs from writing to your files
-...
-> To use the kernel's existing protection mechanisms that protect
-> non-zero uids from each other.
+>> However I just compiled and installed 2.0.37pre3 on one of my
+>> PRODUCTION machines, and am getting the same error - it will
+>> uncompress, tell me it's booting the kernel, and then I get
+>> nothing. This machine is an intel P166 Classic on a HX board, 96MB
+>> RAM, Stallion host adapter with 4x16 tty panels.
 
+Ingo> i am currently debugging a similar problem, and the funny thing
+Ingo> is that if the kernel is compiled on my box, the system boots,
+Ingo> if it's compiled on the failing system, it doesnt ... So just
+Ingo> about the only remaining variable is binutils. What version of
+Ingo> binutils do you have, especially the version of as86 and ld86?
+Ingo> the one i have is:
 
-Those protection mechanisms are likely to fail.
-The NSA even has a report on the failure of normal access control:
+Hmmmm there was a modification in a late 2.8.1.0.x binutils that
+changed the behavior of the alignment of segments when linking. It
+struck us on the m68k by preventing 2.0.x kernels from booting so I
+did a nasty hack and reverted the patch for the binutils RPM on the
+m68k.
 
-        http://www.jya.com/paperF1.htm
+Dunno if it is related, but I attached the patch below.
 
-The report explains why access control failure is inevitable, at least
-with the normal controls provided by unix and NT. They advocate some
-more advanced methods that help prevent mistakes.
+Jes
+
+--- binutils-2.9.1.0.4/ld/scripttempl/elf.sc~	Tue Feb 17 20:36:01 1998
++++ binutils-2.9.1.0.4/ld/scripttempl/elf.sc	Thu Jul 23 17:57:41 1998
+@@ -165,7 +165,6 @@
+    *(.bss)
+    *(COMMON)
+   }
+-  ${RELOCATING+. = ALIGN(${ELFSIZE} / 8);}
+   ${RELOCATING+_end = . ;}
+   ${RELOCATING+PROVIDE (end = .);}
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

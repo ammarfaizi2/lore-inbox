@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265389AbSJaWLP>; Thu, 31 Oct 2002 17:11:15 -0500
+	id <S265437AbSJaWbk>; Thu, 31 Oct 2002 17:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265413AbSJaWJy>; Thu, 31 Oct 2002 17:09:54 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:50190 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S265398AbSJaWI6>; Thu, 31 Oct 2002 17:08:58 -0500
-Message-ID: <3DC1AB38.1040107@namesys.com>
-Date: Fri, 01 Nov 2002 01:14:16 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David C. Hansen" <haveblue@us.ibm.com>
-CC: David Lang <david.lang@digitalinsight.com>,
-       "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Oleg Drokin <green@namesys.com>
-Subject: Re: Reiser vs EXT3
-References: <Pine.LNX.4.44.0210311248030.25405-100000@dlang.diginsite.com> 	<3DC1A5D5.8000901@namesys.com> <1036102211.4272.276.camel@nighthawk>
-In-Reply-To: <Pine.LNX.4.44.0210311248030.25405-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265441AbSJaWbk>; Thu, 31 Oct 2002 17:31:40 -0500
+Received: from almesberger.net ([63.105.73.239]:62471 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S265437AbSJaWa6>; Thu, 31 Oct 2002 17:30:58 -0500
+Date: Thu, 31 Oct 2002 19:37:05 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+Message-ID: <20021031193705.C2599@almesberger.net>
+References: <Pine.LNX.4.44.0210310918260.1410-100000@penguin.transmeta.com> <3DC19A4C.40908@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC19A4C.40908@pobox.com>; from jgarzik@pobox.com on Thu, Oct 31, 2002 at 04:02:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David C. Hansen wrote:
+Jeff Garzik wrote:
+> That said, I used to be an LKCD cheerleader until a couple people made 
+> some good points to me:  it is not nearly low-level enough to truly be 
+> of use in crash situations.
 
->On Thu, 2002-10-31 at 13:51, Hans Reiser wrote:
->  
->
->>If you want to talk about 2.6 then you should talk about reiser4 not 
->>reiserfs v3, and reiser4 is 7.6 times the write performance of ext3 for 
->>30 copies of the linux kernel source code using modern IDE drives and 
->>modern processors on a dual-CPU box, so I don't think any amount of 
->>improved scalability will make ext3 competitive with reiser4 for 
->>performance usages.  
->>
->>We haven't had anyone test performance using RAID yet for reiser4, that 
->>could be fun.
->>    
->>
->
->I have a 14-drive hardware RAID array on an 8-proc box.  Is that the
->kind of thing you want testing on?  If you want to send me some testing
->scripts, I'll run them.  
->
->  
->
-Yes, that would be cool.
+I'm not so convinced about this. I like the Mission Critical
+approach: save the dump to memory, then either boot through the
+firmware or through bootimg (nowadays, that would be kexec),
+then retrieve the dump from memory, and do whatever you like
+with it.
 
-Green, please respond to this email with details for him.
+The huge advantage here is that you don't need a ton of
+specialized dump drivers and/or have much of the original kernel
+infrastructure to be in a usable state. The rebooted system will
+typically be stable enough to offer the full range of utilities,
+including up to date drivers for all possible devices, so you
+can safely write to disk, scp all the mess to your support
+critter, or post an automatic flame to linux-kernel :-)
+
+The weak points of the Mission Critical design are that early
+memory allocation in the kernel needs to be tightly controlled,
+that architectures that wipe CPU caches on reboot need to
+commit them to memory before the firmware restart, and that
+drivers need to be able to recover from an "unclean" hardware
+state. (I think we'll see much of the latter happen as kexec
+advances. The other two issues aren't really special.)
+
+Actually, at the RAS BOF I thought that IBM were developing LKCD
+in this direction, and had also eliminated a few not so elegant
+choices of Mission Critical's original design. I haven't looked
+at the LKCD code, but the descriptions sound as if all the
+special-case cruft seems to be back again, which I would find a
+little disappointing.
+
+There might be a case for specialized low-overhead dump handlers
+for small embedded systems and such, but they're probably better
+maintained outside of the mainstream kernel. (They're more like
+firmware anyway.)
+
+- Werner
 
 -- 
-Hans
-
-
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264732AbTFQOHI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 10:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbTFQOHI
+	id S264696AbTFQOIb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 10:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264712AbTFQOIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 10:07:08 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:56251 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264732AbTFQOHH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 10:07:07 -0400
-Date: Tue, 17 Jun 2003 07:20:57 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resend: 2.4 bkbits.net not updated - 2.4.21 missing
-Message-ID: <20030617142057.GA6552@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Michael Frank <mflt1@micrologica.com.hk>,
-	linux-kernel@vger.kernel.org
-References: <200306171358.30412.mflt1@micrologica.com.hk>
+	Tue, 17 Jun 2003 10:08:31 -0400
+Received: from speedy.tutby.com ([195.209.41.194]:53154 "EHLO tut.by")
+	by vger.kernel.org with ESMTP id S264696AbTFQOI3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 10:08:29 -0400
+Date: Tue, 17 Jun 2003 17:24:30 +0300
+From: Igor Krasnoselski <iek@tut.by>
+X-Mailer: The Bat! (v1.36) S/N F29DEE5D / Educational
+Reply-To: Igor Krasnoselski <iek@tut.by>
+X-Priority: 3 (Normal)
+Message-ID: <11725.030617@tut.by>
+To: Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org
+Subject: Re[2]: Can't mount an ext3 partition - why?
+In-reply-To: <20030617132856.GC24306@www.13thfloor.at>
+References: <20030617132856.GC24306@www.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306171358.30412.mflt1@micrologica.com.hk>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 01:58:30PM +0800, Michael Frank wrote:
-> 2.4.21 seems not be at  http://linux.bkbits.net/linux-2.4
+Hello Herbert,
 
-ChangeSet@1.1201, 2003-06-09 17:42:11-03:00, marcelo@freak.distro.conectiva
-  Cset exclude: geert@linux-m68k.org|ChangeSet|20030609201907|11405
+HP> what does an  fsck.ext3 -fpn  on the unmounted filesystem report?
 
-Is the top changeset there so if that's not what you expected, Marcelo
-hasn't pushed.
+I downloaded 2.4.21 sources, made "make oldconfig" and got a new
+kernel with the same behavior :(
+
+fsck.ext3 (e2fsck 1.27 8-Mar-2002)
+run all 5 passes with no error reports under an old kernel, but under
+new one it says:
+
+fsck.ext3: No such file or directory while trying to open /dev/hdc1
+
+The superblock could not be read....
+etc.
+
+I get further into this, and I find that I have no /dev/hdc1 (and
+/dev/hdc, and /dev/hda too) at all! In place of them(?), I have
+
+/dev/discs/~disc0/disc
+/dev/discs/~disc0/part1
+/dev/discs/~disc0/part2
+/dev/discs/~disc0/part3
+/dev/discs/~disc1/disc
+/dev/discs/~disc1/part1
+
+e2fsck gets them as previous /dev/hd+ args and reports no errors.
+Is this a new feature since 2.4.18-3 kernel? Or maybe this all because
+I add something strange to my config, like "/dev filesystem" ?
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Best regards,
+ Igor                            mailto:iek@tut.by
+                                 mailto:u-com@mail.ru
+
+

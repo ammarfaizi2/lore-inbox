@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317572AbSGOSYL>; Mon, 15 Jul 2002 14:24:11 -0400
+	id <S317561AbSGOS0p>; Mon, 15 Jul 2002 14:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317576AbSGOSYK>; Mon, 15 Jul 2002 14:24:10 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11023 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317572AbSGOSYK>; Mon, 15 Jul 2002 14:24:10 -0400
-Date: Mon, 15 Jul 2002 11:23:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave Jones <davej@suse.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] agpgart splitup and cleanup for 2.5.25
-In-Reply-To: <20020715184559.C32582@suse.de>
-Message-ID: <Pine.LNX.4.33.0207151119580.19586-100000@penguin.transmeta.com>
+	id <S317566AbSGOS0o>; Mon, 15 Jul 2002 14:26:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317561AbSGOS0m>; Mon, 15 Jul 2002 14:26:42 -0400
+Date: Mon, 15 Jul 2002 14:29:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Repeatable remount problem.
+Message-ID: <Pine.LNX.3.95.1020715142537.175A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 15 Jul 2002, Dave Jones wrote:
-> 
-> the .o files get linked into agpgart.o
-> Still just one module. Christoph Hellwig proposed making each back
-> end a module too, which is dependant upon agpgart.o, but that's more
-> pain than I feel like enduring right now.. Maybe later.
-> 
-> Linus ?
+Last week I reported a remount problem on 2.4.18 where a remounting
+an already-mounted file-system, with new flags (like noatime), results
+in a fsck upon reboot.
 
-I'm perfectly happy with something like "via-agp.c", if it heads off 
-potential future trouble. I just don't like the "agpgart_be" thing, it's 
-unreadable in the first place, too long in the second, and having a prefix 
-(as opposed to a postfix) makes filename completion suck in the third 
-place.
+Here is a fix. Standard disclaimer: (works-for-me).
 
-Something like "via-agp.c" doesn't have any of those problems, and while
-the "agp" is slightly redundant in the directory structure, it's at least
-not ugly.
+--- linux-2.4.18/fs/super.c.orig	Mon Feb 25 14:38:09 2002
++++ linux-2.4.18/fs/super.c	Mon Jul 15 14:18:55 2002
+@@ -829,22 +829,14 @@
+ 	if ((flags & MS_RDONLY) && !(sb->s_flags & MS_RDONLY))
+ 		if (!fs_may_remount_ro(sb))
+ 			return -EBUSY;
++        retval = 0;
+ 	if (sb->s_op && sb->s_op->remount_fs) {
+ 		lock_super(sb);
+-		retval = sb->s_op->remount_fs(sb, &flags, data);
++		if(!(retval = sb->s_op->remount_fs(sb, &flags, data)));
++	            sb->s_flags = (sb->s_flags & ~MS_RMT_MASK) | (flags & MS_RMT_MASK);
+ 		unlock_super(sb);
+-		if (retval)
+-			return retval;
+ 	}
+-	sb->s_flags = (sb->s_flags & ~MS_RMT_MASK) | (flags & MS_RMT_MASK);
+-
+-	/*
+-	 * We can't invalidate inodes as we can loose data when remounting
+-	 * (someone might manage to alter data while we are waiting in lock_super()
+-	 * or in foo_remount_fs()))
+-	 */
+-
+-	return 0;
++	return retval;
+ }
+ 
+ struct vfsmount *do_kern_mount(char *type, int flags, char *name, void *data)
 
-		Linus
+
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

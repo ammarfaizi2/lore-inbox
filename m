@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272549AbRH3XPE>; Thu, 30 Aug 2001 19:15:04 -0400
+	id <S272550AbRH3XQY>; Thu, 30 Aug 2001 19:16:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272550AbRH3XOy>; Thu, 30 Aug 2001 19:14:54 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58515 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272549AbRH3XOs>;
-	Thu, 30 Aug 2001 19:14:48 -0400
-Date: Thu, 30 Aug 2001 16:14:53 -0700 (PDT)
-Message-Id: <20010830.161453.130817352.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E15cb0w-00025m-00@the-village.bc.nu>
-In-Reply-To: <20010830.160651.75218604.davem@redhat.com>
-	<E15cb0w-00025m-00@the-village.bc.nu>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S272553AbRH3XQO>; Thu, 30 Aug 2001 19:16:14 -0400
+Received: from t2.redhat.com ([199.183.24.243]:46327 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272550AbRH3XQE>; Thu, 30 Aug 2001 19:16:04 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.3.95.1010830171614.18406A-100000@chaos.analogic.com> 
+In-Reply-To: <Pine.LNX.3.95.1010830171614.18406A-100000@chaos.analogic.com> 
+To: root@chaos.analogic.com
+Cc: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>,
+        linux-kernel@vger.kernel.org, ptb@it.uc3m.es
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 31 Aug 2001 00:16:07 +0100
+Message-ID: <13173.999213367@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: Fri, 31 Aug 2001 00:14:22 +0100 (BST)
-   
-   Thats an API video overlay really really needs of course - because DMA from
-   the capture card into the video memory is precisely how its done.
 
-Ok, then it is important to figure out if there is going to be a
-suitable way to get at the two pci_dev's.
+root@chaos.analogic.com said:
+> /tmp/xxx.c:9: warning: signed and unsigned type in conditional expression 
+> As you can see, the casts are !!!IGNORED!!! in gcc 2.96.
 
-If mmap()'ing the frame buffer and passing this into read() is how
-this will be done, it simply won't work.  That's the point I'm trying
-to make.
+No, if the casts were ignored, it would complain:
+/tmp/xxx.c:9: warning: comparison between signed and unsigned
 
-Later,
-David S. Miller
-davem@redhat.com
+What gcc 2.96 is complaining about is not the comparison in the 
+condition, but the the fact that the two possible
+results of your conditional expression (x?a:b) are different. 
+
+Change it to read:
+	#define MIN(a, b) ((a) < (b) ? (int)(a) : (int)(b)) 
+... and you'll see the warning you thought you saw before. 
+
+	#define MIN(a, b) ((a) < (b) ? (a) : (b))
+... and you'll see both.
+
+--
+dwmw2
+
+

@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTEWFUe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 01:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTEWFUe
+	id S263637AbTEWFzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 01:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTEWFzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 01:20:34 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:38404 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263628AbTEWFUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 01:20:33 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: "Barry K. Nathan" <barryn@pobox.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.21-rc3
-Date: Fri, 23 May 2003 07:32:49 +0200
-User-Agent: KMail/1.5.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva> <20030523005149.GA2420@ip68-101-124-193.oc.oc.cox.net>
-In-Reply-To: <20030523005149.GA2420@ip68-101-124-193.oc.oc.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 23 May 2003 01:55:13 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:60176 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263637AbTEWFzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 01:55:12 -0400
+Date: Fri, 23 May 2003 07:07:15 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI changes for 2.5.69
+Message-ID: <20030523070715.A5038@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <10536411604060@kroah.com> <10536411602454@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305230732.49914.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <10536411602454@kroah.com>; from greg@kroah.com on Thu, May 22, 2003 at 03:06:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 May 2003 02:51, Barry K. Nathan wrote:
+On Thu, May 22, 2003 at 03:06:01PM -0700, Greg KH wrote:
+> ChangeSet 1.1210, 2003/05/22 10:30:35-07:00, greg@kroah.com
+> 
+> PCI: add pci_get_dev() and pci_put_dev()
+> 
+> Move the PCI core to start using these, enabling proper reference counting
+> on struct pci_dev.
+> 
+> 
+>  drivers/pci/bus.c        |    2 +-
+>  drivers/pci/hotplug.c    |    2 +-
+>  drivers/pci/pci-driver.c |   41 +++++++++++++++++++++++++++++++++++++++++
+>  drivers/pci/probe.c      |   18 ++++++++++++++++++
+>  include/linux/pci.h      |    2 ++
+>  5 files changed, 63 insertions(+), 2 deletions(-)
+> 
+> 
+> diff -Nru a/drivers/pci/bus.c b/drivers/pci/bus.c
+> --- a/drivers/pci/bus.c	Thu May 22 14:50:44 2003
+> +++ b/drivers/pci/bus.c	Thu May 22 14:50:44 2003
+> @@ -92,7 +92,7 @@
+>  		if (!list_empty(&dev->global_list))
+>  			continue;
+>  
+> -		device_register(&dev->dev);
+> +		device_add(&dev->dev);
 
-Hi Barry,
+This doesn't match the patch description..
 
-> >   o ioperm fix
-> If this is the same code that's in Red Hat's latest security errata, I
-> think this may be broken (makes some programs segfault). 2.5 seems fine.
-> I'll reply with more details (and/or file a RH Bugzilla report) later
-> today, after I double-check things in a more controlled environment.
-nono, this fix is the right one. All works fine :-)
+> +struct pci_dev *pci_get_dev (struct pci_dev *dev)
 
-ciao, Marc
+Please fix up to adhere Documentation/CodingStyle (hint: placement
+of the opening brace is wrong).
+
+> +{
+> +	struct device *tmp;
+> +
+> +	if (!dev)
+> +		return NULL;
+
+Does it make sense to allow NULL argument here?
+

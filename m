@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267246AbSLSWlq>; Thu, 19 Dec 2002 17:41:46 -0500
+	id <S267662AbSLSWvV>; Thu, 19 Dec 2002 17:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267218AbSLSWlp>; Thu, 19 Dec 2002 17:41:45 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33551
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267374AbSLSWiS>; Thu, 19 Dec 2002 17:38:18 -0500
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-From: Robert Love <rml@tech9.net>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212200850.32886.conman@kolivas.net>
-References: <200212200850.32886.conman@kolivas.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040337982.2519.45.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Dec 2002 17:46:22 -0500
-Content-Transfer-Encoding: 7bit
+	id <S267663AbSLSWvV>; Thu, 19 Dec 2002 17:51:21 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17680 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267662AbSLSWvT>; Thu, 19 Dec 2002 17:51:19 -0500
+Date: Thu, 19 Dec 2002 17:57:35 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: modutils for both redhat kernels and 2.5.x
+In-Reply-To: <20021126021100.GB29814@bjl1.asuk.net>
+Message-ID: <Pine.LNX.3.96.1021219175407.29958B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 16:50, Con Kolivas wrote:
+On Tue, 26 Nov 2002, Jamie Lokier wrote:
 
-> Changing this tunable seems to shift the balance in either direction depending 
-> on the load. Most of the disk writing loads have shorter times as pb goes up, 
-> but under heavy mem_load the time goes up (without an increase in the amount 
-> of work done by the mem_load itself). The effect is quite large.
+> Rusty Russell wrote:
+> > > Depmod no longer exists.
+> > 
+> > This is true.  It doesn't need to for 0.7, but it's being reintroduced
+> > in 0.8 for speed.
+> 
+> Doesn't it?  When I upgraded from 2.5.45 to 2.5.48, and installed
+> module-init-tools-0.7, a whole bunch of modules failed to load
+> automatically, and I ended up with no pcmcia, no network, no
+> af_packet, no loopback device...
 
-This is one of the most interesting tests.  Thanks, Con.
+Having the driver for the root device not load from the initrd kind of
+sucks as well. Actually I always build the loopback and ramdisk in, I
+don't want to find out if initrd boot would work without them ;-)
 
-prio_bonus_ratio determines how big a bonus we give to interactive
-tasks, as a percentage of the full -20 to +19 nice range.  Setting it to
-zero means we scale the bonuses/penalties be zero percent, i.e. we do
-not give a bonus or penalty.  25% implies 25% of the range is used (i.e.
--/+5 points).  Etc.
+But trying to build a single kernel for multiple configs of hardware is
+much harder if you can't just roll multiple initrd files from the single
+compile. I guess you can build every possible driver in, but I'd rather
+not.
 
-I suspect tests where you see an improvement as the value increases are
-ones in which the test is more interactive than the background load.  In
-that case, the larger bonuses helps more so to the test and it completes
-quicker.
-
-When you see a decrease associated with a larger value, the test is less
-interactive than the load.  Thus the load is scheduled to the detriment
-of the test, and the test takes longer to complete.
-
-Not too sure what to make of it.  It shows the interactivity estimator
-does indeed help... but only if what you consider "important" is what is
-considered "interactive" by the estimator.  Andrew will say that is too
-often not the case.
-
-	Robert Love
-
-P.S. This setting is also useful for endusers to test.  Setting
-prio_bonus_ratio to zero effectively disables the interactivity
-estimator, so users can test without that feature enabled.  It should
-fix e.g. Andrew's X wiggle issue.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

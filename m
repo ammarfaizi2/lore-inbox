@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132114AbRAQK3N>; Wed, 17 Jan 2001 05:29:13 -0500
+	id <S131329AbRAQKaM>; Wed, 17 Jan 2001 05:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131586AbRAQK3D>; Wed, 17 Jan 2001 05:29:03 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:54029 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S131329AbRAQK2w>; Wed, 17 Jan 2001 05:28:52 -0500
-Date: Wed, 17 Jan 2001 11:28:27 +0100 (CET)
-From: Boszormenyi Zoltan <zboszor@externet.hu>
-To: David Balazic <david.balazic@uni-mb.si>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <3A657212.14DCDD17@uni-mb.si>
-Message-ID: <Pine.LNX.4.02.10101171127260.8608-100000@prins.externet.hu>
+	id <S131394AbRAQKaC>; Wed, 17 Jan 2001 05:30:02 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:16907 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131329AbRAQK3s>; Wed, 17 Jan 2001 05:29:48 -0500
+Message-ID: <3A657404.7EA4AAF9@t-online.de>
+Date: Wed, 17 Jan 2001 11:29:24 +0100
+From: Jeffrey.Rose@t-online.de (Jeffrey Rose)
+Organization: http://ChristForge.SourceForge.net/
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Giacomo Catenazzi <cate@student.ethz.ch>, linux-kernel@vger.kernel.org
+Subject: Re: Problems in 2.4 kernel
+In-Reply-To: <fa.fb4ouhv.1q2suj4@ifi.uio.no> <3A656C1C.60B4330C@student.ethz.ch>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, David Balazic wrote:
-> BTW, where is the scsihosts= kernel parameter documented ?
+Giacomo Catenazzi wrote:
+> 
+> aprasad@in.ibm.com wrote:
+> >
+> > Sanjeev Wrote:
+> > I am not able to mount my floppy drive. When I try to mount it gives me the
+> > following error
+> > 'mount: /dev/fd0 has wrong major or minor number'
+> 
+> did you update the modutils?
 
-linux/Documentation/filesystems/devfs/README
+I will double-check. Otherwise, I have noticed that, during reboot, I
+get a message that my PCI ISDN config shows a conflict with IRQ 3 for
+devices: 00:01:0  and  01:08.0 which might have some bearing on this
+problem.
 
-Regards,
-Zoltan Boszormenyi
+TIA,
 
+Jeff
+
+-- 
+<Jeffrey.Rose@t-online.de>
+KEYSERVER=wwwkeys.de.pgp.net
+SEARCH STRING=Jeffrey Rose
+KEYID=6AD04244
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261328AbSJHWx5>; Tue, 8 Oct 2002 18:53:57 -0400
+	id <S261493AbSJHXR2>; Tue, 8 Oct 2002 19:17:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261323AbSJHWx4>; Tue, 8 Oct 2002 18:53:56 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:21188 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263181AbSJHWsb>; Tue, 8 Oct 2002 18:48:31 -0400
-Date: Tue, 8 Oct 2002 19:53:56 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Skip Ford <skip.ford@verizon.net>
-cc: David Woodhouse <dwmw2@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <200210082216.g98MG1ab000672@pool-141-150-241-241.delv.east.verizon.net>
-Message-ID: <Pine.LNX.4.44L.0210081953140.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261475AbSJHXQA>; Tue, 8 Oct 2002 19:16:00 -0400
+Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:29059 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S263135AbSJHXO5>;
+	Tue, 8 Oct 2002 19:14:57 -0400
+Date: Tue, 8 Oct 2002 19:23:42 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Greg KH <greg@kroah.com>
+Cc: tolvards@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][PATCH] New Linux Plug and Play Layer V0.6 - 2.5.41
+Message-ID: <20021008192342.GF323@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <greg@kroah.com>,
+	tolvards@transmeta.com, linux-kernel@vger.kernel.org
+References: <20021008185209.GE323@neo.rr.com> <20021008225646.GD10837@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021008225646.GD10837@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, Skip Ford wrote:
+On Tue, Oct 08, 2002 at 03:56:46PM -0700, Greg KH wrote:
+> On Tue, Oct 08, 2002 at 06:52:10PM +0000, Adam Belay wrote:
+> > Linux Plug and Play Support V0.6
+> > This patch is now against 2.5.41
+> >
+> >  PNP SUPPORT
+> > -P:	Tom Lees
+> > -M:	tom@lpsg.demon.co.uk
+> > -L:	pnp-users@ferret.lmh.ox.ac.uk
+> > -L:	pnp-devel@ferret.lmh.ox.ac.uk
+> > -W:	http://www-jcr.lmh.ox.ac.uk/~pnp/
+> > +P:	Adam Belay
+> > +M:	ambx1@neo.rr.com
+> >  S:	Maintained
+>
+> What does Tom and the pnp-* mailing lists think of this patch?  Have you
+> run this by them first?
 
-> I like the cset diffs because I can see patches Linus has applied that
-> weren't posted.  If a linux-patches list is created (and people use it)
-> then a commits list isn't as useful.
+The last message posted by Tom was on 2000-12-17, I think he's inactive.  If he
+is still maintaining it then I'll remove this portion of the patch.
 
-Somehow I doubt Linus mails himself the patches he writes
-himself. A linux-commits list is still useful.
+check an archive such as marc.theaimsgroup.com.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Also do you have any comments on this patch?
 
+Thanks,
+Adam

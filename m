@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbUJ1G5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262822AbUJ1HCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbUJ1G5c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbUJ1Gys
+	id S262822AbUJ1HCa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 03:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUJ1HCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:54:48 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:56775 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262787AbUJ1GyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:54:15 -0400
-Date: Thu, 28 Oct 2004 08:55:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Magnus Naeslund(t)" <mag@fbab.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041028065523.GA10488@elte.hu>
-References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041027130359.GA6203@elte.hu> <41801622.5040207@fbab.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41801622.5040207@fbab.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 28 Oct 2004 03:02:20 -0400
+Received: from mail-gateway-0-1.landonet.net ([196.25.111.196]:747 "EHLO
+	mail-gateway-0-1.landonet.net") by vger.kernel.org with ESMTP
+	id S262822AbUJ1HA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 03:00:59 -0400
+Message-ID: <41809921.10200@lbsd.net>
+Date: Thu, 28 Oct 2004 07:00:49 +0000
+From: Nigel Kukard <nkukard@lbsd.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041012
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9bk6 msdos fs OOPS
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just got the below oops when i mounted a usb camera's SD-Card.
 
-* Magnus Naeslund(t) <mag@fbab.net> wrote:
+Could anyone share some light on the issue?
 
-> I'm testing out this patch on an debian box. There seems to be a
-> problem with enable_irq in the e100 driver that makes the network to
-> b0rk.
+-Nigel
 
-this e100 driver warning seems mostly harmless - i get it too and the
-device works just fine.
 
-> What information do you need to get something useful out of this? I
-> saw that others have this problem, so I've got an serial console to
-> the box, if you want me to do any tests, tell me how.
-
-even just using it and reporting any potential breakages you get during
-bootup or normal use would be very useful. I'd suggest to initially
-enable all the relevant debugging options:
-
- CONFIG_DEBUG_PREEMPT=y
- CONFIG_PREEMPT_TIMING=y
- CONFIG_PREEMPT_TRACE=y
- CONFIG_LATENCY_TRACE=y
- CONFIG_MCOUNT=y
- CONFIG_RWSEM_DEADLOCK_DETECT=y
- CONFIG_RWSEM_MAX_OWNERS=32
- CONFIG_DEBUG_INFO=y
- CONFIG_EARLY_PRINTK=y
-
-this will slow the kernel down but in case of problems there is a much
-higher chance of getting a useful assert on the serial console and not
-some silent lockup.
-
-if things look good for normal use then a bit advanced type of testing
-would be to enable the wakeup-latency tracer:
-
-  echo 4 > /proc/sys/kernel/tracing_enabled
-  echo 5 > /proc/sys/kernel/preempt_max_latency
-
-this will measure the highest wakeup latency of highprio tasks, starting
-at 5 microseconds. You'll get a short 1-line notification of the latest
-latency in the syslog, and the latest trace will always be available in
-/proc/latency_trace. Depending on the speed of the system, 'larger'
-latencies should be reported to me. 'larger' means more than 20 usecs on
-a 2 GHz box or more than 40 usecs on a 1 GHz box. (Dont worry about
-reporting duplicates, i can skip them quickly.)
-
-then if things are still looking good (i'm not betting on it though :-),
-you could try various stesstests, running LTP's:
-
-	./runalltests.sh -x 20
-
-and things like that. If you have a stable system then it would also be
-nice to try to trigger as high wakeup-latencies as possible. E.g. run a
-couple of thousand tasks on it, or try to start as many mozilla
-instances, or make it go into heavy swapping. I.e. if the core is ok,
-explore the edges a bit. The kernel is supposed to offer very low
-(wakeup-) latencies no matter what the load. [this doesnt mean your
-system will necessarily feel fast - if it's running lots of tasks, even
-if the highest prio one is woken up quickly, then it's gonna be slow.]
-
-	Ingo
+------------[ cut here ]------------
+kernel BUG at fs/fat/cache.c:150!
+invalid operand: 0000 [#1]
+PREEMPT SMP
+Modules linked in: smbfs autofs4 nls_cp437 msdos fat nfsd exportfs lockd 
+sunrpc tsdev uhci_hcd parport_pc parport eth1394 nvidia ohci1394 
+ieee1394 usbmouse usbkbd usbhid ehci_hcd ub ohci_hcd usbcore i2c_sis96x 
+i2c_core pci_hotplug sis_agp agpgart evdev sis900 crc32 snd_als4000 
+snd_sb_common snd_pcm snd_page_alloc snd_opl3_lib snd_timer snd_hwdep 
+snd_mpu401_uart snd_rawmidi snd_seq_device snd
+CPU:    0
+EIP:    0060:[<f8cec268>]    Tainted: P      VLI
+EFLAGS: 00010202   (2.6.9-bk6)
+EIP is at fat_cache_add+0x108/0x130 [fat]
+eax: 00000001   ebx: cc2672b8   ecx: cc2672b8   edx: d0bfdc01
+esi: d0bfdc1c   edi: d8129798   ebp: d81297d4   esp: d0bfdbf8
+ds: 007b   es: 007b   ss: 0068
+Process eog (pid: 16973, threadinfo=d0bfd000 task=cd4eb540)
+Stack: 00000001 d81297d4 f77af400 d8129798 d0bfdc54 f8cec902 d81297d4 
+d0bfdc1c
+        0001ffff 00000000 00000000 00000001 00000112 d8129798 f77af400 
+00000028
+        00000000 f8cec9d6 d81297d4 00000001 d0bfdc50 d0bfdc54 00000001 
+00000112
+Call Trace:
+  [<f8cec902>] fat_get_cluster+0x112/0x1b0 [fat]
+  [<f8cec9d6>] fat_bmap_cluster+0x36/0x80 [fat]
+  [<f8cecb00>] fat_bmap+0xe0/0x1f0 [fat]
+  [<c0119e12>] recalc_task_prio+0xd2/0x200
+  [<f8ceeede>] fat_get_block+0x2e/0x160 [fat]
+  [<c015e2e6>] block_read_full_page+0x166/0x330
+  [<c013d7a6>] add_to_page_cache+0x46/0xe0
+  [<c013d80c>] add_to_page_cache+0xac/0xe0
+  [<f8cf093f>] fat_readpage+0xf/0x20 [fat]
+  [<f8ceeeb0>] fat_get_block+0x0/0x160 [fat]
+  [<c0144634>] read_pages+0x84/0x120
+  [<c0141be3>] __alloc_pages+0x93/0x310
+  [<c02896de>] avc_has_perm_noaudit+0xbe/0x1a0
+  [<c0144a29>] do_page_cache_readahead+0x169/0x190
+  [<c0144b9f>] page_cache_readahead+0x14f/0x1f0
+  [<c013deec>] do_generic_mapping_read+0xfc/0x420
+  [<c013e492>] __generic_file_aio_read+0x1a2/0x220
+  [<c013e210>] file_read_actor+0x0/0xe0
+  [<c013e61e>] generic_file_read+0xae/0xd0
+  [<c0133610>] autoremove_wake_function+0x0/0x40
+  [<c015aecb>] vfs_read+0x9b/0xf0
+  [<c015b13d>] sys_read+0x3d/0x70
+  [<c0105f47>] syscall_call+0x7/0xb
+Code: 58 85 db 5a 74 32 8b 47 0c 48 89 47 0c 8b 04 24 39 00 75 2c 8b 34 
+24 8b 0d 94 4d cf f8 56 51 e8 9f a0 45 c7 58 5a e9 54 ff ff ff <0f> 0b 
+96 00 de 1b cf f8 e9 43 ff ff ff 8b 1c 24 e9 7c ff ff ff

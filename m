@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbTI2Pyp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTI2Pyp
+	id S263636AbTI2Pwy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTI2Pwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 11:54:45 -0400
-Received: from play.smurf.noris.de ([192.109.102.42]:11729 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S263640AbTI2Px0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:53:26 -0400
-Date: Mon, 29 Sep 2003 17:38:15 +0200
-From: Smurf <smurf@play.smurf.noris.de>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] No forced rebuilding of ikconfig.h
-Message-ID: <20030929153815.GA16685@play.smurf.noris.de>
+	Mon, 29 Sep 2003 11:52:54 -0400
+Received: from h80ad2481.async.vt.edu ([128.173.36.129]:33736 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263636AbTI2Pv5 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 11:51:57 -0400
+Message-Id: <200309291551.h8TFpZtH028192@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, Andrew Morton <akpm@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits 
+In-Reply-To: Your message of "Mon, 29 Sep 2003 16:34:37 BST."
+             <20030929153437.GB21798@mail.jlokier.co.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030929090629.GF29313@actcom.co.il>
+            <20030929153437.GB21798@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.0-gpgme-021125a
+Content-Type: multipart/signed; boundary="==_Exmh_1901227542P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Sep 2003 11:51:35 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why does ikconfig.h require forced rebuilding?
-I can't think of a reason...
+--==_Exmh_1901227542P
+Content-Type: text/plain; charset=us-ascii
 
-diff -xCVS -ru linux-2.5-m68k-cvs-orig/kernel/Makefile linux-2.5-m68k-cvs/kernel/Makefile
---- linux-2.5-m68k-cvs-orig/kernel/Makefile	2003-09-28 04:28:45.000000000 +0200
-+++ linux-2.5-m68k-cvs/kernel/Makefile	2003-09-29 12:17:19.000000000 +0200
-@@ -44,7 +44,8 @@
-       cmd_ikconfig = $(CONFIG_SHELL) $< .config $(srctree)/Makefile > $@
- 
- targets += ikconfig.h
--$(obj)/ikconfig.h: scripts/mkconfigs .config Makefile FORCE
-+
-+$(obj)/ikconfig.h: scripts/mkconfigs .config Makefile
- 	$(call if_changed,ikconfig)
- 
- # config_data.h contains the same information as ikconfig.h but gzipped.
+On Mon, 29 Sep 2003 16:34:37 BST, Jamie Lokier said:
+> Muli Ben-Yehuda wrote:
+> > -/* Optimisation macro. */
+> > +/* Optimisation macro, used to be defined as: */
+> > +/* ((bit1 == bit2) ? (x & bit1) : (x & bit1) ? bit2 : 0) */ 
+> > +/* but this version is faster */ 
+> > +/* "check if bit1 is on in 'x'. If it is, return bit2" */ 
+> >  #define _calc_vm_trans(x,bit1,bit2) \
+> >    ((bit1) <= (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
+> >     : ((x) & (bit1)) / ((bit1) / (bit2)))
+> 
+> I agree with the intent of that comment, but the code in it is
+> unnecessarily complex.  See if you like this, and if you do feel free
+> to submit it as a patch:
+> 
+> /* Optimisation macro.  It is equivalent to:
+>       (x & bit1) ? bit2 : 0
+>    but this version is faster.  ("bit1" and "bit2" must be single bits). */
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-History is made at night. Character is what you are in the dark.
+Is this supposed to return the bitmask bit2, or (x & bit2)?  If the former,
+then your code is right.  If the latter,  (x & bit1) ? (x & bit2) : 0
+
+I'm totally failing to see why the original did the bit1 == bit2 compare,
+so maybe mhyself and Jamie are both missing some subtlety?
+
+--==_Exmh_1901227542P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/eFUGcC3lWbTT17ARAlyGAKCg7kX3F6Jd4v3nGVX0147E1BWtVACfbTmh
+JrEQcKN3KMtz86X3mcMYNoI=
+=87KW
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1901227542P--

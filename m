@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272324AbTHILCq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 07:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTHILCq
+	id S272327AbTHILRg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 07:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272328AbTHILRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 07:02:46 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:38028 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272324AbTHILCp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 07:02:45 -0400
-Subject: Re: Physically contiguous (DMA) memory allocation
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Anthony Truong <Anthony.Truong@mascorp.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060328695.9074.95.camel@huykhoi>
-References: <1060328695.9074.95.camel@huykhoi>
-Content-Type: text/plain
+	Sat, 9 Aug 2003 07:17:35 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:53509 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S272327AbTHILRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 07:17:35 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Jeff Garzik <jgarzik@pobox.com>, Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: [patch 2.4 1/2] backport 2.6 x86 cpu capabilities
+Date: Sat, 9 Aug 2003 11:51:23 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200308081119.h78BJWQ5015656@harpo.it.uu.se> <3F33A257.7050101@pobox.com>
+In-Reply-To: <3F33A257.7050101@pobox.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308091150.59006.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060426740.4937.85.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Aug 2003 11:59:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-08-08 at 08:44, Anthony Truong wrote:
-> Is there a quick solution to this problem, like increasing the size of
-> the physically contiguous page pool (like in Windows NT and some other
-> OS'es :-( )? (Is it a good idea to make this one of the future
-> enhancements to Linux?)  Or should I write a driver loaded at boot time
-> grabbing the required memory pages and allocating them to my loadable
-> driver when requested?
-> Your suggestion is very much appreciated.
+On Friday 08 August 2003 15:15, Jeff Garzik wrote:
 
-Without source code its hard to tell what you are doing but all
-allocations made with the pci_* API in Linux are contiguous. If your
-hardware requires a single contiguous 30Mb chunk then you have a problem
-and will need to allocate at boot time.
+Hi Jeff,
+
+> >>-#define NCAPINTS	4	/* Currently we have 4 32-bit words worth of info */
+> >>+#define NCAPINTS	6	/* Currently we have 6 32-bit words worth of info */
+> > If you change NCAPINTS you also have to change the hardcoded
+> > struct offset X86_VENDOR_ID in arch/i386/kernel/head.S. Otherwise
+> > nasty stuff happen at boot since boot_cpu_data gets broken.
+> hmmm, reality doesn't seem to bear that out...  I made the same change
+> to 2.6, without touching head.S, and life continues without "nasty
+> stuff" AFAICS.
+> Do both 2.4 and 2.6 need this change?  And, why didn't 2.6 break?
+
+Mikael is right. At least 2.4 need this change, otherwise APIC may break.
+2.6 might break also in some cases.
+
+ciao, Marc
 

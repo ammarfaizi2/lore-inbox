@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTE0EgB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 00:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTE0EgB
+	id S263340AbTE0Ei7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 00:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTE0Ei7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 00:36:01 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50877 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S263340AbTE0Ef7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 00:35:59 -0400
-Date: Tue, 27 May 2003 01:47:13 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       gibbs@scsiguy.com, acme@conectiva.com.br
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-In-Reply-To: <20030527043936.GB19309@alpha.home.local>
-Message-ID: <Pine.LNX.4.55L.0305270144300.546@freak.distro.conectiva>
-References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local>
- <1053923112.14018.16.camel@rth.ninka.net> <1053995708.17151.42.camel@dhcp22.swansea.linux.org.uk>
- <20030527043936.GB19309@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 May 2003 00:38:59 -0400
+Received: from vitelus.com ([64.81.243.207]:12305 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S263340AbTE0Ei6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 00:38:58 -0400
+Date: Mon, 26 May 2003 21:47:44 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5] [Cool stuff] "checking" mode for kernel builds
+Message-ID: <20030527044744.GJ9947@vitelus.com>
+References: <20030527030219.GI9947@vitelus.com> <Pine.LNX.4.44.0305262009400.1680-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305262009400.1680-100000@home.transmeta.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 26, 2003 at 08:23:37PM -0700, Linus Torvalds wrote:
+> Any takers? Some Makefile magic plus some hacky thing like
+> 
+> 	gcc -print-file-name=include
+> 
+> (Yeah, that's not righ either, it just happens to work. I don't know what
+> the proper way of making gcc expose its local paths is).
 
+gcc -v will tell you the final include path, but only when you
+actually compile something. I'd probably make the makefile hackery parse
+the ouput of echo | gcc -v -E -. Yeah, it's ugly.
 
-On Tue, 27 May 2003, Willy Tarreau wrote:
-
-> On Tue, May 27, 2003 at 01:35:09AM +0100, Alan Cox wrote:
->
-> > One thing I will say however - I'd have done the *same* thing as Marcelo
-> > with aic7xxx during -rc which is to defer it.
->
-> I think you would at least have forwarded problem reports to Justin,
-> expecting him to look into the problem first.
-
-Justin used to say "use my latest driver" when people reported problems.
-Read lkml.
-
-Its great if Justins new driver fixes the problems, but as I told him I
-thought it was too late for it to be included. Thats my bad, too, because
-if I had included it early in 2.4.21pre it could be in now.
-
-Justin could well have fixed the problems in the current driver instead
-answering "use my latest driver", couldnt he?
+The output between "#include <...> search starts here:" and "End of
+search list." seems like the combination of what you want for
+gcc_includepath and sys_includepath. I assume the output is ordered. I
+might send a patch if I'm bored tonight.

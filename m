@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132187AbQKWAE1>; Wed, 22 Nov 2000 19:04:27 -0500
+        id <S132208AbQKWAHI>; Wed, 22 Nov 2000 19:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132208AbQKWAES>; Wed, 22 Nov 2000 19:04:18 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:47113 "EHLO saturn.cs.uml.edu")
-        by vger.kernel.org with ESMTP id <S132187AbQKWAEB>;
-        Wed, 22 Nov 2000 19:04:01 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011222332.eAMNWZj269304@saturn.cs.uml.edu>
-Subject: Re: silly [< >] and other excess
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 22 Nov 2000 18:32:35 -0500 (EST)
-Cc: christian.gennerat@vz.cit.alcatel.fr (Christian Gennerat),
-        Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3626.974931750@ocs3.ocs-net> from "Keith Owens" at Nov 23, 2000 09:22:30 AM
-X-Mailer: ELM [version 2.5 PL2]
+        id <S132230AbQKWAG6>; Wed, 22 Nov 2000 19:06:58 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:23827 "EHLO smtp1.cern.ch")
+        by vger.kernel.org with ESMTP id <S132208AbQKWAGt>;
+        Wed, 22 Nov 2000 19:06:49 -0500
+To: R.E.Wolff@bitwizard.nl (Rogier Wolff)
+Cc: Mitchell Blank Jr <mitch@sfgoth.com>,
+        Patrick van de Lageweg <patrick@bitwizard.nl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rogier Wolff <wolff@bitwizard.nl>
+Subject: Re: [NEW DRIVER] firestream
+In-Reply-To: <200011222305.AAA30264@cave.bitwizard.nl>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 23 Nov 2000 00:35:42 +0100
+In-Reply-To: R.E.Wolff@bitwizard.nl's message of "Thu, 23 Nov 2000 00:05:18 +0100 (MET)"
+Message-ID: <d366lflgvl.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
-> Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr> wrote:
->> Andries.Brouwer@cwi.nl a =E9crit :
+>>>>> "Rogier" == Rogier Wolff <R.E.Wolff@bitwizard.nl> writes:
 
->>>  I also left something else
->>> that always annoyed me: valuable screen space (on a 24x80 vt)
->>> is lost by these silly [< >] around addresses in an Oops.
->>> They provide no information at all, but on the other hand
->>> cause loss of information because these lines no longer
->>> fit in 80 columns causing line wrap and the loss of the
->>> top of the Oops.]
+Rogier> Mitchell Blank Jr wrote:
+>> First, I'd like to make a couple points about driver style that I'm
+>> trying to move towards with the ATM drivers.  You're free to take
+>> them or leave them, but I want to eventually move the tree in this
+>> direction.  * I don't like header files that define the registers
+>> of the chip - since the header file is only included in the
+>> driver's .c file you might as well just put the definitions there
+>> (unless, of course, there is good reason to think that the
+>> registers will be used in multiple drivers - unlikely in this case)
+>> Having a seperate header file just serves to hamper searching
+>> around the driver and cluttering the directory.
 
-> You just broke ksymoops.
+Rogier> I disagree vehemently.
 
-You can fix it. Keeping useful info on the screen is more important.
+Rogier> The header file should have 'static things' that for example a
+Rogier> competing driver for the same chip could also use. The "driver
+Rogier> defines" should theoretically be in a separate file. This
+Rogier> rarely happens.
 
-> Removing the [< >] is a bad idea, they are
-> one of the few things that identifies the addresses in the log,
-> otherwise they just look like hex numbers.  ksymoops has to scan log
-> files which can contain anything and somehow pick out the interesting
-> lines, you need some identifier on the lines.
+I guess this boils down to personal preference, I like to stick
+register definitions in a seperate file as well.
 
-If you see register names followed by hex numbers, you have
-some debug data. Scan forward and backward 25 lines, grabbing
-all 8-digit and 16-digit hex numbers. Sort the numbers, then
-look up all of them.
+I think the most important issue is when doing header files to make
+sure they go with the driver code and not in include/linux unless
+there really is a reason to expose them to user space. No reason to
+export register definitions for Ethernet cards down there.
 
-Crude solutions don't break as often as fancy solutions.
-
-> There should be no need to restrict the number of lines printed, it is
-> limited by the top of the kernel stack.  If there are more than 32
-> trace entries on the stack then they should be printed.
-
-It could fill the screen. There is an expansion of 4-to-13 when
-using the silly brackets, and a PC stack can be 6 or 7 kB long,
-or perhaps many megabytes due to stack overflow. The standard
-VGA screen only allows 4000 bytes of data.
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

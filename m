@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263611AbUJ2XxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263635AbUJ2Xnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263611AbUJ2XxL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 19:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263550AbUJ2XxF
+	id S263635AbUJ2Xnl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 19:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263685AbUJ2XiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 19:53:05 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5137 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263611AbUJ2XwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 19:52:19 -0400
-Date: Sat, 30 Oct 2004 01:51:37 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: kj <kernel-janitors@osdl.org>, linux-kernel@vger.kernel.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: 2.6.10-rc1-kjt1: ixgb_ethtool.c doesn't compile
-Message-ID: <20041029235137.GG6677@stusta.de>
-References: <20041024151241.GA1920@stro.at>
+	Fri, 29 Oct 2004 19:38:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64401 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263663AbUJ2Xdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 19:33:52 -0400
+Subject: Re: [PATCH] ppc32: Fix boot on PowerMac
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041029120331.GE11391@infradead.org>
+References: <1099020586.29693.105.camel@gaston>
+	 <20041029120331.GE11391@infradead.org>
+Content-Type: text/plain
+Date: Sat, 30 Oct 2004 09:25:45 +1000
+Message-Id: <1099092345.29693.165.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041024151241.GA1920@stro.at>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 05:12:41PM +0200, maximilian attems wrote:
->...
-> splitted out 168 patches:
-> http://debian.stro.at/kjt/2.6.10-rc1-kjt1/split/
+On Fri, 2004-10-29 at 13:03 +0100, Christoph Hellwig wrote:
+> On Fri, Oct 29, 2004 at 01:29:46PM +1000, Benjamin Herrenschmidt wrote:
+> > Hi !
+> > 
+> > Tom's recent irq patch broke PowerMac (and possibly others). I think
+> > he forgot that PReP, CHRP and PowerMac are all built together in a
+> > single kernel image, thus all of those arch_initcall's will end up
+> > beeing called, even on the wrong machine...
+> 
+> Better rewvert Tom's fix and switch all these early calls to setup_irq,
+> like I did for pmac and a few other subarches (I missed the ones Tom
+> fixed, sorry)
 
-Could you provide a .tar.gz (or .tar.bz) of the splitted patches 
-(similar to how Andrew does for -mm)?
+Patch welcome :)
 
-> thanks for feedback.
-> maks
->...
+Ben.
 
-msleep_interruptible-drivers_net_ixgb_ixgb_ethtool.patch doesn't 
-compile:
-
-<--  snip  -->
-
-...
-  CC      drivers/net/ixgb/ixgb_ethtool.o
-drivers/net/ixgb/ixgb_ethtool.c: In function `ixgb_ethtool_led_blink':
-drivers/net/ixgb/ixgb_ethtool.c:407: error: `id' undeclared (first use in this function)
-drivers/net/ixgb/ixgb_ethtool.c:407: error: (Each undeclared identifier is reported only once
-drivers/net/ixgb/ixgb_ethtool.c:407: error: for each function it appears in.)
-make[3]: *** [drivers/net/ixgb/ixgb_ethtool.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

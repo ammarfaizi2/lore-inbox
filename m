@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312255AbSDFTmx>; Sat, 6 Apr 2002 14:42:53 -0500
+	id <S312718AbSDFTyj>; Sat, 6 Apr 2002 14:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312564AbSDFTmw>; Sat, 6 Apr 2002 14:42:52 -0500
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:2628 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S312255AbSDFTmw>; Sat, 6 Apr 2002 14:42:52 -0500
-From: brian@worldcontrol.com
-Date: Sat, 6 Apr 2002 11:31:57 -0800
+	id <S312720AbSDFTye>; Sat, 6 Apr 2002 14:54:34 -0500
+Received: from renoir.op.net ([207.29.195.4]:17165 "EHLO renoir.op.net")
+	by vger.kernel.org with ESMTP id <S312718AbSDFTyd>;
+	Sat, 6 Apr 2002 14:54:33 -0500
+Date: Sat, 6 Apr 2002 14:54:50 -0500
+Message-Id: <200204061954.g36Jsoe11292@op.net>
+From: Paul Davis <pbd@Op.Net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre6 swsusp problems (vs. 2.4.19pre5ac3)
-Message-ID: <20020406193157.GA3339@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-No-Archive: yes
-X-Noarchive: yes
+Subject: delayed interrupt processing caused by cswitching/pipe_writes?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Indeed the swsusp in -ac seems to oops a lot.  I hand patched
-swsusp v0.8 to work with 2.4.19pre6 and get better behavior.
+I am trying to track down some latency-related issues that we are
+having with a low latency audio system (JACK, the Jack Audio
+Connection Kit, http://jackit.sf.net/).
 
-The docs (config help for swsusp) imply you don't need APM.
-However turning APM entirely off results in compile errors
-in swsusp.c.
+Its the usual "soft RT" thing (SCHED_FIFO, mlockall), except that it
+involves pipe-driven IPC between two RT threads to get the work
+done. Read the website if you want to understand why; its not relevant
+here. 
 
-Turning APM mostly off, results in swsusp reporting that it
-can't stop kapmd.
+Its clear from a week of instrumented kernels, and hours poring over
+trace files, that the presence of "activity" on the machine causes
+delays in the handling of interrupts from the audio interface by up to
+a millisecond. Given that the interrupt frequency is about 1000Hz,
+this is not good :)
 
--- 
-Brian Litzinger <brian@worldcontrol.com>
+I know from trials of older kernels and systems in which all the audio
+handling resided in the same thread that we can handle a 1.3msec
+interrupt interval without real problems. But now that JACK splits the
+handling across two threads in different processes, the thing that
+kills us is not the context switch times, not the delay caused by
+cache and/or TLB invalidation, or any of that stuff. instead, its that
+we start delaying the execution of the audio interface interrupt
+handler to the point where our assumptions about handling every
+interrupt on time fall apart.
+
+the extra work doesn't involve any increased disk activity - the only
+extra work involves more writing to memory (which is all mlocked),
+writing to pipes for IPC, and extra context switches.
+
+which of these is most likely to cause us to mask interrupts for up to
+a millisecond or more? i know its not the handler for the interrupt in
+question - it never takes more than 25 usecs to execute.
+
+--p
+

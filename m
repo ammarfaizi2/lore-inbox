@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbTDIT1p (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 15:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbTDIT1p (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 15:27:45 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:41929 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S263698AbTDIT1l (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 15:27:41 -0400
-Date: Wed, 9 Apr 2003 15:39:03 -0400
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@transmeta.com, mingo@redhat.com, arjanv@redhat.com,
-       alan@redhat.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: Linux authentication / credential management
-Message-ID: <20030409193903.GA31944@delft.aura.cs.cmu.edu>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	torvalds@transmeta.com, mingo@redhat.com, arjanv@redhat.com,
-	alan@redhat.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
-References: <3946.1049901134@warthog.warthog>
+	id S263693AbTDIT1A (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 15:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTDIT1A (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 15:27:00 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:34061 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263693AbTDIT07 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 15:26:59 -0400
+Date: Wed, 9 Apr 2003 20:38:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: davidm@hpl.hp.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: bk pull
+Message-ID: <20030409203836.A9397@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, davidm@hpl.hp.com,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <200304091927.h39JRob0010157@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3946.1049901134@warthog.warthog>
-User-Agent: Mutt/1.5.3i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200304091927.h39JRob0010157@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Wed, Apr 09, 2003 at 12:27:50PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 04:12:14PM +0100, David Howells wrote:
-> The first part of what I'm thinking of is a structure like the
-> following that has a Process Authentication Group ID and a list of
-> authentication tokens for filesystems such as AFS & NFSv4 kerberos
-> keys, NTFS ACLs, SAMBA login details.
+On Wed, Apr 09, 2003 at 12:27:50PM -0700, David Mosberger wrote:
+> Hi Linus,
+> 
+> please do a
+> 
+> 	bk pull http://lia64.bkbits.net/to-linus-2.5
+> 
+> This will update the files shown below.
 
-PAGs have been proposed over and over again and there is one fundamental
-problem, my PAG isn't your PAG.
-
-(although in this specific case, if you're looking at it with the AFS
-hat it probably is).
-
-Some people want to have an authentication identifier they can keep
-synchronized across a cluster, so they want to be able to set the 'PAG'
-to any arbitrary value. However Coda (and AFS) prefer to have something
-that just guarantees to be a unique identifier for a group of related
-tasks (aka. newpag). Allowing someone to set the pag in this case
-nullifies the usefulness of the tag because there is no guarantee that
-it is unique. It would be similar to allowing someone to specify their
-own process id.
-
-What happened to your 'task ornaments', I figured that that would have
-been the best way to tag processes with information and allow individual
-filesystems to define their own preferred semantics.
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0201.3/0480.html
-
-
-Jan
-
+Btw, do you have any plans to push the changes outside from arch/ia64
+and include/asm-ia64/ in the ia64 patch to Linus? It would be really
+nice if the ia64 port could be used with an out-of-the-box kernel.

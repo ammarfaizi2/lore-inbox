@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbTIMCEy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 22:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbTIMCEy
+	id S261997AbTIMCId (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 22:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTIMCId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 22:04:54 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:59368 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261988AbTIMCEx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 22:04:53 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Iker" <iker@computer.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: self piping and context switching
-Date: Fri, 12 Sep 2003 19:04:50 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCECHGIAA.davids@webmaster.com>
+	Fri, 12 Sep 2003 22:08:33 -0400
+Received: from 202-47-55-78.adsl.gil.com.au ([202.47.55.78]:60800 "HELO
+	longlandclan.hopto.org") by vger.kernel.org with SMTP
+	id S261997AbTIMCIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 22:08:31 -0400
+Message-ID: <3F627C13.6020608@longlandclan.hopto.org>
+Date: Sat, 13 Sep 2003 12:08:19 +1000
+From: Stuart Longland <stuartl@longlandclan.hopto.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: getting a working CD-drive in 2.6
+References: <20030912093837.GC2921@iain-vaio-fx405>
+In-Reply-To: <20030912093837.GC2921@iain-vaio-fx405>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <039401c37995$0f30cbd0$3203a8c0@duke>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Assume a thread is monitoring a set of fd's which include both ends of
-> a pipe (using poll, for example). If the thread writes to the pipe (in
-> order to notify itself for whatever reason) is it reasonable to expect
-> that it will be able to return to its poll loop and get the event
-> without a context switch? (provided it quickly returns to the poll
-> loop).
+iain d broadfoot wrote:
 
-	It's reasonable to expect that this will be the most common case and the
-one to optimize. It is unreasonable to fail if this doesn't happen, since
-it's not guaranteed to happen. Note that if by "without a context switch"
-you really mean without another thread getting a chance to run, then it is
-totally unreasonable. On SMP systems and with hyper-threading, threads can
-run concurrently.
+| 	Since starting using 2.6, I've been unable to use my cd-rw/dvd
+| 	drive at all.
 
-	DS
+Okay, we need a little more information.
 
+	What precise version of Linux 2.6?  2.6.0-test5?
+	What model/make of CDRW/DVD drive?
+	What interface?		e.g.	SCSI, IDE, USB, Firewire....
+	What does 'dmesg' dump out?
+	And yes, the .config might be useful.
+
+| 	ide-scsi is disabled.
+
+If it's an IDE drive, you'll want this _enabled_ before you'll be able
+to write CDs.  Most of the burner software that I know of look for a
+SCSI CD burner, not IDE.  ide-scsi is intended for making an IDE CD
+burner appear as a SCSI device.
+
+Don't reply directly to me -- I know quite a fair bit about Linux, but
+compared to the majority of this list, I'm a newbie -- your reply is
+best looked at by one of the gurus here.
+- --
++-------------------------------------------------------------+
+| Stuart Longland           stuartl at longlandclan.hopto.org |
+| Brisbane Mesh Node: 719             http://stuartl.cjb.net/ |
+| I haven't lost my mind - it's backed up on a tape somewhere |
+| Griffith Student No:           Course: Bachelor/IT (Nathan) |
++-------------------------------------------------------------+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/YnwTIGJk7gLSDPcRAqrgAJ99PeW5JatHh2X4jk+i9NxhF7pfUgCfaWH/
+/KmNZLwl56F8w0NxC5kb82k=
+=kTfu
+-----END PGP SIGNATURE-----
 

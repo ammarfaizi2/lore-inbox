@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRDGTJW>; Sat, 7 Apr 2001 15:09:22 -0400
+	id <S130471AbRDGTP0>; Sat, 7 Apr 2001 15:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbRDGTJN>; Sat, 7 Apr 2001 15:09:13 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:45870 "EHLO
+	id <S130485AbRDGTPP>; Sat, 7 Apr 2001 15:15:15 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:19759 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130317AbRDGTJE>; Sat, 7 Apr 2001 15:09:04 -0400
-Date: Sat, 7 Apr 2001 20:08:56 +0100
+	id <S130471AbRDGTPD>; Sat, 7 Apr 2001 15:15:03 -0400
+Date: Sat, 7 Apr 2001 20:14:56 +0100
 From: Tim Waugh <twaugh@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Michael Reinelt <reinelt@eunet.at>,
+To: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+Cc: Michael Reinelt <reinelt@eunet.at>, Brian Gerst <bgerst@didntduck.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Multi-function PCI devices
-Message-ID: <20010407200856.E3280@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <3ACEFB05.C9C0AB3C@eunet.at> <20010407131631.A3280@redhat.com> <3ACF4D0F.9D15EB7F@mandrakesoft.com>
+Message-ID: <20010407201456.F3280@redhat.com>
+In-Reply-To: <3ACF1E35.F11E9673@eunet.at> <Pine.LNX.4.10.10104071445030.1530-100000@linux.local>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Qz2CZ664xQdCRdPu"
+	protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ACF4D0F.9D15EB7F@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Apr 07, 2001 at 01:23:27PM -0400
+In-Reply-To: <Pine.LNX.4.10.10104071445030.1530-100000@linux.local>; from groudier@club-internet.fr on Sat, Apr 07, 2001 at 03:01:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Qz2CZ664xQdCRdPu
-Content-Type: text/plain; charset=us-ascii
+--0rSojgWGcpz+ezC3
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Apr 07, 2001 at 01:23:27PM -0400, Jeff Garzik wrote:
+On Sat, Apr 07, 2001 at 03:01:57PM +0200, G=E9rard Roudier wrote:
 
-> You asked in your last message to show you code, here is a short
-> example.  Note that I would love to rip out the SUPERIO code in parport
-> and make it a separate driver like this short, contrived example.  Much
-> more modular than the existing solution.
+> PCI multi I/O boards _shall_ provide a separate function for each kind of
+> IO. Those that donnot are kind of PCI messy IO boards.
 
-(The superio code is on its way out anyway, for different reasons..)
+But they don't.  What are you going to do about it?
 
-More modular?  Yes, it adds another module to support a card, so yes
-there are more modules.
+> Cheap for whom?
 
-But with the multifunction_quirks approach, support is a question of
-adding two lines in a table.
+For the guys who make them, and for the ones who buy them.  Yes, it
+sucks.
+
+> > Again, how about other cards? Are there any PCI Multi-I/O-cards out
+> > there, which are supported by linux? I'd be interested in how the driver
+> > looks like....
+>=20
+> I donnot know and will never know. I only use hardware that does not look
+> too shitty to me. Time is too much important for me to waste even seconds
+> with dubious hardware. :)
+
+Good luck finding a card that gets multifunction I/O right without
+wasting any seconds then.
+
+For a list of cards that are supported, or for which patches exist
+(using the 'two lines in a table' approach), see
+<URL:http://people.redhat.com/twaugh/parport/cards.html>.
 
 Tim.
 */
 
---Qz2CZ664xQdCRdPu
+--0rSojgWGcpz+ezC3
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -54,9 +67,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.4 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE6z2XHONXnILZ4yVIRAp74AJ9a+4R8lm+6LS1SJ0w+44hCs7zIvACeOb7m
-acZkZtN6nwZmnpF21QC16zw=
-=nh57
+iD8DBQE6z2cvONXnILZ4yVIRAgWKAJoCPGtEK5fD7eEgGShUCKfQR84IDwCeMuva
+hlFiT3HWevTMRnMzePoLLxo=
+=V27b
 -----END PGP SIGNATURE-----
 
---Qz2CZ664xQdCRdPu--
+--0rSojgWGcpz+ezC3--

@@ -1,144 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272385AbTGYW5N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 18:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272386AbTGYW5N
+	id S272374AbTGYXHV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 19:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272375AbTGYXHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 18:57:13 -0400
-Received: from meter.eng.uci.edu ([128.200.85.3]:62659 "EHLO meter.eng.uci.edu")
-	by vger.kernel.org with ESMTP id S272385AbTGYW5F (ORCPT
+	Fri, 25 Jul 2003 19:07:21 -0400
+Received: from smtp-01.inode.at ([62.99.194.3]:44991 "EHLO smtp.inode.at")
+	by vger.kernel.org with ESMTP id S272374AbTGYXHS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 18:57:05 -0400
-Date: Fri, 25 Jul 2003 16:12:14 -0700 (PDT)
-From: Song Wang <wsong@ece.uci.edu>
+	Fri, 25 Jul 2003 19:07:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Heimo Truhetz <h.truhetz@ecowatt.at>
+Reply-To: h.truhetz@ecowatt.at
+Organization: ecowatt
 To: linux-kernel@vger.kernel.org
-Subject: [Mini-HOWTO]How to bring up kernel 2.6.0-test1 on Redhat 9.0
-Message-ID: <Pine.GSO.4.50.0307251608040.29317-100000@newport.ece.uci.edu>
+Subject: AMD760MP - Troubles with MSI K7D
+Date: Sat, 26 Jul 2003 01:22:47 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Posting-Agent: Hamster/1.3.23.4
+Message-Id: <E19gBtB-0000wJ-00@smtp.inode.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                           Mini HOWTO
+Hello out there,
 
-        How to build and bring up 2.6.0-test1 on Redhat 9.0
+I have two Athlon MP's 2600+ mounted on a MSI K7D-Master-L with the famous 
+AMD-768 (Opus) chipset (latest BIOS 1.82).
+Actually I'm using debian's 'woody' distribution with the kernel 2.4.22-pre8, 
+glibc 2.2.5 and gcc 2.95.4.
+I have problems with the IDE support:
+On the hardisk (Maxtor 6Y120L0 - 120GB) there is a 1.4 GB file, I want to 
+copy. But when I try this, the system stops with the error message:
 
-        (http://www.ags.uci.edu/~songw/kernel2.6-rh90-howto.txt)
+attempt to access beyond end of device
+03:09: rw=0, want=976094472, limit=109948828
 
-(Hardware: Dell Dimension 8200 - Pentium 4 2.53GHZ, 1GB DDR memory,
-120G EIDE harddrive, and nVidia Geforce4 video card. PS2 mouse
-and keyboard connected a IOGEAR Miniview SE KVM switch. There
-is a Philips DVD+RW drive.
+and I have to push the reset button.
 
-Software: new Redhat 9.0 with everything installed.)
+When I switch DMA off by using 'hdparm -d0' everthing works fine, but the 
+hole copy-process takes about 8 minutes!
 
-I run into several problems when I was trying to bring up
-2.6.0-test1 kernel on Redhat 9.0. I think they're common and I'd like
-to put them together and share with other people who are
-willing to help test and improve 2.6.0-test1 kernel.
+Taking a look at 'lspci' shows the following:
+# lspci
+00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c (rev 
+11)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
+00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440 (rev 05)
+00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441 (rev 
+04)
+00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev 03)
+00:07.5 Multimedia audio controller: Advanced Micro Devices [AMD]: Unknown 
+device 7445 (rev 03)
+00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448 (rev 05)
+01:05.0 VGA compatible controller: ATI Technologies Inc Radeon VE QY
+02:00.0 USB Controller: Advanced Micro Devices [AMD]: Unknown device 7449 
+(rev 07)
+02:09.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 10)
 
-1. Problems and Solutions
-After I downloaded 2.6.0-test1 kernel tarball, I used
-'make menuconfig' to create my own configuration file.
-After adding several configuration items. I successully
-built the kernel and modules using 'make bzImage;make modules'.
-(It turns out single 'make' will do the same thing.) Note
-'make dep' is not necessary anymore.
-Then I used 'make modules_install;make install' to install
-modules and the kernel itself. Problems showed up from
-this point...
+So, the AMD is 'unknown', although 'dmesg' tells:
+# dmesg
+Linux version 2.4.22-pre8 (root@WUTZEL) (gcc version 2.95.4 20011002 (Debian 
+prerelease)) #2 SMP Fre Jul 25 14:18:18 CEST 2003
+...
+amd768_rng: AMD768 system management I/O registers at 0x600.
+amd768_rng hardware driver 0.1.0 loaded
+...
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 942M
+agpgart: Detected AMD 760MP chipset
+agpgart: AGP aperture is 128M @ 0xe8000000
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD7441: IDE controller at PCI slot 00:07.1
+AMD7441: chipset revision 4
+AMD7441: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD_IDE: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 04) UDMA100 
+controller on pci00:07.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:pio, hdd:pio
+hda: Maxtor 6Y120L0, ATA DISK drive
+hdb: ASUS CD-S400, ATAPI CD/DVD-ROM drive
+blk: queue c035e180, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=14946/255/63, 
+UDMA(100)
+hdb: attached ide-cdrom driver.
+hdb: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 >
+...
 
-(1) A lot of unresolved symbol when installing kernel modules.
+Are there any solutions or workarounds to fix these problems?
+Do I have to upgrade the glibc or any other system components?
+Does this problem affect any inter-CPU processes like OpenMP?
+Do I have to change the motherboard? Which mobo's are said to be reliable?
 
-Solution: Kernel moduler loader has to be updated.
-Use the new module-init-tools-0.9.12.tar.bz2
-from http://www.kernel.org/pub/linux/kernel/people/rusty/modules
-
-After updating the tool, 'make modules_install' worked fine.
-Now it's the time to boot the new kernel!
-
-(2) The second problem kicked in. The kernel doesn't boot!
-It hangs there after printing "OK. booting the kernel..."
-
-Solution: By default, the display is not enabled. (Weird!!!)
-So use 'make menuconfig' to enable them.
-
-Go to 'Character devices', enable 'Virtual Terminal'
-and 'Support for console on virtual terminal', then
-go to 'Graphics support', at the bottom, you'll see
-'Console display driver support  --->', enter into it
-and enable 'VGA text console'. Because of the dependency,
-you have to enable 'Virtual Terminal' first in order
-to see 'Console display driver support  --->'.
-
-As a result
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-
-Rebuild the kernel, then boot, aha! The kernel is booting
-and printing out messages!
-
-(3) The third problem arrived then
-The kernel cannot mount the root file system!
-
-My root partition is formated as ext3 and I did enable
-Ext3 file system support. I checked /etc/lilo.conf,
-
-image=/boot/vmlinuz-2.6.0-test1
-        label=2.6.0-test1
-        initrd=/boot/initrd-2.6.0-test1.img
-        read-only
-        append="hdc=ide-scsi root=LABEL=/1"
-
-Solution: I found that the kernel has not enabled IDE-SCSI emulation.
-Go to "ATA/ATAPI/MFM/RLL support", then
-"IDE, ATA and ATAPI Block devices", enable
-<*> Enhanced IDE/MFM/RLL disk/cdrom/tape/floppy support
-    <*> Include IDE/ATAPI CDROM support
-    <*> Include IDE/ATAPI FLOPPY support
-    <M> SCSI emulation support
-
-Rebuild the kernel and reboot, now we're finally up and running
-and got into the X-Window!
-
-(4) However, here is the fourth problem: No keyboard and mouse!
-
-Solution: I found under "Input device support", by default,
-
-Input devices (needed for keyboard, mouse, ...) is shown as module <M>
-also "AT keyboard support" is shown as module <M>.
-I changed the two options to be statically linked with the kernel <*>
-
-After rebooting the machine, I still got no keyboard and mouse.
-Then I consulted the post-halloween document
-(http://www.codemonkey.org.uk/post-halloween-2.5.txt),
-and found that since I'm using a KVM switch, I need to add
-"psmouse_noext" option to the kernel, so I added it to /etc/lilo.conf as
-
-append="hdc=ide-scsi root=LABEL=/1 psmouse_noext"
-
-After rebooting, I got the mouse showing up, although it moves
-too fast. However, the keyboard still does not work.
-
-So I took out the KVM switch and connected my keyboard and mouse
-directly to the PC, all right, everything worked fine!
-
-This ends my try to bring up 2.6.0-test1 on Redhat 9.0. In summary,
-it's still not quite streightforward. I suggest
-
-(1) In kernel config, it is better to set up the basic stuff like
-display, keyboard and mouse with the correct settings so that
-testers can get on track without these unnessary troubles.
-
-(2) KVM switch support needs more work.
-
-Hope this could help other guys get started more quickly.
-
--Song
-
-(http://www.ags.uci.edu/~songw/kernel2.6-rh90-howto.txt)
-
-
+Kindest regards,
+Heimo Truhetz
 

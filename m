@@ -1,80 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314815AbSDVVfa>; Mon, 22 Apr 2002 17:35:30 -0400
+	id <S314799AbSDVVht>; Mon, 22 Apr 2002 17:37:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314816AbSDVVf3>; Mon, 22 Apr 2002 17:35:29 -0400
-Received: from bitmover.com ([192.132.92.2]:8873 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314815AbSDVVf1>;
-	Mon, 22 Apr 2002 17:35:27 -0400
-Date: Mon, 22 Apr 2002 14:35:27 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-Message-ID: <20020422143527.K18800@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020421095715.A10525@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314817AbSDVVhs>; Mon, 22 Apr 2002 17:37:48 -0400
+Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:13728 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314799AbSDVVhG>;
+	Mon, 22 Apr 2002 17:37:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Doug Ledford <dledford@redhat.com>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Date: Sun, 21 Apr 2002 23:37:29 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zOWH-0001MF-00@starship> <20020422172130.C914@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16zP1W-0001Mm-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 09:57:15AM -0700, Larry McVoy wrote:
-> I'm considering a change to the BKL which says that N days after a
-> changeset is made, that changeset (and its ancestory) must be available
-> on a public bk server.  In other words, put a hard limit on how long
-> you may hide.
+On Monday 22 April 2002 23:21, Doug Ledford wrote:
+> On Sun, Apr 21, 2002 at 11:05:11PM +0200, Daniel Phillips wrote:
+> > Would everybody with no mouse on their system please stand up, and leave
+> > the room.
+> > 
+> > Seriously, you're trolling.
+> 
+> No more so than your bandwidth argument...pot->kettle.
 
-OK, people have been replying in private to this raising various objections
-and making good points:
+I'll stick with the bandwidth argument.  99.99% of the people who download Linux
+don't need the Bitkeeper docs at all.  Waste of cycles.  Think what happens to
+the source if we don't care at all about extra bulk.  Hint: I've got a 75 meg
+compressed source file here from an embedded systems vendor that has about 5
+meg that I actually use.
 
-    David Mosberger was worried that I was suggesting that not
-    providing access to changes to GPLed code immediately (or ever,
-    if you don't redistribute) is a GPL violation.  To clarify: people
-    can make changes to GPLed software and are only required to make
-    those changes available if they redistribute.  That's the rule.
-    The point I was trying to make is that I wanted BK to be used for
-    free on work which is done out in the open, not behind closed doors.
+If Jeff wants to give me only 2.95 out of 3 points for my arguments, that's
+his business.
 
-    Greg KH raised the point that not everyone can have a public
-    BK server, their IT department may not allow that.  He said that
-    bkbits.net may need beefing up if we force people out into the open
-    (it needs beefing up anyway, but point is well taken).
+> > > I put my docs on my web site because that's what I owned/controlled and it 
+> > > was relevant to people already coming to my web site.  That in no way 
+> > > indicates that your position is correct, especially since you ignored to 
+> > > truly relevant item in my email:
+> > 
+> > I'm actually trying to do a little work as well as handle all the input
+> > from the Bitkeeper moonies, thankyou.
+> > 
+> > Err, did I say moonies, sorry I meant advocates, err, apologists, umm.
+> 
+> Right, nice personal attack to deflect the arguments I actually wrote.
 
-    Itai Nahshon raised several points about encrypted software, illegal
-    under the DMCA software, etc.
+It was fuhhhhhneee.  Get a grip please.
 
-    Jonathan Corbet raised the point of exposing software that isn't
-    done yet, which may have security holes, and/or other problems.
+> BTW, I've never used BK.  I've never actually even gone to the BK web 
+> site.  That's probably why I haven't bothered to read the submitting 
+> patches using BK *HOWTO* doc in the kernel doc area.
 
-There were others, but this gives you a feel.  In general, I'm getting 
-the message that forcing everything out into the open isn't always going
-to be a good thing.
+Well.  Could always start now, and please count the places in the thread
+where I say BitKeeper is a good thing for Linux.  Commerical breaks in 
+in the source tree itself are considerably less good.
 
-Yet I still have the problem of people abusing the system (not to mention
-the "spirit" of free software).  What I'd like is a way to qualify that
-"abuse" and put that in the license, and what I'm hearing is that any
-blanket statement may be a net negative for someone who should not be
-adversely affected.
+> > > > > information so that the whole picture, from start to finish, was all 
+> > > > > described in one easy to access place.
+> > > 
+> > > One place for relevant information, from start to finish.
+> > 
+> > Right.  bitkeeper.com, any argument?
+> 
+> Yeah.  I'll go to bitkeeper.com to learn about how to use bitkeeper.  I 
+> don't expect nor want to go there to learn about how to send a patch to 
+> Linus.  It's not the appropriate venue for that information.
 
-So that leaves a more selective approach.  We can add a clause that says
-we reserve the right to insist you either
+Could have fooled me.  I thought that getting Linux developers to endorse
+BitKeeper was a key part of Larry's business plan, which, by the way, I
+fully support.  I just don't support the part that turns Documentation
+into a billboard.
 
-    a) maintain your changes in public within 90 days of making them, or
-    b) buy closed use seats, or
-    c) cease to use the product.
-
-and then apply it to the abusers of the system.  I understand this is 
-still a scary thing in that there is no guarentee that we won't knock 
-on your door, but the reality is that people always find ways to 
-avoid the intent of licenses and we need some recourse.  At least this
-way doesn't force this upon everyone, you have to exhibit some bad
-behaviour in order for us to notice.
-
-If you have a better idea on how to shut down the abusers without scaring
-the legit users, I'm all ears.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Daniel

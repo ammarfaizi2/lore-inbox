@@ -1,76 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264450AbUEJCJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264488AbUEJCMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbUEJCJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 22:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264452AbUEJCJ2
+	id S264488AbUEJCMT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 22:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbUEJCMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 22:09:28 -0400
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:50354 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264450AbUEJCJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 22:09:25 -0400
-Date: Sun, 9 May 2004 19:08:41 -0700
-Mime-Version: 1.0 (Apple Message framework v553)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: No idea...
-From: Brandon Lewis <dotsony@earthlink.net>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Message-Id: <F57F09EB-A226-11D8-BDEA-003065D7CDC2@earthlink.net>
-X-Mailer: Apple Mail (2.553)
+	Sun, 9 May 2004 22:12:19 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:58011 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264488AbUEJCLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 22:11:46 -0400
+Date: Sun, 9 May 2004 19:11:42 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+Message-ID: <20040510021141.GA10760@taniwha.stupidest.org>
+References: <1084152941.22837.21.camel@vertex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1084152941.22837.21.camel@vertex>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I have an Alpha XL 266, running a fairly current unstable release 
-of debian. I recently tried to compile 2.6.5 stable. The machine has an 
-ISA sound card, which has sticker on it which says it's a SoundBlaster 
-AWE32 PnP, though the isapnp tools do not detect any boards at all. I 
-enabled the PNP BIOS options and the damn thing errored out during 
-compile.
+On Sun, May 09, 2004 at 09:35:41PM -0400, John McCutchan wrote:
 
-all through the compile process I kept seeing shit like
+> The two biggest complaints people have about dnotify are
+>
+> 1) dnotify delivers events using signals.
 
-LD      drivers/net/tulip/built-in.o
-   LD      drivers/net/built-in.o
-   CC [M]  drivers/net/pppox.o
-{standard input}: Assembler messages:
-{standard input}:70: Warning: setting incorrect section attributes for 
-.got
-   CC [M]  drivers/net/pppoe.o
-{standard input}: Assembler messages:
-{standard input}:70: Warning: setting incorrect section attributes for 
-.got
-   LD      drivers/parport/built-in.o
-   CC [M]  drivers/parport/share.o
-{standard input}: Assembler messages:
-{standard input}:70: Warning: setting incorrect section attributes for 
-.got
-   CC [M]  drivers/parport/ieee1284.o
-{standard input}: Assembler messages:
-{standard input}:70: Warning: setting incorrect section attributes for 
-.got
-   CC [M]  drivers/parport/ieee1284_ops.o
-{standard input}: Assembler messages:
+is that really a problem?
+
+>
+> 2) dnotify needs a file to be kept open on the device, causing
+> problems during unmount.
+
+i never thought of that...  what about
+
+3) dnotify cannot easily watch changes for a directory hierarchy
+
+> @@ -127,6 +128,7 @@
+>  	return dn_mask;
+>  }
+>
+> +
+>  int notify_change(struct dentry * dentry, struct iattr * attr)
+>  {
+>  	struct inode *inode = dentry->d_inode;
+
+plz don't add unnecessary whitespace
+
+> diff -ru clean/linux-2.6.5/fs/inode.c linux-2.6.5/fs/inode.c
+> +++ linux-2.6.5/fs/inode.c	2004-05-09 21:10:12.000000000 -0400
+> @@ -151,6 +151,10 @@
+>  			mapping->backing_dev_info = sb->s_bdev->bd_inode->i_mapping->backing_dev_info;
+>  		memset(&inode->u, 0, sizeof(inode->u));
+>  		inode->i_mapping = mapping;
+> +
+> +		INIT_LIST_HEAD(&inode->watchers);
+> +		atomic_set (&inode->watcher_count, 0);
+                          ^
+
+whitespace after if/for/while but not functions:
+
+ if (..)
+ func(...)
+
+> +#define INOTIFY_MINOR 99
+
+there is a registry for these, i think you can use -1 (to get one
+dynamically allocated) if you've not been assigned one
+
+> #define MAX_WATCHER_COUNT 8 /* We only support 8 watchers */
+
+seems like this could be a problem for gui stuff
+
+> #define MAX_WATCH_COUNT 128 /* A watcher can only be watching 128 inodes */
+
+likewise
+
+> static int watcher_count = 0;
+
+global variables don't need explicitly initialized to zero and in fact
+this will make the kernel larger when using older gcc versions
+
+> /* A list of these structures is attached to each inode that is being watched.
+>  *  * each item in the list represents a unique watcher.
+>  *   * it tell us what events we are looking at and who is watching the inode.
+>  *    */
+
+heh, odd comment style
+
+> struct inotify_event {
+>         struct list_head        list;
+>         unsigned long           i_no;
+>         unsigned long           i_dev;
+>         unsigned long           mask;
+> };
+
+i'm not so sure using unsigned long is a good idea here,  it's size
+varies depending on arch (also consider 32-bit code on 64-bit
+platforms)
+
+we might also have a 64-bit ino_t on i386 some day?  (what a revolting
+idea but we have PAE, etc. so it's possible)
+
+> 		if (watcher->private_data == dev)
+> 		{
+> 			return watcher;
+> 		}
+
+minor nit:
+
+	if (...)
+	   return ...;
+
+> 	if (NULL != watcher) {
+
+i really hate that, what is wrong with
+
+  if (watcher)
+
+> 	list_for_each_entry (watch, dev->watch, list)
+
+  list_for_each_entry (...) {
+
+> static char inotify_dev_has_events (struct inotify_device *dev)
+> {
+> 	return dev->events && !list_empty(dev->events);
+> }
+
+why does this need to be a separate function?
+
+> static int __init inotify_init (void)
+> {
+> 	int ret;
+>
+> 	ret = misc_register (&inotify_device);
+>
+> 	if (ret) {
+> 		goto out;
+> 	}
+>
+> 	ret = 0;
+
+if we got here, ret must be 0
 
 
-no idea what that's about, but I wouldn't have cared if some time later 
-the thing hadn't errored out all together.
 
-   CC      drivers/pnp/pnpbios/core.o
-drivers/pnp/pnpbios/core.c:60:22: asm/desc.h: No such file or directory
-drivers/pnp/pnpbios/core.c: In function `pnpbios_init':
-drivers/pnp/pnpbios/core.c:504: error: `dmi_broken' undeclared (first 
-use in this function)
-drivers/pnp/pnpbios/core.c:504: error: (Each undeclared identifier is 
-reported only once
-drivers/pnp/pnpbios/core.c:504: error: for each function it appears in.)
-drivers/pnp/pnpbios/core.c:504: error: `BROKEN_PNP_BIOS' undeclared 
-(first use in this function)
-make[3]: *** [drivers/pnp/pnpbios/core.o] Error 1
-make[2]: *** [drivers/pnp/pnpbios] Error 2
-make[1]: *** [drivers/pnp] Error 2
-make: *** [drivers] Error 2
-
-don't know wtf this is all about...but i'd sure like to use my sound 
-card at some point...
-
+  --cw

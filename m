@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286295AbRLTQ7w>; Thu, 20 Dec 2001 11:59:52 -0500
+	id <S286292AbRLTREc>; Thu, 20 Dec 2001 12:04:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286294AbRLTQ7m>; Thu, 20 Dec 2001 11:59:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23886 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S286293AbRLTQ7Y>; Thu, 20 Dec 2001 11:59:24 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
-In-Reply-To: <200112181605.KAA00820@tomcat.admin.navo.hpc.mil>
-	<m18zbzwp34.fsf@frodo.biederman.org> <3C205FBC.60307@zytor.com>
-	<m1zo4fursh.fsf@frodo.biederman.org>
-	<9vrlef$mat$1@cesium.transmeta.com>
-	<m1r8pqv1w3.fsf@frodo.biederman.org> <3C218BF3.6010603@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Dec 2001 09:39:02 -0700
-In-Reply-To: <3C218BF3.6010603@zytor.com>
-Message-ID: <m1n10dvobd.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S286293AbRLTREW>; Thu, 20 Dec 2001 12:04:22 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:28600 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286292AbRLTREO>; Thu, 20 Dec 2001 12:04:14 -0500
+To: mingo@elte.hu (Ingo Molnar)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, jamesclv@us.ibm.com
+Subject: Re: [PATCH] MAX_MP_BUSSES increase
+In-Reply-To: <Pine.LNX.4.33.0112192154190.19321-100000@penguin.transmeta.com> <Pine.LNX.4.33.0112201405550.6212-100000@localhost.localdomain>
+From: Andi Kleen <ak@muc.de>
+Date: 20 Dec 2001 18:03:36 +0100
+In-Reply-To: mingo@elte.hu's message of "Thu, 20 Dec 2001 11:13:10 +0000 (UTC)"
+Message-ID: <m3y9jxesd3.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+mingo@elte.hu (Ingo Molnar) writes:
 
-> My comment was mostly that there is a persistent myth that you can't use the x86
-> firmware from protected mode.  You can't, directly, but you can get the
-> functionality through other means.  This is hardly a new technique; in fact,
-> it's very similar to the DOS extenders of old times; in fact, it's somewhat
-> simpler.
+> On Wed, 19 Dec 2001, Linus Torvalds wrote:
+> 
+> > > Marcello and Linus, please apply.
+> >
+> > Can you give a rough description of what kinds of arrays this will
+> > impact, just out of curiosity. Ie do we talk about "5kB more memory in
+> > order to avoid problems", or are we talking about something
+> > noticeable..
+> >
+> > 		Linus "too lazy to grep" Torvalds
+> 
+> the change is OK, it's about +3K RAM used, on SMP kernels.
 
-Agreed.  And to completely dispel the myth.  Etherboot has been doing
-something similar for years.  It disables interrupts in 32bit mode so
-it doesn't have quite as much work to do but otherwise it is pretty
-much the same picture.
+hmm, I come more to 11K (most of it in mp_irqs) 
+... which could be easily allocated with the bootmem allocator at parse time.
 
-I finally tracked down the reason why Setup.S is run in real mode,
-instead of being called from protected mode.  And that is in extremely
-hostile environments (like loadlin works in) loading the kernel wrecks
-the firmware callbacks.  So you must do your BIOS calls as a special
-case before you switch to protected mode.
-
-Eric
+-Andi

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273622AbRKVJv4>; Thu, 22 Nov 2001 04:51:56 -0500
+	id <S275693AbRKVKJI>; Thu, 22 Nov 2001 05:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275126AbRKVJvq>; Thu, 22 Nov 2001 04:51:46 -0500
-Received: from mout04.kundenserver.de ([195.20.224.89]:28437 "EHLO
-	mout04.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S273622AbRKVJvg> convert rfc822-to-8bit; Thu, 22 Nov 2001 04:51:36 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: "H. Peter Anvin" <hpa@zytor.com>, war <war@starband.net>
-Subject: Re: Swap vs No Swap.
-Date: Thu, 22 Nov 2001 10:50:45 +0100
-X-Mailer: KMail [version 1.3.1]
+	id <S275265AbRKVKI6>; Thu, 22 Nov 2001 05:08:58 -0500
+Received: from ns.caldera.de ([212.34.180.1]:55683 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S275693AbRKVKIo>;
+	Thu, 22 Nov 2001 05:08:44 -0500
+Date: Thu, 22 Nov 2001 11:08:28 +0100
+Message-Id: <200111221008.fAMA8Sa04042@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: rusty@rustcorp.com.au (Rusty Russell)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <3BFC8D81.E25238D1@starband.net> <3BFC8DE8.7040202@zytor.com>
-In-Reply-To: <3BFC8DE8.7040202@zytor.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <E166qVo-0001Bv-00@mrvdom03.schlund.de>
+Subject: Re: [PATCH] Updated parameter and modules rewrite (2.4.14)
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <E166p1R-0004ll-00@wagner>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Yeah, but when the disk starts swapping the system slows down to a halt.
-> No, when the disk starts *THRASHING* the system slows down to a halt.
-> If you are thrashing with swap you would be thrashing much worse without
-> swap.
+In article <E166p1R-0004ll-00@wagner> you wrote:
+> Hi all,
+>
+>    http://ftp.kernel.org/pub/linux/kernel/people/rusty
+>
+> 	Unified boot/module parameter and module loader rewrite
+> updated to 2.4.14.  I'm off to Linux Kongress, so I'll be difficult to
+> contact for 10 days or so.
 
-Not neccessarily. 
-Your swap early swap often paradigma works fine...as long as the swap 
-partition resides on an standalone harddisk without a data partition.
+I absolutly oppose to the cosmetic naming changes.
 
-But imagine the situation that you have a higher band width streaming 
-application - e.g. viewing a video file.  On the same hard disc there is a 
-swap partition. Cache is getting bigger and bigger until kernel starts to 
-swap.
-Now the swapping algorithm writes on the harddisc. That troubles the  hard 
-disc elevation mechanism, so  that higher bandwidth readings starve, due to 
-head movements away from the data partitions towards the swap partition.
+Please let module be be initialized by module_init() and exited by
+module_exit().  We had a hard enough time to get it everywhere, not
+to mention the name makes a lot of sense.
 
-greetings
+Also MODULE_PARAM should just stay, combined with Keith's proposal
+to use it at boottime aswell (as KBUILD_OBJECT.<paramname>).
 
-Christian Bornträger
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

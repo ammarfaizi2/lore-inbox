@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264409AbUFPSVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264405AbUFPSZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264409AbUFPSVl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUFPSVl
+	id S264405AbUFPSZH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUFPSZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:21:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32986 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264375AbUFPSVc
+	Wed, 16 Jun 2004 14:25:06 -0400
+Received: from smtp-out2.xs4all.nl ([194.109.24.12]:36357 "EHLO
+	smtp-out2.xs4all.nl") by vger.kernel.org with ESMTP id S264405AbUFPSYu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:21:32 -0400
-Date: Wed, 16 Jun 2004 19:21:31 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Vladislav Bolkhovitin <vst@vlnb.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generic SCSI Target Middle Level for Linux (SCST) with target drivers
-Message-ID: <20040616182131.GV20511@parcelfarce.linux.theplanet.co.uk>
-References: <40D075DA.2000007@vlnb.net>
+	Wed, 16 Jun 2004 14:24:50 -0400
+Date: Wed, 16 Jun 2004 20:24:15 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: accelerated radeonfb produces artifacts on scrolling in 2.6.7
+Message-ID: <20040616182415.GA8286@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40D075DA.2000007@vlnb.net>
-User-Agent: Mutt/1.4.1i
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 08:31:22PM +0400, Vladislav Bolkhovitin wrote:
-> Any comments would be appreciated.
+The radeonfb driver in 2.6.7 produces some interesting artifacts on
+scrolling, both scrolling horizontally and vertically.
 
-The first obvious question is: Why does this need to be done in kernel
-space?  My impression was that an iSCSI target would best be done in
-userspace.
+When scrolling vertically (in mutt, in slrn, in less) some lines
+move horizontally, and corruption occurs. Not all scrolling produces
+artifacts, but fairly often.
 
+When scrolling horizontally (most obvious in angband -mcu with the
+option 'keep the screen centered' on) corruption appears at once.
+
+Booting with 'noaccel' fixes the problems, but is slow, of course.
+
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AQ [Radeon 9600]
+
+Kernel command line: root=/dev/md3 video=radeonfb:1600x1200-16@85
+radeonfb: Found Intel x86 BIOS ROM Image
+radeonfb: Retreived PLL infos from BIOS
+radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=324.00 Mhz, System=182.00 MHz
+radeonfb: Monitor 1 type CRT found
+radeonfb: EDID probed
+radeonfb: Monitor 2 type no found
+radeonfb: ATI Radeon AQ  SDR SGRAM 128 MB
+Console: switching to colour frame buffer device 133x54
+
+Any hints would be appreciated.
+
+Jurriaan
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+All lies all lies all schemes all schemes
+Every winner means a loser in the western dream.
+	News Model Army - Western Dream
+Debian (Unstable) GNU/Linux 2.6.7-rc3-mm2 2x6078 bogomips load load 1.74

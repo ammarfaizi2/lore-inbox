@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264422AbTE0W5F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTE0W5E
+	id S264403AbTE0Wv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264416AbTE0Wv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:57:04 -0400
-Received: from dp.samba.org ([66.70.73.150]:53656 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264422AbTE0W5E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:57:04 -0400
-From: Paul Mackerras <paulus@samba.org>
+	Tue, 27 May 2003 18:51:26 -0400
+Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:36846 "EHLO
+	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S264403AbTE0WvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:51:25 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.70-mm1
+Date: Tue, 27 May 2003 19:05:24 -0400
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030527004255.5e32297b.akpm@digeo.com> <200305271633.40421.tomlins@cam.org> <20030527134946.7ffd524d.akpm@digeo.com>
+In-Reply-To: <20030527134946.7ffd524d.akpm@digeo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16083.61404.354044.232004@nanango.paulus.ozlabs.org>
-Date: Wed, 28 May 2003 09:08:12 +1000 (EST)
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fix controlfb and platinumfb drivers
-In-Reply-To: <Pine.LNX.4.44.0305272328300.26160-100000@phoenix.infradead.org>
-References: <16079.23061.979768.135318@argo.ozlabs.ibm.com>
-	<Pine.LNX.4.44.0305272328300.26160-100000@phoenix.infradead.org>
-X-Mailer: VM 6.75 under Emacs 20.7.2
+Message-Id: <200305271905.24181.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons writes:
+On May 27, 2003 04:49 pm, Andrew Morton wrote:
+> Ed Tomlinson <tomlins@cam.org> wrote:
+> > Hi Andrew,
+> >
+> > This one oops on boot 2 out of 3 tries.
+> >
+> > ...
+> > EIP is at load_module+0x7c5/0x800
+>
+> -mm has modules changes.  Is CONFIG_DEBUG_PAGEALLOC enabled?
 
-> Applied. Tho it is strnage. You shouldn't need to call fb_set_var from the 
-> driver. 
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_SLAB=y
+# CONFIG_DEBUG_IOVIRT is not set
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_SPINLINE is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+CONFIG_KALLSYMS=y
+CONFIG_DEBUG_SPINLOCK_SLEEP=y
+# CONFIG_KGDB is not set
+CONFIG_DEBUG_INFO=y
+CONFIG_FRAME_POINTER=y
 
-It's just convenient to use fb_set_var to get the hardware set to the
-initial mode.  Would it be better to call controlfb_check_var,
-controlfb_set_par, etc., directly?
+No.  I have been running 69-mm8 for several days without problems.   It 
+would seem to be an initialization problem, 70-mm1 has now been 3 hours
+here.
 
-Paul.
+Ed
+
+
+

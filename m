@@ -1,99 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVCYV42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVCYV5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVCYV42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 16:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVCYV41
+	id S261831AbVCYV5j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 16:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCYV5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 16:56:27 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:50913 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261832AbVCYVy4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 16:54:56 -0500
-Subject: [RFC][PATCH 4/4] Introduce new Kconfig option for NUMA or DISCONTIG
+	Fri, 25 Mar 2005 16:57:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:65524 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261831AbVCYVyx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 16:54:53 -0500
+Subject: [RFC][PATCH 3/4] update all defconfigs for ARCH_DISCONTIGMEM_ENABLE
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 25 Mar 2005 13:54:54 -0800
-Message-Id: <E1DEwla-0006Xi-00@kernel.beaverton.ibm.com>
+Date: Fri, 25 Mar 2005 13:54:50 -0800
+Message-Id: <E1DEwlW-0006Nz-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-There is some confusion that arose when working on SPARSEMEM patch
-between what is needed for DISCONTIG vs. NUMA.
-
-Multiple pg_data_t's are needed for DISCONTIGMEM or NUMA,
-independently.  All of the current NUMA implementations require an
-implementation of DISCONTIG.  Because of this, quite a lot of code
-which is really needed for NUMA is actually under DISCONTIG #ifdefs.
-For SPARSEMEM, we changed some of these #ifdefs to CONFIG_NUMA, but
-that broke the DISCONTIG=y and NUMA=n case.
-
-Introducing this new NEED_MULTIPLE_NODES config option allows code
-that is needed for both NUMA or DISCONTIG to be separated out from
-code that is specific to DISCONTIG.
-
-One great advantage of this approach is that it doesn't require
-every architecture to be converted over.  All of the current
-implementations should "just work", only the ones implementing
-SPARSEMEM will have to be fixed up.
-
+This will at least suppress one prompt that users would have
+received the first time they compile with the new DISCONTIG
+arch option.  They'll still get the "Memory Model" prompt,
+but 99% of them will have the default work there.
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- memhotplug-dave/include/linux/mmzone.h |    6 +++---
- memhotplug-dave/mm/page_alloc.c        |    6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86_64/defconfig                                |    0 
+ memhotplug-dave/arch/alpha/defconfig                 |    2 +-
+ memhotplug-dave/arch/ia64/configs/sn2_defconfig      |    2 +-
+ memhotplug-dave/arch/ia64/defconfig                  |    2 +-
+ memhotplug-dave/arch/mips/configs/ip27_defconfig     |    2 +-
+ memhotplug-dave/arch/ppc64/configs/pSeries_defconfig |    2 +-
+ memhotplug-dave/arch/ppc64/defconfig                 |    2 +-
+ 7 files changed, 6 insertions(+), 6 deletions(-)
 
-diff -puN include/linux/mmzone.h~B-sparse-140-separate-NUMA-DISCONTIG include/linux/mmzone.h
---- memhotplug/include/linux/mmzone.h~B-sparse-140-separate-NUMA-DISCONTIG	2005-03-25 08:08:25.000000000 -0800
-+++ memhotplug-dave/include/linux/mmzone.h	2005-03-25 08:08:25.000000000 -0800
-@@ -385,7 +385,7 @@ int lowmem_reserve_ratio_sysctl_handler(
- /* Returns the number of the current Node. */
- #define numa_node_id()		(cpu_to_node(_smp_processor_id()))
- 
--#ifndef CONFIG_DISCONTIGMEM
-+#ifndef CONFIG_NEED_MULTIPLE_NODES
- 
- extern struct pglist_data contig_page_data;
- #define NODE_DATA(nid)		(&contig_page_data)
-@@ -393,11 +393,11 @@ extern struct pglist_data contig_page_da
- #define MAX_NODES_SHIFT		1
- #define pfn_to_nid(pfn)		(0)
- 
--#else /* CONFIG_DISCONTIGMEM */
-+#else /* CONFIG_NEED_MULTIPLE_NODES */
- 
- #include <asm/mmzone.h>
- 
--#endif /* !CONFIG_DISCONTIGMEM */
-+#endif /* !CONFIG_NEED_MULTIPLE_NODES */
- 
- #if BITS_PER_LONG == 32 || defined(ARCH_HAS_ATOMIC_UNSIGNED)
- /*
-diff -puN mm/page_alloc.c~B-sparse-140-separate-NUMA-DISCONTIG mm/page_alloc.c
---- memhotplug/mm/page_alloc.c~B-sparse-140-separate-NUMA-DISCONTIG	2005-03-25 08:08:25.000000000 -0800
-+++ memhotplug-dave/mm/page_alloc.c	2005-03-25 08:08:25.000000000 -0800
-@@ -1765,18 +1765,18 @@ void __init free_area_init_node(int nid,
- 	free_area_init_core(pgdat, zones_size, zholes_size);
- }
- 
--#ifndef CONFIG_DISCONTIGMEM
-+#ifndef CONFIG_NEED_MULTIPLE_NODES
- static bootmem_data_t contig_bootmem_data;
- struct pglist_data contig_page_data = { .bdata = &contig_bootmem_data };
- 
- EXPORT_SYMBOL(contig_page_data);
-+#endif
- 
- void __init free_area_init(unsigned long *zones_size)
- {
--	free_area_init_node(0, &contig_page_data, zones_size,
-+	free_area_init_node(0, NODE_DATA(0), zones_size,
- 			__pa(PAGE_OFFSET) >> PAGE_SHIFT, NULL);
- }
--#endif
- 
- #ifdef CONFIG_PROC_FS
- 
+diff -puN arch/alpha/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/alpha/defconfig
+--- memhotplug/arch/alpha/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG	2005-03-25 08:08:24.000000000 -0800
++++ memhotplug-dave/arch/alpha/defconfig	2005-03-25 08:08:24.000000000 -0800
+@@ -96,7 +96,7 @@ CONFIG_ALPHA_CORE_AGP=y
+ CONFIG_ALPHA_BROKEN_IRQ_MASK=y
+ CONFIG_EISA=y
+ # CONFIG_SMP is not set
+-# CONFIG_DISCONTIGMEM is not set
++# CONFIG_ARCH_DISCONTIGMEM_ENABLE is not set
+ CONFIG_VERBOSE_MCHECK=y
+ CONFIG_VERBOSE_MCHECK_ON=1
+ CONFIG_PCI_LEGACY_PROC=y
+diff -puN arch/arm/configs/a5k_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/a5k_defconfig
+diff -puN arch/arm/configs/assabet_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/assabet_defconfig
+diff -puN arch/arm/configs/badge4_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/badge4_defconfig
+diff -puN arch/arm/configs/cerfcube_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/cerfcube_defconfig
+diff -puN arch/arm/configs/clps7500_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/clps7500_defconfig
+diff -puN arch/arm/configs/edb7211_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/edb7211_defconfig
+diff -puN arch/arm/configs/footbridge_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/footbridge_defconfig
+diff -puN arch/arm/configs/fortunet_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/fortunet_defconfig
+diff -puN arch/arm/configs/h3600_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/h3600_defconfig
+diff -puN arch/arm/configs/hackkit_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/hackkit_defconfig
+diff -puN arch/arm/configs/jornada720_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/jornada720_defconfig
+diff -puN arch/arm/configs/lart_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/lart_defconfig
+diff -puN arch/arm/configs/lpd7a400_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/lpd7a400_defconfig
+diff -puN arch/arm/configs/lpd7a404_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/lpd7a404_defconfig
+diff -puN arch/arm/configs/lusl7200_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/lusl7200_defconfig
+diff -puN arch/arm/configs/neponset_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/neponset_defconfig
+diff -puN arch/arm/configs/omnimeter_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/omnimeter_defconfig
+diff -puN arch/arm/configs/pleb_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/pleb_defconfig
+diff -puN arch/arm/configs/shannon_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/shannon_defconfig
+diff -puN arch/arm/configs/simpad_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/arm/configs/simpad_defconfig
+diff -puN arch/ia64/configs/sn2_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/ia64/configs/sn2_defconfig
+--- memhotplug/arch/ia64/configs/sn2_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG	2005-03-25 08:08:24.000000000 -0800
++++ memhotplug-dave/arch/ia64/configs/sn2_defconfig	2005-03-25 08:08:24.000000000 -0800
+@@ -78,7 +78,7 @@ CONFIG_IA64_L1_CACHE_SHIFT=7
+ CONFIG_NUMA=y
+ CONFIG_VIRTUAL_MEM_MAP=y
+ CONFIG_HOLES_IN_ZONE=y
+-CONFIG_DISCONTIGMEM=y
++CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+ # CONFIG_IA64_CYCLONE is not set
+ CONFIG_IOSAPIC=y
+ CONFIG_IA64_SGI_SN_SIM=y
+diff -puN arch/ia64/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/ia64/defconfig
+--- memhotplug/arch/ia64/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG	2005-03-25 08:08:24.000000000 -0800
++++ memhotplug-dave/arch/ia64/defconfig	2005-03-25 08:08:24.000000000 -0800
+@@ -77,7 +77,7 @@ CONFIG_IA64_PAGE_SIZE_16KB=y
+ CONFIG_IA64_L1_CACHE_SHIFT=7
+ CONFIG_NUMA=y
+ CONFIG_VIRTUAL_MEM_MAP=y
+-CONFIG_DISCONTIGMEM=y
++CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+ CONFIG_IA64_CYCLONE=y
+ CONFIG_IOSAPIC=y
+ CONFIG_FORCE_MAX_ZONEORDER=18
+diff -puN arch/m32r/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/defconfig
+diff -puN arch/m32r/m32700ut/defconfig.m32700ut.smp~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/m32700ut/defconfig.m32700ut.smp
+diff -puN arch/m32r/m32700ut/defconfig.m32700ut.up~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/m32700ut/defconfig.m32700ut.up
+diff -puN arch/m32r/mappi/defconfig.nommu~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/mappi/defconfig.nommu
+diff -puN arch/m32r/mappi/defconfig.smp~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/mappi/defconfig.smp
+diff -puN arch/m32r/mappi/defconfig.up~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/mappi/defconfig.up
+diff -puN arch/m32r/mappi2/defconfig.vdec2~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/mappi2/defconfig.vdec2
+diff -puN arch/m32r/oaks32r/defconfig.nommu~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/oaks32r/defconfig.nommu
+diff -puN arch/m32r/opsput/defconfig.opsput~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/m32r/opsput/defconfig.opsput
+diff -puN arch/mips/configs/ip27_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/mips/configs/ip27_defconfig
+--- memhotplug/arch/mips/configs/ip27_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG	2005-03-25 08:08:24.000000000 -0800
++++ memhotplug-dave/arch/mips/configs/ip27_defconfig	2005-03-25 08:08:24.000000000 -0800
+@@ -82,7 +82,7 @@ CONFIG_STOP_MACHINE=y
+ # CONFIG_SGI_IP22 is not set
+ CONFIG_SGI_IP27=y
+ # CONFIG_SGI_SN0_N_MODE is not set
+-CONFIG_DISCONTIGMEM=y
++CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+ CONFIG_NUMA=y
+ # CONFIG_MAPPED_KERNEL is not set
+ # CONFIG_REPLICATE_KTEXT is not set
+diff -puN arch/parisc/configs/712_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/parisc/configs/712_defconfig
+diff -puN arch/parisc/configs/a500_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/parisc/configs/a500_defconfig
+diff -puN arch/parisc/configs/c3000_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/parisc/configs/c3000_defconfig
+diff -puN arch/ppc64/configs/pSeries_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/ppc64/configs/pSeries_defconfig
+--- memhotplug/arch/ppc64/configs/pSeries_defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG	2005-03-25 08:08:24.000000000 -0800
++++ memhotplug-dave/arch/ppc64/configs/pSeries_defconfig	2005-03-25 08:08:24.000000000 -0800
+@@ -82,7 +82,7 @@ CONFIG_IBMVIO=y
+ CONFIG_IOMMU_VMERGE=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=128
+-CONFIG_DISCONTIGMEM=y
++CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+ CONFIG_NUMA=y
+ CONFIG_SCHED_SMT=y
+ # CONFIG_PREEMPT is not set
+diff -puN arch/ppc64/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/ppc64/defconfig
+--- memhotplug/arch/ppc64/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG	2005-03-25 08:08:24.000000000 -0800
++++ memhotplug-dave/arch/ppc64/defconfig	2005-03-25 08:08:24.000000000 -0800
+@@ -84,7 +84,7 @@ CONFIG_BOOTX_TEXT=y
+ CONFIG_IOMMU_VMERGE=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=32
+-CONFIG_DISCONTIGMEM=y
++CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+ # CONFIG_NUMA is not set
+ # CONFIG_SCHED_SMT is not set
+ # CONFIG_PREEMPT is not set
+diff -puN arch/x86_64/defconfig~A8-update-all-defconfigs-for-ARCH...DISCONTIG arch/x86_64/defconfig
 _

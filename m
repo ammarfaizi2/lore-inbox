@@ -1,114 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290860AbSAaDJL>; Wed, 30 Jan 2002 22:09:11 -0500
+	id <S290862AbSAaDLB>; Wed, 30 Jan 2002 22:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290862AbSAaDJC>; Wed, 30 Jan 2002 22:09:02 -0500
-Received: from [208.179.59.195] ([208.179.59.195]:1075 "EHLO
-	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
-	id <S290860AbSAaDIs>; Wed, 30 Jan 2002 22:08:48 -0500
-Message-ID: <3C58B4EC.1030504@blue-labs.org>
-Date: Wed, 30 Jan 2002 22:07:24 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020128
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel -- GCC Version
-In-Reply-To: <055301c1a9f3$af5f73e0$ed00000a@citrix.bjstuff.com> <20020130203726.B28451@animx.eu.org>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms090601030808090301000701"
+	id <S290867AbSAaDKv>; Wed, 30 Jan 2002 22:10:51 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:54243 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S290862AbSAaDKn>;
+	Wed, 30 Jan 2002 22:10:43 -0500
+Date: Wed, 30 Jan 2002 22:10:41 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Benjamin Pharr <ben@benpharr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux/zutil.h
+Message-ID: <20020130221041.B22862@havoc.gtf.org>
+In-Reply-To: <20020131024809.GA12041@hst000004380um.kincannon.olemiss.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020131024809.GA12041@hst000004380um.kincannon.olemiss.edu>; from ben@benpharr.com on Wed, Jan 30, 2002 at 08:48:09PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Wed, Jan 30, 2002 at 08:48:09PM -0600, Benjamin Pharr wrote:
+> deflate.c:52: linux/zutil.h: No such file or directory
 
---------------ms090601030808090301000701
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-I've been building everything with 3.0.x and haven't had any problems, 
-half a dozen machines and several months running.
-
--d
-
-Wakko Warner wrote:
-
->>I've looked on kernel.org, in the kernel sources, it its not really clear,
->>from what I would see. If someone could tell me exactly what are the best
->>and/or what Linus uses versions of gcc, etc. for compiling the different
->>kernels? (2.0/2.2/2.4/2.5) Thanks!
->>
->
->I don't recommend gcc 3.0 for kernel compiles as I had problems with it on
->the system I tried it on.
->
-
-
---------------ms090601030808090301000701
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJYDCC
-Aw4wggJ3oAMCAQICAwZepDANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
-BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
-HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
-bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAxMTIyMjA4MzkyMFoXDTAyMTIyMjA4MzkyMFowSjEf
-MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEnMCUGCSqGSIb3DQEJARYYZGF2aWQr
-Y2VydEBibHVlLWxhYnMub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsoCV
-YNGPjureulr7FgVUurk6LiiozxKNqk7YgdbsUZoZ80KCKIjveE7ukwKi6A980uA9lJxXWqcU
-RVu/SHCt/G/DXXu4WXrcQR8mflKbISnGAVPKKN4LiZZEbFZ/RxZgUQ/2OzOGt00oHuQ1TvWX
-NPxKYxwUhVLh4tw9XlNDK7qQHdanp5mzuZdpuMgq1pilDdhYa5i/L87f7aF0SoDKlCBvnhSw
-LNe2BV6NBXNhhgJE6dz6qD9B8cgsSZWccHFjFF4lO23hMl/DlFK0GMa7DcWfz891+0dI39w2
-KO7wg8FUVnzrZHoDAsPZ2vI2O3eowLiGQR5LWq9Ppa02jPjbKwIDAQABozUwMzAjBgNVHREE
-HDAagRhkYXZpZCtjZXJ0QGJsdWUtbGFicy5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0B
-AQIFAAOBgQAEDATO3Nq34ZbuCVE7RQneB2/h5KUSQ1raF8FqnJq9Mr5c12VzlkInI8odiCUB
-etciZCnE1u84bewgh4pu6AhAqfRU3u178fP8zDNILQaHsHjqxbZzmvT9dLyaU2GiaCN+KLZw
-Ws/+HOFJWwNIbRt5nbJ+mGwTHZ2xzc5jVFKG3zCCAw4wggJ3oAMCAQICAwZepDANBgkqhkiG
-9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UE
-BxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNl
-cnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMB4XDTAx
-MTIyMjA4MzkyMFoXDTAyMTIyMjA4MzkyMFowSjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWls
-IE1lbWJlcjEnMCUGCSqGSIb3DQEJARYYZGF2aWQrY2VydEBibHVlLWxhYnMub3JnMIIBIjAN
-BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsoCVYNGPjureulr7FgVUurk6LiiozxKNqk7Y
-gdbsUZoZ80KCKIjveE7ukwKi6A980uA9lJxXWqcURVu/SHCt/G/DXXu4WXrcQR8mflKbISnG
-AVPKKN4LiZZEbFZ/RxZgUQ/2OzOGt00oHuQ1TvWXNPxKYxwUhVLh4tw9XlNDK7qQHdanp5mz
-uZdpuMgq1pilDdhYa5i/L87f7aF0SoDKlCBvnhSwLNe2BV6NBXNhhgJE6dz6qD9B8cgsSZWc
-cHFjFF4lO23hMl/DlFK0GMa7DcWfz891+0dI39w2KO7wg8FUVnzrZHoDAsPZ2vI2O3eowLiG
-QR5LWq9Ppa02jPjbKwIDAQABozUwMzAjBgNVHREEHDAagRhkYXZpZCtjZXJ0QGJsdWUtbGFi
-cy5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQIFAAOBgQAEDATO3Nq34ZbuCVE7RQne
-B2/h5KUSQ1raF8FqnJq9Mr5c12VzlkInI8odiCUBetciZCnE1u84bewgh4pu6AhAqfRU3u17
-8fP8zDNILQaHsHjqxbZzmvT9dLyaU2GiaCN+KLZwWs/+HOFJWwNIbRt5nbJ+mGwTHZ2xzc5j
-VFKG3zCCAzgwggKhoAMCAQICEGZFcrfMdPXPY3ZFhNAukQEwDQYJKoZIhvcNAQEEBQAwgdEx
-CzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93
-bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBD
-QTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4
-MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2Vz
-dGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
-CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJT
-QSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7Sbngn
-Z4HF2ogZgpcO40QpimM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmF
-zVWaNRqdknWoJ67Ycvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ
-7JRr6aFpAgMBAAGjTjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwx
-LTI5NzASBgNVHRMBAf8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOB
-gQAxsUtHXfkBceX1U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BV
-qGz3Da1MG7wD9LXrokefbKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvK
-PPZE6iZph39Ins6ln+eE2MliYq0FxjGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEV
-MBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRo
-YXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFs
-IEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZepDAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0B
-CQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wMjAxMzEwMzA3MjRaMCMGCSqGSIb3
-DQEJBDEWBBTgQaPgiZEHz35BbsJ0GQD+B4qJPDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3
-DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0D
-AgIBKDCBrQYLKoZIhvcNAQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
-ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYD
-VQQLExRDZXJ0aWZpY2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwg
-UlNBIDIwMDAuOC4zMAIDBl6kMA0GCSqGSIb3DQEBAQUABIIBAJaawpsZmca3/AuoDurb3EbR
-gMq6wI6zukmp648TnvPg5rMlNMhx4KuLrmQVvkECrN10BG3k9XArEnQBZfCtBrqtvubNqkOA
-e3l6fm1bP4sVMVY6VpyxeOXCOyb0Q7Bd0I1/g1GRL+ix8lYpbyJQWjeJHI3GwB1EyYv6CBRf
-Yk9oC8vZxAjDuGC9szQSNK0zAArjyC/rsSLPayfyNhBm8um9S+ynaFSO8JCCfFH11tRqyfOy
-RXQUHuryhUSGDx06cQjK426mTGHzrQOm6GFB9g09PwyM5hYfEVufd6iEMQlpqdNld00hoGN9
-s/oI8ZvzqMAaGs+4+Uio48byOOzBHqwAAAAAAAA=
---------------ms090601030808090301000701--
+cd $MY_SOURCE_TREE
+mv linux/zconf.h linux/zutil.h include/linux
 

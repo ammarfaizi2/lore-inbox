@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263189AbRFEEB6>; Tue, 5 Jun 2001 00:01:58 -0400
+	id <S263193AbRFEEIa>; Tue, 5 Jun 2001 00:08:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbRFEEBs>; Tue, 5 Jun 2001 00:01:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46238 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263189AbRFEEBd>;
-	Tue, 5 Jun 2001 00:01:33 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263201AbRFEEIV>; Tue, 5 Jun 2001 00:08:21 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:21002 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S263193AbRFEEIJ>;
+	Tue, 5 Jun 2001 00:08:09 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15132.22933.859130.119059@pizda.ninka.net>
-Date: Mon, 4 Jun 2001 21:01:25 -0700 (PDT)
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        David Woodhouse <dwmw2@infradead.org>, bjornw@axis.com,
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: Missing cache flush.
-In-Reply-To: <20010605155550.C22741@metastasis.f00f.org>
-In-Reply-To: <13942.991696607@redhat.com>
-	<3B1C1872.8D8F1529@mandrakesoft.com>
-	<15132.15829.322534.88410@pizda.ninka.net>
-	<20010605155550.C22741@metastasis.f00f.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-ID: <15132.23395.553496.50934@argo.ozlabs.ibm.com>
+Date: Tue, 5 Jun 2001 14:09:07 +1000 (EST)
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures
+In-Reply-To: <Pine.NEB.4.33.0106022224480.6994-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <20010530003001.A2864@bacchus.dhis.org>
+	<Pine.NEB.4.33.0106022224480.6994-100000@mimas.fachschaften.tu-muenchen.de>
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk writes:
 
-Chris Wedgwood writes:
- > On Mon, Jun 04, 2001 at 07:03:01PM -0700, David S. Miller wrote:
- > 
- >     The x86 doesn't have dumb caches, therefore it really doesn't
- >     need to flush anything.  Maybe a mb(), but that is it.
- > 
- > What if the memory is erased underneath the CPU being aware of this?
- > In such a way ig generates to bus traffic...
+> (my main concern wasn't whether the "#ifdef __KERNEL__" is correct or not
+> but I was wondering whether there's a reason why it's different on
+> different architectures)
 
-This doesn't happen on x86.  The processor snoops all transactions
-done by other agents to/from main memory.  The processor caches are
-always up to date.
+The only valid reason for userspace programs to be including kernel
+headers is to get definitions that are part of the kernel API.  (And
+in fact others here will go further and assert that there are *no*
+valid reasons for userspace programs to include kernel headers.)
 
-Later,
-David S. Miller
-davem@redhat.com
+If you want some atomic functions or whatever for your userspace
+program and the ones in the kernel look like they would be useful,
+then take a copy of the relevant kernel code if you like, but don't
+include the kernel headers directly.  If you do, you will get bitten
+at some point in the future when we decide to change some internal
+implementation detail in the kernel, and your program suddenly won't
+compile any more.
+
+This is why I added #ifdef __KERNEL__ around most of the contents
+of include/asm-ppc/*.h.  It was done deliberately to flush out those
+programs which are depending on kernel headers when they shouldn't.
+
+Paul.

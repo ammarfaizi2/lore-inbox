@@ -1,56 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbTHaNQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 09:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbTHaNQV
+	id S261941AbTHaNN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 09:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTHaNN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 09:16:21 -0400
-Received: from pasky.ji.cz ([213.226.226.138]:29173 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262035AbTHaNQQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 09:16:16 -0400
-Date: Sun, 31 Aug 2003 15:16:16 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: vojtech@suse.cz, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RESEND] Force mouse detection as imps/2 (and fix my KVM switch)
-Message-ID: <20030831131616.GA5106@pasky.ji.cz>
-Mail-Followup-To: vojtech@suse.cz, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <20030831130619.GA1804@zion.rivenstone.net>
+	Sun, 31 Aug 2003 09:13:58 -0400
+Received: from rgnb-d9b87606.pool.mediaWays.net ([217.184.118.6]:61830 "EHLO
+	pec-84-66.tnt6.m2.uunet.de") by vger.kernel.org with ESMTP
+	id S261941AbTHaNNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 09:13:52 -0400
+Date: Sun, 31 Aug 2003 15:13:13 +0200
+From: M G Berberich <berberic@fmi.uni-passau.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4 experiences
+Message-ID: <20030831131313.GA1049@wiland.intern>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Content-Disposition: inline
-In-Reply-To: <20030831130619.GA1804@zion.rivenstone.net>
 User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Aug 31, 2003 at 03:06:19PM CEST, I got a letter,
-where jhf@rivenstone.net told me, that...
-> diff -urN linux-2.6.0-test4/Documentation/kernel-parameters.txt linux-2.6.0-test4_changed/Documentation/kernel-parameters.txt
-> --- linux-2.6.0-test4/Documentation/kernel-parameters.txt	2003-08-31 08:08:00.000000000 -0400
-> +++ linux-2.6.0-test4_changed/Documentation/kernel-parameters.txt	2003-08-31 08:15:29.000000000 -0400
-> @@ -785,6 +785,8 @@
->  
->  	psmouse_noext	[HW,MOUSE] Disable probing for PS2 mouse protocol extensions
->  
-> +	psmouse_imps2	[HW,MOUSE] Probe only for Intellimouse PS2 mouse protocol extensions
-> +
->  	pss=		[HW,OSS] Personal Sound System (ECHO ESC614)
->  			Format: <io>,<mss_io>,<mss_irq>,<mss_dma>,<mpu_io>,<mpu_irq>
 
-Just a trivial remark - please try to keep this file in more-or-less
-alphabetical order, thanks.
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Kind regards,
+Hello,
 
--- 
- 
-				Petr "Pasky" Baudis
-.
-Perfection is reached, not when there is no longer anything to add, but when
-there is no longer anything to take away.
-	-- Antoine de Saint-Exupery
-.
-Stuff: http://pasky.ji.cz/
+i tried 2.6.0-test on a laptop (Sony Vaio FX502, AMD Mobile Duron
+1GHz)
+
+With a PCMCIA-Modem (ELSA Microlink 56k MC Internet, a V.90 Modem) I
+have only 1/3 throughput with 2.6.0-test4 compared to a 2.4.X kernel
+(which gives the normal throughput for 56k modem).
+
+     Yenta: CardBus bridge found at 0000:00:0a.0 [104d:80f6]
+     Yenta IRQ list 0008, PCI irq11
+     Socket status: 30000010
+     Yenta: CardBus bridge found at 0000:00:0a.1 [104d:80f6]
+     Yenta IRQ list 0008, PCI irq10
+     Socket status: 30000006
+     cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xd3fff 0xdc000-=
+0xdffff 0xe4000-0xfffff
+     serial_cs: RequestIRQ: Unsupported mode
+     ttyS1 at I/O 0x2f8 (irq =3D 0) is a 16550A   =20
+     ...
+     ttyS1: 1 input overrun(s)
+
+pulling the card out I get
+
+     Trying to free nonexistent resource <000002f8-000002ff>
+
+pushing it in again I get:
+
+     serial_cs: RequestIRQ: Unsupported mode
+     ttyS1 at I/O 0x2f8 (irq =3D 0) is a 16550A
+
+lspci says:
+     00:0a.0 CardBus bridge: Texas Instruments PCI1420
+     00:0a.1 CardBus bridge: Texas Instruments PCI1420
+
+So it seems the card is not getting an interrupt with 2.6.0-test4 for
+some reason I don't understand.
+
+BTW: 'serial_cs' has been renamed to '8250-cs' but there are still
+references to 'serial_cs' in source, messages, Kconfig ("The module
+will be called serial_cs.") and Documentation.
+
+I'm not on kernel-mailing-list.
+
+	MfG
+	bmg
+
+--=20
+"Des is v=F6llig wurscht, was heut beschlos- | M G Berberich
+ sen wird: I bin sowieso dagegn!"          | berberic@fmi.uni-passau.de
+(SPD-Stadtrat Kurt Schindler; Regensburg)  |
+
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/UfRpnp4msu7jrxMRAhOaAJ4sYVABfG8KzAPvxY986zbKHw73VgCeJ6MM
+UeC16cudqtXh1IASlz5o5r0=
+=xm1A
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

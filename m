@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270982AbTGVS0m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270981AbTGVS0m
+	id S270984AbTGVSad (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270986AbTGVSad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:26:42 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:51719 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270982AbTGVS0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:26:41 -0400
-Subject: Re: Scheduler starvation (2.5.x, 2.6.0-test1)
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: Tom Felker <tcfelker@mtco.com>, LKML <linux-kernel@vger.kernel.org>,
-       Simon Kirby <sim@netnation.com>
-In-Reply-To: <20030722180442.6c116e1c.martin.zwickel@technotrend.de>
-References: <bUil.2D8.11@gated-at.bofh.it>
-	 <pan.2003.07.22.15.14.44.457281@mtco.com>
-	 <20030722180442.6c116e1c.martin.zwickel@technotrend.de>
-Content-Type: text/plain
-Message-Id: <1058899302.733.1.camel@teapot.felipe-alfaro.com>
+	Tue, 22 Jul 2003 14:30:33 -0400
+Received: from codepoet.org ([166.70.99.138]:54912 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S270984AbTGVSac (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:30:32 -0400
+Date: Tue, 22 Jul 2003 12:45:33 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Promise SATA driver GPL'd
+Message-ID: <20030722184532.GA2321@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Jul 2003 20:41:42 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-22 at 18:04, Martin Zwickel wrote:
-> I have the same problem with 2.6.0-t1-ac2. If I minimize a
-> window, my xmms hangs for a few ms. Same if I browse on some pages and go
-> back/forward.
-> The screen/windows also fills/draws a little bit slow. (well,
-> could be a X/nvidia problem)
-> 
-> I changed back to 2.4.22-p7 and everything works fine.
+Some folk I've done some consulting work for bought a zillion
+Promise SATA cards.  They were able to convince Promise to
+release their SATA driver, which was formerly available only as 
+a binary only kernel module, under the terms of the GPL.
 
-Could you please test 2.6.0-test1-mm2? It includes some scheduler fixes
-from Con Kolivas that will help in reducing or eliminating your
-starvation issues.
+So <drum-roll, trumpets> here it is: the Promise SATA driver for
+the PDC20318, PDC20375, PDC20378, and PDC20618.  This driver is
+released as-is.  It is useful for the
 
-Thank you very much!
+	Promise SATA150 TX4
+	Promise SATA150 TX2plus
+	Promise SATA 378
+	Promise Ultra 618
 
+cards.  As a temporary download location, the GPL'd driver can be
+obtained from http://www.busybox.net/pdc-ultra-1.00.0.10.tgz
+
+Have fun!  And many thanks to Promise for contributing the driver
+for their cards!
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

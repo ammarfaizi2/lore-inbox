@@ -1,60 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268295AbTCFU1K>; Thu, 6 Mar 2003 15:27:10 -0500
+	id <S268332AbTCFU2F>; Thu, 6 Mar 2003 15:28:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268332AbTCFU1K>; Thu, 6 Mar 2003 15:27:10 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:50606 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268295AbTCFU1J>;
-	Thu, 6 Mar 2003 15:27:09 -0500
-Date: Thu, 6 Mar 2003 12:36:01 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: aia21@cantab.net, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
-Message-Id: <20030306123601.0fdcc6ad.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.30.0303062101570.31029-100000@divine.city.tvnet.hu>
-References: <Pine.LNX.4.30.0303062035390.31029-100000@divine.city.tvnet.hu>
-	<Pine.LNX.4.30.0303062101570.31029-100000@divine.city.tvnet.hu>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S268346AbTCFU2E>; Thu, 6 Mar 2003 15:28:04 -0500
+Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:34511 "EHLO
+	www.tnonline.net") by vger.kernel.org with ESMTP id <S268332AbTCFU1w>;
+	Thu, 6 Mar 2003 15:27:52 -0500
+Date: Thu, 6 Mar 2003 21:38:19 +0100
+From: Anders Widman <andewid@tnonline.net>
+X-Mailer: The Bat! (v1.63 Beta/6)
+Reply-To: Anders Widman <andewid@tnonline.net>
+Organization: TNOnline.net
+X-Priority: 3 (Normal)
+Message-ID: <13530625234.20030306213819@tnonline.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Entire LAN goes boo  with 2.5.64
+In-Reply-To: <1328248062.20030306205842@tnonline.net>
+References: <20030306094021$7081@gated-at.bofh.it>
+ <3E679878.2090807@datadirectnet.com> <1328248062.20030306205842@tnonline.net>
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003 21:15:35 +0100 (MET) Szakacsits Szabolcs <szaka@sienet.hu> wrote:
+> Tried  with  a  Realtek  8139B and the Intel Pro100+ adapter. The same
+> thing   happens.   The   LAN   goes  crazy  and all programs trying to
+> access or use the LAN on the Linuxbox goes super-slow or crashes.
 
-| 
-| On Thu, 6 Mar 2003, Szakacsits Szabolcs wrote:
-| > On Thu, 6 Mar 2003, Randy.Dunlap wrote:
-| > > I must have missed something here.  What other 2 oopses are you
-| > > referring to?
-| >
-| > Quoting from your report:
-| >
-| > ==> Mar  1 13:35:44 midway kernel: Oops: 0002
-| >
-| > This means oops counter is 2. So there were two oopses before with
-| > counter value 0 and 1.
-| 
-| I just checked, this is not true (I could dig up the false source
-| of information if interested). It's error_code: no page found,
-| kernel-mode write fault. Sorry for the confusion :(
-| 
-| > > As for closing bug reports because they are not reproducible...
-| >
-| > No. Not because it's not reproducible however because it's untrustable
-| > and bogus. Unless as I mentioned before ... please see above. Thanks!
-| 
-| So this is also invalid ... Could you please send the 'objdump -S
-| fs/ntfs/inode.o' output? The __ntfs_init_inode part would be enough
-| also.
+> I am rather lost when it comes to where I should begin to look.
 
-I'm glad that this little confusion is cleared up.
-I was about to correct it, but you beat me to it.
-However, such an oops counter could be useful...
+> Have not compiled in IPX, network filtering and most other things. The
+> only  network  card  I  have compiled in is the Rtl8139 and the Becker
+> Intel Pro100+ driver.
 
---
-~Randy
+> Here is my net config: http://tnonline.net/conf.png
+
+> I  have  not compiled in ACPI or APM or APIC. And they are disabled in
+> BIOS too.
+
+Tried  with  all  of  them  enabled  too.  No change in state. LAN and
+gateway goes down, or becomes incredibly slow and unusable...
+
+//Anders
+
+
+>> I've had this happen once, but with a 2.4 kernel. I had compiled in IPX
+>> and configured it for autodiscovery of frame type. On boot, it would
+>> flip back and forth between two different types rather fast (as fast as
+>> the 100base NIC could do it), freaking out every piece of networking
+>> equipment and every computer. See if you have IPX compiled in. 
+>> Otherwise, run ethereal or another sniffer to see what exactly the 
+>> network traffic is; that might be helpful.
+
+>> Alexander
+
+>> Anders Widman wrote:
+>>>    Hello,
+>>> 
+>>>    Trying  out  the  2.5.64  kernel  to try to solve some IDE specific
+>>>    problems  with 2.4.x kernels. Now I have another problem. We have a
+>>>    Windows LAN and a Windows XP with WinRoute Pro as gateway.
+>>> 
+>>>    When  booting  the linux-machine with the 2.5.64 kernel the windows
+>>>    machine goes to 100% cpu and the switch (Dlink) goes crazy (loosing
+>>>    link, other machines get 100k/s instead of 10-12MiB/s etc).
+>>> 
+>>>    I  compiled  the  2.5.64  with  as  few  options  as  possible,  no
+>>>    netfilter, or IPSec or similar stuff.
+>>> 
+>>>    What can be the problem?
+>>> 
+>>> 
+>>> --------
+>>> PGP public key: https://tnonline.net/secure/pgp_key.txt
+>>> 
+>>> -
+>>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+   
+
+
+
+> --------
+> PGP public key: https://tnonline.net/secure/pgp_key.txt
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+   
+
+
+
+--------
+PGP public key: https://tnonline.net/secure/pgp_key.txt
+

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264496AbTLMMAP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 07:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbTLMMAP
+	id S264974AbTLMMD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 07:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTLMMD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 07:00:15 -0500
-Received: from mail.epost.de ([193.28.100.165]:18597 "EHLO mail.epost.de")
-	by vger.kernel.org with ESMTP id S264496AbTLMMAJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 07:00:09 -0500
-From: Marcus Blomenkamp <Marcus.Blomenkamp@epost.de>
-To: linux-kernel@vger.kernel.org
-Subject: r8169 GigE driver problem, locks up 2.4.23 NFS subsystem
-Date: Sat, 13 Dec 2003 13:00:05 +0100
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 13 Dec 2003 07:03:59 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:32913 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S264974AbTLMMDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 07:03:54 -0500
+Subject: Re: Linux GPL and binary module exception clause?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Brian Beattie <beattie@beattie-home.net>
+Cc: Andre Hedrick <andre@linux-ide.org>, Linus Torvalds <torvalds@osdl.org>,
+       Larry McVoy <lm@bitmover.com>, Erik Andersen <andersen@codepoet.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1071260775.817.5.camel@kokopelli>
+References: <Pine.LNX.4.10.10312110439550.3805-100000@master.linux-ide.org>
+	 <1071147505.5712.597.camel@hades.cambridge.redhat.com>
+	 <1071260775.817.5.camel@kokopelli>
+Content-Type: text/plain
+Message-Id: <1071317003.14663.4.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7.dwmw2.1) 
+Date: Sat, 13 Dec 2003 12:03:24 +0000
 Content-Transfer-Encoding: 7bit
-Message-Id: <200312131300.05847.Marcus.Blomenkamp@epost.de>
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Fri, 2003-12-12 at 15:26 -0500, Brian Beattie wrote:
+> I'd be willing to bet, that since bathing in creosote is extremely
+> unhealthy, the courts might well find that that restriction was
+> nonsense.  This being the case they might decide that taken as a whole
+> the license was a fraud and grant the public the right to unrestricted
+> use of the product in question.  Especially if the defendants lawyer was
+> particularly good.
 
-Since ugrading from a realtek-8139 based nic to a realtek-6139 gigabit one i 
-am experiencing strange network problems. Particularly it locks up the NFS 
-subsystem on writing to remote files.
+The misuse of copyright defence is _very_ limited, and it's not about
+being reasonable or healthy.
 
-I tried to narrow it down using several TCP/UDP traffic tools such as 
-'netpipe' and 'netcat' and different kernel r8169 driver versions. 
+If I charged money for my licence _and_ made the creosote requirement,
+perhaps the court would be able to find a legal loophole which hasn't
+yet been mentioned.
 
-I restricted the network to a single 100mbit crossover cable between a machine 
-with said gig-nic and a file server which has not been modified yet.
+The court is much less likely to attempt this if the creosote is the
+_only_ thing I'm asking for, and if that's the whole raison d'etre of my
+licence, and the only reason I'm letting you use my work in the first
+place.
 
-File server:	'kartoffel', RTL-8139, linux-2.4.20
-Client machine:	'zwiebel', RTL-8169S, linux-2.4.23-pre9, linux-2.6.0-test11
+Otherwise where does it end? I tell you that you can use my software
+'when Hell freezes over' and since that's also unreasonable you get to
+use it without restriction? :)
 
-I tried 2.4.23-pre9 and 2.6.0-test11 vanilla drivers and a special realtek 
-supplied version for linux-2.4. With respect to basic TCP and UDP transfer 
-their behaviour was identical. However 2.6 NFS subsystem was able to recover 
-from the network stalls, while 2.4 NFS did not release processes from 'D' 
-state.
+-- 
+dwmw2
 
-My suspicion is that something related to UDP datagram to IP-over-ethernet 
-frame fragmentation is broken. TCP transfers in both directions work fine 
-while UDP transmissions over a specific datagram size stall after sending a 
-few k. 
-
-These objections manifest into NFS running fine over TCP and running fine over 
-UDP with wsize<=4096, while standard NFS mount option wsize=8192 fails.
-
-If anyone is interested, i have dmesg output and ethereal log files handy.
-
-Best regards, Marcus
 

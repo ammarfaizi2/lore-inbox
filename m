@@ -1,96 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbUJZWDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbUJZWIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbUJZWDt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 18:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbUJZWDt
+	id S261503AbUJZWIu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 18:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUJZWIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 18:03:49 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:61891 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S261505AbUJZWDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 18:03:36 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>, ajoshi@shell.unixbox.com,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [PATCH] radeonfb: If no video memory, exit with error [repost]
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-MIME-Version: 1.0
-Date: Tue, 26 Oct 2004 16:03:24 -0600
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_smsfB+Zm1X4evqP"
-Message-Id: <200410261603.24434.bjorn.helgaas@hp.com>
+	Tue, 26 Oct 2004 18:08:49 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:3812 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261503AbUJZWIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 18:08:49 -0400
+Date: Tue, 26 Oct 2004 15:08:45 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Would auto setting CONFIG_RTC make sense when building SMP kernel?
+Message-ID: <20041026220845.GA8116@taniwha.stupidest.org>
+References: <Pine.LNX.4.61.0410262108041.3277@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0410262108041.3277@dragon.hygekrogen.localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_smsfB+Zm1X4evqP
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, Oct 26, 2004 at 09:13:19PM +0200, Jesper Juhl wrote:
 
-Posted this last week (10/21) but haven't seen any response.
-Would you consider this for the next -mm?  Also attached in
-case kmail mangles the whitespace.
+> I've been wondering if it would make sense to auto enable CONFIG_RTC
+> when CONFIG_SMP is set?
 
-
-[PATCH] radeonfb: If no video memory, exit with error
-
-Nothing good will happen if we try to ioremap and use a zero-sized
-frame buffer.  I observed this problem on an ia64 sx1000 box, where
-the BIOS doesn't run the option ROM.  If we try to continue, radeonfb
-just gets hopelessly confused because the card isn't initialized
-correctly.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-===== drivers/video/aty/radeon_base.c 1.32 vs edited =====
---- 1.32/drivers/video/aty/radeon_base.c 2004-10-19 03:40:34 -06:00
-+++ edited/drivers/video/aty/radeon_base.c 2004-10-21 11:50:51 -06:00
-@@ -2186,7 +2186,9 @@
-           rinfo->video_ram = 8192 * 1024;
-           break;
-          default:
--          break;
-+   printk (KERN_ERR "radeonfb: no video RAM reported\n");
-+   ret = -ENXIO;
-+   goto err_unmap_rom;
-   }
-  }
- 
-
---Boundary-00=_smsfB+Zm1X4evqP
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="radeonfb-no-vram.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="radeonfb-no-vram.patch"
-
-[PATCH] radeonfb: If no video memory, exit with error
-
-Nothing good will happen if we try to ioremap and use a zero-sized
-frame buffer.  I observed this problem on an ia64 sx1000 box, where
-the BIOS doesn't run the option ROM.  If we try to continue, radeonfb
-just gets hopelessly confused because the card isn't initialized
-correctly.
-
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-
-===== drivers/video/aty/radeon_base.c 1.32 vs edited =====
---- 1.32/drivers/video/aty/radeon_base.c	2004-10-19 03:40:34 -06:00
-+++ edited/drivers/video/aty/radeon_base.c	2004-10-21 11:50:51 -06:00
-@@ -2186,7 +2186,9 @@
- 	       		rinfo->video_ram = 8192 * 1024;
- 	       		break;
- 	       	default:
--	       		break;
-+			printk (KERN_ERR "radeonfb: no video RAM reported\n");
-+			ret = -ENXIO;
-+			goto err_unmap_rom;
- 		}
- 	}
- 
-
---Boundary-00=_smsfB+Zm1X4evqP--
-
+this came up in conversation elsewhere and im of the opinion we should
+force CONFIG_RTC on for some platforms (maybe allow EMBEDDED to
+disable this?)

@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129318AbRCLBOO>; Sun, 11 Mar 2001 20:14:14 -0500
+	id <S129344AbRCLBYY>; Sun, 11 Mar 2001 20:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129323AbRCLBOF>; Sun, 11 Mar 2001 20:14:05 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:33287 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129318AbRCLBN4>;
-	Sun, 11 Mar 2001 20:13:56 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200103120112.f2C1Csj165543@saturn.cs.uml.edu>
-Subject: Re: [PATCH] Penguin logos
-To: geert@linux-m68k.org (Geert Uytterhoeven)
-Date: Sun, 11 Mar 2001 20:12:54 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Development),
-        linux-fbdev-devel@lists.sourceforge.net (Linux Frame Buffer Device
-	Development)
-In-Reply-To: <Pine.LNX.4.05.10103082052340.432-100000@callisto.of.borg> from "Geert Uytterhoeven" at Mar 08, 2001 09:12:32 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S129351AbRCLBYO>; Sun, 11 Mar 2001 20:24:14 -0500
+Received: from spinduce.demon.co.uk ([212.228.116.180]:35468 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129344AbRCLBX5>; Sun, 11 Mar 2001 20:23:57 -0500
+Date: Mon, 12 Mar 2001 01:22:29 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.2-ac18 ipx compile fix
+Message-ID: <Pine.SOL.3.96.1010312012040.26836A-200000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-984360149=:26836"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven writes:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
->   - The colors for the 16 color logo are wrong. We used a hack to
->     give the logo its own color palette, but this no longer works
->     as a side effect of a console color map bug being fixed a while
->     ago. The solution is to replace the logo with a new one that
->     uses the standard VGA console palette.
+---559023410-851401618-984360149=:26836
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Good idea, but the feet don't look too good. Either dither a bit,
-or pick a single color for the feet. Maybe a checkerboard-dither
-would get close to the right color without looking grainy.
+Attached patch is required to make ipx compile in 2.4.2-ac18.
 
->   - There are still some politically-incorrect (PI) logos of a penguin
->     holding a glass of beer or wine (or perhaps even worse? :-).
+Appologies if this has been fixed already.
 
-Those also just look bad. The drink sort of floats above the penguin's
-foot. It really looks like it was just pasted onto the image.
+Best regards,
 
-The arch-specific logos look bad in general, and the swirly gray
-background isn't so great either. Why not use the original image?
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-> Changes:
->  1. Update the frame buffer console code to no longer change the
->     palette when displaying the 16 color logo. Remove the tricks
->     to load the logo palette in unused palette entries on displays
->     with >= 32 colors.
+---559023410-851401618-984360149=:26836
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ipx-fix.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SOL.3.96.1010312012229.26836B@virgo.cus.cam.ac.uk>
+Content-Description: 
 
-I used to have only 256 colors on my display. I upgraded because
-there still isn't a global system palette. I'd have been happy
-enough with 256 colors allocated in a sane way, for kernel & X:
-
-1. the 16 VGA colors and extra 4 Windows colors (so Wine can work)
-2. the 216 Netscape colors
-3. gray: 0x00, 0x11, 0x22... 0xff, plus both 0x7f and 0x80
-4. everything else reserved for future global allocation
-
-The current situation is way too painful to use.
-
+LS0tIGxpbnV4LTIuNC4yLWFjMTgtdmFuaWxsYS9uZXQvaXB4L2FmX2lweC5j
+CVN1biBNYXIgMTEgMjM6MjY6MjcgMjAwMQ0KKysrIGxpbnV4LTIuNC4yLWFj
+MTgvbmV0L2lweC9hZl9pcHguYwlNb24gTWFyIDEyIDAxOjE1OjM2IDIwMDEN
+CkBAIC0xMjMsNyArMTIzLDcgQEANCiBzdGF0aWMgdW5zaWduZWQgY2hhciBp
+cHhjZmdfbWF4X2hvcHMgPSAxNjsNCiBzdGF0aWMgY2hhciBpcHhjZmdfYXV0
+b19zZWxlY3RfcHJpbWFyeTsNCiBzdGF0aWMgY2hhciBpcHhjZmdfYXV0b19j
+cmVhdGVfaW50ZXJmYWNlczsNCi1zdGF0aWMgaW50IHN5c2N0bF9pcHhfcHBy
+b3BfYnJvYWRjYXN0aW5nID0gMTsNCitpbnQgc3lzY3RsX2lweF9wcHJvcF9i
+cm9hZGNhc3RpbmcgPSAxOw0KIA0KIC8qIEdsb2JhbCBWYXJpYWJsZXMgKi8N
+CiBzdGF0aWMgc3RydWN0IGRhdGFsaW5rX3Byb3RvICpwODAyMl9kYXRhbGlu
+azsNCg==
+---559023410-851401618-984360149=:26836--

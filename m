@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268265AbTALLrx>; Sun, 12 Jan 2003 06:47:53 -0500
+	id <S267027AbTALLrc>; Sun, 12 Jan 2003 06:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267423AbTALLrf>; Sun, 12 Jan 2003 06:47:35 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:39302 "EHLO
+	id <S267423AbTALLrb>; Sun, 12 Jan 2003 06:47:31 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:31622 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267370AbTALLr2>; Sun, 12 Jan 2003 06:47:28 -0500
+	id <S267027AbTALLrI>; Sun, 12 Jan 2003 06:47:08 -0500
 From: Richard Stallman <rms@gnu.org>
-To: nils.petter.vaskinn@itsopen.net
+To: Hell.Surfers@cwctv.net
 CC: linux-kernel@vger.kernel.org
-In-reply-to: <1042016680.1714.16.camel@station3> (message from Nils Petter
-	Vaskinn on 08 Jan 2003 10:04:39 +0100)
-Subject: Re: OT Naming. was: Re: Why is Nvidia given GPL'd code to use in closed
-	source drivers?
+In-reply-to: <0b96f3916170a13DTVMAIL1@smtp.cwctv.net> (Hell.Surfers@cwctv.net)
+Subject: Re: Why is Nvidia given GPL'd code to use in proprietary drivers?
 Reply-to: rms@gnu.org
-References: <20030102061430.GA23276@mark.mielke.cc>
-	<E18UIZS-0006Cr-00@fencepost.gnu.org>
-	<20030103040612.GA10651@work.bitmover.com>
-	<20030104220651.GA30907@merlin.emma.line.org>
-	<20030104222330.GA1386@work.bitmover.com>
-	<E18VFaz-0008S0-00@fencepost.gnu.org>
-	<20030105221345.GA31840@mark.mielke.cc>
-	<E18Vao9-0002JZ-00@fencepost.gnu.org>
-	<20030106173949.GA1712@gnuppy.monkey.org>
-	<E18Vtxz-0002cB-00@fencepost.gnu.org>
-	<20030107141758.GA10770@gnuppy.monkey.org> 
-	<E18WB8Q-0004k6-00@fencepost.gnu.org> <1042016680.1714.16.camel@station3>
-Message-Id: <E18Xgio-0004Nt-00@fencepost.gnu.org>
-Date: Sun, 12 Jan 2003 06:56:10 -0500
+References: <0b96f3916170a13DTVMAIL1@smtp.cwctv.net>
+Message-Id: <E18XgiY-0004M2-00@fencepost.gnu.org>
+Date: Sun, 12 Jan 2003 06:55:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    linux refers to the kernel plus the GNU software, a complete os
-    linux-kernel refers to the kernel (which is why this is the linux-kernel
-    mailinglist not the linux mailinglist)
+Thank you for forwarding that message to me.
 
-If this convention were general, it would be less confusing (though
-still misleading and still unfair).  In practice, though references to
-"Linux" can mean either one, and you can never tell which it is unless
-you can guess from what is being said.
+Any attempt to discuss an ethical issue, any statement about what is
+right or wrong, is likely to encounter obstructive responses.  One
+common obstructive response is to change the subject from "What
+conduct is right?" to "Who decides?"  For instance,
 
+    *I* get to decide what brings value to me and what I consider to be
+    freedom.
+
+Everyone here believes in freedom of thought, as far as I know, but he
+is arguing with some imaginary person who he imagines tries to say he
+has no right to decide his own views.
+
+Apparently that imaginary person was unsuccessful, because the writer
+has stated his views clearly.
+
+    I, for one, put my money where my mouth is.  I am squarely in the Open
+    Software movement.  I support (with money) NVidia, Code Weavers, and in
+    the past, 4 Front Technologies, for example.
+
+We see here a person who doesn't particularly care about freedom to
+cooperate with others.  His statement indeed reflects the values of
+the Open Source Movement.  (I think "open software" was a slip of the
+keyboard; later on he did write "open source".)  That movement denies
+that freedom to cooperate is an ethical imperative, and considers it
+just a convenience.
+
+Millions of people who use free software have views like this today,
+and millions more have never heard or considered the question.  No one
+can deny that.  But those people, even numbering millions, would never
+have developed a free operating system like GNU/Linux, because they
+don't particularly feel it is important to have one.
+
+The reason GNU/Linux exists as a free operating systems is because of
+people who do care.
+
+    Communism advocates public ownership of *all* property and you advocate
+    public ownership of *all* software.
+
+"Public ownership" means that the government decides what to do.  We
+believe that you should really own your copies of software.  You
+should decide what to change, and when to redistribute it.  This is
+not much like Communism.  Communism operated by command; free software
+recruits voluntary cooperation.  Communism failed; free software is
+succeeding.
+
+Calling us Communists is actually a second method of evading the
+issue.  Instead of confronting our actual views, they can attack
+Communism.  Communism is easy to attack.

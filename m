@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277127AbRJOHOZ>; Mon, 15 Oct 2001 03:14:25 -0400
+	id <S277317AbRJOHSf>; Mon, 15 Oct 2001 03:18:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277187AbRJOHOQ>; Mon, 15 Oct 2001 03:14:16 -0400
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:32781 "HELO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
-	id <S277127AbRJOHOL>; Mon, 15 Oct 2001 03:14:11 -0400
-Date: Mon, 15 Oct 2001 09:14:37 +0200 (CEST)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: "Mehta, Phoram Kirtikumar (UMKC-Student)" <pkm722@umkc.edu>
-cc: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: network device driver
-In-Reply-To: <F918702592382F4991EB852F78EF36583203A3@KC-MAIL2.kc.umkc.edu>
-Message-ID: <Pine.LNX.4.33.0110150913370.1088-100000@grignard.amagerkollegiet.dk>
+	id <S277318AbRJOHSZ>; Mon, 15 Oct 2001 03:18:25 -0400
+Received: from gap.cco.caltech.edu ([131.215.139.43]:58499 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S277317AbRJOHSK>; Mon, 15 Oct 2001 03:18:10 -0400
+Message-ID: <3BCA889B.6000504@blue-labs.org>
+Date: Mon, 15 Oct 2001 02:56:27 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011013
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Dinesh Gandhewar <dinesh_gandhewar@rediffmail.com>
+CC: mlist-linux-kernel@nntp-server.caltech.edu
+Subject: Re: 
+In-Reply-To: <20011015062505.32762.qmail@mailweb33.rediffmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Oct 2001, Mehta, Phoram Kirtikumar (UMKC-Student) wrote:
+That should throw a segmentation fault, in the kernel an OOPS,  in this 
+statement the code is trying to dereference a NULL pointer and store a 
+value at 0x0.
 
-> 1. how does ifconfig and netstat get teh net statistics, where can i get
-> the source to that funtion or source file.
+David
 
-They are from /proc/net/.
+Dinesh Gandhewar wrote:
 
-> 2. is there any funtion in the network device driver source by accessing
-> which i can get the packets received or the type of packets. if not can
-> anybody gimme some tips on how can i write it.
+>Hello,
+>What is the effect of following statement at the end of function definition?
+>*(int *)0 = 0;	
+>Thanking you,
+>Dinesh 
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-You can use a packet filter.
-
-> i am trying to write or modify the eth device driver(3c509.c) in such a
-> way that i can statistics of the traffic and then i also want to
-> identify teh traffic. in short i want to incorporate a function in my
-> driver which when acceseed would act as a sniffer/protocol analyzer .
-> any help or advise will be appreciated.
-
-Do it in userspace with packet filters. Look at tcpdump for example 
-code.
-
-Rasmus
-
--- 
--- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
-[...] Note that 120 sec is defined in the protocol as the maximum
-possible RTT.  I guess we'll have to use something other than TCP
-to talk to the University of Mars.
---------------------------------- [ moffe at amagerkollegiet dot dk ] --
 

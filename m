@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUIVXLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268104AbUIVXJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268100AbUIVXLT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 19:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268107AbUIVXLT
+	id S268104AbUIVXJz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 19:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268100AbUIVXJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 19:11:19 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:2308 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S268100AbUIVXKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 19:10:00 -0400
-In-Reply-To: <aeb13402040922144553f096c7@mail.gmail.com>
-References: <4506E4E6490@vcnet.vc.cvut.cz> <aeb13402040922144553f096c7@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <8250D402-0CEC-11D9-B9FD-000D9352858E@linuxmail.org>
+	Wed, 22 Sep 2004 19:09:55 -0400
+Received: from imap.gmx.net ([213.165.64.20]:16098 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268104AbUIVXIc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 19:08:32 -0400
+X-Authenticated: #5395555
+Message-ID: <415204E0.9010203@gmx.net>
+Date: Thu, 23 Sep 2004 01:04:00 +0200
+From: Judith und Mirko Kloppstech <jugal@gmx.net>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Suggestion for CD filesystem for Backups
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
-       linux-kernel@vger.kernel.org
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: NOT FIXED (Is anyone using vmware 4.5 with 2.6.9-rc2-mm
-Date: Thu, 23 Sep 2004 01:09:52 +0200
-To: Kyle Schlansker <kylesch@gmail.com>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You can use CDs or DVDs for Backup purposes. They do error correction, 
+everything is fine, until the errors get too much, than everything is 
+lost. This is a nuisance for a backup, especially because normal people 
+don't have the hardware to measure errors, jitter and the like.
 
-On Sep 22, 2004, at 23:45, Kyle Schlansker wrote:
+Suggestion:
+Why not write a file system on top of ISO9660 which uses the rest of the 
+CD to write error correction. If a sector becomes unreadable, the error 
+correction saves the data. Besides, a tool for testing the error rate 
+and the safety of the data can be easily written for a normal CD-ROM drive.
 
->>> * vmware with 2.6.9-rc1-mm5 works.
->>> * vmware with 2.6.9-rc2-mm1 doesn't work.
->
-> I have vmware 4.5 running on 2.6.9-rc2-mm1 as well as 2.6.9-rc2-mm1
-> running within vmware.  I must have missed the previous discussion, so
-> what issues are you having (i.e. how does vmware "not work")?
+The data for error correction might be written into a file so that the 
+CD can be read using any System, but Linux provides error correction.
 
-I think all the problems he is having are related to the fact that he 
-has a "tmpfs" mounted on top of "/tmp". I'm also using VMware with 
-2.6.9-rc2-mm1 with a plain, disk-based, /tmp directory, with no 
-problems at all.
+Mirko Kloppstech
 

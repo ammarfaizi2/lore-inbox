@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVA3KKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVA3Kbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVA3KKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 05:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVA3KKY
+	id S261663AbVA3Kbe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 05:31:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVA3Kbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 05:10:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5074 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261664AbVA3KKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 05:10:17 -0500
-Date: Sun, 30 Jan 2005 02:10:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: roland@topspin.com, linux-kernel@vger.kernel.org
-Subject: Re: Correct way to release get_user_pages()?
-Message-Id: <20050130021017.7ef1c764.akpm@osdl.org>
-In-Reply-To: <41FA7AE2.10209@ammasso.com>
-References: <52pszqw917.fsf@topspin.com>
-	<41FA7AE2.10209@ammasso.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jan 2005 05:31:33 -0500
+Received: from av2-1-sn3.vrr.skanova.net ([81.228.9.107]:9697 "EHLO
+	av2-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261666AbVA3Kbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 05:31:31 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/4] Make mousedev.c report all events to user space immediately
+From: Peter Osterlund <petero2@telia.com>
+Date: 30 Jan 2005 11:31:26 +0100
+Message-ID: <m34qgz9pj5.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi <timur.tabi@ammasso.com> wrote:
->
->  Roland Dreier wrote:
-> 
->  > Reading through the tree, I see that some callers of get_user_pages()
->  > release the pages that they got via put_page(), and some callers use
->  > page_cache_release().  Of course <linux/pagemap.h> has
->  > 
->  > 	#define page_cache_release(page)      put_page(page)
->  > 
->  > so this is really not much of a difference, but I'd like to know which
->  > is considered better style.  Any opinions?
+mousedev_packet() incorrectly clears list->ready when called with
+"tail == head - 1".  The effect is that the last mouse event from the
+hardware isn't reported to user space until another hardware mouse
+event arrives.  This can make the left mouse button get stuck when
+tapping on a touchpad.  When this happens, the button doesn't unstick
+until the next time you interact with the touchpad.
 
-I guess we should only use page_cache_release() if the page is known to be
-pagecache.  In the case of get_user_pages() the page could of course be
-anonymous in which case put_page is probably more appropriate.  It's all a
-bit of a mess and if we ever do end up having PAGE_CACHE_SIZE > PAGE_SIZE,
-someone will have some work to do.
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-I suppose put_page() would be better for now.
+ linux-petero/drivers/input/mousedev.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
->  I've defined this function.  I'm not sure if it really works, but it 
->  looks good.
-> 
->  #include <linux/pagemap.h>
-> 
->  void put_user_pages(int len, struct page **pages)
->  {
->           int i;
-> 
->           for (i=0; i<len; i++) {
->                   if (!PageReserved(pages[i])) {
->                           SetPageDirty(pages[i]);
->                   }
->                   page_cache_release(pages[i]);
->           }
->  }
+diff -puN drivers/input/mousedev.c~mousedev-ready-fix drivers/input/mousedev.c
+--- linux/drivers/input/mousedev.c~mousedev-ready-fix	2005-01-30 03:06:49.000000000 +0100
++++ linux-petero/drivers/input/mousedev.c	2005-01-30 03:06:49.000000000 +0100
+@@ -467,10 +467,10 @@ static void mousedev_packet(struct mouse
+ 	}
+ 
+ 	if (!p->dx && !p->dy && !p->dz) {
+-		if (list->tail != list->head)
+-			list->tail = (list->tail + 1) % PACKET_QUEUE_LEN;
+ 		if (list->tail == list->head)
+ 			list->ready = 0;
++		else
++			list->tail = (list->tail + 1) % PACKET_QUEUE_LEN;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&list->packet_lock, flags);
+_
 
-no...  You should only dirty the page if it was modified, and then use
-set_page_dirty() or set_page_dirty_lock().
-
-See dio_bio_complete() for an example.
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

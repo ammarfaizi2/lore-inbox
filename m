@@ -1,109 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272108AbRHVUT3>; Wed, 22 Aug 2001 16:19:29 -0400
+	id <S272111AbRHVUTT>; Wed, 22 Aug 2001 16:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272110AbRHVUTT>; Wed, 22 Aug 2001 16:19:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37805 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272108AbRHVUTL>;
-	Wed, 22 Aug 2001 16:19:11 -0400
-Date: Wed, 22 Aug 2001 13:19:16 -0700 (PDT)
-Message-Id: <20010822.131916.83606270.davem@redhat.com>
-To: gibbs@scsiguy.com
-Cc: axboe@suse.de, skraw@ithnet.com, phillips@bonn-fries.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: With Daniel Phillips Patch 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200108221941.f7MJfGY14365@aslan.scsiguy.com>
-In-Reply-To: <20010822.114620.77339267.davem@redhat.com>
-	<200108221941.f7MJfGY14365@aslan.scsiguy.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S272110AbRHVUTK>; Wed, 22 Aug 2001 16:19:10 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:12306 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S272108AbRHVUS4>; Wed, 22 Aug 2001 16:18:56 -0400
+Message-ID: <3B8413C1.8815FAFB@zip.com.au>
+Date: Wed, 22 Aug 2001 13:19:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: The cause of the "VM" performance problem with 2.4.X
+In-Reply-To: <245F259ABD41D511A07000D0B71C4CBA289F24@us-slc-exch-3.slc.unisys.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-   Date: Wed, 22 Aug 2001 13:41:16 -0600
+"Van Maren, Kevin" wrote:
+> 
+> ...
+> 
+> I've been running Linux on IA64 (4 CPU LION, 8GB RAM).  2.4.4+IA64 patches through
+> 2.4.8+IA64 patches all exhibit "horiffic" I/O behavior [disks are basically inactive,
+> with occasional flickers, but the CPUs are pegged at 100% system time] when writing
+> to multiple disks using multiple CPUs.  The easiest way for me to reproduce the
+> problem is to run parallel "mkfs" processes (I use 4 SCSI disks).
+> 
+> First thing to do is to profile the kernel, to see why all 4 of my fast IA64
+> processors are pegged at 99%+ in the kernel (and see what they are doing).
+> So I get the kernel profile patches from SGI (http://oss.sgi.com/projects/kernprof/)
+> and patch my kernel.  Profile 30 seconds during the "mkfs" process on 4 disks
+> (plus a "sync" part way through for kicks).  Below is the "interesting" part
+> of the output (truncated for brevity):
 
-   >
-   >Drivers for SAC only PCI devices shall not be bloated by 64-bit type,
-   >not in any case whatsoever.
-   
-   Where's the bloat?  The driver's S/G list is in the driver's native format.
+Note how fsync_dev() passes the target device to sync_buffers().  But
+the dirty buffer list is global.  So to write out the dirty buffers
+for a particular device, write_locked_buffers() has to do a linear
+walk of the dirty buffers for *other* devices to find the target
+device.
 
-All the world is not a scsi driver.  Consider networking
-and other types of drivers that need not make use of
-scatter lists.
+And write_unlocked_buffers() uses a quite common construct - it
+scans a list but when it drops the lock, it restarts the scan
+from the start of the list.  (We do this all over the kernel, and
+it keeps on biting us).
 
-   >Either your device is 64-bit capable or not, what is so complicated?
-   
-   The complication arrises when there is a performance impact associated
-   with 64bit support.  You may want to completely compile out 64bit support.
-   If I can use the exact same API if the user decides to configure my
-   device to not enable large address support, then my complaint is only
-   that it seems supurfluous to have two different APIs and types.
+So if the dirty buffer list has 10,000 buffers for device A and
+then 10,000 buffers for device B, and you call fsync_dev(B),
+we end up traversing the 10,000 buffers of device A 10,000/32 times,
+which is a lot.
 
-You can indeed use the same API.  There are two situations.
+In fact, write_unlocked_buffers(A) shoots itself in the foot by
+moving buffers for device A onto BUF_LOCKED, and then restarting the
+scan.  So of *course* we end up with zillions on non-A buffers at the
+head of the list.
 
-1) The performance impact is "platform specific", so let the
-   platform decide for you:
+fsync_dev() and balance_dirty() are the culprits in this scenario - I'd
+be surprised if sys_sync() displayed similar quadratic behaviour.  (Well, it
+would do so if there were a lot of locked buffers on BUF_DIRTY, but there
+usually aren't).
 
-	Use pci64_foo() and set the DMA mask to what you can support.
-	Ie. a normal DAC supporting driver.
+This (rather hastily tested) patch against 2.4.9 should give O(n)
+behaviour in write_unlocked_buffers().  Does it help?
 
-2) The performance impact is "device specific", so only use
-   the 32-bit API.   
 
-   >What is the virtual address of physical address 0x100000000
-   >on a 32-bit cpu system if the page is not currently kmap()'d?
-   
-   Why does the driver care?  The driver asked to have some virtual address
-   mapped into a bus address.  Are you saying the system can't understand
-   figure out what physical page this is and from that the necessary
-   IOMMU magic to make it visible to the device?
-   
-It is the object that the block and networking systems work with
-that is the issue.
-
-Do you know how physical memory is mapped under Linux?  Everything
-non-HIGHMEM is directly mapped.  Everything else must be temporarily
-"kmap()'d" so that the kernel and perform loads and stores to that
-page.
-
-The only object representation that works for all kinds of pages,
-HIGHMEM or not, is the "struct page *page; unsigned long offset;"
-tuple.
-
-If this wasn't a problem, Jens's would not be doing any of the
-work he is doing right now :-)
-
-   It seems to me that you are complaining that the "backend" implementation
-   for IA64 sucked.  Okay.  Fine.  But the drivers were never exposed to
-   that suckage.
-
-No, I have in fact no problem with IA64's backend, I don't care how
-any platform implements anything.  It is the front end that sucked
-balls, and this part I care about because it is the APIs drivers have
-to deal with.  Specifically, my gripes are:
-
-1) It took virtual addresses.  Result: does not work on 32-bit
-   platforms.
-
-2) It did not take into consideration at all the issues surrounding
-   DAC usage on some platforms, such as:
-
-	a) transfers using DAC cycles might run slower than
-	   those using SAC cycles
-	b) DAC cycles may be preferred even in the presence of
-	   slower transfers because the device is "DMA mapping
-	   hungry" ala. compute cluster cards.
-
-Let me ask you again: Have you tried to write a driver to the new
-APIs at all?  I have for 6 totally different devices, on drivers
-written by totally different people (including those I wrote myself)
-and they all worked out beautifully.
-
-Later,
-David S. Miller
-davem@redhat.com
+--- linux-2.4.9/fs/buffer.c	Thu Aug 16 12:23:19 2001
++++ linux-akpm/fs/buffer.c	Wed Aug 22 13:16:22 2001
+@@ -199,7 +199,7 @@ static void write_locked_buffers(struct 
+  * return without it!
+  */
+ #define NRSYNC (32)
+-static int write_some_buffers(kdev_t dev)
++static int write_some_buffers(kdev_t dev, struct buffer_head **start_bh)
+ {
+ 	struct buffer_head *next;
+ 	struct buffer_head *array[NRSYNC];
+@@ -207,6 +207,12 @@ static int write_some_buffers(kdev_t dev
+ 	int nr;
+ 
+ 	next = lru_list[BUF_DIRTY];
++	if (start_bh && *start_bh) {
++		if ((*start_bh)->b_list == BUF_DIRTY)
++			next = *start_bh;
++		brelse(*start_bh);
++		*start_bh = NULL;
++	}
+ 	nr = nr_buffers_type[BUF_DIRTY] * 2;
+ 	count = 0;
+ 	while (next && --nr >= 0) {
+@@ -215,8 +221,11 @@ static int write_some_buffers(kdev_t dev
+ 
+ 		if (dev && bh->b_dev != dev)
+ 			continue;
+-		if (test_and_set_bit(BH_Lock, &bh->b_state))
++		if (test_and_set_bit(BH_Lock, &bh->b_state)) {
++			/* Shouldn't be on BUF_DIRTY */
++			__refile_buffer(bh);
+ 			continue;
++		}
+ 		if (atomic_set_buffer_clean(bh)) {
+ 			__refile_buffer(bh);
+ 			get_bh(bh);
+@@ -224,6 +233,10 @@ static int write_some_buffers(kdev_t dev
+ 			if (count < NRSYNC)
+ 				continue;
+ 
++			if (start_bh && next) {
++				get_bh(next);
++				*start_bh = next;
++			}
+ 			spin_unlock(&lru_list_lock);
+ 			write_locked_buffers(array, count);
+ 			return -EAGAIN;
+@@ -243,9 +256,11 @@ static int write_some_buffers(kdev_t dev
+  */
+ static void write_unlocked_buffers(kdev_t dev)
+ {
++	struct buffer_head *start_bh = NULL;
+ 	do {
+ 		spin_lock(&lru_list_lock);
+-	} while (write_some_buffers(dev));
++	} while (write_some_buffers(dev, &start_bh));
++	brelse(start_bh);
+ 	run_task_queue(&tq_disk);
+ }
+ 
+@@ -1117,13 +1132,15 @@ int balance_dirty_state(kdev_t dev)
+ void balance_dirty(kdev_t dev)
+ {
+ 	int state = balance_dirty_state(dev);
++	struct buffer_head *start_bh = NULL;
+ 
+ 	if (state < 0)
+ 		return;
+ 
+ 	/* If we're getting into imbalance, start write-out */
+ 	spin_lock(&lru_list_lock);
+-	write_some_buffers(dev);
++	write_some_buffers(dev, &start_bh);
++	brelse(start_bh);
+ 
+ 	/*
+ 	 * And if we're _really_ out of balance, wait for
+@@ -2607,7 +2624,7 @@ static int sync_old_buffers(void)
+ 		bh = lru_list[BUF_DIRTY];
+ 		if (!bh || time_before(jiffies, bh->b_flushtime))
+ 			break;
+-		if (write_some_buffers(NODEV))
++		if (write_some_buffers(NODEV, NULL))
+ 			continue;
+ 		return 0;
+ 	}
+@@ -2706,7 +2723,7 @@ int bdflush(void *startup)
+ 		CHECK_EMERGENCY_SYNC
+ 
+ 		spin_lock(&lru_list_lock);
+-		if (!write_some_buffers(NODEV) || balance_dirty_state(NODEV) < 0) {
++		if (!write_some_buffers(NODEV, NULL) || balance_dirty_state(NODEV) < 0) {
+ 			wait_for_some_buffers(NODEV);
+ 			interruptible_sleep_on(&bdflush_wait);
+ 		}

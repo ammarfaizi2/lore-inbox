@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287170AbRL2JR0>; Sat, 29 Dec 2001 04:17:26 -0500
+	id <S287166AbRL2JNZ>; Sat, 29 Dec 2001 04:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287169AbRL2JRQ>; Sat, 29 Dec 2001 04:17:16 -0500
-Received: from dubb05h09-0.dplanet.ch ([212.35.36.9]:49158 "EHLO
-	dubb05h09-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S287168AbRL2JRH>; Sat, 29 Dec 2001 04:17:07 -0500
-Message-ID: <3C2D8A4C.5FFA95C0@dplanet.ch>
-Date: Sat, 29 Dec 2001 10:18:04 +0100
-From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i586)
+	id <S287167AbRL2JNP>; Sat, 29 Dec 2001 04:13:15 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15349 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S287166AbRL2JNE>; Sat, 29 Dec 2001 04:13:04 -0500
+Message-ID: <3C2D890E.BBDE7C09@mvista.com>
+Date: Sat, 29 Dec 2001 01:12:46 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Linus Torvalds <torvalds@transmeta.com>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-In-Reply-To: <20011228170840.A20254@thyrsus.com> <Pine.LNX.4.33.0112281429010.23445-100000@penguin.transmeta.com> <20011228175832.C20254@thyrsus.com>
+To: knobi@knobisoft.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+In-Reply-To: <3C2C3F55.3BA4A0C3@sirius-cafe.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
+Martin Knoblauch wrote:
 > 
-> Linus Torvalds <torvalds@transmeta.com>:
-> > Eric, this is the _wrong_approach_. I want /local/ files, not global ones.
+> > Re: [RFC] Scheduler issue 1, RT tasks ...
+> >
+> > >
+> > > Right, that was my question. George says, in your words, "for better
+> >
+> > > standards compliancy ..." and I want to know why you guys think
+> > that.
+> >
+> > The thought was that if someone need RT tasks he probably need a very
+> > low
+> > latency and so the idea that by applying global preemption decisions
+> > would
+> > lead to a better compliancy. But i'll be happy to ear that this is
+> > false
+> > anyway ...
+> >
 > 
-> First: where should the prompt-string definitions for capability
-> symbols that occur in multiple port trees live?
-
-Proposal:
-the main cml script in linux root dir  should be as little as possible.
-it will include all the arch/*/ cml files (for really specifific
-options) and you move other item into the subdir drivers/
-(the natural place, all file who should not be in driver/ are
-by definition arch specific).
-
+>  without wanting to start a RT flame-fest, what do people really want
+> when they talk about RT in this [Linux] context:
 > 
-> Second: Forward references, and references across the tree, mean that
-> there is a class of symbols that have theoretically natural home directories
-> but which would have to be declared elsewhere in order to be defined at
-> the point of first reference.
+> - very low latency
+> - deterministic latency ("never to exceed")
+> - both
+> - something completely different
 > 
-> (A potential solution to this would be to improve the CML2 compiler's
-> handling of forward references.)
+All of the above from time to time and user to user.  That is, some
+folks want one or more of the above, some folks want more, some less. 
+What is really up?  Well they have a job to do that requires certain
+things.  Different jobs require different capabilities.  It is hard to
+say that any given system will do a reasonably complex job with out
+testing.  For example we may have the required latency but find the
+system fails because, to get the latency, we preempted another task that
+was (and so still is) in the middle of updating something we need to
+complete the job.
 
-No. CML2 could be improved to handle che forward references, but
-not user that will use line config.
+On the other hand, some things clearly are in the way of doing some real
+time tasks in a timely fashion.  Among these things are long context
+switch latency, high kernel overhead, and low resolution time keeping/
+alarms.  So we talk (argue? posture?) most about these.  At the same
+time all the other bullet items of *nix systems are, at least some
+times, important.
 
-
-> Third: I could hack my installer to break Configure.help up into
-> a bunch of little component CML files distributed through the tree...
-> but Configure.help doesn't currently contain any markup that says
-> where to direct each entry to.
-
-The Makefile should help you. 
-
-> Fourth: There's still the localization issue.  If it's your ukase
-> that this is not an important problem, then I'll accept that -- but
-> I haven't heard you say that yet, so I'm not sure you've considered
-> it enough.
-
-PROPOSAL: You add a tool to build a big file from the sparse
-symbols.cml. Translator will use this file as references,
-adn your CML2 will use translated big files or the default
-sparse little files.
-
-This should not be a problem, because a translator will read
-documentation (unlike the most user), so you can explain
-how to do this work. (And the 'diff' could be a friend
-to the translators).
-
-
-kbuild-2.5 have already support for 'clean' driver
-(clean: driver that don't touch existing files). 
-I like it. If CML2 could handle natively also these
-change it would great.
-The problem is the use of multiple sources dir.
-I think you and Keith should coordinate this
-work.
-And I find clean if also configuration files go
-into makefiles.
-
-
-	giacomo
-
-PS:
-
-Keith: How you handle the obsolete files?
-(foo.c in the main source. the patch in
- source src1 will remove this file).
-Actually I have create a shell script
-kpatch: a new implementation of
-scripts/patch-kernel, that handles
-normal, testing and testing/incr patches,
-dont-use patches, multiple sources  and
-new (and clean) destination dir).
+Why Linux?  The same reasons it is used any where else.  Among these
+reasons is the desire to have to know and support only one system.  Thus
+the drive to extend it to the more responsive end of the spectrum
+without loosing other capabilities.  And, of course, the standards issue
+is in here.  Standards compliance is important from an investment point
+of view.  It allows the user to move his costly (far more than the
+hardware) software investment from one kernel/ system to another with
+little or no rework.
+-- 
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271396AbTG2LMG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 07:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271391AbTG2LJf
+	id S271398AbTG2LEo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271399AbTG2LEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 07:09:35 -0400
-Received: from [24.241.190.29] ([24.241.190.29]:392 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S271401AbTG2LHS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 07:07:18 -0400
-Date: Tue, 29 Jul 2003 07:07:16 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: NFS Server running 2.6.0-test2
-Message-ID: <20030729110716.GC786@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HG+GLK89HZ1zG0kk"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Tue, 29 Jul 2003 07:04:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:29320 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S271398AbTG2LEn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:04:43 -0400
+Date: Tue, 29 Jul 2003 07:06:00 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Charles Lepple <clepple@ghz.cc>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off automatic screen clanking
+In-Reply-To: <21265.216.12.38.216.1059425148.squirrel@www.ghz.cc>
+Message-ID: <Pine.LNX.4.53.0307290702150.30141@chaos>
+References: <Pine.LNX.4.53.0307281555400.27569@chaos>    <1059422724VQM.fvw@tracks.var.cx>
+    <Pine.LNX.4.53.0307281619060.27642@chaos> <21265.216.12.38.216.1059425148.squirrel@www.ghz.cc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 Jul 2003, Charles Lepple wrote:
 
---HG+GLK89HZ1zG0kk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Richard B. Johnson said:
+> <snip>
+> > It is impossible to send escape sequences to an input that does
+> > not exist. That's why I need to know how to stop the kernel's
+> > insistence on turning off the screen.
+>
+> from 'strace setterm -blank 0':
+>
+>    write(1, "\33[9;0]", 6)                 = 6
+>
+> which means you want to write the escape sequence to standard output (fd
+> 1), or /dev/tty0 if your code is not attached to the current console. This
+> should be independent of any input devices that may or may not be there.
+>
+> --
+> Charles Lepple <ghz.cc!clepple>
+> http://www.ghz.cc/charles/
 
+Yes. This is f*ing absurb. A default that kills the screen and the
+requirement to send some @!_$%!@$ sequences to turn it off. This
+is absolute crap, absolutely positively, with no possible justification
+whatsoever. If I made an ioctl, it will probably be rejected.........
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Just converted my nfs server to 2.6.0-test2 last night.  This morning I
-found this on my console:
-
-{0}:/>
-Message from syslogd@camel at Tue Jul 29 00:02:30 2003 ...
-camel kernel: journal commit I/O error
-
-
-{0}:/>mount
-=2E
-=2E
-/dev/md/0 on /mnt/data1 type ext3 (rw)
-
-{0}:/>find /mnt/data1/backups/www/tarballs -name www-\*tgz -mtime +7 -exec =
-rm {} \;
-rm: cannot remove `/mnt/data1/backups/www/tarballs/www-20030721.tgz':
-Read-only file system
-
-{0}:/>mount -o remount,rw /dev/md0
-mount: block device /dev/md/0 is write-protected, mounting read-only
-
-
-I have NFS Version 3 enabled but TCP disabled (was very laggy).
-
-
-Robert
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---HG+GLK89HZ1zG0kk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/JlVk8+1vMONE2jsRAmxnAJ4jNGYThgRDYuCON+3zyYDAY2qc9gCgrx/f
-NzL2Wj96SoWkdJvMhsGXm3I=
-=GxTk
------END PGP SIGNATURE-----
-
---HG+GLK89HZ1zG0kk--

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288896AbSATSST>; Sun, 20 Jan 2002 13:18:19 -0500
+	id <S288897AbSATSWI>; Sun, 20 Jan 2002 13:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288897AbSATSSI>; Sun, 20 Jan 2002 13:18:08 -0500
-Received: from mons.uio.no ([129.240.130.14]:39919 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S288896AbSATSR7>;
-	Sun, 20 Jan 2002 13:17:59 -0500
-To: Steinar Hauan <hauan@cmu.edu>
+	id <S288902AbSATSV6>; Sun, 20 Jan 2002 13:21:58 -0500
+Received: from [216.151.155.108] ([216.151.155.108]:62478 "EHLO
+	varsoon.denali.to") by vger.kernel.org with ESMTP
+	id <S288897AbSATSVy>; Sun, 20 Jan 2002 13:21:54 -0500
+To: Richard Kettlewell <rjk@terraraq.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17smp kernel oops in nfs client
-In-Reply-To: <Pine.GSO.4.43L-024.0201191310210.4325-700000@unix1.andrew.cmu.edu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 20 Jan 2002 19:17:54 +0100
-In-Reply-To: <Pine.GSO.4.43L-024.0201191310210.4325-700000@unix1.andrew.cmu.edu>
-Message-ID: <shs7kqc6g4t.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+Subject: Re: rm-ing files with open file descriptors
+In-Reply-To: <a2bk6e$t2u$1@ncc1701.cistron.net>
+	<Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
+	<Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
+	<8HBE1o7mw-B@khms.westfalen.de> <843d119h0g.fsf@rjk.greenend.org.uk>
+From: Doug McNaught <doug@wireboard.com>
+Date: 20 Jan 2002 13:21:49 -0500
+In-Reply-To: Richard Kettlewell's message of "Sun, 20 Jan 2002 15:30:39 +0000"
+Message-ID: <m3k7uchohu.fsf@varsoon.denali.to>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steinar Hauan <hauan@cmu.edu> writes:
+Richard Kettlewell <rjk@terraraq.org.uk> writes:
 
-     > hello,
-     >   log monitoring revealed that a user processed crashed a few
-     >   days ago and left an ooops message along with a zombie user
-     >   process (in non-interruptible disk wait).
+> If the file descriptor you have was opened O_RDONLY, but you have
+> write permission on the file itself, then creating a new name for it
+> would allow you to open it O_RDWR.
 
-Hi,
-  Did you find any other NFS related messages in your syslog? Short of
-a bug in truncate_inode_pages(), I really can't see how this could
-happen. Certainly whatever is was should at least have triggered a
-couple of NFS warnings...
+Are you sure about this?  Permissions are stored in the inode, not the
+directory entry. 
 
-Cheers,
-  Trond
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278932AbRJ2BTa>; Sun, 28 Oct 2001 20:19:30 -0500
+	id <S278941AbRJ2B3C>; Sun, 28 Oct 2001 20:29:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278937AbRJ2BTU>; Sun, 28 Oct 2001 20:19:20 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:33285 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S278932AbRJ2BTN>;
-	Sun, 28 Oct 2001 20:19:13 -0500
-Message-Id: <5.1.0.14.0.20011029112004.01d98df0@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 29 Oct 2001 12:19:45 +1100
-To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: SiS/Trident 4DWave sound driver (Update)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E15x86H-0000GV-00@the-village.bc.nu>
-In-Reply-To: <5.1.0.14.0.20011026125325.024517e0@mail.amc.localnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S278943AbRJ2B2x>; Sun, 28 Oct 2001 20:28:53 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:63502 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S278941AbRJ2B2n>; Sun, 28 Oct 2001 20:28:43 -0500
+Message-ID: <3BDCAFC4.EBA4E785@zip.com.au>
+Date: Sun, 28 Oct 2001 17:24:20 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Kuebel <kuebelr@email.uc.edu>
+CC: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 8139too reparent_to_init() race
+In-Reply-To: <20011028200153.A331@cartman>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:36 PM 26/10/01 +0100, Alan Cox wrote:
-> > though the codec->codec_read(codec, AC97_VENDOR_ID#) isn't returning the
-> > codec value for this system at all.
->
->Something is failing to bring up the AC97 codec bus and/or set it up
->properly. Can you find exactly which patch broke that for you (you'll
->possibly want to keep fixing the codec table as you test older ones)
+Robert Kuebel wrote:
+> 
+> hello all,
+> 
+> lately i noticed this message during boot-up (when the network
+> interfaces were being configured) ...
+> 
+> "task `ifconfig' exit_signal 17 in reparent_to_init"
+> 
+> this happens only about 1/2 of the time.
+> 
+> after some digging this is what i found...
+> sometimes ifconfig's parent exits before ifconfig reaches
+> rtl8139_thread().  when this happens, ifconfig's exit_signal is set to
+> SIGCHLD (in forget_original_parent), because its new parent is init.
+> then rlt8139_thread() is reached it calls reparent_to_init(), which
+> complains that exit_signal is already non-zero.
+> 
+> basically this patch stops rtl8139_thread() from calling
+> reparent_to_init() when its parent is already init.
+> 
 
-Update: - 2.4.3 appears to have the same issue of no-find the codec.
+Thanks - that's a useful analysis.
 
-2.2.19pre17 reports the wrong h/ware address for the sound device (the same 
-one as the IDE bus - urghy!), so I can't even load the driver to test if 
-it'll work (which I doubt).
+The check in reparent_to_init() was to warn about the situation
+where someone had deliberately set the exit signal to some
+non-zero value and then the child calls reparent_to_init() - it's
+telling you that we're about to stomp on your chosen exit signal.
+I hadn't thought about the forget_original_parent() case.
 
-Upon looking at the code between 2.4.0 and 2.4.13, in particular at 
-trident_ac97_get() and trident_ac97_set() there is practically no 
-difference between them, except for the addition of another option in the 
-switch statement for another card. Almost all the additions and changes 
-between versions have been specifically ALi or similar chipsets, and don't 
-seem to affect the SiS stuff.
-
-So where to now?
-
-Thinking mebbe I should hook this machine up to the net outside the 
-firewall, plug in the webcam and point it at it, give you an ssh account on 
-it, and connect an oscilloscope to the audio and let you fiddle. Useful for 
-the SiS FrameBuffer thing as well I'd guess. *grin*
-
-Talk about remote debugging eh?
+So the fix should be to change the debug code in reparent_to_init()
+so it doesn't complain if the exit signal is already SIGCHLD.  Or
+just kill it off altogether.
 
 
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
+--- linux-2.4.14-pre3/kernel/sched.c	Tue Oct 23 23:09:48 2001
++++ linux-akpm/kernel/sched.c	Sun Oct 28 17:23:26 2001
+@@ -1250,11 +1250,6 @@ void reparent_to_init(void)
+ 	SET_LINKS(this_task);
+ 
+ 	/* Set the exit signal to SIGCHLD so we signal init on exit */
+-	if (this_task->exit_signal != 0) {
+-		printk(KERN_ERR "task `%s' exit_signal %d in "
+-				__FUNCTION__ "\n",
+-			this_task->comm, this_task->exit_signal);
+-	}
+ 	this_task->exit_signal = SIGCHLD;
+ 
+ 	/* We also take the runqueue_lock while altering task fields
 
+-

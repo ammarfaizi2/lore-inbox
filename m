@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266093AbRGEDin>; Wed, 4 Jul 2001 23:38:43 -0400
+	id <S266613AbRGEEMf>; Thu, 5 Jul 2001 00:12:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265941AbRGEDiX>; Wed, 4 Jul 2001 23:38:23 -0400
-Received: from chmls06.mediaone.net ([24.147.1.144]:24763 "EHLO
-	chmls06.mediaone.net") by vger.kernel.org with ESMTP
-	id <S265861AbRGEDiM>; Wed, 4 Jul 2001 23:38:12 -0400
-From: andrew@pimlott.ne.mediaone.net (Andrew Pimlott)
-Date: Wed, 4 Jul 2001 23:29:24 -0400
-To: George Bonser <george@gator.com>
-Cc: kern@wolf.ericsson.net.nz, linux-kernel@vger.kernel.org
-Subject: Re: tcp stack tuning and Checkpoint FW1 & Legato Networker
-Message-ID: <20010704232924.A13077@pimlott.ne.mediaone.net>
-Mail-Followup-To: George Bonser <george@gator.com>,
-	kern@wolf.ericsson.net.nz, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0107051331190.2882-100000@wolf.ericsson.net.nz> <CHEKKPICCNOGICGMDODJIELKDIAA.george@gator.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266619AbRGEEMZ>; Thu, 5 Jul 2001 00:12:25 -0400
+Received: from mail15.bigmailbox.com ([209.132.220.46]:28941 "EHLO
+	mail15.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S266613AbRGEEMM>; Thu, 5 Jul 2001 00:12:12 -0400
+Date: Wed, 4 Jul 2001 21:12:08 -0700
+Message-Id: <200107050412.VAA04157@mail15.bigmailbox.com>
+Content-Type: text/plain
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <CHEKKPICCNOGICGMDODJIELKDIAA.george@gator.com>; from george@gator.com on Wed, Jul 04, 2001 at 07:02:36PM -0700
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [64.40.53.30]
+From: "Colin Bayer" <colin_bayer@compnerd.net>
+To: linux-kernel@vger.kernel.org
+Cc: rddunlap@osdlab.org
+Subject: Re: Sticky IO-APIC problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 04, 2001 at 07:02:36PM -0700, George Bonser wrote:
-> > I want to set the tcp_keepalive timer to 60 seconds and understand
-> > possible implications for Linux.
-> 
-> echo 60 >/proc/sys/net/ipv4/tcp_keepalive_time
 
-By default, this is only polled by the kernel every 75 seconds, so
-you would still lose.  In 2.2, this is hard-coded.  In 2.4,
-/proc/sys/net/ipv4/tcp_keepalive_intvl will probably help, but I
-haven't tried it.
+"Randy.Dunlap" <rddunlap@osdlab.org> wrote:
 
-Andrew
+>I can't find an Intel BN810E board at intel.com or by searching
+>at google.com.  Are you sure that's the correct name/ID for it?
+>Do you have any web page references for it?
+
+Sorry, it was an Intel CA810E board.
+(http://www.intel.com/support/motherboards/desktop/ca810e/)
+
+     -- Colin
+
+------------------------------------------------------------
+The CompNerd Network: http://www.compnerd.com/
+Where a nerd can be a nerd.  Get your free webmail@compnerd.net!

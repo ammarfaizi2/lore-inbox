@@ -1,114 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269638AbRHMB0P>; Sun, 12 Aug 2001 21:26:15 -0400
+	id <S269639AbRHMB0z>; Sun, 12 Aug 2001 21:26:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269639AbRHMB0G>; Sun, 12 Aug 2001 21:26:06 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10635 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269638AbRHMBZr>;
-	Sun, 12 Aug 2001 21:25:47 -0400
-Date: Sun, 12 Aug 2001 21:25:58 -0400 (EDT)
+	id <S269641AbRHMB0r>; Sun, 12 Aug 2001 21:26:47 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27276 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269639AbRHMB0k>;
+	Sun, 12 Aug 2001 21:26:40 -0400
+Date: Sun, 12 Aug 2001 21:26:52 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/super.c fixes - second series (1/11)
-In-Reply-To: <Pine.LNX.4.33.0108102111080.8771-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0108110046040.440-100000@weyl.math.psu.edu>
+Subject: Re: [PATCH] fs/super.c fixes - second series (3/11)
+In-Reply-To: <Pine.GSO.4.21.0108122126140.7092-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0108122126400.7092-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Since the second part of fs/super.c fixes (finally killing the
-get_super() races) got public testing in -ac (since 2.4.7-ac6 - i.e. it had
-been a week with 0 complaints so far), how about I start feeding it
-right now?  That one removes the cruft from FS_SINGLE handling, gives
-the final variant of refcounting on superblocks (not dependent upon
-mount_sem) and has final (as far as I'm concerned) exclusion on
-->s_umount, which closes {u,}mount/get_super races for good.
 
-Basically, after that point we will have sane mount handling. There are
-things that can be cleaned up after that, but that's it - trivial cleanups.
-Neurosurgery ends here.
+Part 3/11
 
-Part 1/11
+And now the second part - we expand the call of read_super() in get_sb_bdev()
+and move superblock allocation in the beginning of the function. That
+gets the search in super_blocks for existing superblocks from our device
+together with insertion of new superblock into the list (if search fails, that
+is). We hold sb_lock over that area, which makes the whole "add if we hadn't
+one" thing atomic.
 
-We grab exclusive lock on ->s_umount() in get_sb_...() and release it
-once vfsmount is formed (by do_add_mount()). No deadlocks, since all
-activity in protected area is already not allowed to lead to anything
-that would grab ->s_umount. We hold ->s_lock over the whole non-trivial part
-and anything of that kind would deadlock on it.
-
-We are almost done with the get_super() races by now.
-
-diff -urN S9-pre1/fs/super.c S9-pre1-s_umount/fs/super.c
---- S9-pre1/fs/super.c	Sat Aug 11 14:59:24 2001
-+++ S9-pre1-s_umount/fs/super.c	Sun Aug 12 20:45:49 2001
-@@ -820,6 +820,7 @@
- 	spin_lock(&sb_lock);
- 	list_add (&s->s_list, super_blocks.prev);
- 	spin_unlock(&sb_lock);
+diff -urN S9-pre1-get_sb_bdev/fs/super.c S9-pre1-get_sb_bdev2/fs/super.c
+--- S9-pre1-get_sb_bdev/fs/super.c	Sun Aug 12 20:45:49 2001
++++ S9-pre1-get_sb_bdev2/fs/super.c	Sun Aug 12 20:45:49 2001
+@@ -898,7 +898,7 @@
+ 	struct inode *inode;
+ 	struct block_device *bdev;
+ 	struct block_device_operations *bdops;
+-	struct super_block * sb;
++	struct super_block * s;
+ 	struct nameidata nd;
+ 	struct list_head *p;
+ 	kdev_t dev;
+@@ -935,6 +935,12 @@
+ 	if (!(flags & MS_RDONLY) && is_read_only(dev))
+ 		goto out1;
+ 
++	error = -ENOMEM;
++	s = alloc_super();
++	if (!s)
++		goto out1;
 +	down_write(&s->s_umount);
- 	lock_super(s);
- 	if (!type->read_super(s, data, silent))
- 		goto out_fail;
-@@ -839,7 +840,7 @@
++
+ 	error = -EBUSY;
+ restart:
  	spin_lock(&sb_lock);
- 	list_del(&s->s_list);
- 	spin_unlock(&sb_lock);
--	__put_super(s);
-+	put_super(s);
- 	return NULL;
- }
- 
-@@ -919,7 +920,9 @@
- 				spin_unlock(&sb_lock);
- 			}
- 			atomic_inc(&sb->s_active);
-+			/* Next chunk will drop it */
- 			up_read(&sb->s_umount);
-+			down_write(&sb->s_umount);
- 			path_release(&nd);
- 			return sb;
+@@ -946,22 +952,47 @@
+ 		if (old->s_type != fs_type ||
+ 		    ((flags ^ old->s_flags) & MS_RDONLY)) {
+ 			spin_unlock(&sb_lock);
++			atomic_dec(&s->s_active);
++			put_super(s);
+ 			goto out1;
  		}
-@@ -986,6 +989,7 @@
- 		BUG();
- 	atomic_inc(&sb->s_active);
- 	do_remount_sb(sb, flags, data);
-+	down_write(&sb->s_umount);
- 	return sb;
- }
- 
-@@ -1104,6 +1108,7 @@
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
- 	type->kern_mnt = mnt;
-+	up_write(&sb->s_umount);
- 	return mnt;
- }
- 
-@@ -1379,6 +1384,7 @@
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
-+	up_write(&sb->s_umount);
- 
- 	/* Something was mounted here while we slept */
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-@@ -1639,6 +1645,7 @@
- 		fs_type = sb->s_type;
- 		atomic_inc(&sb->s_active);
- 		up_read(&sb->s_umount);
-+		down_write(&sb->s_umount);
- 		goto mount_it;
+ 		if (!grab_super(old))
+ 			goto restart;
++		atomic_dec(&s->s_active);
++		put_super(s);
+ 		blkdev_put(bdev, BDEV_FS);
+ 		path_release(&nd);
+ 		return old;
  	}
- 
-@@ -1659,6 +1666,8 @@
- 	panic("VFS: Unable to mount root fs on %s", kdevname(ROOT_DEV));
- 
- mount_it:
-+	/* FIXME */
-+	up_write(&sb->s_umount);
- 	printk ("VFS: Mounted root (%s filesystem)%s.\n",
- 		fs_type->name,
- 		(sb->s_flags & MS_RDONLY) ? " readonly" : "");
++	s->s_dev = dev;
++	s->s_bdev = bdev;
++	s->s_flags = flags;
++	s->s_type = fs_type;
++	list_add (&s->s_list, super_blocks.prev);
++
+ 	spin_unlock(&sb_lock);
++
+ 	error = -EINVAL;
+-	sb = read_super(dev, bdev, fs_type, flags, data, 0);
+-	if (sb) {
+-		get_filesystem(fs_type);
+-		path_release(&nd);
+-		return sb;
+-	}
++	lock_super(s);
++	if (!fs_type->read_super(s, data, 0))
++		goto out_fail;
++	unlock_super(s);
++	/* tell bdcache that we are going to keep this one */
++	atomic_inc(&bdev->bd_count);
++	get_filesystem(fs_type);
++	path_release(&nd);
++	return s;
++
++out_fail:
++	s->s_dev = 0;
++	s->s_bdev = 0;
++	s->s_type = NULL;
++	unlock_super(s);
++	atomic_dec(&s->s_active);
++	spin_lock(&sb_lock);
++	list_del(&s->s_list);
++	spin_unlock(&sb_lock);
++	put_super(s);
+ out1:
+ 	blkdev_put(bdev, BDEV_FS);
+ out:
+
 

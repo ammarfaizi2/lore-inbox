@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276956AbRJQQ3J>; Wed, 17 Oct 2001 12:29:09 -0400
+	id <S276962AbRJQQ2T>; Wed, 17 Oct 2001 12:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276957AbRJQQ3A>; Wed, 17 Oct 2001 12:29:00 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:50958 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S276956AbRJQQ2p>; Wed, 17 Oct 2001 12:28:45 -0400
-X-Apparently-From: <rajeev?bector@yahoo.com>
-From: "Rajeev Bector" <rajeev_bector@yahoo.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: ptrace question
-Date: Wed, 17 Oct 2001 09:23:38 -0700
-Message-ID: <GIEMIEJKPLDGHDJKJELAEEBLCNAA.rajeev_bector@yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
-Importance: Normal
+	id <S276956AbRJQQ2J>; Wed, 17 Oct 2001 12:28:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27910 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276957AbRJQQ15>; Wed, 17 Oct 2001 12:27:57 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: VM test on 2.4.13-pre3aa1 (compared to 2.4.12-aa1 and 2.4.13-pre2aa1)
+Date: Wed, 17 Oct 2001 16:27:25 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9qkbhd$h8m$1@penguin.transmeta.com>
+In-Reply-To: <20011016081639.A209@earthlink.net> <20011017021242.S2380@athlon.random> <20011017043103.D2380@athlon.random> <20011017004839.A15996@earthlink.net>
+X-Trace: palladium.transmeta.com 1003336083 29707 127.0.0.1 (17 Oct 2001 16:28:03 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 17 Oct 2001 16:28:03 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question on the ptrace system call
-implementation:
+In article <20011017004839.A15996@earthlink.net>, <rwhron@earthlink.net> wrote:
+>> 
+>> So I'd suggest to try again after "echo 4 > /proc/sys/vm/page-cluster"
+>> to see if it makes any difference.
+>> 
+>> Andrea
+>
+>You Rule!
+>
+>The tweak to page-cluster is basically magic for this test.
+>
+>With page-cluster=4, the mp3blaster sputtered like 2.4.13pre2aa1.
+>Better, but not beautiful.
+>
+>Real beauty happens with page-cluster=2.  There is virtually no sputter.  
+>And the wall clock time is a little better than 2.4.13pre2aa1!
 
-In kernel/ptrace.c in the function access_one_page(),
-why is read access denied to pages which are
-marked PG_reserved ?
+This is good information.
 
-I have some pages in my driver which are reserved
-and memory mapped to user applications which I'd
-like to access in gdb.
+The problem is that "page-cluster" is actually used for two different
+things: it's used for mmap page-in clustering, and it's used for swap
+page-in clustering, and they probably have rather different behaviours.
 
-Any clues to what is the risk if I were to enable
-accessing of pages which are marked "reserved"
+Setting page-cluster to 2 means that both mmap and page-in will cluster
+only four pages, which might slow down mmap throughput when not swapping
+(and make program loading in particular slow down under disk load).  At
+the same time it's probably perfectly fine for swapping - I think
+Marcelo eventually wants to re-do the swapin read-clustering anyway. 
 
-Thanks in advance !
-Rajeev
+And wall-clock time apparently did decrease with page-clustering
+lowered, although personally I like latency more than throughput so that
+doesn't really bother me.
 
+However, I'd really like to know whether it is mmap or swap clustering
+that matters more, so it would be interesting to hear what happens if
+you remove the "swapin_readahead(entry)" line in mm/memory.c (in
+do_swap_page()).  Does a large page-cluster value still make matters
+worse when it's disabled for swapping? (In other words: does
+page-cluster actually hurt for mmap too, or is the problem strictly
+related to swapping?)
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+Willing to test your load?
 
+	Thanks,
+		Linus

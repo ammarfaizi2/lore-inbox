@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279815AbRJ3C4X>; Mon, 29 Oct 2001 21:56:23 -0500
+	id <S279829AbRJ3C6D>; Mon, 29 Oct 2001 21:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279829AbRJ3C4O>; Mon, 29 Oct 2001 21:56:14 -0500
-Received: from domino1.resilience.com ([209.245.157.33]:20635 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S279815AbRJ3C4C>; Mon, 29 Oct 2001 21:56:02 -0500
-Mime-Version: 1.0
-Message-Id: <p05100304b803c6908755@[10.128.7.49]>
-In-Reply-To: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net>
-In-Reply-To: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net>
-Date: Mon, 29 Oct 2001 18:55:48 -0800
-To: Dan Hollis <goemon@anime.net>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Ethernet NIC dual homing
-Cc: willy tarreau <wtarreau@yahoo.fr>, <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S279831AbRJ3C5z>; Mon, 29 Oct 2001 21:57:55 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:62214 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S279829AbRJ3C5i>; Mon, 29 Oct 2001 21:57:38 -0500
+Message-ID: <3BDE161A.D8289730@zip.com.au>
+Date: Mon, 29 Oct 2001 18:53:14 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Mansfield <david@cobite.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: i/o stalls on 2.4.14-pre3 with ext3
+In-Reply-To: <Pine.LNX.4.21.0110292120340.16895-100000@admin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 6:33 PM -0800 10/29/01, Dan Hollis wrote:
->On Mon, 29 Oct 2001, Christopher Friesen wrote:
->>  Are there issues with using MII to detect link state?  I thought 
->>it was fairly
->>  reliable...
->
->It doesn't work to detect link state through bridging device (say, bridged
->ethernet over T3). The T3 might go down, but your MII link to the local
->router will remain "up", so you will never know about the loss of link and
->your packets will happily go into the void...
+David Mansfield wrote:
+> 
+> I tried out 2.4.14-pre3 plus the ext3 patch from Andrew Morton and
+> encountered some strange I/O stalls.   I was doing a 'cvs tag' of my local
+> kernel-cvs repository, which generates a lot of read/write traffic in a
+> single process.
 
-ARP isn't going to do much for you once the failure is beyond the 
-local segment, is it?
--- 
-/Jonathan Lundell.
+hmm..  Thanks - I'll do some metadata-intensive testing.
+
+ext3's problem is that it is unable to react to VM pressure 
+for metadata (buffercache) pages.  Once upon a time it did
+do this, but we backed it out because it involved mauling
+core kernel code.  So at present we only react to VM pressure
+for data pages.
+
+Now that metadata pages have a backing address_space, I think we
+can again allow ext3 to react to VM pressure against metadata.
+It'll take some more mauling, but it's good mauling ;)
+
+Then again, maybe something got broken in the buffer writeout
+code or something.
+
+Is this repeatable? 
+
+	while true
+	do
+		cvs tag foo
+		cvs tag -d foo
+	done
+
+If so, can you run `top' in parallel, see if there's
+anything suspicious happening?

@@ -1,73 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288578AbSADKRN>; Fri, 4 Jan 2002 05:17:13 -0500
+	id <S288576AbSADKTN>; Fri, 4 Jan 2002 05:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288576AbSADKRD>; Fri, 4 Jan 2002 05:17:03 -0500
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:17568 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S288590AbSADKQz>; Fri, 4 Jan 2002 05:16:55 -0500
-Message-ID: <001e01c19508$ee319b70$140ba8c0@mistral>
-From: "Simon Turvey" <turveysp@ntlworld.com>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>,
-        "kernelnewbies" <kernelnewbies@nl.linux.org>,
-        "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10201041427001.2221-100000@blrmail>
-Subject: Re: How to take a crash dump
-Date: Fri, 4 Jan 2002 10:16:52 -0000
+	id <S288577AbSADKTD>; Fri, 4 Jan 2002 05:19:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35599 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288576AbSADKSt>; Fri, 4 Jan 2002 05:18:49 -0500
+Subject: Re: ISA slot detection on PCI systems?
+To: cate@dplanet.ch (Giacomo A. Catenazzi)
+Date: Fri, 4 Jan 2002 10:29:44 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        esr@thyrsus.com (Eric S. Raymond)
+In-Reply-To: <3C357C50.6168947B@dplanet.ch> from "Giacomo A. Catenazzi" at Jan 04, 2002 10:56:32 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <E16MRbc-0003Qx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have "lcrash" installed on my system. I have 2.4.8 kernel. I would like
-> to know how to make a linux system panic so that I can take a crash dump
-> and analyse using "lcrash". Is there any command to make the system panis
-> as we have on other unices(SVR4 and unixware)?
+> I check the .config of main distributions [could
+> someone send to me the latest official .config],
+> and I'll find what are the common/default ISA cards.
 
-Try dereferencing a null pointer.  Works for me, intentionally or otherwise
-:)
+We enable almost all - but as modules. Non ISAPnP/PCI/otherwise detectable
+devices require user intervention via the GUI config tools or by editing
+modules.conf
 
-All the best,
-    Simon
-
------ Original Message -----
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: "kernelnewbies" <kernelnewbies@nl.linux.org>; "linux-kernel"
-<linux-kernel@vger.kernel.org>; "linux india programming"
-<linux-india-programmers@lists.sourceforge.net>
-Sent: Friday, January 04, 2002 9:00 AM
-Subject: How to take a crash dump
-
-
-> Hi,
->
-> I have "lcrash" installed on my system. I have 2.4.8 kernel. I would like
-> to know how to make a linux system panic so that I can take a crash dump
-> and analyse using "lcrash". Is there any command to make the system panis
-> as we have on other unices(SVR4 and unixware)?
->
-> Thanks in advance,
->
->
-> Warm regards,
-> Sathish.J
-> Systems Engineer
-> Tata Infotech Limited
-> 80 Feet Road
-> Indra Nagar
-> Bangalore-560 038.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+Except for the sound configuration the number of people this hits is very
+low indeed.

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbSJVSFu>; Tue, 22 Oct 2002 14:05:50 -0400
+	id <S264807AbSJVSDd>; Tue, 22 Oct 2002 14:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264845AbSJVSDj>; Tue, 22 Oct 2002 14:03:39 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:58520 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262006AbSJVSDY>; Tue, 22 Oct 2002 14:03:24 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 22 Oct 2002 11:18:20 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mark Mielke <mark@mark.mielke.cc>,
-       "Charles 'Buck' Krasic" <krasic@acm.org>,
+	id <S264800AbSJVSDB>; Tue, 22 Oct 2002 14:03:01 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:49082 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264807AbSJVSBh>; Tue, 22 Oct 2002 14:01:37 -0400
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Andrew Morton <akpm@digeo.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <1035310415.31873.120.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0210221113390.1563-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       Linux Memory Management <linux-mm@kvack.org>
+In-Reply-To: <20021022134501.C20957@redhat.com>
+References: <2629464880.1035240956@[10.10.2.3]>
+	<Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva>
+	<20021022131930.A20957@redhat.com> <396790000.1035308200@flay> 
+	<20021022134501.C20957@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 19:22:14 +0100
+Message-Id: <1035310934.31917.124.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Oct 2002, Alan Cox wrote:
+On Tue, 2002-10-22 at 18:45, Benjamin LaHaise wrote:
+> On Tue, Oct 22, 2002 at 10:36:40AM -0700, Martin J. Bligh wrote:
+> > Bear in mind that large pages are neither swap backed or file backed
+> > (vetoed by Linus), for starters. There are other large app problem scenarios 
+> > apart from Oracle ;-)
+> 
+> I think the fact that large page support doesn't support mmap for users 
+> that need it is utterly appauling; there are numerous places where it is 
+> needed.  The requirement for root-only access makes it useless for most 
+> people, especially in HPC environments where it is most needed as such 
+> machines are usually shared and accounts are non-priveledged.
 
-> On Tue, 2002-10-22 at 18:47, Davide Libenzi wrote:
-> > Since the sys_epoll ( and /dev/epoll ) fd support standard polling, you
-> > can mix sys_epoll handling with other methods like poll() and the AIO's
-> > POLL function when it'll be ready. For example, for devices that sys_epoll
-> > intentionally does not support, you can use a method like :
->
-> The more important question is why do you need epoll. asynchronous I/O
-> completions setting a list of futexes can already be made to do the job
-> and is much more flexible.
-
-Alan, could you provide a code snipped to show how easy it is and how well
-it fits a 1:N ( one task/thread , N connections ) architecture ? And
-looking at Ben's presentation about benchmarks ( and for pipe's ), you'll
-discover that both poll() and AIO are "a little bit slower" than
-sys_epoll. Anyway I do not want anything superflous added to the kernel
-w/out reason, that's why, beside the Ben's presentation, there're curretly
-people benchmarking existing solutions.
-
-
-
-
-- Davide
-
+I was very suprised the large page crap went in, in the form it
+currently exists. Merging pages makes sense, spotting and doing 4Mb page
+allocations kernel side makes sense. The rest is very questionable
 

@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbQKQTAt>; Fri, 17 Nov 2000 14:00:49 -0500
+	id <S129270AbQKQTEt>; Fri, 17 Nov 2000 14:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbQKQTAj>; Fri, 17 Nov 2000 14:00:39 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6671 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129270AbQKQTAV>; Fri, 17 Nov 2000 14:00:21 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: VGA PCI IO port reservations
-Date: 17 Nov 2000 10:29:58 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v3tf6$s3e$1@cesium.transmeta.com>
-In-Reply-To: <3A156116.65CDBBE9@didntduck.org> <200011171656.QAA01320@raistlin.arm.linux.org.uk>
+	id <S129875AbQKQTEj>; Fri, 17 Nov 2000 14:04:39 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:35597 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129664AbQKQTE0>; Fri, 17 Nov 2000 14:04:26 -0500
+Message-ID: <3A15792F.D8891A69@timpanogas.org>
+Date: Fri, 17 Nov 2000 11:30:07 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
+Subject: Re: ORACLE and 2.4-test10
+In-Reply-To: <E13wq1g-0000zo-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200011171656.QAA01320@raistlin.arm.linux.org.uk>
-By author:    Russell King <rmk@arm.linux.org.uk>
-In newsgroup: linux.dev.kernel
->
-> Brian Gerst writes:
-> > This is an artifact from the ISA 10-bit IO bus.  Many ISA cards do not
-> > decode all 16 address bits so you get aliases of the 0x100-0x3ff region
-> > throughout IO space.  PCI cards should only use the first 256 ports of
-> > any 1k block to avoid aliases unless they claim the base alias.  For
-> > example, all the xxe8 addresses for the S3 are aliases of 0x02e8 to an
-> > ISA card.  Video cards are an exception to the general rule because they
-> > have to support all the legacy VGA crap.
-> 
-> No.  All xxe8 addresses access specific registers.  For example:
-> 
->   0x9ea8 is the drawing command
->   0xa2e8 is the background colour register
->   0xa6e8 is the foreground colour register
-> 
-> So, as you see they aren't aliases.
-> 
 
-They aren't, but because early ISA cards did use these as aliases,
-board manufacturers said "hey, we only need to allocate the bottom 10
-bits, and we can use the remaining 6 address lines as we please."
+Alan,
 
-Sigh.
+When we ported Oracle to NetWare, we found that making changes to the
+core file systems in NetWare that Oracle needed would tank FS
+performance, so we came up with something called direct FS, a separate
+File System interface just for Oracle.  The SOSD layer inside of Oracle
+allows them, via simple config statements, to redirect to different file
+systems, even specialized ones, so this is trivial for them to
+instrument.  The whole O_SYNC thing accross the entire OS could be
+problematic to support.  
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+In NetWare, directFS was little more than a "raw" interface that
+bypassed the file cache.  It would be like having an API to a direct
+physical file system that never cached data in the buffer cache.  In
+Linux, this may be tough to pull off, but Al Viro could instrument a
+raw_read, raw_write function table entry that would do something
+similiar that would allow Oracle to detect if an FS had a raw mode,
+since this is what they actually need.
+
+My 2 cents anyway.
+
+8)
+
+Jeff
+
+Alan Cox wrote:
+> 
+> > Can anybody on tell me whatever there are still
+> > serious pitfalls in running Oracle-8.1.6.1R2 on the
+> 
+> Yes.
+> 
+> > If I rememeber correctly there where some problems with
+> > SHM handling still left to resolve...
+> 
+> SHM is resolved but O_SYNC is not yet fixed. You could therefore easily lose
+> your entire database
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

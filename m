@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbUCCTEp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 14:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbUCCTEo
+	id S262546AbUCCTMT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 14:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUCCTMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 14:04:44 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:8188 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262544AbUCCTEn (ORCPT
+	Wed, 3 Mar 2004 14:12:19 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:7434 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id S262548AbUCCTMM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 14:04:43 -0500
-Date: Wed, 3 Mar 2004 11:04:05 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, Dave McCracken <dmccr@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: 230-objrmap fixes for 2.6.3-mjb2
-Message-ID: <20040303190405.GA5190@w-mikek2.beaverton.ibm.com>
-References: <20040303070933.GB4922@dualathlon.random> <20040303025820.2cf6078a.akpm@osdl.org> <7440000.1078328791@[10.10.2.4]> <7710000.1078329523@[10.1.1.4]> <20040303160802.A30084@infradead.org>
+	Wed, 3 Mar 2004 14:12:12 -0500
+Date: Wed, 3 Mar 2004 20:12:06 +0100
+To: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
+Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
+       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: 2.6.2: P4 ClockMod speed
+Message-ID: <20040303191206.GL2869@poupinou.org>
+References: <20040216213435.GA9680@dominikbrodowski.de> <40313AA9.1060906@arenanetwork.com.br> <20040217090939.GA9935@dominikbrodowski.de> <403D4BD3.7050703@arenanetwork.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040303160802.A30084@infradead.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <403D4BD3.7050703@arenanetwork.com.br>
+User-Agent: Mutt/1.5.4i
+From: Bruno Ducrot <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 04:08:02PM +0000, Christoph Hellwig wrote:
-> On Wed, Mar 03, 2004 at 09:58:44AM -0600, Dave McCracken wrote:
-> > It'd mean the page struct would have to have a count of the number of
-> > mlock()ed regions it belongs to, and we'd have to update all the pages each
-> > time we call it.
+On Thu, Feb 26, 2004 at 01:28:51AM +0000, dual_bereta_r0x wrote:
+> Dominik Brodowski wrote:
 > 
-> That would add another atomic_t to struct pages..
+> >
+> >That's not the point: some hardware (e.g. ARM) needs different memory
+> >settings and different settings of the LCD controller  for different 
+> >CPU frequencies, as the Front Side Bus of the CPU is closely related 
+> >to the CPU frequency. On x86, all cpufreq techniques I've
+> >seen so far do not modify the FSB [*], so memory settings etc. do not need
+> >to be modified.
+> >
+> >	Dominik
+> >
+> >[*] or scaling the FSB didn't work...
 > 
-> But if we did it it would help some xfs fixes I'm doing currently a whole lot
+> In x86 world, this info is wrong. The *multiplier* is locked inside 
+> processor (Intel P4) or by some "dips" on cpu core (AMD Athlon XP) -- 
+> unless you have such as "enginering samples", with didn't have this lock 
+> --, but front-side-bus is changeable via MoBo BIOS. Also, if you just 
+> add 0.5v in your CPU you can made it running faster than designed. The 
+> same applies to memory. That's why we bought DDR533 mems to run in 
+> DDR400 hardwares. We increase FSB and our mems could run with this new FSB.
+> 
+> Again, showing *max* from manufacturer instead of *actual* speed is 
+> wrong. Even if the machine has or not capabilities to run with more/less 
+> power than it has designed for, is not up to the OS decide it. The OS 
+> should run or not, but the user has chosen this path; it must only tell 
+> him what's *really* happening. "Your actual clock differs from 
+> manufacturer. Its *your* fault if any component fail or 
+> malfunctions/bugs arrives because of this."
 > 
 
-As someone looking into hotplug memory, I can imagine this also helping
-out in that area.
+The problem is that you can not trust /proc/cpuinfo when you compile
+with SMP.  Go UP and that should be ok.
+
+Cheers,
 
 -- 
-Mike
+Bruno Ducrot
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbUKRWBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbUKRWEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbUKRWBt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 17:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUKRWAH
+	id S263010AbUKRWEA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 17:04:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUKRWCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 17:00:07 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:41457 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S261176AbUKRV5Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:57:25 -0500
-Message-ID: <419D1AC0.9030404@verizon.net>
-Date: Thu, 18 Nov 2004 16:57:20 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: simon@nuit.ca
-CC: linux-kernel@vger.kernel.org
+	Thu, 18 Nov 2004 17:02:54 -0500
+Received: from nuit.ca ([66.11.160.83]:12165 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S261180AbUKRV7c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 16:59:32 -0500
+Date: Thu, 18 Nov 2004 16:59:28 -0500
+From: simon@nuit.ca
+To: Jim Nelson <james4765@verizon.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: follow-up to: OOPS in tulip 2.6.10-rc2-bk2
-References: <20041118203258.GC7555@nuit.ca>
-In-Reply-To: <20041118203258.GC7555@nuit.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [209.158.220.243] at Thu, 18 Nov 2004 15:57:22 -0600
+Message-ID: <20041118215928.GD7555@nuit.ca>
+References: <20041118203258.GC7555@nuit.ca> <419D1AC0.9030404@verizon.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eRtJSFbw+EEWtPj3"
+Content-Disposition: inline
+In-Reply-To: <419D1AC0.9030404@verizon.net>
+X-Operating-System: Debian GNU/Linux
+X-GPG-Key-Server: x-hkp://subkeys.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
+X-Scan-Signature: smtp.nuit.ca 1CUuJN-0000T3-3s 1df59fe59300c7e9e09be51c4ec9aa32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-simon@nuit.ca wrote:
-> i get build warnings:
-> 
-> drivers/net/appletalk/ipddp.c:292: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
->   CC [M]  drivers/net/tulip/de2104x.o
-> drivers/net/tulip/de2104x.c:61: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/tulip/de2104x.c:72: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
->   CC [M]  drivers/net/tulip/eeprom.o
->   CC [M]  drivers/net/tulip/interrupt.o
->   CC [M]  drivers/net/tulip/media.o
->   CC [M]  drivers/net/tulip/timer.o
->   CC [M]  drivers/net/tulip/tulip_core.o
-> drivers/net/tulip/tulip_core.c:118: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/tulip/tulip_core.c:119: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/tulip/tulip_core.c:120: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/tulip/tulip_core.c:121: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/tulip/tulip_core.c:122: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/tulip/tulip_core.c:123: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> 
-> and:
-> 
-> drivers/net/mace.c:1050: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
->   CC [M]  drivers/net/3c59x.o
-> drivers/net/3c59x.c:281: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:282: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:283: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:284: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:285: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:286: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:287: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:288: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:289: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:290: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:291: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:292: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:293: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:294: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> drivers/net/3c59x.c:295: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
-> 
-> 
-> with -bk3. got the same ones in -bk2.
-> 
-> eric
-> 
 
-There's a project underway to convert those to module_param() (defined in 
-include/linux/moduleparam.h) at kernel-janitors@lists.osdl.org - right now, it's 
-not a critical problem.  Probably won't be corrected until after 2.6.10 is 
-released - Linus is only accepting bugfixes right now.
+--eRtJSFbw+EEWtPj3
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jim
+Ce jour Thu, 18 Nov 2004, Jim Nelson a dit:
+
+>=20
+> There's a project underway to convert those to module_param() (defined in=
+=20
+> include/linux/moduleparam.h) at kernel-janitors@lists.osdl.org - right no=
+w,=20
+> it's not a critical problem.  Probably won't be corrected until after=20
+> 2.6.10 is released - Linus is only accepting bugfixes right now.
+>=20
+> Jim
+
+ok, thank you.
+
+--=20
+"We're not talking about the same thing," he said. "For you the world is
+weird because if you're not bored with it you're at odds with it. For me
+the world is weird because it is stupendous, awesome, mysterious,
+unfathomable; my interest has been to convince you that you must accept
+responsibility for being here, in this marvelous world, in this marvelous
+desert, in this marvelous time.  I wanted to convince you that you must
+learn to make every act count, since you are going to be here for only a
+short while, in fact, too short for witnessing all the marvels of it."
+                -- Don Juan
+
+--eRtJSFbw+EEWtPj3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQGVAwUBQZ0bP2qIeuJxHfCXAQIg+Av7BAkDhzr6ExdXKw721cQjFSF690dtT/o5
+RfMiyL/o1jY3jl8fa7/PR74He4Z2Xl0fdfr7W23xHH2BRVhV3Cb4nL7z9Y1KTeh9
+fu5oIjdsBK8Be/iMRJWyZ0TovqqBHyq12nb3UG3JBb0ds1BUlI7fIf/Bv4CzORyG
+0hW4TooHw+yoSyV+DUquicyXS0lMN9yhf5KH5jgz7MYdKjT6jTaAG1hA30lQDLoW
+H6zDPnUGx8FxpdTQPLCaXOnTV/kZfE42Wm3FR68d42WhBSzL83QiemjpVP7lq9So
+j3KyUF+ymVUT4noW1WGu9nboJfPHOUh/bMGlAlWuyGVo/sI6lRj1OvI+PhV7wx5B
+KyUTBNFiDLIoF1QQ1CHZDzJ7+rYOutPF8348yfJtn/v31v9ql9Kp04EB8Nitbqdo
+ElJINqE3K+JBh/T/S3TeZUkxwB8PH3KnmwZW0fdzRisk7psWARmI6WZryfjN3Lps
+JGo+EC76ysNs9sHRs1dOizlFutREvb1w
+=LanY
+-----END PGP SIGNATURE-----
+
+--eRtJSFbw+EEWtPj3--

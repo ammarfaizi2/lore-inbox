@@ -1,86 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293030AbSBVWfk>; Fri, 22 Feb 2002 17:35:40 -0500
+	id <S293026AbSBVWlL>; Fri, 22 Feb 2002 17:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293031AbSBVWfa>; Fri, 22 Feb 2002 17:35:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48394 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293030AbSBVWfO>;
-	Fri, 22 Feb 2002 17:35:14 -0500
-Message-ID: <3C76C7A1.4389A375@mandrakesoft.com>
-Date: Fri, 22 Feb 2002 17:35:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <20020221221145.I1742-100000@gerard>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S293029AbSBVWlC>; Fri, 22 Feb 2002 17:41:02 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:9710 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293026AbSBVWkt>;
+	Fri, 22 Feb 2002 17:40:49 -0500
+Subject: [PATCH] 2.4.18-rc2 Fix for get_pid hang
+From: Paul Larson <plars@austin.ibm.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-nn1HZrXHkqME9rsPx2CH"
+X-Mailer: Evolution/1.0.2 
+Date: 22 Feb 2002 16:29:48 -0600
+Message-Id: <1014416988.12007.461.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gérard Roudier wrote:
-> 
-> On Fri, 22 Feb 2002, Jeff Garzik wrote:
-> 
-> > Gérard Roudier wrote:
-> > > Basically at the moment, if the driver allows upper 'seeming cleaner and
-> > > smarter' PCI probing things to deal with the HBA attachment order, at
-> > > least all my machines running Linux will not even reboot.
-> > >
-> > > Being smart is doing what user expects, here.
-> >
-> > Oh come on, how hard is the following?
-> >
-> > > static int __init foo_init(void)
-> > > {
-> > >     int rc = pci_module_init(&sym2_pci_driver);
-> > >     if (rc) return rc;
-> > >     do_deferred_work();
-> > > }
-> > > module_init(foo_init);
-> >
-> > You have tons of flexibility you are ignoring here...  For the
-> > non-hotplug hosts (ie. present at boot), just use pci_driver::probe to
-> > register hosts on a list, and little other work.  do_deferred_work()
-> > handles the list in a manner that ensures proper boot and/or host
-> > ordering.
-> >
-> > So for non-hotplug hosts you do a init_module time:
-> >       register N hosts with PCI API
-> >       register N hosts with SCSI API
-> >
-> > And hotplugged hosts would do the same, with N==1.
-> >
-> > What you describe -is- supported with the PCI API.
-> 
-> At the time I investigated the API it just mixed the probing and the
-> registering by performing some auto-registration based on return value.
-> May-be the API did evolve since that time or I missed something important.
-> 
-> For now I will be in vacation for 1 week. I will re-investigate this when
-> I will be back.
 
-Thanks!
+--=-nn1HZrXHkqME9rsPx2CH
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-One thing that is slowly becoming apparently to me during this thread is
-the importance of separating ordering [of hosts, of disks] from the
-registration of the resource itself.
+Marcelo,
 
-Thinking about the problem a bit more (NVRAM boot disk ordering, etc.) I
-believe that what I describe above might be considered a transition
-step...  In Step Two, do_deferred_work() [above] would likely be moved
-to userspace, running on initramfs.
+This was made against 2.4.18-rc2 but applies cleanly against
+2.4.18-rc4.  This is a fix for a problem where if we run out of
+available pids, get_pid will hang the system while it searches through
+the tasks for an available pid forever.
 
-	Jeff
+Thanks,
+Paul Larson
 
 
 
--- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+
+
+
+
+
+
+
+
+--=-nn1HZrXHkqME9rsPx2CH
+Content-Disposition: attachment; filename=getpid.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; charset=ISO-8859-1
+
+diff -Naur linux-2.4.18-rc2/kernel/fork.c linux-getpid/kernel/fork.c
+--- linux-2.4.18-rc2/kernel/fork.c	Wed Feb 20 09:54:39 2002
++++ linux-getpid/kernel/fork.c	Fri Feb 22 15:52:52 2002
+@@ -20,6 +20,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/completion.h>
+ #include <linux/personality.h>
++#include <linux/compiler.h>
+=20
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -85,12 +86,13 @@
+ {
+ 	static int next_safe =3D PID_MAX;
+ 	struct task_struct *p;
+-	int pid;
++	int pid, beginpid;
+=20
+ 	if (flags & CLONE_PID)
+ 		return current->pid;
+=20
+ 	spin_lock(&lastpid_lock);
++	beginpid =3D last_pid;
+ 	if((++last_pid) & 0xffff8000) {
+ 		last_pid =3D 300;		/* Skip daemons etc. */
+ 		goto inside;
+@@ -110,12 +112,16 @@
+ 						last_pid =3D 300;
+ 					next_safe =3D PID_MAX;
+ 				}
++				if(unlikely(last_pid =3D=3D beginpid))
++					goto nomorepids;
+ 				goto repeat;
+ 			}
+ 			if(p->pid > last_pid && next_safe > p->pid)
+ 				next_safe =3D p->pid;
+ 			if(p->pgrp > last_pid && next_safe > p->pgrp)
+ 				next_safe =3D p->pgrp;
++			if(p->tgid > last_pid && next_safe > p->tgid)
++				next_safe =3D p->tgid;
+ 			if(p->session > last_pid && next_safe > p->session)
+ 				next_safe =3D p->session;
+ 		}
+@@ -125,6 +131,11 @@
+ 	spin_unlock(&lastpid_lock);
+=20
+ 	return pid;
++
++nomorepids:
++	read_unlock(&tasklist_lock);
++	spin_unlock(&lastpid_lock);
++	return 0;
+ }
+=20
+ static inline int dup_mmap(struct mm_struct * mm)
+@@ -620,6 +631,8 @@
+=20
+ 	copy_flags(clone_flags, p);
+ 	p->pid =3D get_pid(clone_flags);
++	if (p->pid =3D=3D 0 && current->pid !=3D 0)
++		goto bad_fork_cleanup;
+=20
+ 	p->run_list.next =3D NULL;
+ 	p->run_list.prev =3D NULL;
+
+--=-nn1HZrXHkqME9rsPx2CH--
+

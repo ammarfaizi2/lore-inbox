@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S262711AbUKEQEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261236AbUKEW0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbUKEQEv (ORCPT <rfc822;akpm@zip.com.au>);
-	Fri, 5 Nov 2004 11:04:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbUKEQEu
+	id S261236AbUKEW0y (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 5 Nov 2004 17:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbUKEWYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 11:04:50 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:12160 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261153AbUKEQEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 11:04:20 -0500
-Message-Id: <200411050433.iA54XBGq004923@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: linux-kernel@vger.kernel.org, mailinglisten@hentges.net
-Subject: Re: [2.6.10-rc1-mm2] keyboard / synaptics not working 
-In-Reply-To: Your message of "Thu, 04 Nov 2004 13:15:13 +0100."
-             <418A1D51.4010504@free.fr> 
-From: Valdis.Kletnieks@vt.edu
-References: <418A1D51.4010504@free.fr>
+	Fri, 5 Nov 2004 17:24:47 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:48061 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261236AbUKEWYc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 17:24:32 -0500
+Date: Fri, 5 Nov 2004 23:25:02 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Roland Mas <roland.mas@free.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: meye bug?  No.
+Message-ID: <20041105222502.GD3996@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Roland Mas <roland.mas@free.fr>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041104111231.GF3472@crusoe.alcove-fr> <87zn1xjoqo.fsf@mirexpress.internal.placard.fr.eu.org> <20041104215805.GB3996@deep-space-9.dsnet> <87actwo87q.fsf_-_@cachemir.echo-net.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_494204241P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 04 Nov 2004 23:33:11 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87actwo87q.fsf_-_@cachemir.echo-net.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_494204241P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Nov 05, 2004 at 12:18:01PM +0100, Roland Mas wrote:
 
-On Thu, 04 Nov 2004 13:15:13 +0100, matthieu castet said:
+> > :)
+> 
+> Okay, so I made a fool of myself, hope you had fun, sorry for the
+> inconvenience otherwise :-)
 
-> Could you try these 2 patchs with CONFIG_PNPACPI=y ?
+No problem :)
+> 
+>   Seriously though, and as much as I know I should have read the docs,
+> is this detectable from meye?  If it is, I suggest it would be a nice
+> thing to have a different or more explicit error message.  Just "meye:
+> need to reset HIC, is sonypi correctly configured?" would be cool.
 
->  filename="pnpacpi.patch"
+As a matter of fact it is quite detectable yes. I'll put in a check
+which will even fail to load the meye module (with an explicit
+error message) if sonypi isn't loaded with camera=1.
 
->  filename="i8042_pnp.patch"
+The only disadvantage of that is that it won't catch anymore the
+users who don't RTFM :)
 
-Just confirming that my Dell Latitude C840 had the same "no keyboard"
-issues with -rc1-mm2, and these 2 patches result in a working keyboard
-with CONFIG_PNPACPI.
-
---==_Exmh_494204241P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBiwKHcC3lWbTT17ARAhNvAKDFmqk/MHPQWRzyBfNsQnhrqjYcuACg/FnY
-ACi06BCkgzinmrbdKOR7soc=
-=XUoY
------END PGP SIGNATURE-----
-
---==_Exmh_494204241P--
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

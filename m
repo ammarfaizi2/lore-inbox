@@ -1,30 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268180AbUHXSkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268196AbUHXSmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268180AbUHXSkF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 14:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268193AbUHXSkF
+	id S268196AbUHXSmz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 14:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUHXSmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 14:40:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9907 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268180AbUHXSkC (ORCPT
+	Tue, 24 Aug 2004 14:42:55 -0400
+Received: from waste.org ([209.173.204.2]:53462 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S268196AbUHXSmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 14:40:02 -0400
-Date: Tue, 24 Aug 2004 11:39:23 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.9-rc1 compile fix in ipv4/ip_conntrack_proto_udp
-Message-Id: <20040824113923.43507152.davem@redhat.com>
-In-Reply-To: <200408241226.30298.lkml@felipe-alfaro.com>
-References: <200408241226.30298.lkml@felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 24 Aug 2004 14:42:53 -0400
+Date: Tue, 24 Aug 2004 13:42:45 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc1
+Message-ID: <20040824184245.GE5414@waste.org>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 24, 2004 at 12:49:24AM -0700, Linus Torvalds wrote:
+> Administrative trivia, and one thing I agonized over: should I make the
+> patches relative to 2.6.8 or 2.6.8.1? I decided that since there is
+> nothing that says that a "basic bug-fix" releases for a previous release
+> might not happen _after_ we've done a -rc release for the next version, I
+> can't sanely do patches against a bugfix release.
+> 
+> Thus the 2.6.9-rc1 patch is against plain 2.6.8. If you have 2.6.8.1, you
+> need to undo the .1 patch, and apply the big one. BK users and tar-balls 
+> don't see that particular confusion, of course ;)
 
-All of your netfilter_ipv4.h include patches applied,
-thanks Felipe.
+Phew, I was worried about that. Can I get a ruling on how you intend
+to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
+looking to unbreak. My preference would be for all x.y.z.n patches to
+be relative to x.y.z.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280233AbRKFTSi>; Tue, 6 Nov 2001 14:18:38 -0500
+	id <S280031AbRKFTYs>; Tue, 6 Nov 2001 14:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280210AbRKFTS2>; Tue, 6 Nov 2001 14:18:28 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:12553 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S280233AbRKFTSW>;
-	Tue, 6 Nov 2001 14:18:22 -0500
-Message-ID: <3BE835BE.DF4A98FA@osdl.org>
-Date: Tue, 06 Nov 2001 11:10:54 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederman@lnxi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14-pre8 Alt-SysRq-[TM] failure during lockup...
-In-Reply-To: <m3wv15n5c9.fsf@DLT.linuxnetworx.com> <3BE6DC56.5A0984A4@osdl.org> <m3pu6waae5.fsf@DLT.linuxnetworx.com>
+	id <S280484AbRKFTY2>; Tue, 6 Nov 2001 14:24:28 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:16695 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S280417AbRKFTYR>; Tue, 6 Nov 2001 14:24:17 -0500
+Date: Tue, 6 Nov 2001 19:23:44 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: EFS problem(s)
+Message-ID: <20011106192344.A2299@grobbebol.xs4all.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+X-OS: Linux grobbebol 2.4.13 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> "Randy.Dunlap" <rddunlap@osdl.org> writes:
-> 
-> > "Eric W. Biederman" wrote:
-> > >
-> > > Summary:  I triggered a condition in 2.4.14-pre8 where SysRq triggered
-> > > but would not print reports.  I managed to unstick the condition but
-> > > had played to much to determine the root cause.  My guess is that
-> > > somehow my default loglevel was messed up.  Full information is
-> > > provided just case I did not muddy the waters too much.
-> >
-> > Do you know what the console loglevel was when you tried
-> > to use Alt-SysRq-M (show_mem) or Alt-SysRq-T (show tasks ==
-> > show_state)?  (first value listed in /proc/sys/kernel/printk file)
-> 
-> I was in single user mode so it shouldn't have been changed
-> from it's default value.  But it might have been.
+hi *
 
-Eric,
+trying to mount an EFS (irix) CD -- I only can et it to mount using
 
-I have seen some distro(s) in which either syslogd or klogd (I'm
-guessing) uses the syslog syscall to change the console loglevel
-value in the kernel.
-This could still happen in single user mode, couldn't it?
+mount -t efs /dev/sda /mnt -o loop
 
-It bugged me because I often use the "debug" boot parameter
-to set console_loglevel to 10, but all of a sudden it had been
-set back to 6 IIRC!  And right now on one of my test
-systems it is set to 0 according to /proc/sys/kernel/printk,
-although _I_ didn't ask for it to be changed to 0, and
-I haven't been able to find what's changing it to 0, since
-it was 10 during init/main.c.
+without loop, it fails always. if I now look at the cd it irregularly
+crashes. no messages.
 
-~Randy
+if I mount  harddrive with -o loop and efs, it also irregularly crashes.
+
+if I do not use -o loop, it doesn't crash but after trying to tar a big
+file (500 MB on the disk) :
+
+Nov  6 19:18:24 grobbebol kernel: EFS: map_block() failed to map block 472423 (indir)
+Nov  6 19:18:24 grobbebol kernel: EFS: map_block() failed to map block 472424 (indir)
+Nov  6 19:18:24 grobbebol kernel: EFS: map_block() failed to map block 472425 (indir)
+Nov  6 19:18:24 grobbebol kernel: EFS: map_block() failed to map block 472426 (indir)
+Nov  6 19:18:24 grobbebol kernel: EFS: map_block() failed to map block 472427 (indir)
+Nov  6 19:18:24 grobbebol kernel: EFS: map_block() failed to map block 472428 (indir)
+etc. ad infinitum.
+
+probably something wrong with the new code here ?
+
+-- 
+Grobbebol's Home                      |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel          | Use your real e-mail address   /\
+Linux 2.4.13 (apic) SMP 466MHz/768 MB |        on Usenet.             _\_v  

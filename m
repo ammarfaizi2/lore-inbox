@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318159AbSHMPKG>; Tue, 13 Aug 2002 11:10:06 -0400
+	id <S318151AbSHMPPK>; Tue, 13 Aug 2002 11:15:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315690AbSHMPKF>; Tue, 13 Aug 2002 11:10:05 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25579 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318159AbSHMPKD>; Tue, 13 Aug 2002 11:10:03 -0400
-Date: Tue, 13 Aug 2002 17:13:50 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Lee Leahu <lee@ricis.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel crashes with 2.4.17
-In-Reply-To: <20020813084358.7e8de7d3.lee@ricis.com>
-Message-ID: <Pine.NEB.4.44.0208131711020.14606-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318152AbSHMPPK>; Tue, 13 Aug 2002 11:15:10 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:62200 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318151AbSHMPPJ>;
+	Tue, 13 Aug 2002 11:15:09 -0400
+Date: Tue, 13 Aug 2002 08:15:53 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: colpatch@us.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Greg KH <gregkh@us.ibm.com>
+Subject: Re: [patch] PCI Cleanup
+Message-ID: <1850510493.1029226552@[10.10.2.3]>
+In-Reply-To: <1029250668.22847.34.camel@irongate.swansea.linux.org.uk>
+References: <1029250668.22847.34.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Aug 2002, Lee Leahu wrote:
+> I pointed out before the null check was flawed. And all I see is the
+> same identical patch churned out again. Regardless of whether that
+> paticular stupid error was in the old code, not fixing it in the new
+> code when its pointed out is a bit of a mess.
+> 
+> I'm not sure its a simplification either. More function pointers don't
+> always make for neater - but thats a side issue. If the NULL check goes
+> I'm not too worried about the other stuff.
 
-> I am running the Linux Kernel 2.4.17.
->
-> >From what I have put here, what can you tell might be the problem?
->...
-> Aug 13 06:40:40 list kernel: Oops: 0000
->...
+OK, that's easily disposed of, and it'll remove even more lines of
+redundant code.
 
-1. Please run this through ksymoops as described in
-   Documentation/oops-tracing.txt in the kernel source tree.
-2. There are _many_ bug fixes in 2.4.19 compared to 2.4.17, could you
-   first try whether the problem still exists in 2.4.19?
+Thanks,
 
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+M.
 

@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUKCXO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUKCXTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbUKCXO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 18:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUKCXG5
+	id S261984AbUKCXTK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 18:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUKCXR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 18:06:57 -0500
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:23448 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S261890AbUKCXDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 18:03:50 -0500
-To: Russell Miller <rmiller@duskglow.com>
-Cc: Jim Nelson <james4765@verizon.net>, DervishD <lkml@dervishd.net>,
-       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-References: <200411030751.39578.gene.heskett@verizon.net>
-	<20041103192648.GA23274@DervishD> <4189586E.2070409@verizon.net>
-	<200411031644.58979.rmiller@duskglow.com>
-From: Doug McNaught <doug@mcnaught.org>
-Date: Wed, 03 Nov 2004 18:03:32 -0500
-In-Reply-To: <200411031644.58979.rmiller@duskglow.com> (Russell Miller's
- message of "Wed, 3 Nov 2004 17:44:58 -0500")
-Message-ID: <87k6t24jsr.fsf@asmodeus.mcnaught.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/20.7 (gnu/linux)
+	Wed, 3 Nov 2004 18:17:27 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:23168 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261890AbUKCXHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 18:07:10 -0500
+Date: Wed, 3 Nov 2004 17:06:56 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+In-Reply-To: <20041103211353.GA24084@infradead.org>
+Message-ID: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Miller <rmiller@duskglow.com> writes:
+On Wed, 3 Nov 2004, Christoph Hellwig wrote:
 
-> Anyway, is there a way to simply signal a syscall that it is to be
-> interrupted and forcibly cause the syscall to end?  Kicking the
-> program execution out of kernel space would be sufficient to
-> "unstick" the process - and coupling that with an automatic KILL
-> signal may not be a bad idea.
+> On Wed, Nov 03, 2004 at 04:02:49PM -0500, Timothy Miller wrote:
+> > I'm just curious about why there seems to be so much work going into
+> > supporting a wide range of GCC versions.  If people are willing to
+> > download and compile a new kernel (and migrating from 2.4 to 2.6 is
+> > non-trivial for some systems, like RH9), why aren't they willing to also
+> > download and build a new compiler?
+>
+> Because the new compilers are a lot slower.
 
-It was already mentioned in this thread that the bookkeeping required
-to clean up properly from such an abort would add a lot of overhead
-and slow down the normal, non-buggy case.
-
--Doug
+You can't be serious that this is a problem.

@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279749AbRKSPeY>; Mon, 19 Nov 2001 10:34:24 -0500
+	id <S279617AbRKSPdo>; Mon, 19 Nov 2001 10:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279472AbRKSPeG>; Mon, 19 Nov 2001 10:34:06 -0500
-Received: from NET.WAU.NL ([137.224.10.12]:20997 "EHLO net.wau.nl")
-	by vger.kernel.org with ESMTP id <S278940AbRKSPdp>;
-	Mon, 19 Nov 2001 10:33:45 -0500
-Date: Mon, 19 Nov 2001 16:33:44 +0100
-From: Olivier Sessink <lists@olivier.pk.wau.nl>
-Subject: mtrr: base(0xf8000000) is not aligned on a size(0x180000) boundary
-To: linux-kernel@vger.kernel.org
-Message-id: <20011119163344.039f5309.lists@olivier.pk.wau.nl>
-Organization: Wageningen Multimedia Software Labs
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7bit
+	id <S279472AbRKSPde>; Mon, 19 Nov 2001 10:33:34 -0500
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:37384 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S278940AbRKSPd2>;
+	Mon, 19 Nov 2001 10:33:28 -0500
+Date: Mon, 19 Nov 2001 07:36:25 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature?
+In-Reply-To: <01111917034005.00817@nemo>
+Message-ID: <Pine.LNX.4.10.10111190731400.22578-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 19 Nov 2001, vda wrote:
 
-I got this message when I restarted X on a Sony Vaio R600HEK notebook
-(Intel 815 chipset)
+> On Monday 19 November 2001 14:46, Alexander Viro wrote:
+> > On Mon, 19 Nov 2001, vda wrote:
+> > > Everytime I do 'chmod -R a+rX dir' and wonder are there
+> > > any executables which I don't want to become world executable,
+> > > I think "Whatta hell with this x bit meaning 'can browse'
+> > > for dirs?! Who was that clever guy who invented that? Grrrr"
+> > >
+> > > Isn't r sufficient? Can we deprecate x for dirs?
+> > > I.e. make it a mirror of r: you set r, you see x set,
+> > > you clear r, you see x cleared, set/clear x = nop?
+> >
+> > See UNIX FAQ.  Ability to read != ability to lookup.
+> >
+> > Trivial example: you have a directory with a bunch of subdirectories.
+> > You want owners of subdirectories to see them.  You don't want them
+> > to _know_ about other subdirectories.
+> 
+> Security through obscurity, that is.
+> 
+> Do you have even a single dir on your boxes with r!=x?
+> --
 
-mtrr: base(0xf8000000) is not aligned on a size(0x180000) boundary
+/home/user/public_html
 
-X was non-responsive, but another X restart solved the problem.
+Apache needs to be able to access public_html but you really don't want
+other users browsing your home dir.
 
-More info about this laptop can be found here
-http://lx.student.wau.nl/~olivier/linux_on_r600hek/linux_on_r600hek.html
+This is in fact a VERY COMMON SETUP and several distros even set things up
+that way by default. 
 
-is this something critical?
+On top of that your proposed change would make linux diffrent from every
+other Unix like OS making life harder for those of us who admin/code for 
+several diffrent OS.
 
-regards,
-	Olivier
+	Gerhard
+
+ 
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

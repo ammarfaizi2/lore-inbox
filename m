@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVCXVKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVCXVO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVCXVKs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 16:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVCXVKs
+	id S261405AbVCXVO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 16:14:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVCXVO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 16:10:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:37927 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261393AbVCXVKk (ORCPT
+	Thu, 24 Mar 2005 16:14:56 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:40561 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261405AbVCXVOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 16:10:40 -0500
+	Thu, 24 Mar 2005 16:14:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gqPBSDAHadnpl9XOvrb6QhlV+xtsH6sLNWNesrQpyupXYVaMNZXQaNEl9yWy1GpDpU6H1nsb84S81fPD2rtENDW564NeDUuVSRxVuvBAS0DVOOs4vzD7xDFA9HJ4CXK5JudJ4wZqf28IqdLF1KV07v0cg8ocRHmjoG2sZhBC0So=
-Message-ID: <d120d50005032413105950045c@mail.gmail.com>
-Date: Thu, 24 Mar 2005 16:10:39 -0500
+        b=eqbLwz2/u4k3PYBhKvpD+r7EPMYuMq/99mecD6WzZ53y1c/YgRyh3LfuJ1OLXiA4B5ErqakSNe3BfEqSNySflZ4soXlSpuzljInIkepk+JEWCjPErA1GWtUkANzEu5nLXhN3xrjVQ9ytdjkFp2RgxX+CVY7zk8wUJERMR0g5XE4=
+Message-ID: <d120d50005032413145adaa283@mail.gmail.com>
+Date: Thu, 24 Mar 2005 16:14:52 -0500
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Reply-To: dtor_core@ameritech.net
 To: Andy Isaacson <adi@hexapodia.org>
@@ -51,11 +51,9 @@ On Thu, 24 Mar 2005 12:20:40 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
 > (How can I verify that "nomux" was accepted?  It shows up on the "Kernel
 > command line" but there's no other mention of it in dmesg.)
 > 
-> -andy
-> 
 
-If you do "ls /sys/bus/serio/devices" and see more than 3 ports you
-have MUX mode active.
+Ignore my babbling, I just noticed in your dmesg that your KBC does
+not support MUX mode to begin with.
 
 -- 
 Dmitry

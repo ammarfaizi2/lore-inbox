@@ -1,111 +1,397 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbTBJUFM>; Mon, 10 Feb 2003 15:05:12 -0500
+	id <S265074AbTBJUIa>; Mon, 10 Feb 2003 15:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTBJUFM>; Mon, 10 Feb 2003 15:05:12 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:4055 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S262821AbTBJUFJ>;
-	Mon, 10 Feb 2003 15:05:09 -0500
-Message-ID: <3E48083E.6000901@namesys.com>
-Date: Mon, 10 Feb 2003 23:14:54 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Andrew Morton <akpm@digeo.com>, piggin@cyberone.com.au,
-       jakob@unthought.net, david.lang@digitalinsight.com,
-       riel@conectiva.com.br, ckolivas@yahoo.com.au,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3
- / aa / rmap with contest]
-References: <20030210010937.57607249.akpm@digeo.com> <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <20030210120916.GD31401@dualathlon.random> <3E47A1E5.6020902@namesys.com> <20030210131858.GP31401@dualathlon.random>
-In-Reply-To: <20030210131858.GP31401@dualathlon.random>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265095AbTBJUIa>; Mon, 10 Feb 2003 15:08:30 -0500
+Received: from crimson.ihg.uni-duisburg.de ([134.91.82.10]:28330 "EHLO
+	crimson.ihg.uni-duisburg.de") by vger.kernel.org with ESMTP
+	id <S265074AbTBJUII>; Mon, 10 Feb 2003 15:08:08 -0500
+Date: Mon, 10 Feb 2003 21:17:32 +0100
+From: Heiko Ronsdorf <sk048ro@mail.ihg.uni-duisburg.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][DRIVER][RFC] CPU5 watchdog driver for 2.5
+Message-ID: <20030210201732.GA25722@mail.ihg.uni-duisburg.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
 
->On Mon, Feb 10, 2003 at 03:58:13PM +0300, Hans Reiser wrote:
->  
->
->>Is the following a fair summary?
->>
->>There is a certain minimum size required for the IOs to be cost 
->>effective.  This can be determined by single reader benchmarking.  Only 
->>readahead and not anticipatory scheduling addresses that.
->>
->>Anticipatory scheduling does not address the application that spends one 
->>minute processing every read that it makes.  Readahead does.
->>
->>Anticipatory scheduling does address the application that reads multiple 
->>files that are near each other (because they are in the same directory), 
->>and current readahead implementations (excepting reiser4 in progress 
->>vaporware) do not.
->>
->>Anticipatory scheduling can do a better job of avoiding unnecessary 
->>reads for workloads with small time gaps between reads than readahead 
->>(it is potentially more accurate for some workloads).
->>
->>Is this a fair summary?
->>    
->>
->
->I would also add what I feel the most important thing, that is
->anticipatory scheduling can help decreasing a lot the latencies of
->filesystem reads in presence of lots of misc I/O, by knowing which are
->the read commands that are intermediate-dependent-sync, that means
->knowing a new dependent read will be submitted very quickly as soon as
->the current read-I/O is completed.
->
-Ah.... yes...  I have seen that be a problem, and reiserfs suffers from 
-it more than ext2....
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-maybe we should simply have an explicit protocol for that...  I would be 
-quite willing to have reiserfs use some flag that says 
-WILL_READ_NEARBY_NEXT whenever it reads an internal node to get the 
-location of its children....  that might be a lot cleaner than trying to 
-do it all in your layer...  what do you guys think...
+Hello linux-kernel,
 
-Perhaps it will be both less code, and a better result in that it avoids 
-some unnecessary lingering....
+this patch is for CPU5 watchdog hardware (kernel 2.5.59)
 
-> In such a case it makes lots sense to
->wait for the next read to be submitted instead of start processing
->immediatly the rest of the I/O queue.  This way when you read a file and
->you've to walk the indirect blocks before being able to read the data,
->you won't be greatly peanalized against the writes or reads that won't
->need to pass through metadata I/O before being served.
->
->This doesn't obviate the need of SFQ for the patological multimedia
->cases where I/O latency is the first prio, or for workloads where
->sync-write latency is the first prio.
->
->BTW, I'm also thinking that the SFQ could be selected not system wide,
->but per-process basis, with a prctl or something, so you could have all
->the I/O going into the single default async-io queue, except for mplayer
->that will use the SFQ queues. This may not even need to be privilegied
->since SFQ is fair and if an user can write a lot it can just hurt
->latency, with SFQ could hurt more but still not deadlock. This SFQ prctl
->for the I/O scheduler, would be very similar to the RT policy for the
->main process scheduler. Infact it maybe the best to just have SFQ always
->enabled, and selectable only via the SFQ prctl, and to enable the
->functionaltiy only per-process basis rather than global. We can still
->add a sysctl to enable it globally despite nobody set the per-process
->flag.
->
->Andrea
->
->
->  
->
-I still don't really understand your SFQ design, probably because I 
-haven't studied recent networking algorithms that your description 
-assumed I understand.
+see: http://www.sma.de/en/inco/dokuftp/
 
--- 
-Hans
+I would appreciate if you could find the time to have a
+look at the code and send a feedback.
+
+Heiko
 
 
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="cpu5wdt.diff"
+
+diff -urN linux-vanilla/drivers/char/watchdog/Kconfig linux-patched/drivers/char/watchdog/Kconfig
+--- linux-vanilla/drivers/char/watchdog/Kconfig	Fri Feb  7 20:45:30 2003
++++ linux-patched/drivers/char/watchdog/Kconfig	Fri Feb  7 20:52:40 2003
+@@ -316,4 +316,14 @@
+ 	tristate "ICP Wafer 5823 Single Board Computer Watchdog"
+ 	depends on WATCHDOG
+ 
++config CPU5_WDT
++	tristate "SMA CPU5 Watchdog"
++	depends on WATCHDOG
++	---help---
++	  TBD.
++	  This driver is also available as a module ( = code which can be
++	  inserted in and removed from the running kernel whenever you want).
++	  The module is called cpu5wdt.o.  If you want to compile it as a
++	  module, say M here and read <file:Documentation/modules.txt>.
++
+ endmenu
+diff -urN linux-vanilla/drivers/char/watchdog/Makefile linux-patched/drivers/char/watchdog/Makefile
+--- linux-vanilla/drivers/char/watchdog/Makefile	Fri Feb  7 20:45:30 2003
++++ linux-patched/drivers/char/watchdog/Makefile	Fri Feb  7 20:52:40 2003
+@@ -29,3 +29,4 @@
+ obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
+ obj-$(CONFIG_SC1200_WDT) += sc1200wdt.o
+ obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
++obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
+diff -urN linux-vanilla/drivers/char/watchdog/cpu5wdt.c linux-patched/drivers/char/watchdog/cpu5wdt.c
+--- linux-vanilla/drivers/char/watchdog/cpu5wdt.c	Thu Jan  1 01:00:00 1970
++++ linux-patched/drivers/char/watchdog/cpu5wdt.c	Mon Feb 10 20:38:14 2003
+@@ -0,0 +1,312 @@
++/*
++ * sma cpu5 watchdog driver
++ *
++ * Copyright (C) 2003 Heiko Ronsdorf <hero@ihg.uni-duisburg.de>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/errno.h>
++#include <linux/miscdevice.h>
++#include <linux/kernel.h>
++#include <linux/fs.h>
++#include <linux/proc_fs.h>
++#include <linux/init.h>
++#include <linux/ioport.h>
++#include <linux/timer.h>
++#include <asm/io.h>
++#include <asm/uaccess.h>
++
++#include <linux/watchdog.h>
++
++/* adjustable parameters */
++
++static int verbose = 0;
++static int port = 0x91;
++static volatile int ticks = 10000;
++
++#define PFX			"cpu5wdt: "
++
++#define CPU5WDT_EXTENT          0x0A
++
++#define CPU5WDT_STATUS_REG      0x00
++#define CPU5WDT_TIME_A_REG      0x02
++#define CPU5WDT_TIME_B_REG      0x03
++#define CPU5WDT_MODE_REG        0x04
++#define CPU5WDT_TRIGGER_REG     0x07
++#define CPU5WDT_ENABLE_REG      0x08
++#define CPU5WDT_RESET_REG       0x09
++
++#define CPU5WDT_INTERVAL	(HZ/10+1)
++
++/* some device data */
++
++static struct {
++	struct semaphore stop;
++	volatile int running;
++	struct timer_list timer;
++	volatile int queue;
++	int default_ticks;
++	int min_ticks;
++	unsigned long inuse;
++} cpu5wdt_device;
++
++/* generic helper functions */
++
++static void cpu5wdt_trigger(unsigned long unused) {
++
++	if ( verbose > 2 )
++		printk(KERN_DEBUG PFX "trigger at %i ticks\n", ticks);
++
++	if( cpu5wdt_device.running )
++		ticks--;
++
++	/* keep watchdog alive */
++	outb(1, port + CPU5WDT_TRIGGER_REG);
++
++	/* requeue?? */
++	if( cpu5wdt_device.queue && ticks ) {
++		cpu5wdt_device.timer.expires = jiffies + CPU5WDT_INTERVAL;
++		add_timer(&cpu5wdt_device.timer);
++	}
++	else {
++		/* ticks doesn't matter anyway */
++		up(&cpu5wdt_device.stop);
++	}
++
++}
++
++static void cpu5wdt_reset(void) {
++
++	if ( ticks < cpu5wdt_device.min_ticks )
++		cpu5wdt_device.min_ticks = ticks;
++
++	ticks = cpu5wdt_device.default_ticks;
++
++	if ( verbose )
++		printk(KERN_DEBUG PFX "reset (%i ticks)\n", (int) ticks);
++
++}
++
++#ifdef CONFIG_PROC_FS
++static int cpu5wdt_read_proc(char *buf, char **start, off_t offset, int len) {
++	len = sprintf(buf,      "activation:       %i\n", cpu5wdt_device.queue);
++	len += sprintf(buf+len, "status:           %i\n", cpu5wdt_device.running);
++	len += sprintf(buf+len, "current ticks: %i\n", ticks);
++	len += sprintf(buf+len, "min ticks:     %i\n", cpu5wdt_device.min_ticks);
++	return len;
++}
++
++static inline void cpu5wdt_register_proc(void) {
++	create_proc_info_entry("driver/cpu5wdt", 0, NULL, cpu5wdt_read_proc);
++}
++
++static inline void cpu5wdt_unregister_proc(void) {
++	remove_proc_entry("driver/cpu5wdt", NULL);
++}
++#else
++static inline void cpu5wdt_register_proc(void) {}
++static inline void cpu5wdt_unregister_proc(void) {}
++#endif
++
++/* filesystem operations */
++
++static int cpu5wdt_open(struct inode *inode, struct file *file) {
++
++	switch(minor(inode->i_rdev)) {
++		case WATCHDOG_MINOR:
++			if ( test_and_set_bit(0, &cpu5wdt_device.inuse) )
++				return -EBUSY;
++			break;
++		default:
++			return -ENODEV;
++	}
++	return 0;
++
++}
++
++static int cpu5wdt_release(struct inode *inode, struct file *file) {
++
++	if(minor(inode->i_rdev)==WATCHDOG_MINOR) {
++		clear_bit(0, &cpu5wdt_device.inuse);
++	}
++	return 0;
++}
++
++static int cpu5wdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg) {
++	unsigned int value;
++  
++	switch(cmd) {
++		case WDIOC_KEEPALIVE:
++			cpu5wdt_reset();
++			break;
++		case WDIOC_START:
++			if ( !cpu5wdt_device.queue ) {
++				cpu5wdt_device.queue = 1;
++				outb(0, port + CPU5WDT_TIME_A_REG);  
++				outb(0, port + CPU5WDT_TIME_B_REG);  
++				outb(1, port + CPU5WDT_MODE_REG);
++				outb(0, port + CPU5WDT_RESET_REG);
++				outb(0, port + CPU5WDT_ENABLE_REG);
++				cpu5wdt_device.timer.expires = jiffies + CPU5WDT_INTERVAL;
++				add_timer(&cpu5wdt_device.timer);
++			}
++			/* if process dies, counter is not decremented */
++			cpu5wdt_device.running++;
++			break;
++		case WDIOC_GETSTATUS:    
++			value = inb(port + CPU5WDT_STATUS_REG); 
++			value = (value >> 2) & 1;
++			if ( copy_to_user((int *)arg, (int *)&value, sizeof(int)) )
++				return -EFAULT;
++			break;
++		case WDIOC_STOP:
++			if ( cpu5wdt_device.running )
++				cpu5wdt_device.running = 0;
++
++			ticks = cpu5wdt_device.default_ticks;
++
++			if ( verbose )
++				printk(KERN_CRIT PFX "stop not possible\n");
++			return -EIO;
++		default:
++    			return -EINVAL;
++	}
++	return 0;
++}
++
++static ssize_t cpu5wdt_write(struct file *file, const char *buf, size_t count, loff_t *ppos) {
++
++	if ( !count )
++		return -EIO;
++	
++	cpu5wdt_reset();
++	return count;
++
++}
++
++static struct file_operations cpu5wdt_fops = {
++	.owner		= THIS_MODULE,
++	.ioctl		= cpu5wdt_ioctl,
++	.open		= cpu5wdt_open,
++	.write		= cpu5wdt_write,
++	.release	= cpu5wdt_release,
++};
++
++static struct miscdevice cpu5wdt_misc = {
++	.minor	= WATCHDOG_MINOR,
++	.name	= "watchdog",
++	.fops	= &cpu5wdt_fops
++};
++
++/* init/exit function */
++
++static int __devinit cpu5wdt_init(void) {
++	unsigned int val;
++	int err;
++
++	if ( verbose )
++		printk(KERN_DEBUG PFX "port=0x%x, verbose=%i\n", port, verbose);
++
++	if ( (err = misc_register(&cpu5wdt_misc)) < 0 ) {
++		printk(KERN_ERR PFX "misc_register failed\n");
++		goto no_misc;
++	}
++
++	if ( !request_region(port, CPU5WDT_EXTENT, PFX) ) {
++		printk(KERN_ERR PFX "request_region failed\n");
++		err = -EBUSY;
++		goto no_port;
++	}
++
++	/* watchdog reboot? */
++	val = inb(port + CPU5WDT_STATUS_REG); 
++	val = (val >> 2) & 1;
++	if ( !val )
++		printk(KERN_INFO PFX "sorry, was my fault\n");
++
++	init_MUTEX_LOCKED(&cpu5wdt_device.stop);
++	cpu5wdt_device.queue = 0;
++	cpu5wdt_device.min_ticks = ticks;
++
++	clear_bit(0, &cpu5wdt_device.inuse);
++
++	cpu5wdt_register_proc();
++
++	init_timer(&cpu5wdt_device.timer);
++	cpu5wdt_device.timer.function = cpu5wdt_trigger;
++	cpu5wdt_device.timer.data = 0;
++
++	cpu5wdt_device.default_ticks = ticks;
++
++	printk(KERN_INFO PFX "init success\n");
++
++	return 0;
++
++no_port:
++	misc_deregister(&cpu5wdt_misc);
++no_misc:
++	return err;
++}
++
++static int __devinit cpu5wdt_init_module(void) {
++
++	return cpu5wdt_init();
++}
++
++static void __devexit cpu5wdt_exit(void) {
++
++	if ( cpu5wdt_device.queue ) {
++		cpu5wdt_device.queue = 0;
++		down(&cpu5wdt_device.stop);
++	}
++
++	cpu5wdt_unregister_proc();
++
++	misc_deregister(&cpu5wdt_misc);
++
++	release_region(port, CPU5WDT_EXTENT);
++
++}
++
++static void __devexit cpu5wdt_exit_module(void) {
++
++	cpu5wdt_exit();
++}
++
++/* module entry points */
++
++module_init(cpu5wdt_init_module);
++module_exit(cpu5wdt_exit_module);
++
++MODULE_AUTHOR("Heiko Ronsdorf <hero@ihg.uni-duisburg.de>");
++MODULE_DESCRIPTION("sma cpu5 watchdog driver");
++MODULE_SUPPORTED_DEVICE("sma cpu5 watchdog");
++MODULE_LICENSE("GPL");
++
++MODULE_PARM(port, "i");
++MODULE_PARM_DESC(port, "base address of watchdog card, default is 0x91");
++
++MODULE_PARM(verbose, "i");
++MODULE_PARM_DESC(verbose, "be verbose, default is 0 (no)");
++
++MODULE_PARM(ticks, "i");
++MODULE_PARM_DESC(ticks, "count down ticks, default is 10000");
++
++EXPORT_NO_SYMBOLS;
+diff -urN linux-vanilla/include/linux/watchdog.h linux-patched/include/linux/watchdog.h
+--- linux-vanilla/include/linux/watchdog.h	Fri Jan 10 22:08:18 2003
++++ linux-patched/include/linux/watchdog.h	Fri Feb  7 20:52:40 2003
+@@ -27,6 +27,8 @@
+ #define	WDIOC_KEEPALIVE		_IOR(WATCHDOG_IOCTL_BASE, 5, int)
+ #define	WDIOC_SETTIMEOUT        _IOWR(WATCHDOG_IOCTL_BASE, 6, int)
+ #define	WDIOC_GETTIMEOUT        _IOR(WATCHDOG_IOCTL_BASE, 7, int)
++#define	WDIOC_START             _IO(WATCHDOG_IOCTL_BASE, 8)
++#define	WDIOC_STOP              _IO(WATCHDOG_IOCTL_BASE, 9)
+ 
+ #define	WDIOF_UNKNOWN		-1	/* Unknown flag error */
+ #define	WDIOS_UNKNOWN		-1	/* Unknown status error */
+
+--17pEHd4RhPHOinZp--

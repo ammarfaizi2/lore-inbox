@@ -1,71 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUCZWiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 17:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUCZWiL
+	id S261396AbUCZWjV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 17:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUCZWjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 17:38:11 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:49589 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261366AbUCZWiG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 17:38:06 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Scheduling proposal
-From: David Kastrup <dak@gnu.org>
-Date: 26 Mar 2004 23:38:04 +0100
-Message-ID: <x5lllndyk3.fsf@lola.goethe.zz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 Mar 2004 17:39:21 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:31659 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261396AbUCZWjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 17:39:03 -0500
+Date: Fri, 26 Mar 2004 14:36:48 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Sparc64, cpumask_t and struct arguments (was: [PATCH] Introduce
+ nodemask_t ADT)
+Message-Id: <20040326143648.5be0e221.pj@sgi.com>
+In-Reply-To: <20040325101827.GO791@holomorphy.com>
+References: <20040320031843.GY2045@holomorphy.com>
+	<20040320000235.5e72040a.pj@sgi.com>
+	<20040320111340.GA2045@holomorphy.com>
+	<20040322171243.070774e5.pj@sgi.com>
+	<20040323020940.GV2045@holomorphy.com>
+	<20040322183918.5e0f17c7.pj@sgi.com>
+	<20040323031345.GY2045@holomorphy.com>
+	<20040322193628.4278db8c.pj@sgi.com>
+	<20040323035921.GZ2045@holomorphy.com>
+	<20040325012457.51f708c7.pj@sgi.com>
+	<20040325101827.GO791@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David,
 
-During some 2.5.x phase I already had explained the details of a
-scheduler problem on single CPU machines, exhibited for example by
-running the command
+I understand that you are the Sparc64 expert.  I am doing some more
+work refining the cpumask_t (and nodemask_t) implementation, in an
+effort to obtain a common "mask_t" underlying ADT that can be useful
+for both cpu and node masks.
 
-hexdump -v /dev/zero|dd obs=1
+As part of this, I'm looking at having only one data representation
+for these masks - an array of unsigned longs encapsulated inside a
+struct.  For the processors and compilation environment that I am
+most focused on - gcc 3.2 and above on Intel CPUs, this generates
+just as good code as the other variants.
 
-inside of an xterm: as soon as dd writes one byte into the pipe, xterm
-gets woken to process that byte, and during that time, the completely
-CPU-starved dd will not will the pipe, even though it can do so with
-very little CPU usage.  As a result, the pipe will keep merely a fill
-level of 1 for long periods, resulting in very inefficient operation
-of the pipeline.
+However, as I recall, you recommend against passing structs on the
+Sparc64 processor and compilation environment.  Am I recalling
+correctly?
 
-It appears that this problem (which will afflict all programs using
-up CPU as a terminal emulator or shell or similar) is still prevalent
-in Linux-2.6.4 and has a considerable impact.
+The two places that I see sparc64 passing a cpumask_t across a real
+function call boundary (as opposed to an inline function) is in the file
+arch/sparc64/kernel/smp.c, by the functions cheetah_xcall_deliver() and
+smp_cross_call_masked().
 
-I'd propose the following fix to it: regardless of the priority of
-the reader on a pipe, the scheduler will not preempt the writer on
-the pipe before its time slice is over.  This particular priority
-treatment will however
+Could you describe to me the requirements here.
 
-a) only be made on the CPU that the writer is running on
-b) only be made with regard to the process responsible for the write
+ 1) Are the above the two places of interest, currently, for sparc64 work?
 
-In particular, if another process with priority in between the two
-processes would preempt the writer, instead the reader is scheduled
-in.  If another process writes to the same pipe, the priority
-inversion with the original process is canceled as well.
+ 2) What sizes of cpumask_t are needed?
 
-And if the writing processes yields the CPU for any other reason
-(including having used up its time slice), the priority inversion is
-ended, too.
+ 3) Which of passing by pointer, passing as a struct, and/or passing by
+    simple value, are required or acceptable or unacceptable?
 
-That would tend to keep pipes filled when this is possible with
-reasonable delay.
+ 4) Does your answer to (3) vary with the sizes needed in (2)?
 
-It is not latency critical: if the writing process has a
-significantly lower priority than the reading process, its data would
-already be expected to arrive with larger delays, so it can't be part
-of a low latency pipeline.  Also, since the priority inversion would
-end the moment the CPU is yielded, it would not have any effect for
-event-driven scenarios, but only for those where the source of the
-data is purely CPU-bound.
+ 5) The cpu_clear(i, mask) on about line 534 of smp.c confuses me, as it
+    seems to be changing a local copy of 'mask' that no one will examine
+    later.  What purpose does it serve?  See this line annotated with
+    "No affect??" in the changes, below.
 
-This would be useful behavior for pipes, sockets, and pttys.
+ 6) I'm not done yet, but so far I have the following changes in my
+    workarea for sparc64 (along with larger changes elsewhere).  These
+    changes are untested, unbuilt, incomplete and unreviewed.  They
+    were generated on a 2.6.4 base, with Matthew Dobson's nodemask_t
+    patch of this thread applied.  Do you see anything that looks
+    wrong in the following so far?
+
+===== smp.c 1.66 vs edited =====
+--- 1.66/arch/sparc64/kernel/smp.c      Tue Feb 24 16:11:02 2004
++++ edited/smp.c        Fri Mar 26 14:01:23 2004
+@@ -409,14 +409,8 @@
+        int i;
+
+        __asm__ __volatile__("rdpr %%pstate, %0" : "=r" (pstate));
+-       for (i = 0; i < NR_CPUS; i++) {
+-               if (cpu_isset(i, mask)) {
+-                       spitfire_xcall_helper(data0, data1, data2, pstate, i);
+-                       cpu_clear(i, mask);
+-                       if (cpus_empty(mask))
+-                               break;
+-               }
+-       }
++       for_each_cpu_mask(i, mask)
++               spitfire_xcall_helper(data0, data1, data2, pstate, i);
+ }
+
+ /* Cheetah now allows to send the whole 64-bytes of data in the interrupt
+@@ -459,25 +453,19 @@
+
+        nack_busy_id = 0;
+        {
+-               cpumask_t work_mask = mask;
+                int i;
+
+-               for (i = 0; i < NR_CPUS; i++) {
+-                       if (cpu_isset(i, work_mask)) {
+-                               u64 target = (i << 14) | 0x70;
+-
+-                               if (!is_jalapeno)
+-                                       target |= (nack_busy_id << 24);
+-                               __asm__ __volatile__(
+-                                       "stxa   %%g0, [%0] %1\n\t"
+-                                       "membar #Sync\n\t"
+-                                       : /* no outputs */
+-                                       : "r" (target), "i" (ASI_INTR_W));
+-                               nack_busy_id++;
+-                               cpu_clear(i, work_mask);
+-                               if (cpus_empty(work_mask))
+-                                       break;
+-                       }
++               for_each_cpu_mask(i, mask) {
++                       u64 target = (i << 14) | 0x70;
++
++                       if (!is_jalapeno)
++                               target |= (nack_busy_id << 24);
++                       __asm__ __volatile__(
++                               "stxa   %%g0, [%0] %1\n\t"
++                               "membar #Sync\n\t"
++                               : /* no outputs */
++                               : "r" (target), "i" (ASI_INTR_W));
++                       nack_busy_id++;
+                }
+        }
+
+@@ -521,6 +509,8 @@
+                        /* Clear out the mask bits for cpus which did not
+                         * NACK us.
+                         */
++                       /* Could replace with for_each_cpu_mask(i, mask) loop,
++                        * were it not for the cpu_clear(i, mask) below. -pj */
+                        for (i = 0; i < NR_CPUS; i++) {
+                                if (cpu_isset(i, work_mask)) {
+                                        u64 check_mask;
+@@ -531,7 +521,7 @@
+                                                check_mask = (0x2UL <<
+                                                              this_busy_nack);
+                                        if ((dispatch_stat & check_mask) == 0)
+-                                               cpu_clear(i, mask);
++                                               cpu_clear(i, mask); /* No affect?? -pj */
+                                        this_busy_nack += 2;
+                                        cpu_clear(i, work_mask);
+                                        if (cpus_empty(work_mask))
+
+
+Thank-you for your considerations.
 
 -- 
-David Kastrup, Kriemhildstr. 15, 44793 Bochum
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310525AbSBRM4E>; Mon, 18 Feb 2002 07:56:04 -0500
+	id <S310442AbSBRLYs>; Mon, 18 Feb 2002 06:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310526AbSBRMz4>; Mon, 18 Feb 2002 07:55:56 -0500
-Received: from vaak.stack.nl ([131.155.140.140]:13583 "HELO mailhost.stack.nl")
-	by vger.kernel.org with SMTP id <S310525AbSBRMzi>;
-	Mon, 18 Feb 2002 07:55:38 -0500
-Date: Mon, 18 Feb 2002 13:55:29 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.5-pre1: mounting NTFS partitions -t VFAT
-In-Reply-To: <87aduamrbl.fsf@devron.myhome.or.jp>
-Message-ID: <20020218134640.Y24227-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310444AbSBRLYh>; Mon, 18 Feb 2002 06:24:37 -0500
+Received: from p3EE02AF2.dip.t-dialin.net ([62.224.42.242]:31760 "EHLO
+	srv.sistina.com") by vger.kernel.org with ESMTP id <S310442AbSBRLYf>;
+	Mon, 18 Feb 2002 06:24:35 -0500
+Date: Mon, 18 Feb 2002 12:22:21 +0100
+From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17 fix for loop driver to support 256 devices
+Message-ID: <20020218122221.A28805@sistina.com>
+Reply-To: mauelshagen@sistina.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ogawa,
 
-Your patch seems to fix it more or less, not the way it should be
-fixed, imho.  Partitions other than FAT return bogus information, but
-bogus is not always zero. Fortunately enough, one of those new if
-statements returns an error, but this is a "works for me"
-solution, not a decent one.
+While faking large volume groups a minor flaw in the loop driver showed up,
+which fails creating the maximum of 256 devices.
 
-What lacks is a fingerprint detector, and iirc -long time ago- FAT has a
-very easy to detect fingerprint.
+The followong patch against 2.4.17 fixes that here.
 
-I'll dig into FAT documentation tonight.
 
-Jos
+diff -u linux-2.4.17.orig/drivers/block/loop.c linux-2.4.17/drivers/block/loop.c
+--- linux-2.4.17.orig/drivers/block/loop.c      Fri Dec 21 18:41:53 2001
++++ linux-2.4.17/drivers/block/loop.c   Mon Feb 18 12:23:32 2002
+@@ -36,6 +36,9 @@
+  * Al Viro too.
+  * Jens Axboe <axboe@suse.de>, Nov 2000
+  *
++ * Support up to 256 loop devices
++ * Heinz Mauelshagen <mge@sistina.com>, Feb 2002
++ *
+  * Still To Fix:
+  * - Advisory locking is ignored here.
+  * - Should use an own CAP_* category instead of CAP_SYS_ADMIN
+@@ -965,7 +968,7 @@
+  * And now the modules code and kernel interface.
+  */
+ MODULE_PARM(max_loop, "i");
+-MODULE_PARM_DESC(max_loop, "Maximum number of loop devices (1-255)");
++MODULE_PARM_DESC(max_loop, "Maximum number of loop devices (1-256)");
+ MODULE_LICENSE("GPL");
 
-On Sat, 16 Feb 2002, OGAWA Hirofumi wrote:
+ int loop_register_transfer(struct loop_func_table *funcs)
+@@ -1001,9 +1004,9 @@
+ {
+        int     i;
 
-> Sorry, my fault.
->
-> The following patch should fix this bug. I'll submit it after test.
->
-> --- fat_bug-2.5.5-pre1/fs/fat/inode.c.orig	Thu Feb 14 13:47:54 2002
-> +++ fat_bug-2.5.5-pre1/fs/fat/inode.c	Sat Feb 16 05:06:58 2002
-> @@ -624,6 +624,18 @@
->  	}
->
->  	b = (struct fat_boot_sector *) bh->b_data;
-> +	if (!b->fats) {
-> +		if (!silent)
-> +			printk("FAT: bogus number of FAT structure\n");
-> +		brelse(bh);
-> +		goto out_invalid;
-> +	}
-> +	if (!b->reserved) {
-> +		if (!silent)
-> +			printk("FAT: bogus number of reserved sectors\n");
-> +		brelse(bh);
-> +		goto out_invalid;
-> +	}
->  	if (!b->secs_track) {
->  		if (!silent)
->  			printk("FAT: bogus sectors-per-track value\n");
-> --
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-       if ((max_loop < 1) || (max_loop > 255)) {
++       if ((max_loop < 1) || (max_loop > 256)) {
+                printk(KERN_WARNING "loop: invalid max_loop (must be between"
+-                                   " 1 and 255), using default (8)\n");
++                                   " 1 and 256), using default (8)\n");
+                max_loop = 8;
+        }
 
+-- 
+
+Regards,
+Heinz    -- The LVM Guy --
+
+*** Software bugs are stupid.
+    Nevertheless it needs not so stupid people to solve them ***
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Sistina Software Inc.
+Senior Consultant/Developer                       Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@Sistina.com                           +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

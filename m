@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271998AbRIIPcq>; Sun, 9 Sep 2001 11:32:46 -0400
+	id <S272008AbRIIPiq>; Sun, 9 Sep 2001 11:38:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272002AbRIIPcg>; Sun, 9 Sep 2001 11:32:36 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:23606 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S271998AbRIIPcX>; Sun, 9 Sep 2001 11:32:23 -0400
-Date: Sun, 9 Sep 2001 17:33:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        torvalds@transmeta.com
-Subject: Re: Purpose of the mm/slab.c changes
-Message-ID: <20010909173313.V11329@athlon.random>
-In-Reply-To: <3B9B4CFE.E09D6743@colorfullife.com> <20010909162613.Q11329@athlon.random> <001201c13942$b1bec9a0$010411ac@local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001201c13942$b1bec9a0$010411ac@local>; from manfred@colorfullife.com on Sun, Sep 09, 2001 at 05:18:00PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S272020AbRIIPih>; Sun, 9 Sep 2001 11:38:37 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:60650 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S272008AbRIIPiZ>; Sun, 9 Sep 2001 11:38:25 -0400
+Message-ID: <00b301c1387b$a5b7bee0$0200a8c0@lazybrain.com>
+From: "faybaby" <faybaby@enter.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.9 modules + unresovled symbols
+Date: Sat, 8 Sep 2001 11:33:44 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 09, 2001 at 05:18:00PM +0200, Manfred Spraul wrote:
-> >
-> > it provides lifo allocations from both partial and unused slabs.
-> >
-> 
-> lifo/fifo for unused slabs is obviously superflous - free is free, it
-> doesn't matter which free page is used first/last.
+Hello, I haven't had any trouble upgrading the kernel til now.
+the problem is this. i can't load 80% of the modules i compiled.
+  
 
-then why don't you also make fifo the buddy allocator and the partial
-list as well if free is free and fifo/lifo doesn't matter?
+I have tried alot of things. depmod -a depmod this, depmod that.
 
-> Did you run any benchmarks? If yes, could you post them?
+i did rm -rf /lib/modules/2.4.9 & /usr/src/linux , rextracted the kernel,
+configured and compiled it. it boots fine, i just can't load anything.
+im running mandrake 7.2.
+i did make clean, make mrproper a few times that didnt help.
+i download 2.4.9 again and started over with the same results.
+I even downloaded 2.4.6 and tried it, but produced the same results.
+Im currently running 2.4.6 that works fine, .
 
-I didn't run any specific benchmark for such change but please let me
-know if you can find that any real benchmark is hurted by it. I think
-the cleanup and the potential for lifo in the free slabs is much more
-sensible than the other factors you mentioned, of course there's less
-probability of having to fall into the free slabs rather than in the
-partial ones during allocations, but that doesn't mean that cannot
-happen very often, but I will glady suggest to remove it if you prove me
-wrong. All I'm saying here is that the dummy allocations with no access
-to the ram returned are not interesting numbers.
+whats wrong and how do i fix it. thanks everyone
 
-Andrea
+
+
+

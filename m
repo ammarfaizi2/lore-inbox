@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268818AbTCAQam>; Sat, 1 Mar 2003 11:30:42 -0500
+	id <S268845AbTCAQsQ>; Sat, 1 Mar 2003 11:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268823AbTCAQam>; Sat, 1 Mar 2003 11:30:42 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:36356 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S268818AbTCAQal>; Sat, 1 Mar 2003 11:30:41 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303011640.h21GeuqJ000554@81-2-122-30.bradfords.org.uk>
-Subject: Re: BitBucket: GPL-ed BitKeeper clone
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sat, 1 Mar 2003 16:40:56 +0000 (GMT)
-Cc: lm@bitmover.com, bcollins@debian.org,
-       pavel.ucw.cz@81-2-122-30.bradfords.org.uk, adrea@e-mind.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1046539842.23347.11.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Mar 01, 2003 05:30:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268858AbTCAQsQ>; Sat, 1 Mar 2003 11:48:16 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:936 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S268845AbTCAQsP>;
+	Sat, 1 Mar 2003 11:48:15 -0500
+Date: Sat, 1 Mar 2003 17:58:29 +0100 (MET)
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+Message-Id: <200303011658.h21GwTwu027100@harpo.it.uu.se>
+To: linux@horizon.com
+Subject: Re: Playing with 2.5.63: APM blanking and "bio too big"
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Something is wrong, I agree with Larry.
+On 1 Mar 2003 14:14:45 -0000, linux@horizon.com wrote:
+>* I had real problems with APM screen blanking enabled.  It reliably
+>  and repeatedly locked the machine HARD (no keyboard, no SysRq, no ping)
+>  when the scren blanker kicked in or trying to switch from X.  This is
+>  an Athlon on a KT133 Motherboard.  No problems in 2.4.  APM can corectly
+>  power the machine off, however.
 
-Errr, it's the first of March today, not the first of April.
+Do you have CONFIG_X86_UP_APIC=y?
 
-John.
+I used to have problems with 2.5 causing hangs at X shutdown or
+when the regular console screen blanker kicked in. Recently I
+also got these on a new machine with 2.4.
+
+I traced it down to CONFIG_APM_DISPLAY_BLANK. It invokes the BIOS
+without disabling the local APIC first. If one is unlucky, the
+local APIC timer may interrupt while the machine is running in BIOS,
+which typically causes a complete hang.
+
+This is more likely to happen in 2.5 since it increased the timer
+interrupt rate by a factor of 10, but it can happen in 2.4 too.
+
+To verify, hack apic.c and ensure that "dont_enable_local_apic_timer"
+is initialised to 1. Also don't enable the NMI watchdog.
+
+Another option, which is what I use now on all my local-APIC capable
+machines, is to disable APM_DISPLAY_BLANK.
+
+I really despise BIOS writers.
+
+/Mikael

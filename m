@@ -1,91 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263938AbTICXwf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 19:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTICXwf
+	id S264350AbTICXsI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 19:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTICXsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 19:52:35 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:23806 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263938AbTICXwS
+	Wed, 3 Sep 2003 19:48:07 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:33260 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264350AbTICXsG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 19:52:18 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: admin@brien.com
-Subject: Re: SATA probe delay on boot
-Date: Thu, 4 Sep 2003 01:53:07 +0200
-User-Agent: KMail/1.5
-References: <20030903161848.2109.h004.c000.wm@mail.brien.com.criticalpath.net>
-In-Reply-To: <20030903161848.2109.h004.c000.wm@mail.brien.com.criticalpath.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Sep 2003 19:48:06 -0400
+Date: Wed, 3 Sep 2003 16:47:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Brown, Len" <len.brown@intel.com>, Larry McVoy <lm@bitmover.com>,
+       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030903234737.GA27096@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	"Brown, Len" <len.brown@intel.com>, Larry McVoy <lm@bitmover.com>,
+	Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <20030903180702.GQ4306@holomorphy.com> <20030903180755.GE5769@work.bitmover.com> <20030903182524.GS4306@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309040153.07931.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20030903182524.GS4306@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 03, 2003 at 11:25:24AM -0700, William Lee Irwin III wrote:
+> Restating the above in slow motion:
+> (a) economic arguments make me want to puke in the face of the presenter
 
-On Thursday 04 of September 2003 01:18, admin@brien.com wrote:
-> Hi,
-
-Hi,
-
-> I have a Sil3112A SATA controller, which linux works OK
-> with. It supports RAID (up to 4 devices), but I'm using
-> BASE option -- only 1 hard drive.
->
-> My question is regarding a 15-20 second delay which
-> normally occurs every time I boot, unless I pass the
-
-Please try attached patch and send dmesg output (with patch applied).
-Patch is against current 2.6-bk tree, but should apply to any recent
-2.4.x or 2.6.x kernels.
-
-diff -puN drivers/ide/ide-probe.c~ide-siimage-wait drivers/ide/ide-probe.c
---- linux-2.6.0-test4-bk5/drivers/ide/ide-probe.c~ide-siimage-wait	2003-09-04 01:34:02.285489272 +0200
-+++ linux-2.6.0-test4-bk5-root/drivers/ide/ide-probe.c	2003-09-04 01:47:58.145419248 +0200
-@@ -56,6 +56,8 @@
- #include <asm/uaccess.h>
- #include <asm/io.h>
- 
-+#define DEBUG
-+
- /**
-  *	generic_id		-	add a generic drive id
-  *	@drive:	drive to make an ID block for
-@@ -345,7 +347,16 @@ static int actual_try_to_identify (ide_d
- 		}
- 		/* give drive a breather */
- 		ide_delay_50ms();
--	} while ((hwif->INB(hd_status)) & BUSY_STAT);
-+		s = hwif->INB(hd_status);
-+		if (s == 0xff) {
-+#ifdef DEBUG
-+			printk("%s: status == 0xff\n", drive->name);
-+#endif
-+			return 1;
-+		}
-+		if ((s & BUSY_STAT) == 0)
-+			break;
-+	} while (1);
- 
- 	/* wait for IRQ and DRQ_STAT */
- 	ide_delay_50ms();
-
-_
-
-> options ide3=0 - ide9=0 to fill up the device table. I
-> think I have to do this because if I do only ide3=0
-> (where the device would be), it uses ide4, and so on. I
-> have GRUB set up to do this automatically, but it's not
-> exactly adequate (,is it?). So I was wondering if
-> there're any other ways to get the same affect. Is or
-> could there be an option to simply disable the probing
-> of the one specific device/channel every time?
-
-"ide3=noprobe" doesnt work?
-
---bartlomiej
-
+That sounds like a self control problem.  Anger management maybe?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,41 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUHNUSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265086AbUHNUVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUHNUSf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUHNUSf
+	id S265086AbUHNUVU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 16:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHNUVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:18:35 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:60034 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265051AbUHNUSd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:18:33 -0400
-Subject: Re: PATCH [2/7] Fix posix locking code
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040814200048.GV12936@parcelfarce.linux.theplanet.co.uk>
-References: <1092511792.4109.22.camel@lade.trondhjem.org>
-	 <20040814200048.GV12936@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1092514711.4109.50.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 14 Aug 2004 16:18:31 -0400
+	Sat, 14 Aug 2004 16:21:20 -0400
+Received: from haw-66-102-130-200.vel.net ([66.102.130.200]:29864 "EHLO
+	mail_103.selectedhosting.com") by vger.kernel.org with ESMTP
+	id S265086AbUHNUUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 16:20:24 -0400
+From: Udo Hoerhold <kernel-mail@goodontoast.com>
+To: linux-kernel@vger.kernel.org
+Subject: pthread stack size
+Date: Sat, 14 Aug 2004 16:21:22 -0400
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200408141621.22630.kernel-mail@goodontoast.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På lau , 14/08/2004 klokka 16:00, skreiv Matthew Wilcox:
+Hi,
+I'm trying to install cedega (formerly winex), and it's complaining that my 
+"pthread stack size", which is apparently 2052, is too small.  I'm running 
+Mepis, but I'm using the vanilla 2.4.27 kernel.  Can anyone tell me if it's 
+possible for me to recompile the kernel to increase the stack size?
 
-> I know I said I thought file_lock_operations was the right thing to
-> do ...  but now I think that this isn't a property of the file_lock so
-> much as it is a property of the underlying filesystem.  I think putting a
-> lock_operations into struct file is maybe a bit much.  How about adding
-> a lock_operations pointer to file_operations?
+Thanks,
 
-Lock operations are as much a property of the lock *type*. A BSD lock
-may/will have an entirely different set of callbacks.
-
-Trond
+Udo Hoerhold

@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287518AbSAURTe>; Mon, 21 Jan 2002 12:19:34 -0500
+	id <S287500AbSAURTE>; Mon, 21 Jan 2002 12:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287552AbSAURTP>; Mon, 21 Jan 2002 12:19:15 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:33557 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S287518AbSAURTI>; Mon, 21 Jan 2002 12:19:08 -0500
-Date: Mon, 21 Jan 2002 18:19:46 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: o_direct-leftovers
-Message-ID: <20020121181946.J8292@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S287552AbSAURSz>; Mon, 21 Jan 2002 12:18:55 -0500
+Received: from ns.suse.de ([213.95.15.193]:15877 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287500AbSAURSu>;
+	Mon, 21 Jan 2002 12:18:50 -0500
+Date: Mon, 21 Jan 2002 18:18:47 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Sven <luther@dpt-info.u-strasbg.fr>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
+In-Reply-To: <Pine.LNX.4.10.10201210849030.20645-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.33.0201211815210.5384-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this sec patch is missing from 2.4.18pre, please include (it's on the
-same lines of the truncate-garbage patch):
+On Mon, 21 Jan 2002, James Simmons wrote:
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre2aa2/00_o_direct-leftovers-2
+> > > The best tree to work with is the Dave Jones tree for 2.5.X. DJ tree
+> > > provides a better testing ground. Eventually when stuff goes from DJ to
+> > > Linus tree ruby and 2.5.X will look alot more alike :-)
+> > Mmm, any timeline for the DJ->linus move ?
+> At the moment no. I guess when Linus will take patches :-)
 
-Andrea
+I'm pushing Linus some of the small bits right now (though no
+feedback, so I'm backing off simultaneously)
+I'm staying clear of the fbdev/console code for two reasons.
+
+1. I'd rather James/Vojtech did this so that a, they get it right
+   and b, it gives me more time to push Linus other bits.
+2. Several Framebuffer driver authors want to push their relevant
+   bits to Linus themselves. which is fine by me. (See 1b)
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUJEUr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUJEUza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUJEUr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 16:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUJEUr7
+	id S265887AbUJEUza (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 16:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUJEUza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 16:47:59 -0400
-Received: from mail.dif.dk ([193.138.115.101]:31954 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265234AbUJEUr4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 16:47:56 -0400
-Date: Tue, 5 Oct 2004 22:55:21 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "Johnson, Richard" <rjohnson@analogic.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.5-1.358 and Fedora
-In-Reply-To: <Pine.LNX.4.53.0410051635370.3240@quark.analogic.com>
-Message-ID: <Pine.LNX.4.61.0410052247140.2913@dragon.hygekrogen.localhost>
-References: <1097004565.9975.25.camel@laptop.fenrus.com>
- <Pine.LNX.4.61.0410052140150.2913@dragon.hygekrogen.localhost>
- <Pine.LNX.4.53.0410051635370.3240@quark.analogic.com>
+	Tue, 5 Oct 2004 16:55:30 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:21916 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S265887AbUJEUz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 16:55:28 -0400
+Date: Tue, 5 Oct 2004 13:53:44 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Roland McGrath <roland@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
+In-Reply-To: <200410051838.i95IcSgC006889@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0410051350360.28733@schroedinger.engr.sgi.com>
+References: <200410051838.i95IcSgC006889@magilla.sf.frob.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Oct 2004, Johnson, Richard wrote:
+On Tue, 5 Oct 2004, Roland McGrath wrote:
 
-> On Tue, 5 Oct 2004, Jesper Juhl wrote:
-> 
-> > On Tue, 5 Oct 2004, Arjan van de Ven wrote:
+> > I just reviewed the code and to my surprise the simple things like
 > >
-> > > If Richard overwrote his modules anyway he must have hacked the Makefile
-> > > himself to deliberately cause this, at which point... well saw wind
-> > > harvest storm ;)
-> > >
-> > While I lack specific Fedora knowledge and thus can't provide exact
-> > details for it I'd say it should still be pretty simple to recover. On
-> > Slackware I'd simply boot a kernel from the install CD and tell it to
-> > mount the installed system on my HD, then you'll have a running system and
-> > can easily clean out the broken modules etc and install the original ones
-> > from your CD and be right back where you started in 5 min. Surely
-> > something similar is possible with Fedora, reinstalling from scratch (as
-> > he said he did) seems like massive overkill to me.
-> >
-> 
-> Yeh?  There is no place to get replacement modules from. They are
-> somewhere on some RPM on one of the CDs,
+> > clock_gettime(CLOCK_PROCESS_CPUTIME_ID) and
+> > clock_gettime(CLOCK_THREAD_CPUTIME_ID) are not supported.
+>
+> You seem to be confused.  A clockid_t for a CPU clock encodes a PID, which
+> can be zero to indicate the current thread or current process.
 
-That's not what I'd call "no place", that's "a place", and one you most 
-likely have available lying on your desk. Even if you don't have the CDs 
-any more you can always download the RPM you need from the net while 
-running in rescue mode.
+Is there a standard for that? Or is it an opaque type that you have
+defined this way?
 
-> with no way to know. It's
-> not like you could tar everything from the current root file-system.
-> 
-Just like Slackware has a log of all packages and the files they contain 
-in /var/log/packages/ , so does RPM based distros like Fedora have their 
-rpm database. The 'rpm' tool can be used to search the database for 
-packages that contain a specific file, and once you know the RPM you need 
-you can easily find it on your CDs (even if you have no idea where to look 
-'find' should find it for you easily enough). Read through "man rpm" some 
-day, a package tool without a database of installed packages and the 
-files contained in those packages would be pretty useless.
+> > The thread specific time measurements have nothing to do with the posix
+> > standard and may best be kept separate.
+>
+> Nonsense.  POSIX defines the notion of CPU clocks for these calls, and that
+> is what I have implemented.
 
+Posix only defines a process and a thread clock. This is much more.
 
---
-Jesper Juhl
+> Of course glibc is in charge of what the meaning of the POSIX APIs is.
+> That is true for every call.
+
+The proper information to realize these clocks is only available on the
+kernel level. A clean API for that would remove lots of code that
+currently exists in glibc.
+
+I wonder how glibc will realize access to special timer hardware. Will
+glibc be able load device drivers for timer chips?
 

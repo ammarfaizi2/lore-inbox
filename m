@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbUDOQZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 12:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264338AbUDOQZU
+	id S264122AbUDOQiV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 12:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264319AbUDOQiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 12:25:20 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:44562 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264334AbUDOQZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 12:25:14 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Kconfig question || Am I too silly for that simple thing?
-Date: Thu, 15 Apr 2004 18:24:55 +0200
-User-Agent: KMail/1.6.1
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
+	Thu, 15 Apr 2004 12:38:21 -0400
+Received: from colin2.muc.de ([193.149.48.15]:28690 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264122AbUDOQiT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 12:38:19 -0400
+Date: 15 Apr 2004 18:38:18 +0200
+Date: Thu, 15 Apr 2004 18:38:18 +0200
+From: Andi Kleen <ak@muc.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andi Kleen <ak@muc.de>, Terence Ripperda <tripperda@nvidia.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PAT support
+Message-ID: <20040415163818.GA54491@colin2.muc.de>
+References: <1KifY-uA-7@gated-at.bofh.it> <m3n05gu4o2.fsf@averell.firstfloor.org> <m1fzb56fu2.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Linux-Systeme GmbH
-Message-Id: <200404151824.55792@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <m1fzb56fu2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> This would also be extremely useful on machines with large amounts
+> of memory, for write-back mappings.  With large amounts but odd sized
+> entries it becomes extremely tricky to map all of the memory using
+> mtrrs.
 
-I want to do the following somewhere in some Kconfig file:
+Yes agreed. I already had vendors complaining about this.
+But for this it will need some more work - the MTRRs need to be fully
+converted to PAT and then disabled (because MTRRs have 
+higher priority than PAT). Doing so is a lot more risky than 
+what Terrence's patch does currently though.  But longer term
+we will need it.
 
-.......
+Also it will still need to handle overlapping ranges. I suppose
+it will need some simple rules like: converting from UC to WC is 
+always ok.
 
-config LOG_SUID
-        bool 'Set*id logging'  
-        depends on !LOG_SUID_ROOT
-
-config LOG_SUID_ROOT
-        bool 'Set*id logging to root'
-        depends on !LOG_SUID
-
-.......
-
-And what I get in menuconfig is both config options if they are not selected, 
-if I select LOG_SUID, LOG_SUID_ROOT _stays_ visible, if I unselect LOG_SUID, 
-LOG_SUID_ROOT _disappears_, if I select LOG_SUID again, LOG_SUID_ROOT 
-_appears_ again. If I select LOG_SUID_ROOT the config option LOG_SUID_ROOT 
-_disappear_ at all. Heck, am I that silly or is there a bug I don't see or 
-so? "=n or "!=y" seems not to work also.
-
-Many thanks.
-
-
-ciao, Marc
+-Andi

@@ -1,144 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVBNVfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVBNVlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbVBNVfI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 16:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVBNVfI
+	id S261563AbVBNVlx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 16:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVBNVlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 16:35:08 -0500
-Received: from imap.gmx.net ([213.165.64.20]:28075 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261533AbVBNVet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 16:34:49 -0500
-X-Authenticated: #26200865
-Message-ID: <421119D7.20609@gmx.net>
-Date: Mon, 14 Feb 2005 22:36:23 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-References: <20050214211105.GA12808@elf.ucw.cz>
-In-Reply-To: <20050214211105.GA12808@elf.ucw.cz>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Mon, 14 Feb 2005 16:41:53 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42254
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261563AbVBNVlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 16:41:51 -0500
+Date: Mon, 14 Feb 2005 22:41:48 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
+Message-ID: <20050214214148.GM13712@opteron.random>
+References: <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> <20050210190521.GN18573@opteron.random> <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com> <20050210204025.GS18573@opteron.random> <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com> <20050211085239.GD18573@opteron.random> <Pine.LNX.4.61.0502111258310.7808@goblin.wat.veritas.com> <20050214174158.GE13712@opteron.random> <Pine.LNX.4.61.0502141815320.9608@goblin.wat.veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0502141815320.9608@goblin.wat.veritas.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek schrieb:
-> Hi!
+On Mon, Feb 14, 2005 at 06:36:43PM +0000, Hugh Dickins wrote:
+> On Mon, 14 Feb 2005, Andrea Arcangeli wrote:
+> > > By the way, while we're talking of remove_exclusive_swap_page:
+> > > a more functional issue I sometimes wonder about, why don't we
+> > > remove_exclusive_swap_page on write fault?  Keeping the swap slot
+> > > is valuable if read fault, but once the page is dirtied, wouldn't
+> > > it usually be better to free that slot and allocate another later?
+> > 
+> > Avoiding swap fragmentation is one reason to leave it allocated. So you
+> > can swapin/swapout/swapin/swapout always in the same place on disk as
+> > long as there's plenty of swap still available. I'm not sure how much
+> > speedup this provides, but certainly it makes sense.
 > 
-> Stefan provided me initial list of machines where S3 works (including
-> video). If you have machine that is not on the list, please send me a
-> diff. If you have eMachines... I'd like you to try playing with
-> vbetool (it worked for me), and if it works for you supplying right
-> model numbers.
+> I rather thought it would tend to increase swap fragmentation: that
+> the next time (if) this page has to be written out to swap, the disk
+> has to seek back to some ancient position to write this page, when
+> the rest of the cluster being written is more likely to come from a
+> recently allocated block of contiguous swap pages (though if many of
+> them are being rewritten rather than newly allocated, they'll all be
+> all over the disk, no contiguity at all).
 > 
-> 								Pavel
+> Of course, freeing as soon as dirty does leave a hole behind, which
+> tends towards swap fragmentation: but I thought the swap allocator
+> tried for contiguous clusters before it fell back on isolated pages
+> (I haven't checked, and akpm has changes to swap allocation in -mm).
 > 
-> 
-> 		Video issues with S3 resume
-> 		~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 		  2003-2005, Pavel Machek
-> 
-> During S3 resume, hardware needs to be reinitialized. For most
-> devices, this is easy, and kernel driver knows how to do
-> it. Unfortunately there's one exception: video card. Those are usually
-> initialized by BIOS, and kernel does not have enough information to
-> boot video card. (Kernel usually does not even contain video card
-> driver -- vesafb and vgacon are widely used).
-> 
-> This is not problem for swsusp, because during swsusp resume, BIOS is
-> run normally so video card is normally initialized. S3 has absolutely
-> no change to work with SMP/HT. Be sure it to turn it off before
-> testing (swsusp should work ok, OTOH).
-> 
-> There are few types of systems where video works after S3 resume:
-> 
-> (1) systems where video state is preserved over S3.
-> 
-> (2) systems where it is possible to call video bios during S3
->   resume. Unfortunately, it is not correct to call video BIOS at that
->   point, but it happens to work on some machines. Use
->   acpi_sleep=s3_bios.
-> 
-> (3) systems that initialize video card into vga text mode and where BIOS
->   works well enough to be able to set video mode. Use
->   acpi_sleep=s3_mode on these.
-> 
-> (4) on some systems s3_bios kicks video into text mode, and
->   acpi_sleep=s3_bios,s3_mode is needed.
-> 
-> (5) radeon systems, where X can soft-boot your video card. You'll need
->   patched X, and plain text console (no vesafb or radeonfb), see
->   http://www.doesi.gmxhome.de/linux/tm800s3/s3.html.
+> Hmm, I think you're thinking of the overall fragmentation of swap,
+> and are correct about that; whereas I'm saying "fragmentation"
+> when what I'm really concerned about is increased seeking.
 
-(5) machines should also work with (6), but not the other way round.
-
-> 
-> (6) other radeon systems, where vbetool is enough to bring system back
->   to life. Do vbetool vbestate save > /tmp/delme; echo 3 > /proc/acpi/sleep;
->   vbetool post; vbetool vbestate restore < /tmp/delme; setfont
->   <whatever>, and your video should work.
-
-(6) has to be done from a text console! It should work for all radeon
-systems, btw.
-
-> 
-> Now, if you pass acpi_sleep=something, and it does not work with your
-> bios, you'll get hard crash during resume. Be carefull. Also it is
-> safest to do your experiments with plain old VGA console. vesafb and
-> radeonfb (etc) drivers have tendency to crash the machine during resume.
-> 
-> You may have system where none of above works. At that point you
-> either invent another ugly hack that works, or write proper driver for
-> your video card (good luck getting docs :-(). Maybe suspending from X
-> (proper X, knowing your hardware, not XF68_FBcon) might have better
-> chance of working.
-> 
-> Table of known working systems:
-> 
-> Model                           hack (or "how to do it")
-> ------------------------------------------------------------------------------
-> IBM TP R32 / Type 2658-MMG      none (1)
-> Athlon HP Omnibook XE3		none (1)
-> Compaq Armada E500 - P3-700     none (1) (S1 also works OK)
-> IBM t41p			none (1)
-> Athlon64 desktop prototype	s3_bios (2)
-> HP NC6000			s3_bios (2)
-> Toshiba Satellite 4080XCDT      s3_mode (3)
-> Toshiba Satellite 4030CDT	s3_mode (3)
-> Dell D600, ATI RV250            vga=normal (**)
-
-The Dell system above should also work fine with vbestate.
-
-> Asus L2400D                     s3_mode (3)(***) (S1 also works OK)
-> Toshiba Satellite P10-554       s3_bios,s3_mode (4)(****)
-> Acer TM 800			vga=normal, X patches, see webpage (5)
-> Athlon64 Arima W730a		vbestate needed (6)
-> eMachines athlon64 machines	vbestate needed (6) (someone please get me model #s)
-
-Samsung P35                  vbestate needed (6)
-
-> 
-> (**) Text console is "strange" after resume. Backlight is switched on again
->      by the X server. X server is:
->      | X Window System Version 6.8.1.904 (6.8.2 RC 4)
->      | Release Date: 2 February 2005
->      | X Protocol Version 11, Revision 0, Release 6.8.1.904
->      | Build Operating System: SuSE Linux [ELF] SuSE
->      as present in SUSE 9.3preview3.
-> 
-> (***) To be tested with a newer kernel.
-> 
-> (****) Not with SMP kernel, UP only.
-
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Swapouts aren't the problem. The swapins with physical readahead are the
+ones that benefits from the reduced overall fragmentation. Or at least
+this was the case in 2.4, you're right something might be different now
+that we don't follow a swapout virtual address space order anymore (but
+there is probably still some localization effect during the ->nopage
+faults).

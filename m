@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317148AbSFFU1H>; Thu, 6 Jun 2002 16:27:07 -0400
+	id <S317157AbSFFU2Q>; Thu, 6 Jun 2002 16:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317157AbSFFU1G>; Thu, 6 Jun 2002 16:27:06 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:36046 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S317148AbSFFU1F>; Thu, 6 Jun 2002 16:27:05 -0400
-Date: 06 Jun 2002 21:31:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8QMRXthXw-B@khms.westfalen.de>
-In-Reply-To: <E17Esc6-0000v9-00@starship>
-Subject: Re: If you want kbuild 2.5, tell Linus
-X-Mailer: CrossPoint v3.12d.kh9 R/C435
+	id <S317167AbSFFU2P>; Thu, 6 Jun 2002 16:28:15 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:33787 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317157AbSFFU1I>;
+	Thu, 6 Jun 2002 16:27:08 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
+Message-ID: <15615.50586.395120.207271@napali.hpl.hp.com>
+Date: Thu, 6 Jun 2002 13:27:06 -0700
+To: Andi Kleen <ak@suse.de>
+Cc: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+In-Reply-To: <p73lm9schms.fsf@oldwotan.suse.de>
+X-Mailer: VM 7.03 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-phillips@bonn-fries.net (Daniel Phillips)  wrote on 03.06.02 in <E17Esc6-0000v9-00@starship>:
+>>>>> On 06 Jun 2002 21:49:15 +0200, Andi Kleen <ak@suse.de> said:
 
-> Linus has already indicated his position, I guess you were busy writing
-> the post so you didn't notice:
->
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=102304528224527&w=2
->
-> Plus you've got helpers, how could the situation be better?
+  Andi> "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com> writes:
+  >> (*Really* ugly is s390x, because we need about twice as much
+  >> stack on average than on s390, but page size is still only 4K --
+  >> most other 64-bit platforms have 8K page size ...)
 
-I fail to see how this is supposed to work, and I guess so does Keith.
+  Andi> <minor detail, but perhaps still interesting>
 
-Kai (a different Kai!) does not seem to want to integrate the core part of  
-kbuild2.5. He seems to want to only pick the low-hanging fruits and make  
-unsupported (and unbelievable) noises about the rest.
+  Andi> Seems to be an old myth. Actually the 4K paged 64bit platforms
+  Andi> are in the majority.
 
-And Linus seems to want to ignore the fact that the core portion of  
-kbuild2.5 is, by its very nature, not something that can be merged  
-"gradually" - just like ALSA, or a new architecture, can't meaningfully be  
-merged "gradually". (And he *also* said that he wasn't interested in  
-pseudo-gradually, i.e. getting the stuff in parts but still making a big  
-exchange.)
+  Andi> 64bit linux platforms:
 
-Frankly, I see *absolutely no way* how the current Kai-Linus "merge" can  
-possibly end with something even remotely like Keith's kbuild2.5. Unless  
-Linus changes his approach radically.
+  Andi> 4K page: x86-64, ppc64, s390x, mips64, parisc64(?)  8K: alpha,
+  Andi> sparc64 8-64K: ia64
 
-If I were Keith, I'd be rather upset, too.
+Just a minor nit: for ia64 it's either 32KB (for page sizes up to
+16KB) or 64KB (for 64KB page size).  The 32KB is conservative and
+based on the assumption that there can be up to 16 nested interrupts
+plus some other nested traps (such as unaligned faults).  A separate
+irq stack should let us reduce the per-task stack size.
 
-MfG Kai
+	--david

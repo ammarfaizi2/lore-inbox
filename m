@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbSKKQWU>; Mon, 11 Nov 2002 11:22:20 -0500
+	id <S265759AbSKKQgK>; Mon, 11 Nov 2002 11:36:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265803AbSKKQWU>; Mon, 11 Nov 2002 11:22:20 -0500
-Received: from gandalf.intelligraphics.com ([216.206.147.132]:4113 "EHLO
-	gandalf.intelligraphics.com") by vger.kernel.org with ESMTP
-	id <S265791AbSKKQWT>; Mon, 11 Nov 2002 11:22:19 -0500
-Message-ID: <3DCFDAD7.9080003@intelligraphics.com>
-Date: Mon, 11 Nov 2002 17:29:11 +0100
-From: George Andre <george.andre@intelligraphics.com>
-Reply-To: george.andre@intelligraphics.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
+	id <S265786AbSKKQgK>; Mon, 11 Nov 2002 11:36:10 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:57561 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S265759AbSKKQgJ>; Mon, 11 Nov 2002 11:36:09 -0500
+Message-ID: <3DCFDE0A.1030506@nortelnetworks.com>
+Date: Mon, 11 Nov 2002 11:42:50 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-CC: alan@lxorguk.ukuu.org.uk
-Subject: [BUG] PCI-2-Cardbus bridge, Kernel PCMCIA services and Cardbus
+Subject: strange behaviour with statfs() call, looking for advice
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people,
 
-I have a strange problem with virtually all 2.4 kernels,
-(tried 2.4.18 to 2.4.20-rc1). I'm developing a driver
-for a wireless card for our customer. Since it's a Cardbus
-wireless card and my dev machine is a desktop, I'm using
-a Ricoh 5c475 based PCI-2-Cardbus bridge.
+I seem to be getting some strange interactions between kernel space and 
+userspace with the statfs() call.
 
-My problem is that the yenta_socket.o driver (or pcmcia_core.o)
-indeed create  Cardbus bus with my device on it, but the BAR's
-are all messed up. I get negative len ranges on the MMIO addresses
-(0xE7010000 - 0xE7003FFF).
+On an nfs-mounted but unaccessable system, the statfs() call is 
+returning a block count of 4294967295.  Since the kernel statfs struct 
+has this field defined as a long and this is a 32-bit system, this is 
+somewhat confusing.
 
-I'm not sure this is a problem in the Kernel PCMCIA drivers, because
-even with them not loaded, the Ricoh device (Cardbus bridge) contains
-weird bridge resources (offset 0x1C and forward in the PCI
-config space headertype 0x02). This doesn't happen only with my
-customers wireless card, but with one another different vendors wireless
-card too.
+It turns out that the userspace headers define the "blocks" field as a 
+__fsblkcnt_t, which is then defined as __u_long.
 
-I've even tried Alan Cox' 2.4.20-pre10-ac2 patch with no success.
+What do I do?  Do I cast it to a long since I know that this is what the 
+kernel is using?
 
-Anyone seen this before and know where I might throw my search lights ?
+The system in question is a yellowdog system, but the same problem is 
+present on a recent mandrake box as well.  Is this a redhat issue?
 
 Thanks,
-George.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

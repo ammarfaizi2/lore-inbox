@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbQKGBPY>; Mon, 6 Nov 2000 20:15:24 -0500
+	id <S129118AbQKGBSy>; Mon, 6 Nov 2000 20:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129278AbQKGBPO>; Mon, 6 Nov 2000 20:15:14 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:63597 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S129111AbQKGBO7>; Mon, 6 Nov 2000 20:14:59 -0500
-Message-Id: <200011070114.RAA06983@eng4.sequent.com>
-To: linux-kernel@vger.kernel.org
-Subject: Comprehensive list of locks available?
-Date: Mon, 06 Nov 2000 17:14:48 -0800
-From: Rick Lindsley <nevdull@sequent.com>
+	id <S129147AbQKGBSp>; Mon, 6 Nov 2000 20:18:45 -0500
+Received: from innerfire.net ([208.181.73.33]:47880 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S129118AbQKGBS1>;
+	Mon, 6 Nov 2000 20:18:27 -0500
+Date: Mon, 6 Nov 2000 17:20:21 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "James A. Sutherland" <jas88@cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <00110700444305.00940@dax.joh.cam.ac.uk>
+Message-ID: <Pine.LNX.4.10.10011061717560.31473-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that we've taken to heart the "one lock does not fit all" and we
-made the kernel increasingly fine-grained with regards to locking,
-there are many more locks appearing in the code. While Linux does not
-currently support hierarchical locks, it is still true that the order
-in which you acquire multiple locks (when needed) can be your first
-defense against inadvertent deadlock. Knowing how to properly utilize a
-lock is becoming increasingly important.
+> Then none of this is relevant to you, since you can't unload any modules! And
+> now you're the one doing the trolling... WTF do you think module code is
+> supposed to do when you don't use modules?!
+> 
 
-Has anybody documented, in total or in part, how the various locks are
-to be used? A quick scan of the 2.4 source indicates there may be more
-than 400 non-static spinlocks right now. I've checked the Documentation
-directory and although there's a little "how-to" from Linus there on
-how to properly use spinlocks, there does not (yet) appear to be any
-document on the proper use of specific spinlocks.
+Simple ... I'd rather the hardware was set to 0 on startup but I know what
+problems that presents to modules..
 
-I suspect once I start digging that there will undoubtedly be nuggets
-of information in the comments in the source code. But before I dig too
-deep, let me make sure I'm not doing unnecessarily redundant work :)
-Has anybody started on such a document? (Would anybody be willing to
-contribute to one if I produce and coordinate it?)
+And no it wasn't the driver doing it afik. Sound card starts on max volume
+as soon as it's initialised.
 
-Rick
+	Gerhard
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

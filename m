@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUDLPY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 11:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUDLPY5
+	id S261779AbUDLPYp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 11:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUDLPYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 11:24:57 -0400
-Received: from 80-218-57-148.dclient.hispeed.ch ([80.218.57.148]:58629 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261998AbUDLPYz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 11:24:55 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: "Ivica Ico Bukvic" <ico@fuse.net>
-Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- FIXED!
-Date: Mon, 12 Apr 2004 17:19:52 +0200
-User-Agent: KMail/1.5.2
-Cc: "'Thomas Charbonnel'" <thomas@undata.org>, <ccheney@debian.org>,
-       <linux-pcmcia@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-       "'Russell King'" <rmk+lkml@arm.linux.org.uk>,
-       <alsa-devel@lists.sourceforge.net>,
-       "'Tim Blechmann'" <TimBlechmann@gmx.net>,
-       David Hinds <dhinds@sonic.net>
-References: <20040412013949.NJOP1634.smtp3.fuse.net@64BitBadass>
-In-Reply-To: <20040412013949.NJOP1634.smtp3.fuse.net@64BitBadass>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404121719.52103.daniel.ritz@gmx.ch>
+	Mon, 12 Apr 2004 11:24:45 -0400
+Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:54147
+	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
+	id S261779AbUDLPYo convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 11:24:44 -0400
+Subject: Re: NFS umount
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Fabian Frederick <Fabian.Frederick@skynet.be>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1081781374.5620.4.camel@bluerhyme.real3>
+References: <1081781374.5620.4.camel@bluerhyme.real3>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1081783482.2617.20.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 12 Apr 2004 08:24:42 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 April 2004 03:39, Ivica Ico Bukvic wrote: 
-> **I've noted that when I use:
+På m , 12/04/2004 klokka 07:49, skreiv Fabian Frederick:
+> Hi,
 > 
-> setpci -s a.0 0x81.b
-> 
-> after changing the value to 0xd0 (with setpci -s a.0 0x81.b=d0) it would
-> tell me that it was equal to f0, yet the "hexdump -v /proc/bus/pci/00/0a.0"
-> would tell me it was d0 after all (see the log below).
-> 
+> 	I was looking at NFS source code and I can't find where the umount
+> takes place in server side.... It seems nfsd/export.c has some functions
+> for that, but I added debugging there and nothing happens when umounting
+> from client/side.Someone could help me ? I read about some rpc.umountd
+> but was unable to find it on my system ...
 
-it's a single bit change from 0xd0 to 0xf0. it's bit 13 of the system control
-register at 0x80. it's the socket activity bit that is read-clear. this means
-writing to it has no effect, reading it clears the content. so the behavior
-is normal...
+There is no such thing as rpc.umountd.
 
+There is a "umount" RPC call that is used to notify rpc.mountd that
+we're unmounting the filesystem (see RFC1094 and RFC1813), but that is
+only used in order to manage an internal cache of clients. It doesn't do
+anything beyond that.
+
+Cheers,
+  Trond

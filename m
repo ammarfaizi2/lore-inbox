@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbSJQRwQ>; Thu, 17 Oct 2002 13:52:16 -0400
+	id <S261934AbSJQR6Z>; Thu, 17 Oct 2002 13:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262039AbSJQRwQ>; Thu, 17 Oct 2002 13:52:16 -0400
-Received: from fep02.tuttopmi.it ([212.131.248.101]:46282 "EHLO
-	fep02-svc.flexmail.it") by vger.kernel.org with ESMTP
-	id <S262038AbSJQRwO> convert rfc822-to-8bit; Thu, 17 Oct 2002 13:52:14 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Frederik Nosi <fredi@e-salute.it>
-Reply-To: fredi@e-salute.it
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][neofb]2.5.4[0-3]
-Date: Thu, 17 Oct 2002 20:01:08 +0000
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210172001.08099.fredi@e-salute.it>
+	id <S261936AbSJQR6Z>; Thu, 17 Oct 2002 13:58:25 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:16091 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261934AbSJQR6Y>;
+	Thu, 17 Oct 2002 13:58:24 -0400
+Date: Thu, 17 Oct 2002 11:04:26 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.43 disk repartitioning problems
+Message-ID: <20021017110426.D3841@acpi.pdx.osdl.net>
+References: <20021007204414.GD7428@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0210071723200.29030-100000@weyl.math.psu.edu> <20021017105205.C3841@acpi.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021017105205.C3841@acpi.pdx.osdl.net>; from dmo@osdl.org on Thu, Oct 17, 2002 at 10:52:05AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I'm sending this message to the list becouse mailing you directly bouces)
+
+I made a typo in the message below.  The partitioning issue appears
+in linux 2.5.43. (NOT 2.4.3 ..)
 
 
-At first thank you for your reply. 
-
-On Thursday 17 October 2002 16:43, you wrote:
-> > I have a DELL Latitude CPi D233SP. With kernels from 2.5.40 to 2.5.43
-> > using neofb during shutdown I get an Oops:
-> >
-> > Danger danger! Oopsen imminent
-> > MTRR setting reg 2
-> >
-> > This is the second time I'm reporting this, the first time I CC'ed the
-> > mantainer too without results. Here is the link to my previous posting:
-> >
-> > http://www.cs.helsinki.fi/linux/linux-kernel/2002-39/1108.html
->
-> I saw it but I was busy finsihing the fbdev changes that are about to go
-> in. I also have this chipset so I plan to track down the bug now that I
-> have finished my work.
-
-Ok, no problem, this dont seems as a serious issue so I can live with that.
-
->
-> > With the 2.4.19/20-pre-last kernels scrolling up in the console is very
-> > slow using the neofb driver as I've wrote in my previous posting.
->
-> What color depth? Acceleration only works for 8 and 16 bpp modes :-(
-
-I'm booting kernels with the " vga=771"  option. If I remeber well this is 
-800x600 with 16bpp. However with this same settings the slowness in scrolling 
-up dont happens with the latest 2.5 kernels
-If you want more info just drop me a mail.
-
-Cheers,
-Frederik Nosi
-
+On Thu, Oct 17, 2002 at 10:52:05AM -0700, Dave Olien wrote:
+> 
+> Al,
+> 
+> I'm working on the Mylex DAC960 device driver, bring in up to date
+> with the new block and dma interfaces.  I've been posting patches on
+> occasion.  I've also noticed you updating the driver when you make changes
+> to the gendisk kernel interfaces.   Those updates are very helpful.
+> 
+> I've noticed in 2.4.3 at least, that some changes to disk partitions
+> aren't noticed until you reboot.  The same problem is seen with aacraid.
+> I don't THINK this is a driver issue.  But, I might have missed something.  
+> 
+> I tried repartitioning two disks.  On the first disk, I used fdisk
+> to split a single large partition into four smaller ones.  Afterwards,
+> the first partition on that drive was still accessible.  But I couldn't
+> access the three new partitions.  I didn't test to see if the first
+> partition had been reduced in size.  Rebooting made the new partitions
+> accessible.
+> 
+> In the second case, I split an unpartitioned drive into four partitions.
+> None of the new partitions were accessible until I rebooted.
+> 
+> Is this still a work in progress, or is there some driver hook I've missed?
+> 
+> Thanks!
+> 
+> Dave Olien
+> Open Source Development Lab
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

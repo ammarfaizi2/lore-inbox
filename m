@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316223AbSG3T7X>; Tue, 30 Jul 2002 15:59:23 -0400
+	id <S316610AbSG3T6n>; Tue, 30 Jul 2002 15:58:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316408AbSG3T7V>; Tue, 30 Jul 2002 15:59:21 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:65408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316223AbSG3T7U>; Tue, 30 Jul 2002 15:59:20 -0400
-Date: Tue, 30 Jul 2002 16:03:49 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Hans Reiser <reiser@namesys.com>
-cc: Alexander Viro <viro@math.psu.edu>, Gerhard Mack <gmack@innerfire.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-In-Reply-To: <3D46EC3F.2070707@namesys.com>
-Message-ID: <Pine.LNX.3.95.1020730155114.8918A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316615AbSG3T6m>; Tue, 30 Jul 2002 15:58:42 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:7313 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316610AbSG3T6m>;
+	Tue, 30 Jul 2002 15:58:42 -0400
+Subject: Re: link errors in 2.5.29+bk
+From: Paul Larson <plars@austin.ibm.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.43.0207291351390.24473-100000@romulus.cs.ut.ee>
+References: <Pine.GSO.4.43.0207291351390.24473-100000@romulus.cs.ut.ee>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Jul 2002 14:58:24 -0500
+Message-Id: <1028059116.11135.268.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jul 2002, Hans Reiser wrote:
+On Mon, 2002-07-29 at 05:53, Meelis Roos wrote:
 
-> There is nothing in the funding mechanism that causes features to go in, 
-> merely to cause features to get paid for.
+> aic7xxx_old has yet to be converted to cli removal:
 > 
-> Do you understand that capitalism has this problem in general, that when 
-> consumers/users decide who gets money they make a lot of mistakes.  The 
-> only thing we know is that when the experts of production decide things 
-> instead the results are usually worse (communist systems have things 
-> determined by producers not consumers, though it must be said that there 
-> are some things that communists designed better than the west).
+> drivers/built-in.o: In function `aic7xxx_handle_seqint':
+> drivers/built-in.o(.text+0x2d2c4): undefined reference to `sti'
+> drivers/built-in.o: In function `aic7xxx_isr':
+> drivers/built-in.o(.text+0x320b4): undefined reference to `sti'
 
-A little research will show that the governments have little to
-do with design. Governments just tend to determine what will
-be designed. Most designers, Engineers, Architects, etc., design
-in spite of governments influence, not because of it. Both governments
-and consumers generate markets for products. When consumers make
-mistakes, people lose their jobs. When governments make mistakes people
-lose their lives. Government is both necessary and dangerous, like oxygen.
+See if this works for you.
 
+-Paul Larson
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.525   -> 1.526  
+#	drivers/scsi/aic7xxx_old.c	1.22    -> 1.23   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/30	plars@plap.(none)	1.526
+#  
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/aic7xxx_old.c b/drivers/scsi/aic7xxx_old.c
+--- a/drivers/scsi/aic7xxx_old.c	Tue Jul 30 14:30:14 2002
++++ b/drivers/scsi/aic7xxx_old.c	Tue Jul 30 14:30:14 2002
+@@ -5077,7 +5077,7 @@
+         }
+         else 
+         {
+-          sti();
++          local_irq_enable();
+           panic("aic7xxx: AWAITING_MSG for an SCB that does "
+                 "not have a waiting message.\n");
+         }
+@@ -6933,7 +6933,7 @@
+ #endif
+     if (errno & (SQPARERR | ILLOPCODE | ILLSADDR))
+     {
+-      sti();
++      local_irq_enable();
+       panic("aic7xxx: unrecoverable BRKADRINT.\n");
+     }
+     if (errno & ILLHADDR)
 

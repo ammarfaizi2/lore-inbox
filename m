@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbTDKOsr (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTDKOsr (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 10:48:47 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:45533 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264371AbTDKOsN (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 10:48:13 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Walt H <waltabbyh@comcast.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-ck5
-Date: Sat, 12 Apr 2003 01:01:32 +1000
-User-Agent: KMail/1.5.1
-References: <3E96D711.70404@comcast.net>
-In-Reply-To: <3E96D711.70404@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304120101.32423.kernel@kolivas.org>
+	id S264377AbTDKOrW (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 10:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTDKOrW (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 10:47:22 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:56332 "EHLO
+	net.cc.swin.edu.au") by vger.kernel.org with ESMTP id S264377AbTDKOrV (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 10:47:21 -0400
+From: Tim Connors <tconnors@astro.swin.edu.au>
+Message-Id: <200304111459.h3BEx2g14879@tellurium.ssi.swin.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bytesex.org -> censored (Was Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c)
+In-Reply-To: <20030411141010$0fe4@gated-at.bofh.it>
+References: <20030411105008$69fd@gated-at.bofh.it> <20030411105008$13d4@gated-at.bofh.it> <20030411105008$6b67@gated-at.bofh.it> <20030411141010$0fe4@gated-at.bofh.it>
+Date: Sat, 12 Apr 2003 00:59:02 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Apr 2003 00:54, Walt H wrote:
-> Hello,
->
-> I've compiled a new kernel using the ck5 patchset you made, but have had
-> some problems. It seems that with my configuration, I expose a memory
-> leak somewhere. After the system has been up for a while, or if I try to
-> compile anything non-trivial (kde-libs for example), The system will use
-> up all available memory and further memory alloc's fail. Swap is hardly
-> being used in this case. My syslog file does report:
+In linux.kernel, you wrote:
+> Tim Connors <tconnors@astro.swin.edu.au> writes:
+> 
+>> Speaking of s/xxx/censored/, some moron decided at uni to block all
+>> domains with sex in them. Any idea how to download v4l drivers of
+>> www.bytesex.org?
+> 
+> How about asking the moron who blocked it, showing him with that
+> example that it is utterly stupid to block stuff that way?
 
-> Typically, apps fail although the OOM killer isn't triggered (not sure
-> if it's enabled in ck5).
+University beurocracy. I have been told not to bother asking them to
+change things, because it would never happen.
 
-OOMK not enabled in -ck*
+> PS: I've created a symlink.
+>     http://www.strusel007.de/fun-with-stupid-filters/
 
-> I'm wondering if there's a strange interaction with XFS? I also use the
-> Nvidia driver, however, I also tested without loading it and receive the
-> same results. My XFS thought is due to the strange behaviour of the
-> filesystem with this patchset. When I tried compiling kdelibs, the
-> system chugged along until memory was used (15-20 mins) and then the
-> compile could no longer proceed. After seeing this and issuing a 'sync',
-> the drives thrashed for approx. 30-45 seconds as if flushing unwritten
-> data. It's as if writes are being stored indefinitely? Reverting back to
-> ck4 and all is well. System info below:
+Thanks for that.
 
-XFS must be responsible. I can't test it fully myself but it appears to be 
-related to the latest xfs update I've included in -ck5 which is a snapshot 
-from the sgi website only a week old. Until further notice, use ck4 if you 
-wish to use XFS.
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
 
-Thanks for the feedback.
-
-Con
+cat ~/.signature
+Electromagnetic pulse received (core dumped)

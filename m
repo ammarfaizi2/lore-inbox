@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261647AbSIXL5y>; Tue, 24 Sep 2002 07:57:54 -0400
+	id <S261651AbSIXMFP>; Tue, 24 Sep 2002 08:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261651AbSIXL5y>; Tue, 24 Sep 2002 07:57:54 -0400
-Received: from pr-66-150-46-254.wgate.com ([66.150.46.254]:27232 "EHLO
-	mail.tvol.net") by vger.kernel.org with ESMTP id <S261647AbSIXL5x>;
-	Tue, 24 Sep 2002 07:57:53 -0400
-Message-ID: <3D90547A.8070203@wgate.com>
-Date: Tue, 24 Sep 2002 08:03:06 -0400
-From: Michael Sinz <msinz@wgate.com>
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.1b) Gecko/20020813
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-CC: Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org,
-       ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-References: <E2E1F730-CE5C-11D6-8873-00039387C942@mac.com> <20020923210346.GA2075@gnuppy.monkey.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261652AbSIXMFP>; Tue, 24 Sep 2002 08:05:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:2062 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261651AbSIXMFO>;
+	Tue, 24 Sep 2002 08:05:14 -0400
+To: Andrew Pimlott <andrew@pimlott.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nanosecond resolution for stat(2)
+References: <20020923214836.GA8449@averell.suse.lists.linux.kernel> <20020924040528.GA22618@pimlott.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 24 Sep 2002 14:10:27 +0200
+In-Reply-To: Andrew Pimlott's message of "24 Sep 2002 06:19:13 +0200"
+Message-ID: <p731y7jtwp8.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey (Hui) wrote:
-> On Sun, Sep 22, 2002 at 08:55:39PM +0200, Peter Waechtler wrote:
+Andrew Pimlott <andrew@pimlott.net> writes:
 > 
->>AIX and Irix deploy M:N - I guess for a good reason: it's more
->>flexible and combine both approaches with easy runtime tuning if
->>the app happens to run on SMP (the uncommon case).
+> I assume you mean "theoretical" that an application would care, not
+> that it would happen.  (Unless I misunderstand, it is nearly
+> guaranteed to happen every time an inode is evicted after a
+> [mac]time update.)
+
+Only when you use an old file system. I tguess even ext2 and ext3 will
+learn about nsec timestamps eventually (e.g. by increasing the inode to
+the next power of two because there are many other contenders for new
+inode fields too) 
+
 > 
-> Also, for process scoped scheduling in a way so that system wide threads
-> don't have an impact on a process slice. Folks have piped up about that
-> being important.
+> I fear that there are applications that will be harmed by any
+> spurious change in [mac]time, even if it's not backwards.  Apps that
 
-This is the one major complaint I have with "a thread is a process"
-implementation in Linux.  The scheduler does not take process vs thread
-into account.
+When they only look at the second part nothing will change for them.
 
-A simple example:  Two users (or two different programs - same user)
-are running.  Both could use all of the CPU resources (for whatever
-reason).
+If applications that do look at nsecs have serious problems with this
+backwards jumping it's still possible to add upwards rounding. I didn't
+want to do this for the first cut to avoid over engineering.
+> 
+> > If it should be one in practice 
+> > it could be fixed by rounding the time up in this case.
+> 
+> This would mean that even "legacy" programs that only use second
+> resolution would be affected, which seems worse.  At least programs
+> that recognize the nanosecond field are more likely to know about
+> the issue.
 
-One of the programs (A) has N threads (where N >> 1) and the other
-program (B) has only 1 thread.  Of the N threads in (A), M of them
-are not blocked (where M > 1) then (A) will get M:1 CPU usage advantage
-over (B).
+Well, there is some change in behaviour. You have to live with that.
 
-This means that two processes/programs that should be scheduled equally
-are not and the one with many threads "effectively" is stealing cycles
-from the other.
-
-In a multi-user (server with multiple processes) environment, this
-means that you just write with lots of threads to get more of the
-bandwidth out of the scheduled processes.
-
-A real-world (albeit not great) example from many years ago:
-
-A program that does ray-tracing can very easily split the process up
-into very small bits.  This is great on multi-processor systems as you
-can get each CPU to do part of the work in parallel.  There is almost
-no I/O involved in such a system other than initial load and final save.
-
-It turned out that on non-dedicated systems (multi-user systems) that
-you could actually get your work done faster by having the program
-create many (100, in this case) threads even though there was only
-one big CPU.  The reason was that that OS also did not (yet) understand
-process scheduling fairness and the student who did this effectively
-made a way around the fair scheduling of system resources.
-
-The problem was very quickly noticed as other students quickly learned
-how to make use of such "solutions" to their performance wants.  We
-relatively quickly had to add process level accounting of thread CPU
-usage such that any thread in a process counted to that process's
-CPU usage/timeslice/etc.  It basically made the scheduler into a
-2-stage device - much like user threads but with the kernel doing
-the work and all of the benefits of kernel threads.  (And did not
-require any code recompile other than those people who were doing
-the many-threads CPU hog type of thing ended up having to revert as
-it was now slower than the single thread-per-CPU code...)
-
-Now, computer hardware has changed a lot.  Back then, branch took
-longer than current kernel syscall overhead.  Memory was faster
-than the CPU.  The scheduler was complex, so I could not say that
-it was as efficient as the Linux kernel.  However, we did have real
-threads and did quickly get real process accounting after someone
-"pointed out" the problem of not doing so :-)
-
--- 
-Michael Sinz -- Director, Systems Engineering -- Worldgate Communications
-A master's secrets are only as good as
-	the master's ability to explain them to others.
-
-
+-Andi

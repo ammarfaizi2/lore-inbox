@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270546AbRHHSSz>; Wed, 8 Aug 2001 14:18:55 -0400
+	id <S269524AbRHHS1g>; Wed, 8 Aug 2001 14:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270548AbRHHSSp>; Wed, 8 Aug 2001 14:18:45 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:13400
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S270546AbRHHSSd>; Wed, 8 Aug 2001 14:18:33 -0400
-Date: Wed, 8 Aug 2001 11:18:44 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Hubertus Franke <frankeh@us.ibm.com>,
-        Mike Kravetz <mkravetz@beaverton.ibm.com>,
-        linux-kernel@vger.kernel.org, wscott@bitmover.com
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-Message-ID: <20010808111844.S23718@work.bitmover.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Hubertus Franke <frankeh@us.ibm.com>,
-	Mike Kravetz <mkravetz@beaverton.ibm.com>,
-	linux-kernel@vger.kernel.org, wscott@bitmover.com
-In-Reply-To: <Pine.LNX.4.33.0108081041260.8047-100000@penguin.transmeta.com> <Pine.LNX.4.33.0108081058420.8103-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0108081058420.8103-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 08, 2001 at 11:00:50AM -0700
+	id <S269531AbRHHS11>; Wed, 8 Aug 2001 14:27:27 -0400
+Received: from mta1n.bluewin.ch ([195.186.1.210]:53187 "EHLO mta1n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S269524AbRHHS1U>;
+	Wed, 8 Aug 2001 14:27:20 -0400
+Message-ID: <3B6E44EE000EFE33@mta1n.bluewin.ch> (added by postmaster@bluewin.ch)
+From: "Per Jessen" <per.jessen@enidan.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Rob" <rwideman@austin.rr.com>
+Date: Wed, 08 Aug 2001 20:34:42 +0200
+Reply-To: "Per Jessen" <per.jessen@enidan.com>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: configuring the kernel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 08, 2001 at 11:00:50AM -0700, Linus Torvalds wrote:
-> Oh, and as I didn't actually run it, I have no idea about what performance
-> is really like. I assume you've done lmbench runs across wide variety (ie
-> UP to SMP) of machines with and without this?
+0On Wed, 8 Aug 2001 12:11:44 -0500, Rob wrote:
 
-I'd really really really like to see before/after cache miss counters for
-lat_ctx runs.  LMbench is not fine enough grained to catch the addition
-of cache misses unless the call path is so short that a 200ns cache miss
-dominates.  Very few are.  
+>Qustions:
+>1-does "make menuconfig" require X to be installed? I dont have X, i just
+>have RH 7.1 with kernel dev and kernel sources installed (atleast those were
+>the ONLY things i had selected during install).
 
-Someobdy really ought to take the time to make a cache miss counter program
-that works like /bin/time.  So I could do
+No, no requirement for X. 
 
-	$ cachemiss lat_ctx 2
-	10123 instruction, 22345 data, 50432 TLB flushes
+>2-if i untared/unpacked the kernel to the folder /root/newkern (here is
+>where i did the "gzip -cd linux 2.4.7...... |tar xvf -" command) is it ok to
+>delete the newkern folder and unpack nd then do the "make menuconfig"?
 
-Has anyone done that?  If so, then what would be cool is if each of these
-wonderful new features that people propose come with cachemiss results for
-the related part of LMbench or some other benchmark.
+Yep, sounds ok to me. I tend to keep my kernel sources in /usr/src/linux-2.4.7,
+with a symlink /usr/src/linux->linux-2.4.7. Dunno if that's the convention,
+but it works for me.
 
-Then we need to get smart about looking at the results.  It's quite easy to
-convince yourself that all is well when running a microbenchmark (LMbench
-is mostly microbenchmarks) because if the benchmark uses up < 100% of the
-cache then you can add cache footprint up 100% of the cache and still see
-really great cachemiss results.
+Rob, you would probably be better off asking this on the linux newbie list - 
+the kernel list is very busy.
+Hope this helps - feel free to mail me directly.
 
-The lat_ctx benchmark tries to address this.  For scheduler changes, I'd
-want to see cachmiss results for runs with different numbers and sizes
-of processes.  The lat_ctx benchmark has the ability to add to the cache
-footprint in powers of 2.  I.e., it touches a power of 2 sized chunk of 
-mem before context switching.
 
-I don't remember if it touches or reads the data, we should certainly have
-one that just reads to get around the write through cache problem.
+regards,
+Per Jessen
 
-Does all this make sense to most performance people out there?  It is good
-to have lots of people understand the points here, argue them out and get
-on the same page about them and then police the various perf changes that
-people want to make.  I know Alan likes to call me "the man who says no"
-but my voice is but one tiny one and I think we all really rely on Linus
-to make these calls.  Let's give him a little help.  Try and develop a
-mental picture of Linus leaning back on a nice rocking chair, smoking
-a stogy, nodding sagely at the collective good judgement of the list.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+
+
+
+regards,
+Per Jessen, Principal Engineer, ENIDAN Technologies Ltd
+http://www.enidan.com - home of the J1 serial console.
+
+----------------------------------------------------------
+Please note:  This message is intended for the use of the individual to 
+whom it is addressed and may contain information which is privileged, 
+confidential and exempt from disclosure under applicable law. If the reader 
+of this message is not the intended, or is not the employee or agent 
+responsible for delivering the message to the intended recipient, you are 
+hereby notified that any dissemination, distribution, or copying of this
+communication is strictly prohibited.  If you have received this 
+communication in error, please notify the sender immediately by return
+email.  Thank you.
+
+

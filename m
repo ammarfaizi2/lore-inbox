@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUFINL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUFINME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUFINL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 09:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUFINKh
+	id S265792AbUFINME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 09:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbUFINLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 09:10:37 -0400
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:43906 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S263663AbUFINHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 09:07:55 -0400
-Date: Wed, 9 Jun 2004 14:07:51 +0100
-From: Mike Jagdis <mjagdis@eris-associates.co.uk>
-To: Manu Abraham <manu@kromtek.com>
+	Wed, 9 Jun 2004 09:11:37 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:18583 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263663AbUFINK6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 09:10:58 -0400
+Date: Wed, 9 Jun 2004 15:10:49 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: nathans@sgi.com, linux-xfs@oss.sgi.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-abi dead?
-Message-ID: <20040609130751.GA29507@eris-associates.co.uk>
-References: <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net> <200406071515.26769.manu@kromtek.com>
+Subject: Re: [STACK] >3k call path in xfs
+Message-ID: <20040609131049.GN21168@wohnheim.fh-wedel.de>
+References: <20040609122647.GF21168@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200406071515.26769.manu@kromtek.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040609122647.GF21168@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iBCS ceased when I decided that "enough" vendors were targetting
-Linux as a Tier-1 platform and what was left was legacy proprietry
-stuff that either worked or would be painful to fix. iBCS then
-became linux-abi which ported to newer kernels and added UnixWare
-support. I guess there just isn't enough SYSV stuff left to
-keep any momentum behind linux-abi anymore either...
+And since I don't like bounces, how about this patch?
 
-SCO stated a long time ago that they saw nothing in linux-abi
-to worry them.
-
-Which is kind of interesting because iBCS started life pretty
-much as a way for Eric Youngdale to test his ELF loader code,
-which subsequently moved into the main kernel.
-
-(iBCS CVS is still available on http://sf.net/projects/ibcs
-even if nothing else is. It doesn't go back quite to the
-start - I think my initial import was 1993...)
-
-Mike
-
-On Mon, Jun 07, 2004 at 03:15:26PM +0400, Manu Abraham wrote:
-> Hi,
->         Wouldn't SCO be too happy to have a valid point for  lawsuit ?
-> 
-> Regards,
-> Manu
-> 
-> On Monday 07 Jun 2004 10:07 am, Steve Bergman wrote:
-> > I just moved a server over to Fedora Core 2 (kernel 2.6.6) and
-> > discovered that there is a need to run an old SCO binary.
-> >
-> > linux-abi.sf.net seems quite dead as a project.  Is there any comparable
-> > support for for foreign binaries in for the 2.6.x series?
-> >
-> > Since even the developer and user mailing lists of the linux-abi project
-> > seem quite dead, this seems an appropriate place to ask.
-> >
-> > Thanks,
-> > Steve Bergman
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jörn
 
 -- 
--- 
-Mike Jagdis                        Web: http://www.eris-associates.co.uk
-Eris Associates Limited            Tel: +44 7780 608 368
-Reading, England                   Fax: +44 118 926 6974
+Beware of bugs in the above code; I have only proved it correct, but
+not tried it.
+-- Donald Knuth
+
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+
+ MAINTAINERS |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.6cow/MAINTAINERS~xfs_list	2004-05-10 18:10:05.000000000 +0200
++++ linux-2.6.6cow/MAINTAINERS	2004-06-09 15:08:08.000000000 +0200
+@@ -2354,7 +2354,7 @@
+ 
+ XFS FILESYSTEM
+ P:	Silicon Graphics Inc
+-M:	owner-xfs@oss.sgi.com
++M:	linux-xfs@oss.sgi.com
+ M:	nathans@sgi.com
+ L:	linux-xfs@oss.sgi.com
+ W:	http://oss.sgi.com/projects/xfs

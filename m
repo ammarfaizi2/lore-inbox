@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289689AbSAJV2x>; Thu, 10 Jan 2002 16:28:53 -0500
+	id <S289697AbSAJVcd>; Thu, 10 Jan 2002 16:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289688AbSAJV2e>; Thu, 10 Jan 2002 16:28:34 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:51185 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289689AbSAJV2N>;
-	Thu, 10 Jan 2002 16:28:13 -0500
-Date: Thu, 10 Jan 2002 14:28:04 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
+	id <S289695AbSAJVcX>; Thu, 10 Jan 2002 16:32:23 -0500
+Received: from quechua.inka.de ([212.227.14.2]:11820 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S289696AbSAJVcN>;
+	Thu, 10 Jan 2002 16:32:13 -0500
+From: Bernd Eckenfels <ecki-news2002-01@lina.inka.de>
 To: linux-kernel@vger.kernel.org
 Subject: Re: eth0: entered promiscuous mode
-Message-ID: <20020110142804.D26688@lynx.adilger.int>
-Mail-Followup-To: linux-kernel@vger.kernel.org
 In-Reply-To: <20020110205946.GB24838@zhadum.bjavor.d2g.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020110205946.GB24838@zhadum.bjavor.d2g.com>; from jb3@freemail.hu on Thu, Jan 10, 2002 at 09:59:46PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16Omo1-000099-00@sites.inka.de>
+Date: Thu, 10 Jan 2002 22:32:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 10, 2002  21:59 +0100, Balazs Javor wrote:
+In article <20020110205946.GB24838@zhadum.bjavor.d2g.com> you wrote:
 > Can somebody please tell me what the above message means?
 
-It means that you are running a program like "tcpdump".  If not, it
-may mean that someone has hacked into your system and is running a
-network sniffer to capture passwords on your network.
+it means you run a root program which requested the network card to go into
+promic mode. promisc mode means, the card will receive all packets on the
+wire, not only those destinated to the card. a few sniffing/scan
+detector/accounting apps require this, and some legal apps for network
+configuration (like dhcp/bootp/... ) and arpwatch may require it.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Greetings
+Bernd

@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUHMO32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265847AbUHMOus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUHMO32 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 10:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbUHMO32
+	id S265847AbUHMOus (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 10:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUHMOus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 10:29:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:5780 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265833AbUHMO30 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 10:29:26 -0400
-Date: Fri, 13 Aug 2004 07:29:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-Message-ID: <20040813142913.GF11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-References: <20040812020424.GB11200@holomorphy.com> <20040812072058.GH11200@holomorphy.com> <20040813080116.GY11200@holomorphy.com> <20040813091640.GZ11200@holomorphy.com> <20040813093002.GA11200@holomorphy.com> <20040813094614.GB11200@holomorphy.com> <20040813100540.GC11200@holomorphy.com> <20040813102334.GD11200@holomorphy.com> <20040813103902.GE11200@holomorphy.com> <Pine.LNX.4.58.0408131015070.18353@montezuma.fsmlabs.com>
-Mime-Version: 1.0
+	Fri, 13 Aug 2004 10:50:48 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:43205 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S265847AbUHMOup
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 10:50:45 -0400
+Date: Fri, 13 Aug 2004 07:50:34 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+cc: steiner@sgi.com
+Subject: Re: [PATCH] allocate page caches pages in round robin fasion
+Message-ID: <84960000.1092408633@[10.10.2.4]>
+In-Reply-To: <200408121646.50740.jbarnes@engr.sgi.com>
+References: <200408121646.50740.jbarnes@engr.sgi.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408131015070.18353@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004, William Lee Irwin III wrote:
->>               text    data     bss     dec     hex filename
->> mainline:    19973522        6607761 1878448 28459731        1b242d3 vmlinux
->> cool:        19839487        6585707 1878448 28303642        1afe11a vmlinux
->> C-func:      19923848        6582771 1878384 28385003        1b11eeb vmlinux
->> unlock:      19895498        6582746 1878384 28356628        1b0b014 vmlinux
->> unlock-irq:  19889858        6582721 1878384 28350963        1b099f3 vmlinux
->> read-unlock: 19883858        6582674 1878384 28344916        1b08254 vmlinux
->> irqrestore:  19855759        6582442 1878384 28316585        1b013a9 vmlinux
->> rdunlockirq: 19855255        6582369 1878384 28316008        1b01168 vmlinux
->> rdunlckrstr: 19855007        6582236 1878384 28315627        1b00feb vmlinux
+> On a NUMA machine, page cache pages should be spread out across the system 
+> since they're generally global in nature and can eat up whole nodes worth of 
+> memory otherwise.  This can end up hurting performance since jobs will have 
+> to make off node references for much or all of their non-file data.
+> 
+> The patch works by adding an alloc_page_round_robin routine that simply 
+> allocates on successive nodes each time its called, based on the value of a 
+> per-cpu variable modulo the number of nodes.  The variable is per-cpu to 
+> avoid cacheline contention when many cpus try to do page cache allocations at 
+> once.
 
-On Fri, Aug 13, 2004 at 10:15:45AM -0400, Zwane Mwaikambo wrote:
-> I was meaning to ask before, got ideas for lock profiling with this?
+I really don't think this is a good idea - you're assuming there's really
+no locality of reference, which I don't think is at all true in most cases.
 
-I don't have anything concrete, no. I suspect the same comments apply
-generically to all architectures. One possible modification would be
-for profile_tick() (in current -mm) to check for the text address being
-in some ELF section dedicated to out-of-line locking functions and
-unwind the stack one frame and account the tick to the caller.
+If we round-robin it ... surely 7/8 of your data (on your 8 node machine)
+will ALWAYS be off-node ? I thought we discussed this at KS/OLS - what is
+needed is to punt old pages back off onto another node, rather than swapping
+them out. That way all your pages are going to be local.
 
-The more problematic aspect of all this is that x86 is unique in its
-code footprint for the unlock functions and IRQ masking being so small
-as to merit inlining of these things. So the notion of a uniform API
-that serves all architectures equally well is out the window.
+> After dd if=/dev/zero of=/tmp/bigfile bs=1G count=2 on a stock kernel:
+> Node 7 MemUsed:         49248 kB
+> Node 6 MemUsed:         42176 kB
+> Node 5 MemUsed:        316880 kB
+> Node 4 MemUsed:         36160 kB
+> Node 3 MemUsed:         45152 kB
+> Node 2 MemUsed:         50000 kB
+> Node 1 MemUsed:         68704 kB
+> Node 0 MemUsed:       2426256 kB
+> 
+> and after the patch:
+> Node 7 MemUsed:        328608 kB
+> Node 6 MemUsed:        319424 kB
+> Node 5 MemUsed:        318608 kB
+> Node 4 MemUsed:        321600 kB
+> Node 3 MemUsed:        319648 kB
+> Node 2 MemUsed:        327504 kB
+> Node 1 MemUsed:        389504 kB
+> Node 0 MemUsed:        744752 kB
 
+OK, so it obviously does something ... but is the dd actually faster? 
+I'd think it's slower ...
 
--- wli
+M.
+
+PS. I think it prob makes sense to make the *receiving* node's kswapd
+do the transfer if possible for work distribution reasons ... however
+I'm pretty sure there are some locking assumptions that mean this won't
+be easy / possible.
+

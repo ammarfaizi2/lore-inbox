@@ -1,38 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUIJHXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUIJHXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264213AbUIJHXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUIJHXs
+	id S264980AbUIJHXI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbUIJHXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:23:48 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:54150 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264213AbUIJHXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:23:40 -0400
-Date: Fri, 10 Sep 2004 00:23:28 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Message-ID: <20040910072328.GB4606@taniwha.stupidest.org>
-References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <20040910064519.GA4232@taniwha.stupidest.org> <20040910065213.GA11140@devserv.devel.redhat.com> <20040910071530.GB4480@taniwha.stupidest.org> <20040910072121.GE11140@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040910072121.GE11140@devserv.devel.redhat.com>
+	Fri, 10 Sep 2004 03:23:07 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:23946 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264531AbUIJHVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 03:21:50 -0400
+Message-ID: <4141560E.1090000@namesys.com>
+Date: Fri, 10 Sep 2004 00:21:50 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Paul Jakma <paul@clubi.ie>, "Theodore Ts'o" <tytso@mit.edu>,
+       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       William Stearns <wstearns@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document
+ the idea ofwhat reiser4 wants to do with metafiles and why
+References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com> <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com> <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com> <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org> <4140FBE7.6020704@namesys.com> <Pine.LNX.4.61.0409100212080.23011@fogarty.jakma.org> <414135E6.8050103@namesys.com> <20040910055308.GJ23987@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040910055308.GJ23987@parcelfarce.linux.theplanet.co.uk>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 09:21:21AM +0200, Arjan van de Ven wrote:
+viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> it used to be 8K unified for user context and softirq context and
-> hardirq context. Basically that got "split up" into 4k for user and
-> 4k each for the irq contexts.
+>On Thu, Sep 09, 2004 at 10:04:38PM -0700, Hans Reiser wrote:
+>  
+>
+>>>The real question though is: Have you given Al Viro technical answers 
+>>>to his technical questions?
+>>>      
+>>>
+>>Yes, I did. Got no response.
+>>    
+>>
+>
+>Liar.
+>
+>
+>  
+>
+I don't think that "Liar." is an appropriate response. If you sent a 
+response, just quote it.
 
-you didn't answer my second question and that's not really an answer
-of why 4K is the 'right' value
+I must say that your attitude towards persons contributing to Linux (of 
+which this email is the least of it) has over the years lost Linux 
+persons much more talented than yourself. We lost the opportunity to 
+have one of DARPAs hot young security researchers contribute to us 
+because his experience was that Linux maintainers are a collection of 
+assholes hostile to new contributors, and he had too much self respect 
+to deal with the likes of you. He was a very nice and talented young 
+man. Frankly, I look at Linux, and I see all the reasons why I decided 
+not to develop for BSD coming to life in Linux now that Linux is more 
+successful than BSD. Inner circle, hostility to newcomers, patch 
+acceptance based on whose nose is in whose ass, etc., etc.
 
-what makes 4K suitable for i386 when x86-64 uses 8K and ppc64 uses
-16K?  the argument used to be about memory fragmentation but that not
-solved for the latter
-
+Hans

@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUGVX25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267402AbUGVXcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUGVX25 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 19:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUGVX24
+	id S267402AbUGVXcb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 19:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUGVXaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 19:28:56 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:3977 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S266124AbUGVX1G (ORCPT
+	Thu, 22 Jul 2004 19:30:05 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:57283 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S267375AbUGVX3s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 19:27:06 -0400
-Date: Thu, 22 Jul 2004 16:23:27 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sched domains bringup race?
-Message-ID: <20040722162327.A27935@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <1089944026.32312.47.camel@nighthawk> <20040718134559.A25488@unix-os.sc.intel.com> <40FB78D5.1070604@yahoo.com.au> <1090533339.3041.13.camel@booger>
+	Thu, 22 Jul 2004 19:29:48 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Joel n.solanki" <zealous@bonbon.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unresloved systems /drm/sis.o 
+In-reply-to: Your message of "22 Jul 2004 13:54:41 +0530."
+             <1090484680.2312.5.camel@joel.d2visp.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1090533339.3041.13.camel@booger>; from nathanl@austin.ibm.com on Thu, Jul 22, 2004 at 04:55:40PM -0500
+Date: Fri, 23 Jul 2004 09:29:41 +1000
+Message-ID: <28336.1090538981@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 04:55:40PM -0500, Nathan Lynch wrote:
-> On Mon, 2004-07-19 at 02:31, Nick Piggin wrote:
-> > Keshavamurthy Anil S wrote:
-> > > Even on my system which is Intel 865 chipset (P4 with HT enabled system) 
-> > > I see a bug check somewhere in the schedular_tick during boot.
-> > > However if I move the sched_init_smp() after do_basic_setup() the
-> > > kernel boots without any problem. Any clue here?
+On 22 Jul 2004 13:54:41 +0530, 
+"Joel n.solanki" <zealous@bonbon.net> wrote:
+>I have compiled 2.4.21 kernel downloaded from kernel.org
+>all things went good according to my choice.
+>But when doing make modules_install i got the error for Unresolved
+>sysmbols.
+>
+>Result of depmod -a
+>
+>
+>[root@joel root]# depmod -a
+>depmod: *** Unresolved symbols in
+>/lib/modules/2.4.21/kernel/drivers/char/drm/sis.o
 
-  This was happening even without CONFIG_SCHED_SMT and later found to be
-ACPI bug. Sorry for the confusion.
+You need CONFIG_FB_SIS=y to go with CONFIG_DRM_SIS=y.  The 2.4 build
+system cannot detect the requirement, you have to set CONFIG_FB_SIS=y
+by hand.
 
-> > 
-> > There shouldn't be any problem doing that if we have to, obviously we
-> > need to know why. Is it possible that cpu_sibling_map, or one of the
-> > CPU masks isn't set up correctly at the time of the call?
-> 
-> In 2.6.8-rc1-mm1 at least, backing this patch out fixed it for me on
-> ppc64:
-> 
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc1/2.6.8-rc1-mm1/broken-out/detect-too-early-schedule-attempts.patch
-> 
-> Code with statements of the form:
-> 
-> if (system_state == SYSTEM_BOOTING)
-> 	/* do something boot-specific */
-> else
-> 	/* do something assuming system_state == SYSTEM_RUNNING */
-> 
-> is broken by this change.  Parts of the cpu bringup code in arch/ppc64
-> do this (and thus need to be fixed if the above change is kept). 
-> Chances are there is similar code in some x86 setups.
-> 
-> Nathan
-> 

@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318047AbSHUIRA>; Wed, 21 Aug 2002 04:17:00 -0400
+	id <S318069AbSHUIkS>; Wed, 21 Aug 2002 04:40:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318060AbSHUIRA>; Wed, 21 Aug 2002 04:17:00 -0400
-Received: from mail.iok.net ([62.249.129.22]:3086 "EHLO mars.iok.net")
-	by vger.kernel.org with ESMTP id <S318047AbSHUIRA>;
-	Wed, 21 Aug 2002 04:17:00 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Holger Schurig <h.schurig@mn-logistik.de>
-To: linux-kernel@vger.kernel.org
-Subject: cell-phone like keyboard driver anywhere?
-Date: Wed, 21 Aug 2002 09:32:36 +0200
-User-Agent: KMail/1.4.3
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208210932.36132.h.schurig@mn-logistik.de>
+	id <S318075AbSHUIkS>; Wed, 21 Aug 2002 04:40:18 -0400
+Received: from users.linvision.com ([62.58.92.114]:25485 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S318069AbSHUIkS>; Wed, 21 Aug 2002 04:40:18 -0400
+Date: Wed, 21 Aug 2002 10:44:10 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+Message-ID: <20020821104410.A25461@bitwizard.nl>
+References: <20020818025913.GF21643@waste.org> <Pine.LNX.4.44.0208172006050.1491-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208172006050.1491-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have to write a keyboard driver for a cell-phone like keyboard. I'm just 
-wondering if this has been done before.
+On Sat, Aug 17, 2002 at 08:08:36PM -0700, Linus Torvalds wrote:
+> 
+> On Sat, 17 Aug 2002, Oliver Xymoron wrote:
+> > 
+> > Let me clarify that 2-5 orders thing. The kernel trusts about 10 times
+> > as many samples as it should, and overestimates each samples' entropy
+> > by about a factor of 10 (on x86 with TSC) or 1.3 (using 1kHz jiffies).
+> 
+> Lookin gat the code, your _new_ code just throws samples away _entirely_ 
+> just because some random event hasn't happened (the first thing I noticed 
+> was the context switch testing, there may be others there that I just 
+> didn't react to).
 
-Basically, the keys are in some x/y matrix. How to decode that can be seen in 
-drivers/char/asi_keyboard.c (after applying the patches
+Oliver, 
 
-ftp://ftp.arm.linux.org.uk/pub/armlinux/source/kernel-patches/v2.4/patch-2.4.18-rmk7.bz2 
-ftp://source.mvista.com/pub/xscale/pxa/diff-2.4.18-rmk7-pxa3.gz
-http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=1187/1
+Let me state that with a proper mixing function you should always 
+mix in possible entropy sources, even if they CAN be controlled
+from the outside. 
 
-However, this file (as any other that I have seen) assumes that there are 
-shift, ctrl, alt etc layers. But a cell-phone like keyboard operates 
-differently, e.g.
+If you mistrust the source, feel free to add (almost) zero to the 
+"proven entropy". 
 
-1 pause -> send keycode for character "a"
-1 1 pause -> send keycode for character "b"
-1 1 1 pause -> send keycode for character "c"
-2 pause -> send keycode for character "d"
+Now, how about keeping both a conservative and a bit more liberal
+count of the entropy in the pool? Then we can have three device
+nodes, which provide random entropy. One should follow YOUR rules, 
+and can only be used on desktop machines with humans typing and
+mousing at the console (that's your proposition for "random"). 
+The other is useful for random numbers for keys and such (that's 
+our current "random"). The last is our old urandom. 
 
-and so on.
+				Roger. 
 
-Has anybody done things in this area?
-
-
-Holger
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

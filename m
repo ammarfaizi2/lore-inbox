@@ -1,66 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262265AbRE2EVD>; Tue, 29 May 2001 00:21:03 -0400
+	id <S262269AbRE2EYN>; Tue, 29 May 2001 00:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262269AbRE2EUy>; Tue, 29 May 2001 00:20:54 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:63506 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S262265AbRE2EUl>; Tue, 29 May 2001 00:20:41 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01459A19@dcmtechdom.dcmtech.co.in>
-From: "Harivansh S. Mehta" <harivansh@dcmtech.co.in>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Serial Programming
-Date: Tue, 29 May 2001 09:54:47 +0530
+	id <S262304AbRE2EYD>; Tue, 29 May 2001 00:24:03 -0400
+Received: from beaker.bluetopia.net ([63.219.235.110]:5904 "EHLO
+	beaker.bluetopia.net") by vger.kernel.org with ESMTP
+	id <S262269AbRE2EXx>; Tue, 29 May 2001 00:23:53 -0400
+Date: Tue, 29 May 2001 00:23:26 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetopia.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.5] buz.c won't compile
+In-Reply-To: <E154UFq-0003XG-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.04.10105290022051.1601-100000@beaker.bluetopia.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am developing a driver which reads some data from the serial port in the
-raw mode. For doing the same i do a call to which fails. The call to
-our_ioctl for get serial data fails with return value -14 which is EBADADDR.
+On Mon, 28 May 2001, Alan Cox wrote:
+>> Actually, it broke at 2.4.3.  Go look at the first change to buz.c from
+>> that patch.
+>
+>buz was broken before 2.4.0
 
-The same read works if we send a direct read request from an application to
-our driver. However when we call the same thing from within the driver
-module, it fails .
-Please suggest  a way for this.
+Where "broke" is defined as "no longer compiles".
 
+(I'm one of those nuts that compiles everything.)
 
-The code is something like this 
-
-FILE * fp;
-init_module()
-{
-fp = filp_open ("/dev/ttyS0", O_RDWR);
-}
+--Ricky
 
 
-int  our_read(struct file *filp, char *buf, size_t size, loff_t *off)  
-{ 
-	if (fp)
-	{
-	    if (fp->f_op && fp->f_op->read)
- 		retval =  fp->f_op->read(filep,buf,size,&filep->f_pos); 
-	}
-}
-
-
-int  our_ioctl(struct inode *in, struct file *f, unsigned int cmd,
-                 unsigned long arg)  
-{
-	switch (cmd)
-	{
-		case GET_SERIAL_DATA : return our_read(NULL, (char * ) arg,
-MAX_READ, NULL);
-		break;
-	}
-}
-
-
-TIA
-Harivansh S. Mehta
-DCM Technologies Ltd.
-India

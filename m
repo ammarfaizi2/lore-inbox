@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314244AbSD0PH4>; Sat, 27 Apr 2002 11:07:56 -0400
+	id <S314241AbSD0PZm>; Sat, 27 Apr 2002 11:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314243AbSD0PHz>; Sat, 27 Apr 2002 11:07:55 -0400
-Received: from holomorphy.com ([66.224.33.161]:15810 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S314241AbSD0PHx>;
-	Sat, 27 Apr 2002 11:07:53 -0400
-Date: Sat, 27 Apr 2002 08:06:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] linux-2.4.19-pre7-rmap13
-Message-ID: <20020427150643.GP21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020427085425.GA5573@linux.kappa.ro>
-Mime-Version: 1.0
+	id <S314243AbSD0PZm>; Sat, 27 Apr 2002 11:25:42 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16656 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314241AbSD0PZl>; Sat, 27 Apr 2002 11:25:41 -0400
+Subject: Re: The tainted message
+To: rthrapp@sbcglobal.net (Richard Thrapp)
+Date: Sat, 27 Apr 2002 16:20:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel), alan@lxorguk.ukuu.org.uk
+In-Reply-To: <1019883102.8819.48.camel@wizard> from "Richard Thrapp" at Apr 26, 2002 11:51:41 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E171TzX-0008PF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 11:54:25AM +0300, Teodor Iacob wrote:
-> I got today this: kernel BUG at page_alloc.c:110!
-> and then I got this OOPS on a games server running 4 servers of
-> hlds/counter-strike:
+> First of all, the current tainted message is not really useful. 
+> "Warning: Loading %s will taint the kernel..." isn't very informative at
+> all.  Most people don't know what it means to "taint the  kernel".  It's
 
-Any chance you could send me your .config?
+I'd agree. I wasn't aware I had any responsibility beyond helping Arjan
+who implemented it. The kernel itself has no messages/policy intentionally.
 
-Also, was the system running after the first BUG when you got this oops
-or is this the oops corresponding to the BUG?
+> I would like to propose that a clearer, more direct message be used. 
+> Something like "Warning: kernel maintainers may not support your kernel
+> since you have loaded %s: %s%s\n" would be much more informative and
+> correct.
 
+> Opinions?  Comments?
 
-Thanks,
-Bill
+More informative but I think too soft. It still implies we might want to
+hear about it but not reply. That isnt the case.
+
+How about
+
+Warning: The module you have loaded (%s) does not seem to have an open
+	 source license. Please send any kernel problem reports to the
+	 author of this module, or duplicate them from a boot without
+	 ever loading this module before reporting them to the community
+	 or your Linux vendor
+
+??

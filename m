@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262470AbREXWv1>; Thu, 24 May 2001 18:51:27 -0400
+	id <S262475AbREXWyH>; Thu, 24 May 2001 18:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262475AbREXWvR>; Thu, 24 May 2001 18:51:17 -0400
-Received: from user-vc8ftn3.biz.mindspring.com ([216.135.246.227]:65294 "EHLO
-	mail.ivivity.com") by vger.kernel.org with ESMTP id <S262470AbREXWvC>;
-	Thu, 24 May 2001 18:51:02 -0400
-Message-ID: <25369470B6F0D41194820002B328BDD20717A0@ATLOPS>
-From: Bharath Madhavan <bharath_madhavan@ivivity.com>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Accelerated TCP/IP support from kernel
-Date: Thu, 24 May 2001 18:50:53 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262476AbREXWx5>; Thu, 24 May 2001 18:53:57 -0400
+Received: from team.iglou.com ([192.107.41.45]:45263 "EHLO iglou.com")
+	by vger.kernel.org with ESMTP id <S262475AbREXWxt>;
+	Thu, 24 May 2001 18:53:49 -0400
+Date: Thu, 24 May 2001 18:53:34 -0400
+From: Jeff Mcadams <jeffm@iglou.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul Fulghum <paulkf@microgate.com>, linux-kernel@vger.kernel.org
+Subject: Re: SyncPPP Generic PPP merge
+Message-ID: <20010524185333.B7667@iglou.com>
+In-Reply-To: <002501c0e48f$ffed1e40$0c00a8c0@diemos> <E1533Ra-0005hC-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E1533Ra-0005hC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 24, 2001 at 11:18:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot. That was useful info especially your last point
-where you are saying that most of the area we can save is in
-data processing and not in protocol processing.
-So, if we use the ZERO_COPY feature, we should gain quite a bit.
-I guess 3c905c NIC supports HW checksumming. Is this true?
-In this case, do we have any benchmarking for this card 
-with and without ZERO_COPY (and HW checksumming). I am eager to
-know by how many times did the system throughput increase?
-Thanks a lot
-Bharath
+Also sprach Alan Cox
+>> Instead of using ifconfig to bring an interface up or down, the user
+>> must now work with pppd. And the net device naming changes (allocated
+>> by ppp_generic.c instead of using the net device allocated by low
+>> level driver).
 
+>I suspect that bit can be fixed if need be. Its nice to keep a constant
+>naming between cisco/ppp modes. cisco/ppp autodetect is also possible
+>and would be rather nice to support 
 
+Indeed.  And let me just throw out another thought.  A clean abstraction
+of the various portions of the PPP functionality is beneficial in other
+ways.  My personal pet project being to add L2TP support to the kernel
+eventually.  A good abstraction of the framing capabilities and basic
+PPP processing would be rather useful in that project.
 
+>> Or is it to *add* generic PPP support to syncppp, leaving (at least
+>> temporarily) the existing PPP capability in syncppp for
+>> compatibility?  (implying a new syncppp flag USE_GENERIC_PPP?)
 
------Original Message-----
-From: David S. Miller [mailto:davem@redhat.com]
-Sent: Thursday, May 24, 2001 6:29 PM
-To: Bharath Madhavan
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Accelerated TCP/IP support from kernel
+>Assuming this is a 'when 2.5 starts' discussion I'd like initially to
+>keep the syncppp api is but the pppd code going via generic ppp - and
+>yes it would break configs.
 
+>Clearly thats not 2.4 acceptable
 
+I would agree that such a project would be 2.5 material.
 
-Bharath Madhavan writes:
- > 	I am looking into a scenario where we have a NIC which performs 
- > all the TCP/IP processing and basically the core CPU offloads all data
-from
- > the socket level interface onwards to this NIC. 
-
-Why would you ever want to do this?
-
-Point 1: Support for new TCP techniques and bug fixes are hard enough
-to propagate to user's systems as it is with the implementation being
-done in software.
-
-Point 2: If I find a bug in the cards TCP implementation, will I be
-able to get at the source for the firmware and fix it?  Likely the
-answer to this is no.
-
-Every couple years a few vendors make cards like this, yet ignore
-these core issues.  It is currently impractical to use these kinds of
-cards today except in a few very special case situations.
-
-Furthermore, the actual protocol processing overhead is quite small
-and almost neglible especially on today's gigahertz beasts.  The data
-copy is where the time is spent, and checksum offload takes care of
-that.
-
-Later,
-David S. Miller
-davem@redhat.com
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+I'll try to keep up with things on the list, but if this goes off-list,
+I would appreciate being kept in the loop if possible.  :)  Thanks!
+-- 
+Jeff McAdams                            Email: jeffm@iglou.com
+Head Network Administrator              Voice: (502) 966-3848
+IgLou Internet Services                        (800) 436-4456

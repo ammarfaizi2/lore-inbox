@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290744AbSARQrB>; Fri, 18 Jan 2002 11:47:01 -0500
+	id <S290748AbSARQtV>; Fri, 18 Jan 2002 11:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290742AbSARQqw>; Fri, 18 Jan 2002 11:46:52 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:4363 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290738AbSARQqg>;
-	Fri, 18 Jan 2002 11:46:36 -0500
-Date: Sat, 12 Jan 2002 06:34:12 +0000
+	id <S290745AbSARQtH>; Fri, 18 Jan 2002 11:49:07 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:59915 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S290750AbSARQsN>;
+	Fri, 18 Jan 2002 11:48:13 -0500
+Date: Mon, 14 Jan 2002 03:10:29 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Abramo Bagnara <abramo@alsa-project.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christoph Hellwig <hch@ns.caldera.de>, Jaroslav Kysela <perex@suse.cz>,
+        sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
         linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Message-ID: <20020112063412.F511@toy.ucw.cz>
-In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de> <E16Oocq-0005tX-00@the-village.bc.nu>
+Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
+Message-ID: <20020114031029.D2157@toy.ucw.cz>
+In-Reply-To: <3C39EB68.BC8C804@alsa-project.org> <Pine.LNX.4.33.0201071044260.6694-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16Oocq-0005tX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 10, 2002 at 11:28:48PM +0000
+In-Reply-To: <Pine.LNX.4.33.0201071044260.6694-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 07, 2002 at 10:47:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> The kernel isnt there to fix up the fact authors can't read. Its also very
-> hard to get emulations right. I grant that this wasn't helped by the fact
+> > Just to resume, you think that the way to go is:
+> >
+> > 1) to have sound/ with *all* sound related stuff inside
+> > 2) to leave drivers/net/ and net/ like they are now (because although
+> > it's suboptimal, to change it is a mess we don't want to face now)
+> 
+> This is my current feeling.
+> 
+> However, la donna é mobile, and I'm a primus donna, fer shure. So don't
+> take it _too_ seriously, continue to argue the merits of other approaches.
 
-What's so hard about CMOV?
-
-> If you have a static linked program install the right version. RPMv4
-> even knows about cmov and i686 rpms.
-
-RPM does not help. Think new machine failed, but you still have some trash
-with 386 on it, so you connect your disk to it, boot from floppy, and expect
-it to work.
+Where does USB soundcard go, then? It should be in drivers/usb by current
+standards... Having sound drivers both inside and outside drivers/ seems
+ugly to me.
 									Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

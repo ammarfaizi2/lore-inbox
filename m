@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319791AbSIMVSs>; Fri, 13 Sep 2002 17:18:48 -0400
+	id <S319792AbSIMVNz>; Fri, 13 Sep 2002 17:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319796AbSIMVSs>; Fri, 13 Sep 2002 17:18:48 -0400
-Received: from mesatop.zianet.com ([216.234.192.105]:19216 "HELO
-	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S319791AbSIMVSr> convert rfc822-to-8bit; Fri, 13 Sep 2002 17:18:47 -0400
-Subject: Re: 2.5.34-mm2 kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y
-From: Steven Cole <elenstev@mesatop.com>
-To: Arador <diegocg@teleline.es>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <20020913224139.72df14ba.diegocg@teleline.es>
-References: <1031840041.1990.378.camel@spc9.esa.lanl.gov> 
-	<20020913224139.72df14ba.diegocg@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 13 Sep 2002 15:20:26 -0600
-Message-Id: <1031952028.2604.28.camel@localhost.localdomain>
+	id <S319791AbSIMVNz>; Fri, 13 Sep 2002 17:13:55 -0400
+Received: from holomorphy.com ([66.224.33.161]:1749 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319792AbSIMVNx>;
+	Fri, 13 Sep 2002 17:13:53 -0400
+Date: Fri, 13 Sep 2002 14:12:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-user@lists.sourceforge.net,
+       Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
+Subject: Re: [reiserfs-dev] Re: UML 2.5.34
+Message-ID: <20020913211252.GC3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nikita Danilov <Nikita@Namesys.COM>, Jeff Dike <jdike@karaya.com>,
+	linux-kernel@vger.kernel.org,
+	user-mode-linux-user@lists.sourceforge.net,
+	Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
+References: <15745.48975.172938.121684@laputa.namesys.com> <200209131429.JAA02083@ccure.karaya.com> <15745.59564.28543.921212@laputa.namesys.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <15745.59564.28543.921212@laputa.namesys.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 14:41, Arador wrote:
-> On 12 Sep 2002 08:14:01 -0600
-> Steven Cole <elenstev@mesatop.com> escribió:
-> 
-> > I got the following BUG at sched.c:944! with 2.5.34-mm2 and PREEMPT on.
-> > This was repeatable. 
-> 
-> Same for me:
-> POSIX conformance testing by UNIFIX
-> Kernel BUG at sched.c:944!
-> 
+Jeff Dike writes:
+[not sure what, got trimmed/mangled somewhere]
 
-If you just want a quick workaround (not a real fix), you
-can change in_atomic back to in_interrupt on line 933 of kernel/sched.c.
+On Fri, Sep 13, 2002 at 05:31:24PM +0400, Nikita Danilov wrote:
+> pte_addr_t and CLOCK_TICK_RATE were undefined.
+> Wrong macro in include/asm-um/percpu.h resulted in
+> include/asm-um/cacheflush.h never being included and a macros from the
+> latter undefined also.
+> By the way, I am talking about Linus BK tree, rather than patches you
+> have posted. Sorry for not mentioning this from the beginning.
 
-Robert Love has posted another patch for this, so you might want to
-try that out.  Here is a link to that post:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103190275327089&w=2
-You may need to change KERN_ERROR to KERN_ERR in that patch.
+This isn't Jeff's fault. pte_addr_t is from pte-highmem bits I did
+merged after he did his mergework.
 
-Steven
 
+Cheers,
+Bill

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVC2Hht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVC2H1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbVC2Hht (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 02:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVC2H2r
+	id S262483AbVC2H1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 02:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVC2HZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 02:28:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31680 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262535AbVC2HR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 02:17:57 -0500
-Message-ID: <42490104.8040302@pobox.com>
-Date: Tue, 29 Mar 2005 02:17:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: folkert@vanheusden.com, Andrew Morton <akpm@osdl.org>,
-       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, jmorris@redhat.com,
-       herbert@gondor.apana.org.au
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy
- (2.6.11)
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <m1y8cc3mj1.fsf@muc.de> <424324F1.8040707@pobox.com> <20050327171934.GB18506@muc.de> <20050327185500.GP943@vanheusden.com> <20050328152043.GA26121@muc.de>
-In-Reply-To: <20050328152043.GA26121@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 29 Mar 2005 02:25:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:55192 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262483AbVC2HIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 02:08:52 -0500
+Date: Mon, 28 Mar 2005 23:08:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] s390: claw network device driver
+Message-Id: <20050328230830.5e90396f.akpm@osdl.org>
+In-Reply-To: <4248FBFD.5000809@pobox.com>
+References: <200503290533.j2T5XEYT028850@hera.kernel.org>
+	<4248FBFD.5000809@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> BTW what do you do when the FIPS test fails? I dont see a good fallback
-> path for this case.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Linux Kernel Mailing List wrote:
+>  > ChangeSet 1.2231.1.122, 2005/03/28 19:50:29-08:00, richtera@us.ibm.com
+>  > 
+>  > 	[PATCH] s390: claw network device driver
+>  > 	
+>  > 	Add support for claw network devices.
+>  > 	
+>  > 	Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+>  > 	Signed-off-by: Andrew Morton <akpm@osdl.org>
+>  > 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  Grumpity grump grump grump.  How tough is it to send new net drivers to 
+>  netdev and me for review?
 
-If the FIPS test fails, do the obvious:  don't feed that data to the 
-kernel (and credit entropy), and possibly stop using the hardware RNG 
-under a human has intervened.
-
-This is not rocket science.  The fallback path is "use software", which 
-is what most users do right now anyway.
-
-	Jeff
+Was cc'ed to linux-net last Thursday, but it looks like the messages was
+too large and the vger server munched it.
 

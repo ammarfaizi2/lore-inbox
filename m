@@ -1,96 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTEZGeD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 02:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTEZGeD
+	id S264299AbTEZGf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 02:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTEZGf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 02:34:03 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:10645 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264281AbTEZGeC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 02:34:02 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.20-ck7
-Date: Mon, 26 May 2003 16:48:54 +1000
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305261649.02132.kernel@kolivas.org>
+	Mon, 26 May 2003 02:35:56 -0400
+Received: from dp.samba.org ([66.70.73.150]:63888 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264299AbTEZGft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 02:35:49 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: davem@redhat.com, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] [2.5 patch] small documentation apdate regarding supported gcc versions
+Date: Mon, 26 May 2003 16:32:04 +1000
+Message-Id: <20030526064901.074712C0D8@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+[ Looks correct given the check in init/main.c. --RR ]
+From:  Adrian Bunk <bunk@fs.tum.de>
 
-Here's an update to my patchset
+  The patch below against 2.5.68-bk11 contains a small documentation 
+  apdate regarding supported gcc versions.
+  
+  cu
+  Adrian
+  
 
-http://kernel.kolivas.org
-
-Includes:
-O(1) scheduler with batch scheduling
-Preemptible
-Low Latency
-Read Latency2
-Autoregulated VM
-Variable Hz
-Scheduler Tunables
-Desktop Tuning
-Supermount NG
-XFS 1.2
-ACPI
-CPU Frequency Scaling
-NForce2 update
-Packet writing
-GCC 3.3 fixes
-
-Optional extras not included in full patch but available:
-2.5 Interactivity update
-Swap prefetching
-Lowest Latency Disk Hack
-AA VM addons
-RMAP
-Compressed Caching.
-
-Changes:
-Patch restructure to allow easy selection and applying of split out patches.
-Major change is my VM hacks that are now the default. These use the default VM 
-with changes based on the system and memory stress the kernel senses to 
-create a VM that's cachier with free memory and aggressive at avoiding swap. 
-It builds on the lean nature of the default VM without adding noticeable 
-overhead. See my website for a lengthier description or the patch itself for 
-documented code.
-The desktop tuning is now 10/40 ms for min/max timeslice, and further tuning 
-to avoid that nasty nasty i/o elevator pause problem. MCP and I are working 
-hard on trying to find a useful fix since noone else is interested any more. 
-See http://kernel.kolivas.org/elevator.html for more info.
-Supermount has been revamped to the new supermount-ng code 
-(http://supermount-ng.sf.net)
-Nforce2 update and GCC3.3 fixes.
-Optional:
-I've implemented some simple (read braindead) but effective swap prefetching 
-code which slowly trickles in pages from swap when the machine is idle and 
-there is free ram.
-For the most resistant cases of i/o induced pauses I have the nasty lowest 
-latency disk hack I made which drops throughput significantly but will remove 
-them entirely.
-The AA VM addons are now optional instead of the default as I've moved to my 
-VM addons, and will rip out my changes (as is the case with rmap).
-Compressed caching adds to my VM addons instead of AA.
-
-Feel free to send me queries, comments, suggestions, patches etc.
-
-Regards,
-Con Kolivas
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+0bjWF6dfvkL3i1gRAqeMAJ9MnPdAn1wg94vi+V5MHl49SfyTMgCfYAiN
-FO4NBqHV68whBUxOmcUyils=
-=9+SU
------END PGP SIGNATURE-----
-
+--- trivial-2.5.69-bk18/README.orig	2003-05-26 16:17:24.000000000 +1000
++++ trivial-2.5.69-bk18/README	2003-05-26 16:17:24.000000000 +1000
+@@ -152,9 +152,8 @@
+ 
+ COMPILING the kernel:
+ 
+- - Make sure you have gcc 2.95.3 available.
+-   gcc 2.91.66 (egcs-1.1.2), and gcc 2.7.2.3 are known to miscompile
+-   some parts of the kernel, and are *no longer supported*.
++ - Make sure you have gcc >= 2.95.3 available. *gcc 2.7.2.3 and gcc 2.91.66
++   (egcs-1.1.2) are no longer supported*.
+    Also remember to upgrade your binutils package (for as/ld/nm and company)
+    if necessary. For more information, refer to ./Documentation/Changes.
+ 
+--- trivial-2.5.69-bk18/Documentation/Changes.orig	2003-05-26 16:17:24.000000000 +1000
++++ trivial-2.5.69-bk18/Documentation/Changes	2003-05-26 16:17:24.000000000 +1000
+@@ -76,15 +76,13 @@
+ information about their gcc version requirements from another source.
+ 
+ The recommended compiler for the kernel is gcc 2.95.x (x >= 3), and it
+-should be used when you need absolute stability. You may use gcc 3.0.x
++should be used when you need absolute stability. You may use gcc 3.x
+ instead if you wish, although it may cause problems. Later versions of gcc 
+ have not received much testing for Linux kernel compilation, and there are 
+ almost certainly bugs (mainly, but not exclusively, in the kernel) that
+ will need to be fixed in order to use these compilers. In any case, using
+ pgcc instead of plain gcc is just asking for trouble.
+ 
+-gcc 2.91.66 (egcs-1.1.2) continues to be supported for SPARC64 requirements.
+-
+ The Red Hat gcc 2.96 compiler subtree can also be used to build this tree.
+ You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
+ the kernel correctly.
+-- 
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Adrian Bunk <bunk@fs.tum.de>: [2.5 patch] small documentation apdate regarding supported gcc versions

@@ -1,195 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268012AbTGIAiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 20:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268011AbTGIAiN
+	id S268000AbTGIAmd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 20:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267995AbTGIAmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 20:38:13 -0400
-Received: from CPE0080c6f1c7c1-CM014160001801.cpe.net.cable.rogers.com ([24.101.63.200]:59338
-	"EHLO muon.jukie.net") by vger.kernel.org with ESMTP
-	id S268101AbTGIAez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 20:34:55 -0400
-Date: Tue, 8 Jul 2003 20:49:28 -0400
-From: Bart Trojanowski <bart@jukie.net>
-To: linux-kernel@vger.kernel.org
-Cc: kernel-janitor-discuss@lists.sourceforge.net, trivial@rustcorp.com.au
-Subject: [PATCH 2.4.21] kernel fails to build in deeply nested directories
-Message-ID: <20030709004927.GB27426@jukie.net>
+	Tue, 8 Jul 2003 20:42:32 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:40645 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268111AbTGIAlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 20:41:53 -0400
+Subject: [PATCH libaio] add timeout to io_queue_run and remove io_queue_wait
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Benjamin LaHaise <bcrl@kvack.org>
+Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-FV5zZbDqAuV80+lCEtIu"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Jul 2003 17:57:04 -0700
+Message-Id: <1057712224.11509.35.camel@dell_ss5.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+pHx0qQiF2pBVqBT"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---+pHx0qQiF2pBVqBT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-FV5zZbDqAuV80+lCEtIu
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Here is a patch to libaio which adds a timeout parameter to
+io_queue_run() and removes io_queue_wait().  This makes my
+earlier kernel patch to fs/aio.c unnecessary, since I removed
+io_queue_wait() which was calling the io_getevents() syscall
+with a zero number of events.  This keeps the callback interface
+in the library and allows a user process to wait for i/o's to
+complete if it wants to.  I also changed io_queue_run() to
+batch up to 8 completions at a time, so it is more efficient.
+This requires no kernel changes. I also updated the io_queue_run() 
+man page and that is in a separate patch.
+
+Thoughts?
+
+Daniel McNeil <daniel@osdl.org
+
+
+--=-FV5zZbDqAuV80+lCEtIu
+Content-Disposition: attachment; filename=patch.libaio.io_queue_run
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=patch.libaio.io_queue_run; charset=ISO-8859-1
 
-I ran into this when building the kernel in a directory whose path name
-was quite long.  This is probably not a problem for most that build in
-/usr/src/linux, but I was able to reproduce it when building a debian
-kernel (that adds in about 40 characters on it's own) in my home
-directory.
-
-The error comes from bash telling me that ...
-
-	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune =
--o -follow -name \*.h ! -name modversions.h -print` > .hdepend
-
-=2E.. generates a command line that exceeds bash's limit.
-
-The fix is to allow mkdep to take the list of parameters on stdin and as
-arguments.
-
-The patch that follows, only changes the top level Makefile's dep-files
-rule.
-
-Regards,
-Bart.
-
-
-diff -ruN linux-2.4.21-org/Makefile linux-2.4.21/Makefile
---- linux-2.4.21-org/Makefile	2003-06-13 10:51:39.000000000 -0400
-+++ linux-2.4.21/Makefile	2003-07-08 20:40:43.000000000 -0400
-@@ -493,7 +493,7 @@
- ifdef CONFIG_MODVERSIONS
- 	$(MAKE) update-modverfile
- endif
--	scripts/mkdep -- `find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune=
- -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
-+	find $(FINDHPATH) \( -name SCCS -o -name .svn \) -prune -o -follow -name =
-\*.h ! -name modversions.h -print | scripts/mkdep --stdin > .hdepend
- 	scripts/mkdep -- init/*.c > .depend
+diff -rupN -X /home/daniel_nfs/dontdiff libaio-0.3.93/src/io_queue_run.c li=
+baio-0.3.93-io_queue_run_with_timeout/src/io_queue_run.c
+--- libaio-0.3.93/src/io_queue_run.c	2002-09-26 09:39:38.000000000 -0700
++++ libaio-0.3.93-io_queue_run_with_timeout/src/io_queue_run.c	2003-07-08 1=
+6:38:52.983739711 -0700
+@@ -21,19 +21,33 @@
+ #include <stdlib.h>
+ #include <time.h>
 =20
- ifdef CONFIG_MODVERSIONS
-diff -ruN linux-2.4.21-org/scripts/mkdep.c linux-2.4.21/scripts/mkdep.c
---- linux-2.4.21-org/scripts/mkdep.c	2002-08-02 20:39:46.000000000 -0400
-+++ linux-2.4.21/scripts/mkdep.c	2003-07-08 20:42:25.000000000 -0400
-@@ -43,9 +43,9 @@
- #include <sys/stat.h>
- #include <sys/types.h>
-=20
-+#define MAX_FILE_NAME_LEN 512
-=20
--
--char __depname[512] =3D "\n\t@touch ";
-+char __depname[MAX_FILE_NAME_LEN] =3D "\n\t@touch ";
- #define depname (__depname+9)
- int hasdep;
-=20
-@@ -531,6 +531,7 @@
- 	fd =3D open(filename, O_RDONLY);
- 	if (fd < 0) {
- 		perror(filename);
-+		exit(1);
- 		return;
- 	}
-=20
-@@ -577,6 +578,7 @@
+-int io_queue_run(io_context_t ctx)
++#define IO_BATCH_EVENTS	8		/* number of events to batch up */
++
++int io_queue_run(io_context_t ctx, struct timespec *timeout)
  {
- 	int len;
- 	const char *hpath;
-+	int use_stdin =3D 0;
-=20
- 	hpath =3D getenv("HPATH");
- 	if (!hpath) {
-@@ -598,6 +600,10 @@
- 				add_path(*argv);
- 			}
- 		}
-+		else if (strcmp(*argv, "--stdin") =3D=3D 0) {
-+			use_stdin =3D 1;
+-	static struct timespec timeout =3D { 0, 0 };
+-	struct io_event event;
+-	int ret;
+-
+-	/* FIXME: batch requests? */
+-	while (1 =3D=3D (ret =3D io_getevents(ctx, 0, 1, &event, &timeout))) {
+-		io_callback_t cb =3D (io_callback_t)event.data;
+-		struct iocb *iocb =3D event.obj;
++	struct io_event events[IO_BATCH_EVENTS];
++	struct io_event *ep;
++	int ret =3D 0;		/* total number of events processed */
++	int n;
++
++	/*
++	 * Process io events and call the callbacks.
++	 * Try to batch the events up to IO_BATCH_EVENTS at a time.
++	 * Loop until we have read all the available events and called the callba=
+cks.
++	 */
++	do {
++		int i;
++
++		if ((n =3D io_getevents(ctx, 1, IO_BATCH_EVENTS, &events, timeout)) <=3D=
+ 0)
 +			break;
-+		}
- 		else if (strcmp(*argv, "--") =3D=3D 0) {
- 			break;
- 		}
-@@ -605,24 +611,58 @@
++		ret +=3D n;
++		for (ep =3D events, i =3D n; i-- > 0; ep++) {
++			io_callback_t cb =3D (io_callback_t)ep->data;
++			struct iocb *iocb =3D ep->obj;
 =20
- 	add_path(hpath);	/* must be last entry, for config files */
-=20
--	while (--argc > 0) {
--		const char * filename =3D *++argv;
--		const char * command  =3D __depname;
--		g_filename =3D 0;
--		len =3D strlen(filename);
--		memcpy(depname, filename, len+1);
--		if (len > 2 && filename[len-2] =3D=3D '.') {
--			if (filename[len-1] =3D=3D 'c' || filename[len-1] =3D=3D 'S') {
--			    depname[len-1] =3D 'o';
--			    g_filename =3D filename;
--			    command =3D "";
-+	if (use_stdin) {
-+		/* process entries passed in by stdin */
-+
-+		char buff[MAX_FILE_NAME_LEN];
-+		char *line;
-+
-+		while ((line =3D fgets(buff, MAX_FILE_NAME_LEN, stdin))) {
-+			char * filename =3D line;
-+			const char * command  =3D __depname;
-+			g_filename =3D 0;
-+			len =3D strlen(filename);
-+			while (isspace (filename[len-1])) {
-+				len--;
-+				filename[len]=3D0;=20
-+			}
-+			memcpy(depname, filename, len+1);
-+			if (len > 2 && filename[len-2] =3D=3D '.') {
-+				if (filename[len-1] =3D=3D 'c'=20
-+						|| filename[len-1] =3D=3D 'S') {
-+				    depname[len-1] =3D 'o';
-+				    g_filename =3D filename;
-+				    command =3D "";
-+				}
- 			}
-+			do_depend(filename, command);
+-		cb(ctx, iocb, event.res, event.res2);
+-	}
++			cb(ctx, iocb, ep->res, ep->res2);
 +		}
-+
-+	} else {
-+		/* process entries passed in by command line arguments */
-+
-+		while (--argc > 0) {
-+			const char * filename =3D *++argv;
-+			const char * command  =3D __depname;
-+			g_filename =3D 0;
-+			len =3D strlen(filename);
-+			memcpy(depname, filename, len+1);
-+			if (len > 2 && filename[len-2] =3D=3D '.') {
-+				if (filename[len-1] =3D=3D 'c'=20
-+						|| filename[len-1] =3D=3D 'S') {
-+				    depname[len-1] =3D 'o';
-+				    g_filename =3D filename;
-+				    command =3D "";
-+				}
-+			}
-+			do_depend(filename, command);
- 		}
--		do_depend(filename, command);
- 	}
-+
- 	if (len_precious) {
- 		*(str_precious+len_precious) =3D '\0';
- 		printf(".PRECIOUS:%s\n", str_precious);
- 	}
- 	return 0;
++	} while (n =3D=3D IO_BATCH_EVENTS);
+=20
+-	return ret;
++	return ret ? ret : n;		/* return number of events or error */
  }
-+
+diff -rupN -X /home/daniel_nfs/dontdiff libaio-0.3.93/src/libaio.h libaio-0=
+.3.93-io_queue_run_with_timeout/src/libaio.h
+--- libaio-0.3.93/src/libaio.h	2002-10-08 16:33:42.000000000 -0700
++++ libaio-0.3.93-io_queue_run_with_timeout/src/libaio.h	2003-07-08 16:41:0=
+6.471880979 -0700
+@@ -123,7 +123,7 @@ extern int io_queue_init(int maxevents,=20
+ /*extern int io_queue_grow(io_context_t ctx, int new_maxevents);*/
+ extern int io_queue_release(io_context_t ctx);
+ /*extern int io_queue_wait(io_context_t ctx, struct timespec *timeout);*/
+-extern int io_queue_run(io_context_t ctx);
++extern int io_queue_run(io_context_t ctx, struct timespec *timeout);
+=20
+ /* Actual syscalls */
+ extern int io_setup(int maxevents, io_context_t *ctxp);
+Binary files libaio-0.3.93/src/libaio.so.1 and libaio-0.3.93-io_queue_run_w=
+ith_timeout/src/libaio.so.1 differ
+diff -rupN -X /home/daniel_nfs/dontdiff libaio-0.3.93/src/Makefile libaio-0=
+.3.93-io_queue_run_with_timeout/src/Makefile
+--- libaio-0.3.93/src/Makefile	2002-09-12 20:30:12.000000000 -0700
++++ libaio-0.3.93-io_queue_run_with_timeout/src/Makefile	2003-07-08 16:47:2=
+9.426559122 -0700
+@@ -14,7 +14,7 @@ all: $(all_targets)
+=20
+ # libaio provided functions
+ libaio_srcs :=3D io_queue_init.c io_queue_release.c
+-libaio_srcs +=3D io_queue_wait.c io_queue_run.c
++libaio_srcs +=3D io_queue_run.c
+=20
+ # real syscalls
+ libaio_srcs +=3D io_getevents.c io_submit.c io_cancel.c
 
---+pHx0qQiF2pBVqBT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-FV5zZbDqAuV80+lCEtIu
+Content-Disposition: attachment; filename=patch.libaio.man.io_queue_run
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=patch.libaio.man.io_queue_run; charset=ISO-8859-1
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+diff -rupN -X /home/daniel_nfs/dontdiff libaio-0.3.93/man/io_queue_run.3 li=
+baio-0.3.93-io_queue_run_with_timeout/man/io_queue_run.3
+--- libaio-0.3.93/man/io_queue_run.3	2002-09-26 08:55:18.000000000 -0700
++++ libaio-0.3.93-io_queue_run_with_timeout/man/io_queue_run.3	2003-07-08 1=
+7:28:55.441862077 -0700
+@@ -9,16 +9,21 @@ io_queue_run \- Handle completed io requ
+ .B #include <libaio.h>
+ .br
+ .sp
+-.BI "int io_queue_run(io_context_t  ctx );"
++.BI "int io_queue_run(io_context_t  ctx, struct timespec *timeout);"
+ .sp
+ .fi
+ .SH DESCRIPTION
+ .B io_queue_run
+-Attempts to read  all the events events from
+-the completion queue for the aio_context specified by ctx_id.
++Attempts to read all the events events from
++the completion queue for the aio_context specified by ctx and calls the ca=
+llbacks
++setup by io_set_callback().
+ .SH "RETURN VALUES"
++Returns the number of events handled.
+ May return
+-0 if no events are available.
++0 if no events are available and the timeout specified
++by timeout has elapsed, where timeout =3D=3D NULL specifies an infinite
++timeout.  Note that the timeout pointed to by timeout is relative and
++will be updated if not NULL and the operation blocks.
+ Will fail with -ENOSYS if not implemented.
+ .SH ERRORS
+ .TP
+@@ -44,7 +49,6 @@ Not implemented
+ .BR io_prep_pwrite(3),
+ .BR io_queue_init(3),
+ .BR io_queue_release(3),
+-.BR io_queue_wait(3),
+ .BR io_set_callback(3),
+ .BR io_submit(3),
+ .BR errno(3)
 
-iD8DBQE/C2aW/zRZ1SKJaI8RAkgyAKCFS8t07pGMOsUgcMaqDV4n1EtD5ACdEQBr
-NAuMh5ciZGKX8bJpJr+El80=
-=CvuR
------END PGP SIGNATURE-----
+--=-FV5zZbDqAuV80+lCEtIu--
 
---+pHx0qQiF2pBVqBT--

@@ -1,105 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTKCOya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 09:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTKCOya
+	id S262055AbTKCPo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 10:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTKCPo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 09:54:30 -0500
-Received: from scanmail1.cableone.net ([24.116.0.121]:13836 "EHLO
-	scanmail1.cableone.net") by vger.kernel.org with ESMTP
-	id S262050AbTKCOy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 09:54:28 -0500
-Message-ID: <3FA66BF8.1090601@cableone.net>
-Date: Mon, 03 Nov 2003 07:53:44 -0700
-From: Gary Wolfe <gpwolfe@cableone.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+	Mon, 3 Nov 2003 10:44:28 -0500
+Received: from b107150.adsl.hansenet.de ([62.109.107.150]:23424 "EHLO ds666")
+	by vger.kernel.org with ESMTP id S262055AbTKCPoZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 10:44:25 -0500
+Message-ID: <3FA677D7.1000100@portrix.net>
+Date: Mon, 03 Nov 2003 16:44:23 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [crash/panic] Linux-2.6.0-test9
-References: <3FA5FFF7.2020006@cableone.net> <20031103005218.6dc72800.akpm@osdl.org>
-In-Reply-To: <20031103005218.6dc72800.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Clock skips (?) with 2.6 and games
+References: <3FA62DD4.1020202@portrix.net> <20031103110129.GF1772@x30.random> <3FA63A57.8070606@portrix.net> <20031103143656.GA6785@x30.random>
+In-Reply-To: <20031103143656.GA6785@x30.random>
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SMTP-HELO: cableone.net
-X-SMTP-MAIL-FROM: gpwolfe@cableone.net
-X-SMTP-PEER-INFO: 24-116-194-85.cpe.cableone.net [24.116.194.85]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->Gary Wolfe <gpwolfe@cableone.net> wrote:
->  
->
->>Greetings,
->>
->>I have:
->>
->>Asus P4C800 Deluxe w/2.4GHz P4 (no HT and not 800Mhz bus)
->>
->>Tried test8 and, now, test9 and both exhibit same problem.
->>
->>The issue seems to be related to the PnPBIOS support under the Plug and 
->>Play Kconfig category.  When enabled I get a crash of the form:
->>
->>Linux Plug and Play Support v0.97 (c) Adam Belay
->>PnPBIOS: Scanning system for PnP BIOS support...
->>PnPBIOS: Found PnP BIOS installation structure at 0xc00f5350
->>PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x5f3a, dseg 0xf0000
->>general protection fault: 0000 [#1]
->>CPU: 0
->>EIP: 0098:[<00002b60>] Not tainted
->>EFLAGS: 00010083
->>EIP is at 0x2b60
->>eax: 000023d6  ebx: 0000007a  ecx: 00010000  edx: 00000001
->>esi: dfed244e  edi: 0000006d  ebp: dfed0000  esp: dfed9eda
->>    
->>
->
->Your stack pointer became misaligned.  I thought Manfred fixed that?
->You don't have nmi_watchdog enabled on the kernel boot command line
->do you?
->  
->
+Andrea Arcangeli wrote:
+| On Mon, Nov 03, 2003 at 12:21:59PM +0100, Jan Dittmer wrote:
+|
+|>I'll give it a try. Is there a way in 2.4-aa to get the two additional
+|>virtual processors displayed?
+|
+|
+| No idea why they're not displayed, they should. my HT 2-way xeon shows 4
+| cpus not 2 (with 2.4 too).
 
-I do not.  The command line, through grub after the kernel spec is, ro 
-root=/dev/hda5 hdc=ide-scsi
+Strange, if I enable Highmem support and set CONFIG_NR_CPUS from 4 to 8,
+4 penguins are showing up...
 
-By the way I thought of some more information that may, or may not, 
-matter in this case.  This is all based on RH90, upgraded based on the 
-Documentation/Changes file of course, and I'm using gcc version  3.2.2 
-200330222 (Red Hat Linux 3.2.2-5).
+Jan
 
-Thanks for the response,
-Gary
+- --- config-2.4.23pre6aa3-4proc-nohm     2003-11-03 16:42:15.000000000 
++0100
++++ config-2.4.23pre6aa3-8proc-hm       2003-11-03 16:33:08.000000000 +0100
+@@ -58,19 +58,20 @@
+~ CONFIG_MICROCODE=m
+~ CONFIG_X86_MSR=m
+~ CONFIG_X86_CPUID=m
+- -CONFIG_NOHIGHMEM=y
+- -# CONFIG_HIGHMEM4G is not set
++# CONFIG_NOHIGHMEM is not set
++CONFIG_HIGHMEM4G=y
+~ # CONFIG_HIGHMEM64G is not set
+- -# CONFIG_HIGHMEM is not set
++CONFIG_HIGHMEM=y
+~ CONFIG_FORCE_MAX_ZONEORDER=11
+~ CONFIG_1GB=y
+~ # CONFIG_2GB is not set
+~ # CONFIG_3GB is not set
+~ # CONFIG_05GB is not set
++CONFIG_HIGHIO=y
+~ # CONFIG_MATH_EMULATION is not set
+~ CONFIG_MTRR=y
+~ CONFIG_SMP=y
+- -CONFIG_NR_CPUS=4
++CONFIG_NR_CPUS=8
+~ # CONFIG_X86_NUMA is not set
+~ # CONFIG_X86_TSC_DISABLE is not set
+~ CONFIG_X86_TSC=y
+@@ -1133,6 +1134,7 @@
+~ # CONFIG_KMSGDUMP is not set
+~ # CONFIG_DEBUG_SPINLOCK is not set
+~ # CONFIG_FRAME_POINTER is not set
++# CONFIG_HIGHMEM_EMULATION is not set
+~ # CONFIG_X86_REMOTE_DEBUG is not set
+~ # CONFIG_KERNEL_DEBUGGING is not set
+~ CONFIG_LOG_BUF_SHIFT=17
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
->  
->
->>ds: 00b0  es: 00b0  ss: 0068
->>Process Swapper (pid:1 threadinfo=dfed8000 task=c151b900)
->>Stack: 000003d6 23d629d2 00000000 815d006d 0000d3ff 00010001 9f2c80fc 
->>006dd408
->>9f2c0000 d3ff9f08 00060001 61f990c0c 010c010c 007b6054 0000007b 00a08000
->>601000b0 00a85fd6 00000082 000b0000 00010090 00a80000 00b00000 00a00001
->>Call Trace:
->>
->>Code: Bad EIP value.
->><0>Kernel panic: Attempted to kill init!
->>
->>....blinking  cursor and nothing else.
->>
->>If I remove the PNPBIOS option I get past this point.  I would be happy 
->>to email my full .config should anyone wish to look at it.  I'd also be 
->>happy to test any patches anyone may have for this issue.
->>
->>    
->>
->
->
->  
->
-
-
+iD8DBQE/pnfWLqMJRclVKIYRAtf2AJ9qojtJejZCHC62wVpuobM8V7tRVgCdFnka
+A60HaWa0hQbG9vCz4+nVtA0=
+=ySBx
+-----END PGP SIGNATURE-----
 

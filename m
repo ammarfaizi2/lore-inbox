@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSHIVlO>; Fri, 9 Aug 2002 17:41:14 -0400
+	id <S316187AbSHIVsm>; Fri, 9 Aug 2002 17:48:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316113AbSHIVlO>; Fri, 9 Aug 2002 17:41:14 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:35766 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316088AbSHIVlN>;
-	Fri, 9 Aug 2002 17:41:13 -0400
-Date: Fri, 9 Aug 2002 14:47:47 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Andrew Morton <akpm@zip.com.au>, Dave Hansen <haveblue@us.ibm.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG at /usr/src/linux-2.5.30/include/linux/dcache.h:261!
-In-Reply-To: <20020809212231.GB1252@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0208091441350.1241-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316199AbSHIVsm>; Fri, 9 Aug 2002 17:48:42 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:42719 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316187AbSHIVsl>; Fri, 9 Aug 2002 17:48:41 -0400
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+From: Paul Larson <plars@austin.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Hubertus Franke <frankeh@us.ibm.com>, Rik van Riel <riel@conectiva.com.br>,
+       Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,
+       andrea@suse.de, Dave Jones <davej@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0208091441270.29869-100000@torvalds-p95.transmeta.com>
+References: <Pine.LNX.4.31.0208091441270.29869-100000@torvalds-p95.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Aug 2002 16:46:36 -0500
+Message-Id: <1028929600.19435.373.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-08-09 at 16:42, Linus Torvalds wrote:
 
-On Fri, 9 Aug 2002, Andries Brouwer wrote:
-
-> On Fri, Aug 09, 2002 at 02:00:37PM -0700, Andrew Morton wrote:
+> Hmm.. Giving them a quick glance-over, the /proc issues look like they
+> shouldn't be there in 2.5.x anyway, since the inode number really is
+> largely just a random number in 2.5 and all the real information is
+> squirelled away at path open time.
 > 
-> > > > Code;  c0160d0f <d_unhash+f/70>   <=====
-> 
-> > It would be much more useful if the oops code were to dump the
-> > text preceding the exception EIP rather than after it, actually.
-> 
-> I think I already mentioned what the stack trace is for this oops:
-> for me, it is sd_detach -> driverfs_remove_partitions ->
+> There's certainly a possibility for some cleanups, though.
+So for now then, should I dig out my original (minimal) patch that
+*just* fixed the "loop forever even if we're out of pids" problem?  Even
+if we increase PID_MAX to something obscenely high, I think we should
+still be checking for this.
 
-For some reason, the put_device() is forcing the refcount to 0, which 
-shouldn't be happening. The refcounting model for devices is pretty wack 
-right now, and this is one of a few places that's hitting it..
-
-To solve this issue, I really think that driverfs_remove_partitions can go 
-away. When a device's driverfs directory, all the files in it will be 
-removed, so explicitly removing them is unnecssary.
-
-	-pat
-
+-Paul Larson
 

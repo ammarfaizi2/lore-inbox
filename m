@@ -1,81 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267239AbTBLP0d>; Wed, 12 Feb 2003 10:26:33 -0500
+	id <S267198AbTBLPXL>; Wed, 12 Feb 2003 10:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbTBLP0d>; Wed, 12 Feb 2003 10:26:33 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:21007 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267229AbTBLP03>; Wed, 12 Feb 2003 10:26:29 -0500
-Date: Wed, 12 Feb 2003 15:36:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Osamu Tomita <tomita@cinet.co.jp>, jsimmons@infradead.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.60 (12/34) console
-Message-ID: <20030212153617.A10171@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Osamu Tomita <tomita@cinet.co.jp>, jsimmons@infradead.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030212131737.GA1551@yuzuki.cinet.co.jp> <20030212134233.GM1551@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030212134233.GM1551@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Wed, Feb 12, 2003 at 10:42:33PM +0900
+	id <S267209AbTBLPXK>; Wed, 12 Feb 2003 10:23:10 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:42411 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S267198AbTBLPXI>; Wed, 12 Feb 2003 10:23:08 -0500
+Message-ID: <3E4A6917.2030307@nortelnetworks.com>
+Date: Wed, 12 Feb 2003 10:32:39 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: David Schwartz <davids@webmaster.com>
+Cc: brand@jupiter.cs.uni-dortmund.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms
+References: <20030211221137.AAA18793@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 10:42:33PM +0900, Osamu Tomita wrote:
-> +ifneq ($(CONFIG_X86_PC9800),y)
->  FONTMAPFILE = cp437.uni
-> +else
-> +FONTMAPFILE = pc9800.uni
-> +endif
+David Schwartz wrote the following with regards to whether a company can 
+restrict distribution of modified GPL'd code through an NDA:
 
-This should be
+> 	Nobody signs the GPL. So the only way you can determine whether or 
+> not someone is bound by the GPL is if they did something that they 
+> could not have obtained the right to do other than by the GPL.
 
-ifeq ($(CONFIG_X86_PC9800),y)
-FONTMAPFILE = pc9800.uni
-else
-FONTMAPFILE = cp437.uni
-endif
+Okay, good so far.
 
-but I really wonder whether there's something nicer possible
+> 	You don't need to assent to the GPL to receive GPL'd works. You 
+> don't need to assent to the GPL to distribute rights to use a GPL'd 
+> work (because everyone is already given that right).
 
+Again true.  Everyone has the right to use a GPL'd work, so nobody has 
+to *distribute* that right.
 
-> diff -Nru linux/drivers/char/console_macros.h linux98/drivers/char/console_macros.h
-> --- linux/drivers/char/console_macros.h	Sat Oct 19 13:01:17 2002
-> +++ linux98/drivers/char/console_macros.h	Mon Oct 28 16:53:39 2002
-> @@ -55,6 +55,10 @@
->  #define	s_reverse	(vc_cons[currcons].d->vc_s_reverse)
->  #define	ulcolor		(vc_cons[currcons].d->vc_ulcolor)
->  #define	halfcolor	(vc_cons[currcons].d->vc_halfcolor)
-> +#define def_attr	(vc_cons[currcons].d->vc_def_attr)
-> +#define ul_attr		(vc_cons[currcons].d->vc_ul_attr)
-> +#define half_attr	(vc_cons[currcons].d->vc_half_attr)
-> +#define bold_attr	(vc_cons[currcons].d->vc_bold_attr)
+> 	So what did you do that you couldn't do without the GPL? The answer 
+> is that you distributed a derived work to people who already had the 
+> right to possess the original work. I am saying that that is not an 
+> *additional* right to the *original* work. It's the simple sum of 
+> other rights. So you don't need to assent to the GPL to get it.
 
-Bah, console_macros.h should just die.
+The problem that I see here is that the distributor is shipping the 
+modified work as a whole.
 
-> diff -Nru linux/drivers/char/console_pc9800.h linux98/drivers/char/console_pc9800.h
-> --- linux/drivers/char/console_pc9800.h	Thu Jan  1 09:00:00 1970
-> +++ linux98/drivers/char/console_pc9800.h	Mon Oct 28 11:48:10 2002
+If someone were to distribute a proprietary patch to a GPL'd piece of 
+software along with instructions on how to apply it, then that patch and 
+those instructions could be covered under an NDA.  However, as soon as 
+they distribute binaries compiled from patched code, then they are 
+liable under the GPL because they are distributing work derived from a 
+GPL'd work.  The GPL tries to address this in section 2, but I don't 
+think that it actually has the power to restrict the distribution of 
+modifications (ie patches) as long as the derived work is not 
+distributed since all I'm doing is giving you instructions on what 
+changes to make to something that you have the right to modify.
 
-I think this should all be in include/linux/console.h.
+In the case of linux, I could have a private patch and keep it secret 
+and ship it to customers under NDA with instructions on how to apply it. 
+  As long as I do not ship it with the linux source or ship precompiled 
+linux binaries then the GPL does not apply.  It would be a pretty 
+disgusting thing to do, but I think it would be technically legal.
 
-> --- linux/drivers/char/vt.c	2002-12-16 11:08:16.000000000 +0900
-> +++ linux98/drivers/char/vt.c	2002-12-20 14:52:06.000000000 +0900
-> @@ -75,6 +75,9 @@
->   */
->  
->  #include <linux/module.h>
-> +#ifdef CONFIG_X86_PC9800
-> +#define CONFIG_KANJI
-> +#endif
+> 	As an example, suppose you and I both have some greeting card 
+> program. I produce a greeting card that includes some graphics 
+> included with the greeting card program. That greeting card is a 
+> derived work. I can't distribute it to anyone I want because it 
+> contains embedded graphics and I would be distributing those graphics 
+> to people who had no right to them.
 
-Please set CONFIG_KANJI in the Kconfig file and in general
-the CONFIG_KANJI usere look really messy.  I don't think it's
-easy to get them cleaned up before 2.6, you might get in contact
-with James who works on the console layer to properly integrate them.
+Usually those programs do give you the right to redistribute works 
+created using the program, so your example is somewhat spurious.
+
+> 	Again, the right to possess and use a derivative work when you 
+> already have the right to possess and use the original work and the 
+> right to make the derivative work is not an *additional* right to the 
+> *original* work. I can't say it any clearer than that, and I welcome 
+> any citations to law or court precedent to the contrary.
+
+That statement seems to be true as far as it goes.  However, having the 
+right to posess and use the original work, and the right to make a 
+derivative work does *not* give you the right to distribute the derived 
+work.  For that you fall under the GPL.  As I said earlier however, you 
+certainly have the right to distribute modifications under any license 
+you want, *as long as you do not distribute the modified work itself*. 
+As soon as you distribute the derived work, you fall under the GPL. 
+This means that the ultimate end-user would have to be the one applying 
+the patches and compiling the derived work.
+
+Like I said earlier, this would totally bypass the purpose of the GPL 
+and I would be repulsed by a company that did this.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,134 +1,373 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262995AbUJ1L7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbUJ1MCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262995AbUJ1L7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 07:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbUJ1L7f
+	id S263010AbUJ1MCi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 08:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUJ1MBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 07:59:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64719 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262995AbUJ1LwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 07:52:19 -0400
-Date: Thu, 28 Oct 2004 06:51:44 -0500
-From: Robin Holt <holt@sgi.com>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Christoph Lameter <clameter@sgi.com>, Robin Holt <holt@sgi.com>,
-       Jesse Barnes <jbarnes@sgi.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
-Message-ID: <20041028115144.GA21926@lnx-holt.americas.sgi.com>
-References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com> <20041026022322.GD17038@holomorphy.com> <200410251940.30574.jbarnes@sgi.com> <20041026143513.GC28391@lnx-holt.americas.sgi.com> <Pine.LNX.4.58.0410271103500.18165@schroedinger.engr.sgi.com> <418028B8.5060206@sgi.com>
+	Thu, 28 Oct 2004 08:01:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:15058 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262999AbUJ1L4P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 07:56:15 -0400
+Date: Thu, 28 Oct 2004 13:57:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5
+Message-ID: <20041028115719.GA9563@elte.hu>
+References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <418028B8.5060206@sgi.com>
+In-Reply-To: <417FD9F2.8060002@stud.feec.vutbr.cz>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 06:01:12PM -0500, Ray Bryant wrote:
-> Christoph Lameter wrote:
-> >On Tue, 26 Oct 2004, Robin Holt wrote:
-> >
-> >
-> >>Sorry for being a stickler here, but the BTE is really part of the
-> >>I/O Interface portion of the shub.  That portion has a seperate clock
-> >>frequency from the memory controller (unfortunately slower).  The BTE
-> >>can zero at a slightly slower speed than the processor.  It does, as
-> >>you pointed out, not trash the CPU cache.
-> >>
-> >>One other feature of the BTE is it can operate asynchronously from
-> >>the cpu.  This could be used to, during a clock interrupt, schedule
-> >>additional huge page zero filling on multiple nodes at the same time.
-> >>This could result in a huge speed boost on machines that have multiple
-> >>memory only nodes.  That has not been tested thoroughly.  We have done
-> >>considerable testing of the page zero functionality as well as the
-> >>error handling.
-> >
-> >
-> >If the huge patch would support some way of redirecting the clearing of a
-> >huge page then we could:
-> >
-> >1. set the huge pte to not present so that we get a fault on access
-> >2. run the bte clearer.
-> >3. On receiving a huge fault we could check for the bte being finished.
-> >
-> >This would parallelize the clearing of huge pages. But is that really more
-> >efficient? There may be complexity involved in allowing the clearing of
-> >multiple pages and tracking of the clear in progress is additional
-> >overhead.
-> >
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
+
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+
+> > i've uploaded -V0.4.1 with a fix that could fix this networking
+> > deadlock. Does it work any better?
 > 
-> I'm personally of the opinion that using the BTE to "speculatively" clear
-> hugetlb pages in advance of when the hugetlb pages are requested is not a 
-> good
-> thing [tm].  One never knows if those pages will ever be requested.  And in
-> the meantime, tasks that need the BTE will be delayed by speculative use.
-> But that is a personal bias  :-), with no data to back it up.
+> Unfortunately, no. It's only slightly different:
 
-I was thinking the bte would be best used in an async mode where the pages
-would be pre-zeroed and available for use if the application needs them.
-If the pre-zeroed list is empty, then use the cpu to zero the page.
+ok. I've uploaded -RT-V0.5 which includes a different approach to
+solving these netfilter related deadlocks. It can be downloaded from the 
+usual place:
 
-> 
-> AFAIK, it is faster to clear the page with the processor anyway, since the
+	http://redhat.com/~mingo/realtime-preempt/
 
-The processor is slightly faster.  I believe the FSB is 200Mhz and the
-II is 100Mhz (150Mhz with no attached IX brick).  Future versions of the
-BTE will possibly have faster access to on node memory than the processor.
+there's a fair chance that you will still see a deadlock, so in -V0.5
+i've improved the deadlock-detection infrastructure with a number of new
+debugging features:
 
-> processor has a faster clock cycle.  Yes, it destroys the processor cache,
-> but the application has clearly indicated that it wants the page NOW, 
-> please,
-> (because it has faulted on it), and delivering the page to the application
-> as quickly as possible sounds like a good thing.  I'm not sure reloading
+ - track the code (by EIP) that acquired the semaphore
 
-I am not either.  I just would like to see any design take into consideration
-the possible uses and not design them out.  Nothing more.
+ - track the place (by file:line) where the locking object got defined
+   or initialized. Print this symbolic info out when printing locking 
+   objects - this is easier to read than the hexa address alone.
 
-> the processor cache at this point is a cost we care about, given that the
-> application is likely just starting up anyway.  I figure hugetlb pages are
-> allocated once, stay around a long long time, so I'm not sure optimizing to
-> minimize cache damage is the correct way to go here.
-> 
-> The only obvious win is for memory only nodes, that have a BTE and no CPU.
-> It is probably faster to use the local BTE than a remote CPU to clear the 
-> page.
+ - added a global registry for all mutexes, rwsems, spinlocks and
+   rwlocks, which registry is printed during the deadlock-printout. 
+   (including the current holder of the lock and the place where the
+   lock was acquired.)
 
-Plus, a single CPU could schedule the clearing of pages on multiple
-nodes at the same time.  Imagine a system that has 256 compute nodes
-and 756 memory nodes.  That configuration is theoretically possible with
-todays hardware, but we have never built or sold one.  Looking at that
-configuration gives you an one possible indication of how a pre-zeroing
-mechanism might improve things.
+ - print out all the locks held by the task(s) involved in any deadlock
+   scenario.
 
-I am not saying that the BTE is the best option, or even a good one.  It
-just looks interesting.  It does bring up some interesting problems with
-repeatability.  Consider the application startup following termination
-of another which used all the huge pages.  The pre-zeroed list will
-be nearly if not completely empty.  The first fault will find the list
-empty and have to zero the page itself.  Hopefully, the second fault will
-find one on the zeroed list and return immediately.  This would cause
-application startup time to feel like it doubled from the previous run.
-Ouch.  That would be very upsetting for our typical customers.
+ - print out a summary of all tasks in the system, whether they are
+   blocked on a locking object, and if they are, on which lock.
 
-The more memory nodes you have per cpu, the better this number will
-appear.
+ - the 'all locks' and 'all tasks' printout can also be triggered via
+   sysrq-d or 'echo d > /proc/sysrq-trigger'.
 
-Sorry for being spineless, but I don't feel very strongly that it will
-be beneficial enough to be desirable.  I am just not sure.  I would
-just hope that it is taken into consideration during the design and,
-as long as it has no negative impact on the design, be left as a
-possibility.
+ - turn off deadlock tracing when the first deadlock has been detected. 
+   This is to get a more robust printout of a stable locking state and
+   usually it's the first deadlock that matters so there's no point in
+   printing out more.
 
-Thanks,
-Robin Holt
+ - cleaned up formatting of various existing printouts like the 
+   preemption backtrace and messages from the deadlock detector.
+
+all this info will greatly simplify the tracking down of deadlocks. 
+There is no additional configuration needed to active the above
+features, other than to enable CONFIG_RWSEM_DEADLOCK_DETECT. Below i've
+attached a sample printout.
+
+	Ingo
+
+
+down()-ing unlocked semaphore. should succeed.
+good. now down()ing locked semaphore. should deadlock.
+
+===============================================
+[ BUG: semaphore recursion deadlock detected! ]
+-----------------------------------------------
+already locked:  [c065eee0] {r:0,a:-1,kernel/time.c:100}
+.. held by:      gettimeofday/ 3008 [f1b374c0]
+... acquired at:  sys_gettimeofday+0xfa/0x3f8
+
+-{backtrace}--------------------------------->
+ [<c0241d47>] __rwsem_deadlock+0xf9/0x188 (12)
+ [<c011f1eb>] sys_gettimeofday+0xfa/0x3f8 (8)
+ [<c058f68e>] _down_write+0xe/0x325 (16)
+ [<c011f201>] sys_gettimeofday+0x110/0x3f8 (4)
+ [<c011f201>] sys_gettimeofday+0x110/0x3f8 (20)
+ [<c058f7e0>] _down_write+0x160/0x325 (8)
+ [<c0130903>] __mcount+0x1d/0x1f (16)
+ [<c0242561>] down+0x8/0x11 (4)
+ [<c011f201>] sys_gettimeofday+0x110/0x3f8 (4)
+ [<c011f201>] sys_gettimeofday+0x110/0x3f8 (36)
+ [<c014d641>] sys_munmap+0x42/0x4b (12)
+ [<c010601d>] sysenter_past_esp+0x52/0x71 (28)
+---------------------------
+| preempt count: 00000002 ]
+| 2-level deep critical section nesting:
+----------------------------------------
+.. [<c058f8bd>] .... _down_write+0x23d/0x325
+.....[<c011f201>] ..   ( <= sys_gettimeofday+0x110/0x3f8)
+.. [<c0131be1>] .... print_traces+0x1b/0x5a
+.....[<c0106608>] ..   ( <= dump_stack+0x23/0x25)
+
+
+------------------------------
+| showing all locks held by: |  (gettimeofday/3008 [f1b374c0]):
+------------------------------
+
+#001:             [c065eee0] {r:0,a:-1,kernel/time.c:100}
+... acquired at:  sys_gettimeofday+0xfa/0x3f8
+
+showing all tasks:
+s            init/    1 [c2a77080] (not blocked)
+s     ksoftirqd/0/    2 [c2a76850] (not blocked)
+s       desched/0/    3 [c2a76020] (not blocked)
+s        events/0/    4 [c2a950c0] (not blocked)
+s         khelper/    5 [c2a94890] (not blocked)
+s         kthread/   10 [c2a94060] (not blocked)
+s          kacpid/   18 [c2ab1100] (not blocked)
+s           IRQ 9/   19 [c2ab08d0] (not blocked)
+s       kblockd/0/   94 [c2ab00a0] (not blocked)
+s           khubd/  107 [f7cf1140] (not blocked)
+s         pdflush/  330 [f7cf0910] (not blocked)
+s         pdflush/  331 [f7cf00e0] (not blocked)
+s           aio/0/  333 [f7d56950] (not blocked)
+s         kswapd0/  332 [f7d57180] (not blocked)
+s           IRQ 8/  918 [f7d56120] (not blocked)
+s          IRQ 12/  931 [f7eca990] (not blocked)
+s         kseriod/  925 [f7ecb1c0] (not blocked)
+s           IRQ 6/  946 [f7eca160] (not blocked)
+s           IRQ 5/  978 [f7f01200] (not blocked)
+s          IRQ 14/  997 [f7f009d0] (not blocked)
+s          IRQ 15/  999 [f7f001a0] (not blocked)
+s        khpsbpkt/ 1013 [f7f51240] (not blocked)
+s          IRQ 11/ 1024 [f7f50a10] (not blocked)
+s     knodemgrd_0/ 1025 [f7f501e0] (not blocked)
+s           IRQ 1/ 1131 [f7f91280] (not blocked)
+s          IRQ 10/ 1169 [f7f90a50] (not blocked)
+D       kjournald/ 1180 [f7f90220] (not blocked)
+s           udevd/ 1242 [f5ec76c0] (not blocked)
+s           IRQ 4/ 1615 [f610c2e0] (not blocked)
+s           IRQ 3/ 1616 [f59f0a50] (not blocked)
+D         syslogd/ 2503 [f5d6ad90] (not blocked)
+s           klogd/ 2507 [f610d340] (not blocked)
+s         portmap/ 2526 [f5ae0120] (not blocked)
+s   mDNSResponder/ 2559 [f63aa420] (not blocked)
+s   mDNSResponder/ 2560 [f2bc6b90] (not blocked)
+s           acpid/ 2580 [f2af9340] (not blocked)
+s            sshd/ 2590 [f2af82e0] (not blocked)
+s         distccd/ 2619 [f610cb10] (not blocked)
+s         distccd/ 2620 [f59f0220] (not blocked)
+s             gpm/ 2630 [f2b6cb50] (not blocked)
+s           crond/ 2640 [f2af8b10] (not blocked)
+s            sshd/ 2653 [f5a59100] (not blocked)
+s         distccd/ 2656 [f5ae0950] (not blocked)
+s            sshd/ 2667 [f5a580a0] (not blocked)
+s             xfs/ 2670 [f5ec6660] (not blocked)
+s            bash/ 2672 [f2bc73c0] (not blocked)
+s         anacron/ 2704 [f5ec6e90] (not blocked)
+s         distccd/ 2706 [f2b6c320] (not blocked)
+s             atd/ 2714 [f59f1280] (not blocked)
+s   dbus-daemon-1/ 2724 [f2bc6360] (not blocked)
+s cups-config-dae/ 2734 [f63aac50] (not blocked)
+s          agetty/ 2748 [f5a588d0] (not blocked)
+s        mingetty/ 2749 [f5d6b5c0] (not blocked)
+s        mingetty/ 2750 [f63ab480] (not blocked)
+s        mingetty/ 2751 [f1a73400] (not blocked)
+s        mingetty/ 2752 [f1a72bd0] (not blocked)
+s        mingetty/ 2753 [f2b6d380] (not blocked)
+s        mingetty/ 2754 [f1a723a0] (not blocked)
+s         hotplug/ 2839 [f1b36460] (not blocked)
+s         hotplug/ 2856 [f14e6d90] (not blocked)
+s         hotplug/ 2857 [f155d600] (not blocked)
+s 10-udev.hotplug/ 2916 [f1b36c90] (not blocked)
+s 10-udev.hotplug/ 2917 [f14e75c0] (not blocked)
+s 10-udev.hotplug/ 2918 [f14e6560] (not blocked)
+s            udev/ 2959 [f1629680] (not blocked)
+s            udev/ 2965 [f1702ed0] (not blocked)
+s            udev/ 2981 [f17d5780] (not blocked)
+s            udev/ 2987 [f11240a0] (not blocked)
+D    gettimeofday/ 3008 [f1b374c0] (not blocked)
+
+---------------------------
+| showing all locks held: |
+---------------------------
+
+#001:             [c07f809c] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#002:             [c07f7bb4] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#003:             [c07f7e0c] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#004:             [c07f8890] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#005:             [c07f83a8] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#006:             [c07f8600] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#007:             [c07f9084] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#008:             [c07f8b9c] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#009:             [c07f8df4] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#010:             [c07f9878] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#011:             [c07f9390] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#012:             [c07f95e8] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#013:             [c07fa06c] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#014:             [c07f9b84] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#015:             [c07f9ddc] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#016:             [c07fa860] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#017:             [c07fa378] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#018:             [c07fa5d0] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#019:             [c07fb054] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#020:             [c07fab6c] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#021:             [c07fadc4] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#022:             [c07fb848] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#023:             [c07fb360] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#024:             [c07fb5b8] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#025:             [c07fc03c] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#026:             [c07fbb54] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#027:             [c07fbdac] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#028:             [c07fc830] {r:0,a:-1,drivers/ide/ide.c:228}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x8b/0x15c
+
+#029:             [c07fc348] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#030:             [c07fc5a0] {r:0,a:-1,drivers/ide/ide.c:252}
+.. held by:              init/    1 [c2a77080]
+... acquired at:  init_hwif_data+0x14b/0x15c
+
+#031:             [c06a8f40] {r:0,a:-1,drivers/ieee1394/nodemgr.c:111}
+.. held by:       knodemgrd_0/ 1025 [f7f501e0]
+... acquired at:  nodemgr_host_thread+0x89/0x186
+
+#032:             [f2b7cfcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:          mingetty/ 2749 [f5d6b5c0]
+... acquired at:  read_chan+0x471/0x7a2
+
+#033:             [f1ba4fcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:          mingetty/ 2751 [f1a73400]
+... acquired at:  read_chan+0x471/0x7a2
+
+#034:             [f157efcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:          mingetty/ 2754 [f1a723a0]
+... acquired at:  read_chan+0x471/0x7a2
+
+#035:             [f1722fcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:          mingetty/ 2752 [f1a72bd0]
+... acquired at:  read_chan+0x471/0x7a2
+
+#036:             [f10dafcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:          mingetty/ 2753 [f2b6d380]
+... acquired at:  read_chan+0x471/0x7a2
+
+#037:             [f150efcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:          mingetty/ 2750 [f63ab480]
+... acquired at:  read_chan+0x471/0x7a2
+
+#038:             [f1a92fcc] {r:0,a:-1,drivers/char/tty_io.c:2641}
+.. held by:            agetty/ 2748 [f5a588d0]
+... acquired at:  read_chan+0x471/0x7a2
+
+#039:             [f2a11ba4] {r:0,a:-1,fs/inode.c:198}
+.. held by:           syslogd/ 2503 [f5d6ad90]
+... acquired at:  sys_fsync+0x56/0xb7
+
+#040:             [c065eee0] {r:0,a:-1,kernel/time.c:100}
+.. held by:      gettimeofday/ 3008 [f1b374c0]
+... acquired at:  sys_gettimeofday+0xfa/0x3f8
+
+#041:             [c0748a00] {r:0,a:-1,kernel/fork.c:64}
+.. held by:      gettimeofday/ 3008 [f1b374c0]
+... acquired at:  show_all_locks+0x30/0x148
+=============================================
+

@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267634AbTGZTa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 15:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbTGZTa5
+	id S269204AbTGZTmT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 15:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269226AbTGZTmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 15:30:57 -0400
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:8462 "EHLO
-	mailer.progressive-comp.com") by vger.kernel.org with ESMTP
-	id S267634AbTGZTa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 15:30:56 -0400
-Date: Sat, 26 Jul 2003 15:46:09 -0400
-Message-Id: <200307261946.h6QJk9GC002882@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Switching to the OSL License, in a dual way.
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+	Sat, 26 Jul 2003 15:42:19 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:1993 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S269204AbTGZTmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 15:42:13 -0400
+Date: Sat, 26 Jul 2003 21:57:22 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL] use ext2/ext3 consistently in Kconfig
+Message-ID: <20030726195722.GB16160@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-07-25, Jesse Pollard <jesse () cats-chateau ! net> wrote:
+$subj + also clarify what fs versions the current reiser module supports.
+Patch against -bk3.
 
-> On Thursday 24 July 2003 16:57, Larry McVoy wrote:
-> [snip]
-> > 
-> > In other words, reverse engineering is ok if the product doesn't
-> > provide access to your data, we do that already, poof, no reverse
-> > engineering allowed.  So it's illegal to reverse engineer BK.
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
-> Nonesense. If the business no longer has the licence to use BK (for
-> whatever reason) then it no longer has access to the data. Now to
-> get access to the data you must reverse engineer BK...
 
-Or, just ask.  Larry has always been (or given the appearance of being)
-open to handling special cases/requests reasonably[1].  Seriously, do you
-think BM would turn down a "Er, we didn't see this coming, is it OK for us
-to use our free-licensed BK one more time to export to SCCS or whatever? 
-We promise there won't be a guy from the SCM team shoulder-surfing or
-tcpdumping while we do so" request?  If they *did* turn down a reasonable
-request, *then* maybe there would be something legitemate to flame them
-about.
-
-[1] Of course, the definition of "reasonable" will now be debated to death.
-
---
-Hank Leininger <hlein@progressive-comp.com> 
-  
+diff -urN a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	2003-07-26 20:50:55.000000000 +0200
++++ b/fs/Kconfig	2003-07-26 20:51:48.000000000 +0200
+@@ -5,7 +5,7 @@
+ menu "File systems"
+ 
+ config EXT2_FS
+-	tristate "Second extended fs support"
++	tristate "Ext2 fs support"
+ 	help
+ 	  This is the de facto standard Linux file system (method to organize
+ 	  files on a storage device) for hard disks.
+@@ -89,7 +89,7 @@
+ 	tristate "Ext3 journalling file system support"
+ 	help
+ 	  This is the journaling version of the Second extended file system
+-	  (often called ext3), the de facto standard Linux file system
++	  (often called ext2), the de facto standard Linux file system
+ 	  (method to organize files on a storage device) for hard disks.
+ 
+ 	  The journaling code included in this driver means you do not have
+@@ -200,7 +200,7 @@
+ 	default m if EXT2_FS=m || EXT3_FS=m
+ 
+ config REISERFS_FS
+-	tristate "Reiserfs support"
++	tristate "Reiserfs support (for v3.5 & v3.6 filesystems)"
+ 	help
+ 	  Stores not just filenames but the files themselves in a balanced
+ 	  tree.  Uses journaling.

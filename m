@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280878AbRKGRo5>; Wed, 7 Nov 2001 12:44:57 -0500
+	id <S280855AbRKGRqN>; Wed, 7 Nov 2001 12:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280877AbRKGRoP>; Wed, 7 Nov 2001 12:44:15 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:50587 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S280875AbRKGRoG>; Wed, 7 Nov 2001 12:44:06 -0500
-Date: Wed, 7 Nov 2001 18:47:10 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
-To: linux-kernel@vger.kernel.org
-Subject: What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011107184710.A1410@zodiak.ecademix.com>
+	id <S280842AbRKGRqF>; Wed, 7 Nov 2001 12:46:05 -0500
+Received: from tabaluga.ipe.uni-stuttgart.de ([129.69.22.180]:26752 "EHLO
+	tabaluga.ipe.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S280855AbRKGRpx>; Wed, 7 Nov 2001 12:45:53 -0500
+From: Nils Rennebarth <nils@ipe.uni-stuttgart.de>
+Date: Wed, 7 Nov 2001 18:45:45 +0100
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: hfhsu@sis.com.tw
+Subject: Network driver for SiS 735 available?
+Message-ID: <20011107184545.H14389@ipe.uni-stuttgart.de>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	hfhsu@sis.com.tw
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OgApRN/oydYDdnYz"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-tried today to mkfs.ext2 a partition of my disk and detected there is
-a little difference between 'login: root' and 'su -'.
 
-First I tried it this way:
+--OgApRN/oydYDdnYz
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	Welcome to SuSE Linux 7.0 (i386) - Kernel 2.4.14 (tty1).
+I have a new Elitegroup K7S5A with the integrated SiS 735 chip.
 
-	zodiak login: seiderer
-	Password:
-	seiderer@zodiak:~ > su -
-	Password:
-	zodiak:~ #
-	zodiak:~ # mkfs.ext2 /dev/hdc4
-	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-	Filesystem label=
-	OS type: Linux
-	Block size=4096 (log=2)
-	Fragment size=4096 (log=2)
-	716672 inodes, 1432116 blocks
-	71605 blocks (5.00%) reserved for the super user
-	First data block=0
-	44 block groups
-	32768 blocks per group, 32768 fragments per group
-	16288 inodes per group
-	Superblock backups stored on blocks:
-	        32768, 98304, 163840, 229376, 294912, 819200, 884736
+The stock 2.4.14 kernel does recognize the network chip.  From looking at
+the mainboard, it also correctly recognizes the "Realtek RTL8201 PHY".
 
-	Writing inode tables: 16/44File size limit exceeded
+It even outputs the right messages (i.e.: No Media, Full duplex 100MBit,
+Half duplex 10MBit, ...) when I plug the cable into our switch or hub, but
+never transmits nor receives any packets.
 
-strace showed that write returned wit EFBIG and the process ended with SIGXFSZ:
+Any suggestions what I could try/how I could debug the driver?
 
-	write(1, "\10\10\10\10\10", 5)          = 5
-	write(1, "16/44", 5)                    = 5
-	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
-	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = -1 EFBIG (File too large)
-	--- SIGXFSZ (File size limit exceeded) ---
-	+++ killed by SIGXFSZ +++
+Nils
 
-When login in directly from the console as root everything went right:
-	Welcome to SuSE Linux 7.0 (i386) - Kernel 2.4.14 (tty1).
+--
+                                     ______
+                                    (Muuuhh)
+Global Village Sau  =3D=3D>        ^..^ |/=AF=AF=AF=AF=AF
+(Kann Fremdsprache) =3D=3D>        (oo)
 
-	zodiak login: root
-	Password:
-	zodiak:~ # mkfs.ext2 /dev/hdc4
-	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-	Filesystem label=
-	OS type: Linux
-	Block size=4096 (log=2)
-	Fragment size=4096 (log=2)
-	716672 inodes, 1432116 blocks
-	71605 blocks (5.00%) reserved for the super user
-	First data block=0
-	44 block groups
-	32768 blocks per group, 32768 fragments per group
-	16288 inodes per group
-	Superblock backups stored on blocks:
-	        32768, 98304, 163840, 229376, 294912, 819200, 884736
+--OgApRN/oydYDdnYz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-	Writing inode tables: done
-	Writing superblocks and filesystem accounting information: done
-	zodiak:~ #
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The RLIMIT_FSIZE showed in both cases the same values:
-getrlimit(RLIMIT_FSIZE) rlim_cur: 2147483647 rlim_max: 2147483647
+iD8DBQE76XNJqgAZ+sZlgs4RAmTCAKCVtHK5aRwxDUG3+dZ0spKlBiyMxQCg6ERQ
+PcSQ5rbHo9o/3X0wiu0SVJY=
+=IgwR
+-----END PGP SIGNATURE-----
 
-Can anybody point me out what went wrong? Is it a kernel limit?
-
-Peter
-
+--OgApRN/oydYDdnYz--

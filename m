@@ -1,88 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264119AbUESIpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUESJSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264119AbUESIpz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 04:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUESIpy
+	id S262045AbUESJSV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 05:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUESJSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 04:45:54 -0400
-Received: from portal.beam.ltd.uk ([62.49.82.227]:5007 "EHLO beam.beamnet")
-	by vger.kernel.org with ESMTP id S264119AbUESIpd (ORCPT
+	Wed, 19 May 2004 05:18:21 -0400
+Received: from lagoon1.di-ve.com ([194.158.37.138]:6050 "HELO di-ve.com")
+	by vger.kernel.org with SMTP id S262045AbUESJSQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 04:45:33 -0400
-Message-ID: <40AB1EA7.8080104@beam.ltd.uk>
-Date: Wed, 19 May 2004 09:45:27 +0100
-From: Terry Barnaby <terry1@beam.ltd.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: en, en-us
+	Wed, 19 May 2004 05:18:16 -0400
+Message-ID: <8412.80.179.249.163.1084957715.squirrel@webmail.di-ve.com>
+Date: Wed, 19 May 2004 11:08:35 +0200 (CEST)
+Subject: Greetings From Sanni
+From: sammijnr@di-ve.com
+To: sammijnr@di-ve.com
+User-Agent: SquirrelMail/1.4.0
 MIME-Version: 1.0
-To: davids@webmaster.com
-CC: Mike Black <mblack@csi-inc.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem with mlockall() and Threads: memory usage
-References: <MDEHLPKNGKAHNMBLJOLKEEIJMBAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEIJMBAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Dear Friend,
 
-We do want improved latency, but with reasonable memory usage. This is
-a soft real-time system. At the moment the memory usage is far too high in
-our application.
+As you read this, I don‘t want you to feel sorry for
+me, because, I believe everyone will die someday.
 
-With 20 threads runing the system will lock 160MBytes of memory just for stack
-space (8 MBytes each), although the application probably only needs 2MByte in
-total.
-We can reduce the maximum stack size per thread, but then if a thread
-increases its stack size beyond this the application will crash with a
-segment fault, not good ...
+My name is Sanni Sammi Jnr a merchant in Dubai, in
+theU.A.E.I have been diagnosed with Esophageal cancer .
 
-For our use, mapping in physical memory as required for a growing stack would be
-a good compromise between latency and memory usage. Once the system has run the
-worker threads for a short time all of the needed stack memory will be locked in
-and latency will be controlled. If a thread needs more memory for stack in a particular
-instance, there will be a latency hit but this would be acceptable and
-much better than a crash.
+It has defiled all forms of medical treatment, and
+right now I have only about a few months to live,
+according to medical experts.
 
-Terry
+I have not particularly lived my life so well, as I
+never really cared for anyone(not even myself)but my
+business. Though I am very rich, I was never generous,
+I was always hostile to people and only focused on my
+business as that was the only thing I cared for. But
+now I regret all this as I now know that there is more
+to life than just wanting to have
+or make all the money in the world.
 
-David Schwartz wrote:
->>Thanks for that.
->>I have done some more investigating, and on my system (Standard RedHat 9)
->>the stack ulimit is set to 8192 KBytes. So it appears that the thread
->>library/kernel threads pre-allocates, and writes to, 8129 KBytes
->>of stack per
->>thread and so then mlockall() locks all of this in memory.
->>
->>Should'nt the Thread library grow the stack rather than
->>preallocate it all even
->>with mlockall() like malloc ?
-> 
-> 
-> 	I thought you wanted improved latency. Surely having to find a page for you
-> when your stack grows will add unpredictable latency. So, no, the thread
-> library should reserve the stack when 'mlockall(MCL_FUTURE)' is specified.
-> 
-> 	I do agree that having an 'initial stack size' in additional to a 'maximum
-> stack size' would be a good idea. The former good for application that are
-> concerned about physical memory usage and the latter for applications
-> concerned about virtual memory usage.
-> 
-> 	DS
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I believe when God gives me a second chance to come to
+this world I would live my life a different way from
+how I have lived it. Now that God has called me, I
+have willed and given most of my property and assets
+to my immediate and extended family members as well as
+a few close friends.
 
--- 
-Dr Terry Barnaby                     BEAM Ltd
-Phone: +44 1454 324512               Northavon Business Center, Dean Rd
-Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
-Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
-BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software
-                       "Tandems are twice the fun !"
+I want God to be merciful to me and accept my soul so,
+I have decided to give also to charity
+organizations, as I want this to be one of the last
+good deeds I do on earth. So far, I have distributed
+money to some charity organizations in the U.A.E,
+Algeria and Malaysia. Now that my health has
+deteriorated so badly, I cannot do this myself
+anymore.
+
+I once asked members of my family to close
+one of my accounts and distribute the money which I
+have there to charity organization in Bulgaria and
+Pakistan, they refused and kept the money to
+themselves. Hence, I do not trust them anymore, as
+they seem not to be contended with what I have left
+for them.
+
+The last of my money which no one knows of is the huge
+cash deposit of eighteen million dollars
+$18,000,000,00 that I have with a finance/Security
+Company abroad. I will want you to help me collect
+this deposit and dispatched it to charity
+organizations.
+
+
+I have set aside 10% for you and for your time.
+
+God be with you.
+
+Sanni Sammi Jnr.
+
+
+
+__________________________________________________________ 
+ For special offers on latest publications on Malta or by Maltese authors go to http://shop.di-ve.com

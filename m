@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318473AbSIFJtl>; Fri, 6 Sep 2002 05:49:41 -0400
+	id <S318468AbSIFJ45>; Fri, 6 Sep 2002 05:56:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318468AbSIFJtl>; Fri, 6 Sep 2002 05:49:41 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:6832 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318447AbSIFJtk>; Fri, 6 Sep 2002 05:49:40 -0400
-Date: Fri, 6 Sep 2002 11:53:43 +0200 (CEST)
-From: Oktay Akbal <oktay.akbal@s-tec.de>
-X-X-Sender: oktay@omega.s-tec.de
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Subject: qlogic failover multipath
-In-Reply-To: <Pine.LNX.4.44.0209051043570.2844-100000@omega.s-tec.de>
-Message-ID: <Pine.LNX.4.44.0209061142150.12655-100000@omega.s-tec.de>
+	id <S318470AbSIFJ45>; Fri, 6 Sep 2002 05:56:57 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:44229 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S318468AbSIFJ44>;
+	Fri, 6 Sep 2002 05:56:56 -0400
+Date: Fri, 6 Sep 2002 05:54:09 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: "David S. Miller" <davem@redhat.com>
+cc: <akpm@zip.com.au>, <Martin.Bligh@us.ibm.com>, <tcw@tempest.prismnet.com>,
+       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>, <niv@us.ibm.com>,
+       Robert Olsson <Robert.Olsson@data.slu.se>
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+In-Reply-To: <20020906.002253.32989079.davem@redhat.com>
+Message-ID: <Pine.GSO.4.30.0209060528390.21835-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1; AVE: 6.15.0.1; VDF: 6.15.0.6
-	 at email has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-we do have some Problems with some qlogic 2202f fibrechannel card.
-When trying to use failover via plugging out some cable or using
-qlogics sansurfer to set an alternate path, there seem to be no errors,
-but everything works extremly slow and does not recover.
 
-This was used with driver 6.0b23 as from suse kernel 2.4.18.
+On Fri, 6 Sep 2002, David S. Miller wrote:
 
-When trying 6.1b2 or b5 the disks get recognized as multiple scsi-disks,
-is this wanted for use with md multipath personality ?
-Is there a way to enable previos behavior ?
+>    Mala did some testing on this a couple of weeks back.  It appears that
+>    NAPI damaged performance significantly.
+>
+>    http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
+>
+> Unfortunately it is not listed what e1000 and core NAPI
+> patch was used.  Also, not listed, are the RX/TX mitigation
+> and ring sizes given to the kernel module upon loading.
+>
+> Robert can comment on optimal settings
+>
+> Robert and Jamal can make a more detailed analysis of Mala's
+> graphs than I.
 
-Please reply also to me directly.
 
-Thanks
+I looked at those graphs, but the lack of information makes them useless.
+For example there are too many variables to the tests --  what is the
+effect the message size? and then look at the socket buffer size, would
+you set it to 64K if you are trying to show perfomance numbers? What
+other tcp settings are there?
+Manfred Spraul about a year back complained about some performance issues
+in low load setups (which is what this IBM setup seems to be if you count
+the pps to the server); its one of those things that have been low in
+the TODO deck.
+The issue maybe legit not because NAPI is bad but because it is too good.
+I dont have the e1000, but i have some Dlinks giges still in boxes and i
+have a two-CPU SMP machine; I'll setup the testing this weekend.
+In the case of Manfred, we couldnt reproduce the tests because he had this
+odd weird NIC; in this case at least access to the e1000 doesnt require
+a visit to the museum.
 
-Oktay Akbal
-
+cheers,
+jamal
 

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129596AbQKFRNY>; Mon, 6 Nov 2000 12:13:24 -0500
+	id <S129042AbQKFROE>; Mon, 6 Nov 2000 12:14:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129572AbQKFRNO>; Mon, 6 Nov 2000 12:13:14 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:49650 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S129061AbQKFRM4>;
-	Mon, 6 Nov 2000 12:12:56 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <00110617033201.01646@dax.joh.cam.ac.uk> 
-In-Reply-To: <00110617033201.01646@dax.joh.cam.ac.uk>  <200011061657.eA6Gv0w08964@pincoya.inf.utfsm.cl> 
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
-Mime-Version: 1.0
+	id <S129685AbQKFRNz>; Mon, 6 Nov 2000 12:13:55 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:6551 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129572AbQKFRNp>; Mon, 6 Nov 2000 12:13:45 -0500
+From: Christoph Rohland <cr@sap.com>
+To: aprasad@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: to resize shared memory segment by using shmctl
+In-Reply-To: <CA25698F.005C921F.00@d73mta05.au.ibm.com>
+Organisation: SAP LinuxLab
+Date: 06 Nov 2000 18:13:20 +0100
+In-Reply-To: aprasad@in.ibm.com's message of "Mon, 6 Nov 2000 16:04:53 +0530"
+Message-ID: <qwwbsvt81n3.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Nov 2000 17:12:16 +0000
-Message-ID: <7101.973530736@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-jas88@cam.ac.uk said:
->  So set them on startup. NOT when the driver is first loaded. Put it
-> in the rc.d scripts. 
+On Mon, 6 Nov 2000, aprasad@in.ibm.com wrote:
+> Hi, is it possible to change the size of a preexisting shared memory
+> segment by using shmctl?
+> 
+> AIX has comand SHM_SIZE to shmctl to resize any existing shared
+> memory segment.  can it be done without recreating the whole thing
+> in linux?
 
-No. You should initialise the hardware completely when the driver is 
-reloaded. Although the expected case is that the levels just happen to be 
-the same as the last time the module was loaded, you can't know that the 
-machine hasn't been suspended and resumed since then.
+No that's not possible in Linux. With 2.4 you can use posix shm and
+use ftruncate to resize it.
 
-
-jas88@cam.ac.uk said:
->  No need. Let userspace save it somewhere, if that's needed. 
-
-Don't troll, James. Reread the thread and see why doing it in userspace is 
-too late.
-
---
-dwmw2
-
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

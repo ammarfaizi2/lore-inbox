@@ -1,91 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281358AbRKPM3T>; Fri, 16 Nov 2001 07:29:19 -0500
+	id <S281343AbRKPMZj>; Fri, 16 Nov 2001 07:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281357AbRKPM3J>; Fri, 16 Nov 2001 07:29:09 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:23033 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281351AbRKPM3D>; Fri, 16 Nov 2001 07:29:03 -0500
-Date: Fri, 16 Nov 2001 12:28:55 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: synchronous mounts
-Message-ID: <20011116122855.C2389@redhat.com>
-In-Reply-To: <3BF376EC.EA9B03C8@zip.com.au> <20011115214525.C14221@redhat.com> <3BF45B9F.DEE1076B@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S281351AbRKPMZa>; Fri, 16 Nov 2001 07:25:30 -0500
+Received: from mons.uio.no ([129.240.130.14]:64761 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S281343AbRKPMZR>;
+	Fri, 16 Nov 2001 07:25:17 -0500
+To: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs problem: hp|aix-server --- linux 2.4.15pre5 client
+In-Reply-To: <20011115222920.A9929@ludwig2.science-computing.de>
+	<shssnbf37td.fsf@charged.uio.no>
+	<15348.63313.961267.735216@stderr.science-computing.de>
+	<15348.64613.465429.628445@charged.uio.no>
+	<9t2v62$7g0$1@ncc1701.cistron.net>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 16 Nov 2001 13:24:51 +0100
+In-Reply-To: <9t2v62$7g0$1@ncc1701.cistron.net>
+Message-ID: <shsk7wqlx7w.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BF45B9F.DEE1076B@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Nov 15, 2001 at 07:19:43PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> " " == Miquel van Smoorenburg <miquels@cistron-office.nl> writes:
 
-On Thu, Nov 15, 2001 at 07:19:43PM -0500, Jeff Garzik wrote:
+    >> That's because the HP is returning a READDIR reply that is
+    >> larger than the buffer size we specified. When this happens, we
+    >> truncate the reply at the last valid record before the buffer
+    >> overflow, and print out the above message.
 
-> When working on something likely to crash, I always remount my
-> filesystems 'sync' with the intention to have the kernel immediately
-> sync to disk anything and everything it is coded to do.
+     > Shouldn't the message then be "NFS: too large packet in readdir
+     > reply!" ?
 
-The kernel has, in my memory, never behaved like that on sync mounts.
-mount -o sync was always intended just to give people the BSD-style
-sync metadata updates that some users expected.
+8) Or 'NFS: truncated packet in readdir reply!', since that is what
+NFS actually is returned by the RPC layer.
 
-The "mount" man page is wrong on this one.
-
-> Since the
-> kernel is responsible to flushing data to disk, it makes perfect sense
-> to have an option to sync not only metadata but data to disk
-> immediately, if the user desires such.
-
-If you want to sync _everything_, it's at least 5 seeks per write
-syscall when you're writing a new file: superblock, group descriptor,
-block bitmap, inode, data, and potentially inode indirect.
-
-There's no point doing all that, especially since some of that data is
-redundant and will be rebuilt by e2fsck anyway after a crash.
-
-Is it really such an important feature that we're willing to suffer a
-factor-of-100 or more slowdown for it?
-
-> Further, expecting all apps to fsync(2) files under the right
-> circumstances is not reasonable.  There are "normal" circumstances where
-> someone expects non-syncing behavior of "cat foo bar > foobar", and then
-> there are extentuating circumstances where another expects the shell to
-> sync that command immediately.  Should we rewrite cat/bash/apps to all
-> fsync, depending on an option?  Should we expect people to modify all
-> their shell scripts to include "/bin/sync" for those times when they
-> want data-sync?  Such is not scalable at all.
-
-Not-scalable is doing 5000 seeks to write a 4MB file.  
-
-The behaviour you are talking about now, "cat foo bar > foobar" and
-expecting it to be intact on return, is *not the same thing*.  The
-sync mount option is there to order metadata writes for predictable
-recovery of the directory structure.  In the "cat" case, nobody cares
-what the inode is like during the write.  All that is desired in that
-example is fsync-on-close, and it is insane to implement
-fsync-on-close by writing every single block of the file
-synchronously.
-
-At ALS, an ext3 user asked why ext3 performance was entirely unusable
-under mount -o sync (he had a broken config which accidentally set an
-ext3 mount synchronous), whereas ext2 was OK.  I only realised
-afterwards that this was because of ext3's ordered data writes:
-whereas ext2 was just syncing the inodes and indirect blocks on write,
-ext3 was syncing the data too as part of the ordered data guarantees,
-and performance was totally destroyed by the extra seeks.
-
-"sync to keep the fs structures intact" and "sync to keep this file
-intact" are two totally different things.  In the latter case, we only
-care about the file contents as a whole, so fsync-on-close is far more
-appropriate.  If we want that, lets add it as a new option, but I
-don't see the benefit in making o- sync do all file data writes 100%
-synchronously.
+When we are sure that the code is stable, the whole message can go. It
+is really just reporting a server error. As long as we handle it
+correctly, there should be no need to churn out all these printks.
 
 Cheers,
- Stephen
+  Trond

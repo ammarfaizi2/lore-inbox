@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279748AbRJYKP5>; Thu, 25 Oct 2001 06:15:57 -0400
+	id <S279749AbRJYKRR>; Thu, 25 Oct 2001 06:17:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279747AbRJYKPr>; Thu, 25 Oct 2001 06:15:47 -0400
-Received: from [213.236.192.200] ([213.236.192.200]:34725 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S279748AbRJYKPg>; Thu, 25 Oct 2001 06:15:36 -0400
-Message-ID: <009901c15d3e$71e96040$6ac0ecd5@dead2>
-From: "Dead2" <dead2@circlestorm.org>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110241605020.12884-100000@oceanic.wsisiz.edu.pl> <20011025112752.A4795@suse.de> <007101c15d3a$c6ae90e0$6ac0ecd5@dead2>
-Subject: Re: Asus CUV-266-D vs Intel NIC (also MSI-6321)
-Date: Thu, 25 Oct 2001 12:18:50 +0200
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S279747AbRJYKRI>; Thu, 25 Oct 2001 06:17:08 -0400
+Received: from p32-max14.syd.ihug.com.au ([203.173.154.32]:30217 "EHLO
+	bugger.jampot.org") by vger.kernel.org with ESMTP
+	id <S279749AbRJYKQw>; Thu, 25 Oct 2001 06:16:52 -0400
+Message-ID: <3BD7E51C.6030304@ihug.com.au>
+Date: Thu, 25 Oct 2001 20:10:36 +1000
+From: Cyrus <cyjamten@ihug.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011020
+X-Accept-Language: en-us
+MIME-Version: 1.0
+Newsgroups: alt.os.linux.slackware,alt.os.linux,linux.dev.kernel
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: dmesg.... hdc: CHECK for good STATUS?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tested now with another motherboard with the same results.
+hi all,
 
-MSI 6321 Pro 1.0
+just upgraded to kernel 2.4.13... well, in any case i still get this 
+message on 2.4.12 and ac patches after 2.4.12 as well....
 
-Both these motherboards use VIA dual-cpu chipsets.
+just a question i don't know what it means... hdc is a dvd-rom drive i 
+used to use scsi emulation on it and it seems on kernel 2.4.13... it 
+crashes my box... couldn't log onto it from another machine to shutdown 
+properly... by i mean crashes, X just freezes.. i'm tryind to omit the 
+scsi-emu now and try it as a normal ide device and tune it with 
+hdparm... still the same message...
 
-Same results with 2.4.13-Pre6 on both motherboards.
-I'm running out of ideas now..
+Another thing, for dvd playing in linux. is it better to use hdparm or 
+scsi-emu... i'm pretty new with dvd's in linux so i'm asking for a few 
+pointers as well as kernel configuration options and such...
 
--=Dead2=-
+cheers all!
 
------ Original Message -----
-From: "Dead2" <dead2@circlestorm.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: 25 October, 2001 11:52 AM
-Subject: Asus CUV-266-D vs Intel NIC
+thanks!
 
 
-> I have an Asus CUV266-d motherboard, and want to use my Intel NIC's..
->
-> 2.4.10 & 2.4.12 hangs while "Setting up routing"
-> No error messages appear.
->
-> 2.4.x(4 maybe?) has both officail Intel drivers and the tulip drivers.
-> When loading the tulip, it hangs just like with todays kernels.
-> When loading the Intel driver, everything works just fine for a short
-> while..
-> 20-40seconds I guess.. Then the computer hangs.
->
-> When not loading any NIC drivers, everything works just fine.
->
-> The NIC's i've tried are named "Intel(R) PRO/100+ Dual Port Server
-Adapter"
-> Have also tried a "Intel(R) PRO/100+ Adapter"
->
-> Any ideas of what to test?
-> I have the latest bios and have tried just about all bios settings.
-> 'noapic' doesn't help.
->
-> -=Dead2=-
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+cyrus
+
+-- 
+
+
+Cyrus Santos
+
+Registered Linux User # 220455
+Sydney, Australia
+
+"...the best things in life are free...."
 
 

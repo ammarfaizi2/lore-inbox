@@ -1,62 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVCVHSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVCVHS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbVCVHSw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:18:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262210AbVCVHSw
+	id S261970AbVCVHS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVCVHS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:18:52 -0500
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:46225 "HELO
+	Tue, 22 Mar 2005 02:18:59 -0500
+Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:49297 "HELO
 	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262060AbVCVHSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 02:18:49 -0500
+	id S261970AbVCVHSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 02:18:50 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Kenan Esau <kenan.esau@conan.de>
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-Date: Tue, 22 Mar 2005 02:13:45 -0500
+Subject: [PATCH 1/4] Lifebook: dmi on x86 only
+Date: Tue, 22 Mar 2005 02:14:55 -0500
 User-Agent: KMail/1.7.2
 Cc: harald.hoyer@redhat.de, linux-input@atrey.karlin.mff.cuni.cz,
        linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <20050217194217.GA2458@ucw.cz> <d120d500050321065261ee815c@mail.gmail.com> <1111419068.8079.15.camel@localhost>
-In-Reply-To: <1111419068.8079.15.camel@localhost>
+References: <20050217194217.GA2458@ucw.cz> <1111419068.8079.15.camel@localhost> <200503220213.46375.dtor_core@ameritech.net>
+In-Reply-To: <200503220213.46375.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200503220213.46375.dtor_core@ameritech.net>
+Message-Id: <200503220214.55379.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 March 2005 10:31, Kenan Esau wrote:
-> Am Montag, den 21.03.2005, 09:52 -0500 schrieb Dmitry Torokhov:
-> > 
-> > There are couple of things that I an concerned with:
-> > 
-> > 1. I don't like that it overrides meaning of max_proto parameter to be
-> > exactly the protocol specified. 
-> 
-> Yeah -- I agree. I also don't like that double-meaning. That was the
-> reason why I originally proposed the use of a new parameter...
-> 
+===================================================================
 
-Ok, I have some patches to lifebook that I would like to included (if
-they work):
+Input: lifebook - DMI facility is only available on i386, do not
+       attempt to compile on anything else.
 
-1. lifebook-dmi-x86-only - do not compile in DMI detection on anything
-   but x86.
-   
-2. lifebook-cleanup - do not set rate/resolution nor enable the device
-   in lifebook initialization routines, let psmouse code do it for us.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-3. lifebook-init - rearrange initialization code to be more like other
-   protocols to ease dynamic protocol switching.
 
-4. psmouse-proto-attr - expose protocol as a sysfs attribute and allow
-   changing it from userspace.
+ lifebook.c |   16 +++++++++++-----
+ 1 files changed, 11 insertions(+), 5 deletions(-)
 
-Please give it a try and let me know if it does/does not work.
-
-Thanks!
-
--- 
-Dmitry
+Index: dtor/drivers/input/mouse/lifebook.c
+===================================================================
+--- dtor.orig/drivers/input/mouse/lifebook.c
++++ dtor/drivers/input/mouse/lifebook.c
+@@ -15,17 +15,17 @@
+ #include <linux/input.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
+-#include <linux/dmi.h>
+ 
+ #include "psmouse.h"
+ #include "lifebook.h"
+ 
+ static int max_y = 1024;
+ 
+-
++#if defined(__i386__)
++#include <linux/dmi.h>
+ static struct dmi_system_id lifebook_dmi_table[] = {
+        {
+-               .ident = "Fujitsu Siemens Lifebook B-Sereis",
++               .ident = "Lifebook",
+                .matches = {
+                        DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK B Series"),
+                },
+@@ -33,6 +33,13 @@ static struct dmi_system_id lifebook_dmi
+        { }
+ };
+ 
++static inline int lifebook_check_dmi(void)
++{
++        return dmi_check_system(lifebook_dmi_table) ? 0 : -1;
++}
++#else
++static inline int lifebook_check_dmi(void) { return -1; }
++#endif
+ 
+ static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
+ {
+@@ -102,8 +109,7 @@ static void lifebook_disconnect(struct p
+ int lifebook_detect(struct psmouse *psmouse, unsigned int max_proto, 
+                     int set_properties)
+ {
+-        if (!dmi_check_system(lifebook_dmi_table) && 
+-            (max_proto != PSMOUSE_LIFEBOOK) )
++        if (lifebook_check_dmi() && max_proto != PSMOUSE_LIFEBOOK)
+                 return -1;
+ 
+ 	if (set_properties) {

@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbUKVFlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbUKVFuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbUKVFlU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 00:41:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUKVFlU
+	id S261929AbUKVFuH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 00:50:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbUKVFuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 00:41:20 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:10249 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261921AbUKVFlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 00:41:18 -0500
-Date: Mon, 22 Nov 2004 05:41:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Peter T. Breuer" <ptb@lab.it.uc3m.es>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: can kfree sleep?
-Message-ID: <20041122054112.GA15773@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Peter T. Breuer" <ptb@lab.it.uc3m.es>,
-	linux-kernel@vger.kernel.org
-References: <20041121211451.GA12826@infradead.org> <200411212230.iALMUcC17182@inv.it.uc3m.es>
+	Mon, 22 Nov 2004 00:50:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65028 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261929AbUKVFuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 00:50:01 -0500
+Date: Mon, 22 Nov 2004 06:49:59 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] Use -ffreestanding? (fwd)
+Message-ID: <20041122054959.GI3007@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411212230.iALMUcC17182@inv.it.uc3m.es>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 11:30:38PM +0100, Peter T. Breuer wrote:
-> In article <20041121211451.GA12826@infradead.org> you wrote:
-> > On Sun, Nov 21, 2004 at 01:10:38PM -0800, Andrew Morton wrote:
-> > > Nope.  All memory freeing codepaths are atomic and may be called from any
-> > > context except NMI handlers.
-> > 
-> > Not true for vfree()
-> 
-> My interest at the moment is in what can sleep and what cannot sleep.
-> Are you saying that vfree can sleep or that vfree cannot be called from
-> at least one other context in addition to the NMI handler context (from
-> which it cannot be called ...)?
+Hi Andrew,
 
-vfree can't sleep, but it can't be called from every context.
+for the kernel, it would be logical to use -ffreestanding. The kernel is 
+not a hosted environment with a standard C library.
+
+Linus agreed that it would make sense.
+
+The gcc option -ffreestanding is supported by both gcc 2.95 and 3.4, 
+which covers the whole range of currently supported compilers.
+
+Could you add the patch below to the next -mm to see whether there are 
+any problems I didn't find?
+
+TIA
+Adrian
+
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm4-full-ffreestanding/Makefile.old	2004-11-09 22:27:06.000000000 +0100
++++ linux-2.6.10-rc1-mm4-full-ffreestanding/Makefile	2004-11-09 22:27:47.000000000 +0100
+@@ -349,7 +349,8 @@
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+ CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
+-	  	   -fno-strict-aliasing -fno-common
++	  	   -fno-strict-aliasing -fno-common \
++		   -ffreestanding
+ AFLAGS		:= -D__ASSEMBLY__
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION LOCALVERSION KERNELRELEASE \
+
+
 
